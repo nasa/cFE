@@ -1,0 +1,3 @@
+*.h linguist-language=c
+*.htm linguist-documentation=true
+*.html linguist-documentation=true
