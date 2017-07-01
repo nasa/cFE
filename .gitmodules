@@ -1,0 +1,3 @@
+[submodule "osal"]
+	path = osal
+	url = https://github.com/nasa/osal.git
