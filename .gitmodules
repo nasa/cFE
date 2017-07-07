@@ -37,3 +37,6 @@
 [submodule "apps/sch"]
 	path = apps/sch
 	url = https://github.com/nasa/SCH.git
+[submodule "apps/cfs_lib"]
+	path = apps/cfs_lib
+	url = https://github.com/nasa/cfs_lib.git
