@@ -40,3 +40,12 @@
 [submodule "apps/cfs_lib"]
 	path = apps/cfs_lib
 	url = https://github.com/nasa/cfs_lib.git
+[submodule "apps/to"]
+	path = apps/to
+	url = git@github.com:nasa/CFS_TO.git
+[submodule "apps/ci"]
+	path = apps/ci
+	url = git@github.com:nasa/CFS_CI.git
+[submodule "apps/io_lib"]
+	path = apps/io_lib
+	url = git@github.com:nasa/CFS_IO_LIB.git
