@@ -8,16 +8,16 @@ The official releases are tagged and assigned a version number. Applications (in
 
 This repository is intend to:
 * help foster a larger community of cFS users
-* allow easier distribution of cFS to the public users
-* provide a way for the public users to submit issues
+* allow easier distribution of cFS
+* provide a way for users to submit issues for suspected bugs
 
 Active development of cFS is not performed with this repository. We are working on ways to improve communication between public users and developers (for now use GitHub's issue tracker here). We are also looking into ways to better keep the public abreast of cFS development.
 
-## More Information
+## Getting Help
+
+The cFS community page ([http://coreflightsystem.org](http://coreflightsystem.org)) should be your first stop for getting help. Please post questions to the [Q&A section](http://coreflightsystem.org/questions/). There is also a [forum](http://coreflightsystem.org/forums/) for more general discussions.
 
 Official cFS page: [http://cfs.gsfc.nasa.gov](http://cfs.gsfc.nasa.gov)
-
-Community cFS page: [http://coreflightsystem.org](http://coreflightsystem.org)
 
 ## Setup
 
@@ -25,7 +25,7 @@ We suggest that users fork the repositories included here and modify as needed f
 
 To setup cFS directly from the latest release:
 
-    git clone --branch 6.5.0a https://github.com/nasa/cFE.git
+    git clone https://github.com/nasa/cFE.git
     cd cFE
     git submodule init
     git submodule update
