@@ -8,7 +8,7 @@ This is a collection of services and associated framework to be located in the `
 
 cFE 6.6.0a is released under the Apache 2.0 license, see [LICENSE](LICENSE-18128-Apache-2_0.pdf).
 
-Additional release notes are found in [release notes](docs/cFE_release_notes.md).  See the [version description document](docs/cFE_6_6_0_version_description.md) for the full version description document.  Test results can be found in [test results](test-and-ground/test-review-packages/Results).  This is a point release from major development work currently being performed on an internal repository.
+Additional release notes are found in [release notes](docs/cFE_release_notes.md).  See the [version description document](docs/cFE_6_6_0_version_description.pdf) for the full version description document.  Test results can be found in [test results](test-and-ground/test-review-packages/Results).  This is a point release from major development work currently being performed on an internal repository.
 
 ## Known issues
 
