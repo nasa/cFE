@@ -1,0 +1,1323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    GSC-18128-1, "Core Flight Executive Version 6.6"
+
+    Copyright (c) 2006-2019 United States Government as represented by
+    the Administrator of the National Aeronautics and Space Administration.
+    All Rights Reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+      
+    This document adheres to the Electronic Data Sheet (EDS) XML schema 
+    as prescribed in CCSDS book 876.0. 
+      
+    Purpose: 
+      This describes all interface objects for the Event Services (CFE_EVS)
+      core application 
+      
+-->
+<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Namespace name="CFE_EVS" shortDescription="NASA Core Flight System Event Services">
+    <DataTypeSet>
+      
+      <EnumeratedDataType name="MsgFormat" shortDescription="Identifies format of log messages">
+        <EnumerationList>
+          <Enumeration label="SHORT" value="0" shortDescription="Short Format Log Messages" />
+          <Enumeration label="LONG" value="1" shortDescription="Long Format Log Messages" />
+        </EnumerationList>
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+      </EnumeratedDataType>
+    
+      <EnumeratedDataType name="LogMode" shortDescription="Identifies handling of log messages after storage is filled" >
+        <EnumerationList>
+          <Enumeration label="OVERWRITE" value="0" shortDescription="Overwrite Log Mode" />
+          <Enumeration label="DISCARD" value="1" shortDescription="Discard Log Mode" />
+        </EnumerationList>
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+      </EnumeratedDataType>
+    
+      <EnumeratedDataType name="EventType" shortDescription="Identifies type of event message" >
+        <EnumerationList>
+          <Enumeration label="DEBUG" value="1" shortDescription="Events that are intended only for debugging, not nominal operations" />
+          <Enumeration label="INFORMATION" value="2" shortDescription="Events that identify a state change or action that is not an error" />
+          <Enumeration label="ERROR" value="3" shortDescription="Events that identify an error but are not catastrophic (e.g. - bad command" />
+          <Enumeration label="CRITICAL" value="4" shortDescription="Events that identify errors that are unrecoverable autonomously" />
+        </EnumerationList>
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+      </EnumeratedDataType>
+      
+      <EnumeratedDataType name="EventFilter" shortDescription="Identifies event filter schemes" >
+        <EnumerationList>
+          <Enumeration label="BINARY" value="0" shortDescription="Binary event filter" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <EnumeratedDataType name="EventOutput" shortDescription="Identifies event output port" >
+        <EnumerationList>
+          <Enumeration label="PORT1" value="1" shortDescription="Output Port 1" />
+          <Enumeration label="PORT2" value="2" shortDescription="Output Port 2" />
+          <Enumeration label="PORT3" value="3" shortDescription="Output Port 3" />
+          <Enumeration label="PORT4" value="4" shortDescription="Output Port 4" />
+        </EnumerationList>
+      </EnumeratedDataType>
+        
+      <StringDataType name="EventMessage" length="${CFE_MISSION/EVS_MAX_MESSAGE_LENGTH}" shortDescription="Event Message Text" />
+
+      <ContainerDataType name="LogFileCmd_Payload" shortDescription="Write Event Log to File Command">
+        <LongDescription>
+          For command details, see #CFE_EVS_FILE_WRITE_LOG_DATA_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="LogFilename" type="BASE_TYPES/PathName" shortDescription="Filename where log data is to be written" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AppDataCmd_Payload" shortDescription="Write Event Services Application Information to File Command">
+        <LongDescription>
+          For command details, see #CFE_EVS_FILE_WRITE_APP_DATA_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="AppDataFilename" type="BASE_TYPES/PathName" shortDescription="Filename where applicaton data is to be written" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetLogMode_Payload" shortDescription="Set Log Mode Commands">
+        <LongDescription>
+          For command details, see #CFE_EVS_SET_LOG_MODE_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="LogMode" type="LogMode" shortDescription="Mode to use in the command" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetEventFormatMode_Payload" shortDescription="Set Event Format Commands">
+        <LongDescription>
+          For command details, see #CFE_EVS_SET_EVENT_FORMAT_MODE_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="MsgFormat" type="MsgFormat" shortDescription="Format to use in the command" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="BitMaskCmd_Payload" shortDescription="Enable/Disable Events or Ports Commands">
+        <LongDescription>
+          For command details, see #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_DISABLE_EVENT_TYPE_CC,
+          #CFE_EVS_ENABLE_PORTS_CC and/or #CFE_EVS_DISABLE_PORTS_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="BitMask" type="BASE_TYPES/uint8" shortDescription="BitMask to use in the command" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AppNameCmd_Payload" shortDescription="Enable/Disable Application Events or Reset One or All Filter Counters">
+        <LongDescription>
+          For command details, see #CFE_EVS_ENABLE_APP_EVENTS_CC, #CFE_EVS_DISABLE_APP_EVENTS_CC,
+          #CFE_EVS_RESET_APP_COUNTER_CC and/or #CFE_EVS_RESET_ALL_FILTERS_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="Application name to use in the command" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AppNameEventIDCmd_Payload" shortDescription="Reset an Event Filter for an Application">
+        <LongDescription>
+          For command details, see #CFE_EVS_RESET_FILTER_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="Application name to use in the command" />
+          <Entry name="EventID" type="BASE_TYPES/uint16" shortDescription="Event ID  to use in the command" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AppNameBitMaskCmd_Payload" shortDescription="Enable/Disable an Event Type for an Application">
+        <LongDescription>
+          For command details, see #CFE_EVS_ENABLE_APP_EVENT_TYPE_CC and/or #CFE_EVS_DISABLE_APP_EVENT_TYPE_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="Application name to use in the command" />
+          <Entry name="BitMask" type="BASE_TYPES/uint8" shortDescription="BitMask to use in the command" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AppNameEventIDMaskCmd_Payload" shortDescription="Set, Add or Delete an Event Filter for an Application">
+        <LongDescription>
+          For command details, see #CFE_EVS_SET_FILTER_CC, #CFE_EVS_ADD_EVENT_FILTER_CC
+          and/or #CFE_EVS_DELETE_EVENT_FILTER_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="Application name to use in the command" />
+          <Entry name="EventID" type="BASE_TYPES/uint16" shortDescription="Event ID  to use in the command" />
+          <Entry name="Mask" type="BASE_TYPES/uint16" shortDescription="Mask to use in the command" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AppTlmData">
+        <EntryList>
+          <Entry name="AppID" type="BASE_TYPES/uint32" shortDescription="Numerical application identifier">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_APPID
+            </LongDescription>
+          </Entry>
+          <Entry name="AppMessageSentCounter" type="BASE_TYPES/uint16" shortDescription="Application message sent counter">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_APPMSGSENTC
+            </LongDescription>
+          </Entry>
+          <Entry name="AppEnableStatus" type="BASE_TYPES/uint8" shortDescription="Application event service enable status">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_APPENASTAT
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ArrayDataType name="AppTlmData@CFE_ES_MAX_APPLICATIONS" dataTypeRef="AppTlmData">
+        <DimensionList>
+          <Dimension size="${CFE_MISSION/ES_MAX_APPLICATIONS}" />
+        </DimensionList>
+      </ArrayDataType>
+
+      <ContainerDataType name="HousekeepingTlm_Payload" shortDescription="Event Services Housekeeping Telemetry Packet_Payload">
+        <EntryList>
+          <Entry name="CommandCounter" type="BASE_TYPES/uint8" shortDescription="EVS Command Counter">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_CMDPC
+            </LongDescription>
+          </Entry>
+          <Entry name="CommandErrorCounter" type="BASE_TYPES/uint8" shortDescription="EVS Command Error Counter">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_CMDEC
+            </LongDescription>
+          </Entry>
+          <Entry name="MessageFormatMode" type="MsgFormat" shortDescription="Event message format mode (short/long)">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_MSGFMTMODE
+            </LongDescription>
+          </Entry>
+          <Entry name="MessageTruncCounter" type="BASE_TYPES/uint8" shortDescription="Event message truncation counter">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_MSGTRUNC
+            </LongDescription>
+          </Entry>
+          <Entry name="UnregisteredAppCounter" type="BASE_TYPES/uint8" shortDescription="Unregistered application message send counter">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_UNREGAPPC
+            </LongDescription>
+          </Entry>
+          <Entry name="OutputPort" type="BASE_TYPES/uint8" shortDescription="Output port mask">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_OUTPUTPORT
+            </LongDescription>
+          </Entry>
+          <Entry name="LogFullFlag" type="BASE_TYPES/uint8" shortDescription="Local event log full flag">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_LOGFULL
+            </LongDescription>
+          </Entry>
+          <Entry name="LogMode" type="LogMode" shortDescription="Local event logging mode (overwrite/discard)">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_LOGMODE
+            </LongDescription>
+          </Entry>
+          <Entry name="MessageSendCounter" type="BASE_TYPES/uint16" shortDescription="Event message send counter">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_MSGSENTC
+            </LongDescription>
+          </Entry>
+          <Entry name="LogOverflowCounter" type="BASE_TYPES/uint16" shortDescription="Local event log overflow counter">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_LOGOVERFLOWC
+            </LongDescription>
+          </Entry>
+          <Entry name="LogEnabled" type="BASE_TYPES/uint8" shortDescription="Current event log enable/disable state">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_LOGENABLED
+            </LongDescription>
+          </Entry>
+          <Entry name="AppData" type="AppTlmData@CFE_ES_MAX_APPLICATIONS">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_APP
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="PacketID" shortDescription="Telemetry packet structures">
+        <EntryList>
+          <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="Application name">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_APPNAME
+            </LongDescription>
+          </Entry>
+          <Entry name="EventID" type="BASE_TYPES/uint16" shortDescription="Numerical event identifier">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_EVENTID
+            </LongDescription>
+          </Entry>
+          <Entry name="EventType" type="BASE_TYPES/uint16" shortDescription="Numerical event type identifier">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_EVENTTYPE
+            </LongDescription>
+          </Entry>
+          <Entry name="SpacecraftID" type="BASE_TYPES/uint32" shortDescription="Spacecraft identifier">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_SCID
+            </LongDescription>
+          </Entry>
+          <Entry name="ProcessorID" type="BASE_TYPES/uint32" shortDescription="Numeric processor identifier">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_PROCESSORID
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="LongEventTlm_Payload" shortDescription="Event Message Telemetry Payload Long Format">
+        <EntryList>
+          <Entry name="PacketID" type="PacketID" shortDescription="Event packet information" />
+          <Entry name="Message" type="EventMessage" shortDescription="Event message string">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_EVENT
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ShortEventTlm_Payload" shortDescription="Event Message Telemetry Payload Short Format">
+        <EntryList>
+          <Entry name="PacketID" type="PacketID" shortDescription="Event packet information" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="CommandBase" baseType="CCSDS/CommandPacket" shortDescription="Base type for all Event Services commands">
+      </ContainerDataType>
+
+      <ContainerDataType name="HousekeepingTlm" baseType="CCSDS/TelemetryPacket" shortDescription="Event Services Housekeeping Telemetry">
+        <EntryList>
+          <Entry type="HousekeepingTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="LongEventTlm" baseType="CCSDS/TelemetryPacket" shortDescription="Event Services Event Message">
+        <EntryList>
+          <Entry type="LongEventTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ShortEventTlm" baseType="CCSDS/TelemetryPacket" shortDescription="Event Services Event Message">
+        <EntryList>
+          <Entry type="ShortEventTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="Noop" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Event Services No-Op
+
+          \par  Description
+          This command performs no other function than to increment the
+          command execution counter. The command may be used to verify
+          general aliveness of the Event Services task.
+          \cfecmdmnemonic  \EVS_NOOP
+
+          \par  Command Structure
+          #CFE_TBL_NoArgsCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will increment
+          - The #CFE_EVS_NOOP_EID informational event message will be generated
+
+          \par  Error Conditions
+          There are no error conditions for this command. If the Event
+          Services receives the command, the event is sent (although it
+          may be filtered by EVS itself) and the counter is incremented
+          unconditionally.
+
+          \par  Criticality
+          None
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="0" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="ResetCounters" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Event Services Reset Counters
+
+          \par  Description
+          This command resets the following counters within the Event
+          Services housekeeping telemetry:
+          - Command Execution Counter (\EVS_CMDPC)
+          - Command Error Counter (\EVS_CMDEC)
+          \cfecmdmnemonic  \EVS_RESETCTRS
+
+          \par  Command Structure
+          #CFE_TBL_NoArgsCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The #CFE_EVS_RSTCNT_EID debug event message will be
+          generated
+
+          \par  Error Conditions
+          There are no error conditions for this command. If the Event
+          Services receives the command, the event is sent (although it
+          may be filtered by EVS) and the counter is incremented
+          unconditionally.
+
+          \par  Criticality
+          This command is not inherently dangerous.  However, it is
+          possible for ground systems and on-board safing procedures
+          to be designed such that they react to changes in the counter
+          values that are reset by this command.
+
+          \sa  #CFE_EVS_RESET_APP_COUNTER_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="1" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="EnableEventType" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Enable Event Type
+
+          \par  Description
+          This command enables the command specified Event Type allowing event
+          messages of this type to be sent through Event Service.  An Event Type
+          is defined to be a classification of an Event Message such as debug,
+          informational, error and critical. This command is a global enable of a
+          particular event type, it applies to all applications.
+          \cfecmdmnemonic  \EVS_ENAEVENTTYPE
+
+          \par  Command Structure
+          #CFE_EVS_BitMaskCmd_t
+          The following bit positions apply to structure member named 'BitMask'.
+          Bit 0 - Debug
+          Bit 1 - Informational
+          Bit 2 - Error
+          Bit 3 - Critical
+          A one in a bit position means the event type will be enabled (or unfiltered).
+          A zero in a bit position means the filtering state is unchanged.
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of  #CFE_EVS_ENAEVTTYPE_EID debug message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          Invalid Event Type selection
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Enabling an event type is not particularly hazardous, as the result may
+          be turning on necessary event messages and communication to the ground
+          system.  However, inappropriately enabling an event type could result
+          in flooding of the system.
+
+          \sa  #CFE_EVS_DISABLE_EVENT_TYPE_CC, #CFE_EVS_ENABLE_APP_EVENT_TYPE_CC,
+          #CFE_EVS_DISABLE_APP_EVENT_TYPE_CC, #CFE_EVS_ENABLE_APP_EVENTS_CC, #CFE_EVS_DISABLE_APP_EVENTS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="2" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="BitMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DisableEventType" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Disable Event Type
+
+          \par  Description
+          This command disables the command specified Event Type preventing event
+          messages of this type to be sent through Event Service.   An Event Type
+          is defined to be a classification of an Event Message such as debug,
+          informational, error and critical. This command is a global disable of a
+          particular event type, it applies to all applications.
+          \cfecmdmnemonic  \EVS_DISEVENTTYPE
+
+          \par  Command Structure
+          #CFE_EVS_BitMaskCmd_t
+          The following bit positions apply to structure member named 'BitMask'.
+          Bit 0 - Debug
+          Bit 1 - Informational
+          Bit 2 - Error
+          Bit 3 - Critical
+          A one in a bit position means the event type will be disabled (or filtered).
+          A zero in a bit position means the filtering state is unchanged.
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_DISEVTTYPE_EID debug message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid Event Type selection
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Disabling an event type is not particularly hazardous, as the result
+          may be shutting off unnecessary event messages and possible event
+          flooding of the system.  However, inappropriately disabling an event
+          type could result in a loss of critical information and missed
+          behavior for the ground system.
+
+          \sa  #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_ENABLE_APP_EVENT_TYPE_CC,
+          #CFE_EVS_DISABLE_APP_EVENT_TYPE_CC, #CFE_EVS_ENABLE_APP_EVENTS_CC, #CFE_EVS_DISABLE_APP_EVENTS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="3" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="BitMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetEventFormatMode" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Set Event Format Mode
+
+          \par  Description
+          This command sets the event format mode to the command specified value.
+          The event format mode may be either short or long.  A short event format
+          detaches the Event Data from the event message and only includes the
+          following information in the event packet: Processor ID, Application ID,
+          Event ID, and Event Type.  Refer to section 5.3.3.4 for a description of
+          the Event Service event packet contents.  Event Data is defined to be data
+          describing an Event that is supplied to the cFE Event Service.  ASCII text
+          strings are used as the primary format for Event Data because heritage
+          ground systems use string compares as the basis for their automated alert
+          systems.  Two systems, ANSR and SERS were looked at for interface
+          definitions.  The short event format is used to accommodate experiences
+          with limited telemetry bandwidth.  The long event format includes all event
+          information included within the short format along with the Event Data.
+          \cfecmdmnemonic  \EVS_SETEVTFMT
+
+          \par  Command Structure
+          #CFE_EVS_ModeCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_SETEVTFMTMOD_EID debug message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          Invalid SB message (command) length
+          Invalid MODE selection
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Setting the event format mode is not particularly hazardous, as the
+          result may be saving necessary bandwidth.  However, inappropriately
+          setting the event format mode could result in a loss of information
+          and missed behavior for the ground system
+          \sa
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="4" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="SetEventFormatMode_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="EnableAppEventType" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Enable Application Event Type
+
+          \par  Description
+          This command enables the command specified event type for the command
+          specified application, allowing the application to send event messages
+          of the command specified event type through Event Service.  An Event
+          Type is defined to be a classification of an Event Message such as
+          debug, informational, critical, and error.
+          Note: In order for this command to take effect, applications must be
+          registered for Event Service.
+          \cfecmdmnemonic  \EVS_ENAAPPEVTTYPE
+
+          \par  Command Structure
+          #CFE_EVS_AppNameBitMaskCmd_t
+          The following bit positions apply to structure member named 'BitMask'.
+          Bit 0 - Debug
+          Bit 1 - Informational
+          Bit 2 - Error
+          Bit 3 - Critical
+          A one in a bit position means the event type will be enabled (or
+          unfiltered) for the specified application.
+          A zero in a bit position means the filtering state is unchanged for
+          the specified application.
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_ENAAPPEVTTYPE_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid Event Type Selection
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Enabling an application¿s event type is not particularly hazardous, as
+          the result may be turning on necessary event messages and
+          communication to the ground system.  However, inappropriately enabling
+          an application's event type could result in flooding of the ground system.
+
+          \sa  #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_DISABLE_EVENT_TYPE_CC,
+          #CFE_EVS_DISABLE_APP_EVENT_TYPE_CC, #CFE_EVS_ENABLE_APP_EVENTS_CC, #CFE_EVS_DISABLE_APP_EVENTS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="5" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameBitMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DisableAppEventType" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Disable Application Event Type
+
+          \par  Description
+          This command disables the command specified event type for the command
+          specified application, preventing the application from sending event
+          messages of the command specified event type through Event Service.
+          An Event Type is defined to be a classification of an Event Message such
+          as debug, informational, critical, and error.  Note: In order for this
+          command to take effect, applications must be registered for Event Service.
+          \cfecmdmnemonic  \EVS_DISAPPEVTTYPE
+
+          \par  Command Structure
+          #CFE_EVS_AppNameBitMaskCmd_t
+          The following bit positions apply to structure member named 'BitMask'.
+          Bit 0 - Debug
+          Bit 1 - Informational
+          Bit 2 - Error
+          Bit 3 - Critical
+          A one in a bit position means the event type will be disabled (or
+          filtered) for the specified application.
+          A zero in a bit position means the filtering state is unchanged for
+          the specified application.
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will increment
+          - The generation of #CFE_EVS_DISAPPENTTYPE_EID debug event message
+          - The clearing of the Active Flag in \link #CFE_EVS_AppDataFile_t::ActiveFlag \endlink The Active Flag in EVS App Data File
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid Event Type Selection
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Disabling an application's event type is not particularly hazardous,
+          as the result may be shutting off unnecessary event messages and
+          possible event flooding of the system.  However, inappropriately
+          disabling an application's event type could result in a loss of critical
+          information and missed behavior for the ground system.
+
+          \sa  #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_DISABLE_EVENT_TYPE_CC, #CFE_EVS_ENABLE_APP_EVENT_TYPE_CC,
+          #CFE_EVS_ENABLE_APP_EVENTS_CC, #CFE_EVS_DISABLE_APP_EVENTS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="6" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameBitMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="EnableAppEvents" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Enable Event Services for an Application
+
+          \par  Description
+          This command enables the command specified application to send events
+          through the Event Service.  Note: In order for this command to take
+          effect, applications must be registered for Event Service.
+          \cfecmdmnemonic  \EVS_ENAAPPEVGEN
+
+          \par  Command Structure
+          #CFE_EVS_AppNameCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_ENAAPPEVT_EID debug event message
+          - The setting of the Active Flag in \link #CFE_EVS_AppDataFile_t::ActiveFlag \endlink The Active Flag in EVS App Data File
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Application selected is not registered to receive Event Service
+          - Application ID is out of range
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Enabling an application¿s events is not particularly hazardous,
+          as the result may be turning on necessary event messages and
+          communication to the ground system.  However, inappropriately enabling
+          an application's events could result in flooding of the ground system.
+
+          \sa  #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_DISABLE_EVENT_TYPE_CC, #CFE_EVS_ENABLE_APP_EVENT_TYPE_CC,
+          #CFE_EVS_DISABLE_APP_EVENT_TYPE_CC, #CFE_EVS_DISABLE_APP_EVENTS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="7" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DisableAppEvents" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Disable Event Services for an Application
+
+          \par  Description
+          This command disables the command specified application from sending
+          events through Event Service.  Note: In order for this command to take
+          effect, applications must be registered for Event Service.
+          \cfecmdmnemonic  \EVS_DISAPPEVGEN
+
+          \par  Command Structure
+          #CFE_EVS_AppNameCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_DISAPPEVT_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Application selected is not registered to receive Event Service
+          - Application ID is out of range
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Disabling an application's events is not particularly hazardous, as the
+          result may be shutting off unnecessary event messages and possible event
+          flooding of the system.  However, inappropriately disabling an
+          application's events could result in a loss of critical information and
+          missed behavior for the ground system.
+
+          \sa  #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_DISABLE_EVENT_TYPE_CC, #CFE_EVS_ENABLE_APP_EVENT_TYPE_CC,
+          #CFE_EVS_DISABLE_APP_EVENT_TYPE_CC, #CFE_EVS_ENABLE_APP_EVENTS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="8" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ResetAppCounter" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Reset Application Event Counters
+
+          \par  Description
+          This command sets the command specified application's event counter to zero.
+          Note: In order for this command to take effect, applications must be registered
+          for Event Service.
+          \cfecmdmnemonic  \EVS_RSTAPPCTRS
+
+          \par  Command Structure
+          #CFE_EVS_AppNameCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will increment
+          - The generation of #CFE_EVS_RSTEVTCNT_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Application selected is not registered to receive Event Service
+          - Application ID is out of range
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          This command is not inherently dangerous.  However, it is possible for
+          ground systems and on-board safing procedures to be designed such that
+          they react to changes in the counter value that is reset by this command.
+
+          \sa  #CFE_EVS_RESET_COUNTERS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="9" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetFilter" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Set Application Event Filter
+
+          \par  Description
+          This command sets the command specified application's event filter mask
+          to the command specified value for the command specified event.  Note:
+          In order for this command to take effect, applications must be
+          registered for Event Service.
+          \cfecmdmnemonic  \EVS_SETBINFLTRMASK
+
+          \par  Command Structure
+          #CFE_EVS_AppNameEventIDMaskCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will increment
+          - The generation of #CFE_EVS_SETFILTERMSK_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Application selected is not registered to receive Event Service
+          - Application ID is out of range
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Setting an application¿s event filter mask is not particularly hazardous,
+          as the result may be shutting off unnecessary event messages and possible
+          event flooding of the system.  However, inappropriately setting an
+          application's event filter mask could result in a loss of critical
+          information and missed behavior for the ground system or flooding of the
+          ground system.
+
+          \sa  #CFE_EVS_RESET_FILTER_CC, #CFE_EVS_RESET_ALL_FILTERS_CC, #CFE_EVS_ADD_EVENT_FILTER_CC, #CFE_EVS_DELETE_EVENT_FILTER_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="10" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameEventIDMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="EnablePorts" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Enable Event Services Output Ports
+
+          \par  Description
+          This command enables the command specified port to output event messages
+          \cfecmdmnemonic  \EVS_ENAPORT
+
+          \par  Command Structure
+          #CFE_EVS_BitMaskCmd_t
+          The following bit positions apply to structure member named 'BitMask'.
+          Bit 0 - Port 1
+          Bit 1 - Port 2
+          Bit 2 - Port 3
+          Bit 3 - Port 4
+          A one in a bit position means the port will be enabled.
+          A zero in a bit position means the port state is unchanged.
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will increment
+          - The generation of #CFE_EVS_ENAPORT_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Invalid PORT selection
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          None.
+
+          \sa  #CFE_EVS_DISABLE_PORTS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="11" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="BitMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DisablePorts" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Disable Event Services Output Ports
+
+          \par  Description
+          This command disables the specified port from outputting event messages.
+          \cfecmdmnemonic  \EVS_DISPORT
+
+          \par  Command Structure
+          #CFE_EVS_BitMaskCmd_t
+          The following bit positions apply to structure member named 'BitMask'.
+          Bit 0 - Port 1
+          Bit 1 - Port 2
+          Bit 2 - Port 3
+          Bit 3 - Port 4
+          A one in a bit position means the port will be disabled.
+          A zero in a bit position means the port state is unchanged.
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_DISPORT_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Invalid PORT selection
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          None.
+
+          \sa  #CFE_EVS_ENABLE_PORTS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="12" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="BitMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ResetFilter" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Reset an Event Filter for an Application
+
+          \par  Description
+          This command resets the command specified application's event filter for
+          the command specified event ID.  Note: In order for this command to take
+          effect, applications must be registered for Event Service.
+          \cfecmdmnemonic  \EVS_RSTBINFLTRCTR
+
+          \par  Command Structure
+          #CFE_EVS_AppNameEventIDCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will increment
+          - The generation of #CFE_EVS_RSTFILTER_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Application selected is not registered to receive Event Service
+          - Application ID is out of range
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          None.
+
+          \sa  #CFE_EVS_SET_FILTER_CC, #CFE_EVS_RESET_ALL_FILTERS_CC, #CFE_EVS_ADD_EVENT_FILTER_CC, #CFE_EVS_DELETE_EVENT_FILTER_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="13" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameEventIDCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ResetAllFilters" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Reset All Event Filters for an Application
+
+          \par  Description
+          This command resets all of the command specified applications event
+          filters.  Note: In order for this command to take effect, applications
+          must be registered for Event Service.
+          \cfecmdmnemonic  \EVS_RSTALLFLTRS
+
+          \par  Command Structure
+          #CFE_EVS_AppNameCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_RSTALLFILTER_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Application selected is not registered to receive Event Service
+          - Application ID is out of range
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          None.
+
+          \sa  #CFE_EVS_SET_FILTER_CC, #CFE_EVS_RESET_FILTER_CC, #CFE_EVS_ADD_EVENT_FILTER_CC, #CFE_EVS_DELETE_EVENT_FILTER_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="14" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AddEventFilter" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Add Application Event Filter
+
+          \par  Description
+          This command adds the given filter for the given application identifier and event identifier.
+          Note: In order for this command to take effect, applications
+          must be registered for Event Service.
+          \cfecmdmnemonic  \EVS_ADDEVTFLTR
+
+          \par  Command Structure
+          #CFE_EVS_AppNameEventIDMaskCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_ADDFILTER_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Application selected is not registered to receive Event Service
+          - Application ID is out of range
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          None.
+
+          \sa  #CFE_EVS_SET_FILTER_CC, #CFE_EVS_RESET_FILTER_CC, #CFE_EVS_RESET_ALL_FILTERS_CC, #CFE_EVS_DELETE_EVENT_FILTER_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="15" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameEventIDMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DeleteEventFilter" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Delete Application Event Filter
+
+          \par  Description
+          This command removes the given filter for the given application identifier and event identifier.
+          Note: In order for this command to take effect, applications
+          must be registered for Event Service.
+          \cfecmdmnemonic  \EVS_DELEVTFLTR
+
+          \par  Command Structure
+          #CFE_EVS_AppNameEventIDMaskCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_DELFILTER_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Application selected is not registered to receive Event Service
+          - Application ID is out of range
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          None.
+
+          \sa  #CFE_EVS_SET_FILTER_CC, #CFE_EVS_RESET_FILTER_CC, #CFE_EVS_RESET_ALL_FILTERS_CC, #CFE_EVS_ADD_EVENT_FILTER_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="16" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameEventIDCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="WriteAppDataFile" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Write Event Services Application Information to File
+
+          \par  Description
+          This command writes all application data to a file for all applications that
+          have registered with the EVS.  The application data includes the Application ID,
+          Active Flag, Event Count, Event Types Active Flag, and Filter Data.
+          \cfecmdmnemonic  \EVS_WRITEAPPDATA2FILE
+
+          \par  Command Structure
+          #CFE_EVS_AppDataCmd_Payload_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_WRDAT_EID debug event message
+          - The generation of the file written to
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Writing a file is not particularly hazardous, but if proper file management is not
+          taken, then the file system can fill up if this command is used repeatedly.
+
+          \sa  #CFE_EVS_FILE_WRITE_LOG_DATA_CC, #CFE_EVS_SET_LOG_MODE_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="17" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppDataCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="WriteLogDataFile" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Write Event Log to File
+
+          \par  Description
+          This command requests the Event Service to generate a file containing
+          the contents of the local event log.
+          \cfecmdmnemonic  \EVS_WRITELOG2FILE
+
+          \par  Command Structure
+          #CFE_EVS_LogFileCmd_Payload_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_WRLOG_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Writing a file is not particularly hazardous, but if proper file management is not
+          taken, then the file system can fill up if this command is used repeatedly.
+
+          \sa  #CFE_EVS_FILE_WRITE_APP_DATA_CC, #CFE_EVS_SET_LOG_MODE_CC, #CFE_EVS_CLEAR_LOG_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="18" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="LogFileCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetLogMode" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Set Logging Mode
+
+          \par  Description
+          This command sets the logging mode to the command specified value.
+          \cfecmdmnemonic  \EVS_SETLOGMODE
+
+          \par  Command Structure
+          #CFE_EVS_ModeCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+          - The generation of #CFE_EVS_LOGMODE_EID debug event message
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          - Invalid MODE selected
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Setting the event logging mode is not particularly hazardous, as the
+          result may be saving valuable event data.  However, inappropriately
+          setting the log mode could result in a loss of critical information.
+          Note: the event log is a back-up log to the on-board recorder.
+
+          \sa  #CFE_EVS_FILE_WRITE_LOG_DATA_CC, #CFE_EVS_CLEAR_LOG_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="19" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="SetLogMode_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ClearLog" baseType="CommandBase">
+        <LongDescription>
+          \cfeevscmd  Clear Event Log
+
+          \par  Description
+          This command clears the contents of the local event log.
+          \cfecmdmnemonic  \EVS_CLRLOG
+
+          \par  Command Structure
+          #CFE_TBL_NoArgsCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \EVS_CMDPC - command execution counter will
+          increment
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Invalid SB message (command) length
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \EVS_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          Clearing the local event log is not particularly hazardous, as the
+          result may be making available space to record valuable event data.
+          However, inappropriately clearing the local event log could result
+          in a loss of critical information.  Note: the event log is a back-up
+          log to the on-board recorder.
+
+          \sa  #CFE_EVS_FILE_WRITE_LOG_DATA_CC, #CFE_EVS_SET_LOG_MODE_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="20" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+    </DataTypeSet>
+    
+    <ComponentSet>
+      <Component name="Application">
+        <RequiredInterfaceSet>
+          <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">
+            <!-- This uses a common base type for all software bus application command messages -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CommandBase" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
+            <!-- This uses a bare spacepacket with no payload -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CCSDS/CommandPacket" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">
+            <!-- This publishes a message datagram of the CFE_SB/HousekeepingTlm datatype -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="HousekeepingTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="LONG_EVENT_MSG" shortDescription="Long Event Message" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="LongEventTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="SHORT_EVENT_MSG" shortDescription="Short Event Message" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="ShortEventTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+        </RequiredInterfaceSet>
+        <Implementation>
+          <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
+          <ParameterMapSet>
+            <ParameterMap interface="CMD" parameterRef="TopicId" value="${CFE_MISSION/EVS_CMD_TOPICID}" />
+            <ParameterMap interface="SEND_HK" parameterRef="TopicId" value="${CFE_MISSION/EVS_SEND_HK_TOPICID}" />
+            <ParameterMap interface="HK_TLM" parameterRef="TopicId" value="${CFE_MISSION/EVS_HK_TLM_TOPICID}" />
+            <ParameterMap interface="LONG_EVENT_MSG" parameterRef="TopicId" value="${CFE_MISSION/EVS_LONG_EVENT_MSG_TOPICID}" />
+            <ParameterMap interface="SHORT_EVENT_MSG" parameterRef="TopicId" value="${CFE_MISSION/EVS_SHORT_EVENT_MSG_TOPICID}" />
+          </ParameterMapSet>
+        </Implementation>
+      </Component>
+    </ComponentSet>
+
+  </Namespace>
+</DataSheet>

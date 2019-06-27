@@ -1,0 +1,875 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    GSC-18128-1, "Core Flight Executive Version 6.6"
+
+    Copyright (c) 2006-2019 United States Government as represented by
+    the Administrator of the National Aeronautics and Space Administration.
+    All Rights Reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+      
+    This document adheres to the Electronic Data Sheet (EDS) XML schema 
+    as prescribed in CCSDS book 876.0. 
+      
+    Purpose: 
+      This describes all interface objects for the Table Services (CFE_TBL)
+      core application 
+      
+-->
+<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Namespace name="CFE_TBL" shortDescription="NASA Core Flight System Table Services">
+    <DataTypeSet>
+    
+      <EnumeratedDataType name="BufferSelect" shortDescription="Selects the buffer to operate on for validate or dump commands">
+        <EnumerationList>
+           <Enumeration label="INACTIVE" value="0" shortDescription="Select the Inactive buffer for validate or dump" />
+           <Enumeration label="ACTIVE" value="1" shortDescription="Select the Active buffer for validate or dump" />
+        </EnumerationList>
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+      </EnumeratedDataType>
+    
+      <StringDataType name="TableName" length="${CFE_MISSION/TBL_MAX_FULL_NAME_LEN}" shortDescription="Name of a table" />
+      <StringDataType name="ObjectName" length="64" shortDescription="Name of an object within a table file" />
+
+      <ContainerDataType name="FileDef" shortDescription="Descriptor object for CFE table definition files">
+        <EntryList>
+          <Entry name="ObjectName" type="ObjectName" shortDescription="Name of instantiated variable that contains desired table image" />
+          <Entry name="TableName" type="TableName" shortDescription="Name of Table as defined onboard" />
+          <Entry name="Description" type="CFE_FS/FileDescription" shortDescription="Description of table image that is included in cFE File Header" />
+          <Entry name="TgtFilename" type="BASE_TYPES/PathName" shortDescription="Default filename to be used for output of eds2cfetbl utility" />
+          <Entry name="ObjectType" type="BASE_TYPES/ApiName" shortDescription="Data type of the instantiated variable containing the table data" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="File_Hdr" shortDescription="Header object for CFE table data files">
+        <EntryList>
+          <Entry name="Reserved" type="BASE_TYPES/uint32" shortDescription="Future Use: NumTblSegments in File?" />
+          <Entry name="Offset" type="BASE_TYPES/uint32" shortDescription="Byte Offset at which load should commence" />
+          <Entry name="NumBytes" type="BASE_TYPES/uint32" shortDescription="Number of bytes to load into table" />
+          <Entry name="TableName" type="TableName" shortDescription="Fully qualified name of table to load" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="LoadCmd_Payload" shortDescription="Load Table Command">
+        <LongDescription>
+          For command details, see #CFE_TBL_LOAD_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="LoadFilename" type="BASE_TYPES/PathName" shortDescription="Filename (and path) of data to be loaded" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DumpCmd_Payload" shortDescription="Dump Table Command">
+        <LongDescription>
+          For command details, see #CFE_TBL_DUMP_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="ActiveTableFlag" type="BufferSelect">
+            <LongDescription>
+              #CFE_TBL_BufferSelect_INACTIVE=Inactive Table,
+              #CFE_TBL_BufferSelect_ACTIVE=Active Table
+              
+              Selects either the "Inactive" (#CFE_TBL_BufferSelect_INACTIVE) buffer or the
+              "Active" (#CFE_TBL_BufferSelect_ACTIVE) buffer to be dumped
+            </LongDescription>
+          </Entry>
+          <Entry name="TableName" type="TableName" shortDescription="Full name of table to be dumped">
+            <LongDescription>
+              ASCII string containing full table name
+              identifier of table to be dumped
+            </LongDescription>
+          </Entry>
+          <Entry name="DumpFilename" type="BASE_TYPES/PathName" shortDescription="Full Filename where data is to be written" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ValidateCmd_Payload" shortDescription="Validate Table Command">
+        <LongDescription>
+          For command details, see #CFE_TBL_VALIDATE_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="ActiveTableFlag" type="BufferSelect">
+            <LongDescription>
+              #CFE_TBL_BufferSelect_INACTIVE=Inactive Table,
+              #CFE_TBL_BufferSelect_ACTIVE=Active Table
+              Selects either the "Inactive"
+              (#CFE_TBL_BufferSelect_INACTIVE) buffer or the
+              "Active" (#CFE_TBL_BufferSelect_ACTIVE) buffer
+              to be validated
+            </LongDescription>
+          </Entry>
+          <Entry name="TableName" type="TableName" shortDescription="Full Name of Table to be validated" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ActivateCmd_Payload" shortDescription="Activate Table Command">
+        <LongDescription>
+          For command details, see #CFE_TBL_ACTIVATE_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="TableName" type="TableName" shortDescription="Full Name of Table to be activated" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DumpRegistryCmd_Payload" shortDescription="Dump Registry Command">
+        <LongDescription>
+          For command details, see #CFE_TBL_DUMP_REG_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="DumpFilename" type="BASE_TYPES/PathName" shortDescription="Full Filename where dumped data is to be" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SendRegistryCmd_Payload" shortDescription="Telemeter Table Registry Entry Command">
+        <LongDescription>
+          For command details, see #CFE_TBL_TLM_REG_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="TableName" type="TableName" shortDescription="Full Name of Table whose registry entry" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DelCDSCmd_Payload" shortDescription="Delete Critical Table CDS Command">
+        <LongDescription>
+          For command details, see #CFE_TBL_DELETE_CDS_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="TableName" type="TableName" shortDescription="Full Name of Table whose CDS is to be deleted" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AbortLoadCmd_Payload" shortDescription="Abort Load Command">
+        <LongDescription>
+          For command details, see #CFE_TBL_ABORT_LOAD_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="TableName" type="TableName" shortDescription="Full Name of Table whose load is to be aborted" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="NotifyCmd_Payload" shortDescription="Table Management Notification Message">
+        <LongDescription>
+          \par  Description
+          Whenever an application that owns a table calls the #CFE_TBL_NotifyByMsg API
+          following the table registration, Table services will generate the following
+          command message with the application specified message ID, command code and
+          parameter whenever the table requires management (e.g. - loads and validations).
+        </LongDescription>
+        <EntryList>
+          <Entry name="Parameter" type="BASE_TYPES/uint32" shortDescription="Application specified command parameter" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="HousekeepingTlm_Payload" shortDescription="Table Services Housekeeping Packet">
+        <EntryList>
+          <Entry name="CommandCounter" type="BASE_TYPES/uint8" shortDescription="Count of valid commands received">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_CMDPC
+            </LongDescription>
+          </Entry>
+          <Entry name="CommandErrorCounter" type="BASE_TYPES/uint8">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_CMDEC
+            </LongDescription>
+          </Entry>
+          <Entry name="NumTables" type="BASE_TYPES/uint16" shortDescription="Number of Tables Registered">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_NUMTABLES
+            </LongDescription>
+          </Entry>
+          <Entry name="NumLoadPending" type="BASE_TYPES/uint16">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_NUMUPDATESPEND
+            </LongDescription>
+          </Entry>
+          <Entry name="ValidationCounter" type="BASE_TYPES/uint16" shortDescription="Number of completed table validations">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_VALCOMPLTDCTR
+            </LongDescription>
+          </Entry>
+          <Entry name="LastValCrc" type="BASE_TYPES/uint32" shortDescription="Data Integrity Value computed for last table validated">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTVALCRC
+            </LongDescription>
+          </Entry>
+          <Entry name="LastValStatus" type="BASE_TYPES/int32" shortDescription="Returned status from validation function for last table validated">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTVALS
+            </LongDescription>
+          </Entry>
+          <Entry name="ActiveBuffer" type="BASE_TYPES/uint8" shortDescription="Indicator of whether table buffer validated was 0=Inactive, 1=Active">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTVALBUF
+            </LongDescription>
+          </Entry>
+          <Entry name="LastValTableName" type="TableName" shortDescription="Name of last table validated">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTVALTBLNAME
+            </LongDescription>
+          </Entry>
+          <Entry name="SuccessValCounter" type="BASE_TYPES/uint8" shortDescription="Total number of successful table validations">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_VALSUCCESSCTR
+            </LongDescription>
+          </Entry>
+          <Entry name="FailedValCounter" type="BASE_TYPES/uint8" shortDescription="Total number of unsuccessful table validations">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_VALFAILEDCTR
+            </LongDescription>
+          </Entry>
+          <Entry name="NumValRequests" type="BASE_TYPES/uint8">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_VALREQCTR
+            </LongDescription>
+          </Entry>
+          <Entry name="NumFreeSharedBufs" type="BASE_TYPES/uint8" shortDescription="Number of free Shared Working Buffers">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_NUMFREESHRBUF
+            </LongDescription>
+          </Entry>
+          <Entry name="MemPoolHandle" type="BASE_TYPES/CpuAddress" shortDescription="Handle to TBL's memory pool">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_MEMPOOLHANDLE
+            </LongDescription>
+          </Entry>
+          <Entry name="LastUpdateTime" type="CFE_TIME/SysTime" shortDescription="Time of last table update">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTUPDTIME
+            </LongDescription>
+          </Entry>
+          <Entry name="LastUpdatedTable" type="TableName" shortDescription="Name of the last table updated">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTUPDTBLNAME
+            </LongDescription>
+          </Entry>
+          <Entry name="LastFileLoaded" type="BASE_TYPES/PathName" shortDescription="Path and Name of last table image file loaded">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTFILELOADED
+            </LongDescription>
+          </Entry>
+          <Entry name="LastFileDumped" type="BASE_TYPES/PathName" shortDescription="Path and Name of last file dumped to">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTFILEDUMPED
+            </LongDescription>
+          </Entry>
+          <Entry name="LastTableLoaded" type="TableName" shortDescription="Name of the last table loaded">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTTABLELOADED
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="TableRegistryTlm_Payload" shortDescription="Table Registry Info Packet">
+        <EntryList>
+          <Entry name="Size" type="BASE_TYPES/uint32" shortDescription="Size, in bytes, of Table">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_SIZE
+            </LongDescription>
+          </Entry>
+          <Entry name="Crc" type="BASE_TYPES/uint32" shortDescription="Most recently calculated CRC of Table">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_CRC
+            </LongDescription>
+          </Entry>
+          <Entry name="ActiveBufferAddr" type="BASE_TYPES/CpuAddress" shortDescription="Address of Active Buffer">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_ACTBUFADD
+            </LongDescription>
+          </Entry>
+          <Entry name="InactiveBufferAddr" type="BASE_TYPES/CpuAddress" shortDescription="Address of Inactive Buffer">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_IACTBUFADD
+            </LongDescription>
+          </Entry>
+          <Entry name="ValidationFuncPtr" type="BASE_TYPES/CpuAddress" shortDescription="Ptr to Owner App's function that validates tbl contents">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_VALFUNCPTR
+            </LongDescription>
+          </Entry>
+          <Entry name="TimeOfLastUpdate" type="CFE_TIME/SysTime" shortDescription="Time when Table was last updated">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_TIMELASTUPD
+            </LongDescription>
+          </Entry>
+          <Entry name="FileCreateTime" type="CFE_TIME/SysTime" shortDescription="File creation time from last file loaded into table">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_FILECSECONDS
+            </LongDescription>
+          </Entry>
+          <Entry name="TableLoadedOnce" type="BASE_TYPES/uint8" shortDescription="Flag indicating whether table has been loaded once or not">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LOADEDONCE
+            </LongDescription>
+          </Entry>
+          <Entry name="LoadPending" type="BASE_TYPES/uint8" shortDescription="Flag indicating an inactive buffer is ready to be copied">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_UPDATEPNDNG
+            </LongDescription>
+          </Entry>
+          <Entry name="DumpOnly" type="BASE_TYPES/uint8" shortDescription="Flag indicating Table is NOT to be loaded">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_DUMPONLY
+            </LongDescription>
+          </Entry>
+          <Entry name="DoubleBuffered" type="BASE_TYPES/uint8" shortDescription="Flag indicating Table has a dedicated inactive buffer">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_DBLBUFFERED
+            </LongDescription>
+          </Entry>
+          <Entry name="Name" type="TableName" shortDescription="Processor specific table name">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_NAME
+            </LongDescription>
+          </Entry>
+          <Entry name="LastFileLoaded" type="BASE_TYPES/PathName" shortDescription="Filename of last file loaded into table">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_LASTFILEUPD
+            </LongDescription>
+          </Entry>
+          <Entry name="OwnerAppName" type="BASE_TYPES/ApiName" shortDescription="Name of owning application">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_OWNERAPP
+            </LongDescription>
+          </Entry>
+          <Entry name="Critical" type="BASE_TYPES/uint8" shortDescription="Indicates whether table is Critical or not">
+            <LongDescription>
+              \cfetlmmnemonic  \TBL_CRITICAL
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="CommandBase" baseType="CCSDS/CommandPacket">
+      </ContainerDataType>
+
+      <!-- Note the NotifyCmd is a little different in that it is GENERATED by TBL and
+           sent to OTHER apps.  It is not one of the commands that TBL receives --> 
+      <ContainerDataType name="NotifyCmd" baseType="CCSDS/CommandPacket">
+        <EntryList>
+          <Entry name="Payload" type="NotifyCmd_Payload" />
+        </EntryList>
+      </ContainerDataType>
+      
+      <ContainerDataType name="HousekeepingTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="HousekeepingTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="TableRegistryTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="TableRegistryTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="Noop" baseType="CommandBase" shortDescription="None">
+        <LongDescription>
+          \cfetblcmd  Table No-Op
+
+          \par  Description
+          This command performs no other function than to increment the
+          command execution counter. The command may be used to verify
+          general aliveness of the Table Services task.
+          \cfecmdmnemonic  \TBL_NOOP
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the following telemetry:
+          - \b \c \TBL_CMDPC - command execution counter will increment
+          - The #CFE_TBL_NOOP_INF_EID informational event message will be generated
+
+          \par  Error Conditions
+          There are no error conditions for this command. If the Table
+          Services receives the command, the event is sent (although it
+          may be filtered by EVS) and the counter is incremented
+          unconditionally.
+
+          \par  Criticality
+          None
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="0" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="ResetCounters" baseType="CommandBase" shortDescription="None">
+        <LongDescription>
+          \cfetblcmd  Table Reset Counters
+
+          \par  Description
+          This command resets the following counters within the Table
+          Services housekeeping telemetry:
+          - Command Execution Counter (\TBL_CMDPC)
+          - Command Error Counter (\TBL_CMDEC)
+          - Successful Table Validations Counter (\TBL_VALSUCCESSCTR)
+          - Failed Table Validations Counter (\TBL_VALFAILEDCTR)
+          - Number of Table Validations Requested (\TBL_VALREQCTR)
+          \cfecmdmnemonic  \TBL_RESETCTRS
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the following telemetry:
+          - \b \c \TBL_CMDPC - command execution counter will increment
+          - The #CFE_TBL_RESET_INF_EID debug event message will be generated
+
+          \par  Error Conditions
+          There are no error conditions for this command. If the Table
+          Services receives the command, the event is sent (although it
+          may be filtered by EVS) and the counter is incremented
+          unconditionally.
+
+          \par  Criticality
+          This command is not inherently dangerous.  However, it is
+          possible for ground systems and on-board safing procedures
+          to be designed such that they react to changes in the counter
+          values that are reset by this command.
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="1" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="Load" baseType="CommandBase" shortDescription="#CFE_TBL_LoadCmd_t">
+        <LongDescription>
+          \cfetblcmd  Load Table
+
+          \par  Description
+          This command loads the contents of the specified file into
+          an inactive buffer for the table specified within the file.
+          \cfecmdmnemonic  \TBL_LOAD
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the following telemetry:
+          - \b \c \TBL_CMDPC - command execution counter will increment
+          - The #CFE_TBL_FILE_LOADED_INF_EID informational event message will be generated
+
+          \par  Error Conditions
+          This command can fail for the following reasons:
+          - Table name found in table image file's table header is not found
+          in table registry (ie - The table associated with the table image
+          in the file has not been registered by an application).
+          - The table image file's header indicates the file contains 'x'
+          number of bytes of data but the file contains less.
+          - No working buffers are available for the load.  This would indicate
+          that too many single-buffered table loads are in progress at the same
+          time.
+          - The table image file's header indicates the data to be loaded is
+          beyond the size of the table.  Either the number of bytes in the
+          file are too many or the starting offset into the table is too high.
+          - The table image file's header indicates there is no data in the
+          file (ie - Number of bytes to load is zero).
+          - An attempt is being made to load an uninitialized table with a file
+          containing only a partial table image.
+          - The table image file was unable to be opened.  Either the file does
+          not exist at the specified location, the filename is in error, or
+          the file system has been corrupted.
+          
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TBL_CMDEC - command error counter will increment
+          - Command specific error event messages are issued for all error cases
+
+          \par  Criticality
+          This command is not inherently dangerous.  It is performing the first
+          step of loading a table and can be aborted (using the Abort Table Load
+          command described below) without affecting the contents of the active
+          table image.
+
+          \sa  #CFE_TBL_DUMP_CC, #CFE_TBL_VALIDATE_CC, #CFE_TBL_ACTIVATE_CC, #CFE_TBL_ABORT_LOAD_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="2" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="LoadCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="Dump" baseType="CommandBase" shortDescription="#CFE_TBL_DumpCmd_t">
+        <LongDescription>
+          \cfetblcmd  Dump Table
+
+          \par  Description
+          This command will cause the Table Services to put the contents
+          of the specified table buffer into the command specified file.
+          \cfecmdmnemonic  \TBL_DUMP
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \TBL_CMDPC - command execution counter will increment
+          - Either the #CFE_TBL_OVERWRITE_DUMP_INF_EID OR the
+          #CFE_TBL_WRITE_DUMP_INF_EID informational event message will
+          be generated
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - A single buffered table's inactive buffer was requested to be
+          dumped and no such buffer is currently allocated.
+          - Error occurred during write operation to file. Possible causes
+          might be insufficient space in the file system or the filename
+          or file path is improperly specified.
+          - The specified table name was not found in the table registry.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TBL_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+          This command is not inherently dangerous.  It will create a new
+          file in the file system and could, if performed repeatedly without
+          sufficient file management by the operator, fill the file system.
+
+          \sa  #CFE_TBL_LOAD_CC, #CFE_TBL_VALIDATE_CC, #CFE_TBL_ACTIVATE_CC, #CFE_TBL_ABORT_LOAD_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="3" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="DumpCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="Validate" baseType="CommandBase" shortDescription="#CFE_TBL_ValidateCmd_t">
+        <LongDescription>
+          \cfetblcmd  Validate Table
+
+          \par  Description
+          This command will cause Table Services to calculate the Data Integrity
+          Value for the specified table and to notify the owning application that
+          the table's validation function should be executed.  The results of both
+          the Data Integrity Value computation and the validation function are
+          reported in Table Services Housekeeping Telemetry.
+          \cfecmdmnemonic  \TBL_VALIDATE
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the following
+          telemetry:
+          - \b \c \TBL_CMDPC -  command execution counter will increment
+          - \b \c \TBL_VALREQCTR - table validation request counter will increment
+          - \b \c \TBL_LASTVALCRC - calculated data integrity value will be updated
+          - The #CFE_TBL_VAL_REQ_MADE_INF_EID debug event message (indicating the
+          application is being notified of a validation request)
+          
+          If the specified table has an associated validation function, then the
+          following telemetry will also change:
+          - Either \b \c \TBL_VALSUCCESSCTR OR \b \c \TBL_VALFAILEDCTR will increment
+          - \b \c \TBL_VALCOMPLTDCTR - table validations performed counter will increment
+          - \b \c \TBL_LASTVALS - table validation function return status will update
+          - The #CFE_TBL_VALIDATION_INF_EID informational event message (indicating the
+          validation function return status) will be generated
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - A single buffered table's inactive buffer was requested to be dumped
+          and no such buffer is currently allocated.
+          - Too many validations have been requested simultaneously.  The operator
+          must wait for one or more applications to perform their table validation
+          functions before trying again.
+          - The specified table name was not found in the table registry.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TBL_CMDEC - command error counter will increment
+          - Command specific error event message are issued for all error cases
+
+          \par  Criticality
+          The success or failure of a table validation does not have any immediate
+          impact on table contents.  The results are sent to the operator in telemetry
+          and the operator must determine whether the results are acceptable and send a
+          command to activate the validated table image.
+
+          \sa  #CFE_TBL_LOAD_CC, #CFE_TBL_DUMP_CC, #CFE_TBL_ACTIVATE_CC, #CFE_TBL_ABORT_LOAD_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="4" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="ValidateCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="Activate" baseType="CommandBase" shortDescription="#CFE_TBL_ActivateCmd_t">
+        <LongDescription>
+          \cfetblcmd  Activate Table
+
+          \par  Description
+          This command will cause Table Services to notify a table's owner
+          that an update is pending.  The owning application will then update
+          the contents of the active table buffer with the contents of the
+          associated inactive table buffer at a time of their convenience.
+          \cfecmdmnemonic  \TBL_ACTIVATE
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \TBL_CMDPC - command execution counter will increment
+          - The #CFE_TBL_UPDATE_SUCCESS_INF_EID informational event message
+          will be generated
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - A single buffered table's inactive buffer was requested to be
+          dumped and no such buffer is currently allocated.
+          - The specified table name was not found in the table registry.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TBL_CMDEC - command error counter will increment
+          - Command specific error event message are issued for all
+          error cases
+
+          \par  Criticality
+          This command will cause the contents of the specified table to be
+          updated with the contents in the inactive table buffer.
+
+          \sa  #CFE_TBL_LOAD_CC, #CFE_TBL_DUMP_CC, #CFE_TBL_VALIDATE_CC, #CFE_TBL_ABORT_LOAD_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="5" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="ActivateCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DumpRegistry" baseType="CommandBase" shortDescription="#CFE_TBL_DumpRegistryCmd_t">
+        <LongDescription>
+          \cfetblcmd  Dump Table Registry
+
+          \par  Description
+          This command will cause Table Services to write some of the
+          contents of the Table Registry to the command specified file.
+          This allows the operator to see the current state and configuration
+          of all tables that have been registered with the cFE.
+          \cfecmdmnemonic  \TBL_WRITEREG2FILE
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \TBL_CMDPC -  command execution counter will increment
+          - The generation of either #CFE_TBL_OVERWRITE_REG_DUMP_INF_EID
+          or #CFE_TBL_WRITE_REG_DUMP_INF_EID debug event messages
+          - The specified file should appear (or be updated) at the
+          specified location in the file system
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - Error occurred during write operation to file. Possible
+          causes might be insufficient space in the file system
+          or the filename or file path is improperly specified.
+          
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TBL_CMDEC - command error counter will increment
+          - An Error specific event message
+
+          \par  Criticality
+          This command is not inherently dangerous.  It will create a new
+          file in the file system and could, if performed repeatedly without
+          sufficient file management by the operator, fill the file system.
+
+          \sa  #CFE_TBL_TLM_REG_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="6" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="DumpRegistryCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SendRegistry" baseType="CommandBase" shortDescription="#CFE_TBL_SendRegistryCmd_t">
+        <LongDescription>
+          \cfetblcmd  Telemeter One Table Registry Entry
+
+          \par  Description
+          This command will cause Table Services to telemeter the contents
+          of the Table Registry for the command specified table.
+          \cfecmdmnemonic  \TBL_SendRegistry
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \TBL_CMDPC -  command execution counter will increment
+          - Receipt of a Table Registry Info Packet (see #CFE_TBL_TblRegPacket_t)
+          - The #CFE_TBL_TLM_REG_CMD_INF_EID debug event message will
+          be generated
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - The specified table name was not found in the table registry.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TBL_CMDEC - command error counter will increment
+          - Error specific event message
+
+          \par  Criticality
+          This command is not inherently dangerous.  It will generate
+          additional telemetry.
+
+          \sa  #CFE_TBL_DUMP_REG_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="7" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="SendRegistryCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DeleteCDS" baseType="CommandBase" shortDescription="#CFE_TBL_DelCDSCmd_t">
+        <LongDescription>
+          \cfetblcmd  Delete Critical Table from Critical Data Store
+
+          \par  Description
+          This command will delete the Critical Data Store (CDS) associated
+          with the specified Critical Table.  Note that any table still
+          present in the Table Registry is unable to be deleted from
+          the Critical Data Store.  All Applications that are accessing
+          the critical table must release and unregister their access
+          before the CDS can be deleted.
+          \cfecmdmnemonic  \TBL_DELETECDS
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \TBL_CMDPC - command execution counter will
+          increment
+          - The #CFE_TBL_CDS_DELETED_INFO_EID informational event message
+          will be generated
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - The specified table name was not found in the critical data
+          store registry
+          - The specified table name WAS found in the table registry (all
+          registrations/sharing of the table must be unregistered before
+          the table's CDS can be deleted)
+          - The table's owning application is still active
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TBL_CMDEC - command error counter will increment
+          - Error specific event message
+
+          \par  Criticality
+          This command will cause the loss of the specified table's contents
+          before the owning Application was terminated.
+
+          \sa  #CFE_ES_DUMP_CDS_REG_CC, #CFE_ES_DELETE_CDS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="8" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="DelCDSCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AbortLoad" baseType="CommandBase" shortDescription="#CFE_TBL_AbortLdCmd_t">
+        <LongDescription>
+          \cfetblcmd  Abort Table Load
+
+          \par  Description
+          This command will cause Table Services to discard the contents of
+          a table buffer that was previously loaded with the data in a file
+          as specified by a Table Load command.  For single buffered tables,
+          the allocated shared working buffer is freed and becomes available
+          for other Table Load commands.
+          \cfecmdmnemonic  \TBL_LOADABORT
+
+          \par  Command Structure
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \TBL_CMDPC -  command execution counter will increment
+          - The #CFE_TBL_LOAD_ABORT_INF_EID informational event message
+          is generated
+          - If the load was aborted for a single buffered table, the
+          \b \c \TBL_NUMFREESHRBUF telemetry point should increment
+
+          \par  Error Conditions
+          This command may fail for the following reason(s):
+          - The specified table name was not found in the table registry.
+          - The specified table did not have a load in progress to be aborted.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \TBL_CMDEC - command error counter will increment
+          - Error specific event message
+
+          \par  Criticality
+          This command will cause the loss of data put into an inactive table buffer.
+
+          \sa  #CFE_TBL_LOAD_CC, #CFE_TBL_DUMP_CC, #CFE_TBL_VALIDATE_CC, #CFE_TBL_ACTIVATE_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="9" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AbortLoadCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+    </DataTypeSet>
+    
+    <ComponentSet>
+      <Component name="Application">
+        <RequiredInterfaceSet>
+          <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">
+            <!-- This uses a common base type for all software bus application command messages -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CommandBase" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
+            <!-- This uses a bare spacepacket with no payload -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CCSDS/CommandPacket" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">
+            <!-- This publishes a message datagram of the CFE_SB/HousekeepingTlm datatype -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="HousekeepingTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="REG_TLM" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="TableRegistryTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+        </RequiredInterfaceSet>
+        <Implementation>
+          <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
+          <ParameterMapSet>
+            <ParameterMap interface="CMD" parameterRef="TopicId" value="${CFE_MISSION/TBL_CMD_TOPICID}" />
+            <ParameterMap interface="SEND_HK" parameterRef="TopicId" value="${CFE_MISSION/TBL_SEND_HK_TOPICID}" />
+            <ParameterMap interface="HK_TLM" parameterRef="TopicId" value="${CFE_MISSION/TBL_HK_TLM_TOPICID}" />
+            <ParameterMap interface="REG_TLM" parameterRef="TopicId" value="${CFE_MISSION/TBL_REG_TLM_TOPICID}" />
+          </ParameterMapSet>
+        </Implementation>
+      </Component>
+    </ComponentSet>
+    
+  </Namespace>
+</DataSheet>

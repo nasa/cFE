@@ -1,0 +1,1058 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    GSC-18128-1, "Core Flight Executive Version 6.6"
+
+    Copyright (c) 2006-2019 United States Government as represented by
+    the Administrator of the National Aeronautics and Space Administration.
+    All Rights Reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+      
+    This document adheres to the Electronic Data Sheet (EDS) XML schema 
+    as prescribed in CCSDS book 876.0. 
+      
+    Purpose: 
+      This describes all interface objects for the Software Bus (CFE_SB)
+      core application 
+      
+-->
+<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Namespace name="CFE_SB" shortDescription="NASA Core Flight System Software Bus">
+    <DataTypeSet>
+      <IntegerDataType name="MsgId" shortDescription="A Software Bus message identifier, used for subscription and routing">
+        <IntegerDataEncoding sizeInBits="${CFE_SB/MSGID_BIT_SIZE}" encoding="unsigned" />
+      </IntegerDataType>
+
+      <IntegerDataType name="PipeId" shortDescription="A Software Bus pipe identifier">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+      </IntegerDataType>
+
+      <IntegerDataType name="MsgRouteIdx" shortDescription="A Software Bus internal route index">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+      </IntegerDataType>
+
+      <EnumeratedDataType name="QosPriority" shortDescription="Selects the priorty level for message routing">
+        <EnumerationList>
+           <Enumeration label="LOW" value="0" shortDescription="Normal priority level" />
+           <Enumeration label="HIGH" value="1" shortDescription="High priority" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <EnumeratedDataType name="QosReliability" shortDescription="Selects the reliability level for message routing">
+        <EnumerationList>
+           <Enumeration label="LOW" value="0" shortDescription="Normal (best-effort) reliability" />
+           <Enumeration label="HIGH" value="1" shortDescription="High reliability" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <ContainerDataType name="MsgQos" shortDescription="Quality of service parameters">
+        <EntryList>
+          <Entry name="Priority" type="QosPriority" shortDescription="Message priority for off-board routing (currently unused)" />
+          <Entry name="Reliability" type="QosReliability" shortDescription="Message transfer reliability for off-board routing (currently unused)" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="WriteFileInfoCmd_Payload" shortDescription="Write File Info Commands">
+        <LongDescription>
+          This structure contains a generic definition used by three SB commands,
+          'Write Routing Info to File' #CFE_SB_SEND_ROUTING_INFO_CC,
+          'Write Pipe Info to File' #CFE_SB_SEND_PIPE_INFO_CC and
+          'Write Map Info to File' #CFE_SB_SEND_MAP_INFO_CC.
+        </LongDescription>
+        <EntryList>
+          <Entry name="Filename" type="BASE_TYPES/PathName" shortDescription="Path and Filename of data to be loaded" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="RouteCmd_Payload" shortDescription="Enable/Disable Route Commands">
+        <LongDescription>
+          This structure contains a definition used by two SB commands,
+          'Enable Route' #CFE_SB_ENABLE_ROUTE_CC and 'Disable Route' #CFE_SB_DISABLE_ROUTE_CC.
+          A route is the destination pipe for a  particular message and is therefore defined
+          as a MsgId and PipeId combination.
+        </LongDescription>
+        <EntryList>
+          <Entry name="MsgId" type="MsgId" shortDescription="Message ID of route to be enabled or disabled #CFE_SB_MsgId_t" />
+          <Entry name="Pipe" type="PipeId" shortDescription="Pipe ID of route to be enabled or disabled #CFE_SB_PipeId_t" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="HousekeepingTlm_Payload" shortDescription="Software Bus task housekeeping Packet">
+        <EntryList>
+          <Entry name="CommandCounter" type="BASE_TYPES/uint8" shortDescription="Count of valid commands received">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_CMDPC
+            </LongDescription>
+          </Entry>
+          <Entry name="CommandErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of invalid commands received">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_CMDEC
+            </LongDescription>
+          </Entry>
+          <Entry name="NoSubscribersCounter" type="BASE_TYPES/uint8" shortDescription="Count pkts sent with no subscribers">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_NOSUBEC
+            </LongDescription>
+          </Entry>
+          <Entry name="MsgSendErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of message send errors">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_MSGSNDEC
+            </LongDescription>
+          </Entry>
+          <Entry name="MsgReceiveErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of message receive errors">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_MSGRECEC
+            </LongDescription>
+          </Entry>
+          <Entry name="InternalErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of queue read or write errors">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_INTERNALEC
+            </LongDescription>
+          </Entry>
+          <Entry name="CreatePipeErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of errors in create pipe API">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_NEWPIPEEC
+            </LongDescription>
+          </Entry>
+          <Entry name="SubscribeErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of errors in subscribe API">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SUBSCREC
+            </LongDescription>
+          </Entry>
+          <Entry name="PipeOptsErrorCounter" type="BASE_TYPES/uint8" shortDescription="Count of errors in set/get pipe options API">
+            <LongDescription>
+              \cfetlmmnemonic \SB_PIPEOPTSEC
+            </LongDescription>
+          </Entry>
+          <Entry name="DuplicateSubscriptionsCounter" type="BASE_TYPES/uint8" shortDescription="Count of duplicate subscriptions">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_DUPSUBCNT
+            </LongDescription>
+          </Entry>
+          <Entry name="PipeOverflowErrorCounter" type="BASE_TYPES/uint16" shortDescription="Count of pipe overflow errors">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_PIPEOVREC
+            </LongDescription>
+          </Entry>
+          <Entry name="MsgLimitErrorCounter" type="BASE_TYPES/uint16" shortDescription="Count of msg id to pipe errors">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_MSGLIMEC
+            </LongDescription>
+          </Entry>
+          <Entry name="MemPoolHandle" type="BASE_TYPES/CpuAddress" shortDescription="Handle to Software Bus Memory Pool">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_MEMPOOLHANDLE
+            </LongDescription>
+          </Entry>
+          <Entry name="MemInUse" type="BASE_TYPES/uint32" shortDescription="Memory in use">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_MEMINUSE
+            </LongDescription>
+          </Entry>
+          <Entry name="UnmarkedMem" type="BASE_TYPES/uint32">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_UNMARKEDMEM
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="PipeDepthStats" shortDescription="SB Pipe Depth Statistics">
+        <LongDescription>
+          Used in SB Statistics Telemetry Packet #CFE_SB_StatMsg_t
+        </LongDescription>
+        <EntryList>
+          <Entry name="PipeId" type="PipeId" shortDescription="Pipe Id associated with the stats below">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_PDPIPEID
+            </LongDescription>
+          </Entry>
+          <Entry name="Depth" type="BASE_TYPES/uint16" shortDescription="Number of messages the pipe can hold">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_PDDEPTH
+            </LongDescription>
+          </Entry>
+          <Entry name="InUse" type="BASE_TYPES/uint16" shortDescription="Number of messages currently on the pipe">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_PDINUSE
+            </LongDescription>
+          </Entry>
+          <Entry name="PeakInUse" type="BASE_TYPES/uint16">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_PDPKINUSE
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+      
+      <ArrayDataType name="PipeDepthStatsSet" dataTypeRef="PipeDepthStats">
+        <DimensionList>
+          <Dimension size="${CFE_MISSION/SB_MAX_PIPES}" />
+        </DimensionList>
+      </ArrayDataType>
+
+      <ContainerDataType name="StatsTlm_Payload" shortDescription="SB Statistics Telemetry Packet">
+        <LongDescription>
+          SB Statistics packet sent (via CFE_SB_SendMsg) in response to #CFE_SB_SEND_SB_STATS_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="MsgIdsInUse" type="BASE_TYPES/uint32" shortDescription="Current number of MsgIds with a destination">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMMIDIU
+            </LongDescription>
+          </Entry>
+          <Entry name="PeakMsgIdsInUse" type="BASE_TYPES/uint32" shortDescription="Peak number of MsgIds with a destination">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMPMIDIU
+            </LongDescription>
+          </Entry>
+          <Entry name="MaxMsgIdsAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_SB_MAX_MSG_IDS \endlink">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMMMIDALW
+            </LongDescription>
+          </Entry>
+          <Entry name="PipesInUse" type="BASE_TYPES/uint32" shortDescription="Number of pipes currently in use">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMPIU
+            </LongDescription>
+          </Entry>
+          <Entry name="PeakPipesInUse" type="BASE_TYPES/uint32" shortDescription="Peak number of pipes since last reboot">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMPPIU
+            </LongDescription>
+          </Entry>
+          <Entry name="MaxPipesAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_SB_MAX_PIPES \endlink">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMMPALW
+            </LongDescription>
+          </Entry>
+          <Entry name="MemInUse" type="BASE_TYPES/uint32" shortDescription="Memory bytes currently in use for SB msg transfers">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMBMIU
+            </LongDescription>
+          </Entry>
+          <Entry name="PeakMemInUse" type="BASE_TYPES/uint32" shortDescription="Peak memory bytes in use for SB msg transfers">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMPBMIU
+            </LongDescription>
+          </Entry>
+          <Entry name="MaxMemAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_SB_BUF_MEMORY_BYTES \endlink">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMMBMALW
+            </LongDescription>
+          </Entry>
+          <Entry name="SubscriptionsInUse" type="BASE_TYPES/uint32" shortDescription="Number of current subscriptions">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMSIU
+            </LongDescription>
+          </Entry>
+          <Entry name="PeakSubscriptionsInUse" type="BASE_TYPES/uint32" shortDescription="Peak number of subscriptions">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMPSIU
+            </LongDescription>
+          </Entry>
+          <Entry name="MaxSubscriptionsAllowed" type="BASE_TYPES/uint32">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMMSALW
+              \brief  product of \link #CFE_SB_MAX_MSG_IDS \endlink
+              and \link #CFE_SB_MAX_DEST_PER_PKT \endlink
+            </LongDescription>
+          </Entry>
+          <Entry name="SBBuffersInUse" type="BASE_TYPES/uint32" shortDescription="Number of SB message buffers currently in use">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMSBBIU
+            </LongDescription>
+          </Entry>
+          <Entry name="PeakSBBuffersInUse" type="BASE_TYPES/uint32" shortDescription="Max number of SB message buffers in use">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMPSBBIU
+            </LongDescription>
+          </Entry>
+          <Entry name="MaxPipeDepthAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_SB_MAX_PIPE_DEPTH \endlink">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMMPDALW
+            </LongDescription>
+          </Entry>
+          <Entry name="PipeDepthStats" type="PipeDepthStatsSet">
+            <LongDescription>
+              \cfetlmmnemonic  \SB_SMPDS
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="RoutingFileEntry" shortDescription="SB Routing File Entry">
+        <LongDescription>
+          Structure of one element of the routing information in response to #CFE_SB_SEND_ROUTING_INFO_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="MsgId" type="MsgId" shortDescription="Message Id portion of the route" />
+          <Entry name="PipeId" type="PipeId" shortDescription="Pipe Id portion of the route" />
+          <Entry name="State" type="BASE_TYPES/uint8" shortDescription="Route Enabled or Disabled" />
+          <Entry name="MsgCnt" type="BASE_TYPES/uint16" shortDescription="Number of msgs with this MsgId sent to this PipeId" />
+          <Entry name="AppName" type="BASE_TYPES/ApiName" shortDescription="Pipe Depth Statistics" />
+          <Entry name="PipeName" type="BASE_TYPES/ApiName" shortDescription="Pipe Depth Statistics" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="MsgMapFileEntry" shortDescription="SB Map File Entry">
+        <LongDescription>
+          Structure of one element of the map information in response to #CFE_SB_SEND_MAP_INFO_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="MsgId" type="MsgId" shortDescription="Message Id which has been subscribed to" />
+          <Entry name="Index" type="MsgRouteIdx" shortDescription="Routing table index where pipe destinations are found" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SingleSubscriptionTlm_Payload" shortDescription="SB Subscription Report Packet" >
+        <LongDescription>
+          This structure defines the pkt sent by SB when a subscription or
+          a request to unsubscribe is received while subscription reporting is enabled.
+          By default subscription reporting is disabled. This feature is intended to be
+          used primarily by Software Bus Networking Application (SBN)
+
+          \sa  #CFE_SB_ENABLE_SUB_REPORTING_CC, #CFE_SB_DISABLE_SUB_REPORTING_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="SubType" type="BASE_TYPES/uint8" shortDescription="Subscription or Unsubscription" />
+          <Entry name="MsgId" type="MsgId" shortDescription="MsgId subscribed or unsubscribe to" />
+          <Entry name="Qos" type="MsgQos" shortDescription="Quality of Service, used only for interprocessor communication" />
+          <Entry name="Pipe" type="PipeId" shortDescription="Destination pipe id to send above msg id" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SubEntries" shortDescription="SB Previous Subscriptions Entry">
+        <LongDescription>
+          This structure defines an entry used in the CFE_SB_PrevSubsPkt_t
+          Intended to be used primarily by Software Bus Networking Application (SBN)
+          Used in structure definition #CFE_SB_PrevSubMsg_t
+        </LongDescription>
+        <EntryList>
+          <Entry name="MsgId" type="MsgId" shortDescription="MsgId portion of the subscription" />
+          <Entry name="Qos" type="MsgQos" shortDescription="Qos portion of the subscription" />
+          <Entry name="Pipe" type="PipeId" shortDescription="PipeId portion of the subscription" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ArrayDataType name="SubEntriesSet" dataTypeRef="SubEntries">
+        <DimensionList>
+          <Dimension size="${CFE_SB/SUB_ENTRIES_PER_PKT}" />
+        </DimensionList>
+      </ArrayDataType>
+
+      <ContainerDataType name="AllSubscriptionsTlm_Payload" shortDescription="SB Previous Subscriptions Packet">
+        <LongDescription>
+          This structure defines the pkt(s) sent by SB that contains a list of all current
+          subscriptions. This pkt is generated on cmd and intended to be used primarily by
+          the Software Bus Networking Application (SBN). Typically, when the cmd is received
+          there are more subscriptions than can fit in one pkt. The complete list of
+          subscriptions is sent via a series of segmented pkts.
+        </LongDescription>
+        <EntryList>
+          <Entry name="PktSegment" type="BASE_TYPES/uint32" shortDescription="Pkt number(starts at 1) in the series" />
+          <Entry name="TotalSegments" type="BASE_TYPES/uint32" shortDescription="Total number of pkts needed to complete the request" />
+          <Entry name="Entries" type="BASE_TYPES/uint32" shortDescription="Number of entries in the pkt" />
+          <Entry name="Entry" type="SubEntriesSet" shortDescription="Array of #CFE_SB_SubEntries_t entries" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="CommandBase" baseType="CCSDS/CommandPacket">
+        <!-- 
+        This container has no entries of its own, it just serves as a common base type for all command messages.  
+        Defined command messages must all use this container as a base type. 
+        -->
+      </ContainerDataType>
+
+      <ContainerDataType name="HousekeepingTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="HousekeepingTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="StatsTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="StatsTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AllSubscriptionsTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="AllSubscriptionsTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SingleSubscriptionTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="SingleSubscriptionTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="Noop" baseType="CommandBase" shortDescription="SB task command packet command codes">
+        <LongDescription>
+          \cfesbcmd  Software Bus No-Op
+
+          \par  Description
+          This command performs no other function than to increment the
+          command execution counter. The command may be used to verify
+          general aliveness of the Software Bus task.
+          \cfecmdmnemonic  \SB_NOOP
+
+          \par  Command Structure
+          #CFE_SB_CmdHdr_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \SB_CMDPC - command execution counter will increment
+          - The #CFE_SB_CMD0_RCVD_EID informational event message will be generated
+
+          \par  Error Conditions
+          There are no error conditions for this command. If the Software
+          Bus receives the command, the event is sent (although it
+          may be filtered by EVS) and the counter is incremented
+          unconditionally.
+
+          \par  Criticality
+          None
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="0" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="ResetCounters" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Software Bus Reset Counters
+
+          \par  Description
+          This command resets the following counters within the Software
+          Bus housekeeping telemetry:
+          - Command Execution Counter (\SB_CMDPC)
+          - Command Error Counter (\SB_CMDEC)
+          \cfecmdmnemonic  \SB_ResetCounters
+
+          \par  Command Structure
+          #CFE_SB_CmdHdr_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \SB_CMDPC - command execution counter will increment
+          - The #CFE_SB_CMD1_RCVD_EID informational event message will be generated
+
+          \par  Error Conditions
+          There are no error conditions for this command. If the Software
+          Bus receives the command, the event is sent (although it
+          may be filtered by EVS) and the counter is incremented
+          unconditionally.
+
+          \par  Criticality
+          This command is not inherently dangerous.  However, it is
+          possible for ground systems and on-board safing procedures
+          to be designed such that they react to changes in the counter
+          values that are reset by this command.
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="1" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="SendSbStats" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Send Software Bus Statistics
+
+          \par  Description
+          This command will cause the SB task to send a statistics packet
+          containing current utilization figures and high water marks which
+          may be useful for checking the margin of the SB platform configuration
+          settings.
+          \cfecmdmnemonic  \SB_DUMPSTATS
+
+          \par  Command Structure
+          #CFE_SB_CmdHdr_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \SB_CMDPC - command execution counter will increment
+          - Receipt of statistics packet with MsgId #CFE_SB_STATS_TLM_MID
+          - The #CFE_SB_SND_STATS_EID debug event message will be generated. All
+          debug events are filtered by default.
+
+          \par  Error Conditions
+          There are no error conditions for this command. If the Software
+          Bus receives the command, the debug event is sent and the counter
+          is incremented unconditionally.
+
+          \par  Criticality
+          This command is not inherently dangerous.  It will create and send
+          a message on the software bus. If performed repeatedly, it is
+          possible that receiver pipes may overflow.
+          \sa
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="2" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="SendRoutingInfo" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Write Software Bus Routing Info to a File
+
+          \par  Description
+          This command will create a file containing the software bus routing
+          information. The routing information contains information about every
+          subscription that has been received through the SB subscription APIs.
+          An abosulte path and filename may be specified in the command.
+          If this command field contains an empty string (NULL terminator as
+          the first character) the default file path and name is used.
+          The default file path and name is defined in the platform
+          configuration file as #CFE_SB_DEFAULT_ROUTING_FILENAME.
+          \cfecmdmnemonic  \SB_WRITEROUTING2FILE
+
+          \par  Command Structure
+          #CFE_SB_WriteFileInfoCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \SB_CMDPC - command execution counter will increment.
+          - Specified filename created at specified location. See description.
+          - The #CFE_SB_SND_RTG_EID debug event message will be generated. All
+          debug events are filtered by default.
+
+          \par  Error Conditions
+          - Errors may occur during write operations to the file. Possible
+          causes might be insufficient space in the file system or the
+          filename or file path is improperly specified.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \SB_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases. See #CFE_SB_SND_RTG_ERR1_EID and #CFE_SB_FILEWRITE_ERR_EID
+
+          \par  Criticality
+          This command is not inherently dangerous.  It will create a new
+          file in the file system and could, if performed repeatedly without
+          sufficient file management by the operator, fill the file system.
+
+          \sa  #CFE_SB_SEND_PIPE_INFO_CC, #CFE_SB_SEND_MAP_INFO_CC, #CFE_SB_WriteFileInfoCmd_t
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="3" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="WriteFileInfoCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="EnableRoute" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Enable Software Bus Route
+
+          \par  Description
+          This command will enable a particular destination. The destination
+          is specified in terms of MsgID and PipeID. The MsgId and PipeID are
+          parmaters in the command. All destinations are enabled by default.
+          This command is needed only after a #CFE_SB_DISABLE_ROUTE_CC command
+          is used.
+          \cfecmdmnemonic  \SB_ENAROUTE
+
+          \par  Command Structure
+          #CFE_SB_EnableRouteCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \SB_CMDPC - command execution counter will increment
+          - View routing information #CFE_SB_SEND_ROUTING_INFO_CC to verify
+          enable/disable state change
+          - The #CFE_SB_ENBL_RTE2_EID debug event message will be generated. All
+          debug events are filtered by default.
+          - Destination will begin receiving messages.
+
+          \par  Error Conditions
+          An Error may occur if the MsgId or PipeId parmaters do not pass
+          validation or the destination does not exist.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \SB_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases. See #CFE_SB_ENBL_RTE1_EID or #CFE_SB_ENBL_RTE3_EID
+
+          \par  Criticality
+          This command is not inherently dangerous.
+
+          \sa  #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_DISABLE_ROUTE_CC, #CFE_SB_EnableRouteCmd_t
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="4" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="RouteCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DisableRoute" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Disable Software Bus Route
+
+          \par  Description
+          This command will disable a particular destination. The destination
+          is specified in terms of MsgID and PipeID. The MsgId and PipeID are
+          parmaters in the command. All destinations are enabled by default.
+          \cfecmdmnemonic  \SB_DISROUTE
+
+          \par  Command Structure
+          #CFE_SB_EnableRouteCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \SB_CMDPC - command execution counter will increment
+          - View routing information #CFE_SB_SEND_ROUTING_INFO_CC to verify
+          enable/disable state change
+          - The #CFE_SB_DSBL_RTE2_EID debug event message will be generated. All
+          debug events are filtered by default.
+          - Destination will stop receiving messages.
+
+          \par  Error Conditions
+          An Error may occur if the MsgId or PipeId parmaters do not pass
+          validation or the destination does not exist.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \SB_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases. See #CFE_SB_DSBL_RTE1_EID or #CFE_SB_DSBL_RTE3_EID
+
+          \par  Criticality
+          This command is not intended to be used in nominal conditions. It is
+          possible to get into a state where a destination cannot be re-enabled
+          without reseting the processor. For instance, sending this command
+          with #CFE_SB_CMD_MID and the SB_Cmd_Pipe would inhibit any ground
+          commanding to the software bus until the processor was reset. There
+          are similar problems that may occur when using this command.
+
+          \sa  #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_ENABLE_ROUTE_CC, #CFE_SB_EnableRouteCmd_t
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="5" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="RouteCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SendPipeInfo" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Write Pipe Info to a File
+
+          \par  Description
+          This command will create a file containing the software bus pipe
+          information. The pipe information contains information about every
+          pipe that has been created through the #CFE_SB_CreatePipe API. An
+          abosulte path and filename may be specified in the command.
+          If this command field contains an empty string (NULL terminator as
+          the first character) the default file path and name is used.
+          The default file path and name is defined in the platform
+          configuration file as #CFE_SB_DEFAULT_PIPE_FILENAME.
+          \cfecmdmnemonic  \SB_WRITEPIPE2FILE
+
+          \par  Command Structure
+          #CFE_SB_WriteFileInfoCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \SB_CMDPC - command execution counter will increment.
+          - Specified filename created at specified location. See description.
+          - The #CFE_SB_SND_RTG_EID debug event message will be generated. All
+          debug events are filtered by default.
+
+          \par  Error Conditions
+          - Errors may occur during write operations to the file. Possible
+          causes might be insufficient space in the file system or the
+          filename or file path is improperly specified.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \SB_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases. See #CFE_SB_SND_RTG_ERR1_EID and #CFE_SB_FILEWRITE_ERR_EID
+
+          \par  Criticality
+          This command is not inherently dangerous.  It will create a new
+          file in the file system and could, if performed repeatedly without
+          sufficient file management by the operator, fill the file system.
+
+          \sa  #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_SEND_MAP_INFO_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="7" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="WriteFileInfoCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SendMapInfo" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Write Map Info to a File
+
+          \par  This command will create a file containing the software bus message
+          map information. The message map is a lookup table (an array of
+          uint16s)that allows fast access to the correct routing table element
+          during a softeware bus send operation. This is diasgnostic
+          information that may be needed due to the dynamic nature of the
+          cFE software bus. An abosulte path and filename may be specified
+          in the command. If this command field contains an empty string
+          (NULL terminator as the first character) the default file path and
+          name is used. The default file path and name is defined in the
+          platform configuration file as #CFE_SB_DEFAULT_MAP_FILENAME.
+          \cfecmdmnemonic  \SB_WRITEMAP2FILE
+
+          \par  Command Structure
+          #CFE_SB_WriteFileInfoCmd_t
+
+          \par  Command Verification
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \SB_CMDPC - command execution counter will increment.
+          - Specified filename created at specified location. See description.
+          - The #CFE_SB_SND_RTG_EID debug event message will be generated. All
+          debug events are filtered by default.
+
+          \par  Error Conditions
+          - Errors may occur during write operations to the file. Possible
+          causes might be insufficient space in the file system or the
+          filename or file path is improperly specified.
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \SB_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases. See #CFE_SB_SND_RTG_ERR1_EID and #CFE_SB_FILEWRITE_ERR_EID
+
+          \par  Criticality
+          This command is not inherently dangerous.  It will create a new
+          file in the file system and could, if performed repeatedly without
+          sufficient file management by the operator, fill the file system.
+
+          \sa  #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_SEND_PIPE_INFO_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="8" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="WriteFileInfoCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="EnableSubReporting" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Enable Subscription Reporting Command
+
+          \par  This command will enable subscription reporting and is intended to
+          be used only by the CFS SBN (Software Bus Networking) Application.
+          It is not intended to be sent from the ground or used by operations.
+          When subscription reporting is enabled, SB will generate
+          and send a software bus packet for each subscription received.
+          The software bus packet that is sent contains the information
+          received in the subscription API. This subscription report is
+          neeeded by SBN if offboard routing is required.
+          \cfecmdmnemonic  \SB_ENASUBRPTG
+
+          \par  Command Structure
+          #CFE_SB_CmdHdr_t
+
+          \par  Command Verification
+          Successful execution of this command will result in the sending
+          of a packet (with the #CFE_SB_ONESUB_TLM_MID MsgId) for each
+          subscription received by SB through the subscription APIs.
+
+          \par  Error Conditions
+          None
+
+          \par  Criticality
+          None
+
+          \sa  #CFE_SB_SubRprtMsg_t, #CFE_SB_DISABLE_SUB_REPORTING_CC,
+          #CFE_SB_SEND_PREV_SUBS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="9" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="DisableSubReporting" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Disable Subscription Reporting Command
+
+          \par  This command will disable subscription reporting and is intended to
+          be used only by the CFS SBN (Software Bus Networking) Application.
+          It is not intended to be sent from the ground or used by operations.
+          When subscription reporting is enabled, SB will generate
+          and send a software bus packet for each subscription received.
+          The software bus packet that is sent contains the information
+          received in the subscription API. This subscription report is
+          neeeded by SBN if offboard routing is required.
+          \cfecmdmnemonic  \SB_DISSUBRPTG
+
+          \par  Command Structure
+          #CFE_SB_CmdHdr_t
+
+          \par  Command Verification
+          Successful execution of this command will result in the suppression
+          of packets (with the #CFE_SB_ONESUB_TLM_MID MsgId) for each
+          subscription received by SB through the subscription APIs.
+
+          \par  Error Conditions
+          None
+
+          \par  Criticality
+          None
+
+          \sa  #CFE_SB_SubRprtMsg_t, #CFE_SB_ENABLE_SUB_REPORTING_CC,
+          #CFE_SB_SEND_PREV_SUBS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="10" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="SendPrevSubs" baseType="CommandBase">
+        <LongDescription>
+          \cfesbcmd  Send Previous Subscriptions Command
+
+          \par  This command generates a series of packets that contain information
+          regarding all subscriptions previously received by SB.
+          This command is intended to be used only by the CFS SBN(Software Bus
+          Networking) Application.
+          It is not intended to be sent from the ground or used by operations.
+          When this command is received the software bus will generate and
+          send a series of packets containing information about all subscription
+          previously received.
+          \cfecmdmnemonic  \SB_SENDPREVSUBS
+
+          \par  Command Structure
+          #CFE_SB_CmdHdr_t
+
+          \par  Command Verification
+          Successful execution of this command will result in a series
+          of packets (with the #CFE_SB_ALLSUBS_TLM_MID MsgId) being sent
+          on the software bus.
+
+          \par  Error Conditions
+          None
+
+          \par  Criticality
+          None
+
+          \sa  #CFE_SB_PrevSubMsg_t, #CFE_SB_ENABLE_SUB_REPORTING_CC,
+          #CFE_SB_DISABLE_SUB_REPORTING_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="11" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+    </DataTypeSet>
+    
+    <DeclaredInterfaceSet>
+    
+      <Interface name="MTS" level="subnetwork" shortDescription="CFE software bus low-level message transfer service">
+        <LongDescription>
+          Basic message transfer service over the CFE software bus.  Messages are routed based on the Application ID field
+          within the CCSDS SpacePacket primary header.  All traffic on this interface must use the SpacePacket as its base type,
+          and this interface operates solely at the CCSDS spacepacket level and does not interpret message content.
+        </LongDescription>
+        <CommandSet>
+          <Command name="send">
+            <Argument name="data" type="CCSDS/SpacePacket" mode="in" dataUnit="true" />
+          </Command>
+          <Command name="receive">
+            <Argument name="data" type="CCSDS/SpacePacket" mode="out" dataUnit="true" />
+          </Command>
+        </CommandSet>
+      </Interface>
+      
+      <Interface name="PubSub" level="access" shortDescription="CFE software bus publish/subscribe interface">
+        <LongDescription>
+           This represents the access interface used for passing message datagrams 
+           to and from the message transfer service (MTS).  It operates using publish/subscribe
+           semantics, where messages are sent and received using an abstract idenifier referred
+           to as a software bus message ID.  This essentially acts as a filter on the underlying
+           MTS interface, where outgoing traffic is "tagged" with the appropriate MsgId and
+           only the specified MsgId passes through on the receive side.
+        </LongDescription>
+        <ParameterSet>
+          <Parameter name="MsgId" type="MsgId" />
+        </ParameterSet>
+        <CommandSet>
+          <Command name="send">
+            <Argument name="data" type="CCSDS/SpacePacket" mode="in" />
+          </Command>
+          <Command name="receive">
+            <Argument name="data" type="CCSDS/SpacePacket" mode="out" />
+          </Command>
+        </CommandSet>
+      </Interface>
+      
+      
+        <!--
+        NOTE: The TC/TM interfaces are declared separately because many CFS applications do 
+        not have a 1:1 relationship between telecommand and telemetry streams.  For instance, some 
+        applications define a single command packet, but publish 3-4 different telemetry packets.
+        
+        For instance, the software bus application itself listens for 2 different command streams but
+        publishes 4 different telemetry streams.  There is no direct relationship between these.
+         -->
+      <Interface name="Telemetry" level="functional" shortDescription="CFE software bus pipe publication interface">
+        <LongDescription>
+            Higher level interface to publish a message via the CFE software bus.  cFS applications may define their
+            own application-specific interface of this type to indicate the message(s) it will publish via 
+            the software bus.  This is typically the various types of telemetry that the application generates.
+        </LongDescription>
+        <ParameterSet>
+          <Parameter name="InstanceNumber" type="BASE_TYPES/uint16" shortDescription="Identifies a specific instance of this topic within the mission" />
+          <Parameter name="TopicId" type="BASE_TYPES/uint16" shortDescription="Abstract topic ID number shared by all instances" />
+        </ParameterSet>
+        <GenericTypeSet>
+          <GenericType name="TelemetryDataType" baseType="CCSDS/TelemetryPacket" />
+        </GenericTypeSet>
+        <CommandSet>
+          <!--
+              NOTE: This datasheet serves both sides of the connection; the implementation of this interface
+              within the CFS code and any external code share this definition.  Therefore the terms "send" and
+              "receive" are not valid since it depends on which point of view.  The term "indication" makes more
+              sense as it can apply to either context.
+          -->
+          <Command name="indication" mode="async" shortDescription="Publishes a single datagram on the CFE software bus (SB)">
+            <Argument name="data" type="TelemetryDataType" mode="in" />
+          </Command>
+        </CommandSet>
+      </Interface>
+      
+      <Interface name="Telecommand" level="functional" shortDescription="CFE software bus pipe listener interface">
+        <LongDescription>
+            Interface to listen for a message from the CFE software bus.  cFS application data sheets may derive their
+            own application-specific interface from this base to indicate the type of message(s) it will subscribe to 
+            via the software bus.  This is typically the various telecommand messages that the application supports. 
+            
+            This is a receive-only interface; the Telemetry interface provides the equivalent send function.
+        </LongDescription>
+        <ParameterSet>
+          <Parameter name="InstanceNumber" type="BASE_TYPES/uint16" shortDescription="Identifies a specific instance of this topic within the mission" />
+          <Parameter name="TopicId" type="BASE_TYPES/uint16" shortDescription="Abstract topic ID number shared by all instances" />
+        </ParameterSet>
+        <GenericTypeSet>
+          <GenericType name="TelecommandDataType" baseType="CCSDS/CommandPacket" />
+        </GenericTypeSet>
+        <CommandSet>
+          <!--
+              NOTE: This datasheet serves both sides of the connection; the implementation of this interface
+              within the CFS code and any external code share this definition.  Therefore the terms "send" and
+              "receive" are not valid since it depends on which point of view.  The term "indication" makes more
+              sense as it can apply to either context.
+          -->
+          <Command name="indication" mode="async" shortDescription="Indicates a single command on the CFE software bus (SB)">
+            <Argument name="data" type="TelecommandDataType" mode="out" />
+          </Command>
+        </CommandSet>
+      </Interface>
+    </DeclaredInterfaceSet>
+    
+    <ComponentSet>
+      <Component name="MTS">
+        <ProvidedInterfaceSet>
+          <Interface name="Transport" type="MTS" />
+        </ProvidedInterfaceSet>
+      </Component>
+      
+      <Component name="SoftwareBus">
+        <ProvidedInterfaceSet>
+          <Interface name="PubSub" type="PubSub" />
+        </ProvidedInterfaceSet>
+        <RequiredInterfaceSet>
+          <Interface name="Transport" type="MTS" />
+        </RequiredInterfaceSet>
+      </Component>
+        
+      <Component name="Listener">
+        <ProvidedInterfaceSet>
+          <Interface name="Telecommand" type="Telecommand" />
+        </ProvidedInterfaceSet>
+        <RequiredInterfaceSet>
+          <Interface name="Subscribe" type="PubSub" />
+        </RequiredInterfaceSet>
+      </Component>
+      
+      <Component name="Publisher">
+        <ProvidedInterfaceSet>
+          <Interface name="Telemetry" type="Telemetry" />
+        </ProvidedInterfaceSet>
+        <RequiredInterfaceSet>
+          <Interface name="Publish" type="PubSub" />
+        </RequiredInterfaceSet>
+      </Component>
+      
+      <Component name="Application">
+        <RequiredInterfaceSet>
+          <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">
+            <!-- This uses a common base type for all software bus application command messages -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CommandBase" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
+            <!-- This uses a bare spacepacket with no payload -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CCSDS/CommandPacket" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">
+            <!-- This publishes a message datagram of the CFE_SB/HousekeepingTlm datatype -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="HousekeepingTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="STATS_TLM" shortDescription="Software bus statistics telemetry interface" type="CFE_SB/Telemetry">
+            <!-- This publishes a message datagram of the CFE_SB/StatsTlm datatype -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="StatsTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="ALLSUBS_TLM" shortDescription="Software bus global subscription telemetry interface" type="CFE_SB/Telemetry">
+            <!-- This publishes a message datagram of the CFE_SB/AllSubscriptionTlm datatype -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="AllSubscriptionsTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="ONESUB_TLM" shortDescription="Software bus single subscription telemetry interface" type="CFE_SB/Telemetry">
+            <!-- This publishes a message datagram of the CFE_SB/SingleSubscriptionTlm datatype -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="SingleSubscriptionTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+        </RequiredInterfaceSet>
+        <Implementation>
+          <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
+          <ParameterMapSet>
+            <ParameterMap interface="CMD" parameterRef="TopicId" value="${CFE_MISSION/SB_CMD_TOPICID}" />
+            <ParameterMap interface="SEND_HK" parameterRef="TopicId" value="${CFE_MISSION/SB_SEND_HK_TOPICID}" />
+            <ParameterMap interface="HK_TLM" parameterRef="TopicId" value="${CFE_MISSION/SB_HK_TLM_TOPICID}" />
+            <ParameterMap interface="STATS_TLM" parameterRef="TopicId" value="${CFE_MISSION/SB_STATS_TLM_TOPICID}" />
+            <ParameterMap interface="ALLSUBS_TLM" parameterRef="TopicId" value="${CFE_MISSION/SB_ALLSUBS_TLM_TOPICID}" />
+            <ParameterMap interface="ONESUB_TLM" parameterRef="TopicId" value="${CFE_MISSION/SB_ONESUB_TLM_TOPICID}" />
+          </ParameterMapSet>
+        </Implementation>
+      </Component>
+    </ComponentSet>
+    
+  </Namespace>
+</DataSheet>
