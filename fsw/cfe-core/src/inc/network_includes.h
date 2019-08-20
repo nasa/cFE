@@ -33,7 +33,7 @@
 #ifndef _network_includes_
 #define _network_includes_
 
-#ifdef defined(_VXWORKS_OS_)
+#ifdef _VXWORKS_OS_
     #include <vxWorks.h>
     #include <selectLib.h>
     #include <sockLib.h>
