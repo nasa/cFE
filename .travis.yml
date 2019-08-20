@@ -40,3 +40,4 @@ script:
   - make
   - make install
   - ls build/exe/cpu1/
+
