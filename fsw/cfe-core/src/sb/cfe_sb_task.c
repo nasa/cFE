@@ -1,23 +1,25 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
 ** File: cfe_sb_task.c
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 ** Purpose:
 **      This file contains the source code for the SB task.
@@ -217,17 +219,17 @@ int32 CFE_SB_AppInit(void){
     CFE_SB_InitMsg(&CFE_SB.HKTlmMsg,
                    CFE_SB_HK_TLM_MID,
                    sizeof(CFE_SB.HKTlmMsg),
-                   TRUE);
+                   true);
 
     CFE_SB_InitMsg(&CFE_SB.PrevSubMsg,
                    CFE_SB_ALLSUBS_TLM_MID,
                    sizeof(CFE_SB.PrevSubMsg),
-                   TRUE);
+                   true);
 
     CFE_SB_InitMsg(&CFE_SB.SubRprtMsg,
                    CFE_SB_ONESUB_TLM_MID,
                    sizeof(CFE_SB.SubRprtMsg),
-                   TRUE);    
+                   true);    
 
     /* Populate the fixed fields in the HK Tlm Msg */
     CFE_SB_SET_MEMADDR(CFE_SB.HKTlmMsg.Payload.MemPoolHandle, CFE_SB.Mem.PoolHdl);
@@ -304,11 +306,11 @@ int32 CFE_SB_AppInit(void){
 **    Message pointer and expected length
 **
 **  Return:
-**    TRUE if length is acceptable
+**    true if length is acceptable
 */
-boolean CFE_SB_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
+bool CFE_SB_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
 {
-    boolean result       = TRUE;
+    bool result       = true;
     uint16  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
 
     /*
@@ -322,7 +324,7 @@ boolean CFE_SB_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
         CFE_EVS_SendEvent(CFE_SB_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                 "Invalid cmd length: ID = 0x%X, CC = %d, Exp Len = %d, Len = %d",
                 (unsigned int)MessageID, (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
-        result = FALSE;
+        result = false;
         ++CFE_SB.HKTlmMsg.Payload.CommandErrorCounter;
     }
 

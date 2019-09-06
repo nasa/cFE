@@ -1,24 +1,25 @@
 /*
-** $Id: cfe_tbl_internal.h 1.8 2012/01/13 12:17:40GMT-05:00 acudmore Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**  
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_tbl_internal.h
 **
 ** Purpose:  cFE Table Services (TBL) utility function interface file
 **
@@ -344,8 +345,8 @@ int32   CFE_TBL_UnlockRegistry(void);
 **                               a working buffer is to be obtained
 **
 ** \param[in]  CalledByApp       Boolean that identifies whether this internal API
-**                               function is being called by a user Application (TRUE)
-**                               or by the Table Services Application (FALSE)
+**                               function is being called by a user Application (true)
+**                               or by the Table Services Application (false)
 ** 
 ** \param[out] *WorkingBufferPtr Address of first byte of working buffer
 **
@@ -355,7 +356,7 @@ int32   CFE_TBL_UnlockRegistry(void);
 ******************************************************************************/
 int32   CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
                                  CFE_TBL_RegistryRec_t *RegRecPtr,
-                                 boolean CalledByApp);
+                                 bool CalledByApp);
                                  
 
 /*****************************************************************************/

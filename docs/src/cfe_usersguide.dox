@@ -52,7 +52,6 @@
     <LI> \subpage cfeapi <BR>
   </UL>
   
-  \subpage cfeugrevhist <BR>
   
 **/
 
@@ -66,18 +65,3 @@
   
 **/
 
-
-/**
-  \page cfeugrevhist cFE User's Guide Documentation Revision History
-  
-  \verbatim
-  $Log: cfe_usersguide.dox  $
-  Revision 1.2 2008/12/06 15:34:31GMT-05:00 dkobe 
-  Corrected formatting of revision history
-  Revision 1.1 2008/12/06 10:19:53EST dkobe 
-  Initial revision
-  Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-CFE-PROJECT/docs/src/project.pj
-  \endverbatim
-
-  Up To: \ref cfeusersguide
-**/

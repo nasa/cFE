@@ -9,15 +9,49 @@
 # CPU number starting with 1:
 #
 #  TGT<x>_NAME : the user-friendly name of the cpu.  Should be simple
-#       word with no punctuation
-#  TGT<x>_APPLIST : list of applications to build and install on the CPU
-#  TGT<x>_DRIVERLIST : list of drivers to build and statically link into 
-#       the PSP for this CPU. This requires the PSP iodriver enhancement.
+#       word with no punctuation.  This MUST be specified.
+#  TGT<x>_APPLIST : list of applications to build and install on the CPU.
+#       These are built as dynamically-loaded applications and installed
+#       as files in the non-volatile storage of the target, and loaded
+#       at runtime via the startup script or commands.
+#  TGT<x>_STATIC_APPLIST : list of applications to build and statically
+#       link with the CFE executable.  This is similar to the "APPLIST"
+#       except the application is built with STATIC linkage, and it is
+#       included directly when linking the CFE core executable itself.
+#       No separate application file is generated for these apps. 
+#  TGT<x>_STATIC_SYMLIST : list of symbols to include in the OSAL static
+#       symbol lookup table.  Each entry is a comma-separated pair containing
+#       the symbol name and virtual module/app name, such as   
+#           My_C_Function_Name,MY_APP
+#       The first item must be a publicly-exposed C symbol name available to
+#       the linker at static link time, generally the entry point/main function
+#       of the a module or library (see STATIC_APPLIST).  The second item is the
+#       module name that should match the name used in the CFE startup script 
+#       (4th parameter).
+#       IMPORTANT:  For this to work, the OS_STATIC_LOADER configuration option 
+#       must be specified in the osconfig.h for that CPU.
+#  TGT<x>_PSP_MODULELIST : additional PSP "modules" to link into the
+#       CFE executable for this target.  These can be device drivers or
+#       other bits of modular PSP functionality that provide I/O or other
+#       low level functions.
 #  TGT<x>_FILELIST : list of extra files to copy onto the target.  No
 #       modifications of the file will be made.  In order to differentiate
 #       between different versions of files with the same name, priority
 #       will be given to a file named <cpuname>_<filename> to be installed
-#       as simply <filename> on that cpu (prefix will be removed). 
+#       as simply <filename> on that cpu (prefix will be removed).  These
+#       files are intended to be copied to the non-volatile storage on the
+#       target for use during runtime.
+#  TGT<x>_EMBED_FILELIST : list of extra files which are to be converted
+#       into data arrays and linked with/embedded into the CFE executable, 
+#       so the content of the files can be available at runtime on systems
+#       that do not have run time non-volatile storage.  The format of each
+#       list entry is a comma-separated pair of variable and file name:
+#            VARIABLE_NAME,FILE_NAME
+#       The binary contents of the file will subsequently be available as:
+#            extern const char VARIABLE_NAME_DATA[] and 
+#            extern const unsigned long VARIABLE_NAME_SIZE
+#       The same prefix-based filename mapping as used on FILELIST is also
+#       employed here, allowing CPU-specific data files to be used. 
 #  TGT<x>_SYSTEM : the toolchain to use for building all code.  This
 #       will map to a CMake toolchain file called "toolchain-<ZZZ>"
 #       If not specified then it will default to "cpu<x>" so that

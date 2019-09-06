@@ -1,22 +1,24 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 ** File:
 **    tbl_UT.c
 **
@@ -31,9 +33,6 @@
 ** Notes:
 **    1. This is unit test code only, not for use in flight
 **
-** $Date: 2014/05/28 09:21:46GMT-05:00 $
-** $Revision: 1.9 $
-**
 */
 
 /*
@@ -44,39 +43,8 @@
 /*
 ** External global variables
 */
-extern uint32 UT_OS_Fail;
-extern uint8  UT_CDS[UT_CDS_SIZE];
-extern uint8  UT_Endianess;
 
-extern UT_CDS_Map_t       UT_CDS_Map;
 extern CFE_TBL_TaskData_t CFE_TBL_TaskData;
-
-extern UT_SetRtn_t FileWriteRtn;
-extern UT_SetRtn_t FSWriteHdrRtn;
-extern UT_SetRtn_t FSReadHdrRtn;
-extern UT_SetRtn_t OSReadRtn;
-extern UT_SetRtn_t OSReadRtn2;
-extern UT_SetRtn_t SBSendMsgRtn;
-extern UT_SetRtn_t FSSetTimestampRtn;
-extern UT_SetRtn_t ES_DeleteCDSRtn;
-extern UT_SetRtn_t ES_RegisterCDSRtn;
-extern UT_SetRtn_t ES_CopyToCDSRtn;
-extern UT_SetRtn_t ES_RestoreFromCDSRtn;
-extern UT_SetRtn_t ES_RegisterRtn;
-extern UT_SetRtn_t SB_CreatePipeRtn;
-extern UT_SetRtn_t SB_SubscribeRtn;
-extern UT_SetRtn_t EVS_SendEventRtn;
-extern UT_SetRtn_t EVS_RegisterRtn;
-extern UT_SetRtn_t GetAppIDRtn;
-extern UT_SetRtn_t GetPoolRtn;
-extern UT_SetRtn_t PutPoolRtn;
-extern UT_SetRtn_t MutSemCreateRtn;
-extern UT_SetRtn_t MutSemGiveRtn;
-extern UT_SetRtn_t MutSemTakeRtn;
-extern UT_SetRtn_t CreatePoolRtn;
-extern UT_SetRtn_t SendMsgEventIDRtn;
-extern UT_SetRtn_t SetMsgIdRtn;
-extern UT_SetRtn_t ES_ExitAppRtn;
 
 /*
 ** Global variables
@@ -91,8 +59,30 @@ void *Tbl1Ptr = NULL;
 void *Tbl2Ptr = NULL;
 void **ArrayOfPtrsToTblPtrs[2];
 
+static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TBL_CMD_NOOP_CC =
+{
+        .MsgId = CFE_TBL_CMD_MID,
+        .CommandCode = CFE_TBL_NOOP_CC
+};
+static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC =
+{
+        .MsgId = CFE_TBL_CMD_MID,
+        .CommandCode = CFE_TBL_RESET_COUNTERS_CC
+};
+static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TBL_INVALID_MID =
+{
+        .MsgId = 0xFFFF,
+        .CommandCode = 0
+};
+static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TBL_CMD_INVALID_CC =
+{
+        .MsgId = CFE_TBL_CMD_MID,
+        .CommandCode = 0x7F
+};
+
+
+
 CFE_TBL_RegistryRec_t Original[CFE_PLATFORM_TBL_MAX_NUM_TABLES];
-UT_SetRtn_t TBL_ValidationFuncRtn;
 
 /*
 ** Functions
@@ -102,7 +92,6 @@ void OS_Application_Startup(void)
     /* Initialize unit test */
     UT_Init("tbl");
     UT_Text("cFE TBL Unit Test Output File\n\n");
-    TBL_ValidationFuncRtn.count = 0;
     UT_InitializeTableRegistryNames();
 
     /* cfe_tbl_task.c functions */
@@ -150,14 +139,6 @@ void OS_Application_Startup(void)
 }
 
 /*
-** Unit test specific call to process SB messages
-*/
-void UT_ProcessSBMsg(CFE_SB_Msg_t *MsgPtr)
-{
-    CFE_TBL_TaskPipe(MsgPtr);
-}
-
-/*
 ** Fill the whole table registry with known table names and set an owner ID
 */
 void UT_InitializeTableRegistryNames()
@@ -191,9 +172,9 @@ void UT_ResetTableRegistry(void)
         CFE_TBL_TaskData.Handles[i].RegIndex = 0;
         CFE_TBL_TaskData.Handles[i].PrevLink = CFE_TBL_END_OF_LIST;
         CFE_TBL_TaskData.Handles[i].NextLink = CFE_TBL_END_OF_LIST;
-        CFE_TBL_TaskData.Handles[i].UsedFlag = FALSE;
-        CFE_TBL_TaskData.Handles[i].LockFlag = FALSE;
-        CFE_TBL_TaskData.Handles[i].Updated = FALSE;
+        CFE_TBL_TaskData.Handles[i].UsedFlag = false;
+        CFE_TBL_TaskData.Handles[i].LockFlag = false;
+        CFE_TBL_TaskData.Handles[i].Updated = false;
         CFE_TBL_TaskData.Handles[i].BufferIndex = 0;
     }
 
@@ -203,7 +184,7 @@ void UT_ResetTableRegistry(void)
         CFE_TBL_TaskData.ValidationResults[i].State = CFE_TBL_VALIDATION_FREE;
         CFE_TBL_TaskData.ValidationResults[i].CrcOfTable = 0;
         CFE_TBL_TaskData.ValidationResults[i].Result = 0;
-        CFE_TBL_TaskData.ValidationResults[i].ActiveBuffer = FALSE;
+        CFE_TBL_TaskData.ValidationResults[i].ActiveBuffer = false;
         CFE_TBL_TaskData.ValidationResults[i].TableName[0] = '\0';
     }
 
@@ -216,7 +197,7 @@ void UT_ResetTableRegistry(void)
         CFE_TBL_TaskData.DumpControlBlocks[i].TableName[0] = '\0';
 
         /* Free all shared buffers */
-        CFE_TBL_TaskData.LoadBuffs[i].Taken = FALSE;
+        CFE_TBL_TaskData.LoadBuffs[i].Taken = false;
     }
 
     CFE_TBL_TaskData.ValidationCounter = 0;
@@ -229,20 +210,27 @@ void UT_ResetTableRegistry(void)
 */
 void Test_CFE_TBL_TaskInit(void)
 {
-    CFE_SB_MsgPtr_t     MsgPtr;
-    CFE_TBL_NoArgsCmd_t NoArgsCmd;
+    uint32 ExitCode;
+    union
+    {
+        CFE_TBL_NoArgsCmd_t NoArgsCmd;
+        CFE_SB_Msg_t Msg;
+    } CmdBuf;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Task Init\n");
 #endif
 
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+
     /* Test successful table services main entry point execution */
     UT_InitData();
-    MsgPtr = (CFE_SB_MsgPtr_t) &NoArgsCmd;
+    ExitCode = 0;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_ExitApp), &ExitCode, sizeof(ExitCode), false);
     CFE_TBL_TaskMain();
     UT_Report(__FILE__, __LINE__,
-              ES_ExitAppRtn.value == CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR &&
-              ES_ExitAppRtn.count == 1,
+              ExitCode == CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR &&
+              UT_GetStubCount(UT_KEY(CFE_ES_ExitApp)) == 1,
               "CFE_TBL_TaskMain",
               "Success");
 
@@ -250,12 +238,13 @@ void Test_CFE_TBL_TaskInit(void)
      * application failure
      */
     UT_InitData();
-    UT_SetRtnCode(&ES_RegisterRtn, -1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, -1);
+    ExitCode = 0;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_ExitApp), &ExitCode, sizeof(ExitCode), false);
     CFE_TBL_TaskMain();
     UT_Report(__FILE__, __LINE__,
-              ES_ExitAppRtn.value == CFE_ES_RunStatus_CORE_APP_INIT_ERROR +
-                                     CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR &&
-              ES_ExitAppRtn.count == 2,
+              ExitCode == CFE_ES_RunStatus_CORE_APP_INIT_ERROR &&
+              UT_GetStubCount(UT_KEY(CFE_ES_ExitApp)) == 2,
               "CFE_TBL_TaskMain",
               "Application register fail");
 
@@ -270,7 +259,7 @@ void Test_CFE_TBL_TaskInit(void)
      * creation failure
      */
     UT_InitData();
-    UT_SetRtnCode(&SB_CreatePipeRtn, -2, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_CreatePipe), 1, -2);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskInit() == -2,
               "CFE_TBL_TaskInit",
@@ -280,7 +269,7 @@ void Test_CFE_TBL_TaskInit(void)
      * housekeeping request subscription error
      */
     UT_InitData();
-    UT_SetRtnCode(&SB_SubscribeRtn, -3, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 1, -3);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskInit() == -3,
               "CFE_TBL_TaskInit",
@@ -290,7 +279,7 @@ void Test_CFE_TBL_TaskInit(void)
      * ground command subscription error
      */
     UT_InitData();
-    UT_SetRtnCode(&SB_SubscribeRtn, -4, 2);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 2, -4);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskInit() == -4,
               "CFE_TBL_TaskInit",
@@ -300,7 +289,7 @@ void Test_CFE_TBL_TaskInit(void)
      * send initialization event error
      */
     UT_InitData();
-    UT_SetRtnCode(&EVS_SendEventRtn, -5, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 1, -5);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskInit() == -5,
               "CFE_TBL_TaskInit",
@@ -310,7 +299,7 @@ void Test_CFE_TBL_TaskInit(void)
      * EVS register failure
      */
     UT_InitData();
-    UT_SetRtnCode(&EVS_RegisterRtn, -6, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_Register), 1, -6);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskInit() == -6,
               "CFE_TBL_TaskInit",
@@ -318,12 +307,10 @@ void Test_CFE_TBL_TaskInit(void)
 
     /* Test command pipe messages handler response to a valid command */
     UT_InitData();
-    UT_SetSBTotalMsgLen(sizeof(NoArgsCmd));
-    CFE_SB_SetMsgId(MsgPtr, CFE_TBL_CMD_MID);
-    CFE_SB_SetCmdCode(MsgPtr, CFE_TBL_NOOP_CC);
-    CFE_TBL_TaskPipe(MsgPtr);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd),
+            UT_TPID_CFE_TBL_CMD_NOOP_CC);
     UT_Report(__FILE__, __LINE__,
-              SendMsgEventIDRtn.value == CFE_TBL_NOOP_INF_EID,
+              UT_EventIsInHistory(CFE_TBL_NOOP_INF_EID),
               "CFE_TBL_TaskPipe",
               "Valid command (no-op) - success");
 
@@ -331,12 +318,10 @@ void Test_CFE_TBL_TaskInit(void)
      * message length
      */
     UT_InitData();
-    UT_SetSBTotalMsgLen(sizeof(NoArgsCmd) - 1);
-    CFE_SB_SetMsgId(MsgPtr, CFE_TBL_CMD_MID);
-    CFE_SB_SetCmdCode(MsgPtr, CFE_TBL_NOOP_CC);
-    CFE_TBL_TaskPipe(MsgPtr);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd) - 1, 
+            UT_TPID_CFE_TBL_CMD_NOOP_CC);
     UT_Report(__FILE__, __LINE__,
-              SendMsgEventIDRtn.value == CFE_TBL_LEN_ERR_EID,
+              UT_EventIsInHistory(CFE_TBL_LEN_ERR_EID),
               "CFE_TBL_TaskPipe",
               "Invalid message length");
 
@@ -344,25 +329,22 @@ void Test_CFE_TBL_TaskInit(void)
      * command code
      */
     UT_InitData();
-    UT_SetSBTotalMsgLen(sizeof(NoArgsCmd));
-    CFE_SB_SetMsgId(MsgPtr, CFE_TBL_CMD_MID);
-    CFE_SB_SetCmdCode(MsgPtr, 999);
-    CFE_TBL_TaskPipe(MsgPtr);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), 
+            UT_TPID_CFE_TBL_CMD_INVALID_CC);
     UT_Report(__FILE__, __LINE__,
-              SendMsgEventIDRtn.value == CFE_TBL_CC1_ERR_EID,
+              UT_EventIsInHistory(CFE_TBL_CC1_ERR_EID),
               "CFE_TBL_TaskPipe",
               "Invalid command code");
 
+    /* Test command pipe messages handler response to other errors */
     /* Test command pipe messages handler response to "message type" message */
     UT_InitData();
-    UT_SetSBTotalMsgLen(sizeof(NoArgsCmd));
-    CFE_SB_SetMsgId(MsgPtr, CFE_TBL_SEND_HK_MID);
-    CFE_SB_SetCmdCode(MsgPtr, 0);
     CFE_TBL_TaskData.CommandCounter = 0;
     CFE_TBL_TaskData.CommandErrorCounter = 0;
-    CFE_TBL_TaskPipe(MsgPtr);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), 
+            UT_TPID_CFE_TBL_INVALID_MID);
     UT_Report(__FILE__, __LINE__,
-              SendMsgEventIDRtn.value == CFE_TBL_MID_ERR_EID &&
+              UT_EventIsInHistory(CFE_TBL_MID_ERR_EID) &&
                   CFE_TBL_TaskData.CommandCounter == 0 &&
                   CFE_TBL_TaskData.CommandErrorCounter == 0,
               "CFE_TBL_TaskPipe",
@@ -370,12 +352,10 @@ void Test_CFE_TBL_TaskInit(void)
 
     /* Test command pipe messages handler response to "command type" message */
     UT_InitData();
-    UT_SetSBTotalMsgLen(sizeof(NoArgsCmd));
-    CFE_SB_SetMsgId(MsgPtr, CFE_TBL_CMD_MID);
-    CFE_SB_SetCmdCode(MsgPtr, CFE_TBL_RESET_COUNTERS_CC);
-    CFE_TBL_TaskPipe(MsgPtr);
+    UT_CallTaskPipe(CFE_TBL_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd),
+            UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC);
     UT_Report(__FILE__, __LINE__,
-              SendMsgEventIDRtn.value == CFE_TBL_RESET_INF_EID &&
+              UT_EventIsInHistory(CFE_TBL_RESET_INF_EID) &&
                   CFE_TBL_TaskData.CommandCounter == 0 &&
                   CFE_TBL_TaskData.CommandErrorCounter == 0,
               "CFE_TBL_TaskPipe",
@@ -387,16 +367,19 @@ void Test_CFE_TBL_TaskInit(void)
 */
 void Test_CFE_TBL_InitData(void)
 {
+    CFE_SB_MsgId_t MsgIdBuf[2];
+
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Init Data\n");
 #endif
 
     /* This function has only one possible path with no return code */
     UT_InitData();
+    UT_SetDataBuffer(UT_KEY(CFE_SB_SetMsgId), MsgIdBuf, sizeof(MsgIdBuf), false);
     CFE_TBL_InitData();
     UT_Report(__FILE__, __LINE__,
-              SetMsgIdRtn.value == CFE_TBL_REG_TLM_MID &&
-              SetMsgIdRtn.count == 2,
+              MsgIdBuf[1] == CFE_TBL_REG_TLM_MID &&
+              UT_GetStubCount(UT_KEY(CFE_SB_SetMsgId)) == 2,
               "CFE_TBL_SearchCmdHndlrTbl",
               "Initialize data");
 }
@@ -502,7 +485,7 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
     UT_InitData();
     snprintf(DelCDSCmd.Payload.TableName, sizeof(DelCDSCmd.Payload.TableName), "%d",
              CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES + CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1);
-    UT_SetRtnCode(&ES_DeleteCDSRtn, CFE_ES_CDS_WRONG_TYPE_ERR, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_DeleteCDS), 1, CFE_ES_CDS_WRONG_TYPE_ERR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DeleteCDSCmd(&DelCDSCmd) ==
                                        CFE_TBL_INC_ERR_CTR,
@@ -512,7 +495,7 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
 
     /* Test deletion when CDS owning application is still active */
     UT_InitData();
-    UT_SetRtnCode(&ES_DeleteCDSRtn, CFE_ES_CDS_OWNER_ACTIVE_ERR, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_DeleteCDS), 1, CFE_ES_CDS_OWNER_ACTIVE_ERR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DeleteCDSCmd(&DelCDSCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -521,7 +504,7 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
 
     /* Test deletion where the table cannot be located in the CDS registry */
     UT_InitData();
-    UT_SetRtnCode(&ES_DeleteCDSRtn, CFE_ES_CDS_NOT_FOUND_ERR, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_DeleteCDS), 1, CFE_ES_CDS_NOT_FOUND_ERR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DeleteCDSCmd(&DelCDSCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -530,7 +513,7 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
 
     /* Test deletion error while deleting table from the CDS */
     UT_InitData();
-    UT_SetRtnCode(&ES_DeleteCDSRtn, CFE_SUCCESS - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_DeleteCDS), 1, CFE_SUCCESS - 1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DeleteCDSCmd(&DelCDSCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -539,7 +522,7 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
 
     /* Test successful removal of the table from the CDS */
     UT_InitData();
-    UT_SetRtnCode(&ES_DeleteCDSRtn, CFE_SUCCESS, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_DeleteCDS), 1, CFE_SUCCESS);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DeleteCDSCmd(&DelCDSCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -625,7 +608,7 @@ void Test_CFE_TBL_AbortLoadCmd(void)
      */
     UT_InitData();
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    CFE_TBL_TaskData.Registry[0].DumpOnly = TRUE;
+    CFE_TBL_TaskData.Registry[0].DumpOnly = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_AbortLoadCmd(&AbortLdCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -644,17 +627,17 @@ void Test_CFE_TBL_AbortLoadCmd(void)
 
     /* Test when table is double buffered */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[0].DoubleBuffered = TRUE;
-    CFE_TBL_TaskData.LoadBuffs[0].Taken = TRUE;
+    CFE_TBL_TaskData.Registry[0].DoubleBuffered = true;
+    CFE_TBL_TaskData.LoadBuffs[0].Taken = true;
     CFE_TBL_AbortLoad(&CFE_TBL_TaskData.Registry[0]);
     UT_Report(__FILE__, __LINE__,
-              CFE_TBL_TaskData.LoadBuffs[0].Taken == TRUE,
+              CFE_TBL_TaskData.LoadBuffs[0].Taken == true,
               "CFE_TBL_AbortLoad",
               "Table is double buffered");
 
     /* Restore values for subsequent tests */
     CFE_TBL_TaskData.Registry[0].LoadInProgress = load;
-    CFE_TBL_TaskData.LoadBuffs[0].Taken = FALSE;
+    CFE_TBL_TaskData.LoadBuffs[0].Taken = false;
 }
 
 /*
@@ -678,7 +661,7 @@ void Test_CFE_TBL_ActivateCmd(void)
      * table
      */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[0].DumpOnly = TRUE;
+    CFE_TBL_TaskData.Registry[0].DumpOnly = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_ActivateCmd(&ActivateCmd) ==
                                       CFE_TBL_INC_ERR_CTR,
@@ -689,9 +672,9 @@ void Test_CFE_TBL_ActivateCmd(void)
      * progress, and the table is double-buffered
      */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[0].DumpOnly = FALSE;
+    CFE_TBL_TaskData.Registry[0].DumpOnly = false;
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    CFE_TBL_TaskData.Registry[0].DoubleBuffered = TRUE;
+    CFE_TBL_TaskData.Registry[0].DoubleBuffered = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_ActivateCmd(&ActivateCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -700,11 +683,11 @@ void Test_CFE_TBL_ActivateCmd(void)
                  "progress: Table is double-buffered");
 
     /* Test when table name exists, the table is not a dump-only, a load is in
-     * progress, the table isn't double-buffered, and ValidationStatus = TRUE
+     * progress, the table isn't double-buffered, and ValidationStatus = true
      */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[0].DoubleBuffered = FALSE;
-    CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[0].LoadInProgress].Validated = TRUE;
+    CFE_TBL_TaskData.Registry[0].DoubleBuffered = false;
+    CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[0].LoadInProgress].Validated = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_ActivateCmd(&ActivateCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -716,7 +699,7 @@ void Test_CFE_TBL_ActivateCmd(void)
      * progress, and no notification message should be sent
      */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[0].NotifyByMsg = FALSE;
+    CFE_TBL_TaskData.Registry[0].NotifyByMsg = false;
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_ActivateCmd(&ActivateCmd) ==
@@ -729,8 +712,8 @@ void Test_CFE_TBL_ActivateCmd(void)
      * progress, and a notification message should be sent
      */
     UT_InitData();
-    UT_SetRtnCode(&SBSendMsgRtn, CFE_SB_INTERNAL_ERR, 1);
-    CFE_TBL_TaskData.Registry[0].NotifyByMsg = TRUE;
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SendMsg), 1, CFE_SB_INTERNAL_ERR);
+    CFE_TBL_TaskData.Registry[0].NotifyByMsg = true;
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_ActivateCmd(&ActivateCmd) ==
@@ -767,7 +750,7 @@ void Test_CFE_TBL_DumpToFile(void)
 
     /* Test with an error creating the dump file */
     UT_InitData();
-    UT_SetOSFail(OS_CREAT_FAIL);
+    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_ERR_CTR,
@@ -776,8 +759,7 @@ void Test_CFE_TBL_DumpToFile(void)
 
     /* Test with an error writing the cFE file header */
     UT_InitData();
-    UT_SetOSFail(OS_NO_FAIL);
-    UT_SetRtnCode(&FSWriteHdrRtn, sizeof(CFE_FS_Header_t) - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_ERR_CTR,
@@ -790,8 +772,8 @@ void Test_CFE_TBL_DumpToFile(void)
     /* Set the count for the FSWriteHdrRtn return code variable to a large
      * enough value to pass through every time
      */
-    UT_SetRtnCode(&FSWriteHdrRtn, sizeof(CFE_FS_Header_t), 6);
-    UT_SetRtnCode(&FileWriteRtn, sizeof(CFE_TBL_File_Hdr_t) - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 6, sizeof(CFE_FS_Header_t));
+    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(CFE_TBL_File_Hdr_t) - 1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_ERR_CTR,
@@ -800,7 +782,7 @@ void Test_CFE_TBL_DumpToFile(void)
 
     /* Test with an error writing the table to a file */
     UT_InitData();
-    UT_SetRtnCode(&FileWriteRtn, TblSizeInBytes - 1, 2);
+    UT_SetDeferredRetcode(UT_KEY(OS_write), 2, TblSizeInBytes - 1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_ERR_CTR,
@@ -809,7 +791,7 @@ void Test_CFE_TBL_DumpToFile(void)
 
     /* Test successful file creation and data dumped */
     UT_InitData();
-    UT_SetOSFail(OS_OPEN_FAIL);
+    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_CMD_CTR,
@@ -818,7 +800,6 @@ void Test_CFE_TBL_DumpToFile(void)
 
     /* Test where file already exists so data isoverwritten */
     UT_InitData();
-    UT_SetOSFail(OS_NO_FAIL);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_CMD_CTR,
@@ -912,7 +893,7 @@ void Test_CFE_TBL_ValidateCmd(void)
     UT_InitData();
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_FREE;
     CFE_TBL_TaskData.Registry[0].ValidationFuncPtr = ValFuncPtr;
-    ValidateCmd.Payload.ActiveTableFlag = TRUE;
+    ValidateCmd.Payload.ActiveTableFlag = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_ValidateCmd(&ValidateCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -925,7 +906,7 @@ void Test_CFE_TBL_ValidateCmd(void)
      */
     UT_InitData();
     ValidateCmd.Payload.ActiveTableFlag = CFE_TBL_BufferSelect_INACTIVE;
-    CFE_TBL_TaskData.Registry[0].DoubleBuffered = TRUE;
+    CFE_TBL_TaskData.Registry[0].DoubleBuffered = true;
     CFE_TBL_TaskData.Registry[0].Buffers[1 - CFE_TBL_TaskData.Registry[0].ActiveBufferIndex].BufferPtr = BuffPtr;
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_FREE;
     CFE_TBL_TaskData.Registry[0].ValidationFuncPtr = ValFuncPtr;
@@ -941,8 +922,8 @@ void Test_CFE_TBL_ValidateCmd(void)
      * notification message should be sent
      */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[0].NotifyByMsg = FALSE;
-    CFE_TBL_TaskData.Registry[0].DoubleBuffered = FALSE;
+    CFE_TBL_TaskData.Registry[0].NotifyByMsg = false;
+    CFE_TBL_TaskData.Registry[0].DoubleBuffered = false;
     CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[0].LoadInProgress].BufferPtr = BuffPtr;
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_FREE;
     CFE_TBL_TaskData.Registry[0].LoadInProgress =
@@ -959,9 +940,9 @@ void Test_CFE_TBL_ValidateCmd(void)
      * notification message should be sent
      */
     UT_InitData();
-    UT_SetRtnCode(&SBSendMsgRtn, CFE_SB_INTERNAL_ERR, 1);
-    CFE_TBL_TaskData.Registry[0].NotifyByMsg = TRUE;
-    CFE_TBL_TaskData.Registry[0].DoubleBuffered = FALSE;
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SendMsg), 1, CFE_SB_INTERNAL_ERR);
+    CFE_TBL_TaskData.Registry[0].NotifyByMsg = true;
+    CFE_TBL_TaskData.Registry[0].DoubleBuffered = false;
     CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[0].LoadInProgress].BufferPtr = BuffPtr;
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_FREE;
     CFE_TBL_TaskData.Registry[0].LoadInProgress =
@@ -1025,7 +1006,7 @@ void Test_CFE_TBL_GetTblRegData(void)
     /* Test using a double buffered table */
     UT_InitData();
     CFE_TBL_TaskData.TblRegPacket.Payload.InactiveBufferAddr = '\0';
-    CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.HkTlmTblRegIndex].DoubleBuffered = TRUE;
+    CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.HkTlmTblRegIndex].DoubleBuffered = true;
     CFE_TBL_GetTblRegData();
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.TblRegPacket.Payload.InactiveBufferAddr != '\0',
@@ -1035,7 +1016,7 @@ void Test_CFE_TBL_GetTblRegData(void)
     /* Test using a single buffered table and the buffer is inactive */
     UT_InitData();
     CFE_TBL_TaskData.TblRegPacket.Payload.InactiveBufferAddr = '\0';
-    CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.HkTlmTblRegIndex].DoubleBuffered = FALSE;
+    CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.HkTlmTblRegIndex].DoubleBuffered = false;
     CFE_TBL_TaskData.
       Registry[CFE_TBL_TaskData.HkTlmTblRegIndex].
         LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
@@ -1075,12 +1056,12 @@ void Test_CFE_TBL_GetHkData(void)
 
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_TABLES; i++)
     {
-        CFE_TBL_TaskData.Registry[i].LoadPending = FALSE;
+        CFE_TBL_TaskData.Registry[i].LoadPending = false;
     }
 
     /* Test raising the count of load pending tables */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[NumLoadPendingIndex].LoadPending = TRUE;
+    CFE_TBL_TaskData.Registry[NumLoadPendingIndex].LoadPending = true;
     CFE_TBL_TaskData.Registry[NumLoadPendingIndex].OwnerAppId = 0;
     CFE_TBL_GetHkData();
     UT_Report(__FILE__, __LINE__,
@@ -1090,7 +1071,7 @@ void Test_CFE_TBL_GetHkData(void)
 
     /* Test lowering the count of free shared buffers */
     UT_InitData();
-    CFE_TBL_TaskData.LoadBuffs[FreeSharedBuffIndex].Taken = TRUE;
+    CFE_TBL_TaskData.LoadBuffs[FreeSharedBuffIndex].Taken = true;
     CFE_TBL_GetHkData();
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.HkPacket.Payload.NumFreeSharedBufs ==
@@ -1175,7 +1156,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_InitData();
     strncpy((char *)DumpRegCmd.Payload.DumpFilename, "",
             sizeof(DumpRegCmd.Payload.DumpFilename));
-    UT_SetOSFail(OS_CREAT_FAIL);
+    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1184,8 +1165,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
 
     /* Test with an error writing the cFE File header */
     UT_InitData();
-    UT_SetOSFail(OS_NO_FAIL);
-    UT_SetRtnCode(&FSWriteHdrRtn, sizeof(CFE_FS_Header_t) - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1196,13 +1176,13 @@ void Test_CFE_TBL_DumpRegCmd(void)
      * table is successfully dumped
      */
     UT_InitData();
-    UT_SetRtnCode(&FSWriteHdrRtn, sizeof(CFE_FS_Header_t), 10);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 10, sizeof(CFE_FS_Header_t));
     CFE_TBL_TaskData.Registry[0].OwnerAppId = 0;
     CFE_TBL_TaskData.Registry[0].HeadOfAccessList = CFE_TBL_END_OF_LIST;
     CFE_TBL_TaskData.Registry[1].OwnerAppId = CFE_TBL_NOT_OWNED;
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    CFE_TBL_TaskData.Registry[0].DoubleBuffered = TRUE;
-    UT_SetOSFail(OS_OPEN_FAIL);
+    CFE_TBL_TaskData.Registry[0].DoubleBuffered = true;
+    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -1214,7 +1194,6 @@ void Test_CFE_TBL_DumpRegCmd(void)
      * overwritten
      */
     UT_InitData();
-    UT_SetOSFail(OS_NO_FAIL);
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
@@ -1226,7 +1205,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
      * error writing to the registry
      */
     UT_InitData();
-    UT_SetRtnCode(&FileWriteRtn, sizeof(CFE_TBL_RegDumpRec_t) - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(CFE_TBL_RegDumpRec_t) - 1);
     CFE_TBL_TaskData.Registry[0].OwnerAppId = CFE_TBL_NOT_OWNED;
     CFE_TBL_TaskData.Registry[0].HeadOfAccessList = 2;
     CFE_TBL_TaskData.Handles[2].NextLink = CFE_TBL_END_OF_LIST;
@@ -1289,17 +1268,17 @@ void Test_CFE_TBL_DumpCmd(void)
 
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_TABLES; i++)
     {
-        CFE_TBL_TaskData.Registry[i].DumpOnly = TRUE;
+        CFE_TBL_TaskData.Registry[i].DumpOnly = true;
     }
 
     CFE_TBL_TaskData.DumpControlBlocks[2].State = CFE_TBL_DUMP_PENDING;
     CFE_TBL_TaskData.DumpControlBlocks[3].State = CFE_TBL_DUMP_FREE;
     CFE_TBL_TaskData.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING;
     CFE_TBL_TaskData.Registry[2].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    CFE_TBL_TaskData.Registry[2].DoubleBuffered = FALSE;
+    CFE_TBL_TaskData.Registry[2].DoubleBuffered = false;
     CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[2].LoadInProgress] = Load;
-    CFE_TBL_TaskData.Registry[2].NotifyByMsg = TRUE;
-    UT_SetRtnCode(&SBSendMsgRtn, CFE_SB_INTERNAL_ERR, 1);
+    CFE_TBL_TaskData.Registry[2].NotifyByMsg = true;
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SendMsg), 1, CFE_SB_INTERNAL_ERR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpCmd(&DumpCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -1309,22 +1288,22 @@ void Test_CFE_TBL_DumpCmd(void)
 
     /* Test with an active buffer, a pointer is created, the table is dump
      * only, no dump is already progress, and fails to get a working buffer;
-     * no load in progress, TableLoadedOnce = TRUE, single-buffered, no buffer
+     * no load in progress, TableLoadedOnce = true, single-buffered, no buffer
      * available
      */
     UT_InitData();
     CFE_TBL_TaskData.DumpControlBlocks[2].State = CFE_TBL_DUMP_FREE;
     CFE_TBL_TaskData.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING;
     CFE_TBL_TaskData.Registry[2].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    CFE_TBL_TaskData.Registry[2].TableLoadedOnce = TRUE;
-    CFE_TBL_TaskData.Registry[2].DoubleBuffered = FALSE;
+    CFE_TBL_TaskData.Registry[2].TableLoadedOnce = true;
+    CFE_TBL_TaskData.Registry[2].DoubleBuffered = false;
 
     for (u = 0; u < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; u++)
     {
-        CFE_TBL_TaskData.LoadBuffs[u].Taken = TRUE;
+        CFE_TBL_TaskData.LoadBuffs[u].Taken = true;
     }
 
-    CFE_TBL_TaskData.Registry[2].NotifyByMsg = TRUE;
+    CFE_TBL_TaskData.Registry[2].NotifyByMsg = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpCmd(&DumpCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1345,7 +1324,7 @@ void Test_CFE_TBL_DumpCmd(void)
         CFE_TBL_TaskData.DumpControlBlocks[k].State = CFE_TBL_DUMP_PENDING;
     }
 
-    CFE_TBL_TaskData.Registry[2].NotifyByMsg = TRUE;
+    CFE_TBL_TaskData.Registry[2].NotifyByMsg = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpCmd(&DumpCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1359,7 +1338,7 @@ void Test_CFE_TBL_DumpCmd(void)
      */
     UT_InitData();
     DumpCmd.Payload.ActiveTableFlag = CFE_TBL_BufferSelect_INACTIVE;
-    CFE_TBL_TaskData.Registry[2].DoubleBuffered = TRUE;
+    CFE_TBL_TaskData.Registry[2].DoubleBuffered = true;
     CFE_TBL_TaskData.Registry[2].Buffers[(1 - CFE_TBL_TaskData.Registry[2].ActiveBufferIndex)].BufferPtr = BuffPtr;
     CFE_TBL_TaskData.Registry[2].DumpControlIndex = CFE_TBL_NO_DUMP_PENDING +
                                                     1;
@@ -1374,10 +1353,10 @@ void Test_CFE_TBL_DumpCmd(void)
      * dump only table
      */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[2].DoubleBuffered = FALSE;
+    CFE_TBL_TaskData.Registry[2].DoubleBuffered = false;
     CFE_TBL_TaskData.Registry[2].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[2].LoadInProgress].BufferPtr = BuffPtr;
-    CFE_TBL_TaskData.Registry[2].DumpOnly = FALSE;
+    CFE_TBL_TaskData.Registry[2].DumpOnly = false;
     strncpy(DumpCmd.Payload.DumpFilename, CFE_TBL_TaskData.Registry[2].LastFileLoaded,
             sizeof(DumpCmd.Payload.DumpFilename));
     UT_Report(__FILE__, __LINE__,
@@ -1404,7 +1383,7 @@ void Test_CFE_TBL_DumpCmd(void)
      */
     UT_InitData();
     CFE_TBL_TaskData.Registry[2].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    CFE_TBL_TaskData.Registry[2].UserDefAddr = TRUE;
+    CFE_TBL_TaskData.Registry[2].UserDefAddr = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpCmd(&DumpCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1445,7 +1424,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_InitData();
     strncpy((char *)LoadCmd.Payload.LoadFilename, "LoadFileName",
             sizeof(LoadCmd.Payload.LoadFilename));
-    UT_SetOSFail(OS_OPEN_FAIL);
+    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_LoadCmd(&LoadCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1454,19 +1433,18 @@ void Test_CFE_TBL_LoadCmd(void)
 
     /* Test response to inability to find the table in the registry */
     UT_InitData();
-    UT_SetOSFail(OS_NO_FAIL);
 
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_TABLES; i++)
     {
         CFE_TBL_TaskData.Registry[i].OwnerAppId = CFE_TBL_NOT_OWNED;
-        CFE_TBL_TaskData.Registry[i].LoadPending = FALSE;
+        CFE_TBL_TaskData.Registry[i].LoadPending = false;
     }
 
     strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
             sizeof(TblFileHeader.TableName));
     strncpy(StdFileHeader.Description, "FS header description",
             sizeof(StdFileHeader.Description));
-    StdFileHeader.Description[CFE_FS_HDR_DESC_MAX_LEN - 1] = '\0';
+    StdFileHeader.Description[sizeof(StdFileHeader.Description) - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -1483,7 +1461,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t) + 1;
-    CFE_TBL_TaskData.Registry[0].DumpOnly = TRUE;
+    CFE_TBL_TaskData.Registry[0].DumpOnly = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_LoadCmd(&LoadCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1496,14 +1474,14 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t) + 1;
-    CFE_TBL_TaskData.Registry[0].DumpOnly = FALSE;
-    CFE_TBL_TaskData.Registry[0].LoadPending = TRUE;
+    CFE_TBL_TaskData.Registry[0].DumpOnly = false;
+    CFE_TBL_TaskData.Registry[0].LoadPending = true;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_LoadCmd(&LoadCmd) ==
                 CFE_TBL_INC_ERR_CTR,
               "CFE_TBL_LoadCmd",
               "Attempting to load a table with load already pending");
-    CFE_TBL_TaskData.Registry[0].LoadPending = FALSE;
+    CFE_TBL_TaskData.Registry[0].LoadPending = false;
 
     /* Test where the file isn't dump only and passes table checks, get a
      * working buffer, and there is an extra byte (more data than header
@@ -1511,7 +1489,7 @@ void Test_CFE_TBL_LoadCmd(void)
      */
     UT_InitData();
     TblFileHeader.Offset = 0;
-    CFE_TBL_TaskData.Registry[0].TableLoadedOnce = TRUE;
+    CFE_TBL_TaskData.Registry[0].TableLoadedOnce = true;
     TblFileHeader.NumBytes = sizeof(CFE_TBL_File_Hdr_t);
 
     if (UT_Endianess == UT_LITTLE_ENDIAN)
@@ -1522,11 +1500,11 @@ void Test_CFE_TBL_LoadCmd(void)
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t);
     CFE_TBL_TaskData.Registry[0].LoadInProgress =
         CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    CFE_TBL_TaskData.Registry[0].DoubleBuffered = FALSE;
+    CFE_TBL_TaskData.Registry[0].DoubleBuffered = false;
     CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[0].LoadInProgress].BufferPtr = (uint8 *) &BufferPtr;
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    CFE_TBL_TaskData.Registry[0].DumpOnly = FALSE;
+    CFE_TBL_TaskData.Registry[0].DumpOnly = false;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_LoadCmd(&LoadCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1542,7 +1520,7 @@ void Test_CFE_TBL_LoadCmd(void)
         CFE_TBL_ByteSwapUint32(&TblFileHeader.NumBytes);
     }
 
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
             sizeof(TblFileHeader.TableName));
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -1564,7 +1542,7 @@ void Test_CFE_TBL_LoadCmd(void)
 
     strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
             sizeof(TblFileHeader.TableName));
-    UT_SetRtnCode(&OSReadRtn, 0, 2);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 2, 0);
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_Report(__FILE__, __LINE__,
@@ -1576,13 +1554,13 @@ void Test_CFE_TBL_LoadCmd(void)
     /* Test with no working buffers available */
     UT_InitData();
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    CFE_TBL_TaskData.Registry[0].TableLoadedOnce = TRUE;
-    CFE_TBL_TaskData.Registry[0].DoubleBuffered = FALSE;
+    CFE_TBL_TaskData.Registry[0].TableLoadedOnce = true;
+    CFE_TBL_TaskData.Registry[0].DoubleBuffered = false;
     CFE_TBL_TaskData.Registry[0].Buffers[CFE_TBL_TaskData.Registry[0].ActiveBufferIndex] = BufferPtr;
 
     for (j = 0; j < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; j++)
     {
-        CFE_TBL_TaskData.LoadBuffs[j].Taken = TRUE;
+        CFE_TBL_TaskData.LoadBuffs[j].Taken = true;
     }
 
     strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
@@ -1647,7 +1625,7 @@ void Test_CFE_TBL_LoadCmd(void)
         CFE_TBL_ByteSwapUint32(&TblFileHeader.Offset);
     }
 
-    CFE_TBL_TaskData.Registry[0].TableLoadedOnce = FALSE;
+    CFE_TBL_TaskData.Registry[0].TableLoadedOnce = false;
 
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t);
     strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
@@ -1674,7 +1652,7 @@ void Test_CFE_TBL_LoadCmd(void)
         CFE_TBL_ByteSwapUint32(&TblFileHeader.Offset);
     }
 
-    CFE_TBL_TaskData.Registry[0].TableLoadedOnce = FALSE;
+    CFE_TBL_TaskData.Registry[0].TableLoadedOnce = false;
 
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t);
     strncpy(TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
@@ -1692,7 +1670,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_InitData();
     strncpy(LoadCmd.Payload.LoadFilename, "LoadFileName",
             sizeof(LoadCmd.Payload.LoadFilename));
-    UT_SetRtnCode(&FSReadHdrRtn, sizeof(CFE_FS_Header_t) - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_LoadCmd(&LoadCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1730,8 +1708,8 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     LoadInProg = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     RegRecPtr.LoadInProgress = LoadInProg;
     CFE_TBL_TaskData.DumpControlBlocks[0].RegRecPtr = &RegRecPtr;
-    DumpBuffPtr->Taken = TRUE;
-    DumpBuffPtr->Validated = TRUE;
+    DumpBuffPtr->Taken = true;
+    DumpBuffPtr->Validated = true;
     DumpBuffPtr->BufferPtr = BuffPtr;
     DumpBuffPtr->FileCreateTimeSecs = Secs;
     DumpBuffPtr->FileCreateTimeSubSecs = SubSecs;
@@ -1745,7 +1723,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
         CFE_TBL_TaskData.DumpControlBlocks[i].State = CFE_TBL_DUMP_PENDING;
     }
 
-    UT_SetRtnCode(&SBSendMsgRtn, CFE_SUCCESS - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SendMsg), 1, CFE_SUCCESS - 1);
     CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,
@@ -1764,7 +1742,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     UT_InitData();
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
-    UT_SetOSFail(OS_OPEN_FAIL);
+    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,
               "CFE_TBL_HousekeepingCmd",
@@ -1774,7 +1752,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     UT_InitData();
     CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
-    UT_SetOSFail(OS_CREAT_FAIL);
+    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,
               "CFE_TBL_HousekeepingCmd",
@@ -1783,7 +1761,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     /* Test response to a file time stamp failure */
     UT_InitData();
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
-    UT_SetRtnCode(&FSSetTimestampRtn, OS_FS_SUCCESS - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_FS_SUCCESS - 1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,
               "CFE_TBL_HousekeepingCmd",
@@ -1812,7 +1790,7 @@ void Test_CFE_TBL_Register(void)
     CFE_TBL_Handle_t           TblHandle1;
     CFE_TBL_Handle_t           TblHandle2;
     CFE_TBL_Handle_t           TblHandle3;
-    boolean                    EventsCorrect;
+    bool                    EventsCorrect;
     char                       TblName[CFE_MISSION_TBL_MAX_NAME_LENGTH + 2];
     int16                      i;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
@@ -1824,11 +1802,11 @@ void Test_CFE_TBL_Register(void)
 
     /* Test response to an invalid application ID */
     UT_InitData();
-    UT_SetRtnCode(&GetAppIDRtn, CFE_ES_ERR_APPID, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_ES_ERR_APPID && EventsCorrect,
@@ -1838,11 +1816,11 @@ void Test_CFE_TBL_Register(void)
     /* Test response to an application ID larger than the maximum allowed */
     UT_InitData();
     UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
-    UT_SetRtnCode(&GetAppIDRtn, CFE_SUCCESS, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_SUCCESS);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_BAD_APP_ID && EventsCorrect,
@@ -1863,7 +1841,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle1, TblName,
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_NAME && EventsCorrect,
@@ -1874,7 +1852,7 @@ void Test_CFE_TBL_Register(void)
     UT_InitData();
     RtnCode = CFE_TBL_Register(&TblHandle1, "", sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_NAME && EventsCorrect,
@@ -1885,7 +1863,7 @@ void Test_CFE_TBL_Register(void)
     UT_InitData();
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                0, CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_SIZE && EventsCorrect,
@@ -1897,7 +1875,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                (CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE + 1),
                                CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_SIZE && EventsCorrect,
@@ -1911,7 +1889,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                (CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE + 1),
                                CFE_TBL_OPT_DBL_BUFFER, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_SIZE && EventsCorrect,
@@ -1927,7 +1905,7 @@ void Test_CFE_TBL_Register(void)
                                ((CFE_TBL_OPT_USR_DEF_ADDR &
                                  ~CFE_TBL_OPT_LD_DMP_MSK) |
                                 CFE_TBL_OPT_DBL_BUFFER), NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_OPTIONS && EventsCorrect,
@@ -1943,7 +1921,7 @@ void Test_CFE_TBL_Register(void)
                                sizeof(UT_Table1_t),
                                (CFE_TBL_OPT_USR_DEF_ADDR &
                                 ~CFE_TBL_OPT_LD_DMP_MSK), NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_OPTIONS && EventsCorrect,
@@ -1960,7 +1938,7 @@ void Test_CFE_TBL_Register(void)
                                ((CFE_TBL_OPT_USR_DEF_ADDR &
                                  ~CFE_TBL_OPT_LD_DMP_MSK) |
                                 CFE_TBL_OPT_CRITICAL), NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_OPTIONS && EventsCorrect,
@@ -1976,7 +1954,7 @@ void Test_CFE_TBL_Register(void)
                                sizeof(UT_Table1_t),
                                (CFE_TBL_OPT_DUMP_ONLY |
                                 CFE_TBL_OPT_DBL_BUFFER), NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_OPTIONS && EventsCorrect,
@@ -1986,11 +1964,11 @@ void Test_CFE_TBL_Register(void)
 
     /* Test response to a memory handle error */
     UT_InitData();
-    UT_SetRtnCode(&GetPoolRtn, CFE_ES_ERR_MEM_HANDLE, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_ES_ERR_MEM_HANDLE && EventsCorrect,
@@ -1999,11 +1977,11 @@ void Test_CFE_TBL_Register(void)
 
     /* Test response to a memory block size error */
     UT_InitData();
-    UT_SetRtnCode(&GetPoolRtn, CFE_ES_ERR_MEM_BLOCK_SIZE, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_ES_ERR_MEM_BLOCK_SIZE && EventsCorrect,
@@ -2012,11 +1990,11 @@ void Test_CFE_TBL_Register(void)
 
     /* Test response to a memory block size error (for a second buffer) */
     UT_InitData();
-    UT_SetRtnCode(&GetPoolRtn, CFE_ES_ERR_MEM_BLOCK_SIZE, 2);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 2, CFE_ES_ERR_MEM_BLOCK_SIZE);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DBL_BUFFER, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_ES_ERR_MEM_BLOCK_SIZE && EventsCorrect,
@@ -2028,7 +2006,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DBL_BUFFER, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2041,7 +2019,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle3, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DBL_BUFFER, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_DUPLICATE_NOT_OWNED && EventsCorrect,
@@ -2054,7 +2032,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle3, "UT_Table1",
                                sizeof(UT_Table2_t),
                                CFE_TBL_OPT_DBL_BUFFER, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_DUPLICATE_DIFF_SIZE && EventsCorrect,
@@ -2105,7 +2083,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2128,7 +2106,7 @@ void Test_CFE_TBL_Register(void)
                                sizeof(UT_Table1_t),
                                (CFE_TBL_OPT_SNGL_BUFFER |
                                 CFE_TBL_OPT_DUMP_ONLY), NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2150,7 +2128,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_USR_DEF_ADDR, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2172,7 +2150,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2191,13 +2169,12 @@ void Test_CFE_TBL_Register(void)
     /* Test registering a critical table that already has an allocated CDS */
     /* a. Perform test */
     UT_ClearEventHistory();
-    UT_SetRtnCode(&ES_RegisterCDSRtn, CFE_ES_CDS_ALREADY_EXISTS, 1);
-    UT_CDS_Map.NextHandle--;
-    CFE_TBL_TaskData.CritReg[0].TableLoadedOnce = TRUE;
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
+    CFE_TBL_TaskData.CritReg[0].TableLoadedOnce = true;
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_INFO_RECOVERED_TBL && EventsCorrect,
@@ -2219,13 +2196,12 @@ void Test_CFE_TBL_Register(void)
      */
     /* a. Perform test */
     UT_ClearEventHistory();
-    UT_SetRtnCode(&ES_RegisterCDSRtn, CFE_ES_CDS_ALREADY_EXISTS, 1);
-    UT_CDS_Map.NextHandle--;
-    CFE_TBL_TaskData.CritReg[0].TableLoadedOnce = FALSE;
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
+    CFE_TBL_TaskData.CritReg[0].TableLoadedOnce = false;
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2248,12 +2224,12 @@ void Test_CFE_TBL_Register(void)
      */
     /* a. Perform test */
     UT_InitData();
-    UT_SetRtnCode(&ES_RegisterCDSRtn, CFE_ES_CDS_ALREADY_EXISTS, 1);
-    UT_SetRtnCode(&ES_RestoreFromCDSRtn, CFE_ES_ERR_MEM_HANDLE, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RestoreFromCDS), 1, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2276,7 +2252,7 @@ void Test_CFE_TBL_Register(void)
      */
     /* a. Perform test */
     UT_InitData();
-    UT_SetRtnCode(&ES_RegisterCDSRtn, CFE_ES_CDS_ALREADY_EXISTS, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
 
     /* Remove all entries from critical table registry */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
@@ -2287,7 +2263,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2309,7 +2285,7 @@ void Test_CFE_TBL_Register(void)
      * is free
      */
     UT_InitData();
-    UT_SetRtnCode(&ES_RegisterCDSRtn, CFE_SUCCESS, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_SUCCESS);
 
     /* Remove all entries from critical table registry */
     /* a. Perform test */
@@ -2321,7 +2297,7 @@ void Test_CFE_TBL_Register(void)
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2343,11 +2319,11 @@ void Test_CFE_TBL_Register(void)
      * is full
      */
     UT_InitData();
-    UT_SetRtnCode(&ES_RegisterCDSRtn, CFE_ES_CDS_REGISTRY_FULL, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_REGISTRY_FULL);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_WARN_NOT_CRITICAL && EventsCorrect,
@@ -2382,7 +2358,7 @@ void Test_CFE_TBL_Register(void)
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_REGISTRY_FULL && EventsCorrect,
@@ -2392,7 +2368,7 @@ void Test_CFE_TBL_Register(void)
     /* c. Test cleanup: unregister table */
     UT_ClearEventHistory();
     RtnCode = CFE_TBL_Unregister(TblHandle1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2424,7 +2400,7 @@ void Test_CFE_TBL_Register(void)
                                CFE_TBL_OPT_DEFAULT,
                                NULL);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_HANDLES_FULL && EventsCorrect,
@@ -2439,7 +2415,7 @@ void Test_CFE_TBL_Register(void)
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_USR_DEF_ADDR | CFE_TBL_OPT_CRITICAL,
                                NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_OPTIONS && EventsCorrect,
@@ -2455,7 +2431,7 @@ void Test_CFE_TBL_Register(void)
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DUMP_ONLY | CFE_TBL_OPT_CRITICAL,
                                NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_OPTIONS && EventsCorrect,
@@ -2463,9 +2439,9 @@ void Test_CFE_TBL_Register(void)
               "Invalid table option combination (CFE_TBL_OPT_DUMP_ONLY |"
               "CFE_TBL_OPT_CRITICAL)");
 
-    /* Test attempt to register a table with UsedFlag = FALSE */
+    /* Test attempt to register a table with UsedFlag = false */
     UT_InitData();
-    CFE_TBL_TaskData.Handles[0].UsedFlag = FALSE;
+    CFE_TBL_TaskData.Handles[0].UsedFlag = false;
     RtnCode = CFE_TBL_Register(&TblHandle2, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DBL_BUFFER, NULL);
@@ -2478,7 +2454,7 @@ void Test_CFE_TBL_Register(void)
 
     /* Test attempt to register a table with an invalid registry index */
     UT_InitData();
-    CFE_TBL_TaskData.Handles[0].UsedFlag = TRUE;
+    CFE_TBL_TaskData.Handles[0].UsedFlag = true;
     CFE_TBL_TaskData.Handles[0].RegIndex = -1;
     RtnCode = CFE_TBL_Register(&TblHandle2, "UT_Table1",
                                sizeof(UT_Table1_t),
@@ -2512,22 +2488,22 @@ void Test_CFE_TBL_Register(void)
     * error */
    UT_InitData();
    UT_SetAppID(1);
-   UT_SetRtnCode(&GetPoolRtn, CFE_SEVERITY_ERROR, 1);
+   UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_SEVERITY_ERROR);
    snprintf(TblName, CFE_MISSION_TBL_MAX_NAME_LENGTH, "UT_Table%d",
             CFE_PLATFORM_TBL_MAX_NUM_TABLES);
-   CFE_TBL_TaskData.Handles[0].UsedFlag = FALSE;
+   CFE_TBL_TaskData.Handles[0].UsedFlag = false;
    RtnCode = CFE_TBL_Register(&TblHandle2, TblName,
                               sizeof(UT_Table1_t) + 1,
                               CFE_TBL_OPT_DBL_BUFFER, NULL);
    AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle2];
    RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-   EventsCorrect = RegRecPtr->DoubleBuffered == FALSE &&
+   EventsCorrect = RegRecPtr->DoubleBuffered == false &&
                    RegRecPtr->ActiveBufferIndex == 0;
    UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SEVERITY_ERROR && EventsCorrect,
              "CFE_TBL_Register",
              "Register a double buffered table with pool buffer error");
-   CFE_TBL_TaskData.Handles[0].UsedFlag = TRUE;
+   CFE_TBL_TaskData.Handles[0].UsedFlag = true;
 }
 
 /*
@@ -2537,7 +2513,7 @@ void Test_CFE_TBL_Register(void)
 void Test_CFE_TBL_Share(void)
 {
     int32              RtnCode;
-    boolean            EventsCorrect;
+    bool            EventsCorrect;
     CFE_FS_Header_t    StdFileHeader;
     CFE_TBL_File_Hdr_t TblFileHeader;
 
@@ -2550,9 +2526,9 @@ void Test_CFE_TBL_Share(void)
 
     /* Test response to an invalid application ID */
     UT_InitData();
-    UT_SetRtnCode(&GetAppIDRtn, CFE_ES_ERR_APPID, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
     RtnCode = CFE_TBL_Share(&App2TblHandle1, "ut_cfe_tbl.UT_Table2");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_ES_ERR_APPID && EventsCorrect,
@@ -2562,9 +2538,9 @@ void Test_CFE_TBL_Share(void)
     /* Test response to an application ID larger than the maximum allowed */
     UT_InitData();
     UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
-    UT_SetRtnCode(&GetAppIDRtn, CFE_SUCCESS, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_SUCCESS);
     RtnCode = CFE_TBL_Share(&App2TblHandle1, "ut_cfe_tbl.UT_Table2");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_BAD_APP_ID && EventsCorrect,
@@ -2575,7 +2551,7 @@ void Test_CFE_TBL_Share(void)
     UT_InitData();
     UT_SetAppID(1);
     RtnCode = CFE_TBL_Share(&App1TblHandle1, "ut_cfe_tbl.NOT_Table2");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_NAME && EventsCorrect,
@@ -2585,7 +2561,7 @@ void Test_CFE_TBL_Share(void)
     /* Test response when there are no available table handles */
     UT_InitData();
     RtnCode = CFE_TBL_Share(&App1TblHandle1, "ut_cfe_tbl.UT_Table3");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_HANDLES_FULL && EventsCorrect,
@@ -2603,7 +2579,7 @@ void Test_CFE_TBL_Share(void)
 
     /* Test unregister response to a PutPoolBuf error */
     UT_InitData();
-    UT_SetRtnCode(&PutPoolRtn, CFE_ES_ERR_MEM_HANDLE, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_Unregister(CFE_PLATFORM_TBL_MAX_NUM_HANDLES / 2 + 1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -2613,7 +2589,6 @@ void Test_CFE_TBL_Share(void)
 
     /* Test successful first load of a table */
     UT_InitData();
-    UT_SetOSFail(OS_NO_FAIL);
     strncpy(StdFileHeader.Description, "FS header description",
             sizeof(StdFileHeader.Description));
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
@@ -2631,10 +2606,10 @@ void Test_CFE_TBL_Share(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     RtnCode = CFE_TBL_Load(3, CFE_TBL_SRC_FILE, "TblSrcFileName.dat");
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2668,7 +2643,7 @@ void Test_CFE_TBL_Share(void)
 void Test_CFE_TBL_Unregister(void)
 {
     int32   RtnCode;
-    boolean EventsCorrect;
+    bool EventsCorrect;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Unregister\n");
@@ -2678,7 +2653,7 @@ void Test_CFE_TBL_Unregister(void)
     UT_InitData();
     UT_SetAppID(1);
     RtnCode = CFE_TBL_Unregister(CFE_PLATFORM_TBL_MAX_NUM_HANDLES);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_UNREGISTER_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_UNREGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               (RtnCode == CFE_TBL_ERR_INVALID_HANDLE && EventsCorrect),
@@ -2699,7 +2674,7 @@ void Test_CFE_TBL_Unregister(void)
     UT_SetAppID(2);
     RtnCode = CFE_TBL_Unregister(App2TblHandle2);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_UNREGISTER_ERR_EID) == FALSE &&
+        (UT_EventIsInHistory(CFE_TBL_UNREGISTER_ERR_EID) == false &&
          UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2714,7 +2689,7 @@ void Test_CFE_TBL_Unregister(void)
 void Test_CFE_TBL_NotifyByMessage(void)
 {
     int32   RtnCode;
-    boolean EventsCorrect;
+    bool EventsCorrect;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Notify by Message\n");
@@ -2723,7 +2698,6 @@ void Test_CFE_TBL_NotifyByMessage(void)
     /* Set up notify by message tests */
     UT_InitData();
     UT_SetAppID(1);
-    UT_ResetCDS();
     CFE_TBL_EarlyInit();
     UT_ResetPoolBufferIndex();
 
@@ -2759,7 +2733,7 @@ void Test_CFE_TBL_NotifyByMessage(void)
 
     /* Test response to notification request when the application ID is bad */
     UT_InitData();
-    UT_SetRtnCode(&GetAppIDRtn, CFE_ES_ERR_APPID, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     RtnCode = CFE_TBL_NotifyByMessage(App1TblHandle1, 1, 1, 1);
     UT_Report(__FILE__, __LINE__,
@@ -2778,7 +2752,7 @@ void Test_CFE_TBL_Load(void)
     CFE_TBL_Handle_t           UserDefTblHandle;
     UT_Table1_t                TestTable1;
     int32                      RtnCode;
-    boolean                    EventsCorrect;
+    bool                    EventsCorrect;
     CFE_FS_Header_t            StdFileHeader;
     CFE_TBL_File_Hdr_t         TblFileHeader;
     UT_Table1_t                *App2TblPtr;
@@ -2800,7 +2774,7 @@ void Test_CFE_TBL_Load(void)
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT,
                                Test_CFE_TBL_ValidationFunc);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2809,7 +2783,6 @@ void Test_CFE_TBL_Load(void)
 
     /* Test attempt to perform partial INITIAL load */
     UT_InitData();
-    UT_SetOSFail(OS_NO_FAIL);
     strncpy(StdFileHeader.Description,"Test description",
             sizeof(StdFileHeader.Description));
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
@@ -2827,11 +2800,11 @@ void Test_CFE_TBL_Load(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     RtnCode = CFE_TBL_Load(App1TblHandle1,
                            CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_PARTIAL_LOAD && EventsCorrect,
@@ -2844,15 +2817,15 @@ void Test_CFE_TBL_Load(void)
     UT_InitData();
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle1];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-    RegRecPtr->UserDefAddr = TRUE;
-    RegRecPtr->TableLoadedOnce = TRUE;
+    RegRecPtr->UserDefAddr = true;
+    RegRecPtr->TableLoadedOnce = true;
     RtnCode = CFE_TBL_Load(App1TblHandle1,
                            CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 1);
      UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2880,11 +2853,11 @@ void Test_CFE_TBL_Load(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     RtnCode = CFE_TBL_Load(App1TblHandle1,
                            CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_FILE_FOR_WRONG_TABLE && EventsCorrect,
@@ -2900,7 +2873,7 @@ void Test_CFE_TBL_Load(void)
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DBL_BUFFER,
                                Test_CFE_TBL_ValidationFunc);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2928,15 +2901,15 @@ void Test_CFE_TBL_Load(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-    RegRecPtr->DoubleBuffered = TRUE;
-    RegRecPtr->TableLoadedOnce = TRUE;
+    RegRecPtr->DoubleBuffered = true;
+    RegRecPtr->TableLoadedOnce = true;
     RtnCode = CFE_TBL_Load(App1TblHandle2,
                            CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_FILE_FOR_WRONG_TABLE && EventsCorrect,
@@ -2948,7 +2921,7 @@ void Test_CFE_TBL_Load(void)
     UT_InitData();
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -2962,7 +2935,7 @@ void Test_CFE_TBL_Load(void)
     RtnCode = CFE_TBL_Load(App1TblHandle1,
                            (CFE_TBL_SrcEnum_t) 99,
                            &TestTable1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_TYPE_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_TYPE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_ILLEGAL_SRC_TYPE && EventsCorrect,
@@ -2973,9 +2946,9 @@ void Test_CFE_TBL_Load(void)
      * return code
      */
     UT_InitData();
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, -1, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == -1 && EventsCorrect,
@@ -2986,9 +2959,9 @@ void Test_CFE_TBL_Load(void)
      * return code
      */
     UT_InitData();
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, 1);
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == -1 && EventsCorrect,
@@ -3000,7 +2973,7 @@ void Test_CFE_TBL_Load(void)
     RtnCode = CFE_TBL_Load(CFE_PLATFORM_TBL_MAX_NUM_HANDLES,
                            CFE_TBL_SRC_ADDRESS,
                            &TestTable1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_HANDLE && EventsCorrect,
@@ -3013,7 +2986,7 @@ void Test_CFE_TBL_Load(void)
     RtnCode = CFE_TBL_Register(&DumpOnlyTblHandle, "UT_Table2",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DUMP_ONLY, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -3025,7 +2998,7 @@ void Test_CFE_TBL_Load(void)
     RtnCode = CFE_TBL_Load(DumpOnlyTblHandle,
                            CFE_TBL_SRC_ADDRESS,
                            &TestTable1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_DUMP_ONLY && EventsCorrect,
@@ -3036,12 +3009,12 @@ void Test_CFE_TBL_Load(void)
     UT_InitData();
     AccessDescPtr = &CFE_TBL_TaskData.Handles[DumpOnlyTblHandle];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-    RegRecPtr->UserDefAddr = TRUE;
-    RegRecPtr->TableLoadedOnce = TRUE;
+    RegRecPtr->UserDefAddr = true;
+    RegRecPtr->TableLoadedOnce = true;
     RtnCode = CFE_TBL_Load(DumpOnlyTblHandle,
                            CFE_TBL_SRC_ADDRESS,
                            &TestTable1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_DUMP_ONLY && EventsCorrect,
@@ -3064,7 +3037,7 @@ void Test_CFE_TBL_Load(void)
     UT_InitData();
     RtnCode = CFE_TBL_Load(UserDefTblHandle, CFE_TBL_SRC_ADDRESS, &TestTable1);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -3119,7 +3092,7 @@ void Test_CFE_TBL_Load(void)
 void Test_CFE_TBL_GetAddress(void)
 {
     int32       RtnCode;
-    boolean     EventsCorrect;
+    bool     EventsCorrect;
     UT_Table1_t *App3TblPtr;
     UT_Table1_t *App2TblPtr;
 
@@ -3141,7 +3114,7 @@ void Test_CFE_TBL_GetAddress(void)
 
     /* Test attempt to get the address with an invalid application ID */
     UT_InitData();
-    UT_SetRtnCode(&GetAppIDRtn, CFE_ES_ERR_APPID, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
     RtnCode = CFE_TBL_GetAddress((void **) &App3TblPtr, App2TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3188,7 +3161,7 @@ void Test_CFE_TBL_GetAddress(void)
 void Test_CFE_TBL_ReleaseAddress(void)
 {
     int32   RtnCode;
-    boolean EventsCorrect;
+    bool EventsCorrect;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Release Address\n");
@@ -3203,7 +3176,7 @@ void Test_CFE_TBL_ReleaseAddress(void)
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT,
                                Test_CFE_TBL_ValidationFunc);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -3212,7 +3185,7 @@ void Test_CFE_TBL_ReleaseAddress(void)
 
     /* b. Perform test */
     UT_InitData();
-    UT_SetRtnCode(&GetAppIDRtn, CFE_ES_ERR_APPID, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
     RtnCode = CFE_TBL_ReleaseAddress(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3228,7 +3201,7 @@ void Test_CFE_TBL_ReleaseAddress(void)
 void Test_CFE_TBL_GetAddresses(void)
 {
     int32   RtnCode;
-    boolean EventsCorrect;
+    bool EventsCorrect;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Get Addresses\n");
@@ -3242,7 +3215,7 @@ void Test_CFE_TBL_GetAddresses(void)
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DBL_BUFFER,
                                Test_CFE_TBL_ValidationFunc);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -3288,7 +3261,7 @@ void Test_CFE_TBL_GetAddresses(void)
 void Test_CFE_TBL_ReleaseAddresses(void)
 {
     int32   RtnCode;
-    boolean EventsCorrect;
+    bool EventsCorrect;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Release Addresses\n");
@@ -3312,7 +3285,7 @@ void Test_CFE_TBL_ReleaseAddresses(void)
 void Test_CFE_TBL_Validate(void)
 {
     int32   RtnCode;
-    boolean EventsCorrect;
+    bool EventsCorrect;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Validate\n");
@@ -3352,7 +3325,7 @@ void Test_CFE_TBL_Validate(void)
 void Test_CFE_TBL_Manage(void)
 {
     int32                      RtnCode;
-    boolean                    EventsCorrect;
+    bool                    EventsCorrect;
     int32                      RegIndex;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
@@ -3380,10 +3353,10 @@ void Test_CFE_TBL_Manage(void)
     /* "Load" image into inactive buffer for table */
     RegIndex = CFE_TBL_FindTableInRegistry("ut_cfe_tbl.UT_Table1");
     RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndex];
-    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, FALSE);
+    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
     UT_SetAppID(1);
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_LOAD_IN_PROGRESS && EventsCorrect,
@@ -3401,13 +3374,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = FALSE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, -1, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     RtnCode = CFE_TBL_Manage(App1TblHandle1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3427,13 +3400,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = FALSE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, 1);
     RtnCode = CFE_TBL_Manage(App1TblHandle1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3453,13 +3426,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = FALSE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, CFE_SUCCESS, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     RtnCode = CFE_TBL_Manage(App1TblHandle1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_INF_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_INF_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3479,13 +3452,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = TRUE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, -1, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     RtnCode = CFE_TBL_Manage(App1TblHandle1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3505,13 +3478,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = TRUE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, 1);
     RtnCode = CFE_TBL_Manage(App1TblHandle1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3531,13 +3504,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = TRUE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, CFE_SUCCESS, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     RtnCode = CFE_TBL_Manage(App1TblHandle1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_INF_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_INF_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3571,7 +3544,7 @@ void Test_CFE_TBL_Manage(void)
     UT_SetAppID(1);
 
     /* Configure table for update */
-    RegRecPtr->LoadPending = TRUE;
+    RegRecPtr->LoadPending = true;
     RtnCode = CFE_TBL_Manage(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3601,10 +3574,10 @@ void Test_CFE_TBL_Manage(void)
     UT_SetAppID(1);
 
     /* Configure table for Update */
-    RegRecPtr->LoadPending = TRUE;
+    RegRecPtr->LoadPending = true;
     RtnCode = CFE_TBL_Manage(App1TblHandle1);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_UPDATE_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_UPDATE_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_INFO_UPDATED && EventsCorrect,
@@ -3625,12 +3598,12 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.Handles[AccessIterator].AppId = 2;
     RegRecPtr->HeadOfAccessList = AccessIterator;
     CFE_TBL_TaskData.Handles[AccessIterator].BufferIndex = 1;
-    CFE_TBL_TaskData.Handles[AccessIterator].LockFlag = TRUE;
+    CFE_TBL_TaskData.Handles[AccessIterator].LockFlag = true;
 
     /* Attempt to "load" image into inactive buffer for table */
     RegIndex = CFE_TBL_FindTableInRegistry("ut_cfe_tbl.UT_Table2");
     RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndex];
-    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, FALSE);
+    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_NO_BUFFER_AVAIL,
               "CFE_TBL_GetWorkingBuffer",
@@ -3638,10 +3611,10 @@ void Test_CFE_TBL_Manage(void)
 
     /* Reset the table information for subsequent tests */
     CFE_TBL_TaskData.Handles[AccessIterator].BufferIndex = 1;
-    CFE_TBL_TaskData.Handles[AccessIterator].LockFlag = FALSE;
+    CFE_TBL_TaskData.Handles[AccessIterator].LockFlag = false;
 
     /* Successfully "load" image into inactive buffer for table */
-    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, FALSE);
+    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
 
     /* Configure table for validation */
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
@@ -3649,13 +3622,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = FALSE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, -1, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     RtnCode = CFE_TBL_Manage(App1TblHandle2);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3675,13 +3648,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = FALSE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, CFE_SUCCESS, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     RtnCode = CFE_TBL_Manage(App1TblHandle2);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_INF_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_INF_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3701,13 +3674,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = TRUE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, -1, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     RtnCode = CFE_TBL_Manage(App1TblHandle2);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3727,13 +3700,13 @@ void Test_CFE_TBL_Manage(void)
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
             "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
-    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = TRUE;
+    CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
 
     /* Perform validation via manage call */
-    UT_SetRtnCode(&TBL_ValidationFuncRtn, CFE_SUCCESS, 1);
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
     RtnCode = CFE_TBL_Manage(App1TblHandle2);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_INF_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_INF_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -3744,7 +3717,7 @@ void Test_CFE_TBL_Manage(void)
 
     /* Test successfully processing a table dump request */
     UT_InitData();
-    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, FALSE);
+    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PENDING;
     CFE_TBL_TaskData.DumpControlBlocks[0].RegRecPtr = RegRecPtr;
 
@@ -3773,7 +3746,7 @@ void Test_CFE_TBL_Manage(void)
 void Test_CFE_TBL_Update(void)
 {
     int32   RtnCode;
-    boolean EventsCorrect;
+    bool EventsCorrect;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Update\n");
@@ -3785,7 +3758,7 @@ void Test_CFE_TBL_Update(void)
     UT_InitData();
     UT_SetAppID(2);
     RtnCode = CFE_TBL_Update(App1TblHandle1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_UPDATE_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_UPDATE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_NO_ACCESS && EventsCorrect,
@@ -3824,7 +3797,7 @@ void Test_CFE_TBL_Update(void)
 void Test_CFE_TBL_GetStatus(void)
 {
     int32   RtnCode;
-    boolean EventsCorrect;
+    bool EventsCorrect;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Get Status\n");
@@ -3863,7 +3836,7 @@ void Test_CFE_TBL_GetStatus(void)
 void Test_CFE_TBL_GetInfo(void)
 {
     int32          RtnCode;
-    boolean        EventsCorrect;
+    bool        EventsCorrect;
     CFE_TBL_Info_t TblInfo;
 
 #ifdef UT_VERBOSE
@@ -3898,7 +3871,7 @@ void Test_CFE_TBL_TblMod(void)
 {
     int32                      RtnCode;
     int32                      RtnCode2;
-    boolean                    EventsCorrect;
+    bool                    EventsCorrect;
     CFE_FS_Header_t            FileHeader;
     UT_TempFile_t              File;
     uint32                     Index;
@@ -3908,6 +3881,7 @@ void Test_CFE_TBL_TblMod(void)
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_Handle_t           AccessIterator;
+    uint8                       CDS_Data[sizeof(UT_Table1_t)];
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Table Modified\n");
@@ -3922,7 +3896,6 @@ void Test_CFE_TBL_TblMod(void)
     /* a. Test setup */
     UT_InitData();
     UT_SetAppID(1);
-    UT_ResetCDS();
     CFE_TBL_EarlyInit();
     UT_ResetPoolBufferIndex();
 
@@ -3967,25 +3940,23 @@ void Test_CFE_TBL_TblMod(void)
 
     UT_SetReadBuffer(&File, sizeof(File));
     UT_SetReadHeader(&FileHeader, sizeof(FileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
 
     /* Perform load */
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, "MyInputFile");
     EventsCorrect =
         (UT_GetNumEventsSent() == 1 &&
-         UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE);
+         UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true);
 
     /* Modify the contents of the table */
     CFE_TBL_GetAddress((void **)&TblDataPtr, App1TblHandle1);
-    CFE_TBL_ByteSwapUint32(&TblDataPtr->TblElement1);
+    TblDataPtr->TblElement1 ^= 0xFFFFFFFF;
+    File.TblData.TblElement1 ^= 0xFFFFFFFF;
 
     /* Notify Table Services that the table has been modified */
+    UT_SetDataBuffer(UT_KEY(CFE_ES_CopyToCDS), CDS_Data, sizeof(CDS_Data), false);
     RtnCode = CFE_TBL_Modified(App1TblHandle1);
     RtnCode2 = CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table1");
-    Index =
-        CFE_TBL_TaskData.
-          Registry[CFE_TBL_TaskData.Handles[App1TblHandle1].RegIndex].
-            CDSHandle;
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS &&
               RtnCode2 == CFE_SUCCESS &&
@@ -3993,10 +3964,7 @@ void Test_CFE_TBL_TblMod(void)
               TblInfo1.TimeOfLastUpdate.Seconds ==
                   TblInfo1.TimeOfLastUpdate.Subseconds &&
               strcmp(TblInfo1.LastFileLoaded, "MyInputFile(*)") == 0 &&
-              UT_CDS[Index + 0] == 0x04 && UT_CDS[Index + 1] == 0x03 &&
-              UT_CDS[Index + 2] == 0x02 && UT_CDS[Index + 3] == 0x01 &&
-              UT_CDS[Index + 4] == 0x05 && UT_CDS[Index + 5] == 0x06 &&
-              UT_CDS[Index + 6] == 0x07 && UT_CDS[Index + 7] == 0x08,
+              memcmp(CDS_Data, &File.TblData, sizeof(CDS_Data)) == 0,
               "CFE_TBL_Modified",
               "Add TBL API for notifying table services that table has "
                 "been updated by application");
@@ -4054,7 +4022,7 @@ void Test_CFE_TBL_TblMod(void)
     File.TblData.TblElement2 = 0x08070605;
     UT_SetReadBuffer(&File, sizeof(File));
     UT_SetReadHeader(&FileHeader, sizeof(FileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
 
     /* Perform load with extra long filename */
     for (Index = 0; Index < OS_MAX_PATH_LEN - 1; Index++)
@@ -4066,7 +4034,7 @@ void Test_CFE_TBL_TblMod(void)
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, MyFilename);
     EventsCorrect = (UT_GetNumEventsSent() == 1 &&
                      UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) ==
-                         TRUE);
+                         true);
 
     /* Notify Table Services that the table has been modified */
     RtnCode = CFE_TBL_Modified(App1TblHandle1);
@@ -4099,7 +4067,7 @@ void Test_CFE_TBL_TblMod(void)
 void Test_CFE_TBL_Internal(void)
 {
     int32                      RtnCode;
-    boolean                    EventsCorrect;
+    bool                    EventsCorrect;
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
@@ -4107,7 +4075,6 @@ void Test_CFE_TBL_Internal(void)
     int32                      i;
     CFE_FS_Header_t            StdFileHeader;
     CFE_TBL_File_Hdr_t         TblFileHeader;
-    int32                      OldOSFail;
     int32                      FileDescriptor = 0;
     void                       *TblPtr;
 
@@ -4126,7 +4093,7 @@ void Test_CFE_TBL_Internal(void)
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DBL_BUFFER,
                                Test_CFE_TBL_ValidationFunc);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == FALSE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == false &&
                      UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -4140,9 +4107,9 @@ void Test_CFE_TBL_Internal(void)
     strncpy(RegRecPtr->Name, "ut_cfe_tbl.UT_Table3",
             CFE_TBL_MAX_FULL_NAME_LEN);
     RegRecPtr->Name[CFE_TBL_MAX_FULL_NAME_LEN - 1] = '\0';
-    RegRecPtr->TableLoadedOnce = FALSE;
+    RegRecPtr->TableLoadedOnce = false;
     RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, TRUE);
+    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, true);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect &&
@@ -4155,10 +4122,10 @@ void Test_CFE_TBL_Internal(void)
      * failure
      */
     UT_InitData();
-    UT_SetRtnCode(&MutSemTakeRtn, OS_ERROR, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, OS_ERROR);
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle1];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, FALSE);
+    RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -4231,7 +4198,7 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, sizeof(UT_Table1_t), 2);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 2, sizeof(UT_Table1_t));
     RtnCode = CFE_TBL_LoadFromFile(WorkingBufferPtr, RegRecPtr, Filename);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4288,7 +4255,7 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     RtnCode = CFE_TBL_LoadFromFile(WorkingBufferPtr, RegRecPtr, Filename);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4314,15 +4281,13 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    OldOSFail = UT_OS_Fail;
-    UT_SetOSFail(OS_OPEN_FAIL);
+    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
     RtnCode = CFE_TBL_LoadFromFile(WorkingBufferPtr, RegRecPtr, Filename);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == OS_ERROR && EventsCorrect,
               "CFE_TBL_LoadFromFile",
               "OS open error");
-    UT_SetOSFail(OldOSFail);
 
     /* Test CFE_TBL_LoadFromFile response to a file too short warning */
     UT_InitData();
@@ -4342,7 +4307,7 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     RtnCode = CFE_TBL_LoadFromFile(WorkingBufferPtr, RegRecPtr, Filename);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4372,11 +4337,11 @@ void Test_CFE_TBL_Internal(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     strncpy(Filename, "MyTestInputFilename", sizeof(Filename));
     Filename[sizeof(Filename) - 1] = '\0';
-    UT_SetRtnCode(&FSReadHdrRtn, sizeof(CFE_FS_Header_t) - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     RtnCode = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader,
                                   &TblFileHeader, Filename);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_FILE_STD_HDR_ERR_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_FILE_STD_HDR_ERR_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_NO_STD_HEADER && EventsCorrect,
@@ -4405,7 +4370,7 @@ void Test_CFE_TBL_Internal(void)
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     RtnCode = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader,
                                   &TblFileHeader, Filename);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_FILE_TYPE_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_FILE_TYPE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_BAD_CONTENT_ID && EventsCorrect,
@@ -4433,7 +4398,7 @@ void Test_CFE_TBL_Internal(void)
     RtnCode = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader,
                                   &TblFileHeader, Filename);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_FILE_SUBTYPE_ERR_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_FILE_SUBTYPE_ERR_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_BAD_SUBTYPE_ID && EventsCorrect,
@@ -4460,11 +4425,11 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, sizeof(CFE_TBL_File_Hdr_t) - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, sizeof(CFE_TBL_File_Hdr_t) - 1);
     RtnCode = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader,
                                   &TblFileHeader, Filename);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_FILE_TBL_HDR_ERR_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_FILE_TBL_HDR_ERR_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_NO_TBL_HEADER && EventsCorrect,
@@ -4475,7 +4440,7 @@ void Test_CFE_TBL_Internal(void)
      * memory buffer for a double buffered table
      */
     UT_InitData();
-    UT_SetRtnCode(&PutPoolRtn, CFE_ES_ERR_MEM_HANDLE, 2);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 2, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_RemoveAccessLink(App1TblHandle2);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4485,8 +4450,7 @@ void Test_CFE_TBL_Internal(void)
 
     /* EarlyInit - Table Registry Mutex Create Failure */
     UT_InitData();
-    UT_SetRtnCode(&MutSemCreateRtn, OS_ERROR, 1);
-    UT_ResetCDS();
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERROR);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4496,8 +4460,7 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_EarlyInit response to a work buffer mutex create failure */
     UT_InitData();
-    UT_SetRtnCode(&MutSemCreateRtn, OS_ERROR, 2);
-    UT_ResetCDS();
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 2, OS_ERROR);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4507,8 +4470,7 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_EarlyInit response to a memory pool create failure */
     UT_InitData();
-    UT_SetRtnCode(&CreatePoolRtn, CFE_ES_BAD_ARGUMENT, 1);
-    UT_ResetCDS();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_PoolCreate), 1, CFE_ES_BAD_ARGUMENT);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4518,8 +4480,7 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_EarlyInit reponse to a get pool buffer failure */
     UT_InitData();
-    UT_SetRtnCode(&GetPoolRtn, CFE_ES_ERR_MEM_HANDLE, 1);
-    UT_ResetCDS();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4531,9 +4492,8 @@ void Test_CFE_TBL_Internal(void)
      * restore fails
      */
     UT_InitData();
-    UT_ResetCDS();
-    UT_SetRtnCode(&ES_RegisterCDSRtn, CFE_ES_CDS_ALREADY_EXISTS, 1);
-    UT_SetRtnCode(&ES_RestoreFromCDSRtn, CFE_ES_CDS_BLOCK_CRC_ERR, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RestoreFromCDS), 1, CFE_ES_CDS_BLOCK_CRC_ERR);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4543,8 +4503,7 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_EarlyInit response when no CDS is available */
     UT_InitData();
-    UT_ResetCDS();
-    UT_SetRtnCode(&ES_RegisterCDSRtn, CFE_ES_NOT_IMPLEMENTED, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_NOT_IMPLEMENTED);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4556,8 +4515,7 @@ void Test_CFE_TBL_Internal(void)
      * registry to the CDS
      */
     UT_InitData();
-    UT_ResetCDS();
-    UT_SetRtnCode(&ES_CopyToCDSRtn, CFE_ES_ERR_MEM_HANDLE, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4569,7 +4527,6 @@ void Test_CFE_TBL_Internal(void)
     /* a. Reset tables */
     UT_InitData();
     UT_SetAppID(1);
-    UT_ResetCDS();
     RtnCode = CFE_TBL_EarlyInit();
     UT_Report(__FILE__, __LINE__,
               (RtnCode == CFE_SUCCESS),
@@ -4615,11 +4572,11 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -4643,11 +4600,11 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -4671,11 +4628,11 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -4699,12 +4656,12 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     CFE_TBL_GetAddress(&TblPtr, App1TblHandle2);
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -4730,11 +4687,11 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_NO_BUFFER_AVAIL && EventsCorrect,
@@ -4777,12 +4734,12 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
-    UT_SetRtnCode(&ES_CopyToCDSRtn, CFE_ES_ERR_MEM_HANDLE, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               ((RtnCode == CFE_SUCCESS) && EventsCorrect),
@@ -4825,12 +4782,12 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
-    UT_SetRtnCode(&ES_CopyToCDSRtn, CFE_ES_ERR_MEM_HANDLE, 2);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -4875,8 +4832,8 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
-    UT_SetRtnCode(&ES_CopyToCDSRtn, CFE_ES_ERR_MEM_HANDLE, 2);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_MEM_HANDLE);
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
 
@@ -4891,7 +4848,7 @@ void Test_CFE_TBL_Internal(void)
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -4921,20 +4878,20 @@ void Test_CFE_TBL_Internal(void)
     /* Test successful application cleanup */
     UT_InitData();
     UT_SetAppID(1);
-    UT_SetPutPoolFail(TRUE);
+    UT_SetForceFail(UT_KEY(CFE_ES_PutPoolBuf), -1);
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle1];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
     CFE_TBL_TaskData.DumpControlBlocks[3].State = CFE_TBL_DUMP_PENDING;
     CFE_TBL_TaskData.DumpControlBlocks[3].RegRecPtr = RegRecPtr;
     RegRecPtr->LoadInProgress = 1;
-    CFE_TBL_TaskData.LoadBuffs[1].Taken = TRUE;
+    CFE_TBL_TaskData.LoadBuffs[1].Taken = true;
     CFE_TBL_CleanUpApp(1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.DumpControlBlocks[3].State ==
                   CFE_TBL_DUMP_FREE &&
               RegRecPtr->OwnerAppId == (uint32) CFE_TBL_NOT_OWNED &&
               CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken ==
-                  FALSE &&
+                  false &&
               RegRecPtr->LoadInProgress == CFE_TBL_NO_LOAD_IN_PROGRESS,
               "CFE_TBL_CleanUpApp",
               "Execute clean up - success");
@@ -4956,11 +4913,11 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetRtnCode(&OSReadRtn, 0, 3);
-    UT_SetRtnCode(&ES_CopyToCDSRtn, CFE_ES_ERR_MEM_HANDLE, 2);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == TRUE &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_INVALID_HANDLE && EventsCorrect,
@@ -4971,8 +4928,7 @@ void Test_CFE_TBL_Internal(void)
      * restore succeeds
      */
     UT_InitData();
-    UT_ResetCDS();
-    UT_SetRtnCode(&ES_RegisterCDSRtn, CFE_ES_CDS_ALREADY_EXISTS, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -5008,7 +4964,7 @@ void Test_CFE_TBL_Internal(void)
     /* Test CFE_TBL_LockRegistry response when an error occurs taking the mutex
      */
     UT_InitData();
-    UT_SetRtnCode(&MutSemTakeRtn, OS_ERROR, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, OS_ERROR);
     RtnCode = CFE_TBL_LockRegistry();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -5020,7 +4976,7 @@ void Test_CFE_TBL_Internal(void)
      * mutex
      */
     UT_InitData();
-    UT_SetRtnCode(&MutSemGiveRtn, OS_ERROR, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 1, OS_ERROR);
     RtnCode = CFE_TBL_UnlockRegistry();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -5030,7 +4986,7 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_LoadFromFile response to an invalid header length */
     UT_InitData();
-    UT_SetRtnCode(&FSReadHdrRtn, sizeof(CFE_FS_Header_t) - 1, 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     RtnCode = CFE_TBL_LoadFromFile(WorkingBufferPtr, RegRecPtr, Filename);
     EventsCorrect = (UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
@@ -5044,7 +5000,7 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-    RegRecPtr->LoadPending = TRUE;
+    RegRecPtr->LoadPending = true;
     RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     RtnCode = CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
@@ -5059,11 +5015,11 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-    RegRecPtr->LoadPending = TRUE;
+    RegRecPtr->LoadPending = true;
     RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    RegRecPtr->CriticalTable = FALSE;
-    RegRecPtr->DoubleBuffered = TRUE;
-    UT_SetRtnCode(&ES_CopyToCDSRtn, CFE_ES_ERR_MEM_HANDLE, 1);
+    RegRecPtr->CriticalTable = false;
+    RegRecPtr->DoubleBuffered = true;
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_MEM_HANDLE);
     RtnCode = CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr);
      EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -5078,9 +5034,9 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-    RegRecPtr->LoadPending = TRUE;
+    RegRecPtr->LoadPending = true;
     RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    RegRecPtr->DoubleBuffered = FALSE;
+    RegRecPtr->DoubleBuffered = false;
     RtnCode = CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -5093,7 +5049,7 @@ void Test_CFE_TBL_Internal(void)
      */
     UT_InitData();
     UT_SetAppID(1);
-    UT_SetPutPoolFail(TRUE);
+    UT_SetForceFail(UT_KEY(CFE_ES_PutPoolBuf), -1);
     CFE_TBL_TaskData.Handles[0].AppId = 1;
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
@@ -5135,7 +5091,7 @@ void Test_CFE_TBL_Internal(void)
     RtnCode = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader,
                                   &TblFileHeader, Filename);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_SPACECRAFT_ID_ERR_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_SPACECRAFT_ID_ERR_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_BAD_SPACECRAFT_ID && EventsCorrect,
@@ -5143,7 +5099,7 @@ void Test_CFE_TBL_Internal(void)
               "Invalid spacecraft ID");
 #else
     UT_Report(__FILE__, __LINE__,
-              TRUE,
+              true,
               "CFE_TBL_ReadHeaders",
               "*Not tested* Invalid spacecraft ID ");
 #endif
@@ -5174,7 +5130,7 @@ void Test_CFE_TBL_Internal(void)
     RtnCode = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader,
                                   &TblFileHeader, Filename);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_PROCESSOR_ID_ERR_EID) == TRUE &&
+        (UT_EventIsInHistory(CFE_TBL_PROCESSOR_ID_ERR_EID) == true &&
          UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_BAD_PROCESSOR_ID && EventsCorrect,
@@ -5182,7 +5138,7 @@ void Test_CFE_TBL_Internal(void)
               "Invalid processor ID");
 #else
     UT_Report(__FILE__, __LINE__,
-              TRUE,
+              true,
               "CFE_TBL_ReadHeaders",
               "*Not tested* Invalid processor ID ");
 #endif
@@ -5193,15 +5149,5 @@ void Test_CFE_TBL_Internal(void)
 */
 int32 Test_CFE_TBL_ValidationFunc(void *TblPtr)
 {
-    if (TBL_ValidationFuncRtn.count > 0)
-    {
-        TBL_ValidationFuncRtn.count--;
-
-        if (TBL_ValidationFuncRtn.count == 0)
-        {
-            return TBL_ValidationFuncRtn.value;
-        }
-    }
-
-    return 0;
+    return UT_DEFAULT_IMPL(Test_CFE_TBL_ValidationFunc);
 }

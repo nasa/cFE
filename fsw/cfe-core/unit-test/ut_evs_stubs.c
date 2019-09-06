@@ -1,24 +1,25 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-** File:
-** $Id: ut_evs_stubs.c 1.7 2014/05/28 09:21:49GMT-05:00 wmoleski Exp  $
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: ut_evs_stubs.c
 **
 ** Purpose:
 ** Unit test stubs for Event Service routines
@@ -32,35 +33,9 @@
 ** Includes
 */
 #include <string.h>
-#include "cfe_evs.h"
-#include "common_types.h"
-#include "cfe_error.h"
-#include "cfe_evs_task.h"
-#include "ut_stubs.h"
-
-/*
-** Macro definitions
-*/
-#ifdef OSP_ARINC653
-#define UT_OFFSET_CFE_EVS_SENDEVENT 4
-#define UT_OFFSET_CFE_SENDEVENTWITHAPPID 5
-
-#define UT_BREAK_CFE_EVS_SENDEVENT 5
-#define UT_BREAK_CFE_SENDEVENTWITHAPPID 4
-
-#define UT_SKIP_CFE_EVS_SENDEVENT 54
-#define UT_SKIP_CFE_SENDEVENTWITHAPPID 56
-#endif
-
-/*
-** External global variables
-*/
-extern char cMsg[];
-
-extern UT_SetRtn_t EVS_SendEventRtn;
-extern UT_SetRtn_t EVS_RegisterRtn;
-extern UT_SetRtn_t EVSCleanUpRtn;
-extern UT_SetRtn_t SendMsgEventIDRtn;
+#include "cfe.h"
+#include "cfe_platform_cfg.h"
+#include "utstubs.h"
 
 /*
 ** Functions
@@ -82,7 +57,11 @@ extern UT_SetRtn_t SendMsgEventIDRtn;
 ******************************************************************************/
 int32 CFE_EVS_EarlyInit(void)
 {
-    return CFE_SUCCESS;
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_EVS_EarlyInit);
+
+    return status;
 }
 
 /*****************************************************************************/
@@ -102,6 +81,7 @@ int32 CFE_EVS_EarlyInit(void)
 ******************************************************************************/
 void CFE_EVS_TaskMain(void)
 {
+    UT_DEFAULT_IMPL(CFE_EVS_TaskMain);
 }
 
 /*****************************************************************************/
@@ -129,44 +109,14 @@ int32 CFE_EVS_SendEvent(uint16 EventID,
                         const char *Spec,
                         ...)
 {
-    int32   status = CFE_SUCCESS;
-    boolean flag = FALSE;
-#ifdef UT_VERBOSE
-    char    BigBuf[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH*2];
-    va_list Ptr;
+    int32 status;
 
-#ifdef OSP_ARINC653
-    va_start(Ptr, Spec, UT_OFFSET_CFE_EVS_SENDEVENT,
-             UT_BREAK_CFE_EVS_SENDEVENT, UT_SKIP_CFE_EVS_SENDEVENT);
-#else
-    va_start(Ptr, Spec);
-#endif
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
+    status = UT_DEFAULT_IMPL(CFE_EVS_SendEvent);
 
-    vsnprintf(BigBuf, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, Spec, Ptr);
-    va_end(Ptr);
-#endif
-
-    if (EVS_SendEventRtn.count > 0)
+    if (status >= 0)
     {
-        EVS_SendEventRtn.count--;
-
-        if (EVS_SendEventRtn.count == 0)
-        {
-            status = EVS_SendEventRtn.value;
-            flag = TRUE;
-        }
-    }
-
-    if (flag == FALSE)
-    {
-        UT_AddEventToHistory(EventID);
-        SendMsgEventIDRtn.value = EventID;
-#ifdef UT_VERBOSE
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                 "  CFE_EVS_SendEvent: %u, %u - %s",
-                 EventID, EventType, BigBuf);
-        UT_Text(cMsg);
-#endif
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_EVS_SendEvent), (uint8*)&EventID, sizeof(EventID));
     }
 
     return status;
@@ -193,6 +143,16 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
                              const char *Spec,
                              ...)
 {
+    int32 status;
+
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
+    status = UT_DEFAULT_IMPL(CFE_EVS_SendEvent);
+
+    if (status >= 0)
+    {
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_EVS_SendTimedEvent), (uint8*)&EventID, sizeof(EventID));
+    }
+
     return CFE_SUCCESS;
 }
 
@@ -220,32 +180,9 @@ int32 CFE_EVS_Register(void *Filters,
                        uint16 NumEventFilters,
                        uint16 FilterScheme)
 {
-    int32   status = CFE_SUCCESS;
-#ifdef UT_VERBOSE
-    boolean flag = FALSE;
-#endif
+    int32 status;
 
-    if (EVS_RegisterRtn.count > 0)
-    {
-        EVS_RegisterRtn.count--;
-        if (EVS_RegisterRtn.count == 0)
-        {
-            status = EVS_RegisterRtn.value;
-#ifdef UT_VERBOSE
-            flag = TRUE;
-            snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                     "  CFE_EVS_Register called: %ld", EVS_RegisterRtn.value);
-            UT_Text(cMsg);
-#endif
-        }
-    }
-
-#ifdef UT_VERBOSE
-    if (flag == FALSE)
-    {
-        UT_Text("  CFE_EVS_Register called");
-    }
-#endif
+    status = UT_DEFAULT_IMPL(CFE_EVS_Register);
 
     return status;
 }
@@ -279,45 +216,16 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
                                  const char *Spec,
                                  ...)
 {
-    int32   status = CFE_SUCCESS;
-#ifdef UT_VERBOSE
-    boolean flag = FALSE;
-    char    BigBuf[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
-    va_list Ptr;
+    int32 status;
 
-#ifdef OSP_ARINC653
-    va_start(Ptr, Spec, UT_OFFSET_CFE_SENDEVENTWITHAPPID,
-             UT_BREAK_CFE_SENDEVENTWITHAPPID, UT_SKIP_CFE_SENDEVENTWITHAPPID);
-#else
-    va_start(Ptr, Spec);
-#endif
-    vsnprintf(BigBuf, CFE_MISSION_EVS_MAX_MESSAGE_LENGTH, Spec, Ptr);
-    va_end(Ptr);
-#endif
-    UT_AddEventToHistory(EventID);
-  
-    if (EVS_SendEventRtn.count > 0)
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
+    status = UT_DEFAULT_IMPL(CFE_EVS_SendEventWithAppID);
+
+    if (status >= 0)
     {
-        EVS_SendEventRtn.count--;
-
-        if (EVS_SendEventRtn.count == 0)
-        {
-            status = EVS_SendEventRtn.value;
-#ifdef UT_VERBOSE
-            flag = TRUE;
-#endif
-        }
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_EVS_SendEventWithAppID), (uint8*)&EventID, sizeof(EventID));
     }
 
-#ifdef UT_VERBOSE
-    if (flag == FALSE)
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                 "  CFE_EVS_SendEvent from app %lu: %u, %u - %s",
-                 AppID, EventID, EventType, BigBuf);
-        UT_Text(cMsg);
-    }
-#endif
 
     return status;
 }
@@ -344,17 +252,11 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
 ******************************************************************************/
 int32 CFE_EVS_CleanUpApp(uint32 AppId)
 {
-    int32 status = CFE_SUCCESS;
+    int32 status;
 
-    if (EVSCleanUpRtn.count > 0)
-    {
-      EVSCleanUpRtn.count--;
-
-      if (EVSCleanUpRtn.count == 0)
-      {
-          status = EVSCleanUpRtn.value;
-      }
-    }
+    status = UT_DEFAULT_IMPL(CFE_EVS_CleanUpApp);
 
     return status;
 }
+
+UT_DEFAULT_STUB(CFE_EVS_ResetAllFilters, ( void ))

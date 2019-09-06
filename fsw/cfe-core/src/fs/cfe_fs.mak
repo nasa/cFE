@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# $Id: cfe_fs.mak 1.3 2008/07/08 14:40:39GMT-05:00 apcudmore Exp  $
+# File: cfe_fs.mak
 #
 # Purpose:  cFE File Services (FS) make file
 #

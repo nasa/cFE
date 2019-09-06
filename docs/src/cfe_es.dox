@@ -67,7 +67,6 @@
     <LI> \subpage cfeesugfaq <BR>
   </UL>
   
-    \subpage cfeesrevhist <BR>
 **/
 
 /**
@@ -977,25 +976,3 @@
   either for each platform or for a mission as a whole.
 **/
 
-/**
-  \page cfeesrevhist cFE Executive Services Documentation Revision History
-  
-  \verbatim
-  $Log: cfe_es.dox  $
-  Revision 1.6 2014/08/23 19:57:25GMT-05:00 sstrege 
-  Removed/Replaced all references to the doxygen application developers guide
-  Revision 1.5 2009/03/04 15:46:31EST rmcgraw 
-  DCR6812:2 Added '...refer to developers guide...' in memory pool section
-  Revision 1.4 2009/02/24 15:18:50EST rmcgraw 
-  DCR6812:1 Updated memory pool details and made corrections in other sections
-  Revision 1.3 2008/12/08 12:06:55EST dkobe 
-  Updates to correct doxygen errors
-  Revision 1.2 2008/12/06 15:34:27EST dkobe 
-  Corrected formatting of revision history
-  Revision 1.1 2008/12/06 10:19:47EST dkobe 
-  Initial revision
-  Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-CFE-PROJECT/docs/src/project.pj
-  \endverbatim
-
-  Up To: \ref cfeesovr
-**/

@@ -1,24 +1,26 @@
 /*
-** $Id: cfe_time_api.c 1.7 2012/01/13 12:21:34GMT-05:00 acudmore Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_time_api.c
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-** 
 ** Purpose:  cFE Time Services (TIME) library API source file
 **
 ** Author:   S.Walling/Microtel
@@ -45,7 +47,7 @@ CFE_TIME_SysTime_t   CFE_TIME_GetTime(void)
 {
     CFE_TIME_SysTime_t CurrentTime;
 
-#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == TRUE)
+#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
 
     CurrentTime = CFE_TIME_GetTAI();
 
@@ -132,7 +134,7 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime)
     CFE_TIME_SysTime_t STCF;
     CFE_TIME_SysTime_t TIATime;
     CFE_TIME_SysTime_t ReturnTime;
-#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI != TRUE)
+#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI != true)
     CFE_TIME_SysTime_t LeapSecsAsSysTime;
 #endif
     
@@ -141,7 +143,7 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime)
     /* TIA = MET + STCF */
     TIATime = CFE_TIME_Add(METTime, STCF);
 
-#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == TRUE)
+#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
 
     ReturnTime = TIATime;
 
@@ -197,18 +199,19 @@ CFE_TIME_ClockState_Enum_t   CFE_TIME_GetClockState(void)
 uint16 CFE_TIME_GetClockInfo(void)
 {
     uint16 StateFlags = 0;
+    volatile CFE_TIME_ReferenceState_t *RefState = CFE_TIME_GetReferenceState();
 
     /*
     ** Spacecraft time has been set...
     */
-    if (CFE_TIME_TaskData.ClockSetState == CFE_TIME_SetState_WAS_SET)
+    if (RefState->ClockSetState == CFE_TIME_SetState_WAS_SET)
     {
         StateFlags |= CFE_TIME_FLAG_CLKSET;
     }
     /*
     ** This instance of Time Service is in FLYWHEEL mode...
     */
-    if (CFE_TIME_TaskData.ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
+    if (RefState->ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
     {
         StateFlags |= CFE_TIME_FLAG_FLYING;
     }
@@ -257,21 +260,21 @@ uint16 CFE_TIME_GetClockInfo(void)
     /*
     ** Time Client Latency adjustment direction...
     */
-    if (CFE_TIME_TaskData.DelayDirection == CFE_TIME_AdjustDirection_ADD)
+    if (RefState->DelayDirection == CFE_TIME_AdjustDirection_ADD)
     {
         StateFlags |= CFE_TIME_FLAG_ADDTCL;
     }
     /*
     ** This instance of Time Service is a "server"...
     */
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     StateFlags |= CFE_TIME_FLAG_SERVER;
     #endif
 
     /* 
     ** The tone is good 
     */
-    if (CFE_TIME_TaskData.IsToneGood == TRUE)
+    if (CFE_TIME_TaskData.IsToneGood == true)
     {
         StateFlags |= CFE_TIME_FLAG_GDTONE;
     }   
@@ -745,7 +748,7 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
     uint32 NumberOfMicros;
     uint32 DaysInThisYear;
 
-    boolean StillCountingYears = TRUE;
+    bool StillCountingYears = true;
 
     /*
     ** Convert the cFE time (offset from epoch) into calendar time...
@@ -809,7 +812,7 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
         */
         if (NumberOfDays < DaysInThisYear)
         {
-            StillCountingYears = FALSE;
+            StillCountingYears = false;
         }
         else
         {
@@ -964,7 +967,7 @@ int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFunc
 /*                                                                         */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if (CFE_PLATFORM_TIME_CFG_SRC_MET == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
 void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET)
 {
     /*
@@ -991,7 +994,7 @@ void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET)
 /*                                                                         */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
 void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 {
     /*
@@ -1018,7 +1021,7 @@ void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 /*                                                                         */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
 void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime)
 {
     /*

@@ -1,24 +1,25 @@
 /*
-**  File Name: cfe_evs_utils.c
-**  $Id: cfe_evs_utils.c 1.12 2014/08/22 16:53:24GMT-05:00 lwalling Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+**  File: cfe_evs_utils.c
 **
 **  Title: Event Services Utility functions
 **
@@ -113,7 +114,7 @@ int32 EVS_GetApplicationInfo (uint32 *pAppID, const char *pAppName)
          {
             Status = CFE_EVS_APP_ILLEGAL_APP_ID;
          }
-         else if (CFE_EVS_GlobalData.AppData[*pAppID].RegisterFlag == FALSE)
+         else if (CFE_EVS_GlobalData.AppData[*pAppID].RegisterFlag == false)
          {
             Status = CFE_EVS_APP_NOT_REGISTERED;
          }
@@ -176,21 +177,21 @@ int32 EVS_NotRegistered (uint32 AppID)
 ** Assumptions and Notes:
 **
 */
-boolean EVS_IsFiltered (uint32 AppID, uint16 EventID, uint16 EventType)
+bool EVS_IsFiltered (uint32 AppID, uint16 EventID, uint16 EventType)
 {
    EVS_BinFilter_t *FilterPtr;
    EVS_AppData_t   *AppDataPtr;
-   boolean          Filtered = FALSE;
+   bool             Filtered = false;
    char             AppName[OS_MAX_API_NAME];
 
 
    /* Caller has verified that AppID is good and has registered with EVS */
    AppDataPtr = &CFE_EVS_GlobalData.AppData[AppID];
 
-   if (AppDataPtr->ActiveFlag == FALSE)
+   if (AppDataPtr->ActiveFlag == false)
    {
       /* All events are disabled for this application */
-      Filtered = TRUE;
+      Filtered = true;
    }
    else switch (EventType)
    {
@@ -199,7 +200,7 @@ boolean EVS_IsFiltered (uint32 AppID, uint16 EventID, uint16 EventType)
          if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_DEBUG_BIT) == 0)
          {
             /* Debug events are disabled for this application */
-            Filtered = TRUE;
+            Filtered = true;
          }
          break;
 
@@ -208,7 +209,7 @@ boolean EVS_IsFiltered (uint32 AppID, uint16 EventID, uint16 EventType)
          if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_INFORMATION_BIT) == 0)
          {
             /* Informational events are disabled for this application */
-            Filtered = TRUE;
+            Filtered = true;
          }
          break;
 
@@ -217,7 +218,7 @@ boolean EVS_IsFiltered (uint32 AppID, uint16 EventID, uint16 EventType)
          if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_ERROR_BIT) == 0)
          {
             /* Error events are disabled for this application */
-            Filtered = TRUE;
+            Filtered = true;
          }
          break;
 
@@ -226,19 +227,19 @@ boolean EVS_IsFiltered (uint32 AppID, uint16 EventID, uint16 EventType)
          if ((AppDataPtr->EventTypesActiveFlag & CFE_EVS_CRITICAL_BIT) == 0)
          {
             /* Critical events are disabled for this application */
-            Filtered = TRUE;
+            Filtered = true;
          }
          break;
 
       default:
 
          /* Invalid Event Type */
-         Filtered = TRUE;
+         Filtered = true;
          break;
    }
 
    /* Is this type of event enabled for this application? */
-   if (Filtered == FALSE)
+   if (Filtered == false)
    {
       FilterPtr = EVS_FindEventID(EventID, AppDataPtr->BinFilters);
 
@@ -248,7 +249,7 @@ boolean EVS_IsFiltered (uint32 AppID, uint16 EventID, uint16 EventType)
          if ((FilterPtr->Mask & FilterPtr->Count) != 0)
          {
             /* This iteration of the event ID is filtered */
-            Filtered = TRUE;
+            Filtered = true;
          }
 
          if (FilterPtr->Count < CFE_EVS_MAX_FILTER_COUNT)
@@ -363,7 +364,7 @@ void EVS_GenerateEventTelemetry(uint32 AppID, uint16 EventID, uint16 EventType, 
     int                      ExpandedLength;
 
     /* Initialize EVS event packets */
-    CFE_SB_InitMsg(&LongEventTlm, CFE_EVS_LONG_EVENT_MSG_MID, sizeof(LongEventTlm), TRUE);
+    CFE_SB_InitMsg(&LongEventTlm, CFE_EVS_LONG_EVENT_MSG_MID, sizeof(LongEventTlm), true);
     LongEventTlm.Payload.PacketID.EventID   = EventID;
     LongEventTlm.Payload.PacketID.EventType = EventType;
 
@@ -407,7 +408,7 @@ void EVS_GenerateEventTelemetry(uint32 AppID, uint16 EventID, uint16 EventType, 
          *
          * This goes out on a separate message ID.
          */
-        CFE_SB_InitMsg(&ShortEventTlm, CFE_EVS_SHORT_EVENT_MSG_MID, sizeof(ShortEventTlm), TRUE);
+        CFE_SB_InitMsg(&ShortEventTlm, CFE_EVS_SHORT_EVENT_MSG_MID, sizeof(ShortEventTlm), true);
         CFE_SB_SetMsgTime((CFE_SB_Msg_t *) &ShortEventTlm, *TimeStamp);
         ShortEventTlm.Payload.PacketID = LongEventTlm.Payload.PacketID;
         CFE_SB_SendMsg((CFE_SB_Msg_t *) &ShortEventTlm);
@@ -441,7 +442,7 @@ void EVS_SendViaPorts (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
    char PortMessage[CFE_EVS_MAX_PORT_MSG_LENGTH];
 
-   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT1_BIT) >> 0) == TRUE)
+   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT1_BIT) >> 0) == true)
    {
       /* Copy event message to string format */
       snprintf(PortMessage, CFE_EVS_MAX_PORT_MSG_LENGTH, "EVS Port1 %u/%u/%s %u: %s", (unsigned int) EVS_PktPtr->Payload.PacketID.SpacecraftID,
@@ -453,7 +454,7 @@ void EVS_SendViaPorts (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
       EVS_OutputPort1(PortMessage);
    }
 
-   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT2_BIT) >> 1) == TRUE)
+   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT2_BIT) >> 1) == true)
    {
       /* Copy event message to string format */
       snprintf(PortMessage, CFE_EVS_MAX_PORT_MSG_LENGTH, "EVS Port2 %u/%u/%s %u: %s", (unsigned int) EVS_PktPtr->Payload.PacketID.SpacecraftID,
@@ -465,7 +466,7 @@ void EVS_SendViaPorts (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
       EVS_OutputPort2(PortMessage);
    }
 
-   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT3_BIT) >> 2) == TRUE)
+   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT3_BIT) >> 2) == true)
    {
       /* Copy event message to string format */
       snprintf(PortMessage, CFE_EVS_MAX_PORT_MSG_LENGTH, "EVS Port3 %u/%u/%s %u: %s", (unsigned int) EVS_PktPtr->Payload.PacketID.SpacecraftID,
@@ -477,7 +478,7 @@ void EVS_SendViaPorts (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
       EVS_OutputPort3(PortMessage);
    }
 
-   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT4_BIT) >> 3) == TRUE)
+   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT4_BIT) >> 3) == true)
    {
       /* Copy event message to string format */
       snprintf(PortMessage, CFE_EVS_MAX_PORT_MSG_LENGTH, "EVS Port4 %u/%u/%s %u: %s", (unsigned int) EVS_PktPtr->Payload.PacketID.SpacecraftID,
@@ -587,7 +588,7 @@ int32 EVS_SendEvent (uint16 EventID, uint16 EventType, const char *Spec, ... )
     */
    /* Unlikely, but possible that an EVS event filter was added by command */
    if (CFE_EVS_GlobalData.EVS_AppID < CFE_PLATFORM_ES_MAX_APPLICATIONS &&
-           EVS_IsFiltered(CFE_EVS_GlobalData.EVS_AppID, EventID, EventType) == FALSE)
+           EVS_IsFiltered(CFE_EVS_GlobalData.EVS_AppID, EventID, EventType) == false)
    {
       /* Get current spacecraft time */
       Time = CFE_TIME_GetTime();

@@ -91,17 +91,8 @@ function(add_cfe_app APP_NAME APP_SRC_FILES)
   add_library(${APP_NAME} ${APPTYPE} ${APP_SRC_FILES} ${ARGN})
   
   if (APP_INSTALL_LIST)
-    # Override the default behavior of attaching a "lib" prefix
-    set_target_properties(${APP_NAME} PROPERTIES PREFIX "")
-
-    # Create the install targets for this shared/modular app
-    foreach(TGT ${APP_INSTALL_LIST})
-      install(TARGETS ${APP_NAME} DESTINATION ${TGT}/${INSTALL_SUBDIR})
-    endforeach()
-  else()
-    # Set a compile definition to enable static linkage macros
-    set_target_properties(${APP_NAME} PROPERTIES COMPILE_DEFINITIONS "CFS_STATIC_MODULE")
-  endif()
+    cfs_app_do_install(${APP_NAME} ${APP_INSTALL_LIST})
+  endif (APP_INSTALL_LIST)
   
 endfunction(add_cfe_app)
 
@@ -222,6 +213,44 @@ function(add_unit_test_exe UT_NAME UT_SRCS)
     add_test(${UT_NAME} ${UT_NAME})
 endfunction(add_unit_test_exe)
 
+
+##################################################################
+#
+# FUNCTION: cfe_exec_do_install
+#
+# Called to install a CFE core executable target to the staging area.
+# Some architectures/OS's need special extra steps, and this
+# function can be overridden in a custom cmake file for those platforms
+#
+function(cfe_exec_do_install CPU_NAME)
+
+    # By default just stage it to a directory of the same name
+    install(TARGETS core-${CPU_NAME} DESTINATION ${CPU_NAME})
+    
+endfunction(cfe_exec_do_install)
+
+##################################################################
+#
+# FUNCTION: cfs_app_do_install
+#
+# Called to install a CFS application target to the staging area.
+# Some architectures/OS's need special extra steps, and this
+# function can be overridden in a custom cmake file for those platforms
+#
+function(cfs_app_do_install APP_NAME)
+
+    # override the default behavior of attaching a "lib" prefix
+    set_target_properties(${APP_NAME} PROPERTIES 
+        PREFIX "" OUTPUT_NAME "${APP_NAME}")
+    
+    # Create the install targets for this shared/modular app
+    foreach(TGT ${ARGN})
+      install(TARGETS ${APP_NAME} DESTINATION ${TGT}/${INSTALL_SUBDIR})
+    endforeach()
+
+endfunction(cfs_app_do_install)
+
+
 ##################################################################
 #
 # FUNCTION: prepare
@@ -251,7 +280,7 @@ function(prepare)
             "${CMAKE_SYSTEM_NAME}" STREQUAL "CYGWIN")
       # Export the variables determined here up to the parent scope
       SET(CFE_SYSTEM_PSPNAME      "pc-linux" PARENT_SCOPE)
-      SET(OSAL_SYSTEM_OSTYPE      "posix-ng"    PARENT_SCOPE)
+      SET(OSAL_SYSTEM_OSTYPE      "posix"    PARENT_SCOPE)
     else ()
       # Not cross compiling and host system is not recognized
       message(FATAL_ERROR "Do not know how to set CFE_SYSTEM_PSPNAME and OSAL_SYSTEM_OSTYPE on ${CMAKE_SYSTEM_NAME} system")
@@ -312,8 +341,8 @@ function(process_arch SYSVAR)
   # Append the PSP and OSAL selections to the Doxyfile so it will be included
   # in the generated documentation automatically.
   # Also extract the "-D" options within CFLAGS and inform Doxygen about these
-  string(REGEX MATCHALL "-D[A-Za-z0-9_=]+" DOXYGEN_DEFINED_MACROS ${CMAKE_C_FLAGS})
-  string(REGEX REPLACE "-D" " " DOXYGEN_DEFINED_MACROS ${DOXYGEN_DEFINED_MACROS})
+  string(REGEX MATCHALL "-D[A-Za-z0-9_=]+" DOXYGEN_DEFINED_MACROS "${CMAKE_C_FLAGS}")
+  string(REGEX REPLACE "-D" " " DOXYGEN_DEFINED_MACROS "${DOXYGEN_DEFINED_MACROS}")
   file(APPEND "${MISSION_BINARY_DIR}/doc/mission-content.doxyfile" 
     "PREDEFINED += ${DOXYGEN_DEFINED_MACROS}\n"
     "INPUT += ${MISSION_SOURCE_DIR}/osal/src/os/${OSAL_SYSTEM_OSTYPE}\n"
@@ -374,13 +403,34 @@ function(process_arch SYSVAR)
   add_subdirectory(${MISSION_SOURCE_DIR}/psp psp/${CFE_SYSTEM_PSPNAME})
         
   # Process each target that shares this system architecture
+  # First Pass: Assemble the list of apps that should be compiled 
   foreach(TGTID ${TGTSYS_${SYSVAR}})
       
     set(TGTNAME ${TGT${TGTID}_NAME})
     if(NOT TGTNAME)
       set(TGTNAME "cpu${TGTID}")
+      set(TGT${TGTID}_NAME "${TGTNAME}")
     endif(NOT TGTNAME)
        
+    # Append to the app install list for this CPU
+    foreach(APP ${TGT${TGTID}_APPLIST})
+      set(TGTLIST_${APP} ${TGTLIST_${APP}} ${TGTNAME})
+    endforeach(APP ${TGT${TGTID}_APPLIST})
+      
+  endforeach(TGTID ${TGTSYS_${SYSVAR}})
+  
+  # Process each app that is used on this system architecture
+  foreach(APP ${TGTSYS_${SYSVAR}_APPS})
+    set(APP_INSTALL_LIST ${TGTLIST_${APP}})
+    message(STATUS "Building App: ${APP} install=${APP_INSTALL_LIST}")
+    add_subdirectory(${${APP}_MISSION_DIR} apps/${APP})
+  endforeach()
+
+  # Process each target that shares this system architecture
+  # Second Pass: Build cfe-core and link final target executable 
+  foreach(TGTID ${TGTSYS_${SYSVAR}})
+  
+    set(TGTNAME ${TGT${TGTID}_NAME})    
     set(TGTPLATFORM ${TGT${TGTID}_PLATFORM})
     if(NOT TGTPLATFORM)
       set(TGTPLATFORM "default" ${TGTNAME})
@@ -398,11 +448,6 @@ function(process_arch SYSVAR)
       
     endif (NOT TARGET ${CFE_CORE_TARGET})
 
-    # Append to the app install list for this CPU
-    foreach(APP ${TGT${TGTID}_APPLIST})
-      set(TGTLIST_${APP} ${TGTLIST_${APP}} ${TGTNAME})
-    endforeach(APP ${TGT${TGTID}_APPLIST})
-  
     # Target to generate the actual executable file
     add_subdirectory(cmake/target ${TGTNAME})
     
@@ -422,12 +467,6 @@ function(process_arch SYSVAR)
     endforeach(INSTFILE ${TGT${TGTID}_FILELIST})
   endforeach(TGTID ${TGTSYS_${SYSVAR}})
  
-  # Process each app that is used on this system architecture
-  foreach(APP ${TGTSYS_${SYSVAR}_APPS})
-    set(APP_INSTALL_LIST ${TGTLIST_${APP}})
-    message(STATUS "Building App: ${APP} install=${APP_INSTALL_LIST}")
-    add_subdirectory(${${APP}_MISSION_DIR} apps/${APP})
-  endforeach()
-
+ 
 endfunction(process_arch SYSVAR)
 

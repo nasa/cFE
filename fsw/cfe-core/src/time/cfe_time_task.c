@@ -1,23 +1,25 @@
 /*
-** $Id: cfe_time_task.c 1.8 2014/04/14 10:51:39GMT-05:00 lwalling Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_time_task.c
 **
 ** Subsystem: cFE TIME Task
 **
@@ -76,7 +78,7 @@ int32 CFE_TIME_OneHzCmd(const CCSDS_CommandPacket_t *data);
 **       utilizing (mostly) the same code path as the
 **       non-fake tone mode.
 */
-#if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 int32 CFE_TIME_ToneSendCmd(const CCSDS_CommandPacket_t *data);
 #endif
 
@@ -284,12 +286,12 @@ int32 CFE_TIME_TaskInit(void)
     /*
     ** Subscribe to time at the tone "signal" commands...
     */
-    #if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
     Status = CFE_SB_Subscribe(CFE_TIME_TONE_CMD_MID,
                               CFE_TIME_TaskData.CmdPipe);
     #endif
     
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     Status = CFE_SB_SubscribeLocal(CFE_TIME_TONE_CMD_MID,
                               CFE_TIME_TaskData.CmdPipe,4);
     #endif
@@ -303,12 +305,12 @@ int32 CFE_TIME_TaskInit(void)
     /*
     ** Subscribe to time at the tone "data" commands...
     */
-    #if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
     Status = CFE_SB_Subscribe(CFE_TIME_DATA_CMD_MID,
                               CFE_TIME_TaskData.CmdPipe);
     #endif
     
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     Status = CFE_SB_SubscribeLocal(CFE_TIME_DATA_CMD_MID,
                               CFE_TIME_TaskData.CmdPipe,4);
     #endif
@@ -322,12 +324,12 @@ int32 CFE_TIME_TaskInit(void)
     /*
     ** Subscribe to 1Hz signal commands...
     */
-    #if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
     Status = CFE_SB_Subscribe(CFE_TIME_1HZ_CMD_MID,
                               CFE_TIME_TaskData.CmdPipe);
     #endif
     
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     Status = CFE_SB_SubscribeLocal(CFE_TIME_1HZ_CMD_MID,
                                    CFE_TIME_TaskData.CmdPipe,4);
     #endif
@@ -342,7 +344,7 @@ int32 CFE_TIME_TaskInit(void)
     /*
     ** Subscribe to time at the tone "request data" commands...
     */
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     Status = CFE_SB_Subscribe(CFE_TIME_SEND_CMD_MID,
                                   CFE_TIME_TaskData.CmdPipe);
     if(Status != CFE_SUCCESS)
@@ -376,7 +378,7 @@ int32 CFE_TIME_TaskInit(void)
     /*
     ** Select primary vs redundant tone interrupt signal...
     */
-    #if (CFE_PLATFORM_TIME_CFG_SIGNAL == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
     OS_SelectTone(CFE_TIME_TaskData.ClockSignal);
     #endif
 
@@ -423,11 +425,11 @@ int32 CFE_TIME_TaskInit(void)
 **    Message pointer and expected length
 **
 **  Return:
-**    TRUE if length is acceptable
+**    true if length is acceptable
 */
-boolean CFE_TIME_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
+bool CFE_TIME_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
 {
-    boolean result       = TRUE;
+    bool    result       = true;
     uint16  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
 
     /*
@@ -441,7 +443,7 @@ boolean CFE_TIME_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
         CFE_EVS_SendEvent(CFE_TIME_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                 "Invalid cmd length: ID = 0x%X, CC = %d, Exp Len = %d, Len = %d",
                 (unsigned int)MessageID, (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
-        result = FALSE;
+        result = false;
         ++CFE_TIME_TaskData.CommandErrorCounter;
     }
 
@@ -495,7 +497,7 @@ void CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr)
         /*
         ** Request for time at the tone "data"...
         */
-        #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
         case CFE_TIME_SEND_CMD_MID:
             CFE_TIME_ToneSendCmd((CCSDS_CommandPacket_t *)MessagePtr);
             break;
@@ -760,7 +762,7 @@ int32 CFE_TIME_OneHzCmd(const CCSDS_CommandPacket_t *data)
      */
     CFE_TIME_Local1HzStateMachine();
 
-#if (CFE_MISSION_TIME_CFG_FAKE_TONE == TRUE)
+#if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
     /*
     ** Fake the call-back from the "real" h/w ISR...
     */
@@ -782,7 +784,7 @@ int32 CFE_TIME_OneHzCmd(const CCSDS_CommandPacket_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 int32 CFE_TIME_ToneSendCmd(const CCSDS_CommandPacket_t *data)
 {
     /*
@@ -841,8 +843,12 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCounters_t *data)
     CFE_TIME_TaskData.ToneIntErrorCounter   = 0;
     CFE_TIME_TaskData.ToneTaskCounter   = 0;
 
-    CFE_TIME_TaskData.PendingVersionCounter  = 0;
-    CFE_TIME_TaskData.CompleteVersionCounter = 0;
+    /*
+     * Note: Not resetting "LastVersion" counter here, that might
+     * disturb access to the time reference data by other tasks
+     */
+    CFE_TIME_TaskData.ResetVersionCounter =
+            CFE_TIME_TaskData.LastVersionCounter;
 
     CFE_TIME_TaskData.LocalIntCounter   = 0;
     CFE_TIME_TaskData.LocalTaskCounter  = 0;
@@ -949,7 +955,7 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSource_t *data)
 {
     const CFE_TIME_SourceCmd_Payload_t *CommandPtr = &data->Payload;
 
-    #if (CFE_PLATFORM_TIME_CFG_SOURCE == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
     const char *TimeSourceText;
     #endif
 
@@ -959,7 +965,7 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSource_t *data)
     if ((CommandPtr->TimeSource == CFE_TIME_SourceSelect_INTERNAL) ||
         (CommandPtr->TimeSource == CFE_TIME_SourceSelect_EXTERNAL))
     {
-        #if (CFE_PLATFORM_TIME_CFG_SOURCE == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
         /*
         ** Only systems configured to select source of time data...
         */
@@ -1019,7 +1025,7 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignal_t *data)
 {
     const CFE_TIME_SignalCmd_Payload_t *CommandPtr = &data->Payload;
 
-    #if (CFE_PLATFORM_TIME_CFG_SIGNAL == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
     const char *ToneSourceText;
     #endif
 
@@ -1029,7 +1035,7 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignal_t *data)
     if ((CommandPtr->ToneSource == CFE_TIME_ToneSignalSelect_PRIMARY) ||
         (CommandPtr->ToneSource == CFE_TIME_ToneSignalSelect_REDUNDANT))
     {
-        #if (CFE_PLATFORM_TIME_CFG_SIGNAL == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
         /*
         ** Only systems configured to select tone signal...
         */
@@ -1093,7 +1099,7 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
     */
     if (CommandPtr->MicroSeconds < 1000000)
     {
-        #if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
 
         CFE_TIME_SysTime_t Delay;
 
@@ -1164,7 +1170,7 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTime_t *data)
     */
     if (CommandPtr->MicroSeconds < 1000000)
     {
-        #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
         CFE_TIME_SysTime_t NewTime;
 
@@ -1223,7 +1229,7 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMET_t *data)
     */
     if (CommandPtr->MicroSeconds < 1000000)
     {
-        #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
         CFE_TIME_SysTime_t NewMET;
 
@@ -1277,7 +1283,7 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCF_t *data)
     */
     if (CommandPtr->MicroSeconds < 1000000)
     {
-        #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
         CFE_TIME_SysTime_t NewSTCF;
 
@@ -1324,7 +1330,7 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCF_t *data)
 
 int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSeconds_t *data)
 {
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
     const CFE_TIME_LeapsCmd_Payload_t *CommandPtr = &data->Payload;
 
@@ -1367,7 +1373,7 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
     */
     if (CommandPtr->MicroSeconds < 1000000)
     {
-        #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
         CFE_TIME_SysTime_t Adjust;
 
@@ -1443,7 +1449,7 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
     /*
     ** 1Hz adjustments are only valid for "Time Servers"...
     */
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 
     CFE_TIME_SysTime_t Adjust;
 

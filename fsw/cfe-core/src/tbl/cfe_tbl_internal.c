@@ -1,24 +1,26 @@
 /*
-** $Id: cfe_tbl_internal.c 1.15 2014/08/22 16:30:24GMT-05:00 lwalling Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_tbl_internal.c
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**  
 ** Purpose:  cFE Table Services (TBL) utility function source file
 **
 ** Author:   D. Kobe/the Hammers Company, Inc.
@@ -82,9 +84,9 @@ int32 CFE_TBL_EarlyInit (void)
         CFE_TBL_TaskData.Handles[i].RegIndex = 0;
         CFE_TBL_TaskData.Handles[i].PrevLink = CFE_TBL_END_OF_LIST;
         CFE_TBL_TaskData.Handles[i].NextLink = CFE_TBL_END_OF_LIST;
-        CFE_TBL_TaskData.Handles[i].UsedFlag = FALSE;
-        CFE_TBL_TaskData.Handles[i].LockFlag = FALSE;
-        CFE_TBL_TaskData.Handles[i].Updated = FALSE;
+        CFE_TBL_TaskData.Handles[i].UsedFlag = false;
+        CFE_TBL_TaskData.Handles[i].LockFlag = false;
+        CFE_TBL_TaskData.Handles[i].Updated = false;
         CFE_TBL_TaskData.Handles[i].BufferIndex = 0;
     }
 
@@ -94,7 +96,7 @@ int32 CFE_TBL_EarlyInit (void)
         CFE_TBL_TaskData.ValidationResults[i].State = CFE_TBL_VALIDATION_FREE;
         CFE_TBL_TaskData.ValidationResults[i].CrcOfTable = 0;
         CFE_TBL_TaskData.ValidationResults[i].Result = 0;
-        CFE_TBL_TaskData.ValidationResults[i].ActiveBuffer = FALSE;
+        CFE_TBL_TaskData.ValidationResults[i].ActiveBuffer = false;
         CFE_TBL_TaskData.ValidationResults[i].TableName[0] = '\0';
     }
 
@@ -107,7 +109,7 @@ int32 CFE_TBL_EarlyInit (void)
         CFE_TBL_TaskData.DumpControlBlocks[i].TableName[0] = '\0';
         
         /* Prevent Shared Buffers from being used until successfully allocated */
-        CFE_TBL_TaskData.LoadBuffs[i].Taken = TRUE;
+        CFE_TBL_TaskData.LoadBuffs[i].Taken = true;
     }
 
     CFE_TBL_TaskData.ValidationCounter = 0;
@@ -144,14 +146,14 @@ int32 CFE_TBL_EarlyInit (void)
     */
     CFE_SB_InitMsg(&CFE_TBL_TaskData.HkPacket,
                     CFE_TBL_HK_TLM_MID,
-                    sizeof(CFE_TBL_TaskData.HkPacket), TRUE);
+                    sizeof(CFE_TBL_TaskData.HkPacket), true);
 
     /*
     ** Initialize table registry report packet (clear user data area)...
     */
     CFE_SB_InitMsg(&CFE_TBL_TaskData.TblRegPacket,
                     CFE_TBL_REG_TLM_MID,
-                    sizeof(CFE_TBL_TaskData.TblRegPacket), TRUE);
+                    sizeof(CFE_TBL_TaskData.TblRegPacket), true);
 
     /* Initialize memory partition and allocate shared table buffers. */
     Status = CFE_ES_PoolCreate(&CFE_TBL_TaskData.Buf.PoolHdl,
@@ -182,7 +184,7 @@ int32 CFE_TBL_EarlyInit (void)
             else
             {
                 /* The buffer is successfully created, so allow it to be used */
-                CFE_TBL_TaskData.LoadBuffs[j].Taken = FALSE;
+                CFE_TBL_TaskData.LoadBuffs[j].Taken = false;
                 
                 memset(CFE_TBL_TaskData.LoadBuffs[j].DataSource, 0, OS_MAX_PATH_LEN);
                 CFE_TBL_TaskData.LoadBuffs[j].FileCreateTimeSecs = 0;
@@ -197,7 +199,7 @@ int32 CFE_TBL_EarlyInit (void)
     /* Try to obtain a previous image of the Critical Table Registry from the Critical Data Store */
     Status = CFE_ES_RegisterCDSEx(&CFE_TBL_TaskData.CritRegHandle, 
                                   (sizeof(CFE_TBL_CritRegRec_t)*CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES),
-                                  "CFE_TBL.CritReg", TRUE);
+                                  "CFE_TBL.CritReg", true);
                                 
     /* Assume for the moment that nothing is already in the CDS and zero out the Critical Table Registry */
     for (i=0; i<CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
@@ -208,7 +210,7 @@ int32 CFE_TBL_EarlyInit (void)
         CFE_TBL_TaskData.CritReg[i].LastFileLoaded[0] = '\0';
         CFE_TBL_TaskData.CritReg[i].TimeOfLastUpdate.Seconds = 0;
         CFE_TBL_TaskData.CritReg[i].TimeOfLastUpdate.Subseconds = 0;
-        CFE_TBL_TaskData.CritReg[i].TableLoadedOnce = FALSE;
+        CFE_TBL_TaskData.CritReg[i].TableLoadedOnce = false;
 
     }
     
@@ -275,13 +277,13 @@ void CFE_TBL_InitRegistryRecord (CFE_TBL_RegistryRec_t *RegRecPtr)
     RegRecPtr->Buffers[0].FileCreateTimeSecs = 0;
     RegRecPtr->Buffers[0].FileCreateTimeSubSecs = 0;
     RegRecPtr->Buffers[0].Crc = 0;
-    RegRecPtr->Buffers[0].Taken = FALSE;
+    RegRecPtr->Buffers[0].Taken = false;
     RegRecPtr->Buffers[0].DataSource[0] = '\0';
     RegRecPtr->Buffers[1].BufferPtr = NULL;
     RegRecPtr->Buffers[1].FileCreateTimeSecs = 0;
     RegRecPtr->Buffers[1].FileCreateTimeSubSecs = 0;
     RegRecPtr->Buffers[1].Crc = 0;
-    RegRecPtr->Buffers[1].Taken = FALSE;
+    RegRecPtr->Buffers[1].Taken = false;
     RegRecPtr->Buffers[1].DataSource[0] = '\0';
     RegRecPtr->ValidationFuncPtr = NULL;
     RegRecPtr->TimeOfLastUpdate.Seconds = 0;
@@ -291,14 +293,14 @@ void CFE_TBL_InitRegistryRecord (CFE_TBL_RegistryRec_t *RegRecPtr)
     RegRecPtr->ValidateActiveIndex = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->ValidateInactiveIndex = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->CDSHandle = CFE_ES_CDS_BAD_HANDLE;
-    RegRecPtr->CriticalTable = FALSE;
-    RegRecPtr->TableLoadedOnce = FALSE;
-    RegRecPtr->LoadPending = FALSE;
-    RegRecPtr->DumpOnly = FALSE;
+    RegRecPtr->CriticalTable = false;
+    RegRecPtr->TableLoadedOnce = false;
+    RegRecPtr->LoadPending = false;
+    RegRecPtr->DumpOnly = false;
     RegRecPtr->DumpControlIndex = CFE_TBL_NO_DUMP_PENDING;
-    RegRecPtr->UserDefAddr = FALSE;
-    RegRecPtr->DoubleBuffered = FALSE;
-    RegRecPtr->NotifyByMsg = FALSE;
+    RegRecPtr->UserDefAddr = false;
+    RegRecPtr->DoubleBuffered = false;
+    RegRecPtr->NotifyByMsg = false;
     RegRecPtr->ActiveBufferIndex = 0;
     RegRecPtr->Name[0] = '\0';
     RegRecPtr->LastFileLoaded[0] = '\0';
@@ -327,7 +329,7 @@ int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle)
     else
     {
         /* Check to see if the Handle is no longer valid for this Table */
-        if (CFE_TBL_TaskData.Handles[TblHandle].UsedFlag == FALSE)
+        if (CFE_TBL_TaskData.Handles[TblHandle].UsedFlag == false)
         {
             Status = CFE_TBL_ERR_INVALID_HANDLE;
 
@@ -475,13 +477,13 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
     }
 
     /* Return the Access Descriptor to the pool */
-    AccessDescPtr->UsedFlag = FALSE;
+    AccessDescPtr->UsedFlag = false;
 
     /* If this was the last Access Descriptor for this table, we can free the memory buffers as well */
     if (RegRecPtr->HeadOfAccessList == CFE_TBL_END_OF_LIST)
     {
         /* Only free memory that we have allocated.  If the image is User Defined, then don't bother */
-        if (RegRecPtr->UserDefAddr == FALSE)
+        if (RegRecPtr->UserDefAddr == false)
         {
             /* Free memory allocated to buffers */
             Status = CFE_ES_PutPoolBuf(CFE_TBL_TaskData.Buf.PoolHdl, (uint32 *)RegRecPtr->Buffers[0].BufferPtr);
@@ -511,7 +513,7 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
                 if (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
                 {
                     /* Free the working buffer */
-                    CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = FALSE;
+                    CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
                     RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
                 }
             }
@@ -566,7 +568,7 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, uint
             else /* Table Registry Entry is valid */
             {
                 /* Lock the table and return the current pointer */
-                AccessDescPtr->LockFlag = TRUE;
+                AccessDescPtr->LockFlag = true;
 
                 /* Save the buffer we are using in the access descriptor */
                 /* This is used to ensure that if the buffer becomes inactive while */
@@ -579,7 +581,7 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, uint
                 Status = CFE_TBL_GetNextNotification(TblHandle);
 
                 /* Clear Table Updated Notify Bit so that caller only gets it once */
-                AccessDescPtr->Updated = FALSE;
+                AccessDescPtr->Updated = false;
             }
         }
         else
@@ -704,7 +706,7 @@ CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void)
 
     while ((HandleIndx == CFE_TBL_END_OF_LIST) && (i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES))
     {
-        if (CFE_TBL_TaskData.Handles[i].UsedFlag == FALSE)
+        if (CFE_TBL_TaskData.Handles[i].UsedFlag == false)
         {
             HandleIndx = i;
         }
@@ -798,7 +800,7 @@ int32 CFE_TBL_UnlockRegistry(void)
 
 int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
                                CFE_TBL_RegistryRec_t *RegRecPtr,
-                               boolean CalledByApp)
+                               bool CalledByApp)
 {
     int32   Status = CFE_SUCCESS;
     int32   i;
@@ -826,7 +828,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
         /* by the Table Services application), then use the current active buffer as the working buffer. */
         /* This allows many tasks with many tables to perform the initialization without conflict        */
         /* over the accessibility of the shared working buffers.                                         */
-        if ((RegRecPtr->TableLoadedOnce == FALSE) && (CalledByApp == TRUE))
+        if ((RegRecPtr->TableLoadedOnce == false) && (CalledByApp == true))
         {
             if (RegRecPtr->DoubleBuffered)
             {
@@ -885,7 +887,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
 
                 /* Determine if there are any common buffers available */
                 i = 0;
-                while ((i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS) && (CFE_TBL_TaskData.LoadBuffs[i].Taken == TRUE))
+                while ((i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS) && (CFE_TBL_TaskData.LoadBuffs[i].Taken == true))
                 {
                     i++;
                 }
@@ -893,7 +895,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
                 /* If a free buffer was found, then return the address to the associated shared buffer */
                 if (i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
                 {
-                    CFE_TBL_TaskData.LoadBuffs[i].Taken = TRUE;
+                    CFE_TBL_TaskData.LoadBuffs[i].Taken = true;
                     *WorkingBufferPtr = &CFE_TBL_TaskData.LoadBuffs[i];
                     RegRecPtr->LoadInProgress = i;
 
@@ -1047,7 +1049,7 @@ int32 CFE_TBL_UpdateInternal( CFE_TBL_Handle_t TblHandle,
 {
     int32 Status = CFE_SUCCESS;
     CFE_TBL_Handle_t AccessIterator;
-    boolean LockStatus = FALSE;
+    bool LockStatus = false;
     
     if ((!RegRecPtr->LoadPending) || (RegRecPtr->LoadInProgress == CFE_TBL_NO_LOAD_IN_PROGRESS))
     {
@@ -1072,7 +1074,7 @@ int32 CFE_TBL_UpdateInternal( CFE_TBL_Handle_t TblHandle,
             CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
             
             /* If the table is a critical table, update the appropriate CDS with the new data */
-            if (RegRecPtr->CriticalTable == TRUE)
+            if (RegRecPtr->CriticalTable == true)
             {
                 CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
             }
@@ -1123,12 +1125,12 @@ int32 CFE_TBL_UpdateInternal( CFE_TBL_Handle_t TblHandle,
                 RegRecPtr->Buffers[0].Crc = CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Crc;
 
                 /* Free the working buffer */
-                CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = FALSE;
+                CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
 
                 CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
             
                 /* If the table is a critical table, update the appropriate CDS with the new data */
-                if (RegRecPtr->CriticalTable == TRUE)
+                if (RegRecPtr->CriticalTable == true)
                 {
                     CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
                 }
@@ -1156,12 +1158,12 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
     RegRecPtr->TimeOfLastUpdate = CFE_TIME_GetTime();
 
     /* Clear notification of pending load (as well as NO LOAD) and notify everyone of update */
-    RegRecPtr->LoadPending = FALSE;
-    RegRecPtr->TableLoadedOnce = TRUE;
+    RegRecPtr->LoadPending = false;
+    RegRecPtr->TableLoadedOnce = true;
     AccessIterator = RegRecPtr->HeadOfAccessList;
     while (AccessIterator != CFE_TBL_END_OF_LIST)
     {
-        CFE_TBL_TaskData.Handles[AccessIterator].Updated = TRUE;
+        CFE_TBL_TaskData.Handles[AccessIterator].Updated = true;
 
         AccessIterator = CFE_TBL_TaskData.Handles[AccessIterator].NextLink;
     }
@@ -1520,7 +1522,7 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
         */
         CFE_SB_InitMsg(&CFE_TBL_TaskData.NotifyMsg,
                         RegRecPtr->NotificationMsgId,
-                        sizeof(CFE_TBL_NotifyCmd_t), TRUE);
+                        sizeof(CFE_TBL_NotifyCmd_t), true);
         
         /* Set the command code */
         CFE_SB_SetCmdCode((CFE_SB_MsgPtr_t) &CFE_TBL_TaskData.NotifyMsg, RegRecPtr->NotificationCC);

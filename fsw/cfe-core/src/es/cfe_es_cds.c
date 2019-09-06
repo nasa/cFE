@@ -1,26 +1,26 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 **  File:  
 **    cfe_es_cds.c
-**
-**
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 **  Purpose:  
 **    This file implements the cFE Executive Services Critical Data Store functions.
@@ -227,7 +227,7 @@ int32 CFE_ES_CDS_EarlyInit(void)
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name, boolean CriticalTbl)
+int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name, bool CriticalTbl)
 {
     int32   Status = CFE_SUCCESS;
     uint32  RegIndx;
@@ -287,7 +287,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const
             
         if (Status == CFE_SUCCESS)
         {
-           RegRecPtr->Taken = TRUE;
+           RegRecPtr->Taken = true;
         
            /* Save the size of the CDS */
            RegRecPtr->Size = BlockSize;
@@ -390,7 +390,7 @@ int32 CFE_ES_InitializeCDS(uint32 CDSSize)
     memset(MemBlock, 0, sizeof(MemBlock));
     
     /* While there is space to write another block of zeros, then do so */
-    while (((NumWritten + sizeof(MemBlock)) < CDSSize) && (Status == OS_SUCCESS))
+    while (((NumWritten + sizeof(MemBlock)) <= CDSSize) && (Status == OS_SUCCESS))
     {
         Status = CFE_PSP_WriteToCDS(MemBlock, NumWritten, sizeof(MemBlock));
         
@@ -403,7 +403,7 @@ int32 CFE_ES_InitializeCDS(uint32 CDSSize)
     /* While there is space to write a uint32 of zeros, then do so */
     if ((Status == CFE_PSP_SUCCESS) && (NumWritten < CDSSize))
     {
-        while (((NumWritten + sizeof(uint32)) < CDSSize) && (Status == CFE_PSP_SUCCESS))
+        while (((NumWritten + sizeof(uint32)) <= CDSSize) && (Status == CFE_PSP_SUCCESS))
         {
             Status = CFE_PSP_WriteToCDS(&Uint32Zero, NumWritten, sizeof(uint32));
             
@@ -482,8 +482,8 @@ int32 CFE_ES_InitCDSRegistry(void)
         CFE_ES_Global.CDSVars.Registry[i].Name[0] = '\0';
         CFE_ES_Global.CDSVars.Registry[i].Size = 0;
         CFE_ES_Global.CDSVars.Registry[i].MemHandle = 0;
-        CFE_ES_Global.CDSVars.Registry[i].Taken = FALSE;
-        CFE_ES_Global.CDSVars.Registry[i].Table = FALSE;
+        CFE_ES_Global.CDSVars.Registry[i].Taken = false;
+        CFE_ES_Global.CDSVars.Registry[i].Table = false;
     }
     
     /* Copy the number of registry entries to the CDS */
@@ -644,7 +644,7 @@ int32 CFE_ES_FindCDSInRegistry(const char *CDSName)
         i++;
 
         /* Check to see if the record is currently being used */
-        if (CFE_ES_Global.CDSVars.Registry[i].Taken == TRUE)
+        if (CFE_ES_Global.CDSVars.Registry[i].Taken == true)
         {
             /* Perform a case sensitive name comparison */
             if (strcmp(CDSName, CFE_ES_Global.CDSVars.Registry[i].Name) == 0)
@@ -673,7 +673,7 @@ int32 CFE_ES_FindFreeCDSRegistryEntry(void)
 
     while ( (RegIndx == CFE_ES_CDS_NOT_FOUND) && (i < CFE_ES_Global.CDSVars.MaxNumRegEntries) )
     {
-        if (CFE_ES_Global.CDSVars.Registry[i].Taken == FALSE)
+        if (CFE_ES_Global.CDSVars.Registry[i].Taken == false)
         {
             RegIndx = i;
         }
@@ -749,7 +749,7 @@ int32 CFE_ES_RebuildCDS(void)
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-int32 CFE_ES_DeleteCDS(const char *CDSName, boolean CalledByTblServices)
+int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
 {
     int32                Status;
     int32                RegIndx;
@@ -813,7 +813,7 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, boolean CalledByTblServices)
                 else
                 {
                     /* Remove entry from the CDS Registry */
-                    RegRecPtr->Taken = FALSE;
+                    RegRecPtr->Taken = false;
         
                     Status = CFE_ES_UpdateCDSRegistry();
             

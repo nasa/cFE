@@ -1,24 +1,25 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-** File:
-** $Id: ut_time_stubs.c 1.5 2014/05/28 09:21:47GMT-05:00 wmoleski Exp  $
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: ut_time_stubs.c
 **
 ** Purpose:
 ** Unit test stubs for Time routines
@@ -34,9 +35,8 @@
 #include <string.h>
 #include "cfe_time.h"
 #include "cfe_time_utils.h"
-#include "ut_stubs.h"
-
-extern UT_SetRtn_t TIMECleanUpRtn;
+#include "ut_support.h"
+#include "utstubs.h"
 
 /*
 ** Functions
@@ -58,7 +58,11 @@ extern UT_SetRtn_t TIMECleanUpRtn;
 ******************************************************************************/
 int32 CFE_TIME_EarlyInit(void)
 {
-    return CFE_SUCCESS;
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_EarlyInit);
+
+    return status;
 }
 
 /*****************************************************************************/
@@ -78,6 +82,7 @@ int32 CFE_TIME_EarlyInit(void)
 ******************************************************************************/
 void CFE_TIME_TaskMain(void)
 {
+    UT_DEFAULT_IMPL(CFE_TIME_TaskMain);
 }
 
 /*****************************************************************************/
@@ -102,6 +107,11 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
              "UT %lu.%lu -",
              (unsigned long)TimeToPrint.Seconds,
              (unsigned long)TimeToPrint.Subseconds);
+
+
+    UT_Stub_RegisterContext(UT_KEY(CFE_TIME_Print), PrintBuffer);
+    UT_Stub_RegisterContext(UT_KEY(CFE_TIME_Print), &TimeToPrint);
+    UT_DEFAULT_IMPL(CFE_TIME_Print);
 }
 
 /*****************************************************************************/
@@ -122,11 +132,23 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 ******************************************************************************/
 CFE_TIME_SysTime_t CFE_TIME_GetTime(void)
 {
-    static CFE_TIME_SysTime_t time;
+    static CFE_TIME_SysTime_t SimTime = { 0 };
+    CFE_TIME_SysTime_t Result;
+    int32 status;
 
-    time.Seconds++;
-    time.Subseconds++;
-    return time;
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetTime);
+
+    if (status >= 0)
+    {
+        if (UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_GetTime), (uint8*)&Result, sizeof(Result)) < sizeof(Result))
+        {
+            SimTime.Seconds++;
+            SimTime.Subseconds++;
+            Result = SimTime;
+        }
+    }
+
+    return Result;
 }
 
 /*****************************************************************************/
@@ -151,17 +173,61 @@ CFE_TIME_SysTime_t CFE_TIME_GetTime(void)
 ******************************************************************************/
 int32 CFE_TIME_CleanUpApp(uint32 AppId)
 {
-    int32 status = CFE_SUCCESS;
+    int32 status;
 
-    if (TIMECleanUpRtn.count > 0)
-    {
-        TIMECleanUpRtn.count--;
-
-        if (TIMECleanUpRtn.count == 0)
-        {
-            status = TIMECleanUpRtn.value;
-        }
-    }
+    status = UT_DEFAULT_IMPL(CFE_TIME_CleanUpApp);
 
     return status;
 }
+
+
+CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_Compare);
+    
+    return (CFE_TIME_Compare_t) status;
+}
+
+CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
+{
+    static CFE_TIME_SysTime_t SimTime = { 0 };
+    CFE_TIME_SysTime_t Result;
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_Add);
+
+    if (status >= 0)
+    {
+        if (UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_Add), (uint8*)&Result, sizeof(Result)) < sizeof(Result))
+        {
+            SimTime.Seconds++;
+            SimTime.Subseconds++;
+            Result = SimTime;
+        }
+    }
+
+    return Result;
+}
+
+uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_Sub2MicroSecs);
+
+    return (uint32) status;
+}
+
+uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_FS2CFESeconds);
+
+    return (uint32) status;
+}
+
+UT_DEFAULT_STUB(CFE_TIME_UnregisterSynchCallback, (CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr))   
+

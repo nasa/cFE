@@ -1,22 +1,24 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 ** File:
 **    tbl_UT.h
 **
@@ -31,9 +33,6 @@
 ** Notes:
 **    1. This is unit test code only, not for use in flight
 **
-** $Date: 2014/05/28 09:23:30GMT-05:00 $
-** $Revision: 1.1 $
-**
 */
 #ifndef _tbl_UT_h_
 #define _tbl_UT_h_
@@ -45,7 +44,7 @@
 #include "cfe.h"
 #include "cfe_tbl.h"
 #include "common_types.h"
-#include "ut_stubs.h"
+#include "ut_support.h"
 #include "cfe_tbl_msg.h"
 #include "cfe_tbl_internal.h"
 #include "cfe_tbl_task.h"
@@ -72,24 +71,6 @@ typedef struct
 
 
 /* TBL unit test functions */
-
-/*****************************************************************************/
-/**
-** \brief Unit test specific call to process SB messages
-**
-** \par Description
-**        Unit test specific call to process SB messages.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #CFE_TBL_TaskPipe
-**
-******************************************************************************/
-void UT_ProcessSBMsg(CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /**
@@ -716,7 +697,6 @@ void Test_CFE_TBL_Validate(void);
 ** \sa #UT_Text, #UT_InitData, #CFE_TBL_Manage, #UT_GetNumEventsSent,
 ** \sa #UT_Report, #CFE_TBL_FindTableInRegistry, #CFE_TBL_GetWorkingBuffer,
 ** \sa #UT_SetAppID, #CFE_TBL_Load, #UT_EventIsInHistory, #UT_SetRtnCode,
-** \sa #CFE_PSP_MemCpy
 **
 ******************************************************************************/
 void Test_CFE_TBL_Manage(void);

@@ -1,25 +1,26 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**  File Name: cfe_evs.c
-**  $Id: cfe_evs.c 1.8 2014/05/30 13:26:02GMT-05:00 lwalling Exp  $
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  File: cfe_evs.c
 **
 **  Title: Event Services API library
 **
@@ -71,7 +72,7 @@ int32 CFE_EVS_Register (void *Filters, uint16 NumEventFilters, uint16 FilterSche
    if (Status == CFE_SUCCESS)
    {
       /* Cleanup if already registered */
-      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == TRUE)
+      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == true)
       {
          memset(&CFE_EVS_GlobalData.AppData[AppID], 0, sizeof(EVS_AppData_t));
       }
@@ -89,8 +90,8 @@ int32 CFE_EVS_Register (void *Filters, uint16 NumEventFilters, uint16 FilterSche
       {
          /* Initialize application event data */
          AppDataPtr = &CFE_EVS_GlobalData.AppData[AppID];
-         AppDataPtr->RegisterFlag = TRUE;
-         AppDataPtr->ActiveFlag   = TRUE;
+         AppDataPtr->RegisterFlag = true;
+         AppDataPtr->ActiveFlag   = true;
          AppDataPtr->EventCount   = 0;
          AppDataPtr->EventTypesActiveFlag = CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG;
 
@@ -153,7 +154,7 @@ int32 CFE_EVS_Unregister(void)
    if (Status == CFE_SUCCESS)
    {
       /* Cleanup if already registered */
-      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == TRUE)
+      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == true)
       {
          memset(&CFE_EVS_GlobalData.AppData[AppID], 0, sizeof(EVS_AppData_t));
       }
@@ -186,12 +187,12 @@ int32 CFE_EVS_SendEvent (uint16 EventID, uint16 EventType, const char *Spec, ...
 
    if (Status == CFE_SUCCESS)
    {
-      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == FALSE)
+      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == false)
       {
          /* Handler for events from apps not registered with EVS */
          Status = EVS_NotRegistered(AppID);
       }
-      else if (EVS_IsFiltered(AppID, EventID, EventType) == FALSE)
+      else if (EVS_IsFiltered(AppID, EventID, EventType) == false)
       {
           /* Get current spacecraft time */
           Time = CFE_TIME_GetTime();
@@ -229,12 +230,12 @@ int32 CFE_EVS_SendEventWithAppID (uint16 EventID, uint16 EventType, uint32 AppID
    {
       Status = CFE_EVS_APP_ILLEGAL_APP_ID;
    }
-   else if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == FALSE)
+   else if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == false)
    {
       /* Handler for events from apps not registered with EVS */
       Status = EVS_NotRegistered(AppID);
    }
-   else if (EVS_IsFiltered(AppID, EventID, EventType) == FALSE)
+   else if (EVS_IsFiltered(AppID, EventID, EventType) == false)
    {
       /* Get current spacecraft time */
       Time = CFE_TIME_GetTime();
@@ -271,12 +272,12 @@ int32 CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time, uint16 EventID, uint16 Ev
 
    if (Status == CFE_SUCCESS)
    {
-      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == FALSE)
+      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == false)
       {
          /* Handler for events from apps not registered with EVS */
          Status = EVS_NotRegistered(AppID);
       }
-      else if (EVS_IsFiltered(AppID, EventID, EventType) == FALSE)
+      else if (EVS_IsFiltered(AppID, EventID, EventType) == false)
       {
          /* Send the event packets */
          va_start(Ptr, Spec);
@@ -311,7 +312,7 @@ int32 CFE_EVS_ResetFilter (int16 EventID)
 
    if (Status == CFE_SUCCESS)
    {
-      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == FALSE)
+      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == false)
       {
          Status = CFE_EVS_APP_NOT_REGISTERED;
       }
@@ -356,7 +357,7 @@ int32 CFE_EVS_ResetAllFilters ( void )
 
    if (Status == CFE_SUCCESS)
    {
-      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == FALSE)
+      if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == false)
       {
          Status = CFE_EVS_APP_NOT_REGISTERED;
       }

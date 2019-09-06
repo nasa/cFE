@@ -1,23 +1,25 @@
 /*
-** $Id: cfe.h 1.4 2010/10/25 14:01:09GMT-05:00 jmdagost Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe.h
 **
 ** Purpose:  cFE header file
 **
@@ -42,18 +44,6 @@
 #include "osapi.h"            /* Define OS API function prototypes */
 
 #include "cfe_mission_cfg.h"  /* Define mission configuration parameters */
-
-/*
- * Note that the platform configuration is _not_ included with cfe.h anymore.
- *
- * Most applications should not depend on any of the #defines in that file.
- * If an application truly does need a value from the platform config, then
- * it can retrieve it from the mission data dictionary using a public API.
- */
-#if !defined(_ENHANCED_BUILD_)
-#include "cfe_platform_cfg.h" /* Define platform configuration parameters */
-#include "cfe_msgids.h"       /* Define common cFE Message IDs */
-#endif
 
 #include "cfe_error.h"        /* Define common cFE error codes */
 

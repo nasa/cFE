@@ -1,22 +1,24 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 ** File:
 **    fss_UT.c
 **
@@ -31,9 +33,6 @@
 ** Notes:
 **    1. This is unit test code only, not for use in flight
 **
-** $Date: 2014/05/28 09:21:47GMT-05:00 $
-** $Revision: 1.9 $
-**
 */
 
 /*
@@ -42,17 +41,12 @@
 #include "fs_UT.h"
 #include "cfe_fs_decompress.h"
 
-/*
-** External global variables
-*/
-extern UT_SetRtn_t FileWriteRtn;
-extern UT_SetRtn_t OSlseekRtn;
-extern UT_SetRtn_t MutSemGiveRtn;
-extern UT_SetRtn_t MutSemTakeRtn;
-extern UT_SetRtn_t OSReadRtn;
-extern UT_SetRtn_t OSReadRtn2;
-extern UT_SetRtn_t FileWriteRtn;
-extern UT_SetRtn_t WriteSysLogRtn;
+const char *FS_SYSLOG_MSGS[] =
+{
+        NULL,
+        "FS SharedData Mutex Take Err Stat=0x%x,App=%d,Function=%s\n",
+        "FS SharedData Mutex Give Err Stat=0x%x,App=%d,Function=%s\n"
+};
 
 static CFE_FS_Decompress_State_t UT_FS_Decompress_State;
 
@@ -110,16 +104,16 @@ void Test_CFE_FS_ReadHeader(void)
 
     /* Test reading the header with a lseek failure */
     UT_InitData();
-    UT_SetOSFail(OS_LSEEK_FAIL);
+    UT_SetForceFail(UT_KEY(OS_lseek), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_ReadHeader(&Hdr, FileDes) != OS_LSEEK_FAIL,
+              CFE_FS_ReadHeader(&Hdr, FileDes) == OS_ERROR,
               "CFE_FS_ReadHeader",
               "Header read lseek failed");
 
     /* Test successfully reading the header */
     UT_InitData();
-    UT_SetRtnCode(&OSlseekRtn, OS_FS_SUCCESS, 1);
-    UT_SetOSFail(OS_READ_FAIL);
+    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_FS_SUCCESS);
+    UT_SetForceFail(UT_KEY(OS_read), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_ReadHeader(&Hdr, FileDes) != sizeof(CFE_FS_Header_t),
               "CFE_FS_ReadHeader",
@@ -140,16 +134,16 @@ void Test_CFE_FS_WriteHeader(void)
 
     /* Test writing the header with a lseek failure */
     UT_InitData();
-    UT_SetOSFail(OS_LSEEK_FAIL);
+    UT_SetForceFail(UT_KEY(OS_lseek), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_WriteHeader(FileDes, &Hdr) != OS_LSEEK_FAIL,
+              CFE_FS_WriteHeader(FileDes, &Hdr) == OS_ERROR,
               "CFE_FS_WriteHeader",
               "Header write lseek failed");
 
     /* Test successfully writing the header */
     UT_InitData();
-    UT_SetRtnCode(&OSlseekRtn, OS_FS_SUCCESS, 1);
-    UT_SetRtnCode(&FileWriteRtn, OS_FS_SUCCESS, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_FS_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_FS_SUCCESS);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_WriteHeader(FileDes, &Hdr) == OS_FS_SUCCESS,
               "CFE_FS_WriteHeader",
@@ -170,7 +164,7 @@ void Test_CFE_FS_SetTimestamp(void)
 
     /* Test setting the time stamp with a lseek failure */
     UT_InitData();
-    UT_SetOSFail(OS_LSEEK_FAIL);
+    UT_SetForceFail(UT_KEY(OS_lseek), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_SetTimestamp(FileDes, NewTimestamp) == OS_FS_ERROR,
               "CFE_FS_SetTimestamp",
@@ -178,7 +172,7 @@ void Test_CFE_FS_SetTimestamp(void)
 
     /* Test setting the time stamp with a seconds write failure */
     UT_InitData();
-    UT_SetOSFail(OS_WRITE_FAIL);
+    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_SetTimestamp(FileDes, NewTimestamp) != OS_SUCCESS,
               "CFE_FS_SetTimestamp",
@@ -186,7 +180,7 @@ void Test_CFE_FS_SetTimestamp(void)
 
     /* Test setting the time stamp with a subeconds write failure */
     UT_InitData();
-    UT_SetRtnCode(&FileWriteRtn, 0, 2);
+    UT_SetDeferredRetcode(UT_KEY(OS_write), 2, 0);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_SetTimestamp(FileDes, NewTimestamp) == OS_SUCCESS,
               "CFE_FS_SetTimestamp",
@@ -266,42 +260,42 @@ void Test_CFE_FS_IsGzFile(void)
     /* Test if file name ends in .gz with the file name too short */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("a") == FALSE,
+              CFE_FS_IsGzFile("a") == false,
               "CFE_FS_IsGzFile",
               "File name too short");
 
     /* Test if file name ',gz' extension is missing */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("Normal_gz") == FALSE,
+              CFE_FS_IsGzFile("Normal_gz") == false,
               "CFE_FS_IsGzFile",
               "File name missing .gz extension 1");
 
     /* Test if file name ends in .gz with no file name */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile(NULL) == FALSE,
+              CFE_FS_IsGzFile(NULL) == false,
               "CFE_FS_IsGzFile",
               "Null file name");
 
     /* Test a valid file name ending in .gz */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("tar.gz") == TRUE,
+              CFE_FS_IsGzFile("tar.gz") == true,
               "CFE_FS_IsGzFile",
               ".gz file name check - successful");
 
     /* Test if file name ',gz' extension is missing */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("Normal._z") == FALSE,
+              CFE_FS_IsGzFile("Normal._z") == false,
               "CFE_FS_IsGzFile",
               "File name missing .gz extension 2");
 
     /* Test if file name ',gz' extension is missing */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("Normal.g_") == FALSE,
+              CFE_FS_IsGzFile("Normal.g_") == false,
               "CFE_FS_IsGzFile",
               "File name missing .gz extension 3");
 }
@@ -392,7 +386,7 @@ void Test_CFE_FS_Private(void)
 
     /* Test FS initialization with a mutex creation failure */
     UT_InitData();
-    UT_SetOSFail(OS_MUTCREATE_FAIL);
+    UT_SetForceFail(UT_KEY(OS_MutSemCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_EarlyInit() == -1,
               "CFE_FS_EarlyInit",
@@ -402,17 +396,17 @@ void Test_CFE_FS_Private(void)
     UT_InitData();
     CFE_FS_LockSharedData("FunctionName");
     UT_Report(__FILE__, __LINE__,
-              WriteSysLogRtn.value == -1 && WriteSysLogRtn.count == 0,
+              UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 0,
               "CFE_FS_LockSharedData",
               "Lock shared data - successful");
 
     /* Test locking of shared data with a mutex take error */
     UT_InitData();
-    UT_SetRtnCode(&MutSemTakeRtn, -1, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, -1);
     CFE_FS_LockSharedData("FunctionName");
     UT_Report(__FILE__, __LINE__,
-              WriteSysLogRtn.value == FS_SYSLOG_OFFSET + 1 &&
-              WriteSysLogRtn.count == 1,
+              UT_SyslogIsInHistory(FS_SYSLOG_MSGS[1]) &&
+              UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 1,
               "CFE_FS_LockSharedData",
               "Shared data mutex take error");
 
@@ -420,17 +414,17 @@ void Test_CFE_FS_Private(void)
     UT_InitData();
     CFE_FS_UnlockSharedData("FunctionName");
     UT_Report(__FILE__, __LINE__,
-              WriteSysLogRtn.value == -1 && WriteSysLogRtn.count == 0,
+              UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 0,
               "CFE_FS_UnlockSharedData",
               "Unlock shared data - successful");
 
     /* Test unlocking of shared data with a mutex give error */
     UT_InitData();
-    UT_SetRtnCode(&MutSemGiveRtn, -1, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 1, -1);
     CFE_FS_UnlockSharedData("FunctionName");
     UT_Report(__FILE__, __LINE__,
-              WriteSysLogRtn.value == FS_SYSLOG_OFFSET + 2 &&
-              WriteSysLogRtn.count == 1,
+              UT_SyslogIsInHistory(FS_SYSLOG_MSGS[2]) &&
+              UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 1,
               "CFE_FS_UnlockSharedData",
               "SharedData mutex give error");
 
@@ -452,7 +446,7 @@ void Test_CFE_FS_Decompress(void)
 
     /* Test file decompression with a file open failure */
     UT_InitData();
-    UT_SetOSFail(OS_OPEN_FAIL);
+    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_Decompress("Filename.gz", "Output") ==
                 CFE_FS_GZIP_OPEN_INPUT,
@@ -461,7 +455,7 @@ void Test_CFE_FS_Decompress(void)
 
     /* Test file decompression with a file create failure */
     UT_InitData();
-    UT_SetOSFail(OS_CREAT_FAIL);
+    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_Decompress_Reentrant(&UT_FS_Decompress_State,
                                           "Filename.gz", "Output") ==
@@ -511,8 +505,8 @@ void Test_CFE_FS_Decompress(void)
 
     /* Test filling the input buffer with a FS error  */
     UT_InitData();
-    UT_SetRtnCode(&OSReadRtn, 4, 1);
-    UT_SetRtnCode(&OSReadRtn2, OS_FS_ERROR, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 4);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, OS_FS_ERROR);
     UT_Report(__FILE__, __LINE__,
               FS_gz_fill_inbuf_Reentrant(&UT_FS_Decompress_State) == EOF,
               "FS_gz_fill_inbuf",
@@ -520,7 +514,7 @@ void Test_CFE_FS_Decompress(void)
 
     /* Test writing the output window and updating the CRC */
     UT_InitData();
-    UT_SetRtnCode(&FileWriteRtn, -1, 1);
+    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, -1);
     UT_FS_Decompress_State.outcnt = 435;
     FS_gz_flush_window_Reentrant(&UT_FS_Decompress_State);
     UT_Report(__FILE__, __LINE__,
@@ -589,7 +583,3 @@ void Test_CFE_FS_GetUncompressedFile(void)
 
 }
 
-/* Unit test specific call to process SB messages */
-void UT_ProcessSBMsg(CFE_SB_Msg_t *MsgPtr)
-{
-}

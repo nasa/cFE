@@ -1,23 +1,25 @@
 /*
-** $Id: cfe_time_verify.h 1.6 2014/04/14 10:51:41GMT-05:00 lwalling Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_time_verify.h
 **
 ** Purpose:  cFE Time Services (TIME) configuration verification
 **
@@ -39,80 +41,80 @@
 /*
 ** Validate default time client/server selection...
 */
-#if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
-  #if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
-    #error Cannot define both CFE_PLATFORM_TIME_CFG_SERVER and CFE_PLATFORM_TIME_CFG_CLIENT as TRUE!
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
+  #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
+    #error Cannot define both CFE_PLATFORM_TIME_CFG_SERVER and CFE_PLATFORM_TIME_CFG_CLIENT as true!
   #endif
 #else
-  #if (CFE_PLATFORM_TIME_CFG_CLIENT != TRUE)
-    #error Must define either CFE_PLATFORM_TIME_CFG_SERVER or CFE_PLATFORM_TIME_CFG_CLIENT as TRUE!
+  #if (CFE_PLATFORM_TIME_CFG_CLIENT != true)
+    #error Must define either CFE_PLATFORM_TIME_CFG_SERVER or CFE_PLATFORM_TIME_CFG_CLIENT as true!
   #endif
 #endif
 
 /*
 ** Validate default time format selection...
 */
-#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == TRUE)
-  #if (CFE_MISSION_TIME_CFG_DEFAULT_UTC == TRUE)
-    #error Cannot define both CFE_MISSION_TIME_CFG_DEFAULT_UTC and CFE_MISSION_TIME_CFG_DEFAULT_TAI as TRUE!
+#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
+  #if (CFE_MISSION_TIME_CFG_DEFAULT_UTC == true)
+    #error Cannot define both CFE_MISSION_TIME_CFG_DEFAULT_UTC and CFE_MISSION_TIME_CFG_DEFAULT_TAI as true!
   #endif
 #else
-  #if (CFE_MISSION_TIME_CFG_DEFAULT_UTC != TRUE)
-    #error Must define either CFE_MISSION_TIME_CFG_DEFAULT_UTC or CFE_MISSION_TIME_CFG_DEFAULT_TAI as TRUE!
+  #if (CFE_MISSION_TIME_CFG_DEFAULT_UTC != true)
+    #error Must define either CFE_MISSION_TIME_CFG_DEFAULT_UTC or CFE_MISSION_TIME_CFG_DEFAULT_TAI as true!
   #endif
 #endif
 
 /*
 ** Validate time source selection...
 */
-#if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
-  #if (CFE_PLATFORM_TIME_CFG_SOURCE == TRUE)
-    #error Cannot define both CFE_PLATFORM_TIME_CFG_CLIENT and CFE_PLATFORM_TIME_CFG_SOURCE as TRUE!
+#if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
+  #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
+    #error Cannot define both CFE_PLATFORM_TIME_CFG_CLIENT and CFE_PLATFORM_TIME_CFG_SOURCE as true!
   #endif
 #endif
 
-#if (CFE_PLATFORM_TIME_CFG_SOURCE == TRUE)
-  #if (CFE_PLATFORM_TIME_CFG_VIRTUAL != TRUE)
-    #error Cannot define CFE_PLATFORM_TIME_CFG_SOURCE as TRUE without defining CFE_PLATFORM_TIME_CFG_VIRTUAL as TRUE!
+#if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
+  #if (CFE_PLATFORM_TIME_CFG_VIRTUAL != true)
+    #error Cannot define CFE_PLATFORM_TIME_CFG_SOURCE as true without defining CFE_PLATFORM_TIME_CFG_VIRTUAL as true!
   #endif
 #endif
 
 /*
 ** Validate local MET selections...
 */
-#if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
-  #if (CFE_PLATFORM_TIME_CFG_VIRTUAL != TRUE)
-    #error Cannot define CFE_PLATFORM_TIME_CFG_CLIENT as TRUE without defining CFE_PLATFORM_TIME_CFG_VIRTUAL as TRUE!
+#if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
+  #if (CFE_PLATFORM_TIME_CFG_VIRTUAL != true)
+    #error Cannot define CFE_PLATFORM_TIME_CFG_CLIENT as true without defining CFE_PLATFORM_TIME_CFG_VIRTUAL as true!
   #endif
 #endif
 
 /*
 ** Validate time source type selection...
 */
-#if (CFE_PLATFORM_TIME_CFG_SRC_MET == TRUE)
-  #if (CFE_PLATFORM_TIME_CFG_SOURCE != TRUE)
-    #error Cannot define CFE_PLATFORM_TIME_CFG_SRC_MET as TRUE without defining CFE_PLATFORM_TIME_CFG_SOURCE as TRUE!
+#if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
+  #if (CFE_PLATFORM_TIME_CFG_SOURCE != true)
+    #error Cannot define CFE_PLATFORM_TIME_CFG_SRC_MET as true without defining CFE_PLATFORM_TIME_CFG_SOURCE as true!
   #endif
-  #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == TRUE)
-    #error Cannot define both CFE_PLATFORM_TIME_CFG_SRC_MET and CFE_PLATFORM_TIME_CFG_SRC_GPS as TRUE!
+  #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
+    #error Cannot define both CFE_PLATFORM_TIME_CFG_SRC_MET and CFE_PLATFORM_TIME_CFG_SRC_GPS as true!
   #endif
-  #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == TRUE)
-    #error Cannot define both CFE_PLATFORM_TIME_CFG_SRC_MET and CFE_PLATFORM_TIME_CFG_SRC_TIME as TRUE!
-  #endif
-#endif
-
-#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == TRUE)
-  #if (CFE_PLATFORM_TIME_CFG_SOURCE != TRUE)
-    #error Cannot define CFE_PLATFORM_TIME_CFG_SRC_GPS as TRUE without defining CFE_PLATFORM_TIME_CFG_SOURCE as TRUE!
-  #endif
-  #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == TRUE)
-    #error Cannot define both CFE_PLATFORM_TIME_CFG_SRC_GPS and CFE_PLATFORM_TIME_CFG_SRC_TIME as TRUE!
+  #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+    #error Cannot define both CFE_PLATFORM_TIME_CFG_SRC_MET and CFE_PLATFORM_TIME_CFG_SRC_TIME as true!
   #endif
 #endif
 
-#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == TRUE)
-  #if (CFE_PLATFORM_TIME_CFG_SOURCE != TRUE)
-    #error Cannot define CFE_PLATFORM_TIME_CFG_SRC_TIME as TRUE without defining CFE_PLATFORM_TIME_CFG_SOURCE as TRUE!
+#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
+  #if (CFE_PLATFORM_TIME_CFG_SOURCE != true)
+    #error Cannot define CFE_PLATFORM_TIME_CFG_SRC_GPS as true without defining CFE_PLATFORM_TIME_CFG_SOURCE as true!
+  #endif
+  #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+    #error Cannot define both CFE_PLATFORM_TIME_CFG_SRC_GPS and CFE_PLATFORM_TIME_CFG_SRC_TIME as true!
+  #endif
+#endif
+
+#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+  #if (CFE_PLATFORM_TIME_CFG_SOURCE != true)
+    #error Cannot define CFE_PLATFORM_TIME_CFG_SRC_TIME as true without defining CFE_PLATFORM_TIME_CFG_SOURCE as true!
   #endif
 #endif
 
@@ -120,31 +122,31 @@
 /*
 ** Validate tone signal and data packet arrival selection...
 */
-#if (CFE_MISSION_TIME_AT_TONE_WAS == TRUE)
-  #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == TRUE)
-    #error Both CFE_MISSION_TIME_AT_TONE_WAS and CFE_MISSION_TIME_AT_TONE_WILL_BE have been defined as TRUE!
+#if (CFE_MISSION_TIME_AT_TONE_WAS == true)
+  #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
+    #error Both CFE_MISSION_TIME_AT_TONE_WAS and CFE_MISSION_TIME_AT_TONE_WILL_BE have been defined as true!
   #endif
 #else
-  #if (CFE_MISSION_TIME_AT_TONE_WILL_BE != TRUE)
-    #error Either CFE_MISSION_TIME_AT_TONE_WAS or CFE_MISSION_TIME_AT_TONE_WILL_BE must be defined as TRUE!
+  #if (CFE_MISSION_TIME_AT_TONE_WILL_BE != true)
+    #error Either CFE_MISSION_TIME_AT_TONE_WAS or CFE_MISSION_TIME_AT_TONE_WILL_BE must be defined as true!
   #endif
 #endif
 
 /*
 ** Validate simulated tone signal and external time source selection...
 */
-#if (CFE_MISSION_TIME_CFG_FAKE_TONE == TRUE)
-  #if (CFE_PLATFORM_TIME_CFG_SOURCE == TRUE)
-    #error Cannot define both CFE_MISSION_TIME_CFG_FAKE_TONE and CFE_PLATFORM_TIME_CFG_SOURCE as TRUE!
+#if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
+  #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
+    #error Cannot define both CFE_MISSION_TIME_CFG_FAKE_TONE and CFE_PLATFORM_TIME_CFG_SOURCE as true!
   #endif
 #endif
 
 /*
 ** Validate simulated tone signal and data packet arrival selection...
 */
-#if (CFE_MISSION_TIME_CFG_FAKE_TONE == TRUE)
-  #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == TRUE)
-    #error Cannot define both CFE_MISSION_TIME_CFG_FAKE_TONE and CFE_MISSION_TIME_AT_TONE_WILL_BE as TRUE!
+#if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
+  #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
+    #error Cannot define both CFE_MISSION_TIME_CFG_FAKE_TONE and CFE_MISSION_TIME_AT_TONE_WILL_BE as true!
   #endif
 #endif
 

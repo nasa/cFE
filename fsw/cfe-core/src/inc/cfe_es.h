@@ -1,25 +1,25 @@
 /*
-**  File: 
-**  cfe_es.h
-**  $Id: cfe_es.h 1.14 2014/08/19 13:32:01GMT-05:00 sstrege Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+**  File: cfe_es.h
 **
 **  Purpose:
 **	Unit specification for Executive Services library functions and macros.
@@ -58,7 +58,7 @@
 #endif
 
 #define CFE_ES_DBIT(x) (1L << (x))                                    /* Places a one at bit positions 0 thru 31 */
-#define CFE_ES_DTEST(i,x) (((i) & CFE_ES_DBIT(x)) != 0)               /* TRUE iff bit x of i is set */
+#define CFE_ES_DTEST(i,x) (((i) & CFE_ES_DBIT(x)) != 0)               /* true iff bit x of i is set */
 #define CFE_ES_TEST_LONG_MASK(m,s)  (CFE_ES_DTEST(m[(s)/32],(s)%32))  /* Test a bit within an array of 32-bit integers. */
 #define CFE_ES_MAX_MEMPOOL_BLOCK_SIZES     17    /**< Max number of size divisions allowed in a memory pool */
 
@@ -89,8 +89,6 @@
 
 #define CFE_ES_CDS_BAD_HANDLE  (CFE_ES_CDSHandle_t) 0xFFFF
 /** \} */
-
-#define CFE_PLATFORM_ES_APP_KILL_TIMEOUT         5 /**< \brief Number of cycles that ES will wait before killing an app */
 
 #define CFE_ES_NO_MUTEX                 0 /**< \brief Indicates that the memory pool selection will not use a semaphore */
 #define CFE_ES_USE_MUTEX                1 /**< \brief Indicates that the memory pool selection will use a semaphore */
@@ -300,7 +298,7 @@ typedef struct
 {
     CFE_ES_CDSHandle_t    Handle;          /**< \brief Handle of CDS */
     uint32                Size;            /**< \brief Size, in bytes, of the CDS memory block */
-    boolean               Table;           /**< \brief Flag that indicates whether CDS contains a Critical Table */
+    bool                  Table;           /**< \brief Flag that indicates whether CDS contains a Critical Table */
     char                  Name[CFE_ES_CDS_MAX_FULL_NAME_LEN]; /**< \brief Processor Unique Name of CDS */
     uint8                 ByteAlignSpare1; /**< \brief Spare byte to insure structure size is multiple of 4 bytes */
 } CFE_ES_CDSRegDumpRec_t;
@@ -310,55 +308,6 @@ typedef struct
 */
 typedef void (*CFE_ES_ChildTaskMainFuncPtr_t)(void); /**< \brief Required Prototype of Child Task Main Functions */
 typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(uint32 LibId); /**< \brief Required Prototype of Library Initialization Functions */
-
-typedef enum
-{
-    CFE_ES_STATICENTRYTYPE_INVALID      = 0,
-    CFE_ES_STATICENTRYTYPE_FIRST_VALID  = 2000,
-    CFE_ES_STATICENTRYTYPE_APPLICATION,
-    CFE_ES_STATICENTRYTYPE_LIBRARY,
-    CFE_ES_STATICENTRYTYPE_MAX
-} CFE_ES_StaticEntryType_t;
-
-/*
-** API Structure for statically linked CFS Applications
-*/
-typedef const struct
-{
-    CFE_ES_StaticEntryType_t EntryType;
-    union
-    {
-        CFE_ES_ChildTaskMainFuncPtr_t AppEntryFunc;     /**< \brief Entry point for Application */
-        CFE_ES_LibraryEntryFuncPtr_t LibInitFunc;       /**< \brief Initialization function for Library */
-        cpuaddr EntryFuncAddr;
-    } Ptrs;
-    uint32  Priority;
-    uint32  StackSize;
-} CFE_ES_AppStaticModuleApi_t;
-
-#ifdef CFS_STATIC_MODULE
-
-#define CFS_MODULE_DECLARE_APP(name,pri,stack)              \
-    void name##_Main(void);                                 \
-    CFE_ES_AppStaticModuleApi_t CFS_##name##_API =          \
-    {                                                       \
-        .EntryType = CFE_ES_STATICENTRYTYPE_APPLICATION,    \
-        .Ptrs.AppEntryFunc = name##_Main,                   \
-        .Priority = pri,                                    \
-        .StackSize = stack,                                 \
-    }
-
-#define CFS_MODULE_DECLARE_LIB(name)                        \
-    int32 name##_Init(void);                                \
-    CFE_ES_AppStaticModuleApi_t CFS_##name##_API =          \
-    {                                                       \
-        .EntryType = CFE_ES_STATICENTRYTYPE_LIBRARY,        \
-        .Ptrs.LibInitFunc = name##_Init,                    \
-    }
-#else
-#define CFS_MODULE_DECLARE_APP(name,pri,stack)
-#define CFS_MODULE_DECLARE_LIB(name)
-#endif
 
 /**
  * Union that can be used for minimum memory alignment of ES memory pools on the target.
@@ -387,31 +336,6 @@ typedef union
 
 /*****************************************************************************/
 
-#if !defined(OSAL_OPAQUE_OBJECT_IDS)
-/*
-** \brief Compatibility wrapper for older versions of OSAL
-**
-** \par Description
-**   In future versions of OSAL the task/object ID values might not be zero based
-**   If that is the case then the OSAL must also define a function to convert back
-**   to zero-based numbers such that the value can be used as an array index.
-**
-**   When using an existing/older version of OSAL, this inline function is defined
-**   to mimic this call for backward compatibility.  It just passes through the same
-**   value without modification.
-**
-** \param[in]  ObjectId     The object ID from OSAL
-** \param[out] ArrayIndex   A zero-based value suitable for use as an array index
-** \returns    OS_SUCCESS (a real version might return an error code).
-*/
-static inline int32 OS_ConvertToArrayIndex(uint32 ObjectId, uint32 *ArrayIndex)
-{
-   *ArrayIndex = ObjectId;
-   return OS_SUCCESS;
-}
-#endif
-
-
 
 /*****************************************************************************/
 /**
@@ -427,7 +351,7 @@ static inline int32 OS_ConvertToArrayIndex(uint32 ObjectId, uint32 *ArrayIndex)
 ** \param[in]  StartType     Identifies whether this was a #CFE_PSP_RST_TYPE_POWERON or #CFE_PSP_RST_TYPE_PROCESSOR.
 **
 ** \param[in]  StartSubtype  Specifies, in more detail, what caused the \c StartType identified above.
-**                           See #CFE_ES_POWER_CYCLE for possible examples.
+**                           See #CFE_PSP_RST_SUBTYPE_POWER_CYCLE for possible examples.
 **
 ** \param[in]  ModeId        Identifies the source of the Boot as determined by the BSP.
 **
@@ -455,7 +379,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId , const ch
 **                                 The caller can set this pointer to NULL if the Sub-Type is of no interest.
 **
 ** \param[out]  *ResetSubtypePtr   If the provided pointer was not \c NULL, the Reset Sub-Type is stored at the given address.
-**                                 For a list of possible Sub-Type values, see \link #CFE_ES_POWER_CYCLE "Reset Sub-Types" \endlink.
+**                                 For a list of possible Sub-Type values, see \link #CFE_PSP_RST_SUBTYPE_POWER_CYCLE "Reset Sub-Types" \endlink.
 **
 ** \returns
 ** \retcode #CFE_PSP_RST_TYPE_POWERON   \retdesc \copydoc CFE_PSP_RST_TYPE_POWERON    \endcode
@@ -604,14 +528,14 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 **                          \arg #CFE_ES_RunStatus_APP_ERROR - \copydoc CFE_ES_RunStatus_APP_ERROR
 **
 ** \returns
-** \retcode #TRUE  \retdesc The application should continue executing \endcode
-** \retcode #FALSE \retdesc The application should terminate itself \endcode
+** \retcode #true  \retdesc The application should continue executing \endcode
+** \retcode #false \retdesc The application should terminate itself \endcode
 ** \endreturns
 **
 ** \sa #CFE_ES_ExitApp, #CFE_ES_RegisterApp
 **
 ******************************************************************************/
-int32 CFE_ES_RunLoop(uint32 *ExitStatus);
+bool CFE_ES_RunLoop(uint32 *ExitStatus);
 
 /*****************************************************************************/
 /**

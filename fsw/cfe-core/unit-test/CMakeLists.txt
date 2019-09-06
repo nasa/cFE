@@ -8,6 +8,7 @@
 ##################################################################
  
 add_definitions(-DCFE_LINUX)
+include_directories(${osal_MISSION_DIR}/ut_assert/inc)
 
 # The parent build may have specified extra C flags for use when unit testing
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${UT_C_FLAGS}")
@@ -20,22 +21,7 @@ if (CFE_CORE_TARGET)
   set(STUBNAME "${CFE_CORE_TARGET}_${STUBNAME}")
 endif (CFE_CORE_TARGET)
 
-set(STUBFILES bsp)
-
-if (TARGET ut_osapi_stubs)
-  # Enable a preprocessor flag to indicate we are using the stubs implemented in OSAL
-  add_definitions("-DOSAL_UT_OSAPI_STUBS")
-else()
-  # Compile our own local version of the OSAPI stubs
-  # Deprecated - this matched OSAL 4.1 but is easy to get out of sync with newer OSAL APIs
-  list(APPEND STUBFILES osapi)
-endif()
-
-list(APPEND STUBFILES osprintf ${CFE_CORE_MODULES})
-
-if (ENABLE_DATA_DICTIONARY)
-  list(APPEND STUBFILES msglib)
-endif()
+set(STUBFILES configdata osprintf ${CFE_CORE_MODULES})
 
 # Allow direct inclusion of all private CFE header files
 foreach(MODULE ${CFE_CORE_MODULES})
@@ -45,23 +31,32 @@ foreach(MODULE ${CFE_CORE_MODULES})
   endif()
 endforeach()
 
+set(CFE_MODULE_FILES)
+foreach(MODULE ${CFE_CORE_MODULES})
+    list(APPEND CFE_MODULE_FILES ut_${MODULE}_stubs.c)
+endforeach(MODULE ${CFE_CORE_MODULES})
+
+#
+# Create the generic stubs library that ANY other UT target can link to
+# to provide stubs for all CFE API calls.
+#
+add_library(ut_${CFE_CORE_TARGET}_stubs STATIC ${CFE_MODULE_FILES})
+
 # For each core module, generate the associated unit test
 # This is done by linking the stubs of every OTHER module with the
 # UT version of the real module (compiled with coverage flags)
 foreach(MODULE ${CFE_CORE_MODULES})
-  set(CFE_MODULE_FILES)
-  set(CFE_UT_SRCS ut_stubs.c)
+  set(CFE_MODULE_FILES 
+    ut_support.c
+    ut_osprintf_stubs.c)
   aux_source_directory(../src/${MODULE} CFE_MODULE_FILES)
   aux_source_directory(../src/shared CFE_MODULE_FILES)
-  foreach(STUB ${STUBFILES})
-    if (NOT "${STUB}" STREQUAL "${MODULE}")
-      list(APPEND CFE_UT_SRCS ut_${STUB}_stubs.c)
-    endif()
-  endforeach()  
-  add_executable(${CFE_CORE_TARGET}_${MODULE}_UT ${MODULE}_UT.c ${CFE_UT_SRCS} ${CFE_MODULE_FILES})
-  if (TARGET ut_osapi_stubs)
-    target_link_libraries(${CFE_CORE_TARGET}_${MODULE}_UT ut_osapi_stubs ut_bsp)
-  endif()
+  add_executable(${CFE_CORE_TARGET}_${MODULE}_UT ${MODULE}_UT.c ${CFE_MODULE_FILES})
+  target_link_libraries(${CFE_CORE_TARGET}_${MODULE}_UT
+        ut_${CFE_CORE_TARGET}_stubs
+        ut_psp-${CFE_SYSTEM_PSPNAME}_stubs
+        ut_osapi_stubs 
+        ut_bsp)
   add_test(${CFE_CORE_TARGET}_${MODULE}_UT ${CFE_CORE_TARGET}_${MODULE}_UT)
   install(TARGETS ${CFE_CORE_TARGET}_${MODULE}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
 endforeach(MODULE ${CFE_CORE_MODULES})

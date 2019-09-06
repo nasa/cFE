@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# $Id: cfe_tbl.mak 1.1 2008/04/17 07:05:33GMT-05:00 ruperera Exp  $
+# File: cfe_tbl.mak
 #
 # Purpose:  cFE Table Services (TBL) make file
 #

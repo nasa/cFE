@@ -1,23 +1,25 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 ** File: cfe_es_perf.c
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 ** Purpose: This file contains the functions that implement the software timing
 **  performance markers.
@@ -100,7 +102,7 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
        Perf->MetaData.DataStart = 0;
        Perf->MetaData.DataEnd = 0;
        Perf->MetaData.DataCount = 0;
-       Perf->MetaData.InvalidMarkerReported = FALSE;
+       Perf->MetaData.InvalidMarkerReported = false;
        Perf->MetaData.FilterTriggerMaskSize = CFE_ES_PERF_32BIT_WORDS_IN_MASK;
 
        for (i=0; i < CFE_ES_PERF_32BIT_WORDS_IN_MASK; i++)
@@ -140,7 +142,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfData_t *data)
             Perf->MetaData.DataStart = 0;
             Perf->MetaData.DataEnd = 0;
             Perf->MetaData.DataCount = 0;
-            Perf->MetaData.InvalidMarkerReported = FALSE;
+            Perf->MetaData.InvalidMarkerReported = false;
             Perf->MetaData.State = CFE_ES_PERF_WAITING_FOR_TRIGGER; /* this must be done last */
 
             CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_EID, CFE_EVS_EventType_DEBUG,
@@ -420,10 +422,10 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
         if(Marker >= CFE_MISSION_ES_PERF_MAX_IDS){
 
           /* if marker has not been reported previously ... */
-          if(Perf->MetaData.InvalidMarkerReported == FALSE){
+          if(Perf->MetaData.InvalidMarkerReported == false){
             CFE_ES_WriteToSysLog("ES PERF:Invalid performance marker %d,max is %d\n",
                     (unsigned int)Marker,(CFE_MISSION_ES_PERF_MAX_IDS - 1));
-            Perf->MetaData.InvalidMarkerReported = TRUE;
+            Perf->MetaData.InvalidMarkerReported = true;
           }/* end if */
 
           return;

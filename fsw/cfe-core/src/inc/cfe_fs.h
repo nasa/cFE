@@ -1,23 +1,25 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-** $Id: cfe_fs.h 1.4 2010/10/25 16:50:16GMT-05:00 jmdagost Exp  $
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_fs.h
 **
 ** Purpose:  cFE File Services (FS) library API header file
 **
@@ -225,7 +227,7 @@ int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp);
 ** \brief Determines if a file is a Gzip/compressed file.
 **
 ** \par Description
-**        This API will check the filename and return TRUE if the file is 
+**        This API will check the filename and return true if the file is 
 **        a gzip file. The check is currently based on the filename, so the 
 **        zipped files should use the ".gz" extention. 
 **
@@ -235,13 +237,13 @@ int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp);
 ** \param[in] FileName The name of the file.
 **
 ** \returns
-** \retstmt TRUE if the file has the ".gz" extention and FALSE otherwise.   \endstmt
+** \retstmt true if the file has the ".gz" extention and false otherwise.   \endstmt
 ** \endreturns
 **
 ** \sa
 **               
 ******************************************************************************/
-boolean CFE_FS_IsGzFile(const char *FileName);
+bool CFE_FS_IsGzFile(const char *FileName);
 
 /*****************************************************************************/
 /**

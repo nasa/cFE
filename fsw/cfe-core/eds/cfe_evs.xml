@@ -18,7 +18,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-      
+
     This document adheres to the Electronic Data Sheet (EDS) XML schema 
     as prescribed in CCSDS book 876.0. 
       
@@ -27,43 +27,45 @@
       core application 
       
 -->
-<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
-  <Namespace name="CFE_EVS" shortDescription="NASA Core Flight System Event Services">
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_EVS" shortDescription="NASA Core Flight System Event Services">
     <DataTypeSet>
       
       <EnumeratedDataType name="MsgFormat" shortDescription="Identifies format of log messages">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="SHORT" value="0" shortDescription="Short Format Log Messages" />
           <Enumeration label="LONG" value="1" shortDescription="Long Format Log Messages" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
       </EnumeratedDataType>
     
       <EnumeratedDataType name="LogMode" shortDescription="Identifies handling of log messages after storage is filled" >
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="OVERWRITE" value="0" shortDescription="Overwrite Log Mode" />
           <Enumeration label="DISCARD" value="1" shortDescription="Discard Log Mode" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
       </EnumeratedDataType>
     
       <EnumeratedDataType name="EventType" shortDescription="Identifies type of event message" >
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="DEBUG" value="1" shortDescription="Events that are intended only for debugging, not nominal operations" />
           <Enumeration label="INFORMATION" value="2" shortDescription="Events that identify a state change or action that is not an error" />
           <Enumeration label="ERROR" value="3" shortDescription="Events that identify an error but are not catastrophic (e.g. - bad command" />
           <Enumeration label="CRITICAL" value="4" shortDescription="Events that identify errors that are unrecoverable autonomously" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
       </EnumeratedDataType>
       
       <EnumeratedDataType name="EventFilter" shortDescription="Identifies event filter schemes" >
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="BINARY" value="0" shortDescription="Binary event filter" />
         </EnumerationList>
       </EnumeratedDataType>
 
       <EnumeratedDataType name="EventOutput" shortDescription="Identifies event output port" >
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="PORT1" value="1" shortDescription="Output Port 1" />
           <Enumeration label="PORT2" value="2" shortDescription="Output Port 2" />
@@ -182,7 +184,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ArrayDataType name="AppTlmData@CFE_ES_MAX_APPLICATIONS" dataTypeRef="AppTlmData">
+      <ArrayDataType name="AppTlmData_x_CFE_ES_MAX_APPLICATIONS" dataTypeRef="AppTlmData">
         <DimensionList>
           <Dimension size="${CFE_MISSION/ES_MAX_APPLICATIONS}" />
         </DimensionList>
@@ -245,7 +247,7 @@
               \cfetlmmnemonic  \EVS_LOGENABLED
             </LongDescription>
           </Entry>
-          <Entry name="AppData" type="AppTlmData@CFE_ES_MAX_APPLICATIONS">
+          <Entry name="AppData" type="AppTlmData_x_CFE_ES_MAX_APPLICATIONS">
             <LongDescription>
               \cfetlmmnemonic  \EVS_APP
             </LongDescription>
@@ -1307,17 +1309,24 @@
           </Interface>
         </RequiredInterfaceSet>
         <Implementation>
+          <VariableSet>
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/EVS_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendHkTopicId" initialValue="${CFE_MISSION/EVS_SEND_HK_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="HkTlmTopicId" initialValue="${CFE_MISSION/EVS_HK_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="LongEventMsgTopicId" initialValue="${CFE_MISSION/EVS_LONG_EVENT_MSG_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="ShortEventMsgTopicId" initialValue="${CFE_MISSION/EVS_SHORT_EVENT_MSG_TOPICID}" />
+          </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
-            <ParameterMap interface="CMD" parameterRef="TopicId" value="${CFE_MISSION/EVS_CMD_TOPICID}" />
-            <ParameterMap interface="SEND_HK" parameterRef="TopicId" value="${CFE_MISSION/EVS_SEND_HK_TOPICID}" />
-            <ParameterMap interface="HK_TLM" parameterRef="TopicId" value="${CFE_MISSION/EVS_HK_TLM_TOPICID}" />
-            <ParameterMap interface="LONG_EVENT_MSG" parameterRef="TopicId" value="${CFE_MISSION/EVS_LONG_EVENT_MSG_TOPICID}" />
-            <ParameterMap interface="SHORT_EVENT_MSG" parameterRef="TopicId" value="${CFE_MISSION/EVS_SHORT_EVENT_MSG_TOPICID}" />
+            <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
+            <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
+            <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />            
+            <ParameterMap interface="LONG_EVENT_MSG" parameter="TopicId" variableRef="LongEventMsgTopicId" />
+            <ParameterMap interface="SHORT_EVENT_MSG" parameter="TopicId" variableRef="ShortEventMsgTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>
     </ComponentSet>
 
-  </Namespace>
-</DataSheet>
+  </Package>
+</PackageFile>

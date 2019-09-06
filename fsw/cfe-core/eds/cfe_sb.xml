@@ -18,7 +18,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-      
+
     This document adheres to the Electronic Data Sheet (EDS) XML schema 
     as prescribed in CCSDS book 876.0. 
       
@@ -27,22 +27,32 @@
       core application 
       
 -->
-<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
-  <Namespace name="CFE_SB" shortDescription="NASA Core Flight System Software Bus">
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_SB" shortDescription="NASA Core Flight System Software Bus">
     <DataTypeSet>
       <IntegerDataType name="MsgId" shortDescription="A Software Bus message identifier, used for subscription and routing">
         <IntegerDataEncoding sizeInBits="${CFE_SB/MSGID_BIT_SIZE}" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="2 ^ (${CFE_SB/MSGID_BIT_SIZE})" min="0" rangeType="inclusiveMinExclusiveMax"/>
+        </Range>
       </IntegerDataType>
 
       <IntegerDataType name="PipeId" shortDescription="A Software Bus pipe identifier">
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="255" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
 
       <IntegerDataType name="MsgRouteIdx" shortDescription="A Software Bus internal route index">
         <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="65535" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
 
       <EnumeratedDataType name="QosPriority" shortDescription="Selects the priorty level for message routing">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
            <Enumeration label="LOW" value="0" shortDescription="Normal priority level" />
            <Enumeration label="HIGH" value="1" shortDescription="High priority" />
@@ -50,6 +60,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="QosReliability" shortDescription="Selects the reliability level for message routing">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
            <Enumeration label="LOW" value="0" shortDescription="Normal (best-effort) reliability" />
            <Enumeration label="HIGH" value="1" shortDescription="High reliability" />
@@ -865,9 +876,9 @@
     
     <DeclaredInterfaceSet>
     
-      <Interface name="MTS" level="subnetwork" shortDescription="CFE software bus low-level message transfer service">
+      <Interface name="SoftwareBusRouting" level="subnetwork" shortDescription="CFE software bus low-level message transfer service">
         <LongDescription>
-          Basic message transfer service over the CFE software bus.  Messages are routed based on the Application ID field
+          Basic message routing service over the CFE software bus.  Messages are routed based on the Application ID field
           within the CCSDS SpacePacket primary header.  All traffic on this interface must use the SpacePacket as its base type,
           and this interface operates solely at the CCSDS spacepacket level and does not interpret message content.
         </LongDescription>
@@ -881,7 +892,7 @@
         </CommandSet>
       </Interface>
       
-      <Interface name="PubSub" level="access" shortDescription="CFE software bus publish/subscribe interface">
+      <Interface name="SoftwareBusAccess" level="access" shortDescription="CFE software bus publish/subscribe interface">
         <LongDescription>
            This represents the access interface used for passing message datagrams 
            to and from the message transfer service (MTS).  It operates using publish/subscribe
@@ -918,13 +929,13 @@
             own application-specific interface of this type to indicate the message(s) it will publish via 
             the software bus.  This is typically the various types of telemetry that the application generates.
         </LongDescription>
+        <GenericTypeSet>
+          <GenericType name="TelemetryDataType" baseType="CCSDS/TelemetryPacket" />
+        </GenericTypeSet>
         <ParameterSet>
           <Parameter name="InstanceNumber" type="BASE_TYPES/uint16" shortDescription="Identifies a specific instance of this topic within the mission" />
           <Parameter name="TopicId" type="BASE_TYPES/uint16" shortDescription="Abstract topic ID number shared by all instances" />
         </ParameterSet>
-        <GenericTypeSet>
-          <GenericType name="TelemetryDataType" baseType="CCSDS/TelemetryPacket" />
-        </GenericTypeSet>
         <CommandSet>
           <!--
               NOTE: This datasheet serves both sides of the connection; the implementation of this interface
@@ -946,13 +957,13 @@
             
             This is a receive-only interface; the Telemetry interface provides the equivalent send function.
         </LongDescription>
+        <GenericTypeSet>
+          <GenericType name="TelecommandDataType" baseType="CCSDS/CommandPacket" />
+        </GenericTypeSet>
         <ParameterSet>
           <Parameter name="InstanceNumber" type="BASE_TYPES/uint16" shortDescription="Identifies a specific instance of this topic within the mission" />
           <Parameter name="TopicId" type="BASE_TYPES/uint16" shortDescription="Abstract topic ID number shared by all instances" />
         </ParameterSet>
-        <GenericTypeSet>
-          <GenericType name="TelecommandDataType" baseType="CCSDS/CommandPacket" />
-        </GenericTypeSet>
         <CommandSet>
           <!--
               NOTE: This datasheet serves both sides of the connection; the implementation of this interface
@@ -970,16 +981,16 @@
     <ComponentSet>
       <Component name="MTS">
         <ProvidedInterfaceSet>
-          <Interface name="Transport" type="MTS" />
+          <Interface name="Transport" type="SoftwareBusRouting" />
         </ProvidedInterfaceSet>
       </Component>
       
       <Component name="SoftwareBus">
         <ProvidedInterfaceSet>
-          <Interface name="PubSub" type="PubSub" />
+          <Interface name="PubSub" type="SoftwareBusAccess" />
         </ProvidedInterfaceSet>
         <RequiredInterfaceSet>
-          <Interface name="Transport" type="MTS" />
+          <Interface name="Transport" type="SoftwareBusRouting" />
         </RequiredInterfaceSet>
       </Component>
         
@@ -988,7 +999,7 @@
           <Interface name="Telecommand" type="Telecommand" />
         </ProvidedInterfaceSet>
         <RequiredInterfaceSet>
-          <Interface name="Subscribe" type="PubSub" />
+          <Interface name="Subscribe" type="SoftwareBusAccess" />
         </RequiredInterfaceSet>
       </Component>
       
@@ -997,7 +1008,7 @@
           <Interface name="Telemetry" type="Telemetry" />
         </ProvidedInterfaceSet>
         <RequiredInterfaceSet>
-          <Interface name="Publish" type="PubSub" />
+          <Interface name="Publish" type="SoftwareBusAccess" />
         </RequiredInterfaceSet>
       </Component>
       
@@ -1041,18 +1052,26 @@
           </Interface>
         </RequiredInterfaceSet>
         <Implementation>
+          <VariableSet>
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/SB_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendHkTopicId" initialValue="${CFE_MISSION/SB_SEND_HK_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="HkTlmTopicId" initialValue="${CFE_MISSION/SB_HK_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="StatsTlmTopicId" initialValue="${CFE_MISSION/SB_STATS_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="AllSubTlmTopicId" initialValue="${CFE_MISSION/SB_ALLSUBS_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="OneSubTlmTopicId" initialValue="${CFE_MISSION/SB_ONESUB_TLM_TOPICID}" />
+          </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
-            <ParameterMap interface="CMD" parameterRef="TopicId" value="${CFE_MISSION/SB_CMD_TOPICID}" />
-            <ParameterMap interface="SEND_HK" parameterRef="TopicId" value="${CFE_MISSION/SB_SEND_HK_TOPICID}" />
-            <ParameterMap interface="HK_TLM" parameterRef="TopicId" value="${CFE_MISSION/SB_HK_TLM_TOPICID}" />
-            <ParameterMap interface="STATS_TLM" parameterRef="TopicId" value="${CFE_MISSION/SB_STATS_TLM_TOPICID}" />
-            <ParameterMap interface="ALLSUBS_TLM" parameterRef="TopicId" value="${CFE_MISSION/SB_ALLSUBS_TLM_TOPICID}" />
-            <ParameterMap interface="ONESUB_TLM" parameterRef="TopicId" value="${CFE_MISSION/SB_ONESUB_TLM_TOPICID}" />
+            <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
+            <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
+            <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />
+            <ParameterMap interface="STATS_TLM" parameter="TopicId" variableRef="StatsTlmTopicId" />
+            <ParameterMap interface="ALLSUBS_TLM" parameter="TopicId" variableRef="AllSubTlmTopicId" />
+            <ParameterMap interface="ONESUB_TLM" parameter="TopicId" variableRef="OneSubTlmTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>
     </ComponentSet>
     
-  </Namespace>
-</DataSheet>
+  </Package>
+</PackageFile>

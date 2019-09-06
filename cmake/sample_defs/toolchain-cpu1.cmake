@@ -1,11 +1,6 @@
 # This example toolchain file describes the cross compiler to use for
 # the target architecture indicated in the configuration file.
 
-# In this sample application, the "cross" toolchain is configured to
-# simply use the system native compiler with the "m32" switch to output
-# 32-bit code on a 64-bit system.  This will not be necessary in 
-# future revisions.
-
 # Basic cross system configuration
 SET(CMAKE_SYSTEM_NAME           Linux)
 SET(CMAKE_SYSTEM_VERSION        1)
@@ -27,7 +22,4 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE   NEVER)
 SET(CFE_SYSTEM_PSPNAME      "pc-linux")
 SET(OSAL_SYSTEM_BSPNAME     "pc-linux")
 SET(OSAL_SYSTEM_OSTYPE      "posix")
-
-# This adds the "-m32" flag to all compile commands
-SET(CMAKE_C_FLAGS_INIT "-m32" CACHE STRING "C Flags required by platform")
 

@@ -80,7 +80,7 @@ fixes, as well as, new features and enhancements including:
     and performing internal time updates and time services
 
 +   New platform configuration to expand the Consultative Committee for Spacecraft Data Systems
-    (CCSDS) APID name space beyond 2^11. Using the CCSDS Version 2 Spacecraft Onboard Interface
+    (CCSDS) APID name space beyond 2^11^. Using the CCSDS Version 2 Spacecraft Onboard Interface
     Services Area (SOIS) standard, this new configuration uses the extensions to the CCSDS Space
     Packet secondary header containing APID qualifier and subsystem ID information.  The CCSDS
     Primary Header APID continues to be used as a unique system-wide message identifier.
@@ -94,12 +94,12 @@ fixes, as well as, new features and enhancements including:
     - Loss of spacecraft and subsystem identifying information as packets traverse the network stacks
 
 +   ES Memory Pool updates to guarantee buffers allocated from a pool meet the target CPU architecture
-    requirements for the largest C99 data types (long long int, long double, and void*). Additionally,
+    requirements for the largest C99 data types (`long long int`, `long double`, and `void*`). Additionally,
     this introduces a new platform configuration option to increase the alignment to greater value, as
     this can yield performance improvements on some architectures.
 
 +   CCSDS Electronic Data Sheets (EDS) support.  An EDS is a formal machine readable (XML) specification
-    of interfaces for both hardware and software components.  The primary use cases are to warrent
+    of interfaces for both hardware and software components.  The primary use cases are to warrent:
     Exchange of unambiguous interface definitions in a standard format between organizations (As CCSDS
     is an international standards body, organizations includes other international agencies, and
     industry partners);
@@ -117,7 +117,7 @@ fixes, as well as, new features and enhancements including:
       includes no-op and send housekeeping commands.  The message handler functions all have a similar
       prototype:
 
-      int32 MessageHandler(const MessageType_t *data);
+      `int32 MessageHandler(const MessageType_t *data);`
 
 +   Actual short format event message
 
@@ -139,33 +139,37 @@ fixes, as well as, new features and enhancements including:
 There were no changes to existing APIs made in this build however, there were two changes that result in
 expected compiler warnings building with the latest release of the OSAL, Version 4.2.1:
 
-1. cfe/fsw/cfe-core/src/es/cfe_es_shell.c: In function ‘CFE_ES_ShellOutputCommand’: line 98: warning: passing
-   argument 1 of ‘OS_ShellOutputToFile’ discards qualifiers from pointer target type.
-   osal/src/os/inc/osapi-os-filesys.h:439: note: expected ‘char *’ but argument is of type ‘const char *’
+1. `cfe/fsw/cfe-core/src/es/cfe_es_shell.c: In function 'CFE_ES_ShellOutputCommand': line 98: warning: passing
+argument 1 of 'OS_ShellOutputToFile' discards qualifiers from pointer target type.
+osal/src/os/inc/osapi-os-filesys.h:439: note: expected 'char *' but argument is of type 'const char *'`
 
-2. cfe/fsw/cfe-core/src/tbl/cfe_tbl_task_cmds.c: In function ‘CFE_TBL_DumpToFile’: line 784: warning: passing
-   argument 2 of ‘OS_write’ discards qualifiers from pointer target type.
-   osal/src/os/inc/osapi-os-filesys.h:280: note: expected ‘void *’ but argument is of type ‘const void *’
+2. `cfe/fsw/cfe-core/src/tbl/cfe_tbl_task_cmds.c: In function 'CFE_TBL_DumpToFile': line 784: warning: passing
+argument 2 of 'OS_write' discards qualifiers from pointer target type.
+osal/src/os/inc/osapi-os-filesys.h:280: note: expected 'void *' but argument is of type 'const void *'`
 
 These warnings will be resolved in a future release of the OSAL.
 
 In addition, backward compatibility is not supported with versions of the OSAL library older than 4.2.0 and
 versions of the PSP library older than 1.3.0.  Additional release notes may be found at:
 
-https://babelfish.arc.nasa.gov/trac/cfs_cfe/wiki/ReleaseNotes
+<https://babelfish.arc.nasa.gov/trac/cfs_cfe/wiki/ReleaseNotes>
 
-These release notes are also include in the /docs directory where this VDD is located.
+These release notes are also include in the `/docs` directory where this VDD is located.
 
 Unit testing has been completed and baselined on cFE build 6.6.0 using
 the updated cFE test suite. Results are included in the release package
-in the “Results” directories included under:
+in the "Results" directories included under:
 
-/fsw/cfe-core/unit-test/
+`/fsw/cfe-core/unit-test/`
+
+Additional unit testing has been performed on each of the platforms listed in Table 1.4-1.  
+The test results have been archived on babelfish.arc.nasa.gov in the cfs_cfe Trac
+Ticketing system under Trac #207.   
 
 Regression testing was performed on cFE 6.6.0 on a PPC/mcp750 running
 VxWorks 6.9. Results are included in the release package under:
 
-/test-and-ground/test-review-packages/Results
+`/test-and-ground/test-review-packages/Results`
 
 Functional testing was performed on a variety of platforms. See section
 [Tested Platforms] for a listing of the platforms on which functional 
@@ -213,7 +217,7 @@ with these changes.
                                                                  `d547d5c`: Fix issue with EVS mode/format      
                                                                  command                                        
                    
- #190 sb            option to not receive messages I send?       `a47335c`: Added CFE_SB_{Set|Get}PipeOpts()    
+ #190 sb            option to not receive messages I send?       `a47335c`: Added CFE\_SB\_{Set|Get}PipeOpts()
                                                                  API, with one field currently defined to       
                                                                  control whether the app publishing a message   
                                                                  receives the message in its own pipe.          
@@ -438,10 +442,10 @@ with these changes.
                                                                  explicit ReturnCode check and return after     
                                                                  call to CFE_ES_ResetCFE                        
                                                                  `252ed2a`: CFE_ES_ProcessCoreException         
-                                                                 function, removed “Status =” from call to  
+                                                                 function, removed "Status =" from call to  
                                                                  CFE_ES_RestartApp. In CFE_ES_RestartApp        
-                                                                 function, else case where “App ID is not     
-                                                                 valid” added WriteToSysLog                   
+                                                                 function, else case where "App ID is not     
+                                                                 valid" added WriteToSysLog                   
                    
  #213 other         Update cFE Version Number for 6.6.0 Release  `657b40c`: Updated version number to 6.6.0 for 6.6.0 
                                                                  testing and release
@@ -457,8 +461,8 @@ with these changes.
                                                                  `cc5c8fc`: Fix bug route file output           
                                                                  `c6008ca`: Improve forward compatibility
 
- #219 es           ES - Memory Pool Size No Longer Requires      `bfa1e46`: Updated requirements to remove memory pool
-                   32-bit Alignment                              32-bit alighment.  Requirements updated to be in sync
+ #219 es            ES - Memory Pool Size No Longer Requires     `bfa1e46`: Updated requirements to remove memory pool
+                    32-bit Alignment                             32-bit alighment.  Requirements updated to be in sync
                                                                  with the changes associated with Trac #199
 --------------------------------------------------------------------------------------------------------------
 
@@ -485,6 +489,8 @@ David McComas, <david.c.mccomas@nasa.gov>.
 Table 1.4-1 identifies the versions of development tools known to
 work with this FSW version:
 
+**Table 1.4-1 - Development Tool Versions Associated with this FSW Version**
+
 Tool Type       Tool Name                            Version Used
 --------------- ------------------------------------ ----------------
 RTOS            VxWorks                              6.9
@@ -498,7 +504,6 @@ Dev Host        Ubuntu                               16.04.3 LTS
 Ground System   ASIST                                20.2
 --------------- ------------------------------------ ----------------
 
-Table: 1.4-1 – Development Tool Versions Associated with this FSW Version
 
 ## Tested Platforms
 
@@ -509,6 +514,7 @@ specified in Table 1.4-1 above. In addition, cFE Build 6.6.0 has been
 functionally tested with the hardware/software platforms listed in
 Table 1.5-1 below (build test platform is included for completeness).
 
+**Table 1.5-1 - Functional Test Platforms Associated with this FSW Version**
 
 -------------------------------------------------------------------------------------------------------------
 Machine         CPU         Operating System    PSP          Notes  
@@ -532,10 +538,10 @@ Virtual G4      PowerPC     Yocto Project Poky  pc-linux     Verify operation on
 Virtual Malta   MIPS 64     Yocto Project Poky  pc-linux     Verify operation on 64-bit big endian processor
 (QEMU 2.10.0)   (64-bit)    Distribution 2.4,                (native 64 bit build)
                             Linux 4.12.12
+
+Maxwell SCS750  PowerPC     VxWorks 6.9         sp0-vxworks  Verify operation on 32-bit VxWorks platform     
+                750FX                                         
 -------------------------------------------------------------------------------------------------------------
-  
-  
-Table: 1.5-1 – Functional Test Platforms Associated with this FSW Version
 
 
 # Delivered products
@@ -544,7 +550,7 @@ Table 2.0-1 identifies the locations of FSW products relevant to this
 FSW Build. The version or date of the Build and where the product can be
 located are provided. Changes from a previous VDD are identified.
 
-**Table 2.0-1 – Delivered Products and their Locations**
+**Table 2.0-1 - Delivered Products and their Locations**
 
   -------------------------------------------------------------------------------------------- ---------------------------- --------------------- ----------------------------------------------------------------------------------------------------------------------------
   Software Element                                                                             Changed with this Version?   New Version or Date   Location
@@ -553,13 +559,13 @@ located are provided. Changes from a previous VDD are identified.
 
   Installation Procedures & Special Instructions                                               No                           N/A                   See Deployment Guide
                                                                                                                                                   
-                                                                                                                                                  babelfish.arc.nasa.gov (in git system master branchs – cFE and TOOLS) and <http://sourceforge.net/projects/coreflightexec>
+                                                                                                                                                  babelfish.arc.nasa.gov (in git system master branchs - cFE and TOOLS) and <http://sourceforge.net/projects/coreflightexec>
 
   Source Code of this FSW Build                                                                Yes                          6.6.0                 babelfish.arc.nasa.gov (in git system master branch) and <http://sourceforge.net/projects/coreflightexec>
 
   FSW Build Plan                                                                               No                           N/A                   None
 
-  Annotated S/W Detailed Design Docs                                                           No                           N/A                   cFE Application Developer’s Guide
+  Annotated S/W Detailed Design Docs                                                           No                           N/A                   cFE Application Developer's Guide
                                                                                                                                                   
                                                                                                                                                   babelfish.arc.nasa.gov (in git system master branch) and <http://sourceforge.net/projects/coreflightexec>
 

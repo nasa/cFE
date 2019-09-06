@@ -27,16 +27,16 @@
       core application 
       
 -->
-<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
-  <Namespace name="CFE_TBL" shortDescription="NASA Core Flight System Table Services">
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_TBL" shortDescription="NASA Core Flight System Table Services">
     <DataTypeSet>
     
       <EnumeratedDataType name="BufferSelect" shortDescription="Selects the buffer to operate on for validate or dump commands">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
         <EnumerationList>
            <Enumeration label="INACTIVE" value="0" shortDescription="Select the Inactive buffer for validate or dump" />
            <Enumeration label="ACTIVE" value="1" shortDescription="Select the Active buffer for validate or dump" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
       </EnumeratedDataType>
     
       <StringDataType name="TableName" length="${CFE_MISSION/TBL_MAX_FULL_NAME_LEN}" shortDescription="Name of a table" />
@@ -860,16 +860,22 @@
           </Interface>
         </RequiredInterfaceSet>
         <Implementation>
+          <VariableSet>
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/TBL_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendHkTopicId" initialValue="${CFE_MISSION/TBL_SEND_HK_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="HkTlmTopicId" initialValue="${CFE_MISSION/TBL_HK_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="RegTlmTopicId" initialValue="${CFE_MISSION/TBL_REG_TLM_TOPICID}" />
+          </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
-            <ParameterMap interface="CMD" parameterRef="TopicId" value="${CFE_MISSION/TBL_CMD_TOPICID}" />
-            <ParameterMap interface="SEND_HK" parameterRef="TopicId" value="${CFE_MISSION/TBL_SEND_HK_TOPICID}" />
-            <ParameterMap interface="HK_TLM" parameterRef="TopicId" value="${CFE_MISSION/TBL_HK_TLM_TOPICID}" />
-            <ParameterMap interface="REG_TLM" parameterRef="TopicId" value="${CFE_MISSION/TBL_REG_TLM_TOPICID}" />
+            <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
+            <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
+            <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />
+            <ParameterMap interface="REG_TLM" parameter="TopicId" variableRef="RegTlmTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>
     </ComponentSet>
     
-  </Namespace>
-</DataSheet>
+  </Package>
+</PackageFile>

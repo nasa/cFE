@@ -27,30 +27,52 @@
       and utilized by the Core Fligh System (cFS)
       
 -->
-<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
-<Namespace name="CCSDS" shortDescription="CCSDS Space Packet Protocol defintions">
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+<Package name="CCSDS" shortDescription="CCSDS Space Packet Protocol defintions">
 
    <DataTypeSet>
       <IntegerDataType name="VersionId" shortDescription="The first 16 bits of a CCSDS Space Packet Header">
         <IntegerDataEncoding sizeInBits="3" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="7" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
       
       <BooleanDataType name="SingleBitFlag" shortDescription="A single bit indicating true/false" />
 
       <IntegerDataType name="SecHdrFlags" shortDescription="The first 16 bits of a CCSDS Space Packet Header">
         <IntegerDataEncoding sizeInBits="2" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="3" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
       
       <IntegerDataType name="AppId" shortDescription="The first 16 bits of a CCSDS Space Packet Header">
-        <IntegerDataEncoding sizeInBits="11" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="11" encoding="unsigned" byteOrder="bigEndian"/>
+        <Range>
+          <MinMaxRange max="2047" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
       
       <IntegerDataType name="SeqFlag" shortDescription="The first 16 bits of a CCSDS Space Packet Header">
         <IntegerDataEncoding sizeInBits="2" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="3" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
       
       <IntegerDataType name="SeqCount" shortDescription="The first 16 bits of a CCSDS Space Packet Header">
-        <IntegerDataEncoding sizeInBits="14" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="14" encoding="unsigned" byteOrder="bigEndian"/>
+        <Range>
+          <MinMaxRange max="16383" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
+      </IntegerDataType>
+      
+      <IntegerDataType name="LengthType" shortDescription="The length of a CCSDS Space Packet">
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" byteOrder="bigEndian"/>
+        <Range>
+          <MinMaxRange max="65535" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
       
       <IntegerDataType name="CommandCode" shortDescription="The command ID contained within a command secondary header">
@@ -60,6 +82,13 @@
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <Range>
           <MinMaxRange rangeType="atMost" max="127" />
+        </Range>
+      </IntegerDataType>
+      
+      <IntegerDataType name="ChecksumType" shortDescription="The checksum of a command packet">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" byteOrder="bigEndian"/>
+        <Range>
+          <MinMaxRange max="255" min="0" rangeType="inclusiveMinInclusiveMax"/>
         </Range>
       </IntegerDataType>
       
@@ -80,10 +109,10 @@
             <Entry name="AppId" type="AppId" shortDescription="Packet identifier word (stream ID)" />
             <Entry name="SeqFlag" type="SeqFlag" shortDescription="packet sequence word" />
             <Entry name="Sequence" type="SeqCount" shortDescription="packet sequence word" />
-            <LengthEntry name="Length" type="BASE_TYPES/uint16" shortDescription="packet length word">
+            <LengthEntry name="Length" type="LengthType" shortDescription="packet length word">
                 <PolynomialCalibrator>
-                    <PolynomialTerm coefficient="1" exponent="1" />
-                    <PolynomialTerm coefficient="-7" exponent="0" />
+                    <Term coefficient="1" exponent="1" />
+                    <Term coefficient="7" exponent="0" />
                 </PolynomialCalibrator> 
             </LengthEntry>
          </EntryList>
@@ -96,15 +125,24 @@
       </ContainerDataType>
       
       <IntegerDataType name="SubsystemId" shortDescription="Subsystem ID value">
-        <IntegerDataEncoding sizeInBits="9" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="9" encoding="unsigned"  byteOrder="bigEndian"/>
+        <Range>
+          <MinMaxRange max="511" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
 
       <IntegerDataType name="SystemId" shortDescription="System ID value">
-        <IntegerDataEncoding sizeInBits="16" encoding="unsigned" />
+        <IntegerDataEncoding sizeInBits="16" encoding="unsigned"  byteOrder="bigEndian"/>
+        <Range>
+          <MinMaxRange max="65535" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
       
       <IntegerDataType name="EdsVersionId" shortDescription="EDS data type identification data">
         <IntegerDataEncoding sizeInBits="5" encoding="unsigned" />
+        <Range>
+          <MinMaxRange max="31" min="0" rangeType="inclusiveMinInclusiveMax"/>
+        </Range>
       </IntegerDataType>
       
       <ContainerDataType name="APIDqualifiers" shortDescription="Space packet APID qualifier header">
@@ -142,7 +180,7 @@
          </LongDescription>
          <EntryList>
             <Entry name="Command" type="CommandCode" shortDescription="Command Identifier Word" />
-            <ErrorControlEntry name="Checksum" type="BASE_TYPES/uint8" shortDescription="Checksum, calculated by ground system" errorControlType="CHECKSUM_LONGITUDINAL"/>
+            <ErrorControlEntry name="Checksum" type="ChecksumType" shortDescription="Checksum, calculated by ground system" errorControlType="CHECKSUM_LONGITUDINAL"/>
          </EntryList>
       </ContainerDataType>
       
@@ -189,5 +227,5 @@
       
    </DataTypeSet>
    
-</Namespace>
-</DataSheet>
+</Package>
+</PackageFile>

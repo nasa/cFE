@@ -18,7 +18,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-      
+
     This document adheres to the Electronic Data Sheet (EDS) XML schema 
     as prescribed in CCSDS book 876.0. 
       
@@ -27,35 +27,36 @@
       core application 
       
 -->
-<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
-  <Namespace name="CFE_ES" shortDescription="NASA Core Flight System Executive Services">
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_ES" shortDescription="NASA Core Flight System Executive Services">
     <DataTypeSet>
     
       <EnumeratedDataType name="LogMode" shortDescription="Identifies handling of log messages after storage is filled" >
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="OVERWRITE" value="0" shortDescription="Overwrite Log Mode" />
           <Enumeration label="DISCARD" value="1" shortDescription="Discard Log Mode" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
       </EnumeratedDataType>
     
       <EnumeratedDataType name="ExceptionAction" shortDescription="Identifies action to take if exception occurs" >
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="RESTART_APP" value="0" shortDescription="Restart application if exception occurs" />
           <Enumeration label="PROC_RESTART"  value="1" shortDescription="Restart processor if exception occurs" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
       </EnumeratedDataType>
 
       <EnumeratedDataType name="AppType" shortDescription="Identifies type of CFE application">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="CORE" value="1" shortDescription="CFE core application" />
           <Enumeration label="EXTERNAL"  value="2" shortDescription="CFE external application" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
       </EnumeratedDataType>
       
       <EnumeratedDataType name="RunStatus" shortDescription="Run Status and Exit Status identifiers">
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="APP_RUN" value="1" shortDescription="Indicates that the Application should continue to run" />
           <Enumeration label="APP_EXIT" value="2" shortDescription="Indicates that the Application wants to exit normally" />
@@ -67,10 +68,10 @@
           <Enumeration label="CORE_APP_INIT_ERROR" value="8" shortDescription="Indicates that the Core Application could not Init" />
           <Enumeration label="CORE_APP_RUNTIME_ERROR" value="9" shortDescription="Indicates that the Core Application had a runtime failure" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
       </EnumeratedDataType>
       
       <EnumeratedDataType name="LogEntryType" shortDescription="Type of entry in the Error and Reset (ER) Log">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="CORE" value="1" shortDescription="Log entry from a core subsystem" />
           <Enumeration label="APPLICATION" value="2" shortDescription="Log entry from an application" />
@@ -83,6 +84,7 @@
             
             @note These are defined in order so that relational comparisons e.g. if (STATEA &lt; STATEB) are possible
         </LongDescription>
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="UNDEFINED"    value="0" shortDescription="reserved" />
           <Enumeration label="EARLY_INIT"   value="1" shortDescription="single threaded mode while setting up CFE itself" />
@@ -92,7 +94,6 @@
           <Enumeration label="OPERATIONAL"  value="5" shortDescription="normal operation mode; all apps are RUNNING" />
           <Enumeration label="SHUTDOWN"     value="6" shortDescription="reserved for future use, all apps would be STOPPED" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
       </EnumeratedDataType>
       
       <EnumeratedDataType name="AppState" shortDescription="Application Run State">
@@ -102,6 +103,7 @@
             
             @note These are defined in order so that relational comparisons e.g. if (STATEA &lt; STATEB) are possible
         </LongDescription>
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="UNDEFINED" value="0" shortDescription="Initial state before app thread is started" />
           <Enumeration label="EARLY_INIT" value="1" shortDescription="App thread has started, app performing early initialization of its own data" />
@@ -111,15 +113,14 @@
           <Enumeration label="STOPPED" value="5" shortDescription="Application is stopped" />
           <Enumeration label="MAX" value="6" shortDescription="Reserved, placeholder for maximum value" />
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
       </EnumeratedDataType>
       
       
-      <StringDataType name="char@CFE_ES_MAX_SHELL_CMD" length="${CFE_MISSION/ES_MAX_SHELL_CMD}" />
-      <StringDataType name="char@CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
-      <StringDataType name="char@CFE_ES_MAX_SHELL_PKT" length="${CFE_MISSION/ES_MAX_SHELL_PKT}" />
+      <StringDataType name="char_x_CFE_ES_MAX_SHELL_CMD" length="${CFE_MISSION/ES_MAX_SHELL_CMD}" />
+      <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
+      <StringDataType name="char_x_CFE_ES_MAX_SHELL_PKT" length="${CFE_MISSION/ES_MAX_SHELL_PKT}" />
       
-      <ArrayDataType name="boolean@CFE_ES_PERF_MAX_IDS" dataTypeRef="BASE_TYPES/StatusBit">
+      <ArrayDataType name="boolean_x_CFE_ES_PERF_MAX_IDS" dataTypeRef="BASE_TYPES/StatusBit">
         <DimensionList>
           <Dimension size="${CFE_MISSION/ES_PERF_MAX_IDS}" />
         </DimensionList>
@@ -248,7 +249,7 @@
         </EntryList>
       </ContainerDataType>
       
-      <ArrayDataType name="BlockStats@CFE_MAX_MEMPOOL_BLOCKS" dataTypeRef="BlockStats">
+      <ArrayDataType name="BlockStats_x_CFE_MAX_MEMPOOL_BLOCKS" dataTypeRef="BlockStats">
         <DimensionList>
           <Dimension size="${CFE_MISSION/MAX_MEMPOOL_BLOCKS}" />
         </DimensionList>
@@ -276,7 +277,7 @@
                \cfetlmmnemonic  \ES_FREEBYTES
             </LongDescription>
           </Entry>
-          <Entry name="BlockStats" type="BlockStats@CFE_MAX_MEMPOOL_BLOCKS" shortDescription="Contains stats on each block size">
+          <Entry name="BlockStats" type="BlockStats_x_CFE_MAX_MEMPOOL_BLOCKS" shortDescription="Contains stats on each block size">
             <LongDescription>
                \cfetlmmnemonic  \ES_BLKSTATS
             </LongDescription>
@@ -298,7 +299,7 @@
           For command details, see #CFE_ES_SHELL_CMD_CC
         </LongDescription>
         <EntryList>
-          <Entry name="CmdString" type="char@CFE_ES_MAX_SHELL_CMD" shortDescription="ASCII text string containing shell command to be executed" />
+          <Entry name="CmdString" type="char_x_CFE_ES_MAX_SHELL_CMD" shortDescription="ASCII text string containing shell command to be executed" />
           <Entry name="OutputFilename" type="BASE_TYPES/PathName" shortDescription="Filename where shell command output is to be written" />
         </EntryList>
       </ContainerDataType>
@@ -375,7 +376,7 @@
           For command details, see #CFE_ES_DELETE_CDS_CC
         </LongDescription>
         <EntryList>
-          <Entry name="CdsName" type="char@CFE_ES_CDS_MAX_FULL_NAME_LEN" shortDescription="ASCII text string containing name of CDS to delete" />
+          <Entry name="CdsName" type="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" shortDescription="ASCII text string containing name of CDS to delete" />
         </EntryList>
       </ContainerDataType>
       
@@ -601,12 +602,12 @@
                \cfetlmmnemonic  \ES_PERFTRIGCNT
             </LongDescription>
           </Entry>
-          <Entry name="PerfFilterMask" type="boolean@CFE_ES_PERF_MAX_IDS" shortDescription="Current Setting of Performance Analyzer Filter Masks">
+          <Entry name="PerfFilterMask" type="boolean_x_CFE_ES_PERF_MAX_IDS" shortDescription="Current Setting of Performance Analyzer Filter Masks">
             <LongDescription>
                \cfetlmmnemonic  \ES_PERFFLTRMASK
             </LongDescription>
           </Entry>
-          <Entry name="PerfTriggerMask" type="boolean@CFE_ES_PERF_MAX_IDS" shortDescription="Current Setting of Performance Analyzer Trigger Masks">
+          <Entry name="PerfTriggerMask" type="boolean_x_CFE_ES_PERF_MAX_IDS" shortDescription="Current Setting of Performance Analyzer Trigger Masks">
             <LongDescription>
                \cfetlmmnemonic  \ES_PERFTRIGMASK
             </LongDescription>
@@ -651,7 +652,7 @@
       
       <ContainerDataType name="ShellPacket_Payload">
         <EntryList>
-          <Entry name="ShellOutput" type="char@CFE_ES_MAX_SHELL_PKT">
+          <Entry name="ShellOutput" type="char_x_CFE_ES_MAX_SHELL_PKT">
             <LongDescription>
                \brief  ASCII text string containing output from OS Shell 
               that was received in response to an OS Shell Command
@@ -2029,18 +2030,26 @@
           </Interface>
         </RequiredInterfaceSet>
         <Implementation>
+          <VariableSet>
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/ES_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendHkTopicId" initialValue="${CFE_MISSION/ES_SEND_HK_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="HkTlmTopicId" initialValue="${CFE_MISSION/ES_HK_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="AppTlmTopicId" initialValue="${CFE_MISSION/ES_APP_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="ShellTlmTopicId" initialValue="${CFE_MISSION/ES_SHELL_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="MemStatsTlmTopicId" initialValue="${CFE_MISSION/ES_MEMSTATS_TLM_TOPICID}" />
+          </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
-          <ParameterMapSet>
-            <ParameterMap interface="CMD" parameterRef="TopicId" value="${CFE_MISSION/ES_CMD_TOPICID}" />
-            <ParameterMap interface="SEND_HK" parameterRef="TopicId" value="${CFE_MISSION/ES_SEND_HK_TOPICID}" />
-            <ParameterMap interface="HK_TLM" parameterRef="TopicId" value="${CFE_MISSION/ES_HK_TLM_TOPICID}" />
-            <ParameterMap interface="APP_TLM" parameterRef="TopicId" value="${CFE_MISSION/ES_APP_TLM_TOPICID}" />
-            <ParameterMap interface="SHELL_TLM" parameterRef="TopicId" value="${CFE_MISSION/ES_SHELL_TLM_TOPICID}" />
-            <ParameterMap interface="MEMSTATS_TLM" parameterRef="TopicId" value="${CFE_MISSION/ES_MEMSTATS_TLM_TOPICID}" />
+          <ParameterMapSet>          
+            <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
+            <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
+            <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />
+            <ParameterMap interface="APP_TLM" parameter="TopicId" variableRef="AppTlmTopicId" />
+            <ParameterMap interface="SHELL_TLM" parameter="TopicId" variableRef="ShellTlmTopicId" />
+            <ParameterMap interface="MEMSTATS_TLM" parameter="TopicId" variableRef="MemStatsTlmTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>
     </ComponentSet>
     
-  </Namespace>
-</DataSheet>
+  </Package>
+</PackageFile>

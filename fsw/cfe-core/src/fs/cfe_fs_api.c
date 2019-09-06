@@ -1,23 +1,25 @@
 /*
-** $Id: cfe_fs_api.c 1.8 2014/08/22 17:06:20GMT-05:00 lwalling Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_fs_api.c
 **
 ** Purpose:  cFE File Services (FS) library API source file
 **
@@ -345,13 +347,13 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
 /*  file name. The file name must end in ".gz".                            */ 
 /*                                                                         */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-boolean CFE_FS_IsGzFile(const char *FileName)
+bool CFE_FS_IsGzFile(const char *FileName)
 {
    size_t    StringLength;
    
    if ( FileName == NULL )
    {
-      return(FALSE);
+      return(false);
    }
    /*
    ** Get the string length of the SourceFile name
@@ -365,7 +367,7 @@ boolean CFE_FS_IsGzFile(const char *FileName)
    */
    if ( StringLength < 4 )
    {
-      return(FALSE);
+      return(false);
    }
 
    /*
@@ -376,11 +378,11 @@ boolean CFE_FS_IsGzFile(const char *FileName)
         (FileName[StringLength - 2] == 'g') &&
         (FileName[StringLength - 1] == 'z'))
    {
-       return(TRUE);       
+       return(true);       
    }
    else
    {
-       return(FALSE);
+       return(false);
    }
   
 }

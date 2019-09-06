@@ -28,14 +28,12 @@
     <LI> \subpage cfetblugfaq <BR> 
   </UL>
 
-  \subpage cfetblrevhist <BR>
-    
 **/
 
 /**
   \page cfetblugdecouple How To Remove cFE Table Services
 
-  It is possible to build the CFE without including Table Services.  This is only applicable if
+  It is possible to build the CFE without including Table Services.  This is only applicable if
   the mission does not intend to use any CFS applications that require CFE type table services, or
   if the mission intends to provide custom table services. If CFE Table Services are removed, the
   CFE makefile will no longer try to make the Table Services application and the link makefile will
@@ -44,7 +42,7 @@
 
   The variable EXCLUDE_CFE_TBL in the setvars.sh file controls whether, or not, CFE Table Services
   application is included in the CFE-CORE. The value of EXCLUDE_CFE_TBL must be set equal to TRUE
-  to cause Table Services to be excluded from the CFE-CORE.  Any definition of EXCLUDE_CFE_TBL that
+  to cause Table Services to be excluded from the CFE-CORE.  Any definition of EXCLUDE_CFE_TBL that
   does not set the value equal to TRUE (or no definition at all) will result in the inclusion of cFE
   Table Services. The default setvars.sh file contains the line "# EXCLUDE_CFE_TBL=TRUE", but note
   that the "#" symbol marks this line as a comment. Remove the "#" symbol to enable the definition
@@ -402,14 +400,14 @@
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
            What causes cFE Table Services to generate the following sys log message:
            
-           <i> “CFE_TBL:GetAddressInternal-App(\%d) attempt to access unowned Tbl Handle=\%d” </i>
+           <i> CFE_TBL:GetAddressInternal-App(\%d) attempt to access unowned Tbl Handle=\%d </i>
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           When an application sharing its table(s) with one or more applications is reloaded, the reloaded application’s 
-           table handle(s) are released.  cFE Table Services sees that the table(s) are shared and keeps a ‘shadow’ version 
-           of the table in the Table Services registry.  The registry will show the released, shared tables with no name.  
-           When the applications sharing the table attempt to access the table via the ‘old’, released handle, Table Services 
-           will return an error code to the applications and generate the sys log message.  The applications may then unregister 
-           the ‘old’ handle(s) in order to remove the released, shared table(s) from the Table Services registry and share the 
+           When an application sharing its table(s) with one or more applications is reloaded, the reloaded application's 
+           table handle(s) are released.  cFE Table Services sees that the table(s) are shared and keeps a 'shadow' version 
+           of the table in the Table Services registry.  The registry will show the released, shared tables with no name.  
+           When the applications sharing the table attempt to access the table via the 'old', released handle, Table Services 
+           will return an error code to the applications and generate the sys log message.  The applications may then unregister 
+           the 'old' handle(s) in order to remove the released, shared table(s) from the Table Services registry and share the 
            newly loaded application table(s).
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
            When does the Table Services Abort Table Load command need to be issued?
@@ -469,24 +467,3 @@
 **  either for each platform or for a mission as a whole.
 **/
 
-
-/**
-  \page cfetblrevhist cFE Table Services Documentation Revision History
-  
-  \verbatim
-  $Log: cfe_tbl.dox  $
-  Revision 1.5 2014/09/09 13:06:07GMT-05:00 lwalling 
-  Describe how to decouple CFE_TBL from cFE
-  Revision 1.4 2014/05/15 14:45:02EDT sstrege 
-  Added two Table Services FAQs
-  Revision 1.3 2012/06/19 18:02:54EDT lwalling 
-  Describe table registry with CDS restore errors
-  Revision 1.2 2008/12/06 12:34:28PST dkobe 
-  Corrected formatting of revision history
-  Revision 1.1 2008/12/06 10:19:51EST dkobe 
-  Initial revision
-  Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-CFE-PROJECT/docs/src/project.pj
-  \endverbatim
-
-  Up To: \ref cfetblovr
-**/

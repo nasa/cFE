@@ -1,24 +1,26 @@
 /*
-** $Id: cfe_tbl_task.c 1.5 2012/01/18 16:32:58GMT-05:00 jmdagost Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_tbl_task.c
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**  
 ** Subsystem: cFE TBL Task
 **
 ** Author: David Kobe (the Hammers Company, Inc.)
@@ -247,12 +249,12 @@ void CFE_TBL_InitData(void)
     CFE_SB_InitMsg(&CFE_TBL_TaskData.HkPacket,
                    CFE_TBL_HK_TLM_MID,
                    sizeof(CFE_TBL_TaskData.HkPacket),
-                   TRUE);
+                   true);
 
     CFE_SB_InitMsg(&CFE_TBL_TaskData.TblRegPacket,
                    CFE_TBL_REG_TLM_MID,
                    sizeof(CFE_TBL_TaskData.TblRegPacket),
-                   TRUE);
+                   true);
 
 } /* End of CFE_TBL_InitData() */
 
@@ -336,8 +338,8 @@ void CFE_TBL_TaskPipe(CFE_SB_Msg_t *MessagePtr)
 int16 CFE_TBL_SearchCmdHndlrTbl( CFE_SB_MsgId_t MessageID, uint16 CommandCode )
 {
     int16     TblIndx = CFE_TBL_BAD_CMD_CODE;
-    boolean   FoundMsg = FALSE;
-    boolean   FoundMatch = FALSE;
+    bool      FoundMsg = false;
+    bool      FoundMatch = false;
 
     do
     {
@@ -350,7 +352,7 @@ int16 CFE_TBL_SearchCmdHndlrTbl( CFE_SB_MsgId_t MessageID, uint16 CommandCode )
         {
             /* Flag any found message IDs so that if there is an error,        */
             /* we can determine if it was a bad message ID or bad command code */
-            FoundMsg = TRUE;
+            FoundMsg = true;
 
             /* If entry in the Command Handler Table is a command entry, */
             /* then check for a matching command code                    */
@@ -359,14 +361,14 @@ int16 CFE_TBL_SearchCmdHndlrTbl( CFE_SB_MsgId_t MessageID, uint16 CommandCode )
                 if (CFE_TBL_CmdHandlerTbl[TblIndx].CmdCode == CommandCode)
                 {
                     /* Found matching message ID and Command Code */
-                    FoundMatch = TRUE;
+                    FoundMatch = true;
                 }
             }
             else /* Message is not a command message with specific command code */
             {
                 /* Automatically assume a match when legit */
                 /* Message ID is all that is required      */
-                FoundMatch = TRUE;
+                FoundMatch = true;
             }
         }
     } while ((!FoundMatch) && (CFE_TBL_CmdHandlerTbl[TblIndx].MsgTypes != CFE_TBL_TERM_MSGTYPE));

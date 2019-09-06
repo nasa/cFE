@@ -50,8 +50,6 @@
     <LI> \subpage cfesbugfaq <BR>
   </UL>
 
-  \subpage cfesbrevhist <BR>
-
 **/
 
 /**
@@ -496,8 +494,8 @@
   receiving app processed all of the packets, the memory was restored to the memory pool as
   expected. The SB memory-in-use telemetry was zero because there were no software bus
   packets in transit. At this point any attempt to send a new-sized packet on the software
-  bus was be rejected. The ES memory pool stated that the “…Request won't fit in remaining
-  memory” even though there was currently no memory in use.
+  bus was be rejected. The ES memory pool stated that the "…Request won't fit in remaining
+  memory" even though there was currently no memory in use.
 
   The simplest way to prevent this behavior is to ensure that there is margin when sizing the
   SB memory pool. To check the margin, monitor the "Peak Memory in Use" vs. the configuration
@@ -620,36 +618,3 @@
 **  either for each platform or for a mission as a whole.
 **/
 
-
-/**
-  \page cfesbrevhist cFE Software Bus Documentation Revision History
-
-  \verbatim
-  $Log: cfe_sb.dox  $
-  Revision 1.11 2014/09/09 12:04:36GMT-05:00 rmcgraw 
-  DCR21231:1 Updated section cfesbugdiagdata to describe peak msgs exceeding pipe depth
-  Revision 1.10 2014/09/09 12:49:06EDT rmcgraw
-  DCR7095:1 Added section cfesbugknwnprob to describe how SB may inhibit a transaction
-  Revision 1.9 2014/08/23 20:58:47EDT sstrege
-  Replaced reference to the doxygen application developers guide with reference to cFE API
-  Revision 1.8 2011/12/20 10:24:20EST rmcgraw
-  Changed MsgId-to-Pipe phrase to Msg Limit
-  Revision 1.7 2011/11/30 14:30:39EST jmdagost
-  Corrected text to remove invalid reference.
-  Revision 1.6 2009/07/20 18:14:18EDT aschoeni
-  Updated users guide to include reference to PassMsg API for packet sequence counting.
-  Revision 1.5 2009/04/01 15:24:55EDT rmcgraw
-  DCR6296:4 Changed wording to reflect new tlm point
-  Revision 1.4 2009/02/26 18:14:01EST rmcgraw
-  DCR6805:2 Updates to reflect changes intended for cFE5.3.0
-  Revision 1.3 2008/12/08 12:07:05EST dkobe
-  Updates to correct doxygen errors
-  Revision 1.2 2008/12/06 15:34:34EST dkobe
-  Corrected formatting of revision history
-  Revision 1.1 2008/12/06 10:19:50EST dkobe
-  Initial revision
-  Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-CFE-PROJECT/docs/src/project.pj
-  \endverbatim
-
-  Up To: \ref cfesbovr
-**/

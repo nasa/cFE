@@ -1,23 +1,25 @@
 /*
-** $Id: cfe_tbl_task_cmds.c 1.15 2014/08/22 16:30:24GMT-05:00 lwalling Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_tbl_task_cmds.c
 **
 ** Subsystem: cFE TBL Task Command Processing Functions
 **
@@ -133,7 +135,7 @@ int32 CFE_TBL_HousekeepingCmd(const CCSDS_CommandPacket_t *data)
             }       
                         
             /* Free the shared working buffer */
-            CFE_TBL_TaskData.LoadBuffs[DumpCtrlPtr->RegRecPtr->LoadInProgress].Taken = FALSE;
+            CFE_TBL_TaskData.LoadBuffs[DumpCtrlPtr->RegRecPtr->LoadInProgress].Taken = false;
             DumpCtrlPtr->RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
             
             /* Free the Dump Control Block for later use */
@@ -230,7 +232,7 @@ void CFE_TBL_GetHkData(void)
         ValPtr->Result = 0;
         ValPtr->CrcOfTable = 0;
         ValPtr->TableName[0] = '\0';
-        ValPtr->ActiveBuffer = FALSE;
+        ValPtr->ActiveBuffer = false;
         ValPtr->State = CFE_TBL_VALIDATION_FREE;
     }
 
@@ -433,7 +435,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data)
                         ((TblFileHeader.NumBytes + TblFileHeader.Offset) <= RegRecPtr->Size))
                     {
                         /* Get a working buffer, either a free one or one allocated with previous load command */
-                        Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, FALSE);
+                        Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
 
                         if (Status == CFE_SUCCESS)
                         {
@@ -478,7 +480,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data)
                                                                                 0,
                                                                                 CFE_MISSION_ES_DEFAULT_CRC);
                                     
-                                    /* Initialize validation flag with TRUE if no Validation Function is required to be called */
+                                    /* Initialize validation flag with true if no Validation Function is required to be called */
                                     WorkingBufferPtr->Validated = (RegRecPtr->ValidationFuncPtr == NULL);
                             
                                     /* Save file information statistics for housekeeping telemetry */
@@ -661,7 +663,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_Dump_t *data)
                     if (DumpIndex < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS)
                     {
                         /* Allocate a shared memory buffer for storing the data to be dumped */
-                        Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, FALSE);
+                        Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
                         
                         if (Status == CFE_SUCCESS)
                         {
@@ -732,7 +734,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_Dump_t *data)
 CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *TableName, const void *DumpDataAddr, uint32 TblSizeInBytes)
 {
     CFE_TBL_CmdProcRet_t        ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
-    boolean                     FileExistedPrev = FALSE;
+    bool                        FileExistedPrev = false;
     CFE_FS_Header_t             StdFileHeader;
     CFE_TBL_File_Hdr_t          TblFileHeader;
     int32                       FileDescriptor;
@@ -747,7 +749,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
 
     if (FileDescriptor >= 0)
     {
-        FileExistedPrev = TRUE;
+        FileExistedPrev = true;
 
         OS_close(FileDescriptor);
     }
@@ -1027,7 +1029,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_Activate_t *data)
     const CFE_TBL_ActivateCmd_Payload_t *CmdPtr = &data->Payload;
     char                         TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     CFE_TBL_RegistryRec_t       *RegRecPtr;
-    boolean                      ValidationStatus = FALSE;
+    bool                         ValidationStatus = false;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL,
@@ -1060,9 +1062,9 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_Activate_t *data)
                 ValidationStatus = CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Validated;
             }
             
-            if (ValidationStatus == TRUE)
+            if (ValidationStatus == true)
             {
-                CFE_TBL_TaskData.Registry[RegIndex].LoadPending = TRUE;
+                CFE_TBL_TaskData.Registry[RegIndex].LoadPending = true;
                 
                 /* If application requested notification by message, then do so */
                 if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
@@ -1115,7 +1117,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_Activate_t *data)
 int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
 {
     CFE_TBL_CmdProcRet_t        ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
-    boolean                     FileExistedPrev = FALSE;
+    bool                        FileExistedPrev = false;
     CFE_FS_Header_t             StdFileHeader;
     int32                       FileDescriptor;
     int32                       Status;
@@ -1137,7 +1139,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
 
     if (FileDescriptor >= 0)
     {
-        FileExistedPrev = TRUE;
+        FileExistedPrev = true;
 
         OS_close(FileDescriptor);
     }
@@ -1378,7 +1380,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDS_t *data)
         
         if (CritRegRecPtr != NULL)
         {
-            Status = CFE_ES_DeleteCDS(TableName, TRUE);
+            Status = CFE_ES_DeleteCDS(TableName, true);
         
             if (Status == CFE_ES_CDS_WRONG_TYPE_ERR)
             {
@@ -1507,14 +1509,14 @@ void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr)
     if (!RegRecPtr->DoubleBuffered)
     {
         /* For single buffered tables, freeing shared buffer entails resetting flag */
-        CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = FALSE;
+        CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
     }
 
     /* For double buffered tables, freeing buffer is simple */
     RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     
     /* Make sure the load was not already pending */
-    RegRecPtr->LoadPending = FALSE;
+    RegRecPtr->LoadPending = false;
 
     CFE_EVS_SendEvent(CFE_TBL_LOAD_ABORT_INF_EID,
                       CFE_EVS_EventType_INFORMATION,

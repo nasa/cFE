@@ -1,25 +1,25 @@
 /*
-**  File: 
-**    cfe_es_version.h
-**  $Id: cfe_version.h 1.8.2.5 2014/12/02 19:26:21GMT-05:00 sstrege Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+**  File: cfe_version.h
 **
 **  Purpose:
 **     Provide version identifiers for the cFE core.
@@ -69,18 +69,11 @@
 #define _cfe_version_
 
 /*
- * The "enhanced build" (cmake-driven) instantiates a configuration
- * object that contains extended version information within it.
- *
+ * The target config contains extended version information within it.
  * This information is generated automatically by the build using
- * git to determine the most recent tag and commitid.
- *
- * This is only available when compiling with the cmake scripts which
- * is why it is conditionally included.
+ * git to determine the most recent tag and commit id.
  */
-#ifdef _ENHANCED_BUILD_
 #include <target_config.h>
-#endif
 
 
 /*
@@ -88,7 +81,7 @@
 */
 #define CFE_MAJOR_VERSION         6
 #define CFE_MINOR_VERSION         6
-#define CFE_REVISION              0
+#define CFE_REVISION              90
 
 
 #endif  /* _cfe_version_ */

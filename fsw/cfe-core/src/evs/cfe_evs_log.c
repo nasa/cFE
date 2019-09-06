@@ -1,25 +1,25 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**  File Name: cfe_evslog.c
-**  $Id: cfe_evs_log.c 1.11 2014/08/22 16:53:23GMT-05:00 lwalling Exp  $
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+**  File: cfe_evs_log.c
 **
 **  Title: Event Services API - Log Control Interfaces
 **
@@ -54,12 +54,12 @@
 void EVS_AddLog (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
 
-   if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == TRUE)
+   if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == true)
    {   
       /* Serialize access to event log control variables */
       OS_MutSemTake(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
 
-      if ((CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag == TRUE) &&
+      if ((CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag == true) &&
           (CFE_EVS_GlobalData.EVS_LogPtr->LogMode == CFE_EVS_LogMode_DISCARD))
       {
          /* If log is full and in discard mode, just count the event */
@@ -67,7 +67,7 @@ void EVS_AddLog (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
       }
       else
       {
-         if (CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag == TRUE)
+         if (CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag == true)
          {
             /* If log is full and in wrap mode, count it and store it */
             CFE_EVS_GlobalData.EVS_LogPtr->LogOverflowCounter++;
@@ -93,7 +93,7 @@ void EVS_AddLog (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
             if (CFE_EVS_GlobalData.EVS_LogPtr->LogCount == CFE_PLATFORM_EVS_LOG_MAX)
             {
                /* The full flag and log count are somewhat redundant */
-               CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag = TRUE;
+               CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag = true;
             }
          }
       }
@@ -125,7 +125,7 @@ void EVS_ClearLog ( void )
    /* Clears everything but LogMode (overwrite vs discard) */
    CFE_EVS_GlobalData.EVS_LogPtr->Next = 0;
    CFE_EVS_GlobalData.EVS_LogPtr->LogCount = 0;
-   CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag = FALSE;
+   CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag = false;
    CFE_EVS_GlobalData.EVS_LogPtr->LogOverflowCounter = 0;
 
    memset(CFE_EVS_GlobalData.EVS_LogPtr->LogEntry, 0,
@@ -159,7 +159,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data)
     CFE_FS_Header_t LogFileHdr;
     char            LogFilename[OS_MAX_PATH_LEN];
 
-    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == FALSE)
+    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == false)
     {
         EVS_SendEvent(CFE_EVS_NO_LOGWR_EID, CFE_EVS_EventType_ERROR,
                 "Write Log Command: Event Log is Disabled");
@@ -272,7 +272,7 @@ int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogMode_t *data)
     const CFE_EVS_SetLogMode_Payload_t *CmdPtr = &data->Payload;
     int32 Status;
 
-    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == TRUE)
+    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == true)
     {
         if ((CmdPtr->LogMode == CFE_EVS_LogMode_OVERWRITE) || (CmdPtr->LogMode == CFE_EVS_LogMode_DISCARD))
         {

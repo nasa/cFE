@@ -1,23 +1,25 @@
 /*
-** $Id: cfe_time_msg.h 1.6 2011/11/30 15:10:45GMT-05:00 jmdagost Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_time_msg.h
 **
 ** Purpose:  cFE Time Services (TIME) SB message definitions header file
 **
@@ -175,7 +177,7 @@
 **         to clock source, but rather an element of the clock state.  See below 
 **         for a description of the #CFE_TIME_SET_STATE_CC command.
 **       - This command is only valid when the #CFE_PLATFORM_TIME_CFG_SOURCE configuration
-**         parameter in the cfe_platform_cfg.h file has been set to TRUE.
+**         parameter in the cfe_platform_cfg.h file has been set to true.
 **
 **  \cfecmdmnemonic \TIME_SETSOURCE
 **
@@ -668,7 +670,7 @@
 **       hardware configuration.<BR><BR>
 **       Notes: 
 **       - This command is only valid when the #CFE_PLATFORM_TIME_CFG_SIGNAL configuration
-**         parameter in the cfe_platform_cfg.h file has been set to TRUE.
+**         parameter in the cfe_platform_cfg.h file has been set to true.
 **
 **  \cfecmdmnemonic \TIME_SETSIGNAL
 **
@@ -956,7 +958,7 @@ typedef struct
     /*
     ** 1Hz STCF adjustment values (server only)...
     */
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     uint32                Seconds1HzAdj;    /**< \cfetlmmnemonic \TIME_1HZADJSECS
                                                  \brief Current 1 Hz SCTF adjustment (seconds) */
     uint32                Subsecs1HzAdj;    /**< \cfetlmmnemonic \TIME_1HZADJSSECS
@@ -966,7 +968,7 @@ typedef struct
     /*
     ** Time at tone delay values (client only)...
     */
-    #if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
     uint32                SecondsDelay;     /**< \cfetlmmnemonic \TIME_1HZDLYSECS
                                                  \brief Current 1 Hz SCTF Delay (seconds) */
     uint32                SubsecsDelay;     /**< \cfetlmmnemonic \TIME_1HZDLYSSECS

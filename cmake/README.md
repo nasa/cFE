@@ -19,10 +19,8 @@ Quick instructions for doing a CMake based build:
 
 * Copy the sample CMake configuration into the top:
 
-```
 	cp cfe/cmake/Makefile.sample Makefile
 	cp -r cfe/cmake/sample\_defs sample\_defs
-```
 
 The files in "sample\_defs" will need to be adjusted to meet the
 needs of your mission, but the sample values provided are sufficient

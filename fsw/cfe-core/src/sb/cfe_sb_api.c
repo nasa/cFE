@@ -1,23 +1,25 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
 ** File: cfe_sb_api.c
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 ** Purpose:
 **      This file contains the source code for the SB API's.
@@ -996,7 +998,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
     CFE_SB_RouteEntry_t* RoutePtr;
     uint32  PipeIdx;
     uint32  TskId = 0;
-    uint32  MatchFound = FALSE;
+    bool    MatchFound = false;
     int32   Stat;
     CFE_SB_DestinationD_t   *DestPtr = NULL;
     char    FullName[(OS_MAX_API_NAME * 2)];
@@ -1071,13 +1073,13 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
             RoutePtr->Destinations--;
             CFE_SB.StatTlmMsg.Payload.SubscriptionsInUse--;
 
-            MatchFound = TRUE;
+            MatchFound = true;
 
         }/* end if */
 
         DestPtr = DestPtr->Next;
 
-    }while((MatchFound == FALSE)&&(DestPtr != NULL));
+    }while((MatchFound == false)&&(DestPtr != NULL));
 
     /* if 'Destinations' was decremented to zero above... */
     if(RoutePtr->Destinations==0){

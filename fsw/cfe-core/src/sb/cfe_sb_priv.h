@@ -1,23 +1,25 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
 ** File: cfe_sb_priv.h
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 ** Purpose:
 **      This header file contains prototypes for private functions and type
@@ -433,7 +435,7 @@ int32 CFE_SB_RemoveDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *
 ** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_GetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum 
 **/
-uint16 CFE_SB_MsgHdrSize(CFE_SB_MsgPtr_t MsgPtr);
+uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr);
 
 
 /*
@@ -477,9 +479,9 @@ extern cfe_sb_t CFE_SB;
  *
  * Implements a basic sanity check on the value provided
  *
- * @returns TRUE if sanity checks passed, FALSE otherwise.
+ * @returns true if sanity checks passed, false otherwise.
  */
-static inline osalbool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
+static inline bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
 {
     /* cppcheck-suppress redundantCondition */
     return (MsgId != CFE_SB_INVALID_MSG_ID && MsgId <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
@@ -490,9 +492,9 @@ static inline osalbool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
  *
  * Implements a basic sanity check on the value provided
  *
- * @returns TRUE if sanity checks passed, FALSE otherwise.
+ * @returns true if sanity checks passed, false otherwise.
  */
-static inline osalbool CFE_SB_IsValidMsgKey(CFE_SB_MsgKey_t MsgKey)
+static inline bool CFE_SB_IsValidMsgKey(CFE_SB_MsgKey_t MsgKey)
 {
     return (MsgKey.KeyIdx != 0 && MsgKey.KeyIdx <= CFE_SB_MAX_NUMBER_OF_MSG_KEYS);
 }
@@ -502,9 +504,9 @@ static inline osalbool CFE_SB_IsValidMsgKey(CFE_SB_MsgKey_t MsgKey)
  *
  * Implements a basic sanity check on the value provided
  *
- * @returns TRUE if sanity checks passed, FALSE otherwise.
+ * @returns true if sanity checks passed, false otherwise.
  */
-static inline osalbool CFE_SB_IsValidRouteIdx(CFE_SB_MsgRouteIdx_t RouteIdx)
+static inline bool CFE_SB_IsValidRouteIdx(CFE_SB_MsgRouteIdx_t RouteIdx)
 {
     return (RouteIdx.RouteIdx != 0 && RouteIdx.RouteIdx <= CFE_PLATFORM_SB_MAX_MSG_IDS);
 }

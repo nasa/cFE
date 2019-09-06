@@ -1,25 +1,25 @@
 /*
-**  File:
-**  cfe_es_task.c
-**  $Id: cfe_es_task.c 1.16 2014/07/07 10:56:17GMT-05:00 acudmore Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+**  File: cfe_es_task.c
 **
 **  Purpose:
 **  cFE Executive Services (ES) task
@@ -205,6 +205,8 @@ int32 CFE_ES_TaskInit(void)
     int32   Status;
     uint32  SizeofCfeSegment;
     cpuaddr CfeSegmentAddr;
+    char    EventBuffer[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    char    VersionBuffer[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
 
     /*
     ** Register the Application
@@ -249,23 +251,23 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Initialize housekeeping packet (clear user data area)
     */
-    CFE_SB_InitMsg(&CFE_ES_TaskData.HkPacket, CFE_ES_HK_TLM_MID, sizeof(CFE_ES_TaskData.HkPacket), TRUE);
+    CFE_SB_InitMsg(&CFE_ES_TaskData.HkPacket, CFE_ES_HK_TLM_MID, sizeof(CFE_ES_TaskData.HkPacket), true);
 
     /*
     ** Initialize shell output packet (clear user data area)
     */
-    CFE_SB_InitMsg(&CFE_ES_TaskData.ShellPacket, CFE_ES_SHELL_TLM_MID, sizeof(CFE_ES_TaskData.ShellPacket), TRUE);
+    CFE_SB_InitMsg(&CFE_ES_TaskData.ShellPacket, CFE_ES_SHELL_TLM_MID, sizeof(CFE_ES_TaskData.ShellPacket), true);
 
     /*
     ** Initialize single application telemetry packet
     */
-    CFE_SB_InitMsg(&CFE_ES_TaskData.OneAppPacket, CFE_ES_APP_TLM_MID, sizeof(CFE_ES_TaskData.OneAppPacket), TRUE);
+    CFE_SB_InitMsg(&CFE_ES_TaskData.OneAppPacket, CFE_ES_APP_TLM_MID, sizeof(CFE_ES_TaskData.OneAppPacket), true);
 
     /*
     ** Initialize memory pool statistics telemetry packet
     */
     CFE_SB_InitMsg(&CFE_ES_TaskData.MemStatsPacket, CFE_ES_MEMSTATS_TLM_MID, 
-                   sizeof(CFE_ES_TaskData.MemStatsPacket), TRUE);
+                   sizeof(CFE_ES_TaskData.MemStatsPacket), true);
 
     /*
     ** Create Software Bus message pipe
@@ -352,15 +354,34 @@ int32 CFE_ES_TaskInit(void)
         return(Status);
     }
 
-#ifdef _ENHANCED_BUILD_
     /*
      ** Advertise the build and version information at start up
+     ** If unique and non-error, reports component information
      */
+    if (strstr(GLOBAL_CONFIGDATA.MissionVersion, "error"))
+    {
+       snprintf(EventBuffer, sizeof(EventBuffer), "Mission %s", GLOBAL_CONFIGDATA.Config);
+    }
+    else
+    {
+       snprintf(EventBuffer, sizeof(EventBuffer), "Mission %s.%s",
+                GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.Config);
+    }
+    if(strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.CfeVersion))
+    {
+       snprintf(VersionBuffer, sizeof(VersionBuffer), ", CFE: %s",
+                GLOBAL_CONFIGDATA.CfeVersion);
+       strncat(EventBuffer, VersionBuffer, sizeof(EventBuffer)-strlen(EventBuffer-1));
+    }
+    if(strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.OsalVersion))
+    {
+       snprintf(VersionBuffer, sizeof(VersionBuffer), ", OSAL: %s",
+                GLOBAL_CONFIGDATA.OsalVersion);
+       strncat(EventBuffer, VersionBuffer, sizeof(EventBuffer)-strlen(EventBuffer-1));
+    }
+
     Status = CFE_EVS_SendEvent(CFE_ES_VERSION_INF_EID,
-          CFE_EVS_EventType_INFORMATION,
-          "Mission %s.%s, %s, %s",
-          GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.Config,
-          GLOBAL_CONFIGDATA.CfeVersion, GLOBAL_CONFIGDATA.OsalVersion);
+          CFE_EVS_EventType_INFORMATION, "%s", EventBuffer);
     if ( Status != CFE_SUCCESS )
     {
        CFE_ES_WriteToSysLog("ES:Error sending version event:RC=0x%08X\n", (unsigned int)Status);
@@ -376,7 +397,6 @@ int32 CFE_ES_TaskInit(void)
        CFE_ES_WriteToSysLog("ES:Error sending build info event:RC=0x%08X\n", (unsigned int)Status);
        return(Status);
     }
-#endif
 
 
    return(CFE_SUCCESS);
@@ -732,12 +752,10 @@ int32 CFE_ES_NoopCmd(const CFE_ES_Noop_t *Cmd)
     ** For unit testing purposes, it helps to put this first - the UT
     ** is checking for the last event sent to be NOOP_INF_EID.
     */
-#ifdef _ENHANCED_BUILD_
     CFE_EVS_SendEvent(CFE_ES_BUILD_INF_EID,
             CFE_EVS_EventType_INFORMATION,
             "Build %s %s",
             GLOBAL_CONFIGDATA.Date, GLOBAL_CONFIGDATA.User);
-#endif
 
     /*
     ** This command will always succeed.
@@ -1241,7 +1259,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
         */
         for(i=0;i<CFE_PLATFORM_ES_MAX_APPLICATIONS;i++)
         {
-            if(CFE_ES_Global.AppTable[i].RecordUsed != FALSE)
+            if(CFE_ES_Global.AppTable[i].AppState != CFE_ES_AppState_UNDEFINED)
             {
                 /* 
                 ** zero out the local entry
@@ -1366,7 +1384,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
         */
         for(i=0;i<OS_MAX_TASKS;i++)
         {
-            if(CFE_ES_Global.TaskTable[i].RecordUsed != FALSE)
+            if(CFE_ES_Global.TaskTable[i].RecordUsed != false)
             {
                 /* 
                 ** zero out the local entry
@@ -1648,9 +1666,9 @@ int32 CFE_ES_ERLogDump(const char *Filename)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-boolean CFE_ES_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
+bool CFE_ES_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
 {
-    boolean result       = TRUE;
+    bool result       = true;
     uint16  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
 
     /*
@@ -1664,7 +1682,7 @@ boolean CFE_ES_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
         CFE_EVS_SendEvent(CFE_ES_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                 "Invalid cmd length: ID = 0x%X, CC = %d, Exp Len = %d, Len = %d",
                 (unsigned int)MessageID, (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
-        result = FALSE;
+        result = false;
         CFE_ES_TaskData.CommandErrorCounter++;
     }
 
@@ -1739,7 +1757,7 @@ int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDS_t *data)
     CFE_SB_MessageStringGet(LocalCdsName, (char *)cmd->CdsName, NULL,
             CFE_ES_CDS_MAX_FULL_NAME_LEN, sizeof(cmd->CdsName));
 
-    Status = CFE_ES_DeleteCDS(LocalCdsName, FALSE);
+    Status = CFE_ES_DeleteCDS(LocalCdsName, false);
 
     if (Status == CFE_ES_CDS_WRONG_TYPE_ERR)
     {
@@ -1795,7 +1813,7 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStats_t *data)
 {                                                                                  
     const CFE_ES_SendMemPoolStatsCmd_Payload_t *Cmd;
     CFE_ES_MemHandle_t        MemHandle;
-    boolean                   ValidHandle;
+    bool                      ValidHandle;
 
     Cmd = &data->Payload;
 
@@ -1878,7 +1896,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
                 RegRecPtr = &CFE_ES_Global.CDSVars.Registry[RegIndex];
 
                 /* Check to see if the Registry entry is empty */
-                if (RegRecPtr->Taken == TRUE)
+                if (RegRecPtr->Taken == true)
                 {
                     /* Fill CDS Registry Dump Record with relevant information */
                     DumpRecord.Size             = RegRecPtr->Size;

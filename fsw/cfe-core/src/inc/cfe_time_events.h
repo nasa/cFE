@@ -1,25 +1,25 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 **  Filename: cfe_time_events.h
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-**  $Id: cfe_time_events.h 1.5 2011/11/30 15:10:44GMT-05:00 jmdagost Exp  $
 **
 **  Purpose:
 **	           cFE Time Services (Time) Event IDs
@@ -473,8 +473,8 @@
 **/
 #define CFE_TIME_1HZ_ERR_EID     38
 
-/** \brief <tt> 'Set Source commands invalid without CFE_PLATFORM_TIME_CFG_SOURCE set to TRUE' </tt>
-**  \event <tt> 'Set Source commands invalid without CFE_PLATFORM_TIME_CFG_SOURCE set to TRUE' </tt> 
+/** \brief <tt> 'Set Source commands invalid without CFE_PLATFORM_TIME_CFG_SOURCE set to true' </tt>
+**  \event <tt> 'Set Source commands invalid without CFE_PLATFORM_TIME_CFG_SOURCE set to true' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -483,12 +483,12 @@
 **  This event message is generated whenever Time Services receives
 **  a \link #CFE_TIME_SET_SOURCE_CC Set Clock Source Command \endlink
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_SOURCE has
-**  not been set to TRUE in the cfe_platform_cfg.h file.
+**  not been set to true in the cfe_platform_cfg.h file.
 **/
 #define CFE_TIME_SOURCE_CFG_EID  40   /* cmd disabled per cfg "error" */
 
-/** \brief <tt> 'Set Signal commands invalid without CFE_PLATFORM_TIME_CFG_SIGNAL set to TRUE' </tt>
-**  \event <tt> 'Set Signal commands invalid without CFE_PLATFORM_TIME_CFG_SIGNAL set to TRUE' </tt> 
+/** \brief <tt> 'Set Signal commands invalid without CFE_PLATFORM_TIME_CFG_SIGNAL set to true' </tt>
+**  \event <tt> 'Set Signal commands invalid without CFE_PLATFORM_TIME_CFG_SIGNAL set to true' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -497,12 +497,12 @@
 **  This event message is generated whenever Time Services receives
 **  a \link #CFE_TIME_SET_SIGNAL_CC Set Clock Signal Command \endlink
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_SIGNAL has
-**  not been set to TRUE in the cfe_platform_cfg.h file.
+**  not been set to true in the cfe_platform_cfg.h file.
 **/
 #define CFE_TIME_SIGNAL_CFG_EID  41
 
-/** \brief <tt> 'Set Delay commands invalid without CFE_PLATFORM_TIME_CFG_CLIENT set to TRUE' </tt>
-**  \event <tt> 'Set Delay commands invalid without CFE_PLATFORM_TIME_CFG_CLIENT set to TRUE' </tt> 
+/** \brief <tt> 'Set Delay commands invalid without CFE_PLATFORM_TIME_CFG_CLIENT set to true' </tt>
+**  \event <tt> 'Set Delay commands invalid without CFE_PLATFORM_TIME_CFG_CLIENT set to true' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -512,12 +512,12 @@
 **  either a \link #CFE_TIME_ADD_DELAY_CC Add Tone Delay Command \endlink
 **  OR a \link #CFE_TIME_SUB_DELAY_CC Subtract Tone Delay Command \endlink
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_CLIENT has
-**  not been set to TRUE in the cfe_platform_cfg.h file.
+**  not been set to true in the cfe_platform_cfg.h file.
 **/
 #define CFE_TIME_DELAY_CFG_EID   42
 
-/** \brief <tt> 'Set Time commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt>
-**  \event <tt> 'Set Time commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt> 
+/** \brief <tt> 'Set Time commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt>
+**  \event <tt> 'Set Time commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -526,12 +526,12 @@
 **  This event message is generated whenever Time Services receives
 **  a \link #CFE_TIME_SET_TIME_CC Set Spacecraft Time Command \endlink
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_SERVER has
-**  not been set to TRUE in the cfe_platform_cfg.h file.
+**  not been set to true in the cfe_platform_cfg.h file.
 **/
 #define CFE_TIME_TIME_CFG_EID    43
 
-/** \brief <tt> 'Set MET commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt>
-**  \event <tt> 'Set MET commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt> 
+/** \brief <tt> 'Set MET commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt>
+**  \event <tt> 'Set MET commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -540,12 +540,12 @@
 **  This event message is generated whenever Time Services receives
 **  a \link #CFE_TIME_SET_MET_CC Set Mission Elapsed Time Command \endlink
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_SERVER has
-**  not been set to TRUE in the cfe_platform_cfg.h file.
+**  not been set to true in the cfe_platform_cfg.h file.
 **/
 #define CFE_TIME_MET_CFG_EID     44
 
-/** \brief <tt> 'Set STCF commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt>
-**  \event <tt> 'Set STCF commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt> 
+/** \brief <tt> 'Set STCF commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt>
+**  \event <tt> 'Set STCF commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -554,12 +554,12 @@
 **  This event message is generated whenever Time Services receives
 **  a \link #CFE_TIME_SET_STCF_CC Set Spacecraft Time Correlation Factor Command \endlink
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_SERVER has
-**  not been set to TRUE in the cfe_platform_cfg.h file.
+**  not been set to true in the cfe_platform_cfg.h file.
 **/
 #define CFE_TIME_STCF_CFG_EID    45
 
-/** \brief <tt> 'Set Leaps commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt>
-**  \event <tt> 'Set Leaps commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt> 
+/** \brief <tt> 'Set Leaps commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt>
+**  \event <tt> 'Set Leaps commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -568,12 +568,12 @@
 **  This event message is generated whenever Time Services receives
 **  a \link #CFE_TIME_SET_LEAP_SECONDS_CC Set Leap Seconds Command \endlink
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_SERVER has
-**  not been set to TRUE in the cfe_platform_cfg.h file.
+**  not been set to true in the cfe_platform_cfg.h file.
 **/
 #define CFE_TIME_LEAPS_CFG_EID   46
 
-/** \brief <tt> 'STCF Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt>
-**  \event <tt> 'STCF Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt> 
+/** \brief <tt> 'STCF Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt>
+**  \event <tt> 'STCF Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -583,12 +583,12 @@
 **  either a \link #CFE_TIME_ADD_ADJUST_CC Add Single STCF Adjustment Command \endlink
 **  OR a \link #CFE_TIME_SUB_ADJUST_CC Subtract Single STCF Adjustment command \endlink
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_SERVER has
-**  not been set to TRUE in the cfe_platform_cfg.h file.
+**  not been set to true in the cfe_platform_cfg.h file.
 **/
 #define CFE_TIME_DELTA_CFG_EID   47
 
-/** \brief <tt> '1Hz Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt>
-**  \event <tt> '1Hz Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE' </tt> 
+/** \brief <tt> '1Hz Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt>
+**  \event <tt> '1Hz Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to true' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -598,7 +598,7 @@
 **  either a \link #CFE_TIME_ADD_1HZ_ADJUSTMENT_CC Add STCF Adjustment each second Command \endlink
 **  OR a \link #CFE_TIME_SUB_1HZ_ADJUSTMENT_CC Subtract STCF Adjustment each second command \endlink
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_SERVER has
-**  not been set to TRUE in the cfe_platform_cfg.h file.
+**  not been set to true in the cfe_platform_cfg.h file.
 **/
 #define CFE_TIME_1HZ_CFG_EID     48
 

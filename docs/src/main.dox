@@ -57,8 +57,6 @@
     <LI> \subpage cfeapi <BR>
   </UL>
 
-  \subpage cfeugrevhist
-  
 **/
 
 /**
@@ -94,9 +92,9 @@
    NASA flight projects and/or embedded software systems. <BR> 
 
    The pivotal design feature, abstracting the software architecture from the hardware and forming the basis of reuse, 
-   is component layering. Each layer of the architecture “hides” its implementation and technology details from the other 
+   is component layering. Each layer of the architecture "hides" its implementation and technology details from the other 
    layers by defining and using standard Application Programming Interfaces (APIs). The internals of a layer can be changed 
-   without affecting other layers’ internals and components. <BR> 
+   without affecting other layers' internals and components. <BR> 
 
    \image html CFSLayers.jpg
 
@@ -702,19 +700,3 @@
   </UL>
 **/
 
-/**
-  \page cfeugrevhist cFE User's Guide Documentation Revision History
-  
-  \verbatim
-  $Log: main.dox  $
-  Revision 1.5 2014/08/23 20:01:17GMT-05:00 sstrege 
-  Added cFE User Guide TOC, updated background information, updated applicable documents, updated acronyms, glossary of terms, and cFE API reference
-  Revision 1.4 2008/12/06 16:16:05EST dkobe 
-  Corrected faulty links
-  Revision 1.3 2008/12/06 15:34:30EST dkobe 
-  Corrected formatting of revision history
-  Revision 1.2 2008/12/06 14:56:05EST dkobe 
-  Added Revision History Page
-  \endverbatim
-  
-**/

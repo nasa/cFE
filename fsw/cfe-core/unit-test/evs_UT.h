@@ -1,22 +1,24 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 ** File:
 **    evs_UT.h
 **
@@ -30,9 +32,6 @@
 **
 ** Notes:
 **    1. This is unit test code only, not for use in flight
-**
-** $Date: 2014/05/28 09:23:28GMT-05:00 $
-** $Revision: 1.1 $
 **
 */
 #ifndef _evs_UT_h_
@@ -52,7 +51,7 @@
 #include "cfe_sb.h"
 #include "cfe_es.h"
 #include "cfe_time.h"
-#include "ut_stubs.h"
+#include "ut_support.h"
 
 /* EVS unit test functions */
 /*****************************************************************************/
@@ -357,26 +356,5 @@ void Test_InvalidCmd(void);
 **
 ******************************************************************************/
 void Test_Misc(void);
-
-/*****************************************************************************/
-/**
-** \brief Unit test specific call to process SB messages
-**
-** \par Description
-**        This function serves as a pass-through for messages coming from the
-**        CFE_SB_SendMsg() stub function.  By using a common pass-through
-**        function name, the stub can be generic for all of the tests for the
-**        various services (i.e., EVS, TBL, etc.).
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.  
-**
-** \sa #CFE_EVS_ProcessCommandPacket
-**
-******************************************************************************/
-void UT_ProcessSBMsg(CFE_SB_Msg_t *MsgPtr);
 
 #endif /* _evs_UT_h_ */

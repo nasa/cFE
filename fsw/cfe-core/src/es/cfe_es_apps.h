@@ -1,26 +1,26 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 **  File: 
 **  cfe_es_apps.h
-**
-**
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 **  Purpose:
 **  This file contains the Internal interface for the cFE Application control functions of ES.
@@ -59,10 +59,9 @@
 typedef struct
 {
    uint32     AppControlRequest;              /* What the App should be doing next */
-   uint32     AppState;                       /* Is the app running, or stopped, or waiting? */
    int32      AppTimer;                       /* Countdown timer for killing an app */
 
-} CFE_ES_AppState_t;
+} CFE_ES_ControlReq_t;
 
 
 /*
@@ -104,10 +103,10 @@ typedef struct
 */
 typedef struct
 {
-   boolean                 RecordUsed;                  /* Is the record used(1) or available(0) ? */
+   CFE_ES_AppState_Enum_t  AppState;                 /* Is the app running, or stopped, or waiting? */
    uint32                  Type;                        /* The type of App: CORE or EXTERNAL */
    CFE_ES_AppStartParams_t StartParams;                 /* The start parameters for an App */
-   CFE_ES_AppState_t       StateRecord;                 /* The State info for External cFE Apps */
+   CFE_ES_ControlReq_t     ControlReq;                  /* The Control Request Record for External cFE Apps */
    CFE_ES_MainTaskInfo_t   TaskInfo;                    /* Information about the Tasks */
       
 } CFE_ES_AppRecord_t;
@@ -119,7 +118,7 @@ typedef struct
 */
 typedef struct
 {
-   boolean   RecordUsed;                      /* Is the record used(1) or available(0) */
+   bool      RecordUsed;                      /* Is the record used(1) or available(0) */
    uint32    AppId;                           /* The parent Application's App ID */
    uint32    TaskId;                          /* Task ID */
    uint32    ExecutionCounter;                /* The execution counter for the Child task */
@@ -134,7 +133,7 @@ typedef struct
 */
 typedef struct
 {
-   boolean   RecordUsed;                      /* Is the record used(1) or available(0) */
+   bool      RecordUsed;                      /* Is the record used(1) or available(0) */
    char      LibName[OS_MAX_API_NAME];        /* Library Name */
 } CFE_ES_LibRecord_t;
 

@@ -1,25 +1,25 @@
 /*
-** $Id: cfe_fs_decompress.c 1.14 2014/04/14 15:21:52GMT-05:00 lwalling Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**   File: CFE_FS_decompress.c
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+**   File: cfe_fs_decompress.c
 **
 **   Author:   A. Cudmore,    NASA/GSFC Code 582
 **             Ported from JWST, which was ported from Swift/BAT, 
@@ -179,7 +179,7 @@ int32 FS_gz_eat_header_Reentrant( CFE_FS_Decompress_State_t *State )
 	int8    magic[2];               /* magic header      */
 	int8    thisByte;				     /* temporary holder for current byte in a string read */
 	uint32  stamp;                  /* time stamp        */
-	boolean keep_going;
+	bool    keep_going;
 
 	/*  read input buffer (check for read error) */
 	magic[0] = (int8)NEXTBYTE();
@@ -232,7 +232,7 @@ int32 FS_gz_eat_header_Reentrant( CFE_FS_Decompress_State_t *State )
 		
 		/* Get original file name if it was truncated */
 		if ( (flags & ORIG_NAME) != 0 ) {
-			keep_going = TRUE;
+			keep_going = true;
 			while ( keep_going ) {
 
 				/* Get the next byte */
@@ -242,13 +242,13 @@ int32 FS_gz_eat_header_Reentrant( CFE_FS_Decompress_State_t *State )
 				if ((thisByte == EOF) || (State->Error != CFE_SUCCESS)) return CFE_FS_GZIP_READ_ERROR_HEADER;
 
 				/* End of string was found */
-				if (thisByte == 0) keep_going = FALSE;
+				if (thisByte == 0) keep_going = false;
 			}
 		}
 		
 		/*  Discard file comment if any  */
 		if ( (flags & COMMENT) != 0 ) {
-			keep_going = TRUE;
+			keep_going = true;
 			while ( keep_going ) {
 
 				/* Get the next byte */
@@ -258,7 +258,7 @@ int32 FS_gz_eat_header_Reentrant( CFE_FS_Decompress_State_t *State )
 				if ((thisByte == EOF) || (State->Error != CFE_SUCCESS)) return CFE_FS_GZIP_READ_ERROR_HEADER;
 
 				/* End of string was found */
-				if (thisByte == 0) keep_going = FALSE;
+				if (thisByte == 0) keep_going = false;
 			}
 		}
 	}
@@ -379,7 +379,7 @@ int32 FS_gz_huft_build_Reentrant( CFE_FS_Decompress_State_t *State, uint32 * b, 
 
 	uint32 huft_index_q;
 	uint32 huft_index_t = 0;
-	boolean   not_first_table = FALSE;
+	bool   not_first_table = false;
 	huft_index_t = 0;
 
 	/*  Generate counts for each bit length  */
@@ -489,7 +489,7 @@ int32 FS_gz_huft_build_Reentrant( CFE_FS_Decompress_State_t *State, uint32 * b, 
 				if ( State->hufts > State->max_hufts ) State->max_hufts = State->hufts;
 				
 				if ( not_first_table ) State->hufTable[huft_index_t].v.t = huft_index_q + 1;
-				else                   not_first_table = TRUE;
+				else                   not_first_table = true;
 				
 				huft_index_t = huft_index_q;
 				State->hufTable[huft_index_t].v.t = 0xffff;               /* stand-in for NULL */

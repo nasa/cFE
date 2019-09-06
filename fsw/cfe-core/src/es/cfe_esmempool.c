@@ -1,24 +1,26 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 **  File:
 **  cfe_esmempool.c
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 **  Purpose:
 **  Set of services for management of discrete sized memory pools.
@@ -661,9 +663,9 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
 ** Purpose:
 **   Insures that the handle passed in meets all of the requirements of a valid handle.
 */
-boolean CFE_ES_ValidateHandle(CFE_ES_MemHandle_t  Handle)
+bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t  Handle)
 {
-    boolean   HandleValid = TRUE;
+    bool      HandleValid = true;
     Pool_t   *PoolPtr;
     
     PoolPtr = (Pool_t *)Handle;
@@ -673,22 +675,22 @@ boolean CFE_ES_ValidateHandle(CFE_ES_MemHandle_t  Handle)
     if ( PoolPtr == NULL )
     /* Test #1) Handle must not be a NULL pointer */
     {
-        HandleValid = FALSE;
+        HandleValid = false;
     }
     /* Test #2) Handle must be a valid memory address (allows both RAM and EEPROM) */
     else if (CFE_PSP_MemValidateRange(Handle, sizeof(Pool_t), CFE_PSP_MEM_ANY) != CFE_PSP_SUCCESS)
     {
-        HandleValid = FALSE;
+        HandleValid = false;
     }
     /* Test #3) First field of pool structure must be start address of Pool */
     else if (Handle != PoolPtr->PoolHandle)
     {
-        HandleValid = FALSE;
+        HandleValid = false;
     }
     /* Test #4) Pool structure must have End ptr equal to Start plus Size */
     else if ((PoolPtr->PoolHandle + PoolPtr->Size) != PoolPtr->End)
     {
-        HandleValid = FALSE;
+        HandleValid = false;
     }
     
     return(HandleValid);

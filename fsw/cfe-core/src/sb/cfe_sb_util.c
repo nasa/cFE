@@ -1,23 +1,25 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
 ** File: cfe_sb_util.c
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 ** Purpose:
 **      This file contains 'access' macros and functions for reading and
@@ -50,15 +52,15 @@
 **    MsgId   - MsgId to use for the message.
 **    Length  - Length of the message in bytes.
 **    Clear   - Indicates whether to clear the entire message:
-**                TRUE = fill sequence count and packet data with zeros
-**                FALSE = leave sequence count and packet data unchanged
+**                true = fill sequence count and packet data with zeros
+**                false = leave sequence count and packet data unchanged
 **  Return:
 **    (none)
 */
 void CFE_SB_InitMsg(void           *MsgPtr,
                     CFE_SB_MsgId_t MsgId,
                     uint16         Length,
-                    boolean        Clear )
+                    bool        Clear )
 {
    uint16           SeqCount;
    CCSDS_PriHdr_t  *PktPtr;
@@ -70,7 +72,7 @@ void CFE_SB_InitMsg(void           *MsgPtr,
 
    /* Zero the entire packet if needed. */
    if (Clear)  
-     { CFE_PSP_MemSet(MsgPtr, 0, Length); }
+     { memset(MsgPtr, 0, Length); }
      else    /* Clear only the primary header. */
       {
         CCSDS_CLR_PRI_HDR(*PktPtr);
@@ -105,15 +107,15 @@ void CFE_SB_InitMsg(void           *MsgPtr,
 **  Return:
 **     Size of Message Header.
 */
-uint16 CFE_SB_MsgHdrSize(CFE_SB_MsgPtr_t MsgPtr)
+uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
 {
     uint16 size;
 
 #ifdef MESSAGE_FORMAT_IS_CCSDS
 
-    CCSDS_PriHdr_t  *HdrPtr;
+    const CCSDS_PriHdr_t  *HdrPtr;
 
-    HdrPtr = (CCSDS_PriHdr_t *) MsgPtr;
+    HdrPtr = (const CCSDS_PriHdr_t *) MsgPtr;
 
     /* if secondary hdr is not present... */
     /* Since all cFE messages must have a secondary hdr this check is not needed */
@@ -178,7 +180,7 @@ void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
 **  Return:
 **    Size of the message minus the headers
 */
-uint16 CFE_SB_GetUserDataLength(CFE_SB_MsgPtr_t MsgPtr)
+uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
     uint16 TotalMsgSize;
@@ -237,7 +239,7 @@ void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, uint16 DataLength)
 **  Return:
 **    Total Length of the message
 */
-uint16 CFE_SB_GetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr)
+uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
 
@@ -574,9 +576,9 @@ void CFE_SB_GenerateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 **    MsgPtr - Pointer to a CFE_SB_Msg_t
 **
 **  Return:
-**    TRUE if checksum of packet is valid; FALSE if not.
+**    true if checksum of packet is valid; false if not.
 */
-boolean CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr)
+bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
 
@@ -584,7 +586,7 @@ boolean CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 
     /* if msg type is telemetry or there is no secondary hdr... */
     if((CCSDS_RD_TYPE(MsgPtr->Hdr) == CCSDS_TLM)||(CCSDS_RD_SHDR(MsgPtr->Hdr) == 0)){
-        return FALSE;
+        return false;
     }/* end if */
 
     CmdPktPtr = (CCSDS_CommandPacket_t *)MsgPtr;

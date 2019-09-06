@@ -1,24 +1,26 @@
 /*
-** $Id: cfe_tbl_task.h 1.8 2012/01/13 12:17:41GMT-05:00 acudmore Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_tbl_task.h
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**  
 ** Purpose:  cFE Table Services (TBL) task header file
 **
 ** Author:   David Kobe (the Hammers Company, Inc.)
@@ -117,7 +119,7 @@ typedef struct
     CFE_TBL_ValidationState_t State;          /**< \brief Current state of this block of data */
     int32                     Result;         /**< \brief Result returned by Application's Validation function */
     uint32                    CrcOfTable;     /**< \brief Data Integrity Value computed on Table Buffer */
-    boolean                   ActiveBuffer;   /**< \brief Flag indicating whether Validation is on Active/Inactive Buffer */
+    bool                      ActiveBuffer;   /**< \brief Flag indicating whether Validation is on Active/Inactive Buffer */
     char                      TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being Validated */
 } CFE_TBL_ValidationResult_t;
 
@@ -147,8 +149,8 @@ typedef struct
     uint32         FileCreateTimeSecs;          /**< \brief File creation time from last file loaded into table */
     uint32         FileCreateTimeSubSecs;       /**< \brief File creation time from last file loaded into table */
     uint32         Crc;                         /**< \brief Last calculated CRC for this buffer's contents */
-    boolean        Taken;                       /**< \brief Flag indicating whether buffer is in use */
-    boolean        Validated;                   /**< \brief Flag indicating whether the buffer has been successfully validated */
+    bool           Taken;                       /**< \brief Flag indicating whether buffer is in use */
+    bool           Validated;                   /**< \brief Flag indicating whether the buffer has been successfully validated */
     char           DataSource[OS_MAX_PATH_LEN]; /**< \brief Source of data put into buffer (filename or memory address) */
 } CFE_TBL_LoadBuff_t;
 
@@ -167,9 +169,9 @@ typedef struct
     int16                 RegIndex;         /**< \brief Index into Table Registry (a.k.a. - Global Table #) */
     CFE_TBL_Handle_t      PrevLink;         /**< \brief Index of previous access descriptor in linked list */
     CFE_TBL_Handle_t      NextLink;         /**< \brief Index of next access descriptor in linked list */
-    boolean               UsedFlag;         /**< \brief Indicates whether this descriptor is being used or not  */
-    boolean               LockFlag;         /**< \brief Indicates whether thread is currently accessing table data */
-    boolean               Updated;          /**< \brief Indicates table has been updated since last GetAddress call */
+    bool                  UsedFlag;         /**< \brief Indicates whether this descriptor is being used or not  */
+    bool                  LockFlag;         /**< \brief Indicates whether thread is currently accessing table data */
+    bool                  Updated;          /**< \brief Indicates table has been updated since last GetAddress call */
     uint8                 BufferIndex;      /**< \brief Index of buffer currently being used */
 } CFE_TBL_AccessDescriptor_t;
 
@@ -196,13 +198,13 @@ typedef struct
     int32                       DumpControlIndex;       /**< \brief Index to Dump Control Block */
     CFE_ES_CDSHandle_t          CDSHandle;          /**< \brief Handle to Critical Data Store for Critical Tables */
     uint16                      NotificationCC;     /**< \brief Command Code of an associated management notification message */
-    boolean                     CriticalTable;      /**< \brief Flag indicating whether table is a Critical Table */
-    boolean                     TableLoadedOnce;    /**< \brief Flag indicating whether table has been loaded once or not */
-    boolean                     LoadPending;        /**< \brief Flag indicating an inactive buffer is ready to be copied */
-    boolean                     DumpOnly;           /**< \brief Flag indicating Table is NOT to be loaded */
-    boolean                     DoubleBuffered;        /**< \brief Flag indicating Table has a dedicated inactive buffer */
-    boolean                     UserDefAddr;        /**< \brief Flag indicating Table address was defined by Owner Application */
-    boolean                     NotifyByMsg;        /**< \brief Flag indicating Table Services should notify owning App via message
+    bool                        CriticalTable;      /**< \brief Flag indicating whether table is a Critical Table */
+    bool                        TableLoadedOnce;    /**< \brief Flag indicating whether table has been loaded once or not */
+    bool                        LoadPending;        /**< \brief Flag indicating an inactive buffer is ready to be copied */
+    bool                        DumpOnly;           /**< \brief Flag indicating Table is NOT to be loaded */
+    bool                        DoubleBuffered;        /**< \brief Flag indicating Table has a dedicated inactive buffer */
+    bool                        UserDefAddr;        /**< \brief Flag indicating Table address was defined by Owner Application */
+    bool                        NotifyByMsg;        /**< \brief Flag indicating Table Services should notify owning App via message
                                                                 when table requires management */ 
     uint8                       ActiveBufferIndex;  /**< \brief Index identifying which buffer is the active buffer */
     char                        Name[CFE_TBL_MAX_FULL_NAME_LEN];   /**< \brief Processor specific table name */
@@ -224,7 +226,7 @@ typedef struct
     CFE_TIME_SysTime_t          TimeOfLastUpdate;       /**< \brief Time when Table was last updated */
     char                        LastFileLoaded[OS_MAX_PATH_LEN];   /**< \brief Filename of last file loaded into table */
     char                        Name[CFE_TBL_MAX_FULL_NAME_LEN];   /**< \brief Processor specific table name */
-    boolean                     TableLoadedOnce;        /**< \brief Flag indicating whether table has been loaded once or not */
+    bool                        TableLoadedOnce;        /**< \brief Flag indicating whether table has been loaded once or not */
 } CFE_TBL_CritRegRec_t;
 
 
@@ -258,15 +260,15 @@ typedef struct
     uint32                      FileCreateTimeSecs;    /**< \brief File creation time from last file loaded into table */
     uint32                      FileCreateTimeSubSecs; /**< \brief File creation time from last file loaded into table */
     uint32                      Crc;                /**< \brief Most recent CRC computed by TBL Services on table contents */
-    boolean                     ValidationFunc;     /**< \brief Flag indicating whether table has an associated Validation func*/
-    boolean                     TableLoadedOnce;    /**< \brief Flag indicating whether table has been loaded once or not */
-    boolean                     LoadPending;        /**< \brief Flag indicating an inactive buffer is ready to be copied */
-    boolean                     DumpOnly;           /**< \brief Flag indicating Table is NOT to be loaded */
-    boolean                     DoubleBuffered;        /**< \brief Flag indicating Table has a dedicated inactive buffer */
+    bool                        ValidationFunc;     /**< \brief Flag indicating whether table has an associated Validation func*/
+    bool                        TableLoadedOnce;    /**< \brief Flag indicating whether table has been loaded once or not */
+    bool                        LoadPending;        /**< \brief Flag indicating an inactive buffer is ready to be copied */
+    bool                        DumpOnly;           /**< \brief Flag indicating Table is NOT to be loaded */
+    bool                        DoubleBuffered;        /**< \brief Flag indicating Table has a dedicated inactive buffer */
     char                        Name[CFE_TBL_MAX_FULL_NAME_LEN];   /**< \brief Processor specific table name */
     char                        LastFileLoaded[OS_MAX_PATH_LEN];   /**< \brief Filename of last file loaded into table */
     char                        OwnerAppName[OS_MAX_API_NAME];     /**< \brief Application Name of App that Registered Table */
-    boolean                     CriticalTable;                     /**< \brief Identifies whether table is Critical or Not */
+    bool                     CriticalTable;                     /**< \brief Identifies whether table is Critical or Not */
 } CFE_TBL_RegDumpRec_t;
 
 /*******************************************************************************/

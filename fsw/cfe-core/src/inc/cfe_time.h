@@ -1,23 +1,25 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-** $Id: cfe_time.h 1.6 2014/08/17 17:23:30GMT-05:00 sstrege Exp  $
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_time.h
 **
 ** Purpose:  cFE Time Services (TIME) library API header file
 **
@@ -183,7 +185,7 @@ typedef int32 (*CFE_TIME_SynchCallbackPtr_t)(void);
 **        This routine returns the current spacecraft time.  The time returned 
 **        is either TAI (no leap seconds) or UTC (including leap seconds).  This choice
 **        is made in the mission configuration file by defining either #CFE_MISSION_TIME_CFG_DEFAULT_TAI
-**        or #CFE_MISSION_TIME_CFG_DEFAULT_UTC as TRUE at compile time.  To maintain re-usability 
+**        or #CFE_MISSION_TIME_CFG_DEFAULT_UTC as true at compile time.  To maintain re-usability 
 **        across missions, most applications should be using this function 
 **        (or #CFE_TIME_GetTime) rather than the specific routines for getting UTC/TAI directly.
 **
@@ -269,7 +271,7 @@ CFE_TIME_SysTime_t  CFE_TIME_GetUTC(void);    /* returns time computed as UTC (M
 **        This function returns Spacecraft Time given MET.  Note that Spacecraft 
 **        Time is returned as either UTC or TAI depeneding on whether the mission
 **        configuration parameter #CFE_MISSION_TIME_CFG_DEFAULT_UTC or #CFE_MISSION_TIME_CFG_DEFAULT_TAI
-**        was set to TRUE at compile time.
+**        was set to true at compile time.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -782,7 +784,7 @@ void  CFE_TIME_ExternalTone(void); /* OK to call from ISR */
 **
 ** \par Assumptions, External Events, and Notes:
 **          - This routine is included in the API only when 3 specific configuration 
-**            parameters are set to TRUE.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines 
+**            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines 
 **            this instantiation of cFE TIME as a time server (not a client).  The 
 **            second required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which 
 **            enables time source selection commands to the cFE TIME task, and further 
@@ -819,7 +821,7 @@ void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET);
 **
 ** \par Assumptions, External Events, and Notes:
 **          - This routine is included in the API only when 3 specific configuration 
-**            parameters are set to TRUE.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines this 
+**            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines this 
 **            instantiation of cFE TIME as a time server (not a client).  The second 
 **            required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which enables 
 **            time source selection commands to the cFE TIME task, and further enables 
@@ -859,7 +861,7 @@ void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 **
 ** \par Assumptions, External Events, and Notes:
 **          - This routine is included in the API only when 3 specific configuration 
-**            parameters are set to TRUE.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines this 
+**            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines this 
 **            instanciation of cFE TIME as a time server (not a client).  The second 
 **            required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which enables 
 **            time source selection commands to the cFE TIME task, and further enables 

@@ -1,22 +1,24 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 ** File:
 **    time_UT.h
 **
@@ -45,7 +47,7 @@
 #include "cfe_time_msg.h"
 #include "cfe_time_utils.h"
 #include "common_types.h"
-#include "ut_stubs.h"
+#include "ut_support.h"
 
 /*
 ** Function prototypes
@@ -221,8 +223,8 @@ int32 ut_time_MyCallbackFunc(void);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in] reportResults  Set to TRUE to report test results for calls to
-**                           CFE_TIME_RegisterSynchCallback.  Set to FALSE
+** \param[in] reportResults  Set to true to report test results for calls to
+**                           CFE_TIME_RegisterSynchCallback.  Set to false
 **                           to perform the function without reporting (this
 **                           function is used by other tests so reporting
 **                           is only needed once).
@@ -233,7 +235,7 @@ int32 ut_time_MyCallbackFunc(void);
 ** \sa #UT_Text, #UT_InitData, #CFE_TIME_RegisterSynchCallback, #UT_Report
 **
 ******************************************************************************/
-void Test_RegisterSyncCallback(boolean reportResults);
+void Test_RegisterSyncCallback(bool reportResults);
 
 /*****************************************************************************/
 /**
@@ -445,23 +447,5 @@ void Test_UnregisterSynchCallback(void);
 **
 ******************************************************************************/
 void Test_CleanUpApp(void);
-
-/*****************************************************************************/
-/**
-** \brief Unit test specific call to process SB messages
-**
-** \par Description
-**        Unit test specific call to process SB messages.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #CFE_TIME_TaskPipe
-**
-******************************************************************************/
-void UT_ProcessSBMsg(CFE_SB_Msg_t *MsgPtr);
 
 #endif /* _time_ut_h_ */

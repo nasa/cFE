@@ -1,6 +1,5 @@
 ###############################################################################
-# File: evs.mak
-# $Id: cfe_evs.mak 1.1 2008/04/17 07:05:12GMT-05:00 ruperera Exp  $
+# File: cfe_evs.mak
 #
 # Purpose:
 #   Compile the Event Services (EVS) task.

@@ -1,24 +1,26 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 **  File: 
 **  cfe_es_start.c
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 **  Purpose:
 **  This file contains the Main entrypoint and startup code for the cFE core.
@@ -152,7 +154,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    */
    for ( i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++ )
    {
-      CFE_ES_Global.AppTable[i].RecordUsed = FALSE;
+      CFE_ES_Global.AppTable[i].AppState = CFE_ES_AppState_UNDEFINED;
    }
    
    /*
@@ -161,7 +163,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    */
    for ( i = 0; i < OS_MAX_TASKS; i++ )
    {
-      CFE_ES_Global.TaskTable[i].RecordUsed = FALSE;
+      CFE_ES_Global.TaskTable[i].RecordUsed = false;
    }
 
    /*
@@ -170,7 +172,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    */
    for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
    {
-      CFE_ES_Global.CounterTable[i].RecordUsed = FALSE;
+      CFE_ES_Global.CounterTable[i].RecordUsed = false;
    }
 
    /*
@@ -276,6 +278,12 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
       */
       CFE_PSP_Panic(CFE_PSP_PANIC_MEMORY_ALLOC);
       
+      /*
+       * Normally unreachable, except in UT where
+       * CFE_PSP_Panic is a stub that may return
+       */
+      return;
+
    }
    else if ( resetAreaSize < sizeof(CFE_ES_ResetData_t))
    {
@@ -295,6 +303,11 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
       */
       CFE_PSP_Panic(CFE_PSP_PANIC_MEMORY_ALLOC);
       
+      /*
+       * Normally unreachable, except in UT where
+       * CFE_PSP_Panic is a stub that may return
+       */
+      return;
    }
 
    CFE_ES_ResetDataPtr = (CFE_ES_ResetData_t *)ResetDataAddr;
@@ -308,7 +321,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
    ** Determine how the system was started. The choices are:
    **   CFE_ES_POWER_ON_RESET, or CFE_PSP_RST_TYPE_PROCESSOR
    ** The subtypes include:
-   **   CFE_ES_POWER_CYCLE, CFE_ES_PUSH_BUTTON, CFE_ES_HW_SPECIAL_COMMAND,
+   **   CFE_PSP_RST_SUBTYPE_POWER_CYCLE, CFE_ES_PUSH_BUTTON, CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND,
    **   CFE_ES_HW_WATCHDOG, CFE_PSP_RST_TYPE_COMMAND, or CFE_ES_EXCEPTION.
    ** Some of these reset types are logged before the system is restarted.
    **  ( CFE_PSP_RST_TYPE_COMMAND, CFE_ES_EXCEPTION ) while others occur
@@ -358,7 +371,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
       ** If a Processor reset was not commanded, it must be a watchdog or other non-commanded reset
       ** Log the reset before updating any reset variables.
       */
-      if ( CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset != TRUE )
+      if ( CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset != true )
       {
          CFE_ES_ResetDataPtr->ResetVars.ResetType = CFE_PSP_RST_TYPE_PROCESSOR;
          CFE_ES_ResetDataPtr->ResetVars.ResetSubtype = StartSubtype; 
@@ -457,7 +470,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
    /*
    ** Clear the commanded reset flag, in case a watchdog happens.
    */
-   CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset = FALSE;
+   CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset = false;
       
 }
 
@@ -728,7 +741,7 @@ void  CFE_ES_CreateObjects(void)
 {
     int32     ReturnCode;
     uint32    TaskIndex;
-    boolean   AppSlotFound;
+    bool      AppSlotFound;
     uint16    i;
     uint16    j;
 
@@ -744,12 +757,12 @@ void  CFE_ES_CreateObjects(void)
             /*
             ** Allocate an ES AppTable entry
             */
-            AppSlotFound = FALSE;
+            AppSlotFound = false;
             for ( j = 0; j < CFE_PLATFORM_ES_MAX_APPLICATIONS; j++ )
             {
-               if ( CFE_ES_Global.AppTable[j].RecordUsed == FALSE )
+               if ( CFE_ES_Global.AppTable[j].AppState == CFE_ES_AppState_UNDEFINED )
                {
-                  AppSlotFound = TRUE;
+                  AppSlotFound = true;
                   break;
                }
             }
@@ -757,7 +770,7 @@ void  CFE_ES_CreateObjects(void)
             /*
             ** If a slot was found, create the application
             */
-            if ( AppSlotFound == TRUE )
+            if ( AppSlotFound == true )
             {
             
                CFE_ES_LockSharedData(__func__,__LINE__);
@@ -766,7 +779,12 @@ void  CFE_ES_CreateObjects(void)
                ** Allocate and populate the ES_AppTable entry
                */
                memset ( &(CFE_ES_Global.AppTable[j]), 0, sizeof(CFE_ES_AppRecord_t));
-               CFE_ES_Global.AppTable[j].RecordUsed = TRUE;
+               /*
+               ** Core apps still have the notion of an init/running state
+               ** Set the state here to mark the record as used.
+               */
+               CFE_ES_Global.AppTable[j].AppState = CFE_ES_AppState_EARLY_INIT;
+               
                CFE_ES_Global.AppTable[j].Type = CFE_ES_AppType_CORE;
                
                /*
@@ -790,11 +808,6 @@ void  CFE_ES_CreateObjects(void)
                CFE_ES_Global.AppTable[j].TaskInfo.NumOfChildTasks = 0;
                
                /*
-               ** Core apps still have the notion of an init/running state
-               */
-               CFE_ES_Global.AppTable[j].StateRecord.AppState = CFE_ES_AppState_EARLY_INIT;
-               
-               /*
                ** Create the task
                */
                ReturnCode = OS_TaskCreate(&CFE_ES_Global.AppTable[j].TaskInfo.MainTaskId, /* task id */
@@ -807,12 +820,11 @@ void  CFE_ES_CreateObjects(void)
 
                if(ReturnCode != OS_SUCCESS)
                {
-                  CFE_ES_Global.AppTable[j].RecordUsed = FALSE;
+                  CFE_ES_Global.AppTable[j].AppState = CFE_ES_AppState_UNDEFINED;
+                  CFE_ES_UnlockSharedData(__func__,__LINE__);
+
                   CFE_ES_WriteToSysLog("ES Startup: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n",
                                         CFE_ES_ObjectTable[i].ObjectName, (unsigned int)ReturnCode);
-      
-                                        
-                  CFE_ES_UnlockSharedData(__func__,__LINE__);
 
                   /*
                   ** Delay to allow the message to be read
@@ -832,14 +844,14 @@ void  CFE_ES_CreateObjects(void)
                   /*
                   ** Allocate and populate the CFE_ES_Global.TaskTable entry
                   */
-                  if ( CFE_ES_Global.TaskTable[TaskIndex].RecordUsed == TRUE )
+                  if ( CFE_ES_Global.TaskTable[TaskIndex].RecordUsed == true )
                   {
                      CFE_ES_WriteToSysLog("ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
                                            CFE_ES_ObjectTable[i].ObjectName);
                   }
                   else
                   {
-                     CFE_ES_Global.TaskTable[TaskIndex].RecordUsed = TRUE;
+                     CFE_ES_Global.TaskTable[TaskIndex].RecordUsed = true;
                   }
                   CFE_ES_Global.TaskTable[TaskIndex].AppId = j;
                   CFE_ES_Global.TaskTable[TaskIndex].TaskId = CFE_ES_Global.AppTable[j].TaskInfo.MainTaskId;
@@ -956,7 +968,7 @@ int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds)
 
     Status = CFE_ES_OPERATION_TIMED_OUT;
     WaitRemaining = TimeOutMilliseconds;
-    while (TRUE)
+    while (true)
     {
         AppNotReadyCounter = 0;
 
@@ -966,8 +978,8 @@ int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds)
         CFE_ES_LockSharedData(__func__,__LINE__);
         for ( i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++ )
         {
-           if ((CFE_ES_Global.AppTable[i].RecordUsed == TRUE) &&
-               (CFE_ES_Global.AppTable[i].StateRecord.AppState < AppStateId))
+           if (CFE_ES_Global.AppTable[i].AppState != CFE_ES_AppState_UNDEFINED &&
+               (CFE_ES_Global.AppTable[i].AppState < AppStateId))
            {
                ++AppNotReadyCounter;
            }

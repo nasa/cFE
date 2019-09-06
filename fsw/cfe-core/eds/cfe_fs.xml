@@ -18,7 +18,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-      
+
     This document adheres to the Electronic Data Sheet (EDS) XML schema 
     as prescribed in CCSDS book 876.0. 
       
@@ -27,10 +27,11 @@
       core application 
       
 -->
-<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
-  <Namespace name="CFE_FS" shortDescription="NASA Core Flight System File Services">
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_FS" shortDescription="NASA Core Flight System File Services">
     <DataTypeSet>
       <EnumeratedDataType name="SubType" shortDescription="Content descriptor for File Headers">
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
             <Enumeration label="ES_ERLOG" value="1" shortDescription="Executive Services Exception/Reset Log Type">
               <LongDescription>
@@ -130,17 +131,21 @@
               </LongDescription>
             </Enumeration>
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
       </EnumeratedDataType>
 
       <StringDataType name="FileDescription" length="${CFE_MISSION/FS_HDR_DESC_MAX_LEN}" shortDescription="File Description String" />
 
       <ContainerDataType name="Header" shortDescription="Standard cFE File header structure definition">
         <EntryList>
-          <Entry name="ContentType" type="BASE_TYPES/uint32" shortDescription="Identifies the content type (='cFE1'=0x63464531)" />
+          <Entry name="ContentType" type="BASE_TYPES/uint32" shortDescription="Identifies the content type" />
           <Entry name="SubType" type="SubType" shortDescription="Type of ContentType, if necessary" />
-          <Entry name="Length" type="BASE_TYPES/uint32" shortDescription="Length of primary header" />
-          <Entry name="SpacecraftID" type="BASE_TYPES/uint32" shortDescription="Spacecraft that generated the file" />
+          <LengthEntry name="Length" type="BASE_TYPES/uint32" shortDescription="Length of object">
+                <PolynomialCalibrator>
+                    <Term coefficient="1" exponent="1" />
+                    <Term coefficient="0" exponent="0" />
+                </PolynomialCalibrator> 
+          </LengthEntry>
+          <FixedValueEntry name="SpacecraftID" type="BASE_TYPES/uint32" shortDescription="Spacecraft that generated the file" fixedValue="${CFE_MISSION/SPACECRAFT_ID}" />
           <Entry name="ProcessorID" type="BASE_TYPES/uint32" shortDescription="Processor that generated the file" />
           <Entry name="ApplicationID" type="BASE_TYPES/uint32" shortDescription="Application that generated the file" />
           <Entry name="TimeSeconds" type="BASE_TYPES/uint32" shortDescription="File creation timestamp (seconds)" />
@@ -156,5 +161,5 @@
       </ContainerDataType>
       
     </DataTypeSet>
-  </Namespace>
-</DataSheet>
+  </Package>
+</PackageFile>

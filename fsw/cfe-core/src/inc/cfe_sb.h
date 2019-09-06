@@ -1,23 +1,25 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
 ** File: cfe_sb.h
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 ** Purpose:
 **      This header file contains all definitions for the cFE Software Bus
@@ -59,7 +61,7 @@
 #define CFE_BIT(x)   (1 << (x))               /**< \brief Places a one at bit positions 0 - 31*/
 #define CFE_SET(i,x) ((i) |= CFE_BIT(x))      /**< \brief Sets bit x of i */
 #define CFE_CLR(i,x) ((i) &= ~CFE_BIT(x))     /**< \brief Clears bit x of i */
-#define CFE_TST(i,x) (((i) & CFE_BIT(x)) != 0)/**< \brief TRUE(non zero) if bit x of i is set */
+#define CFE_TST(i,x) (((i) & CFE_BIT(x)) != 0)/**< \brief true(non zero) if bit x of i is set */
 
 /**
  * Macro that should be used to set memory addresses within software bus messages.
@@ -769,8 +771,8 @@ int32 CFE_SB_ZeroCopyPass(CFE_SB_Msg_t   *MsgPtr,
 **                     message header  .
 **
 ** \param[in]  Clear   A flag indicating whether to clear the rest of the message:
-**                     \arg TRUE - fill sequence count and packet data with zeroes.
-**                     \arg FALSE - leave sequence count and packet data unchanged.
+**                     \arg true - fill sequence count and packet data with zeroes.
+**                     \arg false - leave sequence count and packet data unchanged.
 **
 ** \sa #CFE_SB_SetMsgId, #CFE_SB_SetUserDataLength, #CFE_SB_SetTotalMsgLength,
 **     #CFE_SB_SetMsgTime, #CFE_SB_TimeStampMsg, #CFE_SB_SetCmdCode 
@@ -778,7 +780,7 @@ int32 CFE_SB_ZeroCopyPass(CFE_SB_Msg_t   *MsgPtr,
 void CFE_SB_InitMsg(void           *MsgPtr,
                     CFE_SB_MsgId_t MsgId,
                     uint16         Length,
-                    boolean        Clear );
+                    bool           Clear );
 
 /*****************************************************************************/
 /** 
@@ -823,7 +825,7 @@ void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr);
 ** \sa #CFE_SB_GetUserData, #CFE_SB_SetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_GetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum, #CFE_SB_MsgHdrSize 
 **/
-CFE_SB_MsgId_t CFE_SB_GetMsgId(CFE_SB_MsgPtr_t MsgPtr);
+CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /** 
@@ -870,7 +872,7 @@ void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
 ** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_SetUserDataLength, #CFE_SB_GetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum, #CFE_SB_MsgHdrSize 
 **/
-uint16 CFE_SB_GetUserDataLength(CFE_SB_MsgPtr_t MsgPtr);
+uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /** 
@@ -919,7 +921,7 @@ void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr,uint16 DataLength);
 ** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_SetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum, #CFE_SB_MsgHdrSize 
 **/
-uint16 CFE_SB_GetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr);
+uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /** 
@@ -1142,19 +1144,19 @@ void CFE_SB_GenerateChecksum(CFE_SB_MsgPtr_t MsgPtr);
 **
 ** \par Assumptions, External Events, and Notes:
 **          - If the underlying implementation of software bus messages does not 
-**            include a checksum field, then this routine will always return \c TRUE.  
+**            include a checksum field, then this routine will always return \c true.  
 **
 ** \param[in]  MsgPtr      A pointer to the buffer that contains the software bus message.
 **                         This must point to the first byte of the message header.
 **
 ** \returns
-** \retcode TRUE  \retdesc The checksum field in the packet is valid.   \endcode
-** \retcode FALSE \retdesc The checksum field in the packet is not valid or the message type is wrong. \endcode
+** \retcode true  \retdesc The checksum field in the packet is valid.   \endcode
+** \retcode false \retdesc The checksum field in the packet is not valid or the message type is wrong. \endcode
 ** \endreturns
 **
 ** \sa #CFE_SB_GenerateChecksum, #CFE_SB_GetChecksum
 **/
-boolean CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr);
+bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr);
 
 /******************************************************************************
 **  Function:  CFE_SB_MessageStringGet()
@@ -1251,9 +1253,9 @@ int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, 
  *    MsgId values for equality to remain compatible with future versions
  *    of cFE.
  *
- * @return TRUE if equality checks passed, FALSE otherwise.
+ * @return true if equality checks passed, false otherwise.
  */
-static inline osalbool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgId2)
+static inline bool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgId2)
 {
     return (MsgId1 == MsgId2);
 }

@@ -1,22 +1,24 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
 ** File:
 **    sb_UT.h
 **
@@ -31,9 +33,6 @@
 ** Notes:
 **    1. This is unit test code only, not for use in flight
 **
-** $Date: 2014/05/28 09:23:30GMT-05:00 $
-** $Revision: 1.1 $
-**
 */
 #ifndef _sb_UT_h_
 #define _sb_UT_h_
@@ -47,7 +46,7 @@
 #include "cfe_sb_priv.h"
 #include "osapi.h"
 #include "common_types.h"
-#include "ut_stubs.h"
+#include "ut_support.h"
 
 /*
 ** Macro definitions
@@ -91,11 +90,6 @@ typedef struct {
 
 #define SB_UT_CMD_MID CFE_MISSION_CMD_MID_BASE1 + 1
 #define SB_UT_TLM_MID CFE_MISSION_TLM_MID_BASE1 + 1
-
-/*
-** External global variables
-*/
-extern char cMsg[];
 
 /* SB unit test functions */
 /*****************************************************************************/

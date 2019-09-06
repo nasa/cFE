@@ -1,23 +1,24 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
 ** File: cfe_mission_cfg.h
 **
 ** Purpose:
@@ -120,13 +121,13 @@
 **
 **
 **  \par Limits
-**      if CFE_MISSION_TIME_CFG_DEFAULT_TAI is defined as TRUE then CFE_MISSION_TIME_CFG_DEFAULT_UTC must be
-**      defined as FALSE.
-**      if CFE_MISSION_TIME_CFG_DEFAULT_TAI is defined as FALSE then CFE_MISSION_TIME_CFG_DEFAULT_UTC must be
-**      defined as TRUE.
+**      if CFE_MISSION_TIME_CFG_DEFAULT_TAI is defined as true then CFE_MISSION_TIME_CFG_DEFAULT_UTC must be
+**      defined as false.
+**      if CFE_MISSION_TIME_CFG_DEFAULT_TAI is defined as false then CFE_MISSION_TIME_CFG_DEFAULT_UTC must be
+**      defined as true.
 */
-#define CFE_MISSION_TIME_CFG_DEFAULT_TAI  TRUE
-#define CFE_MISSION_TIME_CFG_DEFAULT_UTC  FALSE
+#define CFE_MISSION_TIME_CFG_DEFAULT_TAI  true
+#define CFE_MISSION_TIME_CFG_DEFAULT_UTC  false
 
 
 /**
@@ -140,7 +141,7 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_TIME_CFG_FAKE_TONE  TRUE
+#define CFE_MISSION_TIME_CFG_FAKE_TONE  true
 
 
 /**
@@ -153,7 +154,7 @@
 **      data within the packet describes what the time "was" at the tone.
 **      If the time at the tone data packet precedes the tone signal, then
 **      the data within the packet describes what the time "will be" at
-**      the tone.  One, and only one, of the following symbols must be set to TRUE:
+**      the tone.  One, and only one, of the following symbols must be set to true:
 **      - CFE_MISSION_TIME_AT_TONE_WAS
 **      - CFE_MISSION_TIME_AT_TONE_WILL_BE
 **      Note: If Time Services is defined as using a simulated tone signal
@@ -161,11 +162,11 @@
 **            must follow the tone signal.
 **
 **  \par Limits
-**      Either CFE_MISSION_TIME_AT_TONE_WAS or CFE_MISSION_TIME_AT_TONE_WILL_BE must be set to TRUE.
-**      They may not both be TRUE and they may not both be FALSE.
+**      Either CFE_MISSION_TIME_AT_TONE_WAS or CFE_MISSION_TIME_AT_TONE_WILL_BE must be set to true.
+**      They may not both be true and they may not both be false.
 */
-#define CFE_MISSION_TIME_AT_TONE_WAS      TRUE
-#define CFE_MISSION_TIME_AT_TONE_WILL_BE  FALSE
+#define CFE_MISSION_TIME_AT_TONE_WAS      true
+#define CFE_MISSION_TIME_AT_TONE_WILL_BE  false
 
 /**
 **  \cfetimecfg Min and Max Time Elapsed

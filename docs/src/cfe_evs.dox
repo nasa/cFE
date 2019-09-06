@@ -21,8 +21,6 @@
     <LI> \subpage cfeevsugfaq <BR> 
   </UL>
   
-  \subpage cfeevsrevhist <BR>
-  
 **/
 
 /**
@@ -498,28 +496,3 @@
 **  either for each platform or for a mission as a whole.
 **/
 
-
-/**
-  \page cfeevsrevhist cFE Event Services Documentation Revision History
-  
-  \verbatim
-  $Log: cfe_evs.dox  $
-  Revision 1.7 2014/05/20 13:44:13GMT-05:00 sstrege 
-  Added clarification on event log preservation following a processor reset
-  Revision 1.6 2010/10/27 16:38:17EDT jmdagost 
-  Updated processor reset effects to describe LogMode behavior.
-  Revision 1.5 2009/07/31 20:08:34EDT aschoeni 
-  Updated comment on event message filtering maximum
-  Revision 1.4 2009/07/28 17:31:51EDT aschoeni 
-  Added information on filter count maximum
-  Revision 1.3 2008/12/08 12:07:12EST dkobe 
-  Updates to correct doxygen errors
-  Revision 1.2 2008/12/06 15:34:31EST dkobe 
-  Corrected formatting of revision history
-  Revision 1.1 2008/12/06 10:19:48EST dkobe 
-  Initial revision
-  Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-CFE-PROJECT/docs/src/project.pj
-  \endverbatim
-
-  Up To: \ref cfeevsovr
-**/

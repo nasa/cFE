@@ -1,25 +1,25 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**  File Name: cfe_evs_task.c
-**  $Id: cfe_evs_task.c 1.19 2014/08/22 16:53:24GMT-05:00 lwalling Exp  $
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+**  File: cfe_evs_task.c
 **
 **  Title: Event Service API Management Control Interfaces
 **
@@ -54,7 +54,7 @@ CFE_EVS_GlobalData_t CFE_EVS_GlobalData;
 ** Local function prototypes.
 */
 void  CFE_EVS_ProcessGroundCommand ( CFE_SB_MsgPtr_t EVS_MsgPtr );
-boolean CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength);
+bool CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength);
 
 /* Function Definitions */
 
@@ -89,12 +89,12 @@ int32 CFE_EVS_EarlyInit ( void )
 
    /* Initialize housekeeping packet */
    CFE_SB_InitMsg(&CFE_EVS_GlobalData.EVS_TlmPkt, CFE_EVS_HK_TLM_MID,
-           sizeof(CFE_EVS_GlobalData.EVS_TlmPkt), FALSE);
+           sizeof(CFE_EVS_GlobalData.EVS_TlmPkt), false);
   
    /* Elements stored in the hk packet that have non-zero default values */
    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE;
    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort = CFE_PLATFORM_EVS_PORT_DEFAULT;
-   CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogFullFlag = FALSE;
+   CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogFullFlag = false;
    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogMode = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
 
 #ifdef CFE_PLATFORM_EVS_LOG_ON
@@ -129,7 +129,7 @@ int32 CFE_EVS_EarlyInit ( void )
       else
       {
          /* Enable access to the EVS event log */                                                            
-         CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = TRUE;
+         CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = true;
 
          /* Clear event log if power-on reset or bad contents */                                                            
          if (CFE_ES_GetResetType(NULL) == CFE_PSP_RST_TYPE_POWERON)                                                                   
@@ -140,8 +140,8 @@ int32 CFE_EVS_EarlyInit ( void )
          }
          else if (((CFE_EVS_GlobalData.EVS_LogPtr->LogMode != CFE_EVS_LogMode_OVERWRITE) &&
                    (CFE_EVS_GlobalData.EVS_LogPtr->LogMode != CFE_EVS_LogMode_DISCARD))  ||
-                  ((CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag != FALSE)   &&
-                   (CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag != TRUE))   ||
+                  ((CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag != false)   &&
+                   (CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag != true))   ||
                    (CFE_EVS_GlobalData.EVS_LogPtr->Next >= CFE_PLATFORM_EVS_LOG_MAX))
          {
             CFE_ES_WriteToSysLog("Event Log cleared, n=%d, c=%d, f=%d, m=%d, o=%d\n",
@@ -189,7 +189,7 @@ int32 CFE_EVS_CleanUpApp(uint32 AppID)
    {
       Status = CFE_EVS_APP_ILLEGAL_APP_ID;
    }
-   else if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == TRUE)
+   else if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == true)
    {
       /* Same cleanup as CFE_EVS_Unregister() */
       memset(&CFE_EVS_GlobalData.AppData[AppID], 0, sizeof(EVS_AppData_t));
@@ -603,9 +603,9 @@ void CFE_EVS_ProcessGroundCommand ( CFE_SB_MsgPtr_t EVS_MsgPtr )
 ** Assumptions and Notes:
 **
 */
-boolean CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
+bool CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
 {
-    boolean result       = TRUE;
+    bool    result       = true;
     uint16  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
 
     /*
@@ -619,7 +619,7 @@ boolean CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
         EVS_SendEvent(CFE_EVS_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
            "Invalid cmd length: ID = 0x%X, CC = %d, Exp Len = %d, Len = %d",
                           (unsigned int)MessageID, (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
-        result = FALSE;
+        result = false;
     }
 
     return(result);
@@ -657,7 +657,7 @@ int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLog_t *data)
 {
     int32 Status;
 
-    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == TRUE)
+    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == true)
     {
         EVS_ClearLog();
         Status = CFE_SUCCESS;
@@ -686,7 +686,7 @@ int32 CFE_EVS_ReportHousekeepingCmd (const CCSDS_CommandPacket_t *data)
    uint32 i, j;
 
 
-   if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == TRUE)
+   if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == true)
    {   
       /* Copy hk variables that are maintained in the event log */
       CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogFullFlag = CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag;
@@ -697,7 +697,7 @@ int32 CFE_EVS_ReportHousekeepingCmd (const CCSDS_CommandPacket_t *data)
    /* Write event state data for registered apps to telemetry packet */
    for (i = 0, j = 0; j < CFE_MISSION_ES_MAX_APPLICATIONS && i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
    {
-      if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == TRUE)
+      if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == true)
       {
          CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[j].AppID = i;
          CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[j].AppEnableStatus = CFE_EVS_GlobalData.AppData[i].ActiveFlag;
@@ -710,7 +710,7 @@ int32 CFE_EVS_ReportHousekeepingCmd (const CCSDS_CommandPacket_t *data)
    for (i = j; i < CFE_MISSION_ES_MAX_APPLICATIONS; i++)
    {
       CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[i].AppID = 0;
-      CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[i].AppEnableStatus = FALSE;
+      CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[i].AppEnableStatus = false;
       CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[i].AppMessageSentCounter = 0;
    }
 
@@ -840,7 +840,7 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilter_t *data)
 **
 ** Assumptions and Notes:
 ** Shifting is done so the value not masked off is placed in the ones spot:
-** necessary for comparing with TRUE.
+** necessary for comparing with true.
 */
 int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePorts_t *data)
 {
@@ -859,19 +859,19 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePorts_t *data)
     {
 
         /* Process command data */
-        if(((CmdPtr->BitMask & CFE_EVS_PORT1_BIT) >> 0) == TRUE)
+        if(((CmdPtr->BitMask & CFE_EVS_PORT1_BIT) >> 0) == true)
         {
             CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort |= CFE_EVS_PORT1_BIT;
         }
-        if(((CmdPtr->BitMask & CFE_EVS_PORT2_BIT) >>1) == TRUE)
+        if(((CmdPtr->BitMask & CFE_EVS_PORT2_BIT) >>1) == true)
         {
             CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort |= CFE_EVS_PORT2_BIT;
         }
-        if(((CmdPtr->BitMask & CFE_EVS_PORT3_BIT) >> 2) == TRUE)
+        if(((CmdPtr->BitMask & CFE_EVS_PORT3_BIT) >> 2) == true)
         {
             CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort |= CFE_EVS_PORT3_BIT;
         }
-        if(((CmdPtr->BitMask & CFE_EVS_PORT4_BIT) >>3) == TRUE)
+        if(((CmdPtr->BitMask & CFE_EVS_PORT4_BIT) >>3) == true)
         {
             CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort |= CFE_EVS_PORT4_BIT;
         }
@@ -896,7 +896,7 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePorts_t *data)
 **
 ** Assumptions and Notes:
 ** Shifting is done so the value not masked off is placed in the ones spot:
-** necessary for comparing with TRUE.
+** necessary for comparing with true.
 */
 int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePorts_t *data)
 {
@@ -915,19 +915,19 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePorts_t *data)
     {
 
         /* Process command data */
-        if(((CmdPtr->BitMask & CFE_EVS_PORT1_BIT) >>0) == TRUE)
+        if(((CmdPtr->BitMask & CFE_EVS_PORT1_BIT) >>0) == true)
         {
             CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort &= ~CFE_EVS_PORT1_BIT;
         }
-        if(((CmdPtr->BitMask & CFE_EVS_PORT2_BIT) >> 1) == TRUE)
+        if(((CmdPtr->BitMask & CFE_EVS_PORT2_BIT) >> 1) == true)
         {
             CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort &= ~CFE_EVS_PORT2_BIT;
         }
-        if(((CmdPtr->BitMask & CFE_EVS_PORT3_BIT) >> 2) == TRUE)
+        if(((CmdPtr->BitMask & CFE_EVS_PORT3_BIT) >> 2) == true)
         {
             CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort &= ~CFE_EVS_PORT3_BIT;
         }
-        if(((CmdPtr->BitMask & CFE_EVS_PORT4_BIT) >>3) == TRUE)
+        if(((CmdPtr->BitMask & CFE_EVS_PORT4_BIT) >>3) == true)
         {
             CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort &= ~CFE_EVS_PORT4_BIT;
         }
@@ -975,7 +975,7 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventType_t *data)
        for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
        {
            /* Make sure application is registered for event services */
-           if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == TRUE)
+           if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == true)
            {
                EVS_EnableTypes(CmdPtr->BitMask, i);
            }
@@ -1024,7 +1024,7 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventType_t *data)
        for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
        {
            /* Make sure application is registered for event services */
-           if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == TRUE)
+           if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == true)
            {
                EVS_DisableTypes(CmdPtr->BitMask, i);
            }
@@ -1256,7 +1256,7 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEvents_t *data)
 
    if(Status == CFE_SUCCESS)
    {
-        CFE_EVS_GlobalData.AppData[AppID].ActiveFlag = TRUE;
+        CFE_EVS_GlobalData.AppData[AppID].ActiveFlag = true;
 
         EVS_SendEvent(CFE_EVS_ENAAPPEVT_EID, CFE_EVS_EventType_DEBUG,
                           "Enable App Events Command Received with AppName = %s",
@@ -1314,7 +1314,7 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEvents_t *data)
 
    if(Status == CFE_SUCCESS)
    {
-       CFE_EVS_GlobalData.AppData[AppID].ActiveFlag = FALSE;
+       CFE_EVS_GlobalData.AppData[AppID].ActiveFlag = false;
 
        EVS_SendEvent(CFE_EVS_DISAPPEVT_EID, CFE_EVS_EventType_DEBUG,
                "Disable App Events Command Received with AppName = %s",
@@ -1771,7 +1771,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFile_t *data)
          for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
          {
             /* Only have data for apps that are registered */
-            if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == TRUE)
+            if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == true)
             {
                AppDataPtr = &CFE_EVS_GlobalData.AppData[i];
 

@@ -1,23 +1,24 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /******************************************************************************
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
 ** File: cfe_platform_cfg.h
 **
 ** Purpose:
@@ -334,10 +335,10 @@
 **
 **  \par Limits
 **       Enable one, and only one by defining either CFE_PLATFORM_TIME_CFG_SERVER or
-**       CFE_PLATFORM_TIME_CFG_CLIENT AS TRUE.  The other must be defined as FALSE.
+**       CFE_PLATFORM_TIME_CFG_CLIENT AS true.  The other must be defined as false.
 */
-#define CFE_PLATFORM_TIME_CFG_SERVER  TRUE
-#define CFE_PLATFORM_TIME_CFG_CLIENT  FALSE
+#define CFE_PLATFORM_TIME_CFG_SERVER  true
+#define CFE_PLATFORM_TIME_CFG_CLIENT  false
 
 
 /**
@@ -365,13 +366,13 @@
 **       cannot be defined as having both a h/w MET and an external time source (they
 **       both cannot synchronize to the same tone).
 **
-**       Note: "disable" this define (set to FALSE) only for Time Servers with local hardware
+**       Note: "disable" this define (set to false) only for Time Servers with local hardware
 **       that supports a h/w MET that is synchronized to the tone signal !!!
 **
 **  \par Limits
-**       Only applies if #CFE_PLATFORM_TIME_CFG_SERVER is set to TRUE.
+**       Only applies if #CFE_PLATFORM_TIME_CFG_SERVER is set to true.
 */
-#define CFE_PLATFORM_TIME_CFG_VIRTUAL  TRUE
+#define CFE_PLATFORM_TIME_CFG_VIRTUAL  true
 
 
 /**
@@ -382,12 +383,12 @@
 **       to switch between a primary and redundant tone signal.  If supported by
 **       hardware, this definitions will enable command interfaces to select the
 **       active tone signal. Both Time Clients and Time Servers support this feature.
-**       Note: Set the CFE_PLATFORM_TIME_CFG_SIGNAL define to TRUE to enable tone signal commands.
+**       Note: Set the CFE_PLATFORM_TIME_CFG_SIGNAL define to true to enable tone signal commands.
 **
 **  \par Limits
 **       Not Applicable
 */
-#define CFE_PLATFORM_TIME_CFG_SIGNAL  FALSE
+#define CFE_PLATFORM_TIME_CFG_SIGNAL  false
 
 
 /**
@@ -400,42 +401,42 @@
 **       internal MET, or external time data received from one of several supported
 **       external time sources. Only a Time Server may be configured to use external
 **       time data.
-**       Note: Set the CFE_PLATFORM_TIME_CFG_SOURCE define to TRUE to include the Time Source
+**       Note: Set the CFE_PLATFORM_TIME_CFG_SOURCE define to true to include the Time Source
 **             Selection Command (command allows selection between the internal
 **             or external time source). Then choose the external source with the
 **             CFE_TIME_CFG_SRC_??? define.
 **
 **  \par Limits
-**       Only applies if #CFE_PLATFORM_TIME_CFG_SERVER is set to TRUE.
+**       Only applies if #CFE_PLATFORM_TIME_CFG_SERVER is set to true.
 */
-#define CFE_PLATFORM_TIME_CFG_SOURCE  FALSE
+#define CFE_PLATFORM_TIME_CFG_SOURCE  false
 
 
 /**
 **  \cfetimecfg Choose the External Time Source for Server only
 **
 **  \par Description:
-**       If #CFE_PLATFORM_TIME_CFG_SOURCE is set to TRUE, then one of the following external time
-**       source types must also be set to TRUE.  Do not set any of the external time
-**       source types to TRUE unless #CFE_PLATFORM_TIME_CFG_SOURCE is set to TRUE.
+**       If #CFE_PLATFORM_TIME_CFG_SOURCE is set to true, then one of the following external time
+**       source types must also be set to true.  Do not set any of the external time
+**       source types to true unless #CFE_PLATFORM_TIME_CFG_SOURCE is set to true.
 **
 **  \par Limits
-**       -# If #CFE_PLATFORM_TIME_CFG_SOURCE is set to TRUE then one and only one of the following
-**       three external time sources can and must be set TRUE:
+**       -# If #CFE_PLATFORM_TIME_CFG_SOURCE is set to true then one and only one of the following
+**       three external time sources can and must be set true:
 **       #CFE_PLATFORM_TIME_CFG_SRC_MET, #CFE_PLATFORM_TIME_CFG_SRC_GPS, #CFE_PLATFORM_TIME_CFG_SRC_TIME
-**       -# Only applies if #CFE_PLATFORM_TIME_CFG_SERVER is set to TRUE.
+**       -# Only applies if #CFE_PLATFORM_TIME_CFG_SERVER is set to true.
 */
-#define CFE_PLATFORM_TIME_CFG_SRC_MET   FALSE
-#define CFE_PLATFORM_TIME_CFG_SRC_GPS   FALSE
-#define CFE_PLATFORM_TIME_CFG_SRC_TIME  FALSE
+#define CFE_PLATFORM_TIME_CFG_SRC_MET   false
+#define CFE_PLATFORM_TIME_CFG_SRC_GPS   false
+#define CFE_PLATFORM_TIME_CFG_SRC_TIME  false
 
 
 /**
 **  \cfetimecfg Define the Max Delta Limits for Time Servers using an Ext Time Source
 **
 **  \par Description:
-**       If #CFE_PLATFORM_TIME_CFG_SOURCE is set to TRUE and one of the external time sources is
-**       also set to TRUE, then the delta time limits for range checking is used.
+**       If #CFE_PLATFORM_TIME_CFG_SOURCE is set to true and one of the external time sources is
+**       also set to true, then the delta time limits for range checking is used.
 **
 **       When a new time value is received from an external source, the value is
 **       compared against the "expected" time value. If the delta exceeds the
@@ -445,7 +446,7 @@
 **
 **  \par Limits
 **       Applies only if both #CFE_PLATFORM_TIME_CFG_SERVER and #CFE_PLATFORM_TIME_CFG_SOURCE are set
-**       to TRUE.
+**       to true.
 */
 #define CFE_PLATFORM_TIME_MAX_DELTA_SECS       0
 #define CFE_PLATFORM_TIME_MAX_DELTA_SUBS  500000
@@ -2097,7 +2098,7 @@
  * Keeping it here will trigger a "redefined" warning if some mission
  * had configured it as "false" for some reason.
  */
-#define CFE_TIME_ENA_1HZ_CMD_PKT            TRUE
+#define CFE_TIME_ENA_1HZ_CMD_PKT            true
 
 #endif  /* CFE_OMIT_DEPRECATED_6_6 */
 

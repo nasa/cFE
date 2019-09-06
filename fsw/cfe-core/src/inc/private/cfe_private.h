@@ -1,28 +1,29 @@
 /*
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**
-** File:
-**   cfe_private.h
-**
-**  Created on: Dec 3, 2013
-**      Author: jphickey
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
 */
+
+/*
+ * cfe_private.h
+ *
+ *  Created on: Dec 3, 2013
+ *      Author: jphickey
+ */
 
 #ifndef CFE_PRIVATE_H_
 #define CFE_PRIVATE_H_
@@ -303,7 +304,7 @@ extern int32 CFE_TIME_CleanUpApp(uint32 AppId);
 ** \return See return codes for #CFE_ES_RegisterCDS
 **
 ******************************************************************************/
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name, boolean CriticalTbl);
+int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name, bool CriticalTbl);
 
 /*****************************************************************************/
 /**
@@ -330,7 +331,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const
 ** \return Any of the return values from #CFE_ES_PutCDSBlock
 **
 ******************************************************************************/
-int32  CFE_ES_DeleteCDS(const char *CDSName, boolean CalledByTblServices);
+int32  CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices);
 
 
 

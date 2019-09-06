@@ -18,7 +18,7 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-      
+
     This document adheres to the Electronic Data Sheet (EDS) XML schema 
     as prescribed in CCSDS book 876.0. 
       
@@ -27,10 +27,11 @@
       core application 
       
 -->
-<DataSheet xmlns="http://www.ccsds.org/schema/sois/seds">
-  <Namespace name="CFE_TIME" shortDescription="NASA Core Flight System Time Services">
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_TIME" shortDescription="NASA Core Flight System Time Services">
     <DataTypeSet>
       <EnumeratedDataType name="FlagBit" shortDescription="Bit positions of the various clock state flags">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="CLKSET" value="0" shortDescription="The spacecraft time has been set" />
           <Enumeration label="FLYING" value="1" shortDescription="This instance of Time Services is flywheeling" />
@@ -47,6 +48,7 @@
       </EnumeratedDataType>
 
       <EnumeratedDataType name="ClockState" shortDescription="Enumerated types identifying the quality of the current time">
+        <IntegerDataEncoding sizeInBits="16" encoding="${CFE_MISSION/SIGNED_INTEGER_ENCODING}" />
         <LongDescription>
             \par Description
                  The #CFE_TIME_ClockState_Enum_t enumerations identify the three recognized states of the current time.
@@ -83,10 +85,10 @@
             </LongDescription>
           </Enumeration>
         </EnumerationList>
-        <IntegerDataEncoding sizeInBits="16" encoding="${CFE_MISSION/SIGNED_INTEGER_ENCODING}" />
       </EnumeratedDataType>
 
       <EnumeratedDataType name="SourceSelect" shortDescription="Clock Source Selection Parameters">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="INTERNAL" value="1" shortDescription="Use Internal Source" />
           <Enumeration label="EXTERNAL" value="2" shortDescription="Use External Source"  />
@@ -94,6 +96,7 @@
       </EnumeratedDataType>
       
       <EnumeratedDataType name="ToneSignalSelect" shortDescription="Tone Signal Selection Parameters">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="PRIMARY" value="1" shortDescription="Primary Source" />
           <Enumeration label="REDUNDANT" value="2" shortDescription="Redundant Source" />
@@ -101,6 +104,7 @@
       </EnumeratedDataType>
       
       <EnumeratedDataType name="AdjustDirection" shortDescription="STCF adjustment direction (for both one-time and 1Hz adjustments)">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="ADD" value="1" shortDescription="Add time adjustment" />
           <Enumeration label="SUBTRACT" value="2" shortDescription="Subtract time adjustment" />
@@ -108,6 +112,7 @@
       </EnumeratedDataType>
       
       <EnumeratedDataType name="FlywheelState" shortDescription="Fly-wheel status values" >
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="NO_FLY" value="0" shortDescription="Not in flywheel state" />
           <Enumeration label="IS_FLY" value="1" shortDescription="In flywheel state" />
@@ -115,6 +120,7 @@
       </EnumeratedDataType>
       
       <EnumeratedDataType name="SetState" shortDescription="Clock status values (has the clock been set to correct time)">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
           <Enumeration label="NOT_SET" value="0" shortDescription="Spacecraft time has not been set" />
           <Enumeration label="WAS_SET" value="1" shortDescription="Spacecraft time has been set"  />
@@ -573,7 +579,7 @@
         </ConstraintSet>
       </ContainerDataType>
 
-      <ContainerDataType name="SetSource" baseType="CommandBase">
+      <ContainerDataType name="SetSourceCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Set Time Source
 
@@ -597,7 +603,7 @@
           to clock source, but rather an element of the clock state.  See below
           for a description of the #CFE_TIME_SET_STATE_CC command.
           - This command is only valid when the #CFE_TIME_CFG_SOURCE configuration
-          parameter in the cfe_platform_cfg.h file has been set to TRUE.
+          parameter in the cfe_platform_cfg.h file has been set to true.
           \cfecmdmnemonic  \TIME_SETSOURCE
 
           \par  Command Structure
@@ -633,7 +639,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SetState" baseType="CommandBase">
+      <ContainerDataType name="SetStateCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Set Time State
 
@@ -700,7 +706,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="AddDelay" baseType="CommandBase">
+      <ContainerDataType name="AddDelayCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Add Time to Tone Time Delay
 
@@ -746,7 +752,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SubDelay" baseType="CommandBase">
+      <ContainerDataType name="SubDelayCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Subtract Time from Tone Time Delay
 
@@ -793,7 +799,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SetTime" baseType="CommandBase">
+      <ContainerDataType name="SetTimeCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Set Spacecraft Time
 
@@ -848,7 +854,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SetMET" baseType="CommandBase">
+      <ContainerDataType name="SetMETCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Set Mission Elapsed Time
 
@@ -899,7 +905,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SetSTCF" baseType="CommandBase">
+      <ContainerDataType name="SetSTCFCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Set Spacecraft Time Correlation Factor
 
@@ -944,7 +950,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SetLeapSeconds" baseType="CommandBase">
+      <ContainerDataType name="SetLeapSecondsCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Set Leap Seconds
 
@@ -987,7 +993,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="AddAdjust" baseType="CommandBase">
+      <ContainerDataType name="AddAdjustCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Add Delta to Spacecraft Time Correlation Factor
 
@@ -1030,7 +1036,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SubAdjust" baseType="CommandBase">
+      <ContainerDataType name="SubAdjustCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Subtract Delta from Spacecraft Time Correlation Factor
 
@@ -1072,7 +1078,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="Add1HZAdjustment" baseType="CommandBase">
+      <ContainerDataType name="Add1HZAdjustmentCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Add Delta to Spacecraft Time Correlation Factor each 1Hz
 
@@ -1128,7 +1134,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="Sub1HZAdjustment" baseType="CommandBase">
+      <ContainerDataType name="Sub1HZAdjustmentCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Subtract Delta from Spacecraft Time Correlation Factor each 1Hz
 
@@ -1184,7 +1190,7 @@
         </EntryList>
       </ContainerDataType>
 
-      <ContainerDataType name="SetSignal" baseType="CommandBase">
+      <ContainerDataType name="SetSignalCmd" baseType="CommandBase">
         <LongDescription>
           \cfetimecmd  Set Tone Signal Source
 
@@ -1197,7 +1203,7 @@
           
           Notes:
           - This command is only valid when the #CFE_TIME_CFG_SIGNAL configuration
-          parameter in the cfe_platform_cfg.h file has been set to TRUE.
+          parameter in the cfe_platform_cfg.h file has been set to true.
           \cfecmdmnemonic  \TIME_SETSIGNAL
 
           \par  Command Structure
@@ -1304,21 +1310,31 @@
           </Interface>
         </RequiredInterfaceSet>
         <Implementation>
+          <VariableSet>
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/TIME_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendHkTopicId" initialValue="${CFE_MISSION/TIME_SEND_HK_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="HkTlmTopicId" initialValue="${CFE_MISSION/TIME_HK_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="ToneCmdTopicId" initialValue="${CFE_MISSION/TIME_TONE_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="OneHzCmdTopicId" initialValue="${CFE_MISSION/TIME_ONEHZ_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="DataCmdTopicId" initialValue="${CFE_MISSION/TIME_DATA_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendCmdTopicId" initialValue="${CFE_MISSION/TIME_SEND_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="DiagTlmTopicId" initialValue="${CFE_MISSION/TIME_DIAG_TLM_TOPICID}" />
+          </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
           <ParameterMapSet>
-            <ParameterMap interface="CMD" parameterRef="TopicId" value="${CFE_MISSION/TIME_CMD_TOPICID}" />
-            <ParameterMap interface="SEND_HK" parameterRef="TopicId" value="${CFE_MISSION/TIME_SEND_HK_TOPICID}" />
-            <ParameterMap interface="HK_TLM" parameterRef="TopicId" value="${CFE_MISSION/TIME_HK_TLM_TOPICID}" />
-            <ParameterMap interface="TONE_CMD" parameterRef="TopicId" value="${CFE_MISSION/TIME_TONE_CMD_TOPICID}" />
-            <ParameterMap interface="ONEHZ_CMD" parameterRef="TopicId" value="${CFE_MISSION/TIME_ONEHZ_CMD_TOPICID}" />
-            <ParameterMap interface="DATA_CMD" parameterRef="TopicId" value="${CFE_MISSION/TIME_DATA_CMD_TOPICID}" />
-            <ParameterMap interface="SEND_CMD" parameterRef="TopicId" value="${CFE_MISSION/TIME_SEND_CMD_TOPICID}" />
-            <ParameterMap interface="DIAG_TLM" parameterRef="TopicId" value="${CFE_MISSION/TIME_DIAG_TLM_TOPICID}" />
+            <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
+            <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
+            <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />
+            <ParameterMap interface="TONE_CMD" parameter="TopicId" variableRef="ToneCmdTopicId" />
+            <ParameterMap interface="ONEHZ_CMD" parameter="TopicId" variableRef="OneHzCmdTopicId" />
+            <ParameterMap interface="DATA_CMD" parameter="TopicId" variableRef="DataCmdTopicId" />
+            <ParameterMap interface="SEND_CMD" parameter="TopicId" variableRef="SendCmdTopicId" />
+            <ParameterMap interface="DIAG_TLM" parameter="TopicId" variableRef="DiagTlmTopicId" />
           </ParameterMapSet>
         </Implementation>
       </Component>
     </ComponentSet>
 
     
-  </Namespace>
-</DataSheet>
+  </Package>
+</PackageFile>

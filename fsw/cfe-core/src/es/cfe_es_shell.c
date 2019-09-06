@@ -1,23 +1,25 @@
+/*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
 /* File: 
 **   cfe_es_shell.c
-**
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
 **
 **  Purpose:
 **  cFE Executive Services (ES) Shell Commanding System
@@ -244,7 +246,7 @@ int32 CFE_ES_ListApplications(int32 fd)
     
     for ( i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++ )
     {
-        if ( (CFE_ES_Global.AppTable[i].RecordUsed == TRUE) && (Result == CFE_SUCCESS) )
+        if ( CFE_ES_Global.AppTable[i].AppState != CFE_ES_AppState_UNDEFINED && (Result == CFE_SUCCESS) )
         {
             /* We found an in use app. Write it to the file */
             strcpy(Line, (char*) CFE_ES_Global.AppTable[i].StartParams.Name);
@@ -271,7 +273,15 @@ int32 CFE_ES_ListApplications(int32 fd)
 int32 CFE_ES_ListTasks(int32 fd)
 {
     uint32                i;
-    char                 Line [128];
+    /*
+     * The "Line" buffer is used for temporary storage of each output line
+     * prior to writing to the file.
+     *
+     * 96 bytes are reserved for the constant/fixed length content, plus 
+     * up to 2 instances of Task/Application names which are of a maximum
+     * length defined by osconfig.
+     */
+    char                 Line [96 + (OS_MAX_API_NAME * 2)];
     int32                Result = CFE_SUCCESS;
     CFE_ES_TaskInfo_t    TaskInfo;
     
@@ -279,14 +289,14 @@ int32 CFE_ES_ListTasks(int32 fd)
     Result = OS_lseek(fd, 0, OS_SEEK_SET);
     if ( Result == 0 ) 
     {
-       sprintf(Line,"---- ES Task List ----\n");
+       snprintf(Line,sizeof(Line),"---- ES Task List ----\n");
        Result = OS_write(fd, Line, strlen(Line));
        if (Result == strlen(Line))
        {
           Result = CFE_SUCCESS;
           for ( i = 0; i < OS_MAX_TASKS; i++ )
           {
-             if ((CFE_ES_Global.TaskTable[i].RecordUsed == TRUE) && (Result == CFE_SUCCESS))
+             if ((CFE_ES_Global.TaskTable[i].RecordUsed == true) && (Result == CFE_SUCCESS))
              {      
                 /* 
                 ** zero out the local entry 
@@ -300,7 +310,7 @@ int32 CFE_ES_ListTasks(int32 fd)
 
                 if ( Result == CFE_SUCCESS )
                 {
-                   sprintf(Line,"Task ID: %08d, Task Name: %20s, Prnt App ID: %08d, Prnt App Name: %20s\n",
+                   snprintf(Line,sizeof(Line),"Task ID: %08d, Task Name: %20s, Prnt App ID: %08d, Prnt App Name: %20s\n",
                          (int) TaskInfo.TaskId, TaskInfo.TaskName, 
                          (int)TaskInfo.AppId, TaskInfo.AppName);
                    Result = OS_write(fd, Line, strlen(Line));
@@ -319,7 +329,6 @@ int32 CFE_ES_ListTasks(int32 fd)
 } /* end ES_ListTasks */
 
 
-#if defined(OSAL_OPAQUE_OBJECT_IDS)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
 /* CFE_ES_ShellCountObjectCallback() -- Helper function            */
@@ -338,7 +347,6 @@ static void CFE_ES_ShellCountObjectCallback(uint32 object_id, void *arg)
         ++CountState[idtype];
     }
 }
-#endif
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -348,126 +356,56 @@ static void CFE_ES_ShellCountObjectCallback(uint32 object_id, void *arg)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 int32 CFE_ES_ListResources(int32 fd)
 {
-   int32 Result = CFE_SUCCESS;
-   int32 NumSemaphores = 0;
-   int32 NumCountSems =0;
-   int32 NumMutexes = 0;
-   int32 NumQueues = 0;
-   int32 NumTasks = 0;
-   int32 NumFiles = 0;
-   char Line[35];
+    int32 Result = CFE_SUCCESS;
+    int32 NumSemaphores = 0;
+    int32 NumCountSems =0;
+    int32 NumMutexes = 0;
+    int32 NumQueues = 0;
+    int32 NumTasks = 0;
+    int32 NumFiles = 0;
+    char Line[35];
+    uint32 CountState[OS_OBJECT_TYPE_USER];
 
-#if defined(OSAL_OPAQUE_OBJECT_IDS)
-   {
-      /*
-       * The new "ForEachObject" OSAL call makes this process easier.
-       */
-      uint32 CountState[OS_OBJECT_TYPE_USER];
+    memset(&CountState,0,sizeof(CountState));
+    OS_ForEachObject (0, CFE_ES_ShellCountObjectCallback, CountState);
 
-      memset(&CountState,0,sizeof(CountState));
-      OS_ForEachObject (0, CFE_ES_ShellCountObjectCallback, CountState);
-
-      NumSemaphores = CountState[OS_OBJECT_TYPE_OS_BINSEM];
-      NumCountSems = CountState[OS_OBJECT_TYPE_OS_COUNTSEM];
-      NumMutexes = CountState[OS_OBJECT_TYPE_OS_MUTEX];
-      NumQueues = CountState[OS_OBJECT_TYPE_OS_QUEUE];
-      NumTasks = CountState[OS_OBJECT_TYPE_OS_TASK];
-      NumFiles = CountState[OS_OBJECT_TYPE_OS_STREAM];
-   }
-#else
-   {
-      OS_task_prop_t          TaskProp;
-      OS_queue_prop_t         QueueProp;
-      OS_bin_sem_prop_t       SemProp;
-      OS_count_sem_prop_t     CountSemProp;
-      OS_mut_sem_prop_t       MutProp;
-      OS_FDTableEntry         FileProp;
-
-      uint32 i;
-
-
-      for ( i= 0; i < OS_MAX_TASKS; i++)
-      {
-         if (OS_TaskGetInfo(i, &TaskProp) == OS_SUCCESS)
-         {
-            NumTasks++;
-         }
-      }
-
-      for ( i= 0; i < OS_MAX_QUEUES; i++)
-      {
-         if (OS_QueueGetInfo(i, &QueueProp) == OS_SUCCESS)
-         {
-            NumQueues++;
-         }
-      }
-
-
-      for ( i= 0; i < OS_MAX_COUNT_SEMAPHORES; i++)
-      {
-         if (OS_CountSemGetInfo(i, &CountSemProp) == OS_SUCCESS)
-         {
-            NumCountSems++;
-         }
-      }
-      for ( i= 0; i < OS_MAX_BIN_SEMAPHORES; i++)
-      {
-         if (OS_BinSemGetInfo(i, &SemProp) == OS_SUCCESS)
-         {
-            NumSemaphores++;
-         }
-      }
-
-
-      for ( i= 0; i < OS_MAX_MUTEXES; i++)
-      {
-         if (OS_MutSemGetInfo(i, &MutProp) == OS_SUCCESS)
-         {
-            NumMutexes++;
-         }
-      }
-
-      for ( i= 0; i < OS_MAX_NUM_OPEN_FILES; i++)
-      {
-         if (OS_FDGetInfo(i, &FileProp) == OS_FS_SUCCESS)
-         {
-            NumFiles++;
-         }
-      }
-   }
-#endif
-
-    sprintf(Line,"OS Resources in Use:\n");
+    NumSemaphores = CountState[OS_OBJECT_TYPE_OS_BINSEM];
+    NumCountSems = CountState[OS_OBJECT_TYPE_OS_COUNTSEM];
+    NumMutexes = CountState[OS_OBJECT_TYPE_OS_MUTEX];
+    NumQueues = CountState[OS_OBJECT_TYPE_OS_QUEUE];
+    NumTasks = CountState[OS_OBJECT_TYPE_OS_TASK];
+    NumFiles = CountState[OS_OBJECT_TYPE_OS_STREAM];
+    snprintf(Line,sizeof(Line),"OS Resources in Use:\n");
     Result = OS_write(fd, Line, strlen(Line));
     
     if( Result == strlen(Line))
     {   
-        sprintf(Line,"Number of Tasks: %d\n", (int) NumTasks);
+        snprintf(Line,sizeof(Line),"Number of Tasks: %d\n", (int) NumTasks);
         Result = OS_write(fd, Line, strlen(Line));
 
         if (Result == strlen(Line))
         {
-            sprintf(Line,"Number of Queues: %d\n", (int) NumQueues);
+            snprintf(Line,sizeof(Line),"Number of Queues: %d\n", (int) NumQueues);
             Result = OS_write(fd, Line, strlen(Line));
             
             if (Result == strlen(Line))
             {
-                sprintf(Line,"Number of Binary Semaphores: %d\n",(int) NumSemaphores);
+                snprintf(Line,sizeof(Line),"Number of Binary Semaphores: %d\n",(int) NumSemaphores);
                 Result = OS_write(fd, Line, strlen(Line));
                 if (Result == strlen(Line))
                 {
                 
                    
-                    sprintf(Line,"Number of Counting Semaphores: %d\n",(int) NumCountSems);
+                    snprintf(Line,sizeof(Line),"Number of Counting Semaphores: %d\n",(int) NumCountSems);
                     Result = OS_write(fd, Line, strlen(Line));
                  
                     if (Result == strlen(Line))
                     {
-                        sprintf(Line,"Number of Mutexes: %d\n", (int) NumMutexes);
+                        snprintf(Line,sizeof(Line),"Number of Mutexes: %d\n", (int) NumMutexes);
                         Result = OS_write(fd, Line, strlen(Line));
                         if (Result == strlen(Line))
                         {
-                            sprintf(Line,"Number of Open Files: %d\n",(int) NumFiles);
+                            snprintf(Line,sizeof(Line),"Number of Open Files: %d\n",(int) NumFiles);
                             Result = OS_write(fd, Line, strlen(Line));
                             if ( Result == strlen(Line))
                             {

@@ -32,7 +32,7 @@ function(get_version DEP)
       set(DIR ${${DEP}_MISSION_DIR})
     endif()
     execute_process(
-        COMMAND ${GIT_EXECUTABLE} describe --tags --always --dirty --match "${NAME}*"
+        COMMAND ${GIT_EXECUTABLE} describe --tags --always --dirty
         WORKING_DIRECTORY ${DIR} 
         OUTPUT_VARIABLE GIT_DESC_OUTPUT 
         RESULT_VARIABLE GIT_RESULT

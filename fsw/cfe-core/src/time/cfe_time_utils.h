@@ -1,25 +1,26 @@
 /*
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
 
-** $Id: cfe_time_utils.h 1.8 2014/07/07 10:22:52GMT-05:00 acudmore Exp  $
+/*
+** File: cfe_time_utils.h
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
-**
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
-**
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
-**
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
-**  
 ** Purpose:  cFE Time Services (TIME) library utilities header file
 **
 ** Author:   S.Walling/Microtel
@@ -88,6 +89,25 @@
 #define CFE_TIME_RESET_AREA_NEW         3   /* new memory block */
 #define CFE_TIME_RESET_AREA_EXISTING    4   /* had valid data   */
 
+/*
+ * Definitions for time reference multi-buffering
+ *
+ * To allow higher priority tasks and ISRs to get the time reference,
+ * it must be buffered in case the ISR occurs mid-update.
+ *
+ * This controls the depth of the buffer.  Higher values will be
+ * more resilient to concurrent updates at the cost of using more
+ * memory.
+ *
+ * Note that the 1Hz state machine can make several updates to this
+ * in rapid succession, and the "fake tone" processing tied to 1Hz
+ * might make another update.
+ *
+ * This must be a power of 2.
+ */
+#define CFE_TIME_REFERENCE_BUF_DEPTH    4
+#define CFE_TIME_REFERENCE_BUF_MASK     (CFE_TIME_REFERENCE_BUF_DEPTH-1)
+
 /*************************************************************************/
 
 /*
@@ -101,6 +121,7 @@ typedef struct
   int16                 AtToneLeapSeconds;    /* Leap Seconds at time of tone */
   int16                 ClockSetState;  /* Time has been "set" */
   int16                 ClockFlyState;  /* Current fly-wheel state */
+  int16                 DelayDirection; /* Wheter "AtToneDelay" is add or subtract */
   CFE_TIME_SysTime_t    AtToneDelay;    /* Adjustment for slow tone detection */
   CFE_TIME_SysTime_t    AtToneLatch;    /* Local clock latched at time of tone */
   CFE_TIME_SysTime_t    CurrentLatch;   /* Local clock latched just "now" */
@@ -116,6 +137,29 @@ typedef struct
 {
   volatile CFE_TIME_SynchCallbackPtr_t    Ptr;  /**< \brief Pointer to Callback function */
 } CFE_TIME_SynchCallbackRegEntry_t;
+
+/*
+** Data values used to compute time (in reference to "tone")...
+**
+** These are all the global values used during CFE_TIME_GetReference()
+** to compute the current reference time.  They are kept in a separate
+** structure so every update can be synchronized.
+*/
+typedef struct
+{
+    uint32                StateVersion;
+
+    int16                 AtToneLeapSeconds;
+    int16                 ClockSetState;
+    int16                 ClockFlyState;
+    int16                 DelayDirection;
+
+    CFE_TIME_SysTime_t    AtToneMET;
+    CFE_TIME_SysTime_t    AtToneSTCF;
+    CFE_TIME_SysTime_t    AtToneDelay;
+    CFE_TIME_SysTime_t    AtToneLatch;
+
+} CFE_TIME_ReferenceState_t;
 
 /*************************************************************************/
 
@@ -148,23 +192,6 @@ typedef struct
   char                  PipeName[16];
   uint16                PipeDepth;
 
-  /*
-  ** Data values used to compute time (in reference to "tone")...
-  ** NOTE: All values that are thread shared but accessed in a lock-less
-  ** design must be marked "volatile" to ensure that the memory reads
-  ** and writes are not inadvertently reordered or removed by an optimizer.
-  ** This is most important for those values read during CFE_TIME_GetReference()
-  */
-  volatile CFE_TIME_SysTime_t    AtToneMET;
-  volatile CFE_TIME_SysTime_t    AtToneSTCF;
-  volatile int16                 AtToneLeapSeconds;
-  volatile CFE_TIME_SysTime_t    AtToneDelay;
-  volatile CFE_TIME_SysTime_t    AtToneLatch;
-  /*
-  ** Data values used to define the current clock state...
-  */
-  volatile int16                 ClockSetState;
-  volatile int16                 ClockFlyState;
   int16                 ClockSource;
   int16                 ClockSignal;
   int16                 ServerFlyState;
@@ -183,9 +210,8 @@ typedef struct
   CFE_TIME_SysTime_t    OneTimeAdjust;
   CFE_TIME_SysTime_t    OneHzAdjust;
 
-  int16                 OneTimeDirection; /* Add = TRUE */
+  int16                 OneTimeDirection; /* Add = true */
   int16                 OneHzDirection;
-  int16                 DelayDirection;
 
   /*
   ** Most recent local clock latch values...
@@ -209,8 +235,9 @@ typedef struct
   uint32                InternalCount;    /* Time from internal data */
   uint32                ExternalCount;    /* Time from external data */
 
-  volatile uint32       PendingVersionCounter;     /* Pending Updates to "AtTone" values */
-  volatile uint32       CompleteVersionCounter;    /* Completed Updates to "AtTone" values */
+  volatile CFE_TIME_ReferenceState_t ReferenceState[CFE_TIME_REFERENCE_BUF_DEPTH];
+  volatile uint32       LastVersionCounter;    /* Completed Updates to "AtTone" values */
+  uint32                ResetVersionCounter;   /* Version counter at last counter reset */
 
   /*
   ** Time window verification values (converted from micro-secs)...
@@ -232,20 +259,20 @@ typedef struct
   /*
   ** Clock state has been commanded into (CFE_TIME_ClockState_FLYWHEEL)...
   */
-  boolean               Forced2Fly;
+  bool                  Forced2Fly;
 
   /*
   ** Clock state has just transitioned into (CFE_TIME_ClockState_FLYWHEEL)...
   **   (not in HK since it won't be true long enough to detect)
   */
 
-  boolean               AutoStartFly;
-  boolean               IsToneGood;
+  bool                  AutoStartFly;
+  bool                  IsToneGood;
 
   /*
   ** Spare byte for alignment 
   */
-  boolean               Spare;
+  bool                  Spare;
 
   /*
   ** Local 1Hz wake-up command packet (not related to time at tone)...
@@ -266,7 +293,7 @@ typedef struct
    * "tone send" message as part of the Tone task, in addition to the regular
    * "tone signal" message above.
    */
-#if (CFE_MISSION_TIME_CFG_FAKE_TONE == TRUE)
+#if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
   CCSDS_CommandPacket_t  ToneSendCmd;
 #endif
 
@@ -326,7 +353,6 @@ void  CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr);
 void CFE_TIME_InitData(void);
 void CFE_TIME_QueryResetVars(void);
 void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference);
-uint16 CFE_TIME_GetStateFlags(void);
 void CFE_TIME_GetDiagData(void);
 void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference);
 
@@ -347,18 +373,18 @@ int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference);
 ** Function prototypes (set time globals)...
 */
 void CFE_TIME_SetState(int16 NewState);
-#if (CFE_PLATFORM_TIME_CFG_SOURCE == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
 void CFE_TIME_SetSource(int16 NewSource);
 #endif
 
-#if (CFE_PLATFORM_TIME_CFG_SIGNAL == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
 void CFE_TIME_SetSignal(int16 NewSignal);
 #endif
 
-#if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
 void CFE_TIME_SetDelay(CFE_TIME_SysTime_t NewDelay, int16 Direction);
 #endif
-#if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_SetTime(CFE_TIME_SysTime_t NewTime);
 void CFE_TIME_SetMET(CFE_TIME_SysTime_t NewMET);
 void CFE_TIME_SetSTCF(CFE_TIME_SysTime_t NewSTCF);
@@ -370,22 +396,22 @@ void CFE_TIME_Set1HzAdj(CFE_TIME_SysTime_t NewAdjust, int16 Direction);
 /*
 ** Function prototypes (send time at tone data packet -- local MET)...
 */
-#if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_ToneSend(void); /* signal to send time at tone packet */
 #endif
 
 /*
 ** Function prototypes (send time at tone data packet -- external time)...
 */
-#if (CFE_PLATFORM_TIME_CFG_SRC_MET == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
 int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET);
 #endif
 
-#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
 int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 #endif
 
-#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
 int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime);
 #endif
 
@@ -394,23 +420,27 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime);
  * Helper function for updating the "Reference" value
  * This is the local replacement for "OS_IntLock()"
  */
-static inline uint32 CFE_TIME_StartReferenceUpdate(void)
-{
-    uint32 NextVersion = 1 + CFE_TIME_TaskData.CompleteVersionCounter;
-    CFE_TIME_TaskData.PendingVersionCounter = NextVersion;
-    return NextVersion;
-}
+volatile CFE_TIME_ReferenceState_t *CFE_TIME_StartReferenceUpdate(void);
 
 /*
  * Helper function for updating the "Reference" value
  * This is the local replacement for "OS_IntUnlock()"
  */
-static inline void CFE_TIME_FinishReferenceUpdate(uint32 NextVersion)
+static inline void CFE_TIME_FinishReferenceUpdate(volatile CFE_TIME_ReferenceState_t *NextState)
 {
-    CFE_TIME_TaskData.CompleteVersionCounter = NextVersion;
+    CFE_TIME_TaskData.LastVersionCounter = NextState->StateVersion;
 }
 
-
+/*
+ * Helper function for getting the "Reference" value
+ * This is the replacement for direct memory reads of
+ * the state info from the global data structure.
+ */
+static inline volatile CFE_TIME_ReferenceState_t *CFE_TIME_GetReferenceState(void)
+{
+    return &CFE_TIME_TaskData.ReferenceState
+            [CFE_TIME_TaskData.LastVersionCounter & CFE_TIME_REFERENCE_BUF_MASK];
+}
 
 /*
 ** Function prototypes (process time at the tone signal and data packet)...

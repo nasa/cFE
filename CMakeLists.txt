@@ -46,6 +46,11 @@
 # Squelch a warning when building on Win32/Cygwin
 set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 
+# Add a path for any locally-supplied CMake modules
+# These would typically be a part of any custom PSPs in use.
+# (this is not required, and the directory can be empty/nonexistent)
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../psp/cmake/Modules" ${CMAKE_MODULE_PATH})
+
 # The minimum CMake version is chosen because 2.6.4 is what is
 # included by default with RHEL/Centos 5.x
 cmake_minimum_required(VERSION 2.6.4)
@@ -66,9 +71,11 @@ include("cmake/global_functions.cmake")
 # depending on whether TARGETSYSTEM is defined or not
 if (TARGETSYSTEM)
     # Arch-specific/CPU build mode -- use the "arch_build" implementation
+    set(IS_CFS_ARCH_BUILD TRUE)    
     include("cmake/arch_build.cmake")
 else (TARGETSYSTEM)
     # Host System/Top Level build mode -- use the "mission_build" implementation
+    set(IS_CFS_MISSION_BUILD TRUE)    
     include("cmake/mission_build.cmake")
 endif (TARGETSYSTEM)
 
@@ -84,12 +91,17 @@ include(${MISSION_DEFS}/targets.cmake)
 # Scan the list of targets and organize by target system type.
 read_targetconfig()
 
-# Define preprocessor directive(s) which can be used to 
-# gate conditionally compiled code when using these CMake scripts.  
-# Macro defined here at the topmost level will be defined in all targets 
-# on all processors. These macros can preserve compatibility with the old makefiles 
-# such that the code can still be built using the old method without the new features.
-add_definitions("-D_ENHANCED_BUILD_")
+# Additionally the target mission might require additional
+# custom build steps or override some routines.  In particular
+# some architectures might need some special installation steps
+# The custom script may override functions such as the
+# cfe_exec_do_install() and cfe_app_do_install() functions for this
+if (IS_CFS_ARCH_BUILD)
+    include("${MISSION_DEFS}/arch_build.cmake" OPTIONAL)
+    include("${MISSION_DEFS}/arch_build_${TARGETSYSTEM}.cmake" OPTIONAL)
+elseif (IS_CFS_MISSION_BUILD)
+    include("${MISSION_DEFS}/mission_build.cmake" OPTIONAL)
+endif (IS_CFS_ARCH_BUILD)
 
 # Call the prepare function defined by the sub-script
 # This is implemented differently depending on whether this is a 

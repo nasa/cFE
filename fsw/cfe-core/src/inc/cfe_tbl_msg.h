@@ -1,23 +1,25 @@
 /*
-** $Id: cfe_tbl_msg.h 1.9 2014/08/19 13:49:24GMT-05:00 sstrege Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_tbl_msg.h
 **
 ** Purpose:  cFE Table Services (TBL) SB message definitions header file
 **
@@ -726,7 +728,7 @@ typedef struct
                                                                      \brief Data Integrity Value computed for last table validated */
     int32                 LastValStatus;                        /**< \cfetlmmnemonic \TBL_LASTVALS 
                                                                      \brief Returned status from validation function for last table validated */
-    boolean               ActiveBuffer;                         /**< \cfetlmmnemonic \TBL_LASTVALBUF 
+    bool                  ActiveBuffer;                         /**< \cfetlmmnemonic \TBL_LASTVALBUF 
                                                                      \brief Indicator of whether table buffer validated was 0=Inactive, 1=Active */ 
     char                  LastValTableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \cfetlmmnemonic \TBL_LASTVALTBLNAME
                                                                             \brief Name of last table validated */
@@ -786,13 +788,13 @@ typedef struct
                                                                      \brief File creation time from last file loaded into table */
     uint32                      FileCreateTimeSubSecs;          /**< \cfetlmmnemonic \TBL_FILECSUBSECONDS 
                                                                      \brief File creation time from last file loaded into table */
-    boolean                     TableLoadedOnce;                /**< \cfetlmmnemonic \TBL_LOADEDONCE 
+    bool                        TableLoadedOnce;                /**< \cfetlmmnemonic \TBL_LOADEDONCE 
                                                                      \brief Flag indicating whether table has been loaded once or not */
-    boolean                     LoadPending;                    /**< \cfetlmmnemonic \TBL_UPDATEPNDNG 
+    bool                        LoadPending;                    /**< \cfetlmmnemonic \TBL_UPDATEPNDNG 
                                                                      \brief Flag indicating an inactive buffer is ready to be copied */
-    boolean                     DumpOnly;                       /**< \cfetlmmnemonic \TBL_DUMPONLY 
+    bool                        DumpOnly;                       /**< \cfetlmmnemonic \TBL_DUMPONLY 
                                                                      \brief Flag indicating Table is NOT to be loaded */
-    boolean                     DoubleBuffered;                    /**< \cfetlmmnemonic \TBL_DBLBUFFERED 
+    bool                        DoubleBuffered;                    /**< \cfetlmmnemonic \TBL_DBLBUFFERED 
                                                                      \brief Flag indicating Table has a dedicated inactive buffer */
     char                        Name[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];/**< \cfetlmmnemonic \TBL_NAME
                                                                      \brief Processor specific table name */
@@ -800,7 +802,7 @@ typedef struct
                                                                      \brief Filename of last file loaded into table */
     char                        OwnerAppName[CFE_MISSION_MAX_API_LEN];  /**< \cfetlmmnemonic \TBL_OWNERAPP 
                                                                      \brief Name of owning application */
-    boolean                     Critical;                       /**< \cfetlmmnemonic \TBL_CRITICAL
+    bool                        Critical;                       /**< \cfetlmmnemonic \TBL_CRITICAL
                                                                      \brief Indicates whether table is Critical or not */
     uint8                       ByteAlign4;                     /**< \cfetlmmnemonic \TBL_SPARE4
                                                                      \brief Spare byte to maintain byte alignment */

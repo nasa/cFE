@@ -1,22 +1,22 @@
 /*
- *  GSC-18128-1, "Core Flight Executive Version 6.6"
- *
- *  Copyright (c) 2006-2019 United States Government as represented by
- *  the Administrator of the National Aeronautics and Space Administration.
- *  All Rights Reserved.
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
+**
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
+**
+**    http://www.apache.org/licenses/LICENSE-2.0
+**
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
 
 /**
  * \file target_config.c
@@ -101,11 +101,8 @@ Target_CfeConfigData GLOBAL_CFE_CONFIGDATA =
  * for the API object which must be named appropriately.
  */
 #define LOAD_PSP_MODULE(name)   extern CFE_StaticModuleApi_t CFE_PSP_##name##_API;
-#define LOAD_CFS_MODULE(name)   extern CFE_StaticModuleApi_t CFS_##name##_API;
 #include "psp_module_list.inc"
-#include "cfs_module_list.inc"
 #undef LOAD_PSP_MODULE
-#undef LOAD_CFS_MODULE
 
 /*
  * Definition of LOAD_PSP_MODULE for the second pass, creates an entry with
@@ -122,18 +119,6 @@ static CFE_StaticModuleLoadEntry_t GLOBAL_PSP_MODULELIST[] =
     { .Name = NULL }
 };
 #undef LOAD_PSP_MODULE
-
-/**
- * Instantiation of the CFE static module list
- */
-#define LOAD_CFS_MODULE(name)   { .Name = #name, .Api = &CFS_##name##_API },
-static CFE_StaticModuleLoadEntry_t GLOBAL_CFS_MODULELIST[] =
-{
-#include "cfs_module_list.inc"
-    { .Name = NULL }
-};
-
-#undef LOAD_CFS_MODULE
 
 
 /**
@@ -156,24 +141,25 @@ Target_ConfigData GLOBAL_CONFIGDATA =
         .CfeConfig = &GLOBAL_CFE_CONFIGDATA,
         .PspConfig = &GLOBAL_PSP_CONFIGDATA,
         .PspModuleList = GLOBAL_PSP_MODULELIST,
-        .CfsModuleList = GLOBAL_CFS_MODULELIST
 };
 
 
 
 /*
- * Instantiate a list of symbols that should be linked into the final executable
- * This ensures that it will be available for dynamically loaded apps to use even if
- * it is not referenced within CFE itself
+ * Instantiate a list of symbols that should be statically linked into the
+ * final executable.
+ *
+ * This table is in turn used by OSAL if the OS_STATIC_LOADER feature is
+ * enabled, such that OS_SymbolLookup may return values from this table
+ * in lieu of an OS/library-provided dynamic lookup function.
  */
-typedef void (*CFE_GlobalApiFunc_t)(void);
-#define EXPORT_SYMBOL(x)    extern void x (void);
-#include "export_symbols.inc"
-#undef  EXPORT_SYMBOL
-#define EXPORT_SYMBOL(x)    (x),
-CFE_GlobalApiFunc_t GLOBAL_REF_SYMTAB[] =
+#define STATIC_CFS_SYMBOL(n,m)    extern void n (void);
+#include "cfs_static_symbol_list.inc"
+#undef  STATIC_CFS_SYMBOL
+#define STATIC_CFS_SYMBOL(n,m)    { .Name = #n, .Address = n, .Module = #m },
+OS_static_symbol_record_t OS_STATIC_SYMBOL_TABLE[] =
 {
-#include "export_symbols.inc"
-        (CFE_GlobalApiFunc_t)NULL  /* End of list marker */
+#include "cfs_static_symbol_list.inc"
+        { NULL, NULL } /* End of list marker */
 };
-#undef  EXPORT_SYMBOL
+#undef  STATIC_CFS_SYMBOL

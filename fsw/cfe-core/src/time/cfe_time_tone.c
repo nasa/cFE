@@ -1,23 +1,25 @@
 /*
-** $Id: cfe_time_tone.c 1.11 2012/02/08 14:32:39GMT-05:00 jmdagost Exp  $
+**  GSC-18128-1, "Core Flight Executive Version 6.6"
 **
-**      GSC-18128-1, "Core Flight Executive Version 6.6"
+**  Copyright (c) 2006-2019 United States Government as represented by
+**  the Administrator of the National Aeronautics and Space Administration.
+**  All Rights Reserved.
 **
-**      Copyright (c) 2006-2019 United States Government as represented by
-**      the Administrator of the National Aeronautics and Space Administration.
-**      All Rights Reserved.
+**  Licensed under the Apache License, Version 2.0 (the "License");
+**  you may not use this file except in compliance with the License.
+**  You may obtain a copy of the License at
 **
-**      Licensed under the Apache License, Version 2.0 (the "License");
-**      you may not use this file except in compliance with the License.
-**      You may obtain a copy of the License at
+**    http://www.apache.org/licenses/LICENSE-2.0
 **
-**        http://www.apache.org/licenses/LICENSE-2.0
-**
-**      Unless required by applicable law or agreed to in writing, software
-**      distributed under the License is distributed on an "AS IS" BASIS,
-**      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-**      See the License for the specific language governing permissions and
-**      limitations under the License.
+**  Unless required by applicable law or agreed to in writing, software
+**  distributed under the License is distributed on an "AS IS" BASIS,
+**  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+**  See the License for the specific language governing permissions and
+**  limitations under the License.
+*/
+
+/*
+** File: cfe_time_tone.c
 **
 ** Purpose:  cFE Time Services (TIME) library utilities source file
 **
@@ -53,7 +55,7 @@
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_ToneSend(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -92,14 +94,14 @@ void CFE_TIME_ToneSend(void)
         /*
         ** MET seconds is the count of tone interrupts...
         */
-        #if (CFE_PLATFORM_TIME_CFG_VIRTUAL == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_VIRTUAL == true)
         NewMET.Seconds = CFE_TIME_TaskData.VirtualMET;
         #endif
 
         /*
         ** Read MET seconds from a h/w register...
         */
-        #if (CFE_PLATFORM_TIME_CFG_VIRTUAL != TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_VIRTUAL != true)
         OS_GetLocalMET(&NewMET.Seconds);
         #endif
     }
@@ -107,7 +109,7 @@ void CFE_TIME_ToneSend(void)
     /*
     ** Add a second if the tone has not yet occurred...
     */
-    #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == TRUE)
+    #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
     NewMET.Seconds++;
     #endif
 
@@ -187,7 +189,7 @@ void CFE_TIME_ToneSend(void)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if (CFE_PLATFORM_TIME_CFG_SRC_MET == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
 int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 {
     CFE_TIME_Reference_t Reference;
@@ -236,7 +238,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
         /*
         ** Add a second if the tone has not yet occurred...
         */
-        #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == TRUE)
+        #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
         Expected.Seconds++;
         #endif
 
@@ -331,7 +333,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
 int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 {
     CFE_TIME_Reference_t Reference;
@@ -379,7 +381,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
         /*
         ** Add a second if the tone has not yet occurred...
         */
-        #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == TRUE)
+        #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
         NewMET.Seconds++;
         #endif
 
@@ -391,7 +393,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
         /*
         ** Restore leap seconds if default time format is UTC...
         */
-        #if (CFE_MISSION_TIME_CFG_DEFAULT_UTC == TRUE)
+        #if (CFE_MISSION_TIME_CFG_DEFAULT_UTC == true)
         NewSTCF.Seconds += NewLeaps;
         #endif
 
@@ -483,7 +485,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == TRUE)
+#if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
 int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
 {
     CFE_TIME_Reference_t Reference;
@@ -530,7 +532,7 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
         /*
         ** Add a second if the tone has not yet occurred...
         */
-        #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == TRUE)
+        #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
         NewMET.Seconds++;
         #endif
 
@@ -542,7 +544,7 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
         /*
         ** Restore leap seconds if default time format is UTC...
         */
-        #if (CFE_MISSION_TIME_CFG_DEFAULT_UTC == TRUE)
+        #if (CFE_MISSION_TIME_CFG_DEFAULT_UTC == true)
         NewSTCF.Seconds += Reference.AtToneLeapSeconds;
         #endif
 
@@ -674,7 +676,7 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
     **    data packet.  If so, we have a matched pair and can
     **    now start using the new data to compute time.
     */
-    #if (CFE_MISSION_TIME_AT_TONE_WAS == TRUE)
+    #if (CFE_MISSION_TIME_AT_TONE_WAS == true)
     CFE_TIME_ToneVerify(CFE_TIME_TaskData.ToneSignalLatch,
                         CFE_TIME_TaskData.ToneDataLatch);
     #endif
@@ -689,7 +691,7 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
     **    values to compute current time.  We continue to use the
     **    old tone/data combo until we get a new matched pair.
     */
-    #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == TRUE)
+    #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
     #endif
 
     /*
@@ -736,7 +738,7 @@ void CFE_TIME_ToneSignal(void)
     **    compute current time.  We continue to use the old tone/data
     **    combo until we get a new matched pair.
     */
-    #if (CFE_MISSION_TIME_AT_TONE_WAS == TRUE)
+    #if (CFE_MISSION_TIME_AT_TONE_WAS == true)
     #endif
 
     /*
@@ -746,7 +748,7 @@ void CFE_TIME_ToneSignal(void)
     **    tone signal.  If so, we have a matched pair and can
     **    now start using the new data to compute time.
     */
-    #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == TRUE)
+    #if (CFE_MISSION_TIME_AT_TONE_WILL_BE == true)
     CFE_TIME_ToneVerify(CFE_TIME_TaskData.ToneDataLatch,
                         CFE_TIME_TaskData.ToneSignalLatch);
     #endif
@@ -874,31 +876,23 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 void CFE_TIME_ToneUpdate(void)
 {
     CFE_TIME_Reference_t Reference;
-    boolean NewFlywheelStatus = FALSE;
-    uint32 RefVersion;
+    bool NewFlywheelStatus = false;
+    volatile CFE_TIME_ReferenceState_t *NextState;
 
-    /* Zero out the Reference before we send it into a function */
-    memset(&Reference, 0 , sizeof(CFE_TIME_Reference_t));
-    
     /*
+    ** Get current reference state before starting any update
+    **
     ** If we have been flywheeling, VirtualMET may be incorrect
     **  (e.g. missing tone signals -- VirtualMET is tone count)
     */
-    if ((CFE_TIME_TaskData.ClockSource == CFE_TIME_SourceSelect_INTERNAL) &&
-        (CFE_TIME_TaskData.ClockFlyState == CFE_TIME_FlywheelState_IS_FLY))
-    {
-        /*
-        ** Get reference time (before locking out interrupts)...
-        */
-        CFE_TIME_GetReference(&Reference);
-    }
+    CFE_TIME_GetReference(&Reference);
 
     /*
     ** Ensure that reader(s) know of the pending update
     */
-    RefVersion = CFE_TIME_StartReferenceUpdate();
+    NextState = CFE_TIME_StartReferenceUpdate();
 
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     /*
     ** Time servers cannot always use the new time data from the
     **    packet (saved as "pending" when the packet arrived).
@@ -920,7 +914,7 @@ void CFE_TIME_ToneUpdate(void)
     **    external data and a local h/w MET - so we don't need
     **    to worry about updating a local MET to external time.
     */
-    CFE_TIME_TaskData.AtToneLatch = CFE_TIME_TaskData.ToneSignalLatch;
+    NextState->AtToneLatch = CFE_TIME_TaskData.ToneSignalLatch;
 
     if (CFE_TIME_TaskData.ClockSource == CFE_TIME_SourceSelect_INTERNAL)
     {
@@ -928,7 +922,7 @@ void CFE_TIME_ToneUpdate(void)
         ** If we have been flywheeling, VirtualMET may be incorrect
         **  (flywheel state is changed later in this function)
         */
-        if (CFE_TIME_TaskData.ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
+        if (NextState->ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
         {
             CFE_TIME_TaskData.VirtualMET = Reference.CurrentMET.Seconds;
         }
@@ -939,16 +933,16 @@ void CFE_TIME_ToneUpdate(void)
         ** Note: It is OK to not bother with reading the h/w MET
         **       since we sync'ed them at the moment of the tone.
         */
-        CFE_TIME_TaskData.AtToneMET.Seconds = CFE_TIME_TaskData.VirtualMET;
-        CFE_TIME_TaskData.AtToneMET.Subseconds = 0;
+        NextState->AtToneMET.Seconds = CFE_TIME_TaskData.VirtualMET;
+        NextState->AtToneMET.Subseconds = 0;
     }
     else
     {
         /*
         ** Update "time at tone" with external MET data...
         */
-        #if (CFE_PLATFORM_TIME_CFG_SRC_MET == TRUE)
-        CFE_TIME_TaskData.AtToneMET  = CFE_TIME_TaskData.PendingMET;
+        #if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
+        NextState->AtToneMET  = CFE_TIME_TaskData.PendingMET;
         CFE_TIME_TaskData.VirtualMET = CFE_TIME_TaskData.PendingMET.Seconds;
         #endif
 
@@ -965,11 +959,11 @@ void CFE_TIME_ToneUpdate(void)
         **    be prevented by switching to "internal" mode before sending
         **    set time commands...
         */
-        #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == TRUE)
-        CFE_TIME_TaskData.AtToneMET.Seconds = CFE_TIME_TaskData.VirtualMET;
-        CFE_TIME_TaskData.AtToneMET.Subseconds = 0;
-        CFE_TIME_TaskData.AtToneSTCF  = CFE_TIME_TaskData.PendingSTCF;
-        CFE_TIME_TaskData.AtToneLeapSeconds = CFE_TIME_TaskData.PendingLeaps;
+        #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
+        NextState->AtToneMET.Seconds = CFE_TIME_TaskData.VirtualMET;
+        NextState->AtToneMET.Subseconds = 0;
+        NextState->AtToneSTCF  = CFE_TIME_TaskData.PendingSTCF;
+        NextState->AtToneLeapSeconds = CFE_TIME_TaskData.PendingLeaps;
         #endif
 
         /*
@@ -977,10 +971,10 @@ void CFE_TIME_ToneUpdate(void)
         **
         **  STCF = external time at the tone - local MET at the tone
         */
-        #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == TRUE)
-        CFE_TIME_TaskData.AtToneMET.Seconds = CFE_TIME_TaskData.VirtualMET;
-        CFE_TIME_TaskData.AtToneMET.Subseconds = 0;
-        CFE_TIME_TaskData.AtToneSTCF = CFE_TIME_TaskData.PendingSTCF;
+        #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+        NextState->AtToneMET.Seconds = CFE_TIME_TaskData.VirtualMET;
+        NextState->AtToneMET.Subseconds = 0;
+        NextState->AtToneSTCF = CFE_TIME_TaskData.PendingSTCF;
         #endif
     }
 
@@ -988,38 +982,38 @@ void CFE_TIME_ToneUpdate(void)
     ** With a "time" update, this server cannot be "flywheeling"
     **  (we won't get this update if commanded to flywheel)
     */
-    if (CFE_TIME_TaskData.ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
+    if (NextState->ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
     {
-        CFE_TIME_TaskData.ClockFlyState = CFE_TIME_FlywheelState_NO_FLY;
+        NextState->ClockFlyState = CFE_TIME_FlywheelState_NO_FLY;
         CFE_TIME_TaskData.ServerFlyState = CFE_TIME_FlywheelState_NO_FLY;
-        NewFlywheelStatus = TRUE;
+        NewFlywheelStatus = true;
     }
     #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-    #if (CFE_PLATFORM_TIME_CFG_CLIENT == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
     /*
     ** Set local clock latch time that matches the tone...
     */
-    CFE_TIME_TaskData.AtToneLatch = CFE_TIME_TaskData.ToneSignalLatch;
+    NextState->AtToneLatch = CFE_TIME_TaskData.ToneSignalLatch;
 
     /*
     ** Time clients need all the "time at the tone" command data...
     */
-    CFE_TIME_TaskData.AtToneMET   = CFE_TIME_TaskData.PendingMET;
-    CFE_TIME_TaskData.AtToneSTCF  = CFE_TIME_TaskData.PendingSTCF;
-    CFE_TIME_TaskData.AtToneLeapSeconds = CFE_TIME_TaskData.PendingLeaps;
+    NextState->AtToneMET   = CFE_TIME_TaskData.PendingMET;
+    NextState->AtToneSTCF  = CFE_TIME_TaskData.PendingSTCF;
+    NextState->AtToneLeapSeconds = CFE_TIME_TaskData.PendingLeaps;
 
     /*
     ** Convert the server clock state into its component parts...
     */
     if (CFE_TIME_TaskData.PendingState == CFE_TIME_ClockState_INVALID)
     {
-        CFE_TIME_TaskData.ClockSetState  = CFE_TIME_SetState_NOT_SET;
+        NextState->ClockSetState  = CFE_TIME_SetState_NOT_SET;
         CFE_TIME_TaskData.ServerFlyState = CFE_TIME_FlywheelState_NO_FLY;
     }
     else
     {
-        CFE_TIME_TaskData.ClockSetState = CFE_TIME_SetState_WAS_SET;
+        NextState->ClockSetState = CFE_TIME_SetState_WAS_SET;
 
         /*
         ** If the server is fly-wheel then the client must also
@@ -1039,17 +1033,17 @@ void CFE_TIME_ToneUpdate(void)
     ** With a "time" update, this client cannot be "flywheeling"...
     **  (we won't get this update if commanded to flywheel)
     */
-    if (CFE_TIME_TaskData.ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
+    if (NextState->ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
     {
-        CFE_TIME_TaskData.ClockFlyState = CFE_TIME_FlywheelState_NO_FLY;
-        NewFlywheelStatus = TRUE;
+        NextState->ClockFlyState = CFE_TIME_FlywheelState_NO_FLY;
+        NewFlywheelStatus = true;
     }
     #endif /* CFE_PLATFORM_TIME_CFG_CLIENT */
 
     /*
-    ** Time has changed, force anyone reading time to retry...
+    ** Complete the time update.
     */
-    CFE_TIME_FinishReferenceUpdate(RefVersion);
+    CFE_TIME_FinishReferenceUpdate(NextState);
 
     /*
     ** Wait until after interrupts are enabled to send event...
@@ -1141,20 +1135,20 @@ void CFE_TIME_Tone1HzISR(void)
         /* Since the tone occured ~1 seonds after the previous one, we
         ** can mark this tone as 'good'
         */
-        CFE_TIME_TaskData.IsToneGood = TRUE;
+        CFE_TIME_TaskData.IsToneGood = true;
 
         /*
         ** Maintain virtual MET as count of valid tone signal interrupts...
         **   (not set to zero by reset command)
         */
-        #if (CFE_PLATFORM_TIME_CFG_VIRTUAL == TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_VIRTUAL == true)
         CFE_TIME_TaskData.VirtualMET++;
         #endif
 
         /*
         ** Maintain virtual MET as count read from h/w MET register...
         */
-        #if (CFE_PLATFORM_TIME_CFG_VIRTUAL != TRUE)
+        #if (CFE_PLATFORM_TIME_CFG_VIRTUAL != true)
         OS_GetLocalMET(&CFE_TIME_TaskData.VirtualMET);
         #endif
 
@@ -1174,7 +1168,7 @@ void CFE_TIME_Tone1HzISR(void)
         /* Since the tone didn't occur ~1 seonds after the previous one, we
         ** can mark this tone as 'not good'
         */
-        CFE_TIME_TaskData.IsToneGood = FALSE;
+        CFE_TIME_TaskData.IsToneGood = false;
     }
 
     /*
@@ -1225,7 +1219,7 @@ void CFE_TIME_Tone1HzTask(void)
             */
             CFE_SB_SendMsg((CFE_SB_Msg_t *) &CFE_TIME_TaskData.ToneSignalCmd);
 
-#if (CFE_MISSION_TIME_CFG_FAKE_TONE == TRUE)
+#if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
             /*
             ** If we are simulating the tone signal, also generate the message
             ** to send the tone to other time clients.
@@ -1264,6 +1258,7 @@ void CFE_TIME_Local1HzStateMachine(void)
 {
 
     CFE_TIME_Reference_t Reference;
+    volatile CFE_TIME_ReferenceState_t *NextState;
 
     /* Start Performance Monitoring */
     CFE_ES_PerfLogEntry(CFE_MISSION_TIME_LOCAL1HZISR_PERF_ID);
@@ -1277,30 +1272,30 @@ void CFE_TIME_Local1HzStateMachine(void)
     /*
     ** Apply 1Hz adjustment to STCF...
     */
-    #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+    #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     if ((CFE_TIME_TaskData.OneHzAdjust.Seconds != 0) ||
         (CFE_TIME_TaskData.OneHzAdjust.Subseconds != 0))
     {
         CFE_TIME_SysTime_t NewSTCF;
-        uint32 NextVersion = CFE_TIME_StartReferenceUpdate();
+        NextState = CFE_TIME_StartReferenceUpdate();
 
         if (CFE_TIME_TaskData.OneHzDirection == CFE_TIME_AdjustDirection_ADD)
         {
-            NewSTCF = CFE_TIME_Add(CFE_TIME_TaskData.AtToneSTCF,
+            NewSTCF = CFE_TIME_Add(NextState->AtToneSTCF,
                                 CFE_TIME_TaskData.OneHzAdjust);
         }
         else
         {
-            NewSTCF = CFE_TIME_Subtract(CFE_TIME_TaskData.AtToneSTCF,
+            NewSTCF = CFE_TIME_Subtract(NextState->AtToneSTCF,
                                      CFE_TIME_TaskData.OneHzAdjust);
         }
 
-        CFE_TIME_TaskData.AtToneSTCF = NewSTCF;
+        NextState->AtToneSTCF = NewSTCF;
 
         /*
         ** Time has changed, force anyone reading time to retry...
         */
-        CFE_TIME_FinishReferenceUpdate(NextVersion);
+        CFE_TIME_FinishReferenceUpdate(NextState);
     }
     #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
@@ -1313,25 +1308,26 @@ void CFE_TIME_Local1HzStateMachine(void)
     ** See if it has been long enough without receiving a time update
     **    to autonomously start "fly-wheel" mode...
     */
-    if (CFE_TIME_TaskData.ClockFlyState == CFE_TIME_FlywheelState_NO_FLY)
+    if (Reference.ClockFlyState == CFE_TIME_FlywheelState_NO_FLY)
     {
         if (Reference.TimeSinceTone.Seconds >= CFE_PLATFORM_TIME_CFG_START_FLY)
         {
-            uint32 NextVersion = CFE_TIME_StartReferenceUpdate();
+            NextState = CFE_TIME_StartReferenceUpdate();
+
             /*
             ** Change current state to "fly-wheel"...
             */
-            CFE_TIME_TaskData.ClockFlyState = CFE_TIME_FlywheelState_IS_FLY;
-            #if (CFE_PLATFORM_TIME_CFG_SERVER == TRUE)
+            NextState->ClockFlyState = CFE_TIME_FlywheelState_IS_FLY;
+            #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
             CFE_TIME_TaskData.ServerFlyState = CFE_TIME_FlywheelState_IS_FLY;
             #endif
 
-            CFE_TIME_TaskData.AutoStartFly = TRUE;
+            CFE_TIME_TaskData.AutoStartFly = true;
 
             /*
             ** Force anyone currently reading time to retry...
             */
-            CFE_TIME_FinishReferenceUpdate(NextVersion);
+            CFE_TIME_FinishReferenceUpdate(NextState);
         }
     }
 
@@ -1340,11 +1336,12 @@ void CFE_TIME_Local1HzStateMachine(void)
     **    (or since last doing this update) to autonomously update the
     **    MET at the tone and local clock latched at the tone...
     */
-    if (CFE_TIME_TaskData.ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
+    if (Reference.ClockFlyState == CFE_TIME_FlywheelState_IS_FLY)
     {
         if (Reference.TimeSinceTone.Seconds >= CFE_PLATFORM_TIME_CFG_LATCH_FLY)
         {
-            uint32 NextVersion = CFE_TIME_StartReferenceUpdate();
+            NextState = CFE_TIME_StartReferenceUpdate();
+
             /*
             ** Update MET at tone and local clock latched at tone...
             **
@@ -1357,13 +1354,13 @@ void CFE_TIME_Local1HzStateMachine(void)
             **    the local clock from completely wrapping around the
             **    time latched at the tone.
             */
-            CFE_TIME_TaskData.AtToneMET    = Reference.CurrentMET;
-            CFE_TIME_TaskData.AtToneLatch  = Reference.CurrentLatch;
+            NextState->AtToneMET    = Reference.CurrentMET;
+            NextState->AtToneLatch  = Reference.CurrentLatch;
 
             /*
             ** Force anyone currently reading time to retry...
             */
-            CFE_TIME_FinishReferenceUpdate(NextVersion);
+            CFE_TIME_FinishReferenceUpdate(NextState);
         }
     }
 
@@ -1428,7 +1425,7 @@ void CFE_TIME_Local1HzTask(void)
             */
             if (CFE_TIME_TaskData.AutoStartFly)
             {
-                CFE_TIME_TaskData.AutoStartFly = FALSE;
+                CFE_TIME_TaskData.AutoStartFly = false;
 
                 CFE_EVS_SendEvent(CFE_TIME_FLY_ON_EID,
                                   CFE_EVS_EventType_INFORMATION,

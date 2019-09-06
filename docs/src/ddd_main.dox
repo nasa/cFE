@@ -59,22 +59,5 @@
      <LI> \subpage cfedeployguide  <BR>
   </UL>
 
-  \subpage cfedddrevhist <BR>
 **/
 
-
-/**
-  \page cfedddrevhist cFE Detailed Design Documentation Revision History
-  
-  \verbatim
-  $Log: ddd_main.dox  $
-  Revision 1.3 2008/12/06 16:16:04GMT-05:00 dkobe 
-  Corrected faulty links
-  Revision 1.2 2008/12/06 15:34:27EST dkobe 
-  Corrected formatting of revision history
-  Revision 1.1 2008/12/06 14:55:12EST dkobe 
-  Initial revision
-  Member added to project c:/MKSDATA/MKS-REPOSITORY/MKS-CFE-PROJECT/docs/src/project.pj
-  \endverbatim
-
-**/
