@@ -19,3 +19,5 @@ Version description document contains references to internal repositories and so
 For best results, submit issues:questions or issues:help wanted requests at https://github.com/nasa/cFS.
 
 Official cFS page: http://cfs.gsfc.nasa.gov
+
+Auto build status: [![Build Status](https://travis-ci.com/travis-r-wheatley/cFE.svg?branch=master)](https://travis-ci.com/travis-r-wheatley/cFE)

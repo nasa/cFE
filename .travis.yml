@@ -28,7 +28,7 @@ script:
   - cd ..
   - git clone https://github.com/travis-r-wheatley/cFS.git
   - cd cFS
-  - git checkout task_3015
+  - git checkout master
   - git submodule init
   - git submodule update
   - rm -r cfe
