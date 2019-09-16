@@ -371,13 +371,13 @@ int32 CFE_ES_TaskInit(void)
     {
        snprintf(VersionBuffer, sizeof(VersionBuffer), ", CFE: %s",
                 GLOBAL_CONFIGDATA.CfeVersion);
-       strncat(EventBuffer, VersionBuffer, sizeof(EventBuffer)-strlen(EventBuffer-1));
+       strncat(EventBuffer, VersionBuffer, sizeof(EventBuffer)-strlen(EventBuffer)-1);
     }
     if(strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.OsalVersion))
     {
        snprintf(VersionBuffer, sizeof(VersionBuffer), ", OSAL: %s",
                 GLOBAL_CONFIGDATA.OsalVersion);
-       strncat(EventBuffer, VersionBuffer, sizeof(EventBuffer)-strlen(EventBuffer-1));
+       strncat(EventBuffer, VersionBuffer, sizeof(EventBuffer)-strlen(EventBuffer)-1);
     }
 
     Status = CFE_EVS_SendEvent(CFE_ES_VERSION_INF_EID,
