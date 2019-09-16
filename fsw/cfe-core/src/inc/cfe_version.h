@@ -80,8 +80,8 @@
 ** Macro Definitions
 */
 #define CFE_MAJOR_VERSION         6
-#define CFE_MINOR_VERSION         6
-#define CFE_REVISION              90
+#define CFE_MINOR_VERSION         7
+#define CFE_REVISION              0
 
 
 #endif  /* _cfe_version_ */
