@@ -83,18 +83,29 @@ SET(UI_INSTALL_SUBDIR "host/ui")
 # be copied during the install process.
 SET(FT_INSTALL_SUBDIR "host/functional-test")
 
-# Each target board can have its own HW arch selection and set of included apps
+# APPLICATION_LIST defines a set of baseline applications to be used across architectures
+SET(APPLICATION_LIST sample_app ci_lab to_lab sch_lab) 
+
+# Create APPLICATION_PLATFORM_INC_LIST to avoid editing CMake includes in apps
+# that use tables as evolve for a specific implementation.
+# To use simply add `include_directories($(APPLICATION_PLATFORM_INC_LIST))` to the apps.
+FOREACH(APP ${APPLICATION_LIST})
+    LIST(APPEND APPLICATION_PLATFORM_INC_LIST ${${APP}_MISSION_DIR}/fsw/platform_inc)
+ENDFOREACH(APP)
+
+# Each target board can have its own HW arch selection and set of included apps in 
+# addition to the base application list if desired.
 SET(TGT1_NAME cpu1)
-SET(TGT1_APPLIST sample_app sample_lib ci_lab to_lab sch_lab)
+SET(TGT1_APPLIST ${APPLICATION_LIST})
 SET(TGT1_FILELIST cfe_es_startup.scr)
 
 # CPU2/3 are duplicates of CPU1.  These are not built by default anymore but are
 # commented out to serve as an example of how one would configure multiple cpus.
 #SET(TGT2_NAME cpu2)
-#SET(TGT2_APPLIST sample_app ci_lab to_lab sch_lab)
+#SET(TGT2_APPLIST ${APPLICATION_LIST})
 #SET(TGT2_FILELIST cfe_es_startup.scr)
 
 #SET(TGT3_NAME cpu3)
-#SET(TGT3_APPLIST sample_app ci_lab to_lab sch_lab)
+#SET(TGT3_APPLIST ${APPLICATION_LIST})
 #SET(TGT3_FILELIST cfe_es_startup.scr)
 
