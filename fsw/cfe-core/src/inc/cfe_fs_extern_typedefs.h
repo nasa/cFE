@@ -33,6 +33,21 @@
 
 #include "common_types.h"
 
+/******************* Macro Definitions ***********************/
+
+/*
+ * NOTE: the value of CFE_FS_HDR_DESC_MAX_LEN, if modified, should
+ * be constrained to multiples of 4, as it is used within a structure that
+ * also contains uint32 types.  This ensures that the entire structure
+ * remains 32-bit aligned without the need for implicit padding bytes.
+ */
+
+#define CFE_FS_HDR_DESC_MAX_LEN 32          /**< \brief Max length of description field in a standard cFE File Header */
+
+#define CFE_FS_FILE_CONTENT_ID  0x63464531  /**< \brief Magic Number for cFE compliant files (= 'cFE1') */
+
+
+
 /**
  * @brief Label definitions associated with CFE_FS_SubType_Enum_t
  */
@@ -200,6 +215,29 @@ enum CFE_FS_SubType
  * @sa enum CFE_FS_SubType
  */
 typedef uint32                                           CFE_FS_SubType_Enum_t;
+
+
+/**
+** \brief Standard cFE File header structure definition
+*/
+typedef struct
+{
+    uint32  ContentType;           /**< \brief Identifies the content type (='cFE1'=0x63464531)*/
+    uint32  SubType;               /**< \brief Type of \c ContentType, if necessary */
+                                   /**< Standard SubType definitions can be found
+                                        \link #CFE_FS_SubType_ES_ERLOG here \endlink */
+    uint32  Length;                /**< \brief Length of primary header */
+    uint32  SpacecraftID;          /**< \brief Spacecraft that generated the file */
+    uint32  ProcessorID;           /**< \brief Processor that generated the file */
+    uint32  ApplicationID;         /**< \brief Application that generated the file */
+
+    uint32  TimeSeconds;           /**< \brief File creation timestamp (seconds) */
+    uint32  TimeSubSeconds;        /**< \brief File creation timestamp (sub-seconds) */
+
+    char    Description[CFE_FS_HDR_DESC_MAX_LEN];       /**< \brief File description */
+
+} CFE_FS_Header_t;
+
 
 
 

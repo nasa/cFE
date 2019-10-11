@@ -284,16 +284,14 @@ int16 FS_gz_fill_inbuf_Reentrant( CFE_FS_Decompress_State_t *State )
    {
 		len = OS_read( State->srcFile_fd, (int8*)State->inbuf + State->insize, INBUFSIZ - State->insize );
 		
-		if ( len == 0 || len == EOF || len == OS_FS_ERROR ) break;
+		if ( len <= 0 ) break;
 		
 		State->insize += len;
 		
 	} while ( State->insize < INBUFSIZ );
 
 
-	if ( State->insize == 0 ) return EOF;
-
-	if ( len == OS_FS_ERROR ) 
+	if ( State->insize == 0 || len < 0) 
    {
 		State->Error = CFE_FS_GZIP_READ_ERROR;
 		return EOF;

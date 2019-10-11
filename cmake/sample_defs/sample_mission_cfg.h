@@ -300,7 +300,9 @@
 **
 **
 **  \par Limits
-**      Not Applicable
+**       This value should be kept as a multiple of 4, to maintain alignment of
+**       any possible neighboring fields without implicit padding.
+**
 */
 #define CFE_MISSION_ES_CDS_MAX_NAME_LENGTH         16
 
@@ -310,7 +312,7 @@
 **  \cfeevscfg Maximum Event Message Length
 **
 **  \par Description:
-**      Indicates the maximum length (in characers) of the formatted text
+**      Indicates the maximum length (in characters) of the formatted text
 **      string portion of an event message
 **
 **  \par Limits
@@ -349,7 +351,8 @@
 **      form: "ApplicationName.TblName"
 **
 **  \par Limits
-**      Not Applicable
+**       This value should be kept as a multiple of 4, to maintain alignment of
+**       any possible neighboring fields without implicit padding.
 */
 #define CFE_MISSION_TBL_MAX_NAME_LENGTH         16
 
@@ -500,6 +503,8 @@
 **       Note this affects the size of messages, so it must not cause any message
 **       to exceed the max length.
 **
+**       This value should be kept as a multiple of 4, to maintain alignment of
+**       any possible neighboring fields without implicit padding.
 */
 #define CFE_MISSION_ES_MAX_SHELL_CMD  64
 
@@ -521,6 +526,9 @@
 **       All CPUs within the same SB domain (mission) must share the same definition
 **       Note this affects the size of messages, so it must not cause any message
 **       to exceed the max length.
+**
+**       This value should be kept as a multiple of 4, to maintain alignment of
+**       any possible neighboring fields without implicit padding.
 **
 */
 #define CFE_MISSION_ES_MAX_SHELL_PKT    64
@@ -547,7 +555,8 @@
 **
 **  \par Description:
 **      Indicates the maximum length (in characters) of the entire table name
-**      within software bus messages
+**      within software bus messages, in "AppName.TableName" notation.
+**
 **      This affects the layout of command/telemetry messages but does not affect run
 **      time behavior or internal allocation.
 **
@@ -556,8 +565,10 @@
 **       Note this affects the size of messages, so it must not cause any message
 **       to exceed the max length.
 **
+**       This value should be kept as a multiple of 4, to maintain alignment of
+**       any possible neighboring fields without implicit padding.
 */
-#define CFE_MISSION_TBL_MAX_FULL_NAME_LEN         (CFE_MISSION_TBL_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 2)
+#define CFE_MISSION_TBL_MAX_FULL_NAME_LEN         (CFE_MISSION_TBL_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 4)
 
 /**
 **  \cfesbcfg Maximum Number of pipes that SB command/telemetry messages may hold
@@ -578,43 +589,76 @@
 
 
 /**
-**  \cfemissioncfg cFE Maximum length for filenames in messages
+**  \cfemissioncfg cFE Maximum length for pathnames within data exchange structures
 **
 **  \par Description:
-**       The value of this constant dictates the size of filenames within SB messages.
+**       The value of this constant dictates the size of pathnames within all structures
+**       used for external data exchange, such as Software bus messages and table definitions.
 **       This is typically the same as OS_MAX_PATH_LEN but that is OSAL dependent --
 **       and as such it definable on a per-processor/OS basis and hence may be different
-**       across multiple processors.  Since this defines a message format, it must be
-**       consistent across ALL processors exchanging SB messages.
+**       across multiple processors.  It is recommended to set this to the value of the
+**       largest OS_MAX_PATH_LEN in use on any CPU on the mission.
 **
-**       This affects the layout of command/telemetry messages but does not affect run
-**       time behavior or internal allocation.
+**       This affects only the layout of command/telemetry messages and table definitions;
+**       internal allocation may use the platform-specific OS_MAX_PATH_LEN value.
 **   
 **  \par Limits
-**       All CPUs within the same SB domain (mission) must share the same definition
+**       All CPUs within the same SB domain (mission) and ground tools must share the
+**       same definition.
 **       Note this affects the size of messages, so it must not cause any message
 **       to exceed the max length.
 **
+**       This value should be kept as a multiple of 4, to maintain alignment of
+**       any possible neighboring fields without implicit padding.
 */
 #define CFE_MISSION_MAX_PATH_LEN      64
 
 /**
-**  \cfemissioncfg cFE Maximum length for API names in messages
+**  \cfemissioncfg cFE Maximum length for filenames within data exchange structures
 **
 **  \par Description:
-**       The value of this constant dictates the size of API names within SB messages.
+**       The value of this constant dictates the size of filenames within all structures
+**       used for external data exchange, such as Software bus messages and table definitions.
+**       This is typically the same as OS_MAX_FILE_LEN but that is OSAL dependent --
+**       and as such it definable on a per-processor/OS basis and hence may be different
+**       across multiple processors.  It is recommended to set this to the value of the
+**       largest OS_MAX_FILE_LEN in use on any CPU on the mission.
+**
+**       This affects only the layout of command/telemetry messages and table definitions;
+**       internal allocation may use the platform-specific OS_MAX_FILE_LEN value.
+**
+**  \par Limits
+**       All CPUs within the same SB domain (mission) and ground tools must share the
+**       same definition.
+**       Note this affects the size of messages, so it must not cause any message
+**       to exceed the max length.
+**
+**       This value should be kept as a multiple of 4, to maintain alignment of
+**       any possible neighboring fields without implicit padding.
+*/
+#define CFE_MISSION_MAX_FILE_LEN      20
+
+/**
+**  \cfemissioncfg cFE Maximum length for API names within data exchange structures
+**
+**  \par Description:
+**       The value of this constant dictates the size of filenames within all structures
+**       used for external data exchange, such as Software bus messages and table definitions.
 **       This is typically the same as OS_MAX_API_LEN but that is OSAL dependent --
 **       and as such it definable on a per-processor/OS basis and hence may be different
-**       across multiple processors.
+**       across multiple processors.  It is recommended to set this to the value of the
+**       largest OS_MAX_API_LEN in use on any CPU on the mission.
 **
-**       This affects the layout of command/telemetry messages but does not affect run
-**       time behavior or internal allocation.
+**       This affects only the layout of command/telemetry messages and table definitions;
+**       internal allocation may use the platform-specific OS_MAX_API_LEN value.
 **
 **  \par Limits
 **       All CPUs within the same SB domain (mission) must share the same definition
 **       Note this affects the size of messages, so it must not cause any message
 **       to exceed the max length.
 **
+**       This value should be kept as a multiple of 4, to maintain alignment of
+**       any possible neighboring fields without implicit padding.
 */
 #define CFE_MISSION_MAX_API_LEN       20
 
@@ -632,8 +676,11 @@
 **       All CPUs within the same SB domain (mission) must share the same definition
 **       Note this affects the size of messages, so it must not cause any message
 **       to exceed the max length.
+**
+**       This value should be kept as a multiple of 4, to maintain alignment of
+**       any possible neighboring fields without implicit padding.
 */
-#define CFE_MISSION_ES_CDS_MAX_NAME_LEN       (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 2)
+#define CFE_MISSION_ES_CDS_MAX_NAME_LEN       (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 4)
 
 
 /*

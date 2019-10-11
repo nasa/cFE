@@ -49,41 +49,22 @@
 #ifndef _cfe_tbl_filedef_
 #define _cfe_tbl_filedef_
 
-#include "cfe.h"
+#include <cfe_mission_cfg.h>
+#include <common_types.h>
+#include "cfe_tbl_extern_typedefs.h"    /* for "CFE_TBL_FileHdr_t" definition */
+#include "cfe_fs_extern_typedefs.h"     /* for "CFE_FS_HDR_DESC_MAX_LEN" definition */
 
-/* CFE_TBL_MAX_FULL_NAME_LEN is defined in cfe_tbl.h and includes alignment bytes */
-#define CFE_TBL_FILDEF_MAX_NAME_LEN       (CFE_TBL_MAX_FULL_NAME_LEN)
-
-/* Compute number of additional bytes needed to make               */
-/* CFE_FS_HDR_DESC_MAX_LEN rounded up to nearest longword boundary */
-#define CFE_TBL_FILEDEF_FS_HDR_ALIGN32    (CFE_FS_HDR_DESC_MAX_LEN - ((CFE_FS_HDR_DESC_MAX_LEN/4)*4))
-
-/* Allocate enough space for maximum table description length plus alignment bytes */
-#define CFE_TBL_FILDEF_FS_HDR_LEN         (CFE_FS_HDR_DESC_MAX_LEN + CFE_TBL_FILEDEF_FS_HDR_ALIGN32)
-
-/* Compute number of additional bytes needed to make        */
-/* OS_MAX_FILE_NAME rounded up to nearest longword boundary */
-#define CFE_TBL_FILEDEF_OS_FILE_ALIGN32   (OS_MAX_FILE_NAME - ((OS_MAX_FILE_NAME/4)*4))
-
-/* Allocate enough space for maximum file name length plus alignment bytes */
-#define CFE_TBL_FILDEF_OS_FILE_LEN        (OS_MAX_FILE_NAME + CFE_TBL_FILEDEF_OS_FILE_ALIGN32)
-
+/*
+ * The definition of the file definition metadata that can be used by
+ * external tools (e.g. elf2cfetbl) to generate CFE table data files.
+ */
 typedef struct
 {
-    uint32                   Reserved;                             /**< Future Use: NumTblSegments in File?   */
-    uint32                   Offset;                               /**< Byte Offset at which load should commence */
-    uint32                   NumBytes;                             /**< Number of bytes to load into table */
-    char                     TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
-} CFE_TBL_File_Hdr_t;
-
-
-typedef struct
-{
-    char        ObjectName[64];                           /**< \brief Name of instantiated variable that contains desired table image */
-    char        TableName[CFE_TBL_FILDEF_MAX_NAME_LEN];   /**< \brief Name of Table as defined onboard */
-    char        Description[CFE_TBL_FILDEF_FS_HDR_LEN];   /**< \brief Description of table image that is included in cFE File Header */
-    char        TgtFilename[CFE_TBL_FILDEF_OS_FILE_LEN];  /**< \brief Default filename to be used for output of elf2cfetbl utility  */
-    uint32      ObjectSize;                               /**< \brief Size, in bytes, of instantiated object */
+    char        ObjectName[64];                             /**< \brief Name of instantiated variable that contains desired table image */
+    char        TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table as defined onboard */
+    char        Description[CFE_FS_HDR_DESC_MAX_LEN];       /**< \brief Description of table image that is included in cFE File Header */
+    char        TgtFilename[CFE_MISSION_MAX_FILE_LEN];      /**< \brief Default filename to be used for output of elf2cfetbl utility  */
+    uint32      ObjectSize;                                 /**< \brief Size, in bytes, of instantiated object */
 } CFE_TBL_FileDef_t;
 
 /** The CFE_TBL_FILEDEF macro can be used to simplify the declaration of a table image when using the elf2cfetbl utility.
