@@ -32,6 +32,7 @@
 /* Use the local definitions of these types */
 
 #include "common_types.h"
+#include <cfe_mission_cfg.h>  /* for CFE_MISSION_TBL_MAX_FULL_NAME_LEN */
 
 /**
  * @brief Label definitions associated with CFE_TBL_BufferSelect_Enum_t
@@ -57,6 +58,23 @@ enum CFE_TBL_BufferSelect
  * @sa enum CFE_TBL_BufferSelect
  */
 typedef uint16                                           CFE_TBL_BufferSelect_Enum_t;
+
+
+
+/**
+ * @brief The definition of the header fields that are included in CFE Table Data files.
+ *
+ * This header follows the CFE_FS header and precedes the the actual table data.
+ */
+typedef struct
+{
+    uint32                   Reserved;                             /**< Future Use: NumTblSegments in File?   */
+    uint32                   Offset;                               /**< Byte Offset at which load should commence */
+    uint32                   NumBytes;                             /**< Number of bytes to load into table */
+    char                     TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
+} CFE_TBL_File_Hdr_t;
+
+
 
 
 #endif /* CFE_EDS_ENABLED_BUILD */
