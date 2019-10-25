@@ -81,7 +81,7 @@
 */
 #define CFE_MAJOR_VERSION         6
 #define CFE_MINOR_VERSION         7
-#define CFE_REVISION              0
+#define CFE_REVISION              1
 
 
 #endif  /* _cfe_version_ */
