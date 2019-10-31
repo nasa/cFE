@@ -361,7 +361,7 @@
   however, these are only available for those events that are registered for filtering hence if you 
   have a message that is not registered for filtering and the message type (e.g. DEBUG) is disabled 
   then you won't know if the event was ever issued by an application.  These counters are available 
-  by sending a command to \link #CFE_EVS_FILE_WRITE_APP_DATA_CC write the EVS Application Data \endlink
+  by sending a command to \link #CFE_EVS_WRITE_APP_DATA_FILE_CC write the EVS Application Data \endlink
   and transferring the file to the ground. 
 
 
@@ -466,7 +466,7 @@
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
            How do I find out which events are registered for filtering?
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           EVS provides a command (\link #CFE_EVS_FILE_WRITE_APP_DATA_CC \EVS_WRITEAPPDATA2FILE \endlink)
+           EVS provides a command (\link #CFE_EVS_WRITE_APP_DATA_FILE_CC  \EVS_WRITEAPPDATA2FILE \endlink)
            which generates a file containing all of the applications that have registered with EVS and 
            all of the filters that are registered for each application.  Note that EVS merely generates 
            the file.  The file must be transferred to the ground in order to view it.
