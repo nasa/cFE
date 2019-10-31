@@ -136,7 +136,7 @@
 **  \cfecmdmnemonic \ES_RESET
 **
 **  \par Command Structure
-**       #CFE_ES_RestartCmd_t
+**       #CFE_ES_RestartCmd_Payload_t
 **
 **  \par Command Verification
 **       Successful execution of this command (as a Processor Reset)  
@@ -152,7 +152,7 @@
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
 **       - The command packet length is incorrect
-**       - The \link #CFE_ES_RestartCmd_t.RestartType Restart Type \endlink was
+**       - The \link #CFE_ES_RestartCmd_Payload_t Restart Type \endlink was
 **         not a recognized value. 
 **       
 **       Evidence of failure may be found in the following telemetry:
