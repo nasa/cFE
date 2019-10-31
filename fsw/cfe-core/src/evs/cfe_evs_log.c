@@ -167,9 +167,6 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data)
     }
     else
     {
-        /* Serialize access to event log control variables */
-        OS_MutSemTake(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
-
         /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
         CFE_SB_MessageStringGet(LogFilename, (const char *)CmdPtr->LogFilename, CFE_PLATFORM_EVS_DEFAULT_LOG_FILE,
                 OS_MAX_PATH_LEN, sizeof(CmdPtr->LogFilename));
@@ -198,6 +195,9 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data)
 
             if (BytesWritten == sizeof(LogFileHdr))
             {
+                /* Serialize access to event log control variables */
+                OS_MutSemTake(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
+
                 /* Is the log full? -- Doesn't matter if wrap mode is enabled */
                 if (CFE_EVS_GlobalData.EVS_LogPtr->LogCount == CFE_PLATFORM_EVS_LOG_MAX)
                 {
@@ -228,12 +228,11 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data)
                     }
                     else
                     {
-                        EVS_SendEvent(CFE_EVS_ERR_WRLOGFILE_EID, CFE_EVS_EventType_ERROR,
-                                "Write Log File Command Error: OS_write = 0x%08X, filename = %s",
-                                (unsigned int)BytesWritten, LogFilename);
                         break;
                     }
                 }
+
+                OS_MutSemGive(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
 
                 /* Process command handler success result */
                 if (i == CFE_EVS_GlobalData.EVS_LogPtr->LogCount)
@@ -243,12 +242,16 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data)
                             (int)CFE_EVS_GlobalData.EVS_LogPtr->LogCount, LogFilename);
                     Result = CFE_SUCCESS;
                 }
+                else
+                {
+                    EVS_SendEvent(CFE_EVS_ERR_WRLOGFILE_EID, CFE_EVS_EventType_ERROR,
+                            "Write Log File Command Error: OS_write = 0x%08X, filename = %s",
+                            (unsigned int)BytesWritten, LogFilename);
+                }
             }
 
             OS_close(LogFileHandle);
         }
-
-        OS_MutSemGive(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
 
     }
 

@@ -306,7 +306,7 @@ int32 CFE_ES_ListTasks(int32 fd)
                 /*
                 ** Populate the AppInfo entry 
                 */
-                Result = CFE_ES_GetTaskInfo(&TaskInfo,i);
+                Result = CFE_ES_GetTaskInfo(&TaskInfo,CFE_ES_Global.TaskTable[i].TaskId);
 
                 if ( Result == CFE_SUCCESS )
                 {
