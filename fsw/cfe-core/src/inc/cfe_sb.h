@@ -260,7 +260,7 @@ int32  CFE_SB_SetPipeOpts(CFE_SB_PipeId_t     PipeId,
 **
 ** \param[in]  PipeId       The pipe ID of the pipe to get options from.
 **
-** \param[out] OptsPtr      A bit field of options.
+** \param[out] *OptPtr      A bit field of options.
 **
 ** \returns
 ** \retcode #CFE_SUCCESS           \retdesc  \copydoc CFE_SUCCESS         \endcode
