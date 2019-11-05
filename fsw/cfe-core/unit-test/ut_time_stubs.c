@@ -133,7 +133,7 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 CFE_TIME_SysTime_t CFE_TIME_GetTime(void)
 {
     static CFE_TIME_SysTime_t SimTime = { 0 };
-    CFE_TIME_SysTime_t Result;
+    CFE_TIME_SysTime_t Result = { 0 };
     int32 status;
 
     status = UT_DEFAULT_IMPL(CFE_TIME_GetTime);
@@ -193,7 +193,7 @@ CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_
 CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 {
     static CFE_TIME_SysTime_t SimTime = { 0 };
-    CFE_TIME_SysTime_t Result;
+    CFE_TIME_SysTime_t Result = { 0 };
     int32 status;
 
     status = UT_DEFAULT_IMPL(CFE_TIME_Add);
