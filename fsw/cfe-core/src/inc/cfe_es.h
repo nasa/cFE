@@ -558,6 +558,8 @@ bool CFE_ES_RunLoop(uint32 *ExitStatus);
 **                                   wait indefinitely to avoid hanging a critical
 **                                   application because a non-critical app did not start.
 **
+** \param[in]  MinSystemState        Determine the state of the App
+**
 ** \returns
 **      CFE_SUCCESS if state was successfully achieved
 **      CFE_ES_OPERATION_TIMED_OUT if the timeout was reached

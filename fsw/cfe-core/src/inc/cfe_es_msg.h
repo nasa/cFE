@@ -747,7 +747,7 @@
 **       the following telemetry:
 **       - \b \c \ES_CMDPC - command execution counter will 
 **         increment
-**       - \B \C \ES_PERFFLTRMASK - the current performance filter mask
+**       - \b \c \ES_PERFFLTRMASK - the current performance filter mask
 **         value(s) should reflect the commanded value
 **       - The #CFE_ES_PERF_FILTMSKCMD_EID debug event message will be 
 **         generated.
