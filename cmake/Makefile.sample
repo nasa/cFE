@@ -127,12 +127,16 @@ clean:
 distclean:
 	rm -rf "$(O)"
 
+# Grab lcov baseline before running tests
 test:
+	lcov --capture --initial --directory $(O)/$(ARCH) --output-file $(O)/$(ARCH)/coverage_base.info
 	(cd $(O)/$(ARCH) && ctest -O ctest.log)
 
 lcov:
-	lcov --capture --directory $(O)/$(ARCH) --output-file $(O)/$(ARCH)/coverage.info
-	genhtml $(O)/$(ARCH)/coverage.info --output-directory $(O)/$(ARCH)/lcov
+	lcov --capture --directory $(O)/$(ARCH) --output-file $(O)/$(ARCH)/coverage_test.info
+	lcov --add-tracefile $(O)/$(ARCH)/coverage_base.info --add-tracefile $(O)/$(ARCH)/coverage_test.info --output-file $(O)/$(ARCH)/coverage_total.info
+	lcov --remove $(O)/$(ARCH)/coverage_total.info 'unit-test/*' --output-file $(O)/$(ARCH)/coverage_filtered.info
+	genhtml $(O)/$(ARCH)/coverage_filtered.info --output-directory $(O)/$(ARCH)/lcov
 	@/bin/echo -e "\n\nCoverage Report Link: file:$(CURDIR)/$(O)/$(ARCH)/lcov/index.html\n"
 
 doc:
