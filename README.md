@@ -6,6 +6,8 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version Notes
 
+- 6.7.2:
+  - Minor bugs and enhancements: https://github.com/nasa/cFE/pull/388
 - 6.7.1:
   - Minor bug fixes: https://github.com/nasa/cFE/pull/378
   - Fix strlen in CFE_ES_TaskInit https://github.com/nasa/cFE/pull/23
