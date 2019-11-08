@@ -202,7 +202,7 @@
 
   The Major, Minor, and Revision components of the version are provided as simple macros defined in the cfe_version.h
   header file as part of the API definition; these macros must expand to simple integer values, so that they can be used
-  in simple #if directives by the macro preprocessor.
+  in simple \#if directives by the macro preprocessor.
 
   The Mission Version is provided as a simple macro defined in the cfe_platform_cfg.h header file. As delivered in
   official releases, these macros must expand to simple integer values, so that they can be used in simple macro
@@ -495,8 +495,8 @@
     </UL>
     <LI> Driver APIs
     <UL>
-      <LI> #CFE_ES_RegisterDriver - Registers a Device Driver for a specified device
-      <LI> #CFE_ES_UnloadDriver - Removes a Device Driver for a specified device
+      <LI> \#CFE_ES_RegisterDriver - Registers a Device Driver for a specified device
+      <LI> \#CFE_ES_UnloadDriver - Removes a Device Driver for a specified device
     </UL>
     <LI> Critical Data Store APIs
     <UL>

@@ -102,7 +102,7 @@ void CFE_SB_InitMsg(void           *MsgPtr,
 **    Get the size of a message header.
 **
 **  Arguments:
-**    MsgPtr - Pointer to a SB message 
+**    *MsgPtr - Pointer to a SB message 
 **
 **  Return:
 **     Size of Message Header.

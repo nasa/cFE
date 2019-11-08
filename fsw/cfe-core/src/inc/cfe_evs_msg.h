@@ -234,7 +234,7 @@
 **  \cfecmdmnemonic \EVS_SETEVTFMT
 **
 **  \par Command Structure
-**       #CFE_EVS_ModeCmd_t
+**       #CFE_EVS_SetLogMode_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -764,7 +764,7 @@
 **  \cfecmdmnemonic \EVS_WRITEAPPDATA2FILE
 **
 **  \par Command Structure
-**       #CFE_EVS_AppDataCmd_t
+**       #CFE_EVS_WriteAppDataFile_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -799,7 +799,7 @@
 **  \cfecmdmnemonic \EVS_WRITELOG2FILE
 **
 **  \par Command Structure
-**       #CFE_EVS_LogFileCmd_t
+**       #CFE_EVS_WriteLogDataFile_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -832,7 +832,7 @@
 **  \cfecmdmnemonic \EVS_SETLOGMODE
 **
 **  \par Command Structure
-**       #CFE_EVS_ModeCmd_t
+**       #CFE_EVS_SetLogMode_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
