@@ -198,7 +198,7 @@
 **  \par Cause:
 **
 **  This event message is generated when a "Set Event Format Mode" command
-**  message has arrived and the #CFE_EVS_ModeCmd_t::Mode field is equal to
+**  message has arrived and the #CFE_EVS_SetLogMode_Payload_t::LogMode field is equal to
 **  neither #CFE_EVS_MsgFormat_SHORT or #CFE_EVS_MsgFormat_LONG.  These are
 **  the only allowed values for the mode field.
 **  

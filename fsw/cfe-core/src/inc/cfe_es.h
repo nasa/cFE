@@ -528,8 +528,8 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 **                          \arg #CFE_ES_RunStatus_APP_ERROR - \copydoc CFE_ES_RunStatus_APP_ERROR
 **
 ** \returns
-** \retcode #true  \retdesc The application should continue executing \endcode
-** \retcode #false \retdesc The application should terminate itself \endcode
+** \retcode true  \retdesc The application should continue executing \endcode
+** \retcode false \retdesc The application should terminate itself \endcode
 ** \endreturns
 **
 ** \sa #CFE_ES_ExitApp, #CFE_ES_RegisterApp

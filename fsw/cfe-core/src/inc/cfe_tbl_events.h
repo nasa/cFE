@@ -712,7 +712,7 @@
 **
 **  This event message is generated when either a Table Validate command or a Table Dump Command
 **  contains a buffer identifier that does not equal either of the valid values 
-**  (see #CFE_TBL_DumpCmd_t::ActiveTableFlag or #CFE_TBL_ValidateCmd_t::ActiveTableFlag)
+**  (see #CFE_TBL_DumpCmd_Payload_t::ActiveTableFlag or #CFE_TBL_ValidateCmd_Payload_t::ActiveTableFlag)
 **
 **  The parameter in the Event Message indicates (in hex) the value found for the ActiveTableFlag in the command.
 **/

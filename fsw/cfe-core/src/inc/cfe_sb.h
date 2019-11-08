@@ -1298,7 +1298,7 @@ static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
  * @par Description:
  *    In cases where the CFE_SB_MsgId_t type is not a simple integer
  *    type, it is not possible to directly use an integer value
- *    supplied via a #define or similar method.
+ *    supplied via a define or similar method.
  *
  *    This inline function provides the ability to map an integer value
  *    into a corresponding CFE_SB_MsgId_t value.

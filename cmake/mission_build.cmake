@@ -222,7 +222,20 @@ function(prepare)
     "${cfe-core_MISSION_DIR}/src/inc/*.h"
     "${osal_MISSION_DIR}/src/os/inc/*.h"
     "${MISSION_SOURCE_DIR}/psp/fsw/inc/*.h")
-  string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}")  
+  string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}") 
+
+  # Addition to usersguide
+  file(GLOB USERGUIDE_MISC_ADDITION
+       "${cfe-core_MISSION_DIR}/src/inc/private/*.h"
+       "${cfe-core_MISSION_DIR}/src/sb/*"
+       "${cfe-core_MISSION_DIR}/src/es/*"
+       "${cfe-core_MISSION_DIR}/src/evs/*")
+  string(REPLACE ";" " \\\n" USERGUIDE_MISC_ADDITION "${USERGUIDE_MISC_ADDITION}")
+
+  # PREDEFINED
+  set(USERGUIDE_PREDEFINED 
+      "MESSAGE_FORMAT_IS_CCSDS")
+ 
   configure_file("${CMAKE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/cfe-usersguide.doxyfile")
     
