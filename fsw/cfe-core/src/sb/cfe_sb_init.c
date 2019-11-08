@@ -194,7 +194,6 @@ void CFE_SB_InitPipeTbl(void){
         CFE_SB.PipeTbl[i].SysQueueId    = CFE_SB_UNUSED_QUEUE;
         CFE_SB.PipeTbl[i].PipeId        = CFE_SB_INVALID_PIPE;
         CFE_SB.PipeTbl[i].CurrentBuff   = NULL;
-        memset(&CFE_SB.PipeTbl[i].PipeName[0],0,OS_MAX_API_NAME);
     }/* end for */
 
 }/* end CFE_SB_InitPipeTbl */

@@ -898,7 +898,7 @@ int32 CFE_SB_SendRtgInfo(const char *Filename)
                  * the buffer, therefore the initialization above will protect for now 
                  */
                 CFE_ES_GetAppName(&Entry.AppName[0], pd->AppId, sizeof(Entry.AppName));
-                strncpy(&Entry.PipeName[0],CFE_SB_GetPipeName(Entry.PipeId),sizeof(Entry.PipeName));
+                CFE_SB_GetPipeName(Entry.PipeId, Entry.PipeName);
 
                 WriteStat = OS_write (fd, &Entry, sizeof(CFE_SB_RoutingFileEntry_t));
                 if(WriteStat != sizeof(CFE_SB_RoutingFileEntry_t)){

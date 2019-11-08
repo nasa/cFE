@@ -497,24 +497,33 @@ CFE_SB_RouteEntry_t* CFE_SB_GetRoutePtrFromIdx(CFE_SB_MsgRouteIdx_t RouteIdx)
 **    Pipe ID.
 **
 **  Arguments:
-**    MsgId  : ID of the message
+**    MsgId       : ID of the message
+**    PipeNameBuf : Buffer to receive name, must be OS_MAX_API_NAME bytes long
 **
 **  Return:
-**    Will return a pointer to the PipeName array in the pipe table if the the pipeid
-**    is in range. Otherwise this function returns a pointer to the
-**    PipeName4ErrCase[0], which is initialized with a null terminator.
+**    Will return CFE_SUCCESS and populate PipeNameBuf with the name
+**    of the pipe on success, otherwise returns CFE_SB_FAILED on error.
 **
 */
-char *CFE_SB_GetPipeName(CFE_SB_PipeId_t PipeId){
-
-    static char PipeName4ErrCase[1] = {'\0'};
+int32 CFE_SB_GetPipeName(CFE_SB_PipeId_t PipeId, char *PipeNameBuf){
+    OS_queue_prop_t queue_prop;
+    int32 Status = CFE_SUCCESS;
 
     if(PipeId >= CFE_PLATFORM_SB_MAX_PIPES){
-        return &PipeName4ErrCase[0];
+        Status = CFE_SB_FAILED;
     }else{
-        return &CFE_SB.PipeTbl[PipeId].PipeName[0];
+        if (OS_QueueGetInfo(CFE_SB.PipeTbl[PipeId].SysQueueId, &queue_prop)
+            == OS_SUCCESS)
+        {
+            strcpy(queue_prop.name, PipeNameBuf);
+        }
+        else
+        {
+            Status = CFE_SB_FAILED;
+        }
     }/* end if */
 
+    return Status;
 }/* end CFE_SB_GetPipeName */
 
 
