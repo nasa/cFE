@@ -9613,7 +9613,7 @@ void Test_OS_MutSem_ErrLogic(void)
 void Test_GetPipeName_ErrLogic(void)
 {
     CFE_SB_PipeId_t PipeId;
-    char            *CharStar;
+    char            PipeNameBuf[OS_MAX_API_NAME] = {'\0'};
     uint16          PipeDepth = 50;
     int32           ExpRtn;
     int32           ActRtn;
@@ -9625,13 +9625,15 @@ void Test_GetPipeName_ErrLogic(void)
 
     SB_ResetUnitTest();
     CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe");
-    CharStar = CFE_SB_GetPipeName(CFE_PLATFORM_SB_MAX_PIPES);
 
-    if (*CharStar != '\0')
+    ActRtn = CFE_SB_GetPipeName(CFE_PLATFORM_SB_MAX_PIPES, PipeNameBuf);
+    ExpRtn = CFE_SB_FAILED;
+
+    if (ActRtn == CFE_SUCCESS || PipeNameBuf[0] != '\0')
     {
         snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                 "Unexpected rtn from CFE_SB_CreatePipe, exp=NULL, act=%s",
-                 CharStar);
+                 "Unexpected rtn from CFE_SB_CreatePipe, exp=%d, act=%d",
+                 ExpRtn, ActRtn);
         UT_Text(cMsg);
         TestStat = CFE_FAIL;
     }

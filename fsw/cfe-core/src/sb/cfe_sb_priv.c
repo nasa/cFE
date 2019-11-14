@@ -509,18 +509,16 @@ int32 CFE_SB_GetPipeName(CFE_SB_PipeId_t PipeId, char *PipeNameBuf){
     OS_queue_prop_t queue_prop;
     int32 Status = CFE_SUCCESS;
 
-    if(PipeId >= CFE_PLATFORM_SB_MAX_PIPES){
+    if(PipeNameBuf == NULL || PipeId >= CFE_PLATFORM_SB_MAX_PIPES){
         Status = CFE_SB_FAILED;
     }else{
         if (OS_QueueGetInfo(CFE_SB.PipeTbl[PipeId].SysQueueId, &queue_prop)
-            == OS_SUCCESS)
-        {
-            strcpy(queue_prop.name, PipeNameBuf);
+            == OS_SUCCESS){
+            strncpy(queue_prop.name, PipeNameBuf, OS_MAX_API_NAME-1);
         }
-        else
-        {
+        else{
             Status = CFE_SB_FAILED;
-        }
+        }/* end if */
     }/* end if */
 
     return Status;
