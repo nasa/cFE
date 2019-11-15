@@ -1048,8 +1048,10 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
     if(!CFE_SB_IsValidRouteIdx(RouteIdx)){
         char    PipeName[OS_MAX_API_NAME] = {'\0'};
 
-        CFE_SB_GetPipeName(PipeId, PipeName);
         CFE_SB_UnlockSharedData(__func__,__LINE__);
+
+        CFE_SB_GetPipeName(PipeId, PipeName);
+
         CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_NO_SUBS_EID,CFE_EVS_EventType_INFORMATION,CFE_SB.AppId,
             "Unsubscribe Err:No subs for Msg 0x%x on %s,app %s",
             (unsigned int)MsgId,PipeName,CFE_SB_GetAppTskName(TskId,FullName));
