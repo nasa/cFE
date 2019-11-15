@@ -514,7 +514,7 @@ int32 CFE_SB_GetPipeName(CFE_SB_PipeId_t PipeId, char *PipeNameBuf){
     }else{
         if (OS_QueueGetInfo(CFE_SB.PipeTbl[PipeId].SysQueueId, &queue_prop)
             == OS_SUCCESS){
-            strncpy(queue_prop.name, PipeNameBuf, OS_MAX_API_NAME-1);
+            strncpy(PipeNameBuf, queue_prop.name, OS_MAX_API_NAME-1);
         }
         else{
             Status = CFE_SB_FAILED;
