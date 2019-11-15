@@ -514,7 +514,7 @@
            How is the memory pool handle (sent in SB housekeeping telemetry) intended to be used?
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
            The memory pool handle is used to analyze the SB memory pool statistics. The cFE ES
-           command (#CFE_ES_TLM_POOL_STATS_CC) to dump the memory pool statistics takes the pool handle
+           command (#CFE_ES_SEND_MEM_POOL_STATS_CC) to dump the memory pool statistics takes the pool handle
            as a parameter. These statistics tell how the SB memory pool is configured and gives details
            on margin. An improperly configured SB memory pool may inhibit communication. This may occur
            if there is not enough margin to create a block of the size needed for a transfer. Refer to

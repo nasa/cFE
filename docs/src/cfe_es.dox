@@ -220,7 +220,7 @@
   cFE will also reset every application that is running at the time the command is received. 
 
   Also part of this service is the Exception and Reset (ER) Log, which has a command for 
-  \link #CFE_ES_WRITE_ERLOG_CC dumping \endlink or \link #CFE_ES_CLEAR_ERLOG_CC clearing \endlink
+  \link #CFE_ES_WRITE_ER_LOG_CC dumping \endlink or \link #CFE_ES_CLEAR_ER_LOG_CC clearing \endlink
   the log and telemetry to show the number of entries in the log.  In addition to the ER log,
    the user may find information about the most recent reset in the ES task housekeeping telemetry.
 
@@ -262,13 +262,13 @@
   \page cfeesugresetlog Exception and Reset (ER) Log
 
   The Exception and Reset Log contains detailed information about past 
-  resets and exceptions. To view the information the #CFE_ES_WRITE_ERLOG_CC 
+  resets and exceptions. To view the information the #CFE_ES_WRITE_ER_LOG_CC 
   command must be sent. This command will write the log to a binary file. 
   The path and filename may be specified in the command. If the filename 
   command field contains an empty string, the configuration parameter 
   #CFE_ES_DEFAULT_ER_LOG_FILE is used to specify the path and filename.  
   Use the ground system to get the file and display the contents.  There 
-  is also a command to clear the ER log, #CFE_ES_CLEAR_ERLOG_CC.
+  is also a command to clear the ER log, #CFE_ES_CLEAR_ER_LOG_CC.
 
   The size of the ER log is defined by the platform configuration parameter 
   #CFE_ES_ER_LOG_ENTRIES This log is preserved after a processor reset and 
@@ -325,7 +325,7 @@
   the startup script. 
 
   The format of the Start Application command, is defined in the 
-  structure #CFE_ES_StartAppCmd_t. The members of the structure 
+  structure #CFE_ES_StartApp_t. The members of the structure 
   include, application name, entry point, filename, stack size, 
   load address, exception action and priority.
 
@@ -653,7 +653,7 @@
 /**
   \page cfeesugperfstart Starting to Collect Performance Data
 
-  The #CFE_ES_PERF_STARTDATA_CC command is used to start the data collection
+  The #CFE_ES_START_PERF_DATA_CC command is used to start the data collection
   process. The ES task sends a debug event when the command is received. It is
   not possible to start a collection if the buffer-to-file write is in process
   from an earlier collection. There is an ES telemetry point that can be used to
@@ -671,7 +671,7 @@
 /**
   \page cfeesugperfstop Stopping the Collection of Performance Data
 
-  The #CFE_ES_PERF_STOPDATA_CC command is used to stop the data collection 
+  The #CFE_ES_STOP_PERF_DATA_CC command is used to stop the data collection 
   process and write the buffer data to a file. The path and filename may be 
   specified in the command. If the filename command field contains an empty 
   string, the configuration parameter #CFE_ES_DEFAULT_PERF_DUMP_FILENAME is 
@@ -731,7 +731,7 @@
   allocates a section of the Critical Data Store memory for the application's use and
   assigns the Application specified name to the memory area.  The operator can find
   and learn the characteristics of these Critical Data Stores by using the
-  \link #CFE_ES_DUMP_CDS_REG_CC Dump CDS Registry Command. \endlink  This command will
+  \link #CFE_ES_DUMP_CDS_REGISTRY_CC Dump CDS Registry Command. \endlink  This command will
   dump the contents of the CDS Registry maintained by the Executive Services into a
   file that can be downlinked and examined by the operator.
   
@@ -804,7 +804,7 @@
   fail, regardless of whether the created blocks are in-use or not. The margin
   on the memory pool can be monitored by viewing the 'free bytes' member of the
   memory pool statistics. The memory pool statistics are dumped only when
-  commanded by way of the ES command #CFE_ES_TLM_POOL_STATS_CC. 
+  commanded by way of the ES command #CFE_ES_SEND_MEM_POOL_STATS_CC. 
     
   A user of the ES memory pool begins by tailoring the memory pool for the
   particular use, by defining a list of block sizes and allocating a block of
@@ -835,7 +835,7 @@
   through the #CFE_ES_PutPoolBuf API, then the memory pool will create a second
   block of that size and return a pointer to the second block. If both blocks
   were then released through the #CFE_ES_PutPoolBuf API and the memory pool
-  statistics were dumped via the #CFE_ES_TLM_POOL_STATS_CC command, the number
+  statistics were dumped via the #CFE_ES_SEND_MEM_POOL_STATS_CC command, the number
   of blocks created would be two. The number of 'free bytes' in the pool would
   be the size of the pool minus the sum of the following items: 
     - the size of the two blocks created (even though they are not 'in-use').
@@ -856,7 +856,7 @@
   by mission requirements).
     
   An operator can obtain information about an Application's Memory Pool by using
-  the \link #CFE_ES_TLM_POOL_STATS_CC Telemeter Memory Pool Statistics Command.
+  the \link #CFE_ES_SEND_MEM_POOL_STATS_CC Telemeter Memory Pool Statistics Command.
   \endlink
   
   This command will cause Executive Services to extract pertinent statistics
@@ -878,7 +878,7 @@
   
   <UL>
     <LI> <B>Memory Pool Handle</B> - the handle, as provided by the operator in the
-         \link #CFE_ES_TLM_POOL_STATS_CC Telemeter Memory Pool Statistics Command. \endlink
+         \link #CFE_ES_SEND_MEM_POOL_STATS_CC Telemeter Memory Pool Statistics Command. \endlink
          This repeating of the handle in telemetry insures the operator knows which Memory
          Pool Statistics are being viewed <BR>
     <LI> <B>Pool Size</B> - The total size of the memory pool (in bytes)<BR>

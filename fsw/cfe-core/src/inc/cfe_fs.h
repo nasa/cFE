@@ -113,8 +113,12 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, int32 FileDes);
 **        This API will clear the specified #CFE_FS_Header_t variable and
 **        initialize the description field with the specified value
 **
-** \param[in] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
-**                    cleared and initialized
+** \param[in] Hdr          Pointer to a variable of type #CFE_FS_Header_t that will be
+**                         cleared and initialized
+**
+** \param[in] *Description Initializes Header's Description
+**
+** \param[in]  SubType     Initializes Header's SubType
 **
 ** \sa #CFE_FS_WriteHeader
 **
