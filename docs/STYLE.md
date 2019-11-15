@@ -7,6 +7,20 @@ Do *not* change the style of existing code unless you are altering the functiona
 While GIT is fairly capable of ignoring whitespace changes, it is not perfect and other tools are less
 capable.
 
+## TODO: merge in/replace the IdentifierNamingConvention
+
+## TODO: Decide...
+
+1. PipeId vs PipeID
+
+2. "Out" parameters on the left? -- GetPipeName(char *buf, PipeID_t PipeID)
+
+3. Modify/clear "out" parameters on error? -- call to GetPipeName(char *buf, PipeID_t PipeID) clears buf even if it errs out.
+
+4. "Out" array buffers, always include size of buffer? (Should it be GetPipeName(char *buf, size_t buf_sz, PipeID_t PipeID)?)
+
+5. Type on left of name? (PipeGetName() vs GetPipeName()?)
+
 ## Code Formatting Guidance
 
 The vast bulk of cFS is written in C, and the following guidelines should be followed. Currently we recommend you use
