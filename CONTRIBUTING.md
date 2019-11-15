@@ -17,6 +17,8 @@ So you'd like to contribute to Core Flight Software? Below are some guidelines f
 
 * For any new API's, add unit tests to cover nominal and off-nominal conditions.
 
+* Add/edit stubs to the unit test codebase for any new/modified functions.
+
 * For any changes to existing API's, alter the unit tests to cover the changes (and remove tests made irrelevant due to your changes).
 
 * Test your code, on a Linux platform (at minimum) --
