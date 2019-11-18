@@ -17,7 +17,8 @@ capable.
 
 3. Modify/clear "out" parameters on error? -- call to GetPipeName(char *buf, PipeID_t PipeID) clears buf even if it errs out.
 
-4. "Out" array buffers, always include size of buffer? (Should it be GetPipeName(char *buf, size_t buf_sz, PipeID_t PipeID)?)
+4. "Out" array buffers, always include size of buffer? (Should it be GetPipeName(char *buf, size_t buf_sz, PipeId_t PipeId)?)
+4.1. Should the buffer size immediately follow the out buffer or be at the end? - GetPipeName(char *buf, size_t buf_sz, PipeId_t PipeId) or GetPipeName(char *buf, PipeId_t PipeId, size_t buf_sz)
 
 5. Type on left of name? (PipeGetName() vs GetPipeName()?)
 
