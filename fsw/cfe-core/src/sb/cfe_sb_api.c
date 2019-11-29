@@ -390,8 +390,9 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,uint32 AppId)
 
     CFE_SB_UnlockSharedData(__func__,__LINE__);
 
+    CFE_ES_GetAppName(FullName, Owner, OS_MAX_API_NAME);
     CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_DELETED_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
-          "Pipe Deleted:id %d,owner %s",(int)PipeId, CFE_SB_GetAppTskName(Owner,FullName));
+          "Pipe Deleted:id %d,task %s",(int)PipeId, FullName);
 
     return CFE_SUCCESS;
 
