@@ -10416,10 +10416,10 @@ void Test_RcvMsg_UnsubResubPath(void)
 */
 void Test_MessageString(void)
 {
-	char *SrcString = "abcdefg";
+	const char *SrcString = "abcdefg";
 	char DestString[20];
 	char *DestStringPtr = DestString;
-	char *DefString = "default";
+	const char *DefString = "default";
 
     SB_ResetUnitTest();
 
