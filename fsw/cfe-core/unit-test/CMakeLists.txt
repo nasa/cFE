@@ -56,7 +56,7 @@ foreach(MODULE ${CFE_CORE_MODULES})
         ut_${CFE_CORE_TARGET}_stubs
         ut_psp-${CFE_SYSTEM_PSPNAME}_stubs
         ut_osapi_stubs 
-        ut_bsp)
+        ut_assert)
   add_test(${CFE_CORE_TARGET}_${MODULE}_UT ${CFE_CORE_TARGET}_${MODULE}_UT)
   install(TARGETS ${CFE_CORE_TARGET}_${MODULE}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
 endforeach(MODULE ${CFE_CORE_MODULES})

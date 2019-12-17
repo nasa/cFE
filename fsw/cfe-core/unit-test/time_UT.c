@@ -199,7 +199,7 @@ void OS_SelectTone(int16 Signal)
 }
 #endif
 
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     /* Initialize unit test */
     UT_Init("time");

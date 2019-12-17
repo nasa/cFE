@@ -249,7 +249,7 @@ static void UT_EVS_DoGenericCheckEvents(void (*Func)(void), UT_EVS_EventCapture_
 /*
 ** Functions
 */
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     /* Initialize unit test */
     UT_Init("evs");
