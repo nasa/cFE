@@ -222,6 +222,29 @@ bool CFE_FS_IsGzFile(const char *FileName);
 
 /*****************************************************************************/
 /**
+** \brief Determines if a file is a tar file
+**
+** \par Description
+**        This API will check the filename and return true if the file is 
+**        a tar file. The check is currently based on the filename, so the 
+**        tar files should use the ".tar" extention. 
+**
+** \par Assumptions, External Events, and Notes:
+**        -# A tar file will use the ".tar" filename extention.
+**
+** \param[in] FileName The name of the file.
+**
+** \returns
+** \retstmt true if the file has the ".tar" extention and false otherwise.   \endstmt
+** \endreturns
+**
+** \sa
+**               
+******************************************************************************/
+bool CFE_FS_IsTarFile(const char *FileName);
+
+/*****************************************************************************/
+/**
 ** \brief Extracts the filename from a unix style path and filename string.
 **
 ** \par Description

@@ -68,6 +68,7 @@ void OS_Application_Startup(void)
     UT_ADD_TEST(Test_CFE_FS_ByteSwapCFEHeader);
     UT_ADD_TEST(Test_CFE_FS_ByteSwapUint32);
     UT_ADD_TEST(Test_CFE_FS_IsGzFile);
+    UT_ADD_TEST(Test_CFE_FS_IsTarFile);
     UT_ADD_TEST(Test_CFE_FS_ExtractFileNameFromPath);
     UT_ADD_TEST(Test_CFE_FS_Private);
     UT_ADD_TEST(Test_CFE_FS_Decompress);
@@ -246,6 +247,66 @@ void Test_CFE_FS_ByteSwapUint32(void)
     UT_Report(__FILE__, __LINE__,
               test == 0x44332211, "CFE_FS_ByteSwapUint32",
               "Byte swap - successful");
+}
+
+/*
+** Test FS API is .tar file function
+*/
+void Test_CFE_FS_IsTarFile(void)
+{
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test Is .tar File\n");
+#endif
+
+    /* Test if file name ends in .tar with the file name too short */
+    UT_InitData();
+    UT_Report(__FILE__, __LINE__,
+              CFE_FS_IsTarFile("a") == false,
+              "CFE_FS_IsTarFile",
+              "File name too short");
+
+    /* Test if file name ends in .tar with no file name */
+    UT_InitData();
+    UT_Report(__FILE__, __LINE__,
+              CFE_FS_IsTarFile(NULL) == false,
+              "CFE_FS_IsTarFile",
+              "Null file name");
+
+    /* Test if file name ',Tar' extension is missing */
+    UT_InitData();
+    UT_Report(__FILE__, __LINE__,
+              CFE_FS_IsTarFile("Normal_Tar") == false,
+              "CFE_FS_IsTarFile",
+              "File name missing .tar extension 1");
+
+    /* Test if file name ',tar' extension is missing */
+    UT_InitData();
+    UT_Report(__FILE__, __LINE__,
+              CFE_FS_IsTarFile("Normal.t__") == false,
+              "CFE_FS_IsTarFile",
+              "File name missing .tar extension 2");
+
+    /* Test if file name ',tar' extension is missing */
+    UT_InitData();
+    UT_Report(__FILE__, __LINE__,
+              CFE_FS_IsTarFile("Normal._a_") == false,
+              "CFE_FS_IsTarFile",
+              "File name missing .tar extension 3");
+
+    /* Test if file name ',tar' extension is missing */
+    UT_InitData();
+    UT_Report(__FILE__, __LINE__,
+              CFE_FS_IsTarFile("Normal.__r") == false,
+              "CFE_FS_IsTarFile",
+              "File name missing .tar extension 4");
+
+    /* Test a valid file name ending in .tar */
+    UT_InitData();
+    UT_Report(__FILE__, __LINE__,
+              CFE_FS_IsTarFile("example.tar") == true,
+              "CFE_FS_IsTarFile",
+              ".tar file name check - successful");
+
 }
 
 /*

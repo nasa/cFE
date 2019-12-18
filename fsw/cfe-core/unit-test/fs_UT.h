@@ -201,6 +201,24 @@ void Test_CFE_FS_IsGzFile(void);
 
 /*****************************************************************************/
 /**
+** \brief Test FS API is .tar file function
+**
+** \par Description
+**        This function tests the "is .tar file" function.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_FS_IsTarFile
+**
+******************************************************************************/
+void Test_CFE_FS_IsTarFile(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test FS API write extract file name from path function
 **
 ** \par Description

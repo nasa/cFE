@@ -389,6 +389,56 @@ bool CFE_FS_IsGzFile(const char *FileName)
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                         */
+/* Function: CFE_FS_IsTarFile                                              */
+/*                                                                         */
+/*  This function will check to see if the file to load                    */
+/*  is a tar file. Currently it is based on the                            */
+/*  file name. The file name must end in ".tar".                           */ 
+/*                                                                         */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+bool CFE_FS_IsTarFile(const char *FileName)
+{
+   size_t    StringLength;
+   
+   if ( FileName == NULL )
+   {
+      return(false);
+   }
+   /*
+   ** Get the string length of the SourceFile name
+   */
+   StringLength = strlen(FileName);
+   
+   /*
+   ** The compressed filename must be named "something.tar"
+   ** Because of that, the shortest compressed filename is "a.tar"
+   ** Check for the length before determining if the file is archive
+   */
+   if ( StringLength < 5 )
+   {
+      return(false);
+   }
+
+   /*
+   ** if the last 3 characters are ".tar"
+   ** Then assume the file is a tar file
+   */
+   if ( (FileName[StringLength - 4] == '.') &&
+        (FileName[StringLength - 3] == 't') &&
+        (FileName[StringLength - 2] == 'a') &&
+        (FileName[StringLength - 1] == 'r'))
+   {
+       return(true);       
+   }
+   else
+   {
+       return(false);
+   }
+  
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*                                                                         */
 /* Function: CFE_FS_GetUncompressedFile                                    */
 /*                                                                         */
 /*  Decompress a Loadable file to prepare for loading it                   */
