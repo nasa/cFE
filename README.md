@@ -13,7 +13,7 @@ This is a collection of services and associated framework to be located in the `
 - 6.7.1: DEVELOPMENT
   - Minor bug fixes (see https://github.com/nasa/cFE/pull/378)
   - Fix strlen in CFE_ES_TaskInit https://github.com/nasa/cFE/pull/23
-- **6.7.0 OFFICIAL RELEASE **:
+- **6.7.0 OFFICIAL RELEASE**:
   - This is a point release from an internal repository
   - Changes are detailed in [cFS repo](https://github.com/nasa/cFS) release documentation
   - Apache 2.0
