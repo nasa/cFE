@@ -6,7 +6,7 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version Notes
 
-- **6.7.0 OFFICIAL RELEASE **:
+- **6.7.0 OFFICIAL RELEASE**:
   - This is a point release from an internal repository
   - Changes are detailed in [cFS repo](https://github.com/nasa/cFS) release documentation
   - Apache 2.0
