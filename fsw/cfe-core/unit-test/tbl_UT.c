@@ -1688,7 +1688,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     CFE_TBL_LoadBuff_t    *DumpBuffPtr = &DumpBuff;
     CFE_TBL_RegistryRec_t RegRecPtr;
     uint8                 Buff;
-    uint8                 *BuffPtr = &Buff;
+    void                  *BuffPtr = &Buff;
     uint32                Secs = 0;
     uint32                SubSecs = 0;
     int32                 LoadInProg = 0;

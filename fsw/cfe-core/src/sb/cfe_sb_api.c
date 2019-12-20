@@ -1802,7 +1802,7 @@ CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
 {
    int32                stat1;
    uint32               AppId = 0xFFFFFFFF;
-   uint8               *address = NULL;
+   cpuaddr              address = 0;
    CFE_SB_ZeroCopyD_t  *zcd = NULL;
    CFE_SB_BufferD_t    *bd = NULL;
 
@@ -1849,7 +1849,7 @@ CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
     }/* end if */
 
     /* first set ptr to actual msg buffer the same as ptr to descriptor */
-    address = (uint8 *)bd;
+    address = (cpuaddr)bd;
 
     /* increment actual msg buffer ptr beyond the descriptor */
     address += sizeof(CFE_SB_BufferD_t);
@@ -1914,6 +1914,7 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
 {
     int32    Status;
     int32    Stat2;
+    cpuaddr  Addr = (cpuaddr)Ptr2Release;
 
     Status = CFE_SB_ZeroCopyReleaseDesc(Ptr2Release, BufferHandle);
 
@@ -1922,7 +1923,7 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
     if(Status == CFE_SUCCESS){
         /* give the buffer back to the buffer pool */
         Stat2 = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl,
-                                  (uint32 *) (((uint8 *)Ptr2Release) - sizeof(CFE_SB_BufferD_t)));
+                                  (uint32 *) (Addr - sizeof(CFE_SB_BufferD_t)));
         if(Stat2 > 0){
              /* Substract the size of the actual buffer from the Memory in use ctr */
             CFE_SB.StatTlmMsg.Payload.MemInUse-=Stat2;

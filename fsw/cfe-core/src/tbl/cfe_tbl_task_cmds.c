@@ -441,7 +441,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data)
                         {
                             /* Copy data from file into working buffer */
                             Status = OS_read(FileDescriptor,
-                                             &WorkingBufferPtr->BufferPtr[TblFileHeader.Offset],
+                                             ((uint8*)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset,
                                              TblFileHeader.NumBytes);
                                     
                             /* Make sure the appropriate number of bytes were read */

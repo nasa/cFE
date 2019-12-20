@@ -116,7 +116,7 @@ CFE_SB_BufferD_t * CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, uint16 Size) {
 
 CFE_SB_BufferD_t * CFE_SB_GetBufferFromCaller(CFE_SB_MsgId_t MsgId,
                                               void *Address) {
-   CFE_SB_BufferD_t    *bd = (CFE_SB_BufferD_t *)(((uint8 *)Address) - sizeof(CFE_SB_BufferD_t));
+   CFE_SB_BufferD_t    *bd = (CFE_SB_BufferD_t *)((cpuaddr)Address - sizeof(CFE_SB_BufferD_t));
 
     /* Initialize the MsgId in the buffer descriptor (the rest has already been initialized in this case). */
     bd->MsgId     = MsgId;
