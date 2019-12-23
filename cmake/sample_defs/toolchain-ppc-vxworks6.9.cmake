@@ -46,6 +46,6 @@ SET(CMAKE_PREFIX_PATH                   /)
 # these settings are specific to cFE/OSAL and determines which
 # abstraction layers are built when using this toolchain
 SET(CFE_SYSTEM_PSPNAME                  mcp750-vxworks)
-SET(OSAL_SYSTEM_BSPTYPE                 genppc-vxworks6.4)
+SET(OSAL_SYSTEM_BSPTYPE                 mcp750-vxworks)
 SET(OSAL_SYSTEM_OSTYPE                  vxworks)
 
