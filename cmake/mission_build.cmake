@@ -213,7 +213,10 @@ function(prepare)
       
   configure_file("${CMAKE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/cfe-common.doxyfile")
-    
+ 
+ configure_file("${CMAKE_SOURCE_DIR}/cmake/osal-common.doxyfile.in"
+    "${CMAKE_BINARY_DIR}/doc/osal-common.doxyfile")
+   
   configure_file("${CMAKE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/mission-detaildesign.doxyfile")
     
@@ -223,6 +226,11 @@ function(prepare)
     "${osal_MISSION_DIR}/src/os/inc/*.h"
     "${MISSION_SOURCE_DIR}/psp/fsw/inc/*.h")
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}") 
+
+  # OSAL API GUIDE include PUBLIC API
+  file(GLOB MISSION_OSAL_HEADERFILES 
+    "${osal_MISSION_DIR}/src/os/inc/*.h")
+  string(REPLACE ";" " \\\n" MISSION_OSAL_HEADERFILES "${MISSION_OSAL_HEADERFILES}") 
 
   # Addition to usersguide
   file(GLOB USERGUIDE_MISC_ADDITION
@@ -235,9 +243,15 @@ function(prepare)
   # PREDEFINED
   set(USERGUIDE_PREDEFINED 
       "MESSAGE_FORMAT_IS_CCSDS")
+
+  set(OSALGUIDE_PREDEFINED 
+      "MESSAGE_FORMAT_IS_CCSDS")
  
   configure_file("${CMAKE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/cfe-usersguide.doxyfile")
+
+  configure_file("${CMAKE_SOURCE_DIR}/cmake/osalguide.doxyfile.in"
+    "${CMAKE_BINARY_DIR}/doc/osalguide.doxyfile")  
     
   add_custom_target(mission-doc 
     doxygen mission-detaildesign.doxyfile 
@@ -245,6 +259,10 @@ function(prepare)
 
   add_custom_target(cfe-usersguide 
     doxygen cfe-usersguide.doxyfile 
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc") 
+
+  add_custom_target(osalguide 
+    doxygen osalguide.doxyfile 
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc") 
 
   # Certain runtime variables need to be "exported" to the subordinate build, such as
