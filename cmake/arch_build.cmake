@@ -429,6 +429,11 @@ function(process_arch SYSVAR)
     message(STATUS "Building App: ${APP} install=${APP_INSTALL_LIST}")
     add_subdirectory(${${APP}_MISSION_DIR} apps/${APP})
   endforeach()
+  
+  # If unit test is enabled, build a generic ut stub library for CFE
+  if (ENABLE_UNIT_TESTS)
+    add_subdirectory(${cfe-core_MISSION_DIR}/ut-stubs ut_cfe_core_stubs)
+  endif (ENABLE_UNIT_TESTS)
 
   # Process each target that shares this system architecture
   # Second Pass: Build cfe-core and link final target executable 

@@ -32,10 +32,9 @@
 /*
 ** Includes
 */
+#include <stdio.h>
 #include <string.h>
 #include "cfe_time.h"
-#include "cfe_time_utils.h"
-#include "ut_support.h"
 #include "utstubs.h"
 
 /*

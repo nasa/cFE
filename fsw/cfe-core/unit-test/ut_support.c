@@ -150,16 +150,6 @@ void UT_InitData(void)
     UT_SetCDSSize(UT_LastCDSSize);
 
     /*
-     * NOTE: The CDS is not wiped as part of the reset operations
-     * because some test sequences rely on this being persistent.
-     *
-     * Test cases that want to clear CDS should use UT_ResetCDS()
-     */
-#ifdef UT_RESET_CDS
-    memset(UT_CDS_Data, 0xEE, sizeof(UT_CDS_Data));
-#endif
-
-    /*
      * Set up for the CFE_SB_RcvMsg() call.
      *
      * The existing test cases assume that this will return success once,
@@ -206,9 +196,6 @@ void UT_ResetPoolBufferIndex(void)
      * Set the whole memory space to a pattern.
      */
     UT_ResetState(UT_KEY(CFE_ES_GetPoolBuf));
-#ifdef UT_CLEAR_MEMORY_POOL
-    memset(&UT_CFE_ES_MemoryPool, 0xAA, sizeof(UT_CFE_ES_MemoryPool));
-#endif
     UT_SetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), &UT_CFE_ES_MemoryPool, sizeof(UT_CFE_ES_MemoryPool), false);
 }
 
