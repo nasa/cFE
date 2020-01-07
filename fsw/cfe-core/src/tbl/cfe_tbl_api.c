@@ -1628,7 +1628,7 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
 
     
     return Status;
-}
+} /* End of CFE_TBL_Modified() */
 
 
 /*******************************************************************
@@ -1673,7 +1673,7 @@ int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, 
     }
     
     return Status;
-}
+}  /* End of CFE_TBL_NotifyByMessage() */
 
 /************************/
 /*  End of File Comment */

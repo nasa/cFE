@@ -259,7 +259,7 @@ void CFE_TBL_GetHkData(void)
                     sizeof(CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.LastTblUpdated].Name));
         }      
     }
-}
+} /* End of CFE_TBL_GetHkData() */
 
 /*******************************************************************
 **
@@ -315,7 +315,7 @@ void CFE_TBL_GetTblRegData(void)
             sizeof(CFE_TBL_TaskData.TblRegPacket.Payload.LastFileLoaded), sizeof(RegRecPtr->LastFileLoaded));
     CFE_ES_GetAppName(CFE_TBL_TaskData.TblRegPacket.Payload.OwnerAppName, RegRecPtr->OwnerAppId,
             sizeof(CFE_TBL_TaskData.TblRegPacket.Payload.OwnerAppName));
-}
+} /* End of CFE_TBL_GetTblRegData() */
 
 
 /*******************************************************************
@@ -855,7 +855,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
     }
     
     return ReturnCode;
-}
+} /* End of CFE_TBL_DumpToFile() */
 
 /*******************************************************************
 **
@@ -1522,7 +1522,7 @@ void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr)
                       CFE_EVS_EventType_INFORMATION,
                       "Table Load Aborted for '%s'",
                       RegRecPtr->Name);
-}
+} /* End of CFE_TBL_AbortLoad() */
 
 /************************/
 /*  End of File Comment */

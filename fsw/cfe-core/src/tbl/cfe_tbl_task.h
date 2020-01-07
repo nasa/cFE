@@ -349,6 +349,29 @@ typedef struct
 
 /*****************************************************************************/
 /**
+** \brief Compares message with #CFE_TBL_CmdHandlerTbl to identify the message
+**
+** \par Description
+**          Searches the Command Handler Table for an entry matching the
+**          message ID and, if necessary, the Command Code.  If an entry
+**          is not located, an error code is returned.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \param[in] MessageID message ID of command message received on command pipe
+**
+** \param[in] CommandCode command code from command message received on command pipe
+**
+** \retval #CFE_SUCCESS          \copydoc CFE_SUCCESS
+** \retval #CFE_TBL_BAD_CMD_CODE \copydoc CFE_TBL_BAD_CMD_CODE
+** \retval #CFE_TBL_BAD_MSG_ID   \copydoc CFE_TBL_BAD_MSG_ID
+**
+******************************************************************************/
+extern int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode);
+
+/*****************************************************************************/
+/**
 ** \brief cFE Table Services Core Application Initialization
 **
 ** \par Description
