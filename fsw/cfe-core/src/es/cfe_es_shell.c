@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -306,7 +306,7 @@ int32 CFE_ES_ListTasks(int32 fd)
                 /*
                 ** Populate the AppInfo entry 
                 */
-                Result = CFE_ES_GetTaskInfo(&TaskInfo,i);
+                Result = CFE_ES_GetTaskInfo(&TaskInfo,CFE_ES_Global.TaskTable[i].TaskId);
 
                 if ( Result == CFE_SUCCESS )
                 {

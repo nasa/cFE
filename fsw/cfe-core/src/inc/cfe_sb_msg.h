@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -205,7 +205,7 @@
 **  \cfecmdmnemonic \SB_ENAROUTE
 **
 **  \par Command Structure
-**       #CFE_SB_EnRoutCmd_t
+**       #CFE_SB_RouteCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -229,7 +229,7 @@
 **  \par Criticality
 **       This command is not inherently dangerous.
 **
-**  \sa #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_DISABLE_ROUTE_CC, #CFE_SB_EnRoutCmd_t
+**  \sa #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_DISABLE_ROUTE_CC, #CFE_SB_RouteCmd_t
 */
 #define CFE_SB_ENABLE_ROUTE_CC          4
 
@@ -243,7 +243,7 @@
 **  \cfecmdmnemonic \SB_DISROUTE
 **
 **  \par Command Structure
-**       #CFE_SB_EnRoutCmd_t
+**       #CFE_SB_RouteCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -272,7 +272,7 @@
 **       commanding to the software bus until the processor was reset. There
 **       are similar problems that may occur when using this command.
 **
-**  \sa #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_ENABLE_ROUTE_CC, #CFE_SB_EnRoutCmd_t
+**  \sa #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_ENABLE_ROUTE_CC, #CFE_SB_RouteCmd_t
 */
 #define CFE_SB_DISABLE_ROUTE_CC         5
 

@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -712,7 +712,7 @@
 **
 **  This event message is generated when either a Table Validate command or a Table Dump Command
 **  contains a buffer identifier that does not equal either of the valid values 
-**  (see #CFE_TBL_DumpCmd_t::ActiveTableFlag or #CFE_TBL_ValidateCmd_t::ActiveTableFlag)
+**  (see #CFE_TBL_DumpCmd_Payload_t::ActiveTableFlag or #CFE_TBL_ValidateCmd_Payload_t::ActiveTableFlag)
 **
 **  The parameter in the Event Message indicates (in hex) the value found for the ActiveTableFlag in the command.
 **/

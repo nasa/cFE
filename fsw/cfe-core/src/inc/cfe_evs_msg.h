@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -234,7 +234,7 @@
 **  \cfecmdmnemonic \EVS_SETEVTFMT
 **
 **  \par Command Structure
-**       #CFE_EVS_ModeCmd_t
+**       #CFE_EVS_SetLogMode_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -346,7 +346,7 @@
 **       - \b \c \EVS_CMDPC - command execution counter will 
 **       increment
 **       - The generation of #CFE_EVS_DISAPPENTTYPE_EID debug event message      
-**       - The clearing of the Active Flag in \link #CFE_EVS_AppDataFile_t::ActiveFlag The Active Flag in EVS App Data File \endlink
+**       - The clearing of the Event Type Active Flag in The Event Type Active Flag in EVS App Data File
 **
 **  \par Error Conditions
 **      This command may fail for the following reason(s):
@@ -386,7 +386,7 @@
 **       - \b \c \EVS_CMDPC - command execution counter will 
 **       increment
 **       - The generation of #CFE_EVS_ENAAPPEVT_EID debug event message 
-**       - The setting of the Active Flag in \link #CFE_EVS_AppDataFile_t::ActiveFlag The Active Flag in EVS App Data File \endlink
+**       - The setting of the Active Flag in The Active Flag in EVS App Data File
 **
 **  \par Error Conditions
 **      This command may fail for the following reason(s):
@@ -764,7 +764,7 @@
 **  \cfecmdmnemonic \EVS_WRITEAPPDATA2FILE
 **
 **  \par Command Structure
-**       #CFE_EVS_AppDataCmd_t
+**       #CFE_EVS_WriteAppDataFile_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -799,7 +799,7 @@
 **  \cfecmdmnemonic \EVS_WRITELOG2FILE
 **
 **  \par Command Structure
-**       #CFE_EVS_LogFileCmd_t
+**       #CFE_EVS_WriteLogDataFile_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -832,7 +832,7 @@
 **  \cfecmdmnemonic \EVS_SETLOGMODE
 **
 **  \par Command Structure
-**       #CFE_EVS_ModeCmd_t
+**       #CFE_EVS_SetLogMode_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 

@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -130,7 +130,7 @@
 **  \cfecmdmnemonic \TBL_LOAD
 **
 **  \par Command Structure
-**       #CFE_TBL_LoadCmd_t
+**       #CFE_TBL_Load_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -184,7 +184,7 @@
 **  \cfecmdmnemonic \TBL_DUMP
 **
 **  \par Command Structure
-**       #CFE_TBL_DumpCmd_t
+**       #CFE_TBL_Dump_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -230,7 +230,7 @@
 **  \cfecmdmnemonic \TBL_VALIDATE
 **
 **  \par Command Structure
-**       #CFE_TBL_ValidateCmd_t
+**       #CFE_TBL_Validate_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the following 
@@ -286,7 +286,7 @@
 **  \cfecmdmnemonic \TBL_ACTIVATE
 **
 **  \par Command Structure
-**       #CFE_TBL_ActivateCmd_t
+**       #CFE_TBL_Activate_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -326,7 +326,7 @@
 **  \cfecmdmnemonic \TBL_WRITEREG2FILE
 **
 **  \par Command Structure
-**       #CFE_TBL_DumpRegCmd_t
+**       #CFE_TBL_DumpRegistry_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -366,7 +366,7 @@
 **  \cfecmdmnemonic \TBL_TLMREG
 **
 **  \par Command Structure
-**       #CFE_TBL_TlmRegCmd_t
+**       #CFE_TBL_DumpRegistry_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -405,7 +405,7 @@
 **  \cfecmdmnemonic \TBL_DELETECDS
 **
 **  \par Command Structure
-**       #CFE_TBL_DelCDSCmd_t
+**       #CFE_TBL_DeleteCDS_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -448,7 +448,7 @@
 **  \cfecmdmnemonic \TBL_LOADABORT
 **
 **  \par Command Structure
-**       #CFE_TBL_AbortLdCmd_t
+**       #CFE_TBL_AbortLoad_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 

@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -528,8 +528,8 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 **                          \arg #CFE_ES_RunStatus_APP_ERROR - \copydoc CFE_ES_RunStatus_APP_ERROR
 **
 ** \returns
-** \retcode #true  \retdesc The application should continue executing \endcode
-** \retcode #false \retdesc The application should terminate itself \endcode
+** \retcode true  \retdesc The application should continue executing \endcode
+** \retcode false \retdesc The application should terminate itself \endcode
 ** \endreturns
 **
 ** \sa #CFE_ES_ExitApp, #CFE_ES_RegisterApp
@@ -557,6 +557,8 @@ bool CFE_ES_RunLoop(uint32 *ExitStatus);
 **                                   will be rounded up. There is not an option to
 **                                   wait indefinitely to avoid hanging a critical
 **                                   application because a non-critical app did not start.
+**
+** \param[in]  MinSystemState        Determine the state of the App
 **
 ** \returns
 **      CFE_SUCCESS if state was successfully achieved

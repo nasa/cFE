@@ -19,6 +19,10 @@ INPUT                 += @MISSION_SOURCE_DIR@/cfe/cmake/sample_defs
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/main.dox 
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_usersguide.dox
 
+#PREDEFINED
+PREDEFINED            += @USERGUIDE_PREDEFINED@
+
 # Bring in the cFE header files for the documentation of the various API calls
 INPUT                 += \
-@MISSION_USERGUIDE_HEADERFILES@
+@MISSION_USERGUIDE_HEADERFILES@ \
+@USERGUIDE_MISC_ADDITION@                

@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -102,7 +102,7 @@ void CFE_SB_InitMsg(void           *MsgPtr,
 **    Get the size of a message header.
 **
 **  Arguments:
-**    MsgPtr - Pointer to a SB message 
+**    *MsgPtr - Pointer to a SB message 
 **
 **  Return:
 **     Size of Message Header.

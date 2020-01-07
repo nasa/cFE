@@ -6,23 +6,27 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version Notes
 
-- 6.7.1:
-  - Minor bug fixes: https://github.com/nasa/cFE/pull/378
+- 6.7.3: DEVELOPMENT
+  - Minor updates (see https://github.com/nasa/cFE/pull/413)
+- 6.7.2: DEVELOPMENT
+  - Minor bugs and enhancements  (see https://github.com/nasa/cFE/pull/388)
+- 6.7.1: DEVELOPMENT
+  - Minor bug fixes (see https://github.com/nasa/cFE/pull/378)
   - Fix strlen in CFE_ES_TaskInit https://github.com/nasa/cFE/pull/23
-- 6.7.0: RELEASE CANDIDATE
-  - In build verification testing to be considered for official release
-  - Release documentation in work
+- **6.7.0 OFFICIAL RELEASE**:
   - This is a point release from an internal repository
+  - Changes are detailed in [cFS repo](https://github.com/nasa/cFS) release documentation
+  - Apache 2.0
 - **6.6.0a OFFICIAL RELEASE**:
-  - is released under the Apache 2.0 license, see [LICENSE](LICENSE-18128-Apache-2_0.pdf)
-  - Additional release notes are found in [release notes](docs/cFE_release_notes.md)
-  - See the [version description document](docs/cFE_6_6_0_version_description.md) for the full document
-  - Test results can be found in [test results](test-and-ground/test-review-packages/Results)
   - This is a point release from an internal repository
+  - Apache 2.0
+  - Additional release notes are found in [release notes](https://github.com/nasa/cFE/blob/v6.6.0a/docs/cFE_release_notes.md)
+  - See the [version description document](https://github.com/nasa/cFE/blob/v6.6.0a/docs/cFE_6_6_0_version_description.pdf) for the full document
+  - Test results can be found in [test results](https://github.com/nasa/cFE/tree/v6.6.0a/test-and-ground/test-review-packages/Results)
 
 ## Known issues
 
-Version description document contains references to internal repositories and sourceforge, which is no longer in use.  Markdown document formats have not been updated for GitHub.
+See all open issues and closed to milestones later than this version.
 
 ## Getting Help
 

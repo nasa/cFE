@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -390,9 +390,16 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,uint32 AppId)
 
     CFE_SB_UnlockSharedData(__func__,__LINE__);
 
-    CFE_ES_GetAppName(FullName, Owner, OS_MAX_API_NAME);
+    /*
+     * Get the app name of the actual pipe owner for the event string
+     * as this may be different than the task doing the deletion.
+     *
+     * Note: If this fails (e.g. bad AppID, it returns an empty string
+     */
+    CFE_ES_GetAppName(FullName, Owner, sizeof(FullName));
+
     CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_DELETED_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
-          "Pipe Deleted:id %d,task %s",(int)PipeId, FullName);
+          "Pipe Deleted:id %d,owner %s",(int)PipeId, FullName);
 
     return CFE_SUCCESS;
 
@@ -461,8 +468,17 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
     CFE_SB.PipeTbl[PipeTblIdx].Opts = Opts;
 
     CFE_SB_UnlockSharedData(__func__,__LINE__);
+
+    /*
+     * Get the app name of the actual pipe owner for the event string
+     * as this may be different than the task doing the deletion.
+     *
+     * Note: If this fails (e.g. bad AppID, it returns an empty string
+     */
+    CFE_ES_GetAppName(FullName, Owner, sizeof(FullName));
+
     CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
-          "Pipe opts set:id %d,owner %s, opts=0x%02x",(int)PipeId, CFE_SB_GetAppTskName(Owner,FullName), (unsigned int)Opts);
+          "Pipe opts set:id %d,owner %s, opts=0x%02x",(int)PipeId, FullName, (unsigned int)Opts);
 
     return CFE_SUCCESS;
 }/* end CFE_SB_SetPipeOpts */

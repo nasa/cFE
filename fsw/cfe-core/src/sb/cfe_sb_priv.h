@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -422,7 +422,7 @@ int32 CFE_SB_RemoveDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *
 **            macros #CFE_SB_CMD_HDR_SIZE and #CFE_SB_TLM_HDR_SIZE are available for use 
 **            in static message buffer sizing or structure definitions.  
 **
-** \param[in]  MsgId   The message ID to calculate header size for.  The size of the message 
+** \param[in]  *MsgPtr The message ID to calculate header size for.  The size of the message 
 **                     header may depend on the MsgId in some implementations.  For example, 
 **                     if SB messages are implemented as CCSDS packets, the size of the header 
 **                     is different for command vs. telemetry packets.
