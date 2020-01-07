@@ -98,3 +98,21 @@ SET(TGT1_FILELIST cfe_es_startup.scr)
 #SET(TGT3_APPLIST sample_app ci_lab to_lab sch_lab)
 #SET(TGT3_FILELIST cfe_es_startup.scr)
 
+# Set host strict warnings, gets applied to all host compiled elements
+# Note target strict warnings are defined in associated toolchain file
+SET(HOST_STRICT_WARNINGS "-Wall -Werror -std=c99 -D_XOPEN_SOURCE=600 -pedantic -Wstrict-prototypes -Wcast-align -Wwrite-strings")
+
+# Cache related environment variables
+# NOTE - requires distclean and re-"make prep" to change
+set(OMIT_DEPRECATED $ENV{OMIT_DEPRECATED} CACHE STRING "Omit deperecated elements")
+
+# Helper definition to abstract omitting deprecated elements,
+# allows for one setting in CI and used by projects
+if (OMIT_DEPRECATED)
+  message (STATUS "OMIT_DEPRECATED=true: Not including deprecated elements in build")
+  add_definitions(-DCFE_OMIT_DEPRECATED_6_6 -DOSAL_OMIT_DEPRECATED)
+else()
+  message (STATUS "OMIT_DEPRECATED=false: Deprecated elements included in build")
+endif (OMIT_DEPRECATED)
+
+

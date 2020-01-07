@@ -23,3 +23,5 @@ SET(CFE_SYSTEM_PSPNAME      "pc-linux")
 SET(OSAL_SYSTEM_BSPNAME     "pc-linux")
 SET(OSAL_SYSTEM_OSTYPE      "posix")
 
+# Define target strict warnings applied to all cross compiled code
+SET(TARGET_STRICT_WARNINGS "-Wall -Werror -std=c99 -D_XOPEN_SOURCE=600 -pedantic -Wstrict-prototypes -Wcast-align -Wwrite-strings")
