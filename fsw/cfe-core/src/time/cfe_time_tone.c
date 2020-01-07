@@ -141,8 +141,8 @@ void CFE_TIME_ToneSend(void)
         CFE_MAKE_BIG32(Reference.AtToneSTCF.Seconds);
     CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneSTCF.Subseconds =
         CFE_MAKE_BIG32(Reference.AtToneSTCF.Subseconds);
-    CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneLeaps = 
-        CFE_MAKE_BIG16(Reference.AtToneLeaps);
+    CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneLeapSeconds = 
+        CFE_MAKE_BIG16(Reference.AtToneLeapSeconds);
     CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneState = 
         CFE_MAKE_BIG16(AtToneState);
 
@@ -288,8 +288,8 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
                 CFE_MAKE_BIG32(Reference.AtToneSTCF.Seconds);
             CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneSTCF.Subseconds =
                 CFE_MAKE_BIG32(Reference.AtToneSTCF.Subseconds);
-            CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneLeaps = 
-                CFE_MAKE_BIG16(Reference.AtToneLeaps);
+            CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneLeapSeconds = 
+                CFE_MAKE_BIG16(Reference.AtToneLeapSeconds);
             CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneState = 
                 CFE_MAKE_BIG16(ClockState);
 
@@ -442,7 +442,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
                 CFE_MAKE_BIG32(NewSTCF.Seconds);
             CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneSTCF.Subseconds =
                 CFE_MAKE_BIG32(NewSTCF.Subseconds);
-            CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneLeaps = 
+            CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneLeapSeconds = 
                 CFE_MAKE_BIG16(NewLeaps);
             CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneState = 
                 CFE_MAKE_BIG16(ClockState);
@@ -595,8 +595,8 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
                 CFE_MAKE_BIG32(NewSTCF.Seconds);
             CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneSTCF.Subseconds =
                 CFE_MAKE_BIG32(NewSTCF.Subseconds);
-            CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneLeaps = 
-                CFE_MAKE_BIG16(Reference.AtToneLeaps);
+            CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneLeapSeconds = 
+                CFE_MAKE_BIG16(Reference.AtToneLeapSeconds);
             CFE_TIME_TaskData.ToneDataCmd.Payload.AtToneState = 
                 CFE_MAKE_BIG16(ClockState);
 
@@ -657,7 +657,7 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
         CFE_MAKE_BIG32(ToneDataCmd->AtToneSTCF.Seconds);
     CFE_TIME_TaskData.PendingSTCF.Subseconds =
         CFE_MAKE_BIG32(ToneDataCmd->AtToneSTCF.Subseconds);
-    CFE_TIME_TaskData.PendingLeaps = CFE_MAKE_BIG16(ToneDataCmd->AtToneLeaps);
+    CFE_TIME_TaskData.PendingLeaps = CFE_MAKE_BIG16(ToneDataCmd->AtToneLeapSeconds);
     CFE_TIME_TaskData.PendingState = CFE_MAKE_BIG16(ToneDataCmd->AtToneState);
 
     #else /* !CFE_PLATFORM_TIME_CFG_BIGENDIAN */
