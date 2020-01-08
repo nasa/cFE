@@ -93,7 +93,7 @@ extern CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE
 extern void  CFE_ES_CreateObjects(void);
 extern void  CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource);
 extern void  CFE_ES_InitializeFileSystems(uint32 StartType);
-extern void CFE_ES_SetupPerfVariables(uint32 StartType);
+extern void CFE_ES_SetupPerfVariables(uint32 ResetType);
 
 
 #endif  /* _cfe_es_start_ */

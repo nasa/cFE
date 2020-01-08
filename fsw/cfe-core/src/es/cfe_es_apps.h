@@ -174,9 +174,9 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
 ** Internal function to load a a new cFE shared Library
 */
 int32 CFE_ES_LoadLibrary(uint32 *LibraryIdPtr,
-                       const char   *Path,
+                       const char   *FileName,
                        const void   *EntryPointData,
-                       const char   *Name);
+                       const char   *LibName);
 
 /*
 ** Get Application List

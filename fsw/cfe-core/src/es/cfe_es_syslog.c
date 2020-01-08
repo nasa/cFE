@@ -373,7 +373,7 @@ int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode)
  * with arguments similar to the "vsnprintf()" C library API call
  * -----------------------------------------------------------------
  */
-void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, va_list ap)
+void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, va_list ArgPtr)
 {
     size_t StringLen;
     size_t MaxLen;
@@ -405,7 +405,7 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
             ++StringLen;
 
             /* note that vsnprintf() may return a size larger than the buffer, if it truncates. */
-            PrintLen = vsnprintf(&Buffer[StringLen], BufferSize - StringLen, SpecStringPtr, ap);
+            PrintLen = vsnprintf(&Buffer[StringLen], BufferSize - StringLen, SpecStringPtr, ArgPtr);
             if (PrintLen > 0)
             {
                 StringLen += PrintLen;

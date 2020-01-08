@@ -239,19 +239,19 @@ void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer);
  * The operating mode of the system log controls its behavior once filled to the point
  * where additional messages can no longer be stored.
  *
- * If "LogMode" is set to DISCARD, then the message will be truncated
+ * If "Mode" is set to DISCARD, then the message will be truncated
  * to fit in the available space, or completely discarded if no space exists.
  *
- * If "LogMode" is set to OVERWRITE, then the oldest message(s) in the
+ * If "Mode" is set to OVERWRITE, then the oldest message(s) in the
  * system log will be overwritten with this new message.
  *
  * \note Switching from OVERWRITE to DISCARD mode may take effect immediately, as the
  * setting only takes effect when the buffer "wrap-point" is reached at the end.
  *
- * \param LogMode   The desired operating mode
+ * \param Mode   The desired operating mode
  * \return CFE_SUCCESS if set successfully
  */
-int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t LogMode);
+int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode);
 
 /**
  * \brief Format a message intended for output to the system log
