@@ -166,7 +166,7 @@ int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr)
 
 int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp)
 {
-    int32              Result = OS_FS_SUCCESS;
+    int32              Result;
     CFE_FS_Header_t    TempHdr;
     int32              EndianCheck = 0x01020304;
     CFE_TIME_SysTime_t OutTimestamp = NewTimestamp;

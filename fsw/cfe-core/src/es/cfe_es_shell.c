@@ -282,7 +282,7 @@ int32 CFE_ES_ListTasks(int32 fd)
      * length defined by osconfig.
      */
     char                 Line [96 + (OS_MAX_API_NAME * 2)];
-    int32                Result = CFE_SUCCESS;
+    int32                Result;
     CFE_ES_TaskInfo_t    TaskInfo;
     
     /* Make sure we start at the beginning of the file */
@@ -356,7 +356,7 @@ static void CFE_ES_ShellCountObjectCallback(uint32 object_id, void *arg)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 int32 CFE_ES_ListResources(int32 fd)
 {
-    int32 Result = CFE_SUCCESS;
+    int32 Result;
     int32 NumSemaphores = 0;
     int32 NumCountSems =0;
     int32 NumMutexes = 0;
