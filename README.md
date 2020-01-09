@@ -6,6 +6,8 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version Notes
 
+- 6.7.4: DEVELOPMENT
+  - Minor updates (see https://github.com/nasa/cFE/pull/448)
 - 6.7.3: DEVELOPMENT
   - Minor updates (see https://github.com/nasa/cFE/pull/413)
 - 6.7.2: DEVELOPMENT
