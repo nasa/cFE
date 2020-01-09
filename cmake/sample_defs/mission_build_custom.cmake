@@ -1,6 +1,6 @@
 #
-# Example mission_build.cmake
-# ---------------------------
+# Example mission_build_custom.cmake
+# ----------------------------------
 #
 # This file will be automatically included in the top level ("mission") build scope
 #

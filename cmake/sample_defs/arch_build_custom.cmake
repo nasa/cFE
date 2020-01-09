@@ -1,6 +1,6 @@
 #
-# Example arch_build.cmake
-# -------------------------
+# Example arch_build_custom.cmake
+# -------------------------------
 #
 # This file will be automatically included in the arch-specific build scope
 #
@@ -19,7 +19,7 @@
 # compiler from the same vendor and/or are all GCC based such that they accept similar 
 # command line options.
 #
-# This file can alternatively be named as "arch_build_${TARGETSYSTEM}.cmake" 
+# This file can alternatively be named as "arch_build_custom_${TARGETSYSTEM}.cmake" 
 # where ${TARGETSYSTEM} represents the system type, matching the toolchain.
 #
 # These example options assume a GCC-style toolchain is used for cross compilation,
