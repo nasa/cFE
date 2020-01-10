@@ -49,7 +49,7 @@ set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 # Add a path for any locally-supplied CMake modules
 # These would typically be a part of any custom PSPs in use.
 # (this is not required, and the directory can be empty/nonexistent)
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../psp/cmake/Modules" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../psp/cmake/Modules" ${CMAKE_MODULE_PATH})
 
 # The minimum CMake version is chosen because 2.6.4 is what is
 # included by default with RHEL/Centos 5.x
@@ -59,7 +59,8 @@ cmake_minimum_required(VERSION 2.6.4)
 # that the subdirectories will at least use the "C" language, so
 # indicate that now.  Doing this early initializes the CFLAGS
 # so they won't change later.
-project(CFETOP C)
+# Note: this line defines the CFE_SOURCE_DIR variable.
+project(CFE C)
 
 # Allow unit tests to be added by any recipe
 enable_testing()
