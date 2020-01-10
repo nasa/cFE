@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -203,6 +203,7 @@ int32 FS_gz_eat_header_Reentrant( CFE_FS_Decompress_State_t *State )
 		if( State->Error != CFE_SUCCESS ) return CFE_FS_GZIP_READ_ERROR_HEADER;
 		stamp |= (uint32)NEXTBYTE() << 16;
 		if( State->Error != CFE_SUCCESS ) return CFE_FS_GZIP_READ_ERROR_HEADER;
+        /* cppcheck-suppress unreadVariable */
 		stamp |= (uint32)NEXTBYTE() << 24;
 		if( State->Error != CFE_SUCCESS ) return CFE_FS_GZIP_READ_ERROR_HEADER;
 		

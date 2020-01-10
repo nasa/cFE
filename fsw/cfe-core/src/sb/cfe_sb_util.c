@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -109,10 +109,10 @@ void CFE_SB_InitMsg(void           *MsgPtr,
 */
 uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
 {
-    uint16 size;
 
 #ifdef MESSAGE_FORMAT_IS_CCSDS
 
+    uint16 size;
     const CCSDS_PriHdr_t  *HdrPtr;
 
     HdrPtr = (const CCSDS_PriHdr_t *) MsgPtr;

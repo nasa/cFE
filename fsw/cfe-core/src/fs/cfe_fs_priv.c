@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -63,7 +63,7 @@ CFE_FS_t CFE_FS;
 */
 int32 CFE_FS_EarlyInit (void) 
 {
-    int32 Stat = CFE_SUCCESS;
+    int32 Stat;
 
     Stat = OS_MutSemCreate(&CFE_FS.SharedDataMutexId, "CFE_FS_SharedMutex", 0);
     if( Stat != OS_SUCCESS )

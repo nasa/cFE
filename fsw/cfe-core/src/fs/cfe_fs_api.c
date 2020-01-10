@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -166,7 +166,7 @@ int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr)
 
 int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp)
 {
-    int32              Result = OS_FS_SUCCESS;
+    int32              Result;
     CFE_FS_Header_t    TempHdr;
     int32              EndianCheck = 0x01020304;
     CFE_TIME_SysTime_t OutTimestamp = NewTimestamp;

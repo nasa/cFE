@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -10416,10 +10416,10 @@ void Test_RcvMsg_UnsubResubPath(void)
 */
 void Test_MessageString(void)
 {
-	char *SrcString = "abcdefg";
+	const char *SrcString = "abcdefg";
 	char DestString[20];
 	char *DestStringPtr = DestString;
-	char *DefString = "default";
+	const char *DefString = "default";
 
     SB_ResetUnitTest();
 

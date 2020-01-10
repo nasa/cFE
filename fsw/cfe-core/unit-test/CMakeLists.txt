@@ -7,56 +7,65 @@
 #
 ##################################################################
  
-add_definitions(-DCFE_LINUX)
 include_directories(${osal_MISSION_DIR}/ut_assert/inc)
 
-# The parent build may have specified extra C flags for use when unit testing
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${UT_C_FLAGS}")
+# allow direct inclusion of module-private header files by UT code
+# NOTE: this should be minimized and moved to a more targeted
+# approach, where only each specific UT module does this.
+include_directories(
+      ${cfe-core_MISSION_DIR}/src/es
+      ${cfe-core_MISSION_DIR}/src/evs
+      ${cfe-core_MISSION_DIR}/src/sb
+      ${cfe-core_MISSION_DIR}/src/tbl
+      ${cfe-core_MISSION_DIR}/src/time
+      ${cfe-core_MISSION_DIR}/src/fs
+)
 
-# Because the object code is dependent on settings in cfe_platform_cfg.h,
-# we must include the LIBNAME in all binary targets, as they must be rebuilt
-# for each different platform config.
-set (STUBNAME stub) 
-if (CFE_CORE_TARGET)
-  set(STUBNAME "${CFE_CORE_TARGET}_${STUBNAME}")
-endif (CFE_CORE_TARGET)
-
-set(STUBFILES configdata osprintf ${CFE_CORE_MODULES})
-
-# Allow direct inclusion of all private CFE header files
-foreach(MODULE ${CFE_CORE_MODULES})
-  get_filename_component(CFEDIR ${CMAKE_CURRENT_SOURCE_DIR}/../src/${MODULE} ABSOLUTE)
-  if (IS_DIRECTORY "${CFEDIR}")
-    include_directories(${CFEDIR})
-  endif()
-endforeach()
-
-set(CFE_MODULE_FILES)
-foreach(MODULE ${CFE_CORE_MODULES})
-    list(APPEND CFE_MODULE_FILES ut_${MODULE}_stubs.c)
-endforeach(MODULE ${CFE_CORE_MODULES})
-
-#
-# Create the generic stubs library that ANY other UT target can link to
-# to provide stubs for all CFE API calls.
-#
-add_library(ut_${CFE_CORE_TARGET}_stubs STATIC ${CFE_MODULE_FILES})
+# CFE needs a supplemental test support hook library
+add_library(ut_${CFE_CORE_TARGET}_support STATIC
+    ut_support.c
+    ut_osprintf_stubs.c
+)
 
 # For each core module, generate the associated unit test
 # This is done by linking the stubs of every OTHER module with the
 # UT version of the real module (compiled with coverage flags)
 foreach(MODULE ${CFE_CORE_MODULES})
-  set(CFE_MODULE_FILES 
-    ut_support.c
-    ut_osprintf_stubs.c)
-  aux_source_directory(../src/${MODULE} CFE_MODULE_FILES)
-  aux_source_directory(../src/shared CFE_MODULE_FILES)
-  add_executable(${CFE_CORE_TARGET}_${MODULE}_UT ${MODULE}_UT.c ${CFE_MODULE_FILES})
+
+  set(CFE_MODULE_FILES)
+  aux_source_directory(${cfe-core_MISSION_DIR}/src/${MODULE} CFE_MODULE_FILES)
+  
+  # Compile the unit(s) under test as an object library
+  # this allows easy configuration of special flags and include paths
+  # in particular this should use the UT_C_FLAGS for coverage instrumentation
+  add_library(ut_cfe_${MODULE}_object OBJECT 
+      ${CFE_MODULE_FILES})
+  
+  # Apply the UT_C_FLAGS to the units under test
+  # This should enable coverage analysis on platforms that support this
+  set_target_properties(ut_cfe_${MODULE}_object PROPERTIES
+      COMPILE_FLAGS "${UT_C_FLAGS}")
+        
+  # For this object target only, the "override" includes should be injected
+  # into the include path BEFORE any other include path.  This is so the
+  # override will take precedence over any system-provided version.
+  target_include_directories(ut_cfe_${MODULE}_object BEFORE PRIVATE
+      ${CMAKE_CURRENT_SOURCE_DIR}/modules/inc/overrides)
+        
+  add_executable(${CFE_CORE_TARGET}_${MODULE}_UT 
+    ${MODULE}_UT.c 
+    $<TARGET_OBJECTS:ut_cfe_${MODULE}_object>)
+  
   target_link_libraries(${CFE_CORE_TARGET}_${MODULE}_UT
-        ut_${CFE_CORE_TARGET}_stubs
-        ut_psp-${CFE_SYSTEM_PSPNAME}_stubs
-        ut_osapi_stubs 
+        ut_${CFE_CORE_TARGET}_support
+        ut_cfe-core_stubs
         ut_assert)
+    
+  # Also add the C FLAGS to the link command    
+  # This should enable coverage analysis on platforms that support this
+  set_target_properties(${CFE_CORE_TARGET}_${MODULE}_UT PROPERTIES 
+    LINK_FLAGS "${UT_C_FLAGS}")
+
   add_test(${CFE_CORE_TARGET}_${MODULE}_UT ${CFE_CORE_TARGET}_${MODULE}_UT)
   install(TARGETS ${CFE_CORE_TARGET}_${MODULE}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
 endforeach(MODULE ${CFE_CORE_MODULES})

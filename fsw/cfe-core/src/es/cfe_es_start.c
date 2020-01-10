@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -48,7 +48,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static int32 CFE_ES_MainTaskSyncDelay(uint32 AppMinState, uint32 TimeOutMilliseconds);
+static int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds);
 
 /***************************************************************************/
 
@@ -480,7 +480,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
 ** Purpose: This function initializes the file systems used in the cFE core.
 **
 */
-void CFE_ES_InitializeFileSystems(uint32 start_type)
+void CFE_ES_InitializeFileSystems(uint32 StartType)
 {
    int32   RetStatus;
    cpuaddr RamDiskMemoryAddress;
@@ -513,7 +513,7 @@ void CFE_ES_InitializeFileSystems(uint32 start_type)
    ** Next, either format, or just initialize the RAM disk depending on
    ** the reset type
    */
-   if ( start_type == CFE_PSP_RST_TYPE_POWERON )
+   if ( StartType == CFE_PSP_RST_TYPE_POWERON )
    {
       RetStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE, CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS );
       if ( RetStatus != OS_FS_SUCCESS )
@@ -584,7 +584,7 @@ void CFE_ES_InitializeFileSystems(uint32 start_type)
    ** Note: When CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED is set to 0, this feature is 
    **       disabled.
    */
-   if ((start_type == CFE_PSP_RST_TYPE_PROCESSOR) && (CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED > 0))
+   if ((StartType == CFE_PSP_RST_TYPE_PROCESSOR) && (CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED > 0))
    {
       /*
       ** See how many blocks are free in the RAM disk

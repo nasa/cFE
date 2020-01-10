@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -150,3 +150,20 @@ UT_DEFAULT_STUB(CFE_TBL_DumpToBuffer, ( CFE_TBL_Handle_t TblHandle ))
 UT_DEFAULT_STUB(CFE_TBL_Validate, ( CFE_TBL_Handle_t TblHandle ))
 
 UT_DEFAULT_STUB(CFE_TBL_Update, ( CFE_TBL_Handle_t TblHandle ))
+
+int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName )
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TBL_GetInfo);
+    if (status >= 0 &&
+            UT_Stub_CopyToLocal(UT_KEY(CFE_TBL_GetInfo), TblInfoPtr, sizeof(*TblInfoPtr)) < sizeof(*TblInfoPtr))
+    {
+        /* just clear the output struct */
+        memset(TblInfoPtr, 0, sizeof(*TblInfoPtr));
+    }
+
+    return status;
+}
+
+

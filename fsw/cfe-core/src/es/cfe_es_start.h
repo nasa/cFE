@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -93,7 +93,7 @@ extern CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE
 extern void  CFE_ES_CreateObjects(void);
 extern void  CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource);
 extern void  CFE_ES_InitializeFileSystems(uint32 StartType);
-extern void CFE_ES_SetupPerfVariables(uint32 StartType);
+extern void CFE_ES_SetupPerfVariables(uint32 ResetType);
 
 
 #endif  /* _cfe_es_start_ */

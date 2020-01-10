@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -174,9 +174,9 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
 ** Internal function to load a a new cFE shared Library
 */
 int32 CFE_ES_LoadLibrary(uint32 *LibraryIdPtr,
-                       const char   *Path,
+                       const char   *FileName,
                        const void   *EntryPointData,
-                       const char   *Name);
+                       const char   *LibName);
 
 /*
 ** Get Application List

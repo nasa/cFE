@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -137,7 +137,7 @@ int32 CFE_SB_AppInit(void){
 
     uint32 CfgFileEventsToFilter = 0;    
     uint32 *TmpPtr = NULL;
-    int32  Status = CFE_SUCCESS;
+    int32  Status;
     
     Status = CFE_ES_RegisterApp();
 

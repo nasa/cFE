@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -85,7 +85,7 @@ uint32 CFE_SB_MemPoolDefSize[CFE_ES_MAX_MEMPOOL_BLOCK_SIZES] =
 */
 int32 CFE_SB_EarlyInit (void) {
 
-    int32 Stat = CFE_SUCCESS;
+    int32 Stat;
 
     CFE_SB_Default_Qos.Priority    = CFE_SB_QOS_LOW_PRIORITY;
     CFE_SB_Default_Qos.Reliability = CFE_SB_QOS_LOW_RELIABILITY;
@@ -217,9 +217,8 @@ void CFE_SB_InitPipeTbl(void){
 */
 void CFE_SB_InitMsgMap(void){
 
-    CFE_SB_MsgKey_Atom_t   KeyVal;
-
 #ifdef MESSAGE_FORMAT_IS_CCSDS
+    CFE_SB_MsgKey_Atom_t   KeyVal;
 
     for (KeyVal=0; KeyVal < CFE_SB_MAX_NUMBER_OF_MSG_KEYS; KeyVal++)
     {

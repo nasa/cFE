@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -721,7 +721,7 @@ void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 */
 int32 CFE_ES_RegisterApp(void)
 {
-   int32 Result = CFE_SUCCESS;
+   int32 Result;
 
    CFE_ES_LockSharedData(__func__,__LINE__);
 
@@ -1470,7 +1470,7 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, uint32 DataLength, uint32 InputC
 */
 int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, int32 BlockSize, const char *Name)
 {
-    int32   Status = CFE_SUCCESS;
+    int32   Status;
     size_t  NameLen = 0;
     uint32  ThisAppId = 0;
     
@@ -1550,7 +1550,7 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, int32 BlockSize, cons
 */
 int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 {
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
     
     Status = CFE_ES_CDSBlockWrite(CFE_ES_Global.CDSVars.Registry[Handle].MemHandle, DataToCopy);
     
@@ -1565,7 +1565,7 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 */
 int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 {
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
     
     Status = CFE_ES_CDSBlockRead(RestoreToMemory, CFE_ES_Global.CDSVars.Registry[Handle].MemHandle);
     

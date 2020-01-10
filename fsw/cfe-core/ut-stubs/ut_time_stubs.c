@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -32,10 +32,9 @@
 /*
 ** Includes
 */
+#include <stdio.h>
 #include <string.h>
 #include "cfe_time.h"
-#include "cfe_time_utils.h"
-#include "ut_support.h"
 #include "utstubs.h"
 
 /*

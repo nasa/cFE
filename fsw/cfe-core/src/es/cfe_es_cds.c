@@ -1,5 +1,5 @@
 /*
-**  GSC-18128-1, "Core Flight Executive Version 6.6"
+**  GSC-18128-1, "Core Flight Executive Version 6.7"
 **
 **  Copyright (c) 2006-2019 United States Government as represented by
 **  the Administrator of the National Aeronautics and Space Administration.
@@ -149,7 +149,7 @@ int32 CFE_ES_RebuildCDS(void);
 int32 CFE_ES_CDS_EarlyInit(void)
 {
     uint32  MinRequiredSize = 0;
-    int32   Status = CFE_SUCCESS;
+    int32   Status;
     
     /* Compute the minimum size required for the CDS with the current configuration of the cFE */
     MinRequiredSize = (sizeof(CFE_ES_Global.CDSVars.ValidityField) * 2) +            /* Minimum size for validity fields */
@@ -512,7 +512,7 @@ int32 CFE_ES_InitCDSRegistry(void)
 
 int32 CFE_ES_UpdateCDSRegistry(void)
 {
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
     
     /* Copy the contents of the local registry to the CDS */
     Status = CFE_PSP_WriteToCDS(CFE_ES_Global.CDSVars.Registry, 
@@ -696,7 +696,7 @@ int32 CFE_ES_FindFreeCDSRegistryEntry(void)
 
 int32 CFE_ES_RebuildCDS(void)
 {
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
     int32 PoolOffset;
     
     /* First, determine if the CDS registry stored in the CDS is smaller or equal */
