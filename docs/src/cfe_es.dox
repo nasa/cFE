@@ -6,8 +6,7 @@
   high level interface to system control facilities. The ES component is 
   responsible for starting up and restarting the cFE, starting up, shutting 
   down, and restarting cFE Applications, logging errors and performance data, 
-  managing device driver services, and providing a persistent memory store 
-  for cFE Applications.  
+  and providing a persistent memory store for cFE Applications.  
 
   The interfaces to the ES task include the Ground Interface (commands and 
   telemetry) and the Application Programmer Interfaces (APIs). The ES task 

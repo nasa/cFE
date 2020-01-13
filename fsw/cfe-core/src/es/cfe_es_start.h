@@ -52,7 +52,6 @@
 */
 #define CFE_ES_NULL_ENTRY    0x00
 #define CFE_ES_CORE_TASK     0x01
-#define CFE_ES_DRIVER_TASK   0x02
 #define CFE_ES_BIN_SEM       0x03
 #define CFE_ES_FUNCTION_CALL 0x04
 #define CFE_ES_MUTEX_SEM     0x05

@@ -28,28 +28,27 @@ Table of Contents
       * [5.3 Child Task Control](#53-child-task-control)
       * [5.4 Application Start-Up Types](#54-application-start-up-types)
       * [5.5 Shared Libraries](#55-shared-libraries)
-      * [5.6 Device Drivers](#56-device-drivers)
-      * [5.7 Obtaining OS and Platform Information](#57-obtaining-os-and-platform-information)
-      * [5.8 OS Queues, Semaphores and Mutexes](#58-os-queues-semaphores-and-mutexes)
-        * [5.8.1 Queues](#581-queues)
-        * [5.8.2 Binary Semaphores](#582-binary-semaphores)
-        * [5.8.2.1 Binary Semaphore Functions](#5821-binary-semaphore-functions)
-        * [5.8.3 Mutex Semaphores](#583-mutex-semaphores)
-           * [5.8.3.1 Mutex Functions](#5831-mutex-functions)
-      * [5.9 Interrupt Handling](#59-interrupt-handling)
-      * [5.10 Exceptions](#510-exceptions)
-      * [5.11 Floating Point Processor Exceptions](#511-floating-point-processor-exceptions)
-      * [5.12 Memory Utilities](#512-memory-utilities)
-        * [5.12.1 Memory Read/Write Functions](#5121-memory-readwrite-functions)
-        * [5.12.2 Critical Data Store](#5122-critical-data-store)
-        * [5.12.3	Standard CRC Calculations](#5123standard-crc-calculations)
-      * [5.13 File System Functions](#513-file-system-functions)
-        * [5.13.1 Device Functions](#5131-device-functions)
-        * [5.13.2 Directory Functions](#5132-directory-functions)
-        * [5.13.3 File Functions](#5133-file-functions)
-      * [5.14 System Log](#514-system-log)
-      * [5.15 Software Performance Analysis](#515-software-performance-analysis)
-      * [5.16 Memory Pool](#516-memory-pool)
+      * [5.6 Obtaining OS and Platform Information](#56-obtaining-os-and-platform-information)
+      * [5.7 OS Queues, Semaphores and Mutexes](#57-os-queues-semaphores-and-mutexes)
+        * [5.7.1 Queues](#571-queues)
+        * [5.7.2 Binary Semaphores](#572-binary-semaphores)
+        * [5.7.2.1 Binary Semaphore Functions](#5721-binary-semaphore-functions)
+        * [5.7.3 Mutex Semaphores](#573-mutex-semaphores)
+           * [5.7.3.1 Mutex Functions](#5731-mutex-functions)
+      * [5.8 Interrupt Handling](#58-interrupt-handling)
+      * [5.9 Exceptions](#59-exceptions)
+      * [5.10 Floating Point Processor Exceptions](#510-floating-point-processor-exceptions)
+      * [5.11 Memory Utilities](#511-memory-utilities)
+        * [5.11.1 Memory Read/Write Functions](#5111-memory-readwrite-functions)
+        * [5.11.2 Critical Data Store](#5112-critical-data-store)
+        * [5.11.3	Standard CRC Calculations](#5113standard-crc-calculations)
+      * [5.12 File System Functions](#512-file-system-functions)
+        * [5.12.1 Device Functions](#5121-device-functions)
+        * [5.12.2 Directory Functions](#5122-directory-functions)
+        * [5.12.3 File Functions](#5123-file-functions)
+      * [5.13 System Log](#513-system-log)
+      * [5.14 Software Performance Analysis](#514-software-performance-analysis)
+      * [5.15 Memory Pool](#515-memory-pool)
    * [6. Software Bus Interface](#6-software-bus-interface)
       * [6.1 Software Bus Terminology](#61-software-bus-terminology)
         * [6.1.1 Software Bus Messages](#611-software-bus-messages)
@@ -560,11 +559,7 @@ shared libraries during runtime will be available in a later build.
 
 Reference Sample_lib on Github for “live” example.
 
-#### 5.6 Device Drivers
-
-Reference “hardware libraries”.
-
-#### 5.7 Obtaining OS and Platform Information
+#### 5.6 Obtaining OS and Platform Information
 
 There are numerous function related to obtaining OS and platform
 information. A number of these functions are not necessary for the cFE
@@ -604,9 +599,9 @@ uint32 ConvertSecs2Ticks(uint32 Seconds)
 
 }
 ```
-#### 5.8 OS Queues, Semaphores and Mutexes
+#### 5.7 OS Queues, Semaphores and Mutexes
 
-##### 5.8.1 Queues
+##### 5.7.1 Queues
 
 Developers are discouraged from using the OS_QueueCreate, OS_QueueGet
 and OS_QueuePut functions. These functions are a lower level
@@ -616,7 +611,7 @@ would also impose a requirement that two Applications must reside on the
 same processor. The only exception to this rule might be communication
 between a Main Task and its Child Tasks.
 
-##### 5.8.2 Binary Semaphores
+##### 5.7.2 Binary Semaphores
 
 Binary semaphores can be used for Application synchronization. A binary
 semaphore is essentially a flag that is available or unavailable. When
@@ -643,7 +638,7 @@ header file osids.h by a macro of the form *xxx*_SEM_ID. To add a new
 semaphore to a processor, one must modify the osids.h file and
 osobjtab.c file for the processor.
 
-##### 5.8.2.1 Binary Semaphore Functions
+##### 5.7.2.1 Binary Semaphore Functions
 
 There are two options for pending on a semaphore:
 
@@ -682,7 +677,7 @@ failure (OS\_SEM\_FAILURE). An application should check the status code
 and report a failure with an event message since the OS functions do not
 report errors themselves.
 
-#### 5.8.3 Mutex Semaphores
+#### 5.7.3 Mutex Semaphores
 
 Mutex semaphores are used to provide "mutual exclusion" for a shared
 resource in order to protect against several Applications using the
@@ -737,7 +732,7 @@ file osids.h by a macro of the form *xxx*_MUT_ID. To add a new mutex
 to a processor, one must modify the osids.h file and osobjtab.c file for
 the processor.
 
-##### 5.8.3.1 Mutex Functions
+##### 5.7.3.1 Mutex Functions
 
 An application takes a mutex by calling:
 
@@ -759,7 +754,7 @@ Both functions return a status code with these possible values:
 There is no function for taking a mutex with a timeout limit since
 mutexes are assumed to be available within a short time.
 
-#### 5.9 Interrupt Handling
+#### 5.8 Interrupt Handling
 
 The following function specifies a handler for an interrupt. This is
 called in the initialization function for an interrupt handler.
@@ -801,7 +796,7 @@ interrupt number to identify the interrupt to be enabled or disabled.
 To acknowledge the interrupt has been serviced, the interrupt service
 routine must call OS_IntAck.
 
-#### 5.10 Exceptions
+#### 5.9 Exceptions
 
 Similar to interrupt service routines, handlers can be associated with
 specific exceptions. The following function specifies a handler for an
@@ -827,7 +822,7 @@ OS_ExcEnable( uint32 ExceptionNumber );
 OS_ExcDisable( uint32 ExceptionNumber );
 ```
 
-#### 5.11 Floating Point Processor Exceptions
+#### 5.10 Floating Point Processor Exceptions
 
 In addition to the exception handlers identified above, a similar
 paradigm exists for handling floating point processor exceptions. The
@@ -853,18 +848,18 @@ OS_FPUExcEnable( uint32 ExceptionNumber );
 OS_FPUExcDisable( uint32 ExceptionNumber );
 ```
 
-#### 5.12 Memory Utilities
+#### 5.11 Memory Utilities
 
 Memory utilities were deprecated after cFE 6.7, utilize built in memory functions (memcpy, memset, etc).
 
-##### 5.12.1 Memory Read/Write Functions
+##### 5.11.1 Memory Read/Write Functions
 
 CFE provides a set of functions that read and write values of fixed sizes at specified physical addresses.  These functions are intended for accessing hardware registers or memory devices with nonstandard properties.  The EEPROM functions perform whatever operations are required for enabling the modification of EEPROM and then verify that the modification was successful.
 
 Reference “PSP API Documentation”.
 
 
-##### 5.12.2 Critical Data Store
+##### 5.11.2 Critical Data Store
 
 When an Application needs to store a small amount of data that will
 survive a cFE Reset, the cFE provides an area of memory called a
@@ -1031,14 +1026,14 @@ void SAMPLE_TaskMain(void)
 } /* End of SAMPLE_TaskMain() */
 ```
 
-##### 5.12.3	Standard CRC Calculations
+##### 5.11.3	Standard CRC Calculations
 There are many Applications that require a validation of received data or of data in memory.  This is usually done by a Cyclic Redundancy Check (CRC).  There are many different ways to calculate a CRC.  To help ensure that the calculation is done consistently for a mission, the Executive Services provides an API for a CRC calculation that can be used by all Applications on a mission.  This function looks like the following:
 
 ```
 uint32 CFE_ES_CalculateCRC(void *pData, uint32 DataLength, uint32 InputCRC, uint32 TypeCRC);
 ```
 
-where pData points to the first byte of an array of bytes that are to have the CRC calculated on, DataLength specifies the number of sequential bytes to include in the calculation, InputCRC is the initial value of the CRC and TypeCRC identifies which of the standard CRC polynomials to be used.  Currently, there are the following types available:
+where Data points to the first byte of an array of bytes that are to have the CRC calculated on, DataLength specifies the number of sequential bytes to include in the calculation, InputCRC is the initial value of the CRC and TypeCRC identifies which of the standard CRC polynomials to be used.  Currently, there are the following types available:
 
 ```
 CFE_ES_CRC_8 – an 8-bit additive checksum calculation that returns a 32-bit value
@@ -1049,7 +1044,7 @@ CFE_ES_DEFAULT_CRC – the mission specified default CRC calculation
 
 Unless there is a specific interface with a specified CRC calculation, Applications must use the CFE_ES_DEFAULT_CRC type.
 
-#### 5.13 File System Functions
+#### 5.12 File System Functions
 
 The OS API provides a POSIX.1 standard interface for performing file
 system activities. These functions break down into the following three
@@ -1057,7 +1052,7 @@ categories: Device, Directory and File routines. Specific details of the
 API are not covered here. They can be found at
 http://opensource.gsfc.nasa.gov/projects/osal/osal.php
 
-##### 5.13.1 Device Functions
+##### 5.12.1 Device Functions
 
   | **OS API File System Function** |  **Brief Description**|
   |:--------------------------------|:----------------------|
@@ -1066,7 +1061,7 @@ http://opensource.gsfc.nasa.gov/projects/osal/osal.php
   | OS_unmount| Unmounts a previously mounted file system      |
   | OS_chkfs  | Checks file system to ensure links are correct |
 
-##### 5.13.2 Directory Functions
+##### 5.12.2 Directory Functions
 
   | **OS API File System Function** | **Brief Description** |
   |:--------------------------------|:----------------------|
@@ -1077,7 +1072,7 @@ http://opensource.gsfc.nasa.gov/projects/osal/osal.php
   | OS_rewinddir                    | Resets a file pointer for a directory back to the beginning |
   |OS_rmdir                         | Deletes a directory   |
 
-##### 5.13.3 File Functions
+##### 5.12.3 File Functions
 
   | **OS API File System Function** | **Brief Description** |
   |:--------------------------------|:----------------------|
@@ -1092,7 +1087,7 @@ http://opensource.gsfc.nasa.gov/projects/osal/osal.php
   | OS_remove                       | Deletes a file        |
   | OS_rename                       | Renames a file        |
 
-#### 5.14 System Log
+#### 5.13 System Log
 
 The Executive Services provide a System Log. A System Log provides a
 mechanism of recording Events that cannot be issued as Event Messages
@@ -1111,11 +1106,11 @@ int32 CFE_ES_WriteToSysLog(const char *pSpecString, ...);
 The function acts just like a standard 'C' printf function and records
 the ASCII string to a buffer that is preserved during resets.
 
-#### 5.15 Software Performance Analysis
+#### 5.14 Software Performance Analysis
 
 While outside the scope of this documentation, an external post processing tool has been developed to calculate CPU utilization, trace interrupts, track task CPU usage. In addition, other external tools can ingest data and provides a graphical display of the software timing based on the markers. To use these tools, an entry/exit timing call to produce performance information is needed.
 
-#### 5.16 Memory Pool
+#### 5.15 Memory Pool
 
 The Executive Services mempool library provides simple block memory
 management API's and functions for pseudo dynamic memory allocations

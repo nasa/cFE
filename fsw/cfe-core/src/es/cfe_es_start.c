@@ -751,7 +751,6 @@ void  CFE_ES_CreateObjects(void)
     {
         switch ( CFE_ES_ObjectTable[i].ObjectType )
         {
-            case CFE_ES_DRIVER_TASK:
             case CFE_ES_CORE_TASK:
 
             /*
