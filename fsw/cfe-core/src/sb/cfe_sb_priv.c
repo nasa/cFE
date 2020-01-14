@@ -705,9 +705,9 @@ char *CFE_SB_GetAppTskName(uint32 TaskId,char *FullName){
 */
 uint8 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
 {
-    CFE_SB_MsgId_Atom_t Val = MsgId;
 
 #ifdef MESSAGE_FORMAT_IS_CCSDS
+    CFE_SB_MsgId_Atom_t Val = MsgId;
 
 #ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2
         return CFE_TST(Val,12);
