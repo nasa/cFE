@@ -145,7 +145,7 @@ typedef struct
 */
 typedef struct 
 {
-    uint8         *BufferPtr;                   /**< \brief Pointer to Load Buffer */
+    void          *BufferPtr;                   /**< \brief Pointer to Load Buffer */
     uint32         FileCreateTimeSecs;          /**< \brief File creation time from last file loaded into table */
     uint32         FileCreateTimeSubSecs;       /**< \brief File creation time from last file loaded into table */
     uint32         Crc;                         /**< \brief Last calculated CRC for this buffer's contents */

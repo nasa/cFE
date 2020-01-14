@@ -486,7 +486,7 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
         if (RegRecPtr->UserDefAddr == false)
         {
             /* Free memory allocated to buffers */
-            Status = CFE_ES_PutPoolBuf(CFE_TBL_TaskData.Buf.PoolHdl, (uint32 *)RegRecPtr->Buffers[0].BufferPtr);
+            Status = CFE_ES_PutPoolBuf(CFE_TBL_TaskData.Buf.PoolHdl, RegRecPtr->Buffers[0].BufferPtr);
             RegRecPtr->Buffers[0].BufferPtr = NULL;
 
             if (Status < 0)
@@ -498,7 +498,7 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
             /* If a double buffered table, then free the second buffer as well */
             if (RegRecPtr->DoubleBuffered)
             {
-                Status = CFE_ES_PutPoolBuf(CFE_TBL_TaskData.Buf.PoolHdl, (uint32 *)RegRecPtr->Buffers[1].BufferPtr);
+                Status = CFE_ES_PutPoolBuf(CFE_TBL_TaskData.Buf.PoolHdl, RegRecPtr->Buffers[1].BufferPtr);
                 RegRecPtr->Buffers[1].BufferPtr = NULL;
 
                 if (Status < 0)
@@ -986,7 +986,7 @@ int32 CFE_TBL_LoadFromFile(CFE_TBL_LoadBuff_t *WorkingBufferPtr,
                         }
 
                         NumBytes = OS_read(FileDescriptor,
-                                           &WorkingBufferPtr->BufferPtr[TblFileHeader.Offset],
+                                           ((uint8*)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset,
                                            TblFileHeader.NumBytes);
 
                         if (NumBytes != TblFileHeader.NumBytes)
