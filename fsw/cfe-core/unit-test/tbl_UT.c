@@ -87,7 +87,7 @@ CFE_TBL_RegistryRec_t Original[CFE_PLATFORM_TBL_MAX_NUM_TABLES];
 /*
 ** Functions
 */
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     /* Initialize unit test */
     UT_Init("tbl");

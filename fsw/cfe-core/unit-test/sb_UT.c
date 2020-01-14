@@ -45,7 +45,7 @@ static char    cMsg[UT_MAX_MESSAGE_LENGTH];
 /*
 ** Functions
 */
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     UT_Init("sb");
     UT_Text("cFE SB Unit Test Output File\n\n");
