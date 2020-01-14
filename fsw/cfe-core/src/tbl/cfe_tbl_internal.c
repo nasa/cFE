@@ -377,7 +377,7 @@ int32 CFE_TBL_ValidateAppID(uint32 *AppIdPtr)
 
 int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, uint32 *AppIdPtr)
 {
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
 
     /* Check to make sure App ID is legit */
     Status = CFE_TBL_ValidateAppID(AppIdPtr);
@@ -537,7 +537,7 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
 
 int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, uint32 ThisAppId)
 {
-    int32   Status = CFE_SUCCESS;
+    int32   Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_RegistryRec_t *RegRecPtr;
 
@@ -1460,7 +1460,7 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_CritRegRec_t *CritRegRecPtr = NULL;
     
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
     
     /* Copy an image of the updated table to the CDS for safekeeping */
     Status = CFE_ES_CopyToCDS(RegRecPtr->CDSHandle, RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].BufferPtr);
