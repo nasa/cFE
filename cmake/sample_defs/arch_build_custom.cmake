@@ -32,6 +32,7 @@ add_compile_options(
     -Wstrict-prototypes     # Warn about missing prototypes
     -Wwrite-strings         # Warn if not treating string literals as "const"
     -Wpointer-arith         # Warn about suspicious pointer operations
+    -Wcast-align            # Warn about casts that increase alignment requirements
     -Werror                 # Treat warnings as errors (code should be clean) 
 )
 
