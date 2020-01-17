@@ -54,7 +54,7 @@ static CFE_FS_Decompress_State_t UT_FS_Decompress_State;
 /*
 ** Functions
 */
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     /* Initialize unit test */
     UT_Init("fs");

@@ -1,0 +1,50 @@
+/**
+  \mainpage Osal API Documentation
+
+<UL>
+    <LI> General Information and Concepts <BR>
+    <UL>
+       <LI> \subpage osalIntro <BR> 
+    </UL>
+    <LI> Core OS Module <BR>
+    <UL>
+      
+      <LI> \subpage osapi-os-core.h "Core OS Module Reference" <BR>
+    </UL>
+    <LI> OS File System <BR>
+    <UL>
+      <LI> \subpage osalfsovr <BR>
+      <LI> \subpage osalfsfd  <BR>
+      <LI> \subpage osapi-os-filesys.h "File System Reference" <BR>
+    </UL>
+    <LI> Object File Loader <BR>
+    <UL>
+      <LI> \subpage osapi-os-loader.h "File Loader Reference" <BR>
+    </UL>
+    <LI> Network Module <BR>
+    <UL>
+      <LI> \subpage osapi-os-net.h "Network Module Reference" <BR>
+    </UL>
+    <LI> Timer <BR>
+    <UL>
+      <LI> \subpage osaltimerover <BR>
+      <LI> \subpage osapi-os-timer.h "Timer Reference" <BR>
+    </UL>
+</UL>
+**/
+
+/**
+\page osalIntro OSAL Introduction
+
+The goal of this library is to promote the creation of portable and reusable real time embedded system software. Given the necessary OS abstraction layer implementations, the same embedded software should compile and run on a number of platforms ranging from spacecraft computer systems to desktop PCs.
+
+The OS Application Program Interfaces (APIs) are broken up into three major sections: Real Time Operating System APIs, File System APIs, and Interrupt/Exception APIs. The Real Time Operating System APIs cover functionality such as Tasks, Queues, Semaphores, Interrupts, etc. The File System API abstracts the file systems that may be present on a system, and has the ability to simulate multiple embedded file systems on a desktop computer for testing. The Interrupt/Exception APIs are for configuring interrupt and exception handlers.
+
+Major changes from the first version of this API include the ability to create objects “on the fly”, meaning they do not require a pre-defined ID in order to create them; instead they return the ID of the created object. Also the corresponding delete functions have been added, allowing the user to create and delete OS objects dynamically. Another change has been the removal of functions that were application specific. This release is aimed at generic embedded systems, not necessarily flight software applications. The addition of the file system API is another major addition, along with a method of simulating embedded file systems on a desktop computer. Finally, the parameters and error return codes have been cleaned up for consistency.  
+
+Note on OSAL call restrictions: Each of these calls should be called from a task running in the context of an OSAL application. This means that the startup code should call OS_API_init, and each task/thread that is created should call OS_TaskRegister. In general, these calls should not be called from an ISR. There are a few exceptions, such as the ability to give a binary semaphore from an ISR. 
+
+**/
+
+
+

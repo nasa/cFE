@@ -59,7 +59,7 @@ foreach(MODULE ${CFE_CORE_MODULES})
   target_link_libraries(${CFE_CORE_TARGET}_${MODULE}_UT
         ut_${CFE_CORE_TARGET}_support
         ut_cfe-core_stubs
-        ut_bsp)
+        ut_assert)
     
   # Also add the C FLAGS to the link command    
   # This should enable coverage analysis on platforms that support this

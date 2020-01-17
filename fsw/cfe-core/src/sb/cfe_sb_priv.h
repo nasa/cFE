@@ -351,8 +351,8 @@ CFE_SB_MsgKey_t CFE_SB_ConvertMsgIdtoMsgKey(CFE_SB_MsgId_t MsgId);
 void   CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber);
 void   CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
 void   CFE_SB_ReleaseBuffer (CFE_SB_BufferD_t *bd, CFE_SB_DestinationD_t *dest);
-int32  CFE_SB_ReadQueue(CFE_SB_PipeD_t *pd,uint32 TskId,
-                        CFE_SB_TimeOut_t time_out,CFE_SB_BufferD_t **message );
+int32  CFE_SB_ReadQueue(CFE_SB_PipeD_t *PipeDscPtr,uint32 TskId,
+                        CFE_SB_TimeOut_t Time_Out,CFE_SB_BufferD_t **Message );
 int32  CFE_SB_WriteQueue(CFE_SB_PipeD_t *pd,uint32 TskId,
                          const CFE_SB_BufferD_t *bd,CFE_SB_MsgId_t MsgId );
 CFE_SB_MsgRouteIdx_t CFE_SB_GetRoutingTblIdx(CFE_SB_MsgKey_t MsgKey);
@@ -366,7 +366,7 @@ void   CFE_SB_ResetCounters(void);
 char   *CFE_SB_GetPipeName(CFE_SB_PipeId_t PipeId);
 void   CFE_SB_SetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr,uint32 Count);
 char   *CFE_SB_GetAppTskName(uint32 TaskId, char* FullName);
-CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, uint16 size);
+CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, uint16 Size);
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromCaller(CFE_SB_MsgId_t MsgId, void *Address);
 CFE_SB_PipeD_t   *CFE_SB_GetPipePtr(CFE_SB_PipeId_t PipeId);
 CFE_SB_PipeId_t  CFE_SB_GetAvailPipeIdx(void);
@@ -402,8 +402,8 @@ uint32 CFE_SB_RequestToSendEvent(uint32 TaskId, uint32 Bit);
 void CFE_SB_FinishSendEvent(uint32 TaskId, uint32 Bit);
 CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void);
 int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest);
-int32 CFE_SB_AddDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *Dest);
-int32 CFE_SB_RemoveDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *Dest);
+int32 CFE_SB_AddDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *NewNode);
+int32 CFE_SB_RemoveDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *NodeToRemove);
 
 
 /*****************************************************************************/

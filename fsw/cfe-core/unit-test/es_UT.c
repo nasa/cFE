@@ -273,7 +273,7 @@ static int32 ES_UT_SetAppStateHook(void *UserObj, int32 StubRetcode,
     return StubRetcode;
 }
 
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     UT_Init("es");
     UT_Text("cFE ES Unit Test Output File\n\n");
