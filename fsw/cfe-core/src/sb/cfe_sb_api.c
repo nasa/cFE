@@ -999,7 +999,6 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
     uint32  PipeIdx;
     uint32  TskId = 0;
     bool    MatchFound = false;
-    int32   Stat;
     CFE_SB_DestinationD_t   *DestPtr = NULL;
     char    FullName[(OS_MAX_API_NAME * 2)];
 
@@ -1080,31 +1079,6 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
         DestPtr = DestPtr->Next;
 
     }while((MatchFound == false)&&(DestPtr != NULL));
-
-    /* if 'Destinations' was decremented to zero above... */
-    if(RoutePtr->Destinations==0){
-        CFE_SB.StatTlmMsg.Payload.MsgIdsInUse--;
-        CFE_SB_RouteIdxPush_Unsync(RouteIdx); /* Return the idx to the available list (stack) for reuse */
-        CFE_SB_SetRoutingTblIdx(MsgKey,CFE_SB_INVALID_ROUTE_IDX);
-
-        /* Send unsubscribe report only if there are zero requests for this pkt */
-        if((CFE_SB.SubscriptionReporting == CFE_SB_ENABLE)&&
-          (Scope == CFE_SB_GLOBAL))
-        {
-          CFE_SB.SubRprtMsg.Payload.MsgId = MsgId;
-          CFE_SB.SubRprtMsg.Payload.Pipe = PipeId;
-          CFE_SB.SubRprtMsg.Payload.Qos.Priority = 0;
-          CFE_SB.SubRprtMsg.Payload.Qos.Reliability = 0;
-          CFE_SB.SubRprtMsg.Payload.SubType = CFE_SB_UNSUBSCRIPTION;
-          CFE_SB_UnlockSharedData(__func__,__LINE__);
-          Stat = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.SubRprtMsg);
-          CFE_EVS_SendEventWithAppID(CFE_SB_UNSUBSCRIPTION_RPT_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
-            "Sending Unsubscription Report Msg=0x%x,Pipe=%d,Stat=0x%x",
-            (unsigned int)MsgId,(int)PipeId,(unsigned int)Stat);
-          CFE_SB_LockSharedData(__func__,__LINE__);
-        }/* end if */
-
-    }/* end if */
 
     CFE_SB_UnlockSharedData(__func__,__LINE__);
 

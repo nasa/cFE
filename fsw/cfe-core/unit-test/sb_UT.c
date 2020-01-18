@@ -4485,6 +4485,8 @@ void Test_Subscribe_MaxMsgIdCount(void)
     UT_Text("Begin Test for Maximum Message ID Count");
 #endif
 
+    SB_ResetUnitTest();
+
     CFE_SB_CreatePipe(&PipeId0, PipeDepth, "TestPipe0");
     CFE_SB_CreatePipe(&PipeId1, PipeDepth, "TestPipe1");
     CFE_SB_CreatePipe(&PipeId2, PipeDepth, "TestPipe2");
@@ -4739,6 +4741,7 @@ void Test_Subscribe_SubscriptionReporting(void)
 #endif
 
     SB_ResetUnitTest();
+
     ActRtn = CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe");
     ExpRtn = CFE_SUCCESS;
 
@@ -4816,7 +4819,7 @@ void Test_Subscribe_SubscriptionReporting(void)
                 }
                 else
                 {
-                    ExpRtn = 8;
+                    ExpRtn = 6;
                     ActRtn = UT_GetNumEventsSent();
 
                     if (ActRtn != ExpRtn)
@@ -4923,7 +4926,6 @@ void Test_Unsubscribe_API(void)
     Test_Unsubscribe_Local();
     Test_Unsubscribe_InvalParam();
     Test_Unsubscribe_NoMatch();
-    Test_Unsubscribe_SubscriptionReporting();
     Test_Unsubscribe_InvalidPipe();
     Test_Unsubscribe_InvalidPipeOwner();
     Test_Unsubscribe_FirstDestWithMany();
@@ -5234,104 +5236,6 @@ void Test_Unsubscribe_NoMatch(void)
     UT_Report(__FILE__, __LINE__,
               TestStat, "Test_Unsubscribe_API", "No match test");
 } /* end Test_Unsubscribe_NoMatch */
-
-/*
-** Test message unsubscription response to enabling/disabling subscription
-** reporting
-*/
-void Test_Unsubscribe_SubscriptionReporting(void)
-{
-    CFE_SB_PipeId_t TestPipe;
-    CFE_SB_MsgId_t  MsgId = SB_UT_TLM_MID;
-    uint32          CallerId = 0xFFFFFFFF;
-    uint16          PipeDepth = 50;
-    int32           ExpRtn;
-    int32           ActRtn;
-    int32           TestStat = CFE_PASS;
-
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Unsubscribe Subscription Reporting");
-#endif
-
-    SB_ResetUnitTest();
-    CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe");
-    CFE_SB_Subscribe(MsgId, TestPipe);
-    CFE_SB_SetSubscriptionReporting(CFE_SB_ENABLE);
-    CFE_SB_Unsubscribe(MsgId, TestPipe);
-    ExpRtn = CFE_SB_UNSUBSCRIPTION;
-    ActRtn = CFE_SB.SubRprtMsg.Payload.SubType;
-
-    if (ActRtn != ExpRtn)
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                 "Unsubscribe not enabled as expected in CFE_SB_Unsubscribe, "
-                   "exp=%ld, act=%ld",
-                 (long) ExpRtn, (long) ActRtn);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-    }
-    else
-    {
-        CFE_SB_Subscribe(MsgId, TestPipe);
-
-       /* Get the caller's Application ID */
-        ExpRtn = CFE_SUCCESS;
-        ActRtn = CFE_ES_GetAppID(&CallerId);
-
-        if (ActRtn != ExpRtn)
-        {
-            snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                     "Unexpected return from GetAppID in unsubscribe test, "
-                       "exp=0x%lx, act=0x%lx",
-                     (unsigned long) ExpRtn, (unsigned long) ActRtn);
-            UT_Text(cMsg);
-            TestStat = CFE_FAIL;
-        }
-        else
-        {
-            /* Subscribe to message: LOCAL */
-            ExpRtn = CFE_SUCCESS;
-            ActRtn = CFE_SB_UnsubscribeFull(MsgId, TestPipe, CFE_SB_LOCAL,
-                                            CallerId);
-
-            if (ActRtn != ExpRtn)
-            {
-                snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                         "Unexpected return from UnsubscribeFull in "
-                           "subscription reporting test, exp=0x%lx, act=0x%lx",
-                         (unsigned long) ExpRtn, (unsigned long) ActRtn);
-                UT_Text(cMsg);
-                TestStat = CFE_FAIL;
-            }
-            else
-            {
-                ExpRtn = 9;
-                ActRtn = UT_GetNumEventsSent();
-
-                if (ActRtn != ExpRtn)
-                {
-                    snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                             "Unexpected rtn from UT_GetNumEventsSent, "
-                               "exp=%lx, act=%lx",
-                           (unsigned long) ExpRtn, (unsigned long) ActRtn);
-                    UT_Text(cMsg);
-                    TestStat = CFE_FAIL;
-                }
-                else if (UT_EventIsInHistory(CFE_SB_UNSUBSCRIPTION_RPT_EID) == false)
-                {
-                    UT_Text("CFE_SB_UNSUBSCRIPTION_RPT_EID not sent");
-                    TestStat = CFE_FAIL;
-                }
-            }
-        }
-    }
-
-    CFE_SB_SetSubscriptionReporting(CFE_SB_DISABLE);
-    CFE_SB_DeletePipe(TestPipe);
-    UT_Report(__FILE__, __LINE__,
-              TestStat, "Test_Unsubscribe_API",
-              "Subscription reporting test");
-} /* end Test_Unsubscribe_SubscriptionReporting */
 
 /*
 ** Test message unsubscription response to an invalid pipe ID
@@ -6116,6 +6020,26 @@ void Test_SendMsg_SequenceCount(void)
     if (UT_EventIsInHistory(CFE_SB_SUBSCRIPTION_RCVD_EID) == false)
     {
         UT_Text("CFE_SB_SUBSCRIPTION_RCVD_EID not sent");
+        TestStat = CFE_FAIL;
+    }
+
+    CFE_SB_Unsubscribe(MsgId, PipeId); /* should have no subscribers now */
+
+    CFE_SB_SendMsg(TlmPktPtr); /* increment to 3 */
+
+    CFE_SB_Subscribe(MsgId, PipeId); /* resubscribe so we can receive a msg */
+
+    CFE_SB_SendMsg(TlmPktPtr); /* increment to 4 */
+
+    CFE_SB_RcvMsg(&PtrToMsg, PipeId, CFE_SB_PEND_FOREVER);
+
+    if (CCSDS_RD_SEQ(PtrToMsg->Hdr) != 4)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected sequence count for send in sequence count test, "
+                   "exp=4, act=%d",
+                 CCSDS_RD_SEQ(PtrToMsg->Hdr));
+        UT_Text(cMsg);
         TestStat = CFE_FAIL;
     }
 
