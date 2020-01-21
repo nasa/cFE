@@ -40,7 +40,7 @@
 ** and when you're done adding, set this to the highest EID you used. It may
 ** be worthwhile to, on occasion, re-number the EID's to put them back in order.
 */
-#define CFE_SB_MAX_EID                  63
+#define CFE_SB_MAX_EID                  67
 
 /*
 ** SB task event message ID's.
@@ -183,6 +183,73 @@
 **/
 #define CFE_SB_GETPIPEOPTS_EID        60
 
+/** \brief <tt> 'GetPipeName: Name retrieved. NameOut \%s,Id \%d, app \%s' </tt>
+** \event <tt> 'GetPipeName: Name retrieved. NameOut \%s,Id \%d, app \%s' </tt>
+**
+**  \par Type: DEBUG
+**
+**  \par Cause:
+**
+**  This debug event is generated when name is retrieved by id.
+**/
+#define CFE_SB_GETPIPENAME_EID        62
+
+/** \brief <tt> 'GetPipeName: Null ptr error. Id \%d, app \%s' </tt>
+** \event <tt> 'GetPipeName: Null ptr error. Id \%d, app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This debug event is generated when the name buffer ptr is null.
+**/
+#define CFE_SB_GETPIPENAME_NULL_PTR_EID        63
+
+/** \brief <tt> 'GetPipeName: Id error. NameOut \%s,Id \%d, app \%s' </tt>
+** \event <tt> 'GetPipeName: Id error. NameOut \%s,Id \%d, app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This debug event is generated when name is retrieved by id.
+**/
+#define CFE_SB_GETPIPENAME_ID_ERR_EID        64
+
+/** \brief <tt> 'GetPipeIdByName: ID retrieved. Name \%s,IdOut 0x\%x, app \%s' </tt>
+** \event <tt> 'GetPipeIdByName: ID retrieved. Name \%s,IdOut 0x\%x, app \%s' </tt>
+**
+**  \par Type: DEBUG
+**
+**  \par Cause:
+**
+**  This debug event is generated when id is retrieved by name.
+**/
+#define CFE_SB_GETPIPEIDBYNAME_EID        65
+
+/** \brief <tt> 'GetPipeIdByName Err:Bad input argument,Name 0x\%x,IdOut 0x%x,App \%s' </tt>
+**  \event <tt> 'GetPipeIdByName Err:Bad input argument,Name 0x\%x,IdOut 0x%x,App \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_GetMsgIdByName API receives an
+**  invalid (possibly NULL) ptr as an argument.
+**/
+#define CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID         66
+
+/** \brief <tt> 'GetPipeIdByName Err:Name not found,Name \%s,IdOut 0x%x,App \%s' </tt>
+**  \event <tt> 'GetPipeIdByName Err:Name not found,Name \%s,IdOut 0x%x,App \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_GetMsgIdByName API receives an
+**  invalid name.
+**/
+#define CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID         67
 
 /** \brief <tt> 'Subscribe Err:Bad Arg,MsgId 0x\%x,PipeId \%d,app \%s,scope \%d' </tt>
 **  \event <tt> 'Subscribe Err:Bad Arg,MsgId 0x\%x,PipeId \%d,app \%s,scope \%d' </tt>
@@ -400,7 +467,7 @@
 **
 **  This error event message is issued when the SB receives an error from the memory
 **  pool in the attempt to obtain a new destination block. Then memory pool statistics
-**  may be viewed by sending the related ES command. 
+**  may be viewed by sending the related ES command.
 **/
 #define CFE_SB_DEST_BLK_ERR_EID         20
 
@@ -623,9 +690,9 @@
 **
 **  \par Cause:
 **
-**  This debug event message is issued after the SB routing info file, pipe info 
-**  file or the map info file is written and closed. This is done is response to 
-**  the SB 'Send Routing Info' cmd, the SB 'Send pipe Info' cmd or the SB 'Send  
+**  This debug event message is issued after the SB routing info file, pipe info
+**  file or the map info file is written and closed. This is done is response to
+**  the SB 'Send Routing Info' cmd, the SB 'Send pipe Info' cmd or the SB 'Send
 **  Map Info' cmd, respectively.
 **/
 #define CFE_SB_SND_RTG_EID              39
@@ -874,4 +941,3 @@
 /************************/
 /*  End of File Comment */
 /************************/
-
