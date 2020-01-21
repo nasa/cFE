@@ -430,20 +430,6 @@
 **/
 #define CFE_SB_SUBSCRIPTION_RPT_EID     22
 
-
-/** \brief <tt> 'Sending Unsubscription Report Msg=0x\%x,Pipe=\%d,Stat=0x\%x' </tt>
-**  \event <tt> 'Sending Unsubscription Report Msg=0x\%x,Pipe=\%d,Stat=0x\%x' </tt>
-**
-**  \par Type: DEBUG
-**
-**  \par Cause:
-**
-**  This debug event message is issued when SB subscription reporting is enabled,
-**  (which is disabled by default) and a subscription is successfully received.
-**/
-#define CFE_SB_UNSUBSCRIPTION_RPT_EID   24
-
-
 /** \brief <tt> 'Pipe Overflow,MsgId 0x\%x,pipe \%s,stat 0x\%x,app \%s' </tt>
 **  \event <tt> 'Pipe Overflow,MsgId 0x\%x,pipe \%s,stat 0x\%x,app \%s' </tt>
 **
