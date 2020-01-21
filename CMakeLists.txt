@@ -91,6 +91,12 @@ include(${MISSION_DEFS}/targets.cmake)
 # Scan the list of targets and organize by target system type.
 read_targetconfig()
 
+# Include global-scope build customization
+# Note if this feature is used it should only set basic options
+# that have wide support (e.g. add_definitions).  It should not
+# set anything target or machine specific.
+include("${MISSION_DEFS}/global_build_options.cmake" OPTIONAL)
+
 # Additionally the target mission might require additional
 # custom build steps or override some routines.  In particular
 # some architectures might need some special installation steps
