@@ -97,10 +97,10 @@ read_targetconfig()
 # The custom script may override functions such as the
 # cfe_exec_do_install() and cfe_app_do_install() functions for this
 if (IS_CFS_ARCH_BUILD)
-    include("${MISSION_DEFS}/arch_build.cmake" OPTIONAL)
-    include("${MISSION_DEFS}/arch_build_${TARGETSYSTEM}.cmake" OPTIONAL)
+    include("${MISSION_DEFS}/arch_build_custom.cmake" OPTIONAL)
+    include("${MISSION_DEFS}/arch_build_custom_${TARGETSYSTEM}.cmake" OPTIONAL)
 elseif (IS_CFS_MISSION_BUILD)
-    include("${MISSION_DEFS}/mission_build.cmake" OPTIONAL)
+    include("${MISSION_DEFS}/mission_build_custom.cmake" OPTIONAL)
 endif (IS_CFS_ARCH_BUILD)
 
 # Call the prepare function defined by the sub-script
