@@ -82,6 +82,38 @@ typedef struct {
 /* Command Message Processing Functions */
 /*****************************************************************************/
 /**
+** \brief Gathers data and puts it into the Housekeeping Message format
+**
+** \par Description
+**        Gathers data from the Table Services Application, computes necessary data values and identifies
+**        what Table Validation information needs to be reported in Housekeeping Telemetry.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \retval None
+******************************************************************************/
+extern  void CFE_TBL_GetHkData(void);
+
+/*****************************************************************************/
+/**
+** \brief Convert Table Registry Entry for a Table into a Message
+**
+** \par Description
+**        Extracts the Table Registry information for the table specified by the
+**        #CFE_TBL_TaskData_t::HkTlmTblRegIndex variable.  It then formats the
+**        Registry contents into a format appropriate for downlink.
+**
+** \par Assumptions, External Events, and Notes:
+**        #CFE_TBL_TaskData_t::HkTlmTblRegIndex is assumed to be a valid index into
+**           the Table Registry.
+**
+** \retval None
+******************************************************************************/
+extern void CFE_TBL_GetTblRegData(void);
+
+/*****************************************************************************/
+/**
 ** \brief Process Housekeeping Request Message
 **
 ** \par Description
@@ -298,31 +330,6 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoad_t *data);
 ******************************************************************************/
 extern CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *TableName,
                                          const void *DumpDataAddr, uint32 TblSizeInBytes);
-
-
-/*****************************************************************************/
-/**
-** \brief Compares message with #CFE_TBL_CmdHandlerTbl to identify the message
-**
-** \par Description
-**          Searches the Command Handler Table for an entry matching the
-**          message ID and, if necessary, the Command Code.  If an entry
-**          is not located, an error code is returned.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in] MessageID message ID of command message received on command pipe
-**
-** \param[in] CommandCode command code from command message received on command pipe
-**
-** \retval #CFE_SUCCESS          \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_BAD_CMD_CODE \copydoc CFE_TBL_BAD_CMD_CODE
-** \retval #CFE_TBL_BAD_MSG_ID   \copydoc CFE_TBL_BAD_MSG_ID
-**
-******************************************************************************/
-
-extern int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode);
 
 /*****************************************************************************/
 /**
