@@ -130,6 +130,102 @@ int32 CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth,
 
 /*****************************************************************************/
 /**
+** \brief CFE_SB_GetPipeName stub function
+**
+** \par Description
+**        This function is used to mimic the response of the cFE SB function
+**        CFE_SB_GetPipeName.  The user must set the value of UT_pipename prior
+**        to this function being called.  The function uses UT_pipename for the
+**        retrieved pipe name and returns CFE_SUCCESS.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        Returns CFE_SUCCESS.
+**
+******************************************************************************/
+int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId)
+{
+    uint32 UserBuffSize;
+    uint32 BuffPosition;
+    const char *NameBuff;
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_SB_GetPipeName);
+
+    if (status >= 0 && PipeNameSize > 0)
+    {
+        UT_GetDataBuffer(UT_KEY(CFE_SB_GetPipeName), (void**)&NameBuff, &UserBuffSize, &BuffPosition);
+        if (NameBuff == NULL || UserBuffSize == 0)
+        {
+            NameBuff = "UT";
+            UserBuffSize = 2;
+        }
+
+        if (UserBuffSize < PipeNameSize)
+        {
+            BuffPosition = UserBuffSize;
+        }
+        else
+        {
+            BuffPosition = PipeNameSize - 1;
+        }
+
+        strncpy(PipeNameBuf, NameBuff, BuffPosition);
+        PipeNameBuf[BuffPosition] = 0;
+    }
+
+    return status;
+}
+
+/*****************************************************************************/
+/**
+** \brief CFE_SB_GetPipeIdByName stub function
+**
+** \par Description
+**        This function is used to mimic the response of the cFE SB function
+**        CFE_SB_GetPipeIdByName.  The user can adjust the response by setting
+**        the value of UT_pipename prior to this function being called, then
+**        choosing specific values for the pipe name (PipeName) used
+**        when calling this function.  The Pipe ID returned is
+**        dependent on the pipe name provided.  If pipe name
+**        doesn't match the expected values the function returns an error
+**        code.  CFE_SUCCESS is returned otherwise.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        Returns either CFE_SB_BAD_ARGUMENT or CFE_SUCCESS.
+**
+******************************************************************************/
+int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
+{
+    int32 status;
+
+    UT_Stub_RegisterContext(UT_KEY(CFE_SB_GetPipeIdByName), PipeIdPtr);
+    UT_Stub_RegisterContext(UT_KEY(CFE_SB_GetPipeIdByName), PipeName);
+    status = UT_DEFAULT_IMPL(CFE_SB_GetPipeIdByName);
+
+    if (status >= 0)
+    {
+        /* TODO: add GetPipeName */
+        if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_GetPipeIdByName), (uint8*)PipeIdPtr, sizeof(*PipeIdPtr)) == sizeof(*PipeIdPtr))
+        {
+            status = CFE_SUCCESS;
+        }
+        else
+        {
+            status = CFE_SB_BAD_ARGUMENT;
+            *PipeIdPtr = 0;
+        }
+    }
+
+    return status;
+}
+/*****************************************************************************/
+/**
 ** \brief CFE_SB_GetCmdCode stub function
 **
 ** \par Description

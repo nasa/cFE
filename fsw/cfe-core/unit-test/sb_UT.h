@@ -384,6 +384,8 @@ void Test_SB_Main_InitErr(void);
 ** \sa #Test_SB_Cmds_Stats(), #Test_SB_Cmds_RoutingInfoDef(),
 ** \sa #Test_SB_Cmds_RoutingInfoSpec(), #Test_SB_Cmds_RoutingInfoCreateFail(),
 ** \sa #Test_SB_Cmds_PipeOpts(),
+** \sa #Test_SB_Cmds_GetPipeName(),
+** \sa #Test_SB_Cmds_GetPipeIdByName(),
 ** \sa #Test_SB_Cmds_RoutingInfoHdrFail(),
 ** \sa #Test_SB_Cmds_RoutingInfoWriteFail(), #Test_SB_Cmds_PipeInfoDef(),
 ** \sa #Test_SB_Cmds_PipeInfoSpec(), #Test_SB_Cmds_PipeInfoCreateFail(),
@@ -672,6 +674,164 @@ void Test_GetPipeOpts_BadPtr(void);
 **
 ******************************************************************************/
 void Test_GetPipeOpts(void);
+
+/*****************************************************************************/
+/**
+** \brief Function for calling SB get pipe name by id API test functions
+**
+** \par Description
+**        Function for calling SB get pipe name by id API test functions.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #Test_GetPipeName
+**
+******************************************************************************/
+void Test_GetPipeName_API(void);
+
+/*****************************************************************************/
+/**
+** \brief Test get pipe name by id response to a null pointer for name buf
+**
+** \par Description
+**        This function tests the get pipe name by id command with
+**        a null pointer for the name buffer.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
+** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
+**
+******************************************************************************/
+void Test_GetPipeName_NullPtr(void);
+
+/*****************************************************************************/
+/**
+** \brief Test get pipe name by id response to an non-existant pipe id
+**
+** \par Description
+**        This function tests the get pipe name by id command when
+**        called with a id that doesn't exist.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
+** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
+**
+******************************************************************************/
+void Test_GetPipeName_InvalidId(void);
+
+/*****************************************************************************/
+/**
+** \brief Test getting pipe name by id with a valid id.
+**
+** \par Description
+**        This function tests the get pipe name by id command with a valid
+**        id.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_SetCmdCode,
+** \sa #UT_SetOSFail, #UT_GetNumEventsSent,
+** \sa #UT_EventIsInHistory, #UT_Report
+**
+******************************************************************************/
+void Test_GetPipeName(void);
+
+/*****************************************************************************/
+/**
+** \brief Function for calling SB get pipe id by name  API test functions
+**
+** \par Description
+**        Function for calling SB get pipe id by name API test functions.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #Test_GetPipeIdByName
+**
+******************************************************************************/
+void Test_GetPipeIdByName_API(void);
+
+/*****************************************************************************/
+/**
+** \brief Test get pipe id by name response to a null pointer for name or pipe id
+**
+** \par Description
+**        This function tests the get pipe id by name command with either
+**        a null pointer for the name or a null pointer for the ID output.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
+** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
+**
+******************************************************************************/
+void Test_GetPipeIdByName_NullPtrs(void);
+
+/*****************************************************************************/
+/**
+** \brief Test get pipe id by name response to an non-existant pipe name
+**
+** \par Description
+**        This function tests the get pipe id by name command when
+**        called with a name that doesn't exist.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
+** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
+**
+******************************************************************************/
+void Test_GetPipeIdByName_InvalidName(void);
+
+/*****************************************************************************/
+/**
+** \brief Test getting pipe id by name with a valid name.
+**
+** \par Description
+**        This function tests the get pipe id by name command with a valid
+**        name.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_SetCmdCode,
+** \sa #UT_SetOSFail, #UT_GetNumEventsSent,
+** \sa #UT_EventIsInHistory, #UT_Report
+**
+******************************************************************************/
+void Test_GetPipeIdByName(void);
 
 /*****************************************************************************/
 /**
@@ -3202,7 +3362,7 @@ void Test_CFE_SB_ValidateMsgId(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #Test_OS_MutSem_ErrLogic, #Test_GetPipeName_ErrLogic,
+** \sa #UT_Text, #Test_OS_MutSem_ErrLogic,
 ** \sa #Test_ReqToSendEvent_ErrLogic, #Test_PutDestBlk_ErrLogic
 **
 ******************************************************************************/
@@ -3228,26 +3388,6 @@ void Test_SB_SpecialCases(void);
 **
 ******************************************************************************/
 void Test_OS_MutSem_ErrLogic(void);
-
-/*****************************************************************************/
-/**
-** \brief Test getting a pipe name using an invalid pipe ID
-**
-** \par Description
-**        This function tests getting a pipe name using an invalid pipe ID.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_GetPipeName,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
-******************************************************************************/
-void Test_GetPipeName_ErrLogic(void);
 
 /*****************************************************************************/
 /**
