@@ -160,13 +160,27 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
 
         /* if OS_QueueCreate() failed because the pipe name passed in was already in use... */
         /* let's make sure we don't alter the user's pipe ID data */
-        if (Status == CFE_OS_ERR_NAME_TAKEN){
-            *PipeIdPtr = OriginalPipeIdParamValue;
-        }
+        switch(Status) {
+            case OS_ERR_NAME_TAKEN:
+                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NAME_TAKEN_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                    "CreatePipeErr:OS_QueueCreate failed, name taken (app=%s, name=%s)",
+                    CFE_SB_GetAppTskName(TskId,FullName), PipeName);
 
-        CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                *PipeIdPtr = OriginalPipeIdParamValue;
+
+                break;
+            case OS_ERR_NO_FREE_IDS:
+                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NO_FREE_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                    "CreatePipeErr:OS_QueueCreate failed, no free id's (app=%s)",
+                    CFE_SB_GetAppTskName(TskId,FullName));
+
+                break;
+            default:
+                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "CreatePipeErr:OS_QueueCreate returned %d,app %s",
                 (int)Status,CFE_SB_GetAppTskName(TskId,FullName));
+        }/* end switch(Status) */
+
         return CFE_SB_PIPE_CR_ERR;
     }/* end if */
 
