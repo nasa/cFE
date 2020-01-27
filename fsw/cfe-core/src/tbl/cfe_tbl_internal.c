@@ -255,7 +255,7 @@ int32 CFE_TBL_EarlyInit (void)
     
     return Status;
             
-}/* end CFE_TBL_EarlyInit */
+}/* End CFE_TBL_EarlyInit */
 
 
 /*******************************************************************
@@ -304,7 +304,7 @@ void CFE_TBL_InitRegistryRecord (CFE_TBL_RegistryRec_t *RegRecPtr)
     RegRecPtr->ActiveBufferIndex = 0;
     RegRecPtr->Name[0] = '\0';
     RegRecPtr->LastFileLoaded[0] = '\0';
-}
+} /* End CFE_TBL_InitRegistryRecord */
 
 
 /*******************************************************************
@@ -433,7 +433,7 @@ int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, uint32 ThisAppId)
     }
 
     return Status;
-}
+} /* End of CFE_TBL_CheckAccessRights() */
 
 /*******************************************************************
 **
@@ -1033,7 +1033,7 @@ int32 CFE_TBL_LoadFromFile(CFE_TBL_LoadBuff_t *WorkingBufferPtr,
     }
 
     return Status;
-}
+} /* End of CFE_TBL_LoadFromFile() */
 
 
 /*******************************************************************
@@ -1167,7 +1167,7 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 
         AccessIterator = CFE_TBL_TaskData.Handles[AccessIterator].NextLink;
     }
-}
+} /* End of CFE_TBL_NotifyTblUsersOfUpdate() */
 
 /*******************************************************************
 **
@@ -1422,7 +1422,7 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
     }
 
     return CFE_SUCCESS;
-}
+} /* End of CFE_TBL_CleanUpApp() */
 
 /*******************************************************************
 **
@@ -1446,7 +1446,7 @@ void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CD
             break;
         }
     }
-}
+} /* End of CFE_TBL_FindCriticalTblInfo() */
 
 
 /*******************************************************************
@@ -1500,7 +1500,7 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
     }
     
     /* Don't bother notifying the caller of the problem since the active table is still legitimate */
-}
+}   /* End of CFE_TBL_UpdateCriticalTblCDS() */
 
 
 /*******************************************************************
@@ -1543,7 +1543,7 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
     }
     
     return Status;
-}
+} /* End of CFE_TBL_SendNotificationMsg() */
 
 /************************/
 /*  End of File Comment */

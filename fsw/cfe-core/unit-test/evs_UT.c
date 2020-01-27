@@ -53,7 +53,7 @@ static const char *EVS_SYSLOG_MSGS[] =
         "EVS:Error reading cmd pipe,RC=0x%08X\n",
         "EVS:Call to CFE_ES_RegisterApp Failed:RC=0x%08X\n",
         "EVS:Call to CFE_ES_GetAppID Failed:RC=0x%08X\n",
-        NULL, /* index 11 not used */
+        "EVS:Call to CFE_EVS_Register Failed:RC=0x%08X\n",
         "EVS:Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n",
         "EVS:Subscribing to Cmds Failed:RC=0x%08X\n",
         "EVS:Subscribing to HK Request Failed:RC=0x%08X\n"
@@ -406,6 +406,15 @@ void Test_Init(void)
               UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[9]),
               "CFE_EVS_TaskInit",
               "Call to CFE_ES_RegisterApp failure");
+
+    /* Test task initialization where event services fails */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 2, -1); /* Set Failure in CFE_EVS_Register -> EVS_GetApp_ID */
+    CFE_EVS_TaskInit();
+    UT_Report(__FILE__, __LINE__,
+              UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[11]),
+              "CFE_EVS_TaskInit",
+              "Call to CFE_EVS_Register failure");
 
     /* Test task initialization where the pipe creation fails */
     UT_InitData();

@@ -590,41 +590,6 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 ******************************************************************************/
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 
-
-/*****************************************************************************/
-/**
-** \brief Gathers data and puts it into the Housekeeping Message format
-**
-** \par Description
-**        Gathers data from the Table Services Application, computes necessary data values and identifies
-**        what Table Validation information needs to be reported in Housekeeping Telemetry.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \retval None
-******************************************************************************/
-extern  void CFE_TBL_GetHkData(void);
-
-
-/*****************************************************************************/
-/**
-** \brief Convert Table Registry Entry for a Table into a Message
-**
-** \par Description
-**        Extracts the Table Registry information for the table specified by the
-**        #CFE_TBL_TaskData_t::HkTlmTblRegIndex variable.  It then formats the
-**        Registry contents into a format appropriate for downlink.
-**
-** \par Assumptions, External Events, and Notes:
-**        #CFE_TBL_TaskData_t::HkTlmTblRegIndex is assumed to be a valid index into
-**           the Table Registry.
-**
-** \retval None
-******************************************************************************/
-extern void CFE_TBL_GetTblRegData(void);
-
-
 /*****************************************************************************/
 /**
 ** \brief Performs a byte swap on a uint32 integer
