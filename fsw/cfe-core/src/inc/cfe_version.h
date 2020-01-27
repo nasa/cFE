@@ -30,28 +30,21 @@
 **     the Major number, the Minor number, the Implementation Revision number, and the Mission Revision number. At
 **     their option, Missions may modify the Mission Revision information as needed to suit their needs.
 **
-**     The Major number shall be incremented to indicate when there is a change to an API. Specifically when the API
-**     changes in ways that will cause existing correctly-written cFS components to stop working. It may also be
-**     incremented for a release that contains changes deemed to be of similar impact, even if there are no actual
-**     changes to the API.  The Major number may increment when there is no breaking change to the API, if the changes
-**     are significant enough to warrant the same level of attention as a breaking API change.  The Major number is
-**     provided as a simple macro defined in this header file as part of the API definition; this macro must expand
-**     to a simple integer value, so that it can be used in simple #if directives by the macro preprocessor.
+**     The Major number shall be incremented on release to indicate when there is a change to an API
+**     that may cause existing correctly-written cFS components to stop working. It may also be incremented for a
+**     release that contains changes deemed to be of similar impact, even if there are no actual changes to the API.
 **
-**     The Minor number shall be incremented to indicate the addition of features to the API, which do not break
-**     existing code. It may also be incremented for a release that contains changes deemed to be of similar impact,
-**     even if there are no actual updates to the API.  The Minor number may increment  when there have been no
-**     augmentations to the API, if changes are as significant as additions to the public API.  The Minor number is
-**     provided as a simple macro defined in this header file as part of the API definition; this macro must expand
-**     to a simple integer value, so that it can be used in simple #if directives by the macro preprocessor.
+**     The Minor number shall be incremented on release to indicate the addition of features to the API,
+**     which do not break the existin code.  It may also be incremented for a release that contains changes deemed
+**     to be of similar impact, even if there are no actual updates to the API.
 **
-**     The Implementation Revision Version number shall be incremented when updates are made to an implementation that
-**     do not have consequences visible to external components. It may also be updated if there are other changes
-**     contained within a release that make it desirable for applications to distinguish one release from another.  The
-**     Revision number may update in implementations where no actual implementation-specific code has changed, if
-**     there are other changes within the release with similar significance.  The Revision number is provided as a
-**     simple macro defined in this header file as part of the API definition; this macro must expand to a simple
-**     integer value, so that it can be used in simple #if directives by the macro preprocessor.
+**     The Implementation Revision Version number shall be incremented on changes to software in the master branch, 
+**     or other changes that benefit from unique identification. It is used for identifying open source development
+**     versions.
+**
+**     The Major, Minor, and Implementation Revision numbers are provided in this header file as part of the API
+**     definition; this macro must expand to a simple integer value, so that it can be used in simple #if directives
+**     by the macro preprocessor.
 **
 **     The Mission Version number shall be set to zero in all officially released packages, and is entirely reserved
 **     for the use of the mission.  The Mission Version is provided as a simple macro defined in the cfe_platform_cfg.h
@@ -81,7 +74,7 @@
 */
 #define CFE_MAJOR_VERSION         6
 #define CFE_MINOR_VERSION         7
-#define CFE_REVISION              5
+#define CFE_REVISION              6
 
 
 #endif  /* _cfe_version_ */
