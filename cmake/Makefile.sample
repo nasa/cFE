@@ -44,6 +44,12 @@
 #  doc -- Build all doxygen source documentation.  The HTML documentation will be
 #      generated under the build tree specified by "O". 
 #
+#  usersguide -- Build all API/Cmd/Tlm doxygen documentation.  The HTML documentation
+#      will be generated under the build tree specified by "O".
+#
+#  osalguide -- Build OSAL API doxygen documentation.  The HTML documentation will
+#      be generated under the build tree specified by "O".
+#
 #  test -- Run all unit tests defined in the build.  Unit tests will typically only
 #      be executable when building with the "SIMULATION=native" option.  Otherwise
 #      it is up to the user to copy the executables to the target and run them.
@@ -70,7 +76,7 @@ endif
 
 # The "LOCALTGTS" defines the top-level targets that are implemented in this makefile
 # Any other target may also be given, in that case it will simply be passed through.
-LOCALTGTS := doc prep all clean install distclean test lcov
+LOCALTGTS := doc usersguide osalguide prep all clean install distclean test lcov
 OTHERTGTS := $(filter-out $(LOCALTGTS),$(MAKECMDGOALS))
 
 # As this makefile does not build any real files, treat everything as a PHONY target
