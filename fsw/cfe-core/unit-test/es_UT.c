@@ -908,26 +908,6 @@ void TestApps(void)
               "CFE_ES_StartApplications",
               "Start application; successful");
 
-    /* Test parsing the startup script with an invalid CFE driver type */
-    ES_ResetUnitTest();
-    {
-        const char *TokenList[] =
-        {
-                "CFE_DRV",
-                "/cf/apps/tst_lib.bundle",
-                "TST_LIB_Init",
-                "TST_LIB",
-                "0",
-                "0",
-                "0x0",
-                "1"
-        };
-        UT_Report(__FILE__, __LINE__,
-                  CFE_ES_ParseFileEntry(TokenList, 8) == CFE_ES_ERR_APP_CREATE,
-                  "CFE_ES_ParseFileEntry",
-                  "Unimplemented CFE driver type");
-    }
-
     /* Test parsing the startup script with an unknown entry type */
     ES_ResetUnitTest();
     {
@@ -7061,15 +7041,6 @@ void TestStaticApp(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_MESSAGE]),
               "CFE_ES_StartStaticApplications",
               "*Not implemented* Initialize static shared library; successful");
-
-    /* Test successful device driver initialization */
-    ES_ResetUnitTest();
-    CFE_ES_StaticStartupTable[0].ObjectType = CFE_ES_STATIC_DRV;
-    CFE_ES_StartStaticApplications(CFE_PSP_RST_TYPE_PROCESSOR);
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_MESSAGE]),
-              "CFE_ES_StartStaticApplications",
-              "*Not implemented* Device drivers not yet implemented");
 
     /* Test successful static application initialization null action */
     ES_ResetUnitTest();

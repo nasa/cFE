@@ -335,10 +335,6 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
                                EntryPoint, AppName);
 
    }
-   else if(strcmp(EntryType,"CFE_DRV")==0)
-   { 
-      CFE_ES_WriteToSysLog("ES Startup: Device Drivers not yet implemented. %s\n",FileName);
-   }
    else
    {
       CFE_ES_WriteToSysLog("ES Startup: Unexpected EntryType %s in startup file.\n",EntryType);
