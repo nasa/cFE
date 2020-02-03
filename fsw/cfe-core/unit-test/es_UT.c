@@ -4306,8 +4306,8 @@ void TestAPI(void)
     char CDSName[CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + 2];
     int i;
     uint32 ExceptionContext = 0;
-    int32 Return;
-    uint8 Data[12];
+    int32  Return;
+    uint8  Data[12];
     uint32 ResetType;
     uint32 *ResetTypePtr;
     uint32 AppId;
@@ -4318,6 +4318,7 @@ void TestAPI(void)
     uint32 CounterCount;
     CFE_ES_CDSHandle_t CDSHandle;
     CFE_ES_TaskInfo_t TaskInfo;
+    CFE_ES_AppInfo_t AppInfo;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test API\n");
@@ -4797,12 +4798,20 @@ void TestAPI(void)
     CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
     CFE_ES_Global.AppTable[0].TaskInfo.MainTaskId = 15;
     OS_TaskCreate(&CFE_ES_Global.TaskTable[1].TaskId, NULL, NULL, NULL,
-                  0, 0, 0);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteChildTask(CFE_ES_Global.TaskTable[1].TaskId) ==
-                CFE_SUCCESS,
-              "CFE_ES_DeleteChildTask",
-              "Delete child task successful");
+                  0, 0, 0);    
+    Return = CFE_ES_GetAppInfo(&AppInfo,CFE_ES_Global.TaskTable[1].AppId);
+    UtAssert_True(Return == CFE_SUCCESS, 
+         "CFE_ES_GetAppInfo() return=%x", (unsigned int)Return); 
+    UtAssert_True(AppInfo.NumOfChildTasks == 1, 
+         "AppInfo.NumOfChildTaskss == %u", (unsigned int)AppInfo.NumOfChildTasks); 
+    Return = CFE_ES_DeleteChildTask(CFE_ES_Global.TaskTable[1].TaskId);  
+    UtAssert_True(Return == CFE_SUCCESS, 
+         "DeleteChildResult() return=%x", (unsigned int)Return);
+    Return = CFE_ES_GetAppInfo(&AppInfo,CFE_ES_Global.TaskTable[1].AppId);
+    UtAssert_True(Return == CFE_SUCCESS, 
+         "CFE_ES_GetAppInfo() return=%x", (unsigned int)Return); 
+    UtAssert_True(AppInfo.NumOfChildTasks == 0, 
+         "AppInfo.NumOfChildTaskss == %u", (unsigned int)AppInfo.NumOfChildTasks);   
 
     /* Test deleting a child task with an OS task delete failure */
     ES_ResetUnitTest();

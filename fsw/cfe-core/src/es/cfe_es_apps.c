@@ -572,7 +572,6 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
       */
       strncpy((char *)CFE_ES_Global.AppTable[i].TaskInfo.MainTaskName, AppName, OS_MAX_API_NAME);
       CFE_ES_Global.AppTable[i].TaskInfo.MainTaskName[OS_MAX_API_NAME - 1] = '\0';
-      CFE_ES_Global.AppTable[i].TaskInfo.NumOfChildTasks = 0;
 
       /*
       ** Fill out the Task State info
@@ -1545,6 +1544,7 @@ void CFE_ES_GetAppInfoInternal(uint32 AppId, CFE_ES_AppInfo_t *AppInfoPtr )
    int32              ReturnCode;
    OS_module_prop_t   ModuleInfo;
    uint32             TaskIndex;
+   uint32             i; 
    
    
    CFE_ES_LockSharedData(__func__,__LINE__);
@@ -1575,7 +1575,19 @@ void CFE_ES_GetAppInfoInternal(uint32 AppId, CFE_ES_AppInfo_t *AppInfoPtr )
    strncpy((char *)AppInfoPtr->MainTaskName, (char *)CFE_ES_Global.AppTable[AppId].TaskInfo.MainTaskName,
            sizeof(AppInfoPtr->MainTaskName) - 1);
    AppInfoPtr->MainTaskName[sizeof(AppInfoPtr->MainTaskName) - 1] = '\0';
-   AppInfoPtr->NumOfChildTasks = CFE_ES_Global.AppTable[AppId].TaskInfo.NumOfChildTasks;
+   
+   /*
+   ** Calculate the number of child tasks
+   */
+   AppInfoPtr->NumOfChildTasks = 0;  
+   for (i=0; i<OS_MAX_TASKS; i++ )
+   {
+      if ( CFE_ES_Global.TaskTable[i].AppId == AppId && CFE_ES_Global.TaskTable[i].RecordUsed == true 
+           && CFE_ES_Global.TaskTable[i].TaskId != AppInfoPtr->MainTaskId )
+      {
+         AppInfoPtr->NumOfChildTasks++;
+      }
+   }
 
    /*
    ** Get the execution counter for the main task

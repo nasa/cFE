@@ -92,8 +92,6 @@ typedef struct
 {
    uint32   MainTaskId;                     /* The Application's Main Task ID */
    char     MainTaskName[OS_MAX_API_NAME];  /* The Application's Main Task ID */
-   uint32   NumOfChildTasks;                /* Number of Child tasks for an App */
-
 } CFE_ES_MainTaskInfo_t;
 
 
