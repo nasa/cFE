@@ -40,6 +40,7 @@
 ** and when you're done adding, set this to the highest EID you used. It may
 ** be worthwhile to, on occasion, re-number the EID's to put them back in order.
 */
+
 #define CFE_SB_MAX_EID                  67
 
 /*
@@ -497,20 +498,6 @@
 **/
 #define CFE_SB_SUBSCRIPTION_RPT_EID     22
 
-
-/** \brief <tt> 'Sending Unsubscription Report Msg=0x\%x,Pipe=\%d,Stat=0x\%x' </tt>
-**  \event <tt> 'Sending Unsubscription Report Msg=0x\%x,Pipe=\%d,Stat=0x\%x' </tt>
-**
-**  \par Type: DEBUG
-**
-**  \par Cause:
-**
-**  This debug event message is issued when SB subscription reporting is enabled,
-**  (which is disabled by default) and a subscription is successfully received.
-**/
-#define CFE_SB_UNSUBSCRIPTION_RPT_EID   24
-
-
 /** \brief <tt> 'Pipe Overflow,MsgId 0x\%x,pipe \%s,stat 0x\%x,app \%s' </tt>
 **  \event <tt> 'Pipe Overflow,MsgId 0x\%x,pipe \%s,stat 0x\%x,app \%s' </tt>
 **
@@ -924,6 +911,30 @@
 **  found in the message.
 **/
 #define CFE_SB_LEN_ERR_EID              61
+
+/** \brief <tt> 'CreatePipeErr:Name Taken:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
+**  \event <tt> 'CreatePipeErr:Name Taken:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_CreatePipe API tries to create
+**  a pipe with a name that is in use.
+**/
+#define CFE_SB_CR_PIPE_NAME_TAKEN_EID   62
+
+/** \brief <tt> 'CreatePipeErr:No Free:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
+**  \event <tt> 'CreatePipeErr:No Free:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_CreatePipe API is unable to
+**  create a queue because there are no queues free.
+**/
+#define CFE_SB_CR_PIPE_NO_FREE_EID      63
 
 
 #endif /* _cfe_sb_events_ */

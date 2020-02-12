@@ -91,16 +91,22 @@ include(${MISSION_DEFS}/targets.cmake)
 # Scan the list of targets and organize by target system type.
 read_targetconfig()
 
+# Include global-scope build customization
+# Note if this feature is used it should only set basic options
+# that have wide support (e.g. add_definitions).  It should not
+# set anything target or machine specific.
+include("${MISSION_DEFS}/global_build_options.cmake" OPTIONAL)
+
 # Additionally the target mission might require additional
 # custom build steps or override some routines.  In particular
 # some architectures might need some special installation steps
 # The custom script may override functions such as the
 # cfe_exec_do_install() and cfe_app_do_install() functions for this
 if (IS_CFS_ARCH_BUILD)
-    include("${MISSION_DEFS}/arch_build.cmake" OPTIONAL)
-    include("${MISSION_DEFS}/arch_build_${TARGETSYSTEM}.cmake" OPTIONAL)
+    include("${MISSION_DEFS}/arch_build_custom.cmake" OPTIONAL)
+    include("${MISSION_DEFS}/arch_build_custom_${TARGETSYSTEM}.cmake" OPTIONAL)
 elseif (IS_CFS_MISSION_BUILD)
-    include("${MISSION_DEFS}/mission_build.cmake" OPTIONAL)
+    include("${MISSION_DEFS}/mission_build_custom.cmake" OPTIONAL)
 endif (IS_CFS_ARCH_BUILD)
 
 # Call the prepare function defined by the sub-script

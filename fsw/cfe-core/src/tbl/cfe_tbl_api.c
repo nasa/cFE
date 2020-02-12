@@ -62,7 +62,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
     CFE_TBL_CritRegRec_t       *CritRegRecPtr = NULL;
-    int32                       Status = CFE_SUCCESS;
+    int32                       Status;
     size_t                      NameLen = 0;
     int16                       RegIndx = -1;
     uint32                      ThisAppId;
@@ -516,7 +516,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
 int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
                      const char *TblName )
 {
-    int32   Status = CFE_SUCCESS;
+    int32   Status;
     uint32  ThisAppId;
     int16   RegIndx = CFE_TBL_NOT_FOUND;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
@@ -1048,7 +1048,7 @@ int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle )
 int32 CFE_TBL_GetAddress( void **TblPtr,
                           CFE_TBL_Handle_t TblHandle )
 {
-    int32   Status = CFE_SUCCESS;
+    int32   Status;
     uint32  ThisAppId;
 
     /* Assume failure at returning the table address */
@@ -1124,7 +1124,7 @@ int32 CFE_TBL_GetAddresses( void **TblPtrs[],
                             const CFE_TBL_Handle_t TblHandles[] )
 {
     uint16  i;
-    int32   Status = CFE_SUCCESS;
+    int32   Status;
     uint32  ThisAppId;
 
     /* Assume failure at returning the table addresses */
@@ -1203,7 +1203,7 @@ int32 CFE_TBL_ReleaseAddresses( uint16 NumTables,
 
 int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
 {
-    int32                       Status = CFE_SUCCESS;
+    int32                       Status;
     uint32                      ThisAppId;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
@@ -1416,7 +1416,7 @@ int32 CFE_TBL_Manage( CFE_TBL_Handle_t TblHandle )
 
 int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle )
 {
-    int32                       Status = CFE_SUCCESS;
+    int32                       Status ;
     uint32                      ThisAppId;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
@@ -1521,7 +1521,7 @@ int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName )
 
 int32 CFE_TBL_DumpToBuffer( CFE_TBL_Handle_t TblHandle )
 {
-    int32                       Status = CFE_SUCCESS;
+    int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
     CFE_TBL_DumpControl_t      *DumpCtrlPtr = NULL;
@@ -1565,7 +1565,7 @@ int32 CFE_TBL_DumpToBuffer( CFE_TBL_Handle_t TblHandle )
 
 int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
 {
-    int32                       Status = CFE_SUCCESS;
+    int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
     CFE_TBL_Handle_t            AccessIterator;
@@ -1628,7 +1628,7 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
 
     
     return Status;
-}
+} /* End of CFE_TBL_Modified() */
 
 
 /*******************************************************************
@@ -1642,7 +1642,7 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
 
 int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, uint16 CommandCode, uint32 Parameter)
 {
-    int32                       Status = CFE_SUCCESS;
+    int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
     uint32                      ThisAppId;
@@ -1673,7 +1673,7 @@ int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, 
     }
     
     return Status;
-}
+}  /* End of CFE_TBL_NotifyByMessage() */
 
 /************************/
 /*  End of File Comment */

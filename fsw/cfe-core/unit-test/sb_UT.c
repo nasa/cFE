@@ -45,7 +45,7 @@ static char    cMsg[UT_MAX_MESSAGE_LENGTH];
 /*
 ** Functions
 */
-void OS_Application_Startup(void)
+void UtTest_Setup(void)
 {
     UT_Init("sb");
     UT_Text("cFE SB Unit Test Output File\n\n");
@@ -4802,6 +4802,8 @@ void Test_Subscribe_MaxMsgIdCount(void)
     UT_Text("Begin Test for Maximum Message ID Count");
 #endif
 
+    SB_ResetUnitTest();
+
     CFE_SB_CreatePipe(&PipeId0, PipeDepth, "TestPipe0");
     CFE_SB_CreatePipe(&PipeId1, PipeDepth, "TestPipe1");
     CFE_SB_CreatePipe(&PipeId2, PipeDepth, "TestPipe2");
@@ -5056,6 +5058,7 @@ void Test_Subscribe_SubscriptionReporting(void)
 #endif
 
     SB_ResetUnitTest();
+
     ActRtn = CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe");
     ExpRtn = CFE_SUCCESS;
 
@@ -5240,7 +5243,6 @@ void Test_Unsubscribe_API(void)
     Test_Unsubscribe_Local();
     Test_Unsubscribe_InvalParam();
     Test_Unsubscribe_NoMatch();
-    Test_Unsubscribe_SubscriptionReporting();
     Test_Unsubscribe_InvalidPipe();
     Test_Unsubscribe_InvalidPipeOwner();
     Test_Unsubscribe_FirstDestWithMany();
@@ -6433,6 +6435,26 @@ void Test_SendMsg_SequenceCount(void)
     if (UT_EventIsInHistory(CFE_SB_SUBSCRIPTION_RCVD_EID) == false)
     {
         UT_Text("CFE_SB_SUBSCRIPTION_RCVD_EID not sent");
+        TestStat = CFE_FAIL;
+    }
+
+    CFE_SB_Unsubscribe(MsgId, PipeId); /* should have no subscribers now */
+
+    CFE_SB_SendMsg(TlmPktPtr); /* increment to 3 */
+
+    CFE_SB_Subscribe(MsgId, PipeId); /* resubscribe so we can receive a msg */
+
+    CFE_SB_SendMsg(TlmPktPtr); /* increment to 4 */
+
+    CFE_SB_RcvMsg(&PtrToMsg, PipeId, CFE_SB_PEND_FOREVER);
+
+    if (CCSDS_RD_SEQ(PtrToMsg->Hdr) != 4)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected sequence count for send in sequence count test, "
+                   "exp=4, act=%d",
+                 CCSDS_RD_SEQ(PtrToMsg->Hdr));
+        UT_Text(cMsg);
         TestStat = CFE_FAIL;
     }
 

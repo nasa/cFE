@@ -160,13 +160,27 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
 
         /* if OS_QueueCreate() failed because the pipe name passed in was already in use... */
         /* let's make sure we don't alter the user's pipe ID data */
-        if (Status == CFE_OS_ERR_NAME_TAKEN){
-            *PipeIdPtr = OriginalPipeIdParamValue;
-        }
+        switch(Status) {
+            case OS_ERR_NAME_TAKEN:
+                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NAME_TAKEN_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                    "CreatePipeErr:OS_QueueCreate failed, name taken (app=%s, name=%s)",
+                    CFE_SB_GetAppTskName(TskId,FullName), PipeName);
 
-        CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                *PipeIdPtr = OriginalPipeIdParamValue;
+
+                break;
+            case OS_ERR_NO_FREE_IDS:
+                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NO_FREE_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                    "CreatePipeErr:OS_QueueCreate failed, no free id's (app=%s)",
+                    CFE_SB_GetAppTskName(TskId,FullName));
+
+                break;
+            default:
+                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "CreatePipeErr:OS_QueueCreate returned %d,app %s",
                 (int)Status,CFE_SB_GetAppTskName(TskId,FullName));
+        }/* end switch(Status) */
+
         return CFE_SB_PIPE_CR_ERR;
     }/* end if */
 
@@ -1180,7 +1194,6 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
     uint32  PipeIdx;
     uint32  TskId = 0;
     bool    MatchFound = false;
-    int32   Stat;
     CFE_SB_DestinationD_t   *DestPtr = NULL;
     char    FullName[(OS_MAX_API_NAME * 2)];
 
@@ -1266,31 +1279,6 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
         DestPtr = DestPtr->Next;
 
     }while((MatchFound == false)&&(DestPtr != NULL));
-
-    /* if 'Destinations' was decremented to zero above... */
-    if(RoutePtr->Destinations==0){
-        CFE_SB.StatTlmMsg.Payload.MsgIdsInUse--;
-        CFE_SB_RouteIdxPush_Unsync(RouteIdx); /* Return the idx to the available list (stack) for reuse */
-        CFE_SB_SetRoutingTblIdx(MsgKey,CFE_SB_INVALID_ROUTE_IDX);
-
-        /* Send unsubscribe report only if there are zero requests for this pkt */
-        if((CFE_SB.SubscriptionReporting == CFE_SB_ENABLE)&&
-          (Scope == CFE_SB_GLOBAL))
-        {
-          CFE_SB.SubRprtMsg.Payload.MsgId = MsgId;
-          CFE_SB.SubRprtMsg.Payload.Pipe = PipeId;
-          CFE_SB.SubRprtMsg.Payload.Qos.Priority = 0;
-          CFE_SB.SubRprtMsg.Payload.Qos.Reliability = 0;
-          CFE_SB.SubRprtMsg.Payload.SubType = CFE_SB_UNSUBSCRIPTION;
-          CFE_SB_UnlockSharedData(__func__,__LINE__);
-          Stat = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.SubRprtMsg);
-          CFE_EVS_SendEventWithAppID(CFE_SB_UNSUBSCRIPTION_RPT_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
-            "Sending Unsubscription Report Msg=0x%x,Pipe=%d,Stat=0x%x",
-            (unsigned int)MsgId,(int)PipeId,(unsigned int)Stat);
-          CFE_SB_LockSharedData(__func__,__LINE__);
-        }/* end if */
-
-    }/* end if */
 
     CFE_SB_UnlockSharedData(__func__,__LINE__);
 
@@ -1976,7 +1964,7 @@ CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
 {
    int32                stat1;
    uint32               AppId = 0xFFFFFFFF;
-   uint8               *address = NULL;
+   cpuaddr              address = 0;
    CFE_SB_ZeroCopyD_t  *zcd = NULL;
    CFE_SB_BufferD_t    *bd = NULL;
 
@@ -2023,7 +2011,7 @@ CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
     }/* end if */
 
     /* first set ptr to actual msg buffer the same as ptr to descriptor */
-    address = (uint8 *)bd;
+    address = (cpuaddr)bd;
 
     /* increment actual msg buffer ptr beyond the descriptor */
     address += sizeof(CFE_SB_BufferD_t);
@@ -2088,6 +2076,7 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
 {
     int32    Status;
     int32    Stat2;
+    cpuaddr  Addr = (cpuaddr)Ptr2Release;
 
     Status = CFE_SB_ZeroCopyReleaseDesc(Ptr2Release, BufferHandle);
 
@@ -2096,7 +2085,7 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
     if(Status == CFE_SUCCESS){
         /* give the buffer back to the buffer pool */
         Stat2 = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl,
-                                  (uint32 *) (((uint8 *)Ptr2Release) - sizeof(CFE_SB_BufferD_t)));
+                                  (uint32 *) (Addr - sizeof(CFE_SB_BufferD_t)));
         if(Stat2 > 0){
              /* Substract the size of the actual buffer from the Memory in use ctr */
             CFE_SB.StatTlmMsg.Payload.MemInUse-=Stat2;

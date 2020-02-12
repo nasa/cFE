@@ -6,6 +6,15 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version Notes
 
+- 6.7.6: DEVELOPMENT
+  - Adds OMIT_DEPRECATED prep flag
+  - Adds and enforces strict warnings
+  - Software Bus now increments sequence counter even if there are no subscribers
+  - Warning, comment, and code coverage cleanup (see https://github.com/nasa/cFE/pull/490)
+- 6.7.5: DEVELOPMENT
+  - Added CI static analysis check
+  - Resolved static analysis warnings
+  - Minor other updates (see https://github.com/nasa/cFE/pull/479)
 - 6.7.4: DEVELOPMENT
   - Minor updates (see https://github.com/nasa/cFE/pull/448)
 - 6.7.3: DEVELOPMENT

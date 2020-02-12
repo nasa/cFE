@@ -137,7 +137,7 @@ int32 CFE_SB_AppInit(void){
 
     uint32 CfgFileEventsToFilter = 0;    
     uint32 *TmpPtr = NULL;
-    int32  Status = CFE_SUCCESS;
+    int32  Status;
     
     Status = CFE_ES_RegisterApp();
 

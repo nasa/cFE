@@ -29,33 +29,6 @@ MULTILINE_CPP_IS_BRIEF = NO
 INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
-ALIASES               += "event=\xrefitem cfeevents \"Event Message\" \"cFE Event Message Cross Reference\" " \
-                         "retdesc=<TD WIDTH=\"80%\"> " \
-                         "retcode=<TR><TD WIDTH=\"20%\" VALIGN=TOP> " \
-                         endcode=</TR> \
-                         "returns=\return <TABLE BORDER=\"0\" CELLPADDING=\"2\" WIDTH=\"100%\"> " \
-                         endreturns=</TABLE> \
-                         "retstmt=<TR><TD COLSPAN=2 WIDTH=\"100%\"> " \
-                         endstmt=</TR> \
-                         "cfeescfg=\xrefitem cfeescfg \"Purpose\" \"cFE Executive Services Configuration Parameters\" " \
-                         "cfeevscfg=\xrefitem cfeevscfg \"Purpose\" \"cFE Event Services Configuration Parameters\" " \
-                         "cfetblcfg=\xrefitem cfetblcfg \"Purpose\" \"cFE Table Services Configuration Parameters\" " \
-                         "cfetimecfg=\xrefitem cfetimecfg \"Purpose\" \"cFE Time Services Configuration Parameters\" " \
-                         "cfesbcfg=\xrefitem cfesbcfg \"Purpose\" \"cFE Software Bus Configuration Parameters\" " \
-                         "cfemissioncfg=\xrefitem cfemissioncfg \"Purpose\" \"cFE Mission Configuration Parameters\" " \
-                         "cfeplatformcfg=\xrefitem cfeplatformcfg \"Purpose\" \"cFE Platform Configuration Parameters\" " \
-                         "cfeescmd=\xrefitem cfeescmds \"Name\" \"cFE Executive Services Commands\" " \
-                         "cfeevscmd=\xrefitem cfeevscmds \"Name\" \"cFE Event Services Commands\" " \
-                         "cfesbcmd=\xrefitem cfesbcmds \"Name\" \"cFE Software Bus Commands\" " \
-                         "cfetimecmd=\xrefitem cfetimecmds \"Name\" \"cFE Time Services Commands\" " \
-                         "cfetblcmd=\xrefitem cfetblcmds \"Name\" \"cFE Table Services Commands\" " \
-                         "cfetbltlm=\xrefitem cfetbltlm \"Name\" \"cFE Table Services Telemetry\" " \
-                         "cfeestlm=\xrefitem cfeestlm \"Name\" \"cFE Executive Services Telemetry\" " \
-                         "cfeevstlm=\xrefitem cfeevstlm \"Name\" \"cFE Event Services Telemetry\" " \
-                         "cfesbtlm=\xrefitem cfesbtlm \"Name\" \"cFE Software Bus Telemetry\" " \
-                         "cfetimetlm=\xrefitem cfetimetlm \"Name\" \"cFE Time Services Telemetry\" " \
-                         "cfecmdmnemonic=\xrefitem cfecmdmnems \"Command Mnemonic(s)\" \"cFE Command Mnemonic Cross Reference\" \b \c " \
-                         "cfetlmmnemonic=\xrefitem cfetlmmnems \"Telemetry Mnemonic(s)\" \"cFE Telemetry Mnemonic Cross Reference\" \b \c "
 OPTIMIZE_OUTPUT_FOR_C  = YES
 OPTIMIZE_OUTPUT_JAVA   = NO
 BUILTIN_STL_SUPPORT    = NO
@@ -111,13 +84,9 @@ STRIP_FROM_PATH        = @MISSION_SOURCE_DIR@
 
 # Always include a standard set of CFE documentation in the input set
 # This is applicable to both users guide and detail design outputs
-IMAGE_PATH            += @MISSION_SOURCE_DIR@/cfe/docs/src 
-INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_es.dox 
-INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_evs.dox 
-INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_sb.dox 
-INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_tbl.dox 
-INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_time.dox    
-INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_xref.dox
+#IMAGE_PATH            += 
+INPUT                  += @MISSION_SOURCE_DIR@/cfe/docs/src/osal_fs.dox 
+INPUT                  += @MISSION_SOURCE_DIR@/cfe/docs/src/osal_timer.dox 
 
 FILE_PATTERNS          = *.c *.cpp *.cc *.C *.h *.hh *.hpp *.H *.dox *.md
 RECURSIVE              = YES
@@ -203,7 +172,7 @@ MAN_LINKS              = NO
 # configuration options related to the XML output
 #---------------------------------------------------------------------------
 GENERATE_XML           = NO
-XML_OUTPUT             = xml  
+XML_OUTPUT             = xml 
 XML_PROGRAMLISTING     = YES
 #---------------------------------------------------------------------------
 # configuration options for the AutoGen Definitions output
@@ -268,16 +237,7 @@ DOT_CLEANUP            = YES
 SEARCHENGINE           = NO
 
 #---------------------------------------------------------------------------
-# CFE mnemonic mappings
+# OSAL mnemonic mappings
 #---------------------------------------------------------------------------
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_es_cmd_mnem_map
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_es_tlm_mnem_map
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_tbl_cmd_mnem_map
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_tbl_tlm_mnem_map
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_time_cmd_mnem_map
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_time_tlm_mnem_map
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_evs_cmd_mnem_map
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_evs_tlm_mnem_map
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_sb_cmd_mnem_map
-@INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_sb_tlm_mnem_map
+#@INCLUDE = 
 
