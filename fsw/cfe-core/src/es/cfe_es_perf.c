@@ -342,7 +342,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMask_t *data)
         Perf->MetaData.FilterMask[cmd->FilterMaskNum] = cmd->FilterMask;
 
         CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKCMD_EID, CFE_EVS_EventType_DEBUG,
-                "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%x",
+                "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%08X",
                 (unsigned int)cmd->FilterMaskNum,(unsigned int)cmd->FilterMask);
 
         CFE_ES_TaskData.CommandCounter++;
@@ -372,7 +372,7 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMask_t *data)
         Perf->MetaData.TriggerMask[cmd->TriggerMaskNum] = cmd->TriggerMask;
 
         CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKCMD_EID, CFE_EVS_EventType_DEBUG,
-                "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%x",
+                "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%08X",
                 (unsigned int)cmd->TriggerMaskNum,(unsigned int)cmd->TriggerMask);
 
         CFE_ES_TaskData.CommandCounter++;
