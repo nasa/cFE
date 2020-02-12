@@ -488,37 +488,6 @@ CFE_SB_RouteEntry_t* CFE_SB_GetRoutePtrFromIdx(CFE_SB_MsgRouteIdx_t RouteIdx)
     return &CFE_SB.RoutingTbl[CFE_SB_RouteIdxToValue(RouteIdx)];
 } /* end CFE_SB_GetRouteFromIdx */
 
-
-/******************************************************************************
-**  Function:  CFE_SB_GetPipeName()
-**
-**  Purpose:
-**    SB internal function to get the string of the pipe name of the given
-**    Pipe ID.
-**
-**  Arguments:
-**    MsgId  : ID of the message
-**
-**  Return:
-**    Will return a pointer to the PipeName array in the pipe table if the the pipeid
-**    is in range. Otherwise this function returns a pointer to the
-**    PipeName4ErrCase[0], which is initialized with a null terminator.
-**
-*/
-char *CFE_SB_GetPipeName(CFE_SB_PipeId_t PipeId){
-
-    static char PipeName4ErrCase[1] = {'\0'};
-
-    if(PipeId >= CFE_PLATFORM_SB_MAX_PIPES){
-        return &PipeName4ErrCase[0];
-    }else{
-        return &CFE_SB.PipeTbl[PipeId].PipeName[0];
-    }/* end if */
-
-}/* end CFE_SB_GetPipeName */
-
-
-
 /******************************************************************************
 **  Function:  CFE_SB_DuplicateSubscribeCheck()
 **
