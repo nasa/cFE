@@ -249,7 +249,6 @@ typedef struct {
 typedef struct {
      uint8              InUse;
      CFE_SB_PipeId_t    PipeId;
-     char               PipeName[OS_MAX_API_NAME];
      char               AppName[OS_MAX_API_NAME];
      uint8              Opts;
      uint8              Spare;
@@ -363,7 +362,6 @@ int32  CFE_SB_DuplicateSubscribeCheck(CFE_SB_MsgKey_t MsgKey,CFE_SB_PipeId_t Pip
 void   CFE_SB_SetRoutingTblIdx(CFE_SB_MsgKey_t MsgKey, CFE_SB_MsgRouteIdx_t Value);
 CFE_SB_RouteEntry_t* CFE_SB_GetRoutePtrFromIdx(CFE_SB_MsgRouteIdx_t RouteIdx);
 void   CFE_SB_ResetCounters(void);
-char   *CFE_SB_GetPipeName(CFE_SB_PipeId_t PipeId);
 void   CFE_SB_SetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr,uint32 Count);
 char   *CFE_SB_GetAppTskName(uint32 TaskId, char* FullName);
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, uint16 Size);

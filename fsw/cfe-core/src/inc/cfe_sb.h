@@ -193,7 +193,7 @@ typedef struct {
 ** \retcode #CFE_SB_PIPE_CR_ERR    \retdesc \copydoc CFE_SB_PIPE_CR_ERR   \endcode
 ** \endreturns
 **
-** \sa #CFE_SB_DeletePipe #CFE_SB_GetPipeOpts #CFE_SB_SetPipeOpts
+** \sa #CFE_SB_DeletePipe #CFE_SB_GetPipeOpts #CFE_SB_SetPipeOpts #CFE_SB_GetPipeIdByName
 **/
 int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr,
                          uint16  Depth,
@@ -225,7 +225,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr,
 ** \retcode #CFE_SB_BAD_ARGUMENT   \retdesc  \copydoc CFE_SB_BAD_ARGUMENT \endcode
 ** \endreturns
 **
-** \sa #CFE_SB_CreatePipe #CFE_SB_GetPipeOpts #CFE_SB_SetPipeOpts
+** \sa #CFE_SB_CreatePipe #CFE_SB_GetPipeOpts #CFE_SB_SetPipeOpts #CFE_SB_GetPipeIdByName
 **/
 int32  CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId);
 
@@ -246,7 +246,7 @@ int32  CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId);
 ** \retcode #CFE_SB_BAD_ARGUMENT   \retdesc  \copydoc CFE_SB_BAD_ARGUMENT \endcode
 ** \endreturns
 **
-** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_GetPipeOpts #CFE_SB_PIPEOPTS_IGNOREMINE
+** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_GetPipeOpts #CFE_SB_GetPipeIdByName #CFE_SB_PIPEOPTS_IGNOREMINE
 **/
 int32  CFE_SB_SetPipeOpts(CFE_SB_PipeId_t     PipeId,
                           uint8               Opts);
@@ -267,10 +267,54 @@ int32  CFE_SB_SetPipeOpts(CFE_SB_PipeId_t     PipeId,
 ** \retcode #CFE_SB_BAD_ARGUMENT   \retdesc  \copydoc CFE_SB_BAD_ARGUMENT \endcode
 ** \endreturns
 **
-** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_SetPipeOpts #CFE_SB_PIPEOPTS_IGNOREMINE
+** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_SetPipeOpts #CFE_SB_GetPipeIdByName #CFE_SB_PIPEOPTS_IGNOREMINE
 **/
 int32  CFE_SB_GetPipeOpts(CFE_SB_PipeId_t     PipeId,
                           uint8               *OptPtr);
+
+/*****************************************************************************/
+/**
+** \brief Get the pipe name for a given id.
+**
+** \par Description
+**          This routine finds the pipe name for a pipe id.
+**
+** \param[out] PipeNameBuf  The buffer to receive the pipe name.
+**
+** \param[in] PipeNameSize  The size (in chars) of the PipeName buffer.
+**
+** \param[in] PipeId        The PipeId for that name.
+**
+** \returns
+** \retcode #CFE_SUCCESS           \retdesc  \copydoc CFE_SUCCESS         \endcode
+** \retcode #CFE_SB_BAD_ARGUMENT   \retdesc  \copydoc CFE_SB_BAD_ARGUMENT \endcode
+** \retcode #CFE_SB_INVALID_PIPE   \retdesc  \copydoc CFE_SB_INVALID_PIPE \endcode
+** \endreturns
+**
+** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_SetPipeOpts #CFE_SB_GetPipeIdByName
+**/
+int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId);
+
+/*****************************************************************************/
+/**
+** \brief Get pipe id by pipe name.
+**
+** \par Description
+**          This routine finds the pipe id for a pipe name.
+**
+** \param[in]  PipeName     The name of the pipe.
+**
+** \param[out] PipeIdPtr    The PipeId for that name.
+**
+** \returns
+** \retcode #CFE_SUCCESS           \retdesc  \copydoc CFE_SUCCESS         \endcode
+** \retcode #CFE_SB_BAD_ARGUMENT   \retdesc  \copydoc CFE_SB_BAD_ARGUMENT \endcode
+** \retcode #CFE_SB_INVALID_PIPE   \retdesc  \copydoc CFE_SB_INVALID_PIPE \endcode
+** \endreturns
+**
+** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_SetPipeOpts #CFE_SB_PIPEOPTS_IGNOREMINE
+**/
+int32  CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName);
 
 /*****************************************************************************/
 /** 
