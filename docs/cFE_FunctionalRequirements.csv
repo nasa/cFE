@@ -407,7 +407,7 @@ TBL: Zero Counters,cTBL6008,"Upon receipt of Command the cFE shall set the follo
 - Number of Completed Validations",This command is a common feature in heritage sub-system software design.
 TBL: Valid Command Counter,cTBL6009,"Upon receipt of valid command, the cFE shall increment the valid command counter.",The ground needs the capability to verify that the command was received a accepted by the cFE.  Details of  valid commands are documented in the cFE User's Guide.
 TBL: Invalid Command Counter,cTBL6010,"Upon receipt of an invalid command, the cFE shall in increment the invalid command counter.",The ground needs an indicator if a command is rejected by the cFE. Details of what makes a command invalid are documented in the cFE User's Guide.
-TBL: Housekeeping Message,cTBL6011,"The cFE shall provide the following Table Service data items in telemetry (SB Messages):
+TBL: Housekeeping Message,cTBL6011,"The cFE shall provide the following Table Service items in a housekeeping message:
 
 - Valid Command Counter
 - Invalid Command Counter
@@ -420,15 +420,18 @@ TBL: Housekeeping Message,cTBL6011,"The cFE shall provide the following Table Se
 - Commanded Data Integrity Check Value
 - Commanded Table Verification Function Result
 - Number of unused Shared Buffers
-- Table Name of Last Table Load",
+- Table Name of Last Table Load",Periodically report housekeeping telemetry for system awareness and management.
 TBL: Abort Load,cTBL6012,"Upon receipt of Command the cFE shall abort the loading of the specified Table.
 ","The ground needs a way to clear the inactive buffer of all loads in the event, for example, that erroneous values were loaded to the table by the ground. Note that once a table is activated, it cannot be aborted (significant for double-buffer tables)."
 TBL: Abort Load - Release Shared Buffer,cTBL6012.1,"If the Table buffering characteristics for the specified Table indicate that it is a Single-buffered Table, then the allocated shared buffer shall be released.",The shared buffer being used for this table load should be placed back into the pool of available shared buffers.
 TBL: Abort Load - Mark Inactive Buffer Uninitialized,cTBL6012.2,"If the Table buffering characteristics for the specified Table indicate that it is a Double-buffered table, then the inactive buffer shall be marked as uninitialized.",Need to make sure that the table image gets re-initialized with the contents of the active buffer prior to a subsequent load after an abort command is sent (see cTBL6000.4)
 TBL: Abort Load - No Loads Pending,cTBL6012.3,The Table Registry shall indicate that there are no loads pending for the specified Table.,Status of the table needs to updated to reflect that.
+TBL: Delete CDS,cTBL6013,Upon receipt of a Command the cFE shall delete the requested table CDS data.,CDS management for a table no longer in use.
+TBL: Delete CDS - Table In Use,cTBL6013.1,If the specified Table is in use the command shall be rejected and an event message generated.,Reject if table is in use.
+TBL: Delete CDS - Not Critical Table,cTBL6013.2,If the specified table is not a critical table the command shall be rejected and an event message generated.,Reject when not a critical table.
+TBL: Delete CDS - Already Deleted,cTBL6013.3,If the specified Table CDS has already been deleted the command shall be rejected and an event message generated.,Reject if table CDS has already been deleted.
 TBL: Create,cTBL6300,"Upon receipt of Request, the cFE shall create a zero filled Table Image with the Request specified name, size, buffering characteristics (single or double-buffer), dump-only characteristics, criticality and Table Validation Function address.","Supports the cFE's dynamic Application model. Tables will be able to be either single or double-buffered.  Double-buffering will allow instantaneous updates from the Application's point of view and will be useful for interrupt service routines, etc.  However, double-buffering will consume more memory resources.  The Table Validation Function is optionally provided by the Application and is called when a Command to Validate the table is made. Note that a zero filled image will not be created if the Application specifies an address for the dump-only table (see cTBL6300.1)."
 TBL: Create - App Supplied Address For Dump Only,cTBL6300.1,The cFE shall allow an Application to specify an address as the one and only buffer for a dump-only Table.,"Heritage code allowed for dump only tables to come from an address instead of a true table.  In this case, table services does not allocate any memory for the dump only table.  This is referred to an an Application-Defined-Address-Table."
-TBL: Free App Resources,cTBL6301,"Upon receipt of Request, the cFE shall free the resources associated the Request specified Application.","When an Application exits prematurely, the cFE requires a mechanism to free resources allocated to that Application."
 TBL: Initialize Contents,cTBL6302,"Upon receipt of Request, the cFE shall initialize the contents of the Request specified Table Image with the contents of the Request specified File.",Supports the cFE's dynamic Application model.
 TBL: Initialize Contents - Greater Than Max Size,cTBL6302.1,"If the Request specified File contains more data than the size of the Request specified Table, the Table Image will not be initialized and an Event Message shall be generated.","If a File contains more data than memory allows, there is a high likelihood that the Application is expecting the data to be in a different format.  Additionally, the cFE would not know whether to throw out the last part or the first part of the data."
 TBL: Initialize Contents - Partial,cTBL6302.2,"If the Request specified File contains less data than the size of the Request specified Table, the first portion of the Table Image will be initialized with the contents of the File and an Event Message shall be generated.",Some tables may allocate more space than is necessary at all times. The Event Message will serve as a warning but not prevent the initialization of the Table.
@@ -457,11 +460,23 @@ TBL: Provide Data Addresses,cTBL6311,"Upon receipt of Request, the cFE shall pro
 TBL: Provide Data Addresses - Lock Contents,cTBL6311.1,"Upon providing a calling Application with the addresses of a Tables' data, the cFE shall lock the contents of the Tables to prevent modification.",The Table Service must wait for an Application to be done with the contents of the Table before considering modifying its contents.  This ensures data integrity while the Application accesses the Table contents.
 TBL: Provide Data Addresses - Modified Notification,cTBL6311.2,"If at least one Table has been modified since the last Table addresses request, the cFE shall notify the calling Application that a Table has been modified.","An Application may need to know when the contents of a Tables has been updated; the Application just won't know which one."
 TBL: Unlocks,cTBL6312,"Upon receipt of Request, the cFE shall unlock the contents of the Request specified Tables.",Applications may need to work with more than one table at a time.
+TBL: Validate,cTBL6313,Upon receipt of a Request the cFE shall determine the validity of the contents of either the Active or Inactive Table Image of the requested Table if a validation request is pending.,"Performs table validation if a validation request is pending. This check is nominally performed during table management when validation has been requested, but can performed independent of table management."
+TBL: Dump To Buffer,cTBL6314,Upon receipt of a Request the cFE shall dump the requested Table to a buffer if a dump request is pending.,"Performs table dump to a buffer if a dump request is pending. This check is nominally performed during table management when a dump has been requested, but can performed independent of table management."
+TBL: Modified,cTBL6315,"Upon receipt of a Request, the cFE shall perform the following actions on a Table:
+
+- Update critical table data in CDS
+- Update the time of last modification
+- Update the CRC
+- Update the last loaded filename with modified indicator
+- Flag the update notification for other applications",Capability to request cFE to perform maintenance on a table that has been modified by an application.
+TBL: Manage,cTBL6316,"Upon receipt of a Request, the cFE shall perform the following actions on a table:
+
+- Validate Table if request pending
+- Dump Table if request pending
+- Update Table if request pending",Capability to process standard pending requests on a table.
 TBL: Free Resources On Power On Reset,cTBL6500,Upon a Power-on Reset all Table resources shall be freed.,The Table Service cannot assume the contents of any Table is legitimate after a reset.
 TBL: Free Resources On Processor Reset,cTBL6501,Upon a Processor Reset all Table resources shall be freed.,The Table Service cannot assume the contents of any Table is legitimate after a reset.
 TBL: Free Resources On Processor Reset - Preserve Critical,cTBL6501.1,If the Table is a critical table then the contents of the Table shall be preserved.,Goal of a processor reset is preserve certain data to facilitate recovery.
-TBL: Maximum Tables,cTBL6700,"The cFE shall support `<PLATFORM_DEFINED, 128>` Tables.",Each mission's processor card memory capacities will dictate what is reasonable.
-TBL: Maximum Simultaneous Loads and Dumps,cTBL6701,"The cFE shall support <PLATFORM_DEFINED, 4> Single-Buffer Table Loads and Application-Defined-Address-Table dumps simultaneously. ","It is desirable to allow for Tables to be modified by ground command while other Tables are be being modified autonomously by on board software (i.e. stored command processor, etc). This limit represents the total supported for the combined number of Single-Buffer and Application-Defined-Address-Table Tables being loaded."
 TIME: Housekeeping Message,cTIME2000,"Upon receipt of Command the cFE shall generate a Software Bus message that includes the following items: 
 
 - Time Status
