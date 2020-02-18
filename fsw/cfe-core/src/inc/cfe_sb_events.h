@@ -40,7 +40,7 @@
 ** and when you're done adding, set this to the highest EID you used. It may
 ** be worthwhile to, on occasion, re-number the EID's to put them back in order.
 */
-#define CFE_SB_MAX_EID                  61
+#define CFE_SB_MAX_EID                  67
 
 /*
 ** SB task event message ID's.
@@ -183,6 +183,73 @@
 **/
 #define CFE_SB_GETPIPEOPTS_EID        60
 
+/** \brief <tt> 'GetPipeName: Name retrieved. NameOut \%s,Id \%d, app \%s' </tt>
+** \event <tt> 'GetPipeName: Name retrieved. NameOut \%s,Id \%d, app \%s' </tt>
+**
+**  \par Type: DEBUG
+**
+**  \par Cause:
+**
+**  This debug event is generated when name is retrieved by id.
+**/
+#define CFE_SB_GETPIPENAME_EID        62
+
+/** \brief <tt> 'GetPipeName: Null ptr error. Id \%d, app \%s' </tt>
+** \event <tt> 'GetPipeName: Null ptr error. Id \%d, app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This debug event is generated when the name buffer ptr is null.
+**/
+#define CFE_SB_GETPIPENAME_NULL_PTR_EID        63
+
+/** \brief <tt> 'GetPipeName: Id error. NameOut \%s,Id \%d, app \%s' </tt>
+** \event <tt> 'GetPipeName: Id error. NameOut \%s,Id \%d, app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This debug event is generated when name is retrieved by id.
+**/
+#define CFE_SB_GETPIPENAME_ID_ERR_EID        64
+
+/** \brief <tt> 'GetPipeIdByName: ID retrieved. Name \%s,IdOut 0x\%x, app \%s' </tt>
+** \event <tt> 'GetPipeIdByName: ID retrieved. Name \%s,IdOut 0x\%x, app \%s' </tt>
+**
+**  \par Type: DEBUG
+**
+**  \par Cause:
+**
+**  This debug event is generated when id is retrieved by name.
+**/
+#define CFE_SB_GETPIPEIDBYNAME_EID        65
+
+/** \brief <tt> 'GetPipeIdByName Err:Bad input argument,Name 0x\%x,IdOut 0x%x,App \%s' </tt>
+**  \event <tt> 'GetPipeIdByName Err:Bad input argument,Name 0x\%x,IdOut 0x%x,App \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_GetMsgIdByName API receives an
+**  invalid (possibly NULL) ptr as an argument.
+**/
+#define CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID         66
+
+/** \brief <tt> 'GetPipeIdByName Err:Name not found,Name \%s,IdOut 0x%x,App \%s' </tt>
+**  \event <tt> 'GetPipeIdByName Err:Name not found,Name \%s,IdOut 0x%x,App \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_GetMsgIdByName API receives an
+**  invalid name.
+**/
+#define CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID         67
 
 /** \brief <tt> 'Subscribe Err:Bad Arg,MsgId 0x\%x,PipeId \%d,app \%s,scope \%d' </tt>
 **  \event <tt> 'Subscribe Err:Bad Arg,MsgId 0x\%x,PipeId \%d,app \%s,scope \%d' </tt>
@@ -843,6 +910,30 @@
 **  found in the message.
 **/
 #define CFE_SB_LEN_ERR_EID              61
+
+/** \brief <tt> 'CreatePipeErr:Name Taken:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
+**  \event <tt> 'CreatePipeErr:Name Taken:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_CreatePipe API tries to create
+**  a pipe with a name that is in use.
+**/
+#define CFE_SB_CR_PIPE_NAME_TAKEN_EID   62
+
+/** \brief <tt> 'CreatePipeErr:No Free:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
+**  \event <tt> 'CreatePipeErr:No Free:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_CreatePipe API is unable to
+**  create a queue because there are no queues free.
+**/
+#define CFE_SB_CR_PIPE_NO_FREE_EID      63
 
 
 #endif /* _cfe_sb_events_ */

@@ -561,7 +561,9 @@ typedef struct {
                                         \brief Count of errors in set/get pipe options API */
     uint8           DuplicateSubscriptionsCounter;/**< \cfetlmmnemonic \SB_DUPSUBCNT
                                              \brief Count of duplicate subscriptions */
-    uint8           Spare2Align[2];/**< \cfetlmmnemonic \SB_SPARE2ALIGN
+    uint8           GetPipeIdByNameErrorCounter; /**< \cfetlmmnemonic \SB_GETPIPEIDBYNAMEEC
+                                        \brief Count of errors in get pipe id by name API */
+    uint8           Spare2Align[1];/**< \cfetlmmnemonic \SB_SPARE2ALIGN
                                         \brief Spare bytes to ensure alignment */
 
     uint16          PipeOverflowErrorCounter;/**< \cfetlmmnemonic \SB_PIPEOVREC

@@ -57,6 +57,8 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CreatePipe_API);
     UT_ADD_TEST(Test_DeletePipe_API);
     UT_ADD_TEST(Test_PipeOpts_API);
+    UT_ADD_TEST(Test_GetPipeName_API);
+    UT_ADD_TEST(Test_GetPipeIdByName_API);
     UT_ADD_TEST(Test_Subscribe_API);
     UT_ADD_TEST(Test_Unsubscribe_API);
     UT_ADD_TEST(Test_SendMsg_API);
@@ -595,7 +597,7 @@ void Test_SB_AppInit_EVSSendEvtFail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -696,7 +698,7 @@ void Test_SB_AppInit_Sub1Fail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -748,7 +750,7 @@ void Test_SB_AppInit_Sub2Fail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -801,7 +803,7 @@ void Test_SB_AppInit_GetPoolFail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -848,7 +850,7 @@ void Test_SB_AppInit_PutPoolFail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -899,7 +901,7 @@ void Test_SB_Main_RcvErr(void)
     SB_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_QueueGet), 1, -1);
     CFE_SB_TaskMain();
-    ExpRtn = 5;
+    ExpRtn = 8;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -945,7 +947,7 @@ void Test_SB_Main_InitErr(void)
     SB_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, -1);
     CFE_SB_TaskMain();
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -1182,7 +1184,7 @@ void Test_SB_Cmds_RoutingInfoDef(void)
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &WriteFileCmd;
     CFE_SB_ProcessCmdPipePkt();
 
-    ExpRtn = 5;
+    ExpRtn = 9;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -1413,7 +1415,7 @@ void Test_SB_Cmds_RoutingInfoWriteFail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 5;
+    ExpRtn = 9;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -1777,7 +1779,7 @@ void Test_SB_Cmds_MapInfoDef(void)
     CFE_SB_Subscribe(MsgId5, PipeId2);
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &WriteFileCmd;
     CFE_SB_ProcessCmdPipePkt();
-    ExpRtn = 11;
+    ExpRtn = 18;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -2013,7 +2015,7 @@ void Test_SB_Cmds_MapInfoWriteFail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 11;
+    ExpRtn = 18;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -2079,7 +2081,7 @@ void Test_SB_Cmds_EnRouteValParam(void)
     EnDisRouteCmd.Payload.Pipe = PipeId;
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &EnDisRouteCmd;
     CFE_SB_ProcessCmdPipePkt();
-    ExpRtn = 3;
+    ExpRtn = 4;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -2145,7 +2147,7 @@ void Test_SB_Cmds_EnRouteNonExist(void)
     EnDisRouteCmd.Payload.Pipe = PipeId2;
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &EnDisRouteCmd;
     CFE_SB_ProcessCmdPipePkt();
-    ExpRtn = 4;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -2349,7 +2351,7 @@ void Test_SB_Cmds_DisRouteValParam(void)
     EnDisRouteCmd.Payload.Pipe = PipeId;
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &EnDisRouteCmd;
     CFE_SB_ProcessCmdPipePkt();
-    ExpRtn = 3;
+    ExpRtn = 4;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -2414,7 +2416,7 @@ void Test_SB_Cmds_DisRouteNonExist(void)
     EnDisRouteCmd.Payload.Pipe = PipeId2;
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &EnDisRouteCmd;
     CFE_SB_ProcessCmdPipePkt();
-    ExpRtn = 4;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -2676,7 +2678,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
          * */
         if (i != CFE_SB_ALLSUBS_TLM_MID)
         {
-            ++NumEvts;
+            NumEvts += 2;
             ActRtn = CFE_SB_Subscribe(i, PipeId1);
             ExpRtn = CFE_SUCCESS;
 
@@ -2694,7 +2696,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
 
     CFE_SB_SubscribeLocal(MsgId, PipeId2, MsgLim);
     CFE_SB_ProcessCmdPipePkt();
-    NumEvts += 7;  /* +1 for the subscribe, +6 for the SEND_PREV_SUBS_CC */
+    NumEvts += 8;  /* +2 for the subscribe, +6 for the SEND_PREV_SUBS_CC */
     ExpRtn = NumEvts;
     ActRtn = UT_GetNumEventsSent();
 
@@ -2714,7 +2716,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
     {
         ActRtn = CFE_SB_Subscribe(i, PipeId1);
         ExpRtn = CFE_SUCCESS;
-        ++NumEvts;
+        NumEvts += 2;
 
         if (ActRtn != ExpRtn)
         {
@@ -2730,7 +2732,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
 
     CFE_SB_SubscribeLocal(MsgId, PipeId2, MsgLim);
     CFE_SB_ProcessCmdPipePkt();
-    NumEvts += 7;  /* +1 for the subscribe, +6 for the SEND_PREV_SUBS_CC */
+    NumEvts += 8;  /* +2 for the subscribe, +6 for the SEND_PREV_SUBS_CC */
     ExpRtn = NumEvts;
     ActRtn = UT_GetNumEventsSent();
 
@@ -3495,7 +3497,7 @@ void Test_DeletePipe_WithSubs(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 10;
+    ExpRtn = 14;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -3688,7 +3690,7 @@ void Test_DeletePipe_WithAppid(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 10;
+    ExpRtn = 14;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -3724,6 +3726,320 @@ void Test_PipeOpts_API(void)
     UT_Text("End Test_PipeOpts_API\n");
 #endif
 } /* end Test_PipeOpts_API */
+
+/*
+** Function for calling SB get pipe name by id API test functions
+*/
+void Test_GetPipeName_API(void)
+{
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test_GetPipeName_API");
+#endif
+
+    Test_GetPipeName_NullPtr();
+    Test_GetPipeName_InvalidId();
+    Test_GetPipeName();
+
+#ifdef UT_VERBOSE
+    UT_Text("End Test_GetPipeName_API\n");
+#endif
+} /* end Test_GetGetPipeName_API */
+
+/*
+** Call GetPipeName with null pointer.
+*/
+void Test_GetPipeName_NullPtr(void)
+{
+    int32 ExpRtn = 0, ActRtn = 0;
+    int32 TestStat = CFE_PASS;
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test for Cmd - GetPipeName with null ptr");
+#endif
+
+    ExpRtn = CFE_SB_BAD_ARGUMENT;
+    if((ActRtn = CFE_SB_GetPipeName(NULL, OS_MAX_API_NAME, 0)) != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected rtn from CFE_SB_GetPipeName, exp=%ld, act=%ld",
+                 (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+
+        TestStat = CFE_FAIL;
+    }
+
+    if (UT_EventIsInHistory(CFE_SB_GETPIPENAME_NULL_PTR_EID) == false)
+    {
+        UT_Text("CFE_SB_GETPIPENAME_NULL_PTR_EID not sent");
+
+        TestStat = CFE_FAIL;
+    }
+
+    UT_Report(__FILE__, __LINE__,
+        TestStat, "CFE_SB_GetPipeName_NullPtr",
+        "Get pipe name with null ptr");
+} /* end Test_GetPipeName_NullPtr */
+
+/*
+** Call to GetPipeName with an invalid pipe id.
+*/
+void Test_GetPipeName_InvalidId(void)
+{
+    int32 ExpRtn = 0, ActRtn = 0;
+    int32 TestStat = CFE_PASS;
+    char PipeName[OS_MAX_API_NAME];
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test for Cmd - GetPipeName with invalid pipe id");
+#endif
+
+    UT_SetDeferredRetcode(UT_KEY(OS_QueueGetInfo), 1, OS_ERROR);
+
+    ExpRtn = CFE_SB_BAD_ARGUMENT;
+    if((ActRtn = CFE_SB_GetPipeName(PipeName, OS_MAX_API_NAME, 0)) != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected rtn from CFE_SB_GetPipeName, exp=%ld, act=%ld",
+                 (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+
+        TestStat = CFE_FAIL;
+    }
+
+    if (UT_EventIsInHistory(CFE_SB_GETPIPENAME_ID_ERR_EID) == false)
+    {
+        UT_Text("CFE_SB_GETPIPENAME_ID_ERR_EID not sent");
+
+        TestStat = CFE_FAIL;
+    }
+
+    UT_Report(__FILE__, __LINE__,
+        TestStat, "CFE_SB_GetPipeName_InvalidId",
+        "Get pipe name with invalid id");
+} /* end Test_GetPipeName_InvalidId */
+
+/*
+** Successful call to GetPipeName
+*/
+void Test_GetPipeName(void)
+{
+    int32 ExpRtn = 0, ActRtn = 0;
+    int32 TestStat = CFE_PASS;
+    char PipeName[OS_MAX_API_NAME];
+    CFE_SB_PipeId_t PipeId = 0;
+
+    OS_queue_prop_t queue_info = {
+        "TestPipe1", 0
+    };
+
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test for Cmd - GetPipeName");
+#endif
+
+    ExpRtn = CFE_SUCCESS;
+    if((ActRtn = CFE_SB_CreatePipe(&PipeId, 4, "TestPipe1")) != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+            "Unexpected rtn from CFE_SB_CreatePipe, exp=%ld, act=%ld",
+            (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+
+        UT_Report(__FILE__, __LINE__,
+            CFE_FAIL, "CFE_SB_GetPipeName",
+            "Get pipe name by id");
+        return;
+    }
+
+    UT_SetDataBuffer(
+        UT_KEY(OS_QueueGetInfo),
+        &queue_info, sizeof(queue_info),
+        false);
+
+    ExpRtn = CFE_SUCCESS;
+    if((ActRtn = CFE_SB_GetPipeName(PipeName, OS_MAX_API_NAME, PipeId)) != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected rtn from CFE_SB_GetPipeName, exp=%ld, act=%ld",
+                 (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+
+        TestStat = CFE_FAIL;
+    }
+
+    if (UT_EventIsInHistory(CFE_SB_GETPIPENAME_EID) == false)
+    {
+        UT_Text("CFE_SB_GETPIPENAME_EID not sent");
+
+        TestStat = CFE_FAIL;
+    }
+
+    CFE_SB_DeletePipe(PipeId);
+
+    UT_Report(__FILE__, __LINE__,
+        TestStat, "CFE_SB_GetPipeName",
+        "Get pipe name");
+} /* end Test_GetPipeName */
+
+/*
+** Function for calling SB get pipe id by name API test functions
+*/
+void Test_GetPipeIdByName_API(void)
+{
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test_GetPipeIdByName_API");
+#endif
+
+    Test_GetPipeIdByName_NullPtrs();
+    Test_GetPipeIdByName_InvalidName();
+    Test_GetPipeIdByName();
+
+#ifdef UT_VERBOSE
+    UT_Text("End Test_GetPipeIdByName_API\n");
+#endif
+} /* end Test_GetPipeIdByName_API */
+
+/*
+** Call GetPipeIdByName with null pointers.
+*/
+void Test_GetPipeIdByName_NullPtrs(void)
+{
+    int32 ExpRtn = 0, ActRtn = 0;
+    int32 TestStat = CFE_PASS;
+    CFE_SB_PipeId_t PipeIDOut = 0;
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test for Cmd - GetPipeIdByName with null ptrs");
+#endif
+
+    ExpRtn = CFE_SB_BAD_ARGUMENT;
+    if((ActRtn = CFE_SB_GetPipeIdByName(&PipeIDOut, NULL)) != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected rtn from CFE_SB_GetPipeIdByName, exp=%ld, act=%ld",
+                 (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+
+        TestStat = CFE_FAIL;
+    }
+
+    if (UT_EventIsInHistory(CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID) == false)
+    {
+        UT_Text("CFE_SB_GETPIPEIDBYNAME_EID not sent");
+
+        TestStat = CFE_FAIL;
+    }
+
+    ExpRtn = CFE_SB_BAD_ARGUMENT;
+    if((ActRtn = CFE_SB_GetPipeIdByName(NULL, "invalid")) != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected rtn from CFE_SB_GetPipeIdByName, exp=%ld, act=%ld",
+                 (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+
+        TestStat = CFE_FAIL;
+    }
+
+    if (UT_EventIsInHistory(CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID) == false)
+    {
+        UT_Text("CFE_SB_GETPIPEIDBYNAME_EID not sent");
+
+        TestStat = CFE_FAIL;
+    }
+
+    UT_Report(__FILE__, __LINE__,
+        TestStat, "CFE_SB_GetPipeIdByName_NullPtrs",
+        "Get pipe id by name with null ptrs");
+} /* end Test_GetPipeIdByName_NullPtrs */
+
+/*
+** Call to GetPipeId with an invalid pipe name.
+*/
+void Test_GetPipeIdByName_InvalidName(void)
+{
+    int32 ExpRtn = 0, ActRtn = 0;
+    int32 TestStat = CFE_PASS;
+    CFE_SB_PipeId_t PipeIdOut = 0;
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test for Cmd - GetPipeIdByName with invalid pipe name");
+#endif
+
+    ExpRtn = CFE_SB_BAD_ARGUMENT;
+    if((ActRtn = CFE_SB_GetPipeIdByName(&PipeIdOut, "invalid")) != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected rtn from CFE_SB_GetPipeIdByName, exp=%ld, act=%ld",
+                 (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+
+        TestStat = CFE_FAIL;
+    }
+
+    if (UT_EventIsInHistory(CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID) == false)
+    {
+        UT_Text("CFE_SB_GETPIPEIDBYNAME_EID not sent");
+
+        TestStat = CFE_FAIL;
+    }
+
+    UT_Report(__FILE__, __LINE__,
+        TestStat, "CFE_SB_GetPipeIdByName_InvalidName",
+        "Get pipe id by name with invalid name");
+} /* end Test_GetPipeIdByName_InvalidName */
+
+/*
+** Successful call to GetPipeIdByName
+*/
+void Test_GetPipeIdByName(void)
+{
+    int32 ExpRtn = 0, ActRtn = 0;
+    int32 TestStat = CFE_PASS;
+    CFE_SB_PipeId_t PipeId = 0, PipeIdOut = 0;
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test for Cmd - GetPipeIdByName");
+#endif
+
+    ExpRtn = CFE_SUCCESS;
+    if((ActRtn = CFE_SB_CreatePipe(&PipeId, 4, "TestPipe1")) != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+            "Unexpected rtn from CFE_SB_CreatePipe, exp=%ld, act=%ld",
+             (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+
+        UT_Report(__FILE__, __LINE__,
+            CFE_FAIL, "CFE_SB_GetPipeIdByName",
+            "Get pipe id by name");
+        return;
+    }
+
+    UT_SetDataBuffer(
+        UT_KEY(OS_QueueGetIdByName),
+        &(CFE_SB.PipeTbl[0].SysQueueId),
+        sizeof(CFE_SB.PipeTbl[0].SysQueueId),
+        false);
+
+    ExpRtn = CFE_SUCCESS;
+    if((ActRtn = CFE_SB_GetPipeIdByName(&PipeIdOut, "TestPipe1")) != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected rtn from CFE_SB_GetPipeIdByName, exp=%ld, act=%ld",
+                 (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+
+        TestStat = CFE_FAIL;
+    }
+
+    if (UT_EventIsInHistory(CFE_SB_GETPIPEIDBYNAME_EID) == false)
+    {
+        UT_Text("CFE_SB_GETPIPEIDBYNAME_EID not sent");
+
+        TestStat = CFE_FAIL;
+    }
+
+    CFE_SB_DeletePipe(PipeId);
+
+    UT_Report(__FILE__, __LINE__,
+        TestStat, "CFE_SB_GetPipeIdByName",
+        "Get pipe id by name");
+} /* end Test_GetPipeIdByName */
 
 /*
 ** Try setting pipe options on an invalid pipe ID
@@ -3994,6 +4310,7 @@ void Test_GetPipeOpts(void)
         "Get pipe opts");
 } /* end Test_GetPipeOpts */
 
+
 /*
 ** Function for calling SB subscribe API test functions
 */
@@ -4054,7 +4371,7 @@ void Test_Subscribe_SubscribeEx(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4112,7 +4429,7 @@ void Test_Subscribe_InvalidPipeId(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 1;
+    ExpRtn = 2;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4165,7 +4482,7 @@ void Test_Subscribe_InvalidMsgId(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4223,7 +4540,7 @@ void Test_Subscribe_MaxMsgLim(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4291,7 +4608,7 @@ void Test_Subscribe_DuplicateSubscription(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4347,7 +4664,7 @@ void Test_Subscribe_LocalSubscription(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4438,7 +4755,7 @@ void Test_Subscribe_MaxDestCount(void)
         }
     }
 
-    ExpRtn = 2 * (CFE_PLATFORM_SB_MAX_DEST_PER_PKT + 1);
+    ExpRtn = 3 * (CFE_PLATFORM_SB_MAX_DEST_PER_PKT + 1);
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4570,7 +4887,7 @@ void Test_Subscribe_SendPrevSubs(void)
     CFE_SB.RoutingTbl[2].ListHeadPtr = NULL;
 
     CFE_SB_SendPrevSubsCmd(&SendPrevSubsMsg);
-    ExpRtn = 12;
+    ExpRtn = 19;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4645,7 +4962,7 @@ void Test_Subscribe_FindGlobalMsgIdCnt(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 10;
+    ExpRtn = 17;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4700,7 +5017,7 @@ void Test_Subscribe_PipeNonexistent(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 1;
+    ExpRtn = 2;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4819,7 +5136,7 @@ void Test_Subscribe_SubscriptionReporting(void)
                 }
                 else
                 {
-                    ExpRtn = 6;
+                    ExpRtn = 8;
                     ActRtn = UT_GetNumEventsSent();
 
                     if (ActRtn != ExpRtn)
@@ -4887,7 +5204,7 @@ void Test_Subscribe_InvalidPipeOwner(void)
     /* Choose a value that is sure not to be owner */
     CFE_SB.PipeTbl[PipeId].AppId = RealOwner + 1;
     CFE_SB_Subscribe(MsgId, PipeId);
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -4969,7 +5286,7 @@ void Test_Unsubscribe_Basic(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 4;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -5024,7 +5341,7 @@ void Test_Unsubscribe_Local(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -5214,7 +5531,7 @@ void Test_Unsubscribe_NoMatch(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 4;
+    ExpRtn = 6;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -5269,7 +5586,7 @@ void Test_Unsubscribe_InvalidPipe(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 4;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -5343,7 +5660,7 @@ void Test_Unsubscribe_InvalidPipeOwner(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 4;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -5407,7 +5724,7 @@ void Test_Unsubscribe_FirstDestWithMany(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 7;
+    ExpRtn = 10;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -5472,7 +5789,7 @@ void Test_Unsubscribe_MiddleDestWithMany(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 7;
+    ExpRtn = 10;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -5530,7 +5847,7 @@ void Test_Unsubscribe_GetDestPtr(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 5;
+    ExpRtn = 7;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -5845,7 +6162,7 @@ void Test_SendMsg_BasicSend(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -6005,7 +6322,7 @@ void Test_SendMsg_SequenceCount(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -6085,7 +6402,7 @@ void Test_SendMsg_QueuePutError(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -6160,7 +6477,7 @@ void Test_SendMsg_PipeFull(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -6238,7 +6555,7 @@ void Test_SendMsg_MsgLimitExceeded(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 5;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -6303,7 +6620,7 @@ void Test_SendMsg_GetPoolBufErr(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 4;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -6567,7 +6884,7 @@ void Test_SendMsg_ZeroCopySend(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -6686,7 +7003,7 @@ void Test_SendMsg_ZeroCopyPass(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -6910,7 +7227,7 @@ void Test_SendMsg_DisabledDestination(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -6983,7 +7300,7 @@ void Test_SendMsg_SendWithMetadata(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -7697,7 +8014,7 @@ void Test_RcvMsg_PipeReadError(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -7779,7 +8096,7 @@ void Test_RcvMsg_PendForever(void)
 #endif
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -9371,7 +9688,6 @@ void Test_CFE_SB_ValidateMsgId(void)
 void Test_SB_SpecialCases(void)
 {
     Test_OS_MutSem_ErrLogic();
-    Test_GetPipeName_ErrLogic();
     Test_ReqToSendEvent_ErrLogic();
     Test_PutDestBlk_ErrLogic();
     Test_CFE_SB_GetPipeIdx();
@@ -9501,7 +9817,7 @@ void Test_OS_MutSem_ErrLogic(void)
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 2, CFE_OS_SEM_FAILURE);
     CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe");
     CFE_SB_Subscribe(MsgId, PipeId);
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -9530,59 +9846,6 @@ void Test_OS_MutSem_ErrLogic(void)
               TestStat, "CFE_SB_(Un)LockSharedData",
               "Semaphore give/take failure test");
 } /* end Test_OS_MutSemTake_ErrLogic */
-
-/*
-** Test getting a pipe name using an invalid pipe ID
-*/
-void Test_GetPipeName_ErrLogic(void)
-{
-    CFE_SB_PipeId_t PipeId;
-    char            *CharStar;
-    uint16          PipeDepth = 50;
-    int32           ExpRtn;
-    int32           ActRtn;
-    int32           TestStat = CFE_PASS;
-
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test GetPipeName Error");
-#endif
-
-    SB_ResetUnitTest();
-    CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe");
-    CharStar = CFE_SB_GetPipeName(CFE_PLATFORM_SB_MAX_PIPES);
-
-    if (*CharStar != '\0')
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                 "Unexpected rtn from CFE_SB_CreatePipe, exp=NULL, act=%s",
-                 CharStar);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-    }
-
-    ExpRtn = 1;
-    ActRtn = UT_GetNumEventsSent();
-
-    if (ActRtn != ExpRtn)
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                 "Unexpected rtn from UT_GetNumEventsSent, exp=%ld, act=%ld",
-                 (long) ExpRtn, (long) ActRtn);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-    }
-
-    if (UT_EventIsInHistory(CFE_SB_PIPE_ADDED_EID) == false)
-    {
-        UT_Text("CFE_SB_PIPE_ADDED_EID not sent");
-        TestStat = CFE_FAIL;
-    }
-
-    CFE_SB_DeletePipe(PipeId);
-    UT_Report(__FILE__, __LINE__,
-              TestStat, "CFE_SB_GetPipeName",
-              "Get pipe name error test");
-} /* end Test_GetPipeName_ErrLogic */
 
 /*
 ** Test successful recursive event prevention
@@ -9945,7 +10208,7 @@ void Test_CFE_SB_BadPipeInfo(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 3;
+    ExpRtn = 4;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -10058,7 +10321,7 @@ void Test_SB_SendMsgPaths(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -10162,7 +10425,7 @@ void Test_SB_SendMsgPaths(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -10199,7 +10462,7 @@ void Test_SB_SendMsgPaths(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 2;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -10312,7 +10575,7 @@ void Test_RcvMsg_UnsubResubPath(void)
 #endif
     }
 
-    ExpRtn = 4;
+    ExpRtn = 6;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)

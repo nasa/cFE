@@ -160,13 +160,27 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
 
         /* if OS_QueueCreate() failed because the pipe name passed in was already in use... */
         /* let's make sure we don't alter the user's pipe ID data */
-        if (Status == CFE_OS_ERR_NAME_TAKEN){
-            *PipeIdPtr = OriginalPipeIdParamValue;
-        }
+        switch(Status) {
+            case OS_ERR_NAME_TAKEN:
+                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NAME_TAKEN_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                    "CreatePipeErr:OS_QueueCreate failed, name taken (app=%s, name=%s)",
+                    CFE_SB_GetAppTskName(TskId,FullName), PipeName);
 
-        CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                *PipeIdPtr = OriginalPipeIdParamValue;
+
+                break;
+            case OS_ERR_NO_FREE_IDS:
+                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_NO_FREE_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                    "CreatePipeErr:OS_QueueCreate failed, no free id's (app=%s)",
+                    CFE_SB_GetAppTskName(TskId,FullName));
+
+                break;
+            default:
+                CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "CreatePipeErr:OS_QueueCreate returned %d,app %s",
                 (int)Status,CFE_SB_GetAppTskName(TskId,FullName));
+        }/* end switch(Status) */
+
         return CFE_SB_PIPE_CR_ERR;
     }/* end if */
 
@@ -180,8 +194,6 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
     CFE_SB.PipeTbl[PipeTblIdx].CurrentBuff = NULL;
     CFE_SB.PipeTbl[PipeTblIdx].ToTrashBuff = NULL;
     strcpy(&CFE_SB.PipeTbl[PipeTblIdx].AppName[0],&AppName[0]);
-    strncpy(&CFE_SB.PipeTbl[PipeTblIdx].PipeName[0],PipeName,OS_MAX_API_NAME);
-    CFE_SB.PipeTbl[PipeTblIdx].PipeName[OS_MAX_API_NAME-1]='\0';
 
     /* Increment the Pipes in use ctr and if it's > the high water mark,*/
     /* adjust the high water mark */
@@ -207,8 +219,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
     /* send debug event */
     CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_ADDED_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
           "Pipe Created:name %s,id %d,app %s",
-          CFE_SB_GetPipeName(CFE_SB.PipeTbl[PipeTblIdx].PipeId),
-          (int)CFE_SB.PipeTbl[PipeTblIdx].PipeId,
+          PipeName, (int)CFE_SB.PipeTbl[PipeTblIdx].PipeId,
           CFE_SB_GetAppTskName(TskId,FullName));
 
     return CFE_SUCCESS;
@@ -375,7 +386,6 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,uint32 AppId)
     CFE_SB.PipeTbl[PipeTblIdx].SysQueueId    = CFE_SB_UNUSED_QUEUE;
     CFE_SB.PipeTbl[PipeTblIdx].PipeId        = CFE_SB_INVALID_PIPE;
     CFE_SB.PipeTbl[PipeTblIdx].CurrentBuff   = NULL;
-    memset(&CFE_SB.PipeTbl[PipeTblIdx].PipeName[0],0,OS_MAX_API_NAME);
 
     /* zero out the pipe depth stats */
     if (PipeTblIdx < CFE_SB_TLM_PIPEDEPTHSTATS_SIZE)
@@ -539,6 +549,171 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
           "Pipe opts set:id %d, opts=0x%02x",(int)PipeId, (unsigned int)*OptsPtr);
     return CFE_SUCCESS;
 }/* end CFE_SB_GetPipeOpts */
+
+/******************************************************************************
+**  Function:  CFE_SB_GetPipeName()
+**
+**  Purpose:
+**    SB internal function to get the string of the pipe name of the given
+**    Pipe ID.
+**
+**  Arguments:
+**    MsgId       : ID of the message
+**    PipeNameBuf : Buffer to receive name, must be OS_MAX_API_NAME bytes long
+**
+**  Return:
+**    Will return CFE_SUCCESS and populate PipeNameBuf with the name
+**    of the pipe on success, otherwise PipeNameBuf is filled with NULLs
+**    and this returns CFE_SB_BAD_ARGUMENT on error.
+**
+*/
+int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId){
+    OS_queue_prop_t queue_prop;
+    int32 Status = CFE_SUCCESS;
+    uint32 TskId = 0;
+    char FullName[(OS_MAX_API_NAME * 2)];
+
+    if(PipeNameBuf == NULL || PipeNameSize == 0) {
+        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_NULL_PTR_EID, CFE_EVS_EventType_ERROR,
+            CFE_SB.AppId, "Pipe Name Error:NullPtr,Requestor %s",
+            CFE_SB_GetAppTskName(TskId,FullName));
+
+        Status = CFE_SB_BAD_ARGUMENT;
+    } else if(PipeId >= CFE_PLATFORM_SB_MAX_PIPES){
+        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_ID_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_SB.AppId, "Pipe Id Error:Bad Argument,Id=%d,Requestor %s",
+            PipeId,CFE_SB_GetAppTskName(TskId,FullName));
+
+        memset(PipeNameBuf, 0, PipeNameSize);
+
+        Status = CFE_SB_BAD_ARGUMENT;
+    }else{
+        if (OS_QueueGetInfo(CFE_SB.PipeTbl[PipeId].SysQueueId, &queue_prop)
+                == OS_SUCCESS){
+            strncpy(PipeNameBuf, queue_prop.name, PipeNameSize-1);
+
+            PipeNameBuf[PipeNameSize-1] = '\0'; 
+
+            CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_EID,
+                CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
+                "GetPipeName name=%s id=%d",
+                PipeNameBuf, PipeId);
+        } else{
+            CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_ID_ERR_EID, CFE_EVS_EventType_ERROR,
+                CFE_SB.AppId, "Pipe Id Error:Bad Argument,Id=%d,Requestor %s",
+                PipeId,CFE_SB_GetAppTskName(TskId,FullName));
+
+            memset(PipeNameBuf, 0, PipeNameSize);
+
+            Status = CFE_SB_BAD_ARGUMENT;
+        }/* end if */
+    }/* end if */
+
+    return Status;
+}/* end CFE_SB_GetPipeName */
+
+/******************************************************************************
+**  Function:  CFE_SB_GetPipeIdByName()
+**
+**  Purpose:
+**  Gets the pipe id given its name.
+**
+**  Arguments:
+**    PipeIdPtr  - The ID of the pipe for the name.
+**    PipeName   - The name of the pipe.
+**
+**  Return:
+**    CFE_SUCCESS or cFE Error Code
+*/
+int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
+{
+    uint8         PipeTblIdx = 0;
+    int32         Status = CFE_SUCCESS;
+    int32         RtnFromVal = 0;
+    uint32        TskId = 0;
+    uint32        QueueId = 0;
+    char          FullName[(OS_MAX_API_NAME * 2)];
+
+    if(PipeName == NULL || PipeIdPtr == NULL)
+    {
+        CFE_SB.HKTlmMsg.Payload.GetPipeIdByNameErrorCounter++;
+
+        CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB.AppId,
+          "Pipe ID By Name Error:Bad Argument,Requestor %s",
+          CFE_SB_GetAppTskName(TskId,FullName));
+
+        Status = CFE_SB_BAD_ARGUMENT;
+    }
+    else
+    {
+        /* get TaskId of caller for events */
+        TskId = OS_TaskGetId();
+
+        RtnFromVal = OS_QueueGetIdByName(&QueueId, PipeName);
+
+        if(RtnFromVal == OS_SUCCESS)
+        {
+            /* take semaphore to prevent a task switch while iterating
+             * through the PipeTbl.
+             */
+            CFE_SB_LockSharedData(__func__,__LINE__);
+
+            for(PipeTblIdx = 0;
+                PipeTblIdx < CFE_PLATFORM_SB_MAX_PIPES;
+                PipeTblIdx++)
+            {
+                if(CFE_SB.PipeTbl[PipeTblIdx].InUse != 0
+                    && CFE_SB.PipeTbl[PipeTblIdx].SysQueueId == QueueId)
+                {
+                    /* grab the ID before we release the lock */
+                    *PipeIdPtr = CFE_SB.PipeTbl[PipeTblIdx].PipeId;
+
+                    break;
+                }/* end if */
+
+            }/* end for */
+
+            CFE_SB_UnlockSharedData(__func__,__LINE__);
+
+            if(PipeTblIdx == CFE_PLATFORM_SB_MAX_PIPES)
+            {
+                /* should never get here! */
+                CFE_SB.HKTlmMsg.Payload.GetPipeIdByNameErrorCounter++;
+
+                CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID,
+                    CFE_EVS_EventType_ERROR, CFE_SB.AppId,
+                    "Pipe ID By Name Error:Bad Argument,Requestor %s",
+                    CFE_SB_GetAppTskName(TskId,FullName));
+
+                Status = CFE_SB_BAD_ARGUMENT;
+            }
+            else
+            {
+                CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_EID,
+                    CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
+                    "PipeIdByName name=%s id=%d",
+                    PipeName, *PipeIdPtr);
+
+                Status = CFE_SUCCESS;
+            }
+        }
+        else
+        {
+            CFE_SB.HKTlmMsg.Payload.GetPipeIdByNameErrorCounter++;
+
+            CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID,
+                CFE_EVS_EventType_ERROR, CFE_SB.AppId,
+                "Pipe ID By Name Error:Bad Argument,Requestor %s",
+                CFE_SB_GetAppTskName(TskId,FullName));
+
+            Status = CFE_SB_BAD_ARGUMENT;
+        }/* end if */
+
+    }/* end if */
+
+    return Status;
+
+}/* end CFE_SB_GetPipeIdByName */
 
 
 /******************************************************************************
@@ -704,6 +879,9 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
     uint8  PipeIdx;
     CFE_SB_DestinationD_t *DestBlkPtr = NULL;
     char   FullName[(OS_MAX_API_NAME * 2)];
+    char   PipeName[OS_MAX_API_NAME] = {'\0'};
+
+    CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
 
     /* take semaphore to prevent a task switch during this call */
     CFE_SB_LockSharedData(__func__,__LINE__);
@@ -755,7 +933,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_DUP_SUBSCRIP_EID,CFE_EVS_EventType_INFORMATION,CFE_SB.AppId,
           "Duplicate Subscription,MsgId 0x%x on %s pipe,app %s",
-           (unsigned int)MsgId,CFE_SB_GetPipeName(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+           (unsigned int)MsgId,PipeName,CFE_SB_GetAppTskName(TskId,FullName));
         return CFE_SUCCESS;
     }/* end if */
 
@@ -790,7 +968,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
             CFE_SB_UnlockSharedData(__func__,__LINE__);
             CFE_EVS_SendEventWithAppID(CFE_SB_MAX_MSGS_MET_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
               "Subscribe Err:Max Msgs(%d)In Use,MsgId 0x%x,pipe %s,app %s",
-              CFE_PLATFORM_SB_MAX_MSG_IDS,(unsigned int)MsgId,CFE_SB_GetPipeName(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+              CFE_PLATFORM_SB_MAX_MSG_IDS,(unsigned int)MsgId,PipeName,CFE_SB_GetAppTskName(TskId,FullName));
             return CFE_SB_MAX_MSGS_MET;
         }/* end if */
 
@@ -814,7 +992,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_MAX_DESTS_MET_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
             "Subscribe Err:Max Dests(%d)In Use For Msg 0x%x,pipe %s,app %s",
-             CFE_PLATFORM_SB_MAX_DEST_PER_PKT,(unsigned int)MsgId,CFE_SB_GetPipeName(PipeId),
+             CFE_PLATFORM_SB_MAX_DEST_PER_PKT,(unsigned int)MsgId,PipeName,
              CFE_SB_GetAppTskName(TskId,FullName));
 
         return CFE_SB_MAX_DESTS_MET;
@@ -868,7 +1046,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
 
     CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RCVD_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
         "Subscription Rcvd:MsgId 0x%x on %s(%d),app %s",
-         (unsigned int)MsgId,CFE_SB_GetPipeName(PipeId),(int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
+         (unsigned int)MsgId,PipeName,(int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
 
     return CFE_SUCCESS;
 
@@ -1063,10 +1241,15 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
 
     /* if there are no subscriptions for this message id... */
     if(!CFE_SB_IsValidRouteIdx(RouteIdx)){
+        char    PipeName[OS_MAX_API_NAME] = {'\0'};
+
         CFE_SB_UnlockSharedData(__func__,__LINE__);
+
+        CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
+
         CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_NO_SUBS_EID,CFE_EVS_EventType_INFORMATION,CFE_SB.AppId,
             "Unsubscribe Err:No subs for Msg 0x%x on %s,app %s",
-            (unsigned int)MsgId,CFE_SB_GetPipeName(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+            (unsigned int)MsgId,PipeName,CFE_SB_GetAppTskName(TskId,FullName));
         return CFE_SUCCESS;
     }/* end if */
 
@@ -1221,6 +1404,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     uint16                  i;
     char                    FullName[(OS_MAX_API_NAME * 2)];
     CFE_SB_EventBuf_t       SBSndErr;
+    char                    PipeName[OS_MAX_API_NAME] = {'\0'};
 
     SBSndErr.EvtsToSnd = 0;
 
@@ -1464,16 +1648,18 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     {
         if(SBSndErr.EvtBuf[i].EventId == CFE_SB_MSGID_LIM_ERR_EID)
         {
+
             /* Determine if event can be sent without causing recursive event problem */
             if(CFE_SB_RequestToSendEvent(TskId,CFE_SB_MSGID_LIM_ERR_EID_BIT) == CFE_SB_GRANTED){
+
+              CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
 
               CFE_ES_PerfLogEntry(CFE_MISSION_SB_MSG_LIM_PERF_ID);
               CFE_ES_PerfLogExit(CFE_MISSION_SB_MSG_LIM_PERF_ID);
 
               CFE_EVS_SendEventWithAppID(CFE_SB_MSGID_LIM_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "Msg Limit Err,MsgId 0x%x,pipe %s,sender %s",
-                (unsigned int)RtgTblPtr->MsgId,
-                CFE_SB_GetPipeName(SBSndErr.EvtBuf[i].PipeId),
+                (unsigned int)RtgTblPtr->MsgId, PipeName,
                 CFE_SB_GetAppTskName(TskId,FullName));
 
               /* clear the bit so the task may send this event again */
@@ -1485,13 +1671,14 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
             /* Determine if event can be sent without causing recursive event problem */
             if(CFE_SB_RequestToSendEvent(TskId,CFE_SB_Q_FULL_ERR_EID_BIT) == CFE_SB_GRANTED){
 
+              CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
+
               CFE_ES_PerfLogEntry(CFE_MISSION_SB_PIPE_OFLOW_PERF_ID);
               CFE_ES_PerfLogExit(CFE_MISSION_SB_PIPE_OFLOW_PERF_ID);
 
               CFE_EVS_SendEventWithAppID(CFE_SB_Q_FULL_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                   "Pipe Overflow,MsgId 0x%x,pipe %s,sender %s",
-                  (unsigned int)RtgTblPtr->MsgId,
-                  CFE_SB_GetPipeName(SBSndErr.EvtBuf[i].PipeId),
+                  (unsigned int)RtgTblPtr->MsgId, PipeName,
                   CFE_SB_GetAppTskName(TskId,FullName));
 
                /* clear the bit so the task may send this event again */
@@ -1503,10 +1690,11 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
             /* Determine if event can be sent without causing recursive event problem */
             if(CFE_SB_RequestToSendEvent(TskId,CFE_SB_Q_WR_ERR_EID_BIT) == CFE_SB_GRANTED){
 
+              CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
+
               CFE_EVS_SendEventWithAppID(CFE_SB_Q_WR_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "Pipe Write Err,MsgId 0x%x,pipe %s,sender %s,stat 0x%x",
-                (unsigned int)RtgTblPtr->MsgId,
-                CFE_SB_GetPipeName(SBSndErr.EvtBuf[i].PipeId),
+                (unsigned int)RtgTblPtr->MsgId, PipeName,
                 CFE_SB_GetAppTskName(TskId,FullName),
                 (unsigned int)SBSndErr.EvtBuf[i].ErrStat);
 
@@ -2087,6 +2275,7 @@ int32  CFE_SB_ReadQueue (CFE_SB_PipeD_t         *PipeDscPtr,
     int32              Status,TimeOut;
     uint32             Nbytes;
     char               FullName[(OS_MAX_API_NAME * 2)];
+    char               PipeName[OS_MAX_API_NAME] = {'\0'};
 
     /* translate the given Time_Out value */
     switch(Time_Out){
@@ -2132,9 +2321,10 @@ int32  CFE_SB_ReadQueue (CFE_SB_PipeD_t         *PipeDscPtr,
           CFE_SB.HKTlmMsg.Payload.InternalErrorCounter++;
           CFE_SB_UnlockSharedData(__func__,__LINE__);
           /* Unexpected error while reading the queue. */
+          CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeDscPtr->PipeId);
           CFE_EVS_SendEventWithAppID(CFE_SB_Q_RD_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
               "Pipe Read Err,pipe %s,app %s,stat 0x%x",
-              CFE_SB_GetPipeName(PipeDscPtr->PipeId),CFE_SB_GetAppTskName(TskId,FullName),(unsigned int)Status);
+              PipeName,CFE_SB_GetAppTskName(TskId,FullName),(unsigned int)Status);
 
           Status = CFE_SB_PIPE_RD_ERR;
           break;

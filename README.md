@@ -6,6 +6,11 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version Notes
 
+- 6.7.7: DEVELOPMENT
+  - Adds a new function, CFE_SB_GetPipeIdByName, which retrieves the pipe ID given a name of a pipe.
+  - Improvement in error reporting when using a pipe name that is already in use, or when the queue limit has been reached.
+  - Added userguide and osalguide to the local target list to avoid makefile warning
+  - Minor other updates (see https://github.com/nasa/cFE/pull/511)
 - 6.7.6: DEVELOPMENT
   - Adds OMIT_DEPRECATED prep flag
   - Adds and enforces strict warnings
