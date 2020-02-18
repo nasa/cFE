@@ -38,7 +38,7 @@
 **     which do not break the existin code.  It may also be incremented for a release that contains changes deemed
 **     to be of similar impact, even if there are no actual updates to the API.
 **
-**     The Implementation Revision Version number shall be incremented on changes to software in the master branch, 
+**     The Implementation Revision Version number shall be incremented on changes to software in the master branch,
 **     or other changes that benefit from unique identification. It is used for identifying open source development
 **     versions.
 **
@@ -74,8 +74,7 @@
 */
 #define CFE_MAJOR_VERSION         6
 #define CFE_MINOR_VERSION         7
-#define CFE_REVISION              6
+#define CFE_REVISION              7
 
 
 #endif  /* _cfe_version_ */
-
