@@ -493,11 +493,6 @@
       <LI> #CFE_ES_DeleteChildTask - Deletes a task under an existing Application
       <LI> #CFE_ES_ExitChildTask - Exit for a cFE Child Task
     </UL>
-    <LI> Driver APIs
-    <UL>
-      <LI> \#CFE_ES_RegisterDriver - Registers a Device Driver for a specified device
-      <LI> \#CFE_ES_UnloadDriver - Removes a Device Driver for a specified device
-    </UL>
     <LI> Critical Data Store APIs
     <UL>
       <LI> #CFE_ES_RegisterCDS - Reserves space (or obtains previously reserved space)in the Critical Data Store
