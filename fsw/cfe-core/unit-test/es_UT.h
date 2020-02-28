@@ -257,13 +257,12 @@ void TestPerf(void);
 ** \sa #CFE_ES_RegisterApp, #CFE_ES_GetAppID, #CFE_ES_GetAppName
 ** \sa #CFE_ES_GetTaskInfo, #CFE_ES_CreateChildTask, #CFE_ES_DeleteChildTask
 ** \sa #CFE_ES_ExitChildTask, #CFE_ES_RegisterChildTask, #CFE_ES_WriteToSysLog
-** \sa #CFE_ES_RegisterDriver, #CFE_ES_UnloadDriver, #CFE_ES_CalculateCRC
+** \sa #CFE_ES_CalculateCRC, #CFE_ES_WaitForStartupSync, #CFE_ES_ProcessCoreException
 ** \sa #UT_SetBSPFail, #CFE_ES_RegisterCDS, #CFE_ES_CopyToCDS
 ** \sa #CFE_ES_RestoreFromCDS, #CFE_ES_LockSharedData, #CFE_ES_UnlockSharedData
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_GetGenCounterIDByName
 ** \sa #CFE_ES_DeleteGenCounter, #CFE_ES_IncrementGenCounter
-** \sa #CFE_ES_GetGenCount, #CFE_ES_SetGenCount, #CFE_ES_ProcessCoreException
-** \sa #CFE_ES_WaitForStartupSync
+** \sa #CFE_ES_GetGenCount, #CFE_ES_SetGenCount
 **
 ******************************************************************************/
 void TestAPI(void);

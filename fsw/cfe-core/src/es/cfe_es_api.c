@@ -1074,12 +1074,7 @@ int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
                strncpy((char *)CFE_ES_Global.TaskTable[TaskId].TaskName,TaskName,OS_MAX_API_NAME);
                CFE_ES_Global.TaskTable[TaskId].TaskName[OS_MAX_API_NAME - 1] = '\0';
                CFE_ES_Global.RegisteredTasks++;
-
-               /*
-               ** Increment the "Registered" child task count for the App
-               */
-               CFE_ES_Global.AppTable[AppId].TaskInfo.NumOfChildTasks ++;
-
+               
                ReturnCode = CFE_SUCCESS;
             }
             else

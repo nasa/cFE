@@ -342,14 +342,14 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMask_t *data)
         Perf->MetaData.FilterMask[cmd->FilterMaskNum] = cmd->FilterMask;
 
         CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKCMD_EID, CFE_EVS_EventType_DEBUG,
-                "Set Performance Filter Mask Cmd rcvd, num %d, val 0x%x",
-                (int)cmd->FilterMaskNum,(unsigned int)cmd->FilterMaskNum);
+                "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%08X",
+                (unsigned int)cmd->FilterMaskNum,(unsigned int)cmd->FilterMask);
 
         CFE_ES_TaskData.CommandCounter++;
     }else{
         CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKERR_EID, CFE_EVS_EventType_ERROR,
-                "Performance Filter Mask Cmd Error,Index(%d)out of range(%d)",
-                (int)cmd->FilterMaskNum,(int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
+                "Performance Filter Mask Cmd Error,Index(%u)out of range(%u)",
+                (unsigned int)cmd->FilterMaskNum,(unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
 
         CFE_ES_TaskData.CommandErrorCounter++;
 
@@ -372,15 +372,15 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMask_t *data)
         Perf->MetaData.TriggerMask[cmd->TriggerMaskNum] = cmd->TriggerMask;
 
         CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKCMD_EID, CFE_EVS_EventType_DEBUG,
-                "Set Performance Trigger Mask Cmd rcvd,num %d, val 0x%x",
-                (int)cmd->TriggerMaskNum,(int)cmd->TriggerMaskNum);
+                "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%08X",
+                (unsigned int)cmd->TriggerMaskNum,(unsigned int)cmd->TriggerMask);
 
         CFE_ES_TaskData.CommandCounter++;
 
     }else{
         CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKERR_EID, CFE_EVS_EventType_ERROR,
-                "Performance Trigger Mask Cmd Error,Index(%d)out of range(%d)",
-                (int)cmd->TriggerMaskNum,(int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
+                "Performance Trigger Mask Cmd Error,Index(%u)out of range(%u)",
+                (unsigned int)cmd->TriggerMaskNum,(unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
 
         CFE_ES_TaskData.CommandErrorCounter++;
     }

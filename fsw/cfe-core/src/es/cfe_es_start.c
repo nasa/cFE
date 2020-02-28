@@ -805,7 +805,6 @@ void  CFE_ES_CreateObjects(void)
                */
                strncpy((char *)CFE_ES_Global.AppTable[j].TaskInfo.MainTaskName, (char *)CFE_ES_ObjectTable[i].ObjectName, OS_MAX_API_NAME);
                CFE_ES_Global.AppTable[j].TaskInfo.MainTaskName[OS_MAX_API_NAME - 1] = '\0';
-               CFE_ES_Global.AppTable[j].TaskInfo.NumOfChildTasks = 0;
                
                /*
                ** Create the task
