@@ -23,7 +23,6 @@
 */
 #include <string.h>
 #include "cfe.h"
-#include "cfe_platform_cfg.h"
 #include "utstubs.h"
 
 /*
