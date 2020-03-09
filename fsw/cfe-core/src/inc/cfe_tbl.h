@@ -46,31 +46,40 @@
 #include "osconfig.h"
 
 /******************* Macro Definitions ***********************/
-#define CFE_TBL_OPT_BUFFER_MSK   (0x0001)
-#define CFE_TBL_OPT_SNGL_BUFFER  (0x0000)
-#define CFE_TBL_OPT_DBL_BUFFER   (0x0001)
 
-#define CFE_TBL_OPT_LD_DMP_MSK   (0x0002)
-#define CFE_TBL_OPT_LOAD_DUMP    (0x0000)
-#define CFE_TBL_OPT_DUMP_ONLY    (0x0002)
+/** @defgroup CFETBLTypeOptions cFE Table Type Defines
+ * @{
+ */
+#define CFE_TBL_OPT_BUFFER_MSK   (0x0001) /**< \brief Table buffer mask */
+#define CFE_TBL_OPT_SNGL_BUFFER  (0x0000) /**< \brief Single buffer table */
+#define CFE_TBL_OPT_DBL_BUFFER   (0x0001) /**< \brief Double buffer table */
 
-#define CFE_TBL_OPT_USR_DEF_MSK  (0x0004)
-#define CFE_TBL_OPT_NOT_USR_DEF  (0x0000)
-#define CFE_TBL_OPT_USR_DEF_ADDR (0x0006) /**< \brief NOTE: Automatically includes #CFE_TBL_OPT_DUMP_ONLY option */
+#define CFE_TBL_OPT_LD_DMP_MSK   (0x0002) /**< \brief Table load/dump mask */
+#define CFE_TBL_OPT_LOAD_DUMP    (0x0000) /**< \brief Load/Dump table */
+#define CFE_TBL_OPT_DUMP_ONLY    (0x0002) /**< \brief Dump only table */
 
-#define CFE_TBL_OPT_CRITICAL_MSK (0x0008)
-#define CFE_TBL_OPT_NOT_CRITICAL (0x0000)
-#define CFE_TBL_OPT_CRITICAL     (0x0008)
+#define CFE_TBL_OPT_USR_DEF_MSK  (0x0004) /**< \brief Table user defined mask */
+#define CFE_TBL_OPT_NOT_USR_DEF  (0x0000) /**< \brief Not user defined table */
+#define CFE_TBL_OPT_USR_DEF_ADDR (0x0006) /**< \brief User Defined table, @note Automatically includes #CFE_TBL_OPT_DUMP_ONLY option */
 
+#define CFE_TBL_OPT_CRITICAL_MSK (0x0008) /**< \brief Table critical mask */
+#define CFE_TBL_OPT_NOT_CRITICAL (0x0000) /**< \brief Not critical table */
+#define CFE_TBL_OPT_CRITICAL     (0x0008) /**< \brief Critical table */
+
+/** @brief Default table options */
 #define CFE_TBL_OPT_DEFAULT      (CFE_TBL_OPT_SNGL_BUFFER | CFE_TBL_OPT_LOAD_DUMP)
+/**@}*/
 
-/*
+/**
+ * \brief Table maximum full name length
+ *
  * The full length of table names is defined at the mission scope.
  * This is defined here to support applications that depend on cfe_tbl.h
  * providing this value.
  */
 #define CFE_TBL_MAX_FULL_NAME_LEN (CFE_MISSION_TBL_MAX_FULL_NAME_LEN)
 
+/** \brief Bad table handle */
 #define CFE_TBL_BAD_TABLE_HANDLE  (CFE_TBL_Handle_t) 0xFFFF
 
 
@@ -94,18 +103,23 @@
 
 /******************  Data Type Definitions *********************/
 
+/** \brief Table Callback Function */
 typedef int32 (*CFE_TBL_CallbackFuncPtr_t)(void *TblPtr);
 
+/** \brief Table Handle primitive */
 typedef int16 CFE_TBL_Handle_t;
 
+/** \brief Table Source */
 typedef enum 
 {
-    CFE_TBL_SRC_FILE = 0, /**< When this option is selected, the \c SrcDataPtr 
+    CFE_TBL_SRC_FILE = 0, /**< \brief File source
+                               When this option is selected, the \c SrcDataPtr 
                                will be interpreted as a pointer to a null 
                                terminated character string.  The string should 
                                specify the full path and filename of the file 
                                containing the initial data contents of the table. */
-    CFE_TBL_SRC_ADDRESS   /**< When this option is selected, the \c SrcDataPtr will
+    CFE_TBL_SRC_ADDRESS   /**< \brief Address source
+                               When this option is selected, the \c SrcDataPtr will
                                be interpreted as a pointer to a memory location 
                                that is the beginning of the initialization data 
                                for loading the table OR, in the case of a "user defined"
@@ -114,6 +128,7 @@ typedef enum
                                specified in the #CFE_TBL_Register function Size parameter. */
 } CFE_TBL_SrcEnum_t;
 
+/** \brief Table Info */
 typedef struct
 {
     uint32                Size;                             /**< \brief Size, in bytes, of Table */
@@ -131,6 +146,12 @@ typedef struct
 } CFE_TBL_Info_t;
 
 /*************************** Function Prototypes ******************************/
+
+/** \defgroup CFEAPITBLRegistration cFE Registration APIs
+ * @{
+ */
+
+/*****************************************************************************/
 /**
 ** \brief Register a table with cFE to obtain Table Management Services
 **
@@ -246,20 +267,18 @@ typedef struct
 ** \param[out]  *TblHandlePtr      Handle used to identify table to cFE when performing Table operations.
 **                                 This value is returned at the address specified by TblHandlePtr.
 **
-** \returns
-** \retcode #CFE_SUCCESS                      \retdesc \copydoc CFE_SUCCESS                        \endcode
-** \retcode #CFE_TBL_INFO_RECOVERED_TBL       \retdesc \copydoc CFE_TBL_INFO_RECOVERED_TBL         \endcode
-** \retcode                                   \retdesc <BR><BR>                                    \endcode
-** \retcode #CFE_TBL_ERR_DUPLICATE_DIFF_SIZE  \retdesc \copydoc CFE_TBL_ERR_DUPLICATE_DIFF_SIZE    \endcode
-** \retcode #CFE_TBL_ERR_DUPLICATE_NOT_OWNED  \retdesc \copydoc CFE_TBL_ERR_DUPLICATE_NOT_OWNED    \endcode
-** \retcode #CFE_TBL_ERR_REGISTRY_FULL        \retdesc \copydoc CFE_TBL_ERR_REGISTRY_FULL          \endcode
-** \retcode #CFE_TBL_ERR_HANDLES_FULL         \retdesc \copydoc CFE_TBL_ERR_HANDLES_FULL           \endcode
-** \retcode #CFE_TBL_ERR_INVALID_SIZE         \retdesc \copydoc CFE_TBL_ERR_INVALID_SIZE           \endcode
-** \retcode #CFE_TBL_ERR_INVALID_NAME         \retdesc \copydoc CFE_TBL_ERR_INVALID_NAME           \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID           \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID             \endcode
-** \retcode #CFE_ES_ERR_APPNAME               \retdesc \copydoc CFE_ES_ERR_APPNAME                 \endcode
-** \retcode #CFE_ES_ERR_BUFFER                \retdesc \copydoc CFE_ES_ERR_BUFFER                  \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_RECOVERED_TBL       \copybrief CFE_TBL_INFO_RECOVERED_TBL
+** \retval #CFE_TBL_ERR_DUPLICATE_DIFF_SIZE  \copybrief CFE_TBL_ERR_DUPLICATE_DIFF_SIZE
+** \retval #CFE_TBL_ERR_DUPLICATE_NOT_OWNED  \copybrief CFE_TBL_ERR_DUPLICATE_NOT_OWNED
+** \retval #CFE_TBL_ERR_REGISTRY_FULL        \copybrief CFE_TBL_ERR_REGISTRY_FULL
+** \retval #CFE_TBL_ERR_HANDLES_FULL         \copybrief CFE_TBL_ERR_HANDLES_FULL
+** \retval #CFE_TBL_ERR_INVALID_SIZE         \copybrief CFE_TBL_ERR_INVALID_SIZE
+** \retval #CFE_TBL_ERR_INVALID_NAME         \copybrief CFE_TBL_ERR_INVALID_NAME
+** \retval #CFE_TBL_ERR_BAD_APP_ID           \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_ES_ERR_APPNAME               \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Share
 **/
@@ -298,15 +317,13 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,                   /* Ret
 ** \param[out] *TblHandlePtr Handle used to identify table to cFE when performing Table operations.
 **                           This value is returned at the address specified by TblHandlePtr.
 **
-** \returns
-** \retcode #CFE_SUCCESS              \retdesc \copydoc CFE_SUCCESS               \endcode
-** \retcode                           \retdesc <BR><BR>                           \endcode
-** \retcode #CFE_TBL_ERR_HANDLES_FULL \retdesc \copydoc CFE_TBL_ERR_HANDLES_FULL  \endcode
-** \retcode #CFE_TBL_ERR_INVALID_NAME \retdesc \copydoc CFE_TBL_ERR_INVALID_NAME  \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID   \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID    \endcode
-** \retcode #CFE_ES_ERR_APPNAME       \retdesc \copydoc CFE_ES_ERR_APPNAME        \endcode
-** \retcode #CFE_ES_ERR_BUFFER        \retdesc \copydoc CFE_ES_ERR_BUFFER         \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS              \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_ERR_HANDLES_FULL \copybrief CFE_TBL_ERR_HANDLES_FULL
+** \retval #CFE_TBL_ERR_INVALID_NAME \copybrief CFE_TBL_ERR_INVALID_NAME
+** \retval #CFE_TBL_ERR_BAD_APP_ID   \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_ES_ERR_APPNAME       \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER        \copybrief CFE_ES_ERR_BUFFER
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Register
 **
@@ -331,20 +348,23 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,      /* Returned Handle */
 ** \param[in] TblHandle Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share,
 **                      that identifies the Table to be unregistered.
 **
-** \returns
-** \retcode #CFE_SUCCESS                \retdesc \copydoc CFE_SUCCESS                 \endcode
-** \retcode                             \retdesc <BR><BR>                             \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID     \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID      \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS      \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS       \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE  \endcode
-** \retcode #CFE_ES_ERR_APPNAME         \retdesc \copydoc CFE_ES_ERR_APPNAME          \endcode
-** \retcode #CFE_ES_ERR_BUFFER          \retdesc \copydoc CFE_ES_ERR_BUFFER           \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 **
 ** \sa #CFE_TBL_Share, #CFE_TBL_Register
 ** 
 ******************************************************************************/
 int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle );
+/**@}*/
+
+/** @defgroup CFEAPITBLManage cFE Manage Table Content APIs
+ * @{
+ */
 
 /*****************************************************************************/
 /**
@@ -367,33 +387,31 @@ int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle );
 **
 ** \param[in] SrcType    Flag indicating the nature of the given \c SrcDataPtr below.
 **                       This value can be any one of the following:
-**                          \arg #CFE_TBL_SRC_FILE    - \copydoc CFE_TBL_SRC_FILE
-**                          \arg #CFE_TBL_SRC_ADDRESS - \copydoc CFE_TBL_SRC_ADDRESS 
+**                          \arg #CFE_TBL_SRC_FILE    - \copybrief CFE_TBL_SRC_FILE
+**                          \arg #CFE_TBL_SRC_ADDRESS - \copybrief CFE_TBL_SRC_ADDRESS 
 **                                                      
 ** \param[in] SrcDataPtr Pointer to either a character string specifying a filename or
 **                       a memory address of a block of binary data to be loaded into a table or,
 **                       if the table was registered with the #CFE_TBL_OPT_USR_DEF_ADDR option,
 **                       the address of the active table buffer.
 **
-** \returns
-** \retcode #CFE_SUCCESS                   \retdesc \copydoc CFE_SUCCESS                   \endcode
-** \retcode #CFE_TBL_WARN_SHORT_FILE       \retdesc \copydoc CFE_TBL_WARN_SHORT_FILE       \endcode
-** \retcode #CFE_TBL_WARN_PARTIAL_LOAD     \retdesc \copydoc CFE_TBL_WARN_PARTIAL_LOAD     \endcode
-** \retcode                                \retdesc <BR><BR>                               \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID        \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID        \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS         \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS         \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE    \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE    \endcode
-** \retcode #CFE_ES_ERR_APPNAME            \retdesc \copydoc CFE_ES_ERR_APPNAME            \endcode
-** \retcode #CFE_ES_ERR_BUFFER             \retdesc \copydoc CFE_ES_ERR_BUFFER             \endcode
-** \retcode #CFE_TBL_ERR_DUMP_ONLY         \retdesc \copydoc CFE_TBL_ERR_DUMP_ONLY         \endcode
-** \retcode #CFE_TBL_ERR_ILLEGAL_SRC_TYPE  \retdesc \copydoc CFE_TBL_ERR_ILLEGAL_SRC_TYPE  \endcode
-** \retcode #CFE_TBL_ERR_LOAD_IN_PROGRESS  \retdesc \copydoc CFE_TBL_ERR_LOAD_IN_PROGRESS  \endcode
-** \retcode #CFE_TBL_ERR_NO_BUFFER_AVAIL   \retdesc \copydoc CFE_TBL_ERR_NO_BUFFER_AVAIL   \endcode
-** \retcode #CFE_TBL_ERR_FILE_NOT_FOUND    \retdesc \copydoc CFE_TBL_ERR_FILE_NOT_FOUND    \endcode
-** \retcode #CFE_TBL_ERR_FILE_TOO_LARGE    \retdesc \copydoc CFE_TBL_ERR_FILE_TOO_LARGE    \endcode
-** \retcode #CFE_TBL_ERR_BAD_CONTENT_ID    \retdesc \copydoc CFE_TBL_ERR_BAD_CONTENT_ID    \endcode
-** \retcode #CFE_TBL_ERR_PARTIAL_LOAD      \retdesc \copydoc CFE_TBL_ERR_PARTIAL_LOAD      \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                   \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_WARN_SHORT_FILE       \copybrief CFE_TBL_WARN_SHORT_FILE
+** \retval #CFE_TBL_WARN_PARTIAL_LOAD     \copybrief CFE_TBL_WARN_PARTIAL_LOAD
+** \retval #CFE_TBL_ERR_BAD_APP_ID        \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS         \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE    \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_ES_ERR_APPNAME            \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER             \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_DUMP_ONLY         \copybrief CFE_TBL_ERR_DUMP_ONLY
+** \retval #CFE_TBL_ERR_ILLEGAL_SRC_TYPE  \copybrief CFE_TBL_ERR_ILLEGAL_SRC_TYPE
+** \retval #CFE_TBL_ERR_LOAD_IN_PROGRESS  \copybrief CFE_TBL_ERR_LOAD_IN_PROGRESS
+** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL   \copybrief CFE_TBL_ERR_NO_BUFFER_AVAIL
+** \retval #CFE_TBL_ERR_FILE_NOT_FOUND    \copybrief CFE_TBL_ERR_FILE_NOT_FOUND
+** \retval #CFE_TBL_ERR_FILE_TOO_LARGE    \copybrief CFE_TBL_ERR_FILE_TOO_LARGE
+** \retval #CFE_TBL_ERR_BAD_CONTENT_ID    \copybrief CFE_TBL_ERR_BAD_CONTENT_ID
+** \retval #CFE_TBL_ERR_PARTIAL_LOAD      \copybrief CFE_TBL_ERR_PARTIAL_LOAD
 **
 ** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Manage 
 **
@@ -421,21 +439,146 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
 ** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
 **                       identifies the Table to be updated.
 **                                      
-** \returns
-** \retcode #CFE_SUCCESS                    \retdesc \copydoc CFE_SUCCESS                     \endcode
-** \retcode #CFE_TBL_INFO_NO_UPDATE_PENDING \retdesc \copydoc CFE_TBL_INFO_NO_UPDATE_PENDING  \endcode
-** \retcode                                 \retdesc <BR><BR>                                 \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID         \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID          \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS          \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS           \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE     \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE      \endcode
-** \retcode #CFE_ES_ERR_APPNAME             \retdesc \copydoc CFE_ES_ERR_APPNAME              \endcode
-** \retcode #CFE_ES_ERR_BUFFER              \retdesc \copydoc CFE_ES_ERR_BUFFER               \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                    \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_NO_UPDATE_PENDING \copybrief CFE_TBL_INFO_NO_UPDATE_PENDING
+** \retval #CFE_TBL_ERR_BAD_APP_ID         \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS          \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE     \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_ES_ERR_APPNAME             \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER              \copybrief CFE_ES_ERR_BUFFER
 **
 ** \sa #CFE_TBL_Load, #CFE_TBL_Validate, #CFE_TBL_Manage
 **
 ******************************************************************************/
 int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle );
+
+/*****************************************************************************/
+/**
+** \brief Perform steps to validate the contents of a table image.
+**
+** \par Description
+**        An application is \b required to perform a periodic check for an update
+**        or a validation request for all the tables that it creates.  Typically,
+**        the application that created the table would call this function at the
+**        start or conclusion of any routine processing cycle.  To determine whether
+**        a validation request is pending prior to making this call, the Application
+**        can use the #CFE_TBL_GetStatus API first.  If a table validation is pending,
+**        the Application would call this function to perform the necessary actions.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
+**                       identifies the Table to be managed.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                        \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_NO_VALIDATION_PENDING \copybrief CFE_TBL_INFO_NO_VALIDATION_PENDING
+** \retval #CFE_ES_ERR_APPNAME                 \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER                  \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_BAD_APP_ID             \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS              \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE         \copybrief CFE_TBL_ERR_INVALID_HANDLE
+**
+** \sa #CFE_TBL_Update, #CFE_TBL_Manage, #CFE_TBL_Load
+**
+******************************************************************************/
+int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle );
+
+/*****************************************************************************/
+/**
+** \brief Perform standard operations to maintain a table.
+**
+** \par Description
+**        An application is \b required to perform a periodic check for an update
+**        or a validation request for all the tables that it creates.  Typically,
+**        the application that created the table would call this function at the
+**        start or conclusion of any routine processing cycle.  If a table update
+**        or validation request is pending, this function would perform either or
+**        both before returning.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
+**                       identifies the Table to be managed.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+**
+** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Load, #CFE_TBL_DumpToBuffer
+**
+******************************************************************************/
+int32 CFE_TBL_Manage( CFE_TBL_Handle_t TblHandle );
+
+/*****************************************************************************/
+/**
+** \brief Copies the contents of a Dump Only Table to a shared buffer
+**
+** \par Description
+**        Copies contents of a Dump Only table to a shared buffer so that it
+**        can be written to a file by the Table Services routine.  This function
+**        is called by the Application that owns the table in response to a #CFE_TBL_INFO_DUMP_PENDING
+**        status obtained via #CFE_TBL_GetStatus.
+**
+** \par Assumptions, External Events, and Notes:
+**        -# If the table does not have a dump pending status, nothing will occur (no error, no dump)
+**        -# Applications may wish to use this function in lieu of #CFE_TBL_Manage for their Dump Only tables
+**
+** \param[in]  TblHandle      Handle of Table to be dumped.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+**
+** \sa #CFE_TBL_Manage
+**
+******************************************************************************/
+int32   CFE_TBL_DumpToBuffer( CFE_TBL_Handle_t TblHandle );
+
+/*****************************************************************************/
+/**
+** \brief Notify cFE Table Services that table contents have been modified by the Application
+**
+** \par Description
+**        This API notifies Table Services that the contents of the specified table has been
+**        modified by the Application.  This notification is important when a table has been
+**        registered as "Critical" because Table Services can then update the contents of the
+**        table kept in the Critical Data Store.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param[in]  TblHandle      Handle of Table that was modified.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+**
+** \sa #CFE_TBL_Manage
+**
+******************************************************************************/
+int32   CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle );
+/**@}*/
+
+/** @defgroup CFEAPITBLAccess cFE Access Table Content APIs
+ * @{
+ */
 
 /*****************************************************************************/
 /**
@@ -468,18 +611,16 @@ int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle );
 **
 ** \param[out] *TblPtr    Address of the first byte of data associated with the specified table.
 **
-** \returns
-** \retcode #CFE_SUCCESS                \retdesc \copydoc CFE_SUCCESS                 \endcode
-** \retcode #CFE_TBL_INFO_UPDATED       \retdesc \copydoc CFE_TBL_INFO_UPDATED        \endcode
-** \retcode                             \retdesc <BR><BR>                             \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID     \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID      \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS      \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS       \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE  \endcode
-** \retcode #CFE_ES_ERR_APPNAME         \retdesc \copydoc CFE_ES_ERR_APPNAME          \endcode
-** \retcode #CFE_ES_ERR_BUFFER          \retdesc \copydoc CFE_ES_ERR_BUFFER           \endcode
-** \retcode #CFE_TBL_ERR_UNREGISTERED   \retdesc \copydoc CFE_TBL_ERR_UNREGISTERED    \endcode
-** \retcode #CFE_TBL_ERR_NEVER_LOADED   \retdesc \copydoc CFE_TBL_ERR_NEVER_LOADED    \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_UNREGISTERED   \copybrief CFE_TBL_ERR_UNREGISTERED
+** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
 **
 ** \sa #CFE_TBL_ReleaseAddress, #CFE_TBL_GetAddresses, #CFE_TBL_ReleaseAddresses
 **
@@ -504,17 +645,15 @@ int32 CFE_TBL_GetAddress( void **TblPtr,
 ** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
 **                       identifies the Table whose address is to be released.
 **
-** \returns
-** \retcode #CFE_SUCCESS                \retdesc \copydoc CFE_SUCCESS                 \endcode
-** \retcode #CFE_TBL_INFO_UPDATED       \retdesc \copydoc CFE_TBL_INFO_UPDATED        \endcode
-** \retcode                             \retdesc <BR><BR>                             \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID     \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID      \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS      \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS       \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE  \endcode
-** \retcode #CFE_ES_ERR_APPNAME         \retdesc \copydoc CFE_ES_ERR_APPNAME          \endcode
-** \retcode #CFE_ES_ERR_BUFFER          \retdesc \copydoc CFE_ES_ERR_BUFFER           \endcode
-** \retcode #CFE_TBL_ERR_NEVER_LOADED   \retdesc \copydoc CFE_TBL_ERR_NEVER_LOADED    \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_GetAddresses, #CFE_TBL_ReleaseAddresses
 **
@@ -554,18 +693,16 @@ int32 CFE_TBL_ReleaseAddress( CFE_TBL_Handle_t TblHandle );
 ** \param[out] *TblPtrs  Array of addresses of the first byte of data associated with the
 **                       specified tables.
 **
-** \returns
-** \retcode #CFE_SUCCESS                \retdesc \copydoc CFE_SUCCESS                \endcode
-** \retcode #CFE_TBL_INFO_UPDATED       \retdesc \copydoc CFE_TBL_INFO_UPDATED       \endcode
-** \retcode                             \retdesc <BR><BR>                            \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID     \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID     \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS      \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS      \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE \endcode
-** \retcode #CFE_ES_ERR_APPNAME         \retdesc \copydoc CFE_ES_ERR_APPNAME         \endcode
-** \retcode #CFE_ES_ERR_BUFFER          \retdesc \copydoc CFE_ES_ERR_BUFFER          \endcode
-** \retcode #CFE_TBL_ERR_UNREGISTERED   \retdesc \copydoc CFE_TBL_ERR_UNREGISTERED   \endcode
-** \retcode #CFE_TBL_ERR_NEVER_LOADED   \retdesc \copydoc CFE_TBL_ERR_NEVER_LOADED   \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_UNREGISTERED   \copybrief CFE_TBL_ERR_UNREGISTERED
+** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_ReleaseAddress, #CFE_TBL_ReleaseAddresses
 **
@@ -593,92 +730,26 @@ int32 CFE_TBL_GetAddresses( void **TblPtrs[],
 ** \param[in] TblHandles Array of Table Handles, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share,
 **                       of those tables whose start addresses are to be released.
 **
-** \returns
-** \retcode #CFE_SUCCESS                \retdesc \copydoc CFE_SUCCESS                 \endcode
-** \retcode #CFE_TBL_INFO_UPDATED       \retdesc \copydoc CFE_TBL_INFO_UPDATED        \endcode
-** \retcode                             \retdesc <BR><BR>                             \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID     \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID      \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS      \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS       \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE  \endcode
-** \retcode #CFE_ES_ERR_APPNAME         \retdesc \copydoc CFE_ES_ERR_APPNAME          \endcode
-** \retcode #CFE_ES_ERR_BUFFER          \retdesc \copydoc CFE_ES_ERR_BUFFER           \endcode
-** \retcode #CFE_TBL_ERR_NEVER_LOADED   \retdesc \copydoc CFE_TBL_ERR_NEVER_LOADED    \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_ReleaseAddress, #CFE_TBL_GetAddresses
 **
 ******************************************************************************/
 int32 CFE_TBL_ReleaseAddresses( uint16 NumTables,
                                 const CFE_TBL_Handle_t TblHandles[] );
+/**@}*/
 
-/*****************************************************************************/
-/**
-** \brief Perform steps to validate the contents of a table image.
-**
-** \par Description
-**        An application is \b required to perform a periodic check for an update 
-**        or a validation request for all the tables that it creates.  Typically, 
-**        the application that created the table would call this function at the 
-**        start or conclusion of any routine processing cycle.  To determine whether 
-**        a validation request is pending prior to making this call, the Application 
-**        can use the #CFE_TBL_GetStatus API first.  If a table validation is pending, 
-**        the Application would call this function to perform the necessary actions.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
-**                       identifies the Table to be managed.
-**
-** \returns
-** \retcode #CFE_SUCCESS                        \retdesc \copydoc CFE_SUCCESS                        \endcode
-** \retcode #CFE_TBL_INFO_NO_VALIDATION_PENDING \retdesc \copydoc CFE_TBL_INFO_NO_VALIDATION_PENDING \endcode
-** \retcode                                     \retdesc <BR><BR>                                    \endcode
-** \retcode #CFE_ES_ERR_APPNAME                 \retdesc \copydoc CFE_ES_ERR_APPNAME                 \endcode
-** \retcode #CFE_ES_ERR_BUFFER                  \retdesc \copydoc CFE_ES_ERR_BUFFER                  \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID             \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID             \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS              \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS              \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE         \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE         \endcode
-** \endreturns
-**
-** \sa #CFE_TBL_Update, #CFE_TBL_Manage, #CFE_TBL_Load
-**
-******************************************************************************/
-int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle );
-
-/*****************************************************************************/
-/**
-** \brief Perform standard operations to maintain a table.
-**
-** \par Description
-**        An application is \b required to perform a periodic check for an update 
-**        or a validation request for all the tables that it creates.  Typically, 
-**        the application that created the table would call this function at the 
-**        start or conclusion of any routine processing cycle.  If a table update 
-**        or validation request is pending, this function would perform either or 
-**        both before returning.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
-**                       identifies the Table to be managed.
-**
-** \returns
-** \retcode #CFE_SUCCESS                \retdesc \copydoc CFE_SUCCESS                 \endcode
-** \retcode #CFE_TBL_INFO_UPDATED       \retdesc \copydoc CFE_TBL_INFO_UPDATED        \endcode
-** \retcode                             \retdesc <BR><BR>                             \endcode
-** \retcode #CFE_ES_ERR_APPNAME         \retdesc \copydoc CFE_ES_ERR_APPNAME          \endcode
-** \retcode #CFE_ES_ERR_BUFFER          \retdesc \copydoc CFE_ES_ERR_BUFFER           \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID     \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID      \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS      \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS       \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE  \endcode
-** \endreturns
-**
-** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Load, #CFE_TBL_DumpToBuffer
-**
-******************************************************************************/
-int32 CFE_TBL_Manage( CFE_TBL_Handle_t TblHandle );
+/** @defgroup CFEAPITBLInfo cFE Get Table Information APIs
+ * @{
+ */
 
 /*****************************************************************************/
 /**
@@ -698,24 +769,21 @@ int32 CFE_TBL_Manage( CFE_TBL_Handle_t TblHandle );
 ** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
 **                       identifies the Table to be managed.
 **
-** \returns
-** \retcode #CFE_SUCCESS                     \retdesc \copydoc CFE_SUCCESS                      \endcode
-** \retcode #CFE_TBL_INFO_UPDATE_PENDING     \retdesc \copydoc CFE_TBL_INFO_UPDATE_PENDING      \endcode
-** \retcode #CFE_TBL_INFO_VALIDATION_PENDING \retdesc \copydoc CFE_TBL_INFO_VALIDATION_PENDING  \endcode
-** \retcode #CFE_TBL_INFO_DUMP_PENDING       \retdesc \copydoc CFE_TBL_INFO_DUMP_PENDING        \endcode
-** \retcode                                  \retdesc <BR><BR>                                  \endcode
-** \retcode #CFE_ES_ERR_APPNAME              \retdesc \copydoc CFE_ES_ERR_APPNAME               \endcode
-** \retcode #CFE_ES_ERR_BUFFER               \retdesc \copydoc CFE_ES_ERR_BUFFER                \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID          \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID           \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS           \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS            \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE      \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE       \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATE_PENDING     \copybrief CFE_TBL_INFO_UPDATE_PENDING
+** \retval #CFE_TBL_INFO_VALIDATION_PENDING \copybrief CFE_TBL_INFO_VALIDATION_PENDING
+** \retval #CFE_TBL_INFO_DUMP_PENDING       \copybrief CFE_TBL_INFO_DUMP_PENDING
+** \retval #CFE_ES_ERR_APPNAME              \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER               \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_BAD_APP_ID          \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
 **
 ** \sa #CFE_TBL_Manage, #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_GetInfo
 **
 ******************************************************************************/
 int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle );
-
 
 /*****************************************************************************/
 /**
@@ -743,78 +811,14 @@ int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle );
 ** \param[out] *TblInfoPtr   Description of the tables characteristics and registry information stored in
 **                           the #CFE_TBL_Info_t data structure format.
 **
-** \returns
-** \retcode #CFE_SUCCESS                     \retdesc \copydoc CFE_SUCCESS               \endcode      
-** \retcode                                  \retdesc <BR><BR>                           \endcode
-** \retcode #CFE_TBL_ERR_INVALID_NAME        \retdesc \copydoc CFE_TBL_ERR_INVALID_NAME  \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS              \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_ERR_INVALID_NAME \copybrief CFE_TBL_ERR_INVALID_NAME
 **
 ** \sa #CFE_TBL_GetStatus
 **
 ******************************************************************************/
 int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName );
-
-/*****************************************************************************/
-/**
-** \brief Copies the contents of a Dump Only Table to a shared buffer
-**
-** \par Description
-**        Copies contents of a Dump Only table to a shared buffer so that it
-**        can be written to a file by the Table Services routine.  This function
-**        is called by the Application that owns the table in response to a #CFE_TBL_INFO_DUMP_PENDING
-**        status obtained via #CFE_TBL_GetStatus.
-**
-** \par Assumptions, External Events, and Notes:
-**        -# If the table does not have a dump pending status, nothing will occur (no error, no dump)
-**        -# Applications may wish to use this function in lieu of #CFE_TBL_Manage for their Dump Only tables
-**
-** \param[in]  TblHandle      Handle of Table to be dumped.
-** 
-** \returns
-** \retcode #CFE_SUCCESS                \retdesc \copydoc CFE_SUCCESS                 \endcode
-** \retcode                             \retdesc <BR><BR>                             \endcode
-** \retcode #CFE_ES_ERR_APPNAME         \retdesc \copydoc CFE_ES_ERR_APPNAME          \endcode
-** \retcode #CFE_ES_ERR_BUFFER          \retdesc \copydoc CFE_ES_ERR_BUFFER           \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID     \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID      \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS      \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS       \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE  \endcode
-** \endreturns
-**
-** \sa #CFE_TBL_Manage
-**
-******************************************************************************/
-int32   CFE_TBL_DumpToBuffer( CFE_TBL_Handle_t TblHandle );
-
-/*****************************************************************************/
-/**
-** \brief Notify cFE Table Services that table contents have been modified by the Application
-**
-** \par Description
-**        This API notifies Table Services that the contents of the specified table has been
-**        modified by the Application.  This notification is important when a table has been
-**        registered as "Critical" because Table Services can then update the contents of the
-**        table kept in the Critical Data Store.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param[in]  TblHandle      Handle of Table that was modified.
-** 
-** \returns
-** \retcode #CFE_SUCCESS                \retdesc \copydoc CFE_SUCCESS                 \endcode
-** \retcode                             \retdesc <BR><BR>                             \endcode
-** \retcode #CFE_ES_ERR_APPNAME         \retdesc \copydoc CFE_ES_ERR_APPNAME          \endcode
-** \retcode #CFE_ES_ERR_BUFFER          \retdesc \copydoc CFE_ES_ERR_BUFFER           \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID     \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID      \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS      \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS       \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE  \endcode
-** \endreturns
-**
-** \sa #CFE_TBL_Manage
-**
-******************************************************************************/
-int32   CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle );
- 
 
 /*****************************************************************************/
 /**
@@ -843,19 +847,18 @@ int32   CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle );
 **                            table index that allows the same MsgId and Command Code to be used for
 **                            all table management notifications.
 ** 
-** \returns
-** \retcode #CFE_SUCCESS                \retdesc \copydoc CFE_SUCCESS                 \endcode
-** \retcode                             \retdesc <BR><BR>                             \endcode
-** \retcode #CFE_ES_ERR_APPNAME         \retdesc \copydoc CFE_ES_ERR_APPNAME          \endcode
-** \retcode #CFE_ES_ERR_BUFFER          \retdesc \copydoc CFE_ES_ERR_BUFFER           \endcode
-** \retcode #CFE_TBL_ERR_BAD_APP_ID     \retdesc \copydoc CFE_TBL_ERR_BAD_APP_ID      \endcode
-** \retcode #CFE_TBL_ERR_NO_ACCESS      \retdesc \copydoc CFE_TBL_ERR_NO_ACCESS       \endcode
-** \retcode #CFE_TBL_ERR_INVALID_HANDLE \retdesc \copydoc CFE_TBL_ERR_INVALID_HANDLE  \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
+** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
 **
 ** \sa #CFE_TBL_Register
 **
 ******************************************************************************/
 int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, uint16 CommandCode, uint32 Parameter);
+/**@}*/
 
 #endif  /* _cfe_tbl_ */

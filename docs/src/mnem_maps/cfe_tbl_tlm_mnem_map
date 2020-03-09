@@ -10,10 +10,8 @@
 #    at the end
 # 4) NO comments, such as these, can be interspersed within the assignment
 #    statements
-# 5) If there are multiple mnemonics for a particular data point, they should
-#    be separated by the following ", \b \c " and enclosed in double quotes to 
-#    maintain proper formatting in the documentation.  For example:
-#        ES_RESET="$sc_$cpu_ES_ProcessorReset, \b \c $sc_$cpu_ES_PowerOnReset"
+# 5) Avoid style formatting, historically caused warnings
+# 6) Multiple items should be surrounded by quotes: "a, b"
 #---------------------------------------------------------------------------
 ALIASES += \
 TBL_CMDPC=$sc_$cpu_TBL_CMDPC \
@@ -31,7 +29,7 @@ TBL_VALREQCTR=$sc_$cpu_TBL_ValReqCtr \
 TBL_NUMFREESHRBUF=$sc_$cpu_TBL_NumFreeShrBuf \
 TBL_BYTEALIGNPAD1=$sc_$cpu_TBL_ByteAlignPad1 \
 TBL_MEMPOOLHANDLE=$sc_$cpu_TBL_MemPoolHandle \
-TBL_LASTUPDTIME="$sc_$cpu_TBL_LastUpdTime, \b \c $sc_$cpu_TBL_SECONDS, \b \c $sc_$cpu_TBL_SUBSECONDS" \
+TBL_LASTUPDTIME="$sc_$cpu_TBL_LastUpdTime, $sc_$cpu_TBL_SECONDS, $sc_$cpu_TBL_SUBSECONDS" \
 TBL_LASTUPDTBLNAME=$sc_$cpu_TBL_LastUpdTblName[CFE_TB_MAX_FULL_NAME_LEN] \
 TBL_LASTFILELOADED=$sc_$cpu_TBL_LastFileLoaded[OS_MAX_PATH_LEN] \
 TBL_LASTFILEDUMPED=$sc_$cpu_TBL_LastFileDumped[OS_MAX_PATH_LEN] \
@@ -42,7 +40,7 @@ TBL_CRC=$sc_$cpu_TBL_CRC \
 TBL_ACTBUFADD=$sc_$cpu_TBL_ActBufAdd \
 TBL_IACTBUFADD=$sc_$cpu_TBL_IActBufAdd \
 TBL_VALFUNCPTR=$sc_$cpu_TBL_ValFuncPtr \
-TBL_TIMELASTUPD="$sc_$cpu_TBL_TimeLastUpd, \b \c $sc_$cpu_TBL_TLUSECONDS, \b \c $sc_$cpu_TBL_TLUSUBSECONDS" \
+TBL_TIMELASTUPD="$sc_$cpu_TBL_TimeLastUpd, $sc_$cpu_TBL_TLUSECONDS, $sc_$cpu_TBL_TLUSUBSECONDS" \
 TBL_FILECSECONDS=$sc_$cpu_TBL_FILECSECONDS \
 TBL_FILECSUBSECONDS=$sc_$cpu_TBL_FILECSUBSECONDS \
 TBL_LOADEDONCE=$sc_$cpu_TBL_LoadedOnce \

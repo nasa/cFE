@@ -125,9 +125,9 @@
   CCSDS Unsegmented Time Code (CUC) which includes 4 bytes of seconds, and 4 bytes of 
   subseconds, where a subsecond is equivalent to 1/(2^32) seconds.  The system time 
   structure is used by TIME to store current time, time at the tone, time since the 
-  tone, the MET, the STCF and command arguments for time adjustments.  Note that only 
+  tone, the MET, the STCF and command arguments for time adjustments.  Note that typically
   the 32 bits of seconds and the upper 16 bits of subseconds are used for time stamping 
-  CCSDS packets.
+  Software bus messages, but this is dependent on the underlying defintion.
 
   The system time structure is defined as follows:
 
@@ -757,10 +757,12 @@
   \page cfetimeugadjust Adjusting Time
 
   The TIME Server includes commands to set the STCF, Leap Seconds, 
-  and Validity state. The STCF should be set by the jam command, 
-  and fine tuned using the delta adjust.   TIME provides the ability 
-  to command a one time adjustment (add or subtract) to the current 
-  STCF.  In addition there is a 1Hz adjustment (add or subtract) 
+  and Validity state. The STCF should be set implicity using the
+  #CFE_TIME_SET_TIME_CC or explicitly using #CFE_TIME_SET_STCF_CC.
+  TIME provides the ability to command a one time adjustment
+  (#CFE_TIME_ADD_ADJUST_CC and #CFE_TIME_SUB_ADJUST_CC)
+  to the current STCF.  In addition there is a 1Hz adjustment
+  (#CFE_TIME_ADD_1HZ_ADJUSTMENT_CC and #CFE_TIME_SUB_1HZ_ADJUSTMENT_CC)
   that can be made to the STCF to compensate for oscillator drift. 
   Mission specific ground correlation should be used to assist in 
   determining the proper values to use. The Leap Seconds should be 

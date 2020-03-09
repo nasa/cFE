@@ -74,33 +74,10 @@
  * this may or may not be the same as CFE_SB_MSG_MAX_PIPES
  */
 #define CFE_SB_TLM_PIPEDEPTHSTATS_SIZE     (sizeof(CFE_SB.StatTlmMsg.Payload.PipeDepthStats) / sizeof(CFE_SB.StatTlmMsg.Payload.PipeDepthStats[0]))
-/******************************************************************************
-** Name:    CFE_SB_CreatePipe
-**
-** Purpose: API to create a pipe for receiving messages
-**
-** Assumptions, External Events, and Notes:
-**
-**          Note: Zero is a valid PipeId
-**
-** Date Written:
-**          04/25/2005
-**
-** Inputs:
-**          PipeIdPtr - Ptr to users empty PipeId variable, to be filled by
-**                      this function.
-**          Depth     - The depth of the pipe, synonymous to the max number
-**                      of messages the pipe can hold at any time.
-**          PipeName  - The name of the pipe displayed in event messages
-**
-** Outputs:
-**          PipeId    - The handle of the pipe to be used when receiving
-**                      messages.
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+
+/*
+ * Function: CFE_SB_CreatePipe - See API and header file for details
+ */
 int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *PipeName)
 {
     uint32          AppId = 0xFFFFFFFF;
@@ -227,19 +204,9 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
 }/* end CFE_SB_CreatePipe */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_DeletePipe()
-**
-**  Purpose:
-**    Will unsubscribe to all routes associated with the given pipe id, then remove
-**    pipe from the pipe table.
-**
-**  Arguments:
-**    PipeId - The ID of the pipe to delete.
-**
-**  Return:
-**    CFE_SUCCESS or cFE Error Code
-*/
+/*
+ *  Function: CFE_SB_DeletePipe - See API and header file for details
+ */
 int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 {
     uint32  CallerId = 0xFFFFFFFF;
@@ -416,20 +383,9 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,uint32 AppId)
 }/* end CFE_SB_DeletePipeFull */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_SetPipeOpts()
-**
-**  Purpose:
-**  Sets pipe options. Options are a bit field, setting each bit enables the 
-**  option specified.
-**
-**  Arguments:
-**    PipeId - The ID of the pipe for the options.
-**    Opts   - The options to set on this pipe.
-**
-**  Return:
-**    CFE_SUCCESS or cFE Error Code
-*/
+/*
+ *  Function: CFE_SB_SetPipeOpts - See API and header file for details
+ */
 int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
 {
     uint8         PipeTblIdx = 0;
@@ -493,19 +449,9 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
     return CFE_SUCCESS;
 }/* end CFE_SB_SetPipeOpts */
 
-/******************************************************************************
-**  Function:  CFE_SB_GetPipeOpts()
-**
-**  Purpose:
-**  Gets the current pipe options.
-**
-**  Arguments:
-**    PipeId  - The ID of the pipe for the options.
-**    OptsPtr - Pointer to receive the opts.
-**
-**  Return:
-**    CFE_SUCCESS or cFE Error Code
-*/
+/*
+ *  Function:  CFE_SB_GetPipeOpts - See API and header file for details
+ */
 int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 {
     uint8         PipeTblIdx = 0;
@@ -550,23 +496,9 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
     return CFE_SUCCESS;
 }/* end CFE_SB_GetPipeOpts */
 
-/******************************************************************************
-**  Function:  CFE_SB_GetPipeName()
-**
-**  Purpose:
-**    SB internal function to get the string of the pipe name of the given
-**    Pipe ID.
-**
-**  Arguments:
-**    MsgId       : ID of the message
-**    PipeNameBuf : Buffer to receive name, must be OS_MAX_API_NAME bytes long
-**
-**  Return:
-**    Will return CFE_SUCCESS and populate PipeNameBuf with the name
-**    of the pipe on success, otherwise PipeNameBuf is filled with NULLs
-**    and this returns CFE_SB_BAD_ARGUMENT on error.
-**
-*/
+/*
+ *  Function:  CFE_SB_GetPipeName - See API and header file for details
+ */
 int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId){
     OS_queue_prop_t queue_prop;
     int32 Status = CFE_SUCCESS;
@@ -612,19 +544,9 @@ int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t
     return Status;
 }/* end CFE_SB_GetPipeName */
 
-/******************************************************************************
-**  Function:  CFE_SB_GetPipeIdByName()
-**
-**  Purpose:
-**  Gets the pipe id given its name.
-**
-**  Arguments:
-**    PipeIdPtr  - The ID of the pipe for the name.
-**    PipeName   - The name of the pipe.
-**
-**  Return:
-**    CFE_SUCCESS or cFE Error Code
-*/
+/*
+ *  Function:  CFE_SB_GetPipeIdByName - See API and header file for details
+ */
 int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
 {
     uint8         PipeTblIdx = 0;
@@ -716,37 +638,9 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
 }/* end CFE_SB_GetPipeIdByName */
 
 
-/******************************************************************************
-** Name:    CFE_SB_SubscribeEx
-**
-** Purpose: API to globally subscribe to a message when QOS and MsgLim defaults
-**          are insufficient.
-**
-** Assumptions, External Events, and Notes:
-**
-**          Note: Qos default: priority is low, reliability is low
-**          Note: MsgLim default: 4, see Input Arguments below for more detail
-**          Note: Qos parameter is currently unused by the fsw. It is recommended
-**                to give a value of zero for Quality.Priority and Quality.Reliability
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgId   - The requesting message
-**          PipeId  - The Pipe ID to send the message to
-**          Quality - Quality of Service (Qos) - priority and reliability,
-**                    see note above for recommended settings
-**          MsgLim  - Max number of messages, with this MsgId, allowed on the
-**                    pipe at any time.
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_SubscribeEx - See API and header file for details
+ */
 int32  CFE_SB_SubscribeEx(CFE_SB_MsgId_t   MsgId,
                           CFE_SB_PipeId_t  PipeId,
                           CFE_SB_Qos_t     Quality,
@@ -759,34 +653,9 @@ int32  CFE_SB_SubscribeEx(CFE_SB_MsgId_t   MsgId,
 
 
 
-/******************************************************************************
-** Name:    CFE_SB_SubscribeLocal
-**
-** Purpose: CFE Internal API to locally subscribe to a message when QOS and
-**          MsgLim defaults are insufficient.
-**
-** Assumptions, External Events, and Notes:
-**
-**          Note: Qos default: priority is low, reliability is low
-**                MsgLim default: 4 - meaning at most 4 messages of given
-**                                    MsgId allowed on the given PipeId.
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgId   - The requesting message
-**          PipeId  - The Pipe ID to send the message to
-**          MsgLim  - Max number of messages, with this MsgId, allowed on the
-**                    pipe at any time.
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_SubscribeLocal - See API and header file for details
+ */
 int32 CFE_SB_SubscribeLocal(CFE_SB_MsgId_t   MsgId,
                             CFE_SB_PipeId_t  PipeId,
                             uint16           MsgLim)
@@ -796,35 +665,9 @@ int32 CFE_SB_SubscribeLocal(CFE_SB_MsgId_t   MsgId,
 
 }/* end CFE_SB_SubscribeLocal */
 
-
-
-
-/******************************************************************************
-** Name:    CFE_SB_Subscribe
-**
-** Purpose: API to locally subscribe to a message when QOS and MsgLim defaults
-**          are sufficient.
-**
-** Assumptions, External Events, and Notes:
-**
-**          Note: Qos default: priority is low, reliability is low
-**                MsgLim default: 4 - meaning at most 4 messages of given
-**                                    MsgId allowed on the given PipeId.
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgId   - The requesting message
-**          PipeId  - The Pipe ID to send the message to
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_Subscribe - See API and header file for details
+ */
 int32 CFE_SB_Subscribe(CFE_SB_MsgId_t   MsgId,
                        CFE_SB_PipeId_t  PipeId)
 {
@@ -1053,25 +896,9 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
 }/* end CFE_SB_SubscribeFull */
 
 
-/******************************************************************************
-** Name:    CFE_SB_Unsubscribe
-**
-** Purpose: API used to unsubscribe to a message.
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgId
-**          PipeId
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_Unsubscribe - See API and header file for details
+ */
 int32 CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
     uint32  CallerId = 0xFFFFFFFF;
@@ -1087,26 +914,9 @@ int32 CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 }/* end CFE_SB_Unsubscribe */
 
 
-/******************************************************************************
-** Name:    CFE_SB_UnsubscribeLocal
-**
-** Purpose: CFE Internal API used to locally unsubscribe to a message. This
-**          request to cancel a subscription will not be sent to peers.
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgId
-**          PipeId
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_UnsubscribeLocal - See API and header file for details
+ */
 int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
     uint32  CallerId = 0xFFFFFFFF;
@@ -1290,31 +1100,9 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
 
 }/* end CFE_SB_UnsubscribeFull */
 
-
-
-/******************************************************************************
-** Name:    CFE_SB_SendMsg
-**
-** Purpose: API used to send a message on the software bus.
-**
-** Assumptions, External Events, and Notes:
-**
-**          Note: This function increments and tracks the source sequence
-**                counter for all telemetry messages.
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgPtr
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_SendMsg - See API and header file for details
+ */
 int32  CFE_SB_SendMsg(CFE_SB_Msg_t    *MsgPtr)
 {
     int32   Status = 0;
@@ -1327,29 +1115,9 @@ int32  CFE_SB_SendMsg(CFE_SB_Msg_t    *MsgPtr)
 
 
 
-/******************************************************************************
-** Name:    CFE_SB_PassMsg
-**
-** Purpose: API used to send a message on the software bus.
-**
-** Assumptions, External Events, and Notes:
-**
-**          Note: This function does NOT increment and track the source
-**                sequence counter for telemetry messages.
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgPtr
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_PassMsg - See API and header file for details
+ */
 int32  CFE_SB_PassMsg(CFE_SB_Msg_t    *MsgPtr)
 {
     int32   Status = 0;
@@ -1712,30 +1480,9 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 
 
 
-/******************************************************************************
-** Name:    CFE_SB_RcvMsg
-**
-** Purpose: API used to receive a message from the software bus.
-**
-** Assumptions, External Events, and Notes:
-**          Notes:
-**
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          PipeId
-**          BufPtr
-**          timeOut - CFE_SB_PEND, CFE_SB_POLL or millisecond timeout
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_RcvMsg - See API and header file for details
+ */
 int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
                      CFE_SB_PipeId_t    PipeId,
                      int32              TimeOut)
@@ -1856,30 +1603,9 @@ int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
 }/* end CFE_SB_RcvMsg */
 
 
-/******************************************************************************
-** Name:    CFE_SB_GetLastSenderId
-**
-** Purpose: API used for receiving sender Information of the last message received on
-**          the given pipe.
-**
-** Assumptions, External Events, and Notes:
-**          None
-**
-** Date Written:
-**          06/13/2007
-**
-** Input Arguments:
-**          Ptr -     caller declares a ptr of type CFE_SB_SenderId_t then gives the
-**                    address of that pointer.
-**          PipeId -  the Pipe Id that the message was received on.
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_GetLastSenderId - See API and header file for details
+ */
 uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId)
 {
 
@@ -1935,30 +1661,9 @@ uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId)
 }/* end CFE_SB_GetLastSenderId */
 
 
-/******************************************************************************
-** Name:    CFE_SB_ZeroCopyGetPtr
-**
-** Purpose: API used for for getting a pointer to a buffer (for zero copy mode
-**          only)
-**
-** Assumptions, External Events, and Notes:
-**          None
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgSize
-**
-** Output Arguments:
-**          BufferHandle
-**
-** Return Values:
-**          Pointer to an empty buffer in SB Memory space, or NULL if the buffer
-**          could not be allocated.
-**
-******************************************************************************/
-
+/*
+ * Function: CFE_SB_ZeroCopyGetPtr - See API and header file for details
+ */
 CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
                                      CFE_SB_ZeroCopyHandle_t *BufferHandle)
 {
@@ -2046,31 +1751,9 @@ CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
 }/* CFE_SB_ZeroCopyGetPtr */
 
 
-/******************************************************************************
-** Name:    CFE_SB_ZeroCopyReleasePtr
-**
-** Purpose: API used for releasing a pointer to a buffer (for zero copy mode
-**          only) This function is typically not needed for zero copy transfers.
-**          This function is needed only when a ptr is received via
-**          CFE_SB_ZeroCopyGetPtr, but never used in a send.
-**
-** Assumptions, External Events, and Notes:
-**          None
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          Ptr2Release
-**          BufferHandle
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_ZeroCopyReleasePtr - See API and header file for details
+ */
 int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
                                 CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
@@ -2163,29 +1846,9 @@ int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Msg_t  *Ptr2Release,
 }/* end CFE_SB_ZeroCopyReleaseDesc */
 
 
-/******************************************************************************
-** Name:    CFE_SB_ZeroCopySend
-**
-** Purpose: API for sending messages in zero copy mode (with telemetry source
-**          sequence count incrementing)
-**
-** Assumptions, External Events, and Notes:
-**          None
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgPtr - Pointer to message to be sent
-**          BufferHandle - Handle supplied by the get pointer call
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_ZeroCopySend - See API and header file for details
+ */
 int32 CFE_SB_ZeroCopySend(CFE_SB_Msg_t   *MsgPtr,
                           CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
@@ -2202,29 +1865,9 @@ int32 CFE_SB_ZeroCopySend(CFE_SB_Msg_t   *MsgPtr,
 }/* end CFE_SB_ZeroCopySend */
 
 
-/******************************************************************************
-** Name:    CFE_SB_ZeroCopyPass
-**
-** Purpose: API for sending messages in zero copy mode (telemetry source
-**          sequence count is preserved)
-**
-** Assumptions, External Events, and Notes:
-**          None
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgPtr - Pointer to message to be sent
-**          BufferHandle - Handle supplied by the get pointer call
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*
+ * Function: CFE_SB_ZeroCopyPass - See API and header file for details
+ */
 int32 CFE_SB_ZeroCopyPass(CFE_SB_Msg_t   *MsgPtr,
                           CFE_SB_ZeroCopyHandle_t BufferHandle)
 {

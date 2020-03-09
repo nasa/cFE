@@ -10,25 +10,23 @@
 #    at the end
 # 4) NO comments, such as these, can be interspersed within the assignment
 #    statements
-# 5) If there are multiple mnemonics for a particular data point, they should
-#    be separated by the following ", \b \c " and enclosed in double quotes to 
-#    maintain proper formatting in the documentation.  For example:
-#        ES_RESET="$sc_$cpu_ES_ProcessorReset, \b \c $sc_$cpu_ES_PowerOnReset"
+# 5) Avoid style formatting, historically caused warnings
+# 6) Multiple items should be surrounded by quotes: "a, b"
 #---------------------------------------------------------------------------
 ALIASES += \
 EVS_NOOP=$sc_$cpu_EVS_NOOP \
 EVS_RESETCTRS=$sc_$cpu_EVS_ResetCtrs \
-EVS_ENAEVENTTYPE="$sc_$cpu_EVS_EnaEventType, \b \c $sc_$cpu_EVS_EnaEventTypeMask" \
-EVS_DISEVENTTYPE="$sc_$cpu_EVS_DisEventType, \b \c $sc_$cpu_EVS_DisEventTypeMask" \
+EVS_ENAEVENTTYPE="$sc_$cpu_EVS_EnaEventType, $sc_$cpu_EVS_EnaEventTypeMask" \
+EVS_DISEVENTTYPE="$sc_$cpu_EVS_DisEventType, $sc_$cpu_EVS_DisEventTypeMask" \
 EVS_SETEVTFMT=$sc_$cpu_EVS_SetEvtFmt \
-EVS_ENAAPPEVTTYPE="$sc_$cpu_EVS_EnaAppEvtType, \b \c $sc_$cpu_EVS_EnaAppEvtTypeMask" \
-EVS_DISAPPEVTTYPE="$sc_$cpu_EVS_DisAppEvtType, \b \c $sc_$cpu_EVS_DisAppEvtTypeMask" \
+EVS_ENAAPPEVTTYPE="$sc_$cpu_EVS_EnaAppEvtType, $sc_$cpu_EVS_EnaAppEvtTypeMask" \
+EVS_DISAPPEVTTYPE="$sc_$cpu_EVS_DisAppEvtType, $sc_$cpu_EVS_DisAppEvtTypeMask" \
 EVS_ENAAPPEVGEN=$sc_$cpu_EVS_EnaAppEvGen \
 EVS_DISAPPEVGEN=$sc_$cpu_EVS_DisAppEvGen \
 EVS_RSTAPPCTRS=$sc_$cpu_EVS_RstAppCtrs \
 EVS_SETBINFLTRMASK=$sc_$cpu_EVS_SetBinFltrMask \
-EVS_ENAPORT="$sc_$cpu_EVS_EnaPort, \b \c $sc_$cpu_EVS_EnaPortMask" \
-EVS_DISPORT="$sc_$cpu_EVS_DisPort, \b \c $sc_$cpu_EVS_DisPortMask" \
+EVS_ENAPORT="$sc_$cpu_EVS_EnaPort, $sc_$cpu_EVS_EnaPortMask" \
+EVS_DISPORT="$sc_$cpu_EVS_DisPort, $sc_$cpu_EVS_DisPortMask" \
 EVS_RSTBINFLTRCTR=$sc_$cpu_EVS_RstBinFltrCtr \
 EVS_RSTALLFLTRS=$sc_$cpu_EVS_RstAllFltrs \
 EVS_ADDEVTFLTR=$sc_$cpu_EVS_AddEvtFltr \

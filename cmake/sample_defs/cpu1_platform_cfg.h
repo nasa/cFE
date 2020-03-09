@@ -126,8 +126,8 @@
 **       Dictates the size of the SB memory pool. For each message the SB
 **       sends, the SB dynamically allocates from this memory pool, the memory needed
 **       to process the message. The memory needed to process each message is msg
-**       size + msg descriptor(#CFE_SB_BufferD_t). This memory pool is also used
-**       to allocate destination descriptors (#CFE_SB_DestinationD_t) during the
+**       size + msg descriptor(CFE_SB_BufferD_t). This memory pool is also used
+**       to allocate destination descriptors (CFE_SB_DestinationD_t) during the
 **       subscription process.
 **       To see the run-time, high-water mark and the current utilization figures
 **       regarding this parameter, send an SB command to 'Send Statistics Pkt'.
@@ -788,7 +788,7 @@
 **       log ER Log and critical reset variables. This is 4 of 4 of the memory areas
 **       that are preserved during a processor reset.
 **       Note: This area must be sized large enough to hold all of the data
-**       structures. It should be automatically sized based on the #CFE_ES_ResetData_t
+**       structures. It should be automatically sized based on the CFE_ES_ResetData_t
 **       type, but circular dependancies in the headers prevent it from being defined
 **       this way.
 **       NOTE: Changing this value changes memory allocation, and may
