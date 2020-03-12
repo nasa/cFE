@@ -102,11 +102,10 @@ void CFE_TIME_TaskMain(void)
 void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
     snprintf(PrintBuffer,
-            CFE_TIME_PRINTED_STRING_SIZE,
-             "UT %lu.%lu -",
-             (unsigned long)TimeToPrint.Seconds,
-             (unsigned long)TimeToPrint.Subseconds);
-
+             CFE_TIME_PRINTED_STRING_SIZE,
+             "UT %u.%u -",
+             (unsigned int)TimeToPrint.Seconds,
+             (unsigned int)TimeToPrint.Subseconds);
 
     UT_Stub_RegisterContext(UT_KEY(CFE_TIME_Print), PrintBuffer);
     UT_Stub_RegisterContext(UT_KEY(CFE_TIME_Print), &TimeToPrint);
