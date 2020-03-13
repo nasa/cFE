@@ -210,7 +210,10 @@ int32 CFE_EVS_Unregister( void );
 **          event log, and optionally sent as an ASCII text string out the enabled output port(s). 
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**          This API only works within the context of a registered application or core service.
+**          For messages outside the context of a registered appliction (for example early
+**          in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
+**          for reporting.
 **
 ** \param[in] EventID            A numeric literal used to uniquely identify an application event.  
 **                               The \c EventID is defined and supplied by the application sending the event.   
@@ -256,7 +259,10 @@ int32 CFE_EVS_SendEvent (uint16 EventID,
 **          preserve the context of an Application's event.  In general, #CFE_EVS_SendEvent should be used. 
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**          The Application ID must correspond to a registered application or core service.
+**          For messages outside the context of a registered appliction (for example early
+**          in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
+**          for reporting.
 **
 ** \param[in] EventID            A numeric literal used to uniquely identify an application event.  
 **                               The \c EventID is defined and supplied by the application sending the event.   
@@ -298,13 +304,16 @@ int32 CFE_EVS_SendEventWithAppID (uint16 EventID,
 ** \brief Generate a software event with a specific time tag.
 **
 ** \par Description
-**          This routine is the same as CFE_EVS_SendEvent except that the caller specifies the event time 
+**          This routine is the same as #CFE_EVS_SendEvent except that the caller specifies the event time 
 **          instead of having the EVS use the current spacecraft time.  This routine should be used in 
 **          situations where an error condition is detected at one time, but the event message is reported 
 **          at a later time. 
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**          This API only works within the context of a registered application or core service.
+**          For messages outside the context of a registered appliction (for example early
+**          in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
+**          for reporting.
 **
 ** \param[in] Time               The time to include in the event.  This will usually be a time returned 
 **                               by the function #CFE_TIME_GetTime.   

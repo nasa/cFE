@@ -4,8 +4,13 @@
   Event Services (EVS)  provides centralized control for the processing of event messages 
   originating from the EVS task itself, other cFE core applications (ES, SB, TIME, and TBL), 
   and from cFE applications.  Event messages are asynchronous messages that are used to 
-  inform the operator of a significant event.  EVS provides various ways to filter event 
+  inform the operator of a significant event from within the context of a registered
+  application or core service.  EVS provides various ways to filter event
   messages in order to manage event message generation.
+
+  Note for messages outside the context of a registered appliction (for example early
+  in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
+  for reporting.
   
   For more information on cFE Event Services, see the following sections:
   
