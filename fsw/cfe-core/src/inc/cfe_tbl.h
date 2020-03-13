@@ -844,6 +844,9 @@ int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName );
 **
 ** \par Assumptions, External Events, and Notes:
 **        - Only the application that owns the table is allowed to register a notification message
+**        - Recommend \b NOT using the ground command MID which typically impacts command counters.
+**          The typical approach is to use a unique MID for inter-task communications
+**          similar to how schedulers typically trigger application housekeeping messages.
 **
 ** \param[in]  TblHandle      Handle of Table with which the message should be associated.
 ** 
