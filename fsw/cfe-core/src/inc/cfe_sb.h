@@ -882,6 +882,8 @@ void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength);
 **          - If the underlying implementation of software bus messages does not include
 **            a time field, then this routine will do nothing to the message contents
 **            and will return #CFE_SB_WRONG_MSG_TYPE.
+**          - Note default implementation of command messages do not have a time field
+**            and will trigger the #CFE_SB_WRONG_MSG_TYPE error
 **
 ** \param[in]  MsgPtr      A pointer to the buffer that contains the software bus message.
 **                         This must point to the first byte of the message header.
@@ -1103,6 +1105,7 @@ uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr);
 ** \par Assumptions, External Events, and Notes:
 **          - If the underlying implementation of software bus messages does not 
 **            include a time field, then this routine will return a zero time.  
+**          - Note default implementation of command messages do not have a time field.
 **
 ** \param[in]  MsgPtr      A pointer to the buffer that contains the software bus message.
 **                         This must point to the first byte of the message header. 
