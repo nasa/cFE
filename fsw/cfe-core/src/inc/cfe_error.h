@@ -1036,12 +1036,7 @@
 /**
  * @brief Never Loaded
  *
- *  This is an error indicating that the table has never been loaded from
- *  either a file or a copy from a block of memory so the contents that the
- *  returned pointer is pointing to are zeros.
- *  <B> NOTE: Unlike other most other errors, this error condition still
- *  returns a valid table pointer.  This pointer must be released with the
- *  #CFE_TBL_ReleaseAddress API before the table can be loaded with data. </B>
+ *  Table has not been loaded with data.
  *
  */
 #define CFE_TBL_ERR_NEVER_LOADED ((int32)0xcc000005)

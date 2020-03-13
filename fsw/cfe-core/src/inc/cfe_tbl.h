@@ -601,6 +601,11 @@ int32   CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle );
 **           either a #CFE_TBL_Update call or any blocking call (e.g. - pending on software 
 **           bus message, etc).  Table updates cannot occur while table addresses have not 
 **           been released.
+**        -# #CFE_TBL_ERR_NEVER_LOADED will be returned if the table has never been
+**           loaded (either from file or from a block of memory), but the function
+**           will still return a valid table pointer to a table with all zero content.
+**           This pointer mush be released with the #CFE_TBL_ReleaseAddress API before
+**           the table can be loaded with data.
 **
 ** \param[in]  TblPtr     The address of a pointer that will be loaded with the address of 
 **                        the first byte of the table.  This pointer can then be typecast 
@@ -681,6 +686,11 @@ int32 CFE_TBL_ReleaseAddress( CFE_TBL_Handle_t TblHandle );
 **           either a #CFE_TBL_Update call or any blocking call (e.g. - pending on software 
 **           bus message, etc).  Table updates cannot occur while table addresses have not 
 **           been released.
+**        -# #CFE_TBL_ERR_NEVER_LOADED will be returned if the table has never been
+**           loaded (either from file or from a block of memory), but the function
+**           will still return a valid table pointer to a table with all zero content.
+**           This pointer mush be released with the #CFE_TBL_ReleaseAddress API before
+**           the table can be loaded with data.
 **
 ** \param[in] TblPtrs    Array of Pointers to variables that calling Application
 **                       wishes to hold the start addresses of the Tables.
