@@ -2,59 +2,59 @@
   \mainpage Core Flight Executive Documentation
 
   <UL>
-    <LI> General Information and Concepts <BR>
+    <LI> General Information and Concepts
     <UL>
-       <LI> \subpage cfebackground <BR>
-       <LI> \subpage cfeappdocs <BR>
-       <LI> \subpage cfeversion <BR>
-       <LI> \subpage cfedependencies <BR>
-       <LI> \subpage cfeacronyms <BR>
-       <LI> \subpage cfeglossary <BR>
+       <LI> \subpage cfebackground
+       <LI> \subpage cfeappdocs
+       <LI> \subpage cfeversion
+       <LI> \subpage cfedependencies
+       <LI> \subpage cfeacronyms
+       <LI> \subpage cfeglossary
     </UL>
-    <LI> Executive Services (ES) <BR>
+    <LI> Executive Services (ES)
     <UL>
-      <LI> \subpage cfeesovr  <BR>
-      <LI> \subpage cfeescmds <BR>
-      <LI> \subpage cfeestlm  <BR>
-      <LI> \subpage cfe_es_events.h "ES Event Message Reference" <BR>
-      <LI> \subpage cfeescfg  <BR>
+      <LI> \subpage cfeesovr
+      <LI> \subpage cfeescmds
+      <LI> \subpage cfeestlm
+      <LI> \subpage cfe_es_events.h "ES Event Message Reference"
+      <LI> \subpage cfeescfg
     </UL>
-    <LI> Events Services (EVS) <BR>
+    <LI> Events Services (EVS)
     <UL>
-      <LI> \subpage cfeevsovr  <BR>
-      <LI> \subpage cfeevscmds <BR>
-      <LI> \subpage cfeevstlm  <BR>
-      <LI> \subpage cfe_evs_events.h "EVS Event Message Reference" <BR>
-      <LI> \subpage cfeevscfg  <BR>
+      <LI> \subpage cfeevsovr
+      <LI> \subpage cfeevscmds
+      <LI> \subpage cfeevstlm
+      <LI> \subpage cfe_evs_events.h "EVS Event Message Reference"
+      <LI> \subpage cfeevscfg
     </UL>
-    <LI> Software Bus Services (SB) <BR>
+    <LI> Software Bus Services (SB)
     <UL>
-      <LI> \subpage cfesbovr  <BR>
-      <LI> \subpage cfesbcmds <BR>
-      <LI> \subpage cfesbtlm  <BR>
-      <LI> \subpage cfe_sb_events.h "SB Event Message Reference" <BR>
-      <LI> \subpage cfesbcfg  <BR>
+      <LI> \subpage cfesbovr
+      <LI> \subpage cfesbcmds
+      <LI> \subpage cfesbtlm
+      <LI> \subpage cfe_sb_events.h "SB Event Message Reference"
+      <LI> \subpage cfesbcfg
     </UL>
-    <LI> Table Services (TBL) <BR>
+    <LI> Table Services (TBL)
     <UL>
-      <LI> \subpage cfetblovr  <BR>
-      <LI> \subpage cfetblcmds <BR>
-      <LI> \subpage cfetbltlm  <BR>
-      <LI> \subpage cfe_tbl_events.h "TBL Event Message Reference" <BR>
-      <LI> \subpage cfetblcfg  <BR>
+      <LI> \subpage cfetblovr
+      <LI> \subpage cfetblcmds
+      <LI> \subpage cfetbltlm
+      <LI> \subpage cfe_tbl_events.h "TBL Event Message Reference"
+      <LI> \subpage cfetblcfg
     </UL>
-    <LI> Time Services (TIME) <BR>
+    <LI> Time Services (TIME)
     <UL>
-      <LI> \subpage cfetimeovr  <BR>
-      <LI> \subpage cfetimecmds <BR>
-      <LI> \subpage cfetimetlm  <BR>
-      <LI> \subpage cfe_time_events.h "TIME Event Message Reference" <BR>
-      <LI> \subpage cfetimecfg  <BR>
+      <LI> \subpage cfetimeovr
+      <LI> \subpage cfetimecmds
+      <LI> \subpage cfetimetlm
+      <LI> \subpage cfe_time_events.h "TIME Event Message Reference"
+      <LI> \subpage cfetimecfg
     </UL>
-    <LI> \subpage cfeevents   <BR>
-    <LI> \subpage cfecmdmnems <BR>
-    <LI> \subpage cfetlmmnems <BR>
-    <LI> \subpage cfeapi <BR>
+    <LI> \subpage cfeevents
+    <LI> \subpage cfecmdmnems
+    <LI> \subpage cfetlmmnems
+    <LI> \subpage cfeapi
   </UL>
 
 **/

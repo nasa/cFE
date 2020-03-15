@@ -1,7 +1,8 @@
 /**
-\page osaltimerover Timer Overview
+ \page osaltimerover Timer Overview
 
-The timer API is a generic interface to the OS timer facilities. It is implemented using the POSIX timers on Linux and vxWorks and the native timer API on RTEMS. The OS X version is not complete, and will have to be simulated, since the POSIX timer API is not supported on OS X. Cygwin support is TBD. The number of timers supported is controlled by the configuration parameter OS_MAX_TIMERS.
-
-
+ The timer API is a generic interface to the OS timer facilities. It is
+ implemented using the POSIX timers on Linux and vxWorks and the native timer
+ API on RTEMS. The number of timers supported is controlled by the configuration
+ parameter OS_MAX_TIMERS.
 **/
