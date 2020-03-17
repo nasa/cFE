@@ -139,9 +139,8 @@ test:
 	(cd $(O)/$(ARCH) && ctest -O ctest.log)
 
 lcov:
-	lcov --capture --directory $(O)/$(ARCH) --output-file $(O)/$(ARCH)/coverage_test.info
-	lcov --add-tracefile $(O)/$(ARCH)/coverage_base.info --add-tracefile $(O)/$(ARCH)/coverage_test.info --output-file $(O)/$(ARCH)/coverage_total.info
-	lcov --remove $(O)/$(ARCH)/coverage_total.info 'unit-test/*' --output-file $(O)/$(ARCH)/coverage_filtered.info
+	lcov --capture --rc lcov_branch_coverage=1 --directory $(O)/$(ARCH) --output-file $(O)/$(ARCH)/coverage_test.info
+	lcov --rc lcov_branch_coverage=1 --add-tracefile $(O)/$(ARCH)/coverage_base.info --add-tracefile $(O)/$(ARCH)/coverage_test.info --output-file $(O)/$(ARCH)/coverage_total.info
 	genhtml $(O)/$(ARCH)/coverage_filtered.info --output-directory $(O)/$(ARCH)/lcov
 	@/bin/echo -e "\n\nCoverage Report Link: file:$(CURDIR)/$(O)/$(ARCH)/lcov/index.html\n"
 
