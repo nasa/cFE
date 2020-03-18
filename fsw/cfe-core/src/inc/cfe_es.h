@@ -561,9 +561,9 @@ bool CFE_ES_RunLoop(uint32 *ExitStatus);
 ** \param[in]  MinSystemState        Determine the state of the App
 **
 ** \returns
-**      CFE_SUCCESS if state was successfully achieved
-**      CFE_ES_OPERATION_TIMED_OUT if the timeout was reached
-**      (or other defined error code in case of error)
+** \retcode #CFE_SUCCESS                \retdesc State successfully achieved \endcode
+** \retcode #CFE_ES_OPERATION_TIMED_OUT \retdesc Timeout was reached         \endcode
+** \endreturns
 **
 ** \sa #CFE_ES_RunLoop
 **
@@ -969,7 +969,6 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1,2);
 **                          a single value.  Nominally, the user should set this value to zero.
 **
 ** \param[in]   TypeCRC     One of the following CRC algorithm selections:
-**
 **                          \arg \c CFE_MISSION_ES_CRC_8 - (Not currently implemented)
 **                          \arg \c CFE_MISSION_ES_CRC_16 - a CRC-16 algorithm
 **                          \arg \c CFE_MISSION_ES_CRC_32 - (not currently implemented)
