@@ -10,24 +10,17 @@
 
   The interfaces to the ES task include the Ground Interface (commands and 
   telemetry) and the Application Programmer Interfaces (APIs). The ES task 
-  interfaces to the OS through the OS Abstraction Layer and interfaces to 
-  the BSP through the BSP Abstraction Layer. 
+  interfaces to the OS through the OS Abstraction Layer (OSAL) and platform
+  through the Platform Support Package (PSP).
 
-  The services provided by the ES task include the Software Reset Service, 
-  Application and Child Task Service, File System Service, Performance Data 
-  Collection Service, Critical Data Store Service, Memory Pool Service, 
-  System Log Service, Shell Command Service and Device Service. Each of these 
-  services provide a full range of features that have been used on past missions.
+  The functionality provided by the ES task include Software Reset, 
+  Application and Child Task Mangement, Basic File System, Performance Data 
+  Collection, Critical Data Store, Memory Pool, System Log, Shell Command.
 
   For additional detail on Executive Services, see the following sections:
 
   <UL>
     <LI> \subpage cfeesugterm <BR>
-    <UL>
-       <LI> \subpage cfeesugappterm <BR>
-       <LI> \subpage cfeesugtaskterm <BR>
-       <LI> \subpage cfeesugstartupterm <BR>
-    </UL>
     <LI> \subpage cfeesugswreset <BR>
     <UL>
        <LI> \subpage cfeesugresettype <BR>
@@ -42,22 +35,9 @@
        <LI> \subpage cfeesugapplist <BR>
        <LI> \subpage cfeesugtasklist <BR>
        <LI> \subpage cfeesugloadlibs <BR>
-       <LI> \subpage cfeesugloaddevs <BR>
     </UL>
     <LI> \subpage cfeesugfilesrv <BR>
-    <UL>
-       <LI> \subpage cfeesugfsdef <BR>
-       <LI> \subpage cfeesugfsinit <BR>
-       <LI> \subpage cfeesugfslist <BR>
-    </UL>
     <LI> \subpage cfeesugperfsrv <BR>
-    <UL>
-       <LI> \subpage cfeesugperftrig <BR>
-       <LI> \subpage cfeesugperfmodes <BR>
-       <LI> \subpage cfeesugperfstart <BR>
-       <LI> \subpage cfeesugperfstop <BR>
-       <LI> \subpage cfeesugperfview <BR>
-    </UL>
     <LI> \subpage cfeesugcdssrv <BR>
     <LI> \subpage cfeesugmempoolsrv <BR>
     <LI> \subpage cfeesugsyslogsrv <BR>
@@ -80,7 +60,7 @@
        <LI> \subpage cfeesugstartupterm <BR>
     </UL>
 
-  Next: \ref cfeesugswreset <BR>
+  Next: \ref cfeesugappterm <BR>
   Up To: \ref cfeesovr
 **/
 
@@ -94,7 +74,7 @@
   resources are allocated on a per-Application basis.  Applications are made up
   of a Main Task and zero or more Child Tasks.</i>
 
-  <CENTER><B>Application</B></CENTER>
+  <CENTER><B>cFE Application</B></CENTER>
   
   A 'cFE Application' is an application that is external to the cFE and designed
   to interface to the cFE through the APIs.  It is created through an entry in
@@ -102,8 +82,7 @@
   by way of the #CFE_ES_START_APP_CC ground command. 
 
   When referring to one of the five applications internal to the cFE (ES, EVS,
-  SB, TIME or TBL), the term 'internal application', 'cFE internal application'
-  or "cFE Core Application" should be used. 
+  SB, TIME or TBL), the term 'Service' or 'Core Application' is typically used.
 
   A listing of cFE applications can be acquired by using the
   #CFE_ES_QUERY_ALL_CC ground command. This listing will include the cFE
@@ -147,9 +126,10 @@
 
   The startup script is a text file, written by the user that contains a list of
   entries (one entry for each application) and is used by the ES application for
-  automating the startup of applications. The ES application allows the use of a
-  volatile and nonvolatile startup scripts. The project may utilize zero, one or
-  two startup scripts.
+  automating the startup of applications. For a processor reset, ES checks
+  for the CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE first, and if it doesn't exist
+  or for a power on reset ES uses the file passed in to #CFE_ES_Main
+  (typically CFE_PLATFORM_ES_NONVOL_STARTUP_FILE but dependent on the PSP).
 
   The fields in a single entry include:
   <TABLE>
@@ -209,21 +189,21 @@
 **/
 
 /**
-  \page cfeesugswreset Software Reset Service
+  \page cfeesugswreset Software Reset
 
-  The ES Software Reset Service provides a command to 
+  The ES Software Reset provides a command to 
   \link #CFE_ES_RESTART_CC reset the cFE \endlink
   as well as \link #CFE_ES_RESTART_APP_CC resetting individual applications.\endlink
   Because applications are dependent on the cFE services, it is not possible 
   to reset the cFE without affecting the applications. Therefore, a command to reset the 
   cFE will also reset every application that is running at the time the command is received. 
 
-  Also part of this service is the Exception and Reset (ER) Log, which has a command for 
+  Also include is the Exception and Reset (ER) Log, which has a command for 
   \link #CFE_ES_WRITE_ER_LOG_CC dumping \endlink or \link #CFE_ES_CLEAR_ER_LOG_CC clearing \endlink
   the log and telemetry to show the number of entries in the log.  In addition to the ER log,
    the user may find information about the most recent reset in the ES task housekeeping telemetry.
 
-  The ES Software Reset Service also provides a command to 
+  The ES Software Reset also provides a command to 
   \link #CFE_ES_SET_MAX_PR_COUNT_CC set the maximum number of processor resets \endlink
   before ES issues a power-on reset. There is a corresponding 'processor resets' counter 
   in ES housekeeping telemetry that may be \link #CFE_ES_RESET_PR_COUNT_CC reset through another 
@@ -243,7 +223,7 @@
   #CFE_ES_PROCESSOR_RESET. There is a third Reset Type defined in the ES 
   code as #CFE_ES_APP_RESTART which applies only to restarting an individual 
   application and is covered in more detail in the section titled Application 
-  and Child Task Service.
+  and Child Task.
 
   The Reset Subtype is also sent in the ES housekeeping packet and gives more 
   detail about the type of reset that started the execution of the current 
@@ -275,10 +255,10 @@
 
   A count of the number of entries in the log is present in the ES 
   housekeeping telemetry. This count can be used with the configuration 
-  parameter # CFE_ES_ER_LOG_ENTRIES to calculate the fullness of the log.
+  parameter #CFE_ES_ER_LOG_ENTRIES to calculate the fullness of the log.
 
   The information contained in a single log entry is defined by the 
-  structure #CFE_ES_ERLog_t.
+  structure CFE_ES_ERLog_t.
 
   Next: \ref cfeesugappsrv <BR>
   Prev: \ref cfeesugresettype <BR>
@@ -286,9 +266,9 @@
 **/
 
 /**
-  \page cfeesugappsrv Application and Child Task Service
+  \page cfeesugappsrv Application and Child Task Management
 
-  The ES Application and Child Task Service provide the user with full 
+  The ES Application and Child Task Management provides the user with full 
   control over starting and stopping applications as well as querying 
   information regarding applications, tasks and library routines. 
 
@@ -296,7 +276,7 @@
   be controlled (started, stopped or deleted) only by the parent 
   application through an API call. 
 
-  This service provides a way for the user to load a set of library 
+  This provides a way for the user to load a set of library 
   routines, (via the startup script) without starting a corresponding 
   task. See the section related to library routines for more detail. 
 
@@ -487,96 +467,48 @@
   (<tt>cfe_es_startup.scr</tt>) also has some detailed information 
   about library routines.
     
-  Next: \ref cfeesugloaddevs <BR>
+  Next: \ref cfeesugfilesrv <BR>
   Prev: \ref cfeesugtasklist <BR>
   Up To: \ref cfeesugappsrv
 **/
 
 /**
-  \page cfeesugloaddevs Loading Device Servers
+  \page cfeesugfilesrv Basic File System
 
-  Device Servers have been designed and coded but, as of Build 5.0 of the cFE,
-  have not been tested.
+  ES provides minimal functionality to initialize, read, and write
+  cfe File headers.
     
-  Next: \ref cfeesugfilesrv <BR>
+  Next: \ref cfeesugperfsrv <BR>
   Prev: \ref cfeesugloadlibs <BR>
   Up To: \ref cfeesugappsrv
 **/
 
 /**
-  \page cfeesugfilesrv File System Service
+  \page cfeesugperfsrv Performance Data Collection
 
+  The Performance Data Collection  provides precise timing
+  information for each software application similar to
+  how a logic analyzer can trigger and filter data.
 
-    
-  Next: \ref cfeesugfsdef <BR>
-  Prev: \ref cfeesugappsrv <BR>
-  Up To: \ref cfeesovr
-**/
-
-/**
-  \page cfeesugfsdef Defining the File Systems
-
-
-    
-  Next: \ref cfeesugfsinit <BR>
-  Up To: \ref cfeesugfilesrv
-**/
-
-/**
-  \page cfeesugfsinit Initializing File Systems
-
-
-    
-  Next: \ref cfeesugfslist <BR>
-  Prev: \ref cfeesugfsdef <BR>
-  Up To: \ref cfeesugfilesrv
-**/
-
-/**
-  \page cfeesugfslist Listing the File Systems
-
-
-    
-  Next: \ref cfeesugperfsrv <BR>
-  Prev: \ref cfeesugfsinit <BR>
-  Up To: \ref cfeesugfilesrv
-**/
-
-/**
-  \page cfeesugperfsrv Performance Data Collection Service
-
-  The Performance Data Collection Service is also known as the 
-  Software Timing Analyzer. This service provides precise timing 
-  information for each software application by showing the task 
-  execution time in a waveform style similar to the display on 
-  a logic analyzer. In fact, this service closely models the 
-  operation of a logic analyzer in the way it displays, triggers
-  and filters the data collected. This service uses passive markers 
-  that are inserted by the development team at key points in the 
+  API calls are inserted by the development team at key points in the 
   code. The basic operation is to start the data collection, wait 
   some amount of time, then send the command to stop the data 
   collection. When the stop command is received, the ES task writes 
   all the data from the buffer to a file. The file can then be 
-  imported to the windows GUI tool that is delivered with every 
-  version of the cFE and displayed on a windows PC. The size of the 
+  imported to analysis tools for viewing. The size of the
   buffer is configurable through the #CFE_ES_PERF_DATA_BUFFER_SIZE
   platform configuration parameter.
 
-  For more detail refer to the <i>CFE_STA_Integration.doc</i> file and the 
-  <i>Software Timing Analyzer Users Guide.pdf</i>. document. Both files 
-  are located in the <tt>cFE/tools/perfutils</tt> directory.
-  
   Additional information follows:<BR>
 
     <UL>
        <LI> \subpage cfeesugperftrig <BR>
-       <LI> \subpage cfeesugperfmodes <BR>
        <LI> \subpage cfeesugperfstart <BR>
        <LI> \subpage cfeesugperfstop <BR>
        <LI> \subpage cfeesugperfview <BR>
     </UL>
 
-  Next: \ref cfeesugperfmodes <BR>
+  Next: \ref cfeesugperftrig <BR>
   Prev: \ref cfeesugfilesrv <BR>
   Up To: \ref cfeesovr
 **/
@@ -584,68 +516,18 @@
 /**
   \page cfeesugperftrig Performance Data Collection Trigger Masks
 
-  The trigger mask is used to tell the Performance Data Collection tool, 
+  The trigger mask is used to control
   precisely when to start collecting the data. There is a bit in the 
   trigger mask for every marker used in the code. After a start command 
-  is received, the trigger mask is read and dictates when the performance 
-  tool begins storing data in the buffer.
+  is received, the trigger mask is read and dictates when to
+  begin storing data in the buffer.
 
   If the trigger mask is set to all zeros, then the collection will begin 
   immediately after the start command and continue until a stop command 
   is received. In this case the buffer behaves in a 'circular' manner. 
 
-  Next: \ref cfeesugperfmodes <BR>
-  Up To: \ref cfeesugperfsrv
-**/
-
-/**
-  \page cfeesugperfmodes Performance Data Collection Modes
-
-  The Performance Data Collection modes are similar to the modes of a 
-  logic analyzer. The user may select a trigger point and 'start' 
-  the trace at the trigger point, 'center' the trace at the trigger 
-  point or 'end' the trace at the trigger point. 
-  <B>Note: The current cFE version does not have a way to set this mode.
-  The ES software for this version of the cFE always uses the mode to "start the
-  trace at the trigger point". The cFE FSW DCR 7092 can be used to track the
-  issue.</B> 
-
-  In 'start' mode, with a non-zero trigger mask, the first entry in the 
-  buffer will be the trigger point. The buffer then begins receiving 
-  unfiltered entries. This continues until the buffer becomes full or 
-  until the stop command is received. The result is a buffer that 
-  contains the trigger point and events that occur after the trigger point. 
-
-  In 'center' mode, regardless of the trigger point, the buffer begins 
-  receiving unfiltered entries when the start command is received. In 
-  this case the buffer behaves as a circular buffer. When the trigger
-  point is detected, the collection continues until 'buffer size divided 
-  by 2' entries have been stored or a stop command is received. The 
-  result is a buffer that contains data leading up to the trigger point, 
-  the trigger point itself and data following the trigger point. If the 
-  trigger never occurs and the stop cmd is received, the number of entries 
-  written to the file will correspond to the ES housekeeping telemetry 
-  point named 'Data Count'.
-
-  In 'end' mode, regardless of the trigger point, the buffer begins 
-  receiving unfiltered entries when the start command is received. In 
-  this case the buffer behaves as a circular buffer. The collection 
-  stops immediately after the trigger point is detected. The result 
-  is a buffer that contains data leading up to the trigger point and 
-  the trigger point itself as the last item in the buffer. If the 
-  trigger never occurs and the stop cmd is received, the number of 
-  entries written to the file will correspond to the ES housekeeping 
-  telemetry point named 'Data Count'.
-
-  The 'no trigger' mode can be used to continuously collect data until 
-  the stop command is received. This is done by setting the trigger 
-  mask to all zeros, then sending the start command. The result is a 
-  buffer that contains data up to the stop command. The number of entries 
-  written to the file will correspond to the ES housekeeping telemetry 
-  point named 'DataCount'.
-
   Next: \ref cfeesugperfstart <BR>
-  Prev: \ref cfeesugperftrig <BR>
+  Prev: \ref cfeesugperfsrv <BR>
   Up To: \ref cfeesugperfsrv
 **/
 
@@ -663,7 +545,7 @@
   will be displayed in an error event message.
     
   Next: \ref cfeesugperfstop <BR>
-  Prev: \ref cfeesugperfmodes <BR>
+  Prev: \ref cfeesugperftrig <BR>
   Up To: \ref cfeesugperfsrv
 **/
 
@@ -684,7 +566,7 @@
   in the debug event at the time the stop command is received.
     
   Next: \ref cfeesugperfview <BR>
-  Prev: \ref cfeesugperfmodes <BR>
+  Prev: \ref cfeesugperfstart <BR>
   Up To: \ref cfeesugperfsrv
 **/
 
@@ -692,16 +574,8 @@
   \page cfeesugperfview Viewing the Collection of Performance Data
 
   To view the performance data, the file created as a result of the stop 
-  command must be transferred to the ground and imported into the 
-  Software Timing Analyzer GUI tool. This tool is located in the 
-  <tt>cFE/tools/perfutils</tt> directory and designed only for Windows 
-  based machines. This GUI must be installed on the windows machine by 
-  way of the installation file named <tt>SoftwareTimingAnalyzer.msi</tt>. Double 
-  click this file on a windows machine to invoke the installation wizard. 
-  The installation process will place an icon named "<i> Timing Analyzer</i> 
-  on the desktop. Double click the icon and import the file. Refer to the 
-  <i>Software Timing Analyzer Users Guide.pdf</i>. document in the 
-  <tt>cFE/tools/perfutils</tt> directory for more information.
+  command must be transferred to the ground and imported into a
+  viewing tool.  See https://github.com/nasa/perfutils-java as an example.
   
   Next: \ref cfeesugcdssrv <BR>
   Prev: \ref cfeesugperfstop <BR>
@@ -709,13 +583,13 @@
 **/
 
 /**
-  \page cfeesugcdssrv Critical Data Store Service
+  \page cfeesugcdssrv Critical Data Store
 
   Some missions are required, for health, safety and mission success criteria, to
   survive Processor Resets.  These mission requirements frequently flow down to
   Attitude Control and/or Command and Data Handling requirements that force an
   Application developer to design a mechanism for retaining software state information
-  through a Processor Reset.  The cFE provides the Critical Data Store service to
+  through a Processor Reset.  The cFE provides the Critical Data Store to
   assist the developer in meeting these requirements.
   
   The Critical Data Store is an area of memory that is not cleared during a Processor
@@ -757,7 +631,7 @@
 **/
 
 /**
-  \page cfeesugmempoolsrv Memory Pool Service
+  \page cfeesugmempoolsrv Memory Pool
   
   Refer to the cFE Application Developers Guide for additional information.
 
@@ -902,7 +776,7 @@
 **/
 
 /**
-  \page cfeesugsyslogsrv System Log Service
+  \page cfeesugsyslogsrv System Log
 
   The System Log is an array of bytes that contains back-to-back printf type
   messages from applications. The cFE internal applications use this log when
@@ -928,9 +802,10 @@
 **/
 
 /**
-  \page cfeesugshellsrv OS Shell Service
+  \page cfeesugshellsrv OS Shell
 
-
+  NOTE: This cfe functionality is targeted for deprecation in favor of
+  optionally including this capability via an application.
     
   Next: \ref cfeesugversion <BR>
   Prev: \ref cfeesugsyslogsrv <BR>
@@ -938,9 +813,9 @@
 **/
 
 /**
-  \page cfeesugversion Version Identification Service
+  \page cfeesugversion Version Identification
 
-
+  Version information is reported at startup, and upon receipt of a No-op command
     
   Next: \ref cfeesugfaq <BR>
   Prev: \ref cfeesugshellsrv <BR>
@@ -948,7 +823,7 @@
 **/
 
 /**
-  \page cfeesugfaq Software Bus Frequently Asked Questions
+  \page cfeesugfaq Executive Services Frequently Asked Questions
 
 
     

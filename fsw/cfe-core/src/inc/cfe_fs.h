@@ -71,9 +71,9 @@
 
 #endif  /* CFE_OMIT_DEPRECATED_6_6 */
 
-/*
-** File header access functions...
-*/
+/** @defgroup CFEAPIFSHeader cFE File Header Management APIs
+ * @{
+ */
 
 /*****************************************************************************/
 /**
@@ -96,9 +96,7 @@
 **
 ** \param[out] *Hdr   Contents of the Standard cFE File Header for the specified file.
 **
-** \returns
-** \retstmt Any of the return codes specified for #OS_lseek or #OS_read  \endstmt
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
 **
 ** \sa #CFE_FS_WriteHeader
 **
@@ -158,9 +156,7 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **
 ** \param[out] *Hdr   Contents of the Standard cFE File Header for the specified file.
 **
-** \returns
-** \retstmt Any of the return codes specified for #OS_lseek or #OS_write       \endstmt
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
 **
 ** \sa #CFE_FS_ReadHeader
 **
@@ -187,15 +183,15 @@ int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr);
 ** \param[in] NewTimestamp A #CFE_TIME_SysTime_t data structure containing the desired time
 **                         to be put into the file's Standard cFE File Header.
 **
-** \returns
-** \retstmt Any of the return codes specified for #OS_lseek or #OS_write   \endstmt
-** \endreturns
-**
-** \sa
+** \return Execution status, see \ref CFEReturnCodes
 **               
 ******************************************************************************/
 int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp);
+/**@}*/
 
+/** @defgroup CFEAPIFSCompress cFE Compressed File Management APIs
+ * @{
+ */
 
 /*****************************************************************************/
 /**
@@ -211,40 +207,12 @@ int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp);
 **
 ** \param[in] FileName The name of the file.
 **
-** \returns
-** \retstmt true if the file has the ".gz" extention and false otherwise.   \endstmt
-** \endreturns
-**
-** \sa
+** \return Boolean for file has ".gz" extension
+** \retval true  File has ".gz" extension
+** \retval false File does not have ".gz" extension
 **               
 ******************************************************************************/
 bool CFE_FS_IsGzFile(const char *FileName);
-
-/*****************************************************************************/
-/**
-** \brief Extracts the filename from a unix style path and filename string.
-**
-** \par Description
-**        This API will take the original unix path/filename combination and 
-**        extract the base filename. Example: Given the path/filename : "/cf/apps/myapp.o.gz"
-**        this function will return the filename: "myapp.o.gz".
-**
-** \par Assumptions, External Events, and Notes:
-**        -# The paths and filenames used here are the standard unix style 
-**            filenames separated by "/" characters.
-**        -# The extracted filename is no longer than #OS_MAX_PATH_LEN 
-**
-** \param[in] OriginalPath The original path.
-** \param[out] FileNameOnly The filename that is extracted from the path.
-**
-** \returns
-** \retstmt CFE_SUCCESS if the filename was extracted from the path  \endstmt
-** \endreturns
-**
-** \sa
-**               
-******************************************************************************/
-int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnly);
 
 /*****************************************************************************/
 /**
@@ -257,6 +225,9 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
 **        Cygwin, and MinGW for Windows. More information can be found at
 **         http://www.gzip.org/
 **
+**        Uses a global state buffer but protects the global by a mutex, 
+**        so it may block if more than one thread tries to do this at any given time.
+**
 ** \par Assumptions, External Events, and Notes:
 **        -# The paths and filenames used here are cfe compliant file names.
 **        -# The source file is compressed with the "gzip" utility.
@@ -266,11 +237,7 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
 ** \param[out] DestinationFile The path/filename to write the decompressed or
 **             "gunzipped" file to.
 **
-** \returns
-** \retstmt CFE_SUCCESS if the file was decompressed sucessfully.  \endstmt
-** \endreturns
-**
-** \sa
+** \return Execution status, see \ref CFEReturnCodes
 **               
 ******************************************************************************/
 int32 CFE_FS_Decompress( const char * SourceFile, const char * DestinationFile );
@@ -281,14 +248,14 @@ int32 CFE_FS_Decompress( const char * SourceFile, const char * DestinationFile )
 ** \brief Decompresses the source file to a temporary file created in the temp dir
 **
 ** \par Description
-**        This is a wrapper around the CFE_FS_Decompress() function that
+**        This is a wrapper around the #CFE_FS_Decompress function that
 **        formulates a temporary file name based on the gzip file name, saving
 **        the caller from needing to do this.  The temporary file name is
 **        created in the given temp directory.
 **
 ** \par Assumptions, External Events, and Notes:
 **        The name passed in as "GzipFileName" is not checked again, it is assumed to
-**        have passed the criteria in CFE_FS_IsGzFile().  If this is not true then
+**        have passed the criteria in #CFE_FS_IsGzFile.  If this is not true then
 **        the conversion to a temporary file name may produce incorrect results.
 **
 ** \param[in] OutputNameBuffer  A caller-supplied buffer for storing the temp file name
@@ -296,15 +263,39 @@ int32 CFE_FS_Decompress( const char * SourceFile, const char * DestinationFile )
 ** \param[in] GzipFileName  The "gzipped" file to decompress.
 ** \param[in] TempDir   The directory in which the temporary file should be created
 **
-** \returns
-** \retstmt CFE_SUCCESS if the file was decompressed sucessfully.  \endstmt
-** \endreturns
-**
-** \sa
+** \return Execution status, see \ref CFEReturnCodes
 **
 ******************************************************************************/
 int32 CFE_FS_GetUncompressedFile(char *OutputNameBuffer, uint32 OutputNameBufferSize,
         const char *GzipFileName, const char *TempDir);
+/**@}*/
+
+/** @defgroup CFEAPIFSUtil cFE File Utility APIs
+ * @{
+ */
+
+/*****************************************************************************/
+/**
+** \brief Extracts the filename from a unix style path and filename string.
+**
+** \par Description
+**        This API will take the original unix path/filename combination and
+**        extract the base filename. Example: Given the path/filename : "/cf/apps/myapp.o.gz"
+**        this function will return the filename: "myapp.o.gz".
+**
+** \par Assumptions, External Events, and Notes:
+**        -# The paths and filenames used here are the standard unix style
+**            filenames separated by "/" characters.
+**        -# The extracted filename is no longer than #OS_MAX_PATH_LEN
+**
+** \param[in] OriginalPath The original path.
+** \param[out] FileNameOnly The filename that is extracted from the path.
+**
+** \return Execution status, see \ref CFEReturnCodes
+**
+******************************************************************************/
+int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnly);
+/**@}*/
 
 #endif /* _cfe_fs_ */
 

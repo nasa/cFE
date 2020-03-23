@@ -236,7 +236,7 @@
 **
 **  The message text identifies the registry filename and specifies the return value, in hex,
 **  from the system function call.  The expected return value is the number of bytes written,
-**  which in this case should be equal to the size of a #CFE_EVS_AppDataFile_t structure.  Error
+**  which in this case should be equal to the size of a CFE_EVS_AppDataFile_t structure.  Error
 **  codes are negative.
 **/
 #define CFE_EVS_ERR_WRDATFILE_EID         12
@@ -659,7 +659,7 @@
 **
 **  \par Cause:
 **
-**  This event message is generated when the filtering count for a specific App and Event ID reaches #CFE_EVS_MAX_FILTER_COUNT
+**  This event message is generated when the filtering count for a specific App and Event ID reaches CFE_EVS_MAX_FILTER_COUNT
 **  The filtered event will no longer be received until the reset counter is reset via a
 **  \link #CFE_EVS_RESET_FILTER_CC "Reset an Event Filter for an Application" \endlink or a
 **  \link #CFE_EVS_RESET_ALL_FILTERS_CC "Reset All Event Filters for an Application" \endlink

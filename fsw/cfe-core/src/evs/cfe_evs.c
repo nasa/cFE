@@ -48,14 +48,7 @@
 /* Function Definitions */
 
 /*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_Register
-**
-** Purpose:  This routine registers an application for receiving event services.
-**
-** Assumptions and Notes:
-**
+** Function: CFE_EVS_Register - See API and header file for details
 */
 int32 CFE_EVS_Register (void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
 {
@@ -132,16 +125,8 @@ int32 CFE_EVS_Register (void *Filters, uint16 NumEventFilters, uint16 FilterSche
 
 } /* End CFE_EVS_Register */
 
-
 /*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_Unregister
-**
-** Purpose:  This routine unregisters an application for receiving event services.
-**
-** Assumptions and Notes:
-**
+** Function: CFE_EVS_Unregister - See API and header file for details
 */
 int32 CFE_EVS_Unregister(void)
 {
@@ -164,16 +149,8 @@ int32 CFE_EVS_Unregister(void)
 
 } /* End CFE_EVS_Unregister */
 
-
 /*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_SendEvent
-**
-** Purpose:  This routine sends an event message, with message ID containing the current
-**           processor/box and task ID as well as the eventID.
-**
-** Assumptions and Notes:
+** Function: CFE_EVS_SendEvent - See API and header file for details
 */
 int32 CFE_EVS_SendEvent (uint16 EventID, uint16 EventType, const char *Spec, ... )
 {
@@ -210,15 +187,7 @@ int32 CFE_EVS_SendEvent (uint16 EventID, uint16 EventType, const char *Spec, ...
 
 
 /*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_SendEventWithAppID
-**
-** Purpose:  This routine sends an event message, with message ID containing the current
-**           processor/box and task ID as well as the eventID. Also forces the user to
-**           supply an AppID to be sent with the message.
-**
-** Assumptions and Notes:
+** Function: CFE_EVS_SendEventWithAppID - See API and header file for details
 */
 int32 CFE_EVS_SendEventWithAppID (uint16 EventID, uint16 EventType, uint32 AppID, const char *Spec, ... )
 {
@@ -250,16 +219,8 @@ int32 CFE_EVS_SendEventWithAppID (uint16 EventID, uint16 EventType, uint32 AppID
 
 } /* End CFE_EVS_SendEventWithAppID */
 
-
 /*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_SendTimedEvent
-**
-** Purpose:  This routine sends a timed event message, with message ID containing the
-**           current processor/box and task ID as well as the eventID.
-**
-** Assumptions and Notes:
+** Function: CFE_EVS_SendTimedEvent - See API and header file for details
 */
 int32 CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ... )
 {
@@ -290,16 +251,8 @@ int32 CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time, uint16 EventID, uint16 Ev
 
 } /* End CFE_EVS_SendTimedEvent */
 
-
 /*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ResetFilter
-**
-** Purpose:  This routine clears the filter counter for the calling application's given event_id.
-**
-** Assumptions and Notes:
-**
+** Function: CFE_EVS_ResetFilter - See API and header file for details
 */
 int32 CFE_EVS_ResetFilter (int16 EventID)
 {
@@ -337,14 +290,7 @@ int32 CFE_EVS_ResetFilter (int16 EventID)
 
 
 /*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ResetAllFilters
-**
-** Purpose:  This routine clears all filter counters for the calling application
-**
-** Assumptions and Notes:
-**
+** Function: CFE_EVS_ResetAllFilters - See API and header file for details
 */
 int32 CFE_EVS_ResetAllFilters ( void )
 {

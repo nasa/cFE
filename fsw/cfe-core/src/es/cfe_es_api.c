@@ -53,13 +53,7 @@
 
 
 /*
-** Function: CFE_ES_GetResetType
-**
-** Purpose:  Return The Type of reset the cFE had.
-**           The function will return the start type 
-**           which is CFE_PSP_RST_TYPE_POWERON or CFE_PSP_RST_TYPE_PROCESSOR.
-**           The sub-type is optional and will be returned if a non-NULL pointer
-**           is passed in to the function.
+** Function: CFE_ES_GetResetType - See API and header file for details
 */
 int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
 {
@@ -74,10 +68,7 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
 
 
 /*
-** Function: CFE_ES_ResetCFE
-**
-** Purpose:  Reset the cFE core and all apps.
-**
+** Function: CFE_ES_ResetCFE - See API and header file for details
 */
 int32 CFE_ES_ResetCFE(uint32 ResetType)
 {
@@ -214,10 +205,7 @@ void CFE_ES_SetAppState(uint32 AppID, uint32 TargetState)
 }
 
 /*
-** Function: CFE_ES_RestartApp
-**
-** Purpose:  Restart a single cFE App.
-**
+** Function: CFE_ES_RestartApp - See API and header file for details
 */
 int32 CFE_ES_RestartApp(uint32 AppID)
 {
@@ -268,10 +256,7 @@ int32 CFE_ES_RestartApp(uint32 AppID)
 } /* End of CFE_ES_RestartApp() */
 
 /*
-** Function: CFE_ES_ReloadApp
-**
-** Purpose:  Reload a single cFE App.
-**
+** Function: CFE_ES_ReloadApp - See API and header file for details
 */
 int32 CFE_ES_ReloadApp(uint32 AppID, const char *AppFileName)
 {
@@ -325,10 +310,7 @@ int32 CFE_ES_ReloadApp(uint32 AppID, const char *AppFileName)
 } /* End of CFE_ES_ReloadApp() */
 
 /*
-** Function: CFE_ES_DeleteApp
-**
-** Purpose:  Delete a cFE App.
-**
+** Function: CFE_ES_DeleteApp - See API and header file for details
 */
 int32 CFE_ES_DeleteApp(uint32 AppID)
 {
@@ -367,10 +349,7 @@ int32 CFE_ES_DeleteApp(uint32 AppID)
 } /* End of CFE_ES_DeleteApp() */
 
 /*
-** Function: CFE_ES_ExitApp
-**
-** Purpose:  Exit a cFE App.
-**
+** Function: CFE_ES_ExitApp - See API and header file for details
 */
 void CFE_ES_ExitApp(uint32 ExitStatus)
 {
@@ -495,10 +474,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
 } /* End of CFE_ES_ExitApp() */
 
 /*
-** Function: CFE_ES_RunLoop
-**
-** Purpose:  Check the Run Status of an Application.
-**
+** Function: CFE_ES_RunLoop - See API and header file for details
 */
 bool CFE_ES_RunLoop(uint32 *RunStatus)
 {
@@ -596,13 +572,7 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
 } /* End of CFE_ES_RunLoop() */
 
 /*
-** Function: CFE_ES_WaitForSystemState
-**
-** Purpose:  Called by applications that need to ensure that all other apps are running
-**           before completing their initialization process.
-**
-**           This will also mark the calling task itself as "ready"
-**
+** Function: CFE_ES_WaitForSystemState - See API and header file for details
 */
 int32 CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMilliseconds)
 {
@@ -613,8 +583,8 @@ int32 CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMillisecond
     uint32 WaitRemaining;
 
     /*
-     * An application calling CFE_ES_WaitForStartupSync() is assumed to have
-     * completed its own initialization up to the point it is waiting for.
+     * Calling app is assumed to have completed its own initialization up to the point
+     * it is waiting for.
      *
      * Determine the implicit app state based on the system state it is indicating
      */
@@ -696,15 +666,7 @@ int32 CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMillisecond
 } /* End of CFE_ES_WaitForSystemState() */
 
 /*
-** Function: CFE_ES_WaitForStartupSync
-**
-** Purpose:  Called by applications that need to ensure that all other apps are running
-**           before completing their initialization process.
-**
-**           This API is required for compatibility with existing applications.  It
-**           is equivalent to calling CFE_ES_WaitForSystemState(CFE_ES_SystemState_OPERATIONAL)
-**           for apps that don't require any finer-grained synchronization.
-**
+** Function: CFE_ES_WaitForStartupSync - See API and header file for details
 */
 void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 {
@@ -712,12 +674,7 @@ void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 }
 
 /*
-** Function: CFE_ES_RegisterApp
-**
-** Purpose:  Register a new Application with the cFE. This
-**           function must be called in a cFE app before
-**           any other cFE function.
-**
+** Function: - See API and header file for details
 */
 int32 CFE_ES_RegisterApp(void)
 {
@@ -756,11 +713,7 @@ int32 CFE_ES_RegisterApp(void)
 } /* End of CFE_ES_RegisterApp() */
 
 /*
-** Function: CFE_ES_GetAppIDByName
-**
-** Purpose:  Given a valid App Name, return the 
-**           Application ID.
-**
+** Function: CFE_ES_GetAppIDByName - See API and header file for details
 */
 int32 CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName)
 {
@@ -793,10 +746,7 @@ int32 CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName)
 
 
 /*
-** Function: CFE_ES_GetAppID
-**
-** Purpose:  Return the Caller's cFE Application ID.
-**
+** Function: CFE_ES_GetAppID  - See API and header file for details
 */
 int32 CFE_ES_GetAppID(uint32 *AppIdPtr)
 {
@@ -813,11 +763,7 @@ int32 CFE_ES_GetAppID(uint32 *AppIdPtr)
 } /* End of CFE_ES_GetAppID() */
 
 /*
-** Function: CFE_ES_GetAppName
-**
-** Purpose:  Given a valid AppID, return the 
-**           Application name string.
-**
+** Function: CFE_ES_GetAppName - See API and header file for details
 */
 int32 CFE_ES_GetAppName(char *AppName, uint32 AppId, uint32 BufferLength)
 {
@@ -864,10 +810,7 @@ int32 CFE_ES_GetAppName(char *AppName, uint32 AppId, uint32 BufferLength)
 
 
 /*
-** Function: CFE_ES_GetAppInfo
-**
-** Purpose:  Get Application Information given a specified App ID
-**
+** Function: CFE_ES_GetAppInfo - See API and header file for details
 */
 int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, uint32 AppId)
 {
@@ -904,10 +847,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, uint32 AppId)
 } /* End of CFE_ES_GetAppInfo() */
 
 /*
-** Function: CFE_ES_GetTaskInfo
-**
-** Purpose:  Get Task Information given a specified Task ID
-**
+** Function: CFE_ES_GetTaskInfo - See API and header file for details
 */
 int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, uint32 OSTaskId)
 {
@@ -977,10 +917,7 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, uint32 OSTaskId)
 
 
 /*
-** Function: CFE_ES_CreateChildTask
-**
-** Purpose:  Create a Child task for the Application.
-**
+** Function: CFE_ES_CreateChildTask - See API and header file for details
 */
 int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
                         const char   *TaskName,
@@ -1102,11 +1039,7 @@ int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
 
 
 /*
-** Function: CFE_ES_RegisterChildTask
-**
-** Purpose:  Register a child task. This must be called by a Child Task before any
-**           other cFE calls.
-**
+** Function: CFE_ES_RegisterChildTask - See API and header file for details
 */
 int32 CFE_ES_RegisterChildTask(void)
 {
@@ -1145,10 +1078,7 @@ int32 CFE_ES_RegisterChildTask(void)
 } /* End of CFE_ES_RegisterChildTask() */
 
 /*
-** Function: CFE_ES_IncrementTaskCounter
-**
-** Purpose:  Increment the Child Task Execution Counter.
-**
+** Function: CFE_ES_IncrementTaskCounter - See API and header file for details
 */
 void CFE_ES_IncrementTaskCounter(void)
 {
@@ -1164,10 +1094,7 @@ void CFE_ES_IncrementTaskCounter(void)
 
 
 /*
-** Function: CFE_ES_DeleteChildTask
-**
-** Purpose:  Remove a Child Task from the cFE system.
-**
+** Function: CFE_ES_DeleteChildTask - See API and header file for details
 */
 int32 CFE_ES_DeleteChildTask(uint32 OSTaskId)
 {
@@ -1339,10 +1266,7 @@ void CFE_ES_ExitChildTask(void)
 
 
 /*
-** Function: CFE_ES_WriteToSysLog
-**
-** Purpose:  Add a time stamped message to the cFE ES System Log.
-**
+** Function: CFE_ES_WriteToSysLog - See API and header file for details
 */
 int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 {
@@ -1371,10 +1295,7 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 
 
 /*
-** Function: CFE_ES_CalculateCRC
-**
-** Purpose:  Perform a CRC calculation on a range of memory.
-**
+** Function: CFE_ES_CalculateCRC - See API and header file for details
 */
 uint32 CFE_ES_CalculateCRC(const void *DataPtr, uint32 DataLength, uint32 InputCRC, uint32 TypeCRC)
 {
@@ -1835,19 +1756,7 @@ void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber)
 }/* end CFE_ES_UnlockSharedData */
 
 /******************************************************************************
-**  Function:  CFE_ES_ProcessCoreException()
-**
-**  Purpose:
-**    ES internal function to handle the logging and reset from a system or
-**    cFE core exception
-**
-**  Arguments:
-**    Reason String
-**    Context
-**    Context Size
-** 
-**  Return:
-**    None
+**  Function:  CFE_ES_ProcessCoreException() - See API and header file for details
 */
 void CFE_ES_ProcessCoreException(uint32  HostTaskId,     const char *ReasonString,
                                  const uint32 *ContextPointer, uint32 ContextSize)

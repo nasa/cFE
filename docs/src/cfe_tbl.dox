@@ -1,30 +1,28 @@
 /**
   \page cfetblovr cFE Table Services Overview
 
-  Applications typically organize sets of their parameters into logical units called tables.  These are typically
+  Applications often organize sets of their parameters into logical units called tables.  These are typically
   constant parameters that can change the behavior of a flight software algorithm and are only intended
   to be modified by operations personnel.  Examples of this would be attitude control gains, sensor
-  scalefactors, telemetry filter settings, etc.  None of the cFE core applications (EVS, SB, ES, TIME
-  or TBL) use tables.  
+  scalefactors, telemetry filter settings, etc.
 
   Table Services (TBL) provides a centralized control of flight software tables. Operations personnel would
   interact with TBL in order to dump the contents of current tables, load new table images, verify the contents
   of a table image and manage Critical tables.
 
+  None of the cFE core applications (EVS, SB, ES, TIME, or TBL) use tables, and it is possible
+  to build cFE without Table Services if not needed or an alternative parameter management mechanism
+  is to be utilized.
+
   For additional detail on Tables and how to manage them, see the following sections:
 
   <UL>
-    <LI> \subpage cfetblugdecouple <BR>
     <LI> \subpage cfetblugmanage <BR>
     <LI> \subpage cfetblugtypes <BR>
-    <UL>
-       <LI> \subpage cfetblugsnglbuff <BR>
-       <LI> \subpage cfetblugdblbuff <BR>
-       <LI> \subpage cfetblugcritical <BR>
-    </UL>
     <LI> \subpage cfetblugregistry <BR>
     <LI> \subpage cfetblugtelemetry <BR>
     <LI> \subpage cfetblugprocreset <BR>
+    <LI> \subpage cfetblugdecouple <BR>
     <LI> \subpage cfetblugfaq <BR> 
   </UL>
 
@@ -40,26 +38,26 @@
   no longer include the Table Services object module in the CFE-CORE. Even if excluded from the build,
   the Table Services source and header files will remain in the CFE source tree.
 
-  The variable EXCLUDE_CFE_TBL in the setvars.sh file controls whether, or not, CFE Table Services
-  application is included in the CFE-CORE. The value of EXCLUDE_CFE_TBL must be set equal to TRUE
-  to cause Table Services to be excluded from the CFE-CORE.  Any definition of EXCLUDE_CFE_TBL that
-  does not set the value equal to TRUE (or no definition at all) will result in the inclusion of cFE
-  Table Services. The default setvars.sh file contains the line "# EXCLUDE_CFE_TBL=TRUE", but note
-  that the "#" symbol marks this line as a comment. Remove the "#" symbol to enable the definition
-  that excludes CFE Table Services.
+  If EXCLUDE_CFE_TBL is defined (typically in the applicable *_platform_config.h file) Executive
+  services will not load or shut down table services. Note this option does not effect the build
+  and link of table services.
+
+  To remove table services from the build completely, remove "tbl" from the CFE_CORE_MODULES
+  in the cfe/fsw/cfe-core CMakeLists.txt directory (note this option also needs EXCLUDE_CFE_TBL defined
+  or executive services will try to load it).
 
   Removing Table Services reduces the size of the CFE-CORE load file and also reduces the amount
   of RAM memory required to load the cFE. Each development environment will have unique savings.
-  The numbers from a test performed using a MCP-750 platform with a GCC compiler are provided for
-  reference:
+  The numbers from an example default linux build are as follows:
 
-      Size of cFE binary load file with Table Services: 830,969
-      Size of cFE binary load file w/o Table services:  721,466
+      Size of core cFE binary load file with Table Services:          963K
+      Size of core cFE binary load file w/o building Table services:  871K
 
-      Amount of available RAM after loading cFE with Table Services: 76,513,488
-      Amount of available RAM after loading cFE w/o Table Services:  77,151,984
+      RAM used after loading cFE with Table Services:        153K
+      RAM used after loading cFE w/o loading Table Services: 144M 
 
-  Next: \ref cfetblugmanage <BR>
+  Next: \ref cfetblugfaq <BR>
+  Prev: \ref cfetblugprocreset <BR>
   Up To: \ref cfetblovr
 **/
 
@@ -115,7 +113,6 @@
   the Inactive table image become the Active table image.
 
   Next: \ref cfetblugtypes <BR>
-  Prev: \ref cfetblugdecouple <BR>
   Up To: \ref cfetblovr
 **/
 
@@ -347,7 +344,7 @@
   contents of the table are automatically loaded into the table and the Application is notified that the
   table does not require additional initialization.
     
-  Next: \ref cfetblugfaq <BR>
+  Next: \ref cfetblugdecouple <BR>
   Prev: \ref cfetblugtelemetry <BR>
   Up To: \ref cfetblovr
 **/
@@ -444,7 +441,7 @@
 
     </TABLE>
     
-  Prev: \ref cfetblugprocreset <BR>
+  Prev: \ref cfetblugdecouple <BR>
   Up To: \ref cfetblovr
 **/
 

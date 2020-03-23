@@ -7,7 +7,7 @@ CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
 OUTPUT_DIRECTORY       = .
 BRIEF_MEMBER_DESC      = YES
-REPEAT_BRIEF           = NO
+REPEAT_BRIEF           = YES
 ABBREVIATE_BRIEF       = "The $name class " \
                          "The $name widget " \
                          "The $name file " \
@@ -30,13 +30,6 @@ INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
 ALIASES               += "event=\xrefitem cfeevents \"Event Message\" \"cFE Event Message Cross Reference\" " \
-                         "retdesc=<TD WIDTH=\"80%\"> " \
-                         "retcode=<TR><TD WIDTH=\"20%\" VALIGN=TOP> " \
-                         endcode=</TR> \
-                         "returns=\return <TABLE BORDER=\"0\" CELLPADDING=\"2\" WIDTH=\"100%\"> " \
-                         endreturns=</TABLE> \
-                         "retstmt=<TR><TD COLSPAN=2 WIDTH=\"100%\"> " \
-                         endstmt=</TR> \
                          "cfeescfg=\xrefitem cfeescfg \"Purpose\" \"cFE Executive Services Configuration Parameters\" " \
                          "cfeevscfg=\xrefitem cfeevscfg \"Purpose\" \"cFE Event Services Configuration Parameters\" " \
                          "cfetblcfg=\xrefitem cfetblcfg \"Purpose\" \"cFE Table Services Configuration Parameters\" " \
@@ -54,8 +47,8 @@ ALIASES               += "event=\xrefitem cfeevents \"Event Message\" \"cFE Even
                          "cfeevstlm=\xrefitem cfeevstlm \"Name\" \"cFE Event Services Telemetry\" " \
                          "cfesbtlm=\xrefitem cfesbtlm \"Name\" \"cFE Software Bus Telemetry\" " \
                          "cfetimetlm=\xrefitem cfetimetlm \"Name\" \"cFE Time Services Telemetry\" " \
-                         "cfecmdmnemonic=\xrefitem cfecmdmnems \"Command Mnemonic(s)\" \"cFE Command Mnemonic Cross Reference\" \b \c " \
-                         "cfetlmmnemonic=\xrefitem cfetlmmnems \"Telemetry Mnemonic(s)\" \"cFE Telemetry Mnemonic Cross Reference\" \b \c "
+                         "cfecmdmnemonic=\xrefitem cfecmdmnems \"Command Mnemonic(s)\" \"cFE Command Mnemonic Cross Reference\" " \
+                         "cfetlmmnemonic=\xrefitem cfetlmmnems \"Telemetry Mnemonic(s)\" \"cFE Telemetry Mnemonic Cross Reference\" "
 OPTIMIZE_OUTPUT_FOR_C  = YES
 OPTIMIZE_OUTPUT_JAVA   = NO
 BUILTIN_STL_SUPPORT    = NO

@@ -2,11 +2,6 @@
   \mainpage Core Flight Executive Documentation
 
   <UL>
-    <LI> General Information and Concepts <BR>
-    <UL>
-       <LI> \subpage cfeugmsgs <BR>
-       <LI> \subpage cfeugfiles <BR>
-    </UL>
     <LI> Executive Services (ES) <BR>
     <UL>
       <LI> \subpage cfeesovr  <BR>

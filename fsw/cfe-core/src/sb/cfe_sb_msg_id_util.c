@@ -113,22 +113,9 @@ CFE_SB_MsgKey_t CFE_SB_ConvertMsgIdtoMsgKey( CFE_SB_MsgId_t MsgId)
     return CFE_SB_ValueToMsgKey(MsgId);
 }/* CFE_SB_ConvertMsgIdtoMsgKey */
 
-/******************************************************************************
-**  Function:  CFE_SB_GetMsgId
-**
-**  Purpose:
-**    Convert the CCSDS SPP APID in the packet to the internal MsgId ID format
-**       used for SB APIs and routing.
-**
-**    For backward compatability with the existing CCSDS SPP version 1 code base
-**    the function name has not been changed
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CCSDS SPP message packet
-**
-**  Return:
-**    The Message Id in the message packet converted to the cFS MsgId
-*/
+/*
+ * Function: CFE_SB_GetMsgId - See API and header file for details
+ */
 CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
 {
    CFE_SB_MsgId_t MsgId = 0;
@@ -166,20 +153,9 @@ return MsgId;
 }/* end CFE_SB_GetMsgId */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_SetMsgId
-**
-**  Purpose:
-**    Set the message Id of a message in CCSDS header format
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**    MsgId  - Message Id to be written
-**
-**
-**  Return:
-**    (none)
-*/
+/*
+ * Function: CFE_SB_SetMsgId - See API and header file for details
+ */
 void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
                      CFE_SB_MsgId_t MsgId)
 {

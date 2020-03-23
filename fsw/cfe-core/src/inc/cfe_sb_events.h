@@ -234,8 +234,8 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_GetMsgIdByName API receives an
-**  invalid (possibly NULL) ptr as an argument.
+**  This error event message is issued when the #CFE_SB_GetPipeIdByName API receives a
+**  NULL ptr as an argument.
 **/
 #define CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID         66
 
@@ -246,7 +246,7 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_GetMsgIdByName API receives an
+**  This error event message is issued when the #CFE_SB_GetPipeIdByName API receives an
 **  invalid name.
 **/
 #define CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID         67
@@ -782,10 +782,8 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued from one of SB's subscribe API's when the
-**  function #CFE_SB_GetRoutingTblIdx returns an index that is out of range. This
-**  error is not expected and is an indication that the SB internal memory has been
-**  corrupted.
+**  This error event message is issued from CFE_SB_DeletePipeFull when an
+**  invalid pipe ID is passed in
 **/
 #define CFE_SB_DEL_PIPE_ERR1_EID        46
 

@@ -1,49 +1,97 @@
 /**
   \mainpage Osal API Documentation
 
-<UL>
-    <LI> General Information and Concepts <BR>
+  <UL>
+    <LI> General Information and Concepts
     <UL>
-       <LI> \subpage osalIntro <BR> 
+       <LI> \subpage osalIntro
     </UL>
-    <LI> Core OS Module <BR>
+    <LI> Core OS Module
     <UL>
-      
-      <LI> \subpage osapi-os-core.h "Core OS Module Reference" <BR>
+      <LI> \ref OSReturnCodes
+      <LI> \ref OSObjectTypes
+      <LI> \ref OSSemaphoreStates
+      <LI> APIs
+      <UL>
+        <LI> \ref OSAPICore
+        <LI> \ref OSAPIObjUtil
+        <LI> \ref OSAPITask
+        <LI> \ref OSAPIMsgQueue
+        <LI> \ref OSAPISem
+        <LI> \ref OSAPITime
+        <LI> \ref OSAPIExc
+        <LI> \ref OSAPIFPUExc
+        <LI> \ref OSAPIInterrupt
+        <LI> \ref OSAPIShMem
+        <LI> \ref OSAPIHeap
+        <LI> \ref OSAPIError
+        <LI> \ref OSAPISelect
+        <LI> \ref OSAPIPrintf
+      </UL>
+      <LI> \subpage osapi-os-core.h "Core OS Module Reference"
     </UL>
-    <LI> OS File System <BR>
+    <LI> OS File System
     <UL>
-      <LI> \subpage osalfsovr <BR>
-      <LI> \subpage osalfsfd  <BR>
-      <LI> \subpage osapi-os-filesys.h "File System Reference" <BR>
+      <LI> \subpage osalfsovr
+      <LI> \subpage osalfsfd
+      <LI> \ref OSFileAccess
+      <LI> \ref OSFileOffset
+      <LI> \ref OSVolType
+      <LI> APIs
+      <UL>
+        <LI> \ref OSAPIFile
+        <LI> \ref OSAPIDir
+        <LI> \ref OSAPIFileSys
+        <LI> \ref OSAPIShell
+      </UL>
+      <LI> \subpage osapi-os-filesys.h "File System Module Reference"
     </UL>
-    <LI> Object File Loader <BR>
+    <LI> Object File Loader
     <UL>
-      <LI> \subpage osapi-os-loader.h "File Loader Reference" <BR>
+      <LI> APIs
+      <UL>
+        <LI> \ref OSAPILoader
+      </UL>
+      <LI> \subpage osapi-os-loader.h "File Loader Module Reference"
     </UL>
-    <LI> Network Module <BR>
+    <LI> Network Module
     <UL>
-      <LI> \subpage osapi-os-net.h "Network Module Reference" <BR>
+      <LI> APIs
+      <UL>
+        <LI> \ref OSAPISocketAddr
+        <LI> \ref OSALAPISocket
+      </UL>
+      <LI> \subpage osapi-os-net.h "Network Module Reference"
     </UL>
-    <LI> Timer <BR>
+    <LI> Timer
     <UL>
-      <LI> \subpage osaltimerover <BR>
-      <LI> \subpage osapi-os-timer.h "Timer Reference" <BR>
+      <LI> \subpage osaltimerover
+      <LI> APIs
+      <UL>
+        <LI> \ref OSAPITimer
+      </UL>
+      <LI> \subpage osapi-os-timer.h "Timer Module Reference"
     </UL>
-</UL>
+  </UL>
 **/
 
 /**
-\page osalIntro OSAL Introduction
+ \page osalIntro OSAL Introduction
 
-The goal of this library is to promote the creation of portable and reusable real time embedded system software. Given the necessary OS abstraction layer implementations, the same embedded software should compile and run on a number of platforms ranging from spacecraft computer systems to desktop PCs.
+ The goal of this library is to promote the creation of portable and
+ reusable real time embedded system software. Given the necessary OS
+ abstraction layer implementations, the same embedded software should
+ compile and run on a number of platforms ranging from spacecraft
+ computer systems to desktop PCs.
 
-The OS Application Program Interfaces (APIs) are broken up into three major sections: Real Time Operating System APIs, File System APIs, and Interrupt/Exception APIs. The Real Time Operating System APIs cover functionality such as Tasks, Queues, Semaphores, Interrupts, etc. The File System API abstracts the file systems that may be present on a system, and has the ability to simulate multiple embedded file systems on a desktop computer for testing. The Interrupt/Exception APIs are for configuring interrupt and exception handlers.
+ The OS Application Program Interfaces (APIs) are broken up into core,
+ file system, loader, network, and timer APIs.  See the related document
+ sections for full descriptions.
 
-Major changes from the first version of this API include the ability to create objects “on the fly”, meaning they do not require a pre-defined ID in order to create them; instead they return the ID of the created object. Also the corresponding delete functions have been added, allowing the user to create and delete OS objects dynamically. Another change has been the removal of functions that were application specific. This release is aimed at generic embedded systems, not necessarily flight software applications. The addition of the file system API is another major addition, along with a method of simulating embedded file systems on a desktop computer. Finally, the parameters and error return codes have been cleaned up for consistency.  
-
-Note on OSAL call restrictions: Each of these calls should be called from a task running in the context of an OSAL application. This means that the startup code should call OS_API_init, and each task/thread that is created should call OS_TaskRegister. In general, these calls should not be called from an ISR. There are a few exceptions, such as the ability to give a binary semaphore from an ISR. 
-
+ @note The majority of these APIs should be called from a task running
+ in the context of an OSAL application and in general should not be called
+ from an ISR. There are a few exceptions, such as the ability to give a
+ binary semaphore from an ISR.
 **/
 
 
