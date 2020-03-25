@@ -107,11 +107,12 @@ typedef struct {
 
 typedef struct {
 
-   uint16  Command;      /* command secondary header */
-      /*  bits  shift   ------------ description ---------------- */
-      /* 0x00FF    0  : checksum, calculated by ground system     */
-      /* 0x7F00    8  : command function code                     */
-      /* 0x8000   15  : reserved, set to 0                        */
+   uint8 FunctionCode; /* Command Function Code */
+                       /* bits shift ---------description-------- */
+                       /* 0x7F  0    Command function code        */
+                       /* 0x80  7    Reserved                     */
+
+   uint8 Checksum;     /* Command checksum  (all bits, 0xFF)      */
 
 } CCSDS_CmdSecHdr_t;
 
@@ -326,14 +327,14 @@ typedef CCSDS_TelemetryPacket_t   CCSDS_TlmPkt_t;
                                    (((phdr).Length[1] = ((value) - 7) & 0xff)) )
 
 /* Read function code from command secondary header. */
-#define CCSDS_RD_FC(shdr)           CCSDS_RD_BITS((shdr).Command, 0x7F00, 8)
+#define CCSDS_RD_FC(shdr)           CCSDS_RD_BITS((shdr).FunctionCode, 0x7F, 0)
 /* Write function code to command secondary header. */
-#define CCSDS_WR_FC(shdr,value)     CCSDS_WR_BITS((shdr).Command, 0x7F00, 8, value)
+#define CCSDS_WR_FC(shdr,value)     CCSDS_WR_BITS((shdr).FunctionCode, 0x7F, 0, value)
 
 /* Read checksum from command secondary header. */
-#define CCSDS_RD_CHECKSUM(shdr)     CCSDS_RD_BITS((shdr).Command, 0x00FF, 0)
+#define CCSDS_RD_CHECKSUM(shdr)     ((shdr).Checksum)
 /* Write checksum to command secondary header. */
-#define CCSDS_WR_CHECKSUM(shdr,val) CCSDS_WR_BITS((shdr).Command, 0x00FF, 0, val)
+#define CCSDS_WR_CHECKSUM(shdr,val) ((shdr).Checksum = (val))
 
 /* Define additional APID Qualifier macros. */
 
@@ -378,7 +379,8 @@ typedef CCSDS_TelemetryPacket_t   CCSDS_TlmPkt_t;
 
 /* Clear command secondary header. */
 #define CCSDS_CLR_CMDSEC_HDR(shdr) \
-  ( (shdr).Command = (CCSDS_INIT_CHECKSUM << 0) | (CCSDS_INIT_FC << 8) )
+  ( (shdr).FunctionCode = CCSDS_INIT_FC,\
+    (shdr).Checksum = CCSDS_INIT_CHECKSUM )
 
 
 #define CCSDS_WR_SEC_HDR_SEC(shdr, value)    shdr.Time[0] = ((value>>24) & 0xFF),  \
