@@ -836,44 +836,12 @@ to the OSAL Library API).
 
 #### 5.8 Interrupt Handling
 
-The following function specifies a handler for an interrupt. This is
-called in the initialization function for an interrupt handler.
+OSAL interrupt handling functions have been deprecated due to 
+platform dependencies, incomplete testing, and incomplete implementaion
 
-```
-OS_IntAttachHandler( uint32 InterruptNumber, void *InterruptHandler, int32 Param );
-```
-
-The possible values of InterruptNumber are defined in hardware-specific
-header files (osplatform.h and osprocessor.h). The InterruptHandler is a
-function that will be called when the interrupt is detected and should
-have a prototype that looks like the following:
-
-```
-void InterruptHandler( void );
-```
-
-The Param is a value that may be passed to the interrupt handler in some
-operating systems; it is currently not used and should be set to 0.
-
-The interrupt handler must not invoke any cFE or OS API function calls
-that could cause it to block.
-
-The following functions can be used to enable and disable all
-interrupts. These should be used only when servicing a hardware device.
-For protecting a software variable against modification by several
-applications, one should use a mutex instead.
-
-```
-status = OS_IntEnableAll();
-status = OS_IntDisableAll();
-```
-
-There are similar functions for enabling/disabling specific interrupts.
-These are OS_IntEnable and OS_IntDisable. These functions require an
-interrupt number to identify the interrupt to be enabled or disabled.
-
-To acknowledge the interrupt has been serviced, the interrupt service
-routine must call OS_IntAck.
+No longer supporting abstracted interrupt handling API from OSAL.  Could
+consider at the PSP layer as future work but current dependencies should
+revert to native interrupt handling.
 
 #### 5.9 Exceptions
 
