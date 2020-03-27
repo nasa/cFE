@@ -41,22 +41,9 @@
 
 #include <string.h>
 
-/******************************************************************************
-**  Function:  CFE_SB_InitMsg()
-**
-**  Purpose:
-**    Initialize the header fields of a message 
-**
-**  Arguments:
-**    MsgPtr  - Pointer to the header of a message.
-**    MsgId   - MsgId to use for the message.
-**    Length  - Length of the message in bytes.
-**    Clear   - Indicates whether to clear the entire message:
-**                true = fill sequence count and packet data with zeros
-**                false = leave sequence count and packet data unchanged
-**  Return:
-**    (none)
-*/
+/*
+ * Function: CFE_SB_InitMsg - See API and header file for details
+ */
 void CFE_SB_InitMsg(void           *MsgPtr,
                     CFE_SB_MsgId_t MsgId,
                     uint16         Length,
@@ -139,18 +126,9 @@ uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
 }/* end CFE_SB_MsgHdrSize */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_GetUserData()
-**
-**  Purpose:
-**    Get a pointer to the user data portion of a message.
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**
-**  Return:
-**    Pointer to the first byte after the headers
-*/
+/*
+ * Function: CFE_SB_GetUserData - See API and header file for details
+ */
 void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
@@ -165,21 +143,9 @@ void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
 }/* end CFE_SB_GetUserData */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_GetUserDataLength()
-**
-**  Purpose:
-**    Get the length of the user data of a message (total size - hdrs).
-**
-** Assumptions, External Events, and Notes:
-**    Caller has already initialized the message header
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**
-**  Return:
-**    Size of the message minus the headers
-*/
+/*
+ * Function: CFE_SB_GetUserDataLength - See API and header file for details
+ */
 uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
@@ -194,23 +160,9 @@ uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
 }/* end CFE_SB_GetUserDataLength */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_SetUserDataLength()
-**
-**  Purpose:
-**    Set the length field in the primary header.
-**    Given the user data length add the length of the secondary header.
-**
-** Assumptions, External Events, and Notes:
-**    Caller has already initialized the message header
-**
-**  Arguments:
-**    MsgPtr     - Pointer to a CFE_SB_Msg_t
-**    DataLength - Length of the user data
-**
-**  Return:
-**    (none)
-*/
+/*
+ * Function: CFE_SB_SetUserDataLength - See API and header file for details
+ */
 void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, uint16 DataLength)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
@@ -225,20 +177,9 @@ void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, uint16 DataLength)
 }/* end CFE_SB_SetUserDataLength */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_GetTotalMsgLength()
-**
-**  Purpose:
-**    Get the total length of the message which includes the secondary header
-**    and the user data field.
-**    Does not include the Primary header.
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**
-**  Return:
-**    Total Length of the message
-*/
+/*
+ * Function: CFE_SB_GetTotalMsgLength - See API and header file for details
+ */
 uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
@@ -249,21 +190,9 @@ uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 }/* end CFE_SB_GetTotalMsgLength */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_SetTotalMsgLength()
-**
-**  Purpose:
-**    Set the length field, given the total length of the message.
-**    Includes both the secondary header and the user data field.
-**    Does not include the Primary header.
-**
-**  Arguments:
-**    MsgPtr      - Pointer to a CFE_SB_Msg_t
-**    TotalLength - Total Length of the message
-**
-**  Return:
-**    (none)
-*/
+/*
+ * Function: CFE_SB_SetTotalMsgLength - See API and header file for details
+ */
 void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
@@ -274,19 +203,9 @@ void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength)
 }/* end CFE_SB_SetTotalMsgLength */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_GetMsgTime()
-**
-**  Purpose:
-**    Get the time field from a message.
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**
-**  Return:
-**    Time field from message or
-**    Time value of zero for msgs that do not have a Time field in header
-*/
+/*
+ * Function: CFE_SB_GetMsgTime - See API and header file for details
+ */
 CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr)
 {
     CFE_TIME_SysTime_t TimeFromMsg;
@@ -341,20 +260,9 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr)
 }/* end CFE_SB_GetMsgTime */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_SetMsgTime()
-**
-**  Purpose:
-**    Set the time field from a message.
-**
-**  Arguments:
-**    MsgPtr  - Pointer to a CFE_SB_Msg_t
-**    NewTime - Time to write in message
-**
-**  Return:
-**    CFE_SUCCESS for no errors
-**    CFE_SB_WRONG_MSG_TYPE if msg does not have a header field for time.
-*/
+/*
+ * Function: CFE_SB_SetMsgTime - See API and header file for details
+ */
 int32 CFE_SB_SetMsgTime(CFE_SB_MsgPtr_t MsgPtr, CFE_TIME_SysTime_t NewTime)
 {
     int32 Result = CFE_SB_WRONG_MSG_TYPE;
@@ -409,18 +317,9 @@ int32 CFE_SB_SetMsgTime(CFE_SB_MsgPtr_t MsgPtr, CFE_TIME_SysTime_t NewTime)
 }/* end CFE_SB_SetMsgTime */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_TimeStampMsg()
-**
-**  Purpose:
-**    Set the time field to the current time.
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**
-**  Return:
-**    (none)
-*/
+/*
+ * Function: CFE_SB_TimeStampMsg - See API and header file for details
+ */
 void CFE_SB_TimeStampMsg(CFE_SB_MsgPtr_t MsgPtr)
 {
     CFE_SB_SetMsgTime(MsgPtr,CFE_TIME_GetTime());
@@ -428,18 +327,9 @@ void CFE_SB_TimeStampMsg(CFE_SB_MsgPtr_t MsgPtr)
 }/* end CFE_SB_TimeStampMsg */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_GetCmdCode()
-**
-**  Purpose:
-**    Get the opcode field of message.
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**
-**  Return:
-**    CmdCode from the message (CCSDS Function Code)
-*/
+/*
+ * Function: CFE_SB_GetCmdCode - See API and header file for details
+ */
 uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
@@ -460,19 +350,9 @@ uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr)
 }/* end CFE_SB_GetCmdCode */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_SetCmdCode()
-**
-**  Purpose:
-**    Set the opcode field of message.
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**    CmdCode - Command code for the message (CCSDS Function Code)
-**
-**  Return:
-**    (none)
-*/
+/*
+ * Function: CFE_SB_SetCmdCode - See API and header file for details
+ */
 int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr,
                       uint16 CmdCode)
 {
@@ -497,18 +377,9 @@ int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr,
 }/* end CFE_SB_SetCmdCode */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_GetChecksum()
-**
-**  Purpose:
-**    Get the checksum field of message.
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**
-**  Return:
-**
-*/
+/*
+ * Function: CFE_SB_GetChecksum - See API and header file for details
+ */
 uint16 CFE_SB_GetChecksum(CFE_SB_MsgPtr_t MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
@@ -529,24 +400,9 @@ uint16 CFE_SB_GetChecksum(CFE_SB_MsgPtr_t MsgPtr)
 }/* end CFE_SB_GetChecksum */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_GenerateChecksum()
-**
-**  Purpose:
-**    Calculate and Set the checksum field of message.
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**
-**  Note: If any header fields are changed after this call, the checksum will
-**        no longer be valid.
-**        Also, the packet length field dictates the number of iterations
-**        used in the checksum algorithm and therefore must be properly set
-**        before calling this function.
-**
-**  Return:
-**    (none)
-*/
+/*
+ * Function: CFE_SB_GenerateChecksum - See API and header file for details
+ */
 void CFE_SB_GenerateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
@@ -566,18 +422,9 @@ void CFE_SB_GenerateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 }/* end CFE_SB_GenerateChecksum */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_ValidateChecksum()
-**
-**  Purpose:
-**    Validate the checksum field of message.
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**
-**  Return:
-**    true if checksum of packet is valid; false if not.
-*/
+/*
+ * Function: CFE_SB_ValidateChecksum - See API and header file for details
+ */
 bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 {
 #ifdef MESSAGE_FORMAT_IS_CCSDS
@@ -597,18 +444,9 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 }/* end CFE_SB_ValidateChecksum */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_MessageStringGet()
-**
-**  See function prototype for full description
-**
-**  UNIT TESTING NOTE:
-**    During unit testing, the "stub" version of this function must
-**    also copy the string or all functions that depend on this will break.
-**
-**    Therefore this function is essentially duplicated in the UT code
-**
-*/
+/*
+ * Function: CFE_SB_MessageStringGet - See API and header file for details
+ */
 int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString, uint32 DestMaxSize, uint32 SourceMaxSize)
 {
     int32 Result;
@@ -658,18 +496,9 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
 }
 
 
-/******************************************************************************
-**  Function:  CFE_SB_MessageStringSet()
-**
-**  See function prototype for full description
-**
-**  UNIT TESTING NOTE:
-**    During unit testing, the "stub" version of this function must
-**    also copy the string or all functions that depend on this will break.
-**
-**    Therefore this function is essentially duplicated in the UT code
-**
-*/
+/*
+ * Function: CFE_SB_MessageStringSet - See API and header file for details
+ */
 int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, uint32 DestMaxSize, uint32 SourceMaxSize)
 {
     int32 Result;

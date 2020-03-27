@@ -79,9 +79,7 @@ CFE_ES_ResetData_t  *CFE_ES_ResetDataPtr;
 */
 
 /*
-** Name: CFE_ES_Main
-** Purpose: This is the entry point to the cFE application code.
-**
+** Name: CFE_ES_Main - See API and header file for details
 */
 void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const char *StartFilePath )
 {

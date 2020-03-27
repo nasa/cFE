@@ -37,17 +37,17 @@
 
 
 /*
-** Required header files...
+** Includes
 */
 #include "cfe_time_extern_typedefs.h"
 #include "common_types.h"
 
-
+/*****************************************************************************/
 /*
-** Defines
+** Macro Definitions
 */
-#define CFE_TIME_PRINTED_STRING_SIZE      24 /**< \brief Required size of buffer to be passed into #CFE_TIME_Print (includes null terminator) */
 
+#define CFE_TIME_PRINTED_STRING_SIZE      24 /**< \brief Required size of buffer to be passed into #CFE_TIME_Print (includes null terminator) */
 
 /*
  * To preserve source-code compatibility with existing code,
@@ -96,10 +96,11 @@
 
 #endif  /* CFE_OMIT_DEPRECATED_6_6 */
 
-
+/*****************************************************************************/
 /*
-** Type definition (system time)...
+** Type Definitions
 */
+
 /** 
 **  \brief Data structure used to hold system time values
 **
@@ -117,16 +118,15 @@ typedef struct
   uint32  Subseconds;         /**< \brief Number of subseconds since epoch (LSB = 2^(-32) seconds) */
 } CFE_TIME_SysTime_t;
 
-/*
+/**
+** \brief Time Copy
+**
 ** Macro to copy systime into another systime.
 ** Preferred to use this macro as it does not require the two arguments to be exactly the same type,
 ** it will work with any two structures that define "Seconds" and "Subseconds" members.
 */
 #define CFE_TIME_Copy(m,t)   { (m)->Seconds = (t)->Seconds; (m)->Subseconds = (t)->Subseconds; }
 
-/*
-** Type definition (time comparison results)...
-*/
 /** 
 **  \brief Enumerated types identifying the relative relationships of two times
 **
@@ -142,9 +142,6 @@ typedef enum
   CFE_TIME_A_GT_B  =  1       /**< \brief The first specified time is considered to be after the second specified time */
 } CFE_TIME_Compare_t;
 
-/*
-** Type definition (time portion the ES Reset data structure)
-*/
 /**
 **  \brief Time related variables that are maintained through a Processor Reset
 **
@@ -174,9 +171,15 @@ typedef struct
 */
 typedef int32 (*CFE_TIME_SynchCallbackPtr_t)(void);
 
+/*****************************************************************************/
 /*
-** Function prototypes (get time)...
+** Exported Functions
 */
+
+/** @defgroup CFEAPITIMEGetCurrent cFE Get Current Time APIs
+ * @{
+ */
+
 /*****************************************************************************/
 /**
 ** \brief Get the current spacecraft time
@@ -192,28 +195,26 @@ typedef int32 (*CFE_TIME_SynchCallbackPtr_t)(void);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \returns
-** \retcode #CFE_TIME_SysTime_t  \retdesc  The current spacecraft time   \endcode
-** \endreturns
+** \return The current spacecraft time in default format
 **
 ** \sa #CFE_TIME_GetTAI, #CFE_TIME_GetUTC, #CFE_TIME_GetMET, 
 **     #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs
 **
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetTime(void);   /* returns default time (see default time selection above) */
+CFE_TIME_SysTime_t  CFE_TIME_GetTime(void);
 
 /*****************************************************************************/
 /**
-** \brief Get the current TAI time
+** \brief Get the current TAI (MET + SCTF) time
 **
 ** \par Description
 **        This routine returns the current TAI time to the caller.  TAI is an 
 **        international time standard that does not include leap seconds.  
 **        This routine should only be used in situations where TAI is absolutely 
-**        required.  Applications that call #CFE_TIME_GetTAI() may not be portable 
+**        required.  Applications that call #CFE_TIME_GetTAI may not be portable 
 **        to all missions.  Maintenance of correct TAI in flight is not guaranteed 
 **        under all mission operations scenarios.  To maintain re-usability across 
-**        missions, most applications should be using #CFE_TIME_GetTime(), rather 
+**        missions, most applications should be using #CFE_TIME_GetTime, rather 
 **        than the specific routines for getting UTC/TAI directly.
 **
 ** \par Assumptions, External Events, and Notes:
@@ -224,73 +225,106 @@ CFE_TIME_SysTime_t  CFE_TIME_GetTime(void);   /* returns default time (see defau
 **             spacecraft clock is set or adjusted by operators.  Applications using 
 **             this function must be able to handle these time discontinuities gracefully.
 **
-** \returns
-** \retcode #CFE_TIME_SysTime_t  \retdesc  The current TAI time   \endcode
-** \endreturns
+** \return The current spacecraft time in TAI
 **
 ** \sa #CFE_TIME_GetTime, #CFE_TIME_GetUTC, #CFE_TIME_GetMET, 
 **     #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs
 **
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetTAI(void);    /* returns time computed as TAI (MET + STCF) */
+CFE_TIME_SysTime_t  CFE_TIME_GetTAI(void);
 
 /*****************************************************************************/
 /**
-** \brief Get the current UTC time
+** \brief Get the current UTC (MET + SCTF - Leap Seconds) time
 **
 ** \par Description
 **        This routine returns the current UTC time to the caller.  This routine 
 **        should only be used in situations where UTC is absolutely required.  
-**        Applications that call #CFE_TIME_GetUTC() may not be portable to all 
+**        Applications that call #CFE_TIME_GetUTC may not be portable to all 
 **        missions.  Maintenance of correct UTC in flight is not guaranteed under 
 **        all mission operations scenarios.  If UTC is maintained in flight, it will 
 **        jump backwards occasionally due to leap second adjustments.  To maintain 
 **        re-usability across missions, most applications should be using 
-**        #CFE_TIME_GetTime(), rather than the specific routines for getting 
+**        #CFE_TIME_GetTime, rather than the specific routines for getting 
 **        UTC/TAI directly.
 **
 ** \par Assumptions, External Events, and Notes:
 **          Note: The "UTC" time returned is referenced to the mission-defined time epoch, 
 **                which may or may not be the same as the standard UTC epoch.
 **
-** \returns
-** \retcode #CFE_TIME_SysTime_t  \retdesc The current UTC time   \endcode            
-** \endreturns
+** \return The current spacecraft time in UTC
 **
 ** \sa #CFE_TIME_GetTime, #CFE_TIME_GetTAI, #CFE_TIME_GetMET, 
 **     #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs
 **
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetUTC(void);    /* returns time computed as UTC (MET + STCF - Leap Seconds) */
+CFE_TIME_SysTime_t  CFE_TIME_GetUTC(void);
 
 /*****************************************************************************/
 /**
-** \brief Convert specified MET into Spacecraft Time
+** \brief Get the current value of the Mission Elapsed Time (MET).
 **
 ** \par Description
-**        This function returns Spacecraft Time given MET.  Note that Spacecraft 
-**        Time is returned as either UTC or TAI depeneding on whether the mission
-**        configuration parameter #CFE_MISSION_TIME_CFG_DEFAULT_UTC or #CFE_MISSION_TIME_CFG_DEFAULT_TAI
-**        was set to true at compile time.
+**        This routine returns the current mission-elapsed time (MET).  MET is
+**        usually derived from a hardware-based clock that is not adjusted
+**        during normal operations.  Callers of this routine should not assume
+**        that the MET return value has any specific relationship to any
+**        ground-based time standard.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in] METTime      The MET to be converted.
+** \return The current MET
 **
-** \returns
-** \retcode #CFE_TIME_SysTime_t  \retdesc  Spacecraft Time (UTC or TAI) corresponding to the specified MET   \endcode
-** \endreturns
-**
-** \sa #CFE_TIME_GetMET, #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs,
-**     #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs, #CFE_TIME_CFE2FSSeconds, #CFE_TIME_FS2CFESeconds
+** \sa #CFE_TIME_GetTime, #CFE_TIME_GetTAI, #CFE_TIME_GetUTC,
+**     #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs, #CFE_TIME_MET2SCTime
 **
 ******************************************************************************/
-CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime); /* returns given MET time as the default spacecraft time */
+CFE_TIME_SysTime_t  CFE_TIME_GetMET(void);
 
-/*
-** Function prototypes (get parts of time)...
-*/
+/*****************************************************************************/
+/**
+** \brief Get the current seconds count of the mission-elapsed time.
+**
+** \par Description
+**        This routine is the same as #CFE_TIME_GetMET, except that it
+**        returns only the integer seconds portion of the MET time.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \return The current MET seconds
+**
+** \sa #CFE_TIME_GetTime, #CFE_TIME_GetTAI, #CFE_TIME_GetUTC, #CFE_TIME_GetMET,
+**     #CFE_TIME_GetMETsubsecs, #CFE_TIME_MET2SCTime
+**
+******************************************************************************/
+uint32  CFE_TIME_GetMETseconds(void);
+
+/*****************************************************************************/
+/**
+** \brief Get the current sub-seconds count of the mission-elapsed time.
+**
+** \par Description
+**        This routine is the same as #CFE_TIME_GetMET, except that it
+**        returns only the integer sub-seconds portion of the MET time.
+**        Each count is equal to 2^(-32) seconds.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \return The current MET sub-seconds
+**
+** \sa #CFE_TIME_GetTime, #CFE_TIME_GetTAI, #CFE_TIME_GetUTC, #CFE_TIME_GetMET,
+**     #CFE_TIME_GetMETseconds, #CFE_TIME_MET2SCTime
+**
+******************************************************************************/
+uint32  CFE_TIME_GetMETsubsecs(void);
+/**@}*/
+
+/** @defgroup CFEAPITIMEGetInfo cFE Get Time Information APIs
+ * @{
+ */
 
 /*****************************************************************************/
 /**
@@ -305,84 +339,14 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime); /* returns 
 **        during downstream science data processing. 
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**        Does not include leap seconds
 **
-** \returns
-** \retcode #CFE_TIME_SysTime_t  \retdesc  The current STCF    \endcode
-** \endreturns
+** \return The current SCTF
 **
 ** \sa #CFE_TIME_GetLeapSeconds, #CFE_TIME_GetClockState, #CFE_TIME_GetClockInfo
 **               
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetSTCF(void);   /* returns STCF (does not include leap seconds calculation) */
-
-/*****************************************************************************/
-/**
-** \brief Get the current value of the Mission Elapsed Time (MET).
-**
-** \par Description
-**        This routine returns the current mission-elapsed time (MET).  MET is 
-**        usually derived from a hardware-based clock that is not adjusted 
-**        during normal operations.  Callers of this routine should not assume 
-**        that the MET return value has any specific relationship to any 
-**        ground-based time standard. 
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \returns
-** \retcode #CFE_TIME_SysTime_t  \retdesc  The current MET    \endcode
-** \endreturns
-**
-** \sa #CFE_TIME_GetTime, #CFE_TIME_GetTAI, #CFE_TIME_GetUTC, 
-**     #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs, #CFE_TIME_MET2SCTime
-**
-******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetMET(void);    /* returns MET (both seconds and sub-seconds) */
-
-
-/*****************************************************************************/
-/**
-** \brief Get the current seconds count of the mission-elapsed time.
-**
-** \par Description
-**        This routine is the same as #CFE_TIME_GetMET(), except that it 
-**        returns only the integer seconds portion of the MET time. 
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \returns
-** \retstmt The current MET seconds   \endstmt             
-** \endreturns
-**
-** \sa #CFE_TIME_GetTime, #CFE_TIME_GetTAI, #CFE_TIME_GetUTC, #CFE_TIME_GetMET, 
-**     #CFE_TIME_GetMETsubsecs, #CFE_TIME_MET2SCTime
-**
-******************************************************************************/
-uint32  CFE_TIME_GetMETseconds(void);         /* returns MET "seconds" portion of current time */
-
-/*****************************************************************************/
-/**
-** \brief Get the current sub-seconds count of the mission-elapsed time.
-**
-** \par Description
-**        This routine is the same as #CFE_TIME_GetMET(), except that it 
-**        returns only the integer sub-seconds portion of the MET time.
-**        Each count is equal to 2^(-32) seconds. 
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \returns
-** \retstmt The current MET sub-seconds  \endstmt              
-** \endreturns
-**
-** \sa #CFE_TIME_GetTime, #CFE_TIME_GetTAI, #CFE_TIME_GetUTC, #CFE_TIME_GetMET, 
-**     #CFE_TIME_GetMETseconds, #CFE_TIME_MET2SCTime
-**
-******************************************************************************/
-uint32  CFE_TIME_GetMETsubsecs(void);         /* returns MET "sub-seconds" portion of current time */
+CFE_TIME_SysTime_t  CFE_TIME_GetSTCF(void);
 
 /*****************************************************************************/
 /**
@@ -403,18 +367,12 @@ uint32  CFE_TIME_GetMETsubsecs(void);         /* returns MET "sub-seconds" porti
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \returns
-** \retstmt The current leap seconds.   \endstmt
-** \endreturns
+** \returns The current spacecraft leap seconds.
 **
 ** \sa #CFE_TIME_GetSTCF, #CFE_TIME_GetClockState, #CFE_TIME_GetClockInfo
 **               
 ******************************************************************************/
-int16   CFE_TIME_GetLeapSeconds(void);        /* returns Leap Seconds portion of current time */
-
-/*
-** Function prototypes (get time status)...
-*/
+int16   CFE_TIME_GetLeapSeconds(void);
 
 /*****************************************************************************/
 /**
@@ -429,14 +387,12 @@ int16   CFE_TIME_GetLeapSeconds(void);        /* returns Leap Seconds portion of
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \returns
-** \retcode #CFE_TIME_ClockState_Enum_t \retdesc The current spacecraft clock state    \endcode
-** \endreturns
+** \return The current spacecraft clock state
 **
 ** \sa #CFE_TIME_GetSTCF, #CFE_TIME_GetLeapSeconds, #CFE_TIME_GetClockInfo
 **               
 ******************************************************************************/
-CFE_TIME_ClockState_Enum_t  CFE_TIME_GetClockState(void);   /* returns current spacecraft clock state */
+CFE_TIME_ClockState_Enum_t  CFE_TIME_GetClockState(void);
 
 /*****************************************************************************/
 /**
@@ -448,34 +404,21 @@ CFE_TIME_ClockState_Enum_t  CFE_TIME_GetClockState(void);   /* returns current s
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \returns
-** \retstmt Spacecraft clock information.  To extract the information from the
-**         returned value, the following masks can be used as in the following: <br>
-**         <tt> if ((ReturnValue & CFE_TIME_FLAG_xxxxxx) == CFE_TIME_FLAG_xxxxxx)</tt> then 
-**            the following definition of the \c CFE_TIME_FLAG_xxxxxx is true. <br>  \endstmt
-** \retcode  #CFE_TIME_FLAG_CLKSET \retdesc \copydoc CFE_TIME_FLAG_CLKSET \endcode
-** \retcode  #CFE_TIME_FLAG_FLYING \retdesc \copydoc CFE_TIME_FLAG_FLYING \endcode
-** \retcode  #CFE_TIME_FLAG_SRCINT \retdesc \copydoc CFE_TIME_FLAG_SRCINT \endcode
-** \retcode  #CFE_TIME_FLAG_SIGPRI \retdesc \copydoc CFE_TIME_FLAG_SIGPRI \endcode
-** \retcode  #CFE_TIME_FLAG_SRVFLY \retdesc \copydoc CFE_TIME_FLAG_SRVFLY \endcode
-** \retcode  #CFE_TIME_FLAG_CMDFLY \retdesc \copydoc CFE_TIME_FLAG_CMDFLY \endcode
-** \retcode  #CFE_TIME_FLAG_ADDADJ \retdesc \copydoc CFE_TIME_FLAG_ADDADJ \endcode
-** \retcode  #CFE_TIME_FLAG_ADD1HZ \retdesc \copydoc CFE_TIME_FLAG_ADD1HZ \endcode
-** \retcode  #CFE_TIME_FLAG_ADDTCL \retdesc \copydoc CFE_TIME_FLAG_ADDTCL \endcode
-** \retcode  #CFE_TIME_FLAG_SERVER \retdesc \copydoc CFE_TIME_FLAG_SERVER \endcode
-** \retcode  #CFE_TIME_FLAG_GDTONE \retdesc \copydoc CFE_TIME_FLAG_GDTONE \endcode
-** \retcode  #CFE_TIME_FLAG_UNUSED \retdesc \copydoc CFE_TIME_FLAG_UNUSED \endcode    
-** \endreturns
+** \return Spacecraft clock information, \ref CFETIMEClkStates.
+**         To extract the information from the
+**         returned value, the flags can be used as in the following: <br>
+**         <tt> if ((ReturnValue & CFE_TIME_FLAG_xxxxxx) == CFE_TIME_FLAG_xxxxxx)</tt> then
+**            the following definition of the \c CFE_TIME_FLAG_xxxxxx is true. <br>
 **
 ** \sa #CFE_TIME_GetSTCF, #CFE_TIME_GetLeapSeconds, #CFE_TIME_GetClockState
 **               
 ******************************************************************************/
-uint16 CFE_TIME_GetClockInfo(void); /* returns clock information */
+uint16 CFE_TIME_GetClockInfo(void);
+/**@}*/
 
-
-/*
-** Function prototypes (add/subtract/compare time)...
-*/
+/** @defgroup CFEAPITIMEArithmetic cFE Time Arithmetic APIs
+ * @{
+ */
 
 /*****************************************************************************/
 /**
@@ -494,16 +437,14 @@ uint16 CFE_TIME_GetClockInfo(void); /* returns clock information */
 **
 ** \param[in] Time2   The second time to be added.
 **
-** \returns
-** \retstmt The sum of the two times, in the #CFE_TIME_SysTime_t format described above.  
-**         If the sum is greater than the maximum value that can be stored in a 
-**         #CFE_TIME_SysTime_t, the result will roll over (this is not considered an error).  \endstmt
-** \endreturns
+** \return The sum of the two times.
+**         If the sum is greater than the maximum value that can be stored in a
+**         #CFE_TIME_SysTime_t, the result will roll over (this is not considered an error).
 **
 ** \sa #CFE_TIME_Subtract, #CFE_TIME_Compare
 **                
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);       /* (Time1 + Time2) */
+CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);
 
 /*****************************************************************************/
 /**
@@ -525,16 +466,14 @@ CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Ti
 **
 ** \param[in] Time2   The time to be subtracted from the base time.
 **
-** \returns
-** \retstmt The result of subtracting the two times, in the #CFE_TIME_SysTime_t 
-**         format.  If the subtraction results in an underflow, the result will 
-**         roll over (this is not considered an error).    \endstmt            
-** \endreturns
+** \return The result of subtracting the two times.
+**         If the subtraction results in an underflow, the result will 
+**         roll over (this is not considered an error).
 **
 ** \sa #CFE_TIME_Add, #CFE_TIME_Compare
 **                
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);  /* (Time1 - Time2) */
+CFE_TIME_SysTime_t  CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);
 
 /*****************************************************************************/
 /**
@@ -563,21 +502,43 @@ CFE_TIME_SysTime_t  CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime
 **
 ** \param[in] TimeB   The second time to compare.
 **
-** \returns
-** \retstmt The result of comparing the two times, one of: \endstmt
-** \retcode #CFE_TIME_EQUAL  \retdesc \copydoc CFE_TIME_EQUAL  \endcode
-** \retcode #CFE_TIME_A_GT_B \retdesc \copydoc CFE_TIME_A_GT_B \endcode
-** \retcode #CFE_TIME_A_LT_B \retdesc \copydoc CFE_TIME_A_LT_B \endcode             
-** \endreturns
+** \return The result of comparing the two times.
+** \retval #CFE_TIME_EQUAL  \copybrief CFE_TIME_EQUAL
+** \retval #CFE_TIME_A_GT_B \copybrief CFE_TIME_A_GT_B
+** \retval #CFE_TIME_A_LT_B \copybrief CFE_TIME_A_LT_B
 **
 ** \sa #CFE_TIME_Add, #CFE_TIME_Subtract
 **                
 ******************************************************************************/
-CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB);   /* (TimeA <=> TimeB) */
+CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB);
+/**@}*/
 
-/*
-** Function prototypes (convert sub-seconds)...
-*/
+/** @defgroup CFEAPITIMEConvert cFE Time Conversion APIs
+ * @{
+ */
+
+/*****************************************************************************/
+/**
+** \brief Convert specified MET into Spacecraft Time
+**
+** \par Description
+**        This function returns Spacecraft Time given MET.  Note that Spacecraft
+**        Time is returned as either UTC or TAI depeneding on whether the mission
+**        configuration parameter #CFE_MISSION_TIME_CFG_DEFAULT_UTC or #CFE_MISSION_TIME_CFG_DEFAULT_TAI
+**        was set to true at compile time.
+**
+** \par Assumptions, External Events, and Notes:
+**          None
+**
+** \param[in] METTime      The MET to be converted.
+**
+** \return Spacecraft Time (UTC or TAI) corresponding to the specified MET
+**
+** \sa #CFE_TIME_GetMET, #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs,
+**     #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs, #CFE_TIME_CFE2FSSeconds, #CFE_TIME_FS2CFESeconds
+**
+******************************************************************************/
+CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime);
 
 /*****************************************************************************/
 /**
@@ -592,15 +553,13 @@ CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_
 **
 ** \param[in] SubSeconds   The sub-seconds count to convert.
 **
-** \returns
-** \retstmt The equivalent number of microseconds.    \endstmt            
-** \endreturns
+** \return The equivalent number of microseconds.
 **
 ** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Micro2SubSecs, 
 **     #CFE_TIME_CFE2FSSeconds, #CFE_TIME_FS2CFESeconds
 **
 ******************************************************************************/
-uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds);     /* convert sub-seconds (1/2^32) to micro-seconds (1/1000000) */
+uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds);
 
 /*****************************************************************************/
 /**
@@ -615,21 +574,15 @@ uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds);     /* convert sub-seconds (1
 **
 ** \param[in] MicroSeconds   The sub-seconds count to convert.
 **
-** \returns
-** \retstmt The equivalent number of subseconds.  If the number of microseconds 
-**         passed in is greater than one second, (i.e. > 999,999), the return 
-**         value is equal to \c 0xffffffff.     \endstmt           
-** \endreturns
+** \return The equivalent number of subseconds.  If the number of microseconds
+**         passed in is greater than one second, (i.e. > 999,999), the return
+**         value is equal to \c 0xffffffff.
 **
 ** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Sub2MicroSecs, 
 **     #CFE_TIME_CFE2FSSeconds, #CFE_TIME_FS2CFESeconds
 **
 ******************************************************************************/
-uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);   /* convert micro-seconds (1/1000000) to sub-seconds (1/2^32) */
-
-/*
-** Function prototypes (convert cFE and file system time formats)...
-*/
+uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);
 
 /*****************************************************************************/
 /**
@@ -649,9 +602,7 @@ uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);   /* convert micro-seconds 
 **
 ** \param[in] SecondsCFE   The spacecraft time, in seconds, to be converted.
 **
-** \returns
-** \retstmt The equivalent time, in seconds, for the file system.    \endstmt            
-** \endreturns
+** \return The equivalent time, in seconds, for the file system.
 **
 ** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs, 
 **     #CFE_TIME_FS2CFESeconds
@@ -677,55 +628,18 @@ uint32 CFE_TIME_CFE2FSSeconds(uint32 SecondsCFE);
 **
 ** \param[in] SecondsFS   The file system time, in seconds, to be converted.
 **
-** \returns
-** \retstmt The equivalent time, in seconds, for the spacecraft.    \endstmt
-** \endreturns
+** \return The equivalent time, in seconds, for the spacecraft.
 **
 ** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs, 
 **     #CFE_TIME_CFE2FSSeconds
 **
 ******************************************************************************/
 uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS);
+/**@}*/
 
-/*
-** Function prototypes (convert time to string)...
-*/
-
-/*****************************************************************************/
-/**
-** \brief Print a time value as a string
-**
-** \par Description
-**        This routine prints the specified time to the specified string buffer 
-**        in the following format: <br> <br>
-**           \c yyyy-ddd-hh:mm:ss.xxxxx\\0 <br> <br>
-**        where:
-**           - \c yyyy = year
-**           - \c ddd = Julian day of the year
-**           - \c hh = hour of the day (0 to 23)
-**           - \c mm = minute (0 to 59)
-**           - \c ss = second (0 to 59)
-**           - \c xxxxx = subsecond formatted as a decimal fraction (1/4 second = 0.25000)
-**           - \c \\0 = trailing null
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in]  PrintBuffer   Pointer to a character array of at least 
-**                           #CFE_TIME_PRINTED_STRING_SIZE characters in length
-**
-** \param[in]  TimeToPrint   The time to print into the character array.
-**
-** \param[out] *PrintBuffer  The time as a character string as described above.
-**
-** \sa
-**                
-******************************************************************************/
-void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
-
-/*
-** Function prototypes (1hz tone signal processor)...
-*/
+/** @defgroup CFEAPITIMEExternSource cFE External Time Source APIs
+ * @{
+ */
 
 /*****************************************************************************/
 /**
@@ -746,7 +660,7 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
 ** \sa #CFE_TIME_ExternalMET, #CFE_TIME_ExternalGPS, #CFE_TIME_ExternalTime
 **                
 ******************************************************************************/
-void  CFE_TIME_ExternalTone(void); /* OK to call from ISR */
+void  CFE_TIME_ExternalTone(void);
 
 /*
 ** Function prototypes (external time source)...
@@ -839,8 +753,6 @@ void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET);
 ******************************************************************************/
 void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 
-
-
 /*****************************************************************************/
 /**
 ** \brief Provide the time from an external source that measures time relative to a known epoch.
@@ -892,11 +804,10 @@ void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime);
 **        If an application requires triggering multiple child tasks at 1Hz, it should distribute
 **        the timing signal internally, rather than registering for multiple callbacks.
 **
-** \returns
-** \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS  \endcode
-** \retcode #CFE_TIME_TOO_MANY_SYNCH_CALLBACKS \retdesc \copydoc CFE_TIME_TOO_MANY_SYNCH_CALLBACKS \endcode
-** \retcode #CFE_ES_ERR_APPID  \retdesc \copydoc CFE_ES_ERR_APPID   \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
+** \retval #CFE_TIME_TOO_MANY_SYNCH_CALLBACKS \copybrief CFE_TIME_TOO_MANY_SYNCH_CALLBACKS
+** \retval #CFE_ES_ERR_APPID                  \copybrief CFE_ES_ERR_APPID
 **
 ** \sa #CFE_TIME_UnregisterSynchCallback
 **
@@ -917,17 +828,57 @@ int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPt
 **        Only a single callback per application is supported, and this function should only
 **        be called from a single thread within each application (typically the apps main thread).
 **
-** \returns
-** \retcode #CFE_SUCCESS  \retdesc \copydoc CFE_SUCCESS  \endcode
-** \retcode #CFE_TIME_CALLBACK_NOT_REGISTERED \retdesc \copydoc CFE_TIME_CALLBACK_NOT_REGISTERED \endcode
-** \retcode #CFE_ES_ERR_APPID  \retdesc \copydoc CFE_ES_ERR_APPID   \endcode
-** \endreturns
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_TIME_CALLBACK_NOT_REGISTERED \copybrief CFE_TIME_CALLBACK_NOT_REGISTERED
+** \retval #CFE_ES_ERR_APPID                 \copybrief CFE_ES_ERR_APPID
 **
 ** \sa #CFE_TIME_RegisterSynchCallback
 **
 ******************************************************************************/
 int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr);   
+/**@}*/
 
+/** @defgroup CFEAPITIMEMisc cFE Miscellaneous Time APIs
+ * @{
+ */
+
+/*****************************************************************************/
+/**
+** \brief Print a time value as a string
+**
+** \par Description
+**        This routine prints the specified time to the specified string buffer
+**        in the following format: <br> <br>
+**           \c yyyy-ddd-hh:mm:ss.xxxxx\\0 <br> <br>
+**        where:
+**           - \c yyyy = year
+**           - \c ddd = Julian day of the year
+**           - \c hh = hour of the day (0 to 23)
+**           - \c mm = minute (0 to 59)
+**           - \c ss = second (0 to 59)
+**           - \c xxxxx = subsecond formatted as a decimal fraction (1/4 second = 0.25000)
+**           - \c \\0 = trailing null
+**
+** \par Assumptions, External Events, and Notes:
+**        - The value of the time argument is simply added to the configuration
+**          definitions for the ground epoch and converted into a fixed length
+**          string in the buffer provided by the caller.
+**        - A loss of data during the string conversion will occur if the
+**          computed year exceeds 9999.  However, a year that large would
+**          require an unrealistic definition for the ground epoch since
+**          the maximum amount of time represented by a CFE_TIME_SysTime
+**          structure is approximately 136 years.
+**
+** \param[in]  PrintBuffer   Pointer to a character array of at least
+**                           #CFE_TIME_PRINTED_STRING_SIZE characters in length
+**
+** \param[in]  TimeToPrint   The time to print into the character array.
+**
+** \param[out] *PrintBuffer  The time as a character string as described above.
+**
+******************************************************************************/
+void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
 
 /*****************************************************************************/
 /**
@@ -944,7 +895,7 @@ int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFunc
 **
 ******************************************************************************/
 void CFE_TIME_Local1HzISR(void);
-
+/**@}*/
 
 #endif /* _cfe_time_ */
 

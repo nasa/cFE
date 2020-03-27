@@ -1369,12 +1369,9 @@ void CFE_TIME_Local1HzStateMachine(void)
 
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_Local1HzISR() -- Local 1Hz interrupt (not the tone)    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_Local1HzISR - See API and header file for details
+ */
 void CFE_TIME_Local1HzISR(void)
 {
 

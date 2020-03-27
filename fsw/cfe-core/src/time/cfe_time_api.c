@@ -37,12 +37,9 @@
 
 #include <string.h>
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_GetTime() -- get time in default format (TAI vs UTC)           */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetTime - See API and header file for details
+ */
 CFE_TIME_SysTime_t   CFE_TIME_GetTime(void)
 {
     CFE_TIME_SysTime_t CurrentTime;
@@ -62,12 +59,9 @@ CFE_TIME_SysTime_t   CFE_TIME_GetTime(void)
 } /* End of CFE_TIME_GetTime() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_GetTAI() -- get time in TAI format (TAI vs UTC)                */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetTAI - See API and header file for details
+ */
 CFE_TIME_SysTime_t   CFE_TIME_GetTAI(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -93,12 +87,9 @@ CFE_TIME_SysTime_t   CFE_TIME_GetTAI(void)
 } /* End of CFE_TIME_GetTAI() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_GetUTC() -- get time in UTC format (TAI vs UTC)                */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetUTC - See API and header file for details
+ */
 CFE_TIME_SysTime_t   CFE_TIME_GetUTC(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -122,12 +113,9 @@ CFE_TIME_SysTime_t   CFE_TIME_GetUTC(void)
 
 } /* End of CFE_TIME_GetUTC() */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_METtoSCTime() -- convert MET Time to default spacecraft time   */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_MET2SCTime - See API and header file for details
+ */
 CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime)
 {
 
@@ -161,12 +149,9 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime)
     return (ReturnTime);
 }/* end CFE_TIME_MET2SCTime() */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_GetClockState() -- get time data (status)                      */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetClockState - See API and header file for details
+ */
 CFE_TIME_ClockState_Enum_t   CFE_TIME_GetClockState(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -190,12 +175,9 @@ CFE_TIME_ClockState_Enum_t   CFE_TIME_GetClockState(void)
 
 } /* End of CFE_TIME_GetClockState() */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_GetClockInfo() -- Convert state data to flag values    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetClockInfo - See API and header file for details
+ */
 uint16 CFE_TIME_GetClockInfo(void)
 {
     uint16 StateFlags = 0;
@@ -284,12 +266,9 @@ uint16 CFE_TIME_GetClockInfo(void)
 } /* End of CFE_TIME_GetClockInfo() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_GetLeapSeconds() -- get time data (leap seconds)               */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetLeapSeconds - See API and header file for details
+ */
 int16   CFE_TIME_GetLeapSeconds(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -309,12 +288,9 @@ int16   CFE_TIME_GetLeapSeconds(void)
 } /* End of CFE_TIME_GetLeapSeconds() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_GetSTCF() -- get time data (Spacecraft Time Correlation Factor)*/
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetSTCF - See API and header file for details
+ */
 CFE_TIME_SysTime_t   CFE_TIME_GetSTCF(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -334,12 +310,9 @@ CFE_TIME_SysTime_t   CFE_TIME_GetSTCF(void)
 } /* End of CFE_TIME_GetSTCF() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_GetMET() -- get time data (Mission Elapsed Timer)              */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetMET - See API and header file for details
+ */
 CFE_TIME_SysTime_t   CFE_TIME_GetMET(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -360,12 +333,9 @@ CFE_TIME_SysTime_t   CFE_TIME_GetMET(void)
 } /* End of CFE_TIME_GetMET() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_GetMETseconds() -- get time data (seconds portion of MET)      */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetMETseconds - See API and header file for details
+ */
 uint32   CFE_TIME_GetMETseconds(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -385,13 +355,9 @@ uint32   CFE_TIME_GetMETseconds(void)
 
 } /* End of CFE_TIME_GetMETseconds() */
 
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_GetMETsubsecs() -- get time data (sub-seconds portion of MET)  */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_GetMETsubsecs - See API and header file for details
+ */
 uint32   CFE_TIME_GetMETsubsecs(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -411,14 +377,9 @@ uint32   CFE_TIME_GetMETsubsecs(void)
 } /* End of CFE_TIME_GetMETsubsecs() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_Add() -- add two CFE_TIME_SysTime_t values                     */
-/*                                                                         */
-/*   result = time1 + time2                                                */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_Add - See API and header file for details
+ */
 CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 {
     CFE_TIME_SysTime_t Result;
@@ -442,14 +403,9 @@ CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Ti
 } /* End of CFE_TIME_Add() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_Subtract() -- subtract a CFE_TIME_SysTime_t value from another */
-/*                                                                         */
-/*   result = time1 - time2                                                */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_Subtract - See API and header file for details
+ */
 CFE_TIME_SysTime_t  CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 {
     CFE_TIME_SysTime_t Result;
@@ -469,13 +425,9 @@ CFE_TIME_SysTime_t  CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime
 
 } /* End of CFE_TIME_Subtract() */
 
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_Compare() -- compare two CFE_TIME_SysTime_t values             */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_Compare - See API and header file for details
+ */
 CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB)
 {
     CFE_TIME_Compare_t Result;
@@ -532,12 +484,9 @@ CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_
 } /* End of CFE_TIME_Compare() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_Sub2MicroSecs() -- convert sub-seconds to micro-seconds        */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_Sub2MicroSecs - See API and header file for details
+ */
 uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
 {
     uint32 MicroSeconds;
@@ -595,12 +544,9 @@ uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
 } /* End of CFE_TIME_Sub2MicroSecs() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_Micro2SubSecs() -- convert micro-seconds to sub-seconds        */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_Micro2SubSecs - See API and header file for details
+ */
 uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
 {
     uint32 SubSeconds;
@@ -655,12 +601,9 @@ uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
 } /* End of CFE_TIME_Micro2SubSecs() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_CFE2FSSeconds() --  convert cFE seconds to file system seconds */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_CFE2FSSeconds - See API and header file for details
+ */
 uint32 CFE_TIME_CFE2FSSeconds(uint32 SecondsCFE)
 {
     /*
@@ -689,12 +632,9 @@ uint32 CFE_TIME_CFE2FSSeconds(uint32 SecondsCFE)
 } /* End of CFE_TIME_CFE2FSSeconds() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_FS2CFESeconds() --  convert file system seconds to cFE seconds */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_FS2CFESeconds() - See API and header file for details
+ */
 uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS)
 {
     /*
@@ -720,24 +660,9 @@ uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS)
 } /* End of CFE_TIME_FS2CFESeconds() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_Print() --  create text string representing date and time      */
-/*                                                                         */
-/* Notes:                                                                  */
-/*                                                                         */
-/*  1) The value of the time argument is simply added to the configuration */
-/*     definitions for the ground epoch and converted into a fixed length  */
-/*     string in the buffer provided by the caller.                        */
-/*                                                                         */
-/*  2) A loss of data during the string conversion will occur if the       */
-/*     computed year exceeds 9999.  However, a year that large would       */
-/*     require an unrealistic definition for the ground epoch since        */
-/*     the maximum amount of time represented by a CFE_TIME_SysTime        */
-/*     structure is approximately 136 years.                               */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_Print - See API and header file for details
+ */
 void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
     uint32 NumberOfYears;
@@ -872,12 +797,9 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 } /* End of CFE_TIME_Print() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_ExternalTone() --  external tone signal was detected           */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_ExternalTone - See API and header file for details
+ */
 void CFE_TIME_ExternalTone(void)
 {
     /*
@@ -890,12 +812,9 @@ void CFE_TIME_ExternalTone(void)
 } /* End of CFE_TIME_ExternalTone() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_RegisterSynchCallback() --  register synch callback func       */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_RegisterSynchCallback - See API and header file for details
+ */
 int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)   
 {
     int32  Status;
@@ -922,12 +841,9 @@ int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPt
 } /* End of CFE_TIME_RegisterSynchCallback() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_UnregisterSynchCallback() --  unregister synch callback func   */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_UnregisterSynchCallback - See API and header file for details
+ */
 int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)   
 {
     int32  Status;
@@ -954,19 +870,9 @@ int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFunc
 } /* End of CFE_TIME_UnregisterSynchCallback() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_ExternalMET() -- time data from external source (MET)          */
-/*                                                                         */
-/* Notes: 1) Time Servers use this call as the signal to send the          */
-/*           "time at the tone" command packet.                            */
-/*                                                                         */
-/*        2) This function is only included in the API if the Time         */
-/*           Server has been configured to accept time data from an        */
-/*           external source (MET).                                        */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_ExternalMET - See API and header file for details
+ */
 #if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
 void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET)
 {
@@ -981,19 +887,9 @@ void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET)
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_MET  */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_ExternalGPS() -- time data from external source (GPS)          */
-/*                                                                         */
-/* Notes: 1) Time Servers use this call as the signal to send the          */
-/*           "time at the tone" command packet.                            */
-/*                                                                         */
-/*        2) This function is only included in the API if the Time         */
-/*           Server has been configured to accept time data from an        */
-/*           external source (GPS).                                        */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_ExternalGPS - See API and header file for details
+ */
 #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
 void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 {
@@ -1008,19 +904,9 @@ void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_GPS */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_ExternalTime() -- time data from external source (S/C, etc.)   */
-/*                                                                         */
-/* Notes: 1) Time Servers use this call as the signal to send the          */
-/*           "time at the tone" command packet.                            */
-/*                                                                         */
-/*        2) This function is only included in the API if the Time         */
-/*           Server has been configured to accept time data from an        */
-/*           external source (spacecraft time).                            */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+ * Function: CFE_TIME_ExternalTime - See API and header file for details
+ */
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
 void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime)
 {

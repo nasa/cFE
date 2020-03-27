@@ -959,8 +959,7 @@
 **  This event message is generated in response to receiving an Executive Services
 **  \link #CFE_ES_START_PERF_DATA_CC Start Performance Analyzer Data Collection Command \endlink
 **
-**  The \c 'd' field identifies the requested trigger mode.  Valid values are \link #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_START (0) \endlink,
-**  \link #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_CENTER (1) \endlink, and \link #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_END (2) \endlink
+**  The \c 'd' field identifies the requested trigger mode as defined by CFE_ES_PerfMode_t.
 **/
 #define CFE_ES_PERF_STARTCMD_EID      57
 
@@ -988,10 +987,8 @@
 **  Start Performance Analyzer Data Collection Command \endlink command is received with a bad
 **  value for the requested trigger mode.
 **
-**  The first \c 'd' field identifies the received trigger mode value.
-**  The second and third \c 'd' fields specify the valid range of values for the trigger mode.  Valid values 
-**  are #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_START (0), #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_CENTER (1), and 
-**  #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_END (2).
+**  The first \c 'd' field identifies the received trigger mode value as defined by CFE_ES_PerfMode_t.
+**  The second and third \c 'd' fields specify the valid range of values for the trigger mode.
 **/
 #define CFE_ES_PERF_STARTCMD_TRIG_ERR_EID      59
 

@@ -218,7 +218,7 @@ enum CFE_ES_SystemState
  * @brief The overall cFE System State
  *
  *
- * These values are used with the CFE_ES_WaitForSystemState() API call to synchronize application startup.
+ * These values are used with the #CFE_ES_WaitForSystemState API call to synchronize application startup.
  *
  * @note These are defined in order so that relational comparisons e.g. if (STATEA < STATEB) are possible
  *

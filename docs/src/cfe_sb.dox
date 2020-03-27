@@ -15,9 +15,8 @@
   carefully review the SB statistics and SB memory pool to be sure adequate margin is
   met on the configurable items.
 
-  The cFE software bus differs from earlier versions of the software bus in that it
-  uses a dynamic protocol and builds its routing table at run-time through the SB
-  subscribe API's. Also the cFE software bus pipes are created at run-time through
+  The cFE software bus uses a dynamic protocol and builds its routing table at run-time through
+  the SB subscribe API's. Also the cFE software bus pipes are created at run-time through
   the #CFE_SB_CreatePipe API. Because the routing is established, and pipes are created
   at run-time, it is necessary to have a clear view of the routing details on command.
   The cFE software bus allows the user to dump the routing table, the pipe table, the
@@ -26,27 +25,8 @@
 
   <UL>
     <LI> \subpage cfesbugterms <BR>
-    <UL>
-       <LI> \subpage cfesbugmsgs <BR>
-       <LI> \subpage cfesbugpipes <BR>
-       <LI> \subpage cfesbugsubs <BR>
-       <LI> \subpage cfesbugmem <BR>
-    </UL>
     <LI> \subpage cfesbugauto <BR>
     <LI> \subpage cfesbugops <BR>
-    <UL>
-       <LI> \subpage cfesbuginit <BR>
-       <LI> \subpage cfesbugreset <BR>
-       <LI> \subpage cfesbugrouting <BR>
-       <LI> \subpage cfesbugpktseqvals <BR>
-       <LI> \subpage cfesbugmsgpipeerr <BR>
-       <LI> \subpage cfesbugovererr <BR>
-       <LI> \subpage cfesbugeventfilt <BR>
-       <LI> \subpage cfesbugdiagdata <BR>
-       <LI> \subpage cfesbugroutcntrl <BR>
-       <LI> \subpage cfesbugqos <BR>
-       <LI> \subpage cfesbugknwnprob <BR>
-    </UL>
     <LI> \subpage cfesbugfaq <BR>
   </UL>
 
@@ -187,13 +167,13 @@
   bus packet sizes.
 
   At the time a message is sent, two buffers are allocated from the pool. One for a
-  buffer descriptor (#CFE_SB_BufferD_t) and one for the size of the packet. Both buffers
+  buffer descriptor (CFE_SB_BufferD_t) and one for the size of the packet. Both buffers
   are returned to the pool when the message has been received by all recipients. More
   precisely, if there is one recipient for a message, the message buffers will be released
   on the following call to cFE_SB_RcvMsg for the pipe that received the message.
 
   Also when subscriptions are received through the subscribe API's, the software bus
-  allocates a subscription block (#CFE_SB_DestinationD_t) from the pool. The subscription
+  allocates a subscription block (CFE_SB_DestinationD_t) from the pool. The subscription
   blocks are returned to the pool if and when the subscription is nullified through a
   #CFE_SB_Unsubscribe call.
 
@@ -201,7 +181,7 @@
   utilization and high water marks relevant to the SB memory pool. This information may be
   requested by sending the command to dump the SB statistics packet. In addition, the
   current memory utilization value and the 'unmarked memory' value (#CFE_SB_BUF_MEMORY_BYTES
-  - peak memory in use)  are sent in software bus housekeeping telemetry. The unmarked
+  minus peak memory in use)  are sent in software bus housekeeping telemetry. The unmarked
   memory value  should be monitored regularly to ensure that the value (in bytes) does not
   continue to decline or approach zero. If this value were to approach zero, there is a
   possibility that memory requests would fail which may inhibit the sending of a message.
@@ -312,24 +292,24 @@
 /**
   \page cfesbugpktseqvals Packet Sequence Values
 
-  The software bus populates the packet sequence header field for all telemetry messages that
-  contain a current subscription. The first time a telemetry message with a new Message ID is
-  sent, the sequence counter field in the header is set to a value of one. For subsequent
+  The sequence count behavior depends on if the message is a command type or telemetry type.
+
+  The sequence counter for command messages is not altered by the software bus.
+
+  For telemetry messages sent with the #CFE_SB_SendMsg API, the software bus populates the packet sequence
+  header field for all messages. The first time a telemetry message is sent with a new Message ID,
+  the sequence counter field in the header is set to a value of one. For subsequent
   sends of a message, the sequence counter is incremented by one regardless of the number of
   destinations for the packet. After a rollover condition the sequence counter will be a
   value of zero for one instance. The sequence counter is incremented in the #CFE_SB_SendMsg
   API after all the checks have passed prior to the actual sending of the message. This
-  includes the parameter checks, the 'no subscribers' check and the memory allocation check.
-  Note: After passing all checks, the count is incremented regardless of whether the
-  destinations are enabled or disabled.
+  includes the parameter checks and the memory allocation check.
+  Note: The count is incremented regardless of whether there are any subscribers.
 
-  Alternatively, the #CFE_SB_PassMsg API can be used to pass a message without altering the
-  sequence counter provided in the message. This will also not increment the sequence counter
-  stored by the software bus. This method of message delivery is recommended for situations
+  For telemetry messages sent with the #CFE_SB_PassMsg API the sequence counter is not incremented.
+  This method of message delivery is recommended for situations
   where the sender did not generate the packet, such as a network interface application
   passing a packet from a remote system to the local software bus.
-
-  The sequence counter for command messages is not altered by the software bus.
 
   Next: \ref cfesbugmsgpipeerr <BR>
   Prev: \ref cfesbugrouting <BR>
@@ -592,6 +572,11 @@
            the QOS value to the SB defined #CFE_SB_Default_Qos (QOS.Priority=0,QOS.Reliability=0)
            will ensure seamless integration when the software bus is expanded to support
            inter-processor communication.
+        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
+           Can I confirm my software bus message was delivered?
+        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
+           There is no built in mechanism for confirming delivery (it could span systems).
+           This could be accomplished by generating a response message from the receiver.
     </TABLE>
 
 
