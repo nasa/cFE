@@ -44,7 +44,7 @@
 #define OS_MAX_MUTEXES              20
 
 /*
-** Maximum length for an absolute path name
+** Maximum length (including terminator) for an absolute path name
 */
 #define OS_MAX_PATH_LEN     64
 
@@ -56,7 +56,7 @@
 #define OS_MAX_LOCAL_PATH_LEN (OS_MAX_PATH_LEN + OS_FS_PHYS_NAME_LEN)
 
 /* 
-** The maxium length allowed for a object (task,queue....) name 
+** The maxium length allowed for a object name (task, queue, etc.), including terminating null
 */
 #define OS_MAX_API_NAME     20
 
@@ -66,7 +66,7 @@
 #define OS_MAX_FILE_NAME    20
 
 /* 
-** These defines are for OS_printf
+** Buffer for OS_printf, includes terminator.  Longer messages will be truncated
 */
 #define OS_BUFFER_SIZE 172
 #define OS_BUFFER_MSG_DEPTH 100

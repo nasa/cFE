@@ -313,7 +313,7 @@
 **
 **  -# The filename was misspelled
 **  -# The path to the file was incorrect
-**  -# The length of the filename and/or path exceeds the 
+**  -# The length (including terminator) of the filename and/or path exceeds the 
 **     allowable length (see #OS_MAX_PATH_LEN and #OS_MAX_FILE_NAME, respectively)
 **
 **  The \c Status field in the event message indicates the error code returned by the #OS_open

@@ -188,7 +188,8 @@ typedef struct {
 **
 ** \param[in]  PipeName     A string to be used to identify this pipe in error messages 
 **                          and routing information telemetry.  The string must be no 
-**                          longer than #OS_MAX_API_NAME.  Longer strings will be truncated. 
+**                          longer than #OS_MAX_API_NAME (including terminator).  
+**                          Longer strings will be truncated. 
 **
 ** \param[out] *PipeIdPtr   The identifier for the created pipe. 
 **
