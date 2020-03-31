@@ -98,26 +98,23 @@
 /*
 ** Type Definitions
 */
-#ifdef MESSAGE_FORMAT_IS_CCSDS
 
-    /** \brief Generic Software Bus Message Type Definition */
-    typedef union {
-        CCSDS_PriHdr_t      Hdr;   /**< \brief CCSDS Primary Header #CCSDS_PriHdr_t */
-        CCSDS_SpacePacket_t SpacePacket;
-        uint32              Dword; /**< \brief Forces minimum of 32-bit alignment for this object */
-        uint8               Byte[sizeof(CCSDS_PriHdr_t)];   /**< \brief Allows byte-level access */
-    }CFE_SB_Msg_t;
+/** \brief Generic Software Bus Message Type Definition */
+typedef union {
+    CCSDS_PriHdr_t      Hdr;   /**< \brief CCSDS Primary Header #CCSDS_PriHdr_t */
+    CCSDS_SpacePacket_t SpacePacket;
+    uint32              Dword; /**< \brief Forces minimum of 32-bit alignment for this object */
+    uint8               Byte[sizeof(CCSDS_PriHdr_t)];   /**< \brief Allows byte-level access */
+}CFE_SB_Msg_t;
         
-    /** \brief Generic Software Bus Command Header Type Definition */
-    typedef CCSDS_CommandPacket_t   CFE_SB_CmdHdr_t;
+/** \brief Generic Software Bus Command Header Type Definition */
+typedef CCSDS_CommandPacket_t   CFE_SB_CmdHdr_t;
 
-    /** \brief Generic Software Bus Telemetry Header Type Definition */
-    typedef CCSDS_TelemetryPacket_t CFE_SB_TlmHdr_t;
+/** \brief Generic Software Bus Telemetry Header Type Definition */
+typedef CCSDS_TelemetryPacket_t CFE_SB_TlmHdr_t;
 
-    #define CFE_SB_CMD_HDR_SIZE     (sizeof(CFE_SB_CmdHdr_t))/**< \brief Size of #CFE_SB_CmdHdr_t in bytes */
-    #define CFE_SB_TLM_HDR_SIZE     (sizeof(CFE_SB_TlmHdr_t))/**< \brief Size of #CFE_SB_TlmHdr_t in bytes */
-
-#endif /* MESSAGE_FORMAT_IS_CCSDS */
+#define CFE_SB_CMD_HDR_SIZE     (sizeof(CFE_SB_CmdHdr_t))/**< \brief Size of #CFE_SB_CmdHdr_t in bytes */
+#define CFE_SB_TLM_HDR_SIZE     (sizeof(CFE_SB_TlmHdr_t))/**< \brief Size of #CFE_SB_TlmHdr_t in bytes */
 
 /** \brief  CFE_SB_TimeOut_t to primitive type definition
 ** 

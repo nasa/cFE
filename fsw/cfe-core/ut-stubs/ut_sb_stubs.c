@@ -279,7 +279,6 @@ CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
 
     if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_GetMsgId), &MsgId, sizeof(MsgId)) < sizeof(MsgId))
     {
-#ifdef MESSAGE_FORMAT_IS_CCSDS
 
 #ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2  
         MsgId = CCSDS_RD_SID(MsgPtr->Hdr);
@@ -303,7 +302,6 @@ CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
 /*      uint16            SystemId;                              */
 /*      SystemId = CCSDS_RD_SYSTEM_ID(HdrPtr->ApidQ);            */
 /*      MsgId = (MsgId | (SystemId << 16)) */
-#endif
 #endif
 
     }

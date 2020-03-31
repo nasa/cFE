@@ -232,13 +232,6 @@ function(prepare)
     "${osal_MISSION_DIR}/src/os/inc/*.h")
   string(REPLACE ";" " \\\n" MISSION_OSAL_HEADERFILES "${MISSION_OSAL_HEADERFILES}") 
 
-  # PREDEFINED
-  set(USERGUIDE_PREDEFINED 
-      "MESSAGE_FORMAT_IS_CCSDS")
-
-  set(OSALGUIDE_PREDEFINED 
-      "MESSAGE_FORMAT_IS_CCSDS")
- 
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/cfe-usersguide.doxyfile")
 
