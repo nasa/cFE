@@ -1,3 +1,5 @@
+Travis-CI: [![Build Status](https://travis-ci.com/nasa/cFE.svg)](https://travis-ci.com/nasa/cFE)
+
 # Core Flight System : Framework : Core Flight Executive
 
 This repository contains NASA's Core Flight Executive (cFE), which is a framework component of the Core Flight System.
