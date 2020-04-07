@@ -68,141 +68,142 @@ char StartupScript[MAX_STARTUP_SCRIPT];
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_NOOP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_NOOP_CC
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RESET_COUNTERS_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_RESET_COUNTERS_CC
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RESTART_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_RESTART_CC
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SHELL_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_SHELL_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_START_APP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_START_APP_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_STOP_APP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_STOP_APP_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RESTART_APP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_RESTART_APP_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RELOAD_APP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_RELOAD_APP_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_QUERY_ONE_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
-        .CommandCode = CFE_ES_QUERY_ONE_CC };
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
+        .CommandCode = CFE_ES_QUERY_ONE_CC 
+};
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_QUERY_ALL_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_QUERY_ALL_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_QUERY_ALL_TASKS_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_CLEAR_SYSLOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_CLEAR_SYSLOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_WRITE_SYSLOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_OVER_WRITE_SYSLOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_CLEAR_ER_LOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_CLEAR_ER_LOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_WRITE_ER_LOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_START_PERF_DATA_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_STOP_PERF_DATA_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SET_PERF_FILTER_MASK_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_SET_PERF_FILTER_MASK_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SET_PERF_TRIGGER_MASK_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_SET_PERF_TRIGGER_MASK_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RESET_PR_COUNT_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_RESET_PR_COUNT_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SET_MAX_PR_COUNT_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_SET_MAX_PR_COUNT_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_DELETE_CDS_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_DELETE_CDS_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SEND_MEM_POOL_STATS_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_SEND_MEM_POOL_STATS_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_DUMP_CDS_REGISTRY_CC
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_INVALID_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID_VALUE),
         .CommandCode = CFE_ES_DUMP_CDS_REGISTRY_CC + 2
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_SEND_HK =
 {
-        .MsgId = CFE_ES_SEND_HK_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_SEND_HK_MID_VALUE)
 };
 
 

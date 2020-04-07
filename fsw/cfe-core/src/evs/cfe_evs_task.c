@@ -354,26 +354,28 @@ int32 CFE_EVS_TaskInit ( void )
 */
 void CFE_EVS_ProcessCommandPacket ( CFE_SB_MsgPtr_t EVS_MsgPtr )
 {
+    CFE_SB_MsgId_t MessageID;
+
+    MessageID = CFE_SB_GetMsgId(EVS_MsgPtr);
+
     /* Process all SB messages */
-    switch (CFE_SB_GetMsgId(EVS_MsgPtr))
+    if (CFE_SB_MsgId_Equal(MessageID, CFE_EVS_CMD_MID))
     {
-        case CFE_EVS_CMD_MID:
-            /* EVS task specific command */
-            CFE_EVS_ProcessGroundCommand(EVS_MsgPtr);
-            break;
-
-        case CFE_EVS_SEND_HK_MID:
-            /* Housekeeping request */
-            CFE_EVS_ReportHousekeepingCmd((CCSDS_CommandPacket_t*)EVS_MsgPtr);
-            break;
-
-        default:
-            /* Unknown command -- should never occur */
-            CFE_EVS_GlobalData.EVS_TlmPkt.Payload.CommandErrorCounter++;
-            EVS_SendEvent(CFE_EVS_ERR_MSGID_EID, CFE_EVS_EventType_ERROR,
-                         "Invalid command packet, Message ID = 0x%08X",
-                          (unsigned int)CFE_SB_GetMsgId(EVS_MsgPtr));
-            break;
+        /* EVS task specific command */
+        CFE_EVS_ProcessGroundCommand(EVS_MsgPtr);
+    }
+    else if (CFE_SB_MsgId_Equal(MessageID, CFE_EVS_SEND_HK_MID))
+    {
+        /* Housekeeping request */
+        CFE_EVS_ReportHousekeepingCmd((CCSDS_CommandPacket_t*)EVS_MsgPtr);
+    }
+    else
+    {
+        /* Unknown command -- should never occur */
+        CFE_EVS_GlobalData.EVS_TlmPkt.Payload.CommandErrorCounter++;
+        EVS_SendEvent(CFE_EVS_ERR_MSGID_EID, CFE_EVS_EventType_ERROR,
+                "Invalid command packet, Message ID = 0x%08X",
+                (unsigned int)CFE_SB_MsgIdToValue(CFE_SB_GetMsgId(EVS_MsgPtr)));
     }
 
     return;
@@ -573,7 +575,8 @@ void CFE_EVS_ProcessGroundCommand ( CFE_SB_MsgPtr_t EVS_MsgPtr )
 
           EVS_SendEvent(CFE_EVS_ERR_CC_EID, CFE_EVS_EventType_ERROR,
                        "Invalid command code -- ID = 0x%08x, CC = %d",
-                        (unsigned int)CFE_SB_GetMsgId(EVS_MsgPtr), (int)CFE_SB_GetCmdCode(EVS_MsgPtr));
+                        (unsigned int)CFE_SB_MsgIdToValue(CFE_SB_GetMsgId(EVS_MsgPtr)),
+                        (int)CFE_SB_GetCmdCode(EVS_MsgPtr));
           Status = CFE_STATUS_BAD_COMMAND_CODE;
 
           break;
@@ -618,7 +621,8 @@ bool CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
 
         EVS_SendEvent(CFE_EVS_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
            "Invalid cmd length: ID = 0x%X, CC = %d, Exp Len = %d, Len = %d",
-                          (unsigned int)MessageID, (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
+                          (unsigned int)CFE_SB_MsgIdToValue(MessageID),
+                          (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
         result = false;
     }
 

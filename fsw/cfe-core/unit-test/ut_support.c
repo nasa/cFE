@@ -258,7 +258,7 @@ int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCo
     }
 
     if (MsgPtr != NULL && Snapshot != NULL &&
-            Snapshot->MsgId == CFE_SB_GetMsgId((CFE_SB_MsgPtr_t)MsgPtr))
+            CFE_SB_MsgId_Equal(Snapshot->MsgId, CFE_SB_GetMsgId((CFE_SB_MsgPtr_t)MsgPtr)))
     {
         ++Snapshot->Count;
         if (Snapshot->SnapshotSize > 0 && Snapshot->SnapshotBuffer != NULL)

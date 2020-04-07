@@ -61,22 +61,22 @@ void **ArrayOfPtrsToTblPtrs[2];
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TBL_CMD_NOOP_CC =
 {
-        .MsgId = CFE_TBL_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_CMD_MID_VALUE),
         .CommandCode = CFE_TBL_NOOP_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TBL_CMD_RESET_COUNTERS_CC =
 {
-        .MsgId = CFE_TBL_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_CMD_MID_VALUE),
         .CommandCode = CFE_TBL_RESET_COUNTERS_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TBL_INVALID_MID =
 {
-        .MsgId = 0xFFFF,
+        .MsgId = CFE_SB_MSGID_RESERVED,
         .CommandCode = 0
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TBL_CMD_INVALID_CC =
 {
-        .MsgId = CFE_TBL_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_CMD_MID_VALUE),
         .CommandCode = 0x7F
 };
 
@@ -378,7 +378,7 @@ void Test_CFE_TBL_InitData(void)
     UT_SetDataBuffer(UT_KEY(CFE_SB_SetMsgId), MsgIdBuf, sizeof(MsgIdBuf), false);
     CFE_TBL_InitData();
     UT_Report(__FILE__, __LINE__,
-              MsgIdBuf[1] == CFE_TBL_REG_TLM_MID &&
+              CFE_SB_MsgId_Equal(MsgIdBuf[1], CFE_TBL_REG_TLM_MID) &&
               UT_GetStubCount(UT_KEY(CFE_SB_SetMsgId)) == 2,
               "CFE_TBL_SearchCmdHndlrTbl",
               "Initialize data");
@@ -432,7 +432,7 @@ void Test_CFE_TBL_SearchCmdHndlrTbl(void)
     /* Test with a message ID that does not match */
     UT_InitData();
     TblIndex = CFE_TBL_BAD_MSG_ID;
-    MsgID = 0xffff;
+    MsgID = CFE_SB_INVALID_MSG_ID;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_SearchCmdHndlrTbl(MsgID, CmdCode) == TblIndex,
               "CFE_TBL_SearchCmdHndlrTbl",
@@ -2713,7 +2713,7 @@ void Test_CFE_TBL_NotifyByMessage(void)
     /* Test successful notification */
     UT_InitData();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
-    RtnCode = CFE_TBL_NotifyByMessage(App1TblHandle1, 1, 1, 1);
+    RtnCode = CFE_TBL_NotifyByMessage(App1TblHandle1, CFE_SB_ValueToMsgId(1), 1, 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
               "CFE_TBL_NotifyByMessage",
@@ -2725,7 +2725,7 @@ void Test_CFE_TBL_NotifyByMessage(void)
     UT_InitData();
     CFE_TBL_TaskData.Registry[0].OwnerAppId = CFE_TBL_NOT_OWNED;
     EventsCorrect = (UT_GetNumEventsSent() == 0);
-    RtnCode = CFE_TBL_NotifyByMessage(App1TblHandle1, 1, 1, 1);
+    RtnCode = CFE_TBL_NotifyByMessage(App1TblHandle1, CFE_SB_ValueToMsgId(1), 1, 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_NO_ACCESS && EventsCorrect,
               "CFE_TBL_NotifyByMessage",
@@ -2735,7 +2735,7 @@ void Test_CFE_TBL_NotifyByMessage(void)
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
-    RtnCode = CFE_TBL_NotifyByMessage(App1TblHandle1, 1, 1, 1);
+    RtnCode = CFE_TBL_NotifyByMessage(App1TblHandle1, CFE_SB_ValueToMsgId(1), 1, 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_ES_ERR_APPID && EventsCorrect,
               "CFE_TBL_NotifyByMessage",

@@ -61,135 +61,135 @@ static const char *EVS_SYSLOG_MSGS[] =
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_EVS_CMD_NOOP_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_NOOP_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_COUNTERS_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_RESET_COUNTERS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_EVENT_TYPE_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_ENABLE_EVENT_TYPE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_EVENT_TYPE_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_DISABLE_EVENT_TYPE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_EVENT_FORMAT_MODE_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_SET_EVENT_FORMAT_MODE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_ENABLE_APP_EVENT_TYPE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENT_TYPE_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_DISABLE_APP_EVENT_TYPE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENTS_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_ENABLE_APP_EVENTS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENTS_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_DISABLE_APP_EVENTS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_APP_COUNTER_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_RESET_APP_COUNTER_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_FILTER_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_SET_FILTER_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_ENABLE_PORTS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DISABLE_PORTS_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_DISABLE_PORTS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_FILTER_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_RESET_FILTER_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_RESET_ALL_FILTERS_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_RESET_ALL_FILTERS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_ADD_EVENT_FILTER_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_ADD_EVENT_FILTER_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_DELETE_EVENT_FILTER_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_DELETE_EVENT_FILTER_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_WRITE_APP_DATA_FILE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_WRITE_LOG_DATA_FILE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_SET_LOG_MODE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = CFE_EVS_CLEAR_LOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_EVS_INVALID_MID =
 {
-        .MsgId = 0xFFFF,
+        .MsgId = CFE_SB_MSGID_RESERVED,
         .CommandCode = 0
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_EVS_CMD_INVALID_CC =
 {
-        .MsgId = CFE_EVS_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID_VALUE),
         .CommandCode = 0x7F
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_EVS_SEND_HK =
 {
-        .MsgId = CFE_EVS_SEND_HK_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_SEND_HK_MID_VALUE)
 };
 
 
 static const UT_SoftwareBusSnapshot_Entry_t UT_EVS_LONGFMT_SNAPSHOTDATA =
 {
-        .MsgId = CFE_EVS_LONG_EVENT_MSG_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID_VALUE),
         .SnapshotOffset = offsetof(CFE_EVS_LongEventTlm_t, Payload.PacketID.EventID),
         .SnapshotSize = sizeof(uint16)
 };
 
 static const UT_SoftwareBusSnapshot_Entry_t UT_EVS_SHORTFMT_SNAPSHOTDATA =
 {
-        .MsgId = CFE_EVS_SHORT_EVENT_MSG_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_SHORT_EVENT_MSG_MID_VALUE),
         .SnapshotOffset = offsetof(CFE_EVS_ShortEventTlm_t, Payload.PacketID.EventID),
         .SnapshotSize = sizeof(uint16)
 };
@@ -892,14 +892,14 @@ void Test_Format(void)
     CFE_EVS_PacketID_t           CapturedMsg;
     UT_SoftwareBusSnapshot_Entry_t LongFmtSnapshotData =
     {
-            .MsgId = CFE_EVS_LONG_EVENT_MSG_MID,
+            .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID_VALUE),
             .SnapshotBuffer = &CapturedMsg,
             .SnapshotOffset = offsetof(CFE_EVS_LongEventTlm_t, Payload.PacketID),
             .SnapshotSize = sizeof(CapturedMsg)
     };
     UT_SoftwareBusSnapshot_Entry_t ShortFmtSnapshotData =
     {
-            .MsgId = CFE_EVS_SHORT_EVENT_MSG_MID,
+            .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_SHORT_EVENT_MSG_MID_VALUE),
             .SnapshotBuffer = &CapturedMsg,
             .SnapshotOffset = offsetof(CFE_EVS_ShortEventTlm_t, Payload.PacketID),
             .SnapshotSize = sizeof(CapturedMsg)
@@ -1052,7 +1052,7 @@ void Test_Ports(void)
     CFE_EVS_BitMaskCmd_t    bitmaskcmd;
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData =
     {
-            .MsgId = CFE_EVS_LONG_EVENT_MSG_MID
+            .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID_VALUE)
     };
 
 #ifdef UT_VERBOSE
@@ -1922,7 +1922,7 @@ void Test_EventCmd(void)
     CFE_EVS_AppNameCmd_t        appnamecmd;
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData =
     {
-        .MsgId = CFE_EVS_LONG_EVENT_MSG_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID_VALUE)
     };
 
 #ifdef UT_VERBOSE
@@ -2663,7 +2663,7 @@ void Test_Misc(void)
     char               msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + 2];
     UT_SoftwareBusSnapshot_Entry_t HK_SnapshotData =
     {
-            .MsgId = CFE_EVS_HK_TLM_MID
+            .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_HK_TLM_MID_VALUE)
     };
 
 

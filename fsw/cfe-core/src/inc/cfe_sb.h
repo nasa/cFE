@@ -53,7 +53,46 @@
 #define CFE_SB_SUBSCRIPTION             0      /**< \brief Subtype specifier used in #CFE_SB_SingleSubscriptionTlm_t by SBN App */
 #define CFE_SB_UNSUBSCRIPTION           1      /**< \brief Subtype specified used in #CFE_SB_SingleSubscriptionTlm_t by SBN App */
 
-#define CFE_SB_INVALID_MSG_ID           0xFFFF /**< \brief Initializer for #CFE_SB_MsgId_t values that will not match any real MsgId */
+/* ------------------------------------------------------ */
+/* Macro Constants for use with the CFE_SB_MsgId_t type   */
+/* ------------------------------------------------------ */
+
+/**
+ * \brief Reserved value for CFE_SB_MsgId_t types that will not match any valid MsgId
+ *
+ * This rvalue macro can be used for static/compile-time data initialization to ensure that
+ * the initialized value does not alias to a valid MsgId object.
+ *
+ * Note that with a pass-through translation, zero is technically a valid value with
+ * respect to CCSDS standards, but not valid for CFE, because CFE always uses the
+ * secondary header and therefore at least one bit is always set.
+ */
+#define CFE_SB_MSGID_RESERVED               CFE_SB_MSGID_WRAP_VALUE(-1)
+
+/**
+ * \brief Create a compound literal of the CFE_SB_MsgId_t type from integer values
+ *
+ * This macro can be used to "wrap" bare integer MID values in existing code for
+ * compatibility with abstract/opaque CFE_SB_MsgId_t type.  The result is a 
+ * compound literal of the CFE_SB_MsgId_t type corresponding to the supplied integer.
+ * 
+ * \note Per C99, compound literals are lvalues, not rvalues, so this value
+ * cannot be used in static/compile-time data initialization.  Use
+ * #CFE_SB_MSGID_WRAP_VALUE where required for this purpose.
+ */
+#define CFE_SB_MSGID_LITERAL(val)           ((CFE_SB_MsgId_t)CFE_SB_MSGID_WRAP_VALUE(val))
+
+/**
+ * \brief A compound literal of the CFE_SB_MsgId_t type representing an invalid ID
+ *
+ * This value may be used to initialize a CFE_SB_MsgId_t instance to a known
+ * value which does not alias a valid MsgId.
+ *
+ * \note Per C99, compound literals are lvalues, not rvalues, so this value
+ * cannot be used in static/compile-time data initialization.  For static data 
+ * initialization (rvalue), #CFE_SB_MSGID_RESERVED should be used instead.
+ */
+#define CFE_SB_INVALID_MSG_ID               ((CFE_SB_MsgId_t)CFE_SB_MSGID_RESERVED)
 
 /*
 ** Macro Definitions
@@ -1276,9 +1315,24 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr);
  * @{
  */
 
+
 /*****************************************************************************/
 /**
- * \brief Identifies whether a two #CFE_SB_MsgId_t values are equal
+ * \brief Identifies whether a given CFE_SB_MsgId_t is valid
+ *
+ * \par Description
+ *    Implements a basic sanity check on the value provided
+ *
+ * \return Boolean message ID validity indicator
+ * \retval true  Message ID is within the valid range
+ * \retval false Message ID is not within the valid range
+ */
+bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId);
+
+
+/*****************************************************************************/
+/**
+ * \brief Identifies whether two #CFE_SB_MsgId_t values are equal
  *
  * \par Description
  *    In cases where the #CFE_SB_MsgId_t type is not a simple integer
@@ -1296,7 +1350,7 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr);
  */
 static inline bool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgId2)
 {
-    return (MsgId1 == MsgId2);
+    return CFE_SB_MSGID_UNWRAP_VALUE(MsgId1) == CFE_SB_MSGID_UNWRAP_VALUE(MsgId2);
 }
 
 /*****************************************************************************/
@@ -1327,7 +1381,7 @@ static inline bool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgI
  */
 static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
 {
-    return MsgId;
+    return CFE_SB_MSGID_UNWRAP_VALUE(MsgId);
 }
 
 /*****************************************************************************/
@@ -1356,7 +1410,7 @@ static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
  */
 static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
 {
-    return MsgIdValue;
+    return CFE_SB_MSGID_LITERAL(MsgIdValue);
 }
 /**@}*/
 
