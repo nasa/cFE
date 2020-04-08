@@ -293,6 +293,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(TestCDSMempool);
     UT_ADD_TEST(TestESMempool);
     UT_ADD_TEST(TestSysLog);
+    UT_ADD_TEST(TestBackground);
 
 #ifdef CFE_ARINC653
     UT_ADD_TEST(TestStaticApp);
@@ -2494,10 +2495,12 @@ void TestTask(void)
 
     /* Test task main process loop with a command pipe error */
     ES_ResetUnitTest();
+    CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
+    CFE_ES_Global.TaskTable[1].AppId = 1;
     CFE_ES_TaskMain();
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]) &&
-                 UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+                 UT_GetStubCount(UT_KEY(OS_printf)) == 2,
               "CFE_ES_TaskMain",
               "Command pipe error");
 
@@ -2515,6 +2518,8 @@ void TestTask(void)
     /* Test task main process loop with bad checksum information */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_GetCFETextSegmentInfo), 1, -1);
+    CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
+    CFE_ES_Global.TaskTable[1].AppId = 1;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == CFE_SUCCESS &&
               CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum == 0xFFFF,
@@ -2523,6 +2528,8 @@ void TestTask(void)
 
     /* Test successful task main process loop */
     ES_ResetUnitTest();
+    CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
+    CFE_ES_Global.TaskTable[1].AppId = 1;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == CFE_SUCCESS &&
               CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
@@ -2584,6 +2591,14 @@ void TestTask(void)
               CFE_ES_TaskInit() == -6,
               "CFE_ES_TaskInit",
               "Version event send fail");
+
+    /* Test task init with background init fail */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 1, -7);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_TaskInit() == -7,
+              "CFE_ES_TaskInit",
+              "Background init fail");
 
     /* Set the log mode to OVERWRITE; CFE_ES_TaskInit() sets SystemLogMode to
      * DISCARD, which can result in a log overflow depending on the value that
@@ -3810,8 +3825,6 @@ void TestPerf(void)
         CFE_ES_SetPerfTriggerMask_t PerfSetTrigMaskCmd;
     } CmdBuf;
 
-    extern CFE_ES_PerfLogDump_t CFE_ES_PerfLogDumpStatus;
-
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Performance Log\n");
 #endif
@@ -3897,7 +3910,10 @@ void TestPerf(void)
     /* Test performance data collection start with a file write in progress */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_ES_PerfLogDumpStatus.DataToWrite = 1;
+    /* clearing the BackgroundPerfDumpState will fully reset to initial state */
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+            sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
     CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PERF_TRIGGER_START;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStartCmd),
             UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
@@ -3905,12 +3921,13 @@ void TestPerf(void)
               UT_EventIsInHistory(CFE_ES_PERF_STARTCMD_ERR_EID),
               "CFE_ES_StartPerfDataCmd",
               "Cannot collect performance data; write in progress");
-    CFE_ES_PerfLogDumpStatus.DataToWrite = 0;
 
     /* Test performance data collection by sending another valid
      * start command
      */
     ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+            sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
@@ -3925,11 +3942,12 @@ void TestPerf(void)
 
     /* Test successful performance data collection stop */
     ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+            sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_PerfLogDumpStatus.DataToWrite = 0;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd),
             UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3937,29 +3955,13 @@ void TestPerf(void)
               "CFE_ES_StopPerfDataCmd",
               "Stop collecting performance data");
 
-    /* Test performance data collection stop with an OS create failure */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd),
-            UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_PERF_LOG_ERR_EID),
-              "CFE_ES_StopPerfDataCmd",
-              "Stop performance data command; OS create fail");
-
-    /* Test performance data collection stop with an OS task create failure */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd),
-            UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_PERF_STOPCMD_ERR1_EID),
-              "CFE_ES_StopPerfDataCmd",
-              "Stop performance data command; OS task create fail");
-
     /* Test successful performance data collection stop with a non-default
          file name */
     ES_ResetUnitTest();
+
+    /* clearing the BackgroundPerfDumpState will fully reset to initial state */
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+            sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
@@ -3974,7 +3976,7 @@ void TestPerf(void)
 
     /* Test performance data collection stop with a file write in progress */
     ES_ResetUnitTest();
-    CFE_ES_PerfLogDumpStatus.DataToWrite = 1;
+    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd),
             UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
     UT_Report(__FILE__, __LINE__,
@@ -4046,54 +4048,6 @@ void TestPerf(void)
               UT_EventIsInHistory(CFE_ES_PERF_TRIGMSKERR_EID),
               "CFE_ES_SetPerfTriggerMaskCmd",
               "Performance trigger mask command error; index out of range");
-
-    /* Test successful performance log dump */
-    ES_ResetUnitTest();
-    CFE_ES_PerfLogDumpStatus.DataFileDescriptor = OS_open(NULL, 0, 0);
-    CFE_ES_PerfLogDump();
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_PERF_DATAWRITTEN_EID) &&
-              UT_GetStubCount(UT_KEY(OS_close)) == 1,
-              "CFE_ES_PerfLogDump",
-              "Performance log dump; success");
-
-    /* Test performance log dump with a cFE header write failure */
-    ES_ResetUnitTest();
-    CFE_ES_PerfLogDumpStatus.DataFileDescriptor = OS_open(NULL, 0, 0);
-    Perf->MetaData.DataCount = 7;
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 4, sizeof(CFE_ES_PerfDataEntry_t));
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, -1);
-    CFE_ES_PerfLogDump();
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID) &&
-              UT_GetStubCount(UT_KEY(OS_close)) == 1,
-              "CFE_ES_PerfLogDump",
-              "Performance log dump; cFE header write failed");
-
-    /* Test performance log dump with a metadata write failure */
-    ES_ResetUnitTest();
-    CFE_ES_PerfLogDumpStatus.DataFileDescriptor = OS_open(NULL, 0, 0);
-    Perf->MetaData.DataCount = 7;
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
-    CFE_ES_PerfLogDump();
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID) &&
-              UT_GetStubCount(UT_KEY(OS_close)) == 1,
-              "CFE_ES_PerfLogDump",
-              "Performance log dump; metadata write failed");
-
-    /* Test performance log dump with a data write failure */
-    ES_ResetUnitTest();
-    CFE_ES_PerfLogDumpStatus.DataFileDescriptor = OS_open(NULL, 0, 0);
-    Perf->MetaData.DataCount = 7;
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 4, sizeof(CFE_ES_PerfDataEntry_t) + 1);
-    CFE_ES_PerfLogDump();
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID) &&
-              UT_GetStubCount(UT_KEY(OS_close)) == 1,
-              "CFE_ES_PerfLogDump",
-              "Performance log dump; data write failed");
 
     /* Test successful addition of a new entry to the performance log */
     ES_ResetUnitTest();
@@ -4275,6 +4229,97 @@ void TestPerf(void)
               !UT_EventIsInHistory(CFE_ES_PERF_TRIGMSKCMD_EID),
               "CFE_ES_SetPerfTriggerMaskCmd",
               "Invalid message length");
+
+    /* Test perf log dump state machine */
+    /* Nominal call 1 - should go through up to the DELAY state */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+                sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
+    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_DELAY,
+            "CFE_ES_RunPerfLogDump - CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == DELAY (%d)",
+            (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_DELAY);
+    UtAssert_True(UT_GetStubCount(UT_KEY(OS_creat)) == 1, "CFE_ES_RunPerfLogDump - OS_creat() called");
+
+    /* Nominal call 2 - should go through up to the remainder of states, back to IDLE */
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
+    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
+            "CFE_ES_RunPerfLogDump - CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == IDLE (%d)",
+            (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_IDLE);
+    UtAssert_True(UT_GetStubCount(UT_KEY(OS_close)) == 1, "CFE_ES_RunPerfLogDump - OS_close() called");
+
+    /* Test a failure to open the output file */
+    /* This should go immediately back to idle, and generate CFE_ES_PERF_LOG_ERR_EID */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+                sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
+    UT_SetForceFail(UT_KEY(OS_creat), -10);
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
+    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
+            "CFE_ES_RunPerfLogDump - OS create fail, CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == IDLE (%d)",
+            (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_IDLE);
+    UtAssert_True(UT_EventIsInHistory(CFE_ES_PERF_LOG_ERR_EID),
+              "CFE_ES_RunPerfLogDump - OS create fail, generated CFE_ES_PERF_LOG_ERR_EID");
+
+    /* Test a failure to write to the output file */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+            sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    UT_SetForceFail(UT_KEY(OS_write), -10);
+    CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
+    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_DELAY,
+            "CFE_ES_RunPerfLogDump - OS_write fail, CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == DELAY (%d)",
+            (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_DELAY);
+
+    /* This will trigger the OS_write() failure, which should go through up to the remainder of states, back to IDLE */
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
+    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
+            "CFE_ES_RunPerfLogDump - OS_write fail, CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == IDLE (%d)",
+            (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_IDLE);
+    UtAssert_True(UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID),
+              "CFE_ES_RunPerfLogDump - OS_write fail, generated CFE_ES_FILEWRITE_ERR_EID");
+
+
+    /* Test the ability of the file writer to handle the "wrap around" from the end of
+     * the perflog buffer back to the beginning.  Just need to set up the metadata
+     * so that the writing position is toward the end of the buffer.
+     */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+            sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc = OS_creat("UT", OS_WRITE_ONLY);
+    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_TaskData.BackgroundPerfDumpState.DataPos = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - 2;
+    CFE_ES_TaskData.BackgroundPerfDumpState.StateCounter = 4;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
+    /* check that the wraparound occurred */
+    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.DataPos == 2,
+            "CFE_ES_RunPerfLogDump - wraparound, DataPos (%u) == 2",
+            (unsigned int)CFE_ES_TaskData.BackgroundPerfDumpState.DataPos);
+    /* should have written 4 entries to the log */
+    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.FileSize == sizeof(CFE_ES_PerfDataEntry_t) * 4,
+            "CFE_ES_RunPerfLogDump - wraparound, FileSize (%u) == sizeof(CFE_ES_PerfDataEntry_t) * 4",
+            (unsigned int)CFE_ES_TaskData.BackgroundPerfDumpState.FileSize);
+
+    /* Confirm that the "CFE_ES_GetPerfLogDumpRemaining" function works.
+     * This requires that the state is not idle, in order to get nonzero results.
+     */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+            sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc = OS_creat("UT", OS_WRITE_ONLY);
+    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_METADATA;
+    CFE_ES_TaskData.BackgroundPerfDumpState.StateCounter = 10;
+    Perf->MetaData.DataCount = 100;
+    /* in states other than WRITE_PERF_ENTRIES, it should report the full size of the log */
+    UtAssert_True(CFE_ES_GetPerfLogDumpRemaining() == 100, " CFE_ES_GetPerfLogDumpRemaining - Setup Phase");
+    /* in WRITE_PERF_ENTRIES, it should report the StateCounter */
+    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    UtAssert_True(CFE_ES_GetPerfLogDumpRemaining() == 10, " CFE_ES_GetPerfLogDumpRemaining - Active Phase");
 }
 
 void TestAPI(void)
@@ -6910,6 +6955,59 @@ void TestSysLog(void)
               "Truncate message");
     
 }
+
+void TestBackground(void)
+{
+    int32 status;
+
+    /* CFE_ES_BackgroundInit() with default setup
+     * causes  CFE_ES_CreateChildTask to fail.
+     */
+    ES_ResetUnitTest();
+    status = CFE_ES_BackgroundInit();
+    UtAssert_True(status == CFE_ES_ERR_APPID, "CFE_ES_BackgroundInit - CFE_ES_CreateChildTask failure (%08x)", (unsigned int)status);
+
+    /* The CFE_ES_BackgroundCleanup() function has no conditionals -
+     * it just needs to be executed as part of this routine,
+     * and confirm that it deleted the semaphore.
+     */
+    ES_ResetUnitTest();
+    OS_BinSemCreate(&CFE_ES_Global.BackgroundTask.WorkSem, "UT", 0, 0);
+    CFE_ES_BackgroundCleanup();
+    UtAssert_True(UT_GetStubCount(UT_KEY(OS_BinSemDelete)) == 1, "CFE_ES_BackgroundCleanup - OS_BinSemDelete called");
+
+    /*
+     * Test background task loop function
+     */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(OS_TaskRegister), 1, -1);
+    CFE_ES_BackgroundTask();
+    /* this has no return value, but this can ensure that a syslog/printf was generated */
+    UtAssert_True(UT_GetStubCount(UT_KEY(OS_printf)) == 1, "CFE_ES_BackgroundTask - CFE_ES_RegisterChildTask failure");
+
+    /*
+     * When testing the background task loop, it is normally an infinite loop,
+     * so this is needed to set a condition for the loop to exit.
+     *
+     * This also sets a state so the background perf log dump will be "Active" to
+     * execute the code which counts the number of active jobs.
+     */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
+            sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    UT_SetForceFail(UT_KEY(OS_write), -10);
+    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
+    UT_SetDeferredRetcode(UT_KEY(OS_BinSemTimedWait), 3, -4);
+    CFE_ES_BackgroundTask();
+    /* this has no return value, but this can ensure that a syslog/printf was generated */
+    UtAssert_True(UT_GetStubCount(UT_KEY(OS_printf)) == 1, "CFE_ES_BackgroundTask - Nominal");
+    /* The number of jobs running should be 1 (perf log dump) */
+    UtAssert_True(CFE_ES_Global.BackgroundTask.NumJobsRunning == 1,
+            "CFE_ES_BackgroundTask - Nominal, CFE_ES_Global.BackgroundTask.NumJobsRunning (%u) == 1",
+            (unsigned int)CFE_ES_Global.BackgroundTask.NumJobsRunning);
+}
+
+
 
 #ifdef CFE_ARINC653
 void TestStaticApp(void)

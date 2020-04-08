@@ -1013,23 +1013,6 @@
 #define CFE_ES_PERF_STOPCMD_EID       60
 
 
-/** \brief <tt> 'Stop performance data cmd,Error creating child task RC=0x\%08X' </tt>
-**  \event <tt> 'Stop performance data cmd,Error creating child task RC=0x\%08X' </tt> 
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This event message is generated upon receipt of an unsuccessful Performance Data Stop
-**  Command after receiving the cFE Executive Services \link #CFE_ES_STOP_PERF_DATA_CC Stop 
-**  Performance Analyzer Data Collection Command \endlink
-**
-**  The \c 'RC' field specifies, in hex, the error code returned by the #CFE_ES_CreateChildTask API
-**  
-**/
-#define CFE_ES_PERF_STOPCMD_ERR1_EID       61
-
-
 /** \brief <tt> 'Stop performance data cmd ignored,perf data write in progress' </tt>
 **  \event <tt> 'Stop performance data cmd ignored,perf data write in progress' </tt> 
 **

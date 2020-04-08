@@ -49,7 +49,14 @@ typedef struct {
     uint8                          Spare[2];
     uint32                         TimerTicksPerSecond;
     uint32                         TimerLow32Rollover;
-    uint32                         State;
+    /*
+     * The "State" member is marked volatile to help
+     * ensure that an optimizing compiler does not rearrange
+     * or eliminate reads/writes of this value.  It is read
+     * outside of any locking to determine whether or not
+     * the performance log function is enabled.
+     */
+    volatile uint32                State;
     uint32                         Mode;
     uint32                         TriggerCount;
     uint32                         DataStart;
