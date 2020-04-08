@@ -55,6 +55,15 @@
 
 #define CFE_SB_INVALID_MSG_ID           0xFFFF /**< \brief Initializer for #CFE_SB_MsgId_t values that will not match any real MsgId */
 
+/**
+ * \defgroup CFESBPktTypeDefs cFE SB Packet Type Defines
+ * \{
+ */
+#define CFE_SB_PKTTYPE_INVALID          0      /**< \brief #CFE_SB_GetPktType response if message type can not be determined */
+#define CFE_SB_PKTTYPE_CMD              1      /**< \brief #CFE_SB_GetPktType response for command packets */
+#define CFE_SB_PKTTYPE_TLM              2      /**< \brief #CFE_SB_GetPktType response for telemetry packets */
+/** \} */
+
 /*
 ** Macro Definitions
 */
@@ -1358,6 +1367,20 @@ static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
 {
     return MsgIdValue;
 }
+
+/*****************************************************************************/
+/**
+ * \brief Identifies packet type given message ID
+ *
+ * Provides the packet type associated with the given message ID
+ *
+ * \return Packet type
+ * \retval #CFE_SB_PKTTYPE_CMD     Command packet type
+ * \retval #CFE_SB_PKTTYPE_TLM     Telemetry packet type
+ * \retval #CFE_SB_PKTTYPE_INVALID Invalid/unknown packet type
+ */
+uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId);
+
 /**@}*/
 
 #endif  /* _cfe_sb_ */
