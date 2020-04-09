@@ -132,6 +132,32 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    } /* end if */
 
    /*
+   ** Also Create the ES Performance Data Mutex
+   ** This is to separately protect against concurrent writes to the global performance log data
+   */
+   ReturnCode = OS_MutSemCreate(&CFE_ES_Global.PerfDataMutex, "ES_PERF_MUTEX", 0);
+   if (ReturnCode != OS_SUCCESS)
+   {
+       CFE_ES_SysLogWrite_Unsync("ES Startup: Error: ES Performance Data Mutex could not be created. RC=0x%08X\n",
+               (unsigned int)ReturnCode);
+
+       /*
+       ** Delay to allow the message to be read
+       */
+       OS_TaskDelay(CFE_ES_PANIC_DELAY);
+
+       /*
+       ** cFE Cannot continue to start up.
+       */
+       CFE_PSP_Panic(CFE_PSP_PANIC_STARTUP_SEM);
+
+       /*
+        * Normally CFE_PSP_Panic() will not return but it will under UT
+        */
+       return;
+   }
+
+   /*
    ** Announce the startup
    */
    CFE_ES_WriteToSysLog("ES Startup: CFE_ES_Main in EARLY_INIT state\n");
