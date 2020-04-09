@@ -193,13 +193,6 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
 
    /*
-   ** Start the cFE Applications from the disk using the file
-   ** specified in the CFE_PLATFORM_ES_NONVOL_STARTUP_FILE or CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE 
-   ** ( defined in the cfe_platform_cfg.h file )
-   */   
-   CFE_ES_StartApplications(StartType, StartFilePath );
-
-   /*
     * Wait for applications to be in at least "LATE_INIT"
     *
     * However, if not everything starts up, that is not a fatal error, we will

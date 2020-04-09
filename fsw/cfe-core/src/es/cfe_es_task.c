@@ -207,6 +207,8 @@ int32 CFE_ES_TaskInit(void)
     cpuaddr CfeSegmentAddr;
     char    EventBuffer[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
     char    VersionBuffer[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    CFE_TBL_Handle_t TblHandle;
+    CFE_ES_AppLibTbl_t *AppLibTbl = NULL;
 
     /*
     ** Register the Application
@@ -398,6 +400,73 @@ int32 CFE_ES_TaskInit(void)
        return(Status);
     }
 
+    /*
+    ** Bind and load the CFE_TBL tables.
+    */
+
+    Status = CFE_TBL_Register(
+        &TblHandle, "CFE_ES_AppLibTbl", sizeof(*AppLibTbl), CFE_TBL_OPT_DEFAULT, NULL);
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("ES Startup: Unable to reg app table (Status=%d)\n", (int)Status);
+    }
+
+    if (Status == CFE_SUCCESS)
+    {
+        Status = CFE_TBL_Load(TblHandle, CFE_TBL_SRC_FILE, GLOBAL_CFE_CONFIGDATA.NonvolStartupFile);
+        if (Status != CFE_SUCCESS)
+        {
+            CFE_TBL_Unregister(TblHandle);
+            CFE_ES_WriteToSysLog("ES Startup: Unable to load app table (Status=%d)\n", (int)Status);
+        }
+    }
+
+    if (Status == CFE_SUCCESS)
+    {
+        CFE_TBL_GetAddress((void **)&AppLibTbl, TblHandle);
+    }
+    
+    if (Status == CFE_SUCCESS)
+    {
+        int i = 0;
+        uint32 ID = 0;
+    
+        for (i = 0; i < CFE_PLATFORM_ES_MAX_LIBRARIES; i++)
+        {
+            CFE_ES_LibTblEntry_t *e = &AppLibTbl->Libs[i];
+
+            if (*e->Name == '\0') break; /**< first empty name signals end of the table */
+
+            CFE_ES_WriteToSysLog("ES Startup: Loading lib: %s, %s\n", e->FileName, e->Name);
+            Status = CFE_ES_LoadLibrary(&ID, e->FileName, e->EntryPoint, e->Name);
+
+            if(Status != CFE_SUCCESS)
+            {
+                CFE_ES_WriteToSysLog("ES Startup: Failed to load lib: %s\n", e->FileName);
+                /* ...but continue to process more libraries */
+            }
+        }
+    
+        for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
+        {
+            CFE_ES_AppTblEntry_t *e = &AppLibTbl->Apps[i];
+
+            if (*e->Name == '\0') break; /**< first empty name signals end of the table */
+
+            CFE_ES_WriteToSysLog("ES Startup: Loading file: %s, %s\n", e->FileName, e->Name);
+
+            Status = CFE_ES_AppCreate(&ID, e->FileName, e->EntryPoint, e->Name, (uint32) e->Priority, (uint32) e->StackSize, (uint32) e->ExceptionAction);
+
+            if(Status != CFE_SUCCESS)
+            {
+                CFE_ES_WriteToSysLog("ES Startup: Failed to load app %s\n", e->FileName);
+                /* ...but continue to process more apps */
+            }
+        }
+
+        /* we're done with the table, the data's been copied into other structures */
+        CFE_TBL_Unregister(TblHandle);
+    }
 
    return(CFE_SUCCESS);
    

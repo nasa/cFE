@@ -823,10 +823,10 @@
 
 
 /**
-**  \cfeescfg ES Nonvolatile Startup Filename
+**  \cfeescfg ES Startup Table Filename
 **
 **  \par Description:
-**       The value of this constant defines the path and name of the file that
+**       The value of this constant defines the path and name of the table file that
 **       contains a list of modules that will be loaded and started by the cFE after
 **       the cFE finishes its startup sequence.
 **
@@ -834,22 +834,8 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_NONVOL_STARTUP_FILE    "/cf/cfe_es_startup.scr"
+#define CFE_PLATFORM_ES_TBL_FILE    "/cf/cfe_es_start.tbl"
 
-
-/**
-**  \cfeescfg ES Volatile Startup Filename
-**
-**  \par Description:
-**       The value of this constant defines the path and name of the file that
-**       contains a list of modules that will be loaded and started by the cFE after
-**       the cFE finishes its startup sequence.
-**
-**  \par Limits
-**       The length of each string, including the NULL terminator cannot exceed the
-**       #OS_MAX_PATH_LEN value.
-*/
-#define CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE  "/ram/cfe_es_startup.scr"
 
 /**
 **  \cfeescfg Default Shell Filename
