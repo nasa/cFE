@@ -36,9 +36,8 @@ foreach(MODULE ${CFE_CORE_MODULES} config shared)
 endforeach(MODULE ${CFE_CORE_MODULES})
 
 add_library(${CFE_CORE_TARGET} STATIC ${CFE_ALL_MODULE_SRCS})
+add_cfe_tables(ES cfe_es_start.c)
 
 if (ENABLE_UNIT_TESTS)
   add_subdirectory(unit-test)
 endif (ENABLE_UNIT_TESTS)
-
-

@@ -67,7 +67,7 @@ Target_CfeConfigData GLOBAL_CFE_CONFIGDATA =
        * Default values for Startup file.
        * This is a suggested value, but the PSP may provide a different file
        */
-      .NonvolStartupFile = CFE_PLATFORM_ES_NONVOL_STARTUP_FILE,
+      .NonvolStartupFile = CFE_PLATFORM_ES_TBL_FILE,
 
       /*
        * Sizes of other memory segments
