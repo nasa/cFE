@@ -1324,13 +1324,14 @@ void TestApps(void)
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
     CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 0;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    memset(&CFE_ES_TaskData.BackgroundAppScanState, 0, sizeof(CFE_ES_TaskData.BackgroundAppScanState));
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 0 &&
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0 &&
               CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE,
-              "CFE_ES_ScanAppTable",
+              "CFE_ES_RunAppTableScan",
               "Waiting; process control request");
 
     /* Test scanning and acting on the application table where the timer
@@ -1342,12 +1343,12 @@ void TestApps(void)
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
     CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 5;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 5000;
+    CFE_ES_RunAppTableScan(1000, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 4 &&
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 4000 &&
               CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_EXIT,
-              "CFE_ES_ScanAppTable",
+              "CFE_ES_RunAppTableScan",
               "Decrement timer");
 
     /* Test scanning and acting on the application table where the application
@@ -1359,13 +1360,13 @@ void TestApps(void)
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
     CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 0;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) &&
               CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 0,
-              "CFE_ES_ScanAppTable",
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0,
+              "CFE_ES_RunAppTableScan",
               "Stopped; process control request");
 
     /* Test scanning and acting on the application table where the application
@@ -1376,13 +1377,13 @@ void TestApps(void)
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_EARLY_INIT;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 5;
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 5000;
 
-    CFE_ES_ScanAppTable();
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_GetNumEventsSent() == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 5,
-              "CFE_ES_ScanAppTable",
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 5000,
+              "CFE_ES_RunAppTableScan",
               "Initializing; process control request");
 
    /* Test a control action request on an application with an
@@ -1968,12 +1969,12 @@ void TestApps(void)
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 0;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_GetNumEventsSent() == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 0,
-              "CFE_ES_ScanAppTable",
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0,
+              "CFE_ES_RunAppTableScan",
               "Waiting; process control request");
     CFE_ES_Global.TaskTable[Id].RecordUsed = false;
 
@@ -1985,12 +1986,12 @@ void TestApps(void)
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 0;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_GetNumEventsSent() == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 0,
-              "CFE_ES_ScanAppTable",
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0,
+              "CFE_ES_RunAppTableScan",
               "Running; process control request");
     CFE_ES_Global.TaskTable[Id].RecordUsed = false;
 
@@ -4467,12 +4468,14 @@ void TestAPI(void)
 
     /* Test exiting an app with an exit error */
     /* Note - this exit code of 1000 is invalid, which causes
-     * an extra message to be logged in syslog about this */
+     * an extra message to be logged in syslog about this.  This
+     * should also be stored in the AppControlRequest as APP_ERROR. */
     ES_ResetUnitTest();
     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.TaskTable[Id].AppId = Id;
     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
+    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
@@ -4482,6 +4485,10 @@ void TestAPI(void)
                   UT_GetStubCount(UT_KEY(OS_printf)) == 2,
               "CFE_ES_ExitApp",
               "Application exit error");
+    UtAssert_True(CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_ERROR,
+            "CFE_ES_ExitApp - AppControlRequest (%u) == CFE_ES_RunStatus_APP_ERROR (%u)",
+            (unsigned int)CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest,
+            (unsigned int)CFE_ES_RunStatus_APP_ERROR);
 
 #if 0
     /* Can't cover this path since it contains a while(1) (i.e.,
@@ -4548,9 +4555,9 @@ void TestAPI(void)
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
     CFE_ES_Global.TaskTable[Id].RecordUsed = false;
     CFE_ES_Global.TaskTable[Id].AppId = Id;
-    RunStatus = CFE_ES_RunStatus_APP_EXIT;
+    RunStatus = CFE_ES_RunStatus_APP_RUN;
     CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
-        CFE_ES_RunStatus_APP_EXIT;
+        CFE_ES_RunStatus_APP_RUN;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(&RunStatus) == false,
               "CFE_ES_RunLoop",
@@ -4570,6 +4577,20 @@ void TestAPI(void)
               CFE_ES_RunLoop(&RunStatus) == false,
               "CFE_ES_RunLoop",
               "Invalid run status");
+
+    /* Test run loop with a NULL run status */
+    ES_ResetUnitTest();
+    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
+    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
+    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+            CFE_ES_RunStatus_APP_RUN;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RunLoop(NULL),
+              "CFE_ES_RunLoop",
+              "Nominal, NULL output pointer");
 
     /* Test run loop with startup sync code */
     ES_ResetUnitTest();

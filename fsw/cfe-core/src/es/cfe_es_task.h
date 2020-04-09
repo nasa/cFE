@@ -113,6 +113,11 @@ typedef struct
    */
   CFE_ES_PerfDumpGlobal_t    BackgroundPerfDumpState;
 
+  /*
+   * Persistent state data associated with background app table scans
+   */
+  CFE_ES_AppTableScanState_t BackgroundAppScanState;
+
 } CFE_ES_TaskData_t;
 
 /*

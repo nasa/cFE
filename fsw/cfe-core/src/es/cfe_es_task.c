@@ -80,7 +80,6 @@ CFE_ES_TaskData_t CFE_ES_TaskData;
 void CFE_ES_TaskMain(void)
 {
     int32   Status;
-    uint32  TimeOut = CFE_PLATFORM_ES_APP_SCAN_RATE;
     uint32  AppRunStatus = CFE_ES_RunStatus_APP_RUN;
 
 
@@ -139,21 +138,14 @@ void CFE_ES_TaskMain(void)
         */
         Status = CFE_SB_RcvMsg(&CFE_ES_TaskData.MsgPtr,
                                   CFE_ES_TaskData.CmdPipe,
-                                  TimeOut);
+                                  CFE_SB_PEND_FOREVER);
 
         /*
         ** Performance Time Stamp Entry
         */
         CFE_ES_PerfLogEntry(CFE_MISSION_ES_MAIN_PERF_ID);
 
-        /*
-        ** Scan the App table for Application Deletion requests
-        */
-        if ( Status == CFE_SB_TIME_OUT )
-        {
-           CFE_ES_ScanAppTable();
-        }
-        else if (Status == CFE_SUCCESS)
+        if (Status == CFE_SUCCESS)
         {
            /*
            ** Process Software Bus message.
@@ -161,9 +153,10 @@ void CFE_ES_TaskMain(void)
            CFE_ES_TaskPipe(CFE_ES_TaskData.MsgPtr);
 
            /*
-           ** Scan the App Table for changes after processing a command
-           */
-           CFE_ES_ScanAppTable();
+            * Wake up the background task, which includes the
+            * scanning of the ES app table for entries that may need cleanup
+            */
+           CFE_ES_BackgroundWakeup();
         }
         else
         {

@@ -19,7 +19,7 @@
 */
 
 /*
-**  File: 
+**  File:
 **  cfe_es_apps.h
 **
 **  Purpose:
@@ -58,8 +58,8 @@
 */
 typedef struct
 {
-   uint32     AppControlRequest;              /* What the App should be doing next */
-   int32      AppTimer;                       /* Countdown timer for killing an app */
+    uint32     AppControlRequest;   /* What the App should be doing next */
+    int32      AppTimerMsec;        /* Countdown timer for killing an app, in milliseconds */
 
 } CFE_ES_ControlReq_t;
 
@@ -80,13 +80,13 @@ typedef struct
 
   uint16                ExceptionAction;
   uint16                Priority;
-   
+
 } CFE_ES_AppStartParams_t;
 
 /*
 ** CFE_ES_MainTaskInfo_t is a structure of information about the main
 ** task and child tasks in a cFE application. This structure is just used in the
-** cFE_ES_AppRecord_t structure. 
+** cFE_ES_AppRecord_t structure.
 */
 typedef struct
 {
@@ -106,7 +106,7 @@ typedef struct
    CFE_ES_AppStartParams_t StartParams;                 /* The start parameters for an App */
    CFE_ES_ControlReq_t     ControlReq;                  /* The Control Request Record for External cFE Apps */
    CFE_ES_MainTaskInfo_t   TaskInfo;                    /* Information about the Tasks */
-      
+
 } CFE_ES_AppRecord_t;
 
 
@@ -121,8 +121,8 @@ typedef struct
    uint32    TaskId;                          /* Task ID */
    uint32    ExecutionCounter;                /* The execution counter for the Child task */
    char      TaskName[OS_MAX_API_NAME];       /* Task Name */
-   
-   
+
+
 } CFE_ES_TaskRecord_t;
 
 /*
@@ -134,6 +134,19 @@ typedef struct
    bool      RecordUsed;                      /* Is the record used(1) or available(0) */
    char      LibName[OS_MAX_API_NAME];        /* Library Name */
 } CFE_ES_LibRecord_t;
+
+/*
+** CFE_ES_AppTableScanState_t is an internal structure used to keep state of
+** the background app table scan/cleanup process
+*/
+typedef struct
+{
+    uint32 PendingAppStateChanges;
+    uint32 BackgroundScanTimer;
+    uint8  LastScanCommandCount;
+} CFE_ES_AppTableScanState_t;
+
+
 
 /*****************************************************************************/
 /*
@@ -149,13 +162,6 @@ void  CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath );
 ** Internal function to parse/execute a line of the cFE application startup 'script'
 */
 int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
-
-/*
- * Internal function to set the state of an app
- * All state changes should go through this function rather than directly writing to the control block
- */
-void CFE_ES_SetAppState(uint32 AppID, uint32 TargetState);
-
 
 /*
 ** Internal function to create/start a new cFE app
@@ -190,7 +196,7 @@ int32 CFE_ES_AppDumpAllInfo(void);
 /*
 ** Scan the Application Table for actions to take
 */
-void CFE_ES_ScanAppTable(void);
+bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg);
 
 /*
 ** Perform the requested control action for an application
@@ -208,7 +214,7 @@ int32 CFE_ES_CleanUpApp(uint32 AppId);
 int32 CFE_ES_CleanupTaskResources(uint32 TaskId);
 
 /*
-** Debug function to print out resource utilization 
+** Debug function to print out resource utilization
 */
 int32 CFE_ES_ListResourcesDebug(void);
 
