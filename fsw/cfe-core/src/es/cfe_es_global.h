@@ -19,8 +19,8 @@
 */
 
 /*
-**  File: 
-**  cfe_es_global.h 
+**  File:
+**  cfe_es_global.h
 **
 **  Purpose:
 **  This file contains the ES global data definitions.
@@ -66,13 +66,23 @@ typedef struct
 {
    bool           RecordUsed;                     /* Is the record used(1) or available(0) ? */
    uint32         Counter;
-   char           CounterName[OS_MAX_API_NAME];   /* Counter Name */      
+   char           CounterName[OS_MAX_API_NAME];   /* Counter Name */
 } CFE_ES_GenCounterRecord_t;
+
+/*
+ * Encapsulates the state of the ES background task
+ */
+typedef struct
+{
+    uint32 TaskID;          /**< OSAL ID of the background task */
+    uint32 WorkSem;         /**< Semaphore that is given whenever background work is pending */
+    uint32 NumJobsRunning;  /**< Current Number of active jobs (updated by background task) */
+} CFE_ES_BackgroundTaskState_t;
 
 
 /*
 ** Executive Services Global Memory Data
-** This is the regular global data that is not preserved on a 
+** This is the regular global data that is not preserved on a
 **  processor reset.
 */
 typedef struct
@@ -81,12 +91,17 @@ typedef struct
    ** Debug Variables
    */
    CFE_ES_DebugVariables_t DebugVars;
-   
+
    /*
    ** Shared Data Semaphore
    */
    uint32 SharedDataMutex;
-   
+
+   /*
+   ** Performance Data Mutex
+   */
+   uint32 PerfDataMutex;
+
    /*
    ** Startup Sync
    */
@@ -94,7 +109,7 @@ typedef struct
 
    /*
    ** ES Task Table
-   */ 
+   */
    uint32              RegisteredTasks;
    CFE_ES_TaskRecord_t TaskTable[OS_MAX_TASKS];
 
@@ -104,7 +119,7 @@ typedef struct
    uint32             RegisteredCoreApps;
    uint32             RegisteredExternalApps;
    CFE_ES_AppRecord_t AppTable[CFE_PLATFORM_ES_MAX_APPLICATIONS];
-   
+
    /*
    ** ES Shared Library Table
    */
@@ -121,12 +136,19 @@ typedef struct
    */
    CFE_ES_CDSVariables_t CDSVars;
 
+   /*
+    * Background task for handling long-running, non real time tasks
+    * such as maintenance, file writes, and other items.
+    */
+   CFE_ES_BackgroundTaskState_t BackgroundTask;
+
+
 } CFE_ES_Global_t;
 
 /*
 ** The Executive Services Global Data declaration
 */
-extern CFE_ES_Global_t CFE_ES_Global; 
+extern CFE_ES_Global_t CFE_ES_Global;
 
 /*
 ** The Executive Services Nonvolatile Data declaration

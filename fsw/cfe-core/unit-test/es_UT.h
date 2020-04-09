@@ -217,6 +217,23 @@ void TestTask(void);
 
 /*****************************************************************************/
 /**
+** \brief Performs tests of the background task contained in
+**        cfe_es_backgroundtask.c
+**
+** \par Description
+**        Gets Coverage on all lines/functions in this unit
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+******************************************************************************/
+void TestBackground(void);
+
+/*****************************************************************************/
+/**
 ** \brief Performs tests on the functions that implement the software timing
 **        performance marker functions contained in cfe_es_perf.c
 **
