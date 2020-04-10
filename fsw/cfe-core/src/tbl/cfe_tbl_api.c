@@ -698,6 +698,8 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
     uint16                      EventMsgType = CFE_EVS_EventType_INFORMATION;
     bool                        FirstTime = false;
 
+    /* Translate AppID of caller into App Name */
+    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
 
     /* Initialize return pointer to NULL */
     WorkingBufferPtr = NULL;
@@ -720,7 +722,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                 /* of the dump only table is being defined by the application.    */
                 RegRecPtr->Buffers[0].BufferPtr = (void *)SrcDataPtr;
                 RegRecPtr->TableLoadedOnce = true;
-                
+ 
                 snprintf(RegRecPtr->Buffers[0].DataSource, sizeof(RegRecPtr->Buffers[0].DataSource), 
                      "Addr 0x%08lX", (unsigned long)SrcDataPtr);
                 RegRecPtr->Buffers[0].FileCreateTimeSecs = 0;
@@ -729,16 +731,17 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                 CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID,
                                            CFE_EVS_EventType_DEBUG,
                                            CFE_TBL_TaskData.TableTaskAppId,
-                                           "Successfully loaded '%s' from '%s'",
-                                           RegRecPtr->Name,
+                                           "%s: Successfully loaded '%s' from '%s'",
+                                           AppName, RegRecPtr->Name,
                                            RegRecPtr->Buffers[0].DataSource);
             }
             else
             {
                 Status = CFE_TBL_ERR_DUMP_ONLY;
 
-                CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) attempted to load Dump Only Tbl '%s'\n",
-                                     (int)ThisAppId, RegRecPtr->Name);
+                CFE_EVS_SendEventWithAppID(CFE_TBL_LOADING_A_DUMP_ONLY_ERR_EID,
+                    CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+                    "%s: Attempted to load Dump Only Tbl '%s'", AppName, RegRecPtr->Name);
             }     
         }
         else
@@ -748,7 +751,9 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
             {
                 Status = CFE_TBL_ERR_LOAD_IN_PROGRESS;
 
-                CFE_ES_WriteToSysLog("CFE_TBL:Load-Tbl Load already in progress for '%s'\n", RegRecPtr->Name);
+                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_IN_PROGRESS_ERR_EID, CFE_EVS_EventType_ERROR,
+                    CFE_TBL_TaskData.TableTaskAppId,
+                    "%s: Load already in progress for '%s'", AppName, RegRecPtr->Name);
             }
             else
             {
@@ -761,19 +766,157 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                     /* Determine whether the load is to occur from a file or from a block of memory */
                     if (SrcType == CFE_TBL_SRC_FILE)
                     {
-                        /* Load the data from the file into the specified buffer */
-                        Status = CFE_TBL_LoadFromFile(WorkingBufferPtr, RegRecPtr, (const char *)SrcDataPtr);
+                        CFE_FS_Header_t      StdFileHeader;
+                        CFE_TBL_File_Hdr_t   TblFileHeader;
+                        int32                FileDescriptor;
+                        const char *         Filename = SrcDataPtr;
+                        size_t               FilenameLen = strlen(Filename);
+                        uint32               NumBytes;
+                        uint8                ExtraByte;
 
-                        if (Status < 0)
+                        if (FilenameLen > (OS_MAX_PATH_LEN-1))
                         {
-                            CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) Fail to load Tbl '%s' from '%s' (Stat=0x%08X)\n",
-                                                 (int)ThisAppId, RegRecPtr->Name, (const char *)SrcDataPtr, (unsigned int)Status);
+                            CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_FILENAME_LONG_ERR_EID,
+                                CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+                                "%s: Filename is too long ('%s' (%lu) > %lu)",
+                                AppName, Filename, (long unsigned int)FilenameLen,
+                                (long unsigned int)OS_MAX_PATH_LEN-1);
+
+                            Status = CFE_TBL_ERR_FILENAME_TOO_LONG;
                         }
-                        else if ((Status == CFE_TBL_WARN_PARTIAL_LOAD) && (!RegRecPtr->TableLoadedOnce))
+
+                        if (Status == CFE_SUCCESS)
                         {
-                            /* Uninitialized tables cannot be loaded with partial table loads */
-                            /* Partial loads can only occur on previously loaded tables.      */
-                            Status = CFE_TBL_ERR_PARTIAL_LOAD;
+                            /* Try to open the specified table file */
+                            FileDescriptor = OS_open(Filename, OS_READ_ONLY, 0);
+
+                            if (FileDescriptor < 0)
+                            {
+                                CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_ACCESS_ERR_EID,
+                                    CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+                                    "%s: Unable to open file (FileDescriptor=%d)",
+                                    AppName, FileDescriptor);
+
+                                Status = CFE_TBL_ERR_ACCESS;
+                            }
+                        }
+
+                        if (Status == CFE_SUCCESS)
+                        {
+                            /* CFE_TBL_ReadHeaders() generates its own events */
+                            Status = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader, &TblFileHeader, Filename);
+                        }
+
+                        if (Status == CFE_SUCCESS)
+                        {
+                            /* Verify that the specified file has compatible data for specified table */
+                            if (strcmp(RegRecPtr->Name, TblFileHeader.TableName) != 0)
+                            {
+                                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID,
+                                    CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+                                    "%s: Table name mismatch (exp=%s, tblfilhdr=%s)",
+                                    AppName, RegRecPtr->Name, TblFileHeader.TableName);
+
+                                Status = CFE_TBL_ERR_FILE_FOR_WRONG_TABLE;
+                            }
+                        }
+
+                        if (Status == CFE_SUCCESS)
+                        {
+                            if ((TblFileHeader.Offset + TblFileHeader.NumBytes) > RegRecPtr->Size)
+                            {
+                                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID,
+                                    CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+                                    "%s: File reports size larger than expected (file=%lu, exp=%lu)",
+                                    AppName,
+                                    (long unsigned int)(TblFileHeader.Offset + TblFileHeader.NumBytes),
+                                    (long unsigned int)RegRecPtr->Size);
+
+                                Status = CFE_TBL_ERR_FILE_TOO_LARGE;
+                            }
+                        }
+
+                        if (Status == CFE_SUCCESS)
+                        {
+                            /* Any Table load that starts beyond the first byte is a "partial load" */
+                            /* But a file that starts with the first byte and ends before filling   */
+                            /* the whole table is just considered "short".                          */
+                            if (TblFileHeader.Offset > 0)
+                            {
+                                CFE_EVS_SendEventWithAppID(CFE_TBL_PARTIAL_LOAD_ERR_EID, CFE_EVS_EventType_ERROR,
+                                    CFE_TBL_TaskData.TableTaskAppId,
+                                    "%s: Attempted to load from partial Tbl '%s' from '%s' (Stat=%u)",
+                                    AppName, RegRecPtr->Name, (const char *)SrcDataPtr, (unsigned int)Status);
+
+                                Status =  CFE_TBL_ERR_PARTIAL_LOAD;
+                            }
+                            else if (TblFileHeader.NumBytes < RegRecPtr->Size)
+                            {
+                                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SHORT_FILE_ERR_EID, CFE_EVS_EventType_ERROR,
+                                    CFE_TBL_TaskData.TableTaskAppId,
+                                    "%s: File too short (exp=%lu, size=%lu)",
+                                    AppName, (long unsigned int)RegRecPtr->Size,
+                                    (long unsigned int)TblFileHeader.NumBytes);
+
+
+                                Status = CFE_TBL_ERR_SHORT_FILE;
+                            }
+                        }
+
+                        if (Status == CFE_SUCCESS)
+                        {
+                            NumBytes = OS_read(FileDescriptor,
+                                               ((uint8*)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset,
+                                               TblFileHeader.NumBytes);
+
+                            if (NumBytes != TblFileHeader.NumBytes)
+                            {
+                                CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_INCOMPLETE_ERR_EID, CFE_EVS_EventType_ERROR,
+                                    CFE_TBL_TaskData.TableTaskAppId,
+                                    "%s: File load incomplete (exp=%lu, read=%lu)",
+                                    AppName, (long unsigned int)TblFileHeader.NumBytes,
+                                    (long unsigned int)NumBytes);
+
+                                Status = CFE_TBL_ERR_LOAD_INCOMPLETE;
+                            }
+                        }
+
+                        if (Status == CFE_SUCCESS)
+                        {
+                            /* Check to see if the file is too large (ie - more data than header claims) */
+                            NumBytes = OS_read(FileDescriptor, &ExtraByte, 1);
+ 
+                            /* If successfully read another byte, then file must have too much data */
+                            if (NumBytes == 1)
+                            {
+                                CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_TOO_BIG_ERR_EID, CFE_EVS_EventType_ERROR,
+                                    CFE_TBL_TaskData.TableTaskAppId,
+                                    "%s: File load too long (file length > %lu)",
+                                    AppName, (long unsigned int)TblFileHeader.NumBytes);
+
+                                Status = CFE_TBL_ERR_FILE_TOO_LARGE;
+                            }
+                        }
+
+                        if (Status == CFE_SUCCESS)
+                        {
+                            memset(WorkingBufferPtr->DataSource, 0, OS_MAX_PATH_LEN);
+                            strncpy(WorkingBufferPtr->DataSource, Filename, OS_MAX_PATH_LEN);
+
+                            /* Save file creation time for later storage into Registry */
+                            WorkingBufferPtr->FileCreateTimeSecs = StdFileHeader.TimeSeconds;
+                            WorkingBufferPtr->FileCreateTimeSubSecs = StdFileHeader.TimeSubSeconds;
+ 
+                            /* Compute the CRC on the specified table buffer */
+                            WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr,
+                                                                        RegRecPtr->Size,
+                                                                        0,
+                                                                        CFE_MISSION_ES_DEFAULT_CRC);
+                        }
+
+                        if (FileDescriptor >= 0)
+                        {
+                            OS_close(FileDescriptor);
                         }
                     }
                     else if (SrcType == CFE_TBL_SRC_ADDRESS)
@@ -786,7 +929,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                         snprintf(WorkingBufferPtr->DataSource, sizeof(WorkingBufferPtr->DataSource), "Addr 0x%08lX", (unsigned long)SrcDataPtr);
                         WorkingBufferPtr->FileCreateTimeSecs = 0;
                         WorkingBufferPtr->FileCreateTimeSubSecs = 0;
-                        
+ 
                         /* Compute the CRC on the specified table buffer */
                         WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr,
                                                                     RegRecPtr->Size,
@@ -796,8 +939,9 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                     else
                     {
                         Status = CFE_TBL_ERR_ILLEGAL_SRC_TYPE;
-                        CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) attempt to load from illegal source type=%d\n",
-                                             (int)ThisAppId, (int)SrcType);
+                        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_TYPE_ERR_EID, CFE_EVS_EventType_ERROR,
+                            CFE_TBL_TaskData.TableTaskAppId,
+                            "%s: Attempted to load from illegal source type=%d", AppName, (int)SrcType);
                     }
 
                     /* If the data was successfully loaded, then validate its contents */
@@ -805,18 +949,13 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                     {
                         Status = (RegRecPtr->ValidationFuncPtr)(WorkingBufferPtr->BufferPtr);
 
-                        if (Status > CFE_SUCCESS)
+                        if (Status != CFE_SUCCESS)
                         {
-                            CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
-                                                 (int)ThisAppId, (unsigned int)Status, RegRecPtr->Name);
-                            Status = -1;
-                        }
-                        
-                        if (Status < 0)
-                        {
-                            CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) reports load invalid (Stat=0x%08X) for '%s'\n",
-                                                 (int)ThisAppId, (unsigned int)Status, RegRecPtr->Name);
-                                            
+                            CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_VAL_ERR_EID, CFE_EVS_EventType_ERROR,
+                                CFE_TBL_TaskData.TableTaskAppId,
+                                "%s: Validation func return code invalid (Stat=%u) for '%s'",
+                                AppName, (unsigned int)Status, RegRecPtr->Name);
+
                             /* Zero out the buffer to remove any bad data */
                             memset(WorkingBufferPtr->BufferPtr, 0, RegRecPtr->Size);     
                         }
@@ -826,7 +965,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                     if (Status >= CFE_SUCCESS)
                     {
                         FirstTime = !RegRecPtr->TableLoadedOnce;
-                        
+ 
                         /* If this is not the first load, then the data must be moved from the inactive buffer      */
                         /* to the active buffer to complete the load.  First loads are done directly to the active. */
                         if (!FirstTime)
@@ -844,7 +983,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                                     OS_MAX_PATH_LEN);
 
                             CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
-                                    
+ 
                             /* If the table is a critical table, update the appropriate CDS with the new data */
                             if (RegRecPtr->CriticalTable == true)
                             {
@@ -856,8 +995,10 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
 
                         if (Status != CFE_SUCCESS)
                         {
-                            CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) fail to update '%s' (Stat=0x%08X)\n",
-                                                 (int)ThisAppId, RegRecPtr->Name, (unsigned int)Status);
+                            CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR,
+                                CFE_TBL_TaskData.TableTaskAppId,
+                                "%s: Failed to update '%s' (Stat=%u)",
+                                AppName, RegRecPtr->Name, (unsigned int)Status);
                         }
                         else
                         {
@@ -868,13 +1009,11 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                                 EventMsgType = CFE_EVS_EventType_DEBUG;
                             }
 
-                            CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID,
-                                                       EventMsgType,
-                                                       CFE_TBL_TaskData.TableTaskAppId,
-                                                       "Successfully loaded '%s' from '%s'",
-                                                       RegRecPtr->Name,
-                                                       RegRecPtr->LastFileLoaded);
-                            
+                            CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_LOADED_INF_EID,
+                                EventMsgType, CFE_TBL_TaskData.TableTaskAppId,
+                                "%s: Successfully loaded '%s' from '%s'", AppName, RegRecPtr->Name,
+                                RegRecPtr->LastFileLoaded);
+ 
                             /* Save the index of the table for housekeeping telemetry */
                             CFE_TBL_TaskData.LastTblUpdated = AccessDescPtr->RegIndex;       
                         }
@@ -894,59 +1033,18 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                 }
                 else
                 {
-                    CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) Failed to get Working Buffer (Stat=0x%08X)\n",
-                                         (int)ThisAppId, (unsigned int)Status);
+                    CFE_EVS_SendEventWithAppID(CFE_TBL_NO_WORK_BUFFERS_ERR_EID, CFE_EVS_EventType_ERROR,
+                        CFE_TBL_TaskData.TableTaskAppId,
+                        "%s: Failed to get Working Buffer (Stat=%u)", AppName, (unsigned int)Status);
                 }
             }
         }
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) does not have access to Tbl Handle=%d\n",
-                             (int)ThisAppId, (int)TblHandle);
-    }
-
-    /* On Error conditions, notify ground of screw up */
-    if (Status < 0)
-    {
-        /* Translate AppID of caller into App Name */
-        CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
-
-        if (RegRecPtr == NULL)
-        {
-            CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_ERR_EID,
-                                       CFE_EVS_EventType_ERROR,
-                                       CFE_TBL_TaskData.TableTaskAppId,
-                                       "%s Failed to Load '?', Status=0x%08X",
-                                       AppName, (unsigned int)Status);
-        }
-        else
-        {
-            if (SrcType == CFE_TBL_SRC_ADDRESS)
-            {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_ERR_EID,
-                                           CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_TaskData.TableTaskAppId,
-                                           "%s Failed to Load '%s' from Addr 0x%08lX, Status=0x%08X",
-                                           AppName, RegRecPtr->Name, (unsigned long)SrcDataPtr, (unsigned int)Status);
-            }
-            else if (SrcType == CFE_TBL_SRC_FILE)
-            {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_ERR_EID,
-                                           CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_TaskData.TableTaskAppId,
-                                           "%s Failed to Load '%s' from '%s', Status=0x%08X",
-                                           AppName, RegRecPtr->Name, (const char *)SrcDataPtr, (unsigned int)Status);
-            }
-            else
-            {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_TYPE_ERR_EID,
-                                           CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_TaskData.TableTaskAppId,
-                                           "%s Failed to Load '%s' (Invalid Source Type)",
-                                           AppName, RegRecPtr->Name);
-            }
-        }
+        CFE_EVS_SendEventWithAppID(CFE_TBL_HANDLE_ACCESS_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_TBL_TaskData.TableTaskAppId,
+            "%s: No access to Tbl Handle=%d", AppName, (int)TblHandle);
     }
 
     return Status;

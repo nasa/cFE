@@ -1287,6 +1287,15 @@
 #define CFE_TBL_MESSAGE_ERROR           ((int32)0xcc00002a)
 
 
+/** TODO: document */
+#define CFE_TBL_ERR_SHORT_FILE          ((int32)0xcc00002b)
+
+/** TODO: document */
+#define CFE_TBL_ERR_OPEN                ((int32)0xcc00002c)
+
+/** TODO: document */
+#define CFE_TBL_ERR_ACCESS              ((int32)0xcc00002d)
+
 /**
 **  Current version of cFE does not have the function or the feature
 **  of the function implemented.  This could be due to either an early

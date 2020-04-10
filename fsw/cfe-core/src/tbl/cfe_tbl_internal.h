@@ -361,48 +361,6 @@ int32   CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
 
 /*****************************************************************************/
 /**
-** \brief Loads a table buffer with data from a specified file
-**
-** \par Description
-**        Locates the specified filename in the onboard filesystem
-**        and loads its contents into the specified working buffer.
-**
-** \par Assumptions, External Events, and Notes:
-**        -# This function assumes parameters have been verified.
-**
-** \param[in]  WorkingBufferPtr Pointer to a working buffer that is to be loaded
-**                              with the contents of the specified file
-**
-** \param[in]  RegRecPtr        Pointer to Table Registry record for table whose
-**                              buffer is to filled with data from the specified file
-** 
-** \param[in]  Filename         Pointer to ASCII string containing full path and filename
-**                              of table image file to be loaded
-**
-** \retval #CFE_SUCCESS                      \copydoc CFE_SUCCESS
-** \retval #OS_FS_ERR_INVALID_POINTER        \copydoc OS_FS_ERR_INVALID_POINTER      
-** \retval #OS_FS_ERR_PATH_TOO_LONG          \copydoc OS_FS_ERR_PATH_TOO_LONG      
-** \retval #OS_FS_ERR_PATH_INVALID           \copydoc OS_FS_ERR_PATH_INVALID      
-** \retval #OS_FS_ERR_NAME_TOO_LONG          \copydoc OS_FS_ERR_NAME_TOO_LONG      
-** \retval #OS_FS_ERR_NO_FREE_FDS            \copydoc OS_FS_ERR_NO_FREE_FDS      
-** \retval #OS_FS_ERROR                      \copydoc OS_FS_ERROR      
-** \retval #CFE_TBL_ERR_FILE_TOO_LARGE       \copydoc CFE_TBL_ERR_FILE_TOO_LARGE      
-** \retval #CFE_TBL_WARN_SHORT_FILE          \copydoc CFE_TBL_WARN_SHORT_FILE         
-** \retval #CFE_TBL_WARN_PARTIAL_LOAD        \copydoc CFE_TBL_WARN_PARTIAL_LOAD       
-** \retval #CFE_TBL_ERR_FILENAME_TOO_LONG    \copydoc CFE_TBL_ERR_FILENAME_TOO_LONG   
-** \retval #CFE_TBL_ERR_FILE_FOR_WRONG_TABLE \copydoc CFE_TBL_ERR_FILE_FOR_WRONG_TABLE
-** \retval #CFE_TBL_ERR_NO_STD_HEADER        \copydoc CFE_TBL_ERR_NO_STD_HEADER       
-** \retval #CFE_TBL_ERR_NO_TBL_HEADER        \copydoc CFE_TBL_ERR_NO_TBL_HEADER       
-** \retval #CFE_TBL_ERR_BAD_CONTENT_ID       \copydoc CFE_TBL_ERR_BAD_CONTENT_ID      
-** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID       \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID      
-**                     
-******************************************************************************/
-int32   CFE_TBL_LoadFromFile(CFE_TBL_LoadBuff_t *WorkingBufferPtr, 
-                             CFE_TBL_RegistryRec_t *RegRecPtr, const char *Filename);
-
-
-/*****************************************************************************/
-/**
 ** \brief Updates the active table buffer with contents of inactive buffer
 **
 ** \par Description
