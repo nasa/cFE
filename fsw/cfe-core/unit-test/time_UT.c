@@ -56,116 +56,116 @@ const char *TIME_SYSLOG_MSGS[] =
 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SEND_HK =
 {
-        .MsgId = CFE_TIME_SEND_HK_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_SEND_HK_MID)
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_TONE_CMD =
 {
-        .MsgId = CFE_TIME_TONE_CMD_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_TONE_CMD_MID)
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_DATA_CMD =
 {
-        .MsgId = CFE_TIME_DATA_CMD_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_DATA_CMD_MID)
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_1HZ_CMD =
 {
-        .MsgId = CFE_TIME_1HZ_CMD_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_1HZ_CMD_MID)
 };
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SEND_CMD =
 {
-        .MsgId = CFE_TIME_SEND_CMD_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_SEND_CMD_MID)
 };
 #endif
 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_NOOP_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_NOOP_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_RESET_COUNTERS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SEND_DIAGNOSTIC_TLM_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_STATE_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_STATE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_SOURCE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_SIGNAL_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_SIGNAL_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_DELAY_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_ADD_DELAY_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_DELAY_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SUB_DELAY_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_TIME_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_TIME_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_MET_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_MET_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_STCF_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_STCF_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_LEAP_SECONDS_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_LEAP_SECONDS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_ADJUST_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_ADD_ADJUST_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_ADJUST_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SUB_ADJUST_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_1HZ_ADJUSTMENT_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_ADD_1HZ_ADJUSTMENT_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_1HZ_ADJUSTMENT_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SUB_1HZ_ADJUSTMENT_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TIME_INVALID_MID =
 {
-        .MsgId = 0xFFFF,
+        .MsgId = CFE_SB_MSGID_RESERVED,
         .CommandCode = 0
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TIME_CMD_INVALID_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = 0x7F
 };
 
@@ -1889,7 +1889,7 @@ void Test_PipeCmds(void)
 
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData =
     {
-            .MsgId = CFE_TIME_HK_TLM_MID
+            .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_HK_TLM_MID)
     };
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)

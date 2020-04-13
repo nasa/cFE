@@ -58,12 +58,36 @@
 /* ------------------------------------------------------ */
 
 /**
+ * \brief Translation macro to convert from MsgId integer values to opaque/abstract API values
+ *
+ * This conversion exists in macro form to allow compile-time evaluation for constants, and
+ * should not be used directly in application code.
+ *
+ * For applications, use the CFE_SB_ValueToMsgId() inline function instead.
+ *
+ * \sa CFE_SB_ValueToMsgId()
+ */
+#define CFE_SB_MSGID_WRAP_VALUE(val)     ((CFE_SB_MsgId_t)(val))
+
+/**
+ * \brief Translation macro to convert to MsgId integer values from opaque/abstract API values
+ *
+ * This conversion exists in macro form to allow compile-time evaluation for constants, and
+ * should not be used directly in application code.
+ *
+ * For applications, use the CFE_SB_MsgIdToValue() inline function instead.
+ *
+ * \sa CFE_SB_MsgIdToValue()
+ */
+#define CFE_SB_MSGID_UNWRAP_VALUE(mid)   ((CFE_SB_MsgId_Atom_t)(mid))
+
+/**
  * \brief Reserved value for CFE_SB_MsgId_t that will not match any valid MsgId
  *
  * This rvalue macro can be used for static/compile-time data initialization to ensure that
  * the initialized value does not alias to a valid MsgId object.
  */
-#define CFE_SB_MSGID_RESERVED            ((CFE_SB_MsgId_t)(-1))
+#define CFE_SB_MSGID_RESERVED            CFE_SB_MSGID_WRAP_VALUE(-1)
 
 /**
  * \brief A literal of the CFE_SB_MsgId_t type representing an invalid ID
@@ -1333,7 +1357,7 @@ bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId);
  */
 static inline bool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgId2)
 {
-    return (MsgId1 == MsgId2);
+    return CFE_SB_MSGID_UNWRAP_VALUE(MsgId1) == CFE_SB_MSGID_UNWRAP_VALUE(MsgId2);
 }
 
 /*****************************************************************************/
@@ -1364,7 +1388,7 @@ static inline bool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgI
  */
 static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
 {
-    return MsgId;
+    return CFE_SB_MSGID_UNWRAP_VALUE(MsgId);
 }
 
 /*****************************************************************************/
@@ -1393,7 +1417,8 @@ static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
  */
 static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
 {
-    return MsgIdValue;
+    CFE_SB_MsgId_t Result = CFE_SB_MSGID_WRAP_VALUE(MsgIdValue);
+    return Result;
 }
 /**@}*/
 

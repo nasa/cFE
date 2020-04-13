@@ -145,14 +145,14 @@ int32 CFE_TBL_EarlyInit (void)
     ** Initialize housekeeping packet (clear user data area)...
     */
     CFE_SB_InitMsg(&CFE_TBL_TaskData.HkPacket,
-                    CFE_TBL_HK_TLM_MID,
+                    CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
                     sizeof(CFE_TBL_TaskData.HkPacket), true);
 
     /*
     ** Initialize table registry report packet (clear user data area)...
     */
     CFE_SB_InitMsg(&CFE_TBL_TaskData.TblRegPacket,
-                    CFE_TBL_REG_TLM_MID,
+                    CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
                     sizeof(CFE_TBL_TaskData.TblRegPacket), true);
 
     /* Initialize memory partition and allocate shared table buffers. */

@@ -123,7 +123,7 @@ int32 CFE_SB_EarlyInit (void) {
     
     /* Initialize the SB Statistics Pkt */
     CFE_SB_InitMsg(&CFE_SB.StatTlmMsg,
-                   CFE_SB_STATS_TLM_MID,
+                   CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
                    sizeof(CFE_SB.StatTlmMsg),
                    true);    
 
