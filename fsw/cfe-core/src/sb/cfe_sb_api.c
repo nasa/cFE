@@ -1651,12 +1651,20 @@ uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId)
     /* Get ptr to buffer descriptor for the last msg received on the given pipe */
     Ptr2BufDescriptor = CFE_SB.PipeTbl[PipeId].CurrentBuff;
 
-    /* Set the receivers pointer to the adr of 'Sender' struct in buf descriptor */
-    *Ptr = (CFE_SB_SenderId_t *) &Ptr2BufDescriptor -> Sender;
-
-    CFE_SB_UnlockSharedData(__func__,__LINE__);
-
-    return CFE_SUCCESS;
+    if ( Ptr2BufDescriptor == NULL  )
+    {
+        *Ptr = NULL;
+        CFE_SB.PipeTbl[PipeId].LastSender = CFE_SB_INVALID_MSG_ID;
+        CFE_SB_UnlockSharedData(__func__,__LINE__);
+        return CFE_SB_NO_MSG_RECV; 
+    }
+    else
+    {
+        /* Set the receivers pointer to the adr of 'Sender' struct in buf descriptor */
+        *Ptr = (CFE_SB_SenderId_t *) &Ptr2BufDescriptor -> Sender;
+        CFE_SB_UnlockSharedData(__func__,__LINE__);
+        return CFE_SUCCESS;
+    }
 
 }/* end CFE_SB_GetLastSenderId */
 

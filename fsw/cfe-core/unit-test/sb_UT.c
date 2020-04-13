@@ -7531,6 +7531,7 @@ void Test_RcvMsg_API(void)
     Test_RcvMsg_GetLastSenderNull();
     Test_RcvMsg_GetLastSenderInvalidPipe();
     Test_RcvMsg_GetLastSenderInvalidCaller();
+    Test_RcvMsg_GetLastSenderNoValidSender();
     Test_RcvMsg_GetLastSenderSuccess();
     Test_RcvMsg_Timeout();
     Test_RcvMsg_PipeReadError();
@@ -7876,10 +7877,8 @@ void Test_RcvMsg_GetLastSenderInvalidCaller(void)
               "GetLastSenderId invalid caller test");
 } /* end Test_RcvMsg_GetLastSenderInvalidCaller */
 
-/*
-** Test successful receive last message request
-*/
-void Test_RcvMsg_GetLastSenderSuccess(void)
+
+void Test_RcvMsg_GetLastSenderNoValidSender(void)
 {
     CFE_SB_PipeId_t   PipeId;
     CFE_SB_SenderId_t *GLSPtr;
@@ -7889,11 +7888,69 @@ void Test_RcvMsg_GetLastSenderSuccess(void)
     int32             TestStat = CFE_PASS;
 
 #ifdef UT_VERBOSE
+    UT_Text("Begin Test for GetLastSender No Valid Sender");
+#endif
+
+    SB_ResetUnitTest();
+    CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvMsgTestPipe");
+    ActRtn = CFE_SB_GetLastSenderId(&GLSPtr, PipeId);
+    ExpRtn = CFE_SB_NO_MSG_RECV;
+
+    if (ActRtn != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected return in GetLastSenderId No Valid Sender test, "
+                   "exp=0x%lx, act=0x%lx",
+                 (unsigned long) ExpRtn, (unsigned long) ActRtn);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+    }
+
+    ExpRtn = 1;
+    ActRtn = UT_GetNumEventsSent();
+
+    if (ActRtn != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected rtn from UT_GetNumEventsSent, exp=%ld, act=%ld",
+                 (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+    }
+
+    CFE_SB_DeletePipe(PipeId);
+    UT_Report(__FILE__, __LINE__,
+              TestStat, "Test_RcvMsg_API",
+              "GetLastSenderId No Valid Sender test");
+
+} /* end Test_RcvMsg_GetLastSenderNoValidSender */
+
+
+/*
+** Test successful receive last message request
+*/
+void Test_RcvMsg_GetLastSenderSuccess(void)
+{
+    CFE_SB_PipeId_t    PipeId;
+    CFE_SB_SenderId_t  *GLSPtr;
+    SB_UT_Test_Tlm_t   TlmPkt;
+    CFE_SB_MsgPtr_t    TlmPktPtr = (CFE_SB_MsgPtr_t) &TlmPkt;
+    CFE_SB_MsgPtr_t    PtrToMsg;
+    uint32             PipeDepth = 10;
+    int32              ExpRtn;
+    int32              ActRtn;
+    int32              TestStat = CFE_PASS;
+
+#ifdef UT_VERBOSE
     UT_Text("Begin Test for GetLastSender Success");
 #endif
 
     SB_ResetUnitTest();
     CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvMsgTestPipe");
+    CFE_SB_InitMsg(&TlmPkt, SB_UT_TLM_MID, sizeof(TlmPkt), true);
+    CFE_SB_Subscribe(SB_UT_TLM_MID, PipeId);
+    CFE_SB_SendMsg(TlmPktPtr);
+    CFE_SB_RcvMsg(&PtrToMsg, PipeId,CFE_SB_PEND_FOREVER);
     ActRtn = CFE_SB_GetLastSenderId(&GLSPtr, PipeId);
     ExpRtn = CFE_SUCCESS;
 
@@ -7907,7 +7964,7 @@ void Test_RcvMsg_GetLastSenderSuccess(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 1;
+    ExpRtn = 3;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
