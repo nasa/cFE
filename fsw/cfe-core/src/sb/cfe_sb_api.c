@@ -1296,7 +1296,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     RtgTblPtr = CFE_SB_GetRoutePtrFromIdx(RtgTblIdx);
 
     /* For Tlm packets, increment the seq count if requested */
-    if((CFE_SB_GetPktType(MsgId)==CFE_SB_TLM) &&
+    if((CFE_SB_GetPktType(MsgId)==CFE_SB_PKTTYPE_TLM) &&
        (TlmCntIncrements==CFE_SB_INCREMENT_TLM)){
         RtgTblPtr->SeqCnt++;
         CFE_SB_SetMsgSeqCnt((CFE_SB_Msg_t *)BufDscPtr->Buffer,

@@ -63,9 +63,6 @@
 #define CFE_SB_GLOBAL                   0
 #define CFE_SB_LOCAL                    1
 
-#define CFE_SB_TLM                      0
-#define CFE_SB_CMD                      1
-
 #define CFE_SB_SEND_ZEROCOPY            0
 #define CFE_SB_SEND_ONECOPY             1
 
@@ -391,7 +388,6 @@ int32 CFE_SB_ZeroCopyReleaseAppId(uint32         AppId);
 int32 CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
 int32 CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId);
-uint8 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId);
 void CFE_SB_IncrCmdCtr(int32 status);
 void CFE_SB_FileWriteByteCntErr(const char *Filename,uint32 Requested,uint32 Actual);
 void CFE_SB_SetSubscriptionReporting(uint32 state);
