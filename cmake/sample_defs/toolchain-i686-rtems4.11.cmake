@@ -10,21 +10,41 @@
 # the pc-rtems PSP.
 
 # Basic cross system configuration
-SET(RTEMS_TOOLS_TOP "/opt/rtems-4.11")
-SET(RTEMS_BSP_TOP "/opt/x-tools/rtems-4.11" CACHE PATH "Rtems install directory")
+set(CMAKE_SYSTEM_NAME       RTEMS)
+set(CMAKE_SYSTEM_PROCESSOR  i386)
+set(CMAKE_SYSTEM_VERSION    4.11)
 
-SET(CMAKE_SYSTEM_NAME         RTEMS)
-SET(CMAKE_SYSTEM_VERSION      1)
-SET(CMAKE_SYSTEM_PROCESSOR    i686)
+# The TOOLS and BSP are allowed to be installed in different locations.
+# If the README was followed they will both be installed under $HOME
+# By default it is assumed the BSP is installed to the same directory as the tools
+SET(RTEMS_TOOLS_PREFIX "$ENV{HOME}/rtems-${CMAKE_SYSTEM_VERSION}" CACHE PATH 
+    "RTEMS tools install directory")
+SET(RTEMS_BSP_PREFIX "${RTEMS_TOOLS_PREFIX}" CACHE PATH 
+    "RTEMS BSP install directory")
 
-# specify the cross compiler
-SET(CMAKE_C_COMPILER          ${RTEMS_TOOLS_TOP}/bin/i386-rtems4.11-gcc)
-SET(CMAKE_CXX_COMPILER        ${RTEMS_TOOLS_TOP}/bin/i386-rtems4.11-g++)
-SET(CMAKE_LINKER              ${RTEMS_TOOLS_TOP}/bin/i386-rtems4.11-ld)
+# The BSP that will be used for this build
+set(RTEMS_BSP "pc686")
 
-# where is the target environment
-SET(CMAKE_FIND_ROOT_PATH      ${RTEMS_TOOLS_TOP}/i386-rtems4.11 
-                              ${RTEMS_TOOLS_TOP}/lib/gcc/i386-rtems4.11/4.8.2 ${RTEMS_BSP_TOP}/i386-rtems4.11/pc686)
+# specify the cross compiler - adjust accord to compiler installation
+# This uses the compiler-wrapper toolchain that buildroot produces
+SET(SDKHOSTBINDIR               "${RTEMS_TOOLS_PREFIX}/bin")
+set(TARGETPREFIX                "${CMAKE_SYSTEM_PROCESSOR}-rtems${CMAKE_SYSTEM_VERSION}-")
+set(RTEMS_BSP_C_FLAGS           "-march=i686 -mtune=i686 -fno-common")
+set(RTEMS_BSP_CXX_FLAGS         ${RTEMS_BSP_C_FLAGS})
+
+SET(CMAKE_C_COMPILER            "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}gcc")
+SET(CMAKE_CXX_COMPILER          "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}g++")
+SET(CMAKE_LINKER                "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}ld")
+SET(CMAKE_ASM_COMPILER          "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}as")
+SET(CMAKE_STRIP                 "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}strip")
+SET(CMAKE_NM                    "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}nm")
+SET(CMAKE_AR                    "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}ar")
+SET(CMAKE_OBJDUMP               "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}objdump")
+SET(CMAKE_OBJCOPY               "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}objcopy")
+
+# Note that CEXP is not a shared library loader - it will not support code compiled with -fPIC
+# Also exception handling is very iffy.  These two options disable eh_frame creation.
+set(CMAKE_C_COMPILE_OPTIONS_PIC -fno-exceptions -fno-asynchronous-unwind-tables)
 
 # search for programs in the build host directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM   NEVER)
@@ -41,14 +61,16 @@ SET(CFE_SYSTEM_PSPNAME                  pc-rtems)
 SET(OSAL_SYSTEM_BSPTYPE                 pc-rtems)
 SET(OSAL_SYSTEM_OSTYPE                  rtems)
 
-# Forces the "Init" symbol to be undefined so it can be defined in a library
-SET(CFE_ENTRY_SYM Init)
+# Info regarding the RELOCADDR:
+#+--------------------------------------------------------------------------+
+#| Set the value of RELOCADDR to the address where you want your image to
+#| load. If you'll be using GRUB to load the images it will have to be >=
+#| 0x100000 (1024K). If you are using NetBoot to load the images it can be
+#| >= 0x10000 (64K) AND <= 0x97C00 (607K) OR >= 0x100000 (1024K). The memory
+#| top is of course another limit. Make sure there is enough space before the
+#| upper memory limits for the image and the memory allocated by it to fit.
+#| Make sure the value you choose is aligned to 4 bytes.
+#+--------------------------------------------------------------------------+
+set(RTEMS_RELOCADDR 0x00100000)
 
-SET(CMAKE_C_FLAGS_INIT "-march=i686 -B${RTEMS_BSP_TOP}/i386-rtems4.11/pc686/lib" 
-    CACHE STRING "C Flags required by platform")
-
-# For RTEMS also install rtems-grub.cfg that allows booting using QEMU
-macro(target_add_hook TGTNAME)
-  install(FILES ${MISSION_DEFS}/${TGTNAME}_rtems-grub.cfg DESTINATION ${TGTNAME} RENAME rtems-grub.cfg)
-endmacro()
 
