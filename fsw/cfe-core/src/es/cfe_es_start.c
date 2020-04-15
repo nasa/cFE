@@ -869,7 +869,7 @@ void  CFE_ES_CreateObjects(void)
                   */
                   if ( CFE_ES_Global.TaskTable[TaskIndex].RecordUsed == true )
                   {
-                     CFE_ES_WriteToSysLog("ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
+                     CFE_ES_SysLogWrite_Unsync("ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
                                            CFE_ES_ObjectTable[i].ObjectName);
                   }
                   else
@@ -881,7 +881,7 @@ void  CFE_ES_CreateObjects(void)
                   strncpy((char *)CFE_ES_Global.TaskTable[TaskIndex].TaskName, (char *)CFE_ES_Global.AppTable[j].TaskInfo.MainTaskName, OS_MAX_API_NAME);
                   CFE_ES_Global.TaskTable[TaskIndex].TaskName[OS_MAX_API_NAME - 1] = '\0';
 
-                  CFE_ES_WriteToSysLog("ES Startup: Core App: %s created. App ID: %d\n",
+                  CFE_ES_SysLogWrite_Unsync("ES Startup: Core App: %s created. App ID: %d\n",
                                        CFE_ES_ObjectTable[i].ObjectName,j);
                                        
                   /*
