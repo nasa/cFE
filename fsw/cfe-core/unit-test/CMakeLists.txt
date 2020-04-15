@@ -42,14 +42,13 @@ foreach(MODULE ${CFE_CORE_MODULES})
   
   # Compile the unit(s) under test as an object library
   # this allows easy configuration of special flags and include paths
-  # in particular this should use the UT_C_FLAGS for coverage instrumentation
+  # in particular this should use the UT_COVERAGE_COMPILE_FLAGS for coverage instrumentation
   add_library(ut_${UT_TARGET_NAME}_object OBJECT 
       ${CFE_MODULE_FILES})
   
-  # Apply the UT_C_FLAGS to the units under test
+  # Apply the UT_COVERAGE_COMPILE_FLAGS to the units under test
   # This should enable coverage analysis on platforms that support this
-  set_target_properties(ut_${UT_TARGET_NAME}_object PROPERTIES
-      COMPILE_FLAGS "${UT_C_FLAGS}")
+  target_compile_options(ut_${UT_TARGET_NAME}_object PRIVATE ${UT_COVERAGE_COMPILE_FLAGS})
         
   # For this object target only, the "override" includes should be injected
   # into the include path BEFORE any other include path.  This is so the
@@ -61,16 +60,14 @@ foreach(MODULE ${CFE_CORE_MODULES})
     ${MODULE}_UT.c 
     $<TARGET_OBJECTS:ut_${UT_TARGET_NAME}_object>)
   
+  # Also add the UT_COVERAGE_LINK_FLAGS to the link command    
+  # This should enable coverage analysis on platforms that support this
   target_link_libraries(${UT_TARGET_NAME}_UT
+        ${UT_COVERAGE_LINK_FLAGS}
         ut_${CFE_CORE_TARGET}_support
         ut_cfe-core_stubs
         ut_assert)
     
-  # Also add the C FLAGS to the link command    
-  # This should enable coverage analysis on platforms that support this
-  set_target_properties(${UT_TARGET_NAME}_UT PROPERTIES 
-    LINK_FLAGS "${UT_C_FLAGS}")
-        
   add_test(${UT_TARGET_NAME}_UT ${UT_TARGET_NAME}_UT)
   install(TARGETS ${UT_TARGET_NAME}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
 endforeach(MODULE ${CFE_CORE_MODULES})
