@@ -185,3 +185,15 @@ void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
 
 #endif 
 }/* end CFE_SB_SetMsgId */
+
+/*
+ * Function: CFE_SB_IsValidMsgId - See API and header file for details
+ */
+bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
+{
+    return (!CFE_SB_MsgId_Equal(MsgId, CFE_SB_INVALID_MSG_ID) &&
+            CFE_SB_MsgIdToValue(MsgId) <= CFE_SB_HIGHEST_VALID_MSGID);
+} /* end CFE_SB_IsValidMsgId */
+
+
+

@@ -53,7 +53,30 @@
 #define CFE_SB_SUBSCRIPTION             0      /**< \brief Subtype specifier used in #CFE_SB_SingleSubscriptionTlm_t by SBN App */
 #define CFE_SB_UNSUBSCRIPTION           1      /**< \brief Subtype specified used in #CFE_SB_SingleSubscriptionTlm_t by SBN App */
 
-#define CFE_SB_INVALID_MSG_ID           0xFFFF /**< \brief Initializer for #CFE_SB_MsgId_t values that will not match any real MsgId */
+/* ------------------------------------------------------ */
+/* Macro Constants for use with the CFE_SB_MsgId_t type   */
+/* ------------------------------------------------------ */
+
+/**
+ * \brief Reserved value for CFE_SB_MsgId_t that will not match any valid MsgId
+ *
+ * This rvalue macro can be used for static/compile-time data initialization to ensure that
+ * the initialized value does not alias to a valid MsgId object.
+ */
+#define CFE_SB_MSGID_RESERVED            ((CFE_SB_MsgId_t)(-1))
+
+/**
+ * \brief A literal of the CFE_SB_MsgId_t type representing an invalid ID
+ *
+ * This value should be used for runtime initialization of CFE_SB_MsgId_t values.
+ *
+ * \note This may be a compound literal in a future revision.  Per C99, compound
+ * literals are lvalues, not rvalues, so this value should not be used in
+ * static/compile-time data initialization.  For static data initialization
+ * purposes (rvalue), #CFE_SB_MSGID_RESERVED should be used instead.
+ * However, in the current implementation, they are equivalent.
+ */
+#define CFE_SB_INVALID_MSG_ID            CFE_SB_MSGID_RESERVED
 
 /*
 ** Macro Definitions
@@ -1278,7 +1301,21 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr);
 
 /*****************************************************************************/
 /**
- * \brief Identifies whether a two #CFE_SB_MsgId_t values are equal
+ * \brief Identifies whether a given CFE_SB_MsgId_t is valid
+ *
+ * \par Description
+ *    Implements a basic sanity check on the value provided
+ *
+ * \return Boolean message ID validity indicator
+ * \retval true  Message ID is within the valid range
+ * \retval false Message ID is not within the valid range
+ */
+bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId);
+
+
+/*****************************************************************************/
+/**
+ * \brief Identifies whether two #CFE_SB_MsgId_t values are equal
  *
  * \par Description
  *    In cases where the #CFE_SB_MsgId_t type is not a simple integer

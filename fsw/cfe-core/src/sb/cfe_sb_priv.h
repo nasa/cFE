@@ -473,19 +473,6 @@ extern cfe_sb_t CFE_SB;
  * --------------------------------------------------------- */
 
 /**
- * @brief Identifies whether a given CFE_SB_MsgId_t is valid
- *
- * Implements a basic sanity check on the value provided
- *
- * @returns true if sanity checks passed, false otherwise.
- */
-static inline bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
-{
-    /* cppcheck-suppress redundantCondition */
-    return (MsgId != CFE_SB_INVALID_MSG_ID && MsgId <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
-}
-
-/**
  * @brief Identifies whether a given CFE_SB_MsgKey_t is valid
  *
  * Implements a basic sanity check on the value provided
