@@ -1398,7 +1398,7 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
     for (i=0; i<CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
         /* Check to see if the Handle belongs to the Application being deleted */
-        if (CFE_TBL_TaskData.Handles[i].AppId == AppId)
+        if (CFE_TBL_TaskData.Handles[i].AppId == AppId && CFE_TBL_TaskData.Handles[i].UsedFlag == TRUE)
         {
             /* Delete the handle (and the table, if the App owned it) */
             /* Get a pointer to the relevant Access Descriptor */
@@ -1425,6 +1425,9 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
             /* NOTE: If this removes the last access link, then   */
             /*       memory buffers are set free as well.         */
             CFE_TBL_RemoveAccessLink(i);
+	    
+            CFE_TBL_TaskData.Handles[i].AppId = (uint32)CFE_TBL_NOT_OWNED;
+
         }
     }
 
