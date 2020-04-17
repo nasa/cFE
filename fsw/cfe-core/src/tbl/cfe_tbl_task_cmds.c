@@ -119,7 +119,7 @@ int32 CFE_TBL_HousekeepingCmd(const CCSDS_CommandPacket_t *data)
                 {
                     Status = CFE_FS_SetTimestamp(FileDescriptor, DumpTime);
                     
-                    if (Status != OS_FS_SUCCESS)
+                    if (Status != OS_SUCCESS)
                     {
                         CFE_ES_WriteToSysLog("CFE_TBL:HkCmd-Unable to update timestamp in dump file '%s'\n", 
                                              DumpCtrlPtr->DumpBufferPtr->DataSource);
@@ -757,7 +757,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
     /* Create a new dump file, overwriting anything that may have existed previously */
     FileDescriptor = OS_creat(DumpFilename, OS_WRITE_ONLY);
 
-    if (FileDescriptor >= OS_FS_SUCCESS)
+    if (FileDescriptor >= OS_SUCCESS)
     {
         /* Initialize the standard cFE File Header for the Dump File */
         CFE_FS_InitHeader(&StdFileHeader, "Table Dump Image", CFE_FS_SubType_TBL_IMG);
@@ -1147,7 +1147,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
     /* Create a new dump file, overwriting anything that may have existed previously */
     FileDescriptor = OS_creat(DumpFilename, OS_WRITE_ONLY);
 
-    if (FileDescriptor >= OS_FS_SUCCESS)
+    if (FileDescriptor >= OS_SUCCESS)
     {
         /* Initialize the standard cFE File Header for the Dump File */
         CFE_FS_InitHeader(&StdFileHeader, "Table Registry", CFE_FS_SubType_TBL_REG);

@@ -808,12 +808,12 @@
 #define CFE_OS_ERR_INVALID_PRIORITY     (OS_ERR_INVALID_PRIORITY) /**< @copydoc OS_ERR_INVALID_PRIORITY */
 #define CFE_OS_ERROR_TASK_ID            (OS_ERROR_TASK_ID) /**< @brief This doesn't actually exist */
 #define CFE_OS_SEM_UNAVAILABLE          (OS_SEM_UNAVAILABLE) /**< @brief This doesn't actually exist */
-#define CFE_OS_FS_ERROR                 (OS_FS_ERROR) /**< @copydoc OS_FS_ERROR */
-#define CFE_OS_FS_ERR_INVALID_POINTER   (OS_FS_ERR_INVALID_POINTER) /**< @copydoc OS_FS_ERR_INVALID_POINTER */
+#define CFE_OS_FS_ERROR                 (OS_ERROR) /**< @copydoc OS_ERROR */
+#define CFE_OS_FS_ERR_INVALID_POINTER   (OS_INVALID_POINTER) /**< @copydoc OS_INVALID_POINTER */
 #define CFE_OS_FS_ERR_PATH_TOO_LONG     (OS_FS_ERR_PATH_TOO_LONG) /**< @copydoc OS_FS_ERR_PATH_TOO_LONG */
 #define CFE_OS_FS_ERR_NAME_TOO_LONG     (OS_FS_ERR_NAME_TOO_LONG) /**< @copydoc OS_FS_ERR_NAME_TOO_LONG */
 #define CFE_OS_FS_ERR_DRIVE_NOT_CREATED (OS_FS_ERR_DRIVE_NOT_CREATED) /**< @copydoc OS_FS_ERR_DRIVE_NOT_CREATED */
-#define CFE_OSAPI_NOT_IMPLEMENTED       (OS_FS_UNIMPLEMENTED) /**< @copydoc OS_FS_UNIMPLEMENTED */
+#define CFE_OSAPI_NOT_IMPLEMENTED       (OS_ERR_NOT_IMPLEMENTED) /**< @copydoc OS_ERR_NOT_IMPLEMENTED */
 
 /*
 ************* SOFTWARE BUS SERVICES STATUS CODES *************

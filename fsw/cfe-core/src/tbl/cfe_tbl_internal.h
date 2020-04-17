@@ -380,12 +380,12 @@ int32   CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
 **                              of table image file to be loaded
 **
 ** \retval #CFE_SUCCESS                      \copydoc CFE_SUCCESS
-** \retval #OS_FS_ERR_INVALID_POINTER        \copydoc OS_FS_ERR_INVALID_POINTER      
+** \retval #OS_INVALID_POINTER               \copydoc OS_INVALID_POINTER      
 ** \retval #OS_FS_ERR_PATH_TOO_LONG          \copydoc OS_FS_ERR_PATH_TOO_LONG      
 ** \retval #OS_FS_ERR_PATH_INVALID           \copydoc OS_FS_ERR_PATH_INVALID      
 ** \retval #OS_FS_ERR_NAME_TOO_LONG          \copydoc OS_FS_ERR_NAME_TOO_LONG      
-** \retval #OS_FS_ERR_NO_FREE_FDS            \copydoc OS_FS_ERR_NO_FREE_FDS      
-** \retval #OS_FS_ERROR                      \copydoc OS_FS_ERROR      
+** \retval #OS_ERR_NO_FREE_IDS               \copydoc OS_ERR_NO_FREE_IDS      
+** \retval #OS_ERROR                         \copydoc OS_ERROR      
 ** \retval #CFE_TBL_ERR_FILE_TOO_LARGE       \copydoc CFE_TBL_ERR_FILE_TOO_LARGE      
 ** \retval #CFE_TBL_WARN_SHORT_FILE          \copydoc CFE_TBL_WARN_SHORT_FILE         
 ** \retval #CFE_TBL_WARN_PARTIAL_LOAD        \copydoc CFE_TBL_WARN_PARTIAL_LOAD       
