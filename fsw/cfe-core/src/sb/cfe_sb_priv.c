@@ -659,36 +659,6 @@ char *CFE_SB_GetAppTskName(uint32 TaskId,char *FullName){
 
 }/* end CFE_SB_GetAppTskName */
 
-
-/******************************************************************************
-**  Function:  CFE_SB_GetPktType()
-**
-**  Purpose:
-**    For CCSDS packets, this function returns the state of the cmd/tlm bit(12).
-**    For cmd pkts, the state is 1. For tlm pkts, the state is 0.
-**
-**  Arguments:
-**
-**  Return:
-**    None
-*/
-uint8 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
-{
-
-#ifdef MESSAGE_FORMAT_IS_CCSDS
-    CFE_SB_MsgId_Atom_t Val = MsgId;
-
-#ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2
-        return CFE_TST(Val,12);
-#else
-        return CFE_SB_RD_TYPE_FROM_MSGID(Val);
-#endif /* MESSAGE_FORMAT_IS_CCSDS_VER_2 */
-        
-#endif /* MESSAGE_FORMAT_IS_CCSDS */
-
-}/* end CFE_SB_GetPktType */
-
-
 /******************************************************************************
 **  Function:  CFE_SB_RequestToSendEvent()
 **

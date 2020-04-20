@@ -7,7 +7,10 @@ This repository contains NASA's Core Flight Executive (cFE), which is a framewor
 This is a collection of services and associated framework to be located in the `cfe` subdirectory of a cFS Mission Tree.  The Core Flight System is bundled at https://github.com/nasa/cFS, which includes build and execution instructions.
 
 ## Version Notes
-
+- 6.7.13: DEVELOPMENT
+  - RTEMS builds without error.
+  - Use the INTERFACE_COMPILE_DEFINITIONS and INTERFACE_INCLUDE_DIRECTORIES properties from the osal target and apply them to the entire CFE build as a directory-scope property. No impact until these are set in OSAL.
+  - Minor other updates (see https://github.com/nasa/cFE/pull/615)
 - 6.7.12: DEVELOPMENT
   - Cmd code (and checksum) are always in the same place (matches GSFC spec for command secondary header)
   - No impact to behavior. Previously the perf log dump file frequently contained errors due to out of order or otherwise corrupted entries, which is now fixed.
