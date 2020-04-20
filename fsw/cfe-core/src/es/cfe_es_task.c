@@ -227,9 +227,16 @@ int32 CFE_ES_TaskInit(void)
     CFE_ES_TaskData.LimitCmd  = 4;
 
     /*
-    ** Initialize systemlog to default mode
+    ** Initialize systemlog to default Power On or Processor Reset mode
     */
-    CFE_ES_ResetDataPtr->SystemLogMode = CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE;
+    if (CFE_ES_GetResetType(NULL) == CFE_PSP_RST_TYPE_POWERON)                                                                   
+    {
+        CFE_ES_ResetDataPtr->SystemLogMode = CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE;
+    }
+    else
+    {
+        CFE_ES_ResetDataPtr->SystemLogMode = CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE;
+    }
 
     /*
     ** Register event filter table.
