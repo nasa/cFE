@@ -397,7 +397,7 @@ int32   CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
 ** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID       \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID      
 **                     
 ******************************************************************************/
-int32   CFE_TBL_LoadFromFile(CFE_TBL_LoadBuff_t *WorkingBufferPtr, 
+int32   CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, 
                              CFE_TBL_RegistryRec_t *RegRecPtr, const char *Filename);
 
 
