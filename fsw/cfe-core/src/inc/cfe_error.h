@@ -981,6 +981,16 @@
 
 
 /**
+ * @brief No Message Recieved
+ *
+ *  When trying to determine the last senders ID, this return 
+ *  value indicates that there was not a message recived on the pipe.
+ *
+ */
+#define CFE_SB_NO_MSG_RECV       ((int32)0xca00000f)
+
+
+/**
  * @brief Not Implemented
  *
  *  Current version of cFE does not have the function or the feature

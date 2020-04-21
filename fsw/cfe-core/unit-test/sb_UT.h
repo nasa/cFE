@@ -2948,6 +2948,27 @@ void Test_RcvMsg_GetLastSenderInvalidCaller(void);
 
 /*****************************************************************************/
 /**
+** \brief Test receive last message response when there is no last sender
+**
+** \par Description
+**        This function tests the receive last message response when no last
+**        sender.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_CreatePipe,
+** \sa #CFE_SB_GetLastSenderId, #UT_GetNumEventsSent, #UT_EventIsInHistory,
+** \sa #CFE_SB_DeletePipe, #UT_Report
+**
+******************************************************************************/
+void Test_RcvMsg_GetLastSenderNoValidSender(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test successful receive last message request
 **
 ** \par Description
