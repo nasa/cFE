@@ -170,7 +170,7 @@ int32 CFE_ES_ShellOutputCommand(const char * CmdString, const char *Filename)
                 /* start processing the chunks. We want to have one packet left so we are sure this for loop
                 * won't run over */
         
-                for (CurrFilePtr=0; CurrFilePtr < (FileSize - CFE_MISSION_ES_MAX_SHELL_PKT); CurrFilePtr += CFE_MISSION_ES_MAX_SHELL_PKT)
+                for (CurrFilePtr=0; (CurrFilePtr + CFE_MISSION_ES_MAX_SHELL_PKT) < FileSize ; CurrFilePtr += CFE_MISSION_ES_MAX_SHELL_PKT)
                 {
                     OS_read(fd, CFE_ES_TaskData.ShellPacket.Payload.ShellOutput, CFE_MISSION_ES_MAX_SHELL_PKT);
 
