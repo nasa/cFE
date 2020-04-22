@@ -53,7 +53,54 @@
 #define CFE_SB_SUBSCRIPTION             0      /**< \brief Subtype specifier used in #CFE_SB_SingleSubscriptionTlm_t by SBN App */
 #define CFE_SB_UNSUBSCRIPTION           1      /**< \brief Subtype specified used in #CFE_SB_SingleSubscriptionTlm_t by SBN App */
 
-#define CFE_SB_INVALID_MSG_ID           0xFFFF /**< \brief Initializer for #CFE_SB_MsgId_t values that will not match any real MsgId */
+/* ------------------------------------------------------ */
+/* Macro Constants for use with the CFE_SB_MsgId_t type   */
+/* ------------------------------------------------------ */
+
+/**
+ * \brief Translation macro to convert from MsgId integer values to opaque/abstract API values
+ *
+ * This conversion exists in macro form to allow compile-time evaluation for constants, and
+ * should not be used directly in application code.
+ *
+ * For applications, use the CFE_SB_ValueToMsgId() inline function instead.
+ *
+ * \sa CFE_SB_ValueToMsgId()
+ */
+#define CFE_SB_MSGID_WRAP_VALUE(val)     ((CFE_SB_MsgId_t)(val))
+
+/**
+ * \brief Translation macro to convert to MsgId integer values from opaque/abstract API values
+ *
+ * This conversion exists in macro form to allow compile-time evaluation for constants, and
+ * should not be used directly in application code.
+ *
+ * For applications, use the CFE_SB_MsgIdToValue() inline function instead.
+ *
+ * \sa CFE_SB_MsgIdToValue()
+ */
+#define CFE_SB_MSGID_UNWRAP_VALUE(mid)   ((CFE_SB_MsgId_Atom_t)(mid))
+
+/**
+ * \brief Reserved value for CFE_SB_MsgId_t that will not match any valid MsgId
+ *
+ * This rvalue macro can be used for static/compile-time data initialization to ensure that
+ * the initialized value does not alias to a valid MsgId object.
+ */
+#define CFE_SB_MSGID_RESERVED            CFE_SB_MSGID_WRAP_VALUE(-1)
+
+/**
+ * \brief A literal of the CFE_SB_MsgId_t type representing an invalid ID
+ *
+ * This value should be used for runtime initialization of CFE_SB_MsgId_t values.
+ *
+ * \note This may be a compound literal in a future revision.  Per C99, compound
+ * literals are lvalues, not rvalues, so this value should not be used in
+ * static/compile-time data initialization.  For static data initialization
+ * purposes (rvalue), #CFE_SB_MSGID_RESERVED should be used instead.
+ * However, in the current implementation, they are equivalent.
+ */
+#define CFE_SB_INVALID_MSG_ID            CFE_SB_MSGID_RESERVED
 
 /**
  * \defgroup CFESBPktTypeDefs cFE SB Packet Type Defines
@@ -1285,7 +1332,21 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr);
 
 /*****************************************************************************/
 /**
- * \brief Identifies whether a two #CFE_SB_MsgId_t values are equal
+ * \brief Identifies whether a given CFE_SB_MsgId_t is valid
+ *
+ * \par Description
+ *    Implements a basic sanity check on the value provided
+ *
+ * \return Boolean message ID validity indicator
+ * \retval true  Message ID is within the valid range
+ * \retval false Message ID is not within the valid range
+ */
+bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId);
+
+
+/*****************************************************************************/
+/**
+ * \brief Identifies whether two #CFE_SB_MsgId_t values are equal
  *
  * \par Description
  *    In cases where the #CFE_SB_MsgId_t type is not a simple integer
@@ -1303,7 +1364,7 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr);
  */
 static inline bool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgId2)
 {
-    return (MsgId1 == MsgId2);
+    return CFE_SB_MSGID_UNWRAP_VALUE(MsgId1) == CFE_SB_MSGID_UNWRAP_VALUE(MsgId2);
 }
 
 /*****************************************************************************/
@@ -1334,7 +1395,7 @@ static inline bool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgI
  */
 static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
 {
-    return MsgId;
+    return CFE_SB_MSGID_UNWRAP_VALUE(MsgId);
 }
 
 /*****************************************************************************/
@@ -1363,7 +1424,8 @@ static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
  */
 static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
 {
-    return MsgIdValue;
+    CFE_SB_MsgId_t Result = CFE_SB_MSGID_WRAP_VALUE(MsgIdValue);
+    return Result;
 }
 
 /*****************************************************************************/

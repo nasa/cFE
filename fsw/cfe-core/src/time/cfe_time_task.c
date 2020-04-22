@@ -274,7 +274,7 @@ int32 CFE_TIME_TaskInit(void)
     }/* end if */
 
 
-    Status = CFE_SB_Subscribe(CFE_TIME_SEND_HK_MID,
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_SEND_HK_MID),
                               CFE_TIME_TaskData.CmdPipe);
     if(Status != CFE_SUCCESS)
     {
@@ -287,12 +287,12 @@ int32 CFE_TIME_TaskInit(void)
     ** Subscribe to time at the tone "signal" commands...
     */
     #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    Status = CFE_SB_Subscribe(CFE_TIME_TONE_CMD_MID,
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
                               CFE_TIME_TaskData.CmdPipe);
     #endif
     
     #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_TIME_TONE_CMD_MID,
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
                               CFE_TIME_TaskData.CmdPipe,4);
     #endif
     if(Status != CFE_SUCCESS)
@@ -306,12 +306,12 @@ int32 CFE_TIME_TaskInit(void)
     ** Subscribe to time at the tone "data" commands...
     */
     #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    Status = CFE_SB_Subscribe(CFE_TIME_DATA_CMD_MID,
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
                               CFE_TIME_TaskData.CmdPipe);
     #endif
     
     #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_TIME_DATA_CMD_MID,
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
                               CFE_TIME_TaskData.CmdPipe,4);
     #endif
     if(Status != CFE_SUCCESS)
@@ -325,12 +325,12 @@ int32 CFE_TIME_TaskInit(void)
     ** Subscribe to 1Hz signal commands...
     */
     #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    Status = CFE_SB_Subscribe(CFE_TIME_1HZ_CMD_MID,
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
                               CFE_TIME_TaskData.CmdPipe);
     #endif
     
     #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_TIME_1HZ_CMD_MID,
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
                                    CFE_TIME_TaskData.CmdPipe,4);
     #endif
     
@@ -345,7 +345,7 @@ int32 CFE_TIME_TaskInit(void)
     ** Subscribe to time at the tone "request data" commands...
     */
     #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_Subscribe(CFE_TIME_SEND_CMD_MID,
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID),
                                   CFE_TIME_TaskData.CmdPipe);
     if(Status != CFE_SUCCESS)
     {
@@ -357,7 +357,7 @@ int32 CFE_TIME_TaskInit(void)
     /*
     ** Subscribe to Time task ground command packets...
     */
-    Status = CFE_SB_Subscribe(CFE_TIME_CMD_MID,
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_CMD_MID),
                               CFE_TIME_TaskData.CmdPipe);
     if(Status != CFE_SUCCESS)
     {
@@ -442,7 +442,8 @@ bool CFE_TIME_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
 
         CFE_EVS_SendEvent(CFE_TIME_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                 "Invalid cmd length: ID = 0x%X, CC = %d, Exp Len = %d, Len = %d",
-                (unsigned int)MessageID, (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
+                (unsigned int)CFE_SB_MsgIdToValue(MessageID), 
+                (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
         result = false;
         ++CFE_TIME_TaskData.CommandErrorCounter;
     }
@@ -464,7 +465,7 @@ void CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr)
     uint16 CommandCode;
 
     MessageID = CFE_SB_GetMsgId(MessagePtr);
-    switch (MessageID)
+    switch (CFE_SB_MsgIdToValue(MessageID))
     {
         /*
         ** Housekeeping telemetry request...
@@ -634,7 +635,8 @@ void CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr)
                     CFE_TIME_TaskData.CommandErrorCounter++;
                     CFE_EVS_SendEvent(CFE_TIME_CC_ERR_EID, CFE_EVS_EventType_ERROR,
                              "Invalid command code -- ID = 0x%X, CC = %d",
-                                      (unsigned int)MessageID, (int)CommandCode);
+                                      (unsigned int)CFE_SB_MsgIdToValue(MessageID), 
+                                      (int)CommandCode);
                     break;
             } /* switch (CFE_TIME_CMD_MID -- command code)*/
             break;
@@ -647,7 +649,7 @@ void CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr)
             */
             CFE_EVS_SendEvent(CFE_TIME_ID_ERR_EID, CFE_EVS_EventType_ERROR,
                              "Invalid message ID -- ID = 0x%X",
-                              (unsigned int)MessageID);
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID));
             break;
 
     } /* switch (message ID) */

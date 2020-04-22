@@ -88,8 +88,8 @@ typedef struct {
      uint16       Tlm16Param2;
 } SB_UT_TstPktWoSecHdr_t;
 
-#define SB_UT_CMD_MID CFE_MISSION_CMD_MID_BASE1 + 1
-#define SB_UT_TLM_MID CFE_MISSION_TLM_MID_BASE1 + 1
+#define SB_UT_CMD_MID_VALUE_BASE    CFE_MISSION_CMD_MID_BASE1 + 1
+#define SB_UT_TLM_MID_VALUE_BASE    CFE_MISSION_TLM_MID_BASE1 + 1
 
 /* SB unit test functions */
 /*****************************************************************************/
