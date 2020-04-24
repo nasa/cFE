@@ -355,29 +355,4 @@ void TestESMempool(void);
 
 void TestSysLog(void);
 
-#ifdef CFE_ARINC653
-/*****************************************************************************/
-/**
-** \brief Perform tests on the  cFE applications from statically linked code
-**
-** \par Description
-**        This function tests the code for creating and loading cFE
-**        applications from statically linked code, and for initializing
-**        static libraries.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_Report, CFE_ES_StaticAppCreate, #UT_SetOSFail
-** \sa #UT_SetLibInitRtn, #CFE_ES_InitStaticLibrary
-** \sa #CFE_ES_StartStaticApplications
-**
-******************************************************************************/
-void TestStaticApp(void);
-#endif
-
-
 #endif /* _es_ut_h_ */
