@@ -290,6 +290,8 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
     return status;
 }
 
+#ifndef CFE_OMIT_DEPRECATED_6_7
+
 /*****************************************************************************/
 /**
 ** \brief CFE_FS_Decompress stub function
@@ -375,3 +377,4 @@ int32 CFE_FS_GetUncompressedFile(char *OutputNameBuffer, uint32 OutputNameBuffer
 
     return status;
 }
+#endif /* CFE_OMIT_DEPRECATED_6_7 */
