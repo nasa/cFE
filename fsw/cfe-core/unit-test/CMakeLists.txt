@@ -32,42 +32,44 @@ add_library(ut_${CFE_CORE_TARGET}_support STATIC
 # UT version of the real module (compiled with coverage flags)
 foreach(MODULE ${CFE_CORE_MODULES})
 
+  # The "UT_TARGET_NAME" is a concatenation of the configuration name with the current module
+  # This avoids target name duplication in case more than one configuration is used
+  # (All  targets should be based on this name)
+  set(UT_TARGET_NAME "${CFE_CORE_TARGET}_${MODULE}")
+  
   set(CFE_MODULE_FILES)
   aux_source_directory(${cfe-core_MISSION_DIR}/src/${MODULE} CFE_MODULE_FILES)
   
   # Compile the unit(s) under test as an object library
   # this allows easy configuration of special flags and include paths
-  # in particular this should use the UT_C_FLAGS for coverage instrumentation
-  add_library(ut_cfe_${MODULE}_object OBJECT 
+  # in particular this should use the UT_COVERAGE_COMPILE_FLAGS for coverage instrumentation
+  add_library(ut_${UT_TARGET_NAME}_object OBJECT 
       ${CFE_MODULE_FILES})
   
-  # Apply the UT_C_FLAGS to the units under test
+  # Apply the UT_COVERAGE_COMPILE_FLAGS to the units under test
   # This should enable coverage analysis on platforms that support this
-  set_target_properties(ut_cfe_${MODULE}_object PROPERTIES
-      COMPILE_FLAGS "${UT_C_FLAGS}")
+  target_compile_options(ut_${UT_TARGET_NAME}_object PRIVATE ${UT_COVERAGE_COMPILE_FLAGS})
         
   # For this object target only, the "override" includes should be injected
   # into the include path BEFORE any other include path.  This is so the
   # override will take precedence over any system-provided version.
-  target_include_directories(ut_cfe_${MODULE}_object BEFORE PRIVATE
+  target_include_directories(ut_${UT_TARGET_NAME}_object BEFORE PRIVATE
       ${CMAKE_CURRENT_SOURCE_DIR}/modules/inc/overrides)
         
-  add_executable(${CFE_CORE_TARGET}_${MODULE}_UT 
+  add_executable(${UT_TARGET_NAME}_UT 
     ${MODULE}_UT.c 
-    $<TARGET_OBJECTS:ut_cfe_${MODULE}_object>)
+    $<TARGET_OBJECTS:ut_${UT_TARGET_NAME}_object>)
   
-  target_link_libraries(${CFE_CORE_TARGET}_${MODULE}_UT
+  # Also add the UT_COVERAGE_LINK_FLAGS to the link command    
+  # This should enable coverage analysis on platforms that support this
+  target_link_libraries(${UT_TARGET_NAME}_UT
+        ${UT_COVERAGE_LINK_FLAGS}
         ut_${CFE_CORE_TARGET}_support
         ut_cfe-core_stubs
         ut_assert)
     
-  # Also add the C FLAGS to the link command    
-  # This should enable coverage analysis on platforms that support this
-  set_target_properties(${CFE_CORE_TARGET}_${MODULE}_UT PROPERTIES 
-    LINK_FLAGS "${UT_C_FLAGS}")
-        
-  add_test(${CFE_CORE_TARGET}_${MODULE}_UT ${CFE_CORE_TARGET}_${MODULE}_UT)
-  install(TARGETS ${CFE_CORE_TARGET}_${MODULE}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
+  add_test(${UT_TARGET_NAME}_UT ${UT_TARGET_NAME}_UT)
+  install(TARGETS ${UT_TARGET_NAME}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
 endforeach(MODULE ${CFE_CORE_MODULES})
 
 # Generate the FS test input files

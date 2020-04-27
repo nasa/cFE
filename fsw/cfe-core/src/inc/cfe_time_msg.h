@@ -703,11 +703,9 @@
 #define CFE_TIME_SET_SIGNAL_CC   15    /* set clock signal (pri vs red) */
 /** \} */
 
-/*
-** Clock "state flag" definitions (state data converted to flags)...
-*/
-/** \name Clock "state flag" values */
-/** \{ */
+/** \defgroup CFETIMEClkStates cFE Clock State Flag Defines
+ * \{
+ */
 #define CFE_TIME_FLAG_CLKSET     0x8000   /**< \brief The spacecraft time has been set */
 #define CFE_TIME_FLAG_FLYING     0x4000   /**< \brief This instance of Time Services is flywheeling */
 #define CFE_TIME_FLAG_SRCINT     0x2000   /**< \brief The clock source is set to "internal" */

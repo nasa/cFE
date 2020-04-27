@@ -481,30 +481,28 @@ int16 UT_GetActualPktLenField(CFE_SB_MsgPtr_t MsgPtr)
 uint8 UT_GetActualCmdCodeField(CFE_SB_MsgPtr_t MsgPtr)
 {
     /*
-     * CFE 6.4.0 tried to make all headers big-endian.
-     * CFE 6.4.1 made secondary headers native-endian again.
-     *
      * This function is used to "go around" the structure field
      * definitions and access macro definitions, to look for the
      * bits of the function code in the exact spot where we are
      * expecting to find them.
      *
      * The CCSDS Command Function Code is defined as living in
-     * bits 8 through 14 (mask 0x7F00) of the 16-bit unsigned
-     * value encoded in NATIVE endianness in the two bytes
-     * stored at offsets 6 and 7 in the packet for CCSDS version 1
-     * and offsets 10 and 11 for CCSDS Version 2
+     * the first byte of the command secondary header (mask 0x7F)
+     * NOTE: this definition is endian agnostic
+     *
+     * CCSDS version 1 - cmd sec header is offset 6 bytes
+     * CCSDS Version 2 - cmd sec header is offset 10 bytes
      */
 
-    uint8 CmdCodeWordFieldIndex; /* Field index (in WORDS) */
-    uint16 *w = (uint16 *)MsgPtr;
+    uint8 Index; /* Field index (in BYTES) */
+    uint8 *w = (uint8 *)MsgPtr;
 
 #ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2
-    CmdCodeWordFieldIndex = 3;
+    Index = 6;
 #else
-    CmdCodeWordFieldIndex = 5;
+    Index = 10;
 #endif
-    return (w[CmdCodeWordFieldIndex] & 0x7F00) >> 8;
+    return (w[Index] & 0x7F);
 }
 
 

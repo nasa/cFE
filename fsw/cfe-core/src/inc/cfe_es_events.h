@@ -959,8 +959,7 @@
 **  This event message is generated in response to receiving an Executive Services
 **  \link #CFE_ES_START_PERF_DATA_CC Start Performance Analyzer Data Collection Command \endlink
 **
-**  The \c 'd' field identifies the requested trigger mode.  Valid values are \link #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_START (0) \endlink,
-**  \link #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_CENTER (1) \endlink, and \link #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_END (2) \endlink
+**  The \c 'd' field identifies the requested trigger mode as defined by CFE_ES_PerfMode_t.
 **/
 #define CFE_ES_PERF_STARTCMD_EID      57
 
@@ -988,10 +987,8 @@
 **  Start Performance Analyzer Data Collection Command \endlink command is received with a bad
 **  value for the requested trigger mode.
 **
-**  The first \c 'd' field identifies the received trigger mode value.
-**  The second and third \c 'd' fields specify the valid range of values for the trigger mode.  Valid values 
-**  are #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_START (0), #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_CENTER (1), and 
-**  #CFE_ES_PerfMode_t CFE_ES_PERF_TRIGGER_END (2).
+**  The first \c 'd' field identifies the received trigger mode value as defined by CFE_ES_PerfMode_t.
+**  The second and third \c 'd' fields specify the valid range of values for the trigger mode.
 **/
 #define CFE_ES_PERF_STARTCMD_TRIG_ERR_EID      59
 
@@ -1014,23 +1011,6 @@
 **  third \c 'd' identifies the number of entries written (in decimal) between delays. 
 **/
 #define CFE_ES_PERF_STOPCMD_EID       60
-
-
-/** \brief <tt> 'Stop performance data cmd,Error creating child task RC=0x\%08X' </tt>
-**  \event <tt> 'Stop performance data cmd,Error creating child task RC=0x\%08X' </tt> 
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This event message is generated upon receipt of an unsuccessful Performance Data Stop
-**  Command after receiving the cFE Executive Services \link #CFE_ES_STOP_PERF_DATA_CC Stop 
-**  Performance Analyzer Data Collection Command \endlink
-**
-**  The \c 'RC' field specifies, in hex, the error code returned by the #CFE_ES_CreateChildTask API
-**  
-**/
-#define CFE_ES_PERF_STOPCMD_ERR1_EID       61
 
 
 /** \brief <tt> 'Stop performance data cmd ignored,perf data write in progress' </tt>

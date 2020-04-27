@@ -33,7 +33,9 @@
 **      combination of bits from the primary header SID (StreamId) and the secondary header APID Qualifiers
 **      
 **      Implementation is based on CCSDS Space Packet Protocol 133.0.B-1 with Technical Corrigendum 2, September 2012
-**      The extended secondary header is expected in an upcoming revision of 133.0.B-1
+**      Multi-mission Interoperable extended secondary headers should be registered in Space
+**      Assigned Numbers Authority (SANA). The process for SANA registration is documented in
+**      133.0.B-2. Mission specific headers need not be registered
 **
 **      For  MESSAGE_FORMAT_IS_CCSDS_VER_2 the default setup will combine:
 **       1 bit for the command/telemetry flag 
@@ -113,22 +115,9 @@ CFE_SB_MsgKey_t CFE_SB_ConvertMsgIdtoMsgKey( CFE_SB_MsgId_t MsgId)
     return CFE_SB_ValueToMsgKey(MsgId);
 }/* CFE_SB_ConvertMsgIdtoMsgKey */
 
-/******************************************************************************
-**  Function:  CFE_SB_GetMsgId
-**
-**  Purpose:
-**    Convert the CCSDS SPP APID in the packet to the internal MsgId ID format
-**       used for SB APIs and routing.
-**
-**    For backward compatability with the existing CCSDS SPP version 1 code base
-**    the function name has not been changed
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CCSDS SPP message packet
-**
-**  Return:
-**    The Message Id in the message packet converted to the cFS MsgId
-*/
+/*
+ * Function: CFE_SB_GetMsgId - See API and header file for details
+ */
 CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
 {
    CFE_SB_MsgId_t MsgId = 0;
@@ -166,20 +155,9 @@ return MsgId;
 }/* end CFE_SB_GetMsgId */
 
 
-/******************************************************************************
-**  Function:  CFE_SB_SetMsgId
-**
-**  Purpose:
-**    Set the message Id of a message in CCSDS header format
-**
-**  Arguments:
-**    MsgPtr - Pointer to a CFE_SB_Msg_t
-**    MsgId  - Message Id to be written
-**
-**
-**  Return:
-**    (none)
-*/
+/*
+ * Function: CFE_SB_SetMsgId - See API and header file for details
+ */
 void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
                      CFE_SB_MsgId_t MsgId)
 {
@@ -209,3 +187,37 @@ void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
 
 #endif 
 }/* end CFE_SB_SetMsgId */
+
+/*
+ * Function: CFE_SB_GetPktType - See API and header file for details
+ */
+uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
+{
+
+  CFE_SB_MsgId_Atom_t Val = MsgId;
+  uint8 PktType;
+
+  if (CFE_SB_IsValidMsgId(MsgId))
+  {
+#ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2
+    if (CFE_TST(Val,12))
+    {
+      PktType = CFE_SB_PKTTYPE_CMD;
+    } else {
+      PktType = CFE_SB_PKTTYPE_TLM;
+    }
+#else
+    if (CFE_SB_RD_TYPE_FROM_MSGID(Val) == 1)
+    {
+      PktType = CFE_SB_PKTTYPE_CMD;
+    } else {
+      PktType = CFE_SB_PKTTYPE_TLM;
+    }
+#endif /* MESSAGE_FORMAT_IS_CCSDS_VER_2 */
+  } else {
+    PktType = CFE_SB_PKTTYPE_INVALID;
+  }
+
+  return PktType;
+
+}/* end CFE_SB_GetPktType */

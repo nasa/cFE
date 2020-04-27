@@ -339,6 +339,20 @@ function(process_arch SYSVAR)
   include_directories(${MISSION_SOURCE_DIR}/cfe/fsw/cfe-core/src/inc)
   include_directories(${MISSION_SOURCE_DIR}/cfe/cmake/target/inc)
     
+  # propagate any OSAL interface compile definitions and include directories to this build
+  # This is set as a directory property here at the top level so it will apply to all code.
+  # This includes MODULE libraries that do not directly/statically link with OSAL but still
+  # should be compiled with these flags.
+  get_target_property(OSAL_COMPILE_DEFINITIONS osal INTERFACE_COMPILE_DEFINITIONS)
+  get_target_property(OSAL_INCLUDE_DIRECTORIES osal INTERFACE_INCLUDE_DIRECTORIES)
+
+  if (OSAL_COMPILE_DEFINITIONS)
+    set_directory_properties(PROPERTIES COMPILE_DEFINITIONS "${OSAL_COMPILE_DEFINITIONS}")
+  endif (OSAL_COMPILE_DEFINITIONS)
+  if (OSAL_INCLUDE_DIRECTORIES)
+    include_directories(${OSAL_INCLUDE_DIRECTORIES})
+  endif (OSAL_INCLUDE_DIRECTORIES)
+
   # Append the PSP and OSAL selections to the Doxyfile so it will be included
   # in the generated documentation automatically.
   # Also extract the "-D" options within CFLAGS and inform Doxygen about these

@@ -4,8 +4,13 @@
   Event Services (EVS)  provides centralized control for the processing of event messages 
   originating from the EVS task itself, other cFE core applications (ES, SB, TIME, and TBL), 
   and from cFE applications.  Event messages are asynchronous messages that are used to 
-  inform the operator of a significant event.  EVS provides various ways to filter event 
+  inform the operator of a significant event from within the context of a registered
+  application or core service.  EVS provides various ways to filter event
   messages in order to manage event message generation.
+
+  Note for messages outside the context of a registered appliction (for example early
+  in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
+  for reporting.
   
   For more information on cFE Event Services, see the following sections:
   
@@ -29,21 +34,25 @@
   Event messages are software bus messages that contain the following fields: <BR>
 
   <UL>
+    <LI> Timestamp        <BR>
+    <LI> Event Type       <BR>
+    <LI> Spacecraft ID    <BR>
+    <LI> Processor ID     <BR>
     <LI> Application Name <BR>
     <LI> Event ID         <BR>
-    <LI> EventType        <BR>
-    <LI> Spacecraft ID    <BR>
-    <LI> Processor ID     <BR>                                      
     <LI> Message          <BR>
   </UL>
 
-  The <i>Application Name</i> refers to the Application that issued the event message.  
-  The <i>Event ID</i>  is an Application unique number that identifies the event.  The 
-  Event Type can be one of four types:  DEBUG, INFO, ERROR or CRITICAL.  The 
-  <i>Spacecraft ID</i> and <i>Processor ID</i> identify the spacecraft and processor from 
-  which the event was generated.  Note that the <i>Spacecraft ID</i> is defined in the 
-  cfe_mission_cfg.h file; The <i>Processor ID</i> is defined in the appropriate 
-  cfe_platform_cfg.h file.  The <i>Message</i> is an ASCII text string describing the 
+  The <i>Timestamp</i> corresponds to when the event was generated, in spacecraft time.
+  The <i>Event Type</i> is one of the following:  DEBUG, INFO, ERROR or CRITICAL.
+  The <i>Spacecraft ID</i> and <i>Processor ID</i> identify the spacecraft and processor
+  from which the event was generated.  Note that the <i>Spacecraft ID</i> is defined in the
+  cfe_mission_cfg.h file; The <i>Processor ID</i> is defined in the appropriate
+  cfe_platform_cfg.h file.
+  The <i>Application Name</i> refers to the Application that issued the event message  
+  as specified on application startup (either startup script or app start command).
+  The <i>Event ID</i>  is an Application unique number that identifies the event.
+  The <i>Message</i> is an ASCII text string describing the 
   event.  Event messages may have parameters associated with the event message. 
   EVS formats the parameters such that they are part of the ASCII text string 
   that make up the event message.
@@ -212,7 +221,7 @@
   mask 0xFFFF generates one event message and then stops.  Note that when the filter counter 
   is reset to zero by command, this will restart the counting and enable n more events to be sent.
 
-  Event messages will be filtered until #CFE_EVS_MAX_FILTER_COUNT events of the filtered
+  Event messages will be filtered until CFE_EVS_MAX_FILTER_COUNT events of the filtered
   event ID from the application have been received. After this, the filtering will become locked
   (no more of that event will be received by the ground) until the filter is either reset or 
   deleted by ground command. This is to prevent the counter from rolling over, which would cause
@@ -470,6 +479,17 @@
            which generates a file containing all of the applications that have registered with EVS and 
            all of the filters that are registered for each application.  Note that EVS merely generates 
            the file.  The file must be transferred to the ground in order to view it.
+        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
+           Why do I see event messages in my console window?
+        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
+           By default, the events are configured to transmit out a "port" that shows event messages
+           in the console
+        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
+           What is the difference between event services and the ES System Log
+        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
+           Events are within the context of an App or cFE Service (requires registration with ES).
+           The system log can be written to outside of the Application or cFE Service context,
+           for example during application startup to report errors before registration.
     </TABLE>
 
 

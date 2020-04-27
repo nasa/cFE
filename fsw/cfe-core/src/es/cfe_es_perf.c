@@ -47,7 +47,7 @@
 ** Pointer to performance log in the reset area
 */
 CFE_ES_PerfData_t      *Perf;
-CFE_ES_PerfLogDump_t    CFE_ES_PerfLogDumpStatus;
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* Name: CFE_ES_SetupPerfVariables                                               */
@@ -112,10 +112,45 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
        }
 
     }
+}
 
-    CFE_ES_PerfLogDumpStatus.DataToWrite = 0;
-    CFE_ES_PerfLogDumpStatus.ChildID = 0;
-    CFE_ES_PerfLogDumpStatus.DataFileName[0] = '\0';
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*                                                                               */
+/* CFE_ES_GetPerfLogDumpRemaining() --                                           */
+/* Estimate the number of perf log entries left to write                         */
+/* This is used for telemetry/progress reporting for the perf log dump request   */
+/*                                                                               */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+uint32 CFE_ES_GetPerfLogDumpRemaining(void)
+{
+    CFE_ES_PerfDumpGlobal_t *PerfDumpState = &CFE_ES_TaskData.BackgroundPerfDumpState;
+    CFE_ES_PerfDumpState_t CurrentState = PerfDumpState->CurrentState;
+    uint32 Result;
+
+    /* note this reads the data "live" without exclusion and as such it 
+     * may change even between checking the state and checking the value.
+     * This shouldn't be a big deal, as the result should still be meaningful
+     * for a progress report, and the actual 32-bit counters should be atomic */
+    if (CurrentState > CFE_ES_PerfDumpState_IDLE &&
+            CurrentState < CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES)
+    {
+        /* dump is requested but not yet to entry writing state,
+         * report the entire data count from perf log */
+        Result = Perf->MetaData.DataCount;
+    }
+    else if (CurrentState == CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES)
+    {
+        /* dump is in active writing state,
+         * report the block counter (number remaining) */
+        Result = PerfDumpState->StateCounter;
+    }
+    else
+    {
+        /* no dump active or dump is complete, report 0 */
+        Result = 0;
+    }
+
+    return Result;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -126,9 +161,11 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
 int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfData_t *data)
 {
     const CFE_ES_StartPerfCmd_Payload_t *CmdPtr = &data->Payload;
+    CFE_ES_PerfDumpGlobal_t *PerfDumpState = &CFE_ES_TaskData.BackgroundPerfDumpState;
 
     /* Ensure there is no file write in progress before proceeding */
-    if(CFE_ES_PerfLogDumpStatus.DataToWrite == 0)
+    if(PerfDumpState->CurrentState == CFE_ES_PerfDumpState_IDLE &&
+            PerfDumpState->PendingState == CFE_ES_PerfDumpState_IDLE)
     {
         /* Make sure Trigger Mode is valid */
         /* cppcheck-suppress unsignedPositive */
@@ -137,6 +174,9 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfData_t *data)
 
             CFE_ES_TaskData.CommandCounter++;
 
+            /* Taking lock here as this might be changing states from one active mode to another.
+             * In that case, need to make sure that the log is not written to while resetting the counters. */
+            OS_MutSemTake(CFE_ES_Global.PerfDataMutex);
             Perf->MetaData.Mode = CmdPtr->TriggerMode;
             Perf->MetaData.TriggerCount = 0;
             Perf->MetaData.DataStart = 0;
@@ -144,6 +184,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfData_t *data)
             Perf->MetaData.DataCount = 0;
             Perf->MetaData.InvalidMarkerReported = false;
             Perf->MetaData.State = CFE_ES_PERF_WAITING_FOR_TRIGGER; /* this must be done last */
+            OS_MutSemGive(CFE_ES_Global.PerfDataMutex);
 
             CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_EID, CFE_EVS_EventType_DEBUG,
                     "Start collecting performance data cmd received, trigger mode = %d",
@@ -176,59 +217,30 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfData_t *data)
 int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfData_t *data)
 {
     const CFE_ES_StopPerfCmd_Payload_t *CmdPtr = &data->Payload;
-    int32 Stat;
+    CFE_ES_PerfDumpGlobal_t *PerfDumpState = &CFE_ES_TaskData.BackgroundPerfDumpState;
 
     /* Ensure there is no file write in progress before proceeding */
-    if(CFE_ES_PerfLogDumpStatus.DataToWrite == 0)
+    /* note - also need to check the PendingState here, in case this command
+     * was sent twice in succession and the background task has not awakened yet */
+    if(PerfDumpState->CurrentState == CFE_ES_PerfDumpState_IDLE &&
+            PerfDumpState->PendingState == CFE_ES_PerfDumpState_IDLE)
     {
         Perf->MetaData.State = CFE_ES_PERF_IDLE;
 
         /* Copy out the string, using default if unspecified */
-        CFE_SB_MessageStringGet(CFE_ES_PerfLogDumpStatus.DataFileName, CmdPtr->DataFileName,
+        CFE_SB_MessageStringGet(PerfDumpState->DataFileName, CmdPtr->DataFileName,
                 CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME, OS_MAX_PATH_LEN, sizeof(CmdPtr->DataFileName));
 
-        /* Create the file to dump to */
-        CFE_ES_PerfLogDumpStatus.DataFileDescriptor = OS_creat(&CFE_ES_PerfLogDumpStatus.DataFileName[0], OS_WRITE_ONLY);
+        PerfDumpState->PendingState = CFE_ES_PerfDumpState_INIT;
+        CFE_ES_BackgroundWakeup();
 
+        CFE_ES_TaskData.CommandCounter++;
 
-        if(CFE_ES_PerfLogDumpStatus.DataFileDescriptor < 0)
-        {
-            CFE_ES_TaskData.CommandErrorCounter++;
-            CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID,CFE_EVS_EventType_ERROR,
-                    "Error creating file %s, RC = 0x%08X",
-                    &CFE_ES_PerfLogDumpStatus.DataFileName[0], (unsigned int)CFE_ES_PerfLogDumpStatus.DataFileDescriptor);
-        }
-        else
-        {
-
-            /* Spawn a task to write the performance data to a file */
-            Stat = CFE_ES_CreateChildTask(&CFE_ES_PerfLogDumpStatus.ChildID,
-                    CFE_ES_PERF_CHILD_NAME,
-                    CFE_ES_PerfLogDump,
-                    CFE_ES_PERF_CHILD_STACK_PTR,
-                    CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE,
-                    CFE_PLATFORM_ES_PERF_CHILD_PRIORITY,
-                    CFE_ES_PERF_CHILD_FLAGS);
-
-            if(Stat == CFE_SUCCESS)
-            {
-                /* Note: the file gets closed in the child task */
-                CFE_ES_TaskData.CommandCounter++;
-                CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_EID,CFE_EVS_EventType_DEBUG,
-                        "Perf Stop Cmd Rcvd,%s will write %d entries.%dmS dly every %d entries",
-                        CFE_ES_PERF_CHILD_NAME,(int)Perf->MetaData.DataCount,
-                        (int)CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,(int)CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS);
-            }
-            else
-            {
-                /* close the fd */
-                OS_close( CFE_ES_PerfLogDumpStatus.DataFileDescriptor);
-                CFE_ES_TaskData.CommandErrorCounter++;
-                CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_ERR1_EID, CFE_EVS_EventType_ERROR,
-                        "Stop performance data cmd,Error creating child task RC=0x%08X",(unsigned int)Stat);
-            }/* end if */
-
-        }/* end if fd < 0 */
+        CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_EID,CFE_EVS_EventType_DEBUG,
+                "Perf Stop Cmd Rcvd, will write %d entries.%dmS dly every %d entries",
+                (int)Perf->MetaData.DataCount,
+                (int)CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,
+                (int)CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS);
 
     }/* if data to write == 0 */
     else
@@ -244,88 +256,233 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfData_t *data)
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*  Function:  CFE_ES_PerfLogDump()                                              */
+/*  Function:  CFE_ES_RunPerfLogDump()                                           */
 /*                                                                               */
 /*  Purpose:                                                                     */
 /*    Write performance data to a file                                           */
+/*    This is implemented as a state machine that is invoked in the background   */
+/*    Each iteration should perform a limited amount of work, which will resume  */
+/*    on the next iteration.  State is kept in a global structure.               */
 /*                                                                               */
 /*  Arguments:                                                                   */
 /*    None                                                                       */
 /*                                                                               */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void CFE_ES_PerfLogDump(void){
-
+bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
+{
+    CFE_ES_PerfDumpGlobal_t *State = (CFE_ES_PerfDumpGlobal_t *)Arg;
     int32               WriteStat;
-    uint32              i;
-    uint32              FileSize;
     CFE_FS_Header_t     FileHdr;
+    uint32              BlockSize;
 
-    CFE_ES_RegisterChildTask();
+    /*
+     * each time this background job is re-entered after a time delay,
+     * accumulate a work credit amount based on the elapsed time.
+     *
+     * This implements work-throttling as a form of cooperative
+     * CPU sharing with other low priority background jobs.
+     */
+    State->WorkCredit +=
+            (ElapsedTime * CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS) / CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY;
 
-
-    /* Zero cFE header, then fill in fields */
-    CFE_FS_InitHeader(&FileHdr, CFE_ES_PERF_LOG_DESC, CFE_FS_SubType_ES_PERFDATA);
-
-    /* write the cFE header to the file */
-    WriteStat = CFE_FS_WriteHeader( CFE_ES_PerfLogDumpStatus.DataFileDescriptor, &FileHdr);
-    if(WriteStat != sizeof(CFE_FS_Header_t))
+    /*
+     * do not allow credit to accumulate indefinitely -
+     * after a long idle time this would defeat the purpose.
+     */
+    if (State->WorkCredit > CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS)
     {
-        CFE_ES_FileWriteByteCntErr(&CFE_ES_PerfLogDumpStatus.DataFileName[0],
-                                   sizeof(CFE_FS_Header_t),WriteStat);
-        
-        OS_close(CFE_ES_PerfLogDumpStatus.DataFileDescriptor);
-        CFE_ES_ExitChildTask();
-        /* normally ExitChildTask() does not return, but it DOES under UT */
-        return;
-    }/* end if */
-    FileSize = WriteStat;
+        State->WorkCredit = CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS;
+    }
 
-    /* write the performance metadata to the file */
-    WriteStat = OS_write(CFE_ES_PerfLogDumpStatus.DataFileDescriptor,&Perf->MetaData,sizeof(CFE_ES_PerfMetaData_t));
-    if(WriteStat != sizeof(CFE_ES_PerfMetaData_t))
+    while (State->WorkCredit > 0)
     {
-        CFE_ES_FileWriteByteCntErr(&CFE_ES_PerfLogDumpStatus.DataFileName[0],
-                                   sizeof(CFE_ES_PerfMetaData_t),WriteStat);
-        OS_close(CFE_ES_PerfLogDumpStatus.DataFileDescriptor);
-        CFE_ES_ExitChildTask();
-        /* normally ExitChildTask() does not return, but it DOES under UT */
-        return;
-    }/* end if */
-    FileSize += WriteStat;
+        --State->WorkCredit;
 
-    CFE_ES_PerfLogDumpStatus.DataToWrite = Perf->MetaData.DataCount;
+        if (State->PendingState !=
+                State->CurrentState)
+        {
+            /*
+             * Handle state change/entry logic.
+             * Zero the block counter register (may be changed later).
+             */
+            State->StateCounter = 0;
 
-    /* write the collected data to the file */
-    for(i=0; i < Perf->MetaData.DataCount; i++){
-      WriteStat = OS_write (CFE_ES_PerfLogDumpStatus.DataFileDescriptor, &Perf->DataBuffer[i], sizeof(CFE_ES_PerfDataEntry_t));
-      if(WriteStat != sizeof(CFE_ES_PerfDataEntry_t))
-      {
-        CFE_ES_FileWriteByteCntErr(&CFE_ES_PerfLogDumpStatus.DataFileName[0],
-                                   sizeof(CFE_ES_PerfDataEntry_t),WriteStat);
-        OS_close(CFE_ES_PerfLogDumpStatus.DataFileDescriptor);
-        /* Reset the DataToWrite variable, so a new file can be written */
-        CFE_ES_PerfLogDumpStatus.DataToWrite = 0;
-        CFE_ES_ExitChildTask();
-        /* normally ExitChildTask() does not return, but it DOES under UT */
-        return;
-      }/* end if */
-      FileSize += WriteStat;
-      CFE_ES_PerfLogDumpStatus.DataToWrite--;
-      if((i % CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS) == 0){
-        OS_TaskDelay(CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY);
-      }/* end if */
+            switch(State->PendingState)
+            {
+            case CFE_ES_PerfDumpState_OPEN_FILE:
+                /* Create the file to dump to */
+                State->FileDesc = OS_creat(State->DataFileName, OS_WRITE_ONLY);
+                State->FileSize = 0;
+                break;
 
-    }/* end for */
+            case CFE_ES_PerfDumpState_DELAY:
+                /*
+                 * Add a state entry delay before locking the "Perf" structure to
+                 * ensure that any foreground task that may have been writing to this
+                 * structure has completed its access.
+                 *
+                 * Note that the state should already have been set to IDLE, so
+                 * no new writes will start, this is just to yield the CPU such that
+                 * any already-started writes may finish.
+                 *
+                 * This can be done by simply zeroing out the current credit,
+                 * which will cause this loop to exit for now and resume after
+                 * some time delay (does not really matter how much time).
+                 */
+                State->WorkCredit = 0;
+                break;
 
-    OS_close(CFE_ES_PerfLogDumpStatus.DataFileDescriptor);
+            case CFE_ES_PerfDumpState_LOCK_DATA:
+                OS_MutSemTake(CFE_ES_Global.PerfDataMutex);
+                break;
 
-    CFE_EVS_SendEvent(CFE_ES_PERF_DATAWRITTEN_EID,CFE_EVS_EventType_DEBUG,
-                      "%s written:Size=%d,EntryCount=%d",
-                       &CFE_ES_PerfLogDumpStatus.DataFileName[0],(int)FileSize,
-                       (int)Perf->MetaData.DataCount);
+            case CFE_ES_PerfDumpState_WRITE_FS_HDR:
+            case CFE_ES_PerfDumpState_WRITE_PERF_METADATA:
+                State->StateCounter = 1;
+                break;
 
-    CFE_ES_ExitChildTask();
+            case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
+                State->DataPos = Perf->MetaData.DataStart;
+                State->StateCounter = Perf->MetaData.DataCount;
+                break;
 
+            case CFE_ES_PerfDumpState_UNLOCK_DATA:
+                OS_MutSemGive(CFE_ES_Global.PerfDataMutex);
+                break;
+
+            case CFE_ES_PerfDumpState_CLOSE_FILE:
+                /* close the fd */
+                if (State->FileDesc != 0)
+                {
+                    OS_close(State->FileDesc);
+                    State->FileDesc = 0;
+                }
+                break;
+
+            default:
+                break;
+            }
+
+            State->CurrentState = State->PendingState;
+        }
+
+        if (State->CurrentState == CFE_ES_PerfDumpState_IDLE)
+        {
+            break;
+        }
+
+        if (State->StateCounter == 0)
+        {
+            /*
+             * State is finished, do any final error checking and logging
+             *
+             * Default transition is to the next state by numeric value.
+             * This prevent endless looping in the same state.
+             *
+             * The switch statement can override this transition, however,
+             * based on any relevant error checks.
+             */
+            State->PendingState = 1 + State->CurrentState;
+            if (State->PendingState >= CFE_ES_PerfDumpState_MAX)
+            {
+                State->PendingState = CFE_ES_PerfDumpState_IDLE;
+            }
+            switch(State->CurrentState)
+            {
+            case CFE_ES_PerfDumpState_OPEN_FILE:
+                if(State->FileDesc < 0)
+                {
+                    CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID,CFE_EVS_EventType_ERROR,
+                            "Error creating file %s, RC = 0x%08X",
+                            State->DataFileName, (unsigned int)State->FileDesc);
+
+                    State->PendingState = CFE_ES_PerfDumpState_IDLE;
+                } /* end if */
+                break;
+
+            case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
+                CFE_EVS_SendEvent(CFE_ES_PERF_DATAWRITTEN_EID,CFE_EVS_EventType_DEBUG,
+                        "%s written:Size=%lu,EntryCount=%lu",
+                        State->DataFileName,
+                        (unsigned long)State->FileSize,
+                        (unsigned long)Perf->MetaData.DataCount);
+                break;
+
+            default:
+                break;
+            }
+        }
+        else
+        {
+            /*
+             * State is in progress, perform work item(s) as required
+             */
+            WriteStat = 0;
+            BlockSize = 0;
+            switch(State->CurrentState)
+            {
+            case CFE_ES_PerfDumpState_WRITE_FS_HDR:
+                /* Zero cFE header, then fill in fields */
+                CFE_FS_InitHeader(&FileHdr, CFE_ES_PERF_LOG_DESC, CFE_FS_SubType_ES_PERFDATA);
+                /* predicted total length of final output */
+                FileHdr.Length = sizeof(CFE_ES_PerfMetaData_t) + (Perf->MetaData.DataCount * sizeof(CFE_ES_PerfDataEntry_t));
+                /* write the cFE header to the file */
+                WriteStat = CFE_FS_WriteHeader(State->FileDesc,
+                        &FileHdr);
+                BlockSize = sizeof(CFE_FS_Header_t);
+                break;
+
+            case CFE_ES_PerfDumpState_WRITE_PERF_METADATA:
+                /* write the performance metadata to the file */
+                BlockSize = sizeof(CFE_ES_PerfMetaData_t);
+                WriteStat = OS_write(State->FileDesc,
+                        &Perf->MetaData, BlockSize);
+                break;
+
+            case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
+                BlockSize = sizeof(CFE_ES_PerfDataEntry_t);
+                WriteStat = OS_write (State->FileDesc,
+                        &Perf->DataBuffer[State->DataPos],
+                        BlockSize);
+
+                ++State->DataPos;
+                if (State->DataPos >= CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE)
+                {
+                    State->DataPos = 0;
+                }
+                break;
+
+            default:
+                break;
+            }
+
+            if (BlockSize != 0)
+            {
+                if (WriteStat != BlockSize)
+                {
+                    CFE_ES_FileWriteByteCntErr(State->DataFileName, BlockSize, WriteStat);
+
+                    /* skip to cleanup  */
+                    if (State->CurrentState < CFE_ES_PerfDumpState_CLEANUP)
+                    {
+                        State->PendingState = CFE_ES_PerfDumpState_CLEANUP;
+                    }
+                }
+                else
+                {
+                    State->FileSize += BlockSize;
+                }
+            }
+
+            --State->StateCounter;
+        }
+
+    }
+
+    /*
+     * Return "true" if activity is ongoing, or "false" if not active
+     */
+    return (State->CurrentState != CFE_ES_PerfDumpState_IDLE);
 }/* end CFE_ES_PerfLogDump */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -414,83 +571,123 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMask_t *data)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
 {
-    int32         IntFlags;
+    CFE_ES_PerfDataEntry_t EntryData;
+    uint32 DataEnd;
 
-    if (Perf->MetaData.State != CFE_ES_PERF_IDLE) {
+    /*
+     * If the global state is idle, exit immediately without locking or doing anything
+     */
+    if (Perf->MetaData.State == CFE_ES_PERF_IDLE)
+    {
+        return;
+    }
 
-        /* if marker is out of range... */
-        if(Marker >= CFE_MISSION_ES_PERF_MAX_IDS){
-
-          /* if marker has not been reported previously ... */
-          if(Perf->MetaData.InvalidMarkerReported == false){
-            CFE_ES_WriteToSysLog("ES PERF:Invalid performance marker %d,max is %d\n",
-                    (unsigned int)Marker,(CFE_MISSION_ES_PERF_MAX_IDS - 1));
+    /* if marker is out of range... */
+    if (Marker >= CFE_MISSION_ES_PERF_MAX_IDS)
+    {
+        /* if marker has not been reported previously ... */
+        if (Perf->MetaData.InvalidMarkerReported == false)
+        {
+            CFE_ES_WriteToSysLog("ES PERF:Invalid performance marker %d,max is %d\n", (unsigned int)Marker,
+                                 (CFE_MISSION_ES_PERF_MAX_IDS - 1));
             Perf->MetaData.InvalidMarkerReported = true;
-          }/* end if */
+        } /* end if */
 
-          return;
+        return;
+    } /* end if */
 
-        }/* end if */
+    /*
+     * check if this ID is filtered.
+     * This is also done outside the lock -
+     * normally masks should NOT be changed while perf log is active / non-idle,
+     * so although this is reading a global it should be constant, and this avoids
+     * locking (and potential task switch) if the data is ultimately not going to 
+     * be written to the log.
+     */
+    if (!CFE_ES_TEST_LONG_MASK(Perf->MetaData.FilterMask, Marker))
+    {
+        return;
+    }
 
+    /*
+     * prepare the entry data (timestamp) before locking,
+     * just in case the locking operation incurs a delay
+     */
+    EntryData.Data = (Marker | (EntryExit << CFE_MISSION_ES_PERF_EXIT_BIT));
+    CFE_PSP_Get_Timebase(&EntryData.TimerUpper32, &EntryData.TimerLower32);
 
-        /* is this id filtered */
-        if (CFE_ES_TEST_LONG_MASK(Perf->MetaData.FilterMask, Marker)) {
+    /*
+     * Acquire the perflog mutex before writing into the shared area.
+     * Note this lock is held for long periods while a background dump
+     * is taking place, but the dump should never be active at the
+     * same time that a capture/record is taking place.
+     */
+    OS_MutSemTake(CFE_ES_Global.PerfDataMutex);
 
-           /* disable interrupts to guarentee exclusive access to the data structures */
-            IntFlags = OS_IntLock();
+    /*
+     * Confirm that the global is still non-idle after lock
+     * (state could become idle while getting lock)
+     */
+    if (Perf->MetaData.State != CFE_ES_PERF_IDLE)
+    {
+        /* copy data to next perflog slot */
+        DataEnd = Perf->MetaData.DataEnd;
+        Perf->DataBuffer[DataEnd] = EntryData;
 
-            Perf->DataBuffer[Perf->MetaData.DataEnd].Data = (Marker | (EntryExit << CFE_MISSION_ES_PERF_EXIT_BIT));
-            CFE_PSP_Get_Timebase((uint32*)&Perf->DataBuffer[Perf->MetaData.DataEnd].TimerUpper32,(uint32*)&Perf->DataBuffer[Perf->MetaData.DataEnd].TimerLower32);
+        ++DataEnd;
+        if (DataEnd >= CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE)
+        {
+            DataEnd = 0;
+        }
+        Perf->MetaData.DataEnd = DataEnd;
 
-            Perf->MetaData.DataEnd++;
-            if (Perf->MetaData.DataEnd >= CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE) {
-                Perf->MetaData.DataEnd = 0;
-            }
-
-            /* we have filled up the buffer */
+        /* we have filled up the buffer */
+        if (Perf->MetaData.DataCount < CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE)
+        {
             Perf->MetaData.DataCount++;
-            if (Perf->MetaData.DataCount > CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE) {
+        }
+        else
+        {
+            /* after the buffer fills up start and end point to the same entry since we
+               are now overwriting old data */
+            Perf->MetaData.DataStart = Perf->MetaData.DataEnd;
+        }
 
-                Perf->MetaData.DataCount = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE;
-
-                /* after the buffer fills up start and end point to the same entry since we
-                   are now overwriting old data */
-                Perf->MetaData.DataStart = Perf->MetaData.DataEnd;
+        /* waiting for trigger */
+        if (Perf->MetaData.State == CFE_ES_PERF_WAITING_FOR_TRIGGER)
+        {
+            if (CFE_ES_TEST_LONG_MASK(Perf->MetaData.TriggerMask, Marker))
+            {
+                Perf->MetaData.State = CFE_ES_PERF_TRIGGERED;
             }
+        }
 
-            /* waiting for trigger */
-            if (Perf->MetaData.State == CFE_ES_PERF_WAITING_FOR_TRIGGER) {
-
-                if (CFE_ES_TEST_LONG_MASK(Perf->MetaData.TriggerMask, Marker)) {
-                    Perf->MetaData.State = CFE_ES_PERF_TRIGGERED;
-                }
-            }
-            /* triggered */
-            if (Perf->MetaData.State == CFE_ES_PERF_TRIGGERED) {
-
-                Perf->MetaData.TriggerCount++;
-                if (Perf->MetaData.Mode == CFE_ES_PERF_TRIGGER_START) {
-
-                    if (Perf->MetaData.TriggerCount >= CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE) {
-                        Perf->MetaData.State = CFE_ES_PERF_IDLE;
-                    }
-                }
-                else if (Perf->MetaData.Mode == CFE_ES_PERF_TRIGGER_CENTER) {
-
-                    if (Perf->MetaData.TriggerCount >= CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE / 2) {
-                        Perf->MetaData.State = CFE_ES_PERF_IDLE;
-                    }
-                }
-                else if (Perf->MetaData.Mode == CFE_ES_PERF_TRIGGER_END) {
-
+        /* triggered */
+        if (Perf->MetaData.State == CFE_ES_PERF_TRIGGERED)
+        {
+            Perf->MetaData.TriggerCount++;
+            if (Perf->MetaData.Mode == CFE_ES_PERF_TRIGGER_START)
+            {
+                if (Perf->MetaData.TriggerCount >= CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE)
+                {
                     Perf->MetaData.State = CFE_ES_PERF_IDLE;
                 }
             }
-
-            /* enable interrupts */
-            OS_IntUnlock(IntFlags);
+            else if (Perf->MetaData.Mode == CFE_ES_PERF_TRIGGER_CENTER)
+            {
+                if (Perf->MetaData.TriggerCount >= CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE / 2)
+                {
+                    Perf->MetaData.State = CFE_ES_PERF_IDLE;
+                }
+            }
+            else if (Perf->MetaData.Mode == CFE_ES_PERF_TRIGGER_END)
+            {
+                Perf->MetaData.State = CFE_ES_PERF_IDLE;
+            }
         }
     }
-}/* end CFE_ES_PerfLogAdd */
 
+    OS_MutSemGive(CFE_ES_Global.PerfDataMutex);
+
+} /* end CFE_ES_PerfLogAdd */
 

@@ -107,7 +107,7 @@
 
 /******************  Structure Definitions *********************/
 
-/** Event message filter defintion structure */
+/** \brief Event message filter defintion structure */
 typedef struct {
    uint16 EventID;	/**< \brief Numerical event identifier */
    uint16 Mask;		/**< \brief Binary filter mask value */
@@ -118,6 +118,10 @@ typedef struct {
 
 
 /****************** Function Prototypes **********************/
+
+/** @defgroup CFEAPIEVSReg cFE Registration APIs
+ * @{
+ */
 
 /** 
 ** \brief Register an application for receiving event services
@@ -157,13 +161,11 @@ typedef struct {
 ** \param[in] FilterScheme       The event filtering scheme that this application will use.  For the first implementation of 
 **                               the event services, only filter type #CFE_EVS_EventFilter_BINARY will be supported.
 **
-** \returns
-** \retcode #CFE_SUCCESS                    \retdesc  \copydoc CFE_SUCCESS                   \endcode
-** \retcode #CFE_EVS_APP_FILTER_OVERLOAD    \retdesc  \copydoc CFE_EVS_APP_FILTER_OVERLOAD   \endcode
-** \retcode #CFE_EVS_UNKNOWN_FILTER         \retdesc  \copydoc CFE_EVS_UNKNOWN_FILTER        \endcode
-** \retcode #CFE_EVS_APP_ILLEGAL_APP_ID     \retdesc  \copydoc CFE_EVS_APP_ILLEGAL_APP_ID    \endcode
-** \retstmt Any of the error codes from #CFE_ES_GetAppID    \endstmt
-** \endreturns
+** \return Execution status below or from #CFE_ES_GetAppID, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
+** \retval #CFE_EVS_APP_FILTER_OVERLOAD \copybrief CFE_EVS_APP_FILTER_OVERLOAD
+** \retval #CFE_EVS_UNKNOWN_FILTER      \copybrief CFE_EVS_UNKNOWN_FILTER
+** \retval #CFE_EVS_APP_ILLEGAL_APP_ID  \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
 **
 ** \sa #CFE_EVS_Unregister
 **
@@ -184,18 +186,20 @@ int32 CFE_EVS_Register (void                 *Filters,           /* Pointer to a
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \returns
-** \retcode #CFE_SUCCESS                  \retdesc    \copydoc CFE_SUCCESS                 \endcode
-** \retcode #CFE_EVS_APP_NOT_REGISTERED   \retdesc    \copydoc CFE_EVS_APP_NOT_REGISTERED  \endcode
-** \retcode #CFE_EVS_APP_ILLEGAL_APP_ID   \retdesc    \copydoc CFE_EVS_APP_ILLEGAL_APP_ID  \endcode
-** \retstmt Any of the error codes from #CFE_ES_GetAppID          \endstmt
-** \retstmt Any of the error codes from #CFE_ES_PutPoolBuf        \endstmt
-** \endreturns
+** \return Execution status below or from #CFE_ES_GetAppID/#CFE_ES_PutPoolBuf, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
+** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
 **
 ** \sa #CFE_EVS_Register
 **
 **/
 int32 CFE_EVS_Unregister( void );
+/**@}*/
+
+/** @defgroup CFEAPIEVSSend cFE Send Event APIs
+ * @{
+ */
 
 /** 
 ** \brief Generate a software event.
@@ -206,7 +210,10 @@ int32 CFE_EVS_Unregister( void );
 **          event log, and optionally sent as an ASCII text string out the enabled output port(s). 
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**          This API only works within the context of a registered application or core service.
+**          For messages outside the context of a registered appliction (for example early
+**          in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
+**          for reporting.
 **
 ** \param[in] EventID            A numeric literal used to uniquely identify an application event.  
 **                               The \c EventID is defined and supplied by the application sending the event.   
@@ -228,13 +235,10 @@ int32 CFE_EVS_Unregister( void );
 **                               in the format string; they will mess up the formatting when the events are 
 **                               displayed on the ground system.
 **
-** \returns
-** \retcode #CFE_SUCCESS                   \retdesc   \copydoc CFE_SUCCESS                    \endcode
-** \retcode #CFE_EVS_APP_NOT_REGISTERED    \retdesc   \copydoc CFE_EVS_APP_NOT_REGISTERED     \endcode
-** \retcode #CFE_EVS_APP_ILLEGAL_APP_ID    \retdesc   \copydoc CFE_EVS_APP_ILLEGAL_APP_ID     \endcode
-** \retstmt Any of the error codes from #CFE_ES_GetAppID        \endstmt
-** \retstmt Any of the error codes from #CFE_SB_SendMsg         \endstmt
-** \endreturns
+** \return Execution status below or from #CFE_ES_GetAppID/#CFE_SB_SendMsg, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
+** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
 **
 ** \sa #CFE_EVS_SendEventWithAppID, #CFE_EVS_SendTimedEvent
 **
@@ -255,7 +259,10 @@ int32 CFE_EVS_SendEvent (uint16 EventID,
 **          preserve the context of an Application's event.  In general, #CFE_EVS_SendEvent should be used. 
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**          The Application ID must correspond to a registered application or core service.
+**          For messages outside the context of a registered appliction (for example early
+**          in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
+**          for reporting.
 **
 ** \param[in] EventID            A numeric literal used to uniquely identify an application event.  
 **                               The \c EventID is defined and supplied by the application sending the event.   
@@ -279,13 +286,10 @@ int32 CFE_EVS_SendEvent (uint16 EventID,
 **                               in the format string; they will mess up the formatting when the events are 
 **                               displayed on the ground system.
 **
-** \returns
-** \retcode #CFE_SUCCESS                  \retdesc  \copydoc CFE_SUCCESS                 \endcode
-** \retcode #CFE_EVS_APP_NOT_REGISTERED   \retdesc  \copydoc CFE_EVS_APP_NOT_REGISTERED  \endcode
-** \retcode #CFE_EVS_APP_ILLEGAL_APP_ID   \retdesc  \copydoc CFE_EVS_APP_ILLEGAL_APP_ID  \endcode
-** \retstmt Any of the error codes from #CFE_ES_GetAppID     \endstmt
-** \retstmt Any of the error codes from #CFE_SB_SendMsg      \endstmt
-** \endreturns
+** \return Execution status below or from #CFE_ES_GetAppID/#CFE_SB_SendMsg, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
+** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
 **
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendTimedEvent
 **
@@ -300,16 +304,19 @@ int32 CFE_EVS_SendEventWithAppID (uint16 EventID,
 ** \brief Generate a software event with a specific time tag.
 **
 ** \par Description
-**          This routine is the same as CFE_EVS_SendEvent except that the caller specifies the event time 
+**          This routine is the same as #CFE_EVS_SendEvent except that the caller specifies the event time 
 **          instead of having the EVS use the current spacecraft time.  This routine should be used in 
 **          situations where an error condition is detected at one time, but the event message is reported 
 **          at a later time. 
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**          This API only works within the context of a registered application or core service.
+**          For messages outside the context of a registered appliction (for example early
+**          in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
+**          for reporting.
 **
 ** \param[in] Time               The time to include in the event.  This will usually be a time returned 
-**                               by the function #CFE_TIME_GetTime().   
+**                               by the function #CFE_TIME_GetTime.   
 **
 ** \param[in] EventID            A numeric literal used to uniquely identify an application event.  
 **                               The \c EventID is defined and supplied by the application sending the event.   
@@ -331,13 +338,10 @@ int32 CFE_EVS_SendEventWithAppID (uint16 EventID,
 **                               in the format string; they will mess up the formatting when the events are 
 **                               displayed on the ground system.
 **
-** \returns
-** \retcode #CFE_SUCCESS                   \retdesc   \copydoc CFE_SUCCESS                 \endcode
-** \retcode #CFE_EVS_APP_NOT_REGISTERED    \retdesc   \copydoc CFE_EVS_APP_NOT_REGISTERED  \endcode
-** \retcode #CFE_EVS_APP_ILLEGAL_APP_ID    \retdesc   \copydoc CFE_EVS_APP_ILLEGAL_APP_ID  \endcode
-** \retstmt Any of the error codes from #CFE_ES_GetAppID       \endstmt
-** \retstmt Any of the error codes from #CFE_SB_SendMsg        \endstmt
-** \endreturns
+** \return Execution status below or from #CFE_ES_GetAppID/#CFE_SB_SendMsg, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
+** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
 **
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendEventWithAppID
 **
@@ -346,7 +350,11 @@ int32 CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time,
                               uint16 EventID,
                               uint16 EventType,
                               const char *Spec, ... ) OS_PRINTF(4,5);
+/**@}*/
 
+/** @defgroup CFEAPIEVSResetFilter cFE Reset Event Filter APIs
+ * @{
+ */
 
 /** 
 ** \brief Resets the calling application's event filter for a single event ID.
@@ -361,12 +369,10 @@ int32 CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time,
 ** \param[in] EventID            A numeric literal used to uniquely identify an application event.  
 **                               The \c EventID is defined and supplied by the application sending the event.   
 **
-** \returns
-** \retcode #CFE_SUCCESS                  \retdesc  \copydoc CFE_SUCCESS                     \endcode
-** \retcode #CFE_EVS_APP_NOT_REGISTERED   \retdesc  \copydoc CFE_EVS_APP_NOT_REGISTERED      \endcode
-** \retcode #CFE_EVS_APP_ILLEGAL_APP_ID   \retdesc  \copydoc CFE_EVS_APP_ILLEGAL_APP_ID      \endcode
-** \retstmt Any of the error codes from #CFE_ES_GetAppID       \endstmt
-** \endreturns
+** \return Execution status below or from #CFE_ES_GetAppID, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
+** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
 **
 ** \sa #CFE_EVS_ResetAllFilters
 **
@@ -384,18 +390,16 @@ int32 CFE_EVS_ResetFilter (int16 EventID);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \returns
-** \retcode #CFE_SUCCESS                  \retdesc  \copydoc CFE_SUCCESS                  \endcode
-** \retcode #CFE_EVS_APP_NOT_REGISTERED   \retdesc  \copydoc CFE_EVS_APP_NOT_REGISTERED   \endcode
-** \retcode #CFE_EVS_APP_ILLEGAL_APP_ID   \retdesc  \copydoc CFE_EVS_APP_ILLEGAL_APP_ID   \endcode
-** \retstmt Any of the error codes from #CFE_ES_GetAppID \endstmt
-** \endreturns
+** \return Execution status below or from #CFE_ES_GetAppID, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
+** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
 **
 ** \sa #CFE_EVS_ResetFilter
 **
 **/
 int32 CFE_EVS_ResetAllFilters ( void );
-
+/**@}*/
 
 
 #endif  /* _cfe_evs_ */

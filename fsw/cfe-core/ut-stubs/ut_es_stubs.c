@@ -34,8 +34,30 @@
 */
 #include <string.h>
 #include "cfe.h"
-#include "cfe_platform_cfg.h"
 #include "utstubs.h"
+#include "utassert.h"
+
+/*
+ * Unit-test stub definitions/limits
+ *
+ * Note these limits only apply to the ES _stubs_ and not
+ * the normal implementation.  It should not be necessary
+ * to configure these on a deployment basis.
+ */
+
+/*
+ * Maximum block size for ES pool requests
+ *
+ * This is only for pool block requests where the test
+ * case does _not_ register its own buffer, and therefore
+ * gets serviced from the default (static) pool buffer.
+ *
+ * This fixed value should be enough for most simple test
+ * cases.  If a test case requires a larger block, it should
+ * register its own simulated pool using UT_SetDataBuffer,
+ * rather than changing this value.
+ */
+#define CFE_UT_ES_POOL_STATIC_BLOCK_SIZE    4096
 
 /*
 ** Functions
@@ -351,10 +373,8 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
     static union
     {
         uint32 Start;
-        long long int Align1;
-        long double Align2;
-        void *Align3;
-        uint8 Bytes[CFE_PLATFORM_ES_MAX_BLOCK_SIZE];
+        CFE_ES_PoolAlign_t Align;
+        uint8 Bytes[CFE_UT_ES_POOL_STATIC_BLOCK_SIZE];
     } Buffer;
     uint32 PoolSize;
     uint32 Position;
@@ -366,35 +386,66 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
     if (status > 0)
     {
         Size = status;
-        if (Size > CFE_PLATFORM_ES_MAX_BLOCK_SIZE)
+        if (Size < sizeof(CFE_ES_PoolAlign_t))
         {
-            status = 0xffffffff;
+            Size = sizeof(CFE_ES_PoolAlign_t) - 1;
         }
         else
         {
-            UT_GetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), (void**)&PoolPtr, &PoolSize, &Position);
             --Size;
-            Size |= Size >> 1;
-            Size |= Size >> 2;
-            Size |= Size >> 4;
-            Size |= Size >> 8;
-            Size |= Size >> 16;
-            ++Size;
-            if (Size > CFE_PLATFORM_ES_MAX_BLOCK_SIZE)
-            {
-                Size = CFE_PLATFORM_ES_MAX_BLOCK_SIZE;
-            }
-            memset(&Buffer, 0x55, Size);
+        }
+
+        /* find next higher power of 2 */
+        Size |= Size >> 1;
+        Size |= Size >> 2;
+        Size |= Size >> 4;
+        Size |= Size >> 8;
+        Size |= Size >> 16;
+        ++Size;
+
+        UT_GetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), (void **)&PoolPtr, &PoolSize, &Position);
+        if (PoolSize == 0)
+        {
+            /*
+             * This means the test case did not register a buffer.
+             * Use the static buffer to fulfill the request.
+             */
+            PoolPtr = Buffer.Bytes;
+            PoolSize = sizeof(Buffer);
+        }
+
+        if ((Position + Size) < PoolSize)
+        {
+            PoolPtr += Position;
+            *BufPtr = (uint32 *)PoolPtr;
             status = Size;
-            if (BufPtr == NULL || (Position + Size) > PoolSize)
+            memset(PoolPtr, 0x55, Size);
+
+            /*
+             * Unfortunately the UT assert stub library is missing
+             * the ability to set the buffer position, the only way
+             * to do it is by calling CopyFromLocal to advance the position.
+             */
+            while (Size > sizeof(Buffer))
             {
-                *BufPtr = &Buffer.Start;
+                UT_Stub_CopyFromLocal(UT_KEY(CFE_ES_GetPoolBuf), &Buffer,
+                        sizeof(Buffer));
+                Size -= sizeof(Buffer);
             }
-            else
-            {
-                *BufPtr = (uint32 *)(PoolPtr + Position);
-                UT_Stub_CopyFromLocal(UT_KEY(CFE_ES_GetPoolBuf), Buffer.Bytes, Size);
-            }
+            UT_Stub_CopyFromLocal(UT_KEY(CFE_ES_GetPoolBuf), &Buffer, Size);
+        }
+        else
+        {
+            /*
+             * This a a bug in the test case.
+             *
+             * The buffer is insufficient, so the test case must
+             * use UT_SetDataBuffer() to register a pool buffer that is
+             * sufficient for the code under test.
+             */
+            UtAssert_Failed("Pool buffer empty in %s: need at least %lu bytes",
+                    __func__, (unsigned long)(Position + Size));
+            status = -1;
         }
     }
 
@@ -708,6 +759,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
 int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 {
     int32   status;
+    uint32  CdsBufferSize;
 
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_CopyToCDS), (void*)Handle);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_CopyToCDS), DataToCopy);
@@ -715,8 +767,12 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 
     if (status >= 0)
     {
-        UT_Stub_CopyFromLocal(UT_KEY(CFE_ES_CopyToCDS), DataToCopy,
-                CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE);
+        /* query the size of the supplied data buffer, if any */
+        UT_GetDataBuffer(UT_KEY(CFE_ES_CopyToCDS), NULL, &CdsBufferSize, NULL);
+        if (CdsBufferSize > 0)
+        {
+            UT_Stub_CopyFromLocal(UT_KEY(CFE_ES_CopyToCDS), DataToCopy, CdsBufferSize);
+        }
     }
 
     return status;
@@ -745,6 +801,7 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 {
     int32   status;
+    uint32  CdsBufferSize;
 
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_RestoreFromCDS), RestoreToMemory);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_RestoreFromCDS), (void*)Handle);
@@ -752,8 +809,12 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 
     if (status >= 0)
     {
-        UT_Stub_CopyToLocal(UT_KEY(CFE_ES_RestoreFromCDS), RestoreToMemory,
-                CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE);
+        /* query the size of the supplied data buffer, if any */
+        UT_GetDataBuffer(UT_KEY(CFE_ES_RestoreFromCDS), NULL, &CdsBufferSize, NULL);
+        if (CdsBufferSize > 0)
+        {
+            UT_Stub_CopyToLocal(UT_KEY(CFE_ES_RestoreFromCDS), RestoreToMemory, CdsBufferSize);
+        }
     }
 
     return status;

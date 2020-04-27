@@ -43,12 +43,9 @@
 #include <string.h>
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_FS_ReadHeader() -- read cFE file header structure                   */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+** CFE_FS_ReadHeader() - See API and header file for details
+*/
 int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, int32 FileDes)
 {
     int32   Result;
@@ -79,11 +76,9 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, int32 FileDes)
 
 } /* End of CFE_FS_ReadHeader() */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_FS_InitHeader() -- intialize cFE file header structure              */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*
+** CFE_FS_InitHeader() - See API and header file for details
+*/
 void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 SubType)
 {
    memset(Hdr, 0, sizeof(CFE_FS_Header_t));
@@ -91,12 +86,9 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
    Hdr->SubType = SubType;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_FS_WriteHeader() -- write cFE file header structure                 */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*
+** CFE_FS_WriteHeader() - See API and header file for details
+*/
 int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr)
 {
     CFE_TIME_SysTime_t Time;
@@ -163,7 +155,9 @@ int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr)
 
 } /* End of CFE_FS_WriteHeader() */
 
-
+/*
+** CFE_FS_SetTimestamp - See API and header file for details
+*/
 int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp)
 {
     int32              Result;
@@ -257,14 +251,9 @@ void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
 } /* End of CFE_FS_ByteSwapUint32() */
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* Function: CFE_FS_ExtractFilenameFromPath                                */
-/*                                                                         */
-/*  This function extracts the filename from a given path/filename         */
-/*   combination.                                                          */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*
+** CFE_FS_ExtractFilenameFromPath - See API and header file for details
+*/
 int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnly)
 {
    uint32 i,j;
@@ -338,15 +327,9 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
 }
 
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* Function: CFE_FS_BSPIsGzFile                                            */
-/*                                                                         */
-/*  This function will check to see if the file to load                    */
-/*  is compressed with gzip. Currently it is based on the                  */
-/*  file name. The file name must end in ".gz".                            */ 
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*
+** Function: CFE_FS_IsGzFile - See API and header file for details
+*/
 bool CFE_FS_IsGzFile(const char *FileName)
 {
    size_t    StringLength;
@@ -387,17 +370,9 @@ bool CFE_FS_IsGzFile(const char *FileName)
   
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* Function: CFE_FS_GetUncompressedFile                                    */
-/*                                                                         */
-/*  Decompress a Loadable file to prepare for loading it                   */
-/*                                                                         */
-/*  A temporary filename on the ramdisk is generated, and the file is      */
-/*  decompressed to it. The filename of the temporary file is output back  */
-/*  to the caller.                                                         */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*
+** CFE_FS_GetUncompressedFile - See API and header file for details
+*/
 int32 CFE_FS_GetUncompressedFile(char *OutputNameBuffer, uint32 OutputNameBufferSize,
         const char *GzipFileName, const char *TempDir)
 {

@@ -60,9 +60,8 @@ static uint32     trace[ 3 ];
 ** Code
 */
 
-/* Main API entry point to decompress a file -
- * Uses a global state buffer but protects the global by a mutex, so it may block if
- * more than one thread tries to do this at any given time.
+/* 
+ * CFE_FS_Decompress - See API and header file for details
  */
 int32 CFE_FS_Decompress( const char * srcFileName, const char * dstFileName )
 {

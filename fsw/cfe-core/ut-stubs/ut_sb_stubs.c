@@ -34,7 +34,6 @@
 */
 #include <string.h>
 #include "cfe.h"
-#include "cfe_platform_cfg.h"
 #include "utstubs.h"
 
 /*
@@ -872,5 +871,14 @@ void CFE_SB_SetTotalMsgLength (CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength)
     UT_DEFAULT_IMPL(CFE_SB_SetTotalMsgLength);
     CCSDS_WR_LEN(MsgPtr->Hdr,TotalLength);
     UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_SetTotalMsgLength), &TotalLength, sizeof(TotalLength));
+}
+
+uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_SB_GetPktType);
+
+    return status;
 }
 

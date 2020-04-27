@@ -10,10 +10,8 @@
 #    at the end
 # 4) NO comments, such as these, can be interspersed within the assignment
 #    statements
-# 5) If there are multiple mnemonics for a particular data point, they should
-#    be separated by the following ", \b \c " and enclosed in double quotes to 
-#    maintain proper formatting in the documentation.  For example:
-#        ES_RESET="$sc_$cpu_ES_ProcessorReset, \b \c $sc_$cpu_ES_PowerOnReset"
+# 5) Avoid style formatting, historically caused warnings
+# 6) Multiple items should be surrounded by quotes: "a, b"
 #---------------------------------------------------------------------------
 ALIASES += \
 EVS_CMDPC=$sc_$cpu_EVS_CMDPC \
