@@ -226,7 +226,7 @@ uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
 bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
 {
     return (!CFE_SB_MsgId_Equal(MsgId, CFE_SB_INVALID_MSG_ID) &&
-            CFE_SB_MsgIdToValue(MsgId) <= CFE_SB_HIGHEST_VALID_MSGID);
+            CFE_SB_MsgIdToValue(MsgId) <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
 } /* end CFE_SB_IsValidMsgId */
 
 
