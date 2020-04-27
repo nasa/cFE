@@ -248,12 +248,14 @@ int32 CFE_ES_TaskInit(void)
             CFE_SB_ValueToMsgId(CFE_ES_HK_TLM_MID),
             sizeof(CFE_ES_TaskData.HkPacket), true);
 
+#ifndef CFE_OMIT_DEPRECATED_6_7
     /*
     ** Initialize shell output packet (clear user data area)
     */
     CFE_SB_InitMsg(&CFE_ES_TaskData.ShellPacket,
             CFE_SB_ValueToMsgId(CFE_ES_SHELL_TLM_MID),
             sizeof(CFE_ES_TaskData.ShellPacket), true);
+#endif
 
     /*
     ** Initialize single application telemetry packet
@@ -465,12 +467,14 @@ void CFE_ES_TaskPipe(CFE_SB_MsgPtr_t Msg)
                     }
                     break;
 
+#ifndef CFE_OMIT_DEPRECATED_6_7
                 case CFE_ES_SHELL_CC:
                     if (CFE_ES_VerifyCmdLength(Msg, sizeof(CFE_ES_Shell_t)))
                     {
                         CFE_ES_ShellCmd((CFE_ES_Shell_t*)Msg);
                     }
                     break;
+#endif
 
                 case CFE_ES_START_APP_CC:
                     if (CFE_ES_VerifyCmdLength(Msg, sizeof(CFE_ES_StartApp_t)))
@@ -832,7 +836,7 @@ int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data)
     return CFE_SUCCESS;
 } /* End of CFE_ES_RestartCmd() */
 
-
+#ifndef CFE_OMIT_DEPRECATED_6_7
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
 /* CFE_ES_ShellCmd() -- Pass thru string to O/S shell              */
@@ -877,7 +881,7 @@ int32 CFE_ES_ShellCmd(const CFE_ES_Shell_t *data)
 
     return CFE_SUCCESS;
 } /* End of CFE_ES_ShellCmd() */
-
+#endif /* CFE_OMIT_DEPRECATED_6_7 */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
