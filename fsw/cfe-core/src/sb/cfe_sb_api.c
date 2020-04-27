@@ -741,8 +741,8 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
       CFE_SB.HKTlmMsg.Payload.SubscribeErrorCounter++;
       CFE_SB_UnlockSharedData(__func__,__LINE__);
       CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_PIPE_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
-          "Subscribe Err:Invalid Pipe Id,Msg=0x%x,PipeId=%d,App %s",(unsigned int)MsgId,(int)PipeId,
-          CFE_SB_GetAppTskName(TskId,FullName));
+          "Subscribe Err:Invalid Pipe Id,Msg=0x%x,PipeId=%d,App %s",(unsigned int)CFE_SB_MsgIdToValue(MsgId),
+          (int)PipeId, CFE_SB_GetAppTskName(TskId,FullName));
       return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
@@ -752,7 +752,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
       CFE_SB_UnlockSharedData(__func__,__LINE__);
       CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_CALLER_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
           "Subscribe Err:Caller(%s) is not the owner of pipe %d,Msg=0x%x",
-          CFE_SB_GetAppTskName(TskId,FullName),(int)PipeId,(unsigned int)MsgId);
+          CFE_SB_GetAppTskName(TskId,FullName),(int)PipeId,(unsigned int)CFE_SB_MsgIdToValue(MsgId));
       return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
@@ -763,7 +763,8 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_SUB_ARG_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
           "Subscribe Err:Bad Arg,MsgId 0x%x,PipeId %d,app %s,scope %d",
-          (unsigned int)MsgId,(int)PipeId,CFE_SB_GetAppTskName(TskId,FullName),Scope);
+          (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+          (int)PipeId,CFE_SB_GetAppTskName(TskId,FullName),Scope);
         return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
@@ -776,7 +777,8 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_DUP_SUBSCRIP_EID,CFE_EVS_EventType_INFORMATION,CFE_SB.AppId,
           "Duplicate Subscription,MsgId 0x%x on %s pipe,app %s",
-           (unsigned int)MsgId,PipeName,CFE_SB_GetAppTskName(TskId,FullName));
+           (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+           PipeName,CFE_SB_GetAppTskName(TskId,FullName));
         return CFE_SUCCESS;
     }/* end if */
 
@@ -811,7 +813,9 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
             CFE_SB_UnlockSharedData(__func__,__LINE__);
             CFE_EVS_SendEventWithAppID(CFE_SB_MAX_MSGS_MET_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
               "Subscribe Err:Max Msgs(%d)In Use,MsgId 0x%x,pipe %s,app %s",
-              CFE_PLATFORM_SB_MAX_MSG_IDS,(unsigned int)MsgId,PipeName,CFE_SB_GetAppTskName(TskId,FullName));
+              CFE_PLATFORM_SB_MAX_MSG_IDS,
+              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+              PipeName,CFE_SB_GetAppTskName(TskId,FullName));
             return CFE_SB_MAX_MSGS_MET;
         }/* end if */
 
@@ -835,8 +839,9 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_MAX_DESTS_MET_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
             "Subscribe Err:Max Dests(%d)In Use For Msg 0x%x,pipe %s,app %s",
-             CFE_PLATFORM_SB_MAX_DEST_PER_PKT,(unsigned int)MsgId,PipeName,
-             CFE_SB_GetAppTskName(TskId,FullName));
+             CFE_PLATFORM_SB_MAX_DEST_PER_PKT,
+             (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+             PipeName, CFE_SB_GetAppTskName(TskId,FullName));
 
         return CFE_SB_MAX_DESTS_MET;
     }/* end if */
@@ -845,7 +850,8 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
     if(DestBlkPtr == NULL){
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_DEST_BLK_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
-            "Subscribe Err:Request for Destination Blk failed for Msg 0x%x", (unsigned int)MsgId);
+            "Subscribe Err:Request for Destination Blk failed for Msg 0x%x", 
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId));
         return CFE_SB_BUF_ALOC_ERR;
     }/* end if */
 
@@ -880,7 +886,8 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
       Stat = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.SubRprtMsg);
       CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
             "Sending Subscription Report Msg=0x%x,Pipe=%d,Stat=0x%x",
-            (unsigned int)MsgId,(int)PipeId,(unsigned int)Stat);
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+            (int)PipeId,(unsigned int)Stat);
       CFE_SB_LockSharedData(__func__,__LINE__);/* to prevent back-to-back unlock */
     }/* end if */
 
@@ -889,7 +896,8 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
 
     CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RCVD_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
         "Subscription Rcvd:MsgId 0x%x on %s(%d),app %s",
-         (unsigned int)MsgId,PipeName,(int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
+         (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+         PipeName,(int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
 
     return CFE_SUCCESS;
 
@@ -1020,7 +1028,8 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
       CFE_SB_UnlockSharedData(__func__,__LINE__);
       CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_INV_PIPE_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
             "Unsubscribe Err:Invalid Pipe Id Msg=0x%x,Pipe=%d,app=%s",
-            (unsigned int)MsgId,(int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+            (int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
       return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
@@ -1029,7 +1038,8 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
       CFE_SB_UnlockSharedData(__func__,__LINE__);
       CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_INV_CALLER_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
             "Unsubscribe Err:Caller(%s) is not the owner of pipe %d,Msg=0x%x",
-            CFE_SB_GetAppTskName(TskId,FullName),(int)PipeId,(unsigned int)MsgId);
+            CFE_SB_GetAppTskName(TskId,FullName),(int)PipeId,
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId));
       return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
@@ -1041,7 +1051,8 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_ARG_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
             "UnSubscribe Err:Bad Arg,MsgId 0x%x,PipeId %d,app %s,scope %d",
-            (unsigned int)MsgId,(int)PipeId,CFE_SB_GetAppTskName(TskId,FullName),(int)Scope);
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+            (int)PipeId,CFE_SB_GetAppTskName(TskId,FullName),(int)Scope);
         return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
@@ -1059,7 +1070,8 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
 
         CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_NO_SUBS_EID,CFE_EVS_EventType_INFORMATION,CFE_SB.AppId,
             "Unsubscribe Err:No subs for Msg 0x%x on %s,app %s",
-            (unsigned int)MsgId,PipeName,CFE_SB_GetAppTskName(TskId,FullName));
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+            PipeName,CFE_SB_GetAppTskName(TskId,FullName));
         return CFE_SUCCESS;
     }/* end if */
 
@@ -1094,7 +1106,8 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
 
     CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_REMOVED_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
             "Subscription Removed:Msg 0x%x on pipe %d,app %s",
-            (unsigned int)MsgId,(int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+            (int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
 
     return CFE_SUCCESS;
 
@@ -1205,7 +1218,8 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_SEND_INV_MSGID_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
             "Send Err:Invalid MsgId(0x%x)in msg,App %s",
-            (unsigned int)MsgId,CFE_SB_GetAppTskName(TskId,FullName));
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+            CFE_SB_GetAppTskName(TskId,FullName));
         return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
@@ -1223,7 +1237,8 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_MSG_TOO_BIG_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
             "Send Err:Msg Too Big MsgId=0x%x,app=%s,size=%d,MaxSz=%d",
-            (unsigned int)MsgId,CFE_SB_GetAppTskName(TskId,FullName),(int)TotalMsgSize,CFE_MISSION_SB_MAX_SB_MSG_SIZE);
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+            CFE_SB_GetAppTskName(TskId,FullName),(int)TotalMsgSize,CFE_MISSION_SB_MAX_SB_MSG_SIZE);
         return CFE_SB_MSG_TOO_BIG;
     }/* end if */
 
@@ -1252,7 +1267,8 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 
            CFE_EVS_SendEventWithAppID(CFE_SB_SEND_NO_SUBS_EID,CFE_EVS_EventType_INFORMATION,CFE_SB.AppId,
               "No subscribers for MsgId 0x%x,sender %s",
-              (unsigned int)MsgId,CFE_SB_GetAppTskName(TskId,FullName));
+              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+              CFE_SB_GetAppTskName(TskId,FullName));
 
            /* clear the bit so the task may send this event again */
            CFE_SB_FinishSendEvent(TskId,CFE_SB_SEND_NO_SUBS_EID_BIT);
@@ -1277,7 +1293,8 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 
             CFE_EVS_SendEventWithAppID(CFE_SB_GET_BUF_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
               "Send Err:Request for Buffer Failed. MsgId 0x%x,app %s,size %d",
-              (unsigned int)MsgId,CFE_SB_GetAppTskName(TskId,FullName),(int)TotalMsgSize);
+              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+              CFE_SB_GetAppTskName(TskId,FullName),(int)TotalMsgSize);
 
             /* clear the bit so the task may send this event again */
             CFE_SB_FinishSendEvent(TskId,CFE_SB_GET_BUF_ERR_EID_BIT);
@@ -1427,8 +1444,8 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 
               CFE_EVS_SendEventWithAppID(CFE_SB_MSGID_LIM_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "Msg Limit Err,MsgId 0x%x,pipe %s,sender %s",
-                (unsigned int)RtgTblPtr->MsgId, PipeName,
-                CFE_SB_GetAppTskName(TskId,FullName));
+                (unsigned int)CFE_SB_MsgIdToValue(RtgTblPtr->MsgId),
+                PipeName, CFE_SB_GetAppTskName(TskId,FullName));
 
               /* clear the bit so the task may send this event again */
               CFE_SB_FinishSendEvent(TskId,CFE_SB_MSGID_LIM_ERR_EID_BIT);
@@ -1446,8 +1463,8 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 
               CFE_EVS_SendEventWithAppID(CFE_SB_Q_FULL_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                   "Pipe Overflow,MsgId 0x%x,pipe %s,sender %s",
-                  (unsigned int)RtgTblPtr->MsgId, PipeName,
-                  CFE_SB_GetAppTskName(TskId,FullName));
+                  (unsigned int)CFE_SB_MsgIdToValue(RtgTblPtr->MsgId),
+                  PipeName, CFE_SB_GetAppTskName(TskId,FullName));
 
                /* clear the bit so the task may send this event again */
               CFE_SB_FinishSendEvent(TskId,CFE_SB_Q_FULL_ERR_EID_BIT);
@@ -1462,8 +1479,8 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 
               CFE_EVS_SendEventWithAppID(CFE_SB_Q_WR_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "Pipe Write Err,MsgId 0x%x,pipe %s,sender %s,stat 0x%x",
-                (unsigned int)RtgTblPtr->MsgId, PipeName,
-                CFE_SB_GetAppTskName(TskId,FullName),
+                (unsigned int)CFE_SB_MsgIdToValue(RtgTblPtr->MsgId),
+                PipeName, CFE_SB_GetAppTskName(TskId,FullName),
                 (unsigned int)SBSndErr.EvtBuf[i].ErrStat);
 
                /* clear the bit so the task may send this event again */
@@ -1651,12 +1668,20 @@ uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId)
     /* Get ptr to buffer descriptor for the last msg received on the given pipe */
     Ptr2BufDescriptor = CFE_SB.PipeTbl[PipeId].CurrentBuff;
 
-    /* Set the receivers pointer to the adr of 'Sender' struct in buf descriptor */
-    *Ptr = (CFE_SB_SenderId_t *) &Ptr2BufDescriptor -> Sender;
-
-    CFE_SB_UnlockSharedData(__func__,__LINE__);
-
-    return CFE_SUCCESS;
+    if ( Ptr2BufDescriptor == NULL  )
+    {
+        *Ptr = NULL;
+        CFE_SB.PipeTbl[PipeId].LastSender = CFE_SB_INVALID_MSG_ID;
+        CFE_SB_UnlockSharedData(__func__,__LINE__);
+        return CFE_SB_NO_MSG_RECV; 
+    }
+    else
+    {
+        /* Set the receivers pointer to the adr of 'Sender' struct in buf descriptor */
+        *Ptr = (CFE_SB_SenderId_t *) &Ptr2BufDescriptor -> Sender;
+        CFE_SB_UnlockSharedData(__func__,__LINE__);
+        return CFE_SUCCESS;
+    }
 
 }/* end CFE_SB_GetLastSenderId */
 

@@ -80,10 +80,6 @@
     #error CFE_PLATFORM_SB_BUF_MEMORY_BYTES cannot be greater than UINT32_MAX (4 Gigabytes)!
 #endif
 
-#ifndef MESSAGE_FORMAT_IS_CCSDS
-    #error There is no message format (MESSAGE_FORMAT_IS_CCSDS) specified!
-#endif
-
 #ifndef CFE_MISSION_SB_PACKET_TIME_FORMAT
     #error CFE_MISSION_SB_PACKET_TIME_FORMAT must be defined!
 #elif ((CFE_MISSION_SB_PACKET_TIME_FORMAT != CFE_MISSION_SB_TIME_32_16_SUBS) && \

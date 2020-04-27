@@ -123,7 +123,7 @@ int32 CFE_SB_EarlyInit (void) {
     
     /* Initialize the SB Statistics Pkt */
     CFE_SB_InitMsg(&CFE_SB.StatTlmMsg,
-                   CFE_SB_STATS_TLM_MID,
+                   CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
                    sizeof(CFE_SB.StatTlmMsg),
                    true);    
 
@@ -216,7 +216,6 @@ void CFE_SB_InitPipeTbl(void){
 */
 void CFE_SB_InitMsgMap(void){
 
-#ifdef MESSAGE_FORMAT_IS_CCSDS
     CFE_SB_MsgKey_Atom_t   KeyVal;
 
     for (KeyVal=0; KeyVal < CFE_SB_MAX_NUMBER_OF_MSG_KEYS; KeyVal++)
@@ -228,7 +227,6 @@ void CFE_SB_InitMsgMap(void){
     CFE_ES_WriteToSysLog("SB internal message format: CCSDS Space Packet Protocol version 1\n");
 #else   /* VER_2 is the same now but will change for larger and/or distributed systems */
     CFE_ES_WriteToSysLog("SB internal message format: Space Packet Protocol version 2 (extended hdr)\n");
-#endif
 #endif
 
 }/* end CFE_SB_InitMsgMap */

@@ -68,141 +68,142 @@ char StartupScript[MAX_STARTUP_SCRIPT];
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_NOOP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_NOOP_CC
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RESET_COUNTERS_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_RESET_COUNTERS_CC
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RESTART_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_RESTART_CC
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SHELL_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_SHELL_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_START_APP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_START_APP_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_STOP_APP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_STOP_APP_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RESTART_APP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_RESTART_APP_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RELOAD_APP_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_RELOAD_APP_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_QUERY_ONE_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
-        .CommandCode = CFE_ES_QUERY_ONE_CC };
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
+        .CommandCode = CFE_ES_QUERY_ONE_CC 
+};
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_QUERY_ALL_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_QUERY_ALL_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_QUERY_ALL_TASKS_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_CLEAR_SYSLOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_CLEAR_SYSLOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_WRITE_SYSLOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_OVER_WRITE_SYSLOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_CLEAR_ER_LOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_CLEAR_ER_LOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_WRITE_ER_LOG_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_START_PERF_DATA_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_STOP_PERF_DATA_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SET_PERF_FILTER_MASK_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_SET_PERF_FILTER_MASK_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SET_PERF_TRIGGER_MASK_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_SET_PERF_TRIGGER_MASK_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RESET_PR_COUNT_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_RESET_PR_COUNT_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SET_MAX_PR_COUNT_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_SET_MAX_PR_COUNT_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_DELETE_CDS_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_DELETE_CDS_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SEND_MEM_POOL_STATS_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_SEND_MEM_POOL_STATS_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_DUMP_CDS_REGISTRY_CC
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_INVALID_CC =
 {
-        .MsgId = CFE_ES_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
         .CommandCode = CFE_ES_DUMP_CDS_REGISTRY_CC + 2
 };
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_SEND_HK =
 {
-        .MsgId = CFE_ES_SEND_HK_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_SEND_HK_MID)
 };
 
 
@@ -1324,13 +1325,14 @@ void TestApps(void)
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
     CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 0;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    memset(&CFE_ES_TaskData.BackgroundAppScanState, 0, sizeof(CFE_ES_TaskData.BackgroundAppScanState));
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 0 &&
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0 &&
               CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE,
-              "CFE_ES_ScanAppTable",
+              "CFE_ES_RunAppTableScan",
               "Waiting; process control request");
 
     /* Test scanning and acting on the application table where the timer
@@ -1342,12 +1344,12 @@ void TestApps(void)
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
     CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 5;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 5000;
+    CFE_ES_RunAppTableScan(1000, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 4 &&
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 4000 &&
               CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_EXIT,
-              "CFE_ES_ScanAppTable",
+              "CFE_ES_RunAppTableScan",
               "Decrement timer");
 
     /* Test scanning and acting on the application table where the application
@@ -1359,13 +1361,13 @@ void TestApps(void)
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
     CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 0;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) &&
               CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 0,
-              "CFE_ES_ScanAppTable",
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0,
+              "CFE_ES_RunAppTableScan",
               "Stopped; process control request");
 
     /* Test scanning and acting on the application table where the application
@@ -1376,13 +1378,13 @@ void TestApps(void)
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_EARLY_INIT;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 5;
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 5000;
 
-    CFE_ES_ScanAppTable();
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_GetNumEventsSent() == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 5,
-              "CFE_ES_ScanAppTable",
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 5000,
+              "CFE_ES_RunAppTableScan",
               "Initializing; process control request");
 
    /* Test a control action request on an application with an
@@ -1968,12 +1970,12 @@ void TestApps(void)
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 0;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_GetNumEventsSent() == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 0,
-              "CFE_ES_ScanAppTable",
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0,
+              "CFE_ES_RunAppTableScan",
               "Waiting; process control request");
     CFE_ES_Global.TaskTable[Id].RecordUsed = false;
 
@@ -1985,12 +1987,12 @@ void TestApps(void)
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimer = 0;
-    CFE_ES_ScanAppTable();
+    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_GetNumEventsSent() == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimer == 0,
-              "CFE_ES_ScanAppTable",
+              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0,
+              "CFE_ES_RunAppTableScan",
               "Running; process control request");
     CFE_ES_Global.TaskTable[Id].RecordUsed = false;
 
@@ -4467,12 +4469,14 @@ void TestAPI(void)
 
     /* Test exiting an app with an exit error */
     /* Note - this exit code of 1000 is invalid, which causes
-     * an extra message to be logged in syslog about this */
+     * an extra message to be logged in syslog about this.  This
+     * should also be stored in the AppControlRequest as APP_ERROR. */
     ES_ResetUnitTest();
     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
     CFE_ES_Global.TaskTable[Id].AppId = Id;
     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
+    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
     CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
@@ -4482,6 +4486,10 @@ void TestAPI(void)
                   UT_GetStubCount(UT_KEY(OS_printf)) == 2,
               "CFE_ES_ExitApp",
               "Application exit error");
+    UtAssert_True(CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_ERROR,
+            "CFE_ES_ExitApp - AppControlRequest (%u) == CFE_ES_RunStatus_APP_ERROR (%u)",
+            (unsigned int)CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest,
+            (unsigned int)CFE_ES_RunStatus_APP_ERROR);
 
 #if 0
     /* Can't cover this path since it contains a while(1) (i.e.,
@@ -4548,9 +4556,9 @@ void TestAPI(void)
     CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
     CFE_ES_Global.TaskTable[Id].RecordUsed = false;
     CFE_ES_Global.TaskTable[Id].AppId = Id;
-    RunStatus = CFE_ES_RunStatus_APP_EXIT;
+    RunStatus = CFE_ES_RunStatus_APP_RUN;
     CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
-        CFE_ES_RunStatus_APP_EXIT;
+        CFE_ES_RunStatus_APP_RUN;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(&RunStatus) == false,
               "CFE_ES_RunLoop",
@@ -4570,6 +4578,20 @@ void TestAPI(void)
               CFE_ES_RunLoop(&RunStatus) == false,
               "CFE_ES_RunLoop",
               "Invalid run status");
+
+    /* Test run loop with a NULL run status */
+    ES_ResetUnitTest();
+    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
+    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
+    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+            CFE_ES_RunStatus_APP_RUN;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RunLoop(NULL),
+              "CFE_ES_RunLoop",
+              "Nominal, NULL output pointer");
 
     /* Test run loop with startup sync code */
     ES_ResetUnitTest();

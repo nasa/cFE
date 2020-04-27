@@ -53,7 +53,54 @@
 #define CFE_SB_SUBSCRIPTION             0      /**< \brief Subtype specifier used in #CFE_SB_SingleSubscriptionTlm_t by SBN App */
 #define CFE_SB_UNSUBSCRIPTION           1      /**< \brief Subtype specified used in #CFE_SB_SingleSubscriptionTlm_t by SBN App */
 
-#define CFE_SB_INVALID_MSG_ID           0xFFFF /**< \brief Initializer for #CFE_SB_MsgId_t values that will not match any real MsgId */
+/* ------------------------------------------------------ */
+/* Macro Constants for use with the CFE_SB_MsgId_t type   */
+/* ------------------------------------------------------ */
+
+/**
+ * \brief Translation macro to convert from MsgId integer values to opaque/abstract API values
+ *
+ * This conversion exists in macro form to allow compile-time evaluation for constants, and
+ * should not be used directly in application code.
+ *
+ * For applications, use the CFE_SB_ValueToMsgId() inline function instead.
+ *
+ * \sa CFE_SB_ValueToMsgId()
+ */
+#define CFE_SB_MSGID_WRAP_VALUE(val)     ((CFE_SB_MsgId_t)(val))
+
+/**
+ * \brief Translation macro to convert to MsgId integer values from opaque/abstract API values
+ *
+ * This conversion exists in macro form to allow compile-time evaluation for constants, and
+ * should not be used directly in application code.
+ *
+ * For applications, use the CFE_SB_MsgIdToValue() inline function instead.
+ *
+ * \sa CFE_SB_MsgIdToValue()
+ */
+#define CFE_SB_MSGID_UNWRAP_VALUE(mid)   ((CFE_SB_MsgId_Atom_t)(mid))
+
+/**
+ * \brief Reserved value for CFE_SB_MsgId_t that will not match any valid MsgId
+ *
+ * This rvalue macro can be used for static/compile-time data initialization to ensure that
+ * the initialized value does not alias to a valid MsgId object.
+ */
+#define CFE_SB_MSGID_RESERVED            CFE_SB_MSGID_WRAP_VALUE(-1)
+
+/**
+ * \brief A literal of the CFE_SB_MsgId_t type representing an invalid ID
+ *
+ * This value should be used for runtime initialization of CFE_SB_MsgId_t values.
+ *
+ * \note This may be a compound literal in a future revision.  Per C99, compound
+ * literals are lvalues, not rvalues, so this value should not be used in
+ * static/compile-time data initialization.  For static data initialization
+ * purposes (rvalue), #CFE_SB_MSGID_RESERVED should be used instead.
+ * However, in the current implementation, they are equivalent.
+ */
+#define CFE_SB_INVALID_MSG_ID            CFE_SB_MSGID_RESERVED
 
 /**
  * \defgroup CFESBPktTypeDefs cFE SB Packet Type Defines
@@ -98,26 +145,23 @@
 /*
 ** Type Definitions
 */
-#ifdef MESSAGE_FORMAT_IS_CCSDS
 
-    /** \brief Generic Software Bus Message Type Definition */
-    typedef union {
-        CCSDS_PriHdr_t      Hdr;   /**< \brief CCSDS Primary Header #CCSDS_PriHdr_t */
-        CCSDS_SpacePacket_t SpacePacket;
-        uint32              Dword; /**< \brief Forces minimum of 32-bit alignment for this object */
-        uint8               Byte[sizeof(CCSDS_PriHdr_t)];   /**< \brief Allows byte-level access */
-    }CFE_SB_Msg_t;
+/** \brief Generic Software Bus Message Type Definition */
+typedef union {
+    CCSDS_PriHdr_t      Hdr;   /**< \brief CCSDS Primary Header #CCSDS_PriHdr_t */
+    CCSDS_SpacePacket_t SpacePacket;
+    uint32              Dword; /**< \brief Forces minimum of 32-bit alignment for this object */
+    uint8               Byte[sizeof(CCSDS_PriHdr_t)];   /**< \brief Allows byte-level access */
+}CFE_SB_Msg_t;
         
-    /** \brief Generic Software Bus Command Header Type Definition */
-    typedef CCSDS_CommandPacket_t   CFE_SB_CmdHdr_t;
+/** \brief Generic Software Bus Command Header Type Definition */
+typedef CCSDS_CommandPacket_t   CFE_SB_CmdHdr_t;
 
-    /** \brief Generic Software Bus Telemetry Header Type Definition */
-    typedef CCSDS_TelemetryPacket_t CFE_SB_TlmHdr_t;
+/** \brief Generic Software Bus Telemetry Header Type Definition */
+typedef CCSDS_TelemetryPacket_t CFE_SB_TlmHdr_t;
 
-    #define CFE_SB_CMD_HDR_SIZE     (sizeof(CFE_SB_CmdHdr_t))/**< \brief Size of #CFE_SB_CmdHdr_t in bytes */
-    #define CFE_SB_TLM_HDR_SIZE     (sizeof(CFE_SB_TlmHdr_t))/**< \brief Size of #CFE_SB_TlmHdr_t in bytes */
-
-#endif /* MESSAGE_FORMAT_IS_CCSDS */
+#define CFE_SB_CMD_HDR_SIZE     (sizeof(CFE_SB_CmdHdr_t))/**< \brief Size of #CFE_SB_CmdHdr_t in bytes */
+#define CFE_SB_TLM_HDR_SIZE     (sizeof(CFE_SB_TlmHdr_t))/**< \brief Size of #CFE_SB_TlmHdr_t in bytes */
 
 /** \brief  CFE_SB_TimeOut_t to primitive type definition
 ** 
@@ -197,7 +241,8 @@ typedef struct {
 **
 ** \param[in]  PipeName     A string to be used to identify this pipe in error messages 
 **                          and routing information telemetry.  The string must be no 
-**                          longer than #OS_MAX_API_NAME.  Longer strings will be truncated. 
+**                          longer than #OS_MAX_API_NAME (including terminator).  
+**                          Longer strings will be truncated. 
 **
 ** \param[out] *PipeIdPtr   The identifier for the created pipe. 
 **
@@ -1287,7 +1332,21 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr);
 
 /*****************************************************************************/
 /**
- * \brief Identifies whether a two #CFE_SB_MsgId_t values are equal
+ * \brief Identifies whether a given CFE_SB_MsgId_t is valid
+ *
+ * \par Description
+ *    Implements a basic sanity check on the value provided
+ *
+ * \return Boolean message ID validity indicator
+ * \retval true  Message ID is within the valid range
+ * \retval false Message ID is not within the valid range
+ */
+bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId);
+
+
+/*****************************************************************************/
+/**
+ * \brief Identifies whether two #CFE_SB_MsgId_t values are equal
  *
  * \par Description
  *    In cases where the #CFE_SB_MsgId_t type is not a simple integer
@@ -1305,7 +1364,7 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr);
  */
 static inline bool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgId2)
 {
-    return (MsgId1 == MsgId2);
+    return CFE_SB_MSGID_UNWRAP_VALUE(MsgId1) == CFE_SB_MSGID_UNWRAP_VALUE(MsgId2);
 }
 
 /*****************************************************************************/
@@ -1336,7 +1395,7 @@ static inline bool CFE_SB_MsgId_Equal(CFE_SB_MsgId_t MsgId1, CFE_SB_MsgId_t MsgI
  */
 static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
 {
-    return MsgId;
+    return CFE_SB_MSGID_UNWRAP_VALUE(MsgId);
 }
 
 /*****************************************************************************/
@@ -1365,7 +1424,8 @@ static inline CFE_SB_MsgId_Atom_t CFE_SB_MsgIdToValue(CFE_SB_MsgId_t MsgId)
  */
 static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
 {
-    return MsgIdValue;
+    CFE_SB_MsgId_t Result = CFE_SB_MSGID_WRAP_VALUE(MsgIdValue);
+    return Result;
 }
 
 /*****************************************************************************/

@@ -286,7 +286,7 @@ int32 CFE_FS_GetUncompressedFile(char *OutputNameBuffer, uint32 OutputNameBuffer
 ** \par Assumptions, External Events, and Notes:
 **        -# The paths and filenames used here are the standard unix style
 **            filenames separated by "/" characters.
-**        -# The extracted filename is no longer than #OS_MAX_PATH_LEN
+**        -# The extracted filename (including terminator) is no longer than #OS_MAX_PATH_LEN 
 **
 ** \param[in] OriginalPath The original path.
 ** \param[out] FileNameOnly The filename that is extracted from the path.

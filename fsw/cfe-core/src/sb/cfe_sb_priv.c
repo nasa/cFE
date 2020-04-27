@@ -551,9 +551,7 @@ int32 CFE_SB_DuplicateSubscribeCheck(CFE_SB_MsgKey_t MsgKey,
 */
 void CFE_SB_SetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr,uint32 Count){
 
-#ifdef MESSAGE_FORMAT_IS_CCSDS
     CCSDS_WR_SEQ(MsgPtr->Hdr,Count);
-#endif
 
 }/* end CFE_SB_SetMsgSeqCnt */
 
