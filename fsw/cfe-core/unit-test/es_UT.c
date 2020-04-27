@@ -2696,7 +2696,7 @@ void TestTask(void)
             sizeof(CmdBuf.StartAppCmd.Payload.AppFileName));
     strncpy((char *) CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
             sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appNameIntentionallyTooLongToFitIntoDestinationBuffer",
+    memset(CmdBuf.StartAppCmd.Payload.Application, 'x', 
             sizeof(CmdBuf.StartAppCmd.Payload.Application));
     CmdBuf.StartAppCmd.Payload.Priority = 160;
     CmdBuf.StartAppCmd.Payload.StackSize = 8192;
