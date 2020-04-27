@@ -229,7 +229,8 @@ function(prepare)
 
   # OSAL API GUIDE include PUBLIC API
   file(GLOB MISSION_OSAL_HEADERFILES 
-    "${osal_MISSION_DIR}/src/os/inc/*.h")
+    "${osal_MISSION_DIR}/src/os/inc/*.h"
+    "${MISSION_SOURCE_DIR}/cfe/cmake/sample_defs/*osconfig.h")
   string(REPLACE ";" " \\\n" MISSION_OSAL_HEADERFILES "${MISSION_OSAL_HEADERFILES}") 
 
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
