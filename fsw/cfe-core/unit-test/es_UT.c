@@ -2528,15 +2528,27 @@ void TestTask(void)
               "CFE_ES_TaskInit",
               "Checksum fail");
 
-    /* Test successful task main process loop */
+    /* Test successful task main process loop - Power On Reset Path */
     ES_ResetUnitTest();
     CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
     CFE_ES_Global.TaskTable[1].AppId = 1;
+    CFE_ES_ResetDataPtr->ResetVars.ResetType = 2;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == CFE_SUCCESS &&
               CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
               "CFE_ES_TaskInit",
-              "Checksum success");
+              "Checksum success, POR Path");
+
+    /* Test successful task main process loop - Processor Reset Path */
+    ES_ResetUnitTest();
+    CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
+    CFE_ES_Global.TaskTable[1].AppId = 1;
+    CFE_ES_ResetDataPtr->ResetVars.ResetType = 1;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_TaskInit() == CFE_SUCCESS &&
+              CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
+              "CFE_ES_TaskInit",
+              "Checksum success, PR Path");
 
     /* Test task main process loop with a register app failure */
     ES_ResetUnitTest();

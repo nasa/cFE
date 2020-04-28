@@ -1005,22 +1005,40 @@
 #define CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE     "/ram/cfe_cds_reg.log"
 
 /**
-**  \cfeescfg Define Default System Log Mode
+**  \cfeescfg Define Default System Log Mode following Power On Reset
 **
 **  \par Description:
-**       Defines the default mode for the operation of the ES System log. The log may
-**       operate in either Overwrite mode = 0, where once the log becomes full the
-**       oldest message in the log will be overwritten, or Discard mode = 1, where
-**       once the log becomes full the contents of the log are preserved and the new
-**       event is discarded.  This constant may hold a value of either 0 or 1
-**       depending on the desired default log mode.  Overwrite Mode = 0, Discard
-**       Mode = 1.
+**       Defines the default mode for the operation of the ES System log following a power
+**       on reset. The log may operate in either Overwrite mode = 0, where once the
+**       log becomes full the oldest message in the log will be overwritten, or
+**       Discard mode = 1, where once the log becomes full the contents of the log are
+**       preserved and the new event is discarded.  This constant may hold a value of
+**       either 0 or 1 depending on the desired default.
+**       Overwrite Mode = 0, Discard Mode = 1.
 **
 **  \par Limits
 **       There is a lower limit of 0 and an upper limit of 1 on this configuration
 **       paramater.
 */
-#define CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE      1
+#define CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE      0
+
+/**
+**  \cfeescfg Define Default System Log Mode following Processor Reset
+**
+**  \par Description:
+**       Defines the default mode for the operation of the ES System log following a
+**       processor reset. The log may operate in either Overwrite mode = 0, where once
+**       the log becomes full the oldest message in the log will be overwritten, or
+**       Discard mode = 1, where once the log becomes full the contents of the log are
+**       preserved and the new event is discarded.  This constant may hold a value of
+**       either 0 or 1 depending on the desired default.
+**       Overwrite Mode = 0, Discard Mode = 1.
+**
+**  \par Limits
+**       There is a lower limit of 0 and an upper limit of 1 on this configuration
+**       paramater.
+*/
+#define CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE      1
 
 /**
 **  \cfeescfg Define Max Number of Performance IDs
@@ -1997,7 +2015,7 @@
 #define CFE_ES_DEFAULT_ER_LOG_FILE          CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE
 #define CFE_ES_DEFAULT_PERF_DUMP_FILENAME   CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME
 #define CFE_ES_DEFAULT_CDS_REG_DUMP_FILE    CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE
-#define CFE_ES_DEFAULT_SYSLOG_MODE          CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE
+#define CFE_ES_DEFAULT_SYSLOG_MODE          CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE
 #define CFE_ES_PERF_MAX_IDS                 CFE_PLATFORM_ES_PERF_MAX_IDS
 #define CFE_ES_PERF_DATA_BUFFER_SIZE        CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE
 #define CFE_ES_PERF_FILTMASK_NONE           CFE_PLATFORM_ES_PERF_FILTMASK_NONE
