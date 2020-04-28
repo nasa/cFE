@@ -263,6 +263,13 @@ int32 CFE_SB_AppInit(void){
       CFE_ES_WriteToSysLog("SB:Subscribe to HK Request Failed:RC=0x%08X\n",(unsigned int)Status);
       return Status;
     }/* end if */
+
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID),CFE_SB.CmdPipe);
+
+    if(Status != CFE_SUCCESS){
+      CFE_ES_WriteToSysLog("SB:Subscribe to Subscription Report Request Failed:RC=0x%08X\n",(unsigned int)Status);
+      return Status;
+    }/* end if */
      
     /* Ensure a ground commanded reset does not get blocked if SB mem pool  */
     /* becomes fully configured (DCR6772) */
@@ -359,6 +366,39 @@ void CFE_SB_ProcessCmdPipePkt(void) {
          CFE_SB_SendHKTlmCmd((CCSDS_CommandPacket_t *)CFE_SB.CmdPipePktPtr);
          break;
 
+      case CFE_SB_SUB_RPT_CTRL_MID:
+         /* Note: Command counter not incremented for this command */
+         switch (CFE_SB_GetCmdCode(CFE_SB.CmdPipePktPtr)) {
+            case CFE_SB_SEND_PREV_SUBS_CC:
+                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_SendPrevSubs_t)))
+                {
+                    CFE_SB_SendPrevSubsCmd((CFE_SB_SendPrevSubs_t *)CFE_SB.CmdPipePktPtr);
+                }
+                break;
+
+            case CFE_SB_ENABLE_SUB_REPORTING_CC:
+                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_EnableSubReporting_t)))
+                {
+                    CFE_SB_EnableSubReportingCmd((CFE_SB_EnableSubReporting_t *)CFE_SB.CmdPipePktPtr);
+                }
+                break;
+
+            case CFE_SB_DISABLE_SUB_REPORTING_CC:
+                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_DisableSubReporting_t)))
+                {
+                    CFE_SB_DisableSubReportingCmd((CFE_SB_DisableSubReporting_t *)CFE_SB.CmdPipePktPtr);
+                }
+                break;
+
+            default:
+               CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID,CFE_EVS_EventType_ERROR,
+                     "Invalid Cmd, Unexpected Command Code %d",
+                     (int)CFE_SB_GetCmdCode(CFE_SB.CmdPipePktPtr));
+               CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
+               break;
+         } /* end switch on cmd code */
+         break;
+
       case CFE_SB_CMD_MID:
          switch (CFE_SB_GetCmdCode(CFE_SB.CmdPipePktPtr)) {
             case CFE_SB_NOOP_CC:
@@ -415,27 +455,6 @@ void CFE_SB_ProcessCmdPipePkt(void) {
                 if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_SendMapInfo_t)))
                 {
                     CFE_SB_SendMapInfoCmd((CFE_SB_SendMapInfo_t *)CFE_SB.CmdPipePktPtr);
-                }
-                break;
-
-            case CFE_SB_SEND_PREV_SUBS_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_SendPrevSubs_t)))
-                {
-                    CFE_SB_SendPrevSubsCmd((CFE_SB_SendPrevSubs_t *)CFE_SB.CmdPipePktPtr);
-                }
-                break;
-
-            case CFE_SB_ENABLE_SUB_REPORTING_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_EnableSubReporting_t)))
-                {
-                    CFE_SB_EnableSubReportingCmd((CFE_SB_EnableSubReporting_t *)CFE_SB.CmdPipePktPtr);
-                }
-                break;
-
-            case CFE_SB_DISABLE_SUB_REPORTING_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_DisableSubReporting_t)))
-                {
-                    CFE_SB_DisableSubReportingCmd((CFE_SB_DisableSubReporting_t *)CFE_SB.CmdPipePktPtr);
                 }
                 break;
 
