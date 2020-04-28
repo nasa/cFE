@@ -224,11 +224,6 @@ int32 CFE_ES_CleanUpApp(uint32 AppId);
 int32 CFE_ES_CleanupTaskResources(uint32 TaskId);
 
 /*
-** Debug function to print out resource utilization
-*/
-int32 CFE_ES_ListResourcesDebug(void);
-
-/*
 ** Populate the cFE_ES_AppInfo structure with the data for an app
 ** This is an internal function for use in ES.
 ** The newer external API is : CFE_ES_GetAppInfo
