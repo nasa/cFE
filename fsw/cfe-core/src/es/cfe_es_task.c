@@ -80,7 +80,6 @@ CFE_ES_TaskData_t CFE_ES_TaskData;
 void CFE_ES_TaskMain(void)
 {
     int32   Status;
-    uint32  TimeOut = CFE_PLATFORM_ES_APP_SCAN_RATE;
     uint32  AppRunStatus = CFE_ES_RunStatus_APP_RUN;
 
 
@@ -139,21 +138,14 @@ void CFE_ES_TaskMain(void)
         */
         Status = CFE_SB_RcvMsg(&CFE_ES_TaskData.MsgPtr,
                                   CFE_ES_TaskData.CmdPipe,
-                                  TimeOut);
+                                  CFE_SB_PEND_FOREVER);
 
         /*
         ** Performance Time Stamp Entry
         */
         CFE_ES_PerfLogEntry(CFE_MISSION_ES_MAIN_PERF_ID);
 
-        /*
-        ** Scan the App table for Application Deletion requests
-        */
-        if ( Status == CFE_SB_TIME_OUT )
-        {
-           CFE_ES_ScanAppTable();
-        }
-        else if (Status == CFE_SUCCESS)
+        if (Status == CFE_SUCCESS)
         {
            /*
            ** Process Software Bus message.
@@ -161,9 +153,10 @@ void CFE_ES_TaskMain(void)
            CFE_ES_TaskPipe(CFE_ES_TaskData.MsgPtr);
 
            /*
-           ** Scan the App Table for changes after processing a command
-           */
-           CFE_ES_ScanAppTable();
+            * Wake up the background task, which includes the
+            * scanning of the ES app table for entries that may need cleanup
+            */
+           CFE_ES_BackgroundWakeup();
         }
         else
         {
@@ -234,9 +227,16 @@ int32 CFE_ES_TaskInit(void)
     CFE_ES_TaskData.LimitCmd  = 4;
 
     /*
-    ** Initialize systemlog to default mode
+    ** Initialize systemlog to default Power On or Processor Reset mode
     */
-    CFE_ES_ResetDataPtr->SystemLogMode = CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE;
+    if (CFE_ES_GetResetType(NULL) == CFE_PSP_RST_TYPE_POWERON)                                                                   
+    {
+        CFE_ES_ResetDataPtr->SystemLogMode = CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE;
+    }
+    else
+    {
+        CFE_ES_ResetDataPtr->SystemLogMode = CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE;
+    }
 
     /*
     ** Register event filter table.
@@ -251,23 +251,30 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Initialize housekeeping packet (clear user data area)
     */
-    CFE_SB_InitMsg(&CFE_ES_TaskData.HkPacket, CFE_ES_HK_TLM_MID, sizeof(CFE_ES_TaskData.HkPacket), true);
+    CFE_SB_InitMsg(&CFE_ES_TaskData.HkPacket,
+            CFE_SB_ValueToMsgId(CFE_ES_HK_TLM_MID),
+            sizeof(CFE_ES_TaskData.HkPacket), true);
 
     /*
     ** Initialize shell output packet (clear user data area)
     */
-    CFE_SB_InitMsg(&CFE_ES_TaskData.ShellPacket, CFE_ES_SHELL_TLM_MID, sizeof(CFE_ES_TaskData.ShellPacket), true);
+    CFE_SB_InitMsg(&CFE_ES_TaskData.ShellPacket,
+            CFE_SB_ValueToMsgId(CFE_ES_SHELL_TLM_MID),
+            sizeof(CFE_ES_TaskData.ShellPacket), true);
 
     /*
     ** Initialize single application telemetry packet
     */
-    CFE_SB_InitMsg(&CFE_ES_TaskData.OneAppPacket, CFE_ES_APP_TLM_MID, sizeof(CFE_ES_TaskData.OneAppPacket), true);
+    CFE_SB_InitMsg(&CFE_ES_TaskData.OneAppPacket,
+            CFE_SB_ValueToMsgId(CFE_ES_APP_TLM_MID),
+            sizeof(CFE_ES_TaskData.OneAppPacket), true);
 
     /*
     ** Initialize memory pool statistics telemetry packet
     */
-    CFE_SB_InitMsg(&CFE_ES_TaskData.MemStatsPacket, CFE_ES_MEMSTATS_TLM_MID,
-                   sizeof(CFE_ES_TaskData.MemStatsPacket), true);
+    CFE_SB_InitMsg(&CFE_ES_TaskData.MemStatsPacket,
+            CFE_SB_ValueToMsgId(CFE_ES_MEMSTATS_TLM_MID),
+            sizeof(CFE_ES_TaskData.MemStatsPacket), true);
 
     /*
     ** Create Software Bus message pipe
@@ -282,7 +289,7 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Subscribe to Housekeeping request commands
     */
-    Status = CFE_SB_SubscribeEx(CFE_ES_SEND_HK_MID, CFE_ES_TaskData.CmdPipe,
+    Status = CFE_SB_SubscribeEx(CFE_SB_ValueToMsgId(CFE_ES_SEND_HK_MID), CFE_ES_TaskData.CmdPipe,
                                 CFE_SB_Default_Qos, CFE_ES_TaskData.LimitHK);
     if ( Status != CFE_SUCCESS )
     {
@@ -293,8 +300,8 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Subscribe to ES task ground command packets
     */
-    Status = CFE_SB_SubscribeEx(CFE_ES_CMD_MID, CFE_ES_TaskData.CmdPipe,
-                       CFE_SB_Default_Qos, CFE_ES_TaskData.LimitCmd);
+    Status = CFE_SB_SubscribeEx(CFE_SB_ValueToMsgId(CFE_ES_CMD_MID), CFE_ES_TaskData.CmdPipe,
+                                CFE_SB_Default_Qos, CFE_ES_TaskData.LimitCmd);
     if ( Status != CFE_SUCCESS )
     {
         CFE_ES_WriteToSysLog("ES:Cannot Subscribe to ES ground commands, RC = 0x%08X\n", (unsigned int)Status);
@@ -427,7 +434,7 @@ void CFE_ES_TaskPipe(CFE_SB_MsgPtr_t Msg)
     uint16         CommandCode;
 
     MessageID = CFE_SB_GetMsgId(Msg);
-    switch (MessageID)
+    switch (CFE_SB_MsgIdToValue(MessageID))
     {
         /*
         ** Housekeeping telemetry request
@@ -622,7 +629,7 @@ void CFE_ES_TaskPipe(CFE_SB_MsgPtr_t Msg)
                 default:
                     CFE_EVS_SendEvent(CFE_ES_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
                      "Invalid ground command code: ID = 0x%X, CC = %d",
-                                      (unsigned int)MessageID, (int)CommandCode);
+                     (unsigned int)CFE_SB_MsgIdToValue(MessageID), (int)CommandCode);
                     CFE_ES_TaskData.CommandErrorCounter++;
                     break;
             }
@@ -632,7 +639,7 @@ void CFE_ES_TaskPipe(CFE_SB_MsgPtr_t Msg)
 
             CFE_EVS_SendEvent(CFE_ES_MID_ERR_EID, CFE_EVS_EventType_ERROR,
                              "Invalid command pipe message ID: 0x%X",
-                              (unsigned int)MessageID);
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID));
             CFE_ES_TaskData.CommandErrorCounter++;
             break;
     }
@@ -1692,7 +1699,7 @@ bool CFE_ES_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
 
         CFE_EVS_SendEvent(CFE_ES_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                 "Invalid cmd length: ID = 0x%X, CC = %d, Exp Len = %d, Len = %d",
-                (unsigned int)MessageID, (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
+                (unsigned int)CFE_SB_MsgIdToValue(MessageID), (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
         result = false;
         CFE_ES_TaskData.CommandErrorCounter++;
     }

@@ -63,9 +63,6 @@
 #define CFE_SB_GLOBAL                   0
 #define CFE_SB_LOCAL                    1
 
-#define CFE_SB_TLM                      0
-#define CFE_SB_CMD                      1
-
 #define CFE_SB_SEND_ZEROCOPY            0
 #define CFE_SB_SEND_ONECOPY             1
 
@@ -391,7 +388,6 @@ int32 CFE_SB_ZeroCopyReleaseAppId(uint32         AppId);
 int32 CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
 int32 CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId);
-uint8 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId);
 void CFE_SB_IncrCmdCtr(int32 status);
 void CFE_SB_FileWriteByteCntErr(const char *Filename,uint32 Requested,uint32 Actual);
 void CFE_SB_SetSubscriptionReporting(uint32 state);
@@ -471,19 +467,6 @@ extern cfe_sb_t CFE_SB;
  * one of these helpers should be used once it is verified that the conversion
  * or use case is legitimate.
  * --------------------------------------------------------- */
-
-/**
- * @brief Identifies whether a given CFE_SB_MsgId_t is valid
- *
- * Implements a basic sanity check on the value provided
- *
- * @returns true if sanity checks passed, false otherwise.
- */
-static inline bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
-{
-    /* cppcheck-suppress redundantCondition */
-    return (MsgId != CFE_SB_INVALID_MSG_ID && MsgId <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
-}
 
 /**
  * @brief Identifies whether a given CFE_SB_MsgKey_t is valid
