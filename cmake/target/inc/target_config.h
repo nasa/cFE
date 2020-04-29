@@ -51,10 +51,15 @@ typedef void (*System_1HzISRFunc_t)(void);
 
 
 /**
- * Prototype for exception ISR function implemented in CFE ES
+ * Prototype for notification function implemented in CFE ES
  * The PSP should call this when exceptions occur.
+ *
+ * NOTE: the PSP must call this routine only from a context where
+ * it is possible to use OSAL primitives.  This means it must _not_
+ * be called from an ISR/signal context on systems where these are
+ * restricted.
  */
-typedef void (*System_ExceptionFunc_t)(uint32  HostTaskId, const char *ReasonString, const uint32 *ContextPointer, uint32 ContextSize);
+typedef void (*System_NotifyFunc_t)(void);
 
 /**
  * Abstract pointer to a module API
@@ -87,9 +92,9 @@ typedef const struct
    System_MainFunc_t SystemMain;
 
    /**
-    * Exception handler function. Called from PSP during exception handling.
+    * Notification function. Called from PSP after async event handling.
     */
-   System_ExceptionFunc_t SystemExceptionISR;
+   System_NotifyFunc_t SystemNotify;
 
    /*
     * Sizes of memory segments required by the CFE based on the current config

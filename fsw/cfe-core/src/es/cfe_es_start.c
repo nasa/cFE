@@ -92,20 +92,6 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    CFE_ES_Global.SystemState = CFE_ES_SystemState_EARLY_INIT;
 
    /*
-   ** Initialize the Reset variables. This call is required
-   ** Before most of the ES functions can be used including the 
-   ** ES System log.
-   */
-   CFE_ES_SetupResetVariables(StartType, StartSubtype, ModeId);
-
-   /*
-   ** Initialize the Logic Perf variables
-   ** Because this is in the ES Reset area, it must be called after
-   ** CFE_ES_SetupResetVariables.
-   */
-   CFE_ES_SetupPerfVariables(StartType);
-
-   /*
    ** Create the ES Shared Data Mutex
    ** This must be done before ANY calls to CFE_ES_WriteToSysLog(), since this uses the mutex
    */
@@ -130,6 +116,20 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
        */
       return;
    } /* end if */
+
+   /*
+   ** Initialize the Reset variables. This call is required
+   ** Before most of the ES functions can be used including the
+   ** ES System log.
+   */
+   CFE_ES_SetupResetVariables(StartType, StartSubtype, ModeId);
+
+   /*
+   ** Initialize the Logic Perf variables
+   ** Because this is in the ES Reset area, it must be called after
+   ** CFE_ES_SetupResetVariables.
+   */
+   CFE_ES_SetupPerfVariables(StartType);
 
    /*
    ** Also Create the ES Performance Data Mutex
@@ -366,19 +366,19 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
       {
          CFE_ES_SysLogWrite_Unsync("POWER ON RESET due to Power Cycle (Power Cycle).\n");
          CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
-                             "POWER ON RESET due to Power Cycle (Power Cycle)", NULL,0 );
+                             "POWER ON RESET due to Power Cycle (Power Cycle)");
       }
       else if ( StartSubtype == CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND )
       {
          CFE_ES_SysLogWrite_Unsync("POWER ON RESET due to HW Special Cmd (Hw Spec Cmd).\n");
          CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
-                             "POWER ON RESET due to HW Special Cmd (Hw Spec Cmd)", NULL,0 );
+                             "POWER ON RESET due to HW Special Cmd (Hw Spec Cmd)");
       }
       else
       {
          CFE_ES_SysLogWrite_Unsync("POWER ON RESET due to other cause (See Subtype).\n");
          CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
-                             "POWER ON RESET due to other cause (See Subtype)", NULL,0 );
+                             "POWER ON RESET due to other cause (See Subtype)");
       }
 
       /*
@@ -418,7 +418,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                  ** the entry just in case something fails.
                  */
                  CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
-                                     "POWER ON RESET due to max proc resets (HW Spec Cmd).", NULL,0 );
+                                     "POWER ON RESET due to max proc resets (HW Spec Cmd).");
              }
              else
              {
@@ -430,7 +430,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                  ** the entry just in case something fails.
                  */
                  CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, StartSubtype,
-                                     "POWER ON RESET due to max proc resets (Watchdog).", NULL,0 );
+                                     "POWER ON RESET due to max proc resets (Watchdog).");
              } 
              /*
              ** Call the BSP reset routine 
@@ -454,7 +454,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                 ** Log the watchdog reset 
                 */
                 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_PROCESSOR, StartSubtype,
-                                    "PROCESSOR RESET due to Hardware Special Command (Hw Spec Cmd).", NULL,0 );
+                                    "PROCESSOR RESET due to Hardware Special Command (Hw Spec Cmd).");
  
              }
              else
@@ -466,7 +466,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                 ** Log the watchdog reset 
                 */
                 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_PROCESSOR, StartSubtype,
-                                    "PROCESSOR RESET due to Watchdog (Watchdog).", NULL,0 );
+                                    "PROCESSOR RESET due to Watchdog (Watchdog).");
 
              }
  

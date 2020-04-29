@@ -108,6 +108,14 @@
         }
 
 
+/**
+ * \brief Indicates no context information Error Logs
+ *
+ * For use with the CFE_ES_WriteToERLog() function when no context
+ * information is available.
+ */
+#define CFE_ES_ERLOG_NO_CONTEXT         (0)
+
 /*
 ** Type Definitions
 */
@@ -328,8 +336,35 @@ void CFE_ES_PerfLogDump(void);
 /*
 ** Exception and Reset Log API
 */
-int32 CFE_ES_WriteToERLog( uint32 EntryType,   uint32  ResetType, uint32 ResetSubtype, 
-                              const char  *Description, const uint32 *Context,   uint32 ContextSize );
-int32 CFE_ES_ERLogDump(const char *Filename);
+
+/**
+ * \brief Create an entry in the ES Exception and Reset Log. 
+ *
+ * The exception and reset log is used to track significant system-level events and anomalies
+ * for later analysis.
+ *
+ * \param EntryType Whether the event is relevant to the CORE or an APPLICATION (#CFE_ES_LogEntryType_Enum_t)
+ * \param ResetType The type of the last reset
+ * \param ResetSubType The subtype of the last reset
+ * \param Description A summary of the event
+ *
+ * \return CFE_SUCCESS if successful, or an appropriate error code from cfe_error.h
+ */
+int32 CFE_ES_WriteToERLog( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  ResetType, uint32 ResetSubtype,
+                              const char  *Description);
+
+
+/**
+ * \copydoc CFE_ES_WriteToERLog()
+ *
+ * This log API accepts extra context information (AppID and ContextID)
+ * and is used when the app/task invoking this API is not the same app
+ * as where the event occurred.
+ *
+ * \param AppId The Application ID associated with the task that caused the exception
+ * \param PspContextId Identifier of extended context info stored in the PSP (if available)
+ */
+int32 CFE_ES_WriteToERLogWithContext( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  ResetType, uint32 ResetSubtype,
+                           const char  *Description, uint32 AppId, uint32 PspContextId);
 
 #endif  /* _cfe_es_log_ */

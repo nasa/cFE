@@ -2186,8 +2186,6 @@ void TestApps(void)
 void TestERLog(void)
 {
     int Return;
-    uint32 Context = 4;
-    char Context2[1000];
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Exception and Reset Log\n");
@@ -2199,65 +2197,18 @@ void TestERLog(void)
      */
     ES_ResetUnitTest();
     CFE_ES_ResetDataPtr->ERLogIndex = CFE_PLATFORM_ES_ER_LOG_ENTRIES + 1;
-    CFE_ES_ResetDataPtr->ERLog[0].ContextSize = 0;
     Return = CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
                                  CFE_PSP_RST_TYPE_POWERON,
                                  1,
-                                 NULL,
-                                 &Context,
-                                 sizeof(int));
+                                 NULL);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_SUCCESS &&
-              !strcmp(CFE_ES_ResetDataPtr->ERLog[0].Description,
+              !strcmp(CFE_ES_ResetDataPtr->ERLog[0].BaseInfo.Description,
                       "No Description String Given.") &&
-              CFE_ES_ResetDataPtr->ERLogIndex == 1 &&
-              CFE_ES_ResetDataPtr->ERLog[0].ContextSize == sizeof(int),
+              CFE_ES_ResetDataPtr->ERLogIndex == 1,
               "CFE_ES_WriteToERLog",
               "Log entries exceeded; no description; valid context size");
 
-    /* Test initial rolling over log entry,
-     * null description,
-     * and non-null context with zero size
-     */
-    ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->ERLogIndex = 0;
-    CFE_ES_ResetDataPtr->ERLog[0].ContextSize = 0;
-    Return = CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
-                                 CFE_PSP_RST_TYPE_POWERON,
-                                 1,
-                                 NULL,
-                                 &Context,
-                                 0);
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_SUCCESS &&
-            CFE_ES_ResetDataPtr->ERLogIndex == 1 &&
-            CFE_ES_ResetDataPtr->ERLog[0].ContextSize == 0,
-              "CFE_ES_WriteToERLog",
-              "Log entries exceeded; no description; invalid context size");
-
-    /* Test rolling over log entry at end,
-     * non-null description,
-     * and non-null context with large size
-     */
-    ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->ERLogIndex = CFE_PLATFORM_ES_ER_LOG_ENTRIES - 1;
-    CFE_ES_ResetDataPtr->ERLog[CFE_PLATFORM_ES_ER_LOG_ENTRIES - 1].ContextSize = 0;
-    Return = CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
-                                 CFE_PSP_RST_TYPE_POWERON,
-                                 1,
-                                 "LogDescription",
-                                 (uint32 *) &Context2,
-                                 9999999);
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_SUCCESS &&
-              !strcmp(CFE_ES_ResetDataPtr->ERLog[
-                          CFE_PLATFORM_ES_ER_LOG_ENTRIES - 1].Description,
-                      "LogDescription") &&
-              CFE_ES_ResetDataPtr->ERLogIndex == 0 &&
-              CFE_ES_ResetDataPtr->ERLog[
-                  CFE_PLATFORM_ES_ER_LOG_ENTRIES - 1].ContextSize == 9999999,
-              "CFE_ES_WriteToERLog",
-              "Log entries at maximum; description; oversized context");
 
     /* Test non-rolling over log entry,
      * null description,
@@ -2265,17 +2216,13 @@ void TestERLog(void)
      */
     ES_ResetUnitTest();
     CFE_ES_ResetDataPtr->ERLogIndex = 0;
-    CFE_ES_ResetDataPtr->ERLog[0].ContextSize = 0;
     Return = CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,
                                  CFE_PSP_RST_TYPE_POWERON,
                                  1,
-                                 NULL,
-                                 NULL,
-                                 1);
+                                 NULL);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_SUCCESS &&
-            CFE_ES_ResetDataPtr->ERLogIndex == 1 &&
-            CFE_ES_ResetDataPtr->ERLog[0].ContextSize == 0,
+            CFE_ES_ResetDataPtr->ERLogIndex == 1,
               "CFE_ES_WriteToERLog",
               "No log entry rollover; no description; no context");
 }
@@ -2460,6 +2407,7 @@ void TestTask(void)
     uint32                      Id;
     uint32                      TestObjId;
     uint32                      ResetType;
+    uint32                      UT_ContextBuffer;
     union
     {
         CFE_SB_Msg_t             Msg;
@@ -3264,64 +3212,157 @@ void TestTask(void)
               "Clear E&R log");
 
     /* Test successful writing of the E&R log */
+    /* In the current implementation, it does not directly write the file,
+     * this just sets a flag for the background task */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy(CmdBuf.WriteERlogCmd.Payload.FileName, "filename",
             sizeof(CmdBuf.WriteERlogCmd.Payload.FileName));
+    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = false;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteERLog_t),
             UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
     UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_ERLOG2_EID),
+            CFE_ES_TaskData.BackgroundERLogDumpState.IsPending,
               "CFE_ES_WriteERLogCmd",
-              "Write E&R log; success");
+              "Write E&R log command; pending");
+    UT_Report(__FILE__, __LINE__,
+            !UT_EventIsInHistory(CFE_ES_ERLOG_PENDING_ERR_EID),
+              "CFE_ES_WriteERLogCmd",
+              "Write E&R log command; no events");
+
+    /* sending the same command a second time should fail with an event
+     * indicating a file write is already pending. */
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteERLog_t),
+            UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
+    UT_Report(__FILE__, __LINE__,
+            UT_EventIsInHistory(CFE_ES_ERLOG_PENDING_ERR_EID),
+              "CFE_ES_WriteERLogCmd",
+              "Write E&R log command; already pending event");
+
+    /* calling the background job when no write pending should immediately return false, no event */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundERLogDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundERLogDumpState));
+    UT_Report(__FILE__, __LINE__,
+              !CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState),
+              "CFE_ES_RunERLogDump",
+              "Write E&R log; not pending");
+    UT_Report(__FILE__, __LINE__,
+            !UT_EventIsInHistory(CFE_ES_ERLOG2_EID),
+              "CFE_ES_WriteERLogCmd",
+              "Write E&R log command; no file written event");
+
+    /* nominal condition - still returns false, but generates event */
+    ES_ResetUnitTest();
+    UT_ContextBuffer = 42;
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_CopyContext),&UT_ContextBuffer, sizeof(UT_ContextBuffer), false);
+    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
+    CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
+    UT_Report(__FILE__, __LINE__,
+            !CFE_ES_TaskData.BackgroundERLogDumpState.IsPending,
+              "CFE_ES_RunERLogDump",
+              "Write E&R log; nominal, clear flag");
+    UT_Report(__FILE__, __LINE__,
+            UT_EventIsInHistory(CFE_ES_ERLOG2_EID),
+              "CFE_ES_WriteERLogCmd",
+              "Write E&R log command; file written event");
 
     /* Test writing the E&R log with an OS create failure */
     ES_ResetUnitTest();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
     UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
-    strncpy((char *) CmdBuf.WriteERlogCmd.Payload.FileName, "",
-            sizeof(CmdBuf.WriteERlogCmd.Payload.FileName));
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteERLog_t),
-            UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
+    CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_ERLOG2_ERR_EID),
-              "CFE_ES_WriteERLogCmd",
+              "CFE_ES_RunERLogDump",
               "Write E&R log; OS create");
 
     /* Test writing the E&R log with an OS write failure */
     ES_ResetUnitTest();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
     UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
-    strncpy((char *) CmdBuf.WriteERlogCmd.Payload.FileName, "n",
-            sizeof(CmdBuf.WriteERlogCmd.Payload.FileName));
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteERLog_t),
-            UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
+    CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID),
-              "CFE_ES_WriteERLogCmd",
+              "CFE_ES_RunERLogDump",
               "Write E&R log; OS write");
 
     /* Test writing the E&R log with a write header failure */
     ES_ResetUnitTest();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_ERROR);
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteERLog_t),
-            UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
+    CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID),
               "CFE_ES_WriteERLogCmd",
               "Write E&R log; write header");
 
-    /* Test writing the E&R log with a reset area failure */
+    /* Test scan for exceptions in the PSP, should invoke a Processor Reset */
     ES_ResetUnitTest();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetStatusBSPResetArea(OS_ERROR, 0, CFE_TIME_ToneSignalSelect_PRIMARY);
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteERLog_t),
-            UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
+    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    CFE_ES_RunExceptionScan(0, NULL);
     UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_RST_ACCESS_EID),
-              "CFE_ES_WriteERLogCmd",
-              "Write E&R log; reset area");
+            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 1,
+              "CFE_ES_RunExceptionScan",
+              "Scan for exceptions; processor restart");
+
+    ES_ResetUnitTest();
+    CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = 0;
+    CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount = 1;
+    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    CFE_ES_RunExceptionScan(0, NULL);
+    /* first time should do a processor restart (limit reached) */
+    UT_Report(__FILE__, __LINE__,
+            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 1,
+              "CFE_ES_RunExceptionScan",
+              "Scan for exceptions; processor restart");
+    /* next time should do a poweron restart (limit reached) */
+    CFE_ES_RunExceptionScan(0, NULL);
+    UT_Report(__FILE__, __LINE__,
+            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 2,
+              "CFE_ES_RunExceptionScan",
+              "Scan for exceptions; poweron restart");
+
+    /* nominal for app restart - associate exception with a task ID */
+    OS_TaskCreate(&UT_ContextBuffer, "UT", NULL, NULL, 0, 0, 0);
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextBuffer, sizeof(UT_ContextBuffer), false);
+    CFE_ES_Global.TaskTable[1].RecordUsed = true;
+    CFE_ES_Global.TaskTable[1].AppId = 0;
+    CFE_ES_Global.TaskTable[1].TaskId = UT_ContextBuffer;
+    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
+    CFE_ES_Global.AppTable[0].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    CFE_ES_Global.AppTable[0].ControlReq.AppTimerMsec = 0;
+    CFE_ES_Global.AppTable[0].Type = CFE_ES_AppType_EXTERNAL;
+    CFE_ES_Global.AppTable[0].StartParams.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
+    CFE_ES_RunExceptionScan(0, NULL);
+    /* should have changed AppControlRequest from RUN to SYS_RESTART,
+     * and the call to CFE_PSP_Restart should NOT increment */
+    UT_Report(__FILE__, __LINE__,
+            CFE_ES_Global.AppTable[0].ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_RESTART,
+              "CFE_ES_RunExceptionScan",
+              "Scan for exceptions; app restart request pending");
+
+    UT_Report(__FILE__, __LINE__,
+            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 2,
+              "CFE_ES_RunExceptionScan",
+              "Scan for exceptions; no psp restart");
+
+    /* repeat, but for a CORE app, which cannot be restarted */
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextBuffer, sizeof(UT_ContextBuffer), false);
+    CFE_ES_Global.AppTable[0].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    CFE_ES_Global.AppTable[0].Type = CFE_ES_AppType_CORE;
+    CFE_ES_RunExceptionScan(0, NULL);
+    UT_Report(__FILE__, __LINE__,
+            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 3,
+              "CFE_ES_RunExceptionScan",
+              "Scan for exceptions; core app, psp restart");
+
+    /* check failure of getting summary data */
+    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetSummary), CFE_PSP_NO_EXCEPTION_DATA);
+    CFE_ES_RunExceptionScan(0, NULL);
+    UT_Report(__FILE__, __LINE__,
+            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 4,
+              "CFE_ES_RunExceptionScan",
+              "Scan for exceptions; fail to get context");
 
     /* Test clearing the log with a bad size in the verify command
      * length call
@@ -4338,13 +4379,12 @@ void TestPerf(void)
 
 void TestAPI(void)
 {
-    uint32 Id, Id2;
-    uint32 TestObjId, TestObjId2;
+    uint32 Id;
+    uint32 TestObjId;
     char AppName[32];
     char CounterName[11];
     char CDSName[CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + 2];
     int i;
-    uint32 ExceptionContext = 0;
     int32  Return;
     uint8  Data[12];
     uint32 ResetType;
@@ -5328,86 +5368,6 @@ void TestAPI(void)
               (CounterCount == 5), "CFE_ES_SetGenCount",
               "Check value for counter set");
 
-    /* Test handling of logging and reset after a core exception using
-     * a non-running app
-     */
-    ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-    strncpy((char *)CFE_ES_Global.AppTable[Id].StartParams.Name, "appName",
-            sizeof(CFE_ES_Global.AppTable[Id].StartParams.Name));
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_EARLY_INIT;
-    CFE_ES_Global.TaskTable[Id2].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id2].AppId = Id;
-    OS_TaskCreate(&CFE_ES_Global.TaskTable[Id2].TaskId, NULL, NULL, NULL,
-                  0, 0, 0);
-    CFE_ES_Global.AppTable[Id].StartParams.ExceptionAction =
-        CFE_ES_ExceptionAction_RESTART_APP;
-    CFE_ES_ProcessCoreException(TestObjId & 0xFFFF,
-                                "Reason String",
-                                &ExceptionContext,
-                                sizeof(ExceptionContext));
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_RESTART_APP]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
-              "CFE_ES_ProcessCoreException",
-              "Cannot restart a non-running application");
-
-    /* Test handling of logging and reset after a core exception; processor
-     * reset with no app restart
-     */
-    ES_ResetUnitTest();
-    UT_SetDataBuffer(UT_KEY(CFE_PSP_Restart), &ResetType, sizeof(ResetType), false);
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-//    memset(CFE_ES_Global.TaskTable, 0, sizeof(CFE_ES_Global.TaskTable));
-//    memset(CFE_ES_Global.AppTable, 0, sizeof(CFE_ES_Global.AppTable));
-    strncpy((char *)CFE_ES_Global.AppTable[Id].StartParams.Name, "appName",
-            sizeof(CFE_ES_Global.AppTable[Id].StartParams.Name));
-    CFE_ES_Global.TaskTable[Id2].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id2].AppId = Id;
-    OS_TaskCreate(&CFE_ES_Global.TaskTable[Id2].TaskId, NULL, NULL, NULL,
-                  0, 0, 0);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = 0;
-    CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount = 5;
-    CFE_ES_Global.AppTable[3].StartParams.ExceptionAction =
-        CFE_ES_ExceptionAction_RESTART_APP + 1;
-    CFE_ES_ProcessCoreException(TestObjId2 & 0xFFFF,
-                                "Reason String",
-                                &ExceptionContext,
-                                sizeof(ExceptionContext));
-    UT_Report(__FILE__, __LINE__,
-              ResetType == CFE_PSP_RST_TYPE_PROCESSOR &&
-              UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 1,
-              "CFE_ES_ProcessCoreException",
-              "Processor reset with no application restart");
-
-    /* Test handling of logging and reset after a core exception; power on
-     * reset with no app restart
-     */
-    ES_ResetUnitTest();
-    UT_SetDataBuffer(UT_KEY(CFE_PSP_Restart), &ResetType, sizeof(ResetType), false);
-    CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = 100;
-    CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount = 5;
-    CFE_ES_Global.AppTable[3].StartParams.ExceptionAction =
-        CFE_ES_ExceptionAction_RESTART_APP + 1;
-    CFE_ES_ProcessCoreException(OS_MAX_TASKS - 1,
-                                "Reason String",
-                                &ExceptionContext,
-                                sizeof(ExceptionContext));
-    UT_Report(__FILE__, __LINE__,
-              ResetType == CFE_PSP_RST_TYPE_POWERON &&
-              UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 1,
-              "CFE_ES_ProcessCoreException",
-              "Power on reset with no application restart");
-
     /* Test waiting for apps to initialize before continuing; transition from
      * initializing to running
      */
@@ -5600,68 +5560,6 @@ void TestAPI(void)
                                             "CounterX") == CFE_ES_BAD_ARGUMENT,
                "CFE_ES_GetGenCounterIDByName",
                "Null name");
-
-     /* Test handling of logging and reset after failure to get the task info
-      * from the OS
-      */
-     ES_ResetUnitTest();
-     UT_SetDeferredRetcode(UT_KEY(OS_TaskGetInfo), 1, OS_INVALID_POINTER);
-     CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = 0;
-     CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount = 5;
-     CFE_ES_ProcessCoreException(0xFFFFFFFF,
-                                 "Reason String",
-                                 &ExceptionContext,
-                                 sizeof(ExceptionContext));
-     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount == 1 &&
-                 CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset == true,
-               "CFE_ES_ProcessCoreException",
-               "Failure to get task info from OS");
-
-     /* Test handling of logging and reset where the host ID doesn't match
-      * the OS task ID
-      */
-     ES_ResetUnitTest();
-     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-     CFE_ES_Global.TaskTable[Id].AppId = Id;
-     CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = 0;
-     CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount = 5;
-     CFE_ES_Global.AppTable[Id].StartParams.ExceptionAction =
-         CFE_ES_ExceptionAction_RESTART_APP;
-     CFE_ES_ProcessCoreException(0,
-                                 "Reason String",
-                                 &ExceptionContext,
-                                 sizeof(ExceptionContext));
-     UT_Report(__FILE__, __LINE__,
-               UT_GetStubCount(UT_KEY(OS_printf)) == 0,
-               "CFE_ES_ProcessCoreException",
-               "Host ID doesn't match OS task ID");
-
-     /* Test handling of logging and reset where CFE_ES_GetTaskInfo fails */
-     ES_ResetUnitTest();
-     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-     OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-     Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-     CFE_ES_Global.TaskTable[Id].AppId = Id;
-     CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = 0;
-     CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount = 5;
-     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-     CFE_ES_Global.TaskTable[Id].AppId = Id2;
-     CFE_ES_Global.AppTable[Id2].AppState = CFE_ES_AppState_UNDEFINED;
-     CFE_ES_Global.AppTable[Id2].StartParams.ExceptionAction =
-         CFE_ES_ExceptionAction_RESTART_APP;
-     CFE_ES_ProcessCoreException(Id,
-                                 "Reason String",
-                                 &ExceptionContext,
-                                 sizeof(ExceptionContext));
-     UT_Report(__FILE__, __LINE__,
-               UT_GetStubCount(UT_KEY(OS_printf)) == 1,
-               "CFE_ES_ProcessCoreException",
-               "CFE_ES_GetTaskInfo failure");
 
      /* Test unsuccessful CDS registering */
      ES_ResetUnitTest();

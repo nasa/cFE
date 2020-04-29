@@ -63,7 +63,7 @@ typedef struct
    /*
    ** Exception and Reset log declaration
    */
-   CFE_ES_ERLog_t    ERLog[CFE_PLATFORM_ES_ER_LOG_ENTRIES];
+   CFE_ES_ERLog_MetaData_t    ERLog[CFE_PLATFORM_ES_ER_LOG_ENTRIES];
    uint32            ERLogIndex;
    uint32            ERLogEntries;
    uint32            LastAppId;

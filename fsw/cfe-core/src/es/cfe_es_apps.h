@@ -199,6 +199,16 @@ int32 CFE_ES_AppDumpAllInfo(void);
 bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg);
 
 /*
+** Scan for new exceptions stored in the PSP
+*/
+bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg);
+
+/*
+** Check if ER log dump request is pending
+*/
+bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg);
+
+/*
 ** Perform the requested control action for an application
 */
 void CFE_ES_ProcessControlRequest(uint32 AppID);

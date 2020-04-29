@@ -37,6 +37,7 @@
 
 /********************************** Include Files  ************************************/
 #include "common_types.h"    /* Basic data types */
+#include "cfe_evs_extern_typedefs.h" /* for EVS-specific types such as CFE_EVS_LogMode_Enum_t */
 #include "cfe_time.h"        /* Time library function definitions */
 #include "cfe_sb.h"
 #include "cfe_es.h"

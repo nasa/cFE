@@ -120,16 +120,6 @@
     #error CFE_PLATFORM_ES_USER_RESERVED_SIZE cannot be greater than UINT32_MAX (4 Gigabytes)!
 #endif
 
-/*
-** ES Reset area size -- This should depend on 
-**  the size of the data structures that are in this area.
-*/
-#if CFE_PLATFORM_ES_RESET_AREA_SIZE  <  ( 150 * 1024 )
-    #error CFE_PLATFORM_ES_RESET_AREA_SIZE cannot be less than 150Kbytes!
-#elif CFE_PLATFORM_ES_RESET_AREA_SIZE >  UINT32_MAX
-    #error CFE_PLATFORM_ES_RESET_AREA_SIZE cannot be greater than UINT32_MAX (4 Gigabytes)!
-#endif
-
 /* 
 ** The size of a command to the OS that lies under the cFE 
 */

@@ -565,7 +565,7 @@
 **       in the error log. Any context information beyond this size will
 **       be truncated.
 */
-#define CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE     128
+#define CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE     256
 
 
 /**
