@@ -744,7 +744,7 @@ typedef struct
     */
     uint8                 NumFreeSharedBufs;                    /**< \cfetlmmnemonic \TBL_NUMFREESHRBUF 
                                                                      \brief Number of free Shared Working Buffers */
-    uint8                 ByteAlignPad1;                        /**< \cfetlmmnemonic \TBL_BYTEALIGNPAD1 
+    uint8                 ByteAlignPad1[3];                     /**< \cfetlmmnemonic \TBL_BYTEALIGNPAD1 
                                                                      \brief Spare byte to ensure longword alignment */
     CFE_ES_MemHandle_t    MemPoolHandle;                        /**< \cfetlmmnemonic \TBL_MEMPOOLHANDLE 
                                                                      \brief Handle to TBL's memory pool */
@@ -794,7 +794,7 @@ typedef struct
                                                                      \brief Flag indicating an inactive buffer is ready to be copied */
     bool                        DumpOnly;                       /**< \cfetlmmnemonic \TBL_DUMPONLY 
                                                                      \brief Flag indicating Table is NOT to be loaded */
-    bool                        DoubleBuffered;                    /**< \cfetlmmnemonic \TBL_DBLBUFFERED 
+    bool                        DoubleBuffered;                 /**< \cfetlmmnemonic \TBL_DBLBUFFERED 
                                                                      \brief Flag indicating Table has a dedicated inactive buffer */
     char                        Name[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];/**< \cfetlmmnemonic \TBL_NAME
                                                                      \brief Processor specific table name */
@@ -804,7 +804,7 @@ typedef struct
                                                                      \brief Name of owning application */
     bool                        Critical;                       /**< \cfetlmmnemonic \TBL_CRITICAL
                                                                      \brief Indicates whether table is Critical or not */
-    uint8                       ByteAlign4;                     /**< \cfetlmmnemonic \TBL_SPARE4
+    uint8                       ByteAlign4[7];                  /**< \cfetlmmnemonic \TBL_SPARE4
                                                                      \brief Spare byte to maintain byte alignment */
 } CFE_TBL_TblRegPacket_Payload_t;
 

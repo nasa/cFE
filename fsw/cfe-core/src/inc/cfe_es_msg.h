@@ -1412,8 +1412,8 @@ typedef struct
 **/
 typedef struct
 {
-  char                  Application[CFE_MISSION_MAX_API_LEN];   /**< \brief - RESERVED - should be all zeroes */
-  CFE_ES_MemHandle_t    PoolHandle;                     /**< \brief Handle of Pool whose statistics are to be telemetered */
+  char                  Application[CFE_MISSION_MAX_API_LEN];   /**< \brief Application Name */
+  CFE_ES_MemHandle_t    PoolHandle;                             /**< \brief Handle of Pool whose statistics are to be telemetered */
 
 } CFE_ES_SendMemPoolStatsCmd_Payload_t;
 
@@ -1469,6 +1469,7 @@ typedef struct
   CFE_ES_MemHandle_t    PoolHandle;                     /**< \cfetlmmnemonic \ES_POOLHANDLE
                                                              \brief Handle of memory pool whose stats are being telemetered */
   CFE_ES_MemPoolStats_t PoolStats;                      /**< \brief For more info, see #CFE_ES_MemPoolStats_t */
+  uint32                AlignPad;                       /**< \brief Spare word to maintain alignment */
 } CFE_ES_PoolStatsTlm_Payload_t;
 
 typedef struct

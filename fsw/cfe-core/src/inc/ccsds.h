@@ -122,6 +122,12 @@ typedef struct {
 
    uint8  Time[CCSDS_TIME_SIZE];
 
+#if ( CCSDS_TIME_SIZE == 6 )
+   uint8  tempPad1[4];
+#elif ( CCSDS_TIME_SIZE == 8 )
+   uint8  tempPad1[2];
+#endif
+
 } CCSDS_TlmSecHdr_t;
 
 /*----- CCSDS Endian Flag in the APID Qualifier Field. -----*/
