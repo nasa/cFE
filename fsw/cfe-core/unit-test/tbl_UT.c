@@ -1761,7 +1761,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     /* Test response to a file time stamp failure */
     UT_InitData();
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_FS_SUCCESS - 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_SetTimestamp), 1, OS_SUCCESS - 1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,
               "CFE_TBL_HousekeepingCmd",

@@ -807,12 +807,12 @@
 #define CFE_OS_ERR_NAME_NOT_FOUND       (OS_ERR_NAME_NOT_FOUND)  /**< @brief DEPRECATED @deprecated */
 #define CFE_OS_ERR_SEM_NOT_FULL         (OS_ERR_SEM_NOT_FULL)  /**< @brief DEPRECATED @deprecated */
 #define CFE_OS_ERR_INVALID_PRIORITY     (OS_ERR_INVALID_PRIORITY)  /**< @brief DEPRECATED @deprecated */
-#define CFE_OS_FS_ERROR                 (OS_FS_ERROR)  /**< @brief DEPRECATED @deprecated */
-#define CFE_OS_FS_ERR_INVALID_POINTER   (OS_FS_ERR_INVALID_POINTER)  /**< @brief DEPRECATED @deprecated */
+#define CFE_OS_FS_ERROR                 (OS_ERROR)  /**< @brief DEPRECATED @deprecated */
+#define CFE_OS_FS_ERR_INVALID_POINTER   (OS_INVALID_POINTER)  /**< @brief DEPRECATED @deprecated */
 #define CFE_OS_FS_ERR_PATH_TOO_LONG     (OS_FS_ERR_PATH_TOO_LONG)  /**< @brief DEPRECATED @deprecated */
 #define CFE_OS_FS_ERR_NAME_TOO_LONG     (OS_FS_ERR_NAME_TOO_LONG)  /**< @brief DEPRECATED @deprecated */
 #define CFE_OS_FS_ERR_DRIVE_NOT_CREATED (OS_FS_ERR_DRIVE_NOT_CREATED)  /**< @brief DEPRECATED @deprecated */
-#define CFE_OSAPI_NOT_IMPLEMENTED       (OS_FS_UNIMPLEMENTED)  /**< @brief DEPRECATED @deprecated */
+#define CFE_OSAPI_NOT_IMPLEMENTED       (OS_ERR_NOT_IMPLEMENTED)  /**< @brief DEPRECATED @deprecated */
 
 #endif /* CFE_OMIT_DEPRECATED_6_7 */
 

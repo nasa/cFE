@@ -1753,7 +1753,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFile_t *data)
    /* Create Application Data File */
    FileHandle = OS_creat(LocalName, OS_WRITE_ONLY);
 
-   if (FileHandle < OS_FS_SUCCESS)
+   if (FileHandle < OS_SUCCESS)
    {
       EVS_SendEvent(CFE_EVS_ERR_CRDATFILE_EID, CFE_EVS_EventType_ERROR,
                    "Write App Data Command Error: OS_creat = 0x%08X, filename = %s",

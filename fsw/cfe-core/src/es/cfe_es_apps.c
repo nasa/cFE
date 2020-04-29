@@ -155,7 +155,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
       while(1)
       {
          ReadStatus = OS_read(AppFile, &c, 1);
-         if ( ReadStatus == OS_FS_ERROR )
+         if ( ReadStatus == OS_ERROR )
          {
             CFE_ES_WriteToSysLog ("ES Startup: Error Reading Startup file. EC = 0x%08X\n",(unsigned int)ReadStatus);
             break;

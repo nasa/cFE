@@ -3068,7 +3068,7 @@ void TestTask(void)
     /* Test write of all app data to file with a write header failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_FS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAll_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3245,7 +3245,7 @@ void TestTask(void)
 
     /* Test writing the system log with a write header failure */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_FS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteSyslog_t),
             UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3304,7 +3304,7 @@ void TestTask(void)
     /* Test writing the E&R log with a write header failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_FS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteERLog_t),
             UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
     UT_Report(__FILE__, __LINE__,
