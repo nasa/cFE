@@ -1398,7 +1398,7 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
     for (i=0; i<CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
         /* Check to see if the Handle belongs to the Application being deleted */
-        if (CFE_TBL_TaskData.Handles[i].AppId == AppId && CFE_TBL_TaskData.Handles[i].UsedFlag == TRUE)
+        if (CFE_TBL_TaskData.Handles[i].AppId == AppId && CFE_TBL_TaskData.Handles[i].UsedFlag == true)
         {
             /* Delete the handle (and the table, if the App owned it) */
             /* Get a pointer to the relevant Access Descriptor */
