@@ -683,6 +683,9 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
     char                        AppName[OS_MAX_API_NAME]={"UNKNOWN"};
     bool                        FirstTime = false;
 
+    /* Check to make sure calling application is legit */
+    Status = CFE_TBL_ValidateAppID(&ThisAppId);
+
     /* Translate AppID of caller into App Name */
     CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
 
