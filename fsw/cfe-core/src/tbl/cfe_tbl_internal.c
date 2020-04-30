@@ -941,7 +941,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
         CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_ACCESS_ERR_EID,
             CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
             "%s: Unable to open file (FileDescriptor=%d)",
-            AppName, FileDescriptor);
+            AppName, (int)FileDescriptor);
 
             return CFE_TBL_ERR_ACCESS;
     }
