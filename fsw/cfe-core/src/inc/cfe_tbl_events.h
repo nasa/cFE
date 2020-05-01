@@ -940,7 +940,7 @@
 **/
 #define CFE_TBL_UNREGISTER_ERR_EID             92  
 
-/** TODO: document */
+/* TODO: document see https://github.com/nasa/cFE/issues/661 */
 #define CFE_TBL_LOAD_VAL_ERR_EID                93
 
 /** \brief <tt> '\%s Failed to Load '\%s' (Invalid Source Type)"  </tt>
@@ -1064,19 +1064,19 @@
 **/
 #define CFE_TBL_LOAD_IN_PROGRESS_ERR_EID       100
 
-/** TODO: document */
+/* TODO: document see https://github.com/nasa/cFE/issues/661 */
 #define CFE_TBL_LOAD_SRC_TYPE_ERR_EID          101
 
-/** TODO: document */
+/* TODO: document see https://github.com/nasa/cFE/issues/661 */
 #define CFE_TBL_LOAD_FILENAME_LONG_ERR_EID     102
 
-/** TODO: document */
+/* TODO: document see https://github.com/nasa/cFE/issues/661 */
 #define CFE_TBL_LOAD_SHORT_FILE_ERR_EID        103
 
-/** TODO: document */
+/* TODO: document see https://github.com/nasa/cFE/issues/661 */
 #define CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID  104
 
-/** TODO: document */
+/* TODO: document see https://github.com/nasa/cFE/issues/661 */
 #define CFE_TBL_HANDLE_ACCESS_ERR_EID          105
 
 /** \} */
