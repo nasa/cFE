@@ -970,8 +970,8 @@
 **/
 #define CFE_TBL_UPDATE_ERR_EID                 95  
 
-/** \brief <tt> '\%s validation failed for Inactive '\%s', Status=0x\%08X"  </tt>
-**  \event <tt> '\%s validation failed for Inactive '\%s', Status=0x\%08X"  </tt>
+/** \brief <tt> '\%s validation failed for Inactive '\%s', Status=0x\%08X'  </tt>
+**  \event <tt> '\%s validation failed for Inactive '\%s', Status=0x\%08X'  </tt>
 **
 **  \par Type: ERROR
 **
