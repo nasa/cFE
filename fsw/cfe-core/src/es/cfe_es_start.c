@@ -540,7 +540,7 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
    if ( StartType == CFE_PSP_RST_TYPE_POWERON )
    {
       RetStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE, CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS );
-      if ( RetStatus != OS_FS_SUCCESS )
+      if ( RetStatus != OS_SUCCESS )
       {
          CFE_ES_WriteToSysLog("ES Startup: Error Creating Volatile(RAM) Volume. EC = 0x%08X\n",(unsigned int)RetStatus);
 
@@ -558,7 +558,7 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
    else
    {
       RetStatus = OS_initfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE, CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS );
-      if ( RetStatus != OS_FS_SUCCESS )
+      if ( RetStatus != OS_SUCCESS )
       {
          CFE_ES_WriteToSysLog("ES Startup: Error Initializing Volatile(RAM) Volume. EC = 0x%08X\n",(unsigned int)RetStatus);
          CFE_ES_WriteToSysLog("ES Startup: Formatting Volatile(RAM) Volume.\n");
@@ -586,7 +586,7 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
    ** Now, mount the RAM disk
    */
    RetStatus = OS_mount("/ramdev0", CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
-   if ( RetStatus != OS_FS_SUCCESS )
+   if ( RetStatus != OS_SUCCESS )
    {
       CFE_ES_WriteToSysLog("ES Startup: Error Mounting Volatile(RAM) Volume. EC = 0x%08X\n",(unsigned int)RetStatus);
       /*
@@ -642,14 +642,14 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
             ** First, unmount the disk
             */
             RetStatus = OS_unmount(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
-            if ( RetStatus == OS_FS_SUCCESS )
+            if ( RetStatus == OS_SUCCESS )
             {
 
                /*
                ** Remove the file system from the OSAL
                */
                RetStatus = OS_rmfs("/ramdev0");
-               if ( RetStatus == OS_FS_SUCCESS )
+               if ( RetStatus == OS_SUCCESS )
                {
                
                   /*
@@ -658,13 +658,13 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                   RetStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", 
                                       "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE, 
                                        CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS );
-                  if ( RetStatus == OS_FS_SUCCESS )
+                  if ( RetStatus == OS_SUCCESS )
                   {
                      /*
                      ** Last, remount the disk
                      */
                      RetStatus = OS_mount("/ramdev0", CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
-                     if ( RetStatus != OS_FS_SUCCESS )
+                     if ( RetStatus != OS_SUCCESS )
                      {
                         CFE_ES_WriteToSysLog("ES Startup: Error Re-Mounting Volatile(RAM) Volume. EC = 0x%08X\n",(unsigned int)RetStatus);
                         /*
@@ -869,7 +869,7 @@ void  CFE_ES_CreateObjects(void)
                   */
                   if ( CFE_ES_Global.TaskTable[TaskIndex].RecordUsed == true )
                   {
-                     CFE_ES_WriteToSysLog("ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
+                     CFE_ES_SysLogWrite_Unsync("ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
                                            CFE_ES_ObjectTable[i].ObjectName);
                   }
                   else
@@ -881,7 +881,7 @@ void  CFE_ES_CreateObjects(void)
                   strncpy((char *)CFE_ES_Global.TaskTable[TaskIndex].TaskName, (char *)CFE_ES_Global.AppTable[j].TaskInfo.MainTaskName, OS_MAX_API_NAME);
                   CFE_ES_Global.TaskTable[TaskIndex].TaskName[OS_MAX_API_NAME - 1] = '\0';
 
-                  CFE_ES_WriteToSysLog("ES Startup: Core App: %s created. App ID: %d\n",
+                  CFE_ES_SysLogWrite_Unsync("ES Startup: Core App: %s created. App ID: %d\n",
                                        CFE_ES_ObjectTable[i].ObjectName,j);
                                        
                   /*

@@ -146,13 +146,13 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, int32 FileDes)
 **        being called.  If the value FSSetTimestampRtn.count is greater than
 **        zero then the counter is decremented; if it then equals zero the
 **        return value is set to the user-defined value
-**        FSSetTimestampRtn.value.  OS_FS_SUCCESS is returned otherwise.
+**        FSSetTimestampRtn.value.  OS_SUCCESS is returned otherwise.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
 ** \returns
-**        Returns either a user-defined status flag or OS_FS_SUCCESS.
+**        Returns either a user-defined status flag or OS_SUCCESS.
 **
 ******************************************************************************/
 int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp)

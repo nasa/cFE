@@ -2528,15 +2528,27 @@ void TestTask(void)
               "CFE_ES_TaskInit",
               "Checksum fail");
 
-    /* Test successful task main process loop */
+    /* Test successful task main process loop - Power On Reset Path */
     ES_ResetUnitTest();
     CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
     CFE_ES_Global.TaskTable[1].AppId = 1;
+    CFE_ES_ResetDataPtr->ResetVars.ResetType = 2;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == CFE_SUCCESS &&
               CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
               "CFE_ES_TaskInit",
-              "Checksum success");
+              "Checksum success, POR Path");
+
+    /* Test successful task main process loop - Processor Reset Path */
+    ES_ResetUnitTest();
+    CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
+    CFE_ES_Global.TaskTable[1].AppId = 1;
+    CFE_ES_ResetDataPtr->ResetVars.ResetType = 1;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_TaskInit() == CFE_SUCCESS &&
+              CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
+              "CFE_ES_TaskInit",
+              "Checksum success, PR Path");
 
     /* Test task main process loop with a register app failure */
     ES_ResetUnitTest();
@@ -3056,7 +3068,7 @@ void TestTask(void)
     /* Test write of all app data to file with a write header failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_FS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAll_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3233,7 +3245,7 @@ void TestTask(void)
 
     /* Test writing the system log with a write header failure */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_FS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteSyslog_t),
             UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3292,7 +3304,7 @@ void TestTask(void)
     /* Test writing the E&R log with a write header failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_FS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteERLog_t),
             UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
     UT_Report(__FILE__, __LINE__,

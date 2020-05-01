@@ -854,7 +854,7 @@ int32 CFE_SB_SendRtgInfo(const char *Filename)
     CFE_SB_DestinationD_t       *DestPtr;
 
     fd = OS_creat(Filename, OS_WRITE_ONLY);
-    if(fd < OS_FS_SUCCESS){
+    if(fd < OS_SUCCESS){
         CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
                       "Error creating file %s, stat=0x%x",
                       Filename,(unsigned int)fd);
@@ -964,7 +964,7 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
 
     fd = OS_creat(Filename, OS_WRITE_ONLY);
 
-    if(fd < OS_FS_SUCCESS){
+    if(fd < OS_SUCCESS){
         CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
                           "Error creating file %s, stat=0x%x",
                            Filename,(unsigned int)fd);
@@ -1039,7 +1039,7 @@ int32 CFE_SB_SendMapInfo(const char *Filename)
 
     fd = OS_creat(Filename, OS_WRITE_ONLY);
 
-    if (fd < OS_FS_SUCCESS){
+    if (fd < OS_SUCCESS){
         CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
                           "Error creating file %s, stat=0x%x",
                            Filename,(unsigned int)fd);

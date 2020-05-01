@@ -125,7 +125,6 @@ int32 CFE_TBL_EarlyInit (void)
                               CFE_TBL_MUT_REG_VALUE);
     if(Status != OS_SUCCESS)
     {
-      CFE_ES_WriteToSysLog("CFE_TBL:Registry mutex creation failed! RC=0x%08x\n",(unsigned int)Status);
       return Status;
     }/* end if */                              
 
@@ -137,7 +136,6 @@ int32 CFE_TBL_EarlyInit (void)
                               CFE_TBL_MUT_WORK_VALUE);
     if(Status != OS_SUCCESS)
     {
-      CFE_ES_WriteToSysLog("CFE_TBL:Working buffer mutex creation failed! RC=0x%08x\n",(unsigned int)Status);
       return Status;
     }/* end if */
     
@@ -162,7 +160,6 @@ int32 CFE_TBL_EarlyInit (void)
 
     if(Status < 0)
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:InitBuffers PoolCreate fail Status=0x%X\n", (unsigned int)Status);
         return Status;
     }
     else
@@ -178,7 +175,6 @@ int32 CFE_TBL_EarlyInit (void)
 
             if (Status < CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE)
             {
-                CFE_ES_WriteToSysLog("CFE_TBL:InitBuffers GetPoolBuf Fail Index=%d, Status=0x%X\n", (int)j, (unsigned int)Status);
                 return Status;
             }
             else
@@ -317,26 +313,20 @@ void CFE_TBL_InitRegistryRecord (CFE_TBL_RegistryRec_t *RegRecPtr)
 
 int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle)
 {
-    int32 Status = CFE_SUCCESS;
-
     /* Is the handle out of range? */
     if (TblHandle >= CFE_PLATFORM_TBL_MAX_NUM_HANDLES)
     {
-        Status = CFE_TBL_ERR_INVALID_HANDLE;
-
-        CFE_ES_WriteToSysLog("CFE_TBL:ValidateHandle-Table Handle=%d is > %d\n", TblHandle, CFE_PLATFORM_TBL_MAX_NUM_HANDLES);
+        return CFE_TBL_ERR_INVALID_HANDLE;
     }
     else
     {
         /* Check to see if the Handle is no longer valid for this Table */
         if (CFE_TBL_TaskData.Handles[TblHandle].UsedFlag == false)
         {
-            Status = CFE_TBL_ERR_INVALID_HANDLE;
-
-            CFE_ES_WriteToSysLog("CFE_TBL:ValidateHandle-Table Handle=%d is for unused Table Handle\n", TblHandle);
+            return CFE_TBL_ERR_INVALID_HANDLE;
         }
     }
-    return Status;
+    return CFE_SUCCESS;
 }   /* End of CFE_TBL_ValidateHandle() */
 
 /*******************************************************************
@@ -354,15 +344,8 @@ int32 CFE_TBL_ValidateAppID(uint32 *AppIdPtr)
     {
         if (*AppIdPtr >= CFE_PLATFORM_ES_MAX_APPLICATIONS)
         {
-            Status = CFE_TBL_ERR_BAD_APP_ID;
-
-            CFE_ES_WriteToSysLog("CFE_TBL:ValidateAppID-AppId=%d > Max Apps (%d)\n",
-                                 (int)(*AppIdPtr), CFE_PLATFORM_ES_MAX_APPLICATIONS);
+            return CFE_TBL_ERR_BAD_APP_ID;
         }
-    }
-    else
-    {
-        CFE_ES_WriteToSysLog("CFE_TBL:ValidateAppID-GetAppID failed (Stat=0x%08X)\n", (unsigned int)Status);
     }
 
     return Status;
@@ -382,30 +365,20 @@ int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, uint32 *AppIdPtr)
     /* Check to make sure App ID is legit */
     Status = CFE_TBL_ValidateAppID(AppIdPtr);
 
-    if (Status == CFE_SUCCESS)
+    if (Status != CFE_SUCCESS)
     {
-        /* Check table handle validity */
-        Status = CFE_TBL_ValidateHandle(TblHandle);
-
-        if (Status == CFE_SUCCESS)
-        {
-            Status = CFE_TBL_CheckAccessRights(TblHandle, *AppIdPtr);
-
-            if (Status != CFE_SUCCESS)
-            {
-                CFE_ES_WriteToSysLog("CFE_TBL:ValidateAccess-App(%d) no access to Tbl Handle=%d (Stat=0x%08X)\n",
-                                     (int)(*AppIdPtr), (int)TblHandle, (unsigned int)Status);
-            }
-        }
-        else
-        {
-            CFE_ES_WriteToSysLog("CFE_TBL:ValidateAccess-Invalid Tbl Handle=%d\n", (int)TblHandle);
-        }
+        return Status;
     }
-    else
+
+    /* Check table handle validity */
+    Status = CFE_TBL_ValidateHandle(TblHandle);
+
+    if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:ValidateAccess-Bad AppId=%d\n", (int)(*AppIdPtr));
+        return Status;
     }
+
+    Status = CFE_TBL_CheckAccessRights(TblHandle, *AppIdPtr);
 
     return Status;
 }   /* End of CFE_TBL_ValidateAccess() */
@@ -937,7 +910,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
 ** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
 ********************************************************************/
 
-int32 CFE_TBL_LoadFromFile(CFE_TBL_LoadBuff_t *WorkingBufferPtr,
+int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr,
                            CFE_TBL_RegistryRec_t *RegRecPtr,
                            const char *Filename)
 {
@@ -951,86 +924,120 @@ int32 CFE_TBL_LoadFromFile(CFE_TBL_LoadBuff_t *WorkingBufferPtr,
 
     if (FilenameLen > (OS_MAX_PATH_LEN-1))
     {
-        Status = CFE_TBL_ERR_FILENAME_TOO_LONG;
+        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_FILENAME_LONG_ERR_EID,
+            CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+            "%s: Filename is too long ('%s' (%lu) > %lu)",
+            AppName, Filename, (long unsigned int)FilenameLen,
+            (long unsigned int)OS_MAX_PATH_LEN-1);
+
+        return CFE_TBL_ERR_FILENAME_TOO_LONG;
     }
-    else
+
+    /* Try to open the specified table file */
+    FileDescriptor = OS_open(Filename, OS_READ_ONLY, 0);
+
+    if (FileDescriptor < 0)
     {
-        /* Try to open the specified table file */
-        FileDescriptor = OS_open(Filename, OS_READ_ONLY, 0);
+        CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_ACCESS_ERR_EID,
+            CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+            "%s: Unable to open file (FileDescriptor=%d)",
+            AppName, (int)FileDescriptor);
 
-        if (FileDescriptor >= 0)
-        {
-            Status = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader, &TblFileHeader, Filename);
-
-            if (Status == CFE_SUCCESS)
-            {
-                /* Verify that the specified file has compatible data for specified table */
-                if (strcmp(RegRecPtr->Name, TblFileHeader.TableName) == 0)
-                {
-                    if ((TblFileHeader.Offset + TblFileHeader.NumBytes) > RegRecPtr->Size)
-                    {
-                        Status = CFE_TBL_ERR_FILE_TOO_LARGE;
-                    }
-                    else
-                    {
-                        /* Any Table load that starts beyond the first byte is a "partial load" */
-                        /* But a file that starts with the first byte and ends before filling   */
-                        /* the whole table is just considered "short".                          */
-                        if (TblFileHeader.Offset > 0)
-                        {
-                            Status = CFE_TBL_WARN_PARTIAL_LOAD;
-                        }
-                        else if (TblFileHeader.NumBytes < RegRecPtr->Size)
-                        {
-                            Status = CFE_TBL_WARN_SHORT_FILE;
-                        }
-
-                        NumBytes = OS_read(FileDescriptor,
-                                           ((uint8*)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset,
-                                           TblFileHeader.NumBytes);
-
-                        if (NumBytes != TblFileHeader.NumBytes)
-                        {
-                            Status = CFE_TBL_ERR_LOAD_INCOMPLETE;
-                        }
-                        
-                        /* Check to see if the file is too large (ie - more data than header claims) */
-                        NumBytes = OS_read(FileDescriptor, &ExtraByte, 1);
-                        
-                        /* If successfully read another byte, then file must have too much data */
-                        if (NumBytes == 1)
-                        {
-                            Status = CFE_TBL_ERR_FILE_TOO_LARGE;
-                        }
-
-                        memset(WorkingBufferPtr->DataSource, 0, OS_MAX_PATH_LEN);
-                        strncpy(WorkingBufferPtr->DataSource, Filename, OS_MAX_PATH_LEN);
-
-                        /* Save file creation time for later storage into Registry */
-                        WorkingBufferPtr->FileCreateTimeSecs = StdFileHeader.TimeSeconds;
-                        WorkingBufferPtr->FileCreateTimeSubSecs = StdFileHeader.TimeSubSeconds;
-                        
-                        /* Compute the CRC on the specified table buffer */
-                        WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr,
-                                                                    RegRecPtr->Size,
-                                                                    0,
-                                                                    CFE_MISSION_ES_DEFAULT_CRC);
-                    }
-                }
-                else
-                {
-                    Status = CFE_TBL_ERR_FILE_FOR_WRONG_TABLE;
-                }
-            }
-
-            OS_close(FileDescriptor);
-        }
-        else
-        {
-            /* Return error code obtained from OS_open */
-            Status = FileDescriptor;
-        }
+            return CFE_TBL_ERR_ACCESS;
     }
+
+    Status = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader, &TblFileHeader, Filename);
+
+    if (Status != CFE_SUCCESS)
+    {
+        /* CFE_TBL_ReadHeaders() generates its own events */
+
+        OS_close (FileDescriptor);
+        return Status;
+    }
+
+    /* Verify that the specified file has compatible data for specified table */
+    if (strcmp(RegRecPtr->Name, TblFileHeader.TableName) != 0)
+    {
+        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID,
+            CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+            "%s: Table name mismatch (exp=%s, tblfilhdr=%s)",
+            AppName, RegRecPtr->Name, TblFileHeader.TableName);
+
+        OS_close(FileDescriptor);
+        return CFE_TBL_ERR_FILE_FOR_WRONG_TABLE;
+    }
+
+    if ((TblFileHeader.Offset + TblFileHeader.NumBytes) > RegRecPtr->Size)
+    {
+        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_EXCEEDS_SIZE_ERR_EID,
+            CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+            "%s: File reports size larger than expected (file=%lu, exp=%lu)",
+            AppName,
+            (long unsigned int)(TblFileHeader.Offset + TblFileHeader.NumBytes),
+            (long unsigned int)RegRecPtr->Size);
+
+        OS_close(FileDescriptor);
+        return CFE_TBL_ERR_FILE_TOO_LARGE;
+    }
+
+    /* Any Table load that starts beyond the first byte is a "partial load" */
+    /* But a file that starts with the first byte and ends before filling   */
+    /* the whole table is just considered "short".                          */
+    if (TblFileHeader.Offset > 0)
+    {
+        Status = CFE_TBL_WARN_PARTIAL_LOAD;
+    }
+    else if (TblFileHeader.NumBytes < RegRecPtr->Size)
+    {
+        Status = CFE_TBL_WARN_SHORT_FILE;
+    }
+
+    NumBytes = OS_read(FileDescriptor,
+                       ((uint8*)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset,
+                       TblFileHeader.NumBytes);
+
+    if (NumBytes != TblFileHeader.NumBytes)
+    {
+       CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_INCOMPLETE_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_TBL_TaskData.TableTaskAppId,
+            "%s: File load incomplete (exp=%lu, read=%lu)",
+            AppName, (long unsigned int)TblFileHeader.NumBytes,
+            (long unsigned int)NumBytes);
+
+        OS_close(FileDescriptor);
+        return CFE_TBL_ERR_LOAD_INCOMPLETE;
+    }
+    
+    /* Check to see if the file is too large (ie - more data than header claims) */
+    NumBytes = OS_read(FileDescriptor, &ExtraByte, 1);
+    
+    /* If successfully read another byte, then file must have too much data */
+    if (NumBytes == 1)
+    {
+        CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_TOO_BIG_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_TBL_TaskData.TableTaskAppId,
+            "%s: File load too long (file length > %lu)",
+            AppName, (long unsigned int)TblFileHeader.NumBytes);
+
+        OS_close(FileDescriptor);
+        return CFE_TBL_ERR_FILE_TOO_LARGE;
+    }
+
+    memset(WorkingBufferPtr->DataSource, 0, OS_MAX_PATH_LEN);
+    strncpy(WorkingBufferPtr->DataSource, Filename, OS_MAX_PATH_LEN);
+
+    /* Save file creation time for later storage into Registry */
+    WorkingBufferPtr->FileCreateTimeSecs = StdFileHeader.TimeSeconds;
+    WorkingBufferPtr->FileCreateTimeSubSecs = StdFileHeader.TimeSubSeconds;
+    
+    /* Compute the CRC on the specified table buffer */
+    WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr,
+                                                RegRecPtr->Size,
+                                                0,
+                                                CFE_MISSION_ES_DEFAULT_CRC);
+
+    OS_close(FileDescriptor);
 
     return Status;
 } /* End of CFE_TBL_LoadFromFile() */
@@ -1391,7 +1398,7 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
     for (i=0; i<CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
         /* Check to see if the Handle belongs to the Application being deleted */
-        if (CFE_TBL_TaskData.Handles[i].AppId == AppId)
+        if (CFE_TBL_TaskData.Handles[i].AppId == AppId && CFE_TBL_TaskData.Handles[i].UsedFlag == true)
         {
             /* Delete the handle (and the table, if the App owned it) */
             /* Get a pointer to the relevant Access Descriptor */
@@ -1418,6 +1425,9 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
             /* NOTE: If this removes the last access link, then   */
             /*       memory buffers are set free as well.         */
             CFE_TBL_RemoveAccessLink(i);
+	    
+            CFE_TBL_TaskData.Handles[i].AppId = (uint32)CFE_TBL_NOT_OWNED;
+
         }
     }
 

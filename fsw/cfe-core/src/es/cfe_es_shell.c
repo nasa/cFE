@@ -69,9 +69,9 @@ int32 CFE_ES_ShellOutputCommand(const char * CmdString, const char *Filename)
 
     fd = OS_creat(Filename, OS_READ_WRITE);
 
-    if (fd < OS_FS_SUCCESS)
+    if (fd < OS_SUCCESS)
     {
-        Result = OS_FS_ERROR;
+        Result = OS_ERROR;
     }
 
     else
@@ -113,11 +113,11 @@ int32 CFE_ES_ShellOutputCommand(const char * CmdString, const char *Filename)
         /* seek to the end of the file to get it's size */
         FileSize = OS_lseek(fd,0,OS_SEEK_END);
 
-        if (FileSize == OS_FS_ERROR)
+        if (FileSize == OS_ERROR)
         {
             OS_close(fd);
             CFE_ES_WriteToSysLog("OS_lseek call failed from CFE_ES_ShellOutputCmd 1\n");
-            Result =  OS_FS_ERROR;
+            Result =  OS_ERROR;
         }
 
 
@@ -153,11 +153,11 @@ int32 CFE_ES_ShellOutputCommand(const char * CmdString, const char *Filename)
             /* seek to the end of the file again to get it's new size */
             FileSize = OS_lseek(fd,0,OS_SEEK_END);
 
-            if (FileSize == OS_FS_ERROR)
+            if (FileSize == OS_ERROR)
             {
                 OS_close(fd);
                 CFE_ES_WriteToSysLog("OS_lseek call failed from CFE_ES_ShellOutputCmd 2\n");
-                Result =  OS_FS_ERROR;
+                Result =  OS_ERROR;
             }
 
 
@@ -210,9 +210,9 @@ int32 CFE_ES_ShellOutputCommand(const char * CmdString, const char *Filename)
    
                 /* Close the file descriptor */
                 OS_close(fd);
-            } /* if FilseSize == OS_FS_ERROR */
-        } /* if FileSeize == OS_FS_ERROR */
-    }/* if fd < OS_FS_SUCCESS */
+            } /* if FilseSize == OS_ERROR */
+        } /* if FileSeize == OS_ERROR */
+    }/* if fd < OS_SUCCESS */
 
 
     /* cppcheck-suppress duplicateExpression */

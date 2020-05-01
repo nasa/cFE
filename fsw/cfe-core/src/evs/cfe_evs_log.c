@@ -174,7 +174,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data)
         /* Create the log file */
         LogFileHandle = OS_creat(LogFilename, OS_WRITE_ONLY);
 
-        if (LogFileHandle < OS_FS_SUCCESS)
+        if (LogFileHandle < OS_SUCCESS)
         {
             EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID, CFE_EVS_EventType_ERROR,
                     "Write Log File Command Error: OS_creat = 0x%08X, filename = %s",
