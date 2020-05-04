@@ -378,11 +378,13 @@ function(process_arch SYSVAR)
   file(APPEND "${MISSION_BINARY_DIR}/doc/mission-content.doxyfile" 
     "PREDEFINED += ${DOXYGEN_DEFINED_MACROS}\n"
     "INPUT += ${MISSION_SOURCE_DIR}/osal/src/os/${OSAL_SYSTEM_OSTYPE}\n"
-    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}\n")
+    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}\n"
+    "INPUT += ${CMAKE_BINARY_DIR}/inc")
 
   # Append to usersguide.doxyfile
   file(APPEND "${MISSION_BINARY_DIR}/doc/cfe-usersguide.doxyfile" 
-    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/src\n")
+    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/src\n"
+    "INPUT += ${CMAKE_BINARY_DIR}/inc")
    
   # The PSP and/or OSAL should have defined where to install the binaries.
   # If not, just install them in /cf as a default (this can be modified 
