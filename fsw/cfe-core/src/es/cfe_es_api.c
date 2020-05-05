@@ -52,9 +52,7 @@
 #include <stdarg.h>
 
 
-/*
-** Function: CFE_ES_GetResetType - See API and header file for details
-*/
+/* Get reset type - see API and header file for details */
 int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
 {
     if ( ResetSubtypePtr != NULL )
@@ -64,12 +62,9 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
 
     return(CFE_ES_ResetDataPtr->ResetVars.ResetType);
 
-} /* End of CFE_ES_GetResetType() */
+}
 
-
-/*
-** Function: CFE_ES_ResetCFE - See API and header file for details
-*/
+/* Reset CFE - see API and header file for details */
 int32 CFE_ES_ResetCFE(uint32 ResetType)
 {
     int32 ReturnCode;
@@ -161,11 +156,9 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
 
     return(ReturnCode);
 
-} /* End of CFE_ES_ResetCFE() */
+}
 
-/*
-** Function: CFE_ES_RestartApp - See API and header file for details
-*/
+/* Restart application - see API and header file for details */
 int32 CFE_ES_RestartApp(uint32 AppID)
 {
     int32 ReturnCode = CFE_SUCCESS;
@@ -210,11 +203,9 @@ int32 CFE_ES_RestartApp(uint32 AppID)
 
     return(ReturnCode);
 
-} /* End of CFE_ES_RestartApp() */
+}
 
-/*
-** Function: CFE_ES_ReloadApp - See API and header file for details
-*/
+/* Reload Application - see API and header file for details */
 int32 CFE_ES_ReloadApp(uint32 AppID, const char *AppFileName)
 {
     int32 ReturnCode = CFE_SUCCESS;
@@ -262,11 +253,9 @@ int32 CFE_ES_ReloadApp(uint32 AppID, const char *AppFileName)
 
     return(ReturnCode);
 
-} /* End of CFE_ES_ReloadApp() */
+}
 
-/*
-** Function: CFE_ES_DeleteApp - See API and header file for details
-*/
+/* Delete application - see API and header file for details */
 int32 CFE_ES_DeleteApp(uint32 AppID)
 {
     int32 ReturnCode = CFE_SUCCESS;
@@ -299,11 +288,9 @@ int32 CFE_ES_DeleteApp(uint32 AppID)
 
     return(ReturnCode);
 
-} /* End of CFE_ES_DeleteApp() */
+}
 
-/*
-** Function: CFE_ES_ExitApp - See API and header file for details
-*/
+/* Exit application - see API and header file for details */
 void CFE_ES_ExitApp(uint32 ExitStatus)
 {
     int32   ReturnCode;
@@ -434,11 +421,9 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-} /* End of CFE_ES_ExitApp() */
+}
 
-/*
-** Function: CFE_ES_RunLoop - See API and header file for details
-*/
+/* App loop management - - see API and header file for details */
 bool CFE_ES_RunLoop(uint32 *RunStatus)
 {
     bool   ReturnCode;
@@ -526,11 +511,9 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
 
     return(ReturnCode);
 
-} /* End of CFE_ES_RunLoop() */
+}
 
-/*
-** Function: CFE_ES_WaitForSystemState - See API and header file for details
-*/
+/* Waty for system state - see API and header file for details */
 int32 CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMilliseconds)
 {
     int32 Status;
@@ -623,19 +606,15 @@ int32 CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMillisecond
 
     return Status;
 
-} /* End of CFE_ES_WaitForSystemState() */
+}
 
-/*
-** Function: CFE_ES_WaitForStartupSync - See API and header file for details
-*/
+/* Wait for startup sync - see API and header file for details */
 void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 {
     CFE_ES_WaitForSystemState(CFE_ES_SystemState_OPERATIONAL, TimeOutMilliseconds);
 }
 
-/*
-** Function: - See API and header file for details
-*/
+/* Gegister application - see API and header file for details */
 int32 CFE_ES_RegisterApp(void)
 {
    int32 Result;
@@ -670,11 +649,9 @@ int32 CFE_ES_RegisterApp(void)
    return(Result);
 
 
-} /* End of CFE_ES_RegisterApp() */
+}
 
-/*
-** Function: CFE_ES_GetAppIDByName - See API and header file for details
-*/
+/* Get application ID by name - see API and header file for details */
 int32 CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName)
 {
    int32 Result = CFE_ES_ERR_APPNAME;
@@ -702,12 +679,10 @@ int32 CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName)
 
    return(Result);
 
-} /* End of CFE_ES_GetAppIDByName() */
+}
 
 
-/*
-** Function: CFE_ES_GetAppID  - See API and header file for details
-*/
+/* Get application ID - see API and header file for details */
 int32 CFE_ES_GetAppID(uint32 *AppIdPtr)
 {
    int32  Result;
@@ -720,11 +695,9 @@ int32 CFE_ES_GetAppID(uint32 *AppIdPtr)
 
    return(Result);
 
-} /* End of CFE_ES_GetAppID() */
+}
 
-/*
-** Function: CFE_ES_GetAppName - See API and header file for details
-*/
+/* Get application name - see API and header file for details */
 int32 CFE_ES_GetAppName(char *AppName, uint32 AppId, uint32 BufferLength)
 {
    int32 Result;
@@ -766,12 +739,10 @@ int32 CFE_ES_GetAppName(char *AppName, uint32 AppId, uint32 BufferLength)
 
    return(Result);
 
-} /* End of CFE_ES_GetAppName() */
+}
 
 
-/*
-** Function: CFE_ES_GetAppInfo - See API and header file for details
-*/
+/* Get application info - see API and header file for details */
 int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, uint32 AppId)
 {
    int32  ReturnCode = CFE_SUCCESS;
@@ -804,11 +775,9 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, uint32 AppId)
    }
    return(ReturnCode);
 
-} /* End of CFE_ES_GetAppInfo() */
+}
 
-/*
-** Function: CFE_ES_GetTaskInfo - See API and header file for details
-*/
+/* Get task info - see API and header file for details */
 int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, uint32 OSTaskId)
 {
    int32  ReturnCode = CFE_SUCCESS;
@@ -873,12 +842,10 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, uint32 OSTaskId)
 
    return(ReturnCode);
 
-} /* End of CFE_ES_GetAppName() */
+}
 
 
-/*
-** Function: CFE_ES_CreateChildTask - See API and header file for details
-*/
+/* Create child task - see API and header file for details */
 int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
                         const char   *TaskName,
                         CFE_ES_ChildTaskMainFuncPtr_t   FunctionPtr,
@@ -995,12 +962,10 @@ int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
 
    return(ReturnCode);
 
-} /* End of CFE_ES_CreateChildTask() */
+}
 
 
-/*
-** Function: CFE_ES_RegisterChildTask - See API and header file for details
-*/
+/* Register child task - see API and header file for details */
 int32 CFE_ES_RegisterChildTask(void)
 {
    int32 Result;
@@ -1049,13 +1014,11 @@ void CFE_ES_IncrementTaskCounter(void)
       CFE_ES_Global.TaskTable[TaskId].ExecutionCounter++;
    }
 
-} /* End of CFE_ES_ExitChildTask() */
+}
 
 
 
-/*
-** Function: CFE_ES_DeleteChildTask - See API and header file for details
-*/
+/* Delete child task - see API and header file for details */
 int32 CFE_ES_DeleteChildTask(uint32 OSTaskId)
 {
     uint32  i;
@@ -1157,14 +1120,9 @@ int32 CFE_ES_DeleteChildTask(uint32 OSTaskId)
     }
     return(ReturnCode);
 
-} /* End of CFE_ES_DeleteTask() */
+}
 
-/*
-** Function: CFE_ES_ExitChildTask
-**
-** Purpose:  Stop execution of a child task.
-**
-*/
+/* Exit child task - see API and header file for details */
 void CFE_ES_ExitChildTask(void)
 {
    uint32 TaskId;
@@ -1222,12 +1180,10 @@ void CFE_ES_ExitChildTask(void)
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-} /* End of CFE_ES_ExitChildTask() */
+}
 
 
-/*
-** Function: CFE_ES_WriteToSysLog - See API and header file for details
-*/
+/* Write to system log - see API and header file for details */
 int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 {
     char          TmpString[CFE_ES_MAX_SYSLOG_MSG_SIZE];
@@ -1251,12 +1207,10 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 
     return(ReturnCode);
 
-} /* End of CFE_ES_WriteToSysLog() */
+}
 
 
-/*
-** Function: CFE_ES_CalculateCRC - See API and header file for details
-*/
+/* Calculate CRC - see API and header file for details */
 uint32 CFE_ES_CalculateCRC(const void *DataPtr, uint32 DataLength, uint32 InputCRC, uint32 TypeCRC)
 {
     uint32  i;
@@ -1335,15 +1289,10 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, uint32 DataLength, uint32 InputC
     }
     return(Crc);
 
-} /* End of CFE_ES_CalculateCRC() */
+}
 
 
-/*
-** Function: CFE_ES_RegisterCDS
-**
-** Purpose:  Allocate a data block for a Critical Data Store.
-**
-*/
+/* Register critical data store - see API and header file for details */
 int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, int32 BlockSize, const char *Name)
 {
     int32   Status;
@@ -1416,14 +1365,9 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, int32 BlockSize, cons
     }
 
     return Status;
-} /* End of CFE_ES_RegisterCDS */
+}
 
-/*
-** Function: CFE_ES_CopyToCDS
-**
-** Purpose:  Copies a data block to a Critical Data Store.
-**
-*/
+/* Copy to critical data store - see API and header file for details */
 int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 {
     int32 Status;
@@ -1431,14 +1375,9 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
     Status = CFE_ES_CDSBlockWrite(CFE_ES_Global.CDSVars.Registry[Handle].MemHandle, DataToCopy);
 
     return Status;
-} /* End of CFE_ES_CopyToCDS() */
+}
 
-/*
-** Function: CFE_ES_RestoreFromCDS
-**
-** Purpose:  Restores a data block from a Critical Data Store.
-**
-*/
+/* Restore from critical data store - see API and header file for details */
 int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 {
     int32 Status;
@@ -1446,11 +1385,10 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
     Status = CFE_ES_CDSBlockRead(RestoreToMemory, CFE_ES_Global.CDSVars.Registry[Handle].MemHandle);
 
     return Status;
-} /* End of CFE_ES_RestoreFromCDS() */
-
-/* end of file */
+}
 
 
+/* Register a generic counter - see API and header file for details */ 
 int32 CFE_ES_RegisterGenCounter(uint32 *CounterIdPtr, const char *CounterName)
 {
    int32 ReturnCode = CFE_ES_BAD_ARGUMENT;
@@ -1484,12 +1422,7 @@ int32 CFE_ES_RegisterGenCounter(uint32 *CounterIdPtr, const char *CounterName)
 
 }
 
-/*
-** Function: CFE_ES_DeleteGenCounter
-**
-** Purpose:  Delete a Generic Counter.
-**
-*/
+/* Delete generic counter - see API and header file for details */
 int32 CFE_ES_DeleteGenCounter(uint32 CounterId)
 {
 
@@ -1504,14 +1437,9 @@ int32 CFE_ES_DeleteGenCounter(uint32 CounterId)
 
    return Status;
 
-} /* End of CFE_ES_DeleteGenCounter() */
+}
 
-/*
-** Function: CFE_ES_IncrementGenCounter
-**
-** Purpose:  Increment a Generic Counter.
-**
-*/
+/* Increment generic counter - see API and header file for details */
 int32 CFE_ES_IncrementGenCounter(uint32 CounterId)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
@@ -1524,14 +1452,9 @@ int32 CFE_ES_IncrementGenCounter(uint32 CounterId)
    }
    return Status;
 
-} /* End of CFE_ES_IncrementGenCounter() */
+}
 
-/*
-** Function: CFE_ES_SetGenCount
-**
-** Purpose:  Sets a Generic Counter's count.
-**
-*/
+/* Set generic counter - see API and header file for details */
 int32 CFE_ES_SetGenCount(uint32 CounterId, uint32 Count)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
@@ -1543,14 +1466,9 @@ int32 CFE_ES_SetGenCount(uint32 CounterId, uint32 Count)
       Status = CFE_SUCCESS;
    }
    return Status;
-} /* End of CFE_ES_SetGenCount() */
+}
 
-/*
-** Function: CFE_ES_GetGenCount
-**
-** Purpose:  Gets the value of a Generic Counter.
-**
-*/
+/* Get generic counter - see API and header file for details */
 int32 CFE_ES_GetGenCount(uint32 CounterId, uint32 *Count)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
@@ -1563,8 +1481,9 @@ int32 CFE_ES_GetGenCount(uint32 CounterId, uint32 *Count)
       Status = CFE_SUCCESS;
    }
    return Status;
-} /* End of CFE_ES_GetGenCount() */
+}
 
+/* Get generic counter ID by name - see API and header file for details */
 int32 CFE_ES_GetGenCounterIDByName(uint32 *CounterIdPtr, const char *CounterName)
 {
 
@@ -1592,7 +1511,7 @@ int32 CFE_ES_GetGenCounterIDByName(uint32 *CounterIdPtr, const char *CounterName
 
    return(Result);
 
-} /* End of CFE_ES_GetGenCounterIDByName() */
+}
 
 
 /***************************************************************************************
@@ -1636,7 +1555,7 @@ int32 CFE_ES_GetAppIDInternal(uint32 *AppIdPtr)
 
    return(Result);
 
-} /* End of CFE_ES_GetAppIDInternal() */
+}
 
 
 /******************************************************************************
@@ -1675,7 +1594,7 @@ void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber)
 
     return;
 
-}/* end CFE_ES_LockSharedData */
+}
 
 /******************************************************************************
 **  Function:  CFE_ES_UnlockSharedData()
@@ -1713,7 +1632,7 @@ void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber)
 
     return;
 
-}/* end CFE_ES_UnlockSharedData */
+}
 
 /******************************************************************************
 **  Function:  CFE_ES_ProcessCoreException() - See API and header file for details
