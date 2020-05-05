@@ -259,12 +259,18 @@ endfunction(cfs_app_do_install)
 #
 function(prepare)
 
-  # Generate the "osconfig.h" wrapper file as indicated by the configuration
-  # If specific system config options were not specified, use defaults
-  if (NOT OSAL_SYSTEM_OSCONFIG)
-    set(OSAL_SYSTEM_OSCONFIG default)
-  endif (NOT OSAL_SYSTEM_OSCONFIG)    
-  generate_config_includefile("inc/osconfig.h" osconfig.h ${OSAL_SYSTEM_OSCONFIG} ${TARGETSYSTEM})
+  # Choose the configuration file to use for OSAL on this system
+  set(OSAL_CONFIGURATION_FILE)
+  if (EXISTS "${MISSION_DEFS}/default_osconfig.cmake")
+    list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/default_osconfig.cmake")
+  endif()
+  if (DEFINED OSAL_SYSTEM_OSCONFIG AND EXISTS "${MISSION_DEFS}/${OSAL_SYSTEM_OSCONFIG}_osconfig.cmake")
+    list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/${OSAL_SYSTEM_OSCONFIG}_osconfig.cmake")
+  endif()
+  if (EXISTS "${MISSION_DEFS}/${TARGETSYSTEM}_osconfig.cmake")
+    list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/${TARGETSYSTEM}_osconfig.cmake")
+  endif()
+  set(OSAL_CONFIGURATION_FILE ${OSAL_CONFIGURATION_FILE} PARENT_SCOPE)
 
   # Allow sources to "ifdef" certain things if running on simulated hardware
   # This should be used sparingly, typically to fake access to hardware that is not present
@@ -372,11 +378,13 @@ function(process_arch SYSVAR)
   file(APPEND "${MISSION_BINARY_DIR}/doc/mission-content.doxyfile" 
     "PREDEFINED += ${DOXYGEN_DEFINED_MACROS}\n"
     "INPUT += ${MISSION_SOURCE_DIR}/osal/src/os/${OSAL_SYSTEM_OSTYPE}\n"
-    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}\n")
+    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}\n"
+    "INPUT += ${CMAKE_BINARY_DIR}/inc")
 
   # Append to usersguide.doxyfile
   file(APPEND "${MISSION_BINARY_DIR}/doc/cfe-usersguide.doxyfile" 
-    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/src\n")
+    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/src\n"
+    "INPUT += ${CMAKE_BINARY_DIR}/inc")
    
   # The PSP and/or OSAL should have defined where to install the binaries.
   # If not, just install them in /cf as a default (this can be modified 
