@@ -8,6 +8,11 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version History
 
+#### Development Build: 6.7.16
+
+- Users must now select OSAL options via the CMake file in their defs directory, rather than the osconfig.h file.
+- See https://github.com/nasa/cFE/pull/672 for more details
+
 #### Development Build: 6.7.15
 
 - Upon power on reset, default system log mode set to overwrite. Upon processor reset, default system log mode set to discard.
