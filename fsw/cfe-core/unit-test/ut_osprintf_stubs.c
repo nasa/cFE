@@ -160,5 +160,11 @@ const char *UT_OSP_MESSAGES[] =
         [UT_OSP_NO_FREE_CORE_APP_SLOTS] = "ES Startup: Error, No free application slots available for CORE App!\n",
         /* ES Startup: CFE_ES_Global.TaskTable record used error for App: CFE_EVS, continuing. */
         [UT_OSP_RECORD_USED] = "ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
+        [UT_OSP_LOADAPPS_REG] = "ES Startup: Unable to reg app table (Status=%d)\n",
+        [UT_OSP_LOADAPPS_LOAD] = "ES Startup: Unable to load app table (Status=%d)\n",
+        [UT_OSP_LOADAPPS_GETADDR] = "ES Startup: Unable to get table address (Status=%d)\n",
+        [UT_OSP_LOADAPPS_GETADDR_NULLPTR] = "ES Startup: Unable to get table address (Address == NULL)\n",
+        [UT_OSP_LOADAPPS_INVALIDLIB] = "ES Startup: Could not load cFE Shared Library: %d\n",
+        [UT_OSP_LOADAPPS_INVALIDAPP] = "ES Startup: Failed to load app %s\n"
 };
 

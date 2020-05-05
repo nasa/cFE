@@ -194,6 +194,91 @@ void CFE_ES_TaskMain(void)
 } /* End of CFE_ES_TaskMain() */
 
 
+uint32 CFE_ES_StartApplications(const char *TblFile)
+{
+    CFE_TBL_Handle_t TblHandle;
+    CFE_ES_AppLibTbl_t *AppLibTbl = NULL;
+    int i = 0;
+    uint32 ID = 0;
+    uint32 Status = CFE_SUCCESS;
+
+    /*
+    ** Bind and load the CFE_TBL table.
+    */
+
+    Status = CFE_TBL_Register(
+        &TblHandle, "CFE_ES_AppLibTbl", sizeof(*AppLibTbl), CFE_TBL_OPT_DEFAULT, NULL);
+
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("ES Startup: Unable to reg app table (Status=%d)\n", (int)Status);
+        return CFE_ES_START_TBL_LOAD_ERR;
+    }
+
+    Status = CFE_TBL_Load(TblHandle, CFE_TBL_SRC_FILE, TblFile);
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_TBL_Unregister(TblHandle);
+        CFE_ES_WriteToSysLog("ES Startup: Unable to load app table (Status=%d)\n", (int)Status);
+        return CFE_ES_START_TBL_LOAD_ERR;
+    }
+
+    Status = CFE_TBL_GetAddress((void **)&AppLibTbl, TblHandle);
+    if (Status != CFE_SUCCESS && Status != CFE_TBL_INFO_UPDATED)
+    {
+        CFE_TBL_Unregister(TblHandle);
+        CFE_ES_WriteToSysLog("ES Startup: Unable to get table address (Status=%d)\n", (int)Status);
+        return CFE_ES_START_TBL_LOAD_ERR;
+    }
+
+    if (AppLibTbl == NULL)
+    {
+        CFE_TBL_Unregister(TblHandle);
+        CFE_ES_WriteToSysLog("ES Startup: Unable to get table address (Address == NULL)\n");
+        return CFE_ES_START_TBL_LOAD_ERR;
+    }
+    
+    for (i = 0; i < CFE_PLATFORM_ES_MAX_LIBRARIES; i++)
+    {
+        CFE_ES_LibTblEntry_t *e = &AppLibTbl->Libs[i];
+
+        if (*e->Name == '\0') break; /**< first empty name signals end of the table */
+
+        CFE_ES_WriteToSysLog("ES Startup: Loading lib: %s, %s\n", e->FileName, e->Name);
+        Status = CFE_ES_LoadLibrary(&ID, e->FileName, e->EntryPoint, e->Name);
+
+        if(Status != CFE_SUCCESS)
+        {
+            CFE_ES_WriteToSysLog("ES Startup: Failed to load lib: %s\n", e->FileName);
+            Status = CFE_SUCCESS;
+            /* ...but continue to process more libraries */
+        }
+    }
+
+    for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
+    {
+        CFE_ES_AppTblEntry_t *e = &AppLibTbl->Apps[i];
+
+        if (*e->Name == '\0') break; /**< first empty name signals end of the table */
+
+        CFE_ES_WriteToSysLog("ES Startup: Loading file: %s, %s\n", e->FileName, e->Name);
+
+        Status = CFE_ES_AppCreate(&ID, e->FileName, e->EntryPoint, e->Name, (uint32) e->Priority, (uint32) e->StackSize, (uint32) e->ExceptionAction);
+
+        if(Status != CFE_SUCCESS)
+        {
+            CFE_ES_WriteToSysLog("ES Startup: Failed to load app %s\n", e->FileName);
+            Status = CFE_SUCCESS;
+            /* ...but continue to process more apps */
+        }
+    }
+
+    /* we're done with the table, the data's been copied into other structures */
+    CFE_TBL_Unregister(TblHandle);
+
+    return CFE_SUCCESS;
+}
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
 /* CFE_ES_TaskInit() -- ES task initialization                     */
@@ -397,6 +482,15 @@ int32 CFE_ES_TaskInit(void)
        CFE_ES_WriteToSysLog("ES:Error sending build info event:RC=0x%08X\n", (unsigned int)Status);
        return(Status);
     }
+
+    if ( CFE_ES_ResetDataPtr->ResetVars.ResetType == CFE_PSP_RST_TYPE_PROCESSOR )
+    {
+        CFE_ES_StartApplications(CFE_PLATFORM_ES_VOLATILE_TBL_FILE); /* ignore errors of loading apps */
+    }
+    else
+    {
+        CFE_ES_StartApplications(GLOBAL_CFE_CONFIGDATA.NonvolStartupFile); /* ignore errors of loading apps */
+    }/* end if */
 
     /*
      * Initialize the "background task" which is a low priority child task

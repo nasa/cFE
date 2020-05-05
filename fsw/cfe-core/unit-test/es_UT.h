@@ -119,6 +119,25 @@ void TestStartupErrorPaths(void);
 
 /*****************************************************************************/
 /**
+** \brief Perform tests on the ES application table.
+**
+** \par Description
+**        This function tests all paths for the TaskInit application table loading.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #UT_SetReadBuffer, #UT_SetRtnCode, #CFE_ES_TaskInit
+** \sa #UT_Report, #UT_SetOSFail, #UT_SetDummyFuncRtn
+**
+******************************************************************************/
+void TestAppTbl(void);
+
+/*****************************************************************************/
+/**
 ** \brief Perform tests on the ES application control internal interface
 **        functions contained in cfe_es_api.c
 **

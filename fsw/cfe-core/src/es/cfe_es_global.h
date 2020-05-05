@@ -44,6 +44,7 @@
 #include "cfe_es_apps.h"
 #include "cfe_es_cds.h"
 #include "cfe_es_perf.h"
+#include "cfe_es_table.h"
 #include "cfe_time.h"
 #include "cfe_platform_cfg.h"
 #include "cfe_evs.h"

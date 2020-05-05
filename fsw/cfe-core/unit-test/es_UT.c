@@ -55,8 +55,6 @@ extern int32 dummy_function(void);
 /*
 ** Global variables
 */
-/* Create a startup script buffer for a maximum of 5 lines * 80 chars/line */
-char StartupScript[MAX_STARTUP_SCRIPT];
 
 /*
  * Macro to convert UT OSAL IDs to array index
@@ -283,6 +281,7 @@ void UtTest_Setup(void)
 
     UT_ADD_TEST(TestInit);
     UT_ADD_TEST(TestStartupErrorPaths);
+    UT_ADD_TEST(TestAppTbl);
     UT_ADD_TEST(TestApps);
     UT_ADD_TEST(TestERLog);
     UT_ADD_TEST(TestShell);
@@ -338,21 +337,11 @@ void TestInit(void)
     UT_SetStatusBSPResetArea(OS_SUCCESS, CFE_TIME_RESET_SIGNATURE,
                              CFE_TIME_ToneSignalSelect_PRIMARY);
 
-    /* Set up the startup script for reading */
-    strncpy(StartupScript,
-            "CFE_LIB, /cf/apps/tst_lib.bundle, TST_LIB_Init, TST_LIB, 0, 0, 0x0, 1; "
-            "CFE_APP, /cf/apps/ci.bundle, CI_task_main, CI_APP, 70, 4096, 0x0, 1; "
-            "CFE_APP, /cf/apps/sch.bundle, SCH_TaskMain, SCH_APP, 120, 4096, 0x0, 1; "
-            "CFE_APP, /cf/apps/to.bundle, TO_task_main, TO_APP, 74, 4096, 0x0, 1; !",
-            MAX_STARTUP_SCRIPT);
-    StartupScript[MAX_STARTUP_SCRIPT - 1] = '\0';
-    UT_SetReadBuffer(StartupScript, strlen(StartupScript));
-
     /* Go through ES_Main and cover normal paths */
     UT_SetDummyFuncRtn(OS_SUCCESS);
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, CFE_PSP_RST_SUBTYPE_POWER_CYCLE, 1,
-                CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+                CFE_PLATFORM_ES_TBL_FILE);
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(CFE_PSP_Panic)) == 0,
               "CFE_ES_Main",
@@ -362,7 +351,6 @@ void TestInit(void)
 void TestStartupErrorPaths(void)
 {
     int j;
-    ES_UT_SetAppStateHook_t StateHook;
     uint32 PanicStatus;
     uint32 ResetType;
     uint32 Id;
@@ -372,53 +360,17 @@ void TestStartupErrorPaths(void)
     UT_Text("Begin Test Startup Error Paths\n");
 #endif
 
-    /* Set up the startup script for reading */
-    strncpy(StartupScript,
-            "CFE_LIB, /cf/apps/tst_lib.bundle, TST_LIB_Init, TST_LIB, 0, 0, 0x0, 1; "
-            "CFE_APP, /cf/apps/ci.bundle, CI_task_main, CI_APP, 70, 4096, 0x0, 1; "
-            "CFE_APP, /cf/apps/sch.bundle, SCH_TaskMain, SCH_APP, 120, 4096, 0x0, 1; "
-            "CFE_APP, /cf/apps/to.bundle, TO_task_main, TO_APP, 74, 4096, 0x0, 1; !",
-            MAX_STARTUP_SCRIPT);
-    StartupScript[MAX_STARTUP_SCRIPT - 1] = '\0';
-
     /* Perform ES main startup with a mutex creation failure */
     ES_ResetUnitTest();
     UT_SetForceFail(UT_KEY(OS_MutSemCreate), OS_ERROR);
-    UT_SetReadBuffer(StartupScript, strlen(StartupScript));
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Panic), &PanicStatus, sizeof(PanicStatus), false);
     CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
-                CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+                CFE_PLATFORM_ES_TBL_FILE);
     UT_Report(__FILE__, __LINE__,
               PanicStatus == CFE_PSP_PANIC_STARTUP_SEM &&
               UT_GetStubCount(UT_KEY(CFE_PSP_Panic)) == 1,
               "CFE_ES_Main",
               "Mutex create failure");
-
-    /* Perform ES main startup with a file open failure */
-    ES_ResetUnitTest();
-    UT_SetDummyFuncRtn(OS_SUCCESS);
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
-    UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
-    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
-                (char *) CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_OPEN_ES_APP_STARTUP]),
-              "CFE_ES_Main",
-              "File open failure");
-
-    /* Perform ES main startup with a startup sync failure */
-    ES_ResetUnitTest();
-    StateHook.AppState = CFE_ES_AppState_RUNNING;
-    StateHook.AppType = CFE_ES_AppType_CORE;    /* by only setting core apps, it will appear as if external apps did not start */
-    UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, &StateHook);
-    UT_SetReadBuffer(StartupScript, strlen(StartupScript));
-    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
-                (char *) CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_SYNC_FAIL_1]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_SYNC_FAIL_2]),
-              "CFE_ES_Main",
-              "Startup sync failure");
 
     /* Perform a power on reset with a hardware special sub-type */
     ES_ResetUnitTest();
@@ -814,9 +766,121 @@ void TestStartupErrorPaths(void)
               "Min System State is CFE_ES_SystemState_APPS_INIT");
 }
 
+void TestAppTbl(void)
+{
+    uint32 Return;
+
+    CFE_ES_AppLibTbl_t Tbl = {
+        .Libs = {
+            {
+                .Name = "SAMPLE_LIB",
+                .FileName = "/cf/sample_lib.so",
+                .EntryPoint = "SAMPLE_LibInit"
+            }
+        },
+        .Apps = {
+            {
+                .Name = "SAMPLE_APP",
+                .FileName = "/cf/sample_app.so",
+                .EntryPoint = "SAMPLE_AppMain",
+                .StackSize = 4096,
+                .Priority = 10,
+                .ExceptionAction = 0
+            }
+        }
+    }, *TblPtr = &Tbl;
+
+#ifdef UT_VERBOSE
+    UT_Text("Begin Test App Tbl\n");
+#endif
+
+    /* Test loading apps with table registration error */
+    ES_ResetUnitTest();
+    UT_SetForceFail(UT_KEY(CFE_TBL_Register), OS_ERROR);
+    Return = CFE_ES_LoadApps("");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_START_TBL_LOAD_ERR &&
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LOADAPPS_REG]),
+              "CFE_ES_LoadApps",
+              "Tbl register failure");
+
+    /* Test loading apps with table load error */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Register), 1, CFE_SUCCESS);
+    UT_SetForceFail(UT_KEY(CFE_TBL_Load), OS_ERROR);
+    Return = CFE_ES_LoadApps("");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_START_TBL_LOAD_ERR &&
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LOADAPPS_LOAD]),
+              "CFE_ES_LoadApps",
+              "Tbl load failure");
+
+    /* Test loading apps with table get address error */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Register), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Load), 1, CFE_SUCCESS);
+    UT_SetForceFail(UT_KEY(CFE_TBL_GetAddress), OS_ERROR);
+    Return = CFE_ES_LoadApps("");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_START_TBL_LOAD_ERR &&
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LOADAPPS_GETADDR]),
+              "CFE_ES_LoadApps",
+              "Tbl get address failure");
+
+    /* Test loading apps with null pointer from GetAddress */
+    ES_ResetUnitTest();
+    UT_SetDataBuffer(UT_KEY(CFE_TBL_GetAddress), NULL, sizeof(TblPtr), false);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Register), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Load), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_GetAddress), 1, CFE_SUCCESS);
+    Return = CFE_ES_LoadApps("");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_START_TBL_LOAD_ERR &&
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LOADAPPS_GETADDR_NULLPTR]),
+              "CFE_ES_LoadApps",
+              "Tbl get address null ptr failure");
+
+    /* Test failed LoadLibrary */
+    ES_ResetUnitTest();
+    UT_SetDataBuffer(UT_KEY(CFE_TBL_GetAddress), &TblPtr, sizeof(TblPtr), false);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Register), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Load), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_GetAddress), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, OS_ERROR);
+    Return = CFE_ES_LoadApps("");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_SUCCESS && /* failures to load apps/libs still returns success */
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LOADAPPS_INVALIDLIB]),
+              "CFE_ES_LoadApps",
+              "Tbl load lib failure");
+
+    /* Test failed AppCreate */
+    ES_ResetUnitTest();
+    UT_SetDataBuffer(UT_KEY(CFE_TBL_GetAddress), &TblPtr, sizeof(TblPtr), false);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Register), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Load), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_GetAddress), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, OS_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, OS_ERROR);
+    Return = CFE_ES_LoadApps("");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_SUCCESS && /* failures to load apps/libs still returns success */
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LOADAPPS_INVALIDAPP]),
+              "CFE_ES_LoadApps",
+              "Tbl load app failure");
+
+    /* Test nominal */
+    ES_ResetUnitTest();
+    UT_SetDataBuffer(UT_KEY(CFE_TBL_GetAddress), &TblPtr, sizeof(TblPtr), false);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Register), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_Load), 1, CFE_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_TBL_GetAddress), 1, CFE_SUCCESS);
+    Return = CFE_ES_LoadApps("");
+    UT_Report(__FILE__, __LINE__, Return == CFE_SUCCESS, "CFE_ES_LoadApps", "Tbl success");
+}
+
 void TestApps(void)
 {
-    int NumBytes;
     int Return;
     int j;
     CFE_ES_AppInfo_t AppInfo;
@@ -828,113 +892,6 @@ void TestApps(void)
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Apps\n");
 #endif
-
-    /* Test starting an application where the startup script is too long */
-    ES_ResetUnitTest();
-    strncpy(StartupScript,
-            "CFE_LIB, /cf/apps/tst_lib.bundle, TST_LIB_Init, TST_fghfghfghfghfg"
-            "hfghfghfghfghfghfghfghfghfghfghfghfghfghfghfghfghfghfghfghfghLIB, "
-            "0, 0, 0x0, 1; CFE_APP, /cf/apps/ci.bundle, CI_task_main, CI_APP, "
-            "70, 4096, 0x0, 1; CFE_APP, /cf/apps/sch.bundle, SCH_TaskMain, "
-            "SCH_APP, 120, 4096, 0x0, 1; CFE_APP, /cf/apps/to.bundle, "
-            "TO_task_main, TO_APP, 74, 4096, 0x0, 1; !",
-            MAX_STARTUP_SCRIPT);
-    StartupScript[MAX_STARTUP_SCRIPT - 1] = '\0';
-    NumBytes = strlen(StartupScript);
-    UT_SetReadBuffer(StartupScript, NumBytes);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]) && 
-              UT_GetStubCount(UT_KEY(OS_printf)) == 8,
-              "CFE_ES_StartApplications",
-              "Line too long");
-
-    /* Create a valid startup script for subsequent tests */
-    strncpy(StartupScript,
-            "CFE_LIB, /cf/apps/tst_lib.bundle, TST_LIB_Init, TST_LIB, 0, 0, 0x0, 1; "
-            "CFE_APP, /cf/apps/ci.bundle, CI_task_main, CI_APP, 70, 4096, 0x0, 1; "
-            "CFE_APP, /cf/apps/sch.bundle, SCH_TaskMain, SCH_APP, 120, 4096, 0x0, 1; "
-            "CFE_APP, /cf/apps/to.bundle, TO_task_main, TO_APP, 74, 4096, 0x0, 1; !",
-            MAX_STARTUP_SCRIPT);
-    StartupScript[MAX_STARTUP_SCRIPT - 1] = '\0';
-    NumBytes = strlen(StartupScript);
-    UT_SetReadBuffer(StartupScript, NumBytes);
-
-    /* Test starting an application with an error reading the startup file */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, -1);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_READ]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]) && 
-              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
-              "CFE_ES_StartApplications",
-              "Error reading startup file");
-
-    /* Test starting an application with an end-of-file returned by the
-     * OS read
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 0);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 1,
-              "CFE_ES_StartApplications",
-              "End of file reached");
-
-    /* Test starting an application with an open failure */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_OPEN_ES_APP_STARTUP]) &&
-                 UT_GetStubCount(UT_KEY(OS_printf)) == 2,
-              "CFE_ES_StartApplications",
-              "Can't open ES application startup file");
-
-    /* Test successfully starting an application */
-    ES_ResetUnitTest();
-    UT_SetReadBuffer(StartupScript, NumBytes);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]) &&
-                 UT_GetStubCount(UT_KEY(OS_printf)) == 8,
-              "CFE_ES_StartApplications",
-              "Start application; successful");
-
-    /* Test parsing the startup script with an unknown entry type */
-    ES_ResetUnitTest();
-    {
-        const char *TokenList[] =
-        {
-                "UNKNOWN",
-                "/cf/apps/tst_lib.bundle",
-                "TST_LIB_Init",
-                "TST_LIB",
-                "0",
-                "0",
-                "0x0",
-                "1"
-        };
-        UT_Report(__FILE__, __LINE__,
-                CFE_ES_ParseFileEntry(TokenList, 8) == CFE_ES_ERR_APP_CREATE,
-                "CFE_ES_ParseFileEntry",
-                "Unknown entry type");
-    }
-
-    /* Test parsing the startup script with an invalid file entry */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ParseFileEntry(NULL, 0) == CFE_ES_ERR_APP_CREATE,
-              "CFE_ES_ParseFileEntry",
-              "Invalid file entry");
 
     /* Test application loading and creation with a task creation failure */
     ES_ResetUnitTest();
@@ -1938,28 +1895,6 @@ void TestApps(void)
               "CFE_ES_CleanupTaskResources",
               "Clean up task OS resources; successful");
 
-    /* Test parsing the startup script for a cFE application and a restart
-     * application exception action
-     */
-    ES_ResetUnitTest();
-    {
-        const char *TokenList[] =
-        {
-                "CFE_APP",
-                "/cf/apps/tst_lib.bundle",
-                "TST_LIB_Init",
-                "TST_LIB",
-                "0",
-                "0",
-                "0x0",
-                "0"
-        };
-        UT_Report(__FILE__, __LINE__,
-                  CFE_ES_ParseFileEntry(TokenList, 8) == CFE_SUCCESS,
-                  "CFE_ES_ParseFileEntry",
-                  "CFE application; restart application on exception");
-    }
-
     /* Test scanning and acting on the application table where the timer
      * expires for a waiting application
      */
@@ -2500,7 +2435,7 @@ void TestTask(void)
     CFE_ES_TaskMain();
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]) &&
-                 UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+                 UT_GetStubCount(UT_KEY(OS_printf)) == 3,
               "CFE_ES_TaskMain",
               "Command pipe error");
 

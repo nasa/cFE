@@ -980,3 +980,4 @@ void CFE_ES_ExitChildTask(void)
     UT_DEFAULT_IMPL(CFE_ES_ExitChildTask);
 }
 
+UT_DEFAULT_STUB(CFE_ES_LoadLibrary, (uint32 *LibraryIdPtr, const char *FileName, const void *EntryPointData, const char *LibName))

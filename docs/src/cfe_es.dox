@@ -122,66 +122,29 @@
 **/
 
 /**
-  \page cfeesugstartupterm "Startup Script"
+  \page cfeesugstartupterm "Startup Table"
 
-  The startup script is a text file, written by the user that contains a list of
-  entries (one entry for each application) and is used by the ES application for
-  automating the startup of applications. For a processor reset, ES checks
-  for the CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE first, and if it doesn't exist
-  or for a power on reset ES uses the file passed in to #CFE_ES_Main
-  (typically CFE_PLATFORM_ES_NONVOL_STARTUP_FILE but dependent on the PSP).
+  The startup table is a CFE table that contains two arrays, one for libraries
+  and a second for applications for automating the startup of applications by ES.
+  For a processor reset, ES checks for the CFE_PLATFORM_ES_VOLATILE_TBL_FILE
+  first, and if it doesn't exist or for a power on reset ES uses the table passed
+  in to #CFE_ES_Main (typically CFE_PLATFORM_ES_NONVOL_TBL_FILE but dependent on
+  the PSP).
 
-  The fields in a single entry include:
-  <TABLE>
-     <TR>
-        <TD> Object Type
-        <TD> <tt>CFE_APP</tt> for an Application, or <tt>CFE_LIB</tt> for a library.
-     <TR>
-        <TD> Path/Filename
-        <TD> This is a cFE Virtual filename, not a vxWorks device/pathname
-     <TR>
-        <TD> Entry Point
-        <TD> This is the name of the "main" function for App.
-     <TR>
-        <TD> CFE Name
-        <TD> The cFE name for the APP or Library
-     <TR>
-        <TD> Priority
-        <TD> This is the Priority of the App, not used for a Library
-     <TR>
-        <TD> Stack Size
-        <TD> This is the Stack size for the App, not used for a Library
-     <TR>
-        <TD> Load Address
-        <TD> This is the Optional Load Address for the App or Library. It is currently
-             not implemented so it should always be 0x0.
-     <TR>
-        <TD> Exception Action
-        <TD> This is the Action the cFE should take if the Application has an exception. <BR>
-             <UL>
-                <LI> 0        = Do a cFE Processor Reset <BR>
-                <LI> Non-Zero = Just restart the Application
-             </UL>
-  </TABLE>
+  The structure of the table is defined in \ref cfe_es_table.h .
 
   Immediately after the cFE completes its initialization, the ES Application first 
-  looks for the volatile startup script. The location in the file system is defined 
-  by the cFE platform configuration parameter named #CFE_ES_VOLATILE_STARTUP_FILE. 
-  This configuration parameter contains a path as well as a filename. If the file 
-  is found, ES begins to startup the applications that are listed in the file. If 
-  ES does not find the file, it attempts to open the #CFE_ES_NONVOL_STARTUP_FILE.
+  looks for the volatile startup table. If the table 
+  is found, ES loads the libraries (in order), then begins to startup the applications
+  (also in order). If ES does not find the table, it attempts to open the
+  non-volatile startup table.
    
-  If ES finds the volatile startup script, the attempt to open the nonvolatile startup 
-  script is bypassed.
-
-  Any errors encountered in the startup script processing are written to the 
+  Any errors encountered in the startup table processing are written to the 
   \ref cfeesugsyslogsrv. The \ref cfeesugsyslogsrv 
-  may also contain positive acknowledge messages regarding the startup script processing.
+  may also contain positive acknowledge messages regarding the startup table processing.
 
   Refer to the CFS Deployment Guide for more 
-  information regarding the startup script. The startup script delivered with the 
-  cFE (<tt>cfe_es_startup.scr</tt>) also has some detailed information about the fields 
-  and the settings.
+  information regarding the startup table.
     
   Next: \ref cfeesugswreset <BR>
   Prev: \ref cfeesugappstart <BR>
@@ -277,7 +240,7 @@
   application through an API call. 
 
   This provides a way for the user to load a set of library 
-  routines, (via the startup script) without starting a corresponding 
+  routines, (via the startup table) without starting a corresponding 
   task. See the section related to library routines for more detail. 
 
   The ES task maintains a counter for the number of registered 
@@ -293,15 +256,12 @@
   \page cfeesugappstart Starting an Application
 
   There are two ways to start an application, through the ground 
-  command #CFE_ES_START_APP_CC or through the startup script. In 
+  command #CFE_ES_START_APP_CC or through the startup table. In 
   either case, the object file must be loaded on board before the 
-  command is sent or before the startup script is executed. The 
-  startup script contains a list of applications and library 
-  routines to load and start immediately after the cFE finishes 
-  its startup sequence. The parameters in the command, match the 
-  elements of an entry in the startup script. See the cFE Deployment 
-  Guide for more information about starting applications by way of 
-  the startup script. 
+  command is sent or before the startup table is executed.
+
+  See the cFE Deployment Guide for more information about starting
+  applications by way of the startup table. 
 
   The format of the Start Application command, is defined in the 
   structure #CFE_ES_StartApp_t. The members of the structure 
@@ -369,7 +329,7 @@
   The  #CFE_ES_RESTART_APP_CC command is used to restart an application. 
   This command stops and restarts an application using the parameters 
   defined when the application was originally started, either through 
-  the startup script or by way of the #CFE_ES_START_APP_CC command. 
+  the startup table or by way of the #CFE_ES_START_APP_CC command. 
     
   Next: \ref cfeesugappreload <BR>
   Prev: \ref cfeesugappstop <BR>
@@ -383,7 +343,7 @@
   This command stops the application, unloads the object file, loads 
   the new object file specified in the command and starts the application 
   again using the parameters defined when the application was originally 
-  started, either through the startup script or by way of the 
+  started, either through the startup table or by way of the 
   #CFE_ES_START_APP_CC command. 
     
   Next: \ref cfeesugapplist <BR>
@@ -459,13 +419,11 @@
 /**
   \page cfeesugloadlibs Loading Common Libraries
 
-  Library routines may be loaded only through the startup script. There 
+  Library routines may be loaded only through the startup table. There 
   is an option that allows a library routine initialization function 
   to be executed after the library is loaded. Refer to the cFE Application 
   Developers Guide for more information regarding Library Routines and 
-  startup scripts. The startup script delivered with the cFE 
-  (<tt>cfe_es_startup.scr</tt>) also has some detailed information 
-  about library routines.
+  startup table.
     
   Next: \ref cfeesugfilesrv <BR>
   Prev: \ref cfeesugtasklist <BR>
@@ -684,7 +642,7 @@
   memory. These block size definitions simply give the memory pool a set of
   sizes to choose from. They do not configure the memory pool in any way and
   they do not affect the size of the pool. The cFE defines a default set of
-  block sizes in the cfe_platform_cfg.h file. 
+  block sizes in the \ref cfe_platform_cfg.h file. 
   
   If the default block sizes are used, the application will create the pool
   using the simpler #CFE_ES_PoolCreate API. This API takes a pointer to the

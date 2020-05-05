@@ -370,16 +370,7 @@
  */
 #define CFE_ES_CDS_ALREADY_EXISTS  ((int32)0x4400000d)
 
-
-/**
- * @brief CDS Insufficient Memory
- *
- *  The Application is requesting a CDS Block that is larger than the remaining
- *  CDS memory.
- *
- */
-#define CFE_ES_CDS_INSUFFICIENT_MEMORY  ((int32)0xc400000e)
-
+#define DEPRECATED_CFE_ES_CDS_INSUFFICIENT_MEMORY  ((int32)0xc400000e)
 
 /**
  * @brief CDS Invalid Name
@@ -526,14 +517,7 @@
  */
 #define CFE_ES_QUEUE_DELETE_ERR  ((int32)0xc400001E)
 
-/**
- * @brief File Close Error
- *
- *  Occurs when trying to close a file that belongs to a task that ES
- *  is cleaning up.
- *
- */
-#define CFE_ES_FILE_CLOSE_ERR  ((int32)0xc400001F)
+#define DEPRECATED_CFE_ES_FILE_CLOSE_ERR  ((int32)0xc400001F)
 
 /**
  * @brief CDS Wrong Type Error
@@ -632,6 +616,15 @@
  *
  */
 #define CFE_ES_ERR_SYS_LOG_TRUNCATED  ((int32)0x44000028)
+
+/**
+ * @brief Unable to load the start table.
+ *
+ *  The ES task loads a table detailing the apps and libs to load.
+ *  This error is returned if it fails to load that table.
+ *
+ */
+#define CFE_ES_START_TBL_LOAD_ERR     ((int32)0x44000029)
 
 /**
  * @brief Not Implemented

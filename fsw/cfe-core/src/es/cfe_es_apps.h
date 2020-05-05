@@ -141,11 +141,6 @@ typedef struct
 */
 
 /*
-** Internal function start applications based on the startup script
-*/
-void  CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath );
-
-/*
 ** Internal function to parse/execute a line of the cFE application startup 'script'
 */
 int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);

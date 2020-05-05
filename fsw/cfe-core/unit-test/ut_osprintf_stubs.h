@@ -95,6 +95,12 @@
 #define UT_OSP_NO_FREE_CORE_APP_SLOTS     66
 #define UT_OSP_STARTUP_SYNC_FAIL_2        67
 #define UT_OSP_MODULE_UNLOAD_FAILED       68
+#define UT_OSP_LOADAPPS_REG               69
+#define UT_OSP_LOADAPPS_LOAD              70
+#define UT_OSP_LOADAPPS_GETADDR           71
+#define UT_OSP_LOADAPPS_GETADDR_NULLPTR   72
+#define UT_OSP_LOADAPPS_INVALIDLIB        73
+#define UT_OSP_LOADAPPS_INVALIDAPP        74
 
 #endif
 

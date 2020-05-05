@@ -583,7 +583,7 @@ Reference cFE API documentation for more detail on reset types.
 
 The cFE contains support for shared libraries. For the current version
 of the cFE, the shared libraries must be loaded on cFE startup (see the
-cFE Deployment Guide on how to modify the cfe_es_startup.scr in order
+cFE Deployment Guide on how to configure the cfe_es_start.tbl in order
 to load a shared library at startup). The capability to add and remove
 shared libraries during runtime will be available in a later build.
 
