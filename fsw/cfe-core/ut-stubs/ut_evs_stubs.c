@@ -111,6 +111,8 @@ int32 CFE_EVS_SendEvent(uint16 EventID,
     int32 status;
 
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventType);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), Spec);
     status = UT_DEFAULT_IMPL(CFE_EVS_SendEvent);
 
     if (status >= 0)
