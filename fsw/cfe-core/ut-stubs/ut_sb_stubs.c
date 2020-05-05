@@ -36,6 +36,16 @@
 #include "cfe.h"
 #include "utstubs.h"
 
+typedef struct
+{
+    CFE_SB_MsgId_t MsgId;
+    uint16 Length;
+    uint16 CommandCode;
+    CFE_TIME_SysTime_t TimeStamp;
+
+} CFE_SB_StubMsg_MetaData_t;
+
+
 /*
 ** Global variables
 **
@@ -45,6 +55,27 @@
 */
 CFE_SB_Qos_t CFE_SB_Default_Qos;
 
+static CFE_SB_StubMsg_MetaData_t* CFE_SB_StubMsg_GetMetaData(const CFE_SB_Msg_t *MsgPtr)
+{
+    CFE_SB_StubMsg_MetaData_t* MetaPtr;
+    CFE_SB_StubMsg_MetaData_t DefaultMeta;
+    uint32 MetaSize;
+    UT_EntryKey_t MsgKey = (UT_EntryKey_t)MsgPtr;
+
+    UT_GetDataBuffer(MsgKey, (void**)&MetaPtr, &MetaSize, NULL);
+    if (MetaPtr == NULL || MetaSize != sizeof(DefaultMeta))
+    {
+        memset(&DefaultMeta, 0, sizeof(DefaultMeta));
+        DefaultMeta.MsgId = CFE_SB_INVALID_MSG_ID;
+        UT_ResetState(MsgKey);
+        UT_SetDataBuffer(MsgKey, &DefaultMeta, sizeof(DefaultMeta), true);
+
+        /* Because "allocate copy" is true above, this gets a pointer to the copy */
+        UT_GetDataBuffer(MsgKey, (void**)&MetaPtr, &MetaSize, NULL);
+    }
+
+    return MetaPtr;
+}
 /*
 ** Functions
 */
@@ -235,25 +266,26 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
 **        None
 **
 ** \returns
-**        Returns either the function code from command secondary header or
-**        CFE_SUCCESS.
+**        Returns either the function code from command secondary header or 0.
 **
 ******************************************************************************/
 uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr)
 {
     int32          status;
-    CFE_SB_CmdHdr_t *CmdHdrPtr;
+    uint16         cmdcode = 0;
 
     status = UT_DEFAULT_IMPL(CFE_SB_GetCmdCode);
 
-    if (status == 0 && CCSDS_RD_TYPE(MsgPtr->Hdr) != CCSDS_TLM)
+    if (status != 0)
     {
-        /* Cast the input pointer to a Cmd Msg pointer */
-        CmdHdrPtr = (CFE_SB_CmdHdr_t *)MsgPtr;
-        status = CCSDS_RD_FC(CmdHdrPtr->Sec);
+        cmdcode = status;
+    }
+    else
+    {
+        cmdcode = CFE_SB_StubMsg_GetMetaData(MsgPtr)->CommandCode;
     }
 
-    return status;
+    return cmdcode;
 }
 
 /*****************************************************************************/
@@ -273,39 +305,13 @@ uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr)
 ******************************************************************************/
 CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
 {
-    CFE_SB_MsgId_t Result = CFE_SB_INVALID_MSG_ID;
-    CFE_SB_MsgId_Atom_t MsgIdVal = 0;
+    CFE_SB_MsgId_t Result;
 
     UT_DEFAULT_IMPL(CFE_SB_GetMsgId);
 
     if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_GetMsgId), &Result, sizeof(Result)) < sizeof(Result))
     {
-
-#ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2  
-        MsgIdVal = CCSDS_RD_SID(MsgPtr->Hdr);
-#else
-
-        uint32            SubSystemId;
-
-        MsgIdVal = CCSDS_RD_APID(MsgPtr->Hdr); /* Primary header APID  */
-     
-        if ( CCSDS_RD_TYPE(MsgPtr->Hdr) == CCSDS_CMD)
-              MsgIdVal = MsgIdVal | CFE_SB_CMD_MESSAGE_TYPE;  
-
-        /* Add in the SubSystem ID as needed */
-        SubSystemId = CCSDS_RD_SUBSYSTEM_ID(MsgPtr->SpacePacket.ApidQ);
-        MsgIdVal = (MsgIdVal | (SubSystemId << 8));
-
-/* Example code to add in the System ID as needed. */
-/*   The default is to init this field to the Spacecraft ID but ignore for routing.   */
-/*   To fully implement this field would require significant SB optimization to avoid */
-/*   prohibitively large routing and index tables. */
-/*      uint16            SystemId;                              */
-/*      SystemId = CCSDS_RD_SYSTEM_ID(HdrPtr->ApidQ);            */
-/*      MsgIdVal = (MsgIdVal | (SystemId << 16)) */
-#endif
-        Result = CFE_SB_ValueToMsgId(MsgIdVal);
-
+        Result = CFE_SB_StubMsg_GetMetaData(MsgPtr)->MsgId;
     }
 
     return Result;
@@ -337,11 +343,10 @@ void CFE_SB_InitMsg(void *MsgPtr,
 
     if (status >= 0)
     {
-        if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_InitMsg), (uint8*)MsgPtr, Length) < Length)
-        {
-            CFE_SB_SetMsgId(MsgPtr, MsgId);
-            CFE_SB_SetTotalMsgLength(MsgPtr, Length);
-        }
+        CFE_SB_StubMsg_GetMetaData(MsgPtr)->MsgId = MsgId;
+        CFE_SB_StubMsg_GetMetaData(MsgPtr)->Length = Length;
+
+        UT_Stub_CopyToLocal(UT_KEY(CFE_SB_InitMsg), (uint8*)MsgPtr, Length);
     }
 }
 
@@ -450,23 +455,12 @@ int32 CFE_SB_SendMsg(CFE_SB_Msg_t *MsgPtr)
 int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr, uint16 CmdCode)
 {
     int32           status;
-    CFE_SB_CmdHdr_t *CmdHdrPtr;
 
     status = UT_DEFAULT_IMPL(CFE_SB_SetCmdCode);
 
-    if (status >= 0)
+    if (status == 0)
     {
-        /* If msg type is telemetry, ignore the request */
-        if (CCSDS_RD_TYPE(MsgPtr->Hdr) == CCSDS_TLM)
-        {
-            status = CFE_SB_WRONG_MSG_TYPE;
-        }
-        else
-        {
-            /* Cast the input pointer to a Cmd Msg pointer */
-            CmdHdrPtr = (CFE_SB_CmdHdr_t *) MsgPtr;
-            CCSDS_WR_FC(CmdHdrPtr->Sec,CmdCode);
-        }
+        CFE_SB_StubMsg_GetMetaData(MsgPtr)->CommandCode = CmdCode;
     }
 
     return status;
@@ -489,33 +483,15 @@ int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr, uint16 CmdCode)
 ******************************************************************************/
 void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr, CFE_SB_MsgId_t MsgId)
 {
-    UT_DEFAULT_IMPL(CFE_SB_SetMsgId);
-    UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_SetMsgId), (uint8*)&MsgId, sizeof(MsgId));
-    CFE_SB_MsgId_Atom_t MsgIdVal = CFE_SB_MsgIdToValue(MsgId);
-#ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2
-    CCSDS_WR_SID(MsgPtr->Hdr, MsgIdVal);
-#else
-  CCSDS_WR_VERS(MsgPtr->SpacePacket.Hdr, 1);
+    int32 status;
 
-  /* Set the stream ID APID in the primary header. */
-  CCSDS_WR_APID(MsgPtr->SpacePacket.Hdr, CFE_SB_RD_APID_FROM_MSGID(MsgIdVal) );
-  
-  CCSDS_WR_TYPE(MsgPtr->SpacePacket.Hdr, CFE_SB_RD_TYPE_FROM_MSGID(MsgIdVal) );
-  
-  
-  CCSDS_CLR_SEC_APIDQ(MsgPtr->SpacePacket.ApidQ);
-  
-  CCSDS_WR_EDS_VER(MsgPtr->SpacePacket.ApidQ, 1);
-  
-  CCSDS_WR_ENDIAN(MsgPtr->SpacePacket.ApidQ, CFE_PLATFORM_ENDIAN);
-  
-  CCSDS_WR_PLAYBACK(MsgPtr->SpacePacket.ApidQ, false);
-  
-  CCSDS_WR_SUBSYSTEM_ID(MsgPtr->SpacePacket.ApidQ, CFE_SB_RD_SUBSYS_ID_FROM_MSGID(MsgIdVal));
-  
-  CCSDS_WR_SYSTEM_ID(MsgPtr->SpacePacket.ApidQ, CFE_SPACECRAFT_ID);
+    status = UT_DEFAULT_IMPL(CFE_SB_SetMsgId);
 
-#endif
+    if (status == 0)
+    {
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_SetMsgId), &MsgId, sizeof(MsgId));
+        CFE_SB_StubMsg_GetMetaData(MsgPtr)->MsgId = MsgId;
+    }
 }
 
 
@@ -539,6 +515,11 @@ int32 CFE_SB_SetMsgTime(CFE_SB_MsgPtr_t MsgPtr, CFE_TIME_SysTime_t time)
     int32 status;
 
     status = UT_DEFAULT_IMPL(CFE_SB_SetMsgTime);
+
+    if (status == 0)
+    {
+        CFE_SB_StubMsg_GetMetaData(MsgPtr)->TimeStamp = time;
+    }
 
     return status;
 }
@@ -688,7 +669,7 @@ uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
     }
     else
     {
-        result = CCSDS_RD_LEN(MsgPtr->Hdr);
+        result = CFE_SB_StubMsg_GetMetaData(MsgPtr)->Length;
     }
     return result;
 }
@@ -824,8 +805,7 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr)
 
     if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_GetMsgTime), &TimeFromMsg, sizeof(CFE_TIME_SysTime_t)) != sizeof(CFE_TIME_SysTime_t))
     {
-        TimeFromMsg.Seconds = 123;
-        TimeFromMsg.Subseconds = 456;
+        TimeFromMsg = CFE_SB_StubMsg_GetMetaData(MsgPtr)->TimeStamp;
     }
 
     return TimeFromMsg;
@@ -869,9 +849,15 @@ void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
 
 void CFE_SB_SetTotalMsgLength (CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength)
 {
-    UT_DEFAULT_IMPL(CFE_SB_SetTotalMsgLength);
-    CCSDS_WR_LEN(MsgPtr->Hdr,TotalLength);
-    UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_SetTotalMsgLength), &TotalLength, sizeof(TotalLength));
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_SB_SetTotalMsgLength);
+
+    if (status == 0)
+    {
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_SetTotalMsgLength), &TotalLength, sizeof(TotalLength));
+        CFE_SB_StubMsg_GetMetaData(MsgPtr)->Length = TotalLength;
+    }
 }
 
 uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
