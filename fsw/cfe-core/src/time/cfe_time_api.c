@@ -600,7 +600,7 @@ uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
 
 } /* End of CFE_TIME_Micro2SubSecs() */
 
-
+#ifndef CFE_OMIT_DEPRECATED_6_7
 /*
  * Function: CFE_TIME_CFE2FSSeconds - See API and header file for details
  */
@@ -658,7 +658,7 @@ uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS)
     return(SecondsCFE);
 
 } /* End of CFE_TIME_FS2CFESeconds() */
-
+#endif /* CFE_OMIT_DEPRECATED_6_7 */
 
 /*
  * Function: CFE_TIME_Print - See API and header file for details

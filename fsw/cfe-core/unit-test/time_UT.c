@@ -210,7 +210,6 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_GetTime);
     UT_ADD_TEST(Test_TimeOp);
     UT_ADD_TEST(Test_ConvertTime);
-    UT_ADD_TEST(Test_ConvertCFEFS);
     UT_ADD_TEST(Test_Print);
     UT_ADD_TEST(Test_RegisterSyncCallbackTrue);
     UT_ADD_TEST(Test_ExternalTone);
@@ -1144,116 +1143,6 @@ void Test_ConvertTime(void)
               CFE_TIME_Micro2SubSecs(0xffffffff) == 0xffffffff,
               "CFE_TIME_Micro2SubSecs",
               "Microseconds exceeds maximum; set maximum subseconds value");
-}
-
-/*
-** Test function for converting cFE seconds to file system (FS) seconds and
-** vice versa
-*/
-void Test_ConvertCFEFS(void)
-{
-    uint32 result;
-
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Convert cFE and FS Seconds\n");
-#endif
-
-    /* Test cFE to FS conversion using 0 for the cFE seconds value */
-    UT_InitData();
-
-    /* Calculate expected result based on macro value */
-    if (CFE_MISSION_TIME_FS_FACTOR < 0 && -CFE_MISSION_TIME_FS_FACTOR > 0)
-    {
-        result = 0;
-    }
-    else
-    {
-        result = CFE_MISSION_TIME_FS_FACTOR;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_CFE2FSSeconds(0) == result,
-              "CFE_TIME_CFE2FSSeconds",
-              "Convert 0 cFE seconds to FS seconds");
-
-    /* Test cFE to FS conversion using mid-range value for cFE seconds */
-    UT_InitData();
-
-    /* Calculate expected result based on macro value */
-    if (CFE_MISSION_TIME_FS_FACTOR < 0 && -CFE_MISSION_TIME_FS_FACTOR > 0xffff)
-    {
-        result = 0;
-    }
-    else
-    {
-        result = CFE_MISSION_TIME_FS_FACTOR + 0xffff;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_CFE2FSSeconds(0xffff) == result,
-              "CFE_TIME_CFE2FSSeconds",
-              "Convert mid-range cFE seconds to FS seconds");
-
-    /* Test cFE to FS conversion using the maximum cFE seconds value */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_CFE2FSSeconds(0xffffffff) ==
-              (uint32) (CFE_MISSION_TIME_FS_FACTOR - 1),
-              "CFE_TIME_CFE2FSSeconds",
-              "Maximum cFE seconds value");
-
-    /* Test FS to cFE conversion using 0 for the FS seconds value */
-    UT_InitData();
-
-    if (CFE_MISSION_TIME_FS_FACTOR > 0)
-    {
-        result = 0;
-    }
-    else
-    {
-        result = -(uint32) CFE_MISSION_TIME_FS_FACTOR;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(0) == result,
-              "CFE_TIME_FS2CFESeconds",
-              "Convert 0 FS seconds to cFE seconds");
-
-    /* Test FS to cFE conversion response to a FS seconds value that results
-     * in a negative cFE time (forces cFE seconds to zero)
-     */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(CFE_MISSION_TIME_FS_FACTOR - 1) == 0,
-              "CFE_TIME_FS2CFESeconds",
-              "Negative cFE seconds conversion (force to zero)");
-
-    /* Test FS to cFE conversion using the minimum convertible FS
-     * seconds value
-     */
-    UT_InitData();
-
-    if (CFE_MISSION_TIME_FS_FACTOR > (uint32) (CFE_MISSION_TIME_FS_FACTOR + 1))
-    {
-        result = 0;
-    }
-    else
-    {
-        result = 1;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(CFE_MISSION_TIME_FS_FACTOR + 1) == result,
-              "CFE_TIME_FS2CFESeconds",
-              "Minimum convertible FS seconds value");
-
-    /* Test FS to cFE conversion using the maximum FS seconds value */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(0xffffffff) == 0xffffffff -
-              CFE_MISSION_TIME_FS_FACTOR,
-              "CFE_TIME_FS2CFESeconds",
-              "Maximum FS seconds value");
 }
 
 /*
