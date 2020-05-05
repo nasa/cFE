@@ -219,18 +219,25 @@ function(prepare)
    
   configure_file("${CFE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/mission-detaildesign.doxyfile")
+
+  # Generate an "empty" osconfig.h file for doxygen purposes
+  # this does not have the actual user-defined values, but will
+  # have the documentation associated with each macro definition.
+  configure_file("${osal_MISSION_DIR}/osconfig.h.in"
+    "${CMAKE_BINARY_DIR}/doc/osconfig-example.h")
     
   # The user guide should include the doxygen from the _public_ API files from CFE + OSAL
   file(GLOB MISSION_USERGUIDE_HEADERFILES 
     "${cfe-core_MISSION_DIR}/src/inc/*.h"
     "${osal_MISSION_DIR}/src/os/inc/*.h"
+    "${CMAKE_BINARY_DIR}/doc/osconfig-example.h"
     "${MISSION_SOURCE_DIR}/psp/fsw/inc/*.h")
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}") 
 
   # OSAL API GUIDE include PUBLIC API
   file(GLOB MISSION_OSAL_HEADERFILES 
     "${osal_MISSION_DIR}/src/os/inc/*.h"
-    "${MISSION_SOURCE_DIR}/cfe/cmake/sample_defs/*osconfig.h")
+    "${CMAKE_BINARY_DIR}/doc/osconfig-example.h")
   string(REPLACE ";" " \\\n" MISSION_OSAL_HEADERFILES "${MISSION_OSAL_HEADERFILES}") 
 
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
