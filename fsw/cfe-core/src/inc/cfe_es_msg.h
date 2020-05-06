@@ -1601,7 +1601,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8                           TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_SB_TlmHdr_t                 TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_ShellPacket_Payload_t    Payload;
 }CFE_ES_ShellTlm_t;
 #endif /* CFE_OMIT_DEPRECATED_6_7 */
