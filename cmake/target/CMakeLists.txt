@@ -82,8 +82,13 @@ if (TGT${TGTID}_APPLIST)
   
   if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
     # The option pair for GNU gcc/ld tools
-    set(START_WHOLE_ARCHIVE "--whole-archive")
-    set(STOP_WHOLE_ARCHIVE  "--no-whole-archive")
+    if("${CPU}" STREQUAL "SPARC")
+       set(START_WHOLE_ARCHIVE "-Wl,--whole-archive")
+       set(STOP_WHOLE_ARCHIVE  "-Wl,--no-whole-archive")
+   else()
+       set(START_WHOLE_ARCHIVE "--whole-archive")
+       set(STOP_WHOLE_ARCHIVE  "--no-whole-archive")
+     endif()
     
     # the linker option prefix may or may not be needed, see below
     set(COMPILER_LINKER_OPTION_PREFIX "-Wl,")  
