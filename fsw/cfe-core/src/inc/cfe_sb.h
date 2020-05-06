@@ -155,10 +155,16 @@ typedef union {
 }CFE_SB_Msg_t;
         
 /** \brief Generic Software Bus Command Header Type Definition */
-typedef CCSDS_CommandPacket_t   CFE_SB_CmdHdr_t;
+typedef union {
+    CCSDS_CommandPacket_t   Cmd;
+    CFE_SB_Msg_t            BaseMsg; /**< Base type (primary header) */
+} CFE_SB_CmdHdr_t;
 
 /** \brief Generic Software Bus Telemetry Header Type Definition */
-typedef CCSDS_TelemetryPacket_t CFE_SB_TlmHdr_t;
+typedef union {
+    CCSDS_TelemetryPacket_t Tlm;
+    CFE_SB_Msg_t            BaseMsg; /**< Base type (primary header) */
+} CFE_SB_TlmHdr_t;
 
 #define CFE_SB_CMD_HDR_SIZE     (sizeof(CFE_SB_CmdHdr_t))/**< \brief Size of #CFE_SB_CmdHdr_t in bytes */
 #define CFE_SB_TLM_HDR_SIZE     (sizeof(CFE_SB_TlmHdr_t))/**< \brief Size of #CFE_SB_TlmHdr_t in bytes */
