@@ -878,7 +878,7 @@ typedef struct
 */
 typedef struct
 {
-  uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];
+  CFE_SB_CmdHdr_t         CmdHeader;
 
 } CFE_TIME_ToneSignalCmd_t;
 
@@ -888,7 +888,7 @@ typedef struct
 */
 typedef struct
 {
-  uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    CFE_SB_CmdHdr_t       CmdHeader;
 
 } CFE_TIME_FakeToneCmd_t;
 
