@@ -728,7 +728,7 @@
 */
 typedef struct
 {
-  uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    CFE_SB_CmdHdr_t                 CmdHeader;
 
 } CFE_TIME_NoArgsCmd_t;
 
@@ -751,8 +751,8 @@ typedef struct
 
 typedef struct
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_LeapsCmd_Payload_t   Payload;
+    CFE_SB_CmdHdr_t                 CmdHeader;
+    CFE_TIME_LeapsCmd_Payload_t     Payload;
 } CFE_TIME_SetLeapSeconds_t;
 
 
@@ -769,8 +769,8 @@ typedef struct
 
 typedef struct
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_StateCmd_Payload_t   Payload;
+    CFE_SB_CmdHdr_t                 CmdHeader;
+    CFE_TIME_StateCmd_Payload_t     Payload;
 } CFE_TIME_SetState_t;
 
 
@@ -786,8 +786,8 @@ typedef struct
 
 typedef struct
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_SourceCmd_Payload_t  Payload;
+    CFE_SB_CmdHdr_t               CmdHeader;
+    CFE_TIME_SourceCmd_Payload_t  Payload;
 } CFE_TIME_SetSource_t;
 
 
@@ -803,7 +803,7 @@ typedef struct
 
 typedef struct
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
+  CFE_SB_CmdHdr_t               CmdHeader;
   CFE_TIME_SignalCmd_Payload_t  Payload;
 
 } CFE_TIME_SetSignal_t;
@@ -820,7 +820,7 @@ typedef struct
 
 typedef struct
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
+  CFE_SB_CmdHdr_t                 CmdHeader;
   CFE_TIME_TimeCmd_Payload_t    Payload;
 } CFE_TIME_TimeCmd_t;
 
@@ -850,8 +850,8 @@ typedef struct
 
 typedef struct
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_OneHzAdjustmentCmd_Payload_t  Payload;
+    CFE_SB_CmdHdr_t                 CmdHeader;
+    CFE_TIME_OneHzAdjustmentCmd_Payload_t  Payload;
 
 } CFE_TIME_OneHzAdjustmentCmd_t;
 
@@ -868,7 +868,7 @@ typedef CFE_TIME_OneHzAdjustmentCmd_t CFE_TIME_Sub1HZAdjustment_t;
 */
 typedef struct
 {
-  uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    CFE_SB_CmdHdr_t                 CmdHeader;
 
 } CFE_TIME_1HzCmd_t;
 
@@ -906,7 +906,7 @@ typedef struct
 
 typedef struct
 {
-  uint8                             CmdHeader[CFE_SB_CMD_HDR_SIZE];
+  CFE_SB_CmdHdr_t CmdHeader;
   CFE_TIME_ToneDataCmd_Payload_t    Payload;
 } CFE_TIME_ToneDataCmd_t;
 
@@ -977,7 +977,7 @@ typedef struct
 
 typedef struct
 {
-  uint8                         TlmHeader[CFE_SB_TLM_HDR_SIZE];
+  CFE_SB_TlmHdr_t TlmHeader;
   CFE_TIME_HousekeepingTlm_Payload_t   Payload;
 } CFE_TIME_HousekeepingTlm_t;
 
@@ -1135,7 +1135,7 @@ typedef struct
 
 typedef struct
 {
-  uint8                 		TlmHeader[CFE_SB_TLM_HDR_SIZE];
+  CFE_SB_TlmHdr_t TlmHeader;
   CFE_TIME_DiagnosticTlm_Payload_t Payload;
 } CFE_TIME_DiagnosticTlm_t;
 

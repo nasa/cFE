@@ -492,7 +492,7 @@
 */
 typedef struct
 {
-    uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];   /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;   /**< \brief cFE Software Bus Command Message Header */
 
 } CFE_TBL_NoArgsCmd_t;
 
@@ -519,7 +519,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_LoadCmd_Payload_t   Payload;
 } CFE_TBL_Load_t;
 
@@ -546,7 +546,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_DumpCmd_Payload_t   Payload;
 } CFE_TBL_Dump_t;
 
@@ -570,7 +570,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_ValidateCmd_Payload_t   Payload;
 } CFE_TBL_Validate_t;
 
@@ -588,7 +588,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_ActivateCmd_Payload_t   Payload;
 } CFE_TBL_Activate_t;
 
@@ -607,7 +607,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_DumpRegistryCmd_Payload_t    Payload;
 } CFE_TBL_DumpRegistry_t;
 
@@ -627,7 +627,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_SendRegistryCmd_Payload_t Payload;
 } CFE_TBL_SendRegistry_t;
 
@@ -647,7 +647,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_DelCDSCmd_Payload_t Payload;
 } CFE_TBL_DeleteCDS_t;
 
@@ -665,7 +665,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_AbortLoadCmd_Payload_t    Payload;
 } CFE_TBL_AbortLoad_t;
 
@@ -690,7 +690,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_NotifyCmd_Payload_t Payload;
 } CFE_TBL_NotifyCmd_t;
 
@@ -762,7 +762,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE];       /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_SB_TlmHdr_t TlmHeader;       /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_TBL_HousekeepingTlm_Payload_t  Payload;
 } CFE_TBL_HousekeepingTlm_t;
 
@@ -810,7 +810,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           TlmHeader[CFE_SB_TLM_HDR_SIZE];       /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_SB_TlmHdr_t TlmHeader;       /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_TBL_TblRegPacket_Payload_t  Payload;
 } CFE_TBL_TableRegistryTlm_t;
 

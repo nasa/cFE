@@ -1120,7 +1120,7 @@
 */
 typedef struct
 {
-  uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];     /**< \brief cFE Software Bus Command Message Header */
+  CFE_SB_CmdHdr_t CmdHeader;     /**< \brief cFE Software Bus Command Message Header */
 
 } CFE_ES_NoArgsCmd_t;
 
@@ -1151,7 +1151,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_RestartCmd_Payload_t Payload;
 } CFE_ES_Restart_t;
 
@@ -1176,7 +1176,7 @@ typedef struct
  */
 typedef struct
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_ShellCmd_Payload_t   Payload;
 } CFE_ES_Shell_t;
 #endif /* CFE_OMIT_DEPRECATED_6_7 */
@@ -1198,7 +1198,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_FileNameCmd_Payload_t Payload;
 } CFE_ES_FileNameCmd_t;
 
@@ -1226,7 +1226,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_OverWriteSysLogCmd_Payload_t Payload;
 } CFE_ES_OverWriteSyslog_t;
 
@@ -1255,7 +1255,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_StartAppCmd_Payload_t    Payload;
 } CFE_ES_StartApp_t;
 
@@ -1272,7 +1272,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_AppNameCmd_Payload_t Payload;
 } CFE_ES_AppNameCmd_t;
 
@@ -1300,7 +1300,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_AppReloadCmd_Payload_t   Payload;
 } CFE_ES_ReloadApp_t;
 
@@ -1318,7 +1318,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_SetMaxPRCountCmd_Payload_t   Payload;
 } CFE_ES_SetMaxPRCount_t;
 
@@ -1336,7 +1336,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_DeleteCDSCmd_Payload_t   Payload;
 } CFE_ES_DeleteCDS_t;
 
@@ -1353,7 +1353,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_StartPerfCmd_Payload_t   Payload;
 } CFE_ES_StartPerfData_t;
 
@@ -1371,7 +1371,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_StopPerfCmd_Payload_t    Payload;
 } CFE_ES_StopPerfData_t;
 
@@ -1391,7 +1391,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_SetPerfFilterMaskCmd_Payload_t Payload;
 } CFE_ES_SetPerfFilterMask_t;
 
@@ -1410,7 +1410,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_SetPerfTrigMaskCmd_Payload_t Payload;
 } CFE_ES_SetPerfTriggerMask_t;
 
@@ -1429,7 +1429,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_SendMemPoolStatsCmd_Payload_t    Payload;
 } CFE_ES_SendMemPoolStats_t;
 
@@ -1447,7 +1447,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
+    CFE_SB_CmdHdr_t CmdHeader;    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_DumpCDSRegistryCmd_Payload_t  Payload;
 
 } CFE_ES_DumpCDSRegistry_t;
@@ -1467,7 +1467,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_SB_TlmHdr_t TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_OneAppTlm_Payload_t  Payload;
 } CFE_ES_OneAppTlm_t;
 
@@ -1483,7 +1483,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                           TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_SB_TlmHdr_t TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_PoolStatsTlm_Payload_t   Payload;
 } CFE_ES_MemStatsTlm_t;
 
@@ -1580,7 +1580,7 @@ typedef struct
 
 typedef struct
 {
-    uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_SB_TlmHdr_t TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_HousekeepingTlm_Payload_t   Payload;
   
 } CFE_ES_HousekeepingTlm_t;

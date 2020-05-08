@@ -919,7 +919,7 @@
 ** \brief Command with no additional arguments
 **/
 typedef struct {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
 } CFE_EVS_NoArgsCmd_t;
 
 /*
@@ -942,7 +942,7 @@ typedef struct {
 } CFE_EVS_LogFileCmd_Payload_t;
 
 typedef struct {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
    CFE_EVS_LogFileCmd_Payload_t Payload;
 } CFE_EVS_WriteLogDataFile_t;
 
@@ -958,7 +958,7 @@ typedef struct {
 } CFE_EVS_AppDataCmd_Payload_t;
 
 typedef struct {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
    CFE_EVS_AppDataCmd_Payload_t Payload;
 } CFE_EVS_WriteAppDataFile_t;
 
@@ -974,7 +974,7 @@ typedef struct {
 } CFE_EVS_SetLogMode_Payload_t;
 
 typedef struct {
-   uint8                     CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
    CFE_EVS_SetLogMode_Payload_t Payload;
 } CFE_EVS_SetLogMode_t;
 
@@ -990,7 +990,7 @@ typedef struct {
 } CFE_EVS_SetEventFormatMode_Payload_t;
 
 typedef struct {
-   uint8                     CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
    CFE_EVS_SetEventFormatMode_Payload_t Payload;
 } CFE_EVS_SetEventFormatMode_t;
 
@@ -1007,7 +1007,7 @@ typedef struct {
 } CFE_EVS_BitMaskCmd_Payload_t;
 
 typedef struct {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
    CFE_EVS_BitMaskCmd_Payload_t Payload;
 } CFE_EVS_BitMaskCmd_t;
 
@@ -1033,7 +1033,7 @@ typedef struct {
 } CFE_EVS_AppNameCmd_Payload_t;
 
 typedef struct {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
    CFE_EVS_AppNameCmd_Payload_t Payload;
 } CFE_EVS_AppNameCmd_t;
 
@@ -1059,7 +1059,7 @@ typedef struct {
 } CFE_EVS_AppNameEventIDCmd_Payload_t;
 
 typedef struct {
-   uint8                                CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
    CFE_EVS_AppNameEventIDCmd_Payload_t  Payload;
 } CFE_EVS_AppNameEventIDCmd_t;
 
@@ -1084,7 +1084,7 @@ typedef struct {
 } CFE_EVS_AppNameBitMaskCmd_Payload_t;
 
 typedef struct {
-   uint8                     CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
    CFE_EVS_AppNameBitMaskCmd_Payload_t Payload;
 } CFE_EVS_AppNameBitMaskCmd_t;
 
@@ -1110,7 +1110,7 @@ typedef struct {
 } CFE_EVS_AppNameEventIDMaskCmd_Payload_t;
 
 typedef struct {
-   uint8                                    CmdHeader[CFE_SB_CMD_HDR_SIZE];
+   CFE_SB_CmdHdr_t CmdHeader;
    CFE_EVS_AppNameEventIDMaskCmd_Payload_t  Payload;
 } CFE_EVS_AppNameEventIDMaskCmd_t;
 
@@ -1181,7 +1181,7 @@ typedef struct {
 } CFE_EVS_HousekeepingTlm_Payload_t;
 
 typedef struct {
-   uint8                    TlmHeader[CFE_SB_TLM_HDR_SIZE];
+   CFE_SB_TlmHdr_t TlmHeader;
    CFE_EVS_HousekeepingTlm_Payload_t Payload;
 } CFE_EVS_HousekeepingTlm_t;
 
@@ -1224,13 +1224,13 @@ typedef struct {
 } CFE_EVS_ShortEventTlm_Payload_t;
 
 typedef struct {
-   uint8                    TlmHeader[CFE_SB_TLM_HDR_SIZE];
+   CFE_SB_TlmHdr_t TlmHeader;
    CFE_EVS_LongEventTlm_Payload_t Payload;
 
 } CFE_EVS_LongEventTlm_t;
 
 typedef struct {
-   uint8                    TlmHeader[CFE_SB_TLM_HDR_SIZE];
+   CFE_SB_TlmHdr_t TlmHeader;
    CFE_EVS_ShortEventTlm_Payload_t Payload;
 
 } CFE_EVS_ShortEventTlm_t;
