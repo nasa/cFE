@@ -181,7 +181,7 @@ void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
   
   CCSDS_WR_SUBSYSTEM_ID(MsgPtr->SpacePacket.ApidQ, CFE_SB_RD_SUBSYS_ID_FROM_MSGID(MsgIdVal));
   
-  CCSDS_WR_SYSTEM_ID(MsgPtr->SpacePacket.ApidQ, CFE_SPACECRAFT_ID);
+  CCSDS_WR_SYSTEM_ID(MsgPtr->SpacePacket.ApidQ, CFE_MISSION_SPACECRAFT_ID);
 
 #endif 
 }/* end CFE_SB_SetMsgId */
