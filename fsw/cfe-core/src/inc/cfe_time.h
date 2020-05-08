@@ -535,7 +535,7 @@ CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_
 ** \return Spacecraft Time (UTC or TAI) corresponding to the specified MET
 **
 ** \sa #CFE_TIME_GetMET, #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs,
-**     #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs, #CFE_TIME_CFE2FSSeconds, #CFE_TIME_FS2CFESeconds
+**     #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs
 **
 ******************************************************************************/
 CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime);
@@ -556,7 +556,6 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime);
 ** \return The equivalent number of microseconds.
 **
 ** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Micro2SubSecs, 
-**     #CFE_TIME_CFE2FSSeconds, #CFE_TIME_FS2CFESeconds
 **
 ******************************************************************************/
 uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds);
@@ -579,14 +578,17 @@ uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds);
 **         value is equal to \c 0xffffffff.
 **
 ** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Sub2MicroSecs, 
-**     #CFE_TIME_CFE2FSSeconds, #CFE_TIME_FS2CFESeconds
 **
 ******************************************************************************/
 uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);
 
+#ifndef CFE_OMIT_DEPRECATED_6_7
 /*****************************************************************************/
 /**
-** \brief Converts cFE seconds into the File System's seconds
+** \brief DEPRECATED: Converts cFE seconds into the File System's seconds
+** \deprecated Utilize #CFE_FS_Header_t time fields for the creation
+**             time in mission format, or syncronize local OS time
+**             with mission time for use with stat command.
 **
 ** \par Description
 **        File systems use specific time epochs for their time tagging of files.
@@ -612,7 +614,10 @@ uint32 CFE_TIME_CFE2FSSeconds(uint32 SecondsCFE);
 
 /*****************************************************************************/
 /**
-** \brief Converts a file system's seconds into cFE seconds
+** \brief DEPRECATED: Converts a file system's seconds into cFE seconds
+** \deprecated Utilize #CFE_FS_Header_t time fields for the creation
+**             time in mission format, or syncronize local OS time
+**             with mission time for use with stat command.
 **
 ** \par Description
 **        File systems use specific time epochs for their time tagging of files.
@@ -635,6 +640,7 @@ uint32 CFE_TIME_CFE2FSSeconds(uint32 SecondsCFE);
 **
 ******************************************************************************/
 uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS);
+#endif /* CFE_OMIT_DEPRECATED_6_7 */
 /**@}*/
 
 /** @defgroup CFEAPITIMEExternSource cFE External Time Source APIs
