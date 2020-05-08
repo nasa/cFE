@@ -112,7 +112,7 @@ void Test_CFE_FS_ReadHeader(void)
 
     /* Test successfully reading the header */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_FS_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_SUCCESS);
     UT_SetForceFail(UT_KEY(OS_read), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_ReadHeader(&Hdr, FileDes) != sizeof(CFE_FS_Header_t),
@@ -142,10 +142,10 @@ void Test_CFE_FS_WriteHeader(void)
 
     /* Test successfully writing the header */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_FS_SUCCESS);
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_FS_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_SUCCESS);
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_WriteHeader(FileDes, &Hdr) == OS_FS_SUCCESS,
+              CFE_FS_WriteHeader(FileDes, &Hdr) == OS_SUCCESS,
               "CFE_FS_WriteHeader",
               "Header write - successful");
 }
@@ -166,7 +166,7 @@ void Test_CFE_FS_SetTimestamp(void)
     UT_InitData();
     UT_SetForceFail(UT_KEY(OS_lseek), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_SetTimestamp(FileDes, NewTimestamp) == OS_FS_ERROR,
+              CFE_FS_SetTimestamp(FileDes, NewTimestamp) == OS_ERROR,
               "CFE_FS_SetTimestamp",
               "Failed to lseek time fields");
 
@@ -189,7 +189,7 @@ void Test_CFE_FS_SetTimestamp(void)
     /* Test successfully setting the time stamp */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_FS_SetTimestamp(FileDes, NewTimestamp) == OS_FS_SUCCESS,
+              CFE_FS_SetTimestamp(FileDes, NewTimestamp) == OS_SUCCESS,
               "CFE_FS_SetTimestamp",
               "Write time stamp - successful");
 }
@@ -506,7 +506,7 @@ void Test_CFE_FS_Decompress(void)
     /* Test filling the input buffer with a FS error  */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 4);
-    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, OS_FS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               FS_gz_fill_inbuf_Reentrant(&UT_FS_Decompress_State) == EOF,
               "FS_gz_fill_inbuf",

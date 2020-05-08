@@ -60,11 +60,9 @@
 **   
 **  \par Limits
 **      All versions of the cFE currently support only CCSDS as the message format
-**      Defining only MESSAGE_FORMAT_IS_CCSDS implements the 11 bit APID format in the primary header
-**      Also defining MESSAGE_FORMAT_IS_CCSDS_VER_2 implements the APID extended header format
-**      MESSAGE_FORMAT_IS_CCSDS must be defined for all cFE deployments. MESSAGE_FORMAT_IS_CCSDS_VER_2 is optional
+**      Defining MESSAGE_FORMAT_IS_CCSDS_VER_2 implements the APID extended header format
+**      MESSAGE_FORMAT_IS_CCSDS_VER_2 is optional
 */
-#define MESSAGE_FORMAT_IS_CCSDS
 /* #define MESSAGE_FORMAT_IS_CCSDS_VER_2 */
 #undef MESSAGE_FORMAT_IS_CCSDS_VER_2
 
@@ -423,6 +421,8 @@
 #define CFE_MISSION_SB_SEND_HK_MSG      11
 #define CFE_MISSION_TBL_SEND_HK_MSG     12
 #define CFE_MISSION_TIME_SEND_HK_MSG    13
+
+#define CFE_MISSION_SB_SUB_RPT_CTRL_MSG 14
 
 #define CFE_MISSION_TIME_TONE_CMD_MSG   16
 #define CFE_MISSION_TIME_1HZ_CMD_MSG    17

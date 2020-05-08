@@ -259,12 +259,18 @@ endfunction(cfs_app_do_install)
 #
 function(prepare)
 
-  # Generate the "osconfig.h" wrapper file as indicated by the configuration
-  # If specific system config options were not specified, use defaults
-  if (NOT OSAL_SYSTEM_OSCONFIG)
-    set(OSAL_SYSTEM_OSCONFIG default)
-  endif (NOT OSAL_SYSTEM_OSCONFIG)    
-  generate_config_includefile("inc/osconfig.h" osconfig.h ${OSAL_SYSTEM_OSCONFIG} ${TARGETSYSTEM})
+  # Choose the configuration file to use for OSAL on this system
+  set(OSAL_CONFIGURATION_FILE)
+  if (EXISTS "${MISSION_DEFS}/default_osconfig.cmake")
+    list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/default_osconfig.cmake")
+  endif()
+  if (DEFINED OSAL_SYSTEM_OSCONFIG AND EXISTS "${MISSION_DEFS}/${OSAL_SYSTEM_OSCONFIG}_osconfig.cmake")
+    list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/${OSAL_SYSTEM_OSCONFIG}_osconfig.cmake")
+  endif()
+  if (EXISTS "${MISSION_DEFS}/${TARGETSYSTEM}_osconfig.cmake")
+    list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/${TARGETSYSTEM}_osconfig.cmake")
+  endif()
+  set(OSAL_CONFIGURATION_FILE ${OSAL_CONFIGURATION_FILE} PARENT_SCOPE)
 
   # Allow sources to "ifdef" certain things if running on simulated hardware
   # This should be used sparingly, typically to fake access to hardware that is not present
@@ -272,21 +278,19 @@ function(prepare)
     add_definitions(-DSIMULATION=${SIMULATION})
   endif (SIMULATION)
   
-  # Check that PSPNAME, BSPTYPE, and OSTYPE are set properly for this arch
-  if (NOT CFE_SYSTEM_PSPNAME OR NOT OSAL_SYSTEM_OSTYPE)
+  # Check that PSPNAME is set properly for this arch
+  if (NOT CFE_SYSTEM_PSPNAME)
     if (CMAKE_CROSSCOMPILING)
-      message(FATAL_ERROR "Cross-compile toolchain ${CMAKE_TOOLCHAIN_FILE} must define CFE_SYSTEM_PSPNAME and OSAL_SYSTEM_OSTYPE")
+      message(FATAL_ERROR "Cross-compile toolchain ${CMAKE_TOOLCHAIN_FILE} must define CFE_SYSTEM_PSPNAME")
     elseif ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" OR 
             "${CMAKE_SYSTEM_NAME}" STREQUAL "CYGWIN")
       # Export the variables determined here up to the parent scope
       SET(CFE_SYSTEM_PSPNAME      "pc-linux" PARENT_SCOPE)
-      SET(OSAL_SYSTEM_BSPTYPE     "pc-linux" PARENT_SCOPE)
-      SET(OSAL_SYSTEM_OSTYPE      "posix"    PARENT_SCOPE)
     else ()
       # Not cross compiling and host system is not recognized
-      message(FATAL_ERROR "Do not know how to set CFE_SYSTEM_PSPNAME and OSAL_SYSTEM_OSTYPE on ${CMAKE_SYSTEM_NAME} system")
+      message(FATAL_ERROR "Do not know how to set CFE_SYSTEM_PSPNAME on ${CMAKE_SYSTEM_NAME} system")
     endif()
-  endif (NOT CFE_SYSTEM_PSPNAME OR NOT OSAL_SYSTEM_OSTYPE)
+  endif (NOT CFE_SYSTEM_PSPNAME)
   
   # Truncate the global TGTSYS_LIST to be only the target architecture
   set(TGTSYS_LIST ${TARGETSYSTEM} PARENT_SCOPE)
@@ -318,9 +322,22 @@ function(process_arch SYSVAR)
     endif(NOT TGTNAME)
     list(APPEND INSTALL_TARGET_LIST ${TGTNAME})
   endforeach()
+  
+  # Assume use of an OSAL BSP of the same name as the CFE PSP
+  # This can be overridden by the PSP-specific build_options but normally this is expected.
+  set(CFE_PSP_EXPECTED_OSAL_BSPTYPE ${CFE_SYSTEM_PSPNAME})
        
   # Include any specific compiler flags or config from the selected PSP
   include(${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/make/build_options.cmake)
+  
+  if (NOT DEFINED OSAL_SYSTEM_BSPTYPE)
+      # Implicitly use the OSAL BSP that corresponds with the CFE PSP
+      set(OSAL_SYSTEM_BSPTYPE ${CFE_PSP_EXPECTED_OSAL_BSPTYPE})
+  elseif (NOT OSAL_SYSTEM_BSPTYPE STREQUAL CFE_PSP_EXPECTED_OSAL_BSPTYPE)
+      # Generate a warning about the BSPTYPE not being expected.
+      # Not calling this a fatal error because it could possibly be intended during development
+      message(WARNING "Mismatched PSP/BSP: ${CFE_SYSTEM_PSPNAME} implies ${CFE_PSP_EXPECTED_OSAL_BSPTYPE}, but ${OSAL_SYSTEM_BSPTYPE} is configured")
+  endif()
     
   # The "inc" directory in the binary dir contains the generated wrappers, if any
   include_directories(${MISSION_BINARY_DIR}/inc)
@@ -347,7 +364,7 @@ function(process_arch SYSVAR)
   get_target_property(OSAL_INCLUDE_DIRECTORIES osal INTERFACE_INCLUDE_DIRECTORIES)
 
   if (OSAL_COMPILE_DEFINITIONS)
-    set_directory_properties(PROPERTIES COMPILE_DEFINITIONS "${OSAL_COMPILE_DEFINITIONS}")
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "${OSAL_COMPILE_DEFINITIONS}")
   endif (OSAL_COMPILE_DEFINITIONS)
   if (OSAL_INCLUDE_DIRECTORIES)
     include_directories(${OSAL_INCLUDE_DIRECTORIES})
@@ -361,11 +378,13 @@ function(process_arch SYSVAR)
   file(APPEND "${MISSION_BINARY_DIR}/doc/mission-content.doxyfile" 
     "PREDEFINED += ${DOXYGEN_DEFINED_MACROS}\n"
     "INPUT += ${MISSION_SOURCE_DIR}/osal/src/os/${OSAL_SYSTEM_OSTYPE}\n"
-    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}\n")
+    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}\n"
+    "INPUT += ${CMAKE_BINARY_DIR}/inc")
 
   # Append to usersguide.doxyfile
   file(APPEND "${MISSION_BINARY_DIR}/doc/cfe-usersguide.doxyfile" 
-    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/src\n")
+    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/src\n"
+    "INPUT += ${CMAKE_BINARY_DIR}/inc")
    
   # The PSP and/or OSAL should have defined where to install the binaries.
   # If not, just install them in /cf as a default (this can be modified 

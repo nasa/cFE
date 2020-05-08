@@ -112,7 +112,7 @@
 */
 CFE_SB_MsgKey_t CFE_SB_ConvertMsgIdtoMsgKey( CFE_SB_MsgId_t MsgId)
 {
-    return CFE_SB_ValueToMsgKey(MsgId);
+    return CFE_SB_ValueToMsgKey(CFE_SB_MsgIdToValue(MsgId));
 }/* CFE_SB_ConvertMsgIdtoMsgKey */
 
 /*
@@ -120,24 +120,22 @@ CFE_SB_MsgKey_t CFE_SB_ConvertMsgIdtoMsgKey( CFE_SB_MsgId_t MsgId)
  */
 CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
 {
-   CFE_SB_MsgId_t MsgId = 0;
-
-#ifdef MESSAGE_FORMAT_IS_CCSDS
+   CFE_SB_MsgId_Atom_t MsgIdVal = 0;
 
 #ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2  
-    MsgId = CCSDS_RD_SID(MsgPtr->Hdr);
+    MsgIdVal = CCSDS_RD_SID(MsgPtr->Hdr);
 #else
 
     uint32            SubSystemId;
 
-    MsgId = CCSDS_RD_APID(MsgPtr->Hdr); /* Primary header APID  */
+    MsgIdVal = CCSDS_RD_APID(MsgPtr->Hdr); /* Primary header APID  */
      
     if ( CCSDS_RD_TYPE(MsgPtr->Hdr) == CCSDS_CMD)
-      MsgId = MsgId | CFE_SB_CMD_MESSAGE_TYPE;  
+      MsgIdVal = MsgIdVal | CFE_SB_CMD_MESSAGE_TYPE;  
 
     /* Add in the SubSystem ID as needed */
     SubSystemId = CCSDS_RD_SUBSYSTEM_ID(MsgPtr->SpacePacket.ApidQ);
-    MsgId = (MsgId | (SubSystemId << 8));
+    MsgIdVal = (MsgIdVal | (SubSystemId << 8));
 
 /* Example code to add in the System ID as needed. */
 /*   The default is to init this field to the Spacecraft ID but ignore for routing.   */
@@ -145,12 +143,11 @@ CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
 /*   prohibitively large routing and index tables. */
 /*      uint16            SystemId;                              */
 /*      SystemId = CCSDS_RD_SYSTEM_ID(HdrPtr->ApidQ);            */
-/*      MsgId = (MsgId | (SystemId << 16)); */
+/*      MsgIdVal = (MsgIdVal | (SystemId << 16)); */
 
 #endif
-#endif
 
-return MsgId;
+return CFE_SB_ValueToMsgId(MsgIdVal);
 
 }/* end CFE_SB_GetMsgId */
 
@@ -161,16 +158,17 @@ return MsgId;
 void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
                      CFE_SB_MsgId_t MsgId)
 {
+    CFE_SB_MsgId_Atom_t MsgIdVal = CFE_SB_MsgIdToValue(MsgId);
 
 #ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2  
-    CCSDS_WR_SID(MsgPtr->Hdr, MsgId);
+    CCSDS_WR_SID(MsgPtr->Hdr, MsgIdVal);
 #else
   CCSDS_WR_VERS(MsgPtr->SpacePacket.Hdr, 1);
 
   /* Set the stream ID APID in the primary header. */
-  CCSDS_WR_APID(MsgPtr->SpacePacket.Hdr, CFE_SB_RD_APID_FROM_MSGID(MsgId) );
+  CCSDS_WR_APID(MsgPtr->SpacePacket.Hdr, CFE_SB_RD_APID_FROM_MSGID(MsgIdVal) );
   
-  CCSDS_WR_TYPE(MsgPtr->SpacePacket.Hdr, CFE_SB_RD_TYPE_FROM_MSGID(MsgId) );
+  CCSDS_WR_TYPE(MsgPtr->SpacePacket.Hdr, CFE_SB_RD_TYPE_FROM_MSGID(MsgIdVal) );
   
   
   CCSDS_CLR_SEC_APIDQ(MsgPtr->SpacePacket.ApidQ);
@@ -181,9 +179,9 @@ void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
   
   CCSDS_WR_PLAYBACK(MsgPtr->SpacePacket.ApidQ, false);
   
-  CCSDS_WR_SUBSYSTEM_ID(MsgPtr->SpacePacket.ApidQ, CFE_SB_RD_SUBSYS_ID_FROM_MSGID(MsgId));
+  CCSDS_WR_SUBSYSTEM_ID(MsgPtr->SpacePacket.ApidQ, CFE_SB_RD_SUBSYS_ID_FROM_MSGID(MsgIdVal));
   
-  CCSDS_WR_SYSTEM_ID(MsgPtr->SpacePacket.ApidQ, CFE_SPACECRAFT_ID);
+  CCSDS_WR_SYSTEM_ID(MsgPtr->SpacePacket.ApidQ, CFE_MISSION_SPACECRAFT_ID);
 
 #endif 
 }/* end CFE_SB_SetMsgId */
@@ -194,7 +192,7 @@ void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
 uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
 {
 
-  CFE_SB_MsgId_Atom_t Val = MsgId;
+  CFE_SB_MsgId_Atom_t Val = CFE_SB_MsgIdToValue(MsgId);
   uint8 PktType;
 
   if (CFE_SB_IsValidMsgId(MsgId))
@@ -221,3 +219,15 @@ uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
   return PktType;
 
 }/* end CFE_SB_GetPktType */
+
+/*
+ * Function: CFE_SB_IsValidMsgId - See API and header file for details
+ */
+bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)
+{
+    return (!CFE_SB_MsgId_Equal(MsgId, CFE_SB_INVALID_MSG_ID) &&
+            CFE_SB_MsgIdToValue(MsgId) <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
+} /* end CFE_SB_IsValidMsgId */
+
+
+

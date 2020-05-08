@@ -277,7 +277,7 @@ typedef struct
   /*
   ** Local 1Hz wake-up command packet (not related to time at tone)...
   */
-  CCSDS_CommandPacket_t Local1HzCmd;
+  CFE_SB_CmdHdr_t Local1HzCmd;
 
   /*
   ** Time at the tone command packets (sent by time servers)...
@@ -294,7 +294,7 @@ typedef struct
    * "tone signal" message above.
    */
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
-  CCSDS_CommandPacket_t  ToneSendCmd;
+  CFE_SB_CmdHdr_t  ToneSendCmd;
 #endif
 
   /*
@@ -460,7 +460,6 @@ void CFE_TIME_NotifyTimeSynchApps(void);
 /*
 ** Function prototypes (local 1Hz interrupt)...
 */
-void CFE_TIME_Local1HzISR(void);
 void CFE_TIME_Local1HzTask(void);
 void CFE_TIME_Local1HzStateMachine(void);
 void CFE_TIME_Local1HzTimerCallback(uint32 TimerId, void *Arg);

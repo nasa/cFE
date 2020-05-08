@@ -36,7 +36,7 @@ function(initialize_globals)
     # this is the parent (mission) build and variable values must be determined
     # Obtain the "real" top-level source directory and set it in parent scope
     if (NOT DEFINED MISSION_SOURCE_DIR)
-      get_filename_component(MISSION_SOURCE_DIR "${CMAKE_SOURCE_DIR}/.." ABSOLUTE)
+      get_filename_component(MISSION_SOURCE_DIR "${CFE_SOURCE_DIR}/.." ABSOLUTE)
       set(MISSION_SOURCE_DIR ${MISSION_SOURCE_DIR} CACHE PATH "Top level mission source directory")
     endif(NOT DEFINED MISSION_SOURCE_DIR)
 
@@ -211,38 +211,39 @@ function(prepare)
   file(WRITE "${CMAKE_BINARY_DIR}/doc/mission-content.doxyfile"
       ${MISSION_DOXYFILE_USER_CONTENT})
       
-  configure_file("${CMAKE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
+  configure_file("${CFE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/cfe-common.doxyfile")
  
- configure_file("${CMAKE_SOURCE_DIR}/cmake/osal-common.doxyfile.in"
+  configure_file("${CFE_SOURCE_DIR}/cmake/osal-common.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/osal-common.doxyfile")
    
-  configure_file("${CMAKE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"
+  configure_file("${CFE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/mission-detaildesign.doxyfile")
+
+  # Generate an "empty" osconfig.h file for doxygen purposes
+  # this does not have the actual user-defined values, but will
+  # have the documentation associated with each macro definition.
+  configure_file("${osal_MISSION_DIR}/osconfig.h.in"
+    "${CMAKE_BINARY_DIR}/doc/osconfig-example.h")
     
   # The user guide should include the doxygen from the _public_ API files from CFE + OSAL
   file(GLOB MISSION_USERGUIDE_HEADERFILES 
     "${cfe-core_MISSION_DIR}/src/inc/*.h"
     "${osal_MISSION_DIR}/src/os/inc/*.h"
+    "${CMAKE_BINARY_DIR}/doc/osconfig-example.h"
     "${MISSION_SOURCE_DIR}/psp/fsw/inc/*.h")
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}") 
 
   # OSAL API GUIDE include PUBLIC API
   file(GLOB MISSION_OSAL_HEADERFILES 
-    "${osal_MISSION_DIR}/src/os/inc/*.h")
+    "${osal_MISSION_DIR}/src/os/inc/*.h"
+    "${CMAKE_BINARY_DIR}/doc/osconfig-example.h")
   string(REPLACE ";" " \\\n" MISSION_OSAL_HEADERFILES "${MISSION_OSAL_HEADERFILES}") 
 
-  # PREDEFINED
-  set(USERGUIDE_PREDEFINED 
-      "MESSAGE_FORMAT_IS_CCSDS")
-
-  set(OSALGUIDE_PREDEFINED 
-      "MESSAGE_FORMAT_IS_CCSDS")
- 
-  configure_file("${CMAKE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
+  configure_file("${CFE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/cfe-usersguide.doxyfile")
 
-  configure_file("${CMAKE_SOURCE_DIR}/cmake/osalguide.doxyfile.in"
+  configure_file("${CFE_SOURCE_DIR}/cmake/osalguide.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/osalguide.doxyfile")  
     
   add_custom_target(mission-doc 
@@ -294,7 +295,7 @@ function(prepare)
   add_custom_target(mission-version
     COMMAND 
         ${CMAKE_COMMAND} -D BIN=${CMAKE_BINARY_DIR}
-                         -P ${CMAKE_SOURCE_DIR}/cmake/version.cmake
+                         -P ${CFE_SOURCE_DIR}/cmake/version.cmake
     WORKING_DIRECTORY 
       ${CMAKE_SOURCE_DIR}                             
   )
@@ -337,8 +338,8 @@ function(process_arch TARGETSYSTEM)
     # Find the toolchain file - allow a file in the mission defs dir to supercede one in the compile dir
     if (EXISTS ${MISSION_DEFS}/toolchain-${CURRSYS}.cmake)
       set(TOOLCHAIN_FILE ${MISSION_DEFS}/toolchain-${CURRSYS}.cmake)
-    elseif(EXISTS ${CMAKE_SOURCE_DIR}/cmake/toolchain-${CURRSYS}.cmake)
-      set(TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchain-${CURRSYS}.cmake)
+    elseif(EXISTS ${CFE_SOURCE_DIR}/cmake/toolchain-${CURRSYS}.cmake)
+      set(TOOLCHAIN_FILE ${CFE_SOURCE_DIR}/cmake/toolchain-${CURRSYS}.cmake)
     else()
       message(FATAL_ERROR "Unable to find toolchain file for ${CURRSYS}")
     endif()
@@ -357,7 +358,7 @@ function(process_arch TARGETSYSTEM)
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         ${SELECTED_TOOLCHAIN_FILE}
-        ${CMAKE_SOURCE_DIR} 
+        ${CFE_SOURCE_DIR}
     WORKING_DIRECTORY 
         "${ARCH_BINARY_DIR}" 
     RESULT_VARIABLE 

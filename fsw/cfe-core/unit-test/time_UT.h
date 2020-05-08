@@ -155,27 +155,6 @@ void Test_ConvertTime(void);
 
 /*****************************************************************************/
 /**
-** \brief Test function for converting cFE seconds to file system (FS) seconds
-**        and vice versa
-**
-** \par Description
-**        This function tests the function for converting cFE seconds to file
-**        system (FS) seconds and vice versa.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TIME_CFE2FSSeconds,
-** \sa #CFE_TIME_FS2CFESeconds
-**
-******************************************************************************/
-void Test_ConvertCFEFS(void);
-
-/*****************************************************************************/
-/**
 ** \brief Test function for creating a text string representing the date
 **        and time
 **

@@ -364,7 +364,8 @@ void EVS_GenerateEventTelemetry(uint32 AppID, uint16 EventID, uint16 EventType, 
     int                      ExpandedLength;
 
     /* Initialize EVS event packets */
-    CFE_SB_InitMsg(&LongEventTlm, CFE_EVS_LONG_EVENT_MSG_MID, sizeof(LongEventTlm), true);
+    CFE_SB_InitMsg(&LongEventTlm, CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
+                   sizeof(LongEventTlm), true);
     LongEventTlm.Payload.PacketID.EventID   = EventID;
     LongEventTlm.Payload.PacketID.EventType = EventType;
 
@@ -408,7 +409,8 @@ void EVS_GenerateEventTelemetry(uint32 AppID, uint16 EventID, uint16 EventType, 
          *
          * This goes out on a separate message ID.
          */
-        CFE_SB_InitMsg(&ShortEventTlm, CFE_EVS_SHORT_EVENT_MSG_MID, sizeof(ShortEventTlm), true);
+        CFE_SB_InitMsg(&ShortEventTlm, CFE_SB_ValueToMsgId(CFE_EVS_SHORT_EVENT_MSG_MID),
+                       sizeof(ShortEventTlm), true);
         CFE_SB_SetMsgTime((CFE_SB_Msg_t *) &ShortEventTlm, *TimeStamp);
         ShortEventTlm.Payload.PacketID = LongEventTlm.Payload.PacketID;
         CFE_SB_SendMsg((CFE_SB_Msg_t *) &ShortEventTlm);

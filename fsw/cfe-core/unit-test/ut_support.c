@@ -82,7 +82,8 @@ void UT_Init(const char *subsys)
     int8 i;
 
     /* Copy the application name for later use */
-    strncpy(UT_subsys, subsys, 5);
+    strncpy(UT_subsys, subsys, sizeof(UT_subsys)-1);
+    UT_subsys[sizeof(UT_subsys)-1] = 0;
     snprintf(UT_appname, 80, "ut_cfe_%s", subsys);
 
     /* Convert to upper case */
@@ -232,8 +233,7 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_MsgPtr_t), CFE_SB_MsgPtr_t Msg,
      * macros (not stubs) to read this info direct from
      * the buffer.
      */
-    CCSDS_WR_LEN(Msg->Hdr, MsgSize);
-    CCSDS_WR_SHDR(Msg->Hdr, 1);
+    CFE_SB_SetTotalMsgLength(Msg, MsgSize);
     CFE_SB_SetMsgId(Msg, DispatchId.MsgId);
     CFE_SB_SetCmdCode(Msg, DispatchId.CommandCode);
 
@@ -258,7 +258,7 @@ int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCo
     }
 
     if (MsgPtr != NULL && Snapshot != NULL &&
-            Snapshot->MsgId == CFE_SB_GetMsgId((CFE_SB_MsgPtr_t)MsgPtr))
+            CFE_SB_MsgId_Equal(Snapshot->MsgId, CFE_SB_GetMsgId((CFE_SB_MsgPtr_t)MsgPtr)))
     {
         ++Snapshot->Count;
         if (Snapshot->SnapshotSize > 0 && Snapshot->SnapshotBuffer != NULL)

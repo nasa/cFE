@@ -678,261 +678,220 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
     int32                       Status;
     uint32                      ThisAppId;
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
-    CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_AccessDescriptor_t *AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
+    CFE_TBL_RegistryRec_t      *RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
     char                        AppName[OS_MAX_API_NAME]={"UNKNOWN"};
-    uint16                      EventMsgType = CFE_EVS_EventType_INFORMATION;
     bool                        FirstTime = false;
-
-
-    /* Initialize return pointer to NULL */
-    WorkingBufferPtr = NULL;
 
     /* Verify access rights and get a valid Application ID for calling App */
     Status = CFE_TBL_ValidateAccess(TblHandle, &ThisAppId);
 
-    if (Status == CFE_SUCCESS)
+    /* Translate AppID of caller into App Name */
+    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+
+    /* Initialize return pointer to NULL */
+    WorkingBufferPtr = NULL;
+
+    if (Status != CFE_SUCCESS)
     {
-        /* Get pointers to pertinent records in registry and handles */
-        AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
-        RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
+        CFE_EVS_SendEventWithAppID(CFE_TBL_HANDLE_ACCESS_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_TBL_TaskData.TableTaskAppId,
+            "%s: No access to Tbl Handle=%d", AppName, (int)TblHandle);
 
-        /* Check to see if this is a dump only table */
-        if (RegRecPtr->DumpOnly)
+        return Status;
+    }
+
+    /* Check to see if this is a dump only table */
+    if (RegRecPtr->DumpOnly)
+    {
+        if ((!RegRecPtr->UserDefAddr) ||(RegRecPtr->TableLoadedOnce))
         {
-            if ((RegRecPtr->UserDefAddr) && (!RegRecPtr->TableLoadedOnce))
-            {
-                /* The Application is allowed to call Load once when the address  */
-                /* of the dump only table is being defined by the application.    */
-                RegRecPtr->Buffers[0].BufferPtr = (void *)SrcDataPtr;
-                RegRecPtr->TableLoadedOnce = true;
-                
-                snprintf(RegRecPtr->Buffers[0].DataSource, sizeof(RegRecPtr->Buffers[0].DataSource), 
-                     "Addr 0x%08lX", (unsigned long)SrcDataPtr);
-                RegRecPtr->Buffers[0].FileCreateTimeSecs = 0;
-                RegRecPtr->Buffers[0].FileCreateTimeSubSecs = 0;
+            CFE_EVS_SendEventWithAppID(CFE_TBL_LOADING_A_DUMP_ONLY_ERR_EID,
+                CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+                "%s: Attempted to load Dump Only Tbl '%s'", AppName, RegRecPtr->Name);
 
-                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID,
-                                           CFE_EVS_EventType_DEBUG,
-                                           CFE_TBL_TaskData.TableTaskAppId,
-                                           "Successfully loaded '%s' from '%s'",
-                                           RegRecPtr->Name,
-                                           RegRecPtr->Buffers[0].DataSource);
-            }
-            else
-            {
-                Status = CFE_TBL_ERR_DUMP_ONLY;
-
-                CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) attempted to load Dump Only Tbl '%s'\n",
-                                     (int)ThisAppId, RegRecPtr->Name);
-            }     
+            return CFE_TBL_ERR_DUMP_ONLY;
         }
-        else
+
+        /* The Application is allowed to call Load once when the address  */
+        /* of the dump only table is being defined by the application.    */
+        RegRecPtr->Buffers[0].BufferPtr = (void *)SrcDataPtr;
+        RegRecPtr->TableLoadedOnce = true;
+        
+        snprintf(RegRecPtr->Buffers[0].DataSource, sizeof(RegRecPtr->Buffers[0].DataSource), 
+             "Addr 0x%08lX", (unsigned long)SrcDataPtr);
+        RegRecPtr->Buffers[0].FileCreateTimeSecs = 0;
+        RegRecPtr->Buffers[0].FileCreateTimeSubSecs = 0;
+
+        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID,
+                                   CFE_EVS_EventType_DEBUG,
+                                   CFE_TBL_TaskData.TableTaskAppId,
+                                   "Successfully loaded '%s' from '%s'",
+                                   RegRecPtr->Name,
+                                   RegRecPtr->Buffers[0].DataSource);
+
+        return CFE_SUCCESS;
+    }
+
+    /* Loads by an Application are not allowed if a table load is already in progress */
+    if (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
+    {
+        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_IN_PROGRESS_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_TBL_TaskData.TableTaskAppId,
+            "%s: Load already in progress for '%s'", AppName, RegRecPtr->Name);
+
+        return CFE_TBL_ERR_LOAD_IN_PROGRESS;
+    }
+
+    /* Obtain a working buffer (either the table's dedicated buffer or one of the shared buffers) */
+    Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, true);
+
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_EVS_SendEventWithAppID(CFE_TBL_NO_WORK_BUFFERS_ERR_EID, CFE_EVS_EventType_ERROR,
+            CFE_TBL_TaskData.TableTaskAppId,
+            "%s: Failed to get Working Buffer (Stat=%u)", AppName, (unsigned int)Status);
+
+        return Status;
+    }
+
+    /* Perform appropriate update to working buffer */
+    /* Determine whether the load is to occur from a file or from a block of memory */
+    switch(SrcType)
+    {
+        case CFE_TBL_SRC_FILE:
+            /* Load the data from the file into the specified buffer */
+            Status = CFE_TBL_LoadFromFile(AppName, WorkingBufferPtr, RegRecPtr, (const char *)SrcDataPtr);
+
+            if ((Status == CFE_TBL_WARN_PARTIAL_LOAD) && (!RegRecPtr->TableLoadedOnce))
+            {
+                /* Uninitialized tables cannot be loaded with partial table loads */
+                /* Partial loads can only occur on previously loaded tables.      */
+                CFE_EVS_SendEventWithAppID(CFE_TBL_PARTIAL_LOAD_ERR_EID, CFE_EVS_EventType_ERROR,
+                    CFE_TBL_TaskData.TableTaskAppId,
+                    "%s: Attempted to load from partial Tbl '%s' from '%s' (Stat=%u)",
+                    AppName, RegRecPtr->Name, (const char *)SrcDataPtr, (unsigned int)Status);
+
+                Status = CFE_TBL_ERR_PARTIAL_LOAD;
+            }
+
+            break;
+        case CFE_TBL_SRC_ADDRESS:
+            /* When the source is a block of memory, it is assumed to be a complete load */
+            memcpy(WorkingBufferPtr->BufferPtr,
+                      (uint8 *)SrcDataPtr,
+                      RegRecPtr->Size);
+
+            snprintf(WorkingBufferPtr->DataSource, sizeof(WorkingBufferPtr->DataSource), "Addr 0x%08lX", (unsigned long)SrcDataPtr);
+            WorkingBufferPtr->FileCreateTimeSecs = 0;
+            WorkingBufferPtr->FileCreateTimeSubSecs = 0;
+            
+            /* Compute the CRC on the specified table buffer */
+            WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr,
+                                                        RegRecPtr->Size,
+                                                        0,
+                                                        CFE_MISSION_ES_DEFAULT_CRC);
+
+            break;
+        default:
+            CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_TYPE_ERR_EID, CFE_EVS_EventType_ERROR,
+                CFE_TBL_TaskData.TableTaskAppId,
+                "%s: Attempted to load from illegal source type=%d", AppName, (int)SrcType);
+                                                                 
+            Status = CFE_TBL_ERR_ILLEGAL_SRC_TYPE;
+    }
+
+    /* If the data was successfully loaded, then validate its contents */
+    if ((Status >= CFE_SUCCESS) && (RegRecPtr->ValidationFuncPtr != NULL))
+    {
+        Status = (RegRecPtr->ValidationFuncPtr)(WorkingBufferPtr->BufferPtr);
+
+        if (Status > CFE_SUCCESS)
         {
-            /* Loads by an Application are not allowed if a table load is already in progress */
-            if (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
-            {
-                Status = CFE_TBL_ERR_LOAD_IN_PROGRESS;
+            CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_VAL_ERR_EID, CFE_EVS_EventType_ERROR,
+                CFE_TBL_TaskData.TableTaskAppId,
+                "%s: Validation func return code invalid (Stat=%u) for '%s'",
+                AppName, (unsigned int)Status, RegRecPtr->Name);
 
-                CFE_ES_WriteToSysLog("CFE_TBL:Load-Tbl Load already in progress for '%s'\n", RegRecPtr->Name);
-            }
-            else
-            {
-                /* Obtain a working buffer (either the table's dedicated buffer or one of the shared buffers) */
-                Status = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, true);
+            Status = -1;
+        }
 
-                if (Status == CFE_SUCCESS)
-                {
-                    /* Perform appropriate update to working buffer */
-                    /* Determine whether the load is to occur from a file or from a block of memory */
-                    if (SrcType == CFE_TBL_SRC_FILE)
-                    {
-                        /* Load the data from the file into the specified buffer */
-                        Status = CFE_TBL_LoadFromFile(WorkingBufferPtr, RegRecPtr, (const char *)SrcDataPtr);
+        if (Status < 0)
+        {
+            CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_ERR_EID, CFE_EVS_EventType_ERROR,
+                CFE_TBL_TaskData.TableTaskAppId,
+                "%s: Validation func reports table invalid (Stat=%u) for '%s'",
+                AppName, (unsigned int)Status, RegRecPtr->Name);
 
-                        if (Status < 0)
-                        {
-                            CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) Fail to load Tbl '%s' from '%s' (Stat=0x%08X)\n",
-                                                 (int)ThisAppId, RegRecPtr->Name, (const char *)SrcDataPtr, (unsigned int)Status);
-                        }
-                        else if ((Status == CFE_TBL_WARN_PARTIAL_LOAD) && (!RegRecPtr->TableLoadedOnce))
-                        {
-                            /* Uninitialized tables cannot be loaded with partial table loads */
-                            /* Partial loads can only occur on previously loaded tables.      */
-                            Status = CFE_TBL_ERR_PARTIAL_LOAD;
-                        }
-                    }
-                    else if (SrcType == CFE_TBL_SRC_ADDRESS)
-                    {
-                        /* When the source is a block of memory, it is assumed to be a complete load */
-                        memcpy(WorkingBufferPtr->BufferPtr,
-                                  (uint8 *)SrcDataPtr,
-                                  RegRecPtr->Size);
+            /* Zero out the buffer to remove any bad data */
+            memset(WorkingBufferPtr->BufferPtr, 0, RegRecPtr->Size);
+        }
+    }
 
-                        snprintf(WorkingBufferPtr->DataSource, sizeof(WorkingBufferPtr->DataSource), "Addr 0x%08lX", (unsigned long)SrcDataPtr);
-                        WorkingBufferPtr->FileCreateTimeSecs = 0;
-                        WorkingBufferPtr->FileCreateTimeSubSecs = 0;
-                        
-                        /* Compute the CRC on the specified table buffer */
-                        WorkingBufferPtr->Crc = CFE_ES_CalculateCRC(WorkingBufferPtr->BufferPtr,
-                                                                    RegRecPtr->Size,
-                                                                    0,
-                                                                    CFE_MISSION_ES_DEFAULT_CRC);
-                    }
-                    else
-                    {
-                        Status = CFE_TBL_ERR_ILLEGAL_SRC_TYPE;
-                        CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) attempt to load from illegal source type=%d\n",
-                                             (int)ThisAppId, (int)SrcType);
-                    }
+    /* Perform the table update to complete the load */
+    if (Status < CFE_SUCCESS)
+    {
+        /* The load has had a problem, free the working buffer for another attempt */
+        if ((!RegRecPtr->DoubleBuffered) && (RegRecPtr->TableLoadedOnce == true))
+        {
+            /* For single buffered tables, freeing entails resetting flag */
+            CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
+        }
 
-                    /* If the data was successfully loaded, then validate its contents */
-                    if ((Status >= CFE_SUCCESS) && (RegRecPtr->ValidationFuncPtr != NULL))
-                    {
-                        Status = (RegRecPtr->ValidationFuncPtr)(WorkingBufferPtr->BufferPtr);
+        /* For double buffered tables, freeing buffer is simple */
+        RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
 
-                        if (Status > CFE_SUCCESS)
-                        {
-                            CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
-                                                 (int)ThisAppId, (unsigned int)Status, RegRecPtr->Name);
-                            Status = -1;
-                        }
-                        
-                        if (Status < 0)
-                        {
-                            CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) reports load invalid (Stat=0x%08X) for '%s'\n",
-                                                 (int)ThisAppId, (unsigned int)Status, RegRecPtr->Name);
-                                            
-                            /* Zero out the buffer to remove any bad data */
-                            memset(WorkingBufferPtr->BufferPtr, 0, RegRecPtr->Size);     
-                        }
-                    }
+        return Status;
+    }
 
-                    /* Perform the table update to complete the load */
-                    if (Status >= CFE_SUCCESS)
-                    {
-                        FirstTime = !RegRecPtr->TableLoadedOnce;
-                        
-                        /* If this is not the first load, then the data must be moved from the inactive buffer      */
-                        /* to the active buffer to complete the load.  First loads are done directly to the active. */
-                        if (!FirstTime)
-                        {
-                            /* Force the table update */
-                            RegRecPtr->LoadPending = true;
+    FirstTime = !RegRecPtr->TableLoadedOnce;
+    
+    /* If this is not the first load, then the data must be moved from the inactive buffer      */
+    /* to the active buffer to complete the load.  First loads are done directly to the active. */
+    if (!FirstTime)
+    {
+        /* Force the table update */
+        RegRecPtr->LoadPending = true;
 
-                            Status = CFE_TBL_UpdateInternal(TblHandle, RegRecPtr, AccessDescPtr);
-                        }
-                        else
-                        {
-                            /* On initial loads, make sure registry is given file/address of data source */
-                            strncpy(RegRecPtr->LastFileLoaded,
-                                    WorkingBufferPtr->DataSource,
-                                    OS_MAX_PATH_LEN);
+        Status = CFE_TBL_UpdateInternal(TblHandle, RegRecPtr, AccessDescPtr);
 
-                            CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
-                                    
-                            /* If the table is a critical table, update the appropriate CDS with the new data */
-                            if (RegRecPtr->CriticalTable == true)
-                            {
-                                CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
-                            }
-
-                            Status = CFE_SUCCESS;
-                        }
-
-                        if (Status != CFE_SUCCESS)
-                        {
-                            CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) fail to update '%s' (Stat=0x%08X)\n",
-                                                 (int)ThisAppId, RegRecPtr->Name, (unsigned int)Status);
-                        }
-                        else
-                        {
-                            /* The first time a table is loaded, the event message is DEBUG */
-                            /* to help eliminate a flood of events during a startup         */
-                            if (FirstTime)
-                            {
-                                EventMsgType = CFE_EVS_EventType_DEBUG;
-                            }
-
-                            CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID,
-                                                       EventMsgType,
-                                                       CFE_TBL_TaskData.TableTaskAppId,
-                                                       "Successfully loaded '%s' from '%s'",
-                                                       RegRecPtr->Name,
-                                                       RegRecPtr->LastFileLoaded);
-                            
-                            /* Save the index of the table for housekeeping telemetry */
-                            CFE_TBL_TaskData.LastTblUpdated = AccessDescPtr->RegIndex;       
-                        }
-                    }
-                    else
-                    {
-                        /* The load has had a problem, free the working buffer for another attempt */
-                        if ((!RegRecPtr->DoubleBuffered) && (RegRecPtr->TableLoadedOnce == true))
-                        {
-                            /* For single buffered tables, freeing entails resetting flag */
-                            CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
-                        }
-
-                        /* For double buffered tables, freeing buffer is simple */
-                        RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
-                    }
-                }
-                else
-                {
-                    CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) Failed to get Working Buffer (Stat=0x%08X)\n",
-                                         (int)ThisAppId, (unsigned int)Status);
-                }
-            }
+        if (Status != CFE_SUCCESS)
+        {
+            CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR,
+                CFE_TBL_TaskData.TableTaskAppId,
+                "%s: Failed to update '%s' (Stat=%u)",
+                AppName, RegRecPtr->Name, (unsigned int)Status);
         }
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:Load-App(%d) does not have access to Tbl Handle=%d\n",
-                             (int)ThisAppId, (int)TblHandle);
+        /* On initial loads, make sure registry is given file/address of data source */
+        strncpy(RegRecPtr->LastFileLoaded,
+                WorkingBufferPtr->DataSource,
+                OS_MAX_PATH_LEN);
+
+        CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
+                
+        /* If the table is a critical table, update the appropriate CDS with the new data */
+        if (RegRecPtr->CriticalTable == true)
+        {
+            CFE_TBL_UpdateCriticalTblCDS(RegRecPtr);
+        }
+
+        Status = CFE_SUCCESS;
     }
 
-    /* On Error conditions, notify ground of screw up */
-    if (Status < 0)
+    if (Status == CFE_SUCCESS)
     {
-        /* Translate AppID of caller into App Name */
-        CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
-
-        if (RegRecPtr == NULL)
-        {
-            CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_ERR_EID,
-                                       CFE_EVS_EventType_ERROR,
-                                       CFE_TBL_TaskData.TableTaskAppId,
-                                       "%s Failed to Load '?', Status=0x%08X",
-                                       AppName, (unsigned int)Status);
-        }
-        else
-        {
-            if (SrcType == CFE_TBL_SRC_ADDRESS)
-            {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_ERR_EID,
-                                           CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_TaskData.TableTaskAppId,
-                                           "%s Failed to Load '%s' from Addr 0x%08lX, Status=0x%08X",
-                                           AppName, RegRecPtr->Name, (unsigned long)SrcDataPtr, (unsigned int)Status);
-            }
-            else if (SrcType == CFE_TBL_SRC_FILE)
-            {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_ERR_EID,
-                                           CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_TaskData.TableTaskAppId,
-                                           "%s Failed to Load '%s' from '%s', Status=0x%08X",
-                                           AppName, RegRecPtr->Name, (const char *)SrcDataPtr, (unsigned int)Status);
-            }
-            else
-            {
-                CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_TYPE_ERR_EID,
-                                           CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_TaskData.TableTaskAppId,
-                                           "%s Failed to Load '%s' (Invalid Source Type)",
-                                           AppName, RegRecPtr->Name);
-            }
-        }
+        /* The first time a table is loaded, the event message is DEBUG */
+        /* to help eliminate a flood of events during a startup         */
+        CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID,
+            FirstTime ? CFE_EVS_EventType_DEBUG : CFE_EVS_EventType_INFORMATION,
+            CFE_TBL_TaskData.TableTaskAppId, "Successfully loaded '%s' from '%s'",
+            RegRecPtr->Name, RegRecPtr->LastFileLoaded);
+        
+        /* Save the index of the table for housekeeping telemetry */
+        CFE_TBL_TaskData.LastTblUpdated = AccessDescPtr->RegIndex;       
     }
 
     return Status;

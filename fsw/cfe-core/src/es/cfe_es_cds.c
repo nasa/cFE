@@ -296,7 +296,8 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const
            RegRecPtr->Table = CriticalTbl;
 
            /* Save CDS Name in Registry */
-           strncpy(RegRecPtr->Name, Name, CFE_ES_CDS_MAX_FULL_NAME_LEN);
+           strncpy(RegRecPtr->Name, Name, sizeof(RegRecPtr->Name)-1);
+           RegRecPtr->Name[sizeof(RegRecPtr->Name)-1] = 0;
                
            /* Return the index into the registry as the handle to the CDS */
            *HandlePtr = RegIndx;

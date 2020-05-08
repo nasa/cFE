@@ -116,6 +116,10 @@ typedef uint8                                            CFE_ES_AppType_Enum_t;
  */
 enum CFE_ES_RunStatus
 {
+    /**
+     * @brief Reserved value, should not be used
+     */
+    CFE_ES_RunStatus_UNDEFINED                        = 0,
 
    /**
     * @brief Indicates that the Application should continue to run
@@ -160,7 +164,13 @@ enum CFE_ES_RunStatus
    /**
     * @brief Indicates that the Core Application had a runtime failure
     */
-   CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR            = 9
+   CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR            = 9,
+
+   /**
+    * @brief Reserved value, marker for the maximum state
+    */
+   CFE_ES_RunStatus_MAX
+
 };
 
 /**
@@ -211,7 +221,12 @@ enum CFE_ES_SystemState
    /**
     * @brief reserved for future use, all apps would be STOPPED
     */
-   CFE_ES_SystemState_SHUTDOWN                        = 6
+   CFE_ES_SystemState_SHUTDOWN                        = 6,
+
+   /**
+    * @brief Reserved value, marker for the maximum state
+    */
+   CFE_ES_SystemState_MAX
 };
 
 /**

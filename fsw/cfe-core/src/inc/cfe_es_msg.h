@@ -170,7 +170,9 @@
 */
 #define CFE_ES_RESTART_CC              2
 
-/** \cfeescmd Executive Services O/S Shell Command
+#ifndef CFE_OMIT_DEPRECATED_6_7
+/** \cfeescmd DEPRECATED: Executive Services O/S Shell Command
+**  \deprecated
 **
 **  \par Description
 **       This command passes an ASCII string as a command line to the
@@ -217,6 +219,7 @@
 **  \sa 
 */
 #define CFE_ES_SHELL_CC            3
+#endif /* CFE_OMIT_DEPRECATED_6_7 */
 
 /** \cfeescmd Load and Start an Application
 **
@@ -1152,8 +1155,10 @@ typedef struct
     CFE_ES_RestartCmd_Payload_t Payload;
 } CFE_ES_Restart_t;
 
+#ifndef CFE_OMIT_DEPRECATED_6_7
 /**
-** \brief Shell Command
+** \brief DEPRECATED: Shell Command
+** \deprecated
 **
 ** For command details, see #CFE_ES_SHELL_CC
 **
@@ -1166,11 +1171,16 @@ typedef struct
                                                                 be written */
 } CFE_ES_ShellCmd_Payload_t;
 
+/**
+ * \deprecated
+ */
 typedef struct
 {
     uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_ShellCmd_Payload_t   Payload;
 } CFE_ES_Shell_t;
+#endif /* CFE_OMIT_DEPRECATED_6_7 */
+
 
 /**
 ** \brief Payload format for commands which accept a single file name
@@ -1575,8 +1585,10 @@ typedef struct
   
 } CFE_ES_HousekeepingTlm_t;
 
+#ifndef CFE_OMIT_DEPRECATED_6_7
 /** 
-**  \cfeestlm OS Shell Output Packet
+**  \cfeestlm DEPRECATED: OS Shell Output Packet
+**  \deprecated
 **/
 typedef struct
 {
@@ -1584,11 +1596,15 @@ typedef struct
                                                                  that was received in response to an OS Shell Command */
 } CFE_ES_ShellPacket_Payload_t;
 
+/**
+ * \deprecated
+ */
 typedef struct
 {
-    uint8                           TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_SB_TlmHdr_t                 TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_ShellPacket_Payload_t    Payload;
 }CFE_ES_ShellTlm_t;
+#endif /* CFE_OMIT_DEPRECATED_6_7 */
 
 /*************************************************************************/
 

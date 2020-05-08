@@ -191,7 +191,7 @@ int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp)
             
             if (Result == sizeof(OutTimestamp.Subseconds))
             {
-                Result = OS_FS_SUCCESS;
+                Result = OS_SUCCESS;
             }
             else
             {

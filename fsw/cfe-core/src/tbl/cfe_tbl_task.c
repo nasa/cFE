@@ -54,14 +54,14 @@ CFE_TBL_TaskData_t    CFE_TBL_TaskData;
  *  For generic message entries, which only have a MID and a handler function (no command payload)
  */
 #define CFE_TBL_MESSAGE_ENTRY(mid,handlerfunc) \
-        { mid, 0, sizeof(CCSDS_CommandPacket_t), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, CFE_TBL_MSG_MSGTYPE }
+        { CFE_SB_MSGID_WRAP_VALUE(mid), 0, sizeof(CCSDS_CommandPacket_t), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, CFE_TBL_MSG_MSGTYPE }
 
 /*
  * Macros to assist in building the CFE_TBL_CmdHandlerTbl -
  *  For command handler entries, which have a command code, payload type, and a handler function
  */
 #define CFE_TBL_COMMAND_ENTRY(ccode,paramtype,handlerfunc) \
-        { CFE_TBL_CMD_MID, ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, CFE_TBL_CMD_MSGTYPE }
+        { CFE_SB_MSGID_WRAP_VALUE(CFE_TBL_CMD_MID), ccode, sizeof(paramtype), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, CFE_TBL_CMD_MSGTYPE }
 
 /* Constant Data */
 
@@ -83,7 +83,7 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] =
         CFE_TBL_COMMAND_ENTRY(    CFE_TBL_ABORT_LOAD_CC,    CFE_TBL_AbortLoad_t,    CFE_TBL_AbortLoadCmd),
 
         /* list terminator (keep last) */
-        {  0,   0,   0,  NULL, CFE_TBL_TERM_MSGTYPE }
+        {  CFE_SB_MSGID_RESERVED,   0,   0,  NULL, CFE_TBL_TERM_MSGTYPE }
 };
 
 
@@ -192,7 +192,7 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Subscribe to Housekeeping request commands
     */
-    Status = CFE_SB_Subscribe(CFE_TBL_SEND_HK_MID, CFE_TBL_TaskData.CmdPipe);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TBL_SEND_HK_MID), CFE_TBL_TaskData.CmdPipe);
 
     if(Status != CFE_SUCCESS)
     {
@@ -203,7 +203,7 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Subscribe to Table task ground command packets
     */
-    Status = CFE_SB_Subscribe(CFE_TBL_CMD_MID, CFE_TBL_TaskData.CmdPipe);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TBL_CMD_MID), CFE_TBL_TaskData.CmdPipe);
 
     if(Status != CFE_SUCCESS)
     {
@@ -247,12 +247,12 @@ void CFE_TBL_InitData(void)
 
     /* Initialize Packet Headers */
     CFE_SB_InitMsg(&CFE_TBL_TaskData.HkPacket,
-                   CFE_TBL_HK_TLM_MID,
+                   CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
                    sizeof(CFE_TBL_TaskData.HkPacket),
                    true);
 
     CFE_SB_InitMsg(&CFE_TBL_TaskData.TblRegPacket,
-                   CFE_TBL_REG_TLM_MID,
+                   CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
                    sizeof(CFE_TBL_TaskData.TblRegPacket),
                    true);
 
@@ -286,7 +286,8 @@ void CFE_TBL_TaskPipe(CFE_SB_Msg_t *MessagePtr)
         {
             CFE_EVS_SendEvent( CFE_TBL_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                                "Invalid msg length -- ID = 0x%04X, CC = %d, Len = %d (!= %d)",
-                               (unsigned int)MessageID, (int)CommandCode, (int)ActualLength,
+                               (unsigned int)CFE_SB_MsgIdToValue(MessageID), 
+                               (int)CommandCode, (int)ActualLength,
                                (int)CFE_TBL_CmdHandlerTbl[CmdIndx].ExpectedLength );
         }
 
@@ -311,7 +312,8 @@ void CFE_TBL_TaskPipe(CFE_SB_Msg_t *MessagePtr)
         {
             CFE_EVS_SendEvent(CFE_TBL_CC1_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Invalid command code -- ID = 0x%04X, CC = %d",
-                              (unsigned int)MessageID, (int)CommandCode);
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID), 
+                              (int)CommandCode);
 
             /* Update the command error counter */
             CFE_TBL_TaskData.CommandErrorCounter++;
@@ -320,7 +322,7 @@ void CFE_TBL_TaskPipe(CFE_SB_Msg_t *MessagePtr)
         {
             CFE_EVS_SendEvent(CFE_TBL_MID_ERR_EID, CFE_EVS_EventType_ERROR,
                              "Invalid message ID -- ID = 0x%04X",
-                              (unsigned int)MessageID);
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID));
             /*
             ** Note: we only increment the command error counter when
             **    processing messages with command codes
@@ -347,7 +349,7 @@ int16 CFE_TBL_SearchCmdHndlrTbl( CFE_SB_MsgId_t MessageID, uint16 CommandCode )
         TblIndx++;
 
         /* Check to see if we found a matching Message ID */
-        if ((CFE_TBL_CmdHandlerTbl[TblIndx].MsgId == MessageID) &&
+        if (CFE_SB_MsgId_Equal(CFE_TBL_CmdHandlerTbl[TblIndx].MsgId, MessageID) &&
             (CFE_TBL_CmdHandlerTbl[TblIndx].MsgTypes != CFE_TBL_TERM_MSGTYPE))
         {
             /* Flag any found message IDs so that if there is an error,        */

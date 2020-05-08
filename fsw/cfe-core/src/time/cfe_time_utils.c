@@ -389,21 +389,21 @@ void CFE_TIME_InitData(void)
     ** Initialize housekeeping packet (clear user data area)...
     */
     CFE_SB_InitMsg(&CFE_TIME_TaskData.HkPacket,
-                    CFE_TIME_HK_TLM_MID,
+                    CFE_SB_ValueToMsgId(CFE_TIME_HK_TLM_MID),
                     sizeof(CFE_TIME_TaskData.HkPacket), true);
 
     /*
     ** Initialize diagnostic packet (clear user data area)...
     */
     CFE_SB_InitMsg(&CFE_TIME_TaskData.DiagPacket,
-                    CFE_TIME_DIAG_TLM_MID,
+                    CFE_SB_ValueToMsgId(CFE_TIME_DIAG_TLM_MID),
                     sizeof(CFE_TIME_TaskData.DiagPacket), true);
 
     /*
     ** Initialize "time at the tone" signal command packet...
     */
     CFE_SB_InitMsg(&CFE_TIME_TaskData.ToneSignalCmd,
-                    CFE_TIME_TONE_CMD_MID,
+                    CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
                     sizeof(CFE_TIME_TaskData.ToneSignalCmd), true);
 
     /*
@@ -411,7 +411,7 @@ void CFE_TIME_InitData(void)
     */
     #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     CFE_SB_InitMsg(&CFE_TIME_TaskData.ToneDataCmd,
-                    CFE_TIME_DATA_CMD_MID,
+                    CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
                     sizeof(CFE_TIME_TaskData.ToneDataCmd), true);
     #endif
 
@@ -420,7 +420,7 @@ void CFE_TIME_InitData(void)
     */
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
     CFE_SB_InitMsg(&CFE_TIME_TaskData.ToneSendCmd,
-                    CFE_TIME_SEND_CMD_MID,
+                    CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID),
                     sizeof(CFE_TIME_TaskData.ToneSendCmd), true);
 #endif
 
@@ -428,7 +428,7 @@ void CFE_TIME_InitData(void)
     ** Initialize local 1Hz "wake-up" command packet (optional)...
     */
     CFE_SB_InitMsg(&CFE_TIME_TaskData.Local1HzCmd,
-                    CFE_TIME_1HZ_CMD_MID,
+                    CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
                     sizeof(CFE_TIME_TaskData.Local1HzCmd), true);
 
     return;

@@ -46,7 +46,7 @@
 ** and when you're done adding, set this to the highest EID you used. It may
 ** be worthwhile to, on occasion, re-number the EID's to put them back in order.
 */
-#define CFE_TBL_MAX_EID                         98
+#define CFE_TBL_MAX_EID                         103
 
 /******************* Macro Definitions ***********************/
 /*
@@ -313,7 +313,7 @@
 **
 **  -# The filename was misspelled
 **  -# The path to the file was incorrect
-**  -# The length of the filename and/or path exceeds the 
+**  -# The length (including terminator) of the filename and/or path exceeds the 
 **     allowable length (see #OS_MAX_PATH_LEN and #OS_MAX_FILE_NAME, respectively)
 **
 **  The \c Status field in the event message indicates the error code returned by the #OS_open
@@ -940,19 +940,8 @@
 **/
 #define CFE_TBL_UNREGISTER_ERR_EID             92  
 
-/** \brief <tt> '\%s Failed to Load '\%s' from \%s, Status=0x\%08X"  </tt>
-**  \event <tt> '\%s Failed to Load '\%s' from \%s, Status=0x\%08X"  </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This event message is generated when an Application calls #CFE_TBL_Load unsuccessfully.
-**
-**  The \c Status field of the Event Message can be used to identify the reason for the failure
-**  by looking it up in the cfe_error.h file
-**/
-#define CFE_TBL_LOAD_ERR_EID                   93  
+/* TODO: document see https://github.com/nasa/cFE/issues/661 */
+#define CFE_TBL_LOAD_VAL_ERR_EID                93
 
 /** \brief <tt> '\%s Failed to Load '\%s' (Invalid Source Type)"  </tt>
 **  \event <tt> '\%s Failed to Load '\%s' (Invalid Source Type)"  </tt>
@@ -981,8 +970,8 @@
 **/
 #define CFE_TBL_UPDATE_ERR_EID                 95  
 
-/** \brief <tt> '\%s validation failed for Inactive '\%s', Status=0x\%08X"  </tt>
-**  \event <tt> '\%s validation failed for Inactive '\%s', Status=0x\%08X"  </tt>
+/** \brief <tt> '\%s validation failed for Inactive '\%s', Status=0x\%08X'  </tt>
+**  \event <tt> '\%s validation failed for Inactive '\%s', Status=0x\%08X'  </tt>
 **
 **  \par Type: ERROR
 **
@@ -1051,6 +1040,62 @@
 **  in the specified table file.
 **/
 #define CFE_TBL_PROCESSOR_ID_ERR_EID           98  
+
+/** \brief <tt> Attempted to load Dump Only Tbl '%s' </tt>
+**  \event <tt> Attempted to load Dump Only Tbl '%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This event message is generated when an application attempts to load a dump-only table.
+**/
+#define CFE_TBL_LOAD_DUMPONLY_ERR_EID          99
+
+/** \brief <tt> Load already in progress for '%s' </tt>
+**  \event <tt> Load already in progress for '%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This event message is generated when an application attempts to load a table already
+**  in progress. Likely due to a race condition.
+**/
+#define CFE_TBL_LOAD_IN_PROGRESS_ERR_EID       100
+
+/** \brief <tt> Filename is too long ('%s' (%lu) > %lu)  </tt>
+**  \event <tt> Filename is too long ('%s' (%lu) > %lu)  </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  The filename provided for the table file is too long (exceeding OS_MAX_PATH_LEN - 1).
+**/
+#define CFE_TBL_LOAD_FILENAME_LONG_ERR_EID     101
+
+/** \brief <tt> table name mismatch (exp=%s, tblfilhdr=%s) </tt>
+**  \event <tt> table name mismatch (exp=%s, tblfilhdr=%s) </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  The table name in the table file header does not match the specified table name.
+**/
+#define CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID  102
+
+/** \brief <tt> No access to Tbl handle=%d </tt>
+**  \event <tt> No access to Tbl handle=%d </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  The application ID does not have access to the table handle.
+**/
+#define CFE_TBL_HANDLE_ACCESS_ERR_EID          103
 
 /** \} */
 

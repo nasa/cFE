@@ -34,6 +34,8 @@
 #include <common_types.h>
 #include <cfe_time.h>   /* Needed for CFE_TIME_SysTime_t */
 
+#define CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH     80
+
 /*
 ** Debug variables type
 */
@@ -47,7 +49,9 @@ typedef struct
 } CFE_ES_DebugVariables_t;
 
 /*
-** Exception and Reset Log Structure
+** Exception and Reset Log Base Structure
+**
+** This is the common data structure that is stored in RAM and log files
 */
 typedef struct
 {
@@ -59,11 +63,42 @@ typedef struct
      uint32                  MaxProcessorResetCount;        /* The maximum number before a Power On */
      CFE_ES_DebugVariables_t DebugVars;                     /* ES Debug variables */
      CFE_TIME_SysTime_t      TimeCode;                      /* Time code */
-     char                    Description[80];               /* The ascii data for the event */
-     uint32                  ContextSize;                   /* Indicates the context data is valid */
-     uint32                  AppID;                         /* The application ID */
-     uint32                  Context[CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE / sizeof(uint32)];  /* cpu  context */
-} CFE_ES_ERLog_t;
+     char                    Description[CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH];  /* The ascii data for the event */
+} CFE_ES_ERLog_BaseInfo_t;
+
+
+/*
+** Exception and Reset Log File Structure
+**
+** This is the "export" data structure that gets written to a log file
+** It is intended to be binary-compatible with the historical definition of this
+** structure, to work with existing tools that may read log files.
+**
+** Note that "AppID" really belongs in the base info, but it is kept here
+** for backward compatibility.
+*/
+typedef struct
+{
+    CFE_ES_ERLog_BaseInfo_t BaseInfo;                       /* basic info about the event */
+    uint32                  ContextSize;                   /* Indicates the context data is valid */
+    uint32                  AppID;                         /* The application ID */
+    uint8                   Context[CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE];  /* cpu  context */
+} CFE_ES_ERLog_FileEntry_t;
+
+
+/*
+** Exception and Reset Log Metadata Structure
+** This is stored in ES RAM, not _directly_ written to ER log files.
+*/
+typedef struct
+{
+    CFE_ES_ERLog_BaseInfo_t BaseInfo;       /**< Core Log Data */
+    uint32                  AppID;          /* The application ID */
+    uint32                  PspContextId;   /**< Reference to context information stored in PSP */
+} CFE_ES_ERLog_MetaData_t;
+
+
+
 
 
 

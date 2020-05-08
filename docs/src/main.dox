@@ -472,7 +472,7 @@
     <UL>
       <LI> #CFE_ES_CalculateCRC - \copybrief CFE_ES_CalculateCRC
       <LI> #CFE_ES_WriteToSysLog - \copybrief CFE_ES_WriteToSysLog
-      <LI> #CFE_ES_ProcessCoreException - \copybrief CFE_ES_ProcessCoreException
+      <LI> #CFE_ES_ProcessAsyncEvent - \copybrief CFE_ES_ProcessAsyncEvent
     </UL>
   </UL>
 

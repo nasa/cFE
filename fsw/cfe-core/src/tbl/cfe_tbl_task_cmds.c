@@ -119,7 +119,7 @@ int32 CFE_TBL_HousekeepingCmd(const CCSDS_CommandPacket_t *data)
                 {
                     Status = CFE_FS_SetTimestamp(FileDescriptor, DumpTime);
                     
-                    if (Status != OS_FS_SUCCESS)
+                    if (Status != OS_SUCCESS)
                     {
                         CFE_ES_WriteToSysLog("CFE_TBL:HkCmd-Unable to update timestamp in dump file '%s'\n", 
                                              DumpCtrlPtr->DumpBufferPtr->DataSource);
@@ -757,7 +757,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
     /* Create a new dump file, overwriting anything that may have existed previously */
     FileDescriptor = OS_creat(DumpFilename, OS_WRITE_ONLY);
 
-    if (FileDescriptor >= OS_FS_SUCCESS)
+    if (FileDescriptor >= OS_SUCCESS)
     {
         /* Initialize the standard cFE File Header for the Dump File */
         CFE_FS_InitHeader(&StdFileHeader, "Table Dump Image", CFE_FS_SubType_TBL_IMG);
@@ -768,7 +768,8 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
         if (Status == sizeof(CFE_FS_Header_t))
         {
             /* Initialize the Table Image Header for the Dump File */
-            strncpy(TblFileHeader.TableName, TableName, sizeof(TblFileHeader.TableName));
+            strncpy(TblFileHeader.TableName, TableName, sizeof(TblFileHeader.TableName)-1);
+            TblFileHeader.TableName[sizeof(TblFileHeader.TableName)-1] = 0;
             TblFileHeader.Offset = 0;
             TblFileHeader.NumBytes = TblSizeInBytes;
             TblFileHeader.Reserved = 0;
@@ -814,7 +815,8 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
 
                     /* Save file information statistics for housekeeping telemetry */
                     strncpy(CFE_TBL_TaskData.HkPacket.Payload.LastFileDumped, DumpFilename,
-                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileDumped));
+                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileDumped)-1);
+                    CFE_TBL_TaskData.HkPacket.Payload.LastFileDumped[sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileDumped)-1] = 0;
 
                     /* Increment Successful Command Counter */
                     ReturnCode = CFE_TBL_INC_CMD_CTR;
@@ -1147,7 +1149,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
     /* Create a new dump file, overwriting anything that may have existed previously */
     FileDescriptor = OS_creat(DumpFilename, OS_WRITE_ONLY);
 
-    if (FileDescriptor >= OS_FS_SUCCESS)
+    if (FileDescriptor >= OS_SUCCESS)
     {
         /* Initialize the standard cFE File Header for the Dump File */
         CFE_FS_InitHeader(&StdFileHeader, "Table Registry", CFE_FS_SubType_TBL_REG);
@@ -1206,8 +1208,8 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
                     memset(DumpRecord.LastFileLoaded, 0, OS_MAX_PATH_LEN);
                     memset(DumpRecord.OwnerAppName, 0, OS_MAX_API_NAME);
 
-                    strncpy(DumpRecord.Name, RegRecPtr->Name, CFE_TBL_MAX_FULL_NAME_LEN);
-                    strncpy(DumpRecord.LastFileLoaded, RegRecPtr->LastFileLoaded, OS_MAX_PATH_LEN);
+                    strncpy(DumpRecord.Name, RegRecPtr->Name, sizeof(DumpRecord.Name)-1);
+                    strncpy(DumpRecord.LastFileLoaded, RegRecPtr->LastFileLoaded, sizeof(DumpRecord.LastFileLoaded)-1);
 
                     /* Walk the access descriptor list to determine the number of users */
                     DumpRecord.NumUsers = 0;
@@ -1221,11 +1223,11 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
                     /* Determine the name of the owning application */
                     if (RegRecPtr->OwnerAppId != CFE_TBL_NOT_OWNED)
                     {
-                        CFE_ES_GetAppName(DumpRecord.OwnerAppName, RegRecPtr->OwnerAppId, OS_MAX_API_NAME);
+                        CFE_ES_GetAppName(DumpRecord.OwnerAppName, RegRecPtr->OwnerAppId, sizeof(DumpRecord.OwnerAppName));
                     }
                     else
                     {
-                        strncpy(DumpRecord.OwnerAppName, "--UNOWNED--", OS_MAX_API_NAME);
+                        strncpy(DumpRecord.OwnerAppName, "--UNOWNED--", sizeof(DumpRecord.OwnerAppName)-1);
                     }
 
                     /* Output Registry Dump Record to Registry Dump File */

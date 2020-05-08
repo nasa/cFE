@@ -71,11 +71,29 @@ typedef struct
  */
 const CFE_ES_BackgroundJobEntry_t CFE_ES_BACKGROUND_JOB_TABLE[] =
 {
+        {   /* ES app table background scan */
+                .RunFunc = CFE_ES_RunAppTableScan,
+                .JobArg = &CFE_ES_TaskData.BackgroundAppScanState,
+                .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE / 4,
+                .IdlePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE
+        },
         {   /* Performance Log Data Dump to file */
                 .RunFunc = CFE_ES_RunPerfLogDump,
                 .JobArg = &CFE_ES_TaskData.BackgroundPerfDumpState,
                 .ActivePeriod = CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,
                 .IdlePeriod = CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY * 1000
+        },
+        {   /* Check for exceptions stored in the PSP */
+                .RunFunc = CFE_ES_RunExceptionScan,
+                .JobArg = NULL,
+                .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE,
+                .IdlePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE
+        },
+        {   /* Check for ER log write requests */
+                .RunFunc = CFE_ES_RunERLogDump,
+                .JobArg = &CFE_ES_TaskData.BackgroundERLogDumpState,
+                .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE,
+                .IdlePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE
         }
 };
 

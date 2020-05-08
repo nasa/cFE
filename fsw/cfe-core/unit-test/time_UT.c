@@ -56,116 +56,116 @@ const char *TIME_SYSLOG_MSGS[] =
 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SEND_HK =
 {
-        .MsgId = CFE_TIME_SEND_HK_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_SEND_HK_MID)
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_TONE_CMD =
 {
-        .MsgId = CFE_TIME_TONE_CMD_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_TONE_CMD_MID)
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_DATA_CMD =
 {
-        .MsgId = CFE_TIME_DATA_CMD_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_DATA_CMD_MID)
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_1HZ_CMD =
 {
-        .MsgId = CFE_TIME_1HZ_CMD_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_1HZ_CMD_MID)
 };
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SEND_CMD =
 {
-        .MsgId = CFE_TIME_SEND_CMD_MID
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_SEND_CMD_MID)
 };
 #endif
 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_NOOP_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_NOOP_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_RESET_COUNTERS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SEND_DIAGNOSTIC_TLM_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_STATE_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_STATE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_SOURCE_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_SIGNAL_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_SIGNAL_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_DELAY_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_ADD_DELAY_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_DELAY_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SUB_DELAY_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_TIME_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_TIME_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_MET_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_MET_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_STCF_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_STCF_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SET_LEAP_SECONDS_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SET_LEAP_SECONDS_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_ADJUST_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_ADD_ADJUST_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_ADJUST_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SUB_ADJUST_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_ADD_1HZ_ADJUSTMENT_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_ADD_1HZ_ADJUSTMENT_CC
 };
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_CMD_SUB_1HZ_ADJUSTMENT_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = CFE_TIME_SUB_1HZ_ADJUSTMENT_CC
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TIME_INVALID_MID =
 {
-        .MsgId = 0xFFFF,
+        .MsgId = CFE_SB_MSGID_RESERVED,
         .CommandCode = 0
 };
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_TIME_CMD_INVALID_CC =
 {
-        .MsgId = CFE_TIME_CMD_MID,
+        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_CMD_MID),
         .CommandCode = 0x7F
 };
 
@@ -210,7 +210,6 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_GetTime);
     UT_ADD_TEST(Test_TimeOp);
     UT_ADD_TEST(Test_ConvertTime);
-    UT_ADD_TEST(Test_ConvertCFEFS);
     UT_ADD_TEST(Test_Print);
     UT_ADD_TEST(Test_RegisterSyncCallbackTrue);
     UT_ADD_TEST(Test_ExternalTone);
@@ -284,7 +283,7 @@ void Test_Init(void)
     ExpRtn++;
     CFE_TIME_EarlyInit();
     UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(CFE_SB_SetMsgId)) == ExpRtn,
+              UT_GetStubCount(UT_KEY(CFE_SB_InitMsg)) == ExpRtn,
               "CFE_TIME_EarlyInit",
               "Successful");
 
@@ -1147,116 +1146,6 @@ void Test_ConvertTime(void)
 }
 
 /*
-** Test function for converting cFE seconds to file system (FS) seconds and
-** vice versa
-*/
-void Test_ConvertCFEFS(void)
-{
-    uint32 result;
-
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Convert cFE and FS Seconds\n");
-#endif
-
-    /* Test cFE to FS conversion using 0 for the cFE seconds value */
-    UT_InitData();
-
-    /* Calculate expected result based on macro value */
-    if (CFE_MISSION_TIME_FS_FACTOR < 0 && -CFE_MISSION_TIME_FS_FACTOR > 0)
-    {
-        result = 0;
-    }
-    else
-    {
-        result = CFE_MISSION_TIME_FS_FACTOR;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_CFE2FSSeconds(0) == result,
-              "CFE_TIME_CFE2FSSeconds",
-              "Convert 0 cFE seconds to FS seconds");
-
-    /* Test cFE to FS conversion using mid-range value for cFE seconds */
-    UT_InitData();
-
-    /* Calculate expected result based on macro value */
-    if (CFE_MISSION_TIME_FS_FACTOR < 0 && -CFE_MISSION_TIME_FS_FACTOR > 0xffff)
-    {
-        result = 0;
-    }
-    else
-    {
-        result = CFE_MISSION_TIME_FS_FACTOR + 0xffff;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_CFE2FSSeconds(0xffff) == result,
-              "CFE_TIME_CFE2FSSeconds",
-              "Convert mid-range cFE seconds to FS seconds");
-
-    /* Test cFE to FS conversion using the maximum cFE seconds value */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_CFE2FSSeconds(0xffffffff) ==
-              (uint32) (CFE_MISSION_TIME_FS_FACTOR - 1),
-              "CFE_TIME_CFE2FSSeconds",
-              "Maximum cFE seconds value");
-
-    /* Test FS to cFE conversion using 0 for the FS seconds value */
-    UT_InitData();
-
-    if (CFE_MISSION_TIME_FS_FACTOR > 0)
-    {
-        result = 0;
-    }
-    else
-    {
-        result = -(uint32) CFE_MISSION_TIME_FS_FACTOR;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(0) == result,
-              "CFE_TIME_FS2CFESeconds",
-              "Convert 0 FS seconds to cFE seconds");
-
-    /* Test FS to cFE conversion response to a FS seconds value that results
-     * in a negative cFE time (forces cFE seconds to zero)
-     */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(CFE_MISSION_TIME_FS_FACTOR - 1) == 0,
-              "CFE_TIME_FS2CFESeconds",
-              "Negative cFE seconds conversion (force to zero)");
-
-    /* Test FS to cFE conversion using the minimum convertible FS
-     * seconds value
-     */
-    UT_InitData();
-
-    if (CFE_MISSION_TIME_FS_FACTOR > (uint32) (CFE_MISSION_TIME_FS_FACTOR + 1))
-    {
-        result = 0;
-    }
-    else
-    {
-        result = 1;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(CFE_MISSION_TIME_FS_FACTOR + 1) == result,
-              "CFE_TIME_FS2CFESeconds",
-              "Minimum convertible FS seconds value");
-
-    /* Test FS to cFE conversion using the maximum FS seconds value */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(0xffffffff) == 0xffffffff -
-              CFE_MISSION_TIME_FS_FACTOR,
-              "CFE_TIME_FS2CFESeconds",
-              "Maximum FS seconds value");
-}
-
-/*
 ** Test function for creating a text string representing the date and time
 **
 ** NOTE: Test results depend on the epoch values in cfe_mission_cfg.h (the
@@ -1266,7 +1155,7 @@ void Test_ConvertCFEFS(void)
 void Test_Print(void)
 {
     int result;
-    char testDesc[UT_MAX_MESSAGE_LENGTH];
+    char testDesc[1+UT_MAX_MESSAGE_LENGTH];
     CFE_TIME_SysTime_t time;
 
 #ifdef UT_VERBOSE
@@ -1279,8 +1168,8 @@ void Test_Print(void)
     time.Seconds = 0;
     CFE_TIME_Print(testDesc, time);
     result = !strcmp(testDesc, "1980-001-00:00:00.00000");
-    strncat(testDesc," Zero time value", UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+    strncat(testDesc," Zero time value",
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1296,8 +1185,7 @@ void Test_Print(void)
     result = !strcmp(testDesc, "1980-001-00:00:59.00000");
     strncat(testDesc,
             " Seconds overflow if CFE_MISSION_TIME_EPOCH_SECOND > 0",
-            UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1309,8 +1197,8 @@ void Test_Print(void)
     time.Seconds = 1041472984;
     CFE_TIME_Print(testDesc, time);
     result = !strcmp(testDesc, "2013-001-02:03:04.00005");
-    strncat(testDesc," Mission representative time", UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+    strncat(testDesc," Mission representative time",
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1323,8 +1211,7 @@ void Test_Print(void)
     CFE_TIME_Print(testDesc, time);
     result = !strcmp(testDesc, "2116-038-06:28:15.99999");
     strncat(testDesc," Maximum seconds/subseconds values",
-            UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1889,7 +1776,7 @@ void Test_PipeCmds(void)
 
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData =
     {
-            .MsgId = CFE_TIME_HK_TLM_MID
+            .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_HK_TLM_MID)
     };
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -1904,6 +1791,8 @@ void Test_PipeCmds(void)
 
     /* Test sending the housekeeping telemetry request command */
     UT_InitData();
+    CFE_SB_InitMsg((CFE_SB_Msg_t *) &CFE_TIME_TaskData.HkPacket, LocalSnapshotData.MsgId,
+            sizeof(CFE_TIME_TaskData.HkPacket), false);
     UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd),
             UT_TPID_CFE_TIME_SEND_HK);
