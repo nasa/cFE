@@ -200,6 +200,7 @@ int32 CFE_ES_TaskInit(void)
     cpuaddr CfeSegmentAddr;
     char    EventBuffer[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
     char    VersionBuffer[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
+    uint32  Remaining;
 
     /*
     ** Register the Application
@@ -376,17 +377,21 @@ int32 CFE_ES_TaskInit(void)
        snprintf(EventBuffer, sizeof(EventBuffer), "Mission %s.%s",
                 GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.Config);
     }
-    if(strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.CfeVersion))
+    Remaining = sizeof(EventBuffer)-strlen(EventBuffer)-1;
+    if(Remaining > 0 && strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.CfeVersion))
     {
        snprintf(VersionBuffer, sizeof(VersionBuffer), ", CFE: %s",
                 GLOBAL_CONFIGDATA.CfeVersion);
-       strncat(EventBuffer, VersionBuffer, sizeof(EventBuffer)-strlen(EventBuffer)-1);
+       VersionBuffer[Remaining] = 0;
+       strcat(EventBuffer, VersionBuffer);
+       Remaining = sizeof(EventBuffer)-strlen(EventBuffer)-1;
     }
-    if(strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.OsalVersion))
+    if(Remaining > 0 && strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.OsalVersion))
     {
        snprintf(VersionBuffer, sizeof(VersionBuffer), ", OSAL: %s",
                 GLOBAL_CONFIGDATA.OsalVersion);
-       strncat(EventBuffer, VersionBuffer, sizeof(EventBuffer)-strlen(EventBuffer)-1);
+       VersionBuffer[Remaining] = 0;
+       strcat(EventBuffer, VersionBuffer);
     }
 
     Status = CFE_EVS_SendEvent(CFE_ES_VERSION_INF_EID,
@@ -1927,7 +1932,8 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
                     DumpRecord.ByteAlignSpare1  = 0;
 
                     /* strncpy will zero out any unused buffer - memset not necessary */
-                    strncpy(DumpRecord.Name, RegRecPtr->Name, sizeof(DumpRecord.Name));
+                    strncpy(DumpRecord.Name, RegRecPtr->Name, sizeof(DumpRecord.Name)-1);
+                    DumpRecord.Name[sizeof(DumpRecord.Name)-1] = 0;
 
                     /* Output Registry Dump Record to Registry Dump File */
                     Status = OS_write(FileDescriptor,

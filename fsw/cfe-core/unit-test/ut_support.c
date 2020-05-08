@@ -82,7 +82,8 @@ void UT_Init(const char *subsys)
     int8 i;
 
     /* Copy the application name for later use */
-    strncpy(UT_subsys, subsys, 5);
+    strncpy(UT_subsys, subsys, sizeof(UT_subsys)-1);
+    UT_subsys[sizeof(UT_subsys)-1] = 0;
     snprintf(UT_appname, 80, "ut_cfe_%s", subsys);
 
     /* Convert to upper case */

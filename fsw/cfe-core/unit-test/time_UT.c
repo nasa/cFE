@@ -1266,7 +1266,7 @@ void Test_ConvertCFEFS(void)
 void Test_Print(void)
 {
     int result;
-    char testDesc[UT_MAX_MESSAGE_LENGTH];
+    char testDesc[1+UT_MAX_MESSAGE_LENGTH];
     CFE_TIME_SysTime_t time;
 
 #ifdef UT_VERBOSE
@@ -1279,8 +1279,8 @@ void Test_Print(void)
     time.Seconds = 0;
     CFE_TIME_Print(testDesc, time);
     result = !strcmp(testDesc, "1980-001-00:00:00.00000");
-    strncat(testDesc," Zero time value", UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+    strncat(testDesc," Zero time value",
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1296,8 +1296,7 @@ void Test_Print(void)
     result = !strcmp(testDesc, "1980-001-00:00:59.00000");
     strncat(testDesc,
             " Seconds overflow if CFE_MISSION_TIME_EPOCH_SECOND > 0",
-            UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1309,8 +1308,8 @@ void Test_Print(void)
     time.Seconds = 1041472984;
     CFE_TIME_Print(testDesc, time);
     result = !strcmp(testDesc, "2013-001-02:03:04.00005");
-    strncat(testDesc," Mission representative time", UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+    strncat(testDesc," Mission representative time",
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1323,8 +1322,7 @@ void Test_Print(void)
     CFE_TIME_Print(testDesc, time);
     result = !strcmp(testDesc, "2116-038-06:28:15.99999");
     strncat(testDesc," Maximum seconds/subseconds values",
-            UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",

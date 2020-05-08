@@ -3725,11 +3725,14 @@ void Test_CFE_TBL_Manage(void)
      * later
      */
     CFE_TBL_TaskData.DumpControlBlocks[0].DumpBufferPtr = WorkingBufferPtr;
-    memcpy(CFE_TBL_TaskData.DumpControlBlocks[0].
+    strncpy(CFE_TBL_TaskData.DumpControlBlocks[0].
                      DumpBufferPtr->DataSource,
-                   "MyDumpFilename", OS_MAX_PATH_LEN);
-    memcpy(CFE_TBL_TaskData.DumpControlBlocks[0].TableName,
-                   "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
+                   "MyDumpFilename", OS_MAX_PATH_LEN-1);
+    CFE_TBL_TaskData.DumpControlBlocks[0].
+                         DumpBufferPtr->DataSource[OS_MAX_PATH_LEN-1] = 0;
+    strncpy(CFE_TBL_TaskData.DumpControlBlocks[0].TableName,
+                   "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN-1);
+    CFE_TBL_TaskData.DumpControlBlocks[0].TableName[CFE_TBL_MAX_FULL_NAME_LEN-1] = 0;
     CFE_TBL_TaskData.DumpControlBlocks[0].Size = RegRecPtr->Size;
     RegRecPtr->DumpControlIndex = 0;
     RtnCode = CFE_TBL_Manage(App1TblHandle2);
