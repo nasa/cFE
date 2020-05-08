@@ -2893,7 +2893,7 @@ void Test_Unsubscribe_Local(void)
     SETUP(CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe"));
     SETUP(CFE_SB_Subscribe(MsgId, TestPipe));
 
-    ASSERT(CFE_SB_UnsubscribeLocal(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID, TestPipe));
+    ASSERT(CFE_SB_UnsubscribeLocal(SB_UT_LAST_VALID_MID, TestPipe));
 
     EVTCNT(5);
 
