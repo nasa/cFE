@@ -66,6 +66,8 @@
 **  Task completes its Initialization.
 **/
 #define CFE_TBL_INIT_INF_EID                    1  
+/** \} */
+
 
 /** \name Command Response Informational Event Message IDs */
 /** \{ */
@@ -841,6 +843,7 @@
 #define CFE_TBL_FAIL_NOTIFY_SEND_ERR_EID       89
 /** \} */
 
+
 /** \name API Informational Event Message IDs */
 /** \{ */
 
@@ -893,7 +896,6 @@
 **/
 #define CFE_TBL_CDS_DELETED_INFO_EID           38  
 /** \} */
-
 
 
 /** \name API Error Event Message IDs */
@@ -1098,7 +1100,6 @@
 #define CFE_TBL_HANDLE_ACCESS_ERR_EID          103
 
 /** \} */
-
 
 
 #endif /* _cfe_tbl_events_ */

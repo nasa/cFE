@@ -367,7 +367,8 @@
 
 /** \cfesbcmd Enable Subscription Reporting Command
 **
-**  \par This command will enable subscription reporting and is intended to
+**  \par Description
+**       This command will enable subscription reporting and is intended to
 **       be used only by the CFS SBN (Software Bus Networking) Application.
 **       It is not intended to be sent from the ground or used by operations.
 **       When subscription reporting is enabled, SB will generate
@@ -399,7 +400,8 @@
 
 /** \cfesbcmd Disable Subscription Reporting Command
 **
-**  \par This command will disable subscription reporting and is intended to
+**  \par Description
+**       This command will disable subscription reporting and is intended to
 **       be used only by the CFS SBN (Software Bus Networking) Application.
 **       It is not intended to be sent from the ground or used by operations.
 **       When subscription reporting is enabled, SB will generate

@@ -402,7 +402,7 @@ int32 CFE_TBL_TaskInit(void);
 **
 ** \param[in] MessagePtr a pointer to the message received from the command pipe
 **
-** \retval None
+** 
 ******************************************************************************/
 void  CFE_TBL_TaskPipe(CFE_SB_Msg_t *MessagePtr);
 
@@ -416,7 +416,7 @@ void  CFE_TBL_TaskPipe(CFE_SB_Msg_t *MessagePtr);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \retval None
+** 
 ******************************************************************************/
 void  CFE_TBL_InitData(void);
 
