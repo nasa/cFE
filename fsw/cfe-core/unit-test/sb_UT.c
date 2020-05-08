@@ -156,7 +156,7 @@ void Test_SB_Macros(void)
 */
 void Test_SB_CCSDSSecHdr_Macros(void)
 {
-    CFE_SB_CmdHdr_t NoParamPkt;
+    CCSDS_CommandPacket_t NoParamPkt;
     
     uint32 ExpRtn;
     uint32 ActRtn;

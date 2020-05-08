@@ -211,21 +211,21 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr)
 
         #if (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_16_SUBS)
 
-        memcpy(&LocalSecs32, &TlmHdrPtr->Sec.Time[0], 4);
-        memcpy(&LocalSubs16, &TlmHdrPtr->Sec.Time[4], 2);
+        memcpy(&LocalSecs32, &TlmHdrPtr->Tlm.Sec.Time[0], 4);
+        memcpy(&LocalSubs16, &TlmHdrPtr->Tlm.Sec.Time[4], 2);
         /* convert packet data into CFE_TIME_SysTime_t format */
         LocalSubs32 = ((uint32) LocalSubs16) << 16;
 
         #elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_SUBS)
 
-        memcpy(&LocalSecs32, &TlmHdrPtr->Sec.Time[0], 4);
-        memcpy(&LocalSubs32, &TlmHdrPtr->Sec.Time[4], 4);
+        memcpy(&LocalSecs32, &TlmHdrPtr->Tlm.Sec.Time[0], 4);
+        memcpy(&LocalSubs32, &TlmHdrPtr->Tlm.Sec.Time[4], 4);
         /* no conversion necessary -- packet format = CFE_TIME_SysTime_t format */
 
         #elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_M_20)
 
-        memcpy(&LocalSecs32, &TlmHdrPtr->Sec.Time[0], 4);
-        memcpy(&LocalSubs32, &TlmHdrPtr->Sec.Time[4], 4);
+        memcpy(&LocalSecs32, &TlmHdrPtr->Tlm.Sec.Time[0], 4);
+        memcpy(&LocalSubs32, &TlmHdrPtr->Tlm.Sec.Time[4], 4);
         /* convert packet data into CFE_TIME_SysTime_t format */
         LocalSubs32 = CFE_TIME_Micro2SubSecs((LocalSubs32 >> 12));
 
@@ -267,23 +267,23 @@ int32 CFE_SB_SetMsgTime(CFE_SB_MsgPtr_t MsgPtr, CFE_TIME_SysTime_t NewTime)
 
         /* convert time from CFE_TIME_SysTime_t format to packet format */
         LocalSubs16 = (uint16) (NewTime.Subseconds >> 16);
-        memcpy(&TlmHdrPtr->Sec.Time[0], &NewTime.Seconds, 4);
-        memcpy(&TlmHdrPtr->Sec.Time[4], &LocalSubs16, 2);
+        memcpy(&TlmHdrPtr->Tlm.Sec.Time[0], &NewTime.Seconds, 4);
+        memcpy(&TlmHdrPtr->Tlm.Sec.Time[4], &LocalSubs16, 2);
         Result = CFE_SUCCESS;
 
         #elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_SUBS)
 
         /* no conversion necessary -- packet format = CFE_TIME_SysTime_t format */
-        memcpy(&TlmHdrPtr->Sec.Time[0], &NewTime.Seconds, 4);
-        memcpy(&TlmHdrPtr->Sec.Time[4], &NewTime.Subseconds, 4);
+        memcpy(&TlmHdrPtr->Tlm.Sec.Time[0], &NewTime.Seconds, 4);
+        memcpy(&TlmHdrPtr->Tlm.Sec.Time[4], &NewTime.Subseconds, 4);
         Result = CFE_SUCCESS;
 
         #elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_M_20)
 
         /* convert time from CFE_TIME_SysTime_t format to packet format */
         LocalSubs32 = CFE_TIME_Sub2MicroSecs(NewTime.Subseconds) << 12;
-        memcpy(&TlmHdrPtr->Sec.Time[0], &NewTime.Seconds, 4);
-        memcpy(&TlmHdrPtr->Sec.Time[4], &LocalSubs32, 4);
+        memcpy(&TlmHdrPtr->Tlm.Sec.Time[0], &NewTime.Seconds, 4);
+        memcpy(&TlmHdrPtr->Tlm.Sec.Time[4], &LocalSubs32, 4);
         Result = CFE_SUCCESS;
 
         #endif
@@ -319,7 +319,7 @@ uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr)
     /* Cast the input pointer to a Cmd Msg pointer */
     CmdHdrPtr = (CFE_SB_CmdHdr_t *)MsgPtr;
 
-    return CCSDS_RD_FC(CmdHdrPtr->Sec);
+    return CCSDS_RD_FC(CmdHdrPtr->Cmd.Sec);
 }/* end CFE_SB_GetCmdCode */
 
 
@@ -339,7 +339,7 @@ int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr,
     /* Cast the input pointer to a Cmd Msg pointer */
     CmdHdrPtr = (CFE_SB_CmdHdr_t *)MsgPtr;
 
-    CCSDS_WR_FC(CmdHdrPtr->Sec,CmdCode);
+    CCSDS_WR_FC(CmdHdrPtr->Cmd.Sec,CmdCode);
 
     return CFE_SUCCESS;
 
@@ -362,7 +362,7 @@ uint16 CFE_SB_GetChecksum(CFE_SB_MsgPtr_t MsgPtr)
     /* cast the input pointer to a Cmd Msg pointer */
     CmdHdrPtr = (CFE_SB_CmdHdr_t *)MsgPtr;
 
-    return CCSDS_RD_CHECKSUM(CmdHdrPtr->Sec);
+    return CCSDS_RD_CHECKSUM(CmdHdrPtr->Cmd.Sec);
 
 }/* end CFE_SB_GetChecksum */
 
