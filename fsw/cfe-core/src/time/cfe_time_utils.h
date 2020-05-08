@@ -460,7 +460,6 @@ void CFE_TIME_NotifyTimeSynchApps(void);
 /*
 ** Function prototypes (local 1Hz interrupt)...
 */
-void CFE_TIME_Local1HzISR(void);
 void CFE_TIME_Local1HzTask(void);
 void CFE_TIME_Local1HzStateMachine(void);
 void CFE_TIME_Local1HzTimerCallback(uint32 TimerId, void *Arg);
