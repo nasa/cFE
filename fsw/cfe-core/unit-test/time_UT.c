@@ -284,7 +284,7 @@ void Test_Init(void)
     ExpRtn++;
     CFE_TIME_EarlyInit();
     UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(CFE_SB_SetMsgId)) == ExpRtn,
+              UT_GetStubCount(UT_KEY(CFE_SB_InitMsg)) == ExpRtn,
               "CFE_TIME_EarlyInit",
               "Successful");
 
@@ -1902,6 +1902,8 @@ void Test_PipeCmds(void)
 
     /* Test sending the housekeeping telemetry request command */
     UT_InitData();
+    CFE_SB_InitMsg((CFE_SB_Msg_t *) &CFE_TIME_TaskData.HkPacket, LocalSnapshotData.MsgId,
+            sizeof(CFE_TIME_TaskData.HkPacket), false);
     UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd),
             UT_TPID_CFE_TIME_SEND_HK);

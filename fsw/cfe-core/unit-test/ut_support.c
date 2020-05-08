@@ -233,8 +233,7 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_MsgPtr_t), CFE_SB_MsgPtr_t Msg,
      * macros (not stubs) to read this info direct from
      * the buffer.
      */
-    CCSDS_WR_LEN(Msg->Hdr, MsgSize);
-    CCSDS_WR_SHDR(Msg->Hdr, 1);
+    CFE_SB_SetTotalMsgLength(Msg, MsgSize);
     CFE_SB_SetMsgId(Msg, DispatchId.MsgId);
     CFE_SB_SetCmdCode(Msg, DispatchId.CommandCode);
 
