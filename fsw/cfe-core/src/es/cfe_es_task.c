@@ -1598,94 +1598,30 @@ int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLog_t *data)
 int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLog_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
-    int32                    Stat;
-    char                     LogFilename[OS_MAX_PATH_LEN];
 
-    CFE_SB_MessageStringGet(LogFilename, (char *)CmdPtr->FileName,
-            CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE, OS_MAX_PATH_LEN, sizeof(CmdPtr->FileName));
-
-    Stat = CFE_ES_ERLogDump(LogFilename);
-
-    if(Stat == CFE_SUCCESS)
+    if (CFE_ES_TaskData.BackgroundERLogDumpState.IsPending)
     {
-        CFE_ES_TaskData.CommandCounter++;
+        CFE_EVS_SendEvent(CFE_ES_ERLOG_PENDING_ERR_EID,CFE_EVS_EventType_ERROR,
+                "Error log write to file %s already in progress",
+                CFE_ES_TaskData.BackgroundERLogDumpState.DataFileName);
+
+        /* background dump already running, consider this an error */
+        CFE_ES_TaskData.CommandErrorCounter++;
     }
     else
     {
-        CFE_ES_TaskData.CommandErrorCounter++;
-    }/* end if */
+        CFE_SB_MessageStringGet(CFE_ES_TaskData.BackgroundERLogDumpState.DataFileName, (char *)CmdPtr->FileName,
+                CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE,
+                sizeof(CFE_ES_TaskData.BackgroundERLogDumpState.DataFileName), sizeof(CmdPtr->FileName));
+
+        CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
+        CFE_ES_TaskData.CommandCounter++;
+        CFE_ES_BackgroundWakeup();
+    }
 
     return CFE_SUCCESS;
 }/* end CFE_ES_WriteERLogCmd */
 
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_ERLogDump() -- Write exception & reset log to a file.    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int32 CFE_ES_ERLogDump(const char *Filename)
-{
-
-    int32   fd;
-    int32   WriteStat,BspStat;
-    uint32  FileSize,i,ResetAreaSize;
-    CFE_FS_Header_t FileHdr;
-    cpuaddr ResetDataAddr;
-
-    fd = OS_creat(Filename, OS_WRITE_ONLY);
-    if(fd < 0)
-    {
-        CFE_EVS_SendEvent(CFE_ES_ERLOG2_ERR_EID,CFE_EVS_EventType_ERROR,
-                "Error creating file %s, RC = 0x%08X",
-                Filename,(unsigned int)fd);
-        return CFE_ES_FILE_IO_ERR;
-    }/* end if */
-
-    CFE_FS_InitHeader(&FileHdr, CFE_ES_ER_LOG_DESC, CFE_FS_SubType_ES_ERLOG);
-
-    /* write the cFE header to the file */
-    WriteStat = CFE_FS_WriteHeader(fd, &FileHdr);
-    if(WriteStat != sizeof(CFE_FS_Header_t))
-    {
-        CFE_ES_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),WriteStat);
-        OS_close(fd);
-        return CFE_ES_FILE_IO_ERR;
-    }/* end if */
-    FileSize = WriteStat;
-
-    /* Get the pointer to the Reset Log from the BSP */
-    BspStat = CFE_PSP_GetResetArea (&ResetDataAddr, &ResetAreaSize);
-    if(BspStat != CFE_PSP_SUCCESS)
-    {
-        CFE_EVS_SendEvent(CFE_ES_RST_ACCESS_EID, CFE_EVS_EventType_ERROR,
-                "Error accessing ER Log,%s not written. RC = 0x%08X",Filename,(unsigned int)BspStat);
-        OS_close(fd);
-        return CFE_ES_RST_ACCESS_ERR;
-    }/* end if */
-
-    /* write a single ER log entry on each pass */
-    for(i=0;i<CFE_PLATFORM_ES_ER_LOG_ENTRIES;i++)
-    {
-        WriteStat = OS_write(fd,(uint8 *)ResetDataAddr,sizeof(CFE_ES_ERLog_t));
-        if(WriteStat != sizeof(CFE_ES_ERLog_t))
-        {
-            CFE_ES_FileWriteByteCntErr(Filename,sizeof(CFE_ES_ERLog_t),WriteStat);
-            OS_close(fd);
-            return CFE_ES_FILE_IO_ERR;
-        }/* end if */
-        FileSize += WriteStat;
-        ResetDataAddr+=sizeof(CFE_ES_ERLog_t);
-    }/* end for */
-
-    OS_close(fd);
-
-    CFE_EVS_SendEvent(CFE_ES_ERLOG2_EID, CFE_EVS_EventType_DEBUG,
-            "%s written:Size=%d",Filename,(int)FileSize);
-
-    return CFE_SUCCESS;
-
-} /* end CFE_ES_ERLogDump() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */

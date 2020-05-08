@@ -979,22 +979,21 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, uint32 DataLength, uint32 InputC
 /*****************************************************************************/
 /**
 ** \ingroup CFEAPIESMisc
-** \brief Process an exception detected by the underlying OS/PSP
+** \brief Notification that an asynchronous event was detected by the underlying OS/PSP
 **
 ** \par Description
-**        This hook routine is called from the PSP when an exception occurs
+**        This hook routine is called from the PSP when an exception or
+**        other asynchronous system event occurs
 **
 ** \par Assumptions, External Events, and Notes:
-**        None.
+**        The PSP must guarantee that this function is only invoked from a
+**        context which may use OSAL primitives.  In general this means that
+**        it shouldn't be _directly_ invoked from an ISR/signal context.
 **
-** \param[in]   HostTaskId       The OS (not OSAL) task ID
-** \param[in]   ReasonString     Identifier from PSP
-** \param[in]   ContextPointer   Context data from PSP
-** \param[in]   ContextSize      Size of context data from PSP
 **
 ******************************************************************************/
-void CFE_ES_ProcessCoreException(uint32  HostTaskId,     const char *ReasonString,
-                                 const uint32 *ContextPointer, uint32 ContextSize);
+void CFE_ES_ProcessAsyncEvent(void);
+
 /**@}*/
 
 /** @defgroup CFEAPIESCritData cFE Critical Data Store APIs

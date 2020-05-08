@@ -1214,21 +1214,6 @@
 **/
 #define CFE_ES_FILEWRITE_ERR_EID        74
 
-/** \brief <tt> 'Error accessing ER Log,\%s not written.Stat=0x\%08x' </tt>
-**  \event <tt> 'Error accessing ER Log,\%s not written.Stat=0x\%08x' </tt> 
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This event message is generated in response to an Exception Reset Log Dump command and there is
-**  an error obtaining the contents of the ER Log.
-**
-**  The \c 's' field identifies the filename of the file to which the data failed to write,
-**  the \c Stat field specifies, in hex, the error status returned from #CFE_PSP_GetResetArea.
-**/
-#define CFE_ES_RST_ACCESS_EID           75
-
 /** \brief <tt> 'Error while deleting '\%s' from CDS, See SysLog.(Err=0x\%08X)' </tt>
 **  \event <tt> 'Error while deleting '\%s' from CDS, See SysLog.(Err=0x\%08X)' </tt> 
 **
@@ -1517,6 +1502,19 @@
 **/
 #define CFE_ES_BUILD_INF_EID    92
 
+
+/** \brief <tt> 'Error log write to file \%s already in progress' </tt>
+**  \event <tt> 'Error log write to file \%s already in progress' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This event message is generated when an Executive Services \link #CFE_ES_WRITE_ER_LOG_CC Dump Exception Reset Log
+**  Command \endlink is received before a previously-issued command has finished executing
+**
+**/
+#define CFE_ES_ERLOG_PENDING_ERR_EID    93
 
 
 #endif /* _cfe_es_events_ */
