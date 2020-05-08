@@ -80,11 +80,6 @@ static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_RESTART_CC =
         .CommandCode = CFE_ES_RESTART_CC
 };
 
-static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_SHELL_CC =
-{
-        .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
-        .CommandCode = CFE_ES_SHELL_CC
-};
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_START_APP_CC =
 {
         .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
@@ -282,7 +277,6 @@ void UtTest_Setup(void)
     UT_ADD_TEST(TestStartupErrorPaths);
     UT_ADD_TEST(TestApps);
     UT_ADD_TEST(TestERLog);
-    UT_ADD_TEST(TestShell);
     UT_ADD_TEST(TestTask);
     UT_ADD_TEST(TestPerf);
     UT_ADD_TEST(TestAPI);
@@ -2113,66 +2107,6 @@ void TestApps(void)
               CFE_ES_ListResourcesDebug() == CFE_SUCCESS,
               "CFE_ES_ListResourcesDebug",
               "Get OS information failures");
-
-    /* Fail the first time, then succeed on the second in order to test
-     * both paths
-     */
-    UT_SetDeferredRetcode(UT_KEY(OS_MutSemGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_BinSemGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_CountSemGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_TaskGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_QueueGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_FDGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListResources(0) == OS_ERROR,
-              "CFE_ES_ListResources",
-              "Get task info failed");
-
-    /* Fail the file write the second time in order to test the second path */
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 2, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListResources(0) == OS_ERROR,
-              "CFE_ES_ListResources",
-              "File write failed (second path)");
-
-    /* Fail the file write the third time in order to test the third path */
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 3, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListResources(0) == OS_ERROR,
-              "CFE_ES_ListResources",
-              "File write failed (third path)");
-
-    /* Fail the file write the fourth time in order to test the fourth path */
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 4, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListResources(0) == OS_ERROR,
-              "CFE_ES_ListResources",
-              "File write failed (fourth path)");
-
-    /* Fail the file write the fifth time in order to test the fifth path */
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 5, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListResources(0) == OS_ERROR,
-              "CFE_ES_ListResources",
-              "File write failed (fifth path)");
-
-    /* Fail the file write the sixth time in order to test the sixth path */
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 6, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListResources(0) == OS_ERROR,
-              "CFE_ES_ListResources",
-              "File write failed (sixth path)");
-
-    /* Fail the file write the seventh time in order to test the seventh
-     * path
-     */
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 7, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListResources(0) == OS_ERROR,
-              "CFE_ES_ListResources",
-              "File write failed (seventh path)");
 }
 
 void TestERLog(void)
@@ -2272,181 +2206,6 @@ void TestERLog(void)
               "No log entry rollover; no description; no context");
 }
 
-void TestShell(void)
-{
-    uint32 Id, Id2;
-    uint32 TestObjId, TestObjId2;
-
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Shell Command\n");
-#endif
-
-    /* Test shell output command using a non-existent ES command */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ShellOutputCommand("ES_NoSuchThing",
-                                        "./FS_Test_File_Name") ==
-                  CFE_ES_ERR_SHELL_CMD,
-              "CFE_ES_ShellOutputCommand",
-              "Invalid ES command");
-
-    /* Test shell output command using a valid OS command */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ShellOutputCommand("ls", "") == CFE_SUCCESS,
-              "CFE_ES_ShellOutputCommand",
-              "Send OS command");
-
-    /* Test shell output command using an ES list applications command */
-    ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].TaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ShellOutputCommand("ES_ListApps", "") == CFE_SUCCESS,
-              "CFE_ES_ShellOutputCommand",
-              "Send ES list applications command");
-    CFE_ES_Global.TaskTable[Id].RecordUsed = false;
-
-    /* Test shell output command using an ES list tasks command */
-    ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].TaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ShellOutputCommand("ES_ListTasks", "") == CFE_SUCCESS,
-              "CFE_ES_ShellOutputCommand",
-              "Send ES list tasks command");
-    CFE_ES_Global.TaskTable[Id].RecordUsed = false;
-
-    /* Test shell output command using an ES list resources command.  Alter
-     * the OS_lseek() response to increase branch path coverage
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, CFE_PLATFORM_ES_MAX_SHELL_PKT + 1);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ShellOutputCommand("ES_ListResources", "") == CFE_SUCCESS,
-              "CFE_ES_ShellOutputCommand",
-              "Send ES list resources command");
-
-    /* Test shell output command using a valid OS command but with a failed
-     * OS lseek
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, CFE_PLATFORM_ES_MAX_SHELL_PKT - 2);
-    UT_SetForceFail(UT_KEY(OS_lseek), OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ShellOutputCommand("ls", "") == CFE_ES_ERR_SHELL_CMD,
-              "CFE_ES_ShellOutputCommand",
-              "OS command; OS lseek failure");
-
-    /* Test shell output command using a valid OS command to start sending
-     * packets down
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 2, CFE_PLATFORM_ES_MAX_SHELL_PKT * 2 + 1);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ShellOutputCommand("ls", "") == CFE_SUCCESS,
-              "CFE_ES_ShellOutputCommand",
-              "Multiple packets to send down");
-
-    /* Test shell output command using a valid ES command but with a failed
-     * OS create
-     */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ShellOutputCommand("ES_ListApps",
-                                        "") == CFE_ES_ERR_SHELL_CMD,
-              "CFE_ES_ShellOutputCommand",
-              "ES command; OS create failure");
-
-    /* Test shell output command using a valid ES command but with a failed
-     * OS lseek
-     */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_lseek), OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ShellOutputCommand("ES_ListApps",
-                                        "") == CFE_ES_ERR_SHELL_CMD,
-              "CFE_ES_ShellOutputCommand",
-              "ES command; OS lseek failed");
-
-    /* Test list application function with a failed OS write */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_ERROR);
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id2].AppState = CFE_ES_AppState_RUNNING;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListApplications(Id) == OS_ERROR,
-              "CFE_ES_ListApplications",
-              "File write error");
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_UNDEFINED;
-    CFE_ES_Global.AppTable[Id2].AppState = CFE_ES_AppState_UNDEFINED;
-
-    /* Test list application function with a failed OS seek */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListTasks(0) == OS_ERROR,
-              "CFE_ES_ListTasks",
-              "File seek error");
-
-    /* Test list application function with a failed OS write */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListTasks(0) == OS_ERROR,
-              "CFE_ES_ListTasks",
-              "File write error");
-
-    /* Test list application function with a failed OS write on a
-     * subsequent pass
-     */
-    ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].AppId = Id2;
-    CFE_ES_Global.TaskTable[Id2].RecordUsed = true;
-    CFE_ES_Global.AppTable[Id2].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id2].AppId = Id2;
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 2, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListTasks(0) == OS_ERROR,
-              "CFE_ES_ListTasks",
-              "File write error (second pass)");
-
-    /* Test list application function with a failure to get the task
-     * information
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 3, OS_ERROR);
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-    CFE_ES_Global.TaskTable[Id2].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id2].AppId = Id;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListTasks(0) == CFE_ES_ERR_TASKID,
-              "CFE_ES_ListTasks",
-              "Get task info error");
-}
-
 void TestTask(void)
 {
     uint32                      Id;
@@ -2457,7 +2216,6 @@ void TestTask(void)
         CFE_SB_Msg_t             Msg;
         CFE_ES_NoArgsCmd_t       NoArgsCmd;
         CFE_ES_Restart_t         RestartCmd;
-        CFE_ES_Shell_t           ShellCmd;
         CFE_ES_StartApp_t        StartAppCmd;
         CFE_ES_StopApp_t         StopAppCmd;
         CFE_ES_RestartApp_t      RestartAppCmd;
@@ -2671,29 +2429,6 @@ void TestTask(void)
               UT_EventIsInHistory(CFE_ES_BOOT_ERR_EID),
               "CFE_ES_RestartCmd",
               "Invalid restart type");
-
-    /* Test shell command failure */
-    ES_ResetUnitTest();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.ShellCmd.Payload.CmdString, "ES_NOAPP",
-            sizeof(CmdBuf.ShellCmd.Payload.CmdString));
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_Shell_t),
-            UT_TPID_CFE_ES_CMD_SHELL_CC);
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_SHELL_ERR_EID),
-              "CFE_ES_ShellCmd",
-              "Shell command fail");
-
-    /* Test successful shell command */
-    ES_ResetUnitTest();
-    strncpy((char *) CmdBuf.ShellCmd.Payload.CmdString, "ls",
-            sizeof(CmdBuf.ShellCmd.Payload.CmdString));
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_Shell_t),
-            UT_TPID_CFE_ES_CMD_SHELL_CC);
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_SHELL_INF_EID),
-              "CFE_ES_ShellCmd",
-              "Shell command success");
 
     /* Test successful app create */
     ES_ResetUnitTest();
@@ -3570,15 +3305,6 @@ void TestTask(void)
               !UT_EventIsInHistory(CFE_ES_BOOT_ERR_EID),
               "CFE_ES_RestartCmd",
               "Power on reset restart type");
-
-    /* Test sending a shell command with an invalid command length */
-    ES_ResetUnitTest();
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, 0, 
-        UT_TPID_CFE_ES_CMD_SHELL_CC);
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_LEN_ERR_EID),
-              "CFE_ES_ShellCmd",
-              "Shell command; invalid command length");
 
     /* Test sending a start application command with an invalid command
      * length

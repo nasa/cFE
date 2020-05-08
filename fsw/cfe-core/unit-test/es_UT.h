@@ -166,27 +166,6 @@ void TestERLog(void);
 
 /*****************************************************************************/
 /**
-** \brief Performs tests on the ES shell commanding system contained in
-**        cfe_es_shell.c
-**
-** \par Description
-**        This function tests the shell output command paths in the function
-**        CFE_ES_ShellOutputCommand.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.  
-**
-** \sa #UT_Text, #UT_SetOSFail, #UT_Report, #CFE_ES_ShellOutputCommand
-** \sa #UT_SetRtnCode
-**
-******************************************************************************/
-void TestShell(void);
-
-/*****************************************************************************/
-/**
 ** \brief Performs tests of the ground command functions contained in
 **        cfe_es_task.c
 **
@@ -204,7 +183,7 @@ void TestShell(void);
 ** \sa #CFE_ES_TaskInit, #UT_SetSBTotalMsgLen, #UT_SendMsg
 ** \sa #UT_SetBSPloadAppFileResult, #UT_SetStatusBSPResetArea
 ** \sa #CFE_ES_HousekeepingCmd, #CFE_ES_NoopCmd, #CFE_ES_ResetCountersCmd
-** \sa #CFE_ES_RestartCmd, #CFE_ES_ShellCmd, #CFE_ES_StartAppCmd
+** \sa #CFE_ES_RestartCmd, #CFE_ES_StartAppCmd
 ** \sa #CFE_ES_StopAppCmd, #CFE_ES_RestartAppCmd, #CFE_ES_ReloadAppCmd
 ** \sa #CFE_ES_QueryOneCmd, #CFE_ES_QueryAllCmd, #CFE_ES_QueryAllTasksCmd
 ** \sa #CFE_ES_ClearSyslogCmd, #CFE_ES_OverWriteSyslogCmd
