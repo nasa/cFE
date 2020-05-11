@@ -367,11 +367,6 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
    bool    AppSlotFound;
    uint32  TaskId;
    uint32  ModuleId;
-   char    FileNameOnly[OS_MAX_PATH_LEN];
-   char    RamDiskPath[OS_MAX_PATH_LEN];
-   size_t  StringLength;
-   bool    IsRamDiskFile = false;
-
 
    /*
     * The FileName must not be NULL
@@ -405,96 +400,10 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
    if ( AppSlotFound == true)
    {
       /*
-      ** Check to see if the code is a Gzip file
+      ** Load the module
       */
-      if ( CFE_FS_IsGzFile(FileName) == true )
-      {
-         /*
-         ** Build up the destination path in the RAM disk
-         */
-         (void) CFE_SB_MessageStringGet(RamDiskPath,
-                                        CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING"/",
-                                        NULL,
-                                        sizeof(RamDiskPath),
-                                        sizeof(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING"/"));
+      ReturnCode = OS_ModuleLoad ( &ModuleId, AppName, FileName );
 
-         /*
-         ** Extract the filename from the path
-         */
-         ReturnCode = CFE_FS_ExtractFilenameFromPath(FileName, FileNameOnly);
-
-         if ( ReturnCode == CFE_SUCCESS )
-         {
-            if ((strlen(RamDiskPath) + strlen(FileNameOnly)) < OS_MAX_PATH_LEN)
-            {
-
-                /*
-                ** Cat the Filename to the RamDiskPath
-                */
-                strcat(RamDiskPath, FileNameOnly);
-
-                /*
-                ** Remove the ".gz" prefix from the filename
-                ** Already Determined that the filename ends in ".gz"
-                */
-                StringLength = strlen(RamDiskPath);
-                RamDiskPath[StringLength - 3] = '\0';
-
-                /*
-                ** Decompress the file:
-                */
-                ReturnCode =  CFE_FS_Decompress( FileName, RamDiskPath);
-
-                if ( ReturnCode != OS_SUCCESS )
-                {
-                   CFE_ES_WriteToSysLog("ES Startup: Unable to decompress Application File: %s\n",FileName);
-
-                   CFE_ES_LockSharedData(__func__,__LINE__);
-                   CFE_ES_Global.AppTable[i].AppState = CFE_ES_AppState_UNDEFINED; /* Release slot */
-                   CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-                   return(CFE_ES_ERR_APP_CREATE);
-                }
-                else
-                {
-                   /*
-                   ** All ready to use unzipped RAM disk file
-                   */
-                   IsRamDiskFile = true;
-                   ReturnCode = OS_ModuleLoad( &ModuleId, AppName, RamDiskPath);
-                }
-            }
-            else
-            {
-                /* Can't include the name string since it could be too long for the message */
-                CFE_ES_WriteToSysLog("ES Startup: Application path plus file name length (%d) exceeds max allowed (%d)\n",
-                                     (int)(strlen(RamDiskPath) + strlen(FileNameOnly)), OS_MAX_PATH_LEN);
-
-                CFE_ES_LockSharedData(__func__,__LINE__);
-                CFE_ES_Global.AppTable[i].AppState = CFE_ES_AppState_UNDEFINED; /* Release slot */
-                CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-                return(CFE_ES_ERR_APP_CREATE);
-            }
-
-         }
-         else
-         {
-            CFE_ES_WriteToSysLog("ES Startup: Unable to extract filename from path: %s.\n",FileName);
-            CFE_ES_LockSharedData(__func__,__LINE__);
-            CFE_ES_Global.AppTable[i].AppState = CFE_ES_AppState_UNDEFINED; /* Release slot */
-            CFE_ES_UnlockSharedData(__func__,__LINE__);
-            return(CFE_ES_ERR_APP_CREATE);
-         }
-
-      }
-      else
-      {
-          /*
-          ** Load the module directly
-          */
-          ReturnCode = OS_ModuleLoad ( &ModuleId, AppName, FileName );
-      }
       /*
       ** If the Load was OK, then lookup the address of the entry point
       */
@@ -627,20 +536,6 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
 
          CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-         /*
-         ** Remove the temporary RAM disk file
-         */
-         if ( IsRamDiskFile == true )
-         {
-            ReturnCode = OS_remove(RamDiskPath);
-
-            if (ReturnCode != OS_SUCCESS)
-            {
-                CFE_ES_WriteToSysLog("ES Startup: Error removing temp RAM disk file, EC = 0x%08X\n",
-                                     (unsigned int) ReturnCode);
-            }
-         }
-
          return(CFE_SUCCESS);
 
       } /* End If OS_TaskCreate */
@@ -667,14 +562,11 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
 {
    CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
    CFE_ES_LibRecord_t *         LibSlotPtr;
-   const char *                 ActualLoadFile;
    size_t                       StringLength;
    int32                        Status;
    uint32                       CheckSlot;
    uint32                       ModuleId;
    bool                         IsModuleLoaded;
-   bool                         IsRamDiskFile;
-   char                         RamDiskPath[OS_MAX_PATH_LEN];
 
    /*
     * First, should verify that the supplied "LibName" fits within the internal limit
@@ -689,10 +581,7 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
    /*
    ** Allocate an ES_LibTable entry
    */
-   RamDiskPath[0] = 0;
    IsModuleLoaded = false;
-   IsRamDiskFile = false;
-   ActualLoadFile = NULL;
    LibSlotPtr = NULL;
    FunctionPointer = NULL;
    ModuleId = 0;
@@ -769,41 +658,12 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
     */
 
    /*
-    * STAGE 1:
-    * Figure out what filename to actually load, if a filename was given
-    * If the file is compressed, it must be uncompressed to a temp location first and that will be loaded
-    *
-    * (Note CFE_FS_IsGzFile() handles a NULL filename and properly returns false if NULL)
-    */
-   if ( ! CFE_FS_IsGzFile(FileName) )
-   {
-       /*
-       ** Not compressed - Load the library module directly
-       */
-       ActualLoadFile = FileName;
-   }
-   else
-   {
-       /*
-        * Decompress to a temp file, and get that file name.
-        * Implemented in a helper function in the File Services subsystem which avoids clutter here.
-        */
-       Status = CFE_FS_GetUncompressedFile(RamDiskPath, sizeof(RamDiskPath),
-               FileName, CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
-       if (Status == CFE_SUCCESS)
-       {
-           IsRamDiskFile = true;
-           ActualLoadFile = RamDiskPath;
-       }
-   }
-
-   /*
     * STAGE 2:
     * Do the OS_ModuleLoad() if is called for (i.e. ModuleLoadFile is NOT null)
     */
-   if (Status == CFE_SUCCESS && ActualLoadFile != NULL)
+   if (Status == CFE_SUCCESS && FileName != NULL)
    {
-       Status = OS_ModuleLoad( &ModuleId, LibName, ActualLoadFile );
+       Status = OS_ModuleLoad( &ModuleId, LibName, FileName );
        if (Status == OS_SUCCESS)
        {
            Status = CFE_SUCCESS; /* just in case CFE_SUCCESS is different than OS_SUCCESS */
@@ -896,24 +756,6 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
        if (IsModuleLoaded)
        {
            OS_ModuleUnload( ModuleId );
-       }
-
-       /*
-        * If the above code had used a temp file, then remove it
-        */
-       if ( IsRamDiskFile == true )
-       {
-           /*
-            * Note: do not overwrite "Status" variable here;
-            * this contains a return code that needs to be
-            * sent back to the caller.
-            */
-
-           if (OS_remove(RamDiskPath) != OS_SUCCESS)
-           {
-                CFE_ES_WriteToSysLog("ES Startup: Error removing temp lib RAM disk file, EC = 0x%08X\n",
-                                     (unsigned int) Status);
-           }
        }
 
        /* Release Slot - No need to lock as it is resetting just a single bool value */

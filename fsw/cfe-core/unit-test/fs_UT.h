@@ -49,7 +49,6 @@
 #include "cfe_fs_priv.h"
 #include "common_types.h"
 #include "ut_support.h"
-#include "ut_fs_zipfile.h"
 
 /* FS unit test functions */
 /*****************************************************************************/

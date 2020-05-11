@@ -807,7 +807,6 @@ void TestApps(void)
     int Return;
     int j;
     CFE_ES_AppInfo_t AppInfo;
-    char LongFileName[OS_MAX_PATH_LEN + 9];
     char LongLibraryName[sizeof(CFE_ES_Global.LibTable[0].LibName)+1];
     uint32 Id, Id2, Id3, Id4;
     uint32 TestObjId, TestObjId2, TestObjId3, TestObjId4;
@@ -967,61 +966,6 @@ void TestApps(void)
               "CFE_ES_AppCreate",
               "Application load/create; successful");
 
-    /* Test application loading and creation with a file
-     * decompression failure
-     */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_IsGzFile), 1, true);
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_Decompress), 1, -1);
-    Return = CFE_ES_AppCreate(&Id,
-                              "ut/filename.gz",
-                              "EntryPoint",
-                              "AppName",
-                              170,
-                              8192,
-                              1);
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_APP_CREATE &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_DECOMPRESS_APP]),
-              "CFE_ES_AppCreate",
-              "Decompression failure");
-
-    /* Test application loading, creation and decompression */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_IsGzFile), 1, true);
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_Decompress), 1, 0);
-    Return = CFE_ES_AppCreate(&Id,
-                              "ut/filename.gz",
-                              "EntryPoint",
-                              "AppName",
-                              170,
-                              8192,
-                              1);
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_SUCCESS &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_TABLE_SLOT_IN_USE]),
-              "CFE_ES_AppCreate",
-              "Decompression; successful");
-
-    /* Test application loading and creation where the file name cannot be
-     * extracted from the path
-     */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_IsGzFile), 1, true);
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ExtractFilenameFromPath), 1, -1);
-    Return = CFE_ES_AppCreate(&Id,
-                              "ut/filename.gz",
-                              "EntryPoint",
-                              "AppName",
-                              170,
-                              8192,
-                              1);
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_APP_CREATE &&
-                UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_EXTRACT_FILENAME_UT]),
-              "CFE_ES_AppCreate",
-              "File name extraction failure");
-
     /* Test application loading and creation where the file cannot be loaded */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, -1);
@@ -1098,70 +1042,10 @@ void TestApps(void)
               "CFE_ES_AppCreate",
               "Module unload failure after entry point lookup failure");
 
-    /* Test application loading and creation where the application file name
-     * is too long
-     */
-    UT_InitData();
-    strcpy(LongFileName, "ut57/");
-
-    for (j = 0; j < OS_MAX_PATH_LEN; j++)
-    {
-        strcat(LongFileName, "a");
-    }
-
-    strcat(LongFileName, ".gz");
-
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_IsGzFile), 1, true);
-    Return = CFE_ES_AppCreate(&Id,
-                              LongFileName,
-                              "EntryPoint",
-                              "AppName",
-                              170,
-                              8192,
-                              1);
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_APP_CREATE &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_EXTRACT_FILENAME_UT57]),
-              "CFE_ES_AppCreate",
-              "Application file name too long");
-
-    /* Test application loading and creation where the application path + file
-     * name is too long
-     */
-    UT_InitData();
-    strcpy(LongFileName, "ut58/");
-
-    for (j = 0; j < OS_MAX_PATH_LEN - 6; j++)
-    {
-        strcat(LongFileName, "a");
-    }
-
-    strcat(LongFileName, ".gz");
-
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_IsGzFile), 1, true);
-    Return = CFE_ES_AppCreate(&Id,
-                              LongFileName,
-                              "EntryPoint",
-                              "AppName",
-                              170,
-                              8192,
-                              1);
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_APP_CREATE &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_APP_PATH_FILE_TOO_LONG]),
-              "CFE_ES_AppCreate",
-              "Application file name + path too long");
-
     /* Test shared library loading and initialization where the initialization
      * routine returns an error
      */
-    UT_InitData();
-
-    for (j = 0; j < CFE_PLATFORM_ES_MAX_LIBRARIES; j++)
-    {
-        CFE_ES_Global.LibTable[j].RecordUsed = false;
-    }
-
+    ES_ResetUnitTest();
     UT_SetDummyFuncRtn(-444);
     Return = CFE_ES_LoadLibrary(&Id,
                                 "filename",
@@ -1186,15 +1070,12 @@ void TestApps(void)
               "CFE_ES_LoadLibrary",
               "Load shared library bad argument (library name too long)");
     
-    /* Test successful shared library loading and initialization with a
-     * gzip'd library
-     */
+    /* Test successful shared library loading and initialization */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_IsGzFile), 1, true);
     UT_SetDummyFuncRtn(OS_SUCCESS);
     Id = CFE_PLATFORM_ES_MAX_LIBRARIES;
     Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle.gz",
+                                "/cf/apps/tst_lib.bundle",
                                 "TST_LIB_Init",
                                 "TST_LIB");
     UT_Report(__FILE__, __LINE__,
@@ -1202,12 +1083,12 @@ void TestApps(void)
               Id < CFE_PLATFORM_ES_MAX_LIBRARIES &&
               CFE_ES_Global.LibTable[Id].RecordUsed == true,
               "CFE_ES_LoadLibrary",
-              "Decompress library; successful");
+              "successful");
 
     /* Try loading same library again, should return the DUPLICATE code */
     Id = CFE_PLATFORM_ES_MAX_LIBRARIES;
     Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle.gz",
+                                "/cf/apps/tst_lib.bundle",
                                 "TST_LIB_Init",
                                 "TST_LIB");
     UT_Report(__FILE__, __LINE__,
@@ -1215,66 +1096,44 @@ void TestApps(void)
               Id < CFE_PLATFORM_ES_MAX_LIBRARIES &&
               CFE_ES_Global.LibTable[Id].RecordUsed == true,
               "CFE_ES_LoadLibrary",
-              "Unable to decompress library");
-
-
-    /* Test shared library loading and initialization with a gzip'd library
-     * where the decompression fails.
-     * Only one test case is needed here now, since the CFE_FS_GetUncompressedFile
-     * is moved into FS and is individually tested in that module
-     */
-    UT_InitData();
-    memset(&CFE_ES_Global.LibTable, 0, sizeof(CFE_ES_Global.LibTable));
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_IsGzFile), 1, true);
-    UT_SetForceFail(UT_KEY(CFE_FS_GetUncompressedFile), CFE_FS_BAD_ARGUMENT);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle.gz",
-                                "TST_LIB_Init",
-                                "TST_LIB");
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_FS_BAD_ARGUMENT,
-              "CFE_ES_LoadLibrary",
-              "Unable to decompress library");
+              "Duplicate");
 
     /* Test shared library loading and initialization where the library
      * fails to load
      */
-    UT_InitData();
+    ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, -1);
     Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle.gz",
+                                "/cf/apps/tst_lib.bundle",
                                 "TST_LIB_Init",
                                 "TST_LIB");
     UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_LOAD_LIB &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LOAD_SHARED_LIBRARY]),
+              Return == CFE_ES_ERR_LOAD_LIB,
               "CFE_ES_LoadLibrary",
               "Load shared library failure");
 
     /* Test shared library loading and initialization where the library
      * entry point symbol cannot be found
      */
-    UT_InitData();
+    ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
     Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle.gz",
+                                "/cf/apps/tst_lib.bundle",
                                 "TST_LIB_Init",
                                 "TST_LIB");
     UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_LOAD_LIB &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FIND_LIBRARY]),
+              Return == CFE_ES_ERR_LOAD_LIB,
               "CFE_ES_LoadLibrary",
               "Could not find library initialization symbol");
 
     /* Test shared library loading and initialization where the library
      * initialization function fails and then must be cleaned up
      */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_IsGzFile), 1, true);
+    ES_ResetUnitTest();
     UT_SetForceFail(UT_KEY(OS_remove), OS_ERROR); /* for coverage of error path */
     UT_SetForceFail(UT_KEY(dummy_function), -555);
     Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle.gz",
+                                "/cf/apps/tst_lib.bundle",
                                 "dummy_function",
                             "TST_LIB");
     UT_Report(__FILE__, __LINE__,
@@ -1285,8 +1144,7 @@ void TestApps(void)
     /* Test shared library loading and initialization where there are no
      * library slots available
      */
-    UT_InitData();
-
+    ES_ResetUnitTest();
     for (j = 0; j < CFE_PLATFORM_ES_MAX_LIBRARIES; j++)
     {
         CFE_ES_Global.LibTable[j].RecordUsed = true;
