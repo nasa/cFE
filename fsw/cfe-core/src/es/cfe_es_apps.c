@@ -53,9 +53,6 @@
 */
 #define ES_START_BUFF_SIZE 128
 
-/* For extra debug code */
-#undef ES_APP_DEBUG
-
 /*
 **
 **  Global Variables
@@ -1238,11 +1235,6 @@ int32 CFE_ES_CleanUpApp(uint32 AppId)
    uint32 MainTaskId;
    int32  ReturnCode = CFE_SUCCESS;
 
-   #ifdef ES_APP_DEBUG
-      OS_printf("------------- Starting App Cleanup: AppID = %d -----------\n",AppId);
-      CFE_ES_ListResourcesDebug();
-   #endif
-
    /*
    ** Call the Table Clean up function
    */
@@ -1332,12 +1324,6 @@ int32 CFE_ES_CleanUpApp(uint32 AppId)
 
    CFE_ES_Global.AppTable[AppId].AppState = CFE_ES_AppState_UNDEFINED;
 
-    #ifdef ES_APP_DEBUG
-       OS_TaskDelay(1000);
-       CFE_ES_ListResourcesDebug();
-       printf("--------- Finished CFE_ES_CleanUpApp-------------\n");
-    #endif
-
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
    return(ReturnCode);
@@ -1348,8 +1334,7 @@ int32 CFE_ES_CleanUpApp(uint32 AppId)
 /*
  * Simple state structure used when cleaning up objects associated with tasks
  *
- * This is used locally between CFE_ES_CleanupTaskResources and the
- * CFE_ES_CountObjectCallback helper function.
+ * This is used locally by CFE_ES_CleanupTaskResources
  */
 typedef struct
 {
@@ -1362,9 +1347,9 @@ typedef struct
 
 /*
 **---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CountObjectCallback
+**   Name: CFE_ES_CleanupObjectCallback
 **
-**   Purpose: Helper function for CFE_ES_ListResourcesDebug to count all objects.
+**   Purpose: Helper function clean up all objects.
 **
 **   NOTE: This is called while holding the ES global lock
 **---------------------------------------------------------------------------------------
@@ -1525,53 +1510,6 @@ int32 CFE_ES_CleanupTaskResources(uint32 TaskId)
 
     CFE_ES_Global.RegisteredTasks--;
     return(Result);
-
-}
-
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CountObjectCallback
-**
-**   Purpose: Helper function for CFE_ES_ListResourcesDebug to count all objects.
-**---------------------------------------------------------------------------------------
-*/
-void CFE_ES_CountObjectCallback(uint32 ObjectId, void *arg)
-{
-    uint32                 *CountState;
-    uint32                 idtype;
-
-    CountState = (uint32 *)arg;
-    idtype = OS_IdentifyObject(ObjectId);
-    if (idtype < OS_OBJECT_TYPE_USER)
-    {
-        ++CountState[idtype];
-    }
-}
-
-
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_ListResourcesDebug
-**
-**   Purpose: List the resources.
-**---------------------------------------------------------------------------------------
-*/
-int32 CFE_ES_ListResourcesDebug(void)
-{
-    uint32   CountState[OS_OBJECT_TYPE_USER];
-
-    memset(CountState,0,sizeof(CountState));
-    OS_ForEachObject (0, CFE_ES_CountObjectCallback, CountState);
-
-    OS_printf("OS Resources in Use:\n");
-    OS_printf("Number of Tasks: %d\n", (int) CountState[OS_OBJECT_TYPE_OS_TASK]);
-    OS_printf("Number of Queues: %d\n", (int) CountState[OS_OBJECT_TYPE_OS_QUEUE]);
-    OS_printf("Number of Counting Semaphores: %d\n",(int) CountState[OS_OBJECT_TYPE_OS_COUNTSEM]);
-    OS_printf("Number of Binary Semaphores: %d\n",(int) CountState[OS_OBJECT_TYPE_OS_BINSEM]);
-    OS_printf("Number of Mutexes: %d\n", (int) CountState[OS_OBJECT_TYPE_OS_MUTEX]);
-    OS_printf("Number of Open Files: %d\n",(int) CountState[OS_OBJECT_TYPE_OS_STREAM]);
-
-    return CFE_SUCCESS;
 
 }
 

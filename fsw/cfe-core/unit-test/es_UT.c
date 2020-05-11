@@ -1687,16 +1687,6 @@ void TestApps(void)
     /* Test listing the OS resources in use */
     ES_ResetUnitTest();
 
-    /* Fail the first time, then succeed on the second in order to test
-     * both paths
-     */
-    UT_SetDeferredRetcode(UT_KEY(OS_TaskGetInfo), 2, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListResourcesDebug() == CFE_SUCCESS &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 7,
-              "CFE_ES_ListResourcesDebug",
-              "Get task info failed");
-
     /* Test populating the application information structure with data */
     ES_ResetUnitTest();
     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
@@ -2091,21 +2081,6 @@ void TestApps(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CleanupTaskResources(TestObjId) == CFE_SUCCESS,
               "CFE_ES_CleanupTaskResources",
-              "Get OS information failures");
-
-    /* Test cleaning up the OS resources for a task with failure to
-     * obtain information on mutex, binary, and counter semaphores, and
-     * queues, timers, and file descriptors
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_MutSemGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_BinSemGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_CountSemGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_QueueGetInfo), 1, OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_FDGetInfo), 1, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_ListResourcesDebug() == CFE_SUCCESS,
-              "CFE_ES_ListResourcesDebug",
               "Get OS information failures");
 }
 

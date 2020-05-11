@@ -137,7 +137,7 @@ void TestStartupErrorPaths(void);
 ** \sa #UT_Report, #UT_SetOSFail, #CFE_ES_ParseFileEntry
 ** \sa #UT_SetBSPloadAppFileResult, #CFE_ES_AppCreate, #UT_SetDummyFuncRtn
 ** \sa #CFE_ES_LoadLibrary, #CFE_ES_ScanAppTable, #CFE_ES_ProcessControlRequest
-** \sa #CFE_ES_ListResourcesDebug, #CFE_ES_GetAppInfo, #CFE_ES_CleanUpApp
+** \sa #CFE_ES_GetAppInfo, #CFE_ES_CleanUpApp
 ** \sa #CFE_ES_CleanupTaskResources
 **
 ******************************************************************************/
