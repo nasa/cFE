@@ -490,9 +490,11 @@ int32 CFE_ES_DeleteApp(uint32 AppID);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in]  ExitStatus     .
-**
-** \return Execution status, see \ref CFEReturnCodes
+** \param[in]  ExitStatus Acceptable values are: \arg #CFE_ES_RunStatus_APP_EXIT - \copybrief CFE_ES_RunStatus_APP_EXIT
+ \arg #CFE_ES_RunStatus_APP_ERROR - \copybrief CFE_ES_RunStatus_APP_ERROR
+ \arg #CFE_ES_RunStatus_CORE_APP_INIT_ERROR - \copybrief CFE_ES_RunStatus_CORE_APP_INIT_ERROR
+ \arg #CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR - \copybrief CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR
+**    
 **
 ** \sa #CFE_ES_RunLoop, #CFE_ES_RegisterApp
 **
@@ -645,11 +647,10 @@ void  CFE_ES_IncrementTaskCounter(void);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in]   ResetSubtypePtr    Pointer to \c uint32 type variable in which the Reset Sub-Type will be stored.
-**                                 The caller can set this pointer to NULL if the Sub-Type is of no interest.
-**
-** \param[out]  *ResetSubtypePtr   If the provided pointer was not \c NULL, the Reset Sub-Type is stored at the given address.
+** \param[in, out]   ResetSubtypePtr    Pointer to \c uint32 type variable in which the Reset Sub-Type will be stored.
+**                                 The caller can set this pointer to NULL if the Sub-Type is of no interest. \n *ResetSubtypePtr If the provided pointer was not \c NULL, the Reset Sub-Type is stored at the given address.
 **                                 For a list of possible Sub-Type values, see \link #CFE_PSP_RST_SUBTYPE_POWER_CYCLE "Reset Sub-Types" \endlink.
+**
 **
 ** \return Processor reset type
 ** \retval #CFE_PSP_RST_TYPE_POWERON   \copybrief CFE_PSP_RST_TYPE_POWERON
@@ -670,9 +671,8 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr);
 ** \par Assumptions, External Events, and Notes:
 **        NOTE: \b All tasks associated with the Application would return the same Application ID.
 **
-** \param[in]   AppIdPtr       Pointer to variable that is to receive the Application's ID.
+** \param[in]   AppIdPtr       Pointer to variable that is to receive the Application's ID. *AppIdPtr is the application ID of the calling Application.
 **
-** \param[out]  *AppIdPtr      Application ID of the calling Application.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS       \copybrief CFE_SUCCESS
@@ -695,11 +695,10 @@ int32 CFE_ES_GetAppID(uint32 *AppIdPtr);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   AppIdPtr       Pointer to variable that is to receive the Application's ID.
+** \param[in]   AppIdPtr       Pointer to variable that is to receive the Application's ID. *AppIdPtr is the application ID of the calling Application.
 **
 ** \param[in]   AppName        Pointer to null terminated character string containing an Application name.
 **
-** \param[out]  *AppIdPtr      Application ID of the calling Application.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -723,8 +722,9 @@ int32 CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName);
 **        In the case of a failure (#CFE_ES_ERR_APPID), an empty string is returned.  #CFE_ES_ERR_APPID
 **        will be returned if the specified Application ID (AppId) is invalid or not in use.
 **
-** \param[in]   AppName       Pointer to a character array of at least \c BufferLength in size that will
-**                            be filled with the appropriate Application name.
+** \param[in, out]   AppName       Pointer to a character array of at least \c BufferLength in size that will
+**                            be filled with the appropriate Application name.  *AppName is the null terminated Application name of the Application associated with the 
+**                            specified Application ID
 **
 ** \param[in]   AppId         Application ID of Application whose name is being requested.
 **
@@ -732,8 +732,6 @@ int32 CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName);
 **                            into the \c AppName buffer.  This routine will truncate the name to this length,
 **                            if necessary.
 **
-** \param[out]  *AppName      Null terminated Application name of the Application associated with the 
-**                            specified Application ID.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -756,13 +754,12 @@ int32 CFE_ES_GetAppName(char *AppName, uint32 AppId, uint32 BufferLength);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   AppInfo      Pointer to a \c CFE_ES_AppInfo_t structure that holds the specific 
-**                            Application information.
+** \param[in, out]   AppInfo      Pointer to a \c CFE_ES_AppInfo_t structure that holds the specific 
+**                            Application information. *AppInfo is the filled out \c CFE_ES_AppInfo_t structure containing the 
+**                            App Name, and application memory addresses among other fields.
 **
 ** \param[in]   AppId        Application ID of Application whose name is being requested.
 **
-** \param[out]  *AppInfo     Filled out \c CFE_ES_AppInfo_t structure containing the 
-**                            App Name, and application memory addresses among other fields.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -786,13 +783,12 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, uint32 AppId);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   TaskInfo      Pointer to a \c CFE_ES_TaskInfo_t structure that holds the specific 
-**                            task information.
+** \param[in, out]   TaskInfo      Pointer to a \c CFE_ES_TaskInfo_t structure that holds the specific 
+**                            task information. *TaskInfo is the filled out \c CFE_ES_TaskInfo_t structure containing the 
+**                            Task Name, Parent App Name, Parent App ID among other fields.
 **
 ** \param[in]   TaskId        Application ID of Application whose name is being requested.
 **
-** \param[out]  *TaskInfo     Filled out \c CFE_ES_TaskInfo_t structure containing the 
-**                            Task Name, Parent App Name, Parent App ID among other fields.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -839,7 +835,7 @@ int32  CFE_ES_RegisterChildTask(void);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   TaskIdPtr     A pointer to a variable that will be filled in with the new task's ID.
+** \param[in, out]   TaskIdPtr     A pointer to a variable that will be filled in with the new task's ID. *TaskIdPtr is the Task ID of the newly created child task.
 **
 ** \param[in]   TaskName      A pointer to a string containing the desired name of the new task.  
 **                            This can be up to #OS_MAX_API_NAME characters, including the trailing null.
@@ -858,8 +854,6 @@ int32  CFE_ES_RegisterChildTask(void);
 **                            (lower number) than their own priority.
 **
 ** \param[in]   Flags         Reserved for future expansion.
-**
-** \param[out]  *TaskIdPtr    The Task ID of the newly created child task.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                  \copybrief CFE_SUCCESS
@@ -909,7 +903,7 @@ int32 CFE_ES_DeleteChildTask(uint32 TaskId);
 ** \par Assumptions, External Events, and Notes:
 **        This function cannot be called from an Application's Main Task.
 **
-** \return This function does not return a value, but if it does return
+** \note This function does not return a value, but if it does return
 **        at all, it is assumed that the Task was either unregistered or
 **        this function was called from a cFE Application's main task.
 **
@@ -1011,15 +1005,14 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   HandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle.
+** \param[in, out]   HandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle. *HandlePtr is the handle of the CDS block that can be used in 
+**                          #CFE_ES_CopyToCDS and #CFE_ES_RestoreFromCDS.
 **
 ** \param[in]   BlockSize   The number of bytes needed in the CDS.
 **
 ** \param[in]   Name        A pointer to a character string containing an application 
 **                          unique name of #CFE_MISSION_ES_CDS_MAX_NAME_LENGTH characters or less.
 **
-** \param[out]  *HandlePtr  The handle of the CDS block that can be used in 
-**                          #CFE_ES_CopyToCDS and #CFE_ES_RestoreFromCDS.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS               The memory block was successfully created in the CDS.
@@ -1077,9 +1070,7 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy);
 **
 ** \param[in]   Handle             The handle of the CDS block that was previously obtained from #CFE_ES_RegisterCDS.
 **
-** \param[in]   RestoreToMemory    A Pointer to the block of memory that is to be restored with the contents of the CDS.
-**
-** \param[out]  *RestoreToMemory   The contents of the specified CDS.
+** \param[in, out]   RestoreToMemory    A Pointer to the block of memory that is to be restored with the contents of the CDS. *RestoreToMemory is the contents of the specified CDS.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
@@ -1109,14 +1100,12 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle);
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in]   HandlePtr   A pointer to the variable the caller wishes to have the memory pool handle kept in.
+** \param[in, out]   HandlePtr   A pointer to the variable the caller wishes to have the memory pool handle kept in. *HandlePtr is the memory pool handle.
 **
 ** \param[in]   MemPtr      A Pointer to the pool of memory created by the calling application. This address must
 **                          be on a 32-bit boundary.
 **
 ** \param[in]   Size        The size of the pool of memory.  Note that this must be an integral number of 32 bit words.
-**
-** \param[out]  *HandlePtr  The memory pool handle.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
@@ -1140,14 +1129,12 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint3
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in]   HandlePtr   A pointer to the variable the caller wishes to have the memory pool handle kept in.
+** \param[in, out]   HandlePtr   A pointer to the variable the caller wishes to have the memory pool handle kept in. *HandlePtr is the memory pool handle.
 **
 ** \param[in]   MemPtr      A Pointer to the pool of memory created by the calling application. This address must
 **                          be on a 32-bit boundary.
 **
 ** \param[in]   Size        The size of the pool of memory.  Note that this must be an integral number of 32 bit words.
-**
-** \param[out]  *HandlePtr  The memory pool handle.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
@@ -1170,7 +1157,7 @@ int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Siz
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in]   HandlePtr      A pointer to the variable the caller wishes to have the memory pool handle kept in.
+** \param[in, out]   HandlePtr      A pointer to the variable the caller wishes to have the memory pool handle kept in. *HandlePtr is the memory pool handle.
 **
 ** \param[in]   MemPtr         A Pointer to the pool of memory created by the calling application. This address must
 **                             be on a 32-bit boundary.
@@ -1186,8 +1173,6 @@ int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Siz
 **
 ** \param[in]   UseMutex       Flag indicating whether the new memory pool will be processing with mutex handling or not.
 **                             Valid parameter values are #CFE_ES_USE_MUTEX and #CFE_ES_NO_MUTEX
-**
-** \param[out]  *HandlePtr     The memory pool handle.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
@@ -1208,13 +1193,11 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 S
 ** \par Assumptions, External Events, and Notes:
 **        -# The size allocated from the memory pool is, at a minimum, 12 bytes more than requested.
 **
-** \param[in]   BufPtr      A pointer to the Application's pointer in which will be stored the address of the allocated memory buffer.
+** \param[in, out]   BufPtr      A pointer to the Application's pointer in which will be stored the address of the allocated memory buffer. *BufPtr is the address of the requested buffer.
 **
 ** \param[in]   HandlePtr   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
 ** \param[in]   Size        The size of the buffer requested.  NOTE: The size allocated may be larger.
-**
-** \param[out]  *BufPtr     The address of the requested buffer.
 **
 ** \return Bytes Allocated, or error code \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_MEM_HANDLE      \copybrief CFE_ES_ERR_MEM_HANDLE
@@ -1283,12 +1266,11 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   BufPtr      Pointer to #CFE_ES_MemPoolStats_t data structure to be 
-**                          filled with memory statistics.
+** \param[in, out]   BufPtr      Pointer to #CFE_ES_MemPoolStats_t data structure to be 
+**                          filled with memory statistics. *BufPtr is the Memory Pool Statistics stored in given data structure.
 **
 ** \param[in]   Handle      The handle to the memory pool whose statistics are desired.
 **
-** \param[out] *BufPtr      Memory Pool Statistics stored in given data structure.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS

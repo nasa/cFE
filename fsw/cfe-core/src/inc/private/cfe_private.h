@@ -52,7 +52,7 @@
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \retval None
+** 
 ******************************************************************************/
 extern void CFE_TIME_TaskMain(void);
 
@@ -66,7 +66,7 @@ extern void CFE_TIME_TaskMain(void);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \retval None
+** 
 ******************************************************************************/
 extern void CFE_SB_TaskMain(void);
 
@@ -80,7 +80,7 @@ extern void CFE_SB_TaskMain(void);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \retval None
+** 
 ******************************************************************************/
 extern void CFE_EVS_TaskMain(void);
 
@@ -94,7 +94,7 @@ extern void CFE_EVS_TaskMain(void);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \retval None
+** 
 ******************************************************************************/
 extern void CFE_ES_TaskMain(void);
 
@@ -110,7 +110,7 @@ extern void CFE_ES_TaskMain(void);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \retval None
+** 
 ******************************************************************************/
 extern void CFE_TBL_TaskMain(void);
 
@@ -290,7 +290,7 @@ extern int32 CFE_TIME_CleanUpApp(uint32 AppId);
 **        -# This function assumes input parameters are error free and have met size/value restrictions.
 **        -# The calling function is responsible for issuing any event messages associated with errors.
 **
-** \param[in]   HandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle.
+** \param[in, out]   HandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle. *HandlePtr is the handle of the CDS block that can be used in #CFE_ES_CopyToCDS and #CFE_ES_RestoreFromCDS.
 **
 ** \param[in]   BlockSize   The number of bytes needed in the CDS.
 **
@@ -299,7 +299,6 @@ extern int32 CFE_TIME_CleanUpApp(uint32 AppId);
 **
 ** \param[in]   CriticalTbl   Indicates whether the CDS is to be used as a Critical Table or not
 **
-** \param[out]  *HandlePtr  The handle of the CDS block that can be used in #CFE_ES_CopyToCDS and #CFE_ES_RestoreFromCDS.
 **
 ** \return See return codes for #CFE_ES_RegisterCDS
 **

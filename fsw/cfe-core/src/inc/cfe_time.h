@@ -876,12 +876,10 @@ int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFunc
 **          the maximum amount of time represented by a CFE_TIME_SysTime
 **          structure is approximately 136 years.
 **
-** \param[in]  PrintBuffer   Pointer to a character array of at least
-**                           #CFE_TIME_PRINTED_STRING_SIZE characters in length
+** \param[in, out]  PrintBuffer   Pointer to a character array of at least
+**                           #CFE_TIME_PRINTED_STRING_SIZE characters in length. *PrintBuffer is the time as a character string as described above.
 **
 ** \param[in]  TimeToPrint   The time to print into the character array.
-**
-** \param[out] *PrintBuffer  The time as a character string as described above.
 **
 ******************************************************************************/
 void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);

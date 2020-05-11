@@ -91,10 +91,8 @@
 ** \param[in] FileDes File Descriptor obtained from a previous call to #OS_open
 **                    that is associated with the file whose header is to be read.
 **
-** \param[in] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
-**                    filled with the contents of the Standard cFE File Header.
-**
-** \param[out] *Hdr   Contents of the Standard cFE File Header for the specified file.
+** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
+**                    filled with the contents of the Standard cFE File Header. *Hdr is the contents of the Standard cFE File Header for the specified file.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 **
@@ -151,10 +149,8 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 ** \param[in] FileDes File Descriptor obtained from a previous call to #OS_open
 **                    that is associated with the file whose header is to be read.
 **
-** \param[in] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
-**                    filled with the contents of the Standard cFE File Header.
-**
-** \param[out] *Hdr   Contents of the Standard cFE File Header for the specified file.
+** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
+**                    filled with the contents of the Standard cFE File Header. *Hdr is the contents of the Standard cFE File Header for the specified file.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 **

@@ -58,6 +58,8 @@
 #define CFE_ES_CDS_MUT_REG_VALUE       0             /**< \brief Initial Value of CDS Registry Access Mutex */
 
 #define CFE_ES_CDS_NOT_FOUND          (uint32)(0xffffffff)
+/** \} */
+
 /*
 ** Type Definitions
 */
@@ -121,9 +123,8 @@ int32 CFE_ES_UpdateCDSRegistry(void);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in]  AppIdPtr Pointer to value that will hold AppID on return.
+** \param[in, out]  AppIdPtr Pointer to value that will hold AppID on return. *AppIdPtr is the AppID as obtained from #CFE_ES_GetAppID.
 ** 
-** \param[out] *AppIdPtr The AppID as obtained from #CFE_ES_GetAppID
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_ES_ERR_APPID                \copydoc CFE_ES_ERR_APPID
@@ -144,17 +145,15 @@ int32 CFE_ES_CDS_ValidateAppID(uint32 *AppIdPtr);
 ** \par Assumptions, External Events, and Notes:
 **        Note: AppName portion will be truncated to OS_MAX_API_NAME.
 **
-** \param[in]  FullCDSName pointer to character buffer of #CFE_ES_CDS_MAX_FULL_NAME_LEN size
-**                         that will be filled with the processor specific CDS Name.
+** \param[in, out]  FullCDSName pointer to character buffer of #CFE_ES_CDS_MAX_FULL_NAME_LEN size
+**                         that will be filled with the processor specific CDS Name. *FullCDSName is the processor specific CDS Name of the form "AppName.CDSName".
 ** 
 ** \param[in]  CDSName pointer to character string containing the Application's local name for
 **                     the CDS.
 **
 ** \param[in]  ThisAppId the Application ID of the Application making the call. 
 **
-** \param[out] *FullCDSName processor specific CDS Name of the form "AppName.CDSName".
 **
-** \retval None                     
 ******************************************************************************/
 void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, uint32 ThisAppId);
 
@@ -173,7 +172,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, uint32 ThisAppId
 **                       CDS Name (of the format "AppName.CDSName").
 ** 
 ** \retval #CFE_ES_CDS_NOT_FOUND or the Index into Registry for Table with specified name
-**                     
+**
 ******************************************************************************/
 int32  CFE_ES_FindCDSInRegistry(const char *CDSName);
 

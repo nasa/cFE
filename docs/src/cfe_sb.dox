@@ -6,8 +6,7 @@
   by sending command and telemetry messages.  The software bus provides an application
   programming interface (API) to other tasks for sending and receiving messages.
   This API is independent of the underlying operating system so that tasks can use
-  the same interface regardless of which processor they reside on.  Refer to the
-  \ref cfeapi for detailed information about the API functions.
+  the same interface regardless of which processor they reside on.  Refer to the \ref cfeapi for detailed information about the API functions.
 
   The software bus is used internally by the flight software, and normally does not
   require attention from the ground.  However, because of the scalability and the
@@ -533,7 +532,7 @@
            can get confusing. How can I be sure that the correct address is given for this
            parameter.
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           Typically a caller declares a ptr of type #CFE_SB_Msg_t  (i.e. CFE_SB_Msg_t *Ptr)
+           Typically a caller declares a ptr of type CFE_SB_Msg_t (i.e. CFE_SB_Msg_t *Ptr)
            then gives the address of that pointer (&Ptr) as this parameter. After a successful
            call to #CFE_SB_RcvMsg, Ptr will point to the first byte of the software bus message
            header. This should be used as a read-only pointer. In systems with an MMU, writes
@@ -602,4 +601,3 @@
 **  The following are configuration parameters used to configure the cFE Software Bus
 **  either for each platform or for a mission as a whole.
 **/
-
