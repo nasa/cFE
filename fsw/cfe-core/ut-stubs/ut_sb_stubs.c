@@ -431,7 +431,8 @@ int32 CFE_SB_SendMsg(CFE_SB_Msg_t *MsgPtr)
 
     if (status >= 0)
     {
-        UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_SendMsg), MsgPtr->Byte, CCSDS_RD_LEN(MsgPtr->Hdr));
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_SendMsg), MsgPtr->Byte,
+                CFE_SB_StubMsg_GetMetaData(MsgPtr)->Length);
     }
 
     return status;
