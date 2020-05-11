@@ -687,4 +687,261 @@ void UT_CheckForOpenSockets(void);
 ******************************************************************************/
 CFE_ES_ResetData_t *UT_GetResetDataPtr(void);
 
+/*****************************************************************************/
+/**
+** \brief Global representing the current state of a unit test function.
+**
+** \par Description
+**        This global variable is used by the test macros to track whether
+**        the current test is succeeding or has failed. Many of the macros
+**        fall through if this is not set to CFE_PASS (usually TestStat
+**        is set to CFE_PASS by the START() macro and is changed to
+**        CFE_FAIL by any test step [setup/assert/teardown] that fails).
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #CFE_PASS, #CFE_FAIL, #START, #REPORT, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE
+** \sa #EVTCNT, #EVTSENT, #TEARDOWN
+**
+******************************************************************************/
+extern int32 TestStat;
+
+/*****************************************************************************/
+/**
+** \brief Test is currently passing.
+**
+** \sa #TestStat, #CFE_FAIL
+**
+******************************************************************************/
+#define CFE_PASS 1
+
+/*****************************************************************************/
+/**
+** \brief Test has failed.
+**
+** \sa #TestStat, #CFE_PASS
+**
+******************************************************************************/
+#define CFE_FAIL 0
+
+/** \brief Function to be called by the STARTBLOCK() macro */
+void UT_STARTBLOCK_impl(const char *FileName, int LineNum, const char *TestName);
+
+/*****************************************************************************/
+/**
+** \brief Start a block of tests.
+**
+** \par Description
+**        Macro to be called at the start of a test block (a test function
+**        comprised of calls to multiple individual test functions.)
+**
+**        Does nothing, generates a text entry if VERBOSE is defined.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #ENDBLOCK
+**
+******************************************************************************/
+#define STARTBLOCK() UT_STARTBLOCK_impl(__FILE__, __LINE__, __func__)
+
+/** \brief Function to be called by the START() macro */
+void UT_START_impl(const char *FileName, int LineNum, const char *TestName);
+
+/*****************************************************************************/
+/**
+** \brief Start an individual test.
+**
+** \par Description
+**        Macro to be called at the start of an individual test. This sets the
+**        TestStat variable to be CFE_PASS, and generates a text message if
+**        VERBOSE is defined.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
+**
+******************************************************************************/
+#define START() UT_START_impl(__FILE__, __LINE__, __func__)
+
+/** \brief Function to be called by the REPORT() macro */
+void UT_REPORT_impl(const char *FileName, int LineNum, const char *TestName);
+
+/*****************************************************************************/
+/**
+** \brief Report the result of a test.
+**
+** \par Description
+**        This reports whether the test passed or failed (as maintained by the
+**        TestStat global variable.) Call this at the end of every test.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #TEARDOWN
+**
+******************************************************************************/
+#define REPORT() UT_REPORT_impl(__FILE__, __LINE__, __func__)
+
+/** \brief Function to be called by the SETUP() macro */
+bool UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
+
+/*****************************************************************************/
+/**
+** \brief Checks the successful execution of a setup function.
+**
+** \par Description
+**        Many tests require a number of steps of setup to configure CFE such
+**        that the actual test can be performed. Failure of any setup steps
+**        result in a text message and the test being considered failed.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #START, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
+**
+******************************************************************************/
+#define SETUP(FN) (TestStat == CFE_PASS ? UT_SETUP_impl(__FILE__, __LINE__, __func__, (#FN), (FN)) : false)
+
+/** \brief Function to be called by the ASSERT() macro */
+bool UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
+
+/*****************************************************************************/
+/**
+** \brief Asserts the nominal execution of the function being tested.
+**
+** \par Description
+**        The core of each unit test is the execution of the function being tested.
+**        This function and macro should be used to test the nominal execution of the
+**        function; the expectation is that it will return CFE_SUCCESS.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #START, #SETUP, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
+**
+******************************************************************************/
+#define ASSERT(FN) (TestStat == CFE_PASS ? UT_ASSERT_impl(__FILE__, __LINE__, __func__, (#FN), (FN)) : false)
+
+/** \brief Function to be called by the ASSERT_EQ() macro */
+bool UT_ASSERT_EQ_impl(const char *FileName, int LineNum, const char *TestName,
+    const char *FnName, int32 FnRet, const char *ExpName, int32 Exp);
+
+/*****************************************************************************/
+/**
+** \brief Asserts the expected execution of the function being tested.
+**
+** \par Description
+**        The core of each unit test is the execution of the function being tested.
+**        This function and macro should be used to test the execution of the function
+**        and comparing the return status against the expected return status specified,
+**        when the return status expected is not CFE_SUCCESS.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #START, #SETUP, #ASSERT, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
+**
+******************************************************************************/
+#define ASSERT_EQ(FN,EXP) (TestStat == CFE_PASS ? UT_ASSERT_EQ_impl(__FILE__, __LINE__, __func__, (#FN), (FN), (#EXP), (EXP)) : false)
+
+/** \brief Function to be called by the ASSERT_EQ() macro */
+bool UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
+    const char *ExpName, bool Exp);
+
+/*****************************************************************************/
+/**
+** \brief Asserts the expected execution of the function being tested.
+**
+** \par Description
+**        The core of each unit test is the execution of the function being tested.
+**        This function and macro should be used to test the execution of the function
+**        and comparing the return status against the expected return status specified,
+**        when the return status expected is not CFE_SUCCESS.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #START, #SETUP, #ASSERT, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
+**
+******************************************************************************/
+#define ASSERT_TRUE(EXP) (TestStat == CFE_PASS ? UT_ASSERT_TRUE_impl(__FILE__, __LINE__, __func__, (#EXP), (EXP)) : false)
+
+/** \brief Function to be called by the EVTCNT() macro */
+bool UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int32 CntExp);
+
+/*****************************************************************************/
+/**
+** \brief Ensures that the test generated the expected number of events.
+**
+** \par Description
+**        Most tests will generate a number of events, and the number generated
+**        should be checked via this macro. If the number of events is different,
+**        the test is considered to have failed and an error is reported.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTSENT, #REPORT, #TEARDOWN
+**
+******************************************************************************/
+#define EVTCNT(EXP) (TestStat == CFE_PASS ? UT_EVTCNT_impl(__FILE__, __LINE__, __func__, (EXP)) : false)
+
+/** \brief Function to be called by the EVTSENT() macro */
+bool UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, const char *EvtName, int32 EvtId);
+
+/*****************************************************************************/
+/**
+** \brief Ensures that the test generated the expected event.
+**
+** \par Description
+**        Most tests will generate a number of events, and this function and macro check whether an
+**        event was generated. If not, the test is considered to have failed and an error is reported.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #REPORT, #TEARDOWN
+**
+******************************************************************************/
+#define EVTSENT(EVT) (TestStat == CFE_PASS ? UT_EVTSENT_impl(__FILE__, __LINE__, __func__, (#EVT), (EVT)) : false)
+
+/** \brief Function to be called by the TEARDOWN() macro */
+bool UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
+/*****************************************************************************/
+/**
+** \brief Checks the successful execution of a teardown function.
+**
+** \par Description
+**        Many tests require a number of steps of setup to configure CFE such that the actual test
+**        can be performed, and undoing that configuration is the role of the teardown steps. Failure
+**        of any teardown steps result in a text message and the test being considered failed.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT
+**
+******************************************************************************/
+#define TEARDOWN(FN) (TestStat == CFE_PASS ? UT_TEARDOWN_impl(__FILE__, __LINE__, __func__, (#FN), (FN)) : false)
+
+/*****************************************************************************/
+/**
+** \brief Marks the end of a block of tests.
+**
+** \par Description
+**        Implementation function and associated ENDBLOCK() macro. Most CFE API functions will be tested with
+**        a block of tests, each of which will be performed in sequence. This function does
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #STARTBLOCK
+**
+******************************************************************************/
+void UT_ENDBLOCK_impl(const char *FileName, int LineNum, const char *TestName);
+#define ENDBLOCK() UT_ENDBLOCK_impl(__FILE__, __LINE__, __func__)
+
 #endif /* __UT_STUBS_H_ */
