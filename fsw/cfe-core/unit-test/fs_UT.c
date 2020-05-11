@@ -63,7 +63,6 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_FS_SetTimestamp);
     UT_ADD_TEST(Test_CFE_FS_ByteSwapCFEHeader);
     UT_ADD_TEST(Test_CFE_FS_ByteSwapUint32);
-    UT_ADD_TEST(Test_CFE_FS_IsGzFile);
     UT_ADD_TEST(Test_CFE_FS_ExtractFileNameFromPath);
     UT_ADD_TEST(Test_CFE_FS_Private);
 }
@@ -240,58 +239,6 @@ void Test_CFE_FS_ByteSwapUint32(void)
     UT_Report(__FILE__, __LINE__,
               test == 0x44332211, "CFE_FS_ByteSwapUint32",
               "Byte swap - successful");
-}
-
-/*
-** Test FS API is .gz file function
-*/
-void Test_CFE_FS_IsGzFile(void)
-{
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Is .gz File\n");
-#endif
-
-    /* Test if file name ends in .gz with the file name too short */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("a") == false,
-              "CFE_FS_IsGzFile",
-              "File name too short");
-
-    /* Test if file name ',gz' extension is missing */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("Normal_gz") == false,
-              "CFE_FS_IsGzFile",
-              "File name missing .gz extension 1");
-
-    /* Test if file name ends in .gz with no file name */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile(NULL) == false,
-              "CFE_FS_IsGzFile",
-              "Null file name");
-
-    /* Test a valid file name ending in .gz */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("tar.gz") == true,
-              "CFE_FS_IsGzFile",
-              ".gz file name check - successful");
-
-    /* Test if file name ',gz' extension is missing */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("Normal._z") == false,
-              "CFE_FS_IsGzFile",
-              "File name missing .gz extension 2");
-
-    /* Test if file name ',gz' extension is missing */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_FS_IsGzFile("Normal.g_") == false,
-              "CFE_FS_IsGzFile",
-              "File name missing .gz extension 3");
 }
 
 /*
