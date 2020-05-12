@@ -156,10 +156,10 @@ void Test_SB_CCSDSSecHdr_Macros(void)
 
     SB_ResetUnitTest();
 
-    CCSDS_CLR_CMDSEC_HDR(NoParamPkt.Sec);
-    CCSDS_WR_FC(NoParamPkt.Sec, 1);
+    CCSDS_CLR_CMDSEC_HDR(NoParamPkt.Cmd.Sec);
+    CCSDS_WR_FC(NoParamPkt.Cmd.Sec, 1);
 
-    ASSERT_TRUE(CCSDS_RD_FC(NoParamPkt.Sec) == 0x01);
+    ASSERT_TRUE(CCSDS_RD_FC(NoParamPkt.Cmd.Sec) == 0x01);
 
     REPORT();
 
@@ -167,10 +167,10 @@ void Test_SB_CCSDSSecHdr_Macros(void)
 
     SB_ResetUnitTest();
 
-    CCSDS_CLR_CMDSEC_HDR(NoParamPkt.Sec);
-    CCSDS_WR_CHECKSUM(NoParamPkt.Sec, 0xFF);
+    CCSDS_CLR_CMDSEC_HDR(NoParamPkt.Cmd.Sec);
+    CCSDS_WR_CHECKSUM(NoParamPkt.Cmd.Sec, 0xFF);
 
-    ASSERT_TRUE(CCSDS_RD_CHECKSUM(NoParamPkt.Sec) == 0xFF);
+    ASSERT_TRUE(CCSDS_RD_CHECKSUM(NoParamPkt.Cmd.Sec) == 0xFF);
 
     REPORT();
 
@@ -180,21 +180,10 @@ void Test_SB_CCSDSSecHdr_Macros(void)
 
     SB_ResetUnitTest();
 
-    CCSDS_CLR_SEC_APIDQ(NoParamPkt.SpacePacket.ApidQ);
-    CCSDS_WR_EDS_VER(NoParamPkt.SpacePacket.ApidQ, 0x01);
+    CCSDS_CLR_SEC_APIDQ(NoParamPkt.Cmd.SpacePacket.ApidQ);
+    CCSDS_WR_EDS_VER(NoParamPkt.Cmd.SpacePacket.ApidQ, 0x01);
 
-    ASSERT_TRUE(CCSDS_RD_EDS_VER(NoParamPkt.SpacePacket.ApidQ) == 0x01);
-
-    REPORT();
-
-    START();
-
-    SB_ResetUnitTest();
-
-    CCSDS_CLR_SEC_APIDQ(NoParamPkt.SpacePacket.ApidQ);
-    CCSDS_WR_ENDIAN(NoParamPkt.SpacePacket.ApidQ, 0x01);
-
-    ASSERT_TRUE(CCSDS_RD_ENDIAN(NoParamPkt.SpacePacket.ApidQ) == 0x01);
+    ASSERT_TRUE(CCSDS_RD_EDS_VER(NoParamPkt.Cmd.SpacePacket.ApidQ) == 0x01);
 
     REPORT();
 
@@ -202,21 +191,10 @@ void Test_SB_CCSDSSecHdr_Macros(void)
 
     SB_ResetUnitTest();
 
-    CCSDS_CLR_SEC_APIDQ(NoParamPkt.SpacePacket.ApidQ);
-    CCSDS_WR_PLAYBACK(NoParamPkt.SpacePacket.ApidQ, 0x01);
+    CCSDS_CLR_SEC_APIDQ(NoParamPkt.Cmd.SpacePacket.ApidQ);
+    CCSDS_WR_ENDIAN(NoParamPkt.Cmd.SpacePacket.ApidQ, 0x01);
 
-    ASSERT_TRUE(CCSDS_RD_PLAYBACK(NoParamPkt.SpacePacket.ApidQ) == 0x01);
-
-    REPORT();
-
-    START();
-
-    SB_ResetUnitTest();
-
-    CCSDS_CLR_SEC_APIDQ(NoParamPkt.SpacePacket.ApidQ);
-    CCSDS_WR_SUBSYSTEM_ID(NoParamPkt.SpacePacket.ApidQ, 0xFF);
-
-    ASSERT_TRUE(CCSDS_RD_SUBSYSTEM_ID(NoParamPkt.SpacePacket.ApidQ) == 0xFF);
+    ASSERT_TRUE(CCSDS_RD_ENDIAN(NoParamPkt.Cmd.SpacePacket.ApidQ) == 0x01);
 
     REPORT();
 
@@ -224,17 +202,39 @@ void Test_SB_CCSDSSecHdr_Macros(void)
 
     SB_ResetUnitTest();
 
-    CCSDS_CLR_SEC_APIDQ(NoParamPkt.SpacePacket.ApidQ);
-    CCSDS_WR_SUBSYSTEM_ID(NoParamPkt.SpacePacket.ApidQ, 0xFF);
+    CCSDS_CLR_SEC_APIDQ(NoParamPkt.Cmd.SpacePacket.ApidQ);
+    CCSDS_WR_PLAYBACK(NoParamPkt.Cmd.SpacePacket.ApidQ, 0x01);
 
-    ASSERT_TRUE(CCSDS_RD_SUBSYSTEM_ID(NoParamPkt.SpacePacket.ApidQ) == 0xFF);
+    ASSERT_TRUE(CCSDS_RD_PLAYBACK(NoParamPkt.Cmd.SpacePacket.ApidQ) == 0x01);
+
+    REPORT();
+
+    START();
 
     SB_ResetUnitTest();
 
-    CCSDS_CLR_SEC_APIDQ(NoParamPkt.SpacePacket.ApidQ);
-    CCSDS_WR_SYSTEM_ID(NoParamPkt.SpacePacket.ApidQ, 0xFFFF);
+    CCSDS_CLR_SEC_APIDQ(NoParamPkt.Cmd.SpacePacket.ApidQ);
+    CCSDS_WR_SUBSYSTEM_ID(NoParamPkt.Cmd.SpacePacket.ApidQ, 0xFF);
 
-    ASSERT_TRUE(CCSDS_RD_SYSTEM_ID(NoParamPkt.SpacePacket.ApidQ) == 0xFFFF);
+    ASSERT_TRUE(CCSDS_RD_SUBSYSTEM_ID(NoParamPkt.Cmd.SpacePacket.ApidQ) == 0xFF);
+
+    REPORT();
+
+    START();
+
+    SB_ResetUnitTest();
+
+    CCSDS_CLR_SEC_APIDQ(NoParamPkt.Cmd.SpacePacket.ApidQ);
+    CCSDS_WR_SUBSYSTEM_ID(NoParamPkt.Cmd.SpacePacket.ApidQ, 0xFF);
+
+    ASSERT_TRUE(CCSDS_RD_SUBSYSTEM_ID(NoParamPkt.Cmd.SpacePacket.ApidQ) == 0xFF);
+
+    SB_ResetUnitTest();
+
+    CCSDS_CLR_SEC_APIDQ(NoParamPkt.Cmd.SpacePacket.ApidQ);
+    CCSDS_WR_SYSTEM_ID(NoParamPkt.Cmd.SpacePacket.ApidQ, 0xFFFF);
+
+    ASSERT_TRUE(CCSDS_RD_SYSTEM_ID(NoParamPkt.Cmd.SpacePacket.ApidQ) == 0xFFFF);
 
     REPORT();
 #endif
@@ -513,7 +513,7 @@ void Test_SB_AppInit_GetPoolFail(void)
     START();
 
 	SB_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 3, ForcedRtnVal);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 4, ForcedRtnVal);
 
     ASSERT_EQ(CFE_SB_AppInit(), ForcedRtnVal);
 
@@ -1561,7 +1561,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
      */
     for (; i < CFE_SB_SUB_ENTRIES_PER_PKT * 3; i++)
     {
-        SETUP(CFE_SB_Subscribe(i, PipeId1));
+        SETUP(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(i), PipeId1));
         NumEvts += 2;
     }
 
@@ -1644,25 +1644,11 @@ void Test_SB_Cmds_UnexpCmdCode(void)
     CFE_SB_SetCmdCode((CFE_SB_MsgPtr_t) &NoParamCmd, 99);
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &NoParamCmd;
     CFE_SB_ProcessCmdPipePkt();
-    ExpRtn = 1;
-    ActRtn = UT_GetNumEventsSent();
-
-    if (ActRtn != ExpRtn)
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
-                 "Unexpected rtn from UT_GetNumEventsSent, exp=%ld, act=%ld",
-                 (long) ExpRtn, (long) ActRtn);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-    }
-
-    if (UT_EventIsInHistory(CFE_SB_BAD_CMD_CODE_EID) == false)
-    {
-        UT_Text("CFE_SB_BAD_CMD_CODE_EID not sent");
-        TestStat = CFE_FAIL;
-    }
+    EVTCNT(1);
+    EVTSENT(CFE_SB_BAD_CMD_CODE_EID);
 
     /* Same test for subscription reporting control MID */
+    START();
     SB_ResetUnitTest();
     CFE_SB_InitMsg(&NoParamCmd, CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID), sizeof(NoParamCmd), true);
 
@@ -4100,7 +4086,7 @@ void Test_RcvMsg_GetLastSenderNoValidSender(void)
 
     EVTCNT(1);
   
-    TEARDOwN(CFE_SB_DeletePipe(PipeId));
+    TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
     REPORT();
 } /* end Test_RcvMsg_GetLastSenderNoValidSender */
@@ -5679,8 +5665,8 @@ void Test_OS_MutSem_ErrLogic(void)
     START();
 
     SB_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, CFE_OS_SEM_FAILURE);
-    UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 2, CFE_OS_SEM_FAILURE);
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, OS_SEM_FAILURE);
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 2, OS_SEM_FAILURE);
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
 
     ASSERT(CFE_SB_Subscribe(MsgId, PipeId));
@@ -6016,7 +6002,7 @@ void Test_RcvMsg_UnsubResubPath(void)
     SETUP(CFE_SB_Subscribe(MsgId, PipeId));
     ASSERT(CFE_SB_RcvMsg(&PtrToMsg, PipeId, CFE_SB_PEND_FOREVER));
 
-    ASSERT_TRUE(PtrToMsg == NULL);
+    ASSERT_TRUE(PtrToMsg != NULL);
 
     EVTCNT(6);
 
