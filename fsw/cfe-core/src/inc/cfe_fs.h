@@ -91,10 +91,8 @@
 ** \param[in] FileDes File Descriptor obtained from a previous call to #OS_open
 **                    that is associated with the file whose header is to be read.
 **
-** \param[in] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
-**                    filled with the contents of the Standard cFE File Header.
-**
-** \param[out] *Hdr   Contents of the Standard cFE File Header for the specified file.
+** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
+**                    filled with the contents of the Standard cFE File Header. *Hdr is the contents of the Standard cFE File Header for the specified file.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 **
@@ -151,10 +149,8 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 ** \param[in] FileDes File Descriptor obtained from a previous call to #OS_open
 **                    that is associated with the file whose header is to be read.
 **
-** \param[in] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
-**                    filled with the contents of the Standard cFE File Header.
-**
-** \param[out] *Hdr   Contents of the Standard cFE File Header for the specified file.
+** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
+**                    filled with the contents of the Standard cFE File Header. *Hdr is the contents of the Standard cFE File Header for the specified file.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 **
@@ -189,13 +185,16 @@ int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr);
 int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp);
 /**@}*/
 
+#ifndef CFE_OMIT_DEPRECATED_6_7
+
 /** @defgroup CFEAPIFSCompress cFE Compressed File Management APIs
  * @{
  */
 
 /*****************************************************************************/
 /**
-** \brief Determines if a file is a Gzip/compressed file.
+** \brief DEPRECATED; Determines if a file is a Gzip/compressed file.
+** \deprecated
 **
 ** \par Description
 **        This API will check the filename and return true if the file is 
@@ -216,7 +215,8 @@ bool CFE_FS_IsGzFile(const char *FileName);
 
 /*****************************************************************************/
 /**
-** \brief Decompresses the source file to the destination file.
+** \brief DEPRECATED; Decompresses the source file to the destination file.
+** \deprecated
 **
 ** \par Description
 **        This API will decompress the source file to the file specified by
@@ -245,7 +245,8 @@ int32 CFE_FS_Decompress( const char * SourceFile, const char * DestinationFile )
 
 /*****************************************************************************/
 /**
-** \brief Decompresses the source file to a temporary file created in the temp dir
+** \brief DEPRECATED; Decompresses the source file to a temporary file created in the temp dir
+** \deprecated
 **
 ** \par Description
 **        This is a wrapper around the #CFE_FS_Decompress function that
@@ -269,6 +270,8 @@ int32 CFE_FS_Decompress( const char * SourceFile, const char * DestinationFile )
 int32 CFE_FS_GetUncompressedFile(char *OutputNameBuffer, uint32 OutputNameBufferSize,
         const char *GzipFileName, const char *TempDir);
 /**@}*/
+
+#endif /* CFE_OMIT_DEPRECATED_6_7 */
 
 /** @defgroup CFEAPIFSUtil cFE File Utility APIs
  * @{

@@ -45,6 +45,8 @@
 */
 #include "cfe_fs_decompress.h"
 
+#ifndef CFE_OMIT_DEPRECATED_6_7 /* Entire file will be removed in major release */
+
 /*
 ** Global data -- Note: The following Global Data should be removed. The CFE_FS_Decompress API is not 
 **                re-entrant! In order to make sure that two apps will not corrupt the data
@@ -1225,4 +1227,4 @@ uint32 FS_gz_updcrc( uint8 * s, uint32 n )
 
 }
 
-
+#endif /* CFE_OMIT_DEPRECATED_6_7 */

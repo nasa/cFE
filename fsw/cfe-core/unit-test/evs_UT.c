@@ -2703,6 +2703,8 @@ void Test_Misc(void)
 
     /* Test housekeeping report with log enabled */
     UT_InitData();
+    CFE_SB_InitMsg((CFE_SB_Msg_t *) &CFE_EVS_GlobalData.EVS_TlmPkt, HK_SnapshotData.MsgId,
+            sizeof(CFE_EVS_GlobalData.EVS_TlmPkt), false);
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = true;
     HK_SnapshotData.Count = 0;
     UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
@@ -2729,6 +2731,8 @@ void Test_Misc(void)
 
     /* Test housekeeping report with log disabled */
     UT_InitData();
+    CFE_SB_InitMsg((CFE_SB_Msg_t *) &CFE_EVS_GlobalData.EVS_TlmPkt, HK_SnapshotData.MsgId,
+            sizeof(CFE_EVS_GlobalData.EVS_TlmPkt), false);
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = false;
     HK_SnapshotData.Count = 0;
     UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);

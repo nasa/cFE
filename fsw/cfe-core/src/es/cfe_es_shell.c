@@ -44,6 +44,11 @@
 
 #include <string.h>
 
+#ifndef CFE_OMIT_DEPRECATED_6_7  /* Remove entire file eventually */
+/* Note - Plan to implement the list functions as real commands,
+ * shell output no longer part of cFS Framework, recommend implementation in an app if needed
+ */
+
 #define  CFE_ES_CHECKSIZE 3
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* CFE_ES_ShellOutputCommand() -- Pass thru string to O/S shell or to ES */
@@ -424,3 +429,4 @@ int32 CFE_ES_ListResources(int32 fd)
     */
     return Result;
 }
+#endif /* CFE_OMIT_DEPRECATED_6_7 */

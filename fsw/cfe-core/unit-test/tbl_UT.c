@@ -367,19 +367,17 @@ void Test_CFE_TBL_TaskInit(void)
 */
 void Test_CFE_TBL_InitData(void)
 {
-    CFE_SB_MsgId_t MsgIdBuf[2];
-
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Init Data\n");
 #endif
 
     /* This function has only one possible path with no return code */
     UT_InitData();
-    UT_SetDataBuffer(UT_KEY(CFE_SB_SetMsgId), MsgIdBuf, sizeof(MsgIdBuf), false);
     CFE_TBL_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_SB_MsgId_Equal(MsgIdBuf[1], CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID)) &&
-              UT_GetStubCount(UT_KEY(CFE_SB_SetMsgId)) == 2,
+              CFE_SB_MsgId_Equal(CFE_SB_GetMsgId((CFE_SB_Msg_t*)&CFE_TBL_TaskData.HkPacket), CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID)) &&
+              CFE_SB_MsgId_Equal(CFE_SB_GetMsgId((CFE_SB_Msg_t*)&CFE_TBL_TaskData.TblRegPacket), CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID)) &&
+              UT_GetStubCount(UT_KEY(CFE_SB_InitMsg)) == 2,
               "CFE_TBL_SearchCmdHndlrTbl",
               "Initialize data");
 }
@@ -3725,11 +3723,14 @@ void Test_CFE_TBL_Manage(void)
      * later
      */
     CFE_TBL_TaskData.DumpControlBlocks[0].DumpBufferPtr = WorkingBufferPtr;
-    memcpy(CFE_TBL_TaskData.DumpControlBlocks[0].
+    strncpy(CFE_TBL_TaskData.DumpControlBlocks[0].
                      DumpBufferPtr->DataSource,
-                   "MyDumpFilename", OS_MAX_PATH_LEN);
-    memcpy(CFE_TBL_TaskData.DumpControlBlocks[0].TableName,
-                   "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
+                   "MyDumpFilename", OS_MAX_PATH_LEN-1);
+    CFE_TBL_TaskData.DumpControlBlocks[0].
+                         DumpBufferPtr->DataSource[OS_MAX_PATH_LEN-1] = 0;
+    strncpy(CFE_TBL_TaskData.DumpControlBlocks[0].TableName,
+                   "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN-1);
+    CFE_TBL_TaskData.DumpControlBlocks[0].TableName[CFE_TBL_MAX_FULL_NAME_LEN-1] = 0;
     CFE_TBL_TaskData.DumpControlBlocks[0].Size = RegRecPtr->Size;
     RegRecPtr->DumpControlIndex = 0;
     RtnCode = CFE_TBL_Manage(App1TblHandle2);

@@ -165,9 +165,10 @@ typedef struct
 **                their own tables.  An application should create any table(s) and provide the handle(s) 
 **                to the interrupt service routine.
 **
-** \param[in] TblHandlePtr         a pointer to a #CFE_TBL_Handle_t type variable that will be assigned the 
+** \param[in, out] TblHandlePtr         a pointer to a #CFE_TBL_Handle_t type variable that will be assigned the 
 **                                 table's handle.  The table handle is required for other API calls when 
-**                                 accessing the data contained in the table.
+**                                 accessing the data contained in the table. *TblHandlePtr is the handle used to identify table to cFE when performing Table operations.
+**                                 This value is returned at the address specified by TblHandlePtr.
 **
 ** \param[in] Name                 The application-specific name.  This name will be combined with the name of the 
 **                                 application to produce a processor specific name of the form 
@@ -264,9 +265,6 @@ typedef struct
 **                                 will be executed in the Application's context so that Event Messages describing the 
 **                                 validation failure are possible from within the function.
 **
-** \param[out]  *TblHandlePtr      Handle used to identify table to cFE when performing Table operations.
-**                                 This value is returned at the address specified by TblHandlePtr.
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_TBL_INFO_RECOVERED_TBL       \copybrief CFE_TBL_INFO_RECOVERED_TBL
@@ -301,10 +299,11 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,                   /* Ret
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in]  TblHandlePtr  A pointer to a #CFE_TBL_Handle_t type variable 
+** \param[in, out]  TblHandlePtr  A pointer to a #CFE_TBL_Handle_t type variable 
 **                           that will be assigned the table's handle.  The 
 **                           table handle is required for other API calls 
-**                           when accessing the data contained in the table.
+**                           when accessing the data contained in the table. *TblHandlePtr is the handle used to identify table to cFE when performing Table operations.
+**                           This value is returned at the address specified by TblHandlePtr.
 **
 ** \param[in]  TblName       The processor specific name of the table.  It is important to note 
 **                           that the processor specific table name is different from the table 
@@ -313,9 +312,6 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,                   /* Ret
 **                           the table.  The name would be of the form "ApplicationName.TableName".  
 **                           An example of this would be "ACS.TamParams" for a table called "TamParams" 
 **                           that was registered by the application called "ACS".
-**
-** \param[out] *TblHandlePtr Handle used to identify table to cFE when performing Table operations.
-**                           This value is returned at the address specified by TblHandlePtr.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS              \copybrief CFE_SUCCESS
@@ -607,14 +603,12 @@ int32   CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle );
 **           This pointer mush be released with the #CFE_TBL_ReleaseAddress API before
 **           the table can be loaded with data.
 **
-** \param[in]  TblPtr     The address of a pointer that will be loaded with the address of 
+** \param[in, out]  TblPtr     The address of a pointer that will be loaded with the address of 
 **                        the first byte of the table.  This pointer can then be typecast 
-**                        by the calling application to the appropriate table data structure.
+**                        by the calling application to the appropriate table data structure. *TblPtr is the address of the first byte of data associated with the specified table.
 **
 ** \param[in]  TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
 **                        identifies the Table whose address is to be returned.
-**
-** \param[out] *TblPtr    Address of the first byte of data associated with the specified table.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
@@ -692,16 +686,14 @@ int32 CFE_TBL_ReleaseAddress( CFE_TBL_Handle_t TblHandle );
 **           This pointer mush be released with the #CFE_TBL_ReleaseAddress API before
 **           the table can be loaded with data.
 **
-** \param[in] TblPtrs    Array of Pointers to variables that calling Application
-**                       wishes to hold the start addresses of the Tables.
+** \param[in, out] TblPtrs    Array of Pointers to variables that calling Application
+**                       wishes to hold the start addresses of the Tables. *TblPtrs is an array of addresses of the first byte of data associated with the
+**                       specified tables.
 **
 ** \param[in] NumTables  Size of TblPtrs and TblHandles arrays.
 **
 ** \param[in] TblHandles Array of Table Handles, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share,
 **                       of those tables whose start addresses are to be obtained.
-**
-** \param[out] *TblPtrs  Array of addresses of the first byte of data associated with the
-**                       specified tables.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
@@ -807,8 +799,9 @@ int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle );
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in]  TblInfoPtr    A pointer to a CFE_TBL_Info_t data structure that is to be populated
-**                           with table characteristics and information.
+** \param[in, out]  TblInfoPtr    A pointer to a CFE_TBL_Info_t data structure that is to be populated
+**                           with table characteristics and information. *TblInfoPtr is the description of the tables characteristics and registry information stored in
+**                           the #CFE_TBL_Info_t data structure format.
 ** 
 ** \param[in]  TblName       The processor specific name of the table.  It is important to note 
 **                           that the processor specific table name is different from the table 
@@ -817,9 +810,6 @@ int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle );
 **                           the table.  The name would be of the form "ApplicationName.TableName".  
 **                           An example of this would be "ACS.TamParams" for a table called "TamParams" 
 **                           that was registered by the application called "ACS".
-**
-** \param[out] *TblInfoPtr   Description of the tables characteristics and registry information stored in
-**                           the #CFE_TBL_Info_t data structure format.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS              \copybrief CFE_SUCCESS

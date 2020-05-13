@@ -91,7 +91,7 @@ typedef struct {
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \retval None
+** 
 ******************************************************************************/
 extern  void CFE_TBL_GetHkData(void);
 
@@ -108,7 +108,7 @@ extern  void CFE_TBL_GetHkData(void);
 **        #CFE_TBL_TaskData_t::HkTlmTblRegIndex is assumed to be a valid index into
 **           the Table Registry.
 **
-** \retval None
+** 
 ******************************************************************************/
 extern void CFE_TBL_GetTblRegData(void);
 
@@ -120,9 +120,9 @@ extern void CFE_TBL_GetTblRegData(void);
 **        Constructs a Housekeeping Packet (#CFE_TBL_HousekeepingTlm_t) from task data and sends it out
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as a Housekeeping Request Message
+**          The message pointed to by data has been identified as a Housekeeping Request Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
 ******************************************************************************/
@@ -136,9 +136,9 @@ int32 CFE_TBL_HousekeepingCmd(const CCSDS_CommandPacket_t *data);
 **        Responds to the NOOP command by issuing an Event Message
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as a NO OP Command Message
+**          The message pointed to by data has been identified as a NO OP Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
@@ -153,9 +153,9 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_Noop_t *data);
 **        Resets command counters and validation request counters
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as a Reset Counters Command Message
+**          The message pointed to by data has been identified as a Reset Counters Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
 ******************************************************************************/
@@ -170,9 +170,9 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCounters_t *data);
 **        a buffer that is associated with the table specified within the file header.
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as a Load Table Command Message
+**          The message pointed to by data has been identified as a Load Table Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
@@ -188,9 +188,9 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data);
 **        the data contents to the command message specified file.
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as a Dump Table Command Message
+**          The message pointed to by data has been identified as a Dump Table Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
@@ -207,9 +207,9 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_Dump_t *data);
 **        of the buffer's contents is required.
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as a Validate Table Command Message
+**          The message pointed to by data has been identified as a Validate Table Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
@@ -225,9 +225,9 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_Validate_t *data);
 **        be used.
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as an Activate Table Command Message
+**          The message pointed to by data has been identified as an Activate Table Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
@@ -242,9 +242,9 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_Activate_t *data);
 **        Copies the contents of the Table Registry to a command message specified file.
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as a Dump Table Registry Command Message
+**          The message pointed to by data has been identified as a Dump Table Registry Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
@@ -260,9 +260,9 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data);
 **        a message that is sent out.
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as a Telemeter Table Registry Entry Command Message
+**          The message pointed to by data has been identified as a Telemeter Table Registry Entry Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
@@ -277,9 +277,9 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistry_t *data);
 **        Deletes a Critical Data Store used to hold a Critical Table's image
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as a Delete CDS Command Message
+**          The message pointed to by data has been identified as a Delete CDS Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
@@ -294,9 +294,9 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDS_t *data);
 **        Frees any resources associated with a previously loaded table.
 ** 
 ** \par Assumptions, External Events, and Notes:
-**          The message pointed to by MessagePtr has been identified as an Abort Load Command Message
+**          The message pointed to by data has been identified as an Abort Load Command Message
 **
-** \param[in] MessagePtr points to the message received via command pipe that needs processing
+** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
@@ -345,7 +345,6 @@ extern CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const 
 **
 ** \param[in] RegRecPtr   Pointer to registry record entry for the table whose load is to be aborted
 **
-** \return None
 ******************************************************************************/
 void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr);
 

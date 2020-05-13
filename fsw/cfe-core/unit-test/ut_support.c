@@ -82,7 +82,8 @@ void UT_Init(const char *subsys)
     int8 i;
 
     /* Copy the application name for later use */
-    strncpy(UT_subsys, subsys, 5);
+    strncpy(UT_subsys, subsys, sizeof(UT_subsys)-1);
+    UT_subsys[sizeof(UT_subsys)-1] = 0;
     snprintf(UT_appname, 80, "ut_cfe_%s", subsys);
 
     /* Convert to upper case */
@@ -232,8 +233,7 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_MsgPtr_t), CFE_SB_MsgPtr_t Msg,
      * macros (not stubs) to read this info direct from
      * the buffer.
      */
-    CCSDS_WR_LEN(Msg->Hdr, MsgSize);
-    CCSDS_WR_SHDR(Msg->Hdr, 1);
+    CFE_SB_SetTotalMsgLength(Msg, MsgSize);
     CFE_SB_SetMsgId(Msg, DispatchId.MsgId);
     CFE_SB_SetCmdCode(Msg, DispatchId.CommandCode);
 
@@ -693,3 +693,145 @@ uint32 UT_PrintfIsInHistory(const char *MsgToSearchFor)
     return UT_GetMessageCount(MsgToSearchFor, &UT_PrintfBuffer, UT_StrCmpFormatStr);
 }
 
+int32 TestStat;
+
+void UT_STARTBLOCK_impl(const char *FileName, int LineNum, const char *TestName)
+{
+#ifdef VERBOSE
+    char cMsg[UT_MAX_MESSAGE_LENGTH];
+    snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Start Block", TestName, FileName, LineNum);
+    UT_Text(cMsg);
+#endif /* VERBOSE */
+}
+
+void UT_START_impl(const char *FileName, int LineNum, const char *TestName)
+{
+#ifdef VERBOSE
+    char cMsg[UT_MAX_MESSAGE_LENGTH];
+    snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Start", TestName, FileName, LineNum);
+    UT_Text(cMsg);
+#endif /* VERBOSE */
+
+    TestStat = CFE_PASS;
+}
+
+void UT_REPORT_impl(const char *FileName, int LineNum, const char *TestName)
+{
+    UT_Report(FileName, LineNum, TestStat, TestName, "Report");
+}
+
+bool UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
+{
+    char cMsg[UT_MAX_MESSAGE_LENGTH];
+
+    if(FnRet != CFE_SUCCESS)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Setup failed (%s returned %ld)",
+                        TestName, FileName, LineNum, FnName, (long int)FnRet);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+        return false;
+    }
+    return true;
+}
+
+bool UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
+{
+    char cMsg[UT_MAX_MESSAGE_LENGTH];
+
+    if(FnRet != CFE_SUCCESS)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Assert failed (%s returned %ld)",
+            TestName, FileName, LineNum, FnName, (long int)FnRet);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+        return false;
+    }
+    return true;
+}
+
+bool UT_ASSERT_EQ_impl(const char *FileName, int LineNum, const char *TestName,
+    const char *FnName, int32 FnRet, const char *ExpName, int32 Exp)
+{
+    char cMsg[UT_MAX_MESSAGE_LENGTH];
+
+    if(FnRet != Exp)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Assert failed (%s [%ld] != %s[%ld])",
+            TestName, FileName, LineNum, FnName, (long int)FnRet, ExpName, (long int)Exp);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+        return false;
+    }
+    return true;
+}
+
+bool UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
+    const char *ExpName, bool Exp)
+{
+    char cMsg[UT_MAX_MESSAGE_LENGTH];
+
+    if(!Exp)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Assert failed (%s)",
+            TestName, FileName, LineNum, ExpName);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+        return false;
+    }
+    return true;
+}
+
+bool UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int32 CntExp)
+{
+    char cMsg[UT_MAX_MESSAGE_LENGTH];
+
+    int32 CntSent = UT_GetNumEventsSent();
+    if(CntSent != CntExp)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Event count (sent: %ld != expected: %ld)",
+            TestName, FileName, LineNum, (long int)CntSent, (long int)CntExp);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+        return false;
+    }
+    return true;
+}
+
+bool UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, const char *EvtName, int32 EvtId)
+{
+    char cMsg[UT_MAX_MESSAGE_LENGTH];
+
+    if(!UT_EventIsInHistory(EvtId))
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Event not sent (%s [%ld])",
+                        TestName, FileName, LineNum, EvtName, (long int)EvtId);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+        return false;
+    }
+    return true;
+}
+
+bool UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
+{
+    char cMsg[UT_MAX_MESSAGE_LENGTH];
+
+    if(FnRet != CFE_SUCCESS)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Teardown failed (%s returned %ld)",
+                        TestName, FileName, LineNum, FnName, (long int)FnRet);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+        return false;
+    }
+    return true;
+}
+
+void UT_ENDBLOCK_impl(const char *FileName, int LineNum, const char *TestName)
+{
+#ifdef VERBOSE
+    snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) End Block", TestName, FileName, LineNum);
+    UT_Text();
+#endif /* VERBOSE */
+}

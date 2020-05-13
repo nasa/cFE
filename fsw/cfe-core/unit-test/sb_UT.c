@@ -156,7 +156,7 @@ void Test_SB_Macros(void)
 */
 void Test_SB_CCSDSSecHdr_Macros(void)
 {
-    CFE_SB_CmdHdr_t NoParamPkt;
+    CCSDS_CommandPacket_t NoParamPkt;
     
     uint32 ExpRtn;
     uint32 ActRtn;
@@ -657,7 +657,7 @@ void Test_SB_AppInit_EVSSendEvtFail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 5;
+    ExpRtn = 7;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -849,7 +849,7 @@ void Test_SB_AppInit_GetPoolFail(void)
 #endif
 
     SB_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 3, ForcedRtnVal);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 4, ForcedRtnVal);
     ExpRtn = ForcedRtnVal;
     ActRtn = CFE_SB_AppInit();
 
@@ -863,7 +863,7 @@ void Test_SB_AppInit_GetPoolFail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 5;
+    ExpRtn = 7;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -910,7 +910,7 @@ void Test_SB_AppInit_PutPoolFail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 5;
+    ExpRtn = 7;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -961,7 +961,7 @@ void Test_SB_Main_RcvErr(void)
     SB_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_QueueGet), 1, -1);
     CFE_SB_TaskMain();
-    ExpRtn = 8;
+    ExpRtn = 10;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -1007,7 +1007,7 @@ void Test_SB_Main_InitErr(void)
     SB_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, -1);
     CFE_SB_TaskMain();
-    ExpRtn = 5;
+    ExpRtn = 7;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -1244,7 +1244,7 @@ void Test_SB_Cmds_RoutingInfoDef(void)
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &WriteFileCmd;
     CFE_SB_ProcessCmdPipePkt();
 
-    ExpRtn = 9;
+    ExpRtn = 12;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -1475,7 +1475,7 @@ void Test_SB_Cmds_RoutingInfoWriteFail(void)
         TestStat = CFE_FAIL;
     }
 
-    ExpRtn = 9;
+    ExpRtn = 11;
     ActRtn = UT_GetNumEventsSent();
 
     if (ActRtn != ExpRtn)
@@ -2718,7 +2718,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
 #endif
 
     SB_ResetUnitTest();
-    CFE_SB_InitMsg(&NoParamCmd, CFE_SB_ValueToMsgId(CFE_SB_CMD_MID), sizeof(CFE_SB_SendPrevSubs_t), true);
+    CFE_SB_InitMsg(&NoParamCmd, CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID), sizeof(CFE_SB_SendPrevSubs_t), true);
     CFE_SB_SetCmdCode((CFE_SB_MsgPtr_t) &NoParamCmd, CFE_SB_SEND_PREV_SUBS_CC);
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &NoParamCmd;
     CFE_SB_CreatePipe(&PipeId1, PipeDepth, "TestPipe1");
@@ -2852,7 +2852,7 @@ void Test_SB_Cmds_SubRptOn(void)
 #endif
 
     SB_ResetUnitTest();
-    CFE_SB_InitMsg(&NoParamCmd, CFE_SB_ValueToMsgId(CFE_SB_CMD_MID),
+    CFE_SB_InitMsg(&NoParamCmd, CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID),
                    sizeof(NoParamCmd), true);
     CFE_SB_SetCmdCode((CFE_SB_MsgPtr_t) &NoParamCmd,
                       CFE_SB_ENABLE_SUB_REPORTING_CC);
@@ -2890,7 +2890,7 @@ void Test_SB_Cmds_SubRptOff(void)
 #endif
 
     SB_ResetUnitTest();
-    CFE_SB_InitMsg(&NoParamCmd, CFE_SB_ValueToMsgId(CFE_SB_CMD_MID),
+    CFE_SB_InitMsg(&NoParamCmd, CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID),
                    sizeof(NoParamCmd), true);
     CFE_SB_SetCmdCode((CFE_SB_MsgPtr_t) &NoParamCmd,
                       CFE_SB_DISABLE_SUB_REPORTING_CC);
@@ -2929,6 +2929,32 @@ void Test_SB_Cmds_UnexpCmdCode(void)
 
     SB_ResetUnitTest();
     CFE_SB_InitMsg(&NoParamCmd, CFE_SB_ValueToMsgId(CFE_SB_CMD_MID), sizeof(NoParamCmd), true);
+
+    /* Use a command code known to be invalid */
+    CFE_SB_SetCmdCode((CFE_SB_MsgPtr_t) &NoParamCmd, 99);
+    CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &NoParamCmd;
+    CFE_SB_ProcessCmdPipePkt();
+    ExpRtn = 1;
+    ActRtn = UT_GetNumEventsSent();
+
+    if (ActRtn != ExpRtn)
+    {
+        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH,
+                 "Unexpected rtn from UT_GetNumEventsSent, exp=%ld, act=%ld",
+                 (long) ExpRtn, (long) ActRtn);
+        UT_Text(cMsg);
+        TestStat = CFE_FAIL;
+    }
+
+    if (UT_EventIsInHistory(CFE_SB_BAD_CMD_CODE_EID) == false)
+    {
+        UT_Text("CFE_SB_BAD_CMD_CODE_EID not sent");
+        TestStat = CFE_FAIL;
+    }
+
+    /* Same test for subscription reporting control MID */
+    SB_ResetUnitTest();
+    CFE_SB_InitMsg(&NoParamCmd, CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID), sizeof(NoParamCmd), true);
 
     /* Use a command code known to be invalid */
     CFE_SB_SetCmdCode((CFE_SB_MsgPtr_t) &NoParamCmd, 99);

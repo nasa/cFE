@@ -62,6 +62,30 @@
 */
 
 /*
+ * Background log dump state structure
+ *
+ * This structure is stored in global memory and keeps the state
+ * of the log dump from one iteration to the next.
+ *
+ * NOTE: This is used for log structures which are expected to be small
+ * enough so such that it is not necessary to throttle the file write or
+ * spread it over time.
+ *
+ * Therefore, the only thing necessary to be stored is whether there
+ * is a pending write request, and the data file name.
+ *
+ * Larger log files, such as the Perf log, must implement a state machine
+ * with a dedicated state data structure.
+ */
+typedef struct
+{
+    volatile bool   IsPending;
+    char            DataFileName[OS_MAX_PATH_LEN];
+} CFE_ES_BackgroundLogDumpGlobal_t;
+
+
+
+/*
 ** Type definition (ES task global data)
 */
 typedef struct
@@ -77,11 +101,12 @@ typedef struct
   */
   CFE_ES_HousekeepingTlm_t     HkPacket;
 
-
+#ifndef CFE_OMIT_DEPRECATED_6_7
   /*
   ** ES Shell output telemetry packet
   */
   CFE_ES_ShellTlm_t  ShellPacket;
+#endif
 
   /*
   ** Single application telemetry packet
@@ -107,6 +132,8 @@ typedef struct
 
   uint8                 LimitHK;
   uint8                 LimitCmd;
+
+  CFE_ES_BackgroundLogDumpGlobal_t  BackgroundERLogDumpState;
 
   /*
    * Persistent state data associated with performance log data file writes
@@ -152,7 +179,9 @@ int32 CFE_ES_HousekeepingCmd(const CCSDS_CommandPacket_t *data);
 int32 CFE_ES_NoopCmd(const CFE_ES_Noop_t *Cmd);
 int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCounters_t *data);
 int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data);
+#ifndef CFE_OMIT_DEPRECATED_6_7
 int32 CFE_ES_ShellCmd(const CFE_ES_Shell_t *data);
+#endif
 int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data);
 int32 CFE_ES_StopAppCmd(const CFE_ES_StopApp_t *data);
 int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartApp_t *data);

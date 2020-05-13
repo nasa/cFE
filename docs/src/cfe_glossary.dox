@@ -1,0 +1,87 @@
+/**
+  \page cfeglossary Glossary of Terms
+  
+  <TABLE>
+     <TR>
+        <TH> Term
+        <TH> Definition
+     <TR>
+        <TD> \anchor cfeadg_application Application (or App)
+        <TD> A set of data and functions that is treated as a single entity 
+             by the cFE.  cFE resources are allocated on a per-Application 
+             basis.  Applications are made up of a Main Task and zero or 
+             more Child Tasks.
+     <TR>
+        <TD> \anchor cfeadg_applicationid Application ID
+        <TD> A processor unique reference to an Application. <BR>
+             <B> NOTE: This is different from a CCSDS Application ID which is 
+             referred to as an "APID." </B>
+     <TR>
+        <TD> \anchor cfeadg_api Application Programmer's Interface (API)
+        <TD> A set of routines, protocols, and tools for building software 
+             applications
+     <TR>
+        <TD> \anchor cfeadg_psp Platform Support Package (PSP)
+        <TD> A collection of user-provided facilities that interface an OS 
+             and the cFE with a specific hardware platform.  The PSP is 
+             responsible for hardware initialization.
+     <TR>
+        <TD> \anchor cfeadg_childtask Child Task
+        <TD> A separate thread of execution that is spawned by an 
+             Application's Main Task.
+     <TR>
+        <TD> \anchor cfeadg_command Command
+        <TD> A Software Bus Message defined by the receiving Application. 
+             Commands can originate from other onboard Applications or 
+             from the ground.
+     <TR>
+        <TD> \anchor cfeadg_cfe Core Flight Executive (cFE)
+        <TD> A runtime environment and a set of services for hosting FSW 
+             Applications
+     <TR>
+        <TD> \anchor cfeadg_cds Critical Data Store (CDS)
+        <TD> A collection of data that is not modified by the OS or 
+             cFE following a Processor Reset.
+     <TR>
+        <TD> \anchor cfeadg_crc Cyclic Redundancy Check
+        <TD> A polynomial based method for checking that a data set 
+             has remained unchanged from one time period to another.
+     <TR>
+        <TD> \anchor cfeadg_developer Developer
+        <TD> Anyone who is coding a cFE Application.
+     <TR>
+        <TD> \anchor cfeadg_eventdata Event Data
+        <TD> Data describing an Event that is supplied to the cFE 
+             Event Service. The cFE includes this data in an  
+             \ref cfeadg_eventmessage "Event Message".
+     <TR>
+        <TD> \anchor cfeadg_eventfilter Event Filter
+        <TD> A numeric value (bit mask) used to determine how 
+             frequently to output an application Event Message 
+             defined by its \ref cfeadg_eventid "Event ID".
+     <TR>
+        <TD> \anchor cfeadg_eventformatmode Event Format Mode
+        <TD> Defines the Event Message Format downlink option: short or long.  
+             The short format is used when there is limited telemetry bandwidth 
+             and is binary.  The long format is in ASCII and is used for 
+             logging to a Local Event Log and to an Event Message Port.
+     <TR>
+        <TD> \anchor cfeadg_eventid Event ID
+        <TD> A numeric literal used to uniquely name an Application event.
+     <TR>
+        <TD> \anchor cfeadg_eventtype Event Type
+        <TD> A numeric literal used to identify the type of an Application event.
+             An event type may be #CFE_EVS_DEBUG, #CFE_EVS_INFORMATION, 
+             #CFE_EVS_ERROR, or #CFE_EVS_CRITICAL.
+     <TR>
+        <TD> \anchor cfeadg_eventmessage Event Message
+        <TD> A data item used to notify the user and/or an external 
+             \ref cfeadg_application "Application" of a significant event. 
+             Event Messages include a time-stamp of when the message was 
+             generated, a processor unique identifier, an 
+             \ref cfeadg_applicationid "Application ID", the
+             \ref cfeadg_eventtype "Event Type" (DEBUG,INFO,ERROR or CRITICAL), 
+             and \ref cfeadg_eventdata "Event Data".  An Event Message can 
+             either be real-time or playback from a Local Event Log.
+  </TABLE>
+**/

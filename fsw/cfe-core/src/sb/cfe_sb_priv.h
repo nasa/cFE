@@ -401,33 +401,31 @@ int32 CFE_SB_RemoveDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *
 
 
 /*****************************************************************************/
-/** 
+/**
 ** \brief Get the size of a software bus message header.
 **
 ** \par Description
-**          This routine returns the number of bytes in a software bus message header.  
-**          This can be used for sizing buffers that need to store SB messages.  SB 
-**          message header formats can be different for each deployment of the cFE.  
-**          So, applications should use this function and avoid hard coding their buffer 
+**          This routine returns the number of bytes in a software bus message header.
+**          This can be used for sizing buffers that need to store SB messages.  SB
+**          message header formats can be different for each deployment of the cFE.
+**          So, applications should use this function and avoid hard coding their buffer
 **          sizes.
 **
 ** \par Assumptions, External Events, and Notes:
-**          - For statically defined messages, a function call will not work.  The 
-**            macros #CFE_SB_CMD_HDR_SIZE and #CFE_SB_TLM_HDR_SIZE are available for use 
-**            in static message buffer sizing or structure definitions.  
+**          - For statically defined messages, a function call will not work.  The
+**            macros #CFE_SB_CMD_HDR_SIZE and #CFE_SB_TLM_HDR_SIZE are available for use
+**            in static message buffer sizing or structure definitions.
 **
-** \param[in]  *MsgPtr The message ID to calculate header size for.  The size of the message 
-**                     header may depend on the MsgId in some implementations.  For example, 
-**                     if SB messages are implemented as CCSDS packets, the size of the header 
+** \param[in]  *MsgPtr The message ID to calculate header size for.  The size of the message
+**                     header may depend on the MsgId in some implementations.  For example,
+**                     if SB messages are implemented as CCSDS packets, the size of the header
 **                     is different for command vs. telemetry packets.
 **
-** \returns
-** \retstmt The number of bytes in the software bus message header for 
-**          messages with the given \c MsgId. endstmt
-** \endreturns
+** \returns The number of bytes in the software bus message header for
+**          messages with the given \c MsgId.
 **
 ** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_GetTotalMsgLength,
-**     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum 
+**     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum
 **/
 uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr);
 

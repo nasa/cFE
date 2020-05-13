@@ -46,7 +46,7 @@
 ** and when you're done adding, set this to the highest EID you used. It may
 ** be worthwhile to, on occasion, re-number the EID's to put them back in order.
 */
-#define CFE_TBL_MAX_EID                         105
+#define CFE_TBL_MAX_EID                         103
 
 /******************* Macro Definitions ***********************/
 /*
@@ -66,6 +66,8 @@
 **  Task completes its Initialization.
 **/
 #define CFE_TBL_INIT_INF_EID                    1  
+/** \} */
+
 
 /** \name Command Response Informational Event Message IDs */
 /** \{ */
@@ -841,6 +843,7 @@
 #define CFE_TBL_FAIL_NOTIFY_SEND_ERR_EID       89
 /** \} */
 
+
 /** \name API Informational Event Message IDs */
 /** \{ */
 
@@ -893,7 +896,6 @@
 **/
 #define CFE_TBL_CDS_DELETED_INFO_EID           38  
 /** \} */
-
 
 
 /** \name API Error Event Message IDs */
@@ -1064,23 +1066,40 @@
 **/
 #define CFE_TBL_LOAD_IN_PROGRESS_ERR_EID       100
 
-/* TODO: document see https://github.com/nasa/cFE/issues/661 */
-#define CFE_TBL_LOAD_SRC_TYPE_ERR_EID          101
+/** \brief <tt> Filename is too long ('%s' (%lu) > %lu)  </tt>
+**  \event <tt> Filename is too long ('%s' (%lu) > %lu)  </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  The filename provided for the table file is too long (exceeding OS_MAX_PATH_LEN - 1).
+**/
+#define CFE_TBL_LOAD_FILENAME_LONG_ERR_EID     101
 
-/* TODO: document see https://github.com/nasa/cFE/issues/661 */
-#define CFE_TBL_LOAD_FILENAME_LONG_ERR_EID     102
+/** \brief <tt> table name mismatch (exp=%s, tblfilhdr=%s) </tt>
+**  \event <tt> table name mismatch (exp=%s, tblfilhdr=%s) </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  The table name in the table file header does not match the specified table name.
+**/
+#define CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID  102
 
-/* TODO: document see https://github.com/nasa/cFE/issues/661 */
-#define CFE_TBL_LOAD_SHORT_FILE_ERR_EID        103
-
-/* TODO: document see https://github.com/nasa/cFE/issues/661 */
-#define CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID  104
-
-/* TODO: document see https://github.com/nasa/cFE/issues/661 */
-#define CFE_TBL_HANDLE_ACCESS_ERR_EID          105
+/** \brief <tt> No access to Tbl handle=%d </tt>
+**  \event <tt> No access to Tbl handle=%d </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  The application ID does not have access to the table handle.
+**/
+#define CFE_TBL_HANDLE_ACCESS_ERR_EID          103
 
 /** \} */
-
 
 
 #endif /* _cfe_tbl_events_ */

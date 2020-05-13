@@ -210,7 +210,6 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_GetTime);
     UT_ADD_TEST(Test_TimeOp);
     UT_ADD_TEST(Test_ConvertTime);
-    UT_ADD_TEST(Test_ConvertCFEFS);
     UT_ADD_TEST(Test_Print);
     UT_ADD_TEST(Test_RegisterSyncCallbackTrue);
     UT_ADD_TEST(Test_ExternalTone);
@@ -284,7 +283,7 @@ void Test_Init(void)
     ExpRtn++;
     CFE_TIME_EarlyInit();
     UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(CFE_SB_SetMsgId)) == ExpRtn,
+              UT_GetStubCount(UT_KEY(CFE_SB_InitMsg)) == ExpRtn,
               "CFE_TIME_EarlyInit",
               "Successful");
 
@@ -1147,116 +1146,6 @@ void Test_ConvertTime(void)
 }
 
 /*
-** Test function for converting cFE seconds to file system (FS) seconds and
-** vice versa
-*/
-void Test_ConvertCFEFS(void)
-{
-    uint32 result;
-
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Convert cFE and FS Seconds\n");
-#endif
-
-    /* Test cFE to FS conversion using 0 for the cFE seconds value */
-    UT_InitData();
-
-    /* Calculate expected result based on macro value */
-    if (CFE_MISSION_TIME_FS_FACTOR < 0 && -CFE_MISSION_TIME_FS_FACTOR > 0)
-    {
-        result = 0;
-    }
-    else
-    {
-        result = CFE_MISSION_TIME_FS_FACTOR;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_CFE2FSSeconds(0) == result,
-              "CFE_TIME_CFE2FSSeconds",
-              "Convert 0 cFE seconds to FS seconds");
-
-    /* Test cFE to FS conversion using mid-range value for cFE seconds */
-    UT_InitData();
-
-    /* Calculate expected result based on macro value */
-    if (CFE_MISSION_TIME_FS_FACTOR < 0 && -CFE_MISSION_TIME_FS_FACTOR > 0xffff)
-    {
-        result = 0;
-    }
-    else
-    {
-        result = CFE_MISSION_TIME_FS_FACTOR + 0xffff;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_CFE2FSSeconds(0xffff) == result,
-              "CFE_TIME_CFE2FSSeconds",
-              "Convert mid-range cFE seconds to FS seconds");
-
-    /* Test cFE to FS conversion using the maximum cFE seconds value */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_CFE2FSSeconds(0xffffffff) ==
-              (uint32) (CFE_MISSION_TIME_FS_FACTOR - 1),
-              "CFE_TIME_CFE2FSSeconds",
-              "Maximum cFE seconds value");
-
-    /* Test FS to cFE conversion using 0 for the FS seconds value */
-    UT_InitData();
-
-    if (CFE_MISSION_TIME_FS_FACTOR > 0)
-    {
-        result = 0;
-    }
-    else
-    {
-        result = -(uint32) CFE_MISSION_TIME_FS_FACTOR;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(0) == result,
-              "CFE_TIME_FS2CFESeconds",
-              "Convert 0 FS seconds to cFE seconds");
-
-    /* Test FS to cFE conversion response to a FS seconds value that results
-     * in a negative cFE time (forces cFE seconds to zero)
-     */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(CFE_MISSION_TIME_FS_FACTOR - 1) == 0,
-              "CFE_TIME_FS2CFESeconds",
-              "Negative cFE seconds conversion (force to zero)");
-
-    /* Test FS to cFE conversion using the minimum convertible FS
-     * seconds value
-     */
-    UT_InitData();
-
-    if (CFE_MISSION_TIME_FS_FACTOR > (uint32) (CFE_MISSION_TIME_FS_FACTOR + 1))
-    {
-        result = 0;
-    }
-    else
-    {
-        result = 1;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(CFE_MISSION_TIME_FS_FACTOR + 1) == result,
-              "CFE_TIME_FS2CFESeconds",
-              "Minimum convertible FS seconds value");
-
-    /* Test FS to cFE conversion using the maximum FS seconds value */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_FS2CFESeconds(0xffffffff) == 0xffffffff -
-              CFE_MISSION_TIME_FS_FACTOR,
-              "CFE_TIME_FS2CFESeconds",
-              "Maximum FS seconds value");
-}
-
-/*
 ** Test function for creating a text string representing the date and time
 **
 ** NOTE: Test results depend on the epoch values in cfe_mission_cfg.h (the
@@ -1266,7 +1155,7 @@ void Test_ConvertCFEFS(void)
 void Test_Print(void)
 {
     int result;
-    char testDesc[UT_MAX_MESSAGE_LENGTH];
+    char testDesc[1+UT_MAX_MESSAGE_LENGTH];
     CFE_TIME_SysTime_t time;
 
 #ifdef UT_VERBOSE
@@ -1279,8 +1168,8 @@ void Test_Print(void)
     time.Seconds = 0;
     CFE_TIME_Print(testDesc, time);
     result = !strcmp(testDesc, "1980-001-00:00:00.00000");
-    strncat(testDesc," Zero time value", UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+    strncat(testDesc," Zero time value",
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1296,8 +1185,7 @@ void Test_Print(void)
     result = !strcmp(testDesc, "1980-001-00:00:59.00000");
     strncat(testDesc,
             " Seconds overflow if CFE_MISSION_TIME_EPOCH_SECOND > 0",
-            UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1309,8 +1197,8 @@ void Test_Print(void)
     time.Seconds = 1041472984;
     CFE_TIME_Print(testDesc, time);
     result = !strcmp(testDesc, "2013-001-02:03:04.00005");
-    strncat(testDesc," Mission representative time", UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+    strncat(testDesc," Mission representative time",
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1323,8 +1211,7 @@ void Test_Print(void)
     CFE_TIME_Print(testDesc, time);
     result = !strcmp(testDesc, "2116-038-06:28:15.99999");
     strncat(testDesc," Maximum seconds/subseconds values",
-            UT_MAX_MESSAGE_LENGTH);
-    testDesc[UT_MAX_MESSAGE_LENGTH - 1] = '\0';
+            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
     UT_Report(__FILE__, __LINE__,
               result,
               "CFE_TIME_Print",
@@ -1904,6 +1791,8 @@ void Test_PipeCmds(void)
 
     /* Test sending the housekeeping telemetry request command */
     UT_InitData();
+    CFE_SB_InitMsg((CFE_SB_Msg_t *) &CFE_TIME_TaskData.HkPacket, LocalSnapshotData.MsgId,
+            sizeof(CFE_TIME_TaskData.HkPacket), false);
     UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd),
             UT_TPID_CFE_TIME_SEND_HK);

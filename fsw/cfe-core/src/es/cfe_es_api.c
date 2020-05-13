@@ -43,6 +43,7 @@
 #include "cfe_es_events.h"
 #include "cfe_es_cds.h"
 #include "cfe_es_cds_mempool.h"
+#include "cfe_es_task.h"
 #include "cfe_psp.h"
 #include "cfe_es_log.h"
 
@@ -96,7 +97,7 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
            */
            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON,
                                          CFE_PSP_RST_SUBTYPE_RESET_COMMAND,
-                                         "POWER ON RESET due to max proc resets (Commanded).", NULL,0 );
+                                         "POWER ON RESET due to max proc resets (Commanded).");
            /*
            ** Call the BSP reset routine
            */
@@ -116,7 +117,7 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
            */
            CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_PROCESSOR,
                                        CFE_PSP_RST_SUBTYPE_RESET_COMMAND,
-                                       "PROCESSOR RESET called from CFE_ES_ResetCFE (Commanded).", NULL,0 );
+                                       "PROCESSOR RESET called from CFE_ES_ResetCFE (Commanded).");
            /*
            ** Call the BSP reset routine
            */
@@ -140,7 +141,7 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
        */
        CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON,
                                        CFE_PSP_RST_SUBTYPE_RESET_COMMAND,
-                                       "POWERON RESET called from CFE_ES_ResetCFE (Commanded).", NULL,0 );
+                                       "POWERON RESET called from CFE_ES_ResetCFE (Commanded).");
 
        /*
        ** Call the BSP reset routine
@@ -735,7 +736,7 @@ int32 CFE_ES_GetAppName(char *AppName, uint32 AppId, uint32 BufferLength)
    {
       if ( CFE_ES_Global.AppTable[AppId].AppState != CFE_ES_AppState_UNDEFINED )
       {
-         strncpy(AppName, (char *)CFE_ES_Global.AppTable[AppId].StartParams.Name, BufferLength);
+         strncpy(AppName, (char *)CFE_ES_Global.AppTable[AppId].StartParams.Name, BufferLength - 1);
          AppName[BufferLength - 1] = '\0';
          Result = CFE_SUCCESS;
       }
@@ -1716,126 +1717,13 @@ void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber)
 }/* end CFE_ES_UnlockSharedData */
 
 /******************************************************************************
-**  Function:  CFE_ES_ProcessCoreException() - See API and header file for details
+**  Function:  CFE_ES_ProcessAsyncEvent()
+**
+**  Purpose:
+**    Called by the PSP to notify CFE ES that an asynchronous event occurred.
 */
-void CFE_ES_ProcessCoreException(uint32  HostTaskId,     const char *ReasonString,
-                                 const uint32 *ContextPointer, uint32 ContextSize)
+void CFE_ES_ProcessAsyncEvent(void)
 {
-    uint32                 i;
-    int32                  Status;
-    OS_task_prop_t         TaskProp;
-    CFE_ES_TaskInfo_t      EsTaskInfo;
-    uint32                 FoundExceptionTask = 0;
-    uint32                 ExceptionTaskID = 0;
-
-    /*
-    ** If a loadable cFE Application caused the reset and it's
-    ** exception action is set to Restart the App rather than cause a
-    ** processor reset, then just reset the App.
-    */
-
-    /*
-    ** We have the Host Task Id ( vxWorks, RTEMS, etc ). Search
-    ** the OSAPI to see if a match can be found.
-    */
-    for ( i = 0; i < OS_MAX_TASKS; i++ )
-    {
-       if (CFE_ES_Global.TaskTable[i].RecordUsed == true)
-       {
-          ExceptionTaskID = CFE_ES_Global.TaskTable[i].TaskId;
-          Status = OS_TaskGetInfo (ExceptionTaskID, &TaskProp);
-
-          if ( Status == OS_SUCCESS && TaskProp.OStask_id == HostTaskId )
-          {
-             FoundExceptionTask = 1;
-             break;
-          }
-       }
-    }
-
-    /*
-    ** If the Task is found in the OS, see if the cFE App ID associated with it can be found.
-    */
-    if ( FoundExceptionTask == 1 )
-    {
-       Status = CFE_ES_GetTaskInfo( &EsTaskInfo, ExceptionTaskID );
-       /*
-       ** The App ID was found, now see if the ExceptionAction is set for a reset
-       */
-       if ( Status == CFE_SUCCESS )
-       {
-          if ( CFE_ES_Global.AppTable[EsTaskInfo.AppId].StartParams.ExceptionAction == CFE_ES_ExceptionAction_RESTART_APP )
-          {
-
-             /*
-             ** Log the Application reset
-             */
-             CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_ES_APP_RESTART,
-                            CFE_PSP_RST_SUBTYPE_EXCEPTION, (char *)ReasonString,
-                            ContextPointer, ContextSize );
-
-             /*
-             ** Finally restart the App! This call is just a request
-             ** to ES.
-             */
-             CFE_ES_RestartApp(EsTaskInfo.AppId );
-
-             /*
-             ** Return to avoid the Processor Restart Logic
-             */
-             return;
-
-          } /* end if ExceptionAction */
-
-       } /* end if */
-
-    } /* End if FoundExceptionTask */
-
-    /*
-    ** If we made it here, which means that we need to do a processor reset
-    */
-
-    /*
-    ** Before doing a Processor reset, check to see
-    ** if the maximum number has been exceeded
-    */
-    if ( CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount >=
-         CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount )
-    {
-        /*
-        ** Log the reset in the ER Log. The log will be wiped out, but it's good to have
-        ** the entry just in case something fails.
-        */
-        CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE,  CFE_PSP_RST_TYPE_POWERON,
-                            CFE_PSP_RST_SUBTYPE_EXCEPTION, (char *)ReasonString,
-                            ContextPointer, ContextSize );
-
-        /*
-        ** Call the BSP reset routine to do a Poweron Reset
-        */
-        CFE_PSP_Restart(CFE_PSP_RST_TYPE_POWERON);
-
-    }
-    else /* Do a processor reset */
-    {
-        /*
-        ** Update the reset variables
-        */
-        CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount++;
-        CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset = true;
-
-        /*
-        ** Log the reset in the ER Log
-        */
-        CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_PROCESSOR,
-                            CFE_PSP_RST_SUBTYPE_EXCEPTION, (char *)ReasonString,
-                            ContextPointer, ContextSize );
-
-        /*
-        ** Need to do a processor reset
-        */
-        CFE_PSP_Restart(CFE_PSP_RST_TYPE_PROCESSOR);
-
-    } /* end if */
-
-} /* End of CFE_ES_ProcessCoreException */
+    /* This just wakes up the background task to log/handle the event. */
+    CFE_ES_BackgroundWakeup();
+}

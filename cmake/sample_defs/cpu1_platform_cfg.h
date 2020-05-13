@@ -565,7 +565,7 @@
 **       in the error log. Any context information beyond this size will
 **       be truncated.
 */
-#define CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE     128
+#define CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE     256
 
 
 /**
@@ -1204,52 +1204,6 @@
 **       of the stack is used.
 */
 #define CFE_PLATFORM_ES_DEFAULT_STACK_SIZE 8192
-
-/**
-**  \cfeescfg Define cFE Core Exception Function
-**
-**  \par Description:
-**       This parameter defines the function-to-call when a CPU or floating point exception
-**       occurs.  The parameter is defaulted to call the ES API function #CFE_ES_ProcessCoreException
-**       which handles the logging and reset from a system or cFE core exception.
-**
-**       Note: Exception interrupts are trapped at the Platform Support Package (PSP)
-**       layer.  In order to initiate the cFE platform defined response to an exception, this
-**       platform defined callback function must be prototyped and called from the PSP
-**       exception hook API function #CFE_PSP_ExceptionHook. For example:
-**
-**       -- cfe_psp.h --
-**
-**       .... Prototype for exception ISR function implemented in CFE ....
-**
-**       typedef void (*System_ExceptionFunc_t)(uint32  HostTaskId,
-**                                              const char *ReasonString,
-**                                              const uint32 *ContextPointer,
-**                                              uint32 ContextSize);
-**
-**       -- cfe_pspexception.c --
-**
-**       .... Setup function pointer to CFE exception ISR callback ....
-**
-**       static const System_ExceptionFunc_t CFE_ExceptionCallback = CFE_PLATFORM_ES_EXCEPTION_FUNCTION;
-**
-**       void CFE_PSP_ExceptionHook (int task_id, int vector, uint8 *pEsf )
-**       {
-**           .... platform-specific logic ....
-**
-**           .... Use function pointer to call cFE routine to finish processing the exception ....
-**
-**           CFE_ExceptionCallback((uint32)task_id,
-**                                 CFE_PSP_ExceptionReasonString,
-**                                 (uint32 *)&CFE_PSP_ExceptionContext,
-**                                 sizeof(CFE_PSP_ExceptionContext_t));
-**
-**       }
-**
-**  \par Limits
-**       Must be a valid function name.
-*/
-#define CFE_PLATFORM_ES_EXCEPTION_FUNCTION CFE_ES_ProcessCoreException
 
 /**
 **  \cfeescfg Define EVS Task Priority

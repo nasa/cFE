@@ -674,15 +674,18 @@
  */
 #define CFE_FS_FNAME_TOO_LONG           ((int32)0xc6000003)
 
+#ifndef CFE_OMIT_DEPRECATED_6_7
 /**
- * @brief GZIP File Bad Data
+ * @brief DEPRECATED: GZIP File Bad Data
+ * @deprecated
  *
  * The GZIP file contains invalid data and cannot be read
  */
 #define CFE_FS_GZIP_BAD_DATA            ((int32)0xc6000004)
 
 /**
- * @brief GZIP File Bad Code Block
+ * @brief DEPRECATED: GZIP File Bad Code Block
+ * @deprecated
  *
  * The GZIP file codeblock is bad, which means the file is 
  * most likely corrupted
@@ -690,7 +693,8 @@
 #define CFE_FS_GZIP_BAD_CODE_BLOCK      ((int32)0xc6000005)
 
 /**
- * @brief GZIP Memory Buffer Exhausted
+ * @brief DEPRECATED: GZIP Memory Buffer Exhausted
+ * @deprecated
  *
  * The memory buffer used by the decompression routine is 
  * exhausted.
@@ -698,7 +702,8 @@
 #define CFE_FS_GZIP_NO_MEMORY           ((int32)0xc6000006)
 
 /**
- * @brief GZIP CRC Error
+ * @brief DEPRECATED: GZIP CRC Error
+ * @deprecated
  *
  * There is a CRC error in the GZIP file, which means the 
  * file is most likely corrupted.
@@ -706,7 +711,8 @@
 #define CFE_FS_GZIP_CRC_ERROR           ((int32)0xc6000007)
 
 /**
- * @brief GZIP Length Error
+ * @brief DEPRECATED: GZIP Length Error
+ * @deprecated
  *
  * There is a length error in the GZIP internal data 
  * structures, which means the file is most likely corrupted.
@@ -714,7 +720,8 @@
 #define CFE_FS_GZIP_LENGTH_ERROR        ((int32)0xc6000008)
 
 /**
- * @brief GZIP Write Error
+ * @brief DEPRECATED: GZIP Write Error
+ * @deprecated
  *
  * An error occurred trying to write the uncompressed 
  * file.
@@ -722,14 +729,16 @@
 #define CFE_FS_GZIP_WRITE_ERROR         ((int32)0xc6000009)
 
 /**
- * @brief GZIP Read Error
+ * @brief DEPRECATED: GZIP Read Error
+ * @deprecated
  *
  * An error occurred trying to read the GZIP file
  */ 
 #define CFE_FS_GZIP_READ_ERROR          ((int32)0xc600000A)
 
 /**
- *  @brief GZIP Open Output Error
+ *  @brief DEPRECATED: GZIP Open Output Error
+ * @deprecated
  *
  * An error occurred trying to open the DestinationFile
  * where the GZIP file will be uncompressed. The 
@@ -739,7 +748,8 @@
 #define CFE_FS_GZIP_OPEN_OUTPUT         ((int32)0xc600000B)
 
 /**
- * @brief GZIP Open Input Error
+ * @brief DEPRECATED: GZIP Open Input Error
+ * @deprecated
  *
  * An error occurred trying to open the GZIP file 
  * to be decompressed. The function must be able to open
@@ -749,7 +759,8 @@
 #define CFE_FS_GZIP_OPEN_INPUT          ((int32)0xc600000C)
 
 /**
- * @brief GZIP Read Header Error
+ * @brief DEPRECATED: GZIP Read Header Error
+ * @deprecated
  *
  * An error occured trying to read the GZIP file header,
  * which means the file is most likely corrupted or 
@@ -758,7 +769,8 @@
 #define CFE_FS_GZIP_READ_ERROR_HEADER   ((int32)0xc600000D)
 
 /**
- * @brief GZIP Index Error
+ * @brief DEPRECATED: GZIP Index Error
+ * @deprecated
  *
  * An error occurred trying to read the GZIP index, 
  * which means the file is most likely corrupted.
@@ -766,11 +778,14 @@
 #define CFE_FS_GZIP_INDEX_ERROR         ((int32)0xc600000E)
 
 /**
- * @brief GZIP Not Zip File
+ * @brief DEPRECATED: GZIP Not Zip File
+ * @deprecated
  *
  * The file to be decompressed is not a valid GZIP file
  */
 #define CFE_FS_GZIP_NON_ZIP_FILE        ((int32)0xc600000F)
+
+#endif /* CFE_OMIT_DEPRECATED_6_7 */
 
 /**
  * @brief Not Implemented

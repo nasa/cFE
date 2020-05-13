@@ -137,7 +137,7 @@ void TestStartupErrorPaths(void);
 ** \sa #UT_Report, #UT_SetOSFail, #CFE_ES_ParseFileEntry
 ** \sa #UT_SetBSPloadAppFileResult, #CFE_ES_AppCreate, #UT_SetDummyFuncRtn
 ** \sa #CFE_ES_LoadLibrary, #CFE_ES_ScanAppTable, #CFE_ES_ProcessControlRequest
-** \sa #CFE_ES_ListResourcesDebug, #CFE_ES_GetAppInfo, #CFE_ES_CleanUpApp
+** \sa #CFE_ES_GetAppInfo, #CFE_ES_CleanUpApp
 ** \sa #CFE_ES_CleanupTaskResources
 **
 ******************************************************************************/
@@ -166,27 +166,6 @@ void TestERLog(void);
 
 /*****************************************************************************/
 /**
-** \brief Performs tests on the ES shell commanding system contained in
-**        cfe_es_shell.c
-**
-** \par Description
-**        This function tests the shell output command paths in the function
-**        CFE_ES_ShellOutputCommand.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.  
-**
-** \sa #UT_Text, #UT_SetOSFail, #UT_Report, #CFE_ES_ShellOutputCommand
-** \sa #UT_SetRtnCode
-**
-******************************************************************************/
-void TestShell(void);
-
-/*****************************************************************************/
-/**
 ** \brief Performs tests of the ground command functions contained in
 **        cfe_es_task.c
 **
@@ -204,7 +183,7 @@ void TestShell(void);
 ** \sa #CFE_ES_TaskInit, #UT_SetSBTotalMsgLen, #UT_SendMsg
 ** \sa #UT_SetBSPloadAppFileResult, #UT_SetStatusBSPResetArea
 ** \sa #CFE_ES_HousekeepingCmd, #CFE_ES_NoopCmd, #CFE_ES_ResetCountersCmd
-** \sa #CFE_ES_RestartCmd, #CFE_ES_ShellCmd, #CFE_ES_StartAppCmd
+** \sa #CFE_ES_RestartCmd, #CFE_ES_StartAppCmd
 ** \sa #CFE_ES_StopAppCmd, #CFE_ES_RestartAppCmd, #CFE_ES_ReloadAppCmd
 ** \sa #CFE_ES_QueryOneCmd, #CFE_ES_QueryAllCmd, #CFE_ES_QueryAllTasksCmd
 ** \sa #CFE_ES_ClearSyslogCmd, #CFE_ES_OverWriteSyslogCmd
@@ -354,30 +333,5 @@ void TestCDSMempool(void);
 void TestESMempool(void);
 
 void TestSysLog(void);
-
-#ifdef CFE_ARINC653
-/*****************************************************************************/
-/**
-** \brief Perform tests on the  cFE applications from statically linked code
-**
-** \par Description
-**        This function tests the code for creating and loading cFE
-**        applications from statically linked code, and for initializing
-**        static libraries.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_Report, CFE_ES_StaticAppCreate, #UT_SetOSFail
-** \sa #UT_SetLibInitRtn, #CFE_ES_InitStaticLibrary
-** \sa #CFE_ES_StartStaticApplications
-**
-******************************************************************************/
-void TestStaticApp(void);
-#endif
-
 
 #endif /* _es_ut_h_ */
