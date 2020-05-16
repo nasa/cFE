@@ -119,7 +119,7 @@
 **           be used directly, except by internal table lookups.
 **
 */
-typedef uint16  CFE_SB_MsgKey_Atom_t;
+typedef uint32  CFE_SB_MsgKey_Atom_t;
 
 /******************************************************************************
 **  Typedef:  CFE_SB_MsgKey_t
