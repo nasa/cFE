@@ -1,0 +1,518 @@
+{
+  "group_name": "CFS Plugin",
+  "commands": [
+    {
+      "name": "RegisterCfsLocal",
+      "description": "",
+      "parameters": [
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "ip",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cmd_udp_port",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "tlm_udp_port",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "build_cfs",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "CCSDS_data_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_build_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_build_cmd",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_run_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_port_arg",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_exe",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_run_args",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "start_cfs_on_init",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_debug",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_run_in_xterm",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "tlm_app_choice",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "evs_event_msg_mid",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "ccsds_ver",
+          "description": "",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "RegisterCfsSP0",
+      "description": "",
+      "parameters": [
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "ip",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cmd_udp_port",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "tlm_udp_port",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "build_cfs",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "CCSDS_data_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_build_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_build_cmd",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_run_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_port_arg",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_exe",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_run_args",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "start_cfs_on_init",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_debug",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_run_in_xterm",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "tlm_app_choice",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "evs_event_msg_mid",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "ccsds_ver",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "auto_run",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "reboot",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_entry_point",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_exe_path",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_startup_time",
+          "description": "",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "RegisterCfsSSH",
+      "description": "",
+      "parameters": [
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "ip",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cmd_udp_port",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "tlm_udp_port",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "build_cfs",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "CCSDS_data_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_build_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_build_cmd",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_run_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_port_arg",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_exe",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_run_args",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "start_cfs_on_init",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_debug",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "cfs_run_in_xterm",
+          "description": "",
+          "type": "boolean"
+        },
+        {
+          "name": "tlm_app_choice",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "evs_event_msg_mid",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "ccsds_ver",
+          "description": "",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "name": "BuildCfs",
+      "description": "",
+      "parameters": [
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_build_dir",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "cfs_build_cmd",
+          "description": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "StartCfs",
+      "description": "",
+      "parameters": [
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "EnableCfsOutput",
+      "description": "",
+      "parameters": [
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SendCfsCommand",
+      "description": "",
+      "parameters": [
+        {
+          "name": "mid",
+          "description": "",
+          "type": "cmd_mid"
+        },
+        {
+          "name": "cc",
+          "description": "",
+          "type": "cmd_code"
+        },
+        {
+          "name": "args",
+          "description": "",
+          "type": "cmd_arg",
+          "isArray": true
+        },
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "SendMultCfsCommands",
+      "description": "",
+      "parameters": [
+        {
+          "name": "mid",
+          "description": "",
+          "type": "cmd_mid"
+        },
+        {
+          "name": "cc",
+          "description": "",
+          "type": "cmd_code"
+        },
+        {
+          "name": "args",
+          "description": "",
+          "type": "cmd_arg",
+          "isArray": true
+        },
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "mult",
+          "description": "",
+          "type": "number"
+        }        
+      ]
+    },    
+    {
+      "name": "SendInvalidLengthCfsCommand",
+      "description": "",
+      "parameters": [
+        {
+          "name": "mid",
+          "description": "",
+          "type": "cmd_mid"
+        },
+        {
+          "name": "cc",
+          "description": "",
+          "type": "cmd_code"
+        },
+        {
+          "name": "args",
+          "description": "",
+          "type": "cmd_arg",
+          "isArray": true
+        },
+        {
+          "name": "set_length",
+          "description": "",
+          "type": "number"
+        },
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "CheckTlmValue",
+      "description": "",
+      "parameters": [
+        {
+          "name": "mid",
+          "description": "",
+          "type": "tlm_mid"
+        },
+        {
+          "name": "args",
+          "description": "",
+          "type": "comparison",
+          "isArray": true
+        },
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "CheckEvent",
+      "description": "",
+      "parameters": [
+        {
+          "name": "app",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "msg",
+          "description": "",
+          "type": "cmd_arg",
+          "isArray": true
+        },
+        {
+          "name": "msg_args",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "ShutdownCfs",
+      "description": "",
+      "parameters": [
+        {
+          "name": "name",
+          "description": "",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "description": "Provide CFS command/telemetry support for CTF"
+}

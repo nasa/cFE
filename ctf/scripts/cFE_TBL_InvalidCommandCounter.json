@@ -1,0 +1,101 @@
+{
+    "test_name": "cFE_TBL_InvalidCommandCounter",
+    "test_number": "1285",
+    "test_setup": "No setup",
+    "description": "The Purpose of this test is to verify that invalid command counter increments upon the receipt of an invalid command. During the test, an invalid command will be sent to verify the invalid command counter increments",
+    "owner": "Dan Knutsen",
+    "ctf_options": {},
+    "environment": {},
+    "requirements": {
+        "cTBL6010": "Full"
+    },
+    "telemetry_watch_list": {
+        "CFE_TBL_HK_TLM_MID": [
+            "Payload.CommandErrorCounter",
+            1
+        ]
+    },
+    "command_watch_list": {
+        "CFE_TBL_CMD_MID": [
+            "CFE_TBL_SEND_REGISTRY_CC"
+        ]
+    },
+    "functions": {},
+    "tests": [
+        {
+            "case_number": "Send Invalid Command and Ensure Reject",
+            "description": "No description",
+            "commands": [
+                {
+                    "command": "StartCfs",
+                    "data": {
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "EnableCfsOutput",
+                    "data": {
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "CheckTlmValue",
+                    "data": {
+                        "mid": "CFE_TBL_HK_TLM_MID",
+                        "args": [
+                            {
+                                "variable": "Payload.CommandErrorCounter",
+                                "value": [
+                                    "0"
+                                ],
+                                "compare": "=="
+                            }
+                        ],
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "SendCfsCommand",
+                    "data": {
+                        "mid": "CFE_TBL_CMD_MID",
+                        "cc": "CFE_TBL_SEND_REGISTRY_CC",
+                        "args": {
+                            "Payload": {
+                                "TableName": "test"
+                            }
+                        },
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "CheckTlmValue",
+                    "data": {
+                        "mid": "CFE_TBL_HK_TLM_MID",
+                        "args": [
+                            {
+                                "variable": "Payload.CommandErrorCounter",
+                                "value": [
+                                    1
+                                ],
+                                "compare": "=="
+                            }
+                        ],
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "ShutdownCfs",
+                    "data": {
+                        "name": ""
+                    },
+                    "wait": 1
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+{
+    "pluginDir": "../../../cfs_gw/tools/ctf/plugins/info/",
+    "projectDir": "./scripts",
+    "ccddAppsDir": "../../../cfs_gw/ccdd/json/",
+    "pythonScript": "../../../cfs_gw/tools/ctf/ctf"
+}

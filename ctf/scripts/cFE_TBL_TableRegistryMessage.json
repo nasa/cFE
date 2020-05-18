@@ -1,0 +1,147 @@
+{
+    "test_name": "cFE_TBL_TableRegistryMessage",
+    "test_number": "1281",
+    "test_setup": "No setup",
+    "description": "The purpose of this test is to Verify Table (TBL) Registry Message. The command sent during the test will cause Table services to telemeter the content of the Table Registry for the command specified table",
+    "owner": "Dan Knutsen",
+    "ctf_options": {},
+    "environment": {},
+    "requirements": {
+        "cTBL6006": "Full"
+    },
+    "telemetry_watch_list": {
+        "CFE_TBL_REG_TLM_MID": [
+            "Payload.Size"
+        ]
+    },
+    "command_watch_list": {
+        "CFE_TBL_CMD_MID": [
+            "CFE_TBL_SEND_REGISTRY_CC"
+        ]
+    },
+    "functions": {},
+    "tests": [
+        {
+            "case_number": "Verify Table (TBL) Registry Message",
+            "description": "No description",
+            "commands": [
+                {
+                    "command": "StartCfs",
+                    "data": {
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "EnableCfsOutput",
+                    "data": {
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "SendCfsCommand",
+                    "data": {
+                        "mid": "CFE_TBL_CMD_MID",
+                        "cc": "CFE_TBL_SEND_REGISTRY_CC",
+                        "args": {
+                            "Payload": {
+                                "TableName": "TO.to_subs"
+                            }
+                        },
+                        "name": ""
+                    },
+                    "wait": 3
+                },
+                {
+                    "command": "SendCfsCommand",
+                    "data": {
+                        "mid": "CFE_TBL_CMD_MID",
+                        "cc": "CFE_TBL_SEND_REGISTRY_CC",
+                        "args": {
+                            "Payload": {
+                                "TableName": "TO.to_subs"
+                            }
+                        },
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "TO_DO",
+                    "data": {
+                        "Comment": "Remove additional Send Reg Commands (2)",
+                        "ReturnErrorFlag": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "SendCfsCommand",
+                    "data": {
+                        "mid": "CFE_TBL_CMD_MID",
+                        "cc": "CFE_TBL_SEND_REGISTRY_CC",
+                        "args": {
+                            "Payload": {
+                                "TableName": "TO.to_subs"
+                            }
+                        },
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "SendCfsCommand",
+                    "data": {
+                        "mid": "CFE_TBL_CMD_MID",
+                        "cc": "CFE_TBL_SEND_REGISTRY_CC",
+                        "args": {
+                            "Payload": {
+                                "TableName": "TO.to_subs"
+                            }
+                        },
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "SendCfsCommand",
+                    "data": {
+                        "mid": "CFE_TBL_CMD_MID",
+                        "cc": "CFE_TBL_SEND_REGISTRY_CC",
+                        "args": {
+                            "Payload": {
+                                "TableName": "TO.to_subs"
+                            }
+                        },
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "CheckTlmValue",
+                    "data": {
+                        "mid": "CFE_TBL_REG_TLM_MID",
+                        "args": [
+                            {
+                                "variable": "Payload.Size",
+                                "value": [
+                                    2000
+                                ],
+                                "compare": "=="
+                            }
+                        ],
+                        "name": ""
+                    },
+                    "wait": 1
+                },
+                {
+                    "command": "ShutdownCfs",
+                    "data": {
+                        "name": ""
+                    },
+                    "wait": 1
+                }
+            ]
+        }
+    ]
+}

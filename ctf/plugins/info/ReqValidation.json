@@ -1,0 +1,70 @@
+{
+  "group_name": "ReqValidation Plugin",
+  "commands": [
+    {
+      "name": "InsertComment",
+      "description": "This command is used to insert comments into the test log",
+      "parameters": [
+        {
+          "name": "Comment",
+          "description": "",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "TO_DO",
+      "description": "This command is used as a placeholder to document steps still need to be done. A user may set the ReturnErrorFlag to 1. This will cause the test to fail until the 'TO_DO' plugin is removed",
+      "parameters": [
+        {
+          "name": "Comment",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "ReturnErrorFlag",
+          "description": "",
+          "type": "number"
+        }        
+      ]
+    },    
+    {
+      "name": "InterpretEventLog",
+      "description": "This command is used to interpret the cFE Event Log (binary file created via the CFE_EVS_WRITE_LOG_DATA_FILE_CC command) and output a human readable text file",
+      "parameters": [
+        {
+          "name": "InputFile",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "OutputFile",
+          "description": "",
+          "type": "string"
+        }               
+      ]
+    },
+    {
+      "name": "ParseTxtFile",
+      "description": "This command is used to search a text file for a given text string.  The SearchNonExistFlag is used to control if the function returns True or False in the event of a match.  If the flag is set to 1, it will return false/FAIL upon match. If the flag is set to 0, it will return True/PASS upon match.",
+      "parameters": [
+        {
+          "name": "FileName",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "SearchString",
+          "description": "",
+          "type": "string"
+        },
+        {
+          "name": "SearchNonExistFlag",
+          "description": "",
+          "type": "number"
+        }                       
+      ]
+    }               
+  ],
+  "description": "ReqValidation Plugin"
+}
