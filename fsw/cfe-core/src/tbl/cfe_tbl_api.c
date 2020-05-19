@@ -678,19 +678,13 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
     int32                       Status;
     uint32                      ThisAppId;
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
-    CFE_TBL_AccessDescriptor_t *AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
-    CFE_TBL_RegistryRec_t      *RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-    char                        AppName[OS_MAX_API_NAME]={"UNKNOWN"};
+    CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
+    char                        AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
     bool                        FirstTime = false;
 
     /* Verify access rights and get a valid Application ID for calling App */
     Status = CFE_TBL_ValidateAccess(TblHandle, &ThisAppId);
-
-    /* Translate AppID of caller into App Name */
-    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
-
-    /* Initialize return pointer to NULL */
-    WorkingBufferPtr = NULL;
 
     if (Status != CFE_SUCCESS)
     {
@@ -700,6 +694,15 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
 
         return Status;
     }
+
+    AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
+    RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
+
+    /* Translate AppID of caller into App Name */
+    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+
+    /* Initialize return pointer to NULL */
+    WorkingBufferPtr = NULL;
 
     /* Check to see if this is a dump only table */
     if (RegRecPtr->DumpOnly)
