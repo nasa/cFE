@@ -178,7 +178,8 @@
 **       The recommended case to to have this value the same across all mission platforms
 **
 **  \par Limits
-**       This parameter has a lower limit of 1 and an upper limit of 0xFFFF. 
+**       This parameter has a lower limit of 1 and an upper limit of 0xFFFF. Note there
+**       is one MsgId value reserved as invalid, so the table is this size + 1. 
 */
 #define CFE_PLATFORM_SB_HIGHEST_VALID_MSGID      0x1FFF
 
