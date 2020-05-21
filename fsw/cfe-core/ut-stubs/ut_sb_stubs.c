@@ -160,6 +160,35 @@ int32 CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth,
 
 /*****************************************************************************/
 /**
+** \brief CFE_SB_DeletePipe stub function
+**
+** \par Description
+**        This function is used to mimic the response of the cFE SB function
+**        CFE_SB_DeletePipe.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        Returns CFE_SUCCESS.
+**
+******************************************************************************/
+int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
+{
+  int32 status;
+
+  status = UT_DEFAULT_IMPL(CFE_SB_DeletePipe);
+
+  if (status >= 0)
+  {
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_DeletePipe), &PipeId, sizeof(PipeId));
+  }
+
+  return status;
+}
+
+/*****************************************************************************/
+/**
 ** \brief CFE_SB_GetPipeName stub function
 **
 ** \par Description
