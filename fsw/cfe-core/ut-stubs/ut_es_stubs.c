@@ -333,9 +333,13 @@ int32 CFE_ES_RegisterChildTask(void)
 int32 CFE_ES_WriteToSysLog(const char *pSpecString, ...)
 {
     int32   status;
+    va_list va;
+
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_WriteToSysLog), pSpecString); // allow this input to be used by hook functions
 
-    status = UT_DEFAULT_IMPL(CFE_ES_WriteToSysLog);
+    va_start(va,pSpecString);
+    status = UT_DEFAULT_IMPL_VARARGS(CFE_ES_WriteToSysLog, va);
+    va_end(va);
 
     if (status >= 0)
     {
