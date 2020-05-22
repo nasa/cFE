@@ -333,6 +333,7 @@ int32 CFE_ES_RegisterChildTask(void)
 int32 CFE_ES_WriteToSysLog(const char *pSpecString, ...)
 {
     int32   status;
+    UT_Stub_RegisterContext(UT_KEY(CFE_ES_WriteToSysLog), pSpecString); // allow this input to be used by hook functions
 
     status = UT_DEFAULT_IMPL(CFE_ES_WriteToSysLog);
 
@@ -376,34 +377,29 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
         CFE_ES_PoolAlign_t Align;
         uint8 Bytes[CFE_UT_ES_POOL_STATIC_BLOCK_SIZE];
     } Buffer;
+
     uint32 PoolSize;
-    uint32 Position;
-    uint8 *PoolPtr;
+    uint32 PositionStart;
+    uint32 PositionEnd;
+    void *PoolPtr;
+    cpuaddr BufAddrStart;
+    cpuaddr BufAddrEnd;
     int32 status;
+
+    /*
+     * Determine the actual alignment of the CFE_ES_PoolAlign_t structure.
+     * This is done by checking the offset of a struct member of that type following a single byte.
+     */
+    const cpuaddr AlignMask = ((cpuaddr)&((struct { char Byte; CFE_ES_PoolAlign_t Align; } *)0)->Align) - 1;
+
 
     status = UT_DEFAULT_IMPL_RC(CFE_ES_GetPoolBuf, Size);
 
     if (status > 0)
     {
         Size = status;
-        if (Size < sizeof(CFE_ES_PoolAlign_t))
-        {
-            Size = sizeof(CFE_ES_PoolAlign_t) - 1;
-        }
-        else
-        {
-            --Size;
-        }
 
-        /* find next higher power of 2 */
-        Size |= Size >> 1;
-        Size |= Size >> 2;
-        Size |= Size >> 4;
-        Size |= Size >> 8;
-        Size |= Size >> 16;
-        ++Size;
-
-        UT_GetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), (void **)&PoolPtr, &PoolSize, &Position);
+        UT_GetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), (void **)&PoolPtr, &PoolSize, &PositionStart);
         if (PoolSize == 0)
         {
             /*
@@ -412,20 +408,25 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
              */
             PoolPtr = Buffer.Bytes;
             PoolSize = sizeof(Buffer);
+            PositionStart = 0;
         }
 
-        if ((Position + Size) < PoolSize)
+        BufAddrStart = (cpuaddr)PoolPtr + PositionStart;
+        BufAddrStart = (BufAddrStart + AlignMask) & ~AlignMask;
+        BufAddrEnd = (BufAddrStart + Size + AlignMask) & ~AlignMask;
+        PositionEnd = BufAddrEnd - (cpuaddr)PoolPtr;
+
+        if (PositionEnd <= PoolSize)
         {
-            PoolPtr += Position;
-            *BufPtr = (uint32 *)PoolPtr;
-            status = Size;
-            memset(PoolPtr, 0x55, Size);
+            *BufPtr = (uint32 *)BufAddrStart;
+            memset((void*)BufAddrStart, 0x55, Size);
 
             /*
              * Unfortunately the UT assert stub library is missing
              * the ability to set the buffer position, the only way
              * to do it is by calling CopyFromLocal to advance the position.
              */
+            Size = PositionEnd - PositionStart;
             while (Size > sizeof(Buffer))
             {
                 UT_Stub_CopyFromLocal(UT_KEY(CFE_ES_GetPoolBuf), &Buffer,
@@ -443,8 +444,8 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
              * use UT_SetDataBuffer() to register a pool buffer that is
              * sufficient for the code under test.
              */
-            UtAssert_Failed("Pool buffer empty in %s: need at least %lu bytes",
-                    __func__, (unsigned long)(Position + Size));
+            UtAssert_Failed("Pool buffer empty in %s: need at least %lu bytes, given %lu",
+                    __func__, (unsigned long)PositionEnd, (unsigned long)PoolSize);
             status = -1;
         }
     }

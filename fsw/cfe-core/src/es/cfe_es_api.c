@@ -181,7 +181,7 @@ int32 CFE_ES_RestartApp(uint32 AppID)
        */
        if ( CFE_ES_Global.AppTable[AppID].Type == CFE_ES_AppType_CORE )
        {
-          CFE_ES_SysLogWrite_Unsync ("CFE_ES_DeleteApp: Cannot Restart a CORE Application: %s.\n",
+          CFE_ES_SysLogWrite_Unsync ("CFE_ES_RestartApp: Cannot Restart a CORE Application: %s.\n",
                              CFE_ES_Global.AppTable[AppID].StartParams.Name );
           ReturnCode = CFE_ES_ERR_APPID;
        }

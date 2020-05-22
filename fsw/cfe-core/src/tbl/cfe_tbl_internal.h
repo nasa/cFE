@@ -365,6 +365,8 @@ int32   CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
 ** \par Assumptions, External Events, and Notes:
 **        -# This function assumes parameters have been verified.
 **
+** \param[in]  AppName          The name of the application loading the table.
+**
 ** \param[in]  WorkingBufferPtr Pointer to a working buffer that is to be loaded
 **                              with the contents of the specified file
 **

@@ -1115,23 +1115,11 @@ int32 CFE_ES_CleanUpApp(uint32 AppId)
    MainTaskId = CFE_ES_Global.AppTable[AppId].TaskInfo.MainTaskId;
 
    /*
-   ** Delete all of the OS resources, close files, and delete the main task
-   */
-   Status = CFE_ES_CleanupTaskResources(MainTaskId);
-   if ( Status != CFE_SUCCESS )
-   {
-      CFE_ES_SysLogWrite_Unsync("CFE_ES_CleanUpApp: CleanUpTaskResources for Task ID:%d returned Error: 0x%08X\n",
-                               (int)MainTaskId, (unsigned int)Status);
-      ReturnCode = CFE_ES_APP_CLEANUP_ERR;
-
-   }
-
-   /*
    ** Delete any child tasks associated with this app
    */
    for ( i = 0; i < OS_MAX_TASKS; i++ )
    {
-      /* delete only CHILD tasks - not the MainTaskId, which is already deleted (above) */
+      /* delete only CHILD tasks - not the MainTaskId, which will be deleted later (below) */
       if ((CFE_ES_Global.TaskTable[i].RecordUsed == true) &&
           (CFE_ES_Global.TaskTable[i].AppId == AppId) &&
           (CFE_ES_Global.TaskTable[i].TaskId != MainTaskId))
@@ -1145,6 +1133,18 @@ int32 CFE_ES_CleanUpApp(uint32 AppId)
          }
       } /* end if */
    } /* end for */
+
+   /*
+   ** Delete all of the OS resources, close files, and delete the main task
+   */
+   Status = CFE_ES_CleanupTaskResources(MainTaskId);
+   if ( Status != CFE_SUCCESS )
+   {
+      CFE_ES_SysLogWrite_Unsync("CFE_ES_CleanUpApp: CleanUpTaskResources for Task ID:%d returned Error: 0x%08X\n",
+                               (int)MainTaskId, (unsigned int)Status);
+      ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+
+   }
 
    /*
    ** Remove the app from the AppTable

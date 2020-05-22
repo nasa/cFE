@@ -49,12 +49,6 @@
 #include "ut_support.h"
 
 /*
-** Macro definitions
-*/
-#define CFE_FAIL 0
-#define CFE_PASS 1
-
-/*
 ** Structures
 */
 typedef struct {

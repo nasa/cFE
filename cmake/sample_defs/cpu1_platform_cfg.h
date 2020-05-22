@@ -178,7 +178,12 @@
 **       The recommended case to to have this value the same across all mission platforms
 **
 **  \par Limits
-**       This parameter has a lower limit of 1 and an upper limit of 0xFFFF. 
+**       This parameter has a lower limit of 1 and an upper limit of 0xFFFF. Note
+**       for current implementations, V2/Extended headers assign 0xFFFFFFFF as the invalid
+**       message ID value, and default headers assigns 0xFFFF as the invalid value.  This
+**       means for default headers, 0xFFFF is invalid even if you set the value
+**       below to it's maximum of 0xFFFF.
+**       The allocated message table is this size + 1 (could change based on implementaiton).
 */
 #define CFE_PLATFORM_SB_HIGHEST_VALID_MSGID      0x1FFF
 
