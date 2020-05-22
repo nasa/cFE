@@ -8,6 +8,15 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version History
 
+### Development Build: 6.7.18
+
+- Using ut stubs CFE_EVS_SendEvent and CFE_ES_WriteToSysLog, the register buffer will have the correct size. access to register buffer element will exist
+- Both the main task and the child task(s) are successfully deleted and restarted after the exception occurs.
+- Fixes doxygen warnings for the tbl subsystem.
+- No compiler warnings or errors on cross build.
+- Changes Message Key from uint16 to uint32 to avoid rollover and system hang
+- See <https://github.com/nasa/cFE/pull/712> for more details
+
 ### Development Build: 6.7.17
 
 - No longer automatically decompresses apps/libraries as part of load
