@@ -131,7 +131,7 @@ function(prepare)
   # Each of those may in turn have a "mission_build" file that calls out additional dependencies for that app,
   # so this is run in a loop until the list of unfound apps is empty
   string(REPLACE ":" ";" CFS_APP_PATH "$ENV{CFS_APP_PATH}")
-  list(APPEND CFS_APP_PATH "apps" "apps/CFS" "libs" "psp/fsw/modules")
+  list(APPEND CFS_APP_PATH "apps" "apps/CFS" "libs" "psp/fsw/modules" "cfe/fsw/libs")
   set(MISSION_DEPS "cfe-core" "osal" ${MISSION_CORE_MODULES})
   set(APP_MISSING_COUNT 0)
   
