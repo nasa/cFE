@@ -35,49 +35,93 @@
 */
 
 #include "cfe_sb.h"
-#include "ccsds.h"
+#include "cfe_es.h"
 #include "osapi.h"
 #include "cfe_error.h"
+#include "cfe_sb_msgformat_accessors.h"
 
 #include <string.h>
 
 /*
+ * Macros to simplify usage of getter/setter functions.
+ * The various header fields are accessed only through getter/setter functions in an external library.
+ * This allows the CFE SB code to remain abstract and not assume any particular header format.
+ *
+ * These macros will resolve to the correct name of the accessor function for the
+ * given header field name.
+ */
+#define CFE_SB_MSGFORMAT_CALL(f,...)            CFE_SB_MSGFORMAT_FUNCNAME(f)(__VA_ARGS__)
+#define CFE_SB_MSGFORMAT_QUERY(f,m)             CFE_SB_MSGFORMAT_FUNCNAME(Get ## f)(&(m)->Base)
+#define CFE_SB_MSGFORMAT_GET_ACCESSOR(f,m,...)  CFE_SB_MSGFORMAT_FUNCNAME(Get ## f)(&(m)->Base, __VA_ARGS__)
+#define CFE_SB_MSGFORMAT_SET_ACCESSOR(f,m,...)  CFE_SB_MSGFORMAT_FUNCNAME(Set ## f)(&(m)->Base, __VA_ARGS__)
+
+
+/*
+ * Function: CFE_SB_GetMsgId - See API and header file for details
+ */
+CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
+{
+    CFE_SB_MSGFORMAT_TYPE(MsgAddress) LocalMsgAddress;
+    CFE_SB_MsgId_t LocalMsgId;
+    int32 status;
+
+    status = CFE_SB_MSGFORMAT_GET_ACCESSOR(MsgAddress, MsgPtr, &LocalMsgAddress);
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+        LocalMsgId = CFE_SB_INVALID_MSG_ID;
+    }
+    else
+    {
+        CFE_SB_MSGFORMAT_CALL(AddressToMsgId, &LocalMsgAddress, &LocalMsgId);
+    }
+
+
+    return LocalMsgId;
+
+}/* end CFE_SB_GetMsgId */
+
+
+/*
+ * Function: CFE_SB_SetMsgId - See API and header file for details
+ */
+void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
+                     CFE_SB_MsgId_t MsgId)
+{
+    CFE_SB_MSGFORMAT_TYPE(MsgAddress) LocalMsgAddress;
+    int32 status;
+
+    CFE_SB_MSGFORMAT_CALL(MsgIdToAddress, &MsgId, &LocalMsgAddress);
+    status = CFE_SB_MSGFORMAT_SET_ACCESSOR(MsgAddress, MsgPtr, &LocalMsgAddress);
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+    }
+
+}/* end CFE_SB_SetMsgId */
+
+
+/*
  * Function: CFE_SB_InitMsg - See API and header file for details
  */
-void CFE_SB_InitMsg(void           *MsgPtr,
+void CFE_SB_InitMsg(void          *MsgPtr,
                     CFE_SB_MsgId_t MsgId,
                     uint16         Length,
                     bool        Clear )
 {
-   uint16           SeqCount;
-   CCSDS_PriHdr_t  *PktPtr;
+    CFE_SB_Msg_t   *MsgPtrReal = MsgPtr;
+    int32 status;
 
-   PktPtr = (CCSDS_PriHdr_t *) MsgPtr;
+    status = CFE_SB_MSGFORMAT_SET_ACCESSOR(InitialFields, MsgPtrReal, Length, Clear);
 
-  /* Save the sequence count in case it must be preserved. */
-   SeqCount = CCSDS_RD_SEQ(*PktPtr);
-
-   /* Zero the entire packet if needed. */
-   if (Clear)  
-     { memset(MsgPtr, 0, Length); }
-     else    /* Clear only the primary header. */
-      {
-        CCSDS_CLR_PRI_HDR(*PktPtr);
-      }
-
-   /* Set the length fields in the primary header. */
-  CCSDS_WR_LEN(*PktPtr, Length);
-  
-  /* Always set the secondary header flag as CFS applications are required use it */
-  CCSDS_WR_SHDR(*PktPtr, 1);
-
-  CFE_SB_SetMsgId(MsgPtr, MsgId);
-  
-  /* Restore the sequence count if needed. */
-   if (!Clear)  
-      CCSDS_WR_SEQ(*PktPtr, SeqCount);
-   else
-      CCSDS_WR_SEQFLG(*PktPtr, CCSDS_INIT_SEQFLG);
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+    }
+    else
+    {
+        CFE_SB_SetMsgId(MsgPtrReal, MsgId);
+    }
 
 } /* end CFE_SB_InitMsg */
 
@@ -96,30 +140,42 @@ void CFE_SB_InitMsg(void           *MsgPtr,
 */
 uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
 {
+    uint32 HeaderLength;
+    int32 status;
 
-    uint16 size;
-    const CCSDS_PriHdr_t  *HdrPtr;
+    status = CFE_SB_MSGFORMAT_GET_ACCESSOR(HeaderLength, MsgPtr, &HeaderLength);
 
-    HdrPtr = (const CCSDS_PriHdr_t *) MsgPtr;
-
-    /* if secondary hdr is not present... */
-    /* Since all cFE messages must have a secondary hdr this check is not needed */
-    if(CCSDS_RD_SHDR(*HdrPtr) == 0){
-        size = sizeof(CCSDS_PriHdr_t);
-
-    }else if(CCSDS_RD_TYPE(*HdrPtr) == CCSDS_CMD){
-
-        size = CFE_SB_CMD_HDR_SIZE;
-
-    }else{
-
-        size = CFE_SB_TLM_HDR_SIZE;
-  
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+        HeaderLength = 0;
     }
 
-   return size;
+    return HeaderLength;
 
 }/* end CFE_SB_MsgHdrSize */
+
+
+uint32 CFE_SB_GetPayloadOffset(const CFE_SB_Msg_t *MsgPtr)
+{
+    uint32 PayloadOffset;
+
+    if (CFE_SB_MSGFORMAT_QUERY (IsTelemetry, MsgPtr))
+    {
+        PayloadOffset = sizeof(CFE_SB_TlmHdr_t);
+    }
+    else if (CFE_SB_MSGFORMAT_QUERY (IsCommand, MsgPtr))
+    {
+        PayloadOffset = sizeof(CFE_SB_CmdHdr_t);
+    }
+    else
+    {
+        /* fallback - should not be possible in CFE */
+        PayloadOffset = 0;
+    }
+
+    return PayloadOffset;
+}
 
 
 /*
@@ -127,41 +183,49 @@ uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
  */
 void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
 {
-    uint8           *BytePtr;
-    uint16          HdrSize;
+    uint32 PayloadOffset;
+    void *PayloadPtr;
 
-    BytePtr = (uint8 *)MsgPtr;
-    HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
+    PayloadOffset = CFE_SB_GetPayloadOffset(MsgPtr);
 
-    return (BytePtr + HdrSize);
+    if (PayloadOffset == 0)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- invalid/unknown packet\n", __func__);
+        PayloadPtr = NULL;
+    }
+    else
+    {
+        PayloadPtr = &MsgPtr->Byte[PayloadOffset];
+    }
+
+    return PayloadPtr;
 }/* end CFE_SB_GetUserData */
 
 
 /*
  * Function: CFE_SB_GetUserDataLength - See API and header file for details
  */
-uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
+uint32 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
 {
-    uint16 TotalMsgSize;
-    uint16 HdrSize;
+    uint32 PayloadOffset;
+    uint32 TotalLength;
 
-    TotalMsgSize = CFE_SB_GetTotalMsgLength(MsgPtr);
-    HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
+    PayloadOffset = CFE_SB_GetPayloadOffset(MsgPtr);
+    TotalLength = CFE_SB_GetTotalMsgLength(MsgPtr);
 
-    return (TotalMsgSize - HdrSize);
+    return TotalLength - PayloadOffset;
 }/* end CFE_SB_GetUserDataLength */
 
 
 /*
  * Function: CFE_SB_SetUserDataLength - See API and header file for details
  */
-void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, uint16 DataLength)
+void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, uint32 DataLength)
 {
-    uint32 TotalMsgSize, HdrSize;
+    uint32 PayloadOffset;
 
-    HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
-    TotalMsgSize = HdrSize + DataLength;
-    CCSDS_WR_LEN(MsgPtr->Hdr,TotalMsgSize);
+    PayloadOffset = CFE_SB_GetPayloadOffset(MsgPtr);
+    CFE_SB_SetTotalMsgLength(MsgPtr, PayloadOffset + DataLength);
 
 }/* end CFE_SB_SetUserDataLength */
 
@@ -169,10 +233,25 @@ void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, uint16 DataLength)
 /*
  * Function: CFE_SB_GetTotalMsgLength - See API and header file for details
  */
-uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
+uint32 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 {
+    CFE_SB_MSGFORMAT_TYPE(Length) LocalLength;
+    uint32 TotalLength;
+    int32 status;
 
-    return CCSDS_RD_LEN(MsgPtr->Hdr);
+    status = CFE_SB_MSGFORMAT_GET_ACCESSOR(TotalSize, MsgPtr, &LocalLength);
+
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+        TotalLength = 0;
+    }
+    else
+    {
+        CFE_SB_MSGFORMAT_CALL(MsgLengthToSize, &LocalLength, &TotalLength);
+    }
+
+    return TotalLength;
 
 }/* end CFE_SB_GetTotalMsgLength */
 
@@ -180,10 +259,19 @@ uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 /*
  * Function: CFE_SB_SetTotalMsgLength - See API and header file for details
  */
-void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength)
+void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr, uint32 TotalLength)
 {
+    CFE_SB_MSGFORMAT_TYPE(Length) LocalLength;
+    int32 status;
 
-    CCSDS_WR_LEN(MsgPtr->Hdr,TotalLength);
+    CFE_SB_MSGFORMAT_CALL(SizeToMsgLength,  &TotalLength, &LocalLength);
+
+    status = CFE_SB_MSGFORMAT_SET_ACCESSOR(TotalSize, MsgPtr, &LocalLength);
+
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+    }
 
 }/* end CFE_SB_SetTotalMsgLength */
 
@@ -193,50 +281,23 @@ void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength)
  */
 CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr)
 {
-    CFE_TIME_SysTime_t TimeFromMsg;
-    uint32 LocalSecs32 = 0;
-    uint32 LocalSubs32 = 0;
+    CFE_SB_MSGFORMAT_TYPE(Time) LocalMsgTime;
+    CFE_TIME_SysTime_t TimeBuffer;
+    int32 status;
 
-    #if (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_16_SUBS)
-    uint16 LocalSubs16;
-    #endif
+    status = CFE_SB_MSGFORMAT_GET_ACCESSOR(Timestamp, MsgPtr, &LocalMsgTime);
 
-    CFE_SB_TlmHdr_t *TlmHdrPtr;
-
-    /* if msg type is a command or msg has no secondary hdr, time = 0 */
-    if ((CCSDS_RD_TYPE(MsgPtr->Hdr) != CCSDS_CMD) && (CCSDS_RD_SHDR(MsgPtr->Hdr) != 0)) {
-
-        /* copy time data to/from packets to eliminate alignment issues */
-        TlmHdrPtr = (CFE_SB_TlmHdr_t *)MsgPtr;
-
-        #if (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_16_SUBS)
-
-        memcpy(&LocalSecs32, &TlmHdrPtr->Tlm.Sec.Time[0], 4);
-        memcpy(&LocalSubs16, &TlmHdrPtr->Tlm.Sec.Time[4], 2);
-        /* convert packet data into CFE_TIME_SysTime_t format */
-        LocalSubs32 = ((uint32) LocalSubs16) << 16;
-
-        #elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_SUBS)
-
-        memcpy(&LocalSecs32, &TlmHdrPtr->Tlm.Sec.Time[0], 4);
-        memcpy(&LocalSubs32, &TlmHdrPtr->Tlm.Sec.Time[4], 4);
-        /* no conversion necessary -- packet format = CFE_TIME_SysTime_t format */
-
-        #elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_M_20)
-
-        memcpy(&LocalSecs32, &TlmHdrPtr->Tlm.Sec.Time[0], 4);
-        memcpy(&LocalSubs32, &TlmHdrPtr->Tlm.Sec.Time[4], 4);
-        /* convert packet data into CFE_TIME_SysTime_t format */
-        LocalSubs32 = CFE_TIME_Micro2SubSecs((LocalSubs32 >> 12));
-
-        #endif
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+        memset(&TimeBuffer, 0, sizeof(TimeBuffer));
+    }
+    else
+    {
+        CFE_SB_MSGFORMAT_CALL(MsgTimeToSysTime, &LocalMsgTime, &TimeBuffer);
     }
 
-    /* return the packet time converted to CFE_TIME_SysTime_t format */
-    TimeFromMsg.Seconds    = LocalSecs32;
-    TimeFromMsg.Subseconds = LocalSubs32;
-
-    return TimeFromMsg;
+    return TimeBuffer;
 
 }/* end CFE_SB_GetMsgTime */
 
@@ -246,50 +307,19 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr)
  */
 int32 CFE_SB_SetMsgTime(CFE_SB_MsgPtr_t MsgPtr, CFE_TIME_SysTime_t NewTime)
 {
-    int32 Result = CFE_SB_WRONG_MSG_TYPE;
+    CFE_SB_MSGFORMAT_TYPE(Time) LocalMsgTime;
+    int32 status;
 
-    CFE_SB_TlmHdr_t *TlmHdrPtr;
+    CFE_SB_MSGFORMAT_CALL(SysTimeToMsgTime, &NewTime, &LocalMsgTime);
 
-    /* declare format specific vars */
-    #if (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_16_SUBS)
-    uint16 LocalSubs16;
-    #elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_M_20)
-    uint32 LocalSubs32;
-    #endif
+    status = CFE_SB_MSGFORMAT_SET_ACCESSOR(Timestamp, MsgPtr, &LocalMsgTime);
 
-    /* cannot set time if msg type is a command or msg has no secondary hdr */
-    if ((CCSDS_RD_TYPE(MsgPtr->Hdr) != CCSDS_CMD) && (CCSDS_RD_SHDR(MsgPtr->Hdr) != 0)) {
-
-        /* copy time data to/from packets to eliminate alignment issues */
-        TlmHdrPtr = (CFE_SB_TlmHdr_t *) MsgPtr;
-
-        #if (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_16_SUBS)
-
-        /* convert time from CFE_TIME_SysTime_t format to packet format */
-        LocalSubs16 = (uint16) (NewTime.Subseconds >> 16);
-        memcpy(&TlmHdrPtr->Tlm.Sec.Time[0], &NewTime.Seconds, 4);
-        memcpy(&TlmHdrPtr->Tlm.Sec.Time[4], &LocalSubs16, 2);
-        Result = CFE_SUCCESS;
-
-        #elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_SUBS)
-
-        /* no conversion necessary -- packet format = CFE_TIME_SysTime_t format */
-        memcpy(&TlmHdrPtr->Tlm.Sec.Time[0], &NewTime.Seconds, 4);
-        memcpy(&TlmHdrPtr->Tlm.Sec.Time[4], &NewTime.Subseconds, 4);
-        Result = CFE_SUCCESS;
-
-        #elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_M_20)
-
-        /* convert time from CFE_TIME_SysTime_t format to packet format */
-        LocalSubs32 = CFE_TIME_Sub2MicroSecs(NewTime.Subseconds) << 12;
-        memcpy(&TlmHdrPtr->Tlm.Sec.Time[0], &NewTime.Seconds, 4);
-        memcpy(&TlmHdrPtr->Tlm.Sec.Time[4], &LocalSubs32, 4);
-        Result = CFE_SUCCESS;
-
-        #endif
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
     }
 
-    return Result;
+    return status;
 
 }/* end CFE_SB_SetMsgTime */
 
@@ -299,8 +329,7 @@ int32 CFE_SB_SetMsgTime(CFE_SB_MsgPtr_t MsgPtr, CFE_TIME_SysTime_t NewTime)
  */
 void CFE_SB_TimeStampMsg(CFE_SB_MsgPtr_t MsgPtr)
 {
-    CFE_SB_SetMsgTime(MsgPtr,CFE_TIME_GetTime());
-
+    CFE_SB_SetMsgTime(MsgPtr, CFE_TIME_GetTime());
 }/* end CFE_SB_TimeStampMsg */
 
 
@@ -309,17 +338,24 @@ void CFE_SB_TimeStampMsg(CFE_SB_MsgPtr_t MsgPtr)
  */
 uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr)
 {
-    CFE_SB_CmdHdr_t     *CmdHdrPtr;
+    CFE_SB_MSGFORMAT_TYPE(FunctionCode) LocalFunctionCode;
+    uint16 CmdCode;
+    int32 status;
 
-    /* if msg type is telemetry or there is no secondary hdr, return 0 */
-    if((CCSDS_RD_TYPE(MsgPtr->Hdr) == CCSDS_TLM)||(CCSDS_RD_SHDR(MsgPtr->Hdr) == 0)){
-        return 0;
-    }/* end if */
+    status = CFE_SB_MSGFORMAT_GET_ACCESSOR(FunctionCode, MsgPtr, &LocalFunctionCode);
 
-    /* Cast the input pointer to a Cmd Msg pointer */
-    CmdHdrPtr = (CFE_SB_CmdHdr_t *)MsgPtr;
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+        CmdCode = 0;   /* may alias a valid command, but 0 should be reserved as no-op */
+    }
+    else
+    {
+        CFE_SB_MSGFORMAT_CALL(MsgFunctionCodeToValue, &LocalFunctionCode, &CmdCode);
+    }
 
-    return CCSDS_RD_FC(CmdHdrPtr->Cmd.Sec);
+    return CmdCode;
+
 }/* end CFE_SB_GetCmdCode */
 
 
@@ -329,19 +365,24 @@ uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr)
 int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr,
                       uint16 CmdCode)
 {
-    CFE_SB_CmdHdr_t     *CmdHdrPtr;
+    CFE_SB_MSGFORMAT_TYPE(FunctionCode) LocalFunctionCode;
+    int32 status;
 
-    /* if msg type is telemetry or there is no secondary hdr... */
-    if((CCSDS_RD_TYPE(MsgPtr->Hdr) == CCSDS_TLM)||(CCSDS_RD_SHDR(MsgPtr->Hdr) == 0)){
-        return CFE_SB_WRONG_MSG_TYPE;
-    }/* end if */
+    CFE_SB_MSGFORMAT_CALL(ValueToMsgFunctionCode, &CmdCode, &LocalFunctionCode);
+    status = CFE_SB_MSGFORMAT_SET_ACCESSOR(FunctionCode, MsgPtr, &LocalFunctionCode);
 
-    /* Cast the input pointer to a Cmd Msg pointer */
-    CmdHdrPtr = (CFE_SB_CmdHdr_t *)MsgPtr;
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+        CmdCode = 0;
+    }
+    else
+    {
+        CFE_SB_MSGFORMAT_CALL(MsgFunctionCodeToValue, &LocalFunctionCode, &CmdCode);
+    }
 
-    CCSDS_WR_FC(CmdHdrPtr->Cmd.Sec,CmdCode);
 
-    return CFE_SUCCESS;
+    return status;
 
 }/* end CFE_SB_SetCmdCode */
 
@@ -351,18 +392,23 @@ int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr,
  */
 uint16 CFE_SB_GetChecksum(CFE_SB_MsgPtr_t MsgPtr)
 {
+    CFE_SB_MSGFORMAT_TYPE(Checksum) LocalChecksum;
+    uint16 result;
+    int32 status;
 
-    CFE_SB_CmdHdr_t     *CmdHdrPtr;
+    status = CFE_SB_MSGFORMAT_GET_ACCESSOR(Checksum, MsgPtr, &LocalChecksum);
 
-    /* if msg type is telemetry or there is no secondary hdr... */
-    if((CCSDS_RD_TYPE(MsgPtr->Hdr) == CCSDS_TLM)||(CCSDS_RD_SHDR(MsgPtr->Hdr) == 0)){
-        return 0;
-    }/* end if */
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+        result = 0xFFFF;
+    }
+    else
+    {
+        result = CFE_SB_MSGFORMAT_CALL(MsgChecksumToValue, &LocalChecksum);
+    }
 
-    /* cast the input pointer to a Cmd Msg pointer */
-    CmdHdrPtr = (CFE_SB_CmdHdr_t *)MsgPtr;
-
-    return CCSDS_RD_CHECKSUM(CmdHdrPtr->Cmd.Sec);
+    return result;
 
 }/* end CFE_SB_GetChecksum */
 
@@ -372,17 +418,21 @@ uint16 CFE_SB_GetChecksum(CFE_SB_MsgPtr_t MsgPtr)
  */
 void CFE_SB_GenerateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 {
+    CFE_SB_MSGFORMAT_TYPE(Checksum) ComputedChecksum;
+    int32 status;
 
-    CCSDS_CommandPacket_t    *CmdPktPtr;
+    status = CFE_SB_MSGFORMAT_GET_ACCESSOR(ComputedChecksum, MsgPtr, &ComputedChecksum);
 
-    /* if msg type is telemetry or there is no secondary hdr... */
-    if((CCSDS_RD_TYPE(MsgPtr->Hdr) == CCSDS_TLM)||(CCSDS_RD_SHDR(MsgPtr->Hdr) == 0)){
-        return;
-    }/* end if */
+    if (status == CFE_SUCCESS)
+    {
+        status = CFE_SB_MSGFORMAT_SET_ACCESSOR(Checksum, MsgPtr, &ComputedChecksum);
+    }
 
-    CmdPktPtr = (CCSDS_CommandPacket_t *)MsgPtr;
+    if (status != CFE_SB_WRONG_MSG_TYPE)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+    }
 
-    CCSDS_LoadCheckSum(CmdPktPtr);
 
 }/* end CFE_SB_GenerateChecksum */
 
@@ -392,19 +442,78 @@ void CFE_SB_GenerateChecksum(CFE_SB_MsgPtr_t MsgPtr)
  */
 bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 {
+    CFE_SB_MSGFORMAT_TYPE(Checksum) LocalChecksum;
+    CFE_SB_MSGFORMAT_TYPE(Checksum) ComputedChecksum;
+    int32 status;
+    bool result;
 
-    CCSDS_CommandPacket_t    *CmdPktPtr;
+    status = CFE_SB_MSGFORMAT_GET_ACCESSOR(Checksum, MsgPtr, &LocalChecksum);
 
-    /* if msg type is telemetry or there is no secondary hdr... */
-    if((CCSDS_RD_TYPE(MsgPtr->Hdr) == CCSDS_TLM)||(CCSDS_RD_SHDR(MsgPtr->Hdr) == 0)){
-        return false;
-    }/* end if */
+    if (status == CFE_SUCCESS)
+    {
+        status = CFE_SB_MSGFORMAT_GET_ACCESSOR(ComputedChecksum, MsgPtr, &ComputedChecksum);
+    }
 
-    CmdPktPtr = (CCSDS_CommandPacket_t *)MsgPtr;
 
-    return CCSDS_ValidCheckSum (CmdPktPtr);
+    if (status == CFE_SUCCESS)
+    {
+        result = CFE_SB_MSGFORMAT_CALL(ChecksumCompare, &LocalChecksum, &ComputedChecksum);
+    }
+    else
+    {
+        result = false;
+    }
+
+    return result;
 
 }/* end CFE_SB_ValidateChecksum */
+
+/*
+ * Function: CFE_SB_SetMsgSeqCnt - See API and header file for details
+ */
+uint32 CFE_SB_GetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr)
+{
+    CFE_SB_MSGFORMAT_TYPE(Sequence) LocalSequence;
+    uint32 SeqValue;
+    int32 status;
+
+    status = CFE_SB_MSGFORMAT_GET_ACCESSOR(Sequence, MsgPtr, &LocalSequence);
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+        SeqValue = 0;
+    }
+    else
+    {
+        CFE_SB_MSGFORMAT_CALL(MsgSequenceToValue, &LocalSequence, &SeqValue);
+    }
+
+
+    return SeqValue;
+
+}/* end CFE_SB_SetMsgSeqCnt */
+
+
+/*
+ * Function: CFE_SB_SetMsgSeqCnt - See API and header file for details
+ */
+void CFE_SB_SetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr,uint32 Count)
+{
+    CFE_SB_MSGFORMAT_TYPE(Sequence) LocalSequence;
+    int32 status;
+
+    CFE_SB_MSGFORMAT_CALL(ValueToMsgSequence, &Count, &LocalSequence);
+
+    status = CFE_SB_MSGFORMAT_SET_ACCESSOR(Sequence, MsgPtr, &LocalSequence);
+
+    if (status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): ERROR -- code=%lx\n", __func__, (unsigned long)status);
+    }
+
+}/* end CFE_SB_SetMsgSeqCnt */
+
+
 
 
 /*

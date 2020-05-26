@@ -40,7 +40,7 @@
 #include "cfe_psp.h"
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
-#include "ccsds.h"
+#include "cfe_sb_msgformat_types.h"
 #include "cfe_time.h"
 
 
@@ -147,22 +147,27 @@
 */
 
 /** \brief Generic Software Bus Message Type Definition */
-typedef union {
-    CCSDS_PriHdr_t      Hdr;   /**< \brief CCSDS Primary Header #CCSDS_PriHdr_t */
-    CCSDS_SpacePacket_t SpacePacket;
-    uint32              Dword; /**< \brief Forces minimum of 32-bit alignment for this object */
-    uint8               Byte[sizeof(CCSDS_PriHdr_t)];   /**< \brief Allows byte-level access */
-}CFE_SB_Msg_t;
+typedef union
+{
+    CFE_SB_MSGFORMAT_TYPE(BaseHeader) Base;
+
+    uint32              Dword;      /**< \brief Forces minimum of 32-bit alignment for this object */
+    uint8               Byte[4];    /**< \brief Allows byte-level access */
+} CFE_SB_Msg_t;
 
 /** \brief Generic Software Bus Command Header Type Definition */
-typedef union {
-    CCSDS_CommandPacket_t   Cmd;
+typedef union
+{
+    CFE_SB_MSGFORMAT_TYPE(CommandPacket) Cmd;
+
     CFE_SB_Msg_t            BaseMsg; /**< Base type (primary header) */
 } CFE_SB_CmdHdr_t;
 
 /** \brief Generic Software Bus Telemetry Header Type Definition */
-typedef union {
-    CCSDS_TelemetryPacket_t Tlm;
+typedef union
+{
+    CFE_SB_MSGFORMAT_TYPE(TelemetryPacket) Tlm;
+
     CFE_SB_Msg_t            BaseMsg; /**< Base type (primary header) */
 } CFE_SB_TlmHdr_t;
 
@@ -896,7 +901,7 @@ void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
 ** \sa #CFE_SB_SetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_SetTotalMsgLength,
 **     #CFE_SB_SetMsgTime, #CFE_SB_TimeStampMsg, #CFE_SB_SetCmdCode, #CFE_SB_InitMsg
 **/
-void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr,uint16 DataLength);
+void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr,uint32 DataLength);
 
 /*****************************************************************************/
 /**
@@ -921,7 +926,7 @@ void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr,uint16 DataLength);
 ** \sa #CFE_SB_SetMsgId, #CFE_SB_SetUserDataLength, #CFE_SB_GetTotalMsgLength,
 **     #CFE_SB_SetMsgTime, #CFE_SB_TimeStampMsg, #CFE_SB_SetCmdCode, #CFE_SB_InitMsg
 **/
-void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength);
+void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint32 TotalLength);
 
 /*****************************************************************************/
 /**
@@ -1103,7 +1108,7 @@ CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr);
 ** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_SetUserDataLength, #CFE_SB_GetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum
 **/
-uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr);
+uint32 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /**
@@ -1124,7 +1129,7 @@ uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr);
 ** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_SetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum
 **/
-uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr);
+uint32 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /**

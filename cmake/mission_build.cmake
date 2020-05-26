@@ -122,6 +122,11 @@ function(prepare)
   add_custom_target(mission-clean COMMAND $(MAKE) clean)
   add_custom_target(mission-prebuild)
   
+  # The convention should be that there is a library/module name
+  # matching the Software Bus message format name.  The library
+  # names are always lower case, per file naming conventions.
+  string(TOLOWER "${MISSION_SB_MSGFORMAT}" MISSION_SB_MSGFORMAT_LIBNAME)
+  
   # Locate the source location for all the apps found within the target file
   # Each of those may in turn have a "mission_build" file that calls out additional dependencies for that app,
   # so this is run in a loop until the list of unfound apps is empty
@@ -245,7 +250,20 @@ function(prepare)
 
   configure_file("${CFE_SOURCE_DIR}/cmake/osalguide.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/osalguide.doxyfile")  
-    
+
+  
+  # generate a header file for the message header format abstraction
+  # this is based on the header format configured in targets.cmake    
+  if (NOT DEFINED ${MISSION_SB_MSGFORMAT_LIBNAME}_MISSION_DIR)
+    message(FATAL_ERROR "No core library found corresponding to message format ${MISSION_SB_MSGFORMAT}") 
+  endif()
+  
+  configure_file("${CFE_SOURCE_DIR}/cmake/cfe_sb_msgformat_types.h.in"
+    "${CMAKE_BINARY_DIR}/inc/cfe_sb_msgformat_types.h")
+      
+  configure_file("${CFE_SOURCE_DIR}/cmake/cfe_sb_msgformat_accessors.h.in"
+    "${CMAKE_BINARY_DIR}/inc/cfe_sb_msgformat_accessors.h")
+      
   add_custom_target(mission-doc 
     doxygen mission-detaildesign.doxyfile 
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc") 

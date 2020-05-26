@@ -58,6 +58,7 @@ bool CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength);
 
 /* Function Definitions */
 
+extern
 
 /*
 **             Function Prologue

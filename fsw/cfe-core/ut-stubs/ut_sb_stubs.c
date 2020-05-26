@@ -657,10 +657,10 @@ void CFE_SB_TimeStampMsg(CFE_SB_MsgPtr_t MsgPtr)
 **        Returns a user-defined status value, UT_SB_TotalMsgLen.
 **
 ******************************************************************************/
-uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
+uint32 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 {
     int32 status;
-    uint16 result;
+    uint32 result;
 
     status = UT_DEFAULT_IMPL_RC(CFE_SB_GetTotalMsgLength,-1);
 
@@ -848,7 +848,7 @@ void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
     return Result;
 }
 
-void CFE_SB_SetTotalMsgLength (CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength)
+void CFE_SB_SetTotalMsgLength (CFE_SB_MsgPtr_t MsgPtr,uint32 TotalLength)
 {
     int32 status;
 

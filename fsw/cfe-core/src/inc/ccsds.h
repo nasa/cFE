@@ -29,6 +29,7 @@
 #ifndef _ccsds_
 #define _ccsds_
 
+#error "should not include this"
 /*
 ** Include Files
 */

@@ -82,7 +82,6 @@
 #include "cfe_sb_priv.h"
 #include "cfe_sb_msg_id_util.h"
 #include "cfe_sb.h"
-#include "ccsds.h"
 #include "cfe_error.h"
 #include "cfe_es.h"
 #include "cfe_sb_msg_id_util.h"
@@ -533,52 +532,6 @@ int32 CFE_SB_DuplicateSubscribeCheck(CFE_SB_MsgKey_t MsgKey,
 
 }/* end CFE_SB_DuplicateSubscribeCheck */
 
-
-
-/******************************************************************************
-**  Function:  CFE_SB_SetMsgSeqCnt()
-**
-**  Purpose:
-**    SB internal function to set the sequence count of a message to a
-**    particular value.
-**
-**  Arguments:
-**    MsgPtr  : pointer to the message
-**    Count   : sets the sequence count to this value
-**
-**  Return:
-**    None
-*/
-void CFE_SB_SetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr,uint32 Count){
-
-    CCSDS_WR_SEQ(MsgPtr->Hdr,Count);
-
-}/* end CFE_SB_SetMsgSeqCnt */
-
-
-/******************************************************************************
-**  Function:  CFE_SB_ValidateMsgId()
-**
-**  Purpose:
-**    SB internal function to validate a given MsgId.
-**
-**  Arguments:
-**
-**  Return:
-**    None
-*/
-int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId){
-
-    if (!CFE_SB_IsValidMsgId(MsgId))
-    {
-        return CFE_SB_FAILED;
-    }
-    else
-    {
-        return CFE_SUCCESS;
-    }/* end if */
-
-}/* end CFE_SB_ValidateMsgId */
 
 
 /******************************************************************************
