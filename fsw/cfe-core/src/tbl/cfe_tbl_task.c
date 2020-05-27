@@ -54,7 +54,7 @@ CFE_TBL_TaskData_t    CFE_TBL_TaskData;
  *  For generic message entries, which only have a MID and a handler function (no command payload)
  */
 #define CFE_TBL_MESSAGE_ENTRY(mid,handlerfunc) \
-        { CFE_SB_MSGID_WRAP_VALUE(mid), 0, sizeof(CCSDS_CommandPacket_t), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, CFE_TBL_MSG_MSGTYPE }
+        { CFE_SB_MSGID_WRAP_VALUE(mid), 0, sizeof(CFE_SB_CmdHdr_t), (CFE_TBL_MsgProcFuncPtr_t)handlerfunc, CFE_TBL_MSG_MSGTYPE }
 
 /*
  * Macros to assist in building the CFE_TBL_CmdHandlerTbl -

@@ -144,7 +144,7 @@ extern void  CFE_EVS_ProcessCommandPacket ( CFE_SB_MsgPtr_t EVS_MsgPtr );
 /*
  * EVS Message Handler Functions
  */
-int32 CFE_EVS_ReportHousekeepingCmd (const CCSDS_CommandPacket_t *data);
+int32 CFE_EVS_ReportHousekeepingCmd (const CFE_SB_CmdHdr_t *data);
 int32 CFE_EVS_NoopCmd(const CFE_EVS_Noop_t *data);
 int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLog_t *data);
 int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCounters_t *data);

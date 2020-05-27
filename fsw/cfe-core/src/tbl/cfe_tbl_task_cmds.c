@@ -53,7 +53,7 @@
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_HousekeepingCmd(const CCSDS_CommandPacket_t *data)
+int32 CFE_TBL_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
 {
     int32                     Status;
     uint32                    i;

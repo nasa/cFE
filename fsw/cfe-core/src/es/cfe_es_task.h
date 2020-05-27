@@ -175,7 +175,7 @@ void  CFE_ES_BackgroundCleanup(void);
 /*
 ** ES Task message dispatch functions
 */
-int32 CFE_ES_HousekeepingCmd(const CCSDS_CommandPacket_t *data);
+int32 CFE_ES_HousekeepingCmd(const CFE_SB_CmdHdr_t *data);
 int32 CFE_ES_NoopCmd(const CFE_ES_Noop_t *Cmd);
 int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCounters_t *data);
 int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data);
