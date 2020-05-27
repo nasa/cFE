@@ -170,7 +170,7 @@ int32 CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth,
 **        None
 **
 ** \returns
-**        Returns CFE_SUCCESS.
+**        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
 int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
