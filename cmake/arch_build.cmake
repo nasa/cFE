@@ -356,10 +356,16 @@ function(process_arch SYSVAR)
   include_directories(${MISSION_SOURCE_DIR}/cfe/fsw/cfe-core/src/inc)
   include_directories(${MISSION_SOURCE_DIR}/cfe/cmake/target/inc)
     
-  # propagate any OSAL interface compile definitions and include directories to this build
+  # propagate any dependency interface compile definitions and include directories to this build
   # This is set as a directory property here at the top level so it will apply to all code.
   # This includes MODULE libraries that do not directly/statically link with OSAL but still
   # should be compiled with these flags.
+  foreach(DEPENDENCY ${MISSION_DEPS})
+    if (IS_DIRECTORY "${${DEPENDENCY}_MISSION_DIR}/inc")
+        include_directories("${${DEPENDENCY}_MISSION_DIR}/inc")
+    endif()
+  endforeach()
+  
   get_target_property(OSAL_COMPILE_DEFINITIONS osal INTERFACE_COMPILE_DEFINITIONS)
   get_target_property(OSAL_INCLUDE_DIRECTORIES osal INTERFACE_INCLUDE_DIRECTORIES)
 

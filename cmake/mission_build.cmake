@@ -127,7 +127,7 @@ function(prepare)
   # so this is run in a loop until the list of unfound apps is empty
   string(REPLACE ":" ";" CFS_APP_PATH "$ENV{CFS_APP_PATH}")
   list(APPEND CFS_APP_PATH "apps" "apps/CFS" "libs" "psp/fsw/modules")
-  set(MISSION_DEPS "cfe-core" "osal")
+  set(MISSION_DEPS "cfe-core" "osal" ${MISSION_CORE_MODULES})
   set(APP_MISSING_COUNT 0)
   
   # Set the search path of those dependency components which are fixed
