@@ -112,6 +112,7 @@ function(prepare)
   endif (SIMULATION)
 
   # Generate the cfe_mission_cfg.h wrapper file  
+  generate_config_includefile("inc/cfe_mission_custom.h" mission_custom.h ${MISSIONCONFIG})
   generate_config_includefile("inc/cfe_mission_cfg.h" mission_cfg.h ${MISSIONCONFIG})
   generate_config_includefile("inc/cfe_perfids.h" perfids.h ${MISSIONCONFIG} )
   

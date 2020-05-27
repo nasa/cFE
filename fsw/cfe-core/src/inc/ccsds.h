@@ -184,6 +184,9 @@ typedef struct
 
 
 
+#ifdef MESSAGE_FORMAT_IS_CUSTOM
+#include "cfe_mission_custom.h"  /* Should resolve/refactor to avoid including mid-file */
+#else
 /*----- Generic combined command header. -----*/
 
 typedef struct
@@ -199,6 +202,7 @@ typedef struct
     CCSDS_SpacePacket_t  SpacePacket;   /**< \brief Standard Header on all packets */
     CCSDS_TlmSecHdr_t    Sec;
 } CCSDS_TelemetryPacket_t;
+#endif
 
 /*
  * COMPATIBILITY TYPEDEFS:
