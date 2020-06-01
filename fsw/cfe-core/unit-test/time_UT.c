@@ -1754,7 +1754,7 @@ void Test_PipeCmds(void)
     union
     {
         CFE_SB_Msg_t message;
-        CCSDS_CommandPacket_t cmd;
+        CFE_SB_CmdHdr_t cmd;
         CFE_TIME_ToneDataCmd_t tonedatacmd;
         CFE_TIME_Noop_t noopcmd;
         CFE_TIME_ResetCounters_t resetcountercmd;
