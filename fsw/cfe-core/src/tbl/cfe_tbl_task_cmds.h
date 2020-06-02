@@ -126,7 +126,7 @@ extern void CFE_TBL_GetTblRegData(void);
 **
 ** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
 ******************************************************************************/
-int32 CFE_TBL_HousekeepingCmd(const CCSDS_CommandPacket_t *data);
+int32 CFE_TBL_HousekeepingCmd(const CFE_SB_CmdHdr_t *data);
 
 /*****************************************************************************/
 /**

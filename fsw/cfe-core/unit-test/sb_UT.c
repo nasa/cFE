@@ -4648,7 +4648,7 @@ void Test_CFE_SB_SetGetUserDataLength(void)
         SizeReturned = CFE_SB_GetUserDataLength(SBCmdPtr);
         ActualPktLenField = UT_GetActualPktLenField(SBCmdPtr);
 
-        ExpPktLenField = sizeof(CCSDS_CommandPacket_t) + SetSize - sizeof(CCSDS_PriHdr_t) - 1; /* SecHdrSize + data - 1 */
+        ExpPktLenField = sizeof(CFE_SB_CmdHdr_t) + SetSize - sizeof(CCSDS_PriHdr_t) - 1; /* SecHdrSize + data - 1 */
 
         if (SizeReturned != SetSize ||
             ActualPktLenField != ExpPktLenField)
