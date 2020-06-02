@@ -111,10 +111,6 @@ function(prepare)
     add_definitions(-DSIMULATION=${SIMULATION})
   endif (SIMULATION)
 
-  # Generate the cfe_mission_cfg.h wrapper file  
-  generate_config_includefile("inc/cfe_mission_cfg.h" mission_cfg.h ${MISSIONCONFIG})
-  generate_config_includefile("inc/cfe_perfids.h" perfids.h ${MISSIONCONFIG} )
-  
   # Create custom targets for building and cleaning all architectures
   # This is required particularly for doing extra stuff in the clean step
   add_custom_target(mission-all COMMAND $(MAKE) all)
@@ -166,7 +162,7 @@ function(prepare)
   # Export the full set of dependencies to the parent build
   # including the individual dependency paths to each component
   set(MISSION_DEPS ${MISSION_DEPS} PARENT_SCOPE)
-  foreach(DEP ${MISSION_DEPS} ${MISSION_PSPMODULES})
+  foreach(DEP ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
      set(${DEP}_MISSION_DIR ${${DEP}_MISSION_DIR} PARENT_SCOPE)
   endforeach(DEP ${MISSION_DEPS})
   
@@ -251,6 +247,39 @@ function(prepare)
     doxygen osalguide.doxyfile 
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc") 
 
+  # Generate the cfe_mission_cfg.h wrapper file  
+  generate_config_includefile(
+    OUTPUT_DIRECTORY    "${CMAKE_BINARY_DIR}/inc" 
+    FILE_NAME           "cfe_mission_cfg.h" 
+    MATCH_SUFFIX        "mission_cfg.h" 
+    PREFIXES            ${MISSIONCONFIG} # May be a list of items
+  )
+    
+  generate_config_includefile(
+    OUTPUT_DIRECTORY    "${CMAKE_BINARY_DIR}/inc" 
+    FILE_NAME           "cfe_perfids.h" 
+    MATCH_SUFFIX        "perfids.h"
+    PREFIXES            ${MISSIONCONFIG} # May be a list of items
+  )
+  
+  # Create wrappers for any files provided in an "fsw/mission_inc" subdirectory of each app
+  # These may be optionally overridden by providing a file of the same name in the defs directory
+  foreach(APP_NAME ${MISSION_APPS})
+    set(APP_MISSION_CONFIG_DIR "${${APP_NAME}_MISSION_DIR}/fsw/mission_inc")
+    if (IS_DIRECTORY "${APP_MISSION_CONFIG_DIR}")
+        file(GLOB APP_MISSION_CONFIG_FILES RELATIVE "${APP_MISSION_CONFIG_DIR}" "${APP_MISSION_CONFIG_DIR}/*.h")
+        foreach(CONFIG_FILE ${APP_MISSION_CONFIG_FILES})
+            generate_config_includefile(
+                OUTPUT_DIRECTORY    "${CMAKE_BINARY_DIR}/inc" 
+                FILE_NAME           "${CONFIG_FILE}" 
+                FALLBACK_FILE       "${APP_MISSION_CONFIG_DIR}/${CONFIG_FILE}" 
+                MATCH_SUFFIX        "${CONFIG_FILE}"
+                PREFIXES            ${MISSIONCONFIG}
+            )
+        endforeach()
+    endif()
+  endforeach()
+  
   # Certain runtime variables need to be "exported" to the subordinate build, such as
   # the specific arch settings and the location of all the apps.  This is done by creating
   # a temporary file within the dir and then the subprocess will read that file and re-create
@@ -319,28 +348,66 @@ endfunction(prepare)
 #
 function(process_arch TARGETSYSTEM)
 
-  set(CURRSYS "${SYSID_${TARGETSYSTEM}}")
-  set(ARCH_BINARY_DIR "${CMAKE_BINARY_DIR}/${CURRSYS}")
-  file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}")
+  # The "BUILD_CONFIG" is a list of items to uniquely identify this build
+  # The first element in the list is the toolchain name, followed by config name(s)
+  set(BUILD_CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}})
+  list(GET BUILD_CONFIG 0 ARCH_TOOLCHAIN_NAME)  
+  list(REMOVE_AT BUILD_CONFIG 0)
+  # convert to a the string which is safe for a directory name
+  string(REGEX REPLACE "[^A-Za-z0-9]" "_" ARCH_CONFIG_NAME "${BUILD_CONFIG}")
+  set(ARCH_BINARY_DIR "${CMAKE_BINARY_DIR}/${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
+  file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}" "${ARCH_BINARY_DIR}/inc")
 
-  message(STATUS "Configuring for system arch: ${CURRSYS}")
+  message(STATUS "Configuring for system arch: ${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
 
   # Note - A warning is issued if you pass CMAKE_TOOLCHAIN_FILE to an already-configured build area
   # so an extra check is added to see if this is an initial run or a re-run by checking for a CMakeCache file.
-  if (NOT CURRSYS STREQUAL "native" AND NOT EXISTS "${ARCH_BINARY_DIR}/CMakeCache.txt")
+  if (NOT ARCH_TOOLCHAIN_NAME STREQUAL "native" AND NOT EXISTS "${ARCH_BINARY_DIR}/CMakeCache.txt")
     # Find the toolchain file - allow a file in the mission defs dir to supercede one in the compile dir
-    if (EXISTS ${MISSION_DEFS}/toolchain-${CURRSYS}.cmake)
-      set(TOOLCHAIN_FILE ${MISSION_DEFS}/toolchain-${CURRSYS}.cmake)
-    elseif(EXISTS ${CFE_SOURCE_DIR}/cmake/toolchain-${CURRSYS}.cmake)
-      set(TOOLCHAIN_FILE ${CFE_SOURCE_DIR}/cmake/toolchain-${CURRSYS}.cmake)
+    if (EXISTS "${MISSION_DEFS}/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
+      set(TOOLCHAIN_FILE "${MISSION_DEFS}/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
+    elseif(EXISTS "${CFE_SOURCE_DIR}/cmake/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
+      set(TOOLCHAIN_FILE "${CFE_SOURCE_DIR}/cmake/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
     else()
-      message(FATAL_ERROR "Unable to find toolchain file for ${CURRSYS}")
+      message(FATAL_ERROR "Unable to find toolchain file for ${ARCH_TOOLCHAIN_NAME}")
     endif()
     set(SELECTED_TOOLCHAIN_FILE "-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}")
   else()
     # Do not supply any toolchain file option to the subprocess
     set(SELECTED_TOOLCHAIN_FILE)
   endif ()
+  
+  # Generate wrapper file for the requisite cfe_platform_cfg.h file
+  generate_config_includefile(
+    OUTPUT_DIRECTORY    "${ARCH_BINARY_DIR}/inc" 
+    FILE_NAME           "cfe_msgids.h"
+    MATCH_SUFFIX        "msgids.h"
+    PREFIXES            ${BUILD_CONFIG} ${ARCH_TOOLCHAIN_NAME}
+  )
+  generate_config_includefile(
+    OUTPUT_DIRECTORY    "${ARCH_BINARY_DIR}/inc"
+    FILE_NAME           "cfe_platform_cfg.h" 
+    MATCH_SUFFIX        "platform_cfg.h" 
+    PREFIXES            ${BUILD_CONFIG} ${ARCH_TOOLCHAIN_NAME}
+  )
+  
+  # Create wrappers for any files provided in an "fsw/platform_inc" subdirectory of each app
+  # These may be optionally overridden by providing a file of the same name in the defs directory
+  foreach(APP_NAME ${MISSION_APPS})
+    set(APP_PLATFORM_CONFIG_DIR "${${APP_NAME}_MISSION_DIR}/fsw/platform_inc")
+    if (IS_DIRECTORY "${APP_PLATFORM_CONFIG_DIR}")
+        file(GLOB APP_PLATFORM_CONFIG_FILES RELATIVE "${APP_PLATFORM_CONFIG_DIR}" "${APP_PLATFORM_CONFIG_DIR}/*.h")
+        foreach(CONFIG_FILE ${APP_PLATFORM_CONFIG_FILES})            
+            generate_config_includefile(
+                OUTPUT_DIRECTORY    "${ARCH_BINARY_DIR}/inc" 
+                FILE_NAME           "${CONFIG_FILE}" 
+                FALLBACK_FILE       "${APP_PLATFORM_CONFIG_DIR}/${CONFIG_FILE}" 
+                MATCH_SUFFIX        "${CONFIG_FILE}"
+                PREFIXES            ${BUILD_CONFIG} ${ARCH_TOOLCHAIN_NAME}
+            )
+        endforeach()
+    endif()
+  endforeach()
   
   # Execute CMake subprocess to create a binary build tree for the specific CPU architecture
   execute_process(
@@ -358,24 +425,24 @@ function(process_arch TARGETSYSTEM)
         RESULT
   )
   if (NOT RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to configure ${CURRSYS}")
+    message(FATAL_ERROR "Failed to configure ${TARGETSYSTEM}")
   endif (NOT RESULT EQUAL 0)  
   
   # Hook the "make all", "make clean", and "make install" targets for the subordinate build
   # to top-level build targets prefixed by the CPU architecture.
-  add_custom_target(${CURRSYS}-all 
+  add_custom_target(${TARGETSYSTEM}-all 
    COMMAND 
       $(MAKE) all 
    WORKING_DIRECTORY 
       "${ARCH_BINARY_DIR}"
   )
-  add_custom_target(${CURRSYS}-clean 
+  add_custom_target(${TARGETSYSTEM}-clean 
    COMMAND 
       $(MAKE) clean 
    WORKING_DIRECTORY 
       "${ARCH_BINARY_DIR}"
   )
-  add_custom_target(${CURRSYS}-install 
+  add_custom_target(${TARGETSYSTEM}-install 
    COMMAND 
       $(MAKE) install 
    WORKING_DIRECTORY 
@@ -383,12 +450,12 @@ function(process_arch TARGETSYSTEM)
   )
 
   # All subordinate builds depend on the generated files being present first
-  add_dependencies(${CURRSYS}-install mission-prebuild)
-  add_dependencies(${CURRSYS}-all mission-prebuild) 
+  add_dependencies(${TARGETSYSTEM}-install mission-prebuild)
+  add_dependencies(${TARGETSYSTEM}-all mission-prebuild) 
 
-  add_dependencies(mission-all ${CURRSYS}-all)
-  add_dependencies(mission-clean ${CURRSYS}-clean)
-  add_dependencies(mission-install ${CURRSYS}-install)
+  add_dependencies(mission-all ${TARGETSYSTEM}-all)
+  add_dependencies(mission-clean ${TARGETSYSTEM}-clean)
+  add_dependencies(mission-install ${TARGETSYSTEM}-install)
   
 endfunction(process_arch TARGETSYSTEM)
 
