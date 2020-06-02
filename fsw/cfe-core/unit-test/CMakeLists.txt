@@ -22,7 +22,7 @@ include_directories(
 )
 
 # CFE needs a supplemental test support hook library
-add_library(ut_${CFE_CORE_TARGET}_support STATIC
+add_library(ut_cfe-core_support STATIC
     ut_support.c
     ut_osprintf_stubs.c
 )
@@ -35,7 +35,7 @@ foreach(MODULE ${CFE_CORE_MODULES})
   # The "UT_TARGET_NAME" is a concatenation of the configuration name with the current module
   # This avoids target name duplication in case more than one configuration is used
   # (All  targets should be based on this name)
-  set(UT_TARGET_NAME "${CFE_CORE_TARGET}_${MODULE}")
+  set(UT_TARGET_NAME "cfe-core_${MODULE}")
   
   set(CFE_MODULE_FILES)
   aux_source_directory(${cfe-core_MISSION_DIR}/src/${MODULE} CFE_MODULE_FILES)
@@ -64,7 +64,7 @@ foreach(MODULE ${CFE_CORE_MODULES})
   # This should enable coverage analysis on platforms that support this
   target_link_libraries(${UT_TARGET_NAME}_UT
         ${UT_COVERAGE_LINK_FLAGS}
-        ut_${CFE_CORE_TARGET}_support
+        ut_cfe-core_support
         ut_cfe-core_stubs
         ut_assert)
     
