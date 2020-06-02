@@ -109,11 +109,14 @@ int32 CFE_EVS_SendEvent(uint16 EventID,
                         ...)
 {
     int32 status;
+    va_list va;
 
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventType);
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), Spec);
-    status = UT_DEFAULT_IMPL(CFE_EVS_SendEvent);
+    va_start(va, Spec);
+    status = UT_DEFAULT_IMPL_VARARGS(CFE_EVS_SendEvent, va);
+    va_end(va);
 
     if (status >= 0)
     {
@@ -145,9 +148,15 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
                              ...)
 {
     int32 status;
+    va_list va;
 
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
-    status = UT_DEFAULT_IMPL(CFE_EVS_SendEvent);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventType);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &Time);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), Spec);
+    va_start(va, Spec);
+    status = UT_DefaultStubImplWithArgs(__func__, UT_KEY(CFE_EVS_SendTimedEvent), CFE_SUCCESS, va);
+    va_end(va);
 
     if (status >= 0)
     {
@@ -218,9 +227,15 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
                                  ...)
 {
     int32 status;
+    va_list va;
 
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
-    status = UT_DEFAULT_IMPL(CFE_EVS_SendEventWithAppID);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventType);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &AppID);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), Spec);
+    va_start(va, Spec);
+    status = UT_DefaultStubImplWithArgs(__func__, UT_KEY(CFE_EVS_SendEventWithAppID), CFE_SUCCESS, va);
+    va_end(va);
 
     if (status >= 0)
     {
