@@ -64,6 +64,12 @@ typedef struct
     char        TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table as defined onboard */
     char        Description[CFE_FS_HDR_DESC_MAX_LEN];       /**< \brief Description of table image that is included in cFE File Header */
     char        TgtFilename[CFE_MISSION_MAX_FILE_LEN];      /**< \brief Default filename to be used for output of elf2cfetbl utility  */
+
+    /** \brief  Padding to ensure that TgtFilename is null-terminated. If TgtFilename is initialized with a string of exactly
+     *          CFE_MISSION_MAX_FILE_LEN characters, the null of the initializer is lost and the string is no longer null-terminated.
+     */
+    uint32      Padding;
+
     uint32      ObjectSize;                                 /**< \brief Size, in bytes, of instantiated object */
 } CFE_TBL_FileDef_t;
 
@@ -87,7 +93,7 @@ typedef struct
 \endcode
 */
   
-#define CFE_TBL_FILEDEF(ObjName, TblName, Desc, Filename) static OS_USED CFE_TBL_FileDef_t CFE_TBL_FileDef={#ObjName, #TblName, #Desc, #Filename, sizeof(ObjName)};
+#define CFE_TBL_FILEDEF(ObjName, TblName, Desc, Filename) static OS_USED CFE_TBL_FileDef_t CFE_TBL_FileDef={#ObjName, #TblName, #Desc, #Filename, 0, sizeof(ObjName)};
 
 /*************************************************************************/
 
