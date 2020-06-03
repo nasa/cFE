@@ -12,11 +12,6 @@
 
 project(CFETARGET C)
 
-# The CFE core target to link to MUST be given 
-if (NOT CFE_CORE_TARGET)
-  message(FATAL_ERROR "CFE_CORE_TARGET must be defined to link a final exe")
-endif (NOT CFE_CORE_TARGET)
-
 # Create a file for the statically-linked module list for this target
 # do this for both PSP and CFS static modules
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc.tmp" 
@@ -42,9 +37,6 @@ file (REMOVE "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp")
 
 # Include the current binary dir for the driver list
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-# Include the CFE core-specific configuration
-include_directories(${CMAKE_BINARY_DIR}/${CFE_CORE_TARGET}/inc)
 
 # The CPU ID and name are defined by the build scripts for this target
 if (DEFINED TGTID)
@@ -109,7 +101,7 @@ endif (TGT${TGTID}_APPLIST)
 # Collect any additional libraries that should be included on the link line
 # This depends on whether any special features are included or not
 set(CFE_LINK_WHOLE_LIBS
-    ${CFE_CORE_TARGET}
+    cfe-core
     psp-${CFE_SYSTEM_PSPNAME} 
     osal
 )

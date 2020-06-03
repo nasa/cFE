@@ -411,16 +411,6 @@ function(process_arch SYSVAR)
     set(TGTLIST_DRV_${DRV})
   endforeach()
 
-  # INCLUDE_REFACTOR: apps and the PSP like to #include cfe_platform_cfg.h -- they shouldn't
-  # This will become unnecessary when dependency refactoring is merged in, but for now
-  # they need to be able to find it.  Remove the next line once refactoring is merged.
-  # Also do not do this if more than one CPU shares this architecture - this hack can only
-  # be done if a 1:1 mapping between cpus and architectures (so all apps are rebuilt per-cpu)
-  list(LENGTH TGTSYS_${SYSVAR} ARCHLEN)
-  if (ARCHLEN EQUAL 1)
-    include_directories(${CMAKE_BINARY_DIR}/cfe_core_default_${TGT${TGTSYS_${SYSVAR}}_NAME}/inc)
-  endif (ARCHLEN EQUAL 1)
-        
   # Process each PSP module that is referenced on this system architecture (any cpu)
   foreach(PSPMOD ${TGTSYS_${SYSVAR}_PSPMODULES}) 
     message(STATUS "Building PSP Module: ${PSPMOD}")
@@ -464,6 +454,9 @@ function(process_arch SYSVAR)
     add_subdirectory(${${APP}_MISSION_DIR} apps/${APP})
   endforeach()
   
+  # Actual core library is a subdirectory
+  add_subdirectory(${MISSION_SOURCE_DIR}/cfe/fsw/cfe-core cfe-core)
+      
   # If unit test is enabled, build a generic ut stub library for CFE
   if (ENABLE_UNIT_TESTS)
     add_subdirectory(${cfe-core_MISSION_DIR}/ut-stubs ut_cfe_core_stubs)
@@ -473,24 +466,8 @@ function(process_arch SYSVAR)
   # Second Pass: Build cfe-core and link final target executable 
   foreach(TGTID ${TGTSYS_${SYSVAR}})
   
-    set(TGTNAME ${TGT${TGTID}_NAME})    
-    set(TGTPLATFORM ${TGT${TGTID}_PLATFORM})
-    if(NOT TGTPLATFORM)
-      set(TGTPLATFORM "default" ${TGTNAME})
-    endif(NOT TGTPLATFORM)
-
-    string(REPLACE ";" "_" CFE_CORE_TARGET "cfe_core_${TGTPLATFORM}")
-    if (NOT TARGET ${CFE_CORE_TARGET})
-
-      # Generate wrapper file for the requisite cfe_platform_cfg.h file
-      generate_config_includefile("${CFE_CORE_TARGET}/inc/cfe_msgids.h" msgids.h ${TGTPLATFORM})
-      generate_config_includefile("${CFE_CORE_TARGET}/inc/cfe_platform_cfg.h" platform_cfg.h ${TGTPLATFORM})
-      
-      # Actual core library is a subdirectory
-      add_subdirectory(${MISSION_SOURCE_DIR}/cfe/fsw/cfe-core ${CFE_CORE_TARGET})
-      
-    endif (NOT TARGET ${CFE_CORE_TARGET})
-
+    set(TGTNAME ${TGT${TGTID}_NAME})
+    
     # Target to generate the actual executable file
     add_subdirectory(cmake/target ${TGTNAME})
     
