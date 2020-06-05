@@ -687,106 +687,28 @@ void UT_CheckForOpenSockets(void);
 ******************************************************************************/
 CFE_ES_ResetData_t *UT_GetResetDataPtr(void);
 
+
 /*****************************************************************************/
 /**
-** \brief Global representing the current state of a unit test function.
+** \brief Add a test as a member of a subgroup.
 **
 ** \par Description
-**        This global variable is used by the test macros to track whether
-**        the current test is succeeding or has failed. Many of the macros
-**        fall through if this is not set to CFE_PASS (usually TestStat
-**        is set to CFE_PASS by the START() macro and is changed to
-**        CFE_FAIL by any test step [setup/assert/teardown] that fails).
+**        Allow tests to be grouped together
+**
+**        This is just a wrapper around UtTest_Add() that registers
+**        a test with a "GroupName.TestName" convention.  Purely an
+**        organizational/identification helper for units which have
+**        lots of tests.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \sa #CFE_PASS, #CFE_FAIL, #START, #REPORT, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE
-** \sa #EVTCNT, #EVTSENT, #TEARDOWN
-**
 ******************************************************************************/
-extern int32 TestStat;
-
-/*****************************************************************************/
-/**
-** \brief Test is currently passing.
-**
-** \sa #TestStat, #CFE_FAIL
-**
-******************************************************************************/
-#define CFE_PASS 1
-
-/*****************************************************************************/
-/**
-** \brief Test has failed.
-**
-** \sa #TestStat, #CFE_PASS
-**
-******************************************************************************/
-#define CFE_FAIL 0
-
-/** \brief Function to be called by the STARTBLOCK() macro */
-void UT_STARTBLOCK_impl(const char *FileName, int LineNum, const char *TestName);
-
-/*****************************************************************************/
-/**
-** \brief Start a block of tests.
-**
-** \par Description
-**        Macro to be called at the start of a test block (a test function
-**        comprised of calls to multiple individual test functions.)
-**
-**        Does nothing, generates a text entry if VERBOSE is defined.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \sa #ENDBLOCK
-**
-******************************************************************************/
-#define STARTBLOCK() UT_STARTBLOCK_impl(__FILE__, __LINE__, __func__)
-
-/** \brief Function to be called by the START() macro */
-void UT_START_impl(const char *FileName, int LineNum, const char *TestName);
-
-/*****************************************************************************/
-/**
-** \brief Start an individual test.
-**
-** \par Description
-**        Macro to be called at the start of an individual test. This sets the
-**        TestStat variable to be CFE_PASS, and generates a text message if
-**        VERBOSE is defined.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \sa #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
-**
-******************************************************************************/
-#define START() UT_START_impl(__FILE__, __LINE__, __func__)
-
-/** \brief Function to be called by the REPORT() macro */
-void UT_REPORT_impl(const char *FileName, int LineNum, const char *TestName);
-
-/*****************************************************************************/
-/**
-** \brief Report the result of a test.
-**
-** \par Description
-**        This reports whether the test passed or failed (as maintained by the
-**        TestStat global variable.) Call this at the end of every test.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #TEARDOWN
-**
-******************************************************************************/
-#define REPORT() UT_REPORT_impl(__FILE__, __LINE__, __func__)
+void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void),
+        const char *GroupName, const char *TestName);
 
 /** \brief Function to be called by the SETUP() macro */
-bool UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
+void UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
 
 /*****************************************************************************/
 /**
@@ -803,10 +725,10 @@ bool UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, cons
 ** \sa #START, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
 **
 ******************************************************************************/
-#define SETUP(FN) (TestStat == CFE_PASS ? UT_SETUP_impl(__FILE__, __LINE__, __func__, (#FN), (FN)) : false)
+#define SETUP(FN) (UT_SETUP_impl(__FILE__, __LINE__, __func__, (#FN), (FN)))
 
 /** \brief Function to be called by the ASSERT() macro */
-bool UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
+void UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
 
 /*****************************************************************************/
 /**
@@ -823,10 +745,10 @@ bool UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, con
 ** \sa #START, #SETUP, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
 **
 ******************************************************************************/
-#define ASSERT(FN) (TestStat == CFE_PASS ? UT_ASSERT_impl(__FILE__, __LINE__, __func__, (#FN), (FN)) : false)
+#define ASSERT(FN) (UT_ASSERT_impl(__FILE__, __LINE__, __func__, (#FN), (FN)))
 
 /** \brief Function to be called by the ASSERT_EQ() macro */
-bool UT_ASSERT_EQ_impl(const char *FileName, int LineNum, const char *TestName,
+void UT_ASSERT_EQ_impl(const char *FileName, int LineNum,
     const char *FnName, int32 FnRet, const char *ExpName, int32 Exp);
 
 /*****************************************************************************/
@@ -845,10 +767,11 @@ bool UT_ASSERT_EQ_impl(const char *FileName, int LineNum, const char *TestName,
 ** \sa #START, #SETUP, #ASSERT, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
 **
 ******************************************************************************/
-#define ASSERT_EQ(FN,EXP) (TestStat == CFE_PASS ? UT_ASSERT_EQ_impl(__FILE__, __LINE__, __func__, (#FN), (FN), (#EXP), (EXP)) : false)
+#define ASSERT_EQ(FN,EXP) (UT_ASSERT_EQ_impl(__FILE__, __LINE__, (#FN), (FN), (#EXP), (EXP)))
+
 
 /** \brief Function to be called by the ASSERT_EQ() macro */
-bool UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
+void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
     const char *ExpName, bool Exp);
 
 /*****************************************************************************/
@@ -867,10 +790,10 @@ bool UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName
 ** \sa #START, #SETUP, #ASSERT, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
 **
 ******************************************************************************/
-#define ASSERT_TRUE(EXP) (TestStat == CFE_PASS ? UT_ASSERT_TRUE_impl(__FILE__, __LINE__, __func__, (#EXP), (EXP)) : false)
+#define ASSERT_TRUE(EXP) (UT_ASSERT_TRUE_impl(__FILE__, __LINE__, __func__, (#EXP), (EXP)))
 
 /** \brief Function to be called by the EVTCNT() macro */
-bool UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int32 CntExp);
+void UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int32 CntExp);
 
 /*****************************************************************************/
 /**
@@ -887,10 +810,10 @@ bool UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int
 ** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTSENT, #REPORT, #TEARDOWN
 **
 ******************************************************************************/
-#define EVTCNT(EXP) (TestStat == CFE_PASS ? UT_EVTCNT_impl(__FILE__, __LINE__, __func__, (EXP)) : false)
+#define EVTCNT(EXP) (UT_EVTCNT_impl(__FILE__, __LINE__, __func__, (EXP)))
 
 /** \brief Function to be called by the EVTSENT() macro */
-bool UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, const char *EvtName, int32 EvtId);
+void UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, const char *EvtName, int32 EvtId);
 
 /*****************************************************************************/
 /**
@@ -906,10 +829,10 @@ bool UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, co
 ** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #REPORT, #TEARDOWN
 **
 ******************************************************************************/
-#define EVTSENT(EVT) (TestStat == CFE_PASS ? UT_EVTSENT_impl(__FILE__, __LINE__, __func__, (#EVT), (EVT)) : false)
+#define EVTSENT(EVT) (UT_EVTSENT_impl(__FILE__, __LINE__, __func__, (#EVT), (EVT)))
 
 /** \brief Function to be called by the TEARDOWN() macro */
-bool UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
+void UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
 /*****************************************************************************/
 /**
 ** \brief Checks the successful execution of a teardown function.
@@ -925,23 +848,6 @@ bool UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, c
 ** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT
 **
 ******************************************************************************/
-#define TEARDOWN(FN) (TestStat == CFE_PASS ? UT_TEARDOWN_impl(__FILE__, __LINE__, __func__, (#FN), (FN)) : false)
-
-/*****************************************************************************/
-/**
-** \brief Marks the end of a block of tests.
-**
-** \par Description
-**        Implementation function and associated ENDBLOCK() macro. Most CFE API functions will be tested with
-**        a block of tests, each of which will be performed in sequence. This function does
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \sa #STARTBLOCK
-**
-******************************************************************************/
-void UT_ENDBLOCK_impl(const char *FileName, int LineNum, const char *TestName);
-#define ENDBLOCK() UT_ENDBLOCK_impl(__FILE__, __LINE__, __func__)
+#define TEARDOWN(FN) (UT_TEARDOWN_impl(__FILE__, __LINE__, __func__, (#FN), (FN)))
 
 #endif /* __UT_STUBS_H_ */
