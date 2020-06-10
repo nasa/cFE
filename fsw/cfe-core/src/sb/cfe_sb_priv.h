@@ -437,7 +437,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_Noop_t *data);
 int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCounters_t *data);
 int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReporting_t *data);
 int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReporting_t *data);
-int32 CFE_SB_SendHKTlmCmd(const CCSDS_CommandPacket_t *data);
+int32 CFE_SB_SendHKTlmCmd(const CFE_SB_CmdHdr_t *data);
 int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRoute_t *data);
 int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRoute_t *data);
 int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStats_t *data);

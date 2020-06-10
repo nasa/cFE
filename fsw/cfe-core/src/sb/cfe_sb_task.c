@@ -363,7 +363,7 @@ void CFE_SB_ProcessCmdPipePkt(void) {
 
       case CFE_SB_SEND_HK_MID:
          /* Note: Command counter not incremented for this command */
-         CFE_SB_SendHKTlmCmd((CCSDS_CommandPacket_t *)CFE_SB.CmdPipePktPtr);
+         CFE_SB_SendHKTlmCmd((CFE_SB_CmdHdr_t *)CFE_SB.CmdPipePktPtr);
          break;
 
       case CFE_SB_SUB_RPT_CTRL_MID:
@@ -556,7 +556,7 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReporting_t *data)
 **  Return:
 **    none
 */
-int32 CFE_SB_SendHKTlmCmd(const CCSDS_CommandPacket_t *data)
+int32 CFE_SB_SendHKTlmCmd(const CFE_SB_CmdHdr_t *data)
 {
     CFE_SB.HKTlmMsg.Payload.MemInUse        = CFE_SB.StatTlmMsg.Payload.MemInUse;
     CFE_SB.HKTlmMsg.Payload.UnmarkedMem     = CFE_PLATFORM_SB_BUF_MEMORY_BYTES - CFE_SB.StatTlmMsg.Payload.PeakMemInUse;

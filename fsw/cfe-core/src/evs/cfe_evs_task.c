@@ -368,7 +368,7 @@ void CFE_EVS_ProcessCommandPacket ( CFE_SB_MsgPtr_t EVS_MsgPtr )
 
         case CFE_EVS_SEND_HK_MID:
             /* Housekeeping request */
-            CFE_EVS_ReportHousekeepingCmd((CCSDS_CommandPacket_t*)EVS_MsgPtr);
+            CFE_EVS_ReportHousekeepingCmd((CFE_SB_CmdHdr_t*)EVS_MsgPtr);
             break;
 
         default:
@@ -687,7 +687,7 @@ int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLog_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_ReportHousekeepingCmd (const CCSDS_CommandPacket_t *data)
+int32 CFE_EVS_ReportHousekeepingCmd (const CFE_SB_CmdHdr_t *data)
 {
    uint32 i, j;
 

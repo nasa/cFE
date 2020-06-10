@@ -8,6 +8,14 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version History
 
+### Development Build: 6.7.19
+
+- API Change: cFE ut_sb_stubs now has CFE_SB_DeletePipe available.
+Behavior Change: App unit tests requiring this will not fail to build due to undefined reference to CFE_SB_DeletePipe
+- Hook functions may now use the va_list form and obtain the full set of variable arguments passed to CFE_EVS_SendEvent and variants.
+- Replace all direct references to data types defined in ccsds.h with the abstract type defined in cfe_sb.h.
+- See <https://github.com/nasa/cFE/pull/729> for details.
+
 ### Development Build: 6.7.18
 
 - Using ut stubs CFE_EVS_SendEvent and CFE_ES_WriteToSysLog, the register buffer will have the correct size. access to register buffer element will exist

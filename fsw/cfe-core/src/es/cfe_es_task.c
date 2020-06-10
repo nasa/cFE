@@ -447,7 +447,7 @@ void CFE_ES_TaskPipe(CFE_SB_MsgPtr_t Msg)
         ** Housekeeping telemetry request
         */
         case CFE_ES_SEND_HK_MID:
-            CFE_ES_HousekeepingCmd((CCSDS_CommandPacket_t*)Msg);
+            CFE_ES_HousekeepingCmd((CFE_SB_CmdHdr_t*)Msg);
             break;
 
         /*
@@ -662,7 +662,7 @@ void CFE_ES_TaskPipe(CFE_SB_MsgPtr_t Msg)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_HousekeepingCmd(const CCSDS_CommandPacket_t *data)
+int32 CFE_ES_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
 {
     OS_heap_prop_t HeapProp;
     int32          stat;
