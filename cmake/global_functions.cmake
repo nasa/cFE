@@ -122,6 +122,17 @@ function(read_targetconfig)
     # save the unmodified name for future reference
     set(SYSID_${SYSVAR} "${CURRSYS}" PARENT_SCOPE)
     
+    # if the "global" applist is not empty, append to every CPU applist
+    if (MISSION_GLOBAL_APPLIST)
+      list(APPEND TGT${TGTID}_APPLIST ${MISSION_GLOBAL_APPLIST})
+      set(TGT${TGTID}_APPLIST ${TGT${TGTID}_APPLIST} PARENT_SCOPE)
+    endif (MISSION_GLOBAL_APPLIST)
+
+    if (MISSION_GLOBAL_STATIC_APPLIST)
+      list(APPEND TGT${TGTID}_STATIC_APPLIST ${MISSION_GLOBAL_STATIC_APPLIST})
+      set(TGT${TGTID}_STATIC_APPLIST ${TGT${TGTID}_STATIC_APPLIST} PARENT_SCOPE)
+    endif (MISSION_GLOBAL_STATIC_APPLIST)
+
     # Append to global lists
     list(APPEND TGTSYS_LIST "${SYSVAR}")
     list(APPEND TGTSYS_${SYSVAR} "${TGTID}")
