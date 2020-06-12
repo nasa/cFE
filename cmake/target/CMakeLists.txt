@@ -110,6 +110,7 @@ endif (TGT${TGTID}_APPLIST)
 # This depends on whether any special features are included or not
 set(CFE_LINK_WHOLE_LIBS
     ${CFE_CORE_TARGET}
+    ${MISSION_CORE_MODULES}
     psp-${CFE_SYSTEM_PSPNAME} 
     osal
 )
