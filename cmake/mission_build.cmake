@@ -125,9 +125,16 @@ function(prepare)
   # Locate the source location for all the apps found within the target file
   # Each of those may in turn have a "mission_build" file that calls out additional dependencies for that app,
   # so this is run in a loop until the list of unfound apps is empty
-  string(REPLACE ":" ";" CFS_APP_PATH "$ENV{CFS_APP_PATH}")
-  list(APPEND CFS_APP_PATH "apps" "apps/CFS" "libs" "psp/fsw/modules")
-  set(MISSION_DEPS "cfe-core" "osal")
+  string(REPLACE ":" ";" CFS_USER_APP_PATH "$ENV{CFS_APP_PATH}")
+  set(CFS_APP_PATH 
+    ${CFS_USER_APP_PATH}    # User-supplied/mission-specific paths are checked first
+    "apps"                  # general purpose $[top}/apps directory
+    "libs"                  # general purpose $[top}/libs directory
+    "psp/fsw/modules"       # modules for optional platform abstraction, associated with PSP
+    "cfe/modules"           # modules for optional core functions, associated with CFE
+     CACHE STRING "Search path for code modules"
+  )
+  set(MISSION_DEPS "cfe-core" "osal" ${MISSION_CORE_MODULES})
   set(APP_MISSING_COUNT 0)
   
   # Set the search path of those dependency components which are fixed
@@ -137,34 +144,27 @@ function(prepare)
   set(osal_SEARCH_PATH ".")
   
   # Now search for the rest of CFS applications/libraries/modules - these may exist in
-  # a variety of places and also may in turn add more dependencies onto the list.
-  # Repeat this loop until the list becomes empty.
-  set(FIND_DEP_LIST ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
-  while(1)
-    set(FIND_DEP_CURRSET ${FIND_DEP_LIST})
-    set(FIND_DEP_LIST)
-    foreach(APP ${FIND_DEP_CURRSET})
-      set (APPFOUND)
-      foreach(APPSRC ${${APP}_SEARCH_PATH} ${CFS_APP_PATH})
-        if(IS_DIRECTORY ${MISSION_SOURCE_DIR}/${APPSRC}/${APP})
-          get_filename_component(APPFOUND "${MISSION_SOURCE_DIR}/${APPSRC}/${APP}" ABSOLUTE)
-          break()
-        endif()
-      endforeach(APPSRC ${CFS_APP_PATH})
-      if (APPFOUND)
-        set(${APP}_MISSION_DIR ${APPFOUND})
-        include(${APPFOUND}/mission_build.cmake OPTIONAL)
-        message(STATUS "Module '${APP}' found at ${APPFOUND}")
-      else()
-        message("** Module ${APP} NOT found **")
-        math(EXPR APP_MISSING_COUNT "${APP_MISSING_COUNT} + 1")
+  # any directory within the search path.  
+  foreach(APP ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
+    set (APPFOUND FALSE)
+    foreach(APPSRC ${CFS_APP_PATH} ${${APP}_SEARCH_PATH})
+      if (NOT IS_ABSOLUTE "${APPSRC}")
+        set(APPSRC "${MISSION_SOURCE_DIR}/${APPSRC}")
       endif()
-    endforeach(APP ${FIND_DEP_CURRSET})
-    if (NOT FIND_DEP_LIST)
-      break()
-    endif (NOT FIND_DEP_LIST)
-    list(APPEND MISSION_DEPS ${FIND_DEP_LIST})
-  endwhile(1)
+      if(IS_DIRECTORY "${APPSRC}/${APP}")
+        set(APPFOUND "${APPSRC}/${APP}")
+        break()
+      endif()
+    endforeach()
+    if (APPFOUND)
+      set(${APP}_MISSION_DIR "${APPFOUND}")
+      include("${APPFOUND}/mission_build.cmake" OPTIONAL)
+      message(STATUS "Module '${APP}' found at ${APPFOUND}")
+    else()
+      message("** Module ${APP} NOT found **")
+      math(EXPR APP_MISSING_COUNT "${APP_MISSING_COUNT} + 1")
+    endif()
+  endforeach()
   
   if (APP_MISSING_COUNT GREATER 0)
     message(FATAL_ERROR "Target build incomplete, source for ${APP_MISSING_COUNT} module(s) not found.")
