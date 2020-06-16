@@ -215,7 +215,6 @@ function(add_unit_test_exe UT_NAME UT_SRCS)
     add_test(${UT_NAME} ${UT_NAME})
 endfunction(add_unit_test_exe)
 
-
 ##################################################################
 #
 # FUNCTION: cfe_exec_do_install
