@@ -22,3 +22,21 @@ set(MISSION_GLOBAL_APPLIST)
 # but the apps are statically linked.  
 # This list is effectively appended to every TGTx_STATIC_APPLIST in targets.cmake.  
 set(MISSION_GLOBAL_STATIC_APPLIST)
+
+# The "MISSION_MODULE_SEARCH_PATH" is a list of subdirectories
+# which will be searched for modules (apps and libs) specified in 
+# the targets.cmake file.  It may also be locally extended by setting 
+# the environment variable "CFS_APP_PATH"
+set(MISSION_MODULE_SEARCH_PATH
+    "apps"                  # general purpose $[top}/apps directory
+    "libs"                  # general purpose $[top}/libs directory
+    "psp/fsw/modules"       # modules for optional platform abstraction, associated with PSP
+    "cfe/modules"           # modules for optional core functions, associated with CFE
+)
+
+# The path for specific components can also be set via
+# a variable named "<component>_SEARCH_PATH".  This is
+# used for locating cfe-core and osal which are not part
+# of the standard search path.
+set(cfe-core_SEARCH_PATH "cfe/fsw")
+set(osal_SEARCH_PATH ".")

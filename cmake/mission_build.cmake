@@ -123,31 +123,24 @@ function(prepare)
   add_custom_target(mission-prebuild)
   
   # Locate the source location for all the apps found within the target file
-  # Each of those may in turn have a "mission_build" file that calls out additional dependencies for that app,
-  # so this is run in a loop until the list of unfound apps is empty
-  string(REPLACE ":" ";" CFS_USER_APP_PATH "$ENV{CFS_APP_PATH}")
-  set(CFS_APP_PATH 
-    ${CFS_USER_APP_PATH}    # User-supplied/mission-specific paths are checked first
-    "apps"                  # general purpose $[top}/apps directory
-    "libs"                  # general purpose $[top}/libs directory
-    "psp/fsw/modules"       # modules for optional platform abstraction, associated with PSP
-    "cfe/modules"           # modules for optional core functions, associated with CFE
-     CACHE STRING "Search path for code modules"
+  # This is done by searching through the list of paths to find a matching name
+  # The environment variable is cached so it will be retained across runs.
+  set(CFS_APP_PATH "$ENV{CFS_APP_PATH}"
+     CACHE STRING "Extra search path for code modules"
   )
+  string(REPLACE ":" ";" CFS_APP_PATH "${CFS_APP_PATH}")
+  set(MISSION_MODULE_SEARCH_PATH ${CFS_APP_PATH} ${MISSION_MODULE_SEARCH_PATH})
+  
   set(MISSION_DEPS "cfe-core" "osal" ${MISSION_CORE_MODULES})
   set(APP_MISSING_COUNT 0)
   
-  # Set the search path of those dependency components which are fixed
-  # All other components/dependencies are subject to the search path
-  # In particular this is OSAL and the CFE core itself
-  set(cfe-core_SEARCH_PATH "cfe/fsw")
-  set(osal_SEARCH_PATH ".")
+  message(STATUS "Search path for modules: ${MISSION_MODULE_SEARCH_PATH}")
   
   # Now search for the rest of CFS applications/libraries/modules - these may exist in
   # any directory within the search path.  
   foreach(APP ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
     set (APPFOUND FALSE)
-    foreach(APPSRC ${CFS_APP_PATH} ${${APP}_SEARCH_PATH})
+    foreach(APPSRC ${MISSION_MODULE_SEARCH_PATH} ${${APP}_SEARCH_PATH})
       if (NOT IS_ABSOLUTE "${APPSRC}")
         set(APPSRC "${MISSION_SOURCE_DIR}/${APPSRC}")
       endif()
@@ -157,9 +150,9 @@ function(prepare)
       endif()
     endforeach()
     if (APPFOUND)
-      set(${APP}_MISSION_DIR "${APPFOUND}")
+      get_filename_component(${APP}_MISSION_DIR "${APPFOUND}" ABSOLUTE)
       include("${APPFOUND}/mission_build.cmake" OPTIONAL)
-      message(STATUS "Module '${APP}' found at ${APPFOUND}")
+      message(STATUS "Module '${APP}' found at ${${APP}_MISSION_DIR}")
     else()
       message("** Module ${APP} NOT found **")
       math(EXPR APP_MISSING_COUNT "${APP_MISSING_COUNT} + 1")
