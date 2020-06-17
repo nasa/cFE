@@ -1385,7 +1385,7 @@ void Test_SB_Cmds_SubRptOff(void);
 **
 ** \par Description
 **        This function tests the command handler response to an invalid
-**        command code.
+**        command code in the CFE_SB_CMD_MID handler.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -1398,7 +1398,28 @@ void Test_SB_Cmds_SubRptOff(void);
 ** \sa #UT_Report
 **
 ******************************************************************************/
-void Test_SB_Cmds_UnexpCmdCode(void);
+void Test_SB_Cmds_CmdUnexpCmdCode(void);
+
+/*****************************************************************************/
+/**
+** \brief Test command handler response to an invalid command code
+**
+** \par Description
+**        This function tests the command handler response to an invalid
+**        command code in the CFE_SB_SUB_RPT_CTRL_MID handler
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
+** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
+** \sa #UT_Report
+**
+******************************************************************************/
+void Test_SB_Cmds_SubRptUnexpCmdCode(void);
 
 /*****************************************************************************/
 /**
@@ -3167,10 +3188,10 @@ void Test_CFE_SB_InitMsg_False(void);
 
 /*****************************************************************************/
 /**
-** \brief Test getting the size of a command/telemetry message header
+** \brief Test getting the size of a command message header
 **
 ** \par Description
-**        This function tests getting the size of a command/telemetry message
+**        This function tests getting the size of a command message
 **        header.
 **
 ** \par Assumptions, External Events, and Notes:
@@ -3182,7 +3203,26 @@ void Test_CFE_SB_InitMsg_False(void);
 ** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_MsgHdrSize, #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_MsgHdrSize(void);
+void Test_CFE_SB_MsgHdrSize_Cmd(void);
+
+/*****************************************************************************/
+/**
+** \brief Test getting the size of a telemetry message header
+**
+** \par Description
+**        This function tests getting the size of a telemetry message
+**        header.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_MsgHdrSize, #UT_Report
+**
+******************************************************************************/
+void Test_CFE_SB_MsgHdrSize_Tlm(void);
 
 /*****************************************************************************/
 /**
@@ -3202,7 +3242,10 @@ void Test_CFE_SB_MsgHdrSize(void);
 ** \sa #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_GetUserData(void);
+void Test_CFE_SB_GetUserData_Cmd(void);
+void Test_CFE_SB_GetUserData_CmdNoSecHdr(void);
+void Test_CFE_SB_GetUserData_Tlm(void);
+void Test_CFE_SB_GetUserData_TlmNoSecHdr(void);
 
 /*****************************************************************************/
 /**
@@ -3242,7 +3285,10 @@ void Test_CFE_SB_SetGetMsgId(void);
 ** \sa #UT_GetActualPktLenField, #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_SetGetUserDataLength(void);
+void Test_CFE_SB_SetGetUserDataLength_Cmd(void);
+void Test_CFE_SB_SetGetUserDataLength_CmdNoSecHdr(void);
+void Test_CFE_SB_SetGetUserDataLength_Tlm(void);
+void Test_CFE_SB_SetGetUserDataLength_TlmNoSecHdr(void);
 
 /*****************************************************************************/
 /**
@@ -3281,7 +3327,10 @@ void Test_CFE_SB_SetGetTotalMsgLength(void);
 ** \sa #CFE_SB_GetMsgTime, #UT_DisplayPkt, #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_SetGetMsgTime(void);
+void Test_CFE_SB_SetGetMsgTime_Cmd(void);
+void Test_CFE_SB_SetGetMsgTime_CmdNoSecHdr(void);
+void Test_CFE_SB_SetGetMsgTime_Tlm(void);
+void Test_CFE_SB_SetGetMsgTime_TlmNoSecHdr(void);
 
 /*****************************************************************************/
 /**
@@ -3320,7 +3369,8 @@ void Test_CFE_SB_TimeStampMsg(void);
 ** \sa #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_SetGetCmdCode(void);
+void Test_CFE_SB_SetGetCmdCode_Cmd(void);
+void Test_CFE_SB_SetGetCmdCode_NonCmd(void);
 
 /*****************************************************************************/
 /**
@@ -3342,7 +3392,10 @@ void Test_CFE_SB_SetGetCmdCode(void);
 ** \sa #CFE_SB_SetMsgId, #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_ChecksumUtils(void);
+void Test_CFE_SB_ChecksumUtils_Cmd(void);
+void Test_CFE_SB_ChecksumUtils_CmdNoSecHdr(void);
+void Test_CFE_SB_ChecksumUtils_Tlm(void);
+void Test_CFE_SB_ChecksumUtils_TlmNoSecHdr(void);
 
 /*****************************************************************************/
 /**
@@ -3524,7 +3577,11 @@ void Test_CFE_SB_BadPipeInfo(void);
 ** \sa #CFE_SB_SendMsg, #CFE_SB_DeletePipe, #CFE_SB_SubscribeEx, #UT_Report
 **
 ******************************************************************************/
-void Test_SB_SendMsgPaths(void);
+void Test_SB_SendMsgPaths_Nominal(void);
+void Test_SB_SendMsgPaths_LimitErr(void);
+void Test_SB_SendMsgPaths_FullErr(void);
+void Test_SB_SendMsgPaths_WriteErr(void);
+void Test_SB_SendMsgPaths_IgnoreOpt(void);
 
 /*****************************************************************************/
 /**

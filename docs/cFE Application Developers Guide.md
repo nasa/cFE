@@ -451,7 +451,7 @@ Reference sample_app on Github for “live” example.
 | fsw/src/sample_app.h                  | Main header file for sample_app. It contains your main global typedef, prototypes, and miscellaneous define. |
 | fsw/src/sample_app_events.h           | Defines sample_app event IDs                                                                                 |
 | fsw/src/sample_app_msg.h              | Defines sample_app commands and its structures                                                               |
-| fsw/tables/sample_table.c             | Define sample_app table(s)                                                                                   |
+| fsw/tables/sample_app_table.c             | Define sample_app table(s)                                                                                   |
 | fsw/platform_inc/sample_app_msgids.h  | Define sample_app message IDs                                                                                |
 | fsw/mission_inc/sample_app_perfids.h  | Define sample_app performance IDs                                                                            |
 
