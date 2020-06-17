@@ -693,145 +693,102 @@ uint32 UT_PrintfIsInHistory(const char *MsgToSearchFor)
     return UT_GetMessageCount(MsgToSearchFor, &UT_PrintfBuffer, UT_StrCmpFormatStr);
 }
 
-int32 TestStat;
-
-void UT_STARTBLOCK_impl(const char *FileName, int LineNum, const char *TestName)
+void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void), const char *GroupName, const char *TestName)
 {
-#ifdef VERBOSE
-    char cMsg[UT_MAX_MESSAGE_LENGTH];
-    snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Start Block", TestName, FileName, LineNum);
-    UT_Text(cMsg);
-#endif /* VERBOSE */
-}
+    char CompleteTestName[128];
+    const char *GroupPtr;
+    const char *TestPtr;
 
-void UT_START_impl(const char *FileName, int LineNum, const char *TestName)
-{
-#ifdef VERBOSE
-    char cMsg[UT_MAX_MESSAGE_LENGTH];
-    snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Start", TestName, FileName, LineNum);
-    UT_Text(cMsg);
-#endif /* VERBOSE */
-
-    TestStat = CFE_PASS;
-}
-
-void UT_REPORT_impl(const char *FileName, int LineNum, const char *TestName)
-{
-    UT_Report(FileName, LineNum, TestStat, TestName, "Report");
-}
-
-bool UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
-{
-    char cMsg[UT_MAX_MESSAGE_LENGTH];
-
-    if(FnRet != CFE_SUCCESS)
+    /* Remove any common prefix between the two names.
+     * They are often function names that all start with "Test_XXX"
+     * and this repetitive information just becomes clutter.
+     */
+    GroupPtr = GroupName;
+    TestPtr = TestName;
+    while (*GroupPtr != 0 && *GroupPtr == *TestPtr)
     {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Setup failed (%s returned %ld)",
-                        TestName, FileName, LineNum, FnName, (long int)FnRet);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-        return false;
+        ++GroupPtr;
+        ++TestPtr;
     }
-    return true;
-}
 
-bool UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
-{
-    char cMsg[UT_MAX_MESSAGE_LENGTH];
-
-    if(FnRet != CFE_SUCCESS)
+    /*
+     * Only break at an underscore(_) to avoid weird effects
+     */
+    while(TestPtr > TestName && *TestPtr != '_')
     {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Assert failed (%s returned %ld)",
-            TestName, FileName, LineNum, FnName, (long int)FnRet);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-        return false;
+        --TestPtr;
     }
-    return true;
+    if (*TestPtr == '_')
+    {
+        ++TestPtr;
+    }
+
+    /*
+     * Remove a remaining "Test_" prefix on the group name.
+     * Again just to remove common repetitive content
+     */
+    GroupPtr = GroupName;
+    if (strncmp(GroupPtr, "Test_", 5) == 0)
+    {
+        GroupPtr += 5;
+    }
+
+    (void)snprintf(CompleteTestName, sizeof(CompleteTestName), "%s.%s", GroupPtr, TestPtr);
+
+    /*
+     * Note that UtTest_Add() does not copy the string - it retains the passed-in pointer.
+     * Therefore it must be duplicated.
+     *
+     * This isn't an issue on Linux as the memory is freed when the process exits, but
+     * might be an issue on VxWorks.
+     */
+
+    UtTest_Add(Test, Setup, Teardown, strdup(CompleteTestName));
 }
 
-bool UT_ASSERT_EQ_impl(const char *FileName, int LineNum, const char *TestName,
+void UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
+{
+    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TSF, FileName, LineNum, "%s - Setup - %s returned %ld",
+            TestName, FnName, (long int)FnRet);
+}
+
+void UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
+{
+    UtAssertEx(FnRet == CFE_SUCCESS, UtAssert_GetContext(), FileName, LineNum, "%s - %s returned %ld, expected CFE_SUCCESS",
+            TestName, FnName, (long int)FnRet);
+}
+
+void UT_ASSERT_EQ_impl(const char *FileName, int LineNum,
     const char *FnName, int32 FnRet, const char *ExpName, int32 Exp)
 {
-    char cMsg[UT_MAX_MESSAGE_LENGTH];
-
-    if(FnRet != Exp)
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Assert failed (%s [%ld] != %s[%ld])",
-            TestName, FileName, LineNum, FnName, (long int)FnRet, ExpName, (long int)Exp);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-        return false;
-    }
-    return true;
+    UtAssertEx(FnRet == Exp, UtAssert_GetContext(), FileName, LineNum, "%s - value %ld, expected %s[%ld]",
+        FnName, (long)FnRet, ExpName, (long)Exp);
 }
 
-bool UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
+void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
     const char *ExpName, bool Exp)
 {
-    char cMsg[UT_MAX_MESSAGE_LENGTH];
-
-    if(!Exp)
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Assert failed (%s)",
-            TestName, FileName, LineNum, ExpName);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-        return false;
-    }
-    return true;
+    UtAssertEx(Exp, UtAssert_GetContext(), FileName, LineNum, "%s - %s",
+            TestName, ExpName);
 }
 
-bool UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int32 CntExp)
+void UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int32 CntExp)
 {
-    char cMsg[UT_MAX_MESSAGE_LENGTH];
-
     int32 CntSent = UT_GetNumEventsSent();
-    if(CntSent != CntExp)
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Event count (sent: %ld != expected: %ld)",
-            TestName, FileName, LineNum, (long int)CntSent, (long int)CntExp);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-        return false;
-    }
-    return true;
+
+    UtAssertEx(CntSent == CntExp, UtAssert_GetContext(), FileName, LineNum, "%s - event count (sent %ld, expected %ld)",
+            TestName, (long int)CntSent, (long int)CntExp);
 }
 
-bool UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, const char *EvtName, int32 EvtId)
+void UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, const char *EvtName, int32 EvtId)
 {
-    char cMsg[UT_MAX_MESSAGE_LENGTH];
-
-    if(!UT_EventIsInHistory(EvtId))
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Event not sent (%s [%ld])",
-                        TestName, FileName, LineNum, EvtName, (long int)EvtId);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-        return false;
-    }
-    return true;
+    UtAssertEx(UT_EventIsInHistory(EvtId), UtAssert_GetContext(), FileName, LineNum, "%s - sent event %s [%ld]",
+            TestName, EvtName, (long int)EvtId);
 }
 
-bool UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
+void UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
-    char cMsg[UT_MAX_MESSAGE_LENGTH];
-
-    if(FnRet != CFE_SUCCESS)
-    {
-        snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) Teardown failed (%s returned %ld)",
-                        TestName, FileName, LineNum, FnName, (long int)FnRet);
-        UT_Text(cMsg);
-        TestStat = CFE_FAIL;
-        return false;
-    }
-    return true;
+    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TTF, FileName, LineNum, "%s - Teardown failed (%s returned %ld)",
+            TestName, FnName, (long int)FnRet);
 }
 
-void UT_ENDBLOCK_impl(const char *FileName, int LineNum, const char *TestName)
-{
-#ifdef VERBOSE
-    snprintf(cMsg, UT_MAX_MESSAGE_LENGTH, "%s (%s:%d) End Block", TestName, FileName, LineNum);
-    UT_Text();
-#endif /* VERBOSE */
-}
