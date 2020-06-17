@@ -8,6 +8,11 @@ This is a collection of services and associated framework to be located in the `
 
 ## Version History
 
+### Development Build: 6.7.20
+
+-  SB Unit use of the UT assert framework is closer to original design intent
+- See <https://github.com/nasa/cFE/pull/743>
+
 ### Development Build: 6.7.19
 
 - API Change: cFE ut_sb_stubs now has CFE_SB_DeletePipe available.
