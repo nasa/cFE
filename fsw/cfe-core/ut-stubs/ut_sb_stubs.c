@@ -668,6 +668,7 @@ int32 CFE_SB_SubscribeLocal(CFE_SB_MsgId_t MsgId,
 void CFE_SB_TimeStampMsg(CFE_SB_MsgPtr_t MsgPtr)
 {
     UT_DEFAULT_IMPL(CFE_SB_TimeStampMsg);
+    UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_TimeStampMsg), &MsgPtr, sizeof(MsgPtr));
 }
 
 /*****************************************************************************/
