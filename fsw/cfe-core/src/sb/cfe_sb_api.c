@@ -1324,6 +1324,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     if(CFE_SB.SenderReporting != 0)
     {
        BufDscPtr->Sender.ProcessorId = CFE_PSP_GetProcessorId();
+       BufDscPtr->Sender.AppId = CFE_SB.AppId;
        strncpy(&BufDscPtr->Sender.AppName[0],CFE_SB_GetAppTskName(TskId,FullName),OS_MAX_API_NAME);
     }
 
@@ -1346,6 +1347,8 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
         }/*end if */
 
         PipeDscPtr = &CFE_SB.PipeTbl[DestPtr->PipeId];
+
+        PipeDscPtr->LastSender = CFE_SB.AppId;
 
         if(PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE)
         {

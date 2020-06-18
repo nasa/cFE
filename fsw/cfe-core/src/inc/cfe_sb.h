@@ -215,6 +215,7 @@ extern CFE_SB_Qos_t CFE_SB_Default_Qos;/**< \brief  Defines a default priority a
 **/
 typedef struct {
     uint32  ProcessorId;/**< \brief Processor Id from which the message was sent */
+    uint32  AppId;/**< \brief Application Id from which the message was sent */
     char    AppName[OS_MAX_API_NAME];/**< \brief Application that sent the message */
 } CFE_SB_SenderId_t;
 
