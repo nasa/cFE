@@ -78,7 +78,7 @@ SET(SPACECRAFT_ID 42)
 # The "MISSION_CORE_MODULES" will be built and statically linked as part
 # of the CFE core executable on every target.  These can be used to amend
 # or override parts of the CFE core on a mission-specific basis.
-set(MISSION_CORE_MODULES)
+#list(APPEND MISSION_CORE_MODULES mymodule)
 
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built
 # for every defined and target.  These are built as dynamic modules

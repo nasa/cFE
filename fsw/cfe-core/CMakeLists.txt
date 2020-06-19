@@ -28,7 +28,7 @@ endforeach(MODULE ${CFE_CORE_MODULES})
 add_library(cfe-core STATIC ${CFE_ALL_MODULE_SRCS})
 
 if (ENABLE_UNIT_TESTS)
+  add_subdirectory(ut-stubs)
   add_subdirectory(unit-test)
 endif (ENABLE_UNIT_TESTS)
-
 
