@@ -65,7 +65,6 @@ endfunction(generate_c_headerfile)
 # source file for the wrapper.
 # 
 # This function now accepts named parameters:
-#   OUTPUT_DIRECTORY - where the generated file will be written
 #   FILE_NAME - the name of the file to write
 #   FALLBACK_FILE - if no files are found in "defs" using the name match, this file will be used instead.
 #   MATCH_SUFFIX - the suffix to match in the "defs" directory (optional)
@@ -74,6 +73,9 @@ endfunction(generate_c_headerfile)
 function(generate_config_includefile)
 
     cmake_parse_arguments(GENCONFIG_ARG "" "OUTPUT_DIRECTORY;FILE_NAME;FALLBACK_FILE;MATCH_SUFFIX" "PREFIXES" ${ARGN} )
+    if (NOT GENCONFIG_ARG_OUTPUT_DIRECTORY)
+        set(GENCONFIG_ARG_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/inc")
+    endif (NOT GENCONFIG_ARG_OUTPUT_DIRECTORY)
     
     set(WRAPPER_FILE_CONTENT)
     set(ITEM_FOUND FALSE)
@@ -103,11 +105,15 @@ function(generate_config_includefile)
     # If _no_ files were found in the above loop,
     # then check for and use the fallback file. 
     # (if specified by the caller it should always exist)
+    # Also produce a message on the console showing whether mission config or fallback was used
     if (NOT ITEM_FOUND AND GENCONFIG_ARG_FALLBACK_FILE)
         file(TO_NATIVE_PATH "${GENCONFIG_ARG_FALLBACK_FILE}" SRC_NATIVE_PATH)
         list(APPEND WRAPPER_FILE_CONTENT 
             "\n\n/* No configuration for ${GENCONFIG_ARG_FILE_NAME}, using fallback */\n"
             "#include \"${GENCONFIG_ARG_FALLBACK_FILE}\"\n")
+        message(STATUS "Using ${GENCONFIG_ARG_FALLBACK_FILE} for ${GENCONFIG_ARG_FILE_NAME}")
+    else()
+        message(STATUS "Generated ${GENCONFIG_ARG_FILE_NAME} from ${MISSION_DEFS} configuration")
     endif()
     
     # Generate a header file

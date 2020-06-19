@@ -102,17 +102,11 @@ endif (TGT${TGTID}_APPLIST)
 # This depends on whether any special features are included or not
 set(CFE_LINK_WHOLE_LIBS
     ${MISSION_CORE_MODULES}
-    cfe-core
-    psp-${CFE_SYSTEM_PSPNAME} 
-    osal
 )
 set(CFE_LINK_NORMAL_LIBS 
     ${TGT${TGTID}_PSP_MODULELIST}
+    ${TGT${TGTID}_STATIC_APPLIST}
 )
-
-foreach(STATICAPP ${TGT${TGTID}_STATIC_APPLIST})
-    list(APPEND CFE_LINK_NORMAL_LIBS ${STATICAPP})    
-endforeach(STATICAPP ${TGT${TGTID}_STATIC_APPLIST})
 
 # Handle the list of "embedded files" that should be linked into CFE.
 # These are arbitrary files in the mission config that are converted

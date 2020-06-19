@@ -75,31 +75,6 @@ endfunction(initialize_globals)
 
 ##################################################################
 #
-# FUNCTION: add_static_dependencies
-#
-# Adds an entry to the depedency list during app search
-# (Note apps can depend on other apps/libs)
-#
-function(add_static_dependencies TGT_DEPS)
-
-  set(FULLDEPS ${MISSION_DEPS} ${FIND_DEP_LIST})
-  set(NEWDEPS)    
-  foreach(DEP ${TGT_DEPS} ${ARGN})
-    list(FIND FULLDEPS ${DEP} DEPIDX)
-    if (DEPIDX LESS 0)
-      list(APPEND NEWDEPS ${DEP})
-      list(APPEND FULLDEPS ${DEP})
-    endif()  
-  endforeach()
-  
-  set(FIND_DEP_LIST ${FIND_DEP_LIST} ${NEWDEPS} PARENT_SCOPE)
-  
-endfunction(add_static_dependencies)
-
-
-
-##################################################################
-#
 # FUNCTION: prepare
 #
 # Called by the top-level CMakeLists.txt to set up prerequisites
@@ -126,15 +101,19 @@ function(prepare)
   )
   string(REPLACE ":" ";" CFS_APP_PATH "${CFS_APP_PATH}")
   set(MISSION_MODULE_SEARCH_PATH ${CFS_APP_PATH} ${MISSION_MODULE_SEARCH_PATH})
-  
-  set(MISSION_DEPS "cfe-core" "osal" ${MISSION_CORE_MODULES})
+
+  # The "MISSION_DEPS" list is the complete set of all dependencies used in the build.  
+  # This reflects all modules for all CPUs.  It is set as a usage convenience
+  # for iterating through the full set of dependencies regardless of which level 
+  # or context each dependency relates to (CFE, PSP, apps, etc).
+  set(MISSION_DEPS ${MISSION_APPS} ${MISSION_CORE_MODULES} ${MISSION_PSPMODULES})
   set(APP_MISSING_COUNT 0)
   
   message(STATUS "Search path for modules: ${MISSION_MODULE_SEARCH_PATH}")
   
   # Now search for the rest of CFS applications/libraries/modules - these may exist in
   # any directory within the search path.  
-  foreach(APP ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
+  foreach(APP ${MISSION_DEPS})
     set (APPFOUND FALSE)
     foreach(APPSRC ${MISSION_MODULE_SEARCH_PATH} ${${APP}_SEARCH_PATH})
       if (NOT IS_ABSOLUTE "${APPSRC}")
@@ -147,7 +126,6 @@ function(prepare)
     endforeach()
     if (APPFOUND)
       get_filename_component(${APP}_MISSION_DIR "${APPFOUND}" ABSOLUTE)
-      include("${APPFOUND}/mission_build.cmake" OPTIONAL)
       message(STATUS "Module '${APP}' found at ${${APP}_MISSION_DIR}")
     else()
       message("** Module ${APP} NOT found **")
@@ -162,7 +140,7 @@ function(prepare)
   # Export the full set of dependencies to the parent build
   # including the individual dependency paths to each component
   set(MISSION_DEPS ${MISSION_DEPS} PARENT_SCOPE)
-  foreach(DEP ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
+  foreach(DEP ${MISSION_DEPS})
      set(${DEP}_MISSION_DIR ${${DEP}_MISSION_DIR} PARENT_SCOPE)
   endforeach(DEP ${MISSION_DEPS})
   
@@ -180,7 +158,7 @@ function(prepare)
     list(APPEND MISSION_DOXYFILE_USER_CONTENT "@INCLUDE = ${MISSION_SOURCE_DIR}/doc/Doxyfile\n")
   endif (EXISTS "${MISSION_SOURCE_DIR}/doc/Doxyfile")
   
-  foreach(APP ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
+  foreach(APP ${MISSION_DEPS})
     # OSAL is handled specially, as only part of it is used
     if (NOT APP STREQUAL "osal" AND NOT APP STREQUAL "cfe-core")
       if (EXISTS "${${APP}_MISSION_DIR}/docs/${APP}.doxyfile.in")
@@ -246,39 +224,14 @@ function(prepare)
   add_custom_target(osalguide 
     doxygen osalguide.doxyfile 
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc") 
-
-  # Generate the cfe_mission_cfg.h wrapper file  
-  generate_config_includefile(
-    OUTPUT_DIRECTORY    "${CMAKE_BINARY_DIR}/inc" 
-    FILE_NAME           "cfe_mission_cfg.h" 
-    MATCH_SUFFIX        "mission_cfg.h" 
-    PREFIXES            ${MISSIONCONFIG} # May be a list of items
-  )
     
-  generate_config_includefile(
-    OUTPUT_DIRECTORY    "${CMAKE_BINARY_DIR}/inc" 
-    FILE_NAME           "cfe_perfids.h" 
-    MATCH_SUFFIX        "perfids.h"
-    PREFIXES            ${MISSIONCONFIG} # May be a list of items
-  )
-  
-  # Create wrappers for any files provided in an "fsw/mission_inc" subdirectory of each app
-  # These may be optionally overridden by providing a file of the same name in the defs directory
-  foreach(APP_NAME ${MISSION_APPS})
-    set(APP_MISSION_CONFIG_DIR "${${APP_NAME}_MISSION_DIR}/fsw/mission_inc")
-    if (IS_DIRECTORY "${APP_MISSION_CONFIG_DIR}")
-        file(GLOB APP_MISSION_CONFIG_FILES RELATIVE "${APP_MISSION_CONFIG_DIR}" "${APP_MISSION_CONFIG_DIR}/*.h")
-        foreach(CONFIG_FILE ${APP_MISSION_CONFIG_FILES})
-            generate_config_includefile(
-                OUTPUT_DIRECTORY    "${CMAKE_BINARY_DIR}/inc" 
-                FILE_NAME           "${CONFIG_FILE}" 
-                FALLBACK_FILE       "${APP_MISSION_CONFIG_DIR}/${CONFIG_FILE}" 
-                MATCH_SUFFIX        "${CONFIG_FILE}"
-                PREFIXES            ${MISSIONCONFIG}
-            )
-        endforeach()
-    endif()
-  endforeach()
+  # Pull in any application-specific mission-scope configuration
+  # This may include user configuration files such as cfe_mission_cfg.h,
+  # msgid definitions, or any other configuration/preparation that needs to 
+  # happen at mission/global scope.
+  foreach(DEP_NAME ${MISSION_DEPS})
+    include("${${DEP_NAME}_MISSION_DIR}/mission_build.cmake" OPTIONAL)
+  endforeach(DEP_NAME ${MISSION_DEPS})
   
   # Certain runtime variables need to be "exported" to the subordinate build, such as
   # the specific arch settings and the location of all the apps.  This is done by creating
@@ -297,9 +250,13 @@ function(prepare)
     "MISSION_DEPS"
     "ENABLE_UNIT_TESTS"
   )
-  foreach(APP ${MISSION_APPS} ${MISSION_PSPMODULES} ${MISSION_DEPS})
+  foreach(APP ${MISSION_DEPS})
     list(APPEND VARLIST "${APP}_MISSION_DIR")
   endforeach(APP ${MISSION_APPS})
+
+  foreach(SYSVAR ${TGTSYS_LIST})
+    list(APPEND VARLIST "BUILD_CONFIG_${SYSVAR}")
+  endforeach(SYSVAR ${TGTSYS_LIST})
 
   set(MISSION_VARCACHE)
   foreach(VARL ${VARLIST})
@@ -376,38 +333,6 @@ function(process_arch TARGETSYSTEM)
     # Do not supply any toolchain file option to the subprocess
     set(SELECTED_TOOLCHAIN_FILE)
   endif ()
-  
-  # Generate wrapper file for the requisite cfe_platform_cfg.h file
-  generate_config_includefile(
-    OUTPUT_DIRECTORY    "${ARCH_BINARY_DIR}/inc" 
-    FILE_NAME           "cfe_msgids.h"
-    MATCH_SUFFIX        "msgids.h"
-    PREFIXES            ${BUILD_CONFIG} ${ARCH_TOOLCHAIN_NAME}
-  )
-  generate_config_includefile(
-    OUTPUT_DIRECTORY    "${ARCH_BINARY_DIR}/inc"
-    FILE_NAME           "cfe_platform_cfg.h" 
-    MATCH_SUFFIX        "platform_cfg.h" 
-    PREFIXES            ${BUILD_CONFIG} ${ARCH_TOOLCHAIN_NAME}
-  )
-  
-  # Create wrappers for any files provided in an "fsw/platform_inc" subdirectory of each app
-  # These may be optionally overridden by providing a file of the same name in the defs directory
-  foreach(APP_NAME ${MISSION_APPS})
-    set(APP_PLATFORM_CONFIG_DIR "${${APP_NAME}_MISSION_DIR}/fsw/platform_inc")
-    if (IS_DIRECTORY "${APP_PLATFORM_CONFIG_DIR}")
-        file(GLOB APP_PLATFORM_CONFIG_FILES RELATIVE "${APP_PLATFORM_CONFIG_DIR}" "${APP_PLATFORM_CONFIG_DIR}/*.h")
-        foreach(CONFIG_FILE ${APP_PLATFORM_CONFIG_FILES})            
-            generate_config_includefile(
-                OUTPUT_DIRECTORY    "${ARCH_BINARY_DIR}/inc" 
-                FILE_NAME           "${CONFIG_FILE}" 
-                FALLBACK_FILE       "${APP_PLATFORM_CONFIG_DIR}/${CONFIG_FILE}" 
-                MATCH_SUFFIX        "${CONFIG_FILE}"
-                PREFIXES            ${BUILD_CONFIG} ${ARCH_TOOLCHAIN_NAME}
-            )
-        endforeach()
-    endif()
-  endforeach()
   
   # Execute CMake subprocess to create a binary build tree for the specific CPU architecture
   execute_process(
