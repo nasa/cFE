@@ -208,16 +208,6 @@ typedef  struct {
 extern CFE_SB_Qos_t CFE_SB_Default_Qos;/**< \brief  Defines a default priority and reliabilty for off-board routing */
 
 
-/** \brief Message Sender Identification Type Definition
-**
-** Parameter used in #CFE_SB_GetLastSenderId API which allows the receiver of a message
-** to validate the sender of the message.
-**/
-typedef struct {
-    uint32  ProcessorId;/**< \brief Processor Id from which the message was sent */
-    char    AppName[OS_MAX_API_NAME];/**< \brief Application that sent the message */
-} CFE_SB_SenderId_t;
-
 /****************** Function Prototypes **********************/
 
 /** @defgroup CFEAPISBPipe cFE Pipe Management APIs
@@ -1186,23 +1176,14 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr);
 **          random. Therefore, it is recommended that the return code be tested
 **          for CFE_SUCCESS before reading the sender information.
 **
-** \param[in]  Ptr       A pointer to a local variable of type #CFE_SB_SenderId_t.
-**                       Typically a caller declares a ptr of type CFE_SB_SenderId_t
-**                       (i.e. CFE_SB_SenderId_t *Ptr) then gives the address of that
-**                       pointer (&Ptr) for this parameter. After a successful call
-**                       to this API, *Ptr will point to the first byte of the
-**                       CFE_SB_SenderId_t structure containing the sender information
-**                       for the last message received on the given pipe. This should
-**                       be used as a read-only pointer (in systems with an MMU, writes
-**                       to this pointer may cause a memory protection fault).  The *Ptr
-**                       is valid only until the next call to CFE_SB_RcvMsg for the
-**                       same pipe.
+** \param[out]  SenderAppIdPtr       A pointer to a buffer to receive the AppId of
+**                       the last sender.
 **
 ** \param[in]  PipeId    The pipe ID of the pipe the message was taken from.
 **
-** \return The last sender's application ID
+** \return CFE_SUCCESS
 **/
-uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId);
+int32  CFE_SB_GetLastSenderId(uint32 *AppIdPtr, CFE_SB_PipeId_t  PipeId);
 
 /******************************************************************************/
 /**

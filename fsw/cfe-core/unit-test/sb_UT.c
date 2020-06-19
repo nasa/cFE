@@ -3432,12 +3432,12 @@ void Test_RcvMsg_GetLastSenderInvalidPipe(void)
 {
     CFE_SB_PipeId_t   PipeId;
     CFE_SB_PipeId_t   InvalidPipeId = 250;
-    CFE_SB_SenderId_t *GLSPtr;
+    uint32            AppId;
     uint32            PipeDepth = 10;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvMsgTestPipe"));
 
-    ASSERT_EQ(CFE_SB_GetLastSenderId(&GLSPtr, InvalidPipeId), CFE_SB_BAD_ARGUMENT);
+    ASSERT_EQ(CFE_SB_GetLastSenderId(&AppId, InvalidPipeId), CFE_SB_BAD_ARGUMENT);
 
     EVTCNT(2);
 
@@ -3453,7 +3453,7 @@ void Test_RcvMsg_GetLastSenderInvalidPipe(void)
 void Test_RcvMsg_GetLastSenderInvalidCaller(void)
 {
     CFE_SB_PipeId_t   PipeId;
-    CFE_SB_SenderId_t *GLSPtr;
+    uint32            AppId;
     uint32            PipeDepth = 10;
     uint32            OrigPipeOwner;
 
@@ -3462,7 +3462,7 @@ void Test_RcvMsg_GetLastSenderInvalidCaller(void)
     /* Change pipe owner ID to execute 'invalid caller' code */
     OrigPipeOwner = CFE_SB.PipeTbl[PipeId].AppId;
     CFE_SB.PipeTbl[PipeId].AppId = OrigPipeOwner + 1;
-    ASSERT_EQ(CFE_SB_GetLastSenderId(&GLSPtr, PipeId), CFE_SB_BAD_ARGUMENT);
+    ASSERT_EQ(CFE_SB_GetLastSenderId(&AppId, PipeId), CFE_SB_BAD_ARGUMENT);
 
     EVTCNT(2);
 
@@ -3478,11 +3478,11 @@ void Test_RcvMsg_GetLastSenderInvalidCaller(void)
 void Test_RcvMsg_GetLastSenderNoValidSender(void)
 {
     CFE_SB_PipeId_t   PipeId;
-    CFE_SB_SenderId_t *GLSPtr;
+    uint32            AppId;
     uint32            PipeDepth = 10;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvMsgTestPipe"));
-    ASSERT_EQ(CFE_SB_GetLastSenderId(&GLSPtr, PipeId), CFE_SB_NO_MSG_RECV);
+    ASSERT_EQ(CFE_SB_GetLastSenderId(&AppId, PipeId), CFE_SB_NO_MSG_RECV);
 
     EVTCNT(1);
   
@@ -3497,7 +3497,7 @@ void Test_RcvMsg_GetLastSenderNoValidSender(void)
 void Test_RcvMsg_GetLastSenderSuccess(void)
 {
     CFE_SB_PipeId_t    PipeId;
-    CFE_SB_SenderId_t  *GLSPtr;
+    uint32             AppId;
     SB_UT_Test_Tlm_t   TlmPkt;
     CFE_SB_MsgPtr_t    TlmPktPtr = (CFE_SB_MsgPtr_t) &TlmPkt;
     CFE_SB_MsgPtr_t    PtrToMsg;
@@ -3508,7 +3508,7 @@ void Test_RcvMsg_GetLastSenderSuccess(void)
     SETUP(CFE_SB_Subscribe(SB_UT_TLM_MID, PipeId));
     SETUP(CFE_SB_SendMsg(TlmPktPtr));
     SETUP(CFE_SB_RcvMsg(&PtrToMsg, PipeId,CFE_SB_PEND_FOREVER));
-    ASSERT(CFE_SB_GetLastSenderId(&GLSPtr, PipeId));
+    ASSERT(CFE_SB_GetLastSenderId(&AppId, PipeId));
 
     EVTCNT(3);
 

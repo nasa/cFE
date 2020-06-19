@@ -1320,13 +1320,6 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
                 RtgTblPtr->SeqCnt);
     }/* end if */
 
-    /* store the sender information */
-    if(CFE_SB.SenderReporting != 0)
-    {
-       BufDscPtr->Sender.ProcessorId = CFE_PSP_GetProcessorId();
-       strncpy(&BufDscPtr->Sender.AppName[0],CFE_SB_GetAppTskName(TskId,FullName),OS_MAX_API_NAME);
-    }
-
     /* At this point there must be at least one destination for pkt */
 
     /* Send the packet to all destinations  */
@@ -1623,19 +1616,20 @@ int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
 /*
  * Function: CFE_SB_GetLastSenderId - See API and header file for details
  */
-uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId)
+int32 CFE_SB_GetLastSenderId(uint32 *SenderAppIdPtr, CFE_SB_PipeId_t PipeId)
 {
 
-    CFE_SB_BufferD_t *Ptr2BufDescriptor;
     uint32            TskId = 0;
     uint32            AppId = 0xFFFFFFFF;
     char              FullName[(OS_MAX_API_NAME * 2)];
 
     TskId = OS_TaskGetId();
 
+    CFE_ES_GetAppID(&AppId);
+
     /* validate ptr  - note: must validate ptr before pipe id validation  */
     /* because an invalid pipe id sets the callers pointer to NULL */
-    if(Ptr == NULL){
+    if(SenderAppIdPtr == NULL){
       CFE_EVS_SendEventWithAppID(CFE_SB_LSTSNDER_ERR1_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
           "SB GetLastSender Err:Rcvd Null Ptr,Pipe=%d,App=%s",
           (int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
@@ -1644,20 +1638,18 @@ uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId)
 
     /* validate pipe id */
     if(CFE_SB_ValidatePipeId(PipeId)!=CFE_SUCCESS){
-      *Ptr = NULL;
+      *SenderAppIdPtr = 0;
       CFE_EVS_SendEventWithAppID(CFE_SB_LSTSNDER_ERR2_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
           "SB GetLastSender Err:Rcvd Invalid Pipe=%d,App=%s",
           (int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
       return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
-    CFE_ES_GetAppID(&AppId);
-
     CFE_SB_LockSharedData(__func__,__LINE__);
 
     /* verify requestor is owner of pipe */
     if(CFE_SB.PipeTbl[PipeId].AppId != AppId){
-      *Ptr = NULL;
+      *SenderAppIdPtr = 0;
       CFE_SB_UnlockSharedData(__func__,__LINE__);
       CFE_EVS_SendEventWithAppID(CFE_SB_GLS_INV_CALLER_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
           "SB GetLastSender Err:Caller(%s) is not the owner of pipe %d",
@@ -1665,24 +1657,11 @@ uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId)
       return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
-    /* Get ptr to buffer descriptor for the last msg received on the given pipe */
-    Ptr2BufDescriptor = CFE_SB.PipeTbl[PipeId].CurrentBuff;
+    *SenderAppIdPtr = CFE_SB.PipeTbl[PipeId].LastSender;
 
-    if ( Ptr2BufDescriptor == NULL  )
-    {
-        *Ptr = NULL;
-        CFE_SB.PipeTbl[PipeId].LastSender = CFE_SB_INVALID_MSG_ID;
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
-        return CFE_SB_NO_MSG_RECV; 
-    }
-    else
-    {
-        /* Set the receivers pointer to the adr of 'Sender' struct in buf descriptor */
-        *Ptr = (CFE_SB_SenderId_t *) &Ptr2BufDescriptor -> Sender;
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
-        return CFE_SUCCESS;
-    }
+    CFE_SB_UnlockSharedData(__func__,__LINE__);
 
+    return CFE_SUCCESS;
 }/* end CFE_SB_GetLastSenderId */
 
 
