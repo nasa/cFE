@@ -10,7 +10,11 @@
 # The "MISSION_CORE_MODULES" will be built and statically linked as part
 # of the CFE core executable on every target.  These can be used to amend
 # or override parts of the CFE core on a mission-specific basis.
-set(MISSION_CORE_MODULES)
+set(MISSION_CORE_MODULES 
+    "cfe-core" 
+    "osal"
+    "psp"
+)
 
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built
 # for every defined and target.  These are built as dynamic modules
@@ -40,3 +44,4 @@ set(MISSION_MODULE_SEARCH_PATH
 # of the standard search path.
 set(cfe-core_SEARCH_PATH "cfe/fsw")
 set(osal_SEARCH_PATH ".")
+set(psp_SEARCH_PATH ".")

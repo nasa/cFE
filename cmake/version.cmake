@@ -71,7 +71,7 @@ file(WRITE ${BIN}/cfecfs_version_info.h.in
     "#define MISSION_NAME        \"\@MISSION_NAME\@\"\n") 
     
 # Get version for all mission apps/dependencies (they may be different)
-foreach(DEP "MISSION" ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
+foreach(DEP "MISSION" ${MISSION_DEPS})
   get_version(${DEP})
   string(TOUPPER ${${DEP}_NAME} MACRONAME)
   string(REGEX REPLACE "[^A-Z0-9_]+" "_" MACRONAME "${MACRONAME}")

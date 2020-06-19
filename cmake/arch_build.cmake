@@ -294,6 +294,19 @@ function(prepare)
   
   # Truncate the global TGTSYS_LIST to be only the target architecture
   set(TGTSYS_LIST ${TARGETSYSTEM} PARENT_SCOPE)
+
+  # set the BUILD_CONFIG variable from the cached data
+  set(BUILD_CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}})
+  list(REMOVE_AT BUILD_CONFIG 0)
+  set(BUILD_CONFIG ${BUILD_CONFIG} PARENT_SCOPE)
+  
+  # Pull in any application-specific platform-scope configuration
+  # This may include user configuration files such as cfe_platform_cfg.h,
+  # or any other configuration/preparation that needs to happen at 
+  # platform/arch scope.
+  foreach(DEP_NAME ${MISSION_DEPS})
+    include("${${DEP_NAME}_MISSION_DIR}/arch_build.cmake" OPTIONAL)
+  endforeach(DEP_NAME ${MISSION_DEPS})
  
 endfunction(prepare)
 
@@ -344,7 +357,7 @@ function(process_arch SYSVAR)
   include_directories(${CMAKE_BINARY_DIR}/inc)
 
   # Configure OSAL target first, as it also determines important compiler flags
-  add_subdirectory(${MISSION_SOURCE_DIR}/osal osal)
+  add_subdirectory("${osal_MISSION_DIR}" osal)
   
   # The OSAL displays its selected OS, so it is logical to display the selected PSP
   # This can help with debugging if things go wrong.
@@ -393,45 +406,40 @@ function(process_arch SYSVAR)
     set(INSTALL_SUBDIR cf)
   endif (NOT INSTALL_SUBDIR)
       
-  # Add any dependencies which MIGHT be required for subsequent apps/libs/tools
-  # The cfe-core and osal are handled explicitly since these have special extra config
-  foreach(DEP ${MISSION_DEPS})
-    if (NOT DEP STREQUAL "cfe-core" AND
-        NOT DEP STREQUAL "osal")
-      add_subdirectory(${${DEP}_MISSION_DIR} ${DEP})
-    endif()
-  endforeach(DEP ${MISSION_DEPS})
+  # Add all core modules
+  # The osal is handled explicitly (above) since this has special extra config
+  foreach(DEP ${MISSION_CORE_MODULES})
+    if(NOT DEP STREQUAL "osal")
+      message(STATUS "Building Core Module: ${DEP}")
+      add_subdirectory("${${DEP}_MISSION_DIR}" ${DEP})
+    endif(NOT DEP STREQUAL "osal")
+  endforeach(DEP ${MISSION_CORE_MODULES})
+  
+  # For the PSP it may define the FSW as either 
+  # "psp-${CFE_SYSTEM_PSPNAME}" or just simply "psp"
+  if (NOT TARGET psp)
+    add_library(psp ALIAS psp-${CFE_SYSTEM_PSPNAME})
+  endif (NOT TARGET psp)
     
-  # Clear the app lists
-  set(ARCH_APP_SRCS)
-  foreach(APP ${TGTSYS_${SYSVAR}_APPS})
-    set(TGTLIST_${APP})
-  endforeach()
-  foreach(DRV ${TGTSYS_${SYSVAR}_DRIVERS})
-    set(TGTLIST_DRV_${DRV})
-  endforeach()
-
   # Process each PSP module that is referenced on this system architecture (any cpu)
   foreach(PSPMOD ${TGTSYS_${SYSVAR}_PSPMODULES}) 
     message(STATUS "Building PSP Module: ${PSPMOD}")
-    add_subdirectory(${${PSPMOD}_MISSION_DIR} psp/${PSPMOD})
+    add_subdirectory("${${PSPMOD}_MISSION_DIR}" psp/${PSPMOD})
   endforeach()
   
   # Process each app that is used on this system architecture
   set(APP_INSTALL_LIST)
   foreach(APP ${TGTSYS_${SYSVAR}_STATICAPPS})
     message(STATUS "Building Static App: ${APP}")
-    add_subdirectory(${${APP}_MISSION_DIR} apps/${APP})
+    add_subdirectory("${${APP}_MISSION_DIR}" apps/${APP})
   endforeach()
 
-  # Configure the selected PSP
-  # The naming convention allows more than one PSP per arch,
-  # however in practice this gets too complicated so it is
-  # currently a 1:1 relationship.  This may change at some point.
-  add_subdirectory(${MISSION_SOURCE_DIR}/psp psp/${CFE_SYSTEM_PSPNAME})
-        
   # Process each target that shares this system architecture
   # First Pass: Assemble the list of apps that should be compiled 
+  foreach(APP ${TGTSYS_${SYSVAR}_APPS})
+    set(TGTLIST_${APP})
+  endforeach()
+
   foreach(TGTID ${TGTSYS_${SYSVAR}})
       
     set(TGTNAME ${TGT${TGTID}_NAME})
@@ -451,19 +459,11 @@ function(process_arch SYSVAR)
   foreach(APP ${TGTSYS_${SYSVAR}_APPS})
     set(APP_INSTALL_LIST ${TGTLIST_${APP}})
     message(STATUS "Building App: ${APP} install=${APP_INSTALL_LIST}")
-    add_subdirectory(${${APP}_MISSION_DIR} apps/${APP})
+    add_subdirectory("${${APP}_MISSION_DIR}" apps/${APP})
   endforeach()
   
-  # Actual core library is a subdirectory
-  add_subdirectory(${MISSION_SOURCE_DIR}/cfe/fsw/cfe-core cfe-core)
-      
-  # If unit test is enabled, build a generic ut stub library for CFE
-  if (ENABLE_UNIT_TESTS)
-    add_subdirectory(${cfe-core_MISSION_DIR}/ut-stubs ut_cfe_core_stubs)
-  endif (ENABLE_UNIT_TESTS)
-
   # Process each target that shares this system architecture
-  # Second Pass: Build cfe-core and link final target executable 
+  # Second Pass: Build and link final target executable 
   foreach(TGTID ${TGTSYS_${SYSVAR}})
   
     set(TGTNAME ${TGT${TGTID}_NAME})
