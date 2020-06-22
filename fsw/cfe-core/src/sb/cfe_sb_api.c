@@ -1340,6 +1340,8 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 
         PipeDscPtr = &CFE_SB.PipeTbl[DestPtr->PipeId];
 
+        PipeDscPtr->LastSender = CFE_SB.AppId;
+
         if(PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE)
         {
             uint32 AppId = 0xFFFFFFFF;
