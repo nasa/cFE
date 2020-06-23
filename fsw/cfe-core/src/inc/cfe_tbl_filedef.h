@@ -68,6 +68,12 @@ typedef struct
 } CFE_TBL_FileDef_t;
 
 /** The CFE_TBL_FILEDEF macro can be used to simplify the declaration of a table image when using the elf2cfetbl utility.
+**
+**  Note that the macro adds a NULL at the end to ensure that it is null-terminated. (C allows
+**  a struct to be statically initialized with a string exactly the length of the array, which
+**  loses the null terminator.) This means the actual length limit of the fields are the above
+**  LEN - 1.
+**
 **  An example of the source code and how this macro would be used is as follows: \code
  
     #include "cfe_tbl_filedef.h"
@@ -87,7 +93,7 @@ typedef struct
 \endcode
 */
   
-#define CFE_TBL_FILEDEF(ObjName, TblName, Desc, Filename) static OS_USED CFE_TBL_FileDef_t CFE_TBL_FileDef={#ObjName, #TblName, #Desc, #Filename, sizeof(ObjName)};
+#define CFE_TBL_FILEDEF(ObjName, TblName, Desc, Filename) static OS_USED CFE_TBL_FileDef_t CFE_TBL_FileDef={#ObjName "\0", #TblName "\0", #Desc "\0", #Filename "\0", sizeof(ObjName)};
 
 /*************************************************************************/
 
