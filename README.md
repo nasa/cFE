@@ -6,11 +6,20 @@ This repository contains NASA's Core Flight Executive (cFE), which is a framewor
 
 This is a collection of services and associated framework to be located in the `cfe` subdirectory of a cFS Mission Tree. The Core Flight System is bundled at <https://github.com/nasa/cFS>, which includes build and execution instructions.
 
+The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob/gh-pages/cFE_Users_Guide.pdf>.
+
 ## Version History
 
+### Development Build: 6.7.21
+
+- If a string is exactly the size of the field when using the `CFE_TBL_FILEDEF()` macro it will produce a compiler error
+- Added cFE User's Guide Reference to README.md
+- Removes old license
+- See <https://github.com/nasa/cFE/pull/743>
+ 
 ### Development Build: 6.7.20
 
--  SB Unit use of the UT assert framework is closer to original design intent
+- SB Unit use of the UT assert framework is closer to original design intent
 - See <https://github.com/nasa/cFE/pull/743>
 
 ### Development Build: 6.7.19
