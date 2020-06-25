@@ -172,7 +172,7 @@ typedef struct {
      uint16            UseCount;
      uint32            Size;
      void              *Buffer;
-     CFE_SB_SenderId_t Sender;
+     uint32            SenderId;
 } CFE_SB_BufferD_t;
 
 

@@ -142,6 +142,7 @@
       <LI> #CFE_SB_SendMsg - \copybrief CFE_SB_SendMsg
       <LI> #CFE_SB_PassMsg - \copybrief CFE_SB_PassMsg
       <LI> #CFE_SB_RcvMsg - \copybrief CFE_SB_RcvMsg
+      <LI> #CFE_SB_RcvMsgSenderId - \copybrief CFE_SB_RcvMsgSenderId
     </UL>
     <LI> \ref CFEAPISBZeroCopy
     <UL>
@@ -169,7 +170,6 @@
       <LI> #CFE_SB_GetTotalMsgLength - \copybrief CFE_SB_GetTotalMsgLength
       <LI> #CFE_SB_GetMsgTime - \copybrief CFE_SB_GetMsgTime
       <LI> #CFE_SB_GetCmdCode - \copybrief CFE_SB_GetCmdCode
-      <LI> #CFE_SB_GetLastSenderId - \copybrief CFE_SB_GetLastSenderId
       <LI> #CFE_SB_MessageStringGet - \copybrief CFE_SB_MessageStringGet
     </UL>
     <LI> \ref CFEAPISBChecksum

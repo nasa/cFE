@@ -208,16 +208,6 @@ typedef  struct {
 extern CFE_SB_Qos_t CFE_SB_Default_Qos;/**< \brief  Defines a default priority and reliabilty for off-board routing */
 
 
-/** \brief Message Sender Identification Type Definition
-**
-** Parameter used in #CFE_SB_GetLastSenderId API which allows the receiver of a message
-** to validate the sender of the message.
-**/
-typedef struct {
-    uint32  ProcessorId;/**< \brief Processor Id from which the message was sent */
-    char    AppName[OS_MAX_API_NAME];/**< \brief Application that sent the message */
-} CFE_SB_SenderId_t;
-
 /****************** Function Prototypes **********************/
 
 /** @defgroup CFEAPISBPipe cFE Pipe Management APIs
@@ -574,7 +564,7 @@ int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 ** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
 ** \retval #CFE_SB_BUF_ALOC_ERR \copybrief CFE_SB_BUF_ALOC_ERR
 **
-** \sa #CFE_SB_RcvMsg, #CFE_SB_ZeroCopySend, #CFE_SB_PassMsg
+** \sa #CFE_SB_RcvMsg, #CFE_SB_RcvMsgSenderId, #CFE_SB_ZeroCopySend, #CFE_SB_PassMsg
 **/
 int32  CFE_SB_SendMsg(CFE_SB_Msg_t   *MsgPtr);
 
@@ -607,7 +597,7 @@ int32  CFE_SB_SendMsg(CFE_SB_Msg_t   *MsgPtr);
 ** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
 ** \retval #CFE_SB_BUF_ALOC_ERR \copybrief CFE_SB_BUF_ALOC_ERR
 **
-** \sa #CFE_SB_RcvMsg, #CFE_SB_ZeroCopySend, #CFE_SB_SendMsg
+** \sa #CFE_SB_RcvMsg, #CFE_SB_RcvMsgSenderId, #CFE_SB_ZeroCopySend, #CFE_SB_SendMsg
 **/
 int32  CFE_SB_PassMsg(CFE_SB_Msg_t   *MsgPtr);
 
@@ -651,9 +641,60 @@ int32  CFE_SB_PassMsg(CFE_SB_Msg_t   *MsgPtr);
 ** \retval #CFE_SB_PIPE_RD_ERR  \copybrief CFE_SB_PIPE_RD_ERR
 ** \retval #CFE_SB_NO_MESSAGE   \copybrief CFE_SB_NO_MESSAGE
 **
-** \sa #CFE_SB_SendMsg, #CFE_SB_ZeroCopySend
+** \sa #CFE_SB_SendMsg, #CFE_SB_RcvMsgSenderId, #CFE_SB_ZeroCopySend
 **/
 int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t  *BufPtr,
+                     CFE_SB_PipeId_t  PipeId,
+                     int32            TimeOut);
+
+/*****************************************************************************/
+/**
+** \brief Receive a message from a software bus pipe and return the sending AppId
+**
+** \par Description
+**          This routine retrieves the next message from the specified pipe.
+**          If the pipe is empty, this routine will block until either a new
+**          message comes in or the timeout value is reached.
+**
+** \par Assumptions, External Events, and Notes:
+**          Note - If an error occurs in this API, the *BufPtr value may be NULL or
+**          random. Therefore, it is recommended that the return code be tested
+**          for CFE_SUCCESS before processing the message.
+**
+** \param[in, out]  BufPtr       A pointer to a local variable of type #CFE_SB_MsgPtr_t.
+**                          Typically a caller declares a ptr of type CFE_SB_Msg_t
+**                          (i.e. CFE_SB_Msg_t *Ptr) then gives the address of that
+**                          pointer (&Ptr) as this parmeter. After a successful
+**                          receipt of a message, *BufPtr will point to the first
+**                          byte of the software bus message header. This should be
+**                          used as a read-only pointer (in systems with an MMU,
+**                          writes to this pointer may cause a memory protection fault).
+**                          The *BufPtr is valid only until the next call to
+**                          CFE_SB_RcvMsg for the same pipe. \n *BufPtr is a pointer to
+**                          the message obtained from the pipe. Valid
+**                          only until the next call to CFE_SB_RcvMsg for the same pipe.
+**
+** \param[out] SenderId     The AppId of the application that sent the message received
+**                          in this call.
+**
+** \param[in]  PipeId       The pipe ID of the pipe containing the message to be obtained.
+**
+** \param[in]  TimeOut      The number of milliseconds to wait for a new message if the
+**                          pipe is empty at the time of the call.  This can also be set
+**                          to #CFE_SB_POLL for a non-blocking receive or
+**                          #CFE_SB_PEND_FOREVER to wait forever for a message to arrive.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
+** \retval #CFE_SB_BAD_ARGUMENT \copybrief CFE_SB_BAD_ARGUMENT
+** \retval #CFE_SB_TIME_OUT     \copybrief CFE_SB_TIME_OUT
+** \retval #CFE_SB_PIPE_RD_ERR  \copybrief CFE_SB_PIPE_RD_ERR
+** \retval #CFE_SB_NO_MESSAGE   \copybrief CFE_SB_NO_MESSAGE
+**
+** \sa #CFE_SB_SendMsg, #CFE_SB_RcvMsg, #CFE_SB_RcvMsgSenderId, #CFE_SB_ZeroCopySend
+**/
+int32  CFE_SB_RcvMsgSenderId(CFE_SB_MsgPtr_t  *BufPtr,
+                     uint32           *SenderId,
                      CFE_SB_PipeId_t  PipeId,
                      int32            TimeOut);
 /**@}*/
@@ -765,7 +806,7 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
 ** \retval #CFE_SB_BUF_ALOC_ERR   \copybrief CFE_SB_BUF_ALOC_ERR
 ** \retval #CFE_SB_BUFFER_INVALID \copybrief CFE_SB_BUFFER_INVALID
 **
-** \sa #CFE_SB_SendMsg, #CFE_SB_RcvMsg, #CFE_SB_ZeroCopyReleasePtr, #CFE_SB_ZeroCopyGetPtr
+** \sa #CFE_SB_SendMsg, #CFE_SB_RcvMsg, #CFE_SB_RcvMsgSenderId, #CFE_SB_ZeroCopyReleasePtr, #CFE_SB_ZeroCopyGetPtr
 **/
 int32 CFE_SB_ZeroCopySend(CFE_SB_Msg_t   *MsgPtr,
                           CFE_SB_ZeroCopyHandle_t          BufferHandle);
@@ -1172,37 +1213,6 @@ uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr);
 **     #CFE_SB_SetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum
 **/
 CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr);
-
-/*****************************************************************************/
-/**
-** \brief Retrieve the application Info of the sender for the last message.
-**
-** \par Description
-**          This routine can be used after a successful #CFE_SB_RcvMsg call
-**          to find out which application sent the message that was received.
-**
-** \par Assumptions, External Events, and Notes:
-**          Note - If an error occurs in this API, the *Ptr value may be NULL or
-**          random. Therefore, it is recommended that the return code be tested
-**          for CFE_SUCCESS before reading the sender information.
-**
-** \param[in]  Ptr       A pointer to a local variable of type #CFE_SB_SenderId_t.
-**                       Typically a caller declares a ptr of type CFE_SB_SenderId_t
-**                       (i.e. CFE_SB_SenderId_t *Ptr) then gives the address of that
-**                       pointer (&Ptr) for this parameter. After a successful call
-**                       to this API, *Ptr will point to the first byte of the
-**                       CFE_SB_SenderId_t structure containing the sender information
-**                       for the last message received on the given pipe. This should
-**                       be used as a read-only pointer (in systems with an MMU, writes
-**                       to this pointer may cause a memory protection fault).  The *Ptr
-**                       is valid only until the next call to CFE_SB_RcvMsg for the
-**                       same pipe.
-**
-** \param[in]  PipeId    The pipe ID of the pipe the message was taken from.
-**
-** \return The last sender's application ID
-**/
-uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId);
 
 /******************************************************************************/
 /**

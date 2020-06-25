@@ -1769,7 +1769,6 @@ for extracting that field from the header:
 | Total Message Length        | CFE_SB_GetTotalMsgLength                | Command & Telemetry |
 | User Data Message Length    | CFE_SB_GetUserDataLength                | Command & Telemetry |
 | Command Code                | CFE_SB_GetCmdCode                       | Command Only        |
-| Sender ID                   | CFE_SB_GetLastSenderId                  | Command & Telemetry |
 | Checksum                    | CFE_SB_GetChecksum                      | Command Only        |
 
 In addition to the function for reading the checksum field, there is
@@ -1777,15 +1776,6 @@ another API that automatically calculates the checksum for the packet
 and compares it to the checksum in the header. The API is called
 CFE_SB_ValidateChecksum() and it simply returns a success or failure
 indication.
-
-It should be noted that the function, CFE_SB_GetLastSendId, is ideal
-for verifying that critical commands are arriving from a legitimate
-source. This function allows the Developer(s) to define a strict ICD
-between two or more Applications to ensure that an erroneous Application
-does not accidentally issue a critical command. However, its use for
-routine command verification is discouraged since it would increase the
-cross-coupling between Applications and require multiple Applications to
-be modified if a command's source changes.
 
 If the Application's data structure definitions don't include the header
 information, then the CFE_SB_GetUserData API could be used to obtain
@@ -1879,6 +1869,25 @@ a CFE_SB_NO_MESSAGE status code.
 After a message is received, the SB Message Header accessor functions (as
 described in Section 6.5.3) should be used to identify the message so that
 the application can react to it appropriately.  
+
+An enhanced method `CFE_SB_RcvMsgSenderId` will also return the ID of the
+application that sent the message. For example:
+
+```
+uint32 SenderAppId;
+
+SB_Status = CFE_SB_RcvMsgSenderId(&SAMPLE_AppData.MsgPtr, &SenderAppId,
+                SAMPLE_AppData.CmdPipe, CFE_SB_PEND_FOREVER);
+```
+
+It should be noted that the variant is ideal
+for verifying that critical commands are arriving from a legitimate
+source. This function allows the Developer(s) to define a strict ICD
+between two or more Applications to ensure that an erroneous Application
+does not accidentally issue a critical command. However, its use for
+routine command verification is discouraged since it would increase the
+cross-coupling between Applications and require multiple Applications to
+be modified if a command's source changes.
 
 
 #### 6.8 Improving Message Transfer Performance for Large SB Messages
