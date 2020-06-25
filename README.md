@@ -10,9 +10,16 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.7.21
+
+- If a string is exactly the size of the field when using the `CFE_TBL_FILEDEF()` macro it will produce a compiler error
+- Added cFE User's Guide Reference to README.md
+- Removes old license
+- See <https://github.com/nasa/cFE/pull/743>
+ 
 ### Development Build: 6.7.20
 
--  SB Unit use of the UT assert framework is closer to original design intent
+- SB Unit use of the UT assert framework is closer to original design intent
 - See <https://github.com/nasa/cFE/pull/743>
 
 ### Development Build: 6.7.19
