@@ -169,7 +169,6 @@
       <LI> #CFE_SB_GetTotalMsgLength - \copybrief CFE_SB_GetTotalMsgLength
       <LI> #CFE_SB_GetMsgTime - \copybrief CFE_SB_GetMsgTime
       <LI> #CFE_SB_GetCmdCode - \copybrief CFE_SB_GetCmdCode
-      <LI> #CFE_SB_GetLastSenderId - \copybrief CFE_SB_GetLastSenderId
       <LI> #CFE_SB_MessageStringGet - \copybrief CFE_SB_MessageStringGet
     </UL>
     <LI> \ref CFEAPISBChecksum
