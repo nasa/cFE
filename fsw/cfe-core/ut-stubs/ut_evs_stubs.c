@@ -108,12 +108,13 @@ int32 CFE_EVS_SendEvent(uint16 EventID,
                         const char *Spec,
                         ...)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEvent), EventID);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEvent), EventType);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), Spec);
+
     int32 status;
     va_list va;
 
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventType);
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), Spec);
     va_start(va, Spec);
     status = UT_DEFAULT_IMPL_VARARGS(CFE_EVS_SendEvent, va);
     va_end(va);
@@ -147,13 +148,21 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
                              const char *Spec,
                              ...)
 {
+    /* 
+     * NOTE: These args are out of order so that Arg[0] and Arg[1] will
+     * be the same as they are for other EVS calls.  This keeps it
+     * compatible with old/existing UT hook routines.
+     * Newly-implemented hooks should use the name-based argument 
+     * retrieval so it is independent of the order.
+     */
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendTimedEvent), EventID);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendTimedEvent), EventType);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendTimedEvent), Time);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendTimedEvent), Spec);
+
     int32 status;
     va_list va;
 
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventType);
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &Time);
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), Spec);
     va_start(va, Spec);
     status = UT_DefaultStubImplWithArgs(__func__, UT_KEY(CFE_EVS_SendTimedEvent), CFE_SUCCESS, va);
     va_end(va);
@@ -187,9 +196,13 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
 **
 ******************************************************************************/
 int32 CFE_EVS_Register(void *Filters,
-                       uint16 NumEventFilters,
+                       uint16 NumFilteredEvents,
                        uint16 FilterScheme)
 {
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_Register), Filters);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_Register), NumFilteredEvents);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_Register), FilterScheme);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(CFE_EVS_Register);
@@ -226,13 +239,14 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
                                  const char *Spec,
                                  ...)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEventWithAppID), EventID);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEventWithAppID), EventType);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEventWithAppID), AppID);
+    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEventWithAppID), Spec);
+
     int32 status;
     va_list va;
 
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventID);
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &EventType);
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), &AppID);
-    UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), Spec);
     va_start(va, Spec);
     status = UT_DefaultStubImplWithArgs(__func__, UT_KEY(CFE_EVS_SendEventWithAppID), CFE_SUCCESS, va);
     va_end(va);
@@ -275,4 +289,32 @@ int32 CFE_EVS_CleanUpApp(uint32 AppId)
     return status;
 }
 
-UT_DEFAULT_STUB(CFE_EVS_ResetAllFilters, ( void ))
+int32 CFE_EVS_ResetAllFilters(void)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_EVS_ResetAllFilters);
+
+    return status;
+}
+
+int32 CFE_EVS_ResetFilter(int16 EventID)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_ResetFilter), EventID);
+
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_EVS_ResetFilter);
+
+    return status;
+}
+
+int32 CFE_EVS_Unregister(void)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_EVS_Unregister);
+
+    return status;
+}
+
