@@ -261,15 +261,12 @@ function(prepare)
 
   # Choose the configuration file to use for OSAL on this system
   set(OSAL_CONFIGURATION_FILE)
-  if (EXISTS "${MISSION_DEFS}/default_osconfig.cmake")
-    list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/default_osconfig.cmake")
-  endif()
-  if (DEFINED OSAL_SYSTEM_OSCONFIG AND EXISTS "${MISSION_DEFS}/${OSAL_SYSTEM_OSCONFIG}_osconfig.cmake")
-    list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/${OSAL_SYSTEM_OSCONFIG}_osconfig.cmake")
-  endif()
-  if (EXISTS "${MISSION_DEFS}/${TARGETSYSTEM}_osconfig.cmake")
-    list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/${TARGETSYSTEM}_osconfig.cmake")
-  endif()
+  foreach(CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}} ${OSAL_SYSTEM_OSCONFIG})
+    if (EXISTS "${MISSION_DEFS}/${CONFIG}_osconfig.cmake")
+      list(APPEND OSAL_CONFIGURATION_FILE "${MISSION_DEFS}/${CONFIG}_osconfig.cmake")
+    endif()
+  endforeach()
+  list(REVERSE OSAL_CONFIGURATION_FILE)
   set(OSAL_CONFIGURATION_FILE ${OSAL_CONFIGURATION_FILE} PARENT_SCOPE)
 
   # Allow sources to "ifdef" certain things if running on simulated hardware
