@@ -101,14 +101,15 @@ void CFE_TIME_TaskMain(void)
 ******************************************************************************/
 void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 {
+    UT_Stub_RegisterContext(UT_KEY(CFE_TIME_Print), PrintBuffer);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Print), TimeToPrint);
+
     snprintf(PrintBuffer,
              CFE_TIME_PRINTED_STRING_SIZE,
              "UT %u.%u -",
              (unsigned int)TimeToPrint.Seconds,
              (unsigned int)TimeToPrint.Subseconds);
 
-    UT_Stub_RegisterContext(UT_KEY(CFE_TIME_Print), PrintBuffer);
-    UT_Stub_RegisterContext(UT_KEY(CFE_TIME_Print), &TimeToPrint);
     UT_DEFAULT_IMPL(CFE_TIME_Print);
 }
 
@@ -181,6 +182,9 @@ int32 CFE_TIME_CleanUpApp(uint32 AppId)
 
 CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Compare), TimeA);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Compare), TimeB);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(CFE_TIME_Compare);
@@ -190,6 +194,9 @@ CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_
 
 CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Add), Time1);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Add), Time2);
+
     static CFE_TIME_SysTime_t SimTime = { 0 };
     CFE_TIME_SysTime_t Result = { 0 };
     int32 status;
@@ -211,6 +218,8 @@ CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Ti
 
 uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
 {
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Sub2MicroSecs), SubSeconds);
+
     int32 status;
 
     status = UT_DEFAULT_IMPL(CFE_TIME_Sub2MicroSecs);
@@ -218,14 +227,197 @@ uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
     return (uint32) status;
 }
 
-uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS)
+int32 CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_UnregisterSynchCallback), CallbackFuncPtr);
+
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_UnregisterSynchCallback);
+
+    return status;
+}
+
+void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_ExternalGPS), NewTime);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_ExternalGPS), NewLeaps);
+
+    UT_DEFAULT_IMPL(CFE_TIME_ExternalGPS);
+}
+
+void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_ExternalMET), NewMET);
+
+    UT_DEFAULT_IMPL(CFE_TIME_ExternalMET);
+}
+
+void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_ExternalTime), NewTime);
+
+    UT_DEFAULT_IMPL(CFE_TIME_ExternalTime);
+}
+
+void CFE_TIME_ExternalTone(void)
+{
+    UT_DEFAULT_IMPL(CFE_TIME_ExternalTone);
+}
+
+uint16 CFE_TIME_GetClockInfo(void)
 {
     int32 status;
 
-    status = UT_DEFAULT_IMPL(CFE_TIME_FS2CFESeconds);
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetClockInfo);
 
-    return (uint32) status;
+    return status;
 }
 
-UT_DEFAULT_STUB(CFE_TIME_UnregisterSynchCallback, (CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr))   
+CFE_TIME_ClockState_Enum_t CFE_TIME_GetClockState(void)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetClockState);
+
+    return status;
+}
+
+int16 CFE_TIME_GetLeapSeconds(void)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetLeapSeconds);
+
+    return status;
+}
+
+CFE_TIME_SysTime_t CFE_TIME_GetMET(void)
+{
+    int32 status;
+    CFE_TIME_SysTime_t Result = { 0 };
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetMET);
+    if (status == 0)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_GetMET), &Result, sizeof(Result));
+    }
+
+    return Result;
+}
+
+uint32 CFE_TIME_GetMETseconds(void)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetMETseconds);
+
+    return status;
+}
+
+uint32 CFE_TIME_GetMETsubsecs(void)
+{
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetMETsubsecs);
+
+    return status;
+}
+
+CFE_TIME_SysTime_t CFE_TIME_GetSTCF(void)
+{
+    int32 status;
+    CFE_TIME_SysTime_t Result = { 0 };
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetSTCF);
+    if (status == 0)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_GetSTCF), &Result, sizeof(Result));
+    }
+
+    return Result;
+}
+
+CFE_TIME_SysTime_t CFE_TIME_GetTAI(void)
+{
+    int32 status;
+    CFE_TIME_SysTime_t Result = { 0 };
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetTAI);
+    if (status == 0)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_GetTAI), &Result, sizeof(Result));
+    }
+
+    return Result;
+}
+
+CFE_TIME_SysTime_t CFE_TIME_GetUTC(void)
+{
+    int32 status;
+    CFE_TIME_SysTime_t Result = { 0 };
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_GetUTC);
+    if (status == 0)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_GetUTC), &Result, sizeof(Result));
+    }
+
+    return Result;
+}
+
+CFE_TIME_SysTime_t CFE_TIME_MET2SCTime(CFE_TIME_SysTime_t METTime)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_MET2SCTime), METTime);
+
+    int32 status;
+    CFE_TIME_SysTime_t Result = { 0 };
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_MET2SCTime);
+    if (status == 0)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_MET2SCTime), &Result, sizeof(Result));
+    }
+
+    return Result;
+}
+
+uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Micro2SubSecs), MicroSeconds);
+
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_Micro2SubSecs);
+
+    return status;
+}
+
+int32 CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_RegisterSynchCallback), CallbackFuncPtr);
+
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_RegisterSynchCallback);
+
+    return status;
+}
+
+CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Subtract), Time1);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Subtract), Time2);
+
+    int32 status;
+    CFE_TIME_SysTime_t Result = { 0 };
+
+    status = UT_DEFAULT_IMPL(CFE_TIME_Subtract);
+    if (status == 0)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_Subtract), &Result, sizeof(Result));
+    }
+
+    return Result;
+}
 
