@@ -94,7 +94,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
       /*
       ** Open the file in the volatile disk.
       */
-      AppFile = OS_open( CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE, O_RDONLY, 0);
+      AppFile = OS_open( CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE, OS_READ_ONLY, 0);
 
       if ( AppFile >= 0 )
       {
@@ -119,7 +119,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
       /*
       ** Try to Open the file passed in to the cFE start.
       */
-      AppFile = OS_open( (const char *)StartFilePath, O_RDONLY, 0);
+      AppFile = OS_open( (const char *)StartFilePath, OS_READ_ONLY, 0);
 
       if ( AppFile >= 0 )
       {
