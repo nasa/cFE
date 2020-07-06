@@ -152,7 +152,7 @@ Behavior Change: App unit tests requiring this will not fail to build due to und
 - Fix strlen in CFE_ES_TaskInit <https://github.com/nasa/cFE/pull/23>
 - Minor bug fixes (see <https://github.com/nasa/cFE/pull/378>)
 
-### **_OFFICIAL RELEASE: 6.7.0_**
+### **_OFFICIAL RELEASE: 6.7.0 - Aquila_**
 
 - This is a point release from an internal repository
 - Changes are detailed in [cFS repo](https://github.com/nasa/cFS) release documentation
