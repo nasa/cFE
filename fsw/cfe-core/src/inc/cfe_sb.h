@@ -1178,6 +1178,8 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr);
 ** \brief Retrieve the application Info of the sender for the last message.
 **
 ** \par Description
+**          TO BE DEPRECATED, SEE BELOW
+**
 **          This routine can be used after a successful #CFE_SB_RcvMsg call
 **          to find out which application sent the message that was received.
 **
@@ -1201,6 +1203,11 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr);
 ** \param[in]  PipeId    The pipe ID of the pipe the message was taken from.
 **
 ** \return The last sender's application ID
+**
+** \note   This function will be deprecated in the subsequent release and may
+**         be replaced by an extension to the RcvMsg function(s). This function
+**         has a number of design issues, primarily that it returns a pointer to
+**         a buffer that may be freed or re-used by the SB.
 **/
 uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId);
 
