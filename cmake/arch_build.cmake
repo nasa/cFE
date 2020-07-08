@@ -404,7 +404,22 @@ function(process_arch SYSVAR)
   if (NOT INSTALL_SUBDIR)
     set(INSTALL_SUBDIR cf)
   endif (NOT INSTALL_SUBDIR)
-      
+
+  # confirm that all dependencies have a MISSION_DIR defined that indicates the source.
+  # This should have been set up by the parent script.  However, if any dir is not set,
+  # this may result in "add_subdirectory" of itself which causes a loop.  This can happen
+  # if the variables/lists were modified unexpectedly.
+  foreach(DEP
+        ${MISSION_CORE_MODULES}
+        ${TGTSYS_${SYSVAR}_PSPMODULES}
+        ${TGTSYS_${SYSVAR}_STATICAPPS}
+        ${TGTSYS_${SYSVAR}_APPS})
+    if(NOT DEFINED ${DEP}_MISSION_DIR)
+      message(FATAL_ERROR "ERROR: core module ${DEP} has no MISSION_DIR defined")
+    endif()
+  endforeach()
+
+
   # Add all core modules
   # The osal is handled explicitly (above) since this has special extra config
   foreach(DEP ${MISSION_CORE_MODULES})
