@@ -155,7 +155,10 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
       # current content of a dependency (rightfully so).
       add_custom_command(
         OUTPUT "${TABLE_DESTDIR}/${TBLWE}.tbl"
-        COMMAND ${CMAKE_C_COMPILER} ${TBL_CFLAGS} -c -o ${TBLWE}.o ${TBL_SRC}
+        COMMAND ${CMAKE_C_COMPILER} ${TBL_CFLAGS} 
+            -DCFE_PLATFORM_CPU_ID=${${TGT}_PROCESSORID}
+            -DCFE_PLATFORM_CPU_NAME="${TGT}"
+            -c -o ${TBLWE}.o ${TBL_SRC}
         COMMAND ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TBLWE}.o
         DEPENDS ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TBL_SRC}
         WORKING_DIRECTORY ${TABLE_DESTDIR}
@@ -326,14 +329,7 @@ function(process_arch SYSVAR)
   endif()
   
   # Generate a list of targets that share this system architecture
-  set(INSTALL_TARGET_LIST)
-  foreach(TGTID ${TGTSYS_${SYSVAR}})
-    set(TGTNAME ${TGT${TGTID}_NAME})
-    if(NOT TGTNAME)
-      set(TGTNAME "cpu${TGTID}")
-    endif(NOT TGTNAME)
-    list(APPEND INSTALL_TARGET_LIST ${TGTNAME})
-  endforeach()
+  set(INSTALL_TARGET_LIST ${TGTSYS_${SYSVAR}})
   
   # Assume use of an OSAL BSP of the same name as the CFE PSP
   # This can be overridden by the PSP-specific build_options but normally this is expected.
@@ -454,20 +450,14 @@ function(process_arch SYSVAR)
     set(TGTLIST_${APP})
   endforeach()
 
-  foreach(TGTID ${TGTSYS_${SYSVAR}})
+  foreach(TGTNAME ${TGTSYS_${SYSVAR}})
       
-    set(TGTNAME ${TGT${TGTID}_NAME})
-    if(NOT TGTNAME)
-      set(TGTNAME "cpu${TGTID}")
-      set(TGT${TGTID}_NAME "${TGTNAME}")
-    endif(NOT TGTNAME)
-       
     # Append to the app install list for this CPU
-    foreach(APP ${TGT${TGTID}_APPLIST})
-      set(TGTLIST_${APP} ${TGTLIST_${APP}} ${TGTNAME})
-    endforeach(APP ${TGT${TGTID}_APPLIST})
+    foreach(APP ${${TGTNAME}_APPLIST})
+      list(APPEND TGTLIST_${APP} ${TGTNAME})
+    endforeach(APP ${${TGTNAME}_APPLIST})
       
-  endforeach(TGTID ${TGTSYS_${SYSVAR}})
+  endforeach(TGTNAME ${TGTSYS_${SYSVAR}})
   
   # Process each app that is used on this system architecture
   foreach(APP ${TGTSYS_${SYSVAR}_APPS})
@@ -478,14 +468,12 @@ function(process_arch SYSVAR)
   
   # Process each target that shares this system architecture
   # Second Pass: Build and link final target executable 
-  foreach(TGTID ${TGTSYS_${SYSVAR}})
+  foreach(TGTNAME ${TGTSYS_${SYSVAR}})
   
-    set(TGTNAME ${TGT${TGTID}_NAME})
-    
     # Target to generate the actual executable file
     add_subdirectory(cmake/target ${TGTNAME})
     
-    foreach(INSTFILE ${TGT${TGTID}_FILELIST})
+    foreach(INSTFILE ${${TGTNAME}_FILELIST})
       if(EXISTS ${MISSION_DEFS}/${TGTNAME}_${INSTFILE})
         set(FILESRC ${MISSION_DEFS}/${TGTNAME}_${INSTFILE})
       elseif(EXISTS ${MISSION_DEFS}/${INSTFILE})
@@ -498,9 +486,8 @@ function(process_arch SYSVAR)
       else(FILESRC)
         message("WARNING: Install file ${INSTFILE} for ${TGTNAME} not found")
       endif (FILESRC)
-    endforeach(INSTFILE ${TGT${TGTID}_FILELIST})
-  endforeach(TGTID ${TGTSYS_${SYSVAR}})
- 
+    endforeach(INSTFILE ${${TGTNAME}_FILELIST})
+  endforeach(TGTNAME ${TGTSYS_${SYSVAR}})  
  
 endfunction(process_arch SYSVAR)
 
