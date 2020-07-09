@@ -5,11 +5,15 @@
 # This file indicates the architecture and configuration of the
 # target boards that will run core flight software.
 #
-# The following variables are defined per board, where <x> is the 
-# CPU number starting with 1:
+# The following variables are defined per board, where <x> is a
+# sequential index number starting with 1:
 #
 #  TGT<x>_NAME : the user-friendly name of the cpu.  Should be simple
 #       word with no punctuation.  This MUST be specified.
+#  TGT<x>_PROCESSORID : the default numeric ID for this processor at
+#       runtime.  If not specified, then the sequential index number is
+#       used.  This translates to the numeric value returned by
+#       CFE_PSP_GetProcessorId() at runtime.
 #  TGT<x>_APPLIST : list of applications to build and install on the CPU.
 #       These are built as dynamically-loaded applications and installed
 #       as files in the non-volatile storage of the target, and loaded
