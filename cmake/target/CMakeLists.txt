@@ -40,7 +40,11 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # The CPU ID and name are defined by the build scripts for this target
 if (DEFINED TGTID)
-  add_definitions(-DCFE_CPU_ID_VALUE=${TGTID})
+  if (DEFINED TGT${TGTID}_PROCESSORID)
+      add_definitions(-DCFE_CPU_ID_VALUE=${TGT${TGTID}_PROCESSORID})
+  else()
+      add_definitions(-DCFE_CPU_ID_VALUE=${TGTID})
+  endif()
 endif()
 if (DEFINED SPACECRAFT_ID)
   add_definitions(-DCFE_SPACECRAFT_ID_VALUE=${SPACECRAFT_ID})
