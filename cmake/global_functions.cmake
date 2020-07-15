@@ -106,14 +106,17 @@ function(generate_config_includefile)
     # then check for and use the fallback file. 
     # (if specified by the caller it should always exist)
     # Also produce a message on the console showing whether mission config or fallback was used
-    if (NOT ITEM_FOUND AND GENCONFIG_ARG_FALLBACK_FILE)
+    if (ITEM_FOUND)
+        message(STATUS "Generated ${GENCONFIG_ARG_FILE_NAME} from ${MISSION_DEFS} configuration")
+    elseif (GENCONFIG_ARG_FALLBACK_FILE)
         file(TO_NATIVE_PATH "${GENCONFIG_ARG_FALLBACK_FILE}" SRC_NATIVE_PATH)
         list(APPEND WRAPPER_FILE_CONTENT 
             "\n\n/* No configuration for ${GENCONFIG_ARG_FILE_NAME}, using fallback */\n"
             "#include \"${GENCONFIG_ARG_FALLBACK_FILE}\"\n")
         message(STATUS "Using ${GENCONFIG_ARG_FALLBACK_FILE} for ${GENCONFIG_ARG_FILE_NAME}")
     else()
-        message(STATUS "Generated ${GENCONFIG_ARG_FILE_NAME} from ${MISSION_DEFS} configuration")
+        message("ERROR: No implementation for ${GENCONFIG_ARG_FILE_NAME} found")
+        message(FATAL_ERROR "Tested: ${CHECK_PATH_LIST}")
     endif()
     
     # Generate a header file
