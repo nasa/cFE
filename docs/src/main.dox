@@ -6,7 +6,7 @@
     <UL>
        <LI> \subpage cfebackground
        <LI> \subpage cfeappdocs
-       <LI> \subpage cfeversion
+       <LI> \subpage cfsversions
        <LI> \subpage cfedependencies
        <LI> \subpage cfeacronyms
        <LI> \ref cfeglossary

@@ -388,7 +388,7 @@ int32 CFE_ES_TaskInit(void)
     Remaining = sizeof(EventBuffer)-strlen(EventBuffer)-1;
     if(Remaining > 0 && strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.CfeVersion))
     {
-       snprintf(VersionBuffer, sizeof(VersionBuffer), ", CFE: %s",
+       snprintf(VersionBuffer, sizeof(VersionBuffer), ", CFE git version: %s",
                 GLOBAL_CONFIGDATA.CfeVersion);
        VersionBuffer[Remaining] = 0;
        strcat(EventBuffer, VersionBuffer);
@@ -396,7 +396,7 @@ int32 CFE_ES_TaskInit(void)
     }
     if(Remaining > 0 && strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.OsalVersion))
     {
-       snprintf(VersionBuffer, sizeof(VersionBuffer), ", OSAL: %s",
+       snprintf(VersionBuffer, sizeof(VersionBuffer), ", OSAL git version: %s",
                 GLOBAL_CONFIGDATA.OsalVersion);
        VersionBuffer[Remaining] = 0;
        strcat(EventBuffer, VersionBuffer);
