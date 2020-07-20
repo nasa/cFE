@@ -35,7 +35,7 @@
 
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER 295 /*!< Development Build: Number of commits since baseline */
+#define CFE_BUILD_NUMBER 289 /*!< Development Build: Number of commits since baseline */
 #define CFE_BUILD_BASELINE "v6.7.0" /*!< Development Build: git tag that is the base for the current development */
 
 /* Version Macro Definitions */
