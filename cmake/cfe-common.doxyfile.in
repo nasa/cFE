@@ -60,6 +60,7 @@ STRIP_FROM_PATH        = @MISSION_SOURCE_DIR@
 # This is applicable to both users guide and detail design outputs
 IMAGE_PATH            += @MISSION_SOURCE_DIR@/cfe/docs/src
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_glossary.dox
+INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfs_versions.dox
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_api.dox
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_es.dox
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_evs.dox

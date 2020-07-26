@@ -10,6 +10,21 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.7.0+dev289
+
+- Update `CFE_SB_TimeStampMsg` to save the message pointer argument `UT_Stub_CopyFromLocal` so that unit tests can check it
+- Only affects build system. Fully backward compatible. The defaults are applied if a user has nothing specifically configured in their `targets.cmake`. The defaults will select osal, cfe-core, and psp as before. The user now has the option to explicitly configure and control the inclusion of these modules and also provide mission-specific search paths to override them as desired.
+- Note this only affects UT stubs. Change the internal names of some stub arguments to match prototype. Ensure that:
+  - All functions in the CFE public API have a stub function implemented
+  - All parameters to the stub function are registered in the context object, so the values will be available to hook functions.
+  - The names of all parameters match the prototype/documentation, so hook functions that use name-based argument value retrieval will work.
+-  Adds to table search path in `arch_build.cmake`
+- Calls to OS_open() now use the OSAL-defined symbol, not the POSIX symbol. 
+-  Defines new macros to report the build number and build baseline and new strings containing the version number of cFE and a combined string with the version number for OSAL, PSP, and CFE.
+- Allow explicitly setting of the processor ID in `targets.cmake`. The `TGTx_PROCESSOR_ID` setting will be passed to the final build/link of CFE core as the CPU ID. If unspecified, then the CMake index value is used instead (backward compatible).
+- `cmake` now detects conditions where no files were present to fulfill an config include file requirement and reports an error during `make prep` lists the files it checked for rather than generating an empty file.
+- See <https://github.com/nasa/cFE/pull/765>
+
 ### Development Build: 6.7.21
 
 - If a string is exactly the size of the field when using the `CFE_TBL_FILEDEF()` macro it will produce a compiler error

@@ -333,8 +333,7 @@ int32 CFE_EVS_TaskInit ( void )
   
    /* Write the AppID to the global location, now that the rest of initialization is done */
    CFE_EVS_GlobalData.EVS_AppID = AppID;
-   EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized. cFE Version %d.%d.%d.%d",
-                 CFE_MAJOR_VERSION,CFE_MINOR_VERSION,CFE_REVISION,CFE_MISSION_REV);
+   EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized.\n%s", CFE_VERSION_STRING);
 
    return CFE_SUCCESS;
 
@@ -644,8 +643,8 @@ bool CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
 */
 int32 CFE_EVS_NoopCmd(const CFE_EVS_Noop_t *data)
 {
-   EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION,"No-op command. cFE Version %d.%d.%d.%d",
-                 CFE_MAJOR_VERSION,CFE_MINOR_VERSION,CFE_REVISION,CFE_MISSION_REV);
+   EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION,"No-op command. %s",
+                 CFE_VERSION_STRING);
    return CFE_SUCCESS;
 }
 

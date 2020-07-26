@@ -8,6 +8,49 @@
 #
 ##################################################################
 
+include(CMakeParseArguments)
+
+##################################################################
+#
+# FUNCTION: generate_c_headerfile
+#
+# Generates a C header file in the build directory.
+# First argument is the file name to write.  All remaining arguments will be 
+# concatenated and written to the file.
+#
+function(generate_c_headerfile FILE_NAME)
+
+    # Determine the absolute location for this wrapper file
+    # If it is relative path then assume it is relative to ${CMAKE_BINARY_DIR}
+    # This should not write generated files to ${CMAKE_SOURCE_DIR}
+    if (NOT IS_ABSOLUTE "${FILE_NAME}")
+        set(FILE_NAME "${CMAKE_BINARY_DIR}/${FILE_NAME}")
+    endif (NOT IS_ABSOLUTE "${FILE_NAME}")
+
+    # Generate an include guard
+    get_filename_component(FILE_GUARD "${FILE_NAME}" NAME)
+    string(REGEX REPLACE "[^A-Za-z0-9]" "_" FILE_GUARD "${FILE_GUARD}")
+    string(TOUPPER "GENERATED_INCLUDE_${FILE_GUARD}" FILE_GUARD)
+    set(GENERATED_FILE_HEADER 
+        "/* Generated header file.  Do not edit */\n\n"
+        "#ifndef ${FILE_GUARD}\n"
+        "#define ${FILE_GUARD}\n\n"
+    )
+    set(GENERATED_FILE_TRAILER 
+        "#endif /* ${FILE_GUARD} */\n"
+    )
+  
+    # Use configure_file() to write the file, as this automatically
+    # has the logic to not update the timestamp on the file unless it changes.
+    string(REPLACE ";" "" GENERATED_FILE_CONTENT "${ARGN}")
+    string(REPLACE ";" "" GENERATED_FILE_HEADER "${GENERATED_FILE_HEADER}")
+    string(REPLACE ";" "" GENERATED_FILE_TRAILER "${GENERATED_FILE_TRAILER}")
+    configure_file(
+        "${CFE_SOURCE_DIR}/cmake/cfe_generated_file.h.in"
+        "${FILE_NAME}"
+        @ONLY)
+    
+endfunction(generate_c_headerfile)
 
 ##################################################################
 #
@@ -21,58 +64,65 @@
 # This also supports "stacking" multiple component files together by specifying more than one
 # source file for the wrapper.
 # 
-# In all cases, care must be used when updating such files -- if the timestamp is updated then
-# everything that uses it will be rebuilt even if the content did not change.  So the file content
-# is checked against any pre-existing files, and if the content is the same then the update is
-# skipped, preserving the original timestamp.
+# This function now accepts named parameters:
+#   FILE_NAME - the name of the file to write
+#   FALLBACK_FILE - if no files are found in "defs" using the name match, this file will be used instead.
+#   MATCH_SUFFIX - the suffix to match in the "defs" directory (optional)
+#   PREFIXES - a list of prefixes to match in the "defs" directory (optional)
 #
-function(generate_config_includefile DESTFILE SUFFIX)
+function(generate_config_includefile)
 
-  # Determine the absolute location for this wrapper file
-  if (NOT IS_ABSOLUTE ${DESTFILE})
-    set(DESTFILE ${CMAKE_BINARY_DIR}/${DESTFILE})
-  endif (NOT IS_ABSOLUTE ${DESTFILE})
+    cmake_parse_arguments(GENCONFIG_ARG "" "OUTPUT_DIRECTORY;FILE_NAME;FALLBACK_FILE;MATCH_SUFFIX" "PREFIXES" ${ARGN} )
+    if (NOT GENCONFIG_ARG_OUTPUT_DIRECTORY)
+        set(GENCONFIG_ARG_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/inc")
+    endif (NOT GENCONFIG_ARG_OUTPUT_DIRECTORY)
+    
+    set(WRAPPER_FILE_CONTENT)
+    set(ITEM_FOUND FALSE)
+    
+    # Assemble a list of file names to test for
+    # Check for existence of a file in defs directory with an exact matching name
+    # Then Check for existence of file(s) with a matching prefix+suffix
+    set(CHECK_PATH_LIST "${MISSION_DEFS}/${GENCONFIG_ARG_FILE_NAME}")
+    if (GENCONFIG_ARG_MATCH_SUFFIX)
+        foreach(PREFIX ${GENCONFIG_ARG_PREFIXES} ${GENCONFIG_ARG_UNPARSED_ARGUMENTS})
+            list(APPEND CHECK_PATH_LIST "${MISSION_DEFS}/${PREFIX}_${GENCONFIG_ARG_MATCH_SUFFIX}")
+        endforeach()
+    endif(GENCONFIG_ARG_MATCH_SUFFIX)
+    
+    # Check for existence of files, and add to content if present
+    # Note that all files are appended/concatenated together.
+    foreach(SRC_LOCAL_PATH ${CHECK_PATH_LIST})
+        if (EXISTS "${SRC_LOCAL_PATH}")
+            file(TO_NATIVE_PATH "${SRC_LOCAL_PATH}" SRC_NATIVE_PATH)
+            list(APPEND WRAPPER_FILE_CONTENT "#include \"${SRC_NATIVE_PATH}\"\n")
+            set(ITEM_FOUND TRUE)
+        else()
+            list(APPEND WRAPPER_FILE_CONTENT "/* ${SRC_LOCAL_PATH} does not exist */\n")
+        endif (EXISTS "${SRC_LOCAL_PATH}")
+    endforeach()
+
+    # If _no_ files were found in the above loop,
+    # then check for and use the fallback file. 
+    # (if specified by the caller it should always exist)
+    # Also produce a message on the console showing whether mission config or fallback was used
+    if (ITEM_FOUND)
+        message(STATUS "Generated ${GENCONFIG_ARG_FILE_NAME} from ${MISSION_DEFS} configuration")
+    elseif (GENCONFIG_ARG_FALLBACK_FILE)
+        file(TO_NATIVE_PATH "${GENCONFIG_ARG_FALLBACK_FILE}" SRC_NATIVE_PATH)
+        list(APPEND WRAPPER_FILE_CONTENT 
+            "\n\n/* No configuration for ${GENCONFIG_ARG_FILE_NAME}, using fallback */\n"
+            "#include \"${GENCONFIG_ARG_FALLBACK_FILE}\"\n")
+        message(STATUS "Using ${GENCONFIG_ARG_FALLBACK_FILE} for ${GENCONFIG_ARG_FILE_NAME}")
+    else()
+        message("ERROR: No implementation for ${GENCONFIG_ARG_FILE_NAME} found")
+        message(FATAL_ERROR "Tested: ${CHECK_PATH_LIST}")
+    endif()
+    
+    # Generate a header file
+    generate_c_headerfile("${GENCONFIG_ARG_OUTPUT_DIRECTORY}/${GENCONFIG_ARG_FILE_NAME}" ${WRAPPER_FILE_CONTENT})
   
-  set(INCL_LIST)
-  set(DEST_CONTENTSTR "/* This is a wrapper file generated by the build system - DO NOT EDIT */\n")
-  foreach(SRC ${ARGN})
-    set(SRC_LOCAL_PATH "${MISSION_DEFS}/${SRC}_${SUFFIX}")
-    # only add this if not already included (prevent double inclusion) */
-    list(FIND INCL_LIST "${SRC_LOCAL_PATH}" INCL_INDX)
-    if (INCL_INDX LESS 0)      
-      list(APPEND INCL_LIST "${SRC_LOCAL_PATH}")
-      if (EXISTS "${SRC_LOCAL_PATH}")
-        file(TO_NATIVE_PATH "${SRC_LOCAL_PATH}" SRC_NATIVE)
-        set(DEST_CONTENTSTR "${DEST_CONTENTSTR}#include \"${SRC_NATIVE}\"\n")
-      else()
-        set(DEST_CONTENTSTR "${DEST_CONTENTSTR}/* ${SRC_LOCAL_PATH} does not exist */\n")
-      endif (EXISTS "${SRC_LOCAL_PATH}")
-    endif (INCL_INDX LESS 0)      
-  endforeach(SRC ${SRCFILES})
-  if (EXISTS "${DESTFILE}")
-    file(READ "${DESTFILE}" DEST_EXISTING)
-  else (EXISTS "${DESTFILE}")
-    set(DEST_EXISTING)
-  endif (EXISTS "${DESTFILE}")
-  if (NOT DEST_CONTENTSTR STREQUAL DEST_EXISTING)
-    file(WRITE "${DESTFILE}" "${DEST_CONTENTSTR}")
-  endif (NOT DEST_CONTENTSTR STREQUAL DEST_EXISTING)
-  
-  # Create a copy of the generated file in a location where it can
-  # be found by an editor such as Eclipse.  The user will still have to
-  # add the path to the IDEs include search path, but this makes it easier
-  # by at least putting them all in one spot.  This is not used for the build.
-  get_filename_component(DESTBASENAME "${DESTFILE}" NAME)
-  if (MISSION_BINARY_DIR)
-    set(EDITOR_COPY_DIR ${MISSION_BINARY_DIR}/editor_inc)
-  else()
-    set(EDITOR_COPY_DIR ${CMAKE_BINARY_DIR}/editor_inc)
-  endif()
-  
-  file(MAKE_DIRECTORY ${EDITOR_COPY_DIR})
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DESTFILE} ${EDITOR_COPY_DIR}/${DESTBASENAME})
-  
-endfunction(generate_config_includefile DESTFILE SUFFIX)
+endfunction(generate_config_includefile)
 
 
 ##################################################################
@@ -106,22 +156,40 @@ function(read_targetconfig)
     endif()
     if (NOT DEFINED TGT${TGTID}_SYSTEM)
       set(TGT${TGTID}_SYSTEM "cpu${TGTID}")
+      set(TGT${TGTID}_SYSTEM "${TGT${TGTID}_SYSTEM}" PARENT_SCOPE)
+    endif()
+    if (NOT DEFINED TGT${TGTID}_PLATFORM)
+      set(TGT${TGTID}_PLATFORM "default" "${TGT${TGTID}_NAME}")
+      set(TGT${TGTID}_PLATFORM "${TGT${TGTID}_PLATFORM}" PARENT_SCOPE)
     endif()
     
     if (SIMULATION)
       # if simulation use simulation system architecture for all targets
-      set(CURRSYS "${SIMULATION}")
+      set(TOOLCHAIN_NAME "${SIMULATION}")
     else (SIMULATION)
       # get the target system arch identifier string
-      set(CURRSYS "${TGT${TGTID}_SYSTEM}")
+      set(TOOLCHAIN_NAME "${TGT${TGTID}_SYSTEM}")
     endif (SIMULATION)
     
-    # make sure the string is safe for a variable name
-    string(REGEX REPLACE "[^A-Za-z0-9]" "_" SYSVAR "${CURRSYS}")
+    set(BUILD_CONFIG ${TOOLCHAIN_NAME} ${TGT${TGTID}_PLATFORM})
+    
+    # convert to a the string which is safe for a variable name
+    string(REGEX REPLACE "[^A-Za-z0-9]" "_" SYSVAR "${BUILD_CONFIG}")
 
     # save the unmodified name for future reference
-    set(SYSID_${SYSVAR} "${CURRSYS}" PARENT_SCOPE)
+    set(BUILD_CONFIG_${SYSVAR} "${BUILD_CONFIG}" PARENT_SCOPE)
     
+    # if the "global" applist is not empty, append to every CPU applist
+    if (MISSION_GLOBAL_APPLIST)
+      list(APPEND TGT${TGTID}_APPLIST ${MISSION_GLOBAL_APPLIST})
+      set(TGT${TGTID}_APPLIST ${TGT${TGTID}_APPLIST} PARENT_SCOPE)
+    endif (MISSION_GLOBAL_APPLIST)
+
+    if (MISSION_GLOBAL_STATIC_APPLIST)
+      list(APPEND TGT${TGTID}_STATIC_APPLIST ${MISSION_GLOBAL_STATIC_APPLIST})
+      set(TGT${TGTID}_STATIC_APPLIST ${TGT${TGTID}_STATIC_APPLIST} PARENT_SCOPE)
+    endif (MISSION_GLOBAL_STATIC_APPLIST)
+
     # Append to global lists
     list(APPEND TGTSYS_LIST "${SYSVAR}")
     list(APPEND TGTSYS_${SYSVAR} "${TGTID}")

@@ -87,6 +87,9 @@ initialize_globals()
 
 # Load the target configuration information (used by all builds)
 # This is at the top level so all vars set in here will become globals.
+# The "defaults" file is included first, which the user-supplied targets
+# file may override as necessary.
+include("cmake/mission_defaults.cmake")
 include(${MISSION_DEFS}/targets.cmake)
     
 # Scan the list of targets and organize by target system type.

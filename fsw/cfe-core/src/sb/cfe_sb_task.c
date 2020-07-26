@@ -490,8 +490,7 @@ void CFE_SB_ProcessCmdPipePkt(void) {
 int32 CFE_SB_NoopCmd(const CFE_SB_Noop_t *data)
 {
     CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID,CFE_EVS_EventType_INFORMATION,
-            "No-op Cmd Rcvd. cFE Version %d.%d.%d.%d",
-            CFE_MAJOR_VERSION,CFE_MINOR_VERSION,CFE_REVISION,CFE_MISSION_REV);
+            "No-op Cmd Rcvd. %s", CFE_VERSION_STRING);
     CFE_SB.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;

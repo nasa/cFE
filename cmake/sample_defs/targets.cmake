@@ -5,11 +5,15 @@
 # This file indicates the architecture and configuration of the
 # target boards that will run core flight software.
 #
-# The following variables are defined per board, where <x> is the 
-# CPU number starting with 1:
+# The following variables are defined per board, where <x> is a
+# sequential index number starting with 1:
 #
 #  TGT<x>_NAME : the user-friendly name of the cpu.  Should be simple
 #       word with no punctuation.  This MUST be specified.
+#  TGT<x>_PROCESSORID : the default numeric ID for this processor at
+#       runtime.  If not specified, then the sequential index number is
+#       used.  This translates to the numeric value returned by
+#       CFE_PSP_GetProcessorId() at runtime.
 #  TGT<x>_APPLIST : list of applications to build and install on the CPU.
 #       These are built as dynamically-loaded applications and installed
 #       as files in the non-volatile storage of the target, and loaded
@@ -75,9 +79,23 @@ SET(MISSION_NAME "SampleMission")
 # should be an integer.
 SET(SPACECRAFT_ID 42)
 
-# UI_INSTALL_SUBDIR indicates where the UI data files (included in some apps) should
-# be copied during the install process.
-SET(UI_INSTALL_SUBDIR "host/ui")
+# The "MISSION_CORE_MODULES" will be built and statically linked as part
+# of the CFE core executable on every target.  These can be used to amend
+# or override parts of the CFE core on a mission-specific basis.
+#list(APPEND MISSION_CORE_MODULES mymodule)
+
+# The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built
+# for every defined and target.  These are built as dynamic modules
+# and must be loaded explicitly via startup script or command.
+# This list is effectively appended to every TGTx_APPLIST in targets.cmake.  
+# Example:
+list(APPEND MISSION_GLOBAL_APPLIST sample_app sample_lib)
+
+# The "MISSION_GLOBAL_STATIC_APPLIST" is similar to MISSION_GLOBAL_APPLIST
+# but the apps are statically linked.  
+# This list is effectively appended to every TGTx_STATIC_APPLIST in targets.cmake.  
+# Example:
+#   list(APPEND MISSION_GLOBAL_STATIC_APPLIST my_static_app)
 
 # FT_INSTALL_SUBDIR indicates where the black box test data files (lua scripts) should
 # be copied during the install process.
@@ -85,16 +103,16 @@ SET(FT_INSTALL_SUBDIR "host/functional-test")
 
 # Each target board can have its own HW arch selection and set of included apps
 SET(TGT1_NAME cpu1)
-SET(TGT1_APPLIST sample_app sample_lib ci_lab to_lab sch_lab)
+SET(TGT1_APPLIST ci_lab to_lab sch_lab)
 SET(TGT1_FILELIST cfe_es_startup.scr)
 
 # CPU2/3 are duplicates of CPU1.  These are not built by default anymore but are
 # commented out to serve as an example of how one would configure multiple cpus.
 #SET(TGT2_NAME cpu2)
-#SET(TGT2_APPLIST sample_app ci_lab to_lab sch_lab)
+#SET(TGT2_APPLIST ci_lab to_lab sch_lab)
 #SET(TGT2_FILELIST cfe_es_startup.scr)
 
 #SET(TGT3_NAME cpu3)
-#SET(TGT3_APPLIST sample_app ci_lab to_lab sch_lab)
+#SET(TGT3_APPLIST ci_lab to_lab sch_lab)
 #SET(TGT3_FILELIST cfe_es_startup.scr)
 

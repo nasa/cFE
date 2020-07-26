@@ -18,84 +18,69 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_version.h
-**
-**  Purpose:
-**     Provide version identifiers for the cFE core.
-*/
-
-/**
- * \page cfeversion Version Numbers
- *
- * <H2> Version Number Semantics </H2>
- *
- * The version number is a sequence of four numbers, generally separated by dots when written. These are, in order,
- * the Major number, the Minor number, the Implementation Revision number, and the Mission Revision number. At
- * their option, Missions may modify the Mission Revision information as needed to suit their needs.
- *
- * The Major number shall be incremented on release to indicate when there is a change to an API
- * that may cause existing correctly-written cFS components to stop working. It may also be incremented for a
- * release that contains changes deemed to be of similar impact, even if there are no actual changes to the API.
- *
- * The Minor number shall be incremented on release to indicate the addition of features to the API,
- * which do not break the existing code.  It may also be incremented for a release that contains changes deemed
- * to be of similar impact, even if there are no actual updates to the API.
- *
- * The Implementation Revision Version number shall be incremented on changes to software in the master branch,
- * or other changes that benefit from unique identification. It is used for identifying open source development
- * versions.  It is important to note that Major and Minor numbers are only updated upon official releases
- * of tagged versions (see the release tab), \b NOT on development version updates in the master branch.
- *
- * The Major, Minor, and Implementation Revision numbers are provided in this header file as part of the API
- * definition; this macro must expand to a simple integer value, so that it can be used in simple if directives
- * by the macro preprocessor.
- *
- * The Mission Version number shall be set to zero in all officially released packages, and is entirely reserved
- * for the use of the mission.  The Mission Version is provided as a simple macro defined in the cfe_platform_cfg.h
- * header file.
- *
- * <H2> Version Number Flexibility </H2>
- *
- * The major number may increment when there is no breaking change to the API, if the changes are significant enough to
- * warrant the same level of attention as a breaking API change.
- *
- * The minor number may increment when there have been no augmentations to the API, if changes are as significant as
- * additions to the public API.
- *
- * The revision numbers may update in implementations where no actual implementation-specific code has changed, if
- * there are other changes within the release with similar significance.
- *
- * <H2> How and Where Defined </H2>
- *
- * The Major, Minor, and Revision components of the version are provided as simple macros defined in the cfe_version.h
- * header file as part of the API definition; these macros must expand to simple integer values, so that they can be used
- * in simple if directives by the macro preprocessor.
- *
- * The Mission Version is provided as a simple macro defined in the cfe_platform_cfg.h header file. As delivered in
- * official releases, these macros must expand to simple integer values, so that they can be used in simple macro
- * preprocessor conditions, but delivered code should not prevent a mission from, for example, deciding that the Mission
- * Version is actually a text string.
- *
- */
-
 #ifndef _cfe_version_
 #define _cfe_version_
 
-/*
- * The target config contains extended version information within it.
+/*! @file cfe_version.h
+ * @brief Purpose:
+ *     Provide version identifiers for the cFE core.
+ *  
+ * target_config.h contains extended version information within it.
  * This information is generated automatically by the build using
  * git to determine the most recent tag and commit id.
+ * 
  */
 #include <target_config.h>
 
 
-/*
-** Macro Definitions
-*/
-#define CFE_MAJOR_VERSION         6
-#define CFE_MINOR_VERSION         7
-#define CFE_REVISION              21
+
+/* Development Build Macro Definitions */
+#define CFE_BUILD_NUMBER 289 /*!< Development Build: Number of commits since baseline */
+#define CFE_BUILD_BASELINE "v6.7.0" /*!< Development Build: git tag that is the base for the current development */
+
+/* Version Macro Definitions */
+
+#define CFE_MAJOR_VERSION 6 /*!< @brief ONLY APPLY for OFFICIAL releases. Major version number. */
+#define CFE_MINOR_VERSION 7 /*!< @brief ONLY APPLY for OFFICIAL releases. Minor version number. */
+#define CFE_REVISION      0 /*!< @brief ONLY APPLY for OFFICIAL releases. Revision version number. */
+#define CFE_MISSION_REV   0 /*!< @brief ONLY USED by MISSION Implementations. Mission revision */
+
+#define CFE_STR_HELPER(x) #x /*!< @brief Helper function to concatenate strings from integer macros */
+#define CFE_STR(x)        CFE_STR_HELPER(x) /*!< @brief Helper function to concatenate strings from integer macros */
+
+/*! @brief Development Build Version Number. 
+ * @details Baseline git tag + Number of commits since baseline. @n
+ * See @ref cfsversions for format differences between development and release versions.
+ */
+#define CFE_SRC_VERSION CFE_BUILD_BASELINE "+dev" CFE_STR(CFE_BUILD_NUMBER) 
+
+/*! @brief Development Build Version String.
+ * @details Reports the current development build's baseline, number, and name. Also includes a note about the latest official version. @n
+ * See @ref cfsversions for format differences between development and release versions. 
+*/          
+#define CFE_VERSION_STRING                                                          \
+    " cFE Development Build\n "                                                     \
+    CFE_SRC_VERSION " (Codename: Bootes)"       /* Codename for current development */  \
+    "\n Last Offical Release: cfe v6.7.0"   /* For full support please use this version */
 
 
-#endif  /* _cfe_version_ */
+/*! @brief OSAL Version Definitions. 
+ * @details Allows for backwards compatibility. @n
+ * This will be defined by osal in the future 
+ */
+#ifndef OS_VERSION 
+#define OS_VERSION                  \
+    CFE_STR(OS_MAJOR_VERSION) "."   \
+    CFE_STR(OS_MINOR_VERSION) "."   \
+    CFE_STR(OS_REVISION) "."        \
+    CFE_STR(OS_MISSION_REV)
+#endif
+
+/*! @brief Combined string with formatted combination of all cFS component versions */
+#define CFS_VERSIONS                              \
+"cFS Versions \n"                      \
+  " cfe:  "  CFE_SRC_VERSION "\n"                     \
+  " osal: "  OS_VERSION "\n"                      \
+  " psp:  "  /* CFE_PSP_VERSION is defined at runtime */ 
+
+#endif /* _cfe_version_ */

@@ -75,31 +75,6 @@ endfunction(initialize_globals)
 
 ##################################################################
 #
-# FUNCTION: add_static_dependencies
-#
-# Adds an entry to the depedency list during app search
-# (Note apps can depend on other apps/libs)
-#
-function(add_static_dependencies TGT_DEPS)
-
-  set(FULLDEPS ${MISSION_DEPS} ${FIND_DEP_LIST})
-  set(NEWDEPS)    
-  foreach(DEP ${TGT_DEPS} ${ARGN})
-    list(FIND FULLDEPS ${DEP} DEPIDX)
-    if (DEPIDX LESS 0)
-      list(APPEND NEWDEPS ${DEP})
-      list(APPEND FULLDEPS ${DEP})
-    endif()  
-  endforeach()
-  
-  set(FIND_DEP_LIST ${FIND_DEP_LIST} ${NEWDEPS} PARENT_SCOPE)
-  
-endfunction(add_static_dependencies)
-
-
-
-##################################################################
-#
 # FUNCTION: prepare
 #
 # Called by the top-level CMakeLists.txt to set up prerequisites
@@ -111,10 +86,6 @@ function(prepare)
     add_definitions(-DSIMULATION=${SIMULATION})
   endif (SIMULATION)
 
-  # Generate the cfe_mission_cfg.h wrapper file  
-  generate_config_includefile("inc/cfe_mission_cfg.h" mission_cfg.h ${MISSIONCONFIG})
-  generate_config_includefile("inc/cfe_perfids.h" perfids.h ${MISSIONCONFIG} )
-  
   # Create custom targets for building and cleaning all architectures
   # This is required particularly for doing extra stuff in the clean step
   add_custom_target(mission-all COMMAND $(MAKE) all)
@@ -123,48 +94,44 @@ function(prepare)
   add_custom_target(mission-prebuild)
   
   # Locate the source location for all the apps found within the target file
-  # Each of those may in turn have a "mission_build" file that calls out additional dependencies for that app,
-  # so this is run in a loop until the list of unfound apps is empty
-  string(REPLACE ":" ";" CFS_APP_PATH "$ENV{CFS_APP_PATH}")
-  list(APPEND CFS_APP_PATH "apps" "apps/CFS" "libs" "psp/fsw/modules")
-  set(MISSION_DEPS "cfe-core" "osal")
+  # This is done by searching through the list of paths to find a matching name
+  # The environment variable is cached so it will be retained across runs.
+  set(CFS_APP_PATH "$ENV{CFS_APP_PATH}"
+     CACHE STRING "Extra search path for code modules"
+  )
+  string(REPLACE ":" ";" CFS_APP_PATH "${CFS_APP_PATH}")
+  set(MISSION_MODULE_SEARCH_PATH ${CFS_APP_PATH} ${MISSION_MODULE_SEARCH_PATH})
+
+  # The "MISSION_DEPS" list is the complete set of all dependencies used in the build.  
+  # This reflects all modules for all CPUs.  It is set as a usage convenience
+  # for iterating through the full set of dependencies regardless of which level 
+  # or context each dependency relates to (CFE, PSP, apps, etc).
+  set(MISSION_DEPS ${MISSION_APPS} ${MISSION_CORE_MODULES} ${MISSION_PSPMODULES})
   set(APP_MISSING_COUNT 0)
   
-  # Set the search path of those dependency components which are fixed
-  # All other components/dependencies are subject to the search path
-  # In particular this is OSAL and the CFE core itself
-  set(cfe-core_SEARCH_PATH "cfe/fsw")
-  set(osal_SEARCH_PATH ".")
+  message(STATUS "Search path for modules: ${MISSION_MODULE_SEARCH_PATH}")
   
   # Now search for the rest of CFS applications/libraries/modules - these may exist in
-  # a variety of places and also may in turn add more dependencies onto the list.
-  # Repeat this loop until the list becomes empty.
-  set(FIND_DEP_LIST ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
-  while(1)
-    set(FIND_DEP_CURRSET ${FIND_DEP_LIST})
-    set(FIND_DEP_LIST)
-    foreach(APP ${FIND_DEP_CURRSET})
-      set (APPFOUND)
-      foreach(APPSRC ${${APP}_SEARCH_PATH} ${CFS_APP_PATH})
-        if(IS_DIRECTORY ${MISSION_SOURCE_DIR}/${APPSRC}/${APP})
-          get_filename_component(APPFOUND "${MISSION_SOURCE_DIR}/${APPSRC}/${APP}" ABSOLUTE)
-          break()
-        endif()
-      endforeach(APPSRC ${CFS_APP_PATH})
-      if (APPFOUND)
-        set(${APP}_MISSION_DIR ${APPFOUND})
-        include(${APPFOUND}/mission_build.cmake OPTIONAL)
-        message(STATUS "Module '${APP}' found at ${APPFOUND}")
-      else()
-        message("** Module ${APP} NOT found **")
-        math(EXPR APP_MISSING_COUNT "${APP_MISSING_COUNT} + 1")
+  # any directory within the search path.  
+  foreach(APP ${MISSION_DEPS})
+    set (APPFOUND FALSE)
+    foreach(APPSRC ${MISSION_MODULE_SEARCH_PATH} ${${APP}_SEARCH_PATH})
+      if (NOT IS_ABSOLUTE "${APPSRC}")
+        set(APPSRC "${MISSION_SOURCE_DIR}/${APPSRC}")
       endif()
-    endforeach(APP ${FIND_DEP_CURRSET})
-    if (NOT FIND_DEP_LIST)
-      break()
-    endif (NOT FIND_DEP_LIST)
-    list(APPEND MISSION_DEPS ${FIND_DEP_LIST})
-  endwhile(1)
+      if(IS_DIRECTORY "${APPSRC}/${APP}")
+        set(APPFOUND "${APPSRC}/${APP}")
+        break()
+      endif()
+    endforeach()
+    if (APPFOUND)
+      get_filename_component(${APP}_MISSION_DIR "${APPFOUND}" ABSOLUTE)
+      message(STATUS "Module '${APP}' found at ${${APP}_MISSION_DIR}")
+    else()
+      message("** Module ${APP} NOT found **")
+      math(EXPR APP_MISSING_COUNT "${APP_MISSING_COUNT} + 1")
+    endif()
+  endforeach()
   
   if (APP_MISSING_COUNT GREATER 0)
     message(FATAL_ERROR "Target build incomplete, source for ${APP_MISSING_COUNT} module(s) not found.")
@@ -173,7 +140,7 @@ function(prepare)
   # Export the full set of dependencies to the parent build
   # including the individual dependency paths to each component
   set(MISSION_DEPS ${MISSION_DEPS} PARENT_SCOPE)
-  foreach(DEP ${MISSION_DEPS} ${MISSION_PSPMODULES})
+  foreach(DEP ${MISSION_DEPS})
      set(${DEP}_MISSION_DIR ${${DEP}_MISSION_DIR} PARENT_SCOPE)
   endforeach(DEP ${MISSION_DEPS})
   
@@ -191,7 +158,7 @@ function(prepare)
     list(APPEND MISSION_DOXYFILE_USER_CONTENT "@INCLUDE = ${MISSION_SOURCE_DIR}/doc/Doxyfile\n")
   endif (EXISTS "${MISSION_SOURCE_DIR}/doc/Doxyfile")
   
-  foreach(APP ${MISSION_APPS} ${MISSION_DEPS} ${MISSION_PSPMODULES})
+  foreach(APP ${MISSION_DEPS})
     # OSAL is handled specially, as only part of it is used
     if (NOT APP STREQUAL "osal" AND NOT APP STREQUAL "cfe-core")
       if (EXISTS "${${APP}_MISSION_DIR}/docs/${APP}.doxyfile.in")
@@ -257,7 +224,15 @@ function(prepare)
   add_custom_target(osalguide 
     doxygen osalguide.doxyfile 
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc") 
-
+    
+  # Pull in any application-specific mission-scope configuration
+  # This may include user configuration files such as cfe_mission_cfg.h,
+  # msgid definitions, or any other configuration/preparation that needs to 
+  # happen at mission/global scope.
+  foreach(DEP_NAME ${MISSION_DEPS})
+    include("${${DEP_NAME}_MISSION_DIR}/mission_build.cmake" OPTIONAL)
+  endforeach(DEP_NAME ${MISSION_DEPS})
+  
   # Certain runtime variables need to be "exported" to the subordinate build, such as
   # the specific arch settings and the location of all the apps.  This is done by creating
   # a temporary file within the dir and then the subprocess will read that file and re-create
@@ -275,9 +250,13 @@ function(prepare)
     "MISSION_DEPS"
     "ENABLE_UNIT_TESTS"
   )
-  foreach(APP ${MISSION_APPS} ${MISSION_PSPMODULES} ${MISSION_DEPS})
+  foreach(APP ${MISSION_DEPS})
     list(APPEND VARLIST "${APP}_MISSION_DIR")
   endforeach(APP ${MISSION_APPS})
+
+  foreach(SYSVAR ${TGTSYS_LIST})
+    list(APPEND VARLIST "BUILD_CONFIG_${SYSVAR}")
+  endforeach(SYSVAR ${TGTSYS_LIST})
 
   set(MISSION_VARCACHE)
   foreach(VARL ${VARLIST})
@@ -326,22 +305,28 @@ endfunction(prepare)
 #
 function(process_arch TARGETSYSTEM)
 
-  set(CURRSYS "${SYSID_${TARGETSYSTEM}}")
-  set(ARCH_BINARY_DIR "${CMAKE_BINARY_DIR}/${CURRSYS}")
-  file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}")
+  # The "BUILD_CONFIG" is a list of items to uniquely identify this build
+  # The first element in the list is the toolchain name, followed by config name(s)
+  set(BUILD_CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}})
+  list(GET BUILD_CONFIG 0 ARCH_TOOLCHAIN_NAME)  
+  list(REMOVE_AT BUILD_CONFIG 0)
+  # convert to a the string which is safe for a directory name
+  string(REGEX REPLACE "[^A-Za-z0-9]" "_" ARCH_CONFIG_NAME "${BUILD_CONFIG}")
+  set(ARCH_BINARY_DIR "${CMAKE_BINARY_DIR}/${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
+  file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}" "${ARCH_BINARY_DIR}/inc")
 
-  message(STATUS "Configuring for system arch: ${CURRSYS}")
+  message(STATUS "Configuring for system arch: ${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
 
   # Note - A warning is issued if you pass CMAKE_TOOLCHAIN_FILE to an already-configured build area
   # so an extra check is added to see if this is an initial run or a re-run by checking for a CMakeCache file.
-  if (NOT CURRSYS STREQUAL "native" AND NOT EXISTS "${ARCH_BINARY_DIR}/CMakeCache.txt")
+  if (NOT ARCH_TOOLCHAIN_NAME STREQUAL "native" AND NOT EXISTS "${ARCH_BINARY_DIR}/CMakeCache.txt")
     # Find the toolchain file - allow a file in the mission defs dir to supercede one in the compile dir
-    if (EXISTS ${MISSION_DEFS}/toolchain-${CURRSYS}.cmake)
-      set(TOOLCHAIN_FILE ${MISSION_DEFS}/toolchain-${CURRSYS}.cmake)
-    elseif(EXISTS ${CFE_SOURCE_DIR}/cmake/toolchain-${CURRSYS}.cmake)
-      set(TOOLCHAIN_FILE ${CFE_SOURCE_DIR}/cmake/toolchain-${CURRSYS}.cmake)
+    if (EXISTS "${MISSION_DEFS}/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
+      set(TOOLCHAIN_FILE "${MISSION_DEFS}/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
+    elseif(EXISTS "${CFE_SOURCE_DIR}/cmake/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
+      set(TOOLCHAIN_FILE "${CFE_SOURCE_DIR}/cmake/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
     else()
-      message(FATAL_ERROR "Unable to find toolchain file for ${CURRSYS}")
+      message(FATAL_ERROR "Unable to find toolchain file for ${ARCH_TOOLCHAIN_NAME}")
     endif()
     set(SELECTED_TOOLCHAIN_FILE "-DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE}")
   else()
@@ -365,24 +350,24 @@ function(process_arch TARGETSYSTEM)
         RESULT
   )
   if (NOT RESULT EQUAL 0)
-    message(FATAL_ERROR "Failed to configure ${CURRSYS}")
+    message(FATAL_ERROR "Failed to configure ${TARGETSYSTEM}")
   endif (NOT RESULT EQUAL 0)  
   
   # Hook the "make all", "make clean", and "make install" targets for the subordinate build
   # to top-level build targets prefixed by the CPU architecture.
-  add_custom_target(${CURRSYS}-all 
+  add_custom_target(${TARGETSYSTEM}-all 
    COMMAND 
       $(MAKE) all 
    WORKING_DIRECTORY 
       "${ARCH_BINARY_DIR}"
   )
-  add_custom_target(${CURRSYS}-clean 
+  add_custom_target(${TARGETSYSTEM}-clean 
    COMMAND 
       $(MAKE) clean 
    WORKING_DIRECTORY 
       "${ARCH_BINARY_DIR}"
   )
-  add_custom_target(${CURRSYS}-install 
+  add_custom_target(${TARGETSYSTEM}-install 
    COMMAND 
       $(MAKE) install 
    WORKING_DIRECTORY 
@@ -390,12 +375,12 @@ function(process_arch TARGETSYSTEM)
   )
 
   # All subordinate builds depend on the generated files being present first
-  add_dependencies(${CURRSYS}-install mission-prebuild)
-  add_dependencies(${CURRSYS}-all mission-prebuild) 
+  add_dependencies(${TARGETSYSTEM}-install mission-prebuild)
+  add_dependencies(${TARGETSYSTEM}-all mission-prebuild) 
 
-  add_dependencies(mission-all ${CURRSYS}-all)
-  add_dependencies(mission-clean ${CURRSYS}-clean)
-  add_dependencies(mission-install ${CURRSYS}-install)
+  add_dependencies(mission-all ${TARGETSYSTEM}-all)
+  add_dependencies(mission-clean ${TARGETSYSTEM}-clean)
+  add_dependencies(mission-install ${TARGETSYSTEM}-install)
   
 endfunction(process_arch TARGETSYSTEM)
 
