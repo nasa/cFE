@@ -1320,12 +1320,14 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
                 RtgTblPtr->SeqCnt);
     }/* end if */
 
+    #ifndef CFE_OMIT_DEPRECATED_6_8
     /* store the sender information */
     if(CFE_SB.SenderReporting != 0)
     {
        BufDscPtr->Sender.ProcessorId = CFE_PSP_GetProcessorId();
        strncpy(&BufDscPtr->Sender.AppName[0],CFE_SB_GetAppTskName(TskId,FullName),OS_MAX_API_NAME);
     }
+    #endif /* CFE_OMIT_DEPRECATED_6_8 */
 
     /* At this point there must be at least one destination for pkt */
 
@@ -1620,6 +1622,8 @@ int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
 }/* end CFE_SB_RcvMsg */
 
 
+#ifndef CFE_OMIT_DEPRECATED_6_8
+
 /*
  * Function: CFE_SB_GetLastSenderId - See API and header file for details
  */
@@ -1684,6 +1688,8 @@ uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId)
     }
 
 }/* end CFE_SB_GetLastSenderId */
+
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 
 /*

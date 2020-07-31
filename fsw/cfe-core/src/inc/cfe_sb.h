@@ -208,7 +208,10 @@ typedef  struct {
 extern CFE_SB_Qos_t CFE_SB_Default_Qos;/**< \brief  Defines a default priority and reliabilty for off-board routing */
 
 
-/** \brief Message Sender Identification Type Definition
+#ifndef CFE_OMIT_DEPRECATED_6_8
+
+/** \brief DEPRECATED; Message Sender Identification Type Definition
+** \deprecated
 **
 ** Parameter used in #CFE_SB_GetLastSenderId API which allows the receiver of a message
 ** to validate the sender of the message.
@@ -217,6 +220,8 @@ typedef struct {
     uint32  ProcessorId;/**< \brief Processor Id from which the message was sent */
     char    AppName[OS_MAX_API_NAME];/**< \brief Application that sent the message */
 } CFE_SB_SenderId_t;
+
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /****************** Function Prototypes **********************/
 
@@ -1173,9 +1178,12 @@ uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr);
 **/
 CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr);
 
+#ifndef CFE_OMIT_DEPRECATED_6_8
+
 /*****************************************************************************/
 /**
-** \brief Retrieve the application Info of the sender for the last message.
+** \brief DEPRECATED; Retrieve the application Info of the sender for the last message.
+** \deprecated
 **
 ** \par Description
 **          This routine can be used after a successful #CFE_SB_RcvMsg call
@@ -1203,6 +1211,8 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr);
 ** \return The last sender's application ID
 **/
 uint32  CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr,CFE_SB_PipeId_t  PipeId);
+
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /******************************************************************************/
 /**

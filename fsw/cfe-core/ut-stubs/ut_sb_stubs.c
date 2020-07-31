@@ -988,6 +988,8 @@ uint16 CFE_SB_GetChecksum(CFE_SB_MsgPtr_t MsgPtr)
     return status;
 }
 
+#ifndef CFE_OMIT_DEPRECATED_6_8
+
 uint32 CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr, CFE_SB_PipeId_t PipeId)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_GetLastSenderId), Ptr);
@@ -999,6 +1001,8 @@ uint32 CFE_SB_GetLastSenderId(CFE_SB_SenderId_t **Ptr, CFE_SB_PipeId_t PipeId)
 
     return status;
 }
+
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptPtr)
 {
