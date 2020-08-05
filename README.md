@@ -10,6 +10,14 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.7.0+dev292
+
+- Add missing include path to the target/h and wrn/coreip directory.
+Set and clarify difference between WIND_HOME and WIND_BASE variables.
+Remove unrelated comment about CEXP (remnant from RTEMS). No more errors about missing headers.
+- Version reporting is does not span multiple lines.
+- See <https://github.com/nasa/cFE/pull/792>
+
 ### Development Build: 6.7.0+dev289
 
 - Update `CFE_SB_TimeStampMsg` to save the message pointer argument `UT_Stub_CopyFromLocal` so that unit tests can check it
