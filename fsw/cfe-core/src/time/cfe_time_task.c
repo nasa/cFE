@@ -815,7 +815,7 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_Noop_t *data)
     CFE_TIME_TaskData.CommandCounter++;
 
     CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION,
-                     "No-op command. %s", CFE_VERSION_STRING);
+                     "No-op command.%s", CFE_VERSION_STRING);
 
     return CFE_SUCCESS;
 

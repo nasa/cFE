@@ -35,7 +35,7 @@
 
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER 289 /*!< Development Build: Number of commits since baseline */
+#define CFE_BUILD_NUMBER 292 /*!< Development Build: Number of commits since baseline */
 #define CFE_BUILD_BASELINE "v6.7.0" /*!< Development Build: git tag that is the base for the current development */
 
 /* Version Macro Definitions */
@@ -59,9 +59,9 @@
  * See @ref cfsversions for format differences between development and release versions. 
 */          
 #define CFE_VERSION_STRING                                                          \
-    " cFE Development Build\n "                                                     \
+    " cFE DEVELOPMENT BUILD "                                                     \
     CFE_SRC_VERSION " (Codename: Bootes)"       /* Codename for current development */  \
-    "\n Last Offical Release: cfe v6.7.0"   /* For full support please use this version */
+    ", Last Official Release: cfe v6.7.0"   /* For full support please use this version */
 
 
 /*! @brief OSAL Version Definitions. 
@@ -78,9 +78,9 @@
 
 /*! @brief Combined string with formatted combination of all cFS component versions */
 #define CFS_VERSIONS                              \
-"cFS Versions \n"                      \
-  " cfe:  "  CFE_SRC_VERSION "\n"                     \
-  " osal: "  OS_VERSION "\n"                      \
-  " psp:  "  /* CFE_PSP_VERSION is defined at runtime */ 
+"cFS Versions:"                      \
+  " cfe "  CFE_SRC_VERSION                      \
+  ", osal "  OS_VERSION                       \
+  ", psp "  /* CFE_PSP_VERSION is defined at runtime */ 
 
 #endif /* _cfe_version_ */

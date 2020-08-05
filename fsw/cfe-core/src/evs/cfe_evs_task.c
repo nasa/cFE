@@ -333,7 +333,7 @@ int32 CFE_EVS_TaskInit ( void )
   
    /* Write the AppID to the global location, now that the rest of initialization is done */
    CFE_EVS_GlobalData.EVS_AppID = AppID;
-   EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized.\n%s", CFE_VERSION_STRING);
+   EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized.%s", CFE_VERSION_STRING);
 
    return CFE_SUCCESS;
 
