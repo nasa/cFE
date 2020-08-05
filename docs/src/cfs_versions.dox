@@ -84,11 +84,11 @@
    * Reports the current development build's baseline, number, and name. Also includes a note about the latest official version. @n
    * See cfs_versions.dox for format differences between development and release versions. 
   */ 
-  #define CFE_VERSION_STRING                                                      \
-  " cFE Development Build\n "                                                     \
-  CFE_SRC_VERSION " (Codename: CONSTELLATION_NAME)"       /* Codename for current development */  \
-  "\n Last Offical Release: cfe vX.Y.Z"   /* For full support please use this version */  
-      
+  #define CFE_VERSION_STRING                                                          \
+      " cFE Development Build "                                                     \
+      CFE_SRC_VERSION " (Codename: CONSTELLATION_NAME)"       /* Codename for current development */  \
+      ", Last Official Release: cfe vX.Y.Z"   /* For full support please use this version */
+          
   \endverbatim
   
 **/

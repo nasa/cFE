@@ -354,7 +354,7 @@ int32 CFE_ES_TaskInit(void)
 #ifdef CFE_PSP_VERSION 
 
     Status = CFE_EVS_SendEvent(CFE_ES_INITSTATS_INF_EID, CFE_EVS_EventType_INFORMATION, 
-                                "\n%s%s\n cFE chksm %d",
+                                "%s%s. cFE chksm %d",
                                 CFS_VERSIONS, CFE_PSP_VERSION, (int)CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum);
 
 #else  /* if CFE_PSP_VERSION not defined use integer version macros*/
