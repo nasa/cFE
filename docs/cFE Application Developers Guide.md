@@ -605,14 +605,8 @@ Application Developer are the following:
    multiple processors on the same spacecraft.
 
 For understanding and compensating for the processor timer on a
-particular platform, the following two functions provide important
+particular platform, the following function provides important
 information.
-
--  OS_Milli2Ticks converts a given number of milliseconds into the
-appropriate number of processor clock ticks for a given amount of time.
-The Developer should never hard-code a time related value in clock
-ticks. When the code is ported to another processor, it is important for
-any time values to automatically adjust appropriately.
 
 -  OS_InfoGetTicks returns the number of microseconds per operating system
 clock tick. This can also be used to calculate the appropriate number of
