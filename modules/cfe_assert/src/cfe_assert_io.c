@@ -62,23 +62,23 @@ void UT_BSP_StartTestSegment(uint32 SegmentNumber, const char *SegmentName)
 void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
 {
     const char *Prefix;
-    uint32      MsgEnabled   = BSP_UT_Global.CurrVerbosity >> MessageType;
+    uint32      MsgEnabled = BSP_UT_Global.CurrVerbosity >> MessageType;
 
     if (MsgEnabled & 1)
     {
         switch (MessageType)
         {
             case UTASSERT_CASETYPE_ABORT:
-                Prefix       = "ABORT";
+                Prefix = "ABORT";
                 break;
             case UTASSERT_CASETYPE_FAILURE:
-                Prefix       = "FAIL";
+                Prefix = "FAIL";
                 break;
             case UTASSERT_CASETYPE_MIR:
-                Prefix       = "MIR";
+                Prefix = "MIR";
                 break;
             case UTASSERT_CASETYPE_TSF:
-                Prefix       = "TSF";
+                Prefix = "TSF";
                 break;
             case UTASSERT_CASETYPE_TTF:
                 Prefix = "TTF";
@@ -93,7 +93,7 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
                 Prefix = "END";
                 break;
             case UTASSERT_CASETYPE_PASS:
-                Prefix       = "PASS";
+                Prefix = "PASS";
                 break;
             case UTASSERT_CASETYPE_INFO:
                 Prefix = "INFO";
@@ -131,7 +131,7 @@ void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
     }
 
     CFE_ES_WriteToSysLog("TEST COMPLETE: %u tests Segment(s) executed\n\n",
-             (unsigned int)TestCounters->TestSegmentCount);
+                         (unsigned int)TestCounters->TestSegmentCount);
 
     OS_TaskExit();
 }

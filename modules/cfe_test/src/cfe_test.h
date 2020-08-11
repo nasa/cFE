@@ -38,8 +38,7 @@
 #include "uttest.h"
 #include "utassert.h"
 
-void ES_Test_AppId(void);
+void  ES_Test_AppId(void);
 int32 CFE_Test_Init(int32 LibId);
-
 
 #endif /* CFE_TEST_H */

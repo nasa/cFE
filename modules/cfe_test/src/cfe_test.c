@@ -41,5 +41,3 @@ int32 CFE_Test_Init(int32 LibId)
     UtTest_Add(ES_Test_AppId, NULL, NULL, "ES AppID");
     return CFE_SUCCESS;
 }
-
-

@@ -43,7 +43,7 @@
  * The value is in milliseconds.  Normally this shouldn't be more than
  * a second or two for apps to all reach their respective main loop(s).
  */
-#define CFE_ASSERT_MAX_STARTUP_WAIT       30000
+#define CFE_ASSERT_MAX_STARTUP_WAIT 30000
 
 /*
  * Small Extra delay before starting tests.
@@ -54,15 +54,14 @@
  *
  * The value is in milliseconds.
  */
-#define CFE_ASSERT_START_DELAY            4000
-
+#define CFE_ASSERT_START_DELAY 4000
 
 /*
  * Entry point for this application
  */
 void CFE_Assert_AppMain(void)
 {
-    int32 rc;
+    int32  rc;
     uint32 RunStatus;
 
     /*
@@ -113,7 +112,7 @@ void CFE_Assert_AppMain(void)
      * registered during startup, then it self-exits.
      */
     RunStatus = CFE_ES_RunStatus_APP_RUN;
-    if(CFE_ES_RunLoop(&RunStatus))
+    if (CFE_ES_RunLoop(&RunStatus))
     {
         OS_TaskDelay(CFE_ASSERT_START_DELAY);
 
@@ -128,8 +127,5 @@ void CFE_Assert_AppMain(void)
         RunStatus = CFE_ES_RunStatus_APP_EXIT;
     }
 
-
     CFE_ES_ExitApp(RunStatus);
 }
-
-
