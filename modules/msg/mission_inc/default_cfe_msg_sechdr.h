@@ -38,22 +38,6 @@
  * Defines
  */
 
-/* These go away w/ single framework implementation */
-/* CCSDS_TIME_SIZE is specific to the selected CFE_SB time format */
-#if (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_16_SUBS)
-/* 32 bits seconds + 16 bits subseconds */
-#define CCSDS_TIME_SIZE 6
-#elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_SUBS)
-/* 32 bits seconds + 32 bits subseconds */
-#define CCSDS_TIME_SIZE 8
-#elif (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_M_20)
-/* 32 bits seconds + 20 bits microsecs + 12 bits reserved */
-#define CCSDS_TIME_SIZE 8
-#else
-/* unknown format */
-#error unable to define CCSDS_TIME_SIZE!
-#endif
-
 /*
  * Type Definitions
  */
@@ -86,7 +70,7 @@ typedef struct
 typedef struct
 {
 
-    uint8 Time[CCSDS_TIME_SIZE]; /**< \brief Time sized for selected format */
+    uint8 Time[6]; /**< \brief Time, big endian: 4 byte seconds, 2 byte subseconds */
 
 } CFE_MSG_TelemetrySecondaryHeader_t;
 
