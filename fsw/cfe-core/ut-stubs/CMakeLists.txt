@@ -18,6 +18,7 @@ include_directories(${osal_MISSION_DIR}/ut_assert/inc)
 add_library(ut_cfe-core_stubs STATIC 
     ut_es_stubs.c
     ut_evs_stubs.c
+    ut_msg_stubs.c
     ut_sb_stubs.c
     ut_tbl_stubs.c
     ut_time_stubs.c

@@ -3017,7 +3017,7 @@ void Test_CleanupApp_API(void);
 ** \sa #UT_Text, #Test_CFE_SB_InitMsg, #Test_CFE_SB_MsgHdrSize,
 ** \sa #Test_CFE_SB_GetUserData, #Test_CFE_SB_SetGetMsgId,
 ** \sa #Test_CFE_SB_SetGetUserDataLength, #Test_CFE_SB_SetGetTotalMsgLength,
-** \sa #Test_CFE_SB_SetGetMsgTime, #Test_CFE_SB_TimeStampMsg,
+** \sa #Test_CFE_SB_SetGetMsgTime,
 ** \sa #Test_CFE_SB_SetGetCmdCode, #Test_CFE_SB_ChecksumUtils
 **
 ******************************************************************************/
@@ -3036,52 +3036,12 @@ void Test_SB_Utils(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #Test_CFE_SB_InitMsg_True, #Test_CFE_SB_InitMsg_False
-**
 ******************************************************************************/
 void Test_CFE_SB_InitMsg(void);
 
 /*****************************************************************************/
 /**
-** \brief Test message initialization, clearing the message content
-**
-** \par Description
-**        This function tests message initialization (clearing the message
-**        content).
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_InitMsg, #UT_Report
-**
-******************************************************************************/
-void Test_CFE_SB_InitMsg_True(void);
-
-/*****************************************************************************/
-/**
-** \brief Test message initialization, leaving the message content unchanged
-**
-** \par Description
-**        This function tests message initialization (leaving the message
-**        content unchanged).
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_InitMsg, #UT_Report
-**
-******************************************************************************/
-void Test_CFE_SB_InitMsg_False(void);
-
-/*****************************************************************************/
-/**
-** \brief Test getting the size of a command message header
+** \brief Test getting the size of a message header
 **
 ** \par Description
 **        This function tests getting the size of a command message
@@ -3096,26 +3056,7 @@ void Test_CFE_SB_InitMsg_False(void);
 ** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_MsgHdrSize, #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_MsgHdrSize_Cmd(void);
-
-/*****************************************************************************/
-/**
-** \brief Test getting the size of a telemetry message header
-**
-** \par Description
-**        This function tests getting the size of a telemetry message
-**        header.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_MsgHdrSize, #UT_Report
-**
-******************************************************************************/
-void Test_CFE_SB_MsgHdrSize_Tlm(void);
+void Test_CFE_SB_MsgHdrSize(void);
 
 /*****************************************************************************/
 /**
@@ -3135,10 +3076,7 @@ void Test_CFE_SB_MsgHdrSize_Tlm(void);
 ** \sa #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_GetUserData_Cmd(void);
-void Test_CFE_SB_GetUserData_CmdNoSecHdr(void);
-void Test_CFE_SB_GetUserData_Tlm(void);
-void Test_CFE_SB_GetUserData_TlmNoSecHdr(void);
+void Test_CFE_SB_GetUserData(void);
 
 /*****************************************************************************/
 /**
@@ -3178,10 +3116,7 @@ void Test_CFE_SB_SetGetMsgId(void);
 ** \sa #UT_GetActualPktLenField, #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_SetGetUserDataLength_Cmd(void);
-void Test_CFE_SB_SetGetUserDataLength_CmdNoSecHdr(void);
-void Test_CFE_SB_SetGetUserDataLength_Tlm(void);
-void Test_CFE_SB_SetGetUserDataLength_TlmNoSecHdr(void);
+void Test_CFE_SB_SetGetUserDataLength(void);
 
 /*****************************************************************************/
 /**
@@ -3220,29 +3155,7 @@ void Test_CFE_SB_SetGetTotalMsgLength(void);
 ** \sa #CFE_SB_GetMsgTime, #UT_DisplayPkt, #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_SetGetMsgTime_Cmd(void);
-void Test_CFE_SB_SetGetMsgTime_CmdNoSecHdr(void);
-void Test_CFE_SB_SetGetMsgTime_Tlm(void);
-void Test_CFE_SB_SetGetMsgTime_TlmNoSecHdr(void);
-
-/*****************************************************************************/
-/**
-** \brief Test setting the time field to the current time
-**
-** \par Description
-**        This function tests setting the time field to the current time.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_SetMsgId, #CFE_SB_TimeStampMsg,
-** \sa #CFE_SB_GetMsgTime, #UT_DisplayPkt, #UT_Report
-**
-******************************************************************************/
-void Test_CFE_SB_TimeStampMsg(void);
+void Test_CFE_SB_SetGetMsgTime(void);
 
 /*****************************************************************************/
 /**
@@ -3262,8 +3175,7 @@ void Test_CFE_SB_TimeStampMsg(void);
 ** \sa #UT_Report
 **
 ******************************************************************************/
-void Test_CFE_SB_SetGetCmdCode_Cmd(void);
-void Test_CFE_SB_SetGetCmdCode_NonCmd(void);
+void Test_CFE_SB_SetGetCmdCode(void);
 
 /*****************************************************************************/
 /**
@@ -3280,15 +3192,8 @@ void Test_CFE_SB_SetGetCmdCode_NonCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_GenerateChecksum,
-** \sa #CFE_SB_GetChecksum, #CFE_SB_ValidateChecksum, #UT_DisplayPkt,
-** \sa #CFE_SB_SetMsgId, #UT_Report
-**
 ******************************************************************************/
-void Test_CFE_SB_ChecksumUtils_Cmd(void);
-void Test_CFE_SB_ChecksumUtils_CmdNoSecHdr(void);
-void Test_CFE_SB_ChecksumUtils_Tlm(void);
-void Test_CFE_SB_ChecksumUtils_TlmNoSecHdr(void);
+void Test_CFE_SB_ChecksumUtils(void);
 
 /*****************************************************************************/
 /**

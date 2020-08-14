@@ -73,10 +73,6 @@ foreach(MODULE ${CFE_CORE_MODULES})
         ut_cfe-core_stubs
         ut_assert)
 
-  # TODO short term hack for testing with new code
-  target_link_libraries(${UT_TARGET_NAME}_UT msg)
-  #target_link_libraries(${UT_TARGET_NAME}_UT mission_msg)
-    
   add_test(${UT_TARGET_NAME}_UT ${UT_TARGET_NAME}_UT)
   install(TARGETS ${UT_TARGET_NAME}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
 endforeach(MODULE ${CFE_CORE_MODULES})
