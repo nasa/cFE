@@ -42,7 +42,6 @@
 #include "cfe_psp.h"
 #include "cfe_es_msg.h"
 #include "cfe_sb_verify.h"
-#include "cfe_sb_msg_id_util.h"
 #include <string.h>
 
 /*  Task Globals */

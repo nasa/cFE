@@ -146,24 +146,19 @@
 ** Type Definitions
 */
 
-/** \brief Generic Software Bus Message Type Definition */
-typedef union {
-    CCSDS_PriHdr_t      Hdr;   /**< \brief CCSDS Primary Header #CCSDS_PriHdr_t */
-    CCSDS_SpacePacket_t SpacePacket;
-    uint32              Dword; /**< \brief Forces minimum of 32-bit alignment for this object */
-    uint8               Byte[sizeof(CCSDS_PriHdr_t)];   /**< \brief Allows byte-level access */
-}CFE_SB_Msg_t;
+/** \brief Software Bus generic message */
+typedef CFE_MSG_Message_t CFE_SB_Msg_t;
 
-/** \brief Generic Software Bus Command Header Type Definition */
+/** \brief Aligned Software Bus command header */
 typedef union {
-    CCSDS_CommandPacket_t   Cmd;
-    CFE_SB_Msg_t            BaseMsg; /**< Base type (primary header) */
+    CFE_MSG_CommandHeader_t Cmd;
+    CFE_SB_Msg_t            BaseMsg;
 } CFE_SB_CmdHdr_t;
 
-/** \brief Generic Software Bus Telemetry Header Type Definition */
+/** \brief Aligned Software Bus telemetry header */
 typedef union {
-    CCSDS_TelemetryPacket_t Tlm;
-    CFE_SB_Msg_t            BaseMsg; /**< Base type (primary header) */
+    CFE_MSG_TelemetryHeader_t Tlm;
+    CFE_SB_Msg_t              BaseMsg;
 } CFE_SB_TlmHdr_t;
 
 #define CFE_SB_CMD_HDR_SIZE     (sizeof(CFE_SB_CmdHdr_t))/**< \brief Size of #CFE_SB_CmdHdr_t in bytes */
@@ -1313,7 +1308,7 @@ void CFE_SB_GenerateChecksum(CFE_SB_MsgPtr_t MsgPtr);
 **
 ** \par Assumptions, External Events, and Notes:
 **          - If the underlying implementation of software bus messages does not
-**            include a checksum field, then this routine will always return \c true.
+**            include a checksum field this routine will always return false.
 **
 ** \param[in]  MsgPtr      A pointer to the buffer that contains the software bus message.
 **                         This must point to the first byte of the message header.
@@ -1432,6 +1427,7 @@ static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
 /*****************************************************************************/
 /**
  * \brief Identifies packet type given message ID
+
  *
  * Provides the packet type associated with the given message ID
  *
