@@ -928,7 +928,7 @@ void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
     if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_GetUserData), &Result, sizeof(Result)) != sizeof(Result))
     {
         BytePtr = (uint8 *)MsgPtr;
-        if (CCSDS_RD_TYPE(MsgPtr->Hdr) != CCSDS_TLM)
+        if ((MsgPtr->Byte[0] & 0x10) != 0)
         {
             HdrSize = CFE_SB_CMD_HDR_SIZE;
         }
