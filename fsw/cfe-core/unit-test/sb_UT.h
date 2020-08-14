@@ -2825,10 +2825,7 @@ void Test_SendMsg_MaxMsgSizePlusOne_ZeroCopy(void);
 **        This function does not return a value.
 **
 ** \sa #UT_Text, #Test_RcvMsg_InvalidPipeId, #Test_RcvMsg_InvalidTimeout,
-** \sa #Test_RcvMsg_Poll, #Test_RcvMsg_GetLastSenderNull,
-** \sa #Test_RcvMsg_GetLastSenderInvalidPipe,
-** \sa #Test_RcvMsg_GetLastSenderInvalidCaller,
-** \sa #Test_RcvMsg_GetLastSenderSuccess, #Test_RcvMsg_Timeout,
+** \sa #Test_RcvMsg_Poll, #Test_RcvMsg_Timeout,
 ** \sa #Test_RcvMsg_PipeReadError, #Test_RcvMsg_PendForever
 **
 ******************************************************************************/
@@ -2897,110 +2894,6 @@ void Test_RcvMsg_InvalidTimeout(void);
 **
 ******************************************************************************/
 void Test_RcvMsg_Poll(void);
-
-/*****************************************************************************/
-/**
-** \brief Test receive last message response to a null sender ID
-**
-** \par Description
-**        This function tests the receive last message response to a null
-**        sender ID.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_GetLastSenderId, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
-******************************************************************************/
-void Test_RcvMsg_GetLastSenderNull(void);
-
-/*****************************************************************************/
-/**
-** \brief Test receive last message response to an invalid pipe ID
-**
-** \par Description
-**        This function tests the receive last message response to an invalid
-**        pipe ID.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_GetLastSenderId, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
-******************************************************************************/
-void Test_RcvMsg_GetLastSenderInvalidPipe(void);
-
-/*****************************************************************************/
-/**
-** \brief Test receive last message response to an invalid owner ID
-**
-** \par Description
-**        This function tests the receive last message response to an invalid
-**        owner ID.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_GetLastSenderId, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
-******************************************************************************/
-void Test_RcvMsg_GetLastSenderInvalidCaller(void);
-
-/*****************************************************************************/
-/**
-** \brief Test receive last message response when there is no last sender
-**
-** \par Description
-**        This function tests the receive last message response when no last
-**        sender.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_GetLastSenderId, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
-******************************************************************************/
-void Test_RcvMsg_GetLastSenderNoValidSender(void);
-
-/*****************************************************************************/
-/**
-** \brief Test successful receive last message request
-**
-** \par Description
-**        This function tests the successful receive last message request.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_GetLastSenderId, #UT_GetNumEventsSent, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
-******************************************************************************/
-void Test_RcvMsg_GetLastSenderSuccess(void);
 
 /*****************************************************************************/
 /**
