@@ -49,52 +49,6 @@
 
 #define CFE_TIME_PRINTED_STRING_SIZE      24 /**< \brief Required size of buffer to be passed into #CFE_TIME_Print (includes null terminator) */
 
-/*
- * To preserve source-code compatibility with existing code,
- * this allows the old enum names to still work.  This should
- * be turned off after the new names are established.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-/*
- * Compatibility Macros for the SourceSelect enumeration
- */
-#define CFE_TIME_USE_INTERN         CFE_TIME_SourceSelect_INTERNAL
-#define CFE_TIME_USE_EXTERN         CFE_TIME_SourceSelect_EXTERNAL
-
-/*
- * Compatibility Macros for the ToneSignalSelect enumeration
- */
-#define CFE_TIME_TONE_PRI           CFE_TIME_ToneSignalSelect_PRIMARY
-#define CFE_TIME_TONE_RED           CFE_TIME_ToneSignalSelect_REDUNDANT
-
-/*
- * Compatibility Macros for the AdjustDirection enumeration
- */
-#define CFE_TIME_ADD_ADJUST         CFE_TIME_AdjustDirection_ADD
-#define CFE_TIME_SUB_ADJUST         CFE_TIME_AdjustDirection_SUBTRACT
-
-/*
- * Compatibility Macros for the FlywheelState enumeration
- */
-#define CFE_TIME_NO_FLY             CFE_TIME_FlywheelState_NO_FLY
-#define CFE_TIME_IS_FLY             CFE_TIME_FlywheelState_IS_FLY
-
-/*
- * Compatibility Macros for the SetState enumeration
- */
-#define CFE_TIME_NOT_SET            CFE_TIME_SetState_NOT_SET
-#define CFE_TIME_WAS_SET            CFE_TIME_SetState_WAS_SET
-
-/*
- * Compatibility Macros for the ClockState enumeration
- */
-#define CFE_TIME_INVALID            CFE_TIME_ClockState_INVALID
-#define CFE_TIME_VALID              CFE_TIME_ClockState_VALID
-#define CFE_TIME_FLYWHEEL           CFE_TIME_ClockState_FLYWHEEL
-
-
-#endif  /* CFE_OMIT_DEPRECATED_6_6 */
 
 /*****************************************************************************/
 /*
@@ -582,65 +536,6 @@ uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds);
 ******************************************************************************/
 uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);
 
-#ifndef CFE_OMIT_DEPRECATED_6_7
-/*****************************************************************************/
-/**
-** \brief DEPRECATED: Converts cFE seconds into the File System's seconds
-** \deprecated Utilize #CFE_FS_Header_t time fields for the creation
-**             time in mission format, or syncronize local OS time
-**             with mission time for use with stat command.
-**
-** \par Description
-**        File systems use specific time epochs for their time tagging of files.
-**        Since spacecraft systems rarely use an epoch that matches a particular
-**        file system, this function provides a mechanism to translate a given
-**        spacecraft time (in seconds) to the file system's time.  The conversion
-**        is controlled by the configuration parameter #CFE_MISSION_TIME_FS_FACTOR which
-**        is set equal to the number of seconds between the spacecraft's epoch and
-**        the file system's epoch.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in] SecondsCFE   The spacecraft time, in seconds, to be converted.
-**
-** \return The equivalent time, in seconds, for the file system.
-**
-** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs, 
-**     #CFE_TIME_FS2CFESeconds
-**
-******************************************************************************/
-uint32 CFE_TIME_CFE2FSSeconds(uint32 SecondsCFE);
-
-/*****************************************************************************/
-/**
-** \brief DEPRECATED: Converts a file system's seconds into cFE seconds
-** \deprecated Utilize #CFE_FS_Header_t time fields for the creation
-**             time in mission format, or syncronize local OS time
-**             with mission time for use with stat command.
-**
-** \par Description
-**        File systems use specific time epochs for their time tagging of files.
-**        Since spacecraft systems rarely use an epoch that matches a particular
-**        file system, this function provides a mechanism to translate a file
-**        system time (in seconds) into the spacecraft time (in seconds).  The 
-**        conversion is controlled by the configuration parameter #CFE_MISSION_TIME_FS_FACTOR 
-**        which is set equal to the number of seconds between the spacecraft's epoch and
-**        the file system's epoch.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in] SecondsFS   The file system time, in seconds, to be converted.
-**
-** \return The equivalent time, in seconds, for the spacecraft.
-**
-** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs, 
-**     #CFE_TIME_CFE2FSSeconds
-**
-******************************************************************************/
-uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS);
-#endif /* CFE_OMIT_DEPRECATED_6_7 */
 /**@}*/
 
 /** @defgroup CFEAPITIMEExternSource cFE External Time Source APIs

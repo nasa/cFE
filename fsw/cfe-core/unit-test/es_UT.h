@@ -59,7 +59,6 @@
 #include "cfe_es_global.h"
 #include "cfe_es_log.h"
 #include "cfe_es_perf.h"
-#include "cfe_es_shell.h"
 #include "cfe_es_task.h"
 #include "cfe_es_verify.h"
 #include "cfe_es_start.h"

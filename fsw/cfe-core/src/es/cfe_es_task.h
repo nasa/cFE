@@ -101,13 +101,6 @@ typedef struct
   */
   CFE_ES_HousekeepingTlm_t     HkPacket;
 
-#ifndef CFE_OMIT_DEPRECATED_6_7
-  /*
-  ** ES Shell output telemetry packet
-  */
-  CFE_ES_ShellTlm_t  ShellPacket;
-#endif
-
   /*
   ** Single application telemetry packet
   */
@@ -179,9 +172,6 @@ int32 CFE_ES_HousekeepingCmd(const CFE_SB_CmdHdr_t *data);
 int32 CFE_ES_NoopCmd(const CFE_ES_Noop_t *Cmd);
 int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCounters_t *data);
 int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data);
-#ifndef CFE_OMIT_DEPRECATED_6_7
-int32 CFE_ES_ShellCmd(const CFE_ES_Shell_t *data);
-#endif
 int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data);
 int32 CFE_ES_StopAppCmd(const CFE_ES_StopApp_t *data);
 int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartApp_t *data);

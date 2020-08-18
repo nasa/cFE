@@ -752,22 +752,6 @@ typedef struct{
     CFE_SB_AllSubscriptionsTlm_Payload_t Payload;
 } CFE_SB_AllSubscriptionsTlm_t;
 
-/*
- * COMPATIBILITY TYPEDEFS:
- * In some circumstances applications may subscribe to telemetry from this component,
- * and therefore the name changes may break existing code.  For these situations a
- * typedef is created to continue supporting the previous name.  These should be
- * removed in the next CFE release.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-typedef CFE_SB_HousekeepingTlm_t        CFE_SB_HKMsg_t;
-typedef CFE_SB_StatsTlm_t               CFE_SB_StatMsg_t;
-typedef CFE_SB_AllSubscriptionsTlm_t    CFE_SB_PrevSubMsg_t;
-typedef CFE_SB_SingleSubscriptionTlm_t  CFE_SB_SubRprtMsg_t;
-
-#endif /* CFE_OMIT_DEPRECATED_6_6 */
-
 
 #endif /* _cfe_sb_msg_ */
 /*****************************************************************************/
