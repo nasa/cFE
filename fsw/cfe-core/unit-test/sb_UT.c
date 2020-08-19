@@ -3332,11 +3332,6 @@ void Test_RcvMsg_API(void)
     SB_UT_ADD_SUBTEST(Test_RcvMsg_InvalidPipeId);
     SB_UT_ADD_SUBTEST(Test_RcvMsg_InvalidTimeout);
     SB_UT_ADD_SUBTEST(Test_RcvMsg_Poll);
-    SB_UT_ADD_SUBTEST(Test_RcvMsg_GetLastSenderNull);
-    SB_UT_ADD_SUBTEST(Test_RcvMsg_GetLastSenderInvalidPipe);
-    SB_UT_ADD_SUBTEST(Test_RcvMsg_GetLastSenderInvalidCaller);
-    SB_UT_ADD_SUBTEST(Test_RcvMsg_GetLastSenderNoValidSender);
-    SB_UT_ADD_SUBTEST(Test_RcvMsg_GetLastSenderSuccess);
     SB_UT_ADD_SUBTEST(Test_RcvMsg_Timeout);
     SB_UT_ADD_SUBTEST(Test_RcvMsg_PipeReadError);
     SB_UT_ADD_SUBTEST(Test_RcvMsg_PendForever);
@@ -3404,117 +3399,6 @@ void Test_RcvMsg_Poll(void)
     TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
 } /* end Test_RcvMsg_Poll */
-
-/*
-** Test receive last message response to a null sender ID
-*/
-void Test_RcvMsg_GetLastSenderNull(void)
-{
-    CFE_SB_PipeId_t PipeId;
-    uint32          PipeDepth = 10;
-
-    SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvMsgTestPipe"));
-
-    ASSERT_EQ(CFE_SB_GetLastSenderId(NULL, PipeId), CFE_SB_BAD_ARGUMENT);
-
-    EVTCNT(2);
-
-    EVTSENT(CFE_SB_LSTSNDER_ERR1_EID);
-
-    TEARDOWN(CFE_SB_DeletePipe(PipeId));
-
-} /* end Test_RcvMsg_GetLastSenderNull */
-
-/*
-** Test receive last message response to an invalid pipe ID
-*/
-void Test_RcvMsg_GetLastSenderInvalidPipe(void)
-{
-    CFE_SB_PipeId_t   PipeId;
-    CFE_SB_PipeId_t   InvalidPipeId = 250;
-    CFE_SB_SenderId_t *GLSPtr;
-    uint32            PipeDepth = 10;
-
-    SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvMsgTestPipe"));
-
-    ASSERT_EQ(CFE_SB_GetLastSenderId(&GLSPtr, InvalidPipeId), CFE_SB_BAD_ARGUMENT);
-
-    EVTCNT(2);
-
-    EVTSENT(CFE_SB_LSTSNDER_ERR2_EID);
-
-    TEARDOWN(CFE_SB_DeletePipe(PipeId));
-
-} /* end Test_RcvMsg_GetLastSenderInvalidPipe */
-
-/*
-** Test receive last message response to an invalid owner ID
-*/
-void Test_RcvMsg_GetLastSenderInvalidCaller(void)
-{
-    CFE_SB_PipeId_t   PipeId;
-    CFE_SB_SenderId_t *GLSPtr;
-    uint32            PipeDepth = 10;
-    uint32            OrigPipeOwner;
-
-    SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvMsgTestPipe"));
-
-    /* Change pipe owner ID to execute 'invalid caller' code */
-    OrigPipeOwner = CFE_SB.PipeTbl[PipeId].AppId;
-    CFE_SB.PipeTbl[PipeId].AppId = OrigPipeOwner + 1;
-    ASSERT_EQ(CFE_SB_GetLastSenderId(&GLSPtr, PipeId), CFE_SB_BAD_ARGUMENT);
-
-    EVTCNT(2);
-
-    EVTSENT(CFE_SB_GLS_INV_CALLER_EID);
-
-    /* Restore original pipe owner apid */
-    CFE_SB.PipeTbl[PipeId].AppId = OrigPipeOwner;
-    TEARDOWN(CFE_SB_DeletePipe(PipeId));
-
-} /* end Test_RcvMsg_GetLastSenderInvalidCaller */
-
-
-void Test_RcvMsg_GetLastSenderNoValidSender(void)
-{
-    CFE_SB_PipeId_t   PipeId;
-    CFE_SB_SenderId_t *GLSPtr;
-    uint32            PipeDepth = 10;
-
-    SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvMsgTestPipe"));
-    ASSERT_EQ(CFE_SB_GetLastSenderId(&GLSPtr, PipeId), CFE_SB_NO_MSG_RECV);
-
-    EVTCNT(1);
-  
-    TEARDOWN(CFE_SB_DeletePipe(PipeId));
-
-} /* end Test_RcvMsg_GetLastSenderNoValidSender */
-
-
-/*
-** Test successful receive last message request
-*/
-void Test_RcvMsg_GetLastSenderSuccess(void)
-{
-    CFE_SB_PipeId_t    PipeId;
-    CFE_SB_SenderId_t  *GLSPtr;
-    SB_UT_Test_Tlm_t   TlmPkt;
-    CFE_SB_MsgPtr_t    TlmPktPtr = (CFE_SB_MsgPtr_t) &TlmPkt;
-    CFE_SB_MsgPtr_t    PtrToMsg;
-    uint32             PipeDepth = 10;
-
-    SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvMsgTestPipe"));
-    CFE_SB_InitMsg(&TlmPkt, SB_UT_TLM_MID, sizeof(TlmPkt), true);
-    SETUP(CFE_SB_Subscribe(SB_UT_TLM_MID, PipeId));
-    SETUP(CFE_SB_SendMsg(TlmPktPtr));
-    SETUP(CFE_SB_RcvMsg(&PtrToMsg, PipeId,CFE_SB_PEND_FOREVER));
-    ASSERT(CFE_SB_GetLastSenderId(&GLSPtr, PipeId));
-
-    EVTCNT(3);
-
-    TEARDOWN(CFE_SB_DeletePipe(PipeId));
-
-} /* end Test_RcvMsg_GetLastSenderSuccess */
 
 /*
 ** Test receiving a message response to a timeout
