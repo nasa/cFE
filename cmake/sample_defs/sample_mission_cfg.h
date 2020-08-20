@@ -67,26 +67,6 @@
 #undef MESSAGE_FORMAT_IS_CCSDS_VER_2
 
 
-
-/** \name Packet timestamp format identifiers */
-/** \{ */
-#define CFE_MISSION_SB_TIME_32_16_SUBS   1  /**< \brief 32 bits seconds + 16 bits subseconds (units = 2^^-16)  */
-#define CFE_MISSION_SB_TIME_32_32_SUBS   2  /**< \brief 32 bits seconds + 32 bits subseconds (units = 2^^-32)  */
-#define CFE_MISSION_SB_TIME_32_32_M_20   3  /**< \brief 32 bits seconds + 20 bits microsecs + 12 bits reserved */
-/** \} */
-
-/**
-**  \cfemissioncfg Packet Timestamp Format Selection
-**
-**  \par Description:
-**      Defines the size, format and contents of the telemetry packet timestamp.
-**
-**  \par Limits
-**      Must be defined as one of the supported formats listed above
-*/
-#define CFE_MISSION_SB_PACKET_TIME_FORMAT  CFE_MISSION_SB_TIME_32_16_SUBS
-
-
 /**
 **  \cfesbcfg Maximum SB Message Size
 **
@@ -699,10 +679,6 @@
 #ifndef CFE_OMIT_DEPRECATED_6_6
 
 #define CFE_SPACECRAFT_ID           CFE_MISSION_SPACECRAFT_ID
-#define CFE_SB_TIME_32_16_SUBS      CFE_MISSION_SB_TIME_32_16_SUBS
-#define CFE_SB_TIME_32_32_SUBS      CFE_MISSION_SB_TIME_32_32_SUBS
-#define CFE_SB_TIME_32_32_M_20      CFE_MISSION_SB_TIME_32_32_M_20
-#define CFE_SB_PACKET_TIME_FORMAT   CFE_MISSION_SB_PACKET_TIME_FORMAT
 #define CFE_SB_MAX_SB_MSG_SIZE      CFE_MISSION_SB_MAX_SB_MSG_SIZE
 #define CFE_TIME_CFG_DEFAULT_TAI    CFE_MISSION_TIME_CFG_DEFAULT_TAI
 #define CFE_TIME_CFG_DEFAULT_UTC    CFE_MISSION_TIME_CFG_DEFAULT_UTC

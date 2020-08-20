@@ -21,7 +21,7 @@ set(${DEP}_SRC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cfe_msg_msgid_shared.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cfe_msg_sechdr_checksum.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cfe_msg_sechdr_fc.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/cfe_msg_sechdr_time_old.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cfe_msg_sechdr_time.c
 )
 
 # Source selection for if CCSDS extended header is included, and MsgId version use
