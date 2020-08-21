@@ -1182,7 +1182,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     uint16                  TotalMsgSize;
     CFE_SB_MsgRouteIdx_t    RtgTblIdx;
     uint32                  TskId = 0;
-    uint16                  i;
+    uint32                  i;
     char                    FullName[(OS_MAX_API_NAME * 2)];
     CFE_SB_EventBuf_t       SBSndErr;
     char                    PipeName[OS_MAX_API_NAME] = {'\0'};
