@@ -80,8 +80,11 @@
     #error CFE_PLATFORM_SB_BUF_MEMORY_BYTES cannot be greater than UINT32_MAX (4 Gigabytes)!
 #endif
 
-#if ((CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_SUBS) || \
-     (CFE_MISSION_SB_PACKET_TIME_FORMAT == CFE_MISSION_SB_TIME_32_32_M_20))
+/*
+ * Legacy time formats no longer supported in core cFE, this will pass
+ * if default is selected or if both defines are removed
+ */
+#if (CFE_MISSION_SB_PACKET_TIME_FORMAT != CFE_MISSION_SB_TIME_32_16_SUBS)
     #error Legacy CFE_MISSION_SB_PACKET_TIME_FORMAT implementations no longer supported in core
 #endif
 
