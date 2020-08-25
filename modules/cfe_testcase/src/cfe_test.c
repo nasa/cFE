@@ -38,6 +38,6 @@
  */
 int32 CFE_Test_Init(int32 LibId)
 {
-    UtTest_Add(ES_Test_AppId, NULL, NULL, "ES AppID");
+    UtTest_Add(ES_Test_InfoApi, NULL, NULL, "ES Info Api");
     return CFE_SUCCESS;
 }
