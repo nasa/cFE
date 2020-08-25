@@ -14,6 +14,7 @@ set(MISSION_CORE_MODULES
     "cfe-core" 
     "osal"
     "psp"
+    "msg"
 )
 
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built

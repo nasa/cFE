@@ -10,6 +10,14 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev28
+
+- Add msg stubs, update SB_UT to use them, and remove msg module include from unit tests
+- Collapses time options down to just 32 bit second, 16 bit subsecond, always big endian. Removes old defines, and triggers an error if the configuration is set to a format that was removed.
+- Enables source selection and out-of-tree mission-defined overrides in the msg directory
+- Unit tests added from within unit tests will not execute, replaced this pattern with direct calls to the main subtest setup routine.
+- See <https://github.com/nasa/cFE/pull/833>
+
 ### Development Build: 6.8.0-rc1+dev13
 
 - Deprecates `CFE_SB_GetLastSenderId()` API by introducing new `CFE_OMIT_DEPRECATED_6_8` tag

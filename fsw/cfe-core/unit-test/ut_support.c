@@ -472,7 +472,7 @@ void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, uint32 size)
 */
 int16 UT_GetActualPktLenField(CFE_SB_MsgPtr_t MsgPtr)
 {
-    return ( ( MsgPtr->Hdr.Length[0] << 8) + MsgPtr->Hdr.Length[1] );
+    return ( ( MsgPtr->CCSDS.Pri.Length[0] << 8) + MsgPtr->CCSDS.Pri.Length[1] );
 }
 
 /*

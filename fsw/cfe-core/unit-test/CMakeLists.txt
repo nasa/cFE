@@ -26,6 +26,11 @@ add_library(ut_cfe-core_support STATIC
     ut_support.c
     ut_osprintf_stubs.c
 )
+target_include_directories(ut_cfe-core_support PUBLIC
+    ${cfe-core_MISSION_DIR}/src/es
+    ${cfe-core_MISSION_DIR}/src/evs
+    ${cfe-core_MISSION_DIR}/src/time
+    ${CMAKE_CURRENT_SOURCE_DIR})
 
 # For each core module, generate the associated unit test
 # This is done by linking the stubs of every OTHER module with the
@@ -67,7 +72,7 @@ foreach(MODULE ${CFE_CORE_MODULES})
         ut_cfe-core_support
         ut_cfe-core_stubs
         ut_assert)
-    
+
   add_test(${UT_TARGET_NAME}_UT ${UT_TARGET_NAME}_UT)
   install(TARGETS ${UT_TARGET_NAME}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
 endforeach(MODULE ${CFE_CORE_MODULES})
