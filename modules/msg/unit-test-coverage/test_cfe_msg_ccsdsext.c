@@ -57,12 +57,16 @@ void Test_MSG_Init_Ext(void)
     CFE_MSG_System_t        system;
     CFE_MSG_Endian_t        endian;
     bool                    is_v1;
+    int                     sc_id = 0xab;
 
     /* Get msgid version by checking if msgid sets header version */
     memset(&msg, 0xFF, sizeof(msg));
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &hdrver), CFE_SUCCESS);
     is_v1 = (hdrver == 0);
+
+    /* Set up return */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_GetSpacecraftId), 1, sc_id);
 
     UT_Text("Set to all F's, msgid value = 0, and run with clearing");
     memset(&msg, 0xFF, sizeof(msg));
@@ -83,7 +87,7 @@ void Test_MSG_Init_Ext(void)
 
     /* Default system check */
     ASSERT_EQ(CFE_MSG_GetSystem(&msg, &system), CFE_SUCCESS);
-    ASSERT_EQ(system, CFE_MISSION_SPACECRAFT_ID);
+    ASSERT_EQ(system, sc_id);
 
     /* Default endian check */
     ASSERT_EQ(CFE_MSG_GetEndian(&msg, &endian), CFE_SUCCESS);
