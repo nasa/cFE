@@ -78,8 +78,9 @@ int32 CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
     /* Zero checksum so new checksum will be correct */
     cmd->Sec.Checksum = 0;
 
-    /* Compute and set */
-    cmd->Sec.Checksum = CFE_MSG_ComputeCheckSum((CFE_MSG_Message_t *)cmd);
+    /* Compute using aligned MsgPtr and set, suppress false style warning */
+    /* cppcheck-suppress redundantAssignment */
+    cmd->Sec.Checksum = CFE_MSG_ComputeCheckSum(MsgPtr);
 
     return CFE_SUCCESS;
 }
