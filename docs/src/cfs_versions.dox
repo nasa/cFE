@@ -1,94 +1,96 @@
 /**
   \page cfsversions Version Numbers
- 
+
   <H2> Version Number Semantics </H2>
- 
+
   The version number is a sequence of four numbers, generally separated by dots when written. These are, in order,
   the Major number, the Minor number, the Revision number, and the Mission Revision number. Missions may modify the Mission Revision information as needed to suit their needs.
- 
+
   It is important to note that Major, Minor, and Revision numbers are only updated upon official releases of tagged
   versions, \b NOT on development builds. We aim to follow the Semantic Versioning v2.0 specification with our versioning.
- 
+
   The MAJOR number shall be incremented on release to indicate when there is a change to an API
   that may cause existing, correctly-written cFS components to stop working. It may also be incremented for a
   release that contains changes deemed to be of similar impact, even if there are no actual changes to the API.
- 
+
   The MINOR number shall be incremented on release to indicate the addition of features to the API
   which do not break the existing code.  It may also be incremented for a release that contains changes deemed
   to be of similar impact, even if there are no actual updates to the API.
- 
-  The REVISION number shall be incremented on changes that benefit from unique identification such as bug fixes or major documentation updates. The Revision number may also be updated if there are other changes contained within a release that make it desirable for applications to distinguish one release from another.
- 
+
+  The REVISION number shall be incremented on changes that benefit from unique identification such as bug fixes or major documentation updates.
+  The Revision number may also be updated if there are other changes contained within a release that make it desirable for applications to distinguish one release from another.
+  WARNING: The revision number is set to the number 99 in development builds. To distinguish between development builds refer to the BUILD_NUMBER and BUILD_BASELINE detailed in the section "Identifying Development Builds". 
+
   The Major, Minor, and Revision numbers are provided in this header file as part of the API
   definition; this macro must expand to a simple integer value, so that it can be used in simple if directives by the macro preprocessor.
- 
+
   The Mission Version number shall be set to zero in all officially released packages, and is entirely reserved for the use of the mission. The Mission Version is provided as a simple macro defined in the cfe_platform_cfg.h header file.
- 
+
   <H2> Version Number Flexibility </H2>
- 
+
   The major number may increment when there is no breaking change to the API, if the changes are significant enough to
   warrant the same level of attention as a breaking API change.
- 
+
   The minor number may increment when there have been no augmentations to the API, if changes are as significant as
   additions to the public API.
- 
+
   The revision numbers may increment in implementations where no actual implementation-specific code has changed, if
   there are other changes within the release with similar significance.
- 
+
   <H2> How and Where Defined </H2>
- 
+
   The Major, Minor, and Revision components of the version are provided as simple macros defined in the cfe_version.h header file as part of the API definition; these macros must expand to simple integer values, so that they can be used in simple if directives by the macro preprocessor.
- 
+
   The Mission Version is provided as a simple macro defined in the cfe_platform_cfg.h header file. As delivered in official releases, these macros must expand to simple integer values, so that they can be used in simple macro preprocessor conditions, but delivered code should not prevent a mission from, for example, deciding that the Mission Version is actually a text string.
- 
-  <H2> Identification of development builds </H2>
- 
-  In order to distinguish between development versions, we also provide a BUILDNUMBER.
- 
+
+  <H2> Identifying Development Builds </H2>
+
+  In order to distinguish between development versions, we also provide a BUILD_NUMBER.
+
   The BUILD_NUMBER reflects the number of commits since the BUILD_BASELINE, a baseline git tag, for each particular
   component. The BUILD_NUMBER integer increases monotonically for a given development cycle. The BUILD_BASELINE identifies the current development cycle and is a git tag with format vX.Y.Z. The Codename used in the version string also refers to the current development cycle. When a new baseline tag and codename are created, the the BUILD_NUMBER resets to zero and begins increasing
   from a new baseline.
- 
+
   <H2> Templates for the version and version string </H2>
-  
+
   The following templates are the code to be used in cfe_version.h for either official releases or development builds. The apps and repositories follow the same pattern by replacing the CFE_ prefix with the appropriate name; for example, osal uses OS_, psp uses CFE_PSP_IMPL, and so on.
-  
+
   <H3> Template for Official Releases </H3>
-  
+
   \verbatim
 
-  /*<! Official Release Version Number */    
-  #define CFE_SRC_VERSION \ 
+  /*<! Official Release Version Number */
+  #define CFE_SRC_VERSION \
       CFE_STR(CFE_MAJOR_VERSION) "." \
       CFE_STR(CFE_MINOR_VERSION) "." \
       CFE_STR(CFE_REVISION) "."      \
-      CFE_STR(CFE_MISSION_REV)    
-    
+      CFE_STR(CFE_MISSION_REV)
+
   #define CFE_VERSION_STRING \
       "cFE version " CFE_SRC_VERSION
 
   \endverbatim
-  
+
   <H3> Template for Development Builds </H3>
 
   \verbatim
 
-  /*! @brief Development Build Version Number. 
+  /*! @brief Development Build Version Number.
    * Baseline git tag + Number of commits since baseline. @n
    * See cfs_versions.dox for format differences between development and release versions.
    */
-  #define CFE_SRC_VERSION \ 
-      CFE_BUILD_BASELINE CFE_STR(CFE_BUILD_NUMBER) 
+  #define CFE_SRC_VERSION \
+      CFE_BUILD_BASELINE CFE_STR(CFE_BUILD_NUMBER)
 
-  /*! @brief Development Build Version String. 
+  /*! @brief Development Build Version String.
    * Reports the current development build's baseline, number, and name. Also includes a note about the latest official version. @n
-   * See cfs_versions.dox for format differences between development and release versions. 
-  */ 
+   * See cfs_versions.dox for format differences between development and release versions.
+  */
   #define CFE_VERSION_STRING                                                          \
       " cFE Development Build "                                                     \
       CFE_SRC_VERSION " (Codename: CONSTELLATION_NAME)"       /* Codename for current development */  \
       ", Last Official Release: cfe vX.Y.Z"   /* For full support please use this version */
-          
+
   \endverbatim
-  
+
 **/
