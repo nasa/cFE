@@ -19,10 +19,6 @@
         <LI> \ref OSAPIMsgQueue
         <LI> \ref OSAPISem
         <LI> \ref OSAPITime
-        <LI> \ref OSAPIExc
-        <LI> \ref OSAPIFPUExc
-        <LI> \ref OSAPIInterrupt
-        <LI> \ref OSAPIShMem
         <LI> \ref OSAPIHeap
         <LI> \ref OSAPIError
         <LI> \ref OSAPISelect
@@ -36,7 +32,6 @@
       <LI> \subpage osalfsfd
       <LI> \ref OSFileAccess
       <LI> \ref OSFileOffset
-      <LI> \ref OSVolType
       <LI> APIs
       <UL>
         <LI> \ref OSAPIFile
