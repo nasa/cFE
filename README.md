@@ -10,6 +10,15 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev42
+
+- Removes reference from documentation.
+- CFE_SB_SendMsg stub now behaves the same as CFE_SB_TimeStampMsg (copies message pointer from local). No longer need to emulate CFE_SB_InitMsg from test code, set the API/stub data buffers directly.
+- Removed iterator modification from within the loop... replaced with break.
+- Resolves loop iterator size too small for comparison.
+- Replaced CFE_MISSION_SPACECRAFT_ID use with CFE_PSP_GetSpacecraftId() and updated unit test
+- See <https://github.com/nasa/cFE/pull/849>
+
 ### Development Build: 6.8.0-rc1+dev28
 
 - Add msg stubs, update SB_UT to use them, and remove msg module include from unit tests
