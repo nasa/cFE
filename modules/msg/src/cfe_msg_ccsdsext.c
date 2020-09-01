@@ -25,6 +25,7 @@
 #include "cfe_msg_priv.h"
 #include "cfe_msg_defaults.h"
 #include "cfe_error.h"
+#include "cfe_psp.h"
 
 /* CCSDS Extended definitions */
 #define CFE_MSG_EDSVER_SHIFT  11     /**< \brief CCSDS EDS version shift */
@@ -49,7 +50,7 @@ void CFE_MSG_SetDefaultCCSDSExt(CFE_MSG_Message_t *MsgPtr)
 
     /* Default bits of the subsystem, for whatever isn't set by MsgId */
     CFE_MSG_SetSubsystem(MsgPtr, (CFE_MSG_Subsystem_t)CFE_PLATFORM_DEFAULT_SUBSYS);
-    CFE_MSG_SetSystem(MsgPtr, (CFE_MSG_System_t)CFE_MISSION_SPACECRAFT_ID);
+    CFE_MSG_SetSystem(MsgPtr, (CFE_MSG_System_t)CFE_PSP_GetSpacecraftId());
 }
 
 /******************************************************************************

@@ -1375,7 +1375,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDS_t *data)
             if (strncmp(CFE_TBL_TaskData.CritReg[i].Name, TableName, CFE_TBL_MAX_FULL_NAME_LEN) == 0)
             {
                 CritRegRecPtr = &CFE_TBL_TaskData.CritReg[i];
-                i=CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES;
+                break;
             }
         }
         
