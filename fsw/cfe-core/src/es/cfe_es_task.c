@@ -1003,8 +1003,8 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data)
         {
             CFE_ES_TaskData.CommandCounter++;
             CFE_EVS_SendEvent(CFE_ES_START_INF_EID, CFE_EVS_EventType_INFORMATION,
-                    "Started %s from %s, AppID = %d",
-                    LocalAppName, LocalFile, (int)AppID);
+                    "Started %s from %s, AppID = %lu",
+                    LocalAppName, LocalFile, CFE_ES_ResourceID_ToInteger(AppID));
         }
         else
         {
@@ -1192,13 +1192,16 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data)
 
     Result = CFE_ES_GetAppIDByName(&AppID, LocalApp);
 
+    if (Result == CFE_SUCCESS)
+    {
+        Result = CFE_ES_GetAppInfo(&(CFE_ES_TaskData.OneAppPacket.Payload.AppInfo), AppID);
+    }
+
     /*
     ** Send appropriate event message...
     */
     if (Result == CFE_SUCCESS)
     {
-
-        CFE_ES_GetAppInfoInternal(AppID, &(CFE_ES_TaskData.OneAppPacket.Payload.AppInfo));
         /*
         ** Send application status telemetry packet.
         */
@@ -1246,6 +1249,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
     CFE_ES_AppInfo_t      AppInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                  QueryAllFilename[OS_MAX_PATH_LEN];
+    CFE_ES_AppRecord_t    *AppRecPtr;
 
     /*
     ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
@@ -1301,20 +1305,22 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
         /*
         ** Loop through the ES AppTable for main applications
         */
+        AppRecPtr = CFE_ES_Global.AppTable;
         for(i=0;i<CFE_PLATFORM_ES_MAX_APPLICATIONS;i++)
         {
-            if(CFE_ES_Global.AppTable[i].AppState != CFE_ES_AppState_UNDEFINED)
+            /*
+            ** zero out the local entry
+            */
+            memset(&AppInfo,0,sizeof(CFE_ES_AppInfo_t));
+
+            /*
+            ** Populate the AppInfo entry
+            ** The internal routine checks the status of the entry
+            */
+            Result = CFE_ES_GetAppInfoInternal(AppRecPtr, &AppInfo);
+
+            if ( Result == CFE_SUCCESS )
             {
-                /*
-                ** zero out the local entry
-                */
-                memset(&AppInfo,0,sizeof(CFE_ES_AppInfo_t));
-
-                /*
-                ** Populate the AppInfo entry
-                */
-                CFE_ES_GetAppInfoInternal(i, &AppInfo);
-
                 /*
                 ** Write the local entry to file
                 */
@@ -1336,6 +1342,8 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
                 FileSize += Result;
                 EntryCount ++;
             }
+
+            ++AppRecPtr;
         } /* end for */
 
         OS_close(FileDescriptor);
@@ -1371,7 +1379,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
     CFE_ES_TaskInfo_t          TaskInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                       QueryAllFilename[OS_MAX_PATH_LEN];
-
+    CFE_ES_TaskRecord_t        *TaskRecPtr;
     /*
     ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
     */
@@ -1426,20 +1434,21 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
         /*
         ** Loop through the ES AppTable for main applications
         */
+        TaskRecPtr = CFE_ES_Global.TaskTable;
         for(i=0;i<OS_MAX_TASKS;i++)
         {
-            if(CFE_ES_Global.TaskTable[i].RecordUsed != false)
+            /*
+            ** zero out the local entry
+            */
+            memset(&TaskInfo,0,sizeof(CFE_ES_TaskInfo_t));
+
+            /*
+            ** Populate the TaskInfo entry
+            */
+            Result = CFE_ES_GetTaskInfoInternal(TaskRecPtr, &TaskInfo);
+
+            if(Result == CFE_SUCCESS)
             {
-                /*
-                ** zero out the local entry
-                */
-                memset(&TaskInfo,0,sizeof(CFE_ES_TaskInfo_t));
-
-                /*
-                ** Populate the AppInfo entry
-                */
-                CFE_ES_GetTaskInfo(&TaskInfo,CFE_ES_Global.TaskTable[i].TaskId);
-
                 /*
                 ** Write the local entry to file
                 */
@@ -1461,6 +1470,8 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
                 FileSize += Result;
                 EntryCount ++;
             }
+
+            ++TaskRecPtr;
 
         } /* end for */
 

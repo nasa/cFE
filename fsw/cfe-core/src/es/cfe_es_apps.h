@@ -101,7 +101,7 @@ typedef struct
 */
 typedef struct
 {
-   CFE_ES_AppState_Enum_t  AppState;                 /* Is the app running, or stopped, or waiting? */
+   CFE_ES_AppState_Enum_t  AppState;                    /* Is the app running, or stopped, or waiting? */
    uint32                  Type;                        /* The type of App: CORE or EXTERNAL */
    CFE_ES_AppStartParams_t StartParams;                 /* The start parameters for an App */
    CFE_ES_ControlReq_t     ControlReq;                  /* The Control Request Record for External cFE Apps */
@@ -211,12 +211,12 @@ bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg);
 /*
 ** Perform the requested control action for an application
 */
-void CFE_ES_ProcessControlRequest(uint32 AppID);
+void CFE_ES_ProcessControlRequest(CFE_ES_AppRecord_t *AppRecPtr);
 
 /*
 ** Clean up all app resources and delete it
 */
-int32 CFE_ES_CleanUpApp(uint32 AppId);
+int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr);
 
 /*
 ** Clean up all Task resources and detete the task
@@ -228,6 +228,13 @@ int32 CFE_ES_CleanupTaskResources(uint32 TaskId);
 ** This is an internal function for use in ES.
 ** The newer external API is : CFE_ES_GetAppInfo
 */
-void CFE_ES_GetAppInfoInternal(uint32 AppId, CFE_ES_AppInfo_t *AppInfoPtr );
+int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t *AppInfoPtr );
+
+/*
+ * Populate the CFE_ES_TaskInfo_t structure with the data for a task
+ * This is an internal function for use in ES.
+ * (Equivalent pattern to CFE_ES_GetAppInfoInternal() but for tasks)
+ */
+int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInfo_t *TaskInfoPtr );
 
 #endif  /* _cfe_es_apps_ */

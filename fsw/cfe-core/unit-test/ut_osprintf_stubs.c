@@ -160,5 +160,7 @@ const char *UT_OSP_MESSAGES[] =
         [UT_OSP_NO_FREE_CORE_APP_SLOTS] = "ES Startup: Error, No free application slots available for CORE App!\n",
         /* ES Startup: CFE_ES_Global.TaskTable record used error for App: CFE_EVS, continuing. */
         [UT_OSP_RECORD_USED] = "ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
+        /* CFE_ES_ExitChildTask called from invalid task context */
+        [UT_OSP_TASKEXIT_BAD_CONTEXT] = "CFE_ES_ExitChildTask called from invalid task context\n",
 };
 
