@@ -64,25 +64,60 @@ void EVS_OutputPort4 (char *Message);
 ** Assumptions and Notes:
 **
 */
-int32 EVS_GetAppID (uint32 *AppIdPtr)
+EVS_AppData_t *EVS_GetAppDataByID (uint32 AppID)
 {
-   int32 Status = CFE_SUCCESS;
+   uint32 AppIndex;
+   EVS_AppData_t *AppDataPtr;
 
-   /* Get the caller's AppID */
-   Status = CFE_ES_GetAppID(AppIdPtr);
-
-   if (Status == CFE_SUCCESS)
+   if (CFE_ES_AppID_ToIndex(AppID, &AppIndex) == CFE_SUCCESS &&
+           AppIndex < CFE_PLATFORM_ES_MAX_APPLICATIONS)
    {
-      /* Verify that AppID is in range */
-      if (*AppIdPtr >= CFE_PLATFORM_ES_MAX_APPLICATIONS)
-      {
-         Status = CFE_EVS_APP_ILLEGAL_APP_ID;
-      }
+       AppDataPtr = &CFE_EVS_GlobalData.AppData[AppIndex];
+   }
+   else
+   {
+       AppDataPtr = NULL;
    }
 
-   return(Status);
+   return(AppDataPtr);
 
-} /* End EVS_GetAppID */
+} /* End EVS_GetAppDataByID */
+
+int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, uint32 *AppIDOut)
+{
+   uint32 AppID;
+   EVS_AppData_t *AppDataPtr;
+   int32 Status;
+
+   /* Get the caller's AppID */
+   Status = CFE_ES_GetAppID(&AppID);
+   if (Status == CFE_SUCCESS)
+   {
+       AppDataPtr = EVS_GetAppDataByID (AppID);
+   }
+   else
+   {
+       AppDataPtr = NULL;
+   }
+
+   if (AppDataPtr == NULL)
+   {
+       /* use EVS error/status code */
+       Status = CFE_EVS_APP_ILLEGAL_APP_ID;
+   }
+
+   if (AppIDOut)
+   {
+       *AppIDOut = AppID;
+   }
+   if (AppDataOut)
+   {
+       *AppDataOut = AppDataPtr;
+   }
+
+   return Status;
+
+} /* End EVS_GetCurrentContext */
 
 
 /*
@@ -96,31 +131,40 @@ int32 EVS_GetAppID (uint32 *AppIdPtr)
 ** Assumptions and Notes:
 **
 */
-int32 EVS_GetApplicationInfo (uint32 *pAppID, const char *pAppName)
+int32 EVS_GetApplicationInfo (EVS_AppData_t **AppDataOut, const char *pAppName)
 {
-   int32 Status = CFE_SUCCESS;
+   int32 Status;
+   uint32 AppID;
+   EVS_AppData_t *AppDataPtr;
 
-   if ((pAppName == (char *) NULL) || (pAppID == (uint32 *) NULL))
+   Status = CFE_ES_GetAppIDByName(&AppID, pAppName);
+   if (Status != CFE_SUCCESS)
    {
-      Status = CFE_ES_ERR_BUFFER;
+       AppDataPtr = NULL;
    }
    else
    {
-      Status = CFE_ES_GetAppIDByName(pAppID, pAppName);
-
-      if (Status == CFE_SUCCESS)
-      {
-         if (*pAppID >= CFE_PLATFORM_ES_MAX_APPLICATIONS)
-         {
-            Status = CFE_EVS_APP_ILLEGAL_APP_ID;
-         }
-         else if (CFE_EVS_GlobalData.AppData[*pAppID].RegisterFlag == false)
-         {
-            Status = CFE_EVS_APP_NOT_REGISTERED;
-         }
-      }
+       AppDataPtr = EVS_GetAppDataByID(AppID);
+       if (AppDataPtr == NULL)
+       {
+           /*
+            * should not happen - it means the CFE_ES_GetAppIDByName()
+            * returned a success code with an AppID which was in subsequently
+            * not accepted by CFE_ES_AppID_ToIndex()
+            */
+           Status = CFE_EVS_APP_ILLEGAL_APP_ID;
+       }
+       else if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
+       {
+           /* Avoid outputting a bad pointer */
+           AppDataPtr = NULL;
+           Status = CFE_EVS_APP_NOT_REGISTERED;
+       }
    }
 
+
+
+   *AppDataOut = AppDataPtr;
    return Status;
 
 } /* End EVS_GetApplicationInfo */
@@ -136,18 +180,18 @@ int32 EVS_GetApplicationInfo (uint32 *pAppID, const char *pAppName)
 ** Assumptions and Notes:
 **
 */
-int32 EVS_NotRegistered (uint32 AppID)
+int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, uint32 AppID)
 {
    char AppName[OS_MAX_API_NAME];
 
    /* Send only one "not registered" event per application */
-   if (CFE_EVS_GlobalData.AppData[AppID].EventCount == 0) 
+   if (AppDataPtr->EventCount == 0) 
    { 
       /* Increment count of "not registered" applications */
       CFE_EVS_GlobalData.EVS_TlmPkt.Payload.UnregisteredAppCounter++;
 
       /* Indicate that "not registered" event has been sent for this app */
-      CFE_EVS_GlobalData.AppData[AppID].EventCount++;
+      AppDataPtr->EventCount++;
 
       /* Get the name of the "not registered" app */
       CFE_ES_GetAppName(AppName, AppID, OS_MAX_API_NAME);
@@ -177,16 +221,12 @@ int32 EVS_NotRegistered (uint32 AppID)
 ** Assumptions and Notes:
 **
 */
-bool EVS_IsFiltered (uint32 AppID, uint16 EventID, uint16 EventType)
+bool EVS_IsFiltered (EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
 {
    EVS_BinFilter_t *FilterPtr;
-   EVS_AppData_t   *AppDataPtr;
    bool             Filtered = false;
    char             AppName[OS_MAX_API_NAME];
 
-
-   /* Caller has verified that AppID is good and has registered with EVS */
-   AppDataPtr = &CFE_EVS_GlobalData.AppData[AppID];
 
    if (AppDataPtr->ActiveFlag == false)
    {
@@ -260,7 +300,7 @@ bool EVS_IsFiltered (uint32 AppID, uint16 EventID, uint16 EventType)
             /* Is it time to lock this filter? */
             if (FilterPtr->Count == CFE_EVS_MAX_FILTER_COUNT)
             {
-               CFE_ES_GetAppName(AppName, AppID, OS_MAX_API_NAME);
+               CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), OS_MAX_API_NAME);
 
                EVS_SendEvent(CFE_EVS_FILTER_MAX_EID, CFE_EVS_EventType_INFORMATION,
                   "Max filter count reached, AppName = %s, EventID = 0x%08x: Filter locked until reset",
@@ -313,12 +353,12 @@ EVS_BinFilter_t *EVS_FindEventID (int16 EventID, EVS_BinFilter_t *FilterArray)
 ** Assumptions and Notes:
 **
 */
-void EVS_EnableTypes (uint8 BitMask, uint32 AppID)
+void EVS_EnableTypes (EVS_AppData_t *AppDataPtr, uint8 BitMask)
 {
    uint8 EventTypeBits = (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT);
 
    /* Enable selected event type bits from bitmask */
-   CFE_EVS_GlobalData.AppData[AppID].EventTypesActiveFlag |= (BitMask & EventTypeBits);
+   AppDataPtr->EventTypesActiveFlag |= (BitMask & EventTypeBits);
 
 } /* End EVS_EnableTypes */
 
@@ -333,12 +373,12 @@ void EVS_EnableTypes (uint8 BitMask, uint32 AppID)
 ** Assumptions and Notes:
 **
 */
-void EVS_DisableTypes (uint8 BitMask, uint32 AppID)
+void EVS_DisableTypes (EVS_AppData_t *AppDataPtr, uint8 BitMask)
 {
    uint8 EventTypeBits = (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT);
 
    /* Disable selected event type bits from bitmask */
-   CFE_EVS_GlobalData.AppData[AppID].EventTypesActiveFlag &= ~(BitMask & EventTypeBits);
+   AppDataPtr->EventTypesActiveFlag &= ~(BitMask & EventTypeBits);
 
 } /* End EVS_DisableTypes */
 
@@ -357,7 +397,7 @@ void EVS_DisableTypes (uint8 BitMask, uint32 AppID)
 **           If configured for short events, a separate short message is generated using a subset
 **           of the information from the long message.
 */
-void EVS_GenerateEventTelemetry(uint32 AppID, uint16 EventID, uint16 EventType, const CFE_TIME_SysTime_t *TimeStamp, const char *MsgSpec, va_list ArgPtr)
+void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType, const CFE_TIME_SysTime_t *TimeStamp, const char *MsgSpec, va_list ArgPtr)
 {
     CFE_EVS_LongEventTlm_t   LongEventTlm;      /* The "long" flavor is always generated, as this is what is logged */
     CFE_EVS_ShortEventTlm_t  ShortEventTlm;     /* The "short" flavor is only generated if selected */
@@ -382,7 +422,7 @@ void EVS_GenerateEventTelemetry(uint32 AppID, uint16 EventID, uint16 EventType, 
     }
 
     /* Obtain task and system information */
-    CFE_ES_GetAppName((char *)LongEventTlm.Payload.PacketID.AppName, AppID,
+    CFE_ES_GetAppName((char *)LongEventTlm.Payload.PacketID.AppName, EVS_AppDataGetID(AppDataPtr),
             sizeof(LongEventTlm.Payload.PacketID.AppName));
     LongEventTlm.Payload.PacketID.SpacecraftID = CFE_PSP_GetSpacecraftId();
     LongEventTlm.Payload.PacketID.ProcessorID  = CFE_PSP_GetProcessorId();
@@ -422,9 +462,9 @@ void EVS_GenerateEventTelemetry(uint32 AppID, uint16 EventID, uint16 EventType, 
        CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageSendCounter++;
     }
 
-    if (CFE_EVS_GlobalData.AppData[AppID].EventCount < CFE_EVS_MAX_EVENT_SEND_COUNT)
+    if (AppDataPtr->EventCount < CFE_EVS_MAX_EVENT_SEND_COUNT)
     {
-       CFE_EVS_GlobalData.AppData[AppID].EventCount++;
+       AppDataPtr->EventCount++;
     }
 
 } /* End EVS_GenerateEventTelemetry */
@@ -583,21 +623,24 @@ int32 EVS_SendEvent (uint16 EventID, uint16 EventType, const char *Spec, ... )
 {
    CFE_TIME_SysTime_t Time;
    va_list            Ptr;
+   EVS_AppData_t      *AppDataPtr;
 
    /*
     * Must check that EVS_AppID is valid, which can happen if this is called
     * by some other thread before CFE_EVS_TaskInit() runs
     */
+   AppDataPtr = EVS_GetAppDataByID(CFE_EVS_GlobalData.EVS_AppID);
+
    /* Unlikely, but possible that an EVS event filter was added by command */
-   if (CFE_EVS_GlobalData.EVS_AppID < CFE_PLATFORM_ES_MAX_APPLICATIONS &&
-           EVS_IsFiltered(CFE_EVS_GlobalData.EVS_AppID, EventID, EventType) == false)
+   if ( EVS_AppDataIsMatch(AppDataPtr, CFE_EVS_GlobalData.EVS_AppID) &&
+           EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
    {
       /* Get current spacecraft time */
       Time = CFE_TIME_GetTime();
 
       /* Send the event packets */
       va_start(Ptr, Spec);
-      EVS_GenerateEventTelemetry(CFE_EVS_GlobalData.EVS_AppID, EventID, EventType, &Time, Spec, Ptr);
+      EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
       va_end(Ptr);
    }
 
