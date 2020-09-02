@@ -637,13 +637,10 @@ int32 CFE_ES_UnlockCDSRegistry(void)
 int32 CFE_ES_FindCDSInRegistry(const char *CDSName)
 {
     int32 RegIndx = CFE_ES_CDS_NOT_FOUND;
-    int32 i = -1;
+    uint32 i = 0;
 
-    do
+    while ( (RegIndx == CFE_ES_CDS_NOT_FOUND) && (i < CFE_ES_Global.CDSVars.MaxNumRegEntries) )
     {
-        /* Point to next record in the CDS Registry */
-        i++;
-
         /* Check to see if the record is currently being used */
         if (CFE_ES_Global.CDSVars.Registry[i].Taken == true)
         {
@@ -654,7 +651,11 @@ int32 CFE_ES_FindCDSInRegistry(const char *CDSName)
                 RegIndx = i;
             }
         }
-    } while ( (RegIndx == CFE_ES_CDS_NOT_FOUND) && (i < (CFE_ES_Global.CDSVars.MaxNumRegEntries-1)) );
+
+        /* Point to next record in the CDS Registry */
+        i++;
+
+    };
 
     return RegIndx;
 }   /* End of CFE_ES_FindCDSInRegistry() */
@@ -670,7 +671,7 @@ int32 CFE_ES_FindCDSInRegistry(const char *CDSName)
 int32 CFE_ES_FindFreeCDSRegistryEntry(void)
 {
     int32 RegIndx = CFE_ES_CDS_NOT_FOUND;
-    int32 i = 0;
+    uint32 i = 0;
 
     while ( (RegIndx == CFE_ES_CDS_NOT_FOUND) && (i < CFE_ES_Global.CDSVars.MaxNumRegEntries) )
     {
