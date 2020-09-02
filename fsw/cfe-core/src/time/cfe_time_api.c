@@ -600,66 +600,6 @@ uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
 
 } /* End of CFE_TIME_Micro2SubSecs() */
 
-#ifndef CFE_OMIT_DEPRECATED_6_7
-/*
- * Function: CFE_TIME_CFE2FSSeconds - See API and header file for details
- */
-uint32 CFE_TIME_CFE2FSSeconds(uint32 SecondsCFE)
-{
-    /*
-    ** Using a signed integer allows the factor to be negative...
-    */
-    int32 ConvertFactor = CFE_MISSION_TIME_FS_FACTOR;
-
-    /*
-    ** File system time = cFE time + conversion factor...
-    */
-    uint32 SecondsFS = SecondsCFE + (uint32) ConvertFactor;
-
-    /*
-    ** Prevent file system time from going below zero...
-    */
-    if (ConvertFactor < 0)
-    {
-        if (-ConvertFactor > SecondsCFE)
-        {
-            SecondsFS = 0;
-        }
-    }
-
-    return(SecondsFS);
-
-} /* End of CFE_TIME_CFE2FSSeconds() */
-
-
-/*
- * Function: CFE_TIME_FS2CFESeconds() - See API and header file for details
- */
-uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS)
-{
-    /*
-    ** Using a signed integer allows the factor to be negative...
-    */
-    int32 ConvertFactor = CFE_MISSION_TIME_FS_FACTOR;
-
-    /*
-    ** cFE time = file system time - conversion factor...
-    */
-    uint32 SecondsCFE = SecondsFS - (uint32) ConvertFactor;
-
-    /*
-    ** Prevent cFE time from going below zero...
-    */
-    if (ConvertFactor > SecondsFS)
-    {
-        SecondsCFE = 0;
-    }
-
-    return(SecondsCFE);
-
-} /* End of CFE_TIME_FS2CFESeconds() */
-#endif /* CFE_OMIT_DEPRECATED_6_7 */
-
 /*
  * Function: CFE_TIME_Print - See API and header file for details
  */

@@ -74,37 +74,6 @@
 #define  CFE_EVS_EVERY_FOURTH_ONE 0x0003       /**< \brief Sends every fourth event message.  All others are filtered. */
 /** \} */
 
-
-/*
- * To preserve source-code compatibility with existing code,
- * this allows the old enum names to still work.  This should
- * be turned off after the new names are established.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-/*
- * Compatibility Macros for the EventFilter enumeration
- */
-#define CFE_EVS_BINARY_FILTER    CFE_EVS_EventFilter_BINARY
-
-/*
- * Compatibility Macros for the OutputPort enumeration
- */
-#define CFE_EVS_PORT1            CFE_EVS_EventOutput_PORT1
-#define CFE_EVS_PORT2            CFE_EVS_EventOutput_PORT2
-#define CFE_EVS_PORT3            CFE_EVS_EventOutput_PORT3
-#define CFE_EVS_PORT4            CFE_EVS_EventOutput_PORT4
-
-/*
- * Compatibility Macros for the EventType enumeration
- */
-#define CFE_EVS_DEBUG            CFE_EVS_EventType_DEBUG
-#define CFE_EVS_INFORMATION      CFE_EVS_EventType_INFORMATION
-#define CFE_EVS_ERROR            CFE_EVS_EventType_ERROR
-#define CFE_EVS_CRITICAL         CFE_EVS_EventType_CRITICAL
-
-#endif  /* CFE_OMIT_DEPRECATED_6_6 */
-
 /******************  Structure Definitions *********************/
 
 /** \brief Event message filter defintion structure */

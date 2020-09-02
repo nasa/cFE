@@ -83,22 +83,6 @@
 #define CFE_TBL_BAD_TABLE_HANDLE  (CFE_TBL_Handle_t) 0xFFFF
 
 
-/*
- * To preserve source-code compatibility with existing code,
- * this allows the old enum names to still work.  This should
- * be turned off after the new names are established.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-/*
- * Compatibility Macros for the BufferSelect enumeration
- */
-#define CFE_TBL_INACTIVE_BUFFER             CFE_TBL_BufferSelect_INACTIVE
-#define CFE_TBL_ACTIVE_BUFFER               CFE_TBL_BufferSelect_ACTIVE
-
-
-#endif  /* CFE_OMIT_DEPRECATED_6_6 */
-
 
 
 /******************  Data Type Definitions *********************/

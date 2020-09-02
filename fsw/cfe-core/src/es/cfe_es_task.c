@@ -44,7 +44,6 @@
 #include "cfe_es_events.h"
 #include "cfe_es_verify.h"
 #include "cfe_es_task.h"
-#include "cfe_es_shell.h"
 #include "cfe_es_log.h"
 #include "cfe_es_cds.h"
 #include "cfe_fs.h"
@@ -255,15 +254,6 @@ int32 CFE_ES_TaskInit(void)
     CFE_SB_InitMsg(&CFE_ES_TaskData.HkPacket,
             CFE_SB_ValueToMsgId(CFE_ES_HK_TLM_MID),
             sizeof(CFE_ES_TaskData.HkPacket), true);
-
-#ifndef CFE_OMIT_DEPRECATED_6_7
-    /*
-    ** Initialize shell output packet (clear user data area)
-    */
-    CFE_SB_InitMsg(&CFE_ES_TaskData.ShellPacket,
-            CFE_SB_ValueToMsgId(CFE_ES_SHELL_TLM_MID),
-            sizeof(CFE_ES_TaskData.ShellPacket), true);
-#endif
 
     /*
     ** Initialize single application telemetry packet
@@ -486,15 +476,6 @@ void CFE_ES_TaskPipe(CFE_SB_MsgPtr_t Msg)
                         CFE_ES_RestartCmd((CFE_ES_Restart_t*)Msg);
                     }
                     break;
-
-#ifndef CFE_OMIT_DEPRECATED_6_7
-                case CFE_ES_SHELL_CC:
-                    if (CFE_ES_VerifyCmdLength(Msg, sizeof(CFE_ES_Shell_t)))
-                    {
-                        CFE_ES_ShellCmd((CFE_ES_Shell_t*)Msg);
-                    }
-                    break;
-#endif
 
                 case CFE_ES_START_APP_CC:
                     if (CFE_ES_VerifyCmdLength(Msg, sizeof(CFE_ES_StartApp_t)))
@@ -864,53 +845,6 @@ int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data)
 
     return CFE_SUCCESS;
 } /* End of CFE_ES_RestartCmd() */
-
-#ifndef CFE_OMIT_DEPRECATED_6_7
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_ShellCmd() -- Pass thru string to O/S shell              */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-int32 CFE_ES_ShellCmd(const CFE_ES_Shell_t *data)
-{
-    int32 Result;
-    const CFE_ES_ShellCmd_Payload_t *cmd = &data->Payload;
-    char LocalCmd[CFE_PLATFORM_ES_MAX_SHELL_CMD];
-    char LocalFile[OS_MAX_PATH_LEN];
-
-    /* Create local copies of both input strings and ensure null termination */
-    CFE_SB_MessageStringGet(LocalCmd, (char *)cmd->CmdString, NULL,
-                CFE_PLATFORM_ES_MAX_SHELL_CMD, sizeof(cmd->CmdString));
-
-        CFE_SB_MessageStringGet(LocalFile, (char *)cmd->OutputFilename, NULL,
-                OS_MAX_PATH_LEN, sizeof(cmd->OutputFilename));
-
-    /*
-    ** Call the Shell command API
-    */
-    Result = CFE_ES_ShellOutputCommand(LocalCmd, LocalFile);
-    /*
-    ** Send appropriate event message.
-    */
-    if (Result == CFE_SUCCESS)
-    {
-        CFE_ES_TaskData.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_ES_SHELL_INF_EID, CFE_EVS_EventType_INFORMATION,
-                "Invoked shell command: '%s'",
-                LocalCmd);
-    }
-    else
-    {
-        CFE_ES_TaskData.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_ES_SHELL_ERR_EID, CFE_EVS_EventType_ERROR,
-                "Failed to invoke shell command: '%s', RC = 0x%08X",
-                LocalCmd, (unsigned int)Result);
-    }
-
-    return CFE_SUCCESS;
-} /* End of CFE_ES_ShellCmd() */
-#endif /* CFE_OMIT_DEPRECATED_6_7 */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
