@@ -43,8 +43,8 @@
 const char *FS_SYSLOG_MSGS[] =
 {
         NULL,
-        "FS SharedData Mutex Take Err Stat=0x%x,App=%d,Function=%s\n",
-        "FS SharedData Mutex Give Err Stat=0x%x,App=%d,Function=%s\n"
+        "FS SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n",
+        "FS SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n"
 };
 
 /*
