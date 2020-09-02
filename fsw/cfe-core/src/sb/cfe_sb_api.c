@@ -92,6 +92,9 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
     /* get callers AppId */
     CFE_ES_GetAppID(&AppId);
 
+    /* get callers TaskId */
+    CFE_ES_GetTaskID(&TskId);
+
     /* get callers name */
     CFE_ES_GetAppName(AppName, AppId, OS_MAX_API_NAME);
 
@@ -100,8 +103,6 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
 
     /* take semaphore to prevent a task switch during this call */
     CFE_SB_LockSharedData(__func__,__LINE__);
-
-    TskId = OS_TaskGetId();
 
     /* set user's pipe id value to 'invalid' for error cases below */
     if(PipeIdPtr != NULL){
@@ -272,11 +273,11 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,uint32 AppId)
     CFE_SB_DestinationD_t *DestPtr = NULL;
     char          FullName[(OS_MAX_API_NAME * 2)];
 
+    /* get TaskId of caller for events */
+    CFE_ES_GetTaskID(&TskId);
+
     /* take semaphore to prevent a task switch during this call */
     CFE_SB_LockSharedData(__func__,__LINE__);
-
-    /* get TaskId of caller for events */
-    TskId = OS_TaskGetId();
 
     /* check input parameter */
     PipeTblIdx = CFE_SB_GetPipeIdx(PipeId);
@@ -400,11 +401,16 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
         return Status;
     }
 
+    /* get TaskId of caller for events */
+    Status = CFE_ES_GetTaskID(&TskId);
+    if(Status != CFE_SUCCESS)
+    {
+        /* shouldn't happen... */
+        return Status;
+    }
+
     /* take semaphore to prevent a task switch during this call */
     CFE_SB_LockSharedData(__func__,__LINE__);
-
-    /* get TaskId of caller for events */
-    TskId = OS_TaskGetId();
 
     /* check input parameter */
     PipeTblIdx = CFE_SB_GetPipeIdx(PipeId);
@@ -459,6 +465,9 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
     uint32        TskId = 0;
     char          FullName[(OS_MAX_API_NAME * 2)];
 
+    /* get TaskId of caller for events */
+    CFE_ES_GetTaskID(&TskId);
+
     if(OptsPtr == NULL)
     {
         CFE_SB.HKTlmMsg.Payload.PipeOptsErrorCounter++;
@@ -470,9 +479,6 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 
     /* take semaphore to prevent a task switch during this call */
     CFE_SB_LockSharedData(__func__,__LINE__);
-
-    /* get TaskId of caller for events */
-    TskId = OS_TaskGetId();
 
     /* check input parameter */
     PipeTblIdx = CFE_SB_GetPipeIdx(PipeId);
@@ -506,12 +512,14 @@ int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t
     char FullName[(OS_MAX_API_NAME * 2)];
 
     if(PipeNameBuf == NULL || PipeNameSize == 0) {
+        CFE_ES_GetTaskID(&TskId);
         CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_NULL_PTR_EID, CFE_EVS_EventType_ERROR,
             CFE_SB.AppId, "Pipe Name Error:NullPtr,Requestor %s",
             CFE_SB_GetAppTskName(TskId,FullName));
 
         Status = CFE_SB_BAD_ARGUMENT;
     } else if(PipeId >= CFE_PLATFORM_SB_MAX_PIPES){
+        CFE_ES_GetTaskID(&TskId);
         CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_ID_ERR_EID, CFE_EVS_EventType_ERROR,
             CFE_SB.AppId, "Pipe Id Error:Bad Argument,Id=%d,Requestor %s",
             PipeId,CFE_SB_GetAppTskName(TskId,FullName));
@@ -556,6 +564,9 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
     uint32        QueueId = 0;
     char          FullName[(OS_MAX_API_NAME * 2)];
 
+    /* get TaskId of caller for events */
+    CFE_ES_GetTaskID(&TskId);
+
     if(PipeName == NULL || PipeIdPtr == NULL)
     {
         CFE_SB.HKTlmMsg.Payload.GetPipeIdByNameErrorCounter++;
@@ -568,9 +579,6 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
     }
     else
     {
-        /* get TaskId of caller for events */
-        TskId = OS_TaskGetId();
-
         RtnFromVal = OS_QueueGetIdByName(&QueueId, PipeName);
 
         if(RtnFromVal == OS_SUCCESS)
@@ -726,14 +734,14 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
 
     CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
 
-    /* take semaphore to prevent a task switch during this call */
-    CFE_SB_LockSharedData(__func__,__LINE__);
-
-    /* get task id for events */
-    TskId = OS_TaskGetId();
-
     /* get the callers Application Id */
     CFE_ES_GetAppID(&AppId);
+
+    /* get TaskId of caller for events */
+    CFE_ES_GetTaskID(&TskId);
+
+    /* take semaphore to prevent a task switch during this call */
+    CFE_SB_LockSharedData(__func__,__LINE__);
 
     /* check that the pipe has been created */
     PipeIdx = CFE_SB_GetPipeIdx(PipeId);
@@ -1015,12 +1023,11 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
     CFE_SB_DestinationD_t   *DestPtr = NULL;
     char    FullName[(OS_MAX_API_NAME * 2)];
 
+    /* get TaskId of caller for events */
+    CFE_ES_GetTaskID(&TskId);
 
     /* take semaphore to prevent a task switch during this call */
     CFE_SB_LockSharedData(__func__,__LINE__);
-
-    /* get task id for events */
-    TskId = OS_TaskGetId();
 
     /* check that the pipe has been created */
     PipeIdx = CFE_SB_GetPipeIdx(PipeId);
@@ -1190,7 +1197,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     SBSndErr.EvtsToSnd = 0;
 
     /* get task id for events and Sender Info*/
-    TskId = OS_TaskGetId();
+    CFE_ES_GetTaskID(&TskId);
 
     /* check input parameter */
     if(MsgPtr == NULL){
@@ -1514,7 +1521,7 @@ int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
     char                   FullName[(OS_MAX_API_NAME * 2)];
 
     /* get task id for events */
-    TskId = OS_TaskGetId();
+    CFE_ES_GetTaskID(&TskId);
 
     /* Check input parameters */
     if((BufPtr == NULL)||(TimeOut < (-1))){
