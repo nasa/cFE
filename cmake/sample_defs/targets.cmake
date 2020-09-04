@@ -77,7 +77,7 @@ SET(MISSION_NAME "SampleMission")
 
 # SPACECRAFT_ID gets compiled into the build data structure and the PSP may use it.
 # should be an integer.
-SET(SPACECRAFT_ID 42)
+SET(SPACECRAFT_ID 0x42)
 
 # The "MISSION_CORE_MODULES" will be built and statically linked as part
 # of the CFE core executable on every target.  These can be used to amend
