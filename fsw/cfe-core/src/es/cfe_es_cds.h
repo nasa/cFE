@@ -111,27 +111,6 @@ int32 CFE_ES_CDS_EarlyInit(void);
 int32 CFE_ES_UpdateCDSRegistry(void);
 
 
-/*****************************************************************************/
-/**
-** \brief Validates the Application ID associated with calling Application
-**
-** \par Description
-**        Validates Application ID of calling App.  Validation
-**        consists of ensuring the AppID is between zero and
-**        #CFE_PLATFORM_ES_MAX_APPLICATIONS.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in, out]  AppIdPtr Pointer to value that will hold AppID on return. *AppIdPtr is the AppID as obtained from #CFE_ES_GetAppID.
-** 
-**
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_ES_ERR_APPID                \copydoc CFE_ES_ERR_APPID
-**                     
-******************************************************************************/
-int32 CFE_ES_CDS_ValidateAppID(uint32 *AppIdPtr);
-
 
 /*****************************************************************************/
 /**

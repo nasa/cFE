@@ -3297,6 +3297,7 @@ void Test_CleanUpApp(void)
     uint16   i;
     uint16 Count;
     int32  Status = CFE_SUCCESS;
+    uint32 AppIndex;
     uint32 TestAppId;
 
 #ifdef UT_VERBOSE
@@ -3313,16 +3314,19 @@ void Test_CleanUpApp(void)
     }
 
     /* Add callbacks for 3 apps into callback registry table */
-    UT_SetAppID(1);
+    AppIndex = 1;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
     CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_SetAppID(2);
+    AppIndex = 2;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
     CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_SetAppID(3);
+    AppIndex = 3;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
     CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
 
     /* Clean up an app which did not have a callback */
-    TestAppId = 4;
-    UT_SetAppID(TestAppId);
+    AppIndex = 4;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
     Status = CFE_TIME_CleanUpApp(TestAppId);
     UT_Report(__FILE__, __LINE__,
               Status == CFE_SUCCESS,
@@ -3345,8 +3349,8 @@ void Test_CleanUpApp(void)
               "No Sync Callback entry cleared");
 
     /* Clean up an app which did have a callback */
-    TestAppId = 2;
-    UT_SetAppID(TestAppId);
+    AppIndex = 2;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
     Status = CFE_TIME_CleanUpApp(TestAppId);
     UT_Report(__FILE__, __LINE__,
               Status == CFE_SUCCESS,
@@ -3370,8 +3374,7 @@ void Test_CleanUpApp(void)
 
     /* Test response to a bad application ID -
      * This is effectively a no-op but here for coverage */
-    UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
-    Status = CFE_TIME_CleanUpApp(CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    Status = CFE_TIME_CleanUpApp(99999);
     UT_Report(__FILE__, __LINE__,
               Status == CFE_TIME_CALLBACK_NOT_REGISTERED,
               "CFE_TIME_CleanUpApp",

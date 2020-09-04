@@ -95,6 +95,7 @@
 #define UT_OSP_NO_FREE_CORE_APP_SLOTS     66
 #define UT_OSP_STARTUP_SYNC_FAIL_2        67
 #define UT_OSP_MODULE_UNLOAD_FAILED       68
+#define UT_OSP_TASKEXIT_BAD_CONTEXT       69
 
 #endif
 

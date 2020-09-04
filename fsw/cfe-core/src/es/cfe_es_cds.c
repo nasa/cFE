@@ -528,35 +528,6 @@ int32 CFE_ES_UpdateCDSRegistry(void)
     return Status;
 }
 
-/*******************************************************************
-**
-** CFE_ES_CDS_ValidateAppID
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
-int32 CFE_ES_CDS_ValidateAppID(uint32 *AppIdPtr)
-{
-    int32 Status = CFE_ES_GetAppID(AppIdPtr);
-
-    if (Status == CFE_SUCCESS)
-    {
-        if (*AppIdPtr >= CFE_PLATFORM_ES_MAX_APPLICATIONS)
-        {
-            Status = CFE_ES_ERR_APPID;
-
-            CFE_ES_WriteToSysLog("CFE_CDS:ValidateAppID-AppId=%d > Max Apps (%d)\n",
-                                 (int)(*AppIdPtr), CFE_PLATFORM_ES_MAX_APPLICATIONS);
-        }
-    }
-    else
-    {
-        CFE_ES_WriteToSysLog("CFE_CDS:ValidateAppID-GetAppID failed (Stat=0x%08X)\n", (unsigned int)Status);
-    }
-
-    return Status;
-}   /* End of CFE_ES_CDS_ValidateAppID() */
-
 
 /*******************************************************************
 **

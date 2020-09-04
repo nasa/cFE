@@ -112,6 +112,15 @@ const CFE_SB_MsgId_t SB_UT_ALTERNATE_INVALID_MID = CFE_SB_MSGID_WRAP_VALUE(CFE_P
 const CFE_SB_MsgId_t SB_UT_BARE_CMD_MID3 = CFE_SB_MSGID_WRAP_VALUE(0x1003);
 const CFE_SB_MsgId_t SB_UT_BARE_TLM_MID3 = CFE_SB_MSGID_WRAP_VALUE(0x0003);
 
+/*
+ * Helper function to "corrupt" a resource ID value in a consistent/predicatble way,
+ * which can also be un-done easily.
+ */
+uint32 UT_SB_ResourceID_Modify(uint32 InitialID, int32 Modifier)
+{
+    uint32 NewValue = InitialID + Modifier;
+    return (NewValue);
+}
 
 /*
 ** Functions
@@ -1732,7 +1741,7 @@ void Test_DeletePipe_InvalidPipeOwner(void)
     RealOwner = CFE_SB.PipeTbl[PipedId].AppId;
 
     /* Choose a value that is sure not to be owner */
-    CFE_SB.PipeTbl[PipedId].AppId = RealOwner + 1;
+    CFE_SB.PipeTbl[PipedId].AppId = UT_SB_ResourceID_Modify(RealOwner, 1);
     ASSERT_EQ(CFE_SB_DeletePipe(PipedId), CFE_SB_BAD_ARGUMENT);
 
     EVTCNT(2);
@@ -2392,7 +2401,7 @@ void Test_Subscribe_InvalidPipeOwner(void)
     CFE_SB_PipeId_t PipeId;
     CFE_SB_MsgId_t  MsgId = SB_UT_TLM_MID;
     uint16          PipeDepth = 10;
-    int32           RealOwner;
+    uint32          RealOwner;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
 
@@ -2400,7 +2409,7 @@ void Test_Subscribe_InvalidPipeOwner(void)
     RealOwner = CFE_SB.PipeTbl[PipeId].AppId;
 
     /* Choose a value that is sure not to be owner */
-    CFE_SB.PipeTbl[PipeId].AppId = RealOwner + 1;
+    CFE_SB.PipeTbl[PipeId].AppId = UT_SB_ResourceID_Modify(RealOwner, 1);
     CFE_SB_Subscribe(MsgId, PipeId);
 
     EVTCNT(3);
@@ -2584,7 +2593,7 @@ void Test_Unsubscribe_InvalidPipeOwner(void)
     RealOwner = CFE_SB.PipeTbl[PipeId].AppId;
 
     /* Choose a value that is sure not be owner */
-    CFE_SB.PipeTbl[PipeId].AppId = RealOwner + 1;
+    CFE_SB.PipeTbl[PipeId].AppId = UT_SB_ResourceID_Modify(RealOwner, 1);
     ASSERT_EQ(CFE_SB_Unsubscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
 
     EVTCNT(4);
@@ -3534,6 +3543,9 @@ void Test_CleanupApp_API(void)
     CFE_SB_PipeId_t         PipeId;
     CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl = 0;
     uint16                  PipeDepth = 50;
+    uint32     AppID;
+
+    CFE_ES_GetAppID(&AppID);
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
     CFE_SB_ZeroCopyGetPtr(PipeDepth, &ZeroCpyBufHndl);
@@ -3541,17 +3553,17 @@ void Test_CleanupApp_API(void)
 
     /* Set second application ID to provide complete branch path coverage */
     CFE_SB.PipeTbl[1].InUse = CFE_SB_IN_USE;
-    CFE_SB.PipeTbl[1].AppId = 1;
+    CFE_SB.PipeTbl[1].AppId = AppID;
 
     ASSERT_TRUE(CFE_SB.ZeroCopyTail != NULL);
 
     /* Attempt with a bad application ID first in order to get full branch path
      * coverage in CFE_SB_ZeroCopyReleaseAppId
      */
-    CFE_SB_CleanUpApp(1);
+    CFE_SB_CleanUpApp(0);
 
     /* Attempt again with a valid application ID */
-    CFE_SB_CleanUpApp(0);
+    CFE_SB_CleanUpApp(AppID);
 
     ASSERT_TRUE(CFE_SB.ZeroCopyTail == NULL);
 
@@ -3902,13 +3914,14 @@ void Test_OS_MutSem_ErrLogic(void)
 */
 void Test_ReqToSendEvent_ErrLogic(void)
 {
-    uint32 TaskId = 13;
+    uint32 TaskId;
     uint32 Bit = 5;
 
     /* Clear task bits, then call function, which should set the bit for
      * the specified task
      */
-    CFE_SB.StopRecurseFlags[TaskId] = 0x0000;
+    CFE_ES_GetTaskID(&TaskId);
+    CFE_SB.StopRecurseFlags[0] = 0x0000;
     ASSERT_EQ(CFE_SB_RequestToSendEvent(TaskId, Bit), CFE_SB_GRANTED);
 
     /* Call the function a second time; the result should indicate that the
@@ -3993,13 +4006,15 @@ void Test_CFE_SB_BadPipeInfo(void)
     CFE_SB_PipeId_t PipeId;
     uint16          PipeDepth = 10;
     CFE_SB_Qos_t    CFE_SB_Default_Qos;
+    uint32          AppID;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe1"));
 
     /* Set the pipe ID to an erroneous value and attempt to delete the pipe */
     CFE_SB.PipeTbl[0].PipeId = 1;
     CFE_SB.PipeTbl[0].InUse = 1;
-    ASSERT_EQ(CFE_SB_DeletePipeFull(0, 0), CFE_SB_BAD_ARGUMENT);
+    CFE_ES_GetAppID(&AppID);
+    ASSERT_EQ(CFE_SB_DeletePipeFull(0, AppID), CFE_SB_BAD_ARGUMENT);
 
     EVTCNT(2);
 

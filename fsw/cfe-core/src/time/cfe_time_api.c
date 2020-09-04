@@ -759,22 +759,27 @@ int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPt
 {
     int32  Status;
     uint32 AppId;
+    uint32 AppIndex;
 
     Status = CFE_ES_GetAppID(&AppId);
+    if (Status == CFE_SUCCESS)
+    {
+        Status = CFE_ES_AppID_ToIndex(AppId, &AppIndex);
+    }
     if (Status != CFE_SUCCESS)
     {
         /* Called from an invalid context */
         return Status;
     }
 
-    if (AppId >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
-        CFE_TIME_TaskData.SynchCallback[AppId].Ptr != NULL)
+    if (AppIndex >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
+        CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr != NULL)
     {
         Status = CFE_TIME_TOO_MANY_SYNCH_CALLBACKS;
     }
     else
     {
-        CFE_TIME_TaskData.SynchCallback[AppId].Ptr = CallbackFuncPtr;
+        CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr = CallbackFuncPtr;
     }
     
     return Status;
@@ -788,22 +793,27 @@ int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFunc
 {
     int32  Status;
     uint32 AppId;
+    uint32 AppIndex;
 
     Status = CFE_ES_GetAppID(&AppId);
+    if (Status == CFE_SUCCESS)
+    {
+        Status = CFE_ES_AppID_ToIndex(AppId, &AppIndex);
+    }
     if (Status != CFE_SUCCESS)
     {
         /* Called from an invalid context */
         return Status;
     }
 
-    if (AppId >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
-            CFE_TIME_TaskData.SynchCallback[AppId].Ptr != CallbackFuncPtr)
+    if (AppIndex >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
+            CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr != CallbackFuncPtr)
     {
         Status = CFE_TIME_CALLBACK_NOT_REGISTERED;
     }
     else
     {
-        CFE_TIME_TaskData.SynchCallback[AppId].Ptr = NULL;
+        CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr = NULL;
     }
     
     return Status;

@@ -318,6 +318,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
     uint32              ExceptionTaskID;
     uint32              ResetType;
     CFE_ES_LogEntryType_Enum_t LogType;
+    CFE_ES_AppRecord_t  *AppRecPtr;
 
     if (CFE_PSP_Exception_GetCount() == 0)
     {
@@ -361,13 +362,19 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
         /*
          * The App ID was found, now see if the ExceptionAction is set for a reset
          */
-        if (Status == CFE_SUCCESS &&
-                CFE_ES_Global.AppTable[EsTaskInfo.AppId].StartParams.ExceptionAction == CFE_ES_ExceptionAction_RESTART_APP)
+        if (Status == CFE_SUCCESS)
         {
-            /*
-             * Log the Application reset
-             */
-            ResetType = CFE_ES_APP_RESTART;
+            AppRecPtr = CFE_ES_LocateAppRecordByID(EsTaskInfo.AppId);
+            CFE_ES_LockSharedData(__func__,__LINE__);
+            if (CFE_ES_AppRecordIsMatch(AppRecPtr, EsTaskInfo.AppId) &&
+                AppRecPtr->StartParams.ExceptionAction == CFE_ES_ExceptionAction_RESTART_APP)
+            {
+                /*
+                 * Log the Application reset
+                 */
+                ResetType = CFE_ES_APP_RESTART;
+            }
+            CFE_ES_UnlockSharedData(__func__,__LINE__);
         }
     }
 

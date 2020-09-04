@@ -332,5 +332,6 @@ void TestCDSMempool(void);
 void TestESMempool(void);
 
 void TestSysLog(void);
+void TestGenericCounterAPI(void);
 
 #endif /* _es_ut_h_ */

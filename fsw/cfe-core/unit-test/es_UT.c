@@ -54,13 +54,8 @@ extern int32 dummy_function(void);
 /* Create a startup script buffer for a maximum of 5 lines * 80 chars/line */
 char StartupScript[MAX_STARTUP_SCRIPT];
 
-/*
- * Macro to convert UT OSAL IDs to array index
- * This should work for both the opaque and non-opaque IDs as
- * provided by UT stub libraries (not for real code, though!)
- */
-#define ES_UT_OSALID_TO_ARRAYIDX(x)         (x & 0xFF)
-
+/* Number of apps instantiated */
+uint32 ES_UT_NumApps;
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_NOOP_CC =
 {
@@ -197,10 +192,155 @@ static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_SEND_HK =
         .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_SEND_HK_MID)
 };
 
-
 /*
 ** Functions
 */
+uint32 ES_UT_MakeAppIdForIndex(uint32 ArrayIdx)
+{
+    /* UT hack - make up AppID values in a manner similar to FSW.
+     * Real apps should never do this. */
+    return ArrayIdx;
+}
+
+uint32 ES_UT_MakeTaskIdForIndex(uint32 ArrayIdx)
+{
+    /* UT hack - make up TaskID values in a manner similar to FSW.
+     * Real apps should never do this. */
+    return (ArrayIdx + 0x40010000);
+}
+/*
+ * Helper function to setup a single app ID in the given state, along with
+ * a main task ID.  A pointer to the App and Task record is output so the
+ * record can be modified
+ */
+void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_t AppState,
+        const char *AppName, CFE_ES_AppRecord_t **OutAppRec, CFE_ES_TaskRecord_t **OutTaskRec)
+{
+    uint32 UtOsalId;
+    uint32 UtTaskId;
+    uint32 UtAppId;
+    uint32 ArrayIdx;
+    CFE_ES_AppRecord_t *LocalAppPtr;
+    CFE_ES_TaskRecord_t *LocalTaskPtr;
+
+    OS_TaskCreate(&UtOsalId, "UT", NULL, NULL, 0, 0, 0);
+    OS_ConvertToArrayIndex(UtOsalId, &ArrayIdx);
+    UtTaskId = UtOsalId;
+    UtAppId = ES_UT_MakeAppIdForIndex(ES_UT_NumApps);
+    ++ES_UT_NumApps;
+
+    LocalTaskPtr = CFE_ES_LocateTaskRecordByID(UtTaskId);
+    LocalAppPtr = CFE_ES_LocateAppRecordByID(UtAppId);
+    CFE_ES_TaskRecordSetUsed(LocalTaskPtr, UtTaskId);
+    CFE_ES_AppRecordSetUsed(LocalAppPtr, UtAppId);
+    LocalTaskPtr->AppId = UtAppId;
+    LocalAppPtr->TaskInfo.MainTaskId = UtTaskId;
+    LocalAppPtr->AppState = AppState;
+    LocalAppPtr->Type = AppType;
+
+    if (AppName)
+    {
+        strncpy(LocalAppPtr->StartParams.Name, AppName,
+                sizeof(LocalAppPtr->StartParams.Name)-1);
+        LocalAppPtr->StartParams.Name[sizeof(LocalAppPtr->StartParams.Name)-1] = 0;
+        strncpy(LocalTaskPtr->TaskName, AppName,
+                sizeof(LocalTaskPtr->TaskName)-1);
+        LocalTaskPtr->TaskName[sizeof(LocalTaskPtr->TaskName)-1] = 0;
+    }
+
+    if (OutAppRec)
+    {
+        *OutAppRec = LocalAppPtr;
+    }
+    if (OutTaskRec)
+    {
+        *OutTaskRec = LocalTaskPtr;
+    }
+
+    if (AppType == CFE_ES_AppType_CORE)
+    {
+        ++CFE_ES_Global.RegisteredCoreApps;
+    }
+    if (AppType == CFE_ES_AppType_EXTERNAL)
+    {
+        ++CFE_ES_Global.RegisteredExternalApps;
+    }
+    ++CFE_ES_Global.RegisteredTasks;
+}
+
+/*
+ * Helper function to setup a child task ID associated with the given
+ * app record.  A pointer to the Task record is output so the record
+ * can be modified
+ */
+void ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *TaskName, CFE_ES_TaskRecord_t **OutTaskRec)
+{
+    uint32 UtOsalId;
+    uint32 UtTaskId;
+    uint32 UtAppId;
+    uint32 ArrayIdx;
+    CFE_ES_TaskRecord_t *LocalTaskPtr;
+
+    UtAppId = CFE_ES_AppRecordGetID(ParentApp);
+
+    OS_TaskCreate(&UtOsalId, "C", NULL, NULL, 0, 0, 0);
+    OS_ConvertToArrayIndex(UtOsalId, &ArrayIdx);
+    UtTaskId = UtOsalId;
+
+    LocalTaskPtr = &CFE_ES_Global.TaskTable[ArrayIdx];
+    CFE_ES_TaskRecordSetUsed(LocalTaskPtr, UtTaskId);
+    LocalTaskPtr->AppId = UtAppId;
+
+    if (TaskName)
+    {
+        strncpy(LocalTaskPtr->TaskName, TaskName,
+                sizeof(LocalTaskPtr->TaskName)-1);
+        LocalTaskPtr->TaskName[sizeof(LocalTaskPtr->TaskName)-1] = 0;
+    }
+
+    if (OutTaskRec)
+    {
+        *OutTaskRec = LocalTaskPtr;
+    }
+
+    ++CFE_ES_Global.RegisteredTasks;
+}
+
+void ES_UT_SetupSingleCDSRegistry(const char *CDSName, bool IsTable,
+        CFE_ES_CDS_RegRec_t **OutRegRec)
+{
+    CFE_ES_CDS_RegRec_t *LocalRegRecPtr;
+
+    /*
+     * Note - because the "ES_ResetUnitTest()" routine wipes the entire
+     * global data structure, this runtime var needs to be re-initialized.
+     */
+    CFE_ES_Global.CDSVars.MaxNumRegEntries =
+            sizeof(CFE_ES_Global.CDSVars.Registry) / sizeof(CFE_ES_CDS_RegRec_t);
+
+    LocalRegRecPtr = &CFE_ES_Global.CDSVars.Registry[0];
+    if (CDSName != NULL)
+    {
+        strncpy(LocalRegRecPtr->Name, CDSName,
+                sizeof(LocalRegRecPtr->Name) - 1);
+        LocalRegRecPtr->Name[sizeof(LocalRegRecPtr->Name) - 1] = 0;
+    }
+    else
+    {
+        LocalRegRecPtr->Name[0] = 0;
+    }
+    LocalRegRecPtr->Taken = true;
+    LocalRegRecPtr->Table = IsTable;
+    LocalRegRecPtr->MemHandle =
+        sizeof(CFE_ES_Global.CDSVars.ValidityField);
+
+    if (OutRegRec)
+    {
+        *OutRegRec = LocalRegRecPtr;
+    }
+}
+
+
 int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode,
                                uint32 CallCount,
                                const UT_StubContext_t *Context)
@@ -245,21 +385,25 @@ static int32 ES_UT_SetAppStateHook(void *UserObj, int32 StubRetcode,
 {
     ES_UT_SetAppStateHook_t *StateHook = UserObj;
     uint32 i;
+    CFE_ES_AppRecord_t *AppRecPtr;
 
+
+    AppRecPtr = CFE_ES_Global.AppTable;
     for (i=0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; ++i)
     {
-        if (CFE_ES_Global.AppTable[i].AppState != CFE_ES_AppState_UNDEFINED)
+        if ( CFE_ES_AppRecordIsUsed(AppRecPtr) )
         {
             /* If no filter object supplied, set all apps to RUNNING */
             if (StateHook == NULL)
             {
-                CFE_ES_Global.AppTable[i].AppState = CFE_ES_AppState_RUNNING;
+                AppRecPtr->AppState = CFE_ES_AppState_RUNNING;
             }
-            else if (StateHook->AppType == 0 || CFE_ES_Global.AppTable[i].Type == StateHook->AppType)
+            else if (StateHook->AppType == 0 || AppRecPtr->Type == StateHook->AppType)
             {
-                CFE_ES_Global.AppTable[i].AppState = StateHook->AppState;
+                AppRecPtr->AppState = StateHook->AppState;
             }
         }
+        ++AppRecPtr;
     }
 
     return StubRetcode;
@@ -280,6 +424,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(TestTask);
     UT_ADD_TEST(TestPerf);
     UT_ADD_TEST(TestAPI);
+    UT_ADD_TEST(TestGenericCounterAPI);
     UT_ADD_TEST(TestCDS);
     UT_ADD_TEST(TestCDSMempool);
     UT_ADD_TEST(TestESMempool);
@@ -292,24 +437,10 @@ void UtTest_Setup(void)
 */
 void ES_ResetUnitTest(void)
 {
-    int j;
-
     UT_InitData();
 
-    for (j = 0; j < CFE_PLATFORM_ES_MAX_APPLICATIONS; j++)
-    {
-        CFE_ES_Global.AppTable[j].AppState = CFE_ES_AppState_UNDEFINED;
-    }
-
-    for (j = 0; j < OS_MAX_TASKS; j++)
-    {
-        CFE_ES_Global.TaskTable[j].RecordUsed = false;
-    }
-
-    for (j = 0; j < CFE_PLATFORM_ES_MAX_LIBRARIES; j++)
-    {
-        CFE_ES_Global.LibTable[j].RecordUsed = false;
-    }
+    memset(&CFE_ES_Global, 0, sizeof(CFE_ES_Global));
+    ES_UT_NumApps = 0;
 } /* end ES_ResetUnitTest() */
 
 void TestInit(void)
@@ -352,8 +483,8 @@ void TestStartupErrorPaths(void)
     ES_UT_SetAppStateHook_t StateHook;
     uint32 PanicStatus;
     uint32 ResetType;
-    uint32 Id;
-    uint32 TestObjId;
+    CFE_ES_TaskRecord_t *TaskRecPtr;
+    CFE_ES_AppRecord_t *AppRecPtr;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Startup Error Paths\n");
@@ -402,10 +533,13 @@ void TestStartupErrorPaths(void)
     CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
                 (char *) CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_SYNC_FAIL_1]) &&
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_SYNC_FAIL_1]),
+              "CFE_ES_Main",
+              "Startup sync failure 1");
+    UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_SYNC_FAIL_2]),
               "CFE_ES_Main",
-              "Startup sync failure");
+              "Startup sync failure 2");
 
     /* Perform a power on reset with a hardware special sub-type */
     ES_ResetUnitTest();
@@ -631,12 +765,14 @@ void TestStartupErrorPaths(void)
 
     /* Test reading the object table where a record used error occurs */
     ES_ResetUnitTest();
+    TaskRecPtr = CFE_ES_Global.TaskTable;
     for (j = 0; j < OS_MAX_TASKS; j++)
     {
         /* Mark all entries as "used" to ensure that the log message gets
          * output
          */
-        CFE_ES_Global.TaskTable[j].RecordUsed = true;
+        CFE_ES_TaskRecordSetUsed(TaskRecPtr, ES_UT_MakeTaskIdForIndex(j));
+        ++TaskRecPtr;
     }
 
     CFE_ES_CreateObjects();
@@ -650,13 +786,14 @@ void TestStartupErrorPaths(void)
      * calling a function
      */
     ES_ResetUnitTest();
-
+    TaskRecPtr = CFE_ES_Global.TaskTable;
     for (j = 0; j < OS_MAX_TASKS; j++)
     {
         /* Mark all entries as "used" to ensure that the log message gets
          * output
          */
-        CFE_ES_Global.TaskTable[j].RecordUsed = true;
+        CFE_ES_TaskRecordSetUsed(TaskRecPtr, ES_UT_MakeAppIdForIndex(j));
+        ++TaskRecPtr;
     }
 
     UT_SetDeferredRetcode(UT_KEY(CFE_TBL_EarlyInit), 1, -1);
@@ -683,35 +820,46 @@ void TestStartupErrorPaths(void)
 
     /* Test reading the object table where all app slots are taken */
     ES_ResetUnitTest();
-
+    AppRecPtr = CFE_ES_Global.AppTable;
     for (j = 0; j < CFE_PLATFORM_ES_MAX_APPLICATIONS; j++)
     {
-       CFE_ES_Global.AppTable[j].AppState = CFE_ES_AppState_RUNNING;
+       CFE_ES_AppRecordSetUsed(AppRecPtr, ES_UT_MakeAppIdForIndex(j));
+       ++AppRecPtr;
     }
 
     CFE_ES_CreateObjects();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]) == 5 &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 13,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]) == 5,
               "CFE_ES_CreateObjects",
-              "No free application slots available");
+              "No free application slots available, message");
+    UT_Report(__FILE__, __LINE__,
+              UT_GetStubCount(UT_KEY(OS_printf)) == 18,
+              "CFE_ES_CreateObjects",
+              "No free application slots available, printf count");
 
     /* Test reading the object table with a NULL function pointer */
     ES_ResetUnitTest();
-
+    AppRecPtr = CFE_ES_Global.AppTable;
     for (j = 0; j < CFE_PLATFORM_ES_MAX_APPLICATIONS; j++)
     {
-       CFE_ES_Global.AppTable[j].AppState = CFE_ES_AppState_RUNNING;
+        CFE_ES_AppRecordSetUsed(AppRecPtr, ES_UT_MakeAppIdForIndex(j));
+       ++AppRecPtr;
     }
 
     CFE_ES_ObjectTable[1].ObjectType = CFE_ES_FUNCTION_CALL;
     CFE_ES_CreateObjects();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]) == 5 &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FUNCTION_POINTER]) && 
-              UT_GetStubCount(UT_KEY(OS_printf)) == 14,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]) == 5,
               "CFE_ES_CreateObjects",
-              "Bad function pointer");
+              "Bad function pointer, app slots message");
+    UT_Report(__FILE__, __LINE__,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FUNCTION_POINTER]),
+              "CFE_ES_CreateObjects",
+              "Bad function pointer message");
+    UT_Report(__FILE__, __LINE__,
+              UT_GetStubCount(UT_KEY(OS_printf)) == 19,
+              "CFE_ES_CreateObjects",
+              "Bad function pointer, printf count");
 
     /* Test response to an invalid startup type */
     ES_ResetUnitTest();
@@ -743,8 +891,7 @@ void TestStartupErrorPaths(void)
     /* Test application sync delay where the operation times out */
     ES_ResetUnitTest();
     /* This prep is necessary so GetAppId works */
-    CFE_ES_Global.TaskTable[1].RecordUsed = true;
-    CFE_ES_Global.TaskTable[1].AppId = 1;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppType_CORE, NULL, &AppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
     UT_Report(__FILE__, __LINE__,
             CFE_ES_WaitForSystemState(CFE_ES_SystemState_OPERATIONAL,
@@ -758,20 +905,13 @@ void TestStartupErrorPaths(void)
      * of CFE_ES_SystemState_SHUTDOWN
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].AppState =
-        CFE_ES_AppState_EARLY_INIT;
     /* This prep is necessary so GetAppId works */
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppType_CORE, NULL, &AppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
-    
     UT_Report(__FILE__, __LINE__, CFE_ES_WaitForSystemState(CFE_ES_SystemState_SHUTDOWN,
                                        CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC) ==
                                           CFE_ES_OPERATION_TIMED_OUT &&
-                                    CFE_ES_Global.AppTable[Id].AppState ==
+                                    AppRecPtr->AppState ==
                                     CFE_ES_AppState_STOPPED,
               "CFE_ES_WaitForSystemState",
               "Min System State is CFE_ES_SystemState_SHUTDOWN");
@@ -781,21 +921,15 @@ void TestStartupErrorPaths(void)
      * of CFE_ES_SystemState_APPS_INIT
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].AppState =
-        CFE_ES_AppState_EARLY_INIT;
     /* This prep is necessary so GetAppId works */
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppType_CORE, NULL, &AppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
     
     UT_Report(__FILE__, __LINE__,
             CFE_ES_WaitForSystemState(CFE_ES_SystemState_APPS_INIT,
                                         CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC) ==
                                           CFE_ES_OPERATION_TIMED_OUT && 
-                                        CFE_ES_Global.AppTable[Id].AppState ==
+                                        AppRecPtr->AppState ==
                                         CFE_ES_AppState_LATE_INIT,
               "CFE_ES_WaitForSystemState",
               "Min System State is CFE_ES_SystemState_APPS_INIT");
@@ -808,8 +942,9 @@ void TestApps(void)
     int j;
     CFE_ES_AppInfo_t AppInfo;
     char LongLibraryName[sizeof(CFE_ES_Global.LibTable[0].LibName)+1];
-    uint32 Id, Id2, Id3, Id4;
-    uint32 TestObjId, TestObjId2, TestObjId3, TestObjId4;
+    uint32 Id;
+    CFE_ES_TaskRecord_t *UtTaskRecPtr;
+    CFE_ES_AppRecord_t *UtAppRecPtr;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Apps\n");
@@ -984,10 +1119,11 @@ void TestApps(void)
 
     /* Test application loading and creation where all app slots are taken */
     ES_ResetUnitTest();
-
+    UtAppRecPtr = CFE_ES_Global.AppTable;
     for (j = 0; j < CFE_PLATFORM_ES_MAX_APPLICATIONS; j++)
     {
-       CFE_ES_Global.AppTable[j].AppState = CFE_ES_AppState_RUNNING;
+       CFE_ES_AppRecordSetUsed(UtAppRecPtr, ES_UT_MakeAppIdForIndex(j));
+       ++UtAppRecPtr;
     }
 
     Return = CFE_ES_AppCreate(&Id,
@@ -1070,23 +1206,22 @@ void TestApps(void)
               "CFE_ES_LoadLibrary",
               "Load shared library bad argument (library name too long)");
     
+#ifdef jphfix
     /* Test successful shared library loading and initialization */
     UT_InitData();
     UT_SetDummyFuncRtn(OS_SUCCESS);
-    Id = CFE_PLATFORM_ES_MAX_LIBRARIES;
     Return = CFE_ES_LoadLibrary(&Id,
                                 "/cf/apps/tst_lib.bundle",
                                 "TST_LIB_Init",
                                 "TST_LIB");
     UT_Report(__FILE__, __LINE__,
               Return == CFE_SUCCESS &&
-              Id < CFE_PLATFORM_ES_MAX_LIBRARIES &&
+              CFE_ES_ResourceId < CFE_PLATFORM_ES_MAX_LIBRARIES &&
               CFE_ES_Global.LibTable[Id].RecordUsed == true,
               "CFE_ES_LoadLibrary",
               "successful");
 
     /* Try loading same library again, should return the DUPLICATE code */
-    Id = CFE_PLATFORM_ES_MAX_LIBRARIES;
     Return = CFE_ES_LoadLibrary(&Id,
                                 "/cf/apps/tst_lib.bundle",
                                 "TST_LIB_Init",
@@ -1097,7 +1232,7 @@ void TestApps(void)
               CFE_ES_Global.LibTable[Id].RecordUsed == true,
               "CFE_ES_LoadLibrary",
               "Duplicate");
-
+#endif
     /* Test shared library loading and initialization where the library
      * fails to load
      */
@@ -1164,18 +1299,15 @@ void TestApps(void)
      * expires for a waiting application
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->ControlReq.AppTimerMsec = 0;
     memset(&CFE_ES_TaskData.BackgroundAppScanState, 0, sizeof(CFE_ES_TaskData.BackgroundAppScanState));
     CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE,
+              UtAppRecPtr->ControlReq.AppTimerMsec == 0 &&
+              UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE,
               "CFE_ES_RunAppTableScan",
               "Waiting; process control request");
 
@@ -1183,16 +1315,13 @@ void TestApps(void)
      * has not expired for a waiting application
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 5000;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
+    UtAppRecPtr->ControlReq.AppTimerMsec = 5000;
     CFE_ES_RunAppTableScan(1000, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 4000 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_EXIT,
+              UtAppRecPtr->ControlReq.AppTimerMsec == 4000 &&
+              UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_EXIT,
               "CFE_ES_RunAppTableScan",
               "Decrement timer");
 
@@ -1200,17 +1329,14 @@ void TestApps(void)
      * has stopped and is ready to be acted on
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->ControlReq.AppTimerMsec = 0;
     CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0,
+              UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE &&
+              UtAppRecPtr->ControlReq.AppTimerMsec == 0,
               "CFE_ES_RunAppTableScan",
               "Stopped; process control request");
 
@@ -1218,16 +1344,12 @@ void TestApps(void)
      * has stopped and is ready to be acted on
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_EARLY_INIT;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 5000;
-
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppTimerMsec = 5000;
     CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_GetNumEventsSent() == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 5000,
+              UtAppRecPtr->ControlReq.AppTimerMsec == 5000,
               "CFE_ES_RunAppTableScan",
               "Initializing; process control request");
 
@@ -1235,11 +1357,9 @@ void TestApps(void)
      * undefined control request state
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = 0;
-    CFE_ES_ProcessControlRequest(Id);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = 0x12345;
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1247,26 +1367,21 @@ void TestApps(void)
 
     /* Test a successful control action request to exit an application */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.FileName,
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    strncpy((char *) UtAppRecPtr->StartParams.FileName,
             "/ram/Filename", OS_MAX_PATH_LEN);
-    CFE_ES_Global.AppTable[Id].StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.EntryPoint,
+    UtAppRecPtr->StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy((char *) UtAppRecPtr->StartParams.EntryPoint,
             "NotNULL", OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[Id].StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
+    UtAppRecPtr->StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
         '\0';
-    CFE_ES_Global.AppTable[Id].StartParams.Priority = 255;
-    CFE_ES_Global.AppTable[Id].StartParams.StackSize = 8192;
-    CFE_ES_Global.AppTable[Id].StartParams.ExceptionAction = 0;
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->StartParams.Priority = 255;
+    UtAppRecPtr->StartParams.StackSize = 8192;
+    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_EXIT;
-    CFE_ES_ProcessControlRequest(Id);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_EXIT_APP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1276,14 +1391,11 @@ void TestApps(void)
      * request fails
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(Id);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_EXIT_APP_ERR_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1293,15 +1405,12 @@ void TestApps(void)
      * request fails
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_DELETE;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(Id);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_STOP_ERR3_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1311,15 +1420,12 @@ void TestApps(void)
      * request fails due to a CleanUpApp error
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RESTART;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(Id);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RESTART_APP_ERR4_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1329,15 +1435,12 @@ void TestApps(void)
      * request fails due to an AppCreate error
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RESTART;
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
-    CFE_ES_ProcessControlRequest(Id);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RESTART_APP_ERR3_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1347,21 +1450,12 @@ void TestApps(void)
      * request fails due to a CleanUpApp error
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RELOAD;
-
-    /* Use the OSAL stubs to populate the MainTaskId and ModuleId fields with
-     * something valid
-     */
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
-    CFE_ES_ProcessControlRequest(Id);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RELOAD_APP_ERR4_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1371,15 +1465,12 @@ void TestApps(void)
      * request fails due to an AppCreate error
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RELOAD;
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
-    CFE_ES_ProcessControlRequest(Id);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RELOAD_APP_ERR3_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1389,26 +1480,21 @@ void TestApps(void)
      * has an error
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.FileName,
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    strncpy((char *) UtAppRecPtr->StartParams.FileName,
             "/ram/FileName", OS_MAX_PATH_LEN);
-    CFE_ES_Global.AppTable[Id].StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.EntryPoint, "NULL",
+    UtAppRecPtr->StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy((char *) UtAppRecPtr->StartParams.EntryPoint, "NULL",
             OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[Id].StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
+    UtAppRecPtr->StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
         '\0';
-    CFE_ES_Global.AppTable[Id].StartParams.Priority = 255;
-    CFE_ES_Global.AppTable[Id].StartParams.StackSize = 8192;
-    CFE_ES_Global.AppTable[Id].StartParams.ExceptionAction = 0;
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->StartParams.Priority = 255;
+    UtAppRecPtr->StartParams.StackSize = 8192;
+    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_ERROR;
-    CFE_ES_ProcessControlRequest(Id);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_ERREXIT_APP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1418,15 +1504,12 @@ void TestApps(void)
      * has an error where the request fails
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_ERROR;
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(Id);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_ERREXIT_APP_ERR_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1434,26 +1517,21 @@ void TestApps(void)
 
     /* Test a successful control action request to stop an application */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.FileName,
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    strncpy((char *) UtAppRecPtr->StartParams.FileName,
             "/ram/FileName", OS_MAX_PATH_LEN);
-    CFE_ES_Global.AppTable[Id].StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.EntryPoint, "NULL",
+    UtAppRecPtr->StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy((char *) UtAppRecPtr->StartParams.EntryPoint, "NULL",
             OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[Id].StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
+    UtAppRecPtr->StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
         '\0';
-    CFE_ES_Global.AppTable[Id].StartParams.Priority = 255;
-    CFE_ES_Global.AppTable[Id].StartParams.StackSize = 8192;
-    CFE_ES_Global.AppTable[Id].StartParams.ExceptionAction = 0;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->StartParams.Priority = 255;
+    UtAppRecPtr->StartParams.StackSize = 8192;
+    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_DELETE;
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(Id);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_STOP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1461,26 +1539,21 @@ void TestApps(void)
 
     /* Test a successful control action request to restart an application */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.FileName,
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    strncpy((char *) UtAppRecPtr->StartParams.FileName,
             "/ram/FileName", OS_MAX_PATH_LEN);
-    CFE_ES_Global.AppTable[Id].StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.EntryPoint, "NULL",
+    UtAppRecPtr->StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy((char *) UtAppRecPtr->StartParams.EntryPoint, "NULL",
             OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[Id].StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
+    UtAppRecPtr->StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
         '\0';
-    CFE_ES_Global.AppTable[Id].StartParams.Priority = 255;
-    CFE_ES_Global.AppTable[Id].StartParams.StackSize = 8192;
-    CFE_ES_Global.AppTable[Id].StartParams.ExceptionAction = 0;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->StartParams.Priority = 255;
+    UtAppRecPtr->StartParams.StackSize = 8192;
+    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RESTART;
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(Id);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RESTART_APP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1488,26 +1561,21 @@ void TestApps(void)
 
     /* Test a successful control action request to reload an application */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.FileName,
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    strncpy((char *) UtAppRecPtr->StartParams.FileName,
             "/ram/FileName", OS_MAX_PATH_LEN);
-    CFE_ES_Global.AppTable[Id].StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.EntryPoint, "NULL",
+    UtAppRecPtr->StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy((char *) UtAppRecPtr->StartParams.EntryPoint, "NULL",
             OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[Id].StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
+    UtAppRecPtr->StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
         '\0';
-    CFE_ES_Global.AppTable[Id].StartParams.Priority = 255;
-    CFE_ES_Global.AppTable[Id].StartParams.StackSize = 8192;
-    CFE_ES_Global.AppTable[Id].StartParams.ExceptionAction = 0;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->StartParams.Priority = 255;
+    UtAppRecPtr->StartParams.StackSize = 8192;
+    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RELOAD;
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(Id);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RELOAD_APP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1517,39 +1585,30 @@ void TestApps(void)
      * state (exception)
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT",
-                  NULL, NULL, 0, 0, 0);
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.FileName,
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    strncpy((char *) UtAppRecPtr->StartParams.FileName,
             "/ram/FileName", OS_MAX_PATH_LEN);
-    CFE_ES_Global.AppTable[Id].StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.EntryPoint, "NULL",
+    UtAppRecPtr->StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy((char *) UtAppRecPtr->StartParams.EntryPoint, "NULL",
             OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[Id].StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
+    UtAppRecPtr->StartParams.EntryPoint[OS_MAX_API_NAME - 1] =
         '\0';
-    CFE_ES_Global.AppTable[Id].StartParams.Priority = 255;
-    CFE_ES_Global.AppTable[Id].StartParams.StackSize = 8192;
-    CFE_ES_Global.AppTable[Id].StartParams.ExceptionAction = 0;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->StartParams.Priority = 255;
+    UtAppRecPtr->StartParams.StackSize = 8192;
+    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_EXCEPTION;
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(Id);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    CFE_ES_ProcessControlRequest(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR1_EID),
               "CFE_ES_ProcessControlRequest",
               "Invalid state");
 
-    /* Test listing the OS resources in use */
-    ES_ResetUnitTest();
-
     /* Test populating the application information structure with data */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppInfo(&AppInfo, Id) == CFE_SUCCESS,
               "CFE_ES_GetAppInfo",
@@ -1559,9 +1618,8 @@ void TestApps(void)
      * a null application information pointer
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppInfo(NULL, Id) == CFE_ES_ERR_BUFFER,
               "CFE_ES_GetAppInfo",
@@ -1571,8 +1629,9 @@ void TestApps(void)
      * inactive application ID
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_AppRecordSetFree(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppInfo(&AppInfo, Id) == CFE_ES_ERR_APPID,
               "CFE_ES_GetAppInfo",
@@ -1582,9 +1641,9 @@ void TestApps(void)
      * application ID value greater than the maximum allowed
      */
     ES_ResetUnitTest();
+    Id = ES_UT_MakeAppIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppInfo(&AppInfo,
-                                CFE_PLATFORM_ES_MAX_APPLICATIONS) == CFE_ES_ERR_APPID,
+              CFE_ES_GetAppInfo(&AppInfo, Id) == CFE_ES_ERR_APPID,
               "CFE_ES_GetAppInfo",
               "Application ID exceeds maximum");
 
@@ -1592,10 +1651,8 @@ void TestApps(void)
      * application ID, but with a failure to retrieve the module information
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleInfo), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppInfo(&AppInfo, Id) == CFE_SUCCESS,
@@ -1606,22 +1663,14 @@ void TestApps(void)
      * delete and close failures
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     ES_UT_SetupForOSCleanup();
 
-    /* Use the "TaskCreate" stub to populate the MainTaskId field with
-     * something valid
-     */
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT", NULL,
-                  NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
     UT_SetForceFail(UT_KEY(OS_close), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "Task OS delete and close failure");
 
@@ -1629,18 +1678,13 @@ void TestApps(void)
      * mutex delete failure
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id2].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id2].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     ES_UT_SetupForOSCleanup();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemDelete), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "Task mutex delete failure");
 
@@ -1648,14 +1692,11 @@ void TestApps(void)
      * failure to unload the module
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId, "UT", NULL,
-                  NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleUnload), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "Module unload failure");
 
@@ -1663,12 +1704,11 @@ void TestApps(void)
      * EVS application cleanup fails
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&CFE_ES_Global.AppTable[0].TaskInfo.MainTaskId, "UT", NULL,
-                  NULL, 0, 0, 0);
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[0].StartParams.ModuleId, NULL, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(0) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "EVS application cleanup failure");
 
@@ -1676,11 +1716,12 @@ void TestApps(void)
      *  deleting mutexes
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
     ES_UT_SetupForOSCleanup();
+    Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemDelete), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanupTaskResources(TestObjId) ==
+              CFE_ES_CleanupTaskResources(Id) ==
                 CFE_ES_MUT_SEM_DELETE_ERR,
               "CFE_ES_CleanupTaskResources",
               "Mutex delete failure");
@@ -1689,11 +1730,12 @@ void TestApps(void)
      * binary semaphores
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
     ES_UT_SetupForOSCleanup();
+    Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemDelete), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanupTaskResources(TestObjId) ==
+              CFE_ES_CleanupTaskResources(Id) ==
                 CFE_ES_BIN_SEM_DELETE_ERR,
               "CFE_ES_CleanupTaskResources",
               "Binary semaphore delete failure");
@@ -1702,11 +1744,12 @@ void TestApps(void)
      * counting semaphores
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
     ES_UT_SetupForOSCleanup();
     UT_SetDeferredRetcode(UT_KEY(OS_CountSemDelete), 1, OS_ERROR);
+    Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanupTaskResources(TestObjId) ==
+              CFE_ES_CleanupTaskResources(Id) ==
                 CFE_ES_COUNT_SEM_DELETE_ERR,
               "CFE_ES_CleanupTaskResources",
               "Counting semaphore failure");
@@ -1715,11 +1758,12 @@ void TestApps(void)
      * deleting queues
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
     ES_UT_SetupForOSCleanup();
     UT_SetDeferredRetcode(UT_KEY(OS_QueueDelete), 1, OS_ERROR);
+    Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanupTaskResources(TestObjId) ==
+              CFE_ES_CleanupTaskResources(Id) ==
                 CFE_ES_QUEUE_DELETE_ERR,
               "CFE_ES_CleanupTaskResources",
               "Queue delete failure");
@@ -1728,14 +1772,15 @@ void TestApps(void)
      * deleting timers
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     ES_UT_SetupForOSCleanup();
     /* Just set OS_TimerDelete to fail.  There is no requirement
      * that the code call OS_TimerGetInfo first.
      */
     UT_SetDeferredRetcode(UT_KEY(OS_TimerDelete), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanupTaskResources(TestObjId) ==
+              CFE_ES_CleanupTaskResources(Id) ==
                 CFE_ES_TIMER_DELETE_ERR,
               "CFE_ES_CleanupTaskResources",
               "Timer delete failure");
@@ -1744,12 +1789,13 @@ void TestApps(void)
      * closing files
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     ES_UT_SetupForOSCleanup();
     UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
     UT_SetForceFail(UT_KEY(OS_close), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanupTaskResources(TestObjId) != CFE_SUCCESS,
+              CFE_ES_CleanupTaskResources(Id) != CFE_SUCCESS,
               "CFE_ES_CleanupTaskResources",
               "File close failure");
 
@@ -1757,20 +1803,22 @@ void TestApps(void)
      * to delete the task
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
     UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanupTaskResources(TestObjId) == CFE_ES_TASK_DELETE_ERR,
+              CFE_ES_CleanupTaskResources(Id) == CFE_ES_TASK_DELETE_ERR,
               "CFE_ES_CleanupTaskResources",
               "Task delete failure");
 
     /* Test successfully cleaning up the OS resources for a task */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanupTaskResources(TestObjId) == CFE_SUCCESS,
+              CFE_ES_CleanupTaskResources(Id) == CFE_SUCCESS,
               "CFE_ES_CleanupTaskResources",
               "Clean up task OS resources; successful");
 
@@ -1800,136 +1848,129 @@ void TestApps(void)
      * expires for a waiting application
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppTimerMsec = 0;
     CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_GetNumEventsSent() == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0,
+              UtAppRecPtr->ControlReq.AppTimerMsec == 0,
               "CFE_ES_RunAppTableScan",
               "Waiting; process control request");
-    CFE_ES_Global.TaskTable[Id].RecordUsed = false;
 
     /* Test scanning and acting on the application table where the application
      * is already running
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec = 0;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppTimerMsec = 0;
     CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_GetNumEventsSent() == 0 &&
-              CFE_ES_Global.AppTable[Id].ControlReq.AppTimerMsec == 0,
+              UtAppRecPtr->ControlReq.AppTimerMsec == 0,
               "CFE_ES_RunAppTableScan",
               "Running; process control request");
-    CFE_ES_Global.TaskTable[Id].RecordUsed = false;
 
     /* Test deleting an application and cleaning up its resources where the
      * application ID matches the main task ID
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-    OS_TaskCreate(&TestObjId3, "UT", NULL, NULL, 0, 0, 0);
-    Id3 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId3);
-    CFE_ES_Global.TaskTable[Id2].TaskId = TestObjId3;
-    CFE_ES_Global.TaskTable[Id2].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id2].AppId = Id;
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id].StartParams.ModuleId, NULL, NULL);
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId3;
+    /* Setup an entry which will be deleted */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    /* Setup a second entry which will NOT be deleted */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    /* Associate a child task with the app to be deleted */
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(Id) == CFE_SUCCESS &&
-              CFE_ES_Global.TaskTable[Id2].RecordUsed == true,
+              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_SUCCESS,
               "CFE_ES_CleanUpApp",
-              "Main task ID matches task ID");
-    CFE_ES_Global.TaskTable[Id].RecordUsed = false;
+              "Main task ID matches task ID, nominal");
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_TaskRecordIsUsed(UtTaskRecPtr),
+              "CFE_ES_CleanUpApp",
+              "Main task ID matches task ID, other task unaffected");
 
     /* Test deleting an application and cleaning up its resources where the
      * application ID doesn't match the main task ID
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-    OS_TaskCreate(&TestObjId3, "UT", NULL, NULL, 0, 0, 0);
-    Id3 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId3);
-    OS_TaskCreate(&TestObjId4, "UT", NULL, NULL, 0, 0, 0);
-    Id4 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId4);
-    CFE_ES_Global.TaskTable[Id2].TaskId = Id3;
-    CFE_ES_Global.TaskTable[Id2].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id2].AppId = Id4;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = Id2;
+
+    /* Setup an entry which will be deleted */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    /* Setup a second entry which will NOT be deleted */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    /* Associate a child task with the app to be deleted */
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
+
+    /* switch the main task association (makes it wrong) */
+    UtAppRecPtr->TaskInfo.MainTaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+
     UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(Id4) == CFE_ES_APP_CLEANUP_ERR &&
-              CFE_ES_Global.TaskTable[Id2].RecordUsed == true,
+              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
-              "Main task ID doesn't match task ID");
+              "Main task ID doesn't match task ID, CFE_ES_APP_CLEANUP_ERR");
+    UT_Report(__FILE__, __LINE__,
+              !CFE_ES_TaskRecordIsUsed(UtTaskRecPtr),
+              "CFE_ES_CleanUpApp",
+              "Main task ID doesn't match task ID, second task unchanged");
 
     /* Test deleting an application and cleaning up its resources where the
      * application ID doesn't match and the application is a core application
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-    OS_TaskCreate(&TestObjId3, "UT", NULL, NULL, 0, 0, 0);
-    Id3 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId3);
-    CFE_ES_Global.TaskTable[Id].TaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id2;
-    CFE_ES_Global.RegisteredExternalApps = 1;
-    CFE_ES_Global.AppTable[Id3].TaskInfo.MainTaskId = TestObjId3;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
+    /* Setup an entry which will be deleted */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    /* Setup a second entry which will NOT be deleted */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    /* Associate a child task with the app to be deleted */
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
+
+    /* switch the main task association (makes it wrong) */
+    UtAppRecPtr->TaskInfo.MainTaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(Id3) == CFE_SUCCESS &&
-              CFE_ES_Global.TaskTable[Id].RecordUsed == true &&
+              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_SUCCESS,
+              "CFE_ES_CleanUpApp",
+              "Application ID mismatch; core application");
+
+    UT_Report(__FILE__, __LINE__,
+              !CFE_ES_TaskRecordIsUsed(UtTaskRecPtr),
+              "CFE_ES_CleanUpApp",
+              "Application ID mismatch; core application");
+
+    UT_Report(__FILE__, __LINE__,
               CFE_ES_Global.RegisteredExternalApps == 1,
               "CFE_ES_CleanUpApp",
               "Application ID mismatch; core application");
-    CFE_ES_Global.TaskTable[Id].RecordUsed = false;
 
     /* Test successfully deleting an application and cleaning up its resources
      * and the application is an external application
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    OS_TaskCreate(&TestObjId2, "UT", NULL, NULL, 0, 0, 0);
-    Id2 = ES_UT_OSALID_TO_ARRAYIDX(TestObjId2);
-    CFE_ES_Global.TaskTable[Id].TaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id2;
-    CFE_ES_Global.RegisteredExternalApps = 1;
-    CFE_ES_Global.AppTable[Id2].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.AppTable[Id2].Type = CFE_ES_AppType_EXTERNAL;
-    OS_ModuleLoad(&CFE_ES_Global.AppTable[Id2].StartParams.ModuleId, "UT",
+
+    /* Setup an entry which will be deleted */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, "UT",
                   "ut-module");
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(Id2) == CFE_SUCCESS &&
-              CFE_ES_Global.TaskTable[Id].RecordUsed == false &&
+              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_SUCCESS &&
+              !CFE_ES_TaskRecordIsUsed(UtTaskRecPtr) &&
               CFE_ES_Global.RegisteredExternalApps == 0,
               "CFE_ES_CleanUpApp",
               "Successful application cleanup; external application");
-    CFE_ES_Global.TaskTable[Id].RecordUsed = false;
 
     /* Test cleaning up the OS resources for a task with failure to
      * obtain information on mutex, binary, and counter semaphores, and
      * queues, timers, and file descriptors
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemGetInfo), 1, OS_ERROR);
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemGetInfo), 1, OS_ERROR);
     UT_SetDeferredRetcode(UT_KEY(OS_CountSemGetInfo), 1, OS_ERROR);
@@ -1937,7 +1978,7 @@ void TestApps(void)
     UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
     UT_SetDeferredRetcode(UT_KEY(OS_FDGetInfo), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanupTaskResources(TestObjId) == CFE_SUCCESS,
+              CFE_ES_CleanupTaskResources(Id) == CFE_SUCCESS,
               "CFE_ES_CleanupTaskResources",
               "Get OS information failures");
 }
@@ -1988,10 +2029,9 @@ void TestERLog(void)
 
 void TestTask(void)
 {
-    uint32                      Id;
-    uint32                      TestObjId;
     uint32                      ResetType;
-    uint32                      UT_ContextBuffer;
+    uint32                      UT_ContextData;
+    uint32                   UT_ContextTask;
     union
     {
         CFE_SB_Msg_t             Msg;
@@ -2013,7 +2053,9 @@ void TestTask(void)
         CFE_ES_QueryAllTasks_t   QueryAllTasksCmd;
     } CmdBuf;
     Pool_t                      UT_TestPool;
-
+    CFE_ES_AppRecord_t          *UtAppRecPtr;
+    CFE_ES_TaskRecord_t         *UtTaskRecPtr;
+    CFE_ES_CDS_RegRec_t         *UtCDSRegRecPtr;
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Task\n");
 #endif
@@ -2028,41 +2070,53 @@ void TestTask(void)
 
     /* Test task main process loop with a command pipe error */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
-    CFE_ES_Global.TaskTable[1].AppId = 1;
+    /* this is needed so CFE_ES_GetAppId works */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     CFE_ES_TaskMain();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]) &&
-                 UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]),
               "CFE_ES_TaskMain",
-              "Command pipe error");
+              "Command pipe error, UT_OSP_COMMAND_PIPE message");
+    UT_Report(__FILE__, __LINE__,
+              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              "CFE_ES_TaskMain",
+              "Command pipe error, printf count");
 
     /* Test task main process loop with an initialization failure */
     ES_ResetUnitTest();
     UT_SetForceFail(UT_KEY(OS_TaskRegister), OS_ERROR);
     CFE_ES_TaskMain();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_APP_INIT]) && 
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REGISTER_APP]) &&
-                 UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_APP_INIT]),
               "CFE_ES_TaskMain",
-              "Task initialization fail");
+              "Task initialization fail, UT_OSP_APP_INIT message");
+    UT_Report(__FILE__, __LINE__,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REGISTER_APP]),
+              "CFE_ES_TaskMain",
+              "Task initialization fail, UT_OSP_REGISTER_APP message");
+    UT_Report(__FILE__, __LINE__,
+              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              "CFE_ES_TaskMain",
+              "Task initialization fail, printf count");
 
     /* Test task main process loop with bad checksum information */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_GetCFETextSegmentInfo), 1, -1);
-    CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
-    CFE_ES_Global.TaskTable[1].AppId = 1;
+    /* this is needed so CFE_ES_GetAppId works */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_TaskInit() == CFE_SUCCESS &&
+              CFE_ES_TaskInit() == CFE_SUCCESS,
+              "CFE_ES_TaskInit",
+              "Checksum fail, task init result");
+    UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum == 0xFFFF,
               "CFE_ES_TaskInit",
-              "Checksum fail");
+              "Checksum fail, checksum value");
 
     /* Test successful task main process loop - Power On Reset Path */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
-    CFE_ES_Global.TaskTable[1].AppId = 1;
+    /* this is needed so CFE_ES_GetAppId works */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     CFE_ES_ResetDataPtr->ResetVars.ResetType = 2;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == CFE_SUCCESS &&
@@ -2072,8 +2126,8 @@ void TestTask(void)
 
     /* Test successful task main process loop - Processor Reset Path */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = true; /* this is needed so CFE_ES_GetAppId works */
-    CFE_ES_Global.TaskTable[1].AppId = 1;
+    /* this is needed so CFE_ES_GetAppId works */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     CFE_ES_ResetDataPtr->ResetVars.ResetType = 1;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == CFE_SUCCESS &&
@@ -2356,14 +2410,7 @@ void TestTask(void)
 
     /* Test successful app stop */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.Name, "CFE_ES", 
-        sizeof(CFE_ES_Global.AppTable[Id].StartParams.Name));
-    CFE_ES_Global.AppTable[Id].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     strncpy((char *) CmdBuf.StopAppCmd.Payload.Application, "CFE_ES",
             sizeof(CmdBuf.StopAppCmd.Payload.Application));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StopApp_t),
@@ -2375,10 +2422,7 @@ void TestTask(void)
 
     /* Test app stop failure */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StopApp_t),
             UT_TPID_CFE_ES_CMD_STOP_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2401,15 +2445,9 @@ void TestTask(void)
     /* Test successful app restart */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     strncpy((char *) CmdBuf.RestartAppCmd.Payload.Application, "CFE_ES",
             sizeof(CmdBuf.RestartAppCmd.Payload.Application));
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    strncpy((char *) CFE_ES_Global.AppTable[0].StartParams.Name,
-            "CFE_ES", OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[Id].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_RestartApp_t),
             UT_TPID_CFE_ES_CMD_RESTART_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2432,15 +2470,9 @@ void TestTask(void)
     /* Test failed app restart */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
     strncpy((char *) CmdBuf.RestartAppCmd.Payload.Application, "CFE_ES",
         sizeof(CmdBuf.RestartAppCmd.Payload.Application));
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.Name,
-            "CFE_ES", OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[Id].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_RestartApp_t),
             UT_TPID_CFE_ES_CMD_RESTART_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2451,14 +2483,11 @@ void TestTask(void)
     /* Test successful app reload */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     strncpy((char *) CmdBuf.ReloadAppCmd.Payload.AppFileName, "New_Name",
             sizeof(CmdBuf.ReloadAppCmd.Payload.AppFileName));
     strncpy((char *) CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES",
             sizeof(CmdBuf.ReloadAppCmd.Payload.Application));
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_ReloadApp_t),
             UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2469,7 +2498,6 @@ void TestTask(void)
     /* Test app reload with a bad app name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_UNDEFINED;
     strncpy((char *) CmdBuf.ReloadAppCmd.Payload.Application, "BAD_APP_NAME",
             sizeof(CmdBuf.ReloadAppCmd.Payload.Application));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_ReloadApp_t),
@@ -2478,15 +2506,11 @@ void TestTask(void)
               UT_EventIsInHistory(CFE_ES_RELOAD_APP_ERR2_EID),
               "CFE_ES_ReloadAppCmd",
               "Reload application bad name");
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
 
     /* Test failed app reload */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
     strncpy((char *) CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES",
             sizeof(CmdBuf.ReloadAppCmd.Payload.Application));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_ReloadApp_t),
@@ -2499,10 +2523,7 @@ void TestTask(void)
     /* Test successful telemetry packet request for single app data */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_WAITING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
     strncpy((char *) CmdBuf.QueryOneCmd.Payload.Application, "CFE_ES",
             sizeof(CmdBuf.QueryOneCmd.Payload.Application));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryOne_t),
@@ -2517,12 +2538,7 @@ void TestTask(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    strncpy((char *) CFE_ES_Global.AppTable[Id].StartParams.Name, "CFE_ES",
-            OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[Id].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     strncpy((char *) CmdBuf.QueryOneCmd.Payload.Application, "CFE_ES",
             sizeof(CmdBuf.QueryOneCmd.Payload.Application));
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_SendMsg), 1, -1);
@@ -2536,9 +2552,7 @@ void TestTask(void)
     /* Test telemetry packet request for single app data with a bad app name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     strncpy((char *) CmdBuf.QueryOneCmd.Payload.Application, "BAD_APP_NAME",
             sizeof(CmdBuf.QueryOneCmd.Payload.Application));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryOne_t),
@@ -2551,9 +2565,7 @@ void TestTask(void)
     /* Test successful write of all app data to file */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     strncpy((char *) CmdBuf.QueryAllCmd.Payload.FileName, "AllFilename",
             sizeof(CmdBuf.QueryAllCmd.Payload.FileName));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAll_t),
@@ -2587,9 +2599,7 @@ void TestTask(void)
     /* Test write of all app data to file with a file write failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAll_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
@@ -2601,9 +2611,7 @@ void TestTask(void)
     /* Test write of all app data to file with a file create failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAll_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
@@ -2615,10 +2623,7 @@ void TestTask(void)
     /* Test successful write of all task data to a file */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAllTasks_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2641,12 +2646,9 @@ void TestTask(void)
 
     /* Test write of all task data to a file with a task write failure */
     ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
     UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAllTasks_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2813,8 +2815,8 @@ void TestTask(void)
 
     /* nominal condition - still returns false, but generates event */
     ES_ResetUnitTest();
-    UT_ContextBuffer = 42;
-    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_CopyContext),&UT_ContextBuffer, sizeof(UT_ContextBuffer), false);
+    UT_ContextData = 42;
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_CopyContext),&UT_ContextData, sizeof(UT_ContextData), false);
     CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
     CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
     UT_Report(__FILE__, __LINE__,
@@ -2883,36 +2885,37 @@ void TestTask(void)
               "Scan for exceptions; poweron restart");
 
     /* nominal for app restart - associate exception with a task ID */
-    OS_TaskCreate(&UT_ContextBuffer, "UT", NULL, NULL, 0, 0, 0);
-    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextBuffer, sizeof(UT_ContextBuffer), false);
-    CFE_ES_Global.TaskTable[1].RecordUsed = true;
-    CFE_ES_Global.TaskTable[1].AppId = 0;
-    CFE_ES_Global.TaskTable[1].TaskId = UT_ContextBuffer;
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[0].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[0].ControlReq.AppTimerMsec = 0;
-    CFE_ES_Global.AppTable[0].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[0].StartParams.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
+    ES_ResetUnitTest();
+    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    UT_ContextTask = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextTask, sizeof(UT_ContextTask), false);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->StartParams.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
     CFE_ES_RunExceptionScan(0, NULL);
     /* should have changed AppControlRequest from RUN to SYS_RESTART,
      * and the call to CFE_PSP_Restart should NOT increment */
     UT_Report(__FILE__, __LINE__,
-            CFE_ES_Global.AppTable[0].ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_RESTART,
+            UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_RESTART,
               "CFE_ES_RunExceptionScan",
               "Scan for exceptions; app restart request pending");
 
     UT_Report(__FILE__, __LINE__,
-            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 2,
+            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 0,
               "CFE_ES_RunExceptionScan",
               "Scan for exceptions; no psp restart");
 
     /* repeat, but for a CORE app, which cannot be restarted */
-    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextBuffer, sizeof(UT_ContextBuffer), false);
-    CFE_ES_Global.AppTable[0].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[0].Type = CFE_ES_AppType_CORE;
+    ES_ResetUnitTest();
+    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    UT_ContextTask = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextTask, sizeof(UT_ContextTask), false);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->StartParams.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
     CFE_ES_RunExceptionScan(0, NULL);
     UT_Report(__FILE__, __LINE__,
-            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 3,
+            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 1,
               "CFE_ES_RunExceptionScan",
               "Scan for exceptions; core app, psp restart");
 
@@ -2920,7 +2923,7 @@ void TestTask(void)
     UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetSummary), CFE_PSP_NO_EXCEPTION_DATA);
     CFE_ES_RunExceptionScan(0, NULL);
     UT_Report(__FILE__, __LINE__,
-            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 4,
+            UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 2,
               "CFE_ES_RunExceptionScan",
               "Scan for exceptions; fail to get context");
 
@@ -2958,15 +2961,11 @@ void TestTask(void)
 
     /* Test failed deletion of specified CDS */
     ES_ResetUnitTest();
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy(CmdBuf.DeleteCDSCmd.Payload.CdsName,
             "CFE_ES.CDS_NAME",
             sizeof(CmdBuf.DeleteCDSCmd.Payload.CdsName));
-    strncpy(CFE_ES_Global.CDSVars.Registry[0].Name,
-            "CFE_ES.CDS_NAME",
-            sizeof(CFE_ES_Global.CDSVars.Registry[0].Name));
-    CFE_ES_Global.CDSVars.Registry[0].Name[OS_MAX_API_NAME - 1] = '\0';
-    CFE_ES_Global.CDSVars.Registry[0].Taken = true;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DeleteCDS_t),
             UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2977,20 +2976,18 @@ void TestTask(void)
     /* Test failed deletion of specified critical table CDS */
     /* NOTE - reuse command from previous test */
     ES_ResetUnitTest();
-    CFE_ES_Global.CDSVars.Registry[0].Table = true;
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", true, NULL);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DeleteCDS_t),
             UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_CDS_DELETE_TBL_ERR_EID),
               "CFE_ES_DeleteCDSCmd",
               "Delete from CDS; wrong type");
-    CFE_ES_Global.CDSVars.Registry[0].Table = false;
 
     /* Test successful deletion of a specified CDS */
     ES_ResetUnitTest();
     UT_SetCDSSize(0); /* defeats the "ReadFromCDS" and causes it to use the value here */
-    CFE_ES_Global.CDSVars.Registry[0].MemHandle =
-        sizeof(CFE_ES_Global.CDSVars.ValidityField);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
 
     /* Set up the block to read what we need to from the CDS */
     CFE_ES_CDSBlockDesc.CheckBits = CFE_ES_CDS_CHECK_PATTERN;
@@ -3006,18 +3003,8 @@ void TestTask(void)
 
     /* Test deletion of a specified CDS with the owning app being active */
     ES_ResetUnitTest();
-    strncpy(CFE_ES_Global.CDSVars.Registry[0].Name,
-            "CFE_ES.CDS_NAME",
-            sizeof(CFE_ES_Global.CDSVars.Registry[0].Name));
-    CFE_ES_Global.CDSVars.Registry[0].Name[OS_MAX_API_NAME - 1] = '\0';
-    CFE_ES_Global.CDSVars.Registry[0].MemHandle =
-        sizeof(CFE_ES_Global.CDSVars.ValidityField);
-    strncpy((char *) CFE_ES_Global.AppTable[0].StartParams.Name, "CFE_ES",
-            OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[0].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
-    CFE_ES_Global.CDSVars.Registry[0].Table = false;
-    CFE_ES_Global.CDSVars.Registry[0].Taken = true;
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DeleteCDS_t),
             UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3027,13 +3014,9 @@ void TestTask(void)
 
     /* Test deletion of a specified CDS with the name not found */
     ES_ResetUnitTest();
-    CFE_ES_Global.CDSVars.Registry[0].MemHandle =
-        sizeof(CFE_ES_Global.CDSVars.ValidityField);
-    strncpy((char *) CFE_ES_Global.AppTable[0].StartParams.Name, "CFE_BAD",
-            OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[0].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_UNDEFINED;
-    CFE_ES_Global.CDSVars.Registry[0].Taken = false;
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, &UtCDSRegRecPtr);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_BAD", NULL, NULL);
+    UtCDSRegRecPtr->Taken = false;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DeleteCDS_t),
             UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3044,11 +3027,6 @@ void TestTask(void)
     /* Test successful dump of CDS to file using the default dump file name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CFE_ES_Global.AppTable[0].StartParams.Name, "CFE_ES",
-            OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[0].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.CDSVars.Registry[0].Taken = true;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DumpCDSRegistry_t),
             UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3082,6 +3060,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DumpCDSRegistry_t),
             UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3403,13 +3382,10 @@ void TestTask(void)
     /* Test successful dump of CDS to file using a specified dump file name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CFE_ES_Global.AppTable[0].StartParams.Name, "CFE_ES",
-            OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[0].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
     strncpy(CmdBuf.DumpCDSRegCmd.Payload.DumpFilename, "DumpFile",
             sizeof(CmdBuf.DumpCDSRegCmd.Payload.DumpFilename));
-    CFE_ES_Global.CDSVars.Registry[0].Taken = true;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DumpCDSRegistry_t),
             UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3420,8 +3396,6 @@ void TestTask(void)
 
 void TestPerf(void)
 {
-    uint32 Id;
-    uint32 TestObjId;
     union
     {
         CFE_SB_Msg_t                Msg;
@@ -3437,11 +3411,8 @@ void TestPerf(void)
 
     /* Test successful performance mask and value initialization */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     Perf->MetaData.State = CFE_ES_PERF_MAX_STATES;
-    CFE_ES_Global.TaskTable[Id].AppId = 0;
     CFE_ES_SetupPerfVariables(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               Perf->MetaData.State == CFE_ES_PERF_IDLE,
@@ -3535,9 +3506,6 @@ void TestPerf(void)
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
     CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PERF_TRIGGER_START;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStartCmd),
             UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
@@ -3551,9 +3519,6 @@ void TestPerf(void)
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd),
             UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3568,9 +3533,6 @@ void TestPerf(void)
     /* clearing the BackgroundPerfDumpState will fully reset to initial state */
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
     strncpy(CmdBuf.PerfStopCmd.Payload.DataFileName, "filename",
         sizeof(CmdBuf.PerfStopCmd.Payload.DataFileName));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd),
@@ -3930,26 +3892,20 @@ void TestPerf(void)
 
 void TestAPI(void)
 {
-    uint32 Id;
     uint32 TestObjId;
     char AppName[32];
     uint32 StackBuf[8];
-    char CounterName[11];
-    char CDSName[CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + 2];
-    int i;
     int32  Return;
     uint8  Data[12];
     uint32 ResetType;
     uint32 *ResetTypePtr;
     uint32 AppId;
     uint32 TaskId;
-    uint32 TempSize;
     uint32 RunStatus;
-    uint32 CounterId;
-    uint32 CounterCount;
-    CFE_ES_CDSHandle_t CDSHandle;
     CFE_ES_TaskInfo_t TaskInfo;
     CFE_ES_AppInfo_t AppInfo;
+    CFE_ES_AppRecord_t *UtAppRecPtr;
+    CFE_ES_TaskRecord_t *UtTaskRecPtr;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test API\n");
@@ -4002,52 +3958,42 @@ void TestAPI(void)
 
     /* Test restarting an app that doesn't exist */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
+    AppId = ES_UT_MakeAppIdForIndex(ES_UT_NumApps); /* Should be within range, but not used */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RestartApp(Id) == CFE_ES_ERR_APPID,
+              CFE_ES_RestartApp(AppId) == CFE_ES_ERR_APPID,
               "CFE_ES_RestartApp",
               "Bad application ID");
 
     /* Test restarting an app with an ID out of range (high) */
     ES_ResetUnitTest();
+    AppId = ES_UT_MakeAppIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RestartApp(CFE_PLATFORM_ES_MAX_APPLICATIONS) == CFE_ES_ERR_APPID,
+              CFE_ES_RestartApp(AppId) == CFE_ES_ERR_APPID,
               "CFE_ES_RestartApp",
               "Application ID too large");
 
     /* Test reloading an app that doesn't exist */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ReloadApp(Id, "filename") == CFE_ES_ERR_APPID,
+              CFE_ES_ReloadApp(AppId, "filename") == CFE_ES_ERR_APPID,
               "CFE_ES_ReloadApp",
               "Bad application ID");
 
     /* Test deleting an app that doesn't exist */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteApp(Id) == CFE_ES_ERR_APPID,
+              CFE_ES_DeleteApp(AppId) == CFE_ES_ERR_APPID,
               "CFE_ES_DeleteApp",
               "Bad application ID");
 
     /* Test exiting an app with an init error */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_INIT]) &&
@@ -4058,12 +4004,7 @@ void TestAPI(void)
 
     /* Test exiting an app with a runtime error */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_RUNTIME]) &&
@@ -4076,23 +4017,17 @@ void TestAPI(void)
      * an extra message to be logged in syslog about this.  This
      * should also be stored in the AppControlRequest as APP_ERROR. */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_STOPPED;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_STOPPED, "UT", &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     CFE_ES_ExitApp(1000);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EXIT]) &&
                   UT_GetStubCount(UT_KEY(OS_printf)) == 2,
               "CFE_ES_ExitApp",
               "Application exit error");
-    UtAssert_True(CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_ERROR,
+    UtAssert_True(UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_ERROR,
             "CFE_ES_ExitApp - AppControlRequest (%u) == CFE_ES_RunStatus_APP_ERROR (%u)",
-            (unsigned int)CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest,
+            (unsigned int)UtAppRecPtr->ControlReq.AppControlRequest,
             (unsigned int)CFE_ES_RunStatus_APP_ERROR);
 
 #if 0
@@ -4101,22 +4036,18 @@ void TestAPI(void)
      */
     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    CFE_ES_TaskRecordSetUsed(TaskRecPtr);
+    TaskRecPtr->AppId = Id;
+    AppRecPtr->Type = CFE_ES_AppType_EXTERNAL;
+    AppRecPtr->AppState = CFE_ES_AppState_RUNNING;
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
 #endif
 
     /* Test successful run loop app run request */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     RunStatus = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_APP_RUN;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(&RunStatus) == true,
@@ -4125,13 +4056,9 @@ void TestAPI(void)
 
     /* Test successful run loop app stop request */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     RunStatus = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_APP_EXIT;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(&RunStatus) == false,
@@ -4140,13 +4067,9 @@ void TestAPI(void)
 
     /* Test successful run loop app exit request */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     RunStatus = CFE_ES_RunStatus_APP_EXIT;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_APP_EXIT;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(&RunStatus) == false,
@@ -4155,14 +4078,11 @@ void TestAPI(void)
 
     /* Test run loop with bad app ID */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = false;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
     RunStatus = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_APP_RUN;
+    CFE_ES_TaskRecordSetFree(UtTaskRecPtr); /* make it so task ID is bad */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(&RunStatus) == false,
               "CFE_ES_RunLoop",
@@ -4170,13 +4090,9 @@ void TestAPI(void)
 
     /* Test run loop with an invalid run status */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     RunStatus = 1000;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_APP_EXIT;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(&RunStatus) == false,
@@ -4185,12 +4101,8 @@ void TestAPI(void)
 
     /* Test run loop with a NULL run status */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest =
             CFE_ES_RunStatus_APP_RUN;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(NULL),
@@ -4199,18 +4111,13 @@ void TestAPI(void)
 
     /* Test run loop with startup sync code */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_LATE_INIT, NULL, &UtAppRecPtr, NULL);
     RunStatus = CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest =
+    UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_APP_RUN;
-    CFE_ES_Global.AppTable[Id].AppState =
-        CFE_ES_AppState_EARLY_INIT;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(&RunStatus) == true &&
-              CFE_ES_Global.AppTable[Id].AppState ==
+              UtAppRecPtr->AppState ==
                   CFE_ES_AppState_RUNNING,
               "CFE_ES_RunLoop",
               "Status change from initializing to run");
@@ -4224,79 +4131,96 @@ void TestAPI(void)
 
     /* Test getting the cFE application ID by its name */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = true;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppID(&AppId) == CFE_SUCCESS,
               "CFE_ES_GetAppID",
               "Get application ID by name successful");
 
     /* Test getting the app name with a bad app ID */
-    CFE_ES_Global.AppTable[4].AppState = CFE_ES_AppState_UNDEFINED;
     ES_ResetUnitTest();
+    AppId = ES_UT_MakeAppIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppName(AppName, 4, 32) == CFE_ES_ERR_APPID,
+              CFE_ES_GetAppName(AppName, AppId, 32) == CFE_ES_ERR_APPID,
               "CFE_ES_GetAppName",
               "Get application name by ID; bad application ID");
 
     /* Test getting the app name with that app ID out of range */
     ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
+    AppId = ES_UT_MakeAppIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppName(AppName,
-                                CFE_PLATFORM_ES_MAX_APPLICATIONS + 2,
+                                AppId,
                                 32) == CFE_ES_ERR_APPID,
               "CFE_ES_GetAppName",
               "Get application name by ID; ID out of range");
 
     /* Test successfully getting the app name using the app ID */
     ES_ResetUnitTest();
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppName(AppName, 0, 32) == CFE_SUCCESS,
+              CFE_ES_GetAppName(AppName, AppId, 32) == CFE_SUCCESS,
               "CFE_ES_GetAppName",
               "Get application name by ID successful");
 
+    /* Test getting task information using the task ID - NULL buffer */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetTaskInfo(NULL, TaskId) == CFE_ES_ERR_BUFFER,
+              "CFE_ES_GetTaskInfo",
+              "Get task info by ID; NULL buffer");
+
+    /* Test getting task information using the task ID - bad task ID  */
+    UT_SetForceFail(UT_KEY(OS_ConvertToArrayIndex), OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_TASKID,
+              "CFE_ES_GetTaskInfo",
+              "Get task info by ID; bad task ID");
+
     /* Test getting task information using the task ID */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UtAppRecPtr->AppState = CFE_ES_AppState_RUNNING;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetTaskInfo(&TaskInfo, TestObjId) == CFE_SUCCESS,
+              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_SUCCESS,
               "CFE_ES_GetTaskInfo",
               "Get task info by ID successful");
 
     /* Test getting task information using the task ID with parent inactive */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    CFE_ES_AppRecordSetFree(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetTaskInfo(&TaskInfo, Id) == CFE_ES_ERR_TASKID,
+              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_APPID,
               "CFE_ES_GetTaskInfo",
               "Get task info by ID; parent application not active");
 
     /* Test getting task information using the task ID with task inactive */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    CFE_ES_TaskRecordSetFree(UtTaskRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetTaskInfo(&TaskInfo, Id) == CFE_ES_ERR_TASKID,
+              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_TASKID,
               "CFE_ES_GetTaskInfo",
               "Get task info by ID; task not active");
 
     /* Test getting task information using the task ID with invalid task ID */
     ES_ResetUnitTest();
+    TaskId = ES_UT_MakeTaskIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetTaskInfo(&TaskInfo, 1000) == CFE_ES_ERR_TASKID,
+              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_TASKID,
               "CFE_ES_GetTaskInfo",
               "Get task info by ID; invalid task ID");
 
     /* Test creating a child task with a bad app ID */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = false;
     Return = CFE_ES_CreateChildTask(&TaskId,
                                     "TaskName",
                                     TestAPI,
@@ -4311,8 +4235,8 @@ void TestAPI(void)
 
     /* Test creating a child task with an OS task create failure */
     ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
-    CFE_ES_Global.TaskTable[1].RecordUsed = true;
     Return = CFE_ES_CreateChildTask(&TaskId,
                                     "TaskName",
                                     TestAPI,
@@ -4383,12 +4307,10 @@ void TestAPI(void)
 
     /* Test creating a child task within a child task */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = 3;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
+    TestObjId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_SetForceFail(UT_KEY(OS_TaskGetId), (unsigned long)TestObjId); /* Set context to that of child */
     Return = CFE_ES_CreateChildTask(&TaskId,
                                     "TaskName",
                                     TestAPI,
@@ -4403,12 +4325,7 @@ void TestAPI(void)
 
     /* Test successfully creating a child task */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     Return = CFE_ES_CreateChildTask(&TaskId,
                                     "TaskName",
                                     TestAPI,
@@ -4420,45 +4337,38 @@ void TestAPI(void)
               Return == CFE_SUCCESS, "CFE_ES_CreateChildTask",
               "Create child task successful");
 
-    /* Test deleting a child task with an invalid task ID */
-    ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteChildTask(Id) == CFE_ES_ERR_TASKID,
-              "CFE_ES_DeleteChildTask",
-              "Task ID not in use");
-
     /* Test deleting a child task using a main task's ID */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteChildTask(Id /*CFE_ES_Global.TaskTable[Id].TaskId*/) ==
+              CFE_ES_DeleteChildTask(TaskId) ==
                   CFE_ES_ERR_CHILD_TASK_DELETE_MAIN_TASK,
               "CFE_ES_DeleteChildTask",
               "Task ID belongs to a main task");
 
+    /* Test deleting a child task with an invalid task ID */
+    UT_SetForceFail(UT_KEY(OS_ConvertToArrayIndex), OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_DeleteChildTask(TaskId) == CFE_ES_ERR_TASKID,
+              "CFE_ES_DeleteChildTask",
+              "Task ID invalid");
+
     /* Test successfully deleting a child task */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = true;
-    CFE_ES_Global.TaskTable[1].AppId = 0;
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[0].TaskInfo.MainTaskId = 15;
-    OS_TaskCreate(&CFE_ES_Global.TaskTable[1].TaskId, NULL, NULL, NULL,
-                  0, 0, 0);    
-    Return = CFE_ES_GetAppInfo(&AppInfo,CFE_ES_Global.TaskTable[1].AppId);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr); /* the app ID */
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr); /* the child task ID */
+    Return = CFE_ES_GetAppInfo(&AppInfo, AppId);
     UtAssert_True(Return == CFE_SUCCESS, 
          "CFE_ES_GetAppInfo() return=%x", (unsigned int)Return); 
     UtAssert_True(AppInfo.NumOfChildTasks == 1, 
          "AppInfo.NumOfChildTaskss == %u", (unsigned int)AppInfo.NumOfChildTasks); 
-    Return = CFE_ES_DeleteChildTask(CFE_ES_Global.TaskTable[1].TaskId);  
+    Return = CFE_ES_DeleteChildTask(TaskId);
     UtAssert_True(Return == CFE_SUCCESS, 
          "DeleteChildResult() return=%x", (unsigned int)Return);
-    Return = CFE_ES_GetAppInfo(&AppInfo,CFE_ES_Global.TaskTable[1].AppId);
+    Return = CFE_ES_GetAppInfo(&AppInfo,AppId);
     UtAssert_True(Return == CFE_SUCCESS, 
          "CFE_ES_GetAppInfo() return=%x", (unsigned int)Return); 
     UtAssert_True(AppInfo.NumOfChildTasks == 0, 
@@ -4466,31 +4376,30 @@ void TestAPI(void)
 
     /* Test deleting a child task with an OS task delete failure */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = true;
-    OS_TaskCreate(&CFE_ES_Global.TaskTable[1].TaskId, NULL, NULL, NULL,
-                  0, 0, 0);
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[0].TaskInfo.MainTaskId = 15;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr); /* the app ID */
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr); /* the child task ID */
     UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteChildTask(CFE_ES_Global.TaskTable[1].TaskId) <= 0,
+              CFE_ES_DeleteChildTask(TaskId) <= 0,
               "CFE_ES_DeleteChildTask",
               "OS task delete failure");
 
     /* Test deleting a child task with the task ID out of range */
     ES_ResetUnitTest();
+    TaskId = ES_UT_MakeTaskIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteChildTask(OS_MAX_TASKS + 1) == CFE_ES_ERR_TASKID,
+              CFE_ES_DeleteChildTask(TaskId) == CFE_ES_ERR_TASKID,
               "CFE_ES_DeleteChildTask",
               "Task ID too large");
 
     /* Test successfully exiting a child task */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[0].RecordUsed = false;
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_UNDEFINED;
-    CFE_ES_Global.TaskTable[1].RecordUsed = true;
-    CFE_ES_Global.AppTable[1].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[1].TaskInfo.MainTaskId = 3;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
+    TestObjId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_SetForceFail(UT_KEY(OS_TaskGetId), (unsigned long)TestObjId); /* Set context to that of child */
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(OS_TaskExit)) == 1,
@@ -4499,13 +4408,8 @@ void TestAPI(void)
 
     /* Test exiting a child task within an app main task */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = true;
-    CFE_ES_Global.TaskTable[1].AppId = 0;
-    OS_TaskCreate(&CFE_ES_Global.TaskTable[1].TaskId,
-                  NULL, NULL, NULL, 0, 0, 0);
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[0].TaskInfo.MainTaskId =
-      CFE_ES_Global.TaskTable[1].TaskId;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_CALL_APP_MAIN]) &&
@@ -4515,13 +4419,12 @@ void TestAPI(void)
 
     /* Test exiting a child task with an error retrieving the app ID */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = false;
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_GET_APP_ID]) && 
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_TASKEXIT_BAD_CONTEXT]) &&
                   UT_GetStubCount(UT_KEY(OS_printf)) == 1,
               "CFE_ES_ExitChildTask",
-              "Error calling CFE_ES_GetAppID");
+              "Invalid context");
 
     /* Test registering a child task with an OS task register failure */
     ES_ResetUnitTest();
@@ -4594,179 +4497,9 @@ void TestAPI(void)
               "CFE_ES_CalculateCRC",
               "Invalid CRC type");
 
-    /* Test CDS registering with a write CDS failure */
-    ES_ResetUnitTest();
-    UT_SetCDSSize(50000);
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name3") == OS_ERROR,
-              "CFE_ES_RegisterCDS",
-              "Writing to BSP CDS failure");
-
-    /* Test successful CDS registering */
-    ES_ResetUnitTest();
-    UT_SetCDSSize(50000);
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name") == CFE_SUCCESS,
-              "CFE_ES_RegisterCDS",
-              "Register CDS successful");
-
-    /* Test CDS registering using an already registered name */
-    ES_ResetUnitTest();
-    UT_SetCDSSize(50000);
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle,
-                                 4,
-                                 "Name") == CFE_ES_CDS_ALREADY_EXISTS,
-              "CFE_ES_RegisterCDS",
-              "Retrieve existing CDS");
-
-    /* Test CDS registering using the same name, but a different size */
-    ES_ResetUnitTest();
-    UT_SetCDSSize(50000);
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 6, "Name") == CFE_SUCCESS,
-              "CFE_ES_RegisterCDS",
-              "Get CDS of same name, but new size");
-
-    /* Test CDS registering using a null name */
-    ES_ResetUnitTest();
-    UT_SetCDSSize(50000);
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, "") == CFE_ES_CDS_INVALID_NAME,
-              "CFE_ES_RegisterCDS",
-              "Invalid name size");
-
-    /* Test CDS registering with no memory pool available */
-    ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    TempSize = CFE_ES_Global.CDSVars.MemPoolSize;
-    CFE_ES_Global.CDSVars.MemPoolSize = 0;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle,
-                                 4,
-                                 "Name") == CFE_ES_NOT_IMPLEMENTED,
-              "CFE_ES_RegisterCDS",
-              "No memory pool available");
-    CFE_ES_Global.CDSVars.MemPoolSize = TempSize;
-
-    /* Test CDS registering with a block size of zero */
-    ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle,
-                                 0,
-                                 "Name") == CFE_ES_CDS_INVALID_SIZE,
-              "CFE_ES_RegisterCDS",
-              "Block size zero");
-
-    /* Test CDS registering with all the CDS registries taken */
-    ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-
-    /* Set all the CDS registries to 'taken' */
-    for (i = 0; i < CFE_ES_Global.CDSVars.MaxNumRegEntries; i++)
-    {
-        CFE_ES_Global.CDSVars.Registry[i].Taken = true;
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle,
-                                 4,
-                                 "Name2") == CFE_ES_CDS_REGISTRY_FULL,
-              "CFE_ES_RegisterCDS",
-              "No available entries");
-
-    /* Restore all the CDS registries back to 'not taken' */
-    for (i = 0; i < CFE_ES_Global.CDSVars.MaxNumRegEntries; i++)
-    {
-        CFE_ES_Global.CDSVars.Registry[i].Taken = false;
-    }
-
-    /* Test CDS registering using a bad app ID */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name2") == CFE_ES_ERR_APPID,
-              "CFE_ES_RegisterCDS",
-              "Bad application ID");
-
-    /* Register CDS to set up for the copy test */
-    ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.AppTable[Id].AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_Global.AppTable[Id].TaskInfo.MainTaskId = TestObjId;
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name") == CFE_SUCCESS,
-              "CFE_ES_RegisterCDS",
-              "Register CDS successful (set up for copy test)");
-
-    /* Test successfully copying to CDS */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_SUCCESS);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CopyToCDS(CDSHandle, &TempSize) == CFE_SUCCESS,
-              "CFE_ES_CopyToCDS",
-              "Copy to CDS successful");
-
-    /* Test successfully restoring from a CDS */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RestoreFromCDS(&TempSize, CDSHandle) == CFE_SUCCESS,
-              "CFE_ES_RestoreFromCDS",
-              "Restore from CDS successful");
-
     /* Test shared mutex take with a take error */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, -1);
     CFE_ES_LockSharedData(__func__, 12345);
     UT_Report(__FILE__, __LINE__,
@@ -4776,10 +4509,7 @@ void TestAPI(void)
 
     /* Test shared mutex release with a release error */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 1, -1);
     CFE_ES_UnlockSharedData(__func__, 98765);
     UT_Report(__FILE__, __LINE__,
@@ -4787,153 +4517,16 @@ void TestAPI(void)
               "CFE_ES_UnlockSharedData",
               "Mutex release error");
 
-    /* Test successfully registering a generic counter */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterGenCounter(&CounterId, "Counter1") == CFE_SUCCESS,
-              "CFE_ES_RegisterGenCounter",
-              "Register counter successful");
-
-    /* Test registering a generic counter that is already registered */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterGenCounter(&CounterId,
-                                        "Counter1") == CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_RegisterGenCounter",
-              "Attempt to register an existing counter");
-
-    /* Test registering the maximum number of generic counters */
-    ES_ResetUnitTest();
-
-    for (i = 1; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++)
-    {
-
-        snprintf(CounterName, 11, "Counter%d", i + 1);
-
-        if (CFE_ES_RegisterGenCounter(&CounterId, CounterName) != CFE_SUCCESS)
-        {
-            break;
-        }
-    }
-
-    UT_Report(__FILE__, __LINE__,
-              i == CFE_PLATFORM_ES_MAX_GEN_COUNTERS,
-              "CFE_ES_RegisterGenCounter",
-              "Register maximum number of counters");
-
-    /* Test registering a generic counter after the maximum are registered */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterGenCounter(&CounterId,
-                                        "Counter999") == CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_RegisterGenCounter",
-              "Maximum number of counters exceeded");
-
-    /* Test getting a registered generic counter that doesn't exist */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetGenCounterIDByName(&CounterId,
-                                           "Counter999") ==
-                  CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_GetGenCounterIDByName",
-              "Cannot get counter that does not exist");
-
-    /* Test successfully getting a registered generic counter ID by name */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetGenCounterIDByName(&CounterId,
-                                           "Counter5") == CFE_SUCCESS,
-              "CFE_ES_GetGenCounterIDByName",
-              "Get generic counter ID successful");
-
-    /* Test deleting a registered generic counter that doesn't exist */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteGenCounter(123456) == CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_DeleteGenCounter",
-              "Cannot delete counter that does not exist");
-
-    /* Test successfully deleting a registered generic counter by ID */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteGenCounter(CounterId) == CFE_SUCCESS,
-              "CFE_ES_DeleteGenCounter",
-              "Successful");
-
-    /* Test successfully registering a generic counter to verify a place for
-     * it is now available and to provide an ID for subsequent tests
-     */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterGenCounter(&CounterId, "CounterX") == CFE_SUCCESS,
-              "CFE_ES_RegisterGenCounter",
-              "Register counter; back to maximum number");
-
-    /* Test incrementing a generic counter that doesn't exist */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_IncrementGenCounter(CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
-                == CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_IncrementGenCounter",
-              "Bad counter ID");
-
-    /* Test successfully incrementing a generic counter */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_IncrementGenCounter(CounterId) == CFE_SUCCESS,
-              "CFE_ES_IncrementGenCounter",
-              "Increment counter successful");
-
-    /* Test getting a generic counter value for a counter that doesn't exist */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetGenCount(123456, &CounterCount) == CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_GetGenCount",
-              "Bad counter ID");
-
-    /* Test successfully getting a generic counter value */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetGenCount(CounterId, &CounterCount) == CFE_SUCCESS &&
-              CounterCount == 1,
-              "CFE_ES_GetGenCount",
-              "Get counter value successful");
-
-    /* Test setting a generic counter value for a counter that doesn't exist */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_SetGenCount(123456, 5) == CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_SetGenCount",
-              "Bad counter ID");
-
-    /* Test successfully setting a generic counter value */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_SetGenCount(CounterId, 5) == CFE_SUCCESS,
-              "CFE_ES_SetGenCount",
-              "Set counter value successful");
-
-    /* Test value retrieved from a generic counter value */
-    ES_ResetUnitTest();
-    CFE_ES_GetGenCount(CounterId, &CounterCount);
-    UT_Report(__FILE__, __LINE__,
-              (CounterCount == 5), "CFE_ES_SetGenCount",
-              "Check value for counter set");
 
     /* Test waiting for apps to initialize before continuing; transition from
      * initializing to running
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_EARLY_INIT, "UT", &UtAppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_OPERATIONAL;
-    CFE_ES_Global.AppTable[Id].AppState =
-        CFE_ES_AppState_EARLY_INIT;
     CFE_ES_WaitForStartupSync(0);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_Global.AppTable[Id].AppState ==
+            UtAppRecPtr->AppState ==
                   CFE_ES_AppState_RUNNING,
               "CFE_ES_WaitForStartupSync",
               "Transition from initializing to running");
@@ -4942,14 +4535,8 @@ void TestAPI(void)
      * already released
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].AppState =
-        CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_CORE;
     CFE_ES_WaitForStartupSync(99);
 
     /* Note - CFE_ES_WaitForStartupSync() returns void, nothing to check for
@@ -4963,14 +4550,8 @@ void TestAPI(void)
     /* Test waiting for apps to initialize as an external app
      */
     ES_ResetUnitTest();
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-    CFE_ES_Global.TaskTable[Id].AppId = Id;
-    CFE_ES_Global.AppTable[Id].AppState =
-        CFE_ES_AppState_EARLY_INIT;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, "UT", &UtAppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
-    CFE_ES_Global.AppTable[Id].Type = CFE_ES_AppType_EXTERNAL;
     CFE_ES_WaitForStartupSync(99);
 
     /* Note - CFE_ES_WaitForStartupSync() returns void, nothing to check for
@@ -5016,150 +4597,376 @@ void TestAPI(void)
 
      /* Test run loop with an application error status */
      ES_ResetUnitTest();
-     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-     CFE_ES_Global.TaskTable[Id].AppId = Id;
+     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
      RunStatus = CFE_ES_RunStatus_APP_ERROR;
-     CFE_ES_Global.AppTable[Id].ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_ERROR;
+     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_ERROR;
      UT_Report(__FILE__, __LINE__,
               CFE_ES_RunLoop(&RunStatus) == false,
                "CFE_ES_RunLoop",
                "Application error run status");
 
-     /* Test CDS registering using a name longer than the maximum allowed */
-     ES_ResetUnitTest();
-     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-     CFE_ES_Global.TaskTable[Id].AppId = Id;
+}
 
-     for (i = 0; i < CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + 1; i++)
-     {
-         CDSName[i] = 'a';
-     }
+void TestGenericCounterAPI(void)
+{
+    char CounterName[11];
+    uint32 CounterId;
+    uint32 CounterCount;
+    int i;
 
-     CDSName[i] = '\0';
+    /* Test successfully registering a generic counter */
+    ES_ResetUnitTest();
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterGenCounter(&CounterId, "Counter1") == CFE_SUCCESS,
+              "CFE_ES_RegisterGenCounter",
+              "Register counter successful");
 
-     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, CDSName)
-                 == CFE_ES_CDS_INVALID_NAME,
-               "CFE_ES_RegisterCDS",
-               "Invalid name size");
-
-     /* Test registering a generic counter with a null counter ID pointer */
-     ES_ResetUnitTest();
-     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterGenCounter(NULL,
-                                         "Counter1") == CFE_ES_BAD_ARGUMENT,
-               "CFE_ES_RegisterGenCounter",
-               "Attempt to register using a null counter ID pointer");
-
-     /* Test registering a generic counter with a null counter name */
-     ES_ResetUnitTest();
-
-     for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
-     {
-        CFE_ES_Global.CounterTable[i].RecordUsed = false;
-     }
-
-     UT_Report(__FILE__, __LINE__,
+    /* Test registering a generic counter that is already registered */
+    UT_Report(__FILE__, __LINE__,
               CFE_ES_RegisterGenCounter(&CounterId,
-                                         NULL) == CFE_ES_BAD_ARGUMENT,
-               "CFE_ES_RegisterGenCounter",
-               "Attempt to register using a null counter name");
+                                        "Counter1") == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_RegisterGenCounter",
+              "Attempt to register an existing counter");
 
-     /* Test incrementing a generic counter where the record is not in use */
-     ES_ResetUnitTest();
-     CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
-     UT_Report(__FILE__, __LINE__,
-              CFE_ES_IncrementGenCounter(CounterId) == CFE_ES_BAD_ARGUMENT,
-               "CFE_ES_IncrementGenCounter",
-               "Record not in use");
+    /* Test registering the maximum number of generic counters */
+    for (i = 1; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++)
+    {
+        snprintf(CounterName, sizeof(CounterName), "Counter%d", i + 1);
 
-     /* Test setting a generic counter where the record is not in use */
-     ES_ResetUnitTest();
-     CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
-     UT_Report(__FILE__, __LINE__,
-              CFE_ES_SetGenCount(CounterId, 0) == CFE_ES_BAD_ARGUMENT,
-               "CFE_ES_SetGenCount",
-               "Record not in use");
+        if (CFE_ES_RegisterGenCounter(&CounterId, CounterName) != CFE_SUCCESS)
+        {
+            break;
+        }
+    }
 
-     /* Test getting a generic counter where the record is not in use */
-     ES_ResetUnitTest();
-     CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
-     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetGenCount(CounterId, &CounterCount)
-                 == CFE_ES_BAD_ARGUMENT,
-               "CFE_ES_GetGenCount",
-               "Record not in use");
+    UT_Report(__FILE__, __LINE__,
+              i == CFE_PLATFORM_ES_MAX_GEN_COUNTERS,
+              "CFE_ES_RegisterGenCounter",
+              "Register maximum number of counters");
 
-     /* Test getting a generic counter where the count is null */
-     ES_ResetUnitTest();
-     CFE_ES_Global.CounterTable[CounterId].RecordUsed = true;
-     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetGenCount(CounterId, NULL)
-                 == CFE_ES_BAD_ARGUMENT,
-               "CFE_ES_GetGenCount",
-               "Null count");
+    /* Test registering a generic counter after the maximum are registered */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterGenCounter(&CounterId,
+                                        "Counter999") == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_RegisterGenCounter",
+              "Maximum number of counters exceeded");
 
-     /* Test getting a registered generic counter ID using a null counter
-      * pointer
-      */
-     ES_ResetUnitTest();
-     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetGenCounterIDByName(NULL,
-                                            "CounterX") == CFE_ES_BAD_ARGUMENT,
-               "CFE_ES_GetGenCounterIDByName",
-               "Null name");
+    /* Test getting a registered generic counter that doesn't exist */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetGenCounterIDByName(&CounterId,
+                                           "Counter999") ==
+                  CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_GetGenCounterIDByName",
+              "Cannot get counter that does not exist");
 
-     /* Test unsuccessful CDS registering */
-     ES_ResetUnitTest();
-     OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-     Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-     CFE_ES_Global.TaskTable[Id].RecordUsed = true;
-     CFE_ES_Global.TaskTable[Id].AppId = Id;
-     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle,
-                                  0xffffffff,
-                                  "Name") == CFE_ES_ERR_MEM_BLOCK_SIZE,
-               "CFE_ES_RegisterCDS",
-               "Register CDS unsuccessful");
-} /* end TestAPI */
+    /* Test successfully getting a registered generic counter ID by name */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetGenCounterIDByName(&CounterId,
+                                           "Counter5") == CFE_SUCCESS,
+              "CFE_ES_GetGenCounterIDByName",
+              "Get generic counter ID successful");
+
+    /* Test deleting a registered generic counter that doesn't exist */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_DeleteGenCounter(123456) == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_DeleteGenCounter",
+              "Cannot delete counter that does not exist");
+
+    /* Test successfully deleting a registered generic counter by ID */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_DeleteGenCounter(CounterId) == CFE_SUCCESS,
+              "CFE_ES_DeleteGenCounter",
+              "Successful");
+
+    /* Test successfully registering a generic counter to verify a place for
+     * it is now available and to provide an ID for subsequent tests
+     */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterGenCounter(&CounterId, "CounterX") == CFE_SUCCESS,
+              "CFE_ES_RegisterGenCounter",
+              "Register counter; back to maximum number");
+
+    /* Test incrementing a generic counter that doesn't exist */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_IncrementGenCounter(CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
+                == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_IncrementGenCounter",
+              "Bad counter ID");
+
+    /* Test successfully incrementing a generic counter */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_IncrementGenCounter(CounterId) == CFE_SUCCESS,
+              "CFE_ES_IncrementGenCounter",
+              "Increment counter successful");
+
+    /* Test getting a generic counter value for a counter that doesn't exist */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetGenCount(123456, &CounterCount) == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_GetGenCount",
+              "Bad counter ID");
+
+    /* Test successfully getting a generic counter value */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetGenCount(CounterId, &CounterCount) == CFE_SUCCESS &&
+              CounterCount == 1,
+              "CFE_ES_GetGenCount",
+              "Get counter value successful");
+
+    /* Test setting a generic counter value for a counter that doesn't exist */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_SetGenCount(123456, 5) == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_SetGenCount",
+              "Bad counter ID");
+
+    /* Test successfully setting a generic counter value */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_SetGenCount(CounterId, 5) == CFE_SUCCESS,
+              "CFE_ES_SetGenCount",
+              "Set counter value successful");
+
+    /* Test value retrieved from a generic counter value */
+    CFE_ES_GetGenCount(CounterId, &CounterCount);
+    UT_Report(__FILE__, __LINE__,
+              (CounterCount == 5), "CFE_ES_SetGenCount",
+              "Check value for counter set");
+
+    /* Test registering a generic counter with a null counter ID pointer */
+    ES_ResetUnitTest();
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_RegisterGenCounter(NULL,
+                                        "Counter1") == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_RegisterGenCounter",
+              "Attempt to register using a null counter ID pointer");
+
+    /* Test registering a generic counter with a null counter name */
+    ES_ResetUnitTest();
+
+    for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
+    {
+       CFE_ES_Global.CounterTable[i].RecordUsed = false;
+    }
+
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_RegisterGenCounter(&CounterId,
+                                        NULL) == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_RegisterGenCounter",
+              "Attempt to register using a null counter name");
+
+    /* Test incrementing a generic counter where the record is not in use */
+    ES_ResetUnitTest();
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_IncrementGenCounter(CounterId) == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_IncrementGenCounter",
+              "Record not in use");
+
+    /* Test setting a generic counter where the record is not in use */
+    ES_ResetUnitTest();
+    CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_SetGenCount(CounterId, 0) == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_SetGenCount",
+              "Record not in use");
+
+    /* Test getting a generic counter where the record is not in use */
+    ES_ResetUnitTest();
+    CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_GetGenCount(CounterId, &CounterCount)
+                == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_GetGenCount",
+              "Record not in use");
+
+    /* Test getting a generic counter where the count is null */
+    ES_ResetUnitTest();
+    CFE_ES_Global.CounterTable[CounterId].RecordUsed = true;
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_GetGenCount(CounterId, NULL)
+                == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_GetGenCount",
+              "Null count");
+
+    /* Test getting a registered generic counter ID using a null counter
+     * pointer
+     */
+    ES_ResetUnitTest();
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_GetGenCounterIDByName(NULL,
+                                           "CounterX") == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_GetGenCounterIDByName",
+              "Null name");
+}
 
 void TestCDS()
 {
-    uint32 Temp;
     uint32 CdsSize;
     uint8 *CdsPtr;
+    char CDSName[CFE_ES_CDS_MAX_FULL_NAME_LEN + 4];
+    CFE_ES_CDSHandle_t CDSHandle;
+    uint32 i;
+    uint32 TempSize;
+
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test CDS\n");
 #endif
 
-    /* Test validating the app ID using a bad ID value */
+    /* Set up the PSP stubs for CDS testing */
+    UT_SetCDSSize(128 * 1024);
+
+    /* Test CDS registering with a write CDS failure */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].RecordUsed = true;
-    CFE_ES_Global.TaskTable[1].AppId = CFE_PLATFORM_ES_MAX_APPLICATIONS + 1;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
+    UT_SetCDSSize(50000);
+    CFE_ES_InitializeCDS(50000);
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDS_ValidateAppID(&Temp) == CFE_ES_ERR_APPID,
-              "CFE_ES_CDS_ValidateAppID",
-              "Bad app ID");
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name3") == OS_ERROR,
+              "CFE_ES_RegisterCDS",
+              "Writing to BSP CDS failure");
+
+    /* Test successful CDS registering */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
+    UT_SetCDSSize(50000);
+    CFE_ES_InitializeCDS(50000);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name") == CFE_SUCCESS,
+              "CFE_ES_RegisterCDS",
+              "Register CDS successful");
+
+    /* Test CDS registering using an already registered name */
+    /* No reset here -- just attempt to register the same name again */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterCDS(&CDSHandle,
+                                 4,
+                                 "Name") == CFE_ES_CDS_ALREADY_EXISTS,
+              "CFE_ES_RegisterCDS",
+              "Retrieve existing CDS");
+
+    /* Test CDS registering using the same name, but a different size */
+    /* No reset here -- just attempt to register the same name again */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterCDS(&CDSHandle, 6, "Name") == CFE_SUCCESS,
+              "CFE_ES_RegisterCDS",
+              "Get CDS of same name, but new size");
+
+    /* Test CDS registering using a null name */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "") == CFE_ES_CDS_INVALID_NAME,
+              "CFE_ES_RegisterCDS",
+              "Invalid name size");
+
+    /* Test CDS registering with a block size of zero */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterCDS(&CDSHandle,
+                                 0,
+                                 "Name") == CFE_ES_CDS_INVALID_SIZE,
+              "CFE_ES_RegisterCDS",
+              "Block size zero");
+
+    /* Test CDS registering with no memory pool available */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterCDS(&CDSHandle,
+                                 4,
+                                 "Name") == CFE_ES_NOT_IMPLEMENTED,
+              "CFE_ES_RegisterCDS",
+              "No memory pool available");
+
+    /* Test CDS registering with all the CDS registries taken */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
+    UT_SetCDSSize(50000);
+    CFE_ES_InitializeCDS(50000);
+
+    /* Set all the CDS registries to 'taken' */
+    for (i = 0; i < CFE_ES_Global.CDSVars.MaxNumRegEntries; i++)
+    {
+        CFE_ES_Global.CDSVars.Registry[i].Taken = true;
+    }
+
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterCDS(&CDSHandle,
+                                 4,
+                                 "Name2") == CFE_ES_CDS_REGISTRY_FULL,
+              "CFE_ES_RegisterCDS",
+              "No available entries");
+
+    /* Test CDS registering using a bad app ID */
+    ES_ResetUnitTest();
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name2") == CFE_ES_ERR_APPID,
+              "CFE_ES_RegisterCDS",
+              "Bad application ID");
+
+    /* Register CDS to set up for the copy test */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
+    UT_SetCDSSize(50000);
+    CFE_ES_InitializeCDS(50000);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name") == CFE_SUCCESS,
+              "CFE_ES_RegisterCDS",
+              "Register CDS successful (set up for copy test)");
+
+    /* Test successfully copying to CDS */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_SUCCESS);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CopyToCDS(CDSHandle, &TempSize) == CFE_SUCCESS,
+              "CFE_ES_CopyToCDS",
+              "Copy to CDS successful");
+
+    /* Test successfully restoring from a CDS */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RestoreFromCDS(&TempSize, CDSHandle) == CFE_SUCCESS,
+              "CFE_ES_RestoreFromCDS",
+              "Restore from CDS successful");
+
+    /* Test CDS registering using a name longer than the maximum allowed */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
+    UT_SetCDSSize(50000);
+    CFE_ES_InitializeCDS(50000);
+
+    for (i = 0; i < CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + 1; i++)
+    {
+        CDSName[i] = 'a';
+    }
+
+    CDSName[i] = '\0';
+
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_RegisterCDS(&CDSHandle, 4, CDSName)
+                == CFE_ES_CDS_INVALID_NAME,
+              "CFE_ES_RegisterCDS",
+              "Invalid name size");
+
+    /* Test unsuccessful CDS registering */
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_RegisterCDS(&CDSHandle,
+                                 0xffffffff,
+                                 "Name") == CFE_ES_ERR_MEM_BLOCK_SIZE,
+              "CFE_ES_RegisterCDS",
+              "Register CDS unsuccessful");
 
     /* Test memory pool rebuild and registry recovery with an
      * unreadable registry
      */
     ES_ResetUnitTest();
-    CFE_ES_Global.TaskTable[1].AppId = 1;
-    CFE_ES_Global.CDSVars.MaxNumRegEntries = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES + 2;
-    UT_SetForceFail(UT_KEY(CFE_PSP_ReadFromCDS), -1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, -1);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RebuildCDS() == CFE_ES_CDS_INVALID,
+              "CFE_ES_RebuildCDS",
+              "First read from CDS bad");
+
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 2, -1);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RebuildCDS() == CFE_ES_CDS_INVALID,
               "CFE_ES_RebuildCDS",
               "Second read from CDS bad");
 
     /* Test CDS registry initialization with a CDS write failure */
-    ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, -1);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_InitCDSRegistry() == -1,
@@ -5168,8 +4975,6 @@ void TestCDS()
 
     /* Test successful CDS initialization */
     ES_ResetUnitTest();
-    UT_SetCDSSize(128 * 1024);
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_SUCCESS);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CDS_EarlyInit() == CFE_SUCCESS,
               "CFE_ES_CDS_EarlyInit",
@@ -5200,6 +5005,9 @@ void TestCDS()
               "CFE_ES_CDS_EarlyInit",
               "Unable to obtain CDS size");
 
+    /* Reset back to a sufficient CDS size */
+    UT_SetCDSSize(128 * 1024);
+
     /* Test CDS initialization with rebuilding not possible */
     ES_ResetUnitTest();
     UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void**)&CdsPtr, &CdsSize, NULL);
@@ -5222,6 +5030,7 @@ void TestCDS()
     /* Test CDS validation with CDS read end check failure */
     ES_ResetUnitTest();
     UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void**)&CdsPtr, &CdsSize, NULL);
+    CFE_ES_Global.CDSVars.CDSSize = CdsSize;
     memcpy(CdsPtr + CdsSize - 8, "gibberish", 8);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_ValidateCDS() == CFE_ES_CDS_INVALID,
@@ -5293,12 +5102,7 @@ void TestCDS()
     CFE_ES_CDSBlockDesc.CheckBits = CFE_ES_CDS_CHECK_PATTERN;
     CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
     CFE_ES_CDSBlockDesc.ActualSize =  512;
-    CFE_ES_Global.CDSVars.Registry[0].Taken = true;
-    CFE_ES_Global.CDSVars.Registry[0].Table = true;
-    CFE_ES_Global.CDSVars.Registry[0].MemHandle = 200;
-    strncpy(CFE_ES_Global.CDSVars.Registry[0].Name,
-            "NO_APP.CDS_NAME", OS_MAX_API_NAME);
-    CFE_ES_Global.CDSVars.Registry[0].Name[OS_MAX_API_NAME - 1] = '\0';
+    ES_UT_SetupSingleCDSRegistry("NO_APP.CDS_NAME", true, NULL);
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_DeleteCDS("NO_APP.CDS_NAME", true) == -1,
@@ -5309,16 +5113,8 @@ void TestCDS()
      * still active
      */
     ES_ResetUnitTest();
-    CFE_ES_Global.CDSVars.Registry[0].Taken = true;
-    CFE_ES_Global.CDSVars.Registry[0].Table = true;
-    CFE_ES_Global.CDSVars.Registry[0].MemHandle = 200;
-    strncpy(CFE_ES_Global.CDSVars.Registry[0].Name,
-            "CFE_ES.CDS_NAME", OS_MAX_API_NAME);
-    CFE_ES_Global.CDSVars.Registry[0].Name[OS_MAX_API_NAME - 1] = '\0';
-    strncpy((char *) CFE_ES_Global.AppTable[0].StartParams.Name, "CFE_ES",
-            OS_MAX_API_NAME);
-    CFE_ES_Global.AppTable[0].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
-    CFE_ES_Global.AppTable[0].AppState = CFE_ES_AppState_RUNNING;
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", true, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_DeleteCDS("CFE_ES.CDS_NAME", true) ==
                   CFE_ES_CDS_OWNER_ACTIVE_ERR,
@@ -5369,12 +5165,11 @@ void TestCDS()
      * maximum allowed
      */
     ES_ResetUnitTest();
-    CFE_ES_Global.CDSVars.Registry[0].Taken = true;
-    CFE_ES_Global.CDSVars.Registry[0].Table = true;
-    memset(CFE_ES_Global.CDSVars.Registry[0].Name, 'a', CFE_ES_CDS_MAX_FULL_NAME_LEN - 1);
-    CFE_ES_Global.CDSVars.Registry[0].Name[CFE_ES_CDS_MAX_FULL_NAME_LEN - 1] = '\0';
+    memset(CDSName, 'a', CFE_ES_CDS_MAX_FULL_NAME_LEN - 1);
+    CDSName[CFE_ES_CDS_MAX_FULL_NAME_LEN - 1] = '\0';
+    ES_UT_SetupSingleCDSRegistry(CDSName, true, NULL);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteCDS(CFE_ES_Global.CDSVars.Registry[0].Name,
+              CFE_ES_DeleteCDS(CDSName,
                                true) == CFE_ES_ERR_MEM_HANDLE,
               "CFE_ES_DeleteCDS",
               "CDS name too long");

@@ -1139,11 +1139,16 @@ void CFE_TIME_Set1HzAdj(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
 int32 CFE_TIME_CleanUpApp(uint32 AppId)
 {
     int32 Status;
+    uint32 AppIndex;
 
-    if (AppId < (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])))
+    Status = CFE_ES_AppID_ToIndex(AppId, &AppIndex);
+    if (Status != CFE_SUCCESS)
     {
-        CFE_TIME_TaskData.SynchCallback[AppId].Ptr = NULL;
-        Status = CFE_SUCCESS;
+        /* Do nothing */
+    }
+    else if (AppIndex < (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])))
+    {
+        CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr = NULL;
     }
     else
     {

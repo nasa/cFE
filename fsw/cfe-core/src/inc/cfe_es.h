@@ -108,6 +108,103 @@
 typedef cpuaddr CFE_ES_MemHandle_t;
 
 /**
+ * @brief Convert a resource ID to an integer.
+ *
+ * This is primarily intended for logging purposes, such was writing
+ * to debug console, event messages, or log files, using printf-like APIs.
+ *
+ * For compatibility with C library APIs, this returns an "unsigned long"
+ * type and should be used with the "%lx" format specifier in a printf
+ * format string.
+ *
+ * @note No assumptions should be made about the actual integer value,
+ * such as its base/range.  It may be printed, but should not be modified
+ * or tested/compared using other arithmetic ops, and should never be used
+ * as the index to an array or table.  See the related function
+ * CFE_ES_ResourceID_ToIndex() for cases where a zero-based array/table index
+ * is needed.
+ *
+ * @sa CFE_ES_ResourceID_FromInteger()
+ *
+ * @param   id[in]    Resource ID to convert
+ * @returns Integer value corresponding to ID
+ */
+static inline unsigned long CFE_ES_ResourceID_ToInteger(uint32 id)
+{
+    return (id);
+}
+
+/**
+ * @brief Convert an integer to a resource ID.
+ *
+ * This is the inverse of CFE_ES_ResourceID_ToInteger(), and reconstitutes
+ * the original CFE_ES_ResourceID_t value from the integer representation.
+ *
+ * This may be used, for instance, where an ID value is parsed from a text
+ * file or message using C library APIs such as scanf() or strtoul().
+ *
+ * @sa CFE_ES_ResourceID_ToInteger()
+ *
+ * @param   Value[in]    Integer value to convert
+ * @returns ID value corresponding to integer
+ */
+static inline uint32 CFE_ES_ResourceID_FromInteger(unsigned long Value)
+{
+    return (Value);
+}
+
+
+/**
+ * @brief Obtain an index value correlating to an ES Application ID
+ *
+ * This calculates a zero based integer value that may be used for indexing
+ * into a local resource table/array.
+ *
+ * Index values are only guaranteed to be unique for resources of the same
+ * type.  For instance, the indices corresponding to two [valid] application
+ * IDs will never overlap, but the index of an application and a library ID
+ * may be the same.  Furthermore, indices may be reused if a resource is
+ * deleted and re-created.
+ *
+ * @note There is no inverse of this function - indices cannot be converted
+ * back to the original AppID value.  The caller should retain the original ID
+ * for future use.
+ *
+ * @param   AppID[in]   Application ID to convert
+ * @param   Idx[out]    Buffer where the calculated index will be stored
+ *
+ * @return Execution status, see @ref CFEReturnCodes
+ * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
+ * @retval #CFE_ES_RESOURCE_ID_INVALID  @copybrief CFE_ES_RESOURCE_ID_INVALID
+ */
+int32 CFE_ES_AppID_ToIndex(uint32 AppID, uint32 *Idx);
+
+/**
+ * @brief Obtain an index value correlating to an ES Task ID
+ *
+ * This calculates a zero based integer value that may be used for indexing
+ * into a local resource table/array.
+ *
+ * Index values are only guaranteed to be unique for resources of the same
+ * type.  For instance, the indices corresponding to two [valid] Task
+ * IDs will never overlap, but the index of an Task and a library ID
+ * may be the same.  Furthermore, indices may be reused if a resource is
+ * deleted and re-created.
+ *
+ * @note There is no inverse of this function - indices cannot be converted
+ * back to the original TaskID value.  The caller should retain the original ID
+ * for future use.
+ *
+ * @param   TaskID[in]  Task ID to convert
+ * @param   Idx[out]    Buffer where the calculated index will be stored
+ *
+ * @return Execution status, see @ref CFEReturnCodes
+ * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
+ * @retval #CFE_ES_RESOURCE_ID_INVALID  @copybrief CFE_ES_RESOURCE_ID_INVALID
+ */
+int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx);
+
+/**
  * \brief Application Information
  * 
  * Structure that is used to provide information about an app.
@@ -592,6 +689,28 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr);
 **
 ******************************************************************************/
 int32 CFE_ES_GetAppID(uint32 *AppIdPtr);
+
+/*****************************************************************************/
+/**
+** \brief Get the task ID of the calling context
+**
+** \par Description
+**        This retrieves the current task context from OSAL
+**
+** \par Assumptions, External Events, and Notes:
+**        Applications which desire to call other CFE ES services such as
+**        CFE_ES_TaskGetInfo() should use this API rather than getting the ID
+**        from OSAL directly via OS_TaskGetId().
+**
+** \param[out]   TaskIdPtr      Pointer to variable that is to receive the ID.
+**                              Will be set to the ID of the calling task.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_TASKID    \copybrief CFE_ES_ERR_TASKID
+**
+******************************************************************************/
+int32 CFE_ES_GetTaskID(uint32 *TaskIdPtr);
 
 /*****************************************************************************/
 /**
