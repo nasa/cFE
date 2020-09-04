@@ -41,16 +41,6 @@
 */
 #include "cfe_mission_cfg.h"
 
-/*
-** CPU Id for target Processor
-*/
-#define CFE_PLATFORM_CPU_ID 1
-
-/*
-** CPU Name for target Processor
-*/
-#define CFE_PLATFORM_CPU_NAME "CPU1"
-
 /**
 **  \cfesbcfg Maximum Number of Unique Message IDs SB Routing Table can hold
 **
@@ -1786,7 +1776,7 @@
 **  \par Limits
 **       This value can be any 32 bit unsigned integer.
 */
-#define CFE_PLATFORM_TBL_VALID_PRID_1            (CFE_PLATFORM_CPU_ID)
+#define CFE_PLATFORM_TBL_VALID_PRID_1            (10)
 #define CFE_PLATFORM_TBL_VALID_PRID_2            (CFE_PLATFORM_TBL_U32FROM4CHARS('a', 'b', 'c', 'd'))
 #define CFE_PLATFORM_TBL_VALID_PRID_3            0
 #define CFE_PLATFORM_TBL_VALID_PRID_4            0

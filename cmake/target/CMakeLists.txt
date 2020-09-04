@@ -12,13 +12,22 @@
 
 project(CFETARGET C)
 
+# Sanity check on inputs - these should be set in the parent script(s)
+if (NOT DEFINED TGTNAME)
+  message(FATAL_ERROR "TGTNAME must be defined to link a final exe")
+endif (NOT DEFINED TGTNAME)
+
+if (NOT DEFINED ${TGTNAME}_PROCESSORID)
+  message(FATAL_ERROR "${TGTNAME}_PROCESSORID must be defined to link a final exe")
+endif (NOT DEFINED ${TGTNAME}_PROCESSORID)
+
 # Create a file for the statically-linked module list for this target
 # do this for both PSP and CFS static modules
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc.tmp" 
     "/* Automatically generated based on target config */\n")
-foreach(PSPMOD ${TGT${TGTID}_PSP_MODULELIST})
+foreach(PSPMOD ${${TGTNAME}_PSP_MODULELIST})
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc.tmp" "LOAD_PSP_MODULE(${PSPMOD})\n")
-endforeach(PSPMOD ${TGT${TGTID}_PSP_MODULELIST})
+endforeach(PSPMOD ${${TGTNAME}_PSP_MODULELIST})
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different 
     "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc.tmp" 
     "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc")
@@ -26,35 +35,27 @@ file (REMOVE "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc.tmp")
 
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp" 
     "/* Automatically generated based on target config */\n")
-foreach(CFSSYM ${TGT${TGTID}_STATIC_SYMLIST})
+foreach(CFSSYM ${${TGTNAME}_STATIC_SYMLIST})
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp" "STATIC_CFS_SYMBOL(${CFSSYM})\n")
-endforeach(CFSSYM ${TGT${TGTID}_STATIC_SYMLIST})
+endforeach(CFSSYM ${${TGTNAME}_STATIC_SYMLIST})
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different 
     "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp" 
     "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc")
 file (REMOVE "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp")
 
-
-# Include the current binary dir for the driver list
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-# The CPU ID and name are defined by the build scripts for this target
-if (DEFINED TGTID)
-  if (DEFINED TGT${TGTID}_PROCESSORID)
-      add_definitions(-DCFE_CPU_ID_VALUE=${TGT${TGTID}_PROCESSORID})
-  else()
-      add_definitions(-DCFE_CPU_ID_VALUE=${TGTID})
-  endif()
-endif()
-if (DEFINED SPACECRAFT_ID)
-  add_definitions(-DCFE_SPACECRAFT_ID_VALUE=${SPACECRAFT_ID})
-endif()
-if (DEFINED TGTNAME)
-  add_definitions(-DCFE_CPU_NAME_VALUE="${TGTNAME}")
-endif()
-
 # Target for the final executable
 add_executable(core-${TGTNAME} src/target_config.c)
+
+target_compile_definitions(core-${TGTNAME} PRIVATE 
+    CFE_CPU_NAME_VALUE="${TGTNAME}"
+    CFE_SPACECRAFT_ID_VALUE=${SPACECRAFT_ID}
+    CFE_CPU_ID_VALUE=${${TGTNAME}_PROCESSORID}
+)
+
+target_include_directories(core-${TGTNAME} PRIVATE 
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "${CMAKE_BINARY_DIR}/${CFE_CORE_TARGET}/inc"
+)
 
 # This next section provides a method for adding the "-u" switch to the 
 # linker in order to make sure the linker includes certain symbols in the link.
@@ -72,7 +73,7 @@ set_target_properties(core-${TGTNAME} PROPERTIES LINK_FLAGS "${TARGET_LINK_FLAGS
 # (enabled by the ENABLE_EXPORTS property) does not apply to static libs on the link line
 # This is only a concern when relying on the dynamic module loader, if we are statically
 # linking the entire CFE system into a single binary then no special help is needed.
-if (TGT${TGTID}_APPLIST)
+if (${TGTNAME}_APPLIST)
 
   set_target_properties(core-${TGTNAME} PROPERTIES ENABLE_EXPORTS TRUE)
   
@@ -100,7 +101,7 @@ if (TGT${TGTID}_APPLIST)
     set(STOP_WHOLE_ARCHIVE "${COMPILER_LINKER_OPTION_PREFIX}${STOP_WHOLE_ARCHIVE}")
   endif()
                 
-endif (TGT${TGTID}_APPLIST)
+endif (${TGTNAME}_APPLIST)
 
 # Collect any additional libraries that should be included on the link line
 # This depends on whether any special features are included or not
@@ -108,15 +109,15 @@ set(CFE_LINK_WHOLE_LIBS
     ${MISSION_CORE_MODULES}
 )
 set(CFE_LINK_NORMAL_LIBS 
-    ${TGT${TGTID}_PSP_MODULELIST}
-    ${TGT${TGTID}_STATIC_APPLIST}
+    ${${TGTNAME}_PSP_MODULELIST}
+    ${${TGTNAME}_STATIC_APPLIST}
 )
 
 # Handle the list of "embedded files" that should be linked into CFE.
 # These are arbitrary files in the mission config that are converted
 # into C data structures and linked with the executable.  This is 
 # a helpful feature for use when statically linking the CFE.
-if (DEFINED TGT${TGTID}_EMBED_FILELIST)
+if (DEFINED ${TGTNAME}_EMBED_FILELIST)
 
   set(EMBFILE_GENSRC_LIST)  # a list of C source files to compile
   set(EMBFILE_CONTENT_LIST) # a list of content targets for dependencies
@@ -127,7 +128,7 @@ if (DEFINED TGT${TGTID}_EMBED_FILELIST)
   # Where "VARIABLE_NAME" indicates the name to use for the 
   # generated C data structure, and FILE_NAME is the data file
   # that it is sourced from (no paths, it will be searched).
-  foreach(LISTENT ${TGT${TGTID}_EMBED_FILELIST})
+  foreach(LISTENT ${${TGTNAME}_EMBED_FILELIST})
     string(REPLACE "," ";" LISTENT ${LISTENT}) # split on the comma
     list(GET LISTENT 0 EMBNAME)  # EMBNAME => C variable name
     list(GET LISTENT 1 EMBFILE)  # EMBFILE => File name
@@ -163,7 +164,7 @@ if (DEFINED TGT${TGTID}_EMBED_FILELIST)
     list(APPEND EMBFILE_GENSRC_LIST "${CMAKE_CURRENT_BINARY_DIR}/embed/${EMBNAME}.c")
     list(APPEND EMBFILE_CONTENT_LIST "${CMAKE_CURRENT_BINARY_DIR}/embed/${EMBNAME}.inc")
        
-  endforeach(LISTENT ${TGT${TGTID}_EMBED_FILELIST})
+  endforeach(LISTENT ${${TGTNAME}_EMBED_FILELIST})
 
   # Finally, generate a static library that contains all embeded binary files
   # and add this to the list of libraries that the CFE will be linked with.
@@ -174,7 +175,7 @@ if (DEFINED TGT${TGTID}_EMBED_FILELIST)
   add_dependencies(${TGTNAME}_embed_files ${TGTNAME}_embed_content)
   list(APPEND CFE_LINK_NORMAL_LIBS ${TGTNAME}_embed_files)
   
-endif (DEFINED TGT${TGTID}_EMBED_FILELIST)    
+endif (DEFINED ${TGTNAME}_EMBED_FILELIST)    
 
 target_link_libraries(core-${TGTNAME}
     # The following libs should be included whole, even if they
