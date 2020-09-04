@@ -133,8 +133,9 @@ void UtTest_Setup(void)
     Test_Subscribe_API();
     Test_Unsubscribe_API();
     Test_SendMsg_API();
-    UtTest_Add(Test_RcvMsg_API, NULL, Test_CleanupApp_API, "Test_RcvMsg_API");
-    UT_ADD_TEST(Test_SB_Utils);
+    Test_RcvMsg_API();
+    SB_UT_ADD_SUBTEST(Test_CleanupApp_API);
+    Test_SB_Utils();
 
     Test_SB_SpecialCases();
 
