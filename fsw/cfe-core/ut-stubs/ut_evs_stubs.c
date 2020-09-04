@@ -35,6 +35,7 @@
 #include <string.h>
 #include "cfe.h"
 #include "utstubs.h"
+#include "uttools.h"
 
 /*
 ** Functions
@@ -112,6 +113,8 @@ int32 CFE_EVS_SendEvent(uint16 EventID,
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEvent), EventType);
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEvent), Spec);
 
+    UtDebug("CFE_EVS_SendEvent: %u - %s", EventID, Spec);
+
     int32 status;
     va_list va;
 
@@ -162,6 +165,8 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
 
     int32 status;
     va_list va;
+
+    UtDebug("CFE_EVS_SendTimedEvent: %u - %s", EventID, Spec);
 
     va_start(va, Spec);
     status = UT_DefaultStubImplWithArgs(__func__, UT_KEY(CFE_EVS_SendTimedEvent), CFE_SUCCESS, va);
@@ -246,6 +251,8 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
 
     int32 status;
     va_list va;
+
+    UtDebug("CFE_EVS_SendEventWithAppID: %u - %s", EventID, Spec);
 
     va_start(va, Spec);
     status = UT_DefaultStubImplWithArgs(__func__, UT_KEY(CFE_EVS_SendEventWithAppID), CFE_SUCCESS, va);
