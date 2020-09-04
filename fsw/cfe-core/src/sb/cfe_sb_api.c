@@ -1011,7 +1011,6 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
     CFE_SB_RouteEntry_t* RoutePtr;
     uint32  PipeIdx;
     uint32  TskId = 0;
-    bool    MatchFound = false;
     CFE_SB_DestinationD_t   *DestPtr = NULL;
     char    FullName[(OS_MAX_API_NAME * 2)];
 
@@ -1060,8 +1059,9 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
     MsgKey = CFE_SB_ConvertMsgIdtoMsgKey(MsgId);
     RouteIdx = CFE_SB_GetRoutingTblIdx(MsgKey);
 
-    /* if there are no subscriptions for this message id... */
-    if(!CFE_SB_IsValidRouteIdx(RouteIdx)){
+    /* if there have never been subscriptions for this message id... */
+    if(!CFE_SB_IsValidRouteIdx(RouteIdx))
+    {
         char    PipeName[OS_MAX_API_NAME] = {'\0'};
 
         CFE_SB_UnlockSharedData(__func__,__LINE__);
@@ -1075,42 +1075,43 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
         return CFE_SUCCESS;
     }/* end if */
 
-    /* At this point, there must be at least one destination. */
-    /* So the value of 'ListHeadPtr' will not be NULL by design */
     RoutePtr = CFE_SB_GetRoutePtrFromIdx(RouteIdx);
 
     /* search the list for a matching pipe id */
-    DestPtr = RoutePtr->ListHeadPtr;
+    for (DestPtr = RoutePtr->ListHeadPtr; DestPtr != NULL && DestPtr->PipeId != PipeId; DestPtr = DestPtr->Next)
+        ;
 
-    do{
+    if(DestPtr)
+    {
+        /* match found, remove node from list */
+        CFE_SB_RemoveDest(RoutePtr,DestPtr);
 
-        if(DestPtr->PipeId == PipeId){
-            /* match found, remove node from list */
-            CFE_SB_RemoveDest(RoutePtr,DestPtr);
+        /* return node to memory pool */
+        CFE_SB_PutDestinationBlk(DestPtr);
 
-            /* return node to memory pool */
-            CFE_SB_PutDestinationBlk(DestPtr);
+        RoutePtr->Destinations--;
+        CFE_SB.StatTlmMsg.Payload.SubscriptionsInUse--;
 
-            RoutePtr->Destinations--;
-            CFE_SB.StatTlmMsg.Payload.SubscriptionsInUse--;
-
-            MatchFound = true;
-
-        }/* end if */
-
-        DestPtr = DestPtr->Next;
-
-    }while((MatchFound == false)&&(DestPtr != NULL));
-
-    CFE_SB_UnlockSharedData(__func__,__LINE__);
-
-    CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_REMOVED_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
+        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_REMOVED_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
             "Subscription Removed:Msg 0x%x on pipe %d,app %s",
             (unsigned int)CFE_SB_MsgIdToValue(MsgId),
             (int)PipeId,CFE_SB_GetAppTskName(TskId,FullName));
+    }
+    else
+    {
+        char    PipeName[OS_MAX_API_NAME] = {'\0'};
+
+        CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId);
+
+        CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_NO_SUBS_EID,CFE_EVS_EventType_INFORMATION,CFE_SB.AppId,
+            "Unsubscribe Err:No subs for Msg 0x%x on %s,app %s",
+            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+            PipeName,CFE_SB_GetAppTskName(TskId,FullName));
+    }/* end if */
+
+    CFE_SB_UnlockSharedData(__func__,__LINE__);
 
     return CFE_SUCCESS;
-
 }/* end CFE_SB_UnsubscribeFull */
 
 /*
