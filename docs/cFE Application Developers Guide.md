@@ -1121,14 +1121,14 @@ TypeCRC identifies which of the standard CRC polynomials to be used.  Currently,
 there are the following types available:
 
 ```
-CFE_ES_CRC_8 – an 8-bit additive checksum calculation that returns a 32-bit value
-CFE_ES_CRC_16 – a 16-bit additive checksum calculation that returns a 32-bit value
-CFE_ES_CRC_32 – a 32-bit additive checksum calculation that returns a 32-bit value
-CFE_ES_DEFAULT_CRC – the mission specified default CRC calculation
+CFE_MISSION_ES_CRC_8 – an 8-bit additive checksum calculation that returns a 32-bit value
+CFE_MISSION_ES_CRC_16 – a 16-bit additive checksum calculation that returns a 32-bit value
+CFE_MISSION_ES_CRC_32 – a 32-bit additive checksum calculation that returns a 32-bit value
+CFE_MISSION_ES_DEFAULT_CRC – the mission specified default CRC calculation
 ```
 
 Unless there is a specific interface with a specified CRC calculation,
-Applications must use the CFE_ES_DEFAULT_CRC type.
+Applications must use the CFE_MISSION_ES_DEFAULT_CRC type.
 
 #### 5.11 File System Functions
 
@@ -1215,7 +1215,7 @@ FILE: xx_app.c
 
 void XX_AppMain(void)
 {
-    uint32 RunStatus = CFE_ES_APP_RUN;
+    uint32 RunStatus = CFE_ES_RunStatus_APP_RUN;
     CFE_SB_MsgPtr_t MsgPtr;
     int32  Result = CFE_SUCCESS;
 
@@ -1238,7 +1238,7 @@ void XX_AppMain(void)
     */
     if (Result != CFE_SUCCESS)
     {
-        RunStatus = CFE_ES_APP_ERROR;
+        RunStatus = CFE_ES_RunStatus_APP_ERROR;
     }
 
     /*
@@ -1262,7 +1262,7 @@ void XX_AppMain(void)
         }
         else
         {
-            RunStatus = CFE_ES_APP_ERROR;
+            RunStatus = CFE_ES_RunStatus_APP_ERROR;
         }
     }
 

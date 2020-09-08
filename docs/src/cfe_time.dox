@@ -256,21 +256,21 @@
   one</B>, of the following time format definitions:
 
   \verbatim
-  #define CFE_TIME_CFG_DEFAULT_TAI  TRUE
-  #define CFE_TIME_CFG_DEFAULT_UTC  FALSE
+  #define CFE_MISSION_TIME_CFG_DEFAULT_TAI  TRUE
+  #define CFE_MISSION_TIME_CFG_DEFAULT_UTC  FALSE
   \endverbatim
 
   or
   
   \verbatim
-  #define CFE_TIME_CFG_DEFAULT_TAI  FALSE
-  #define CFE_TIME_CFG_DEFAULT_UTC  TRUE
+  #define CFE_MISSION_TIME_CFG_DEFAULT_TAI  FALSE
+  #define CFE_MISSION_TIME_CFG_DEFAULT_UTC  TRUE
   \endverbatim
 
   The choice of time format is a mission specific decision and is not directly 
   affected by the hardware configuration.
   
-  \sa #CFE_TIME_CFG_DEFAULT_TAI, #CFE_TIME_CFG_DEFAULT_UTC <BR>
+  \sa #CFE_MISSION_TIME_CFG_DEFAULT_TAI, #CFE_MISSION_TIME_CFG_DEFAULT_UTC <BR>
 
 
   Next: \ref cfetimeugfaketone <BR>
@@ -288,12 +288,12 @@
   signal.
 
   \verbatim
-  #define CFE_TIME_CFG_FAKE_TONE  TRUE
+  #define CFE_MISSION_TIME_CFG_FAKE_TONE  TRUE
   \endverbatim
 
   Hypothetical hardware configuration number one (described above) would enable the fake tone signal.
 
-  \sa #CFE_TIME_CFG_FAKE_TONE
+  \sa #CFE_MISSION_TIME_CFG_FAKE_TONE
   
   Next: \ref cfetimeugtoneorder <BR>
   Prev: \ref cfetimeugformsel <BR>
@@ -312,14 +312,14 @@
   of the following:
 
   \verbatim
-  #define CFE_TIME_AT_TONE_WAS
-  #define CFE_TIME_AT_TONE_WILL_BE
+  #define CFE_MISSION_TIME_AT_TONE_WAS
+  #define CFE_MISSION_TIME_AT_TONE_WILL_BE
   \endverbatim
 
   Hypothetical hardware configuration number three (described \ref cfetimeugconfig above) would 
   enable "time at the tone was".
 
-  \sa #CFE_TIME_AT_TONE_WAS, #CFE_TIME_AT_TONE_WILL_BE
+  \sa #CFE_MISSION_TIME_AT_TONE_WAS, #CFE_MISSION_TIME_AT_TONE_WILL_BE
 
   
   Next: \ref cfetimeugtonewindow <BR>
@@ -337,15 +337,15 @@
   Both must be defined, units are micro-seconds.
 
   \verbatim
-  #define CFE_TIME_MIN_ELAPSED  0
-  #define CFE_TIME_MAX_ELAPSED  100000
+  #define CFE_MISSION_TIME_MIN_ELAPSED  0
+  #define CFE_MISSION_TIME_MAX_ELAPSED  100000
   \endverbatim
 
   Hypothetical hardware configuration number three (described above) might use 
   these values which describe a window that begins immediately after the tone 
   and lasts for one tenth of a second.
 
-  \sa #CFE_TIME_MIN_ELAPSED, #CFE_TIME_MAX_ELAPSED
+  \sa #CFE_MISSION_TIME_MIN_ELAPSED, #CFE_MISSION_TIME_MAX_ELAPSED
 
   
   Next: \ref cfetimeugserver <BR>
@@ -365,18 +365,18 @@
   header file:
 
   \verbatim
-  #define CFE_TIME_CFG_SERVER   TRUE
-  #define CFE_TIME_CFG_CLIENT   FALSE
+  #define CFE_PLATFORM_TIME_CFG_SERVER   TRUE
+  #define CFE_PLATFORM_TIME_CFG_CLIENT   FALSE
   \endverbatim
 
   or
   
   \verbatim
-  #define CFE_TIME_CFG_SERVER   FALSE
-  #define CFE_TIME_CFG_CLIENT   TRUE
+  #define CFE_PLATFORM_TIME_CFG_SERVER   FALSE
+  #define CFE_PLATFORM_TIME_CFG_CLIENT   TRUE
   \endverbatim
 
-  \sa #CFE_TIME_CFG_SERVER, #CFE_TIME_CFG_CLIENT
+  \sa #CFE_PLATFORM_TIME_CFG_SERVER, #CFE_PLATFORM_TIME_CFG_CLIENT
 
   
   Next: \ref cfetimeugendian <BR>
@@ -439,7 +439,7 @@
   Set the following definition to TRUE only for TIME servers using an external time data source.
 
   \verbatim
-  #define CFE_TIME_CFG_SOURCE  TRUE
+  #define CFE_PLATFORM_TIME_CFG_SOURCE  TRUE
   \endverbatim
 
   The remainder of this section pertains only to TIME servers configured to accept 
@@ -455,14 +455,14 @@
   the following to TRUE, for example:
 
   \verbatim
-  #define CFE_TIME_CFG_SRC_MET   TRUE
-  #define CFE_TIME_CFG_SRC_GPS   FALSE
-  #define CFE_TIME_CFG_SRC_TIME  FALSE
+  #define CFE_PLATFORM_TIME_CFG_SRC_MET   TRUE
+  #define CFE_PLATFORM_TIME_CFG_SRC_GPS   FALSE
+  #define CFE_PLATFORM_TIME_CFG_SRC_TIME  FALSE
   \endverbatim
 
   configuration definitions for the particular source.  
 
-  If the cfe_platform_cfg.h file contains "#define CFE_TIME_CFG_SOURCE  TRUE" then time is 
+  If the cfe_platform_cfg.h file contains "#define CFE_PLATFORM_TIME_CFG_SOURCE  TRUE" then time is 
   configured to allow switching between internal and external time sources  
   (see #CFE_TIME_SET_SOURCE_CC).  If this configuration parameter is set to FALSE then 
   the command to set the source will be rejected.
@@ -471,9 +471,9 @@
   parameters must also be set TRUE in order to specify the external time source, for example:
 
   \verbatim
-  #define CFE_TIME_CFG_SRC_MET   TRUE
-  #define CFE_TIME_CFG_SRC_GPS   FALSE
-  #define CFE_TIME_CFG_SRC_TIME  FALSE
+  #define CFE_PLATFORM_TIME_CFG_SRC_MET   TRUE
+  #define CFE_PLATFORM_TIME_CFG_SRC_GPS   FALSE
+  #define CFE_PLATFORM_TIME_CFG_SRC_TIME  FALSE
   \endverbatim
 
   Note that Internal MET source depends on available hardware.  It may be the local 
@@ -483,7 +483,7 @@
   time will be overwritten.
 
 
-  \sa #CFE_TIME_CFG_SRC_MET, #CFE_TIME_CFG_SRC_GPS, #CFE_TIME_CFG_SRC_TIME
+  \sa #CFE_PLATFORM_TIME_CFG_SRC_MET, #CFE_PLATFORM_TIME_CFG_SRC_GPS, #CFE_PLATFORM_TIME_CFG_SRC_TIME
   
   Next: \ref cfetimeugsignal <BR>
   Prev: \ref cfetimeugvirtualmet <BR>
@@ -498,12 +498,12 @@
   command to select the active tone signal.
 
   \verbatim
-  #define CFE_TIME_CFG_SIGNAL  TRUE
+  #define CFE_PLATFORM_TIME_CFG_SIGNAL  TRUE
   \endverbatim
 
   Note: this feature requires additional custom software to make the physical signal switch.
 
-  \sa #CFE_TIME_CFG_SIGNAL
+  \sa #CFE_PLATFORM_TIME_CFG_SIGNAL
   
   Next: \ref cfetimeugparadigm <BR>
   Prev: \ref cfetimeugsource <BR>
@@ -553,7 +553,7 @@
   API function that prints spacecraft time as a date and time text string.  The cFE "get time" 
   functions are independent of the ground epoch.
 
-  The mission configuration parameters, #CFE_TIME_CFG_DEFAULT_TAI and #CFE_TIME_CFG_DEFAULT_UTC 
+  The mission configuration parameters, #CFE_MISSION_TIME_CFG_DEFAULT_TAI and #CFE_MISSION_TIME_CFG_DEFAULT_UTC 
   specify the default time format.  Applications are encouraged to use the #CFE_TIME_GetTime API, 
   which returns time in the format specified by this configuration parameter.
 

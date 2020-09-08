@@ -99,8 +99,8 @@
 **  Purpose:
 **    Convert the full message Id to the mission defined MsgKey format
 **    No conversion is needed for the default implementation as it
-**    is limited to less than 16 bits by CFE_SB_HIGHEST_VALID_MSGID
-**     If CFE_SB_HIGHEST_VALID_MSGID is greater than 16 bits this function
+**    is limited to less than 16 bits by CFE_PLATFORM_SB_HIGHEST_VALID_MSGID
+**     If CFE_PLATFORM_SB_HIGHEST_VALID_MSGID is greater than 16 bits this function
 **    may need modification to ensure SB internal data structures are a
 **    reasonable size.
 **

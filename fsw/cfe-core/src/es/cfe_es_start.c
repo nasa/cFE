@@ -351,10 +351,10 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
    ** Determine how the system was started. The choices are:
    **   CFE_ES_POWER_ON_RESET, or CFE_PSP_RST_TYPE_PROCESSOR
    ** The subtypes include:
-   **   CFE_PSP_RST_SUBTYPE_POWER_CYCLE, CFE_ES_PUSH_BUTTON, CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND,
-   **   CFE_ES_HW_WATCHDOG, CFE_PSP_RST_TYPE_COMMAND, or CFE_ES_EXCEPTION.
+   **   CFE_PSP_RST_SUBTYPE_POWER_CYCLE, CFE_PSP_RST_SUBTYPE_PUSH_BUTTON, CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND,
+   **   CFE_PSP_RST_SUBTYPE_HW_WATCHDOG, CFE_PSP_RST_TYPE_COMMAND, or CFE_PSP_RST_SUBTYPE_EXCEPTION.
    ** Some of these reset types are logged before the system is restarted.
-   **  ( CFE_PSP_RST_TYPE_COMMAND, CFE_ES_EXCEPTION ) while others occur
+   **  ( CFE_PSP_RST_TYPE_COMMAND, CFE_PSP_RST_SUBTYPE_EXCEPTION ) while others occur
    **  without the knowledge of the software and must be logged here.
    */
    if ( StartType == CFE_PSP_RST_TYPE_POWERON )

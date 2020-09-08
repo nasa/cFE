@@ -339,6 +339,7 @@ static inline void CFE_ES_TaskRecordSetFree(CFE_ES_TaskRecord_t *TaskRecPtr)
  * locked prior to invoking this function.
  *
  * @param[in]   TaskRecPtr   pointer to task table entry
+ * @param[in]   TaskID       The expected task ID to verify
  * @returns true if the entry matches the given task ID
  */
 static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPtr, uint32 TaskID)

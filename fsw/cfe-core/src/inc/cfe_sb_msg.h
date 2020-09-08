@@ -651,7 +651,7 @@ typedef struct {
                                                 \brief Max number of SB message buffers in use */
 
     uint32              MaxPipeDepthAllowed;/**< \cfetlmmnemonic \SB_SMMPDALW
-                                                 \brief cFE Cfg Param \link #CFE_SB_MAX_PIPE_DEPTH \endlink */
+                                                 \brief cFE Cfg Param \link #CFE_PLATFORM_SB_MAX_PIPE_DEPTH \endlink */
     CFE_SB_PipeDepthStats_t PipeDepthStats[CFE_MISSION_SB_MAX_PIPES];/**< \cfetlmmnemonic \SB_SMPDS
                                                                   \brief Pipe Depth Statistics #CFE_SB_PipeDepthStats_t*/
 } CFE_SB_StatsTlm_Payload_t;

@@ -887,7 +887,7 @@
 **       reconstructed by the ground system.
 **
 **  \par Limits
-**       There is a lower limit of 32 and an upper limit of #CFE_SB_MAX_SB_MSG_SIZE.
+**       There is a lower limit of 32 and an upper limit of #CFE_MISSION_SB_MAX_SB_MSG_SIZE.
 */
 #define CFE_PLATFORM_ES_MAX_SHELL_PKT    64
 

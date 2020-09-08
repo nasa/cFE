@@ -71,8 +71,8 @@
      <TR>
         <TD> \anchor cfeadg_eventtype Event Type
         <TD> A numeric literal used to identify the type of an Application event.
-             An event type may be #CFE_EVS_DEBUG, #CFE_EVS_INFORMATION, 
-             #CFE_EVS_ERROR, or #CFE_EVS_CRITICAL.
+             An event type may be #CFE_EVS_EventType_DEBUG, #CFE_EVS_EventType_INFORMATION, 
+             #CFE_EVS_EventType_ERROR, or #CFE_EVS_EventType_CRITICAL.
      <TR>
         <TD> \anchor cfeadg_eventmessage Event Message
         <TD> A data item used to notify the user and/or an external 

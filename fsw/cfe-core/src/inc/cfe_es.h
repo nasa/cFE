@@ -126,7 +126,7 @@ typedef cpuaddr CFE_ES_MemHandle_t;
  *
  * @sa CFE_ES_ResourceID_FromInteger()
  *
- * @param   id[in]    Resource ID to convert
+ * @param[in]   id    Resource ID to convert
  * @returns Integer value corresponding to ID
  */
 static inline unsigned long CFE_ES_ResourceID_ToInteger(uint32 id)
@@ -145,7 +145,7 @@ static inline unsigned long CFE_ES_ResourceID_ToInteger(uint32 id)
  *
  * @sa CFE_ES_ResourceID_ToInteger()
  *
- * @param   Value[in]    Integer value to convert
+ * @param[in]   Value    Integer value to convert
  * @returns ID value corresponding to integer
  */
 static inline uint32 CFE_ES_ResourceID_FromInteger(unsigned long Value)
@@ -170,12 +170,11 @@ static inline uint32 CFE_ES_ResourceID_FromInteger(unsigned long Value)
  * back to the original AppID value.  The caller should retain the original ID
  * for future use.
  *
- * @param   AppID[in]   Application ID to convert
- * @param   Idx[out]    Buffer where the calculated index will be stored
+ * @param[in]   AppID  Application ID to convert
+ * @param[out]  Idx    Buffer where the calculated index will be stored
  *
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
- * @retval #CFE_ES_RESOURCE_ID_INVALID  @copybrief CFE_ES_RESOURCE_ID_INVALID
  */
 int32 CFE_ES_AppID_ToIndex(uint32 AppID, uint32 *Idx);
 
@@ -195,12 +194,11 @@ int32 CFE_ES_AppID_ToIndex(uint32 AppID, uint32 *Idx);
  * back to the original TaskID value.  The caller should retain the original ID
  * for future use.
  *
- * @param   TaskID[in]  Task ID to convert
- * @param   Idx[out]    Buffer where the calculated index will be stored
+ * @param[in]   TaskID  Task ID to convert
+ * @param[out]  Idx     Buffer where the calculated index will be stored
  *
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
- * @retval #CFE_ES_RESOURCE_ID_INVALID  @copybrief CFE_ES_RESOURCE_ID_INVALID
  */
 int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx);
 

@@ -166,10 +166,10 @@
 
   Immediately after the cFE completes its initialization, the ES Application first 
   looks for the volatile startup script. The location in the file system is defined 
-  by the cFE platform configuration parameter named #CFE_ES_VOLATILE_STARTUP_FILE. 
+  by the cFE platform configuration parameter named #CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE. 
   This configuration parameter contains a path as well as a filename. If the file 
   is found, ES begins to startup the applications that are listed in the file. If 
-  ES does not find the file, it attempts to open the #CFE_ES_NONVOL_STARTUP_FILE.
+  ES does not find the file, it attempts to open the #CFE_PLATFORM_ES_NONVOL_STARTUP_FILE.
    
   If ES finds the volatile startup script, the attempt to open the nonvolatile startup 
   script is bypassed.
@@ -219,8 +219,8 @@
 
   The Reset Type is sent to the ground in the ES housekeeping packet and tells 
   how the current running version of the cFE was invoked. The possible Reset 
-  Types expected in the telemetry field are #CFE_ES_POWERON_RESET and 
-  #CFE_ES_PROCESSOR_RESET. There is a third Reset Type defined in the ES 
+  Types expected in the telemetry field are #CFE_PSP_RST_TYPE_POWERON and 
+  #CFE_PSP_RST_TYPE_PROCESSOR. There is a third Reset Type defined in the ES 
   code as #CFE_ES_APP_RESTART which applies only to restarting an individual 
   application and is covered in more detail in the section titled Application 
   and Child Task.
@@ -228,9 +228,9 @@
   The Reset Subtype is also sent in the ES housekeeping packet and gives more 
   detail about the type of reset that started the execution of the current 
   running version of the cFE. The possible Reset Subtypes are 
-  #CFE_ES_POWER_CYCLE, #CFE_ES_PUSH_BUTTON, #CFE_ES_HW_SPECIAL_COMMAND,
-  #CFE_ES_HW_WATCHDOG, #CFE_ES_RESET_COMMAND, #CFE_ES_EXCEPTION,
-  #CFE_ES_UNDEFINED_RESET, #CFE_ES_HWDEBUG_RESET, #CFE_ES_BANKSWITCH_RESET.
+  #CFE_PSP_RST_SUBTYPE_POWER_CYCLE, #CFE_PSP_RST_SUBTYPE_PUSH_BUTTON, #CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND,
+  #CFE_PSP_RST_SUBTYPE_HW_WATCHDOG, #CFE_PSP_RST_SUBTYPE_RESET_COMMAND, #CFE_PSP_RST_SUBTYPE_EXCEPTION,
+  #CFE_PSP_RST_SUBTYPE_UNDEFINED_RESET, #CFE_PSP_RST_SUBTYPE_HWDEBUG_RESET, #CFE_PSP_RST_SUBTYPE_BANKSWITCH_RESET.
 
   Next: \ref cfeesugresetlog <BR>
   Prev: \ref cfeesugswreset <BR>
@@ -245,17 +245,17 @@
   command must be sent. This command will write the log to a binary file. 
   The path and filename may be specified in the command. If the filename 
   command field contains an empty string, the configuration parameter 
-  #CFE_ES_DEFAULT_ER_LOG_FILE is used to specify the path and filename.  
+  #CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE is used to specify the path and filename.  
   Use the ground system to get the file and display the contents.  There 
   is also a command to clear the ER log, #CFE_ES_CLEAR_ER_LOG_CC.
 
   The size of the ER log is defined by the platform configuration parameter 
-  #CFE_ES_ER_LOG_ENTRIES This log is preserved after a processor reset and 
+  #CFE_PLATFORM_ES_ER_LOG_ENTRIES This log is preserved after a processor reset and 
   held in the ES reset area.  
 
   A count of the number of entries in the log is present in the ES 
   housekeeping telemetry. This count can be used with the configuration 
-  parameter #CFE_ES_ER_LOG_ENTRIES to calculate the fullness of the log.
+  parameter #CFE_PLATFORM_ES_ER_LOG_ENTRIES to calculate the fullness of the log.
 
   The information contained in a single log entry is defined by the 
   structure CFE_ES_ERLog_t.
@@ -496,7 +496,7 @@
   collection. When the stop command is received, the ES task writes 
   all the data from the buffer to a file. The file can then be 
   imported to analysis tools for viewing. The size of the
-  buffer is configurable through the #CFE_ES_PERF_DATA_BUFFER_SIZE
+  buffer is configurable through the #CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE
   platform configuration parameter.
 
   Additional information follows:<BR>
@@ -555,7 +555,7 @@
   The #CFE_ES_STOP_PERF_DATA_CC command is used to stop the data collection 
   process and write the buffer data to a file. The path and filename may be 
   specified in the command. If the filename command field contains an empty 
-  string, the configuration parameter #CFE_ES_DEFAULT_PERF_DUMP_FILENAME is 
+  string, the configuration parameter #CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME is 
   used to specify the path and filename.  The number of entries written to 
   the file is determined by the 'data count' variable, which is sent in the 
   ES housekeeping telemetry packet. To ensure cpu hogging does not occur 
@@ -734,7 +734,7 @@
   
   This command will cause Executive Services to extract pertinent statistics
   from the data used to manage the Memory Pool and telemeter them to the ground
-  in the \link #CFE_ES_PoolStatsTlm_t Memory Pool Statistics Telemetry Packet.
+  in the \link #CFE_ES_MemStatsTlm_t Memory Pool Statistics Telemetry Packet.
   \endlink
   
   In order to obtain the statistics associated with a memory pool, the operator
@@ -746,7 +746,7 @@
   Services (EVS) and Table Services (TBL).  Each of these cFE Core Applications
   report their memory pool handles in telemetry.
   
-  The \link #CFE_ES_PoolStatsTlm_t Memory Pool Statistics Telemetry Packet
+  The \link #CFE_ES_MemStatsTlm_t Memory Pool Statistics Telemetry Packet
   \endlink contains the following information:
   
   <UL>
@@ -785,12 +785,12 @@
   be sent. This command will write the log to a binary file. The path and
   filename may be specified in the command. If the filename command field
   contains an empty string, the configuration parameter
-  #CFE_ES_DEFAULT_SYSLOG_FILE is used to specify the path and filename.  Use the
+  #CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE is used to specify the path and filename.  Use the
   ground system to get the file and display the contents.  The
   #CFE_ES_CLEAR_SYSLOG_CC is used to clear the System log.
 
   The size of the System log is defined by the platform configuration parameter
-  #CFE_ES_SYSTEM_LOG_SIZE. This log is preserved after a processor reset and
+  #CFE_PLATFORM_ES_SYSTEM_LOG_SIZE. This log is preserved after a processor reset and
   held in the ES reset area.  
 
   A count of the number of entries in the log is present in the ES housekeeping

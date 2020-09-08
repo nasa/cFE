@@ -1645,11 +1645,7 @@ int32 CFE_ES_GetGenCounterIDByName(uint32 *CounterIdPtr, const char *CounterName
 } /* End of CFE_ES_GetGenCounterIDByName() */
 
 
-/***************************************************************************************
-** Private API functions
-*/
-
-/**
+/*
  * A conversion function to obtain an index value correlating to an AppID
  * This is a zero based value that can be used for indexing into a table.
  */
@@ -1668,7 +1664,7 @@ int32 CFE_ES_AppID_ToIndex(uint32 AppId, uint32 *Idx)
     return CFE_SUCCESS;
 }
 
-/**
+/*
  * A conversion function to obtain an index value correlating to an TaskID
  * This is a zero based value that can be used for indexing into a table.
  * 
@@ -1684,6 +1680,10 @@ int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx)
 
     return CFE_SUCCESS;
 }
+
+/***************************************************************************************
+** Private API functions
+*/
 
 /*
  * Note - this gets the table entry pointer but does not dereference or
