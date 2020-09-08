@@ -3545,6 +3545,7 @@ void Test_CleanupApp_API(void)
     uint16                  PipeDepth = 50;
     uint32     AppID;
 
+    UT_SetAppID(1);
     CFE_ES_GetAppID(&AppID);
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
