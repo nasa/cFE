@@ -59,6 +59,14 @@
 #define OS_PRINTF(m,n) 
 #endif
 
+/*
+** Utility macros to make for simpler/more compact/readable code.
+*/
+#define CFE_EVS_SendDbg(E,...) CFE_EVS_SendEvent((E), CFE_EVS_EventType_DEBUG, __VA_ARGS__)
+#define CFE_EVS_SendInfo(E,...) CFE_EVS_SendEvent((E), CFE_EVS_EventType_INFORMATION, __VA_ARGS__)
+#define CFE_EVS_SendErr(E,...) CFE_EVS_SendEvent((E), CFE_EVS_EventType_ERROR, __VA_ARGS__)
+#define CFE_EVS_SendCrit(E,...) CFE_EVS_SendEvent((E), CFE_EVS_EventType_CRITICAL, __VA_ARGS__)
+
 /** \name Common Event Filter Mask Values  */
 /** \{ */
 #define  CFE_EVS_NO_FILTER        0x0000       /**< \brief Stops any filtering.  All messages are sent. */
