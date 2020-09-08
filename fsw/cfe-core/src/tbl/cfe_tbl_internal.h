@@ -455,7 +455,7 @@ void   CFE_TBL_NotifyTblUsersOfUpdate( CFE_TBL_RegistryRec_t *RegRecPtr );
 ** \retval #CFE_TBL_ERR_BAD_PROCESSOR_ID    \copydoc CFE_TBL_ERR_BAD_PROCESSOR_ID
 **                     
 ******************************************************************************/
-int32 CFE_TBL_ReadHeaders( int32 FileDescriptor, 
+int32 CFE_TBL_ReadHeaders( osal_id_t FileDescriptor,
                            CFE_FS_Header_t *StdFileHeaderPtr, 
                            CFE_TBL_File_Hdr_t *TblFileHeaderPtr,
                            const char *LoadFilename );

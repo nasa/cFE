@@ -79,9 +79,9 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
    const char *TokenList[CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE];
    uint32      NumTokens;
    uint32      BuffLen = 0;                            /* Length of the current buffer */
-   int32       AppFile = 0;
+   osal_id_t   AppFile;
+   int32       Status;
    char        c;
-   int32       ReadStatus;
    bool        LineTooLong = false;
    bool        FileOpened = false;
 
@@ -94,13 +94,14 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
       /*
       ** Open the file in the volatile disk.
       */
-      AppFile = OS_open( CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE, OS_READ_ONLY, 0);
+      Status = OS_open( CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE, OS_READ_ONLY, 0);
 
-      if ( AppFile >= 0 )
+      if ( Status >= 0 )
       {
          CFE_ES_WriteToSysLog ("ES Startup: Opened ES App Startup file: %s\n",
                                 CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE);
          FileOpened = true;
+         AppFile = OS_ObjectIdFromInteger(Status);
       }
       else
       {
@@ -119,17 +120,18 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
       /*
       ** Try to Open the file passed in to the cFE start.
       */
-      AppFile = OS_open( (const char *)StartFilePath, OS_READ_ONLY, 0);
+      Status = OS_open( (const char *)StartFilePath, OS_READ_ONLY, 0);
 
-      if ( AppFile >= 0 )
+      if ( Status >= 0 )
       {
          CFE_ES_WriteToSysLog ("ES Startup: Opened ES App Startup file: %s\n",StartFilePath);
          FileOpened = true;
+         AppFile = OS_ObjectIdFromInteger(Status);
       }
       else
       {
          CFE_ES_WriteToSysLog ("ES Startup: Error, Can't Open ES App Startup file: %s EC = 0x%08X\n",
-                              StartFilePath, (unsigned int)AppFile );
+                              StartFilePath, (unsigned int)Status );
          FileOpened = false;
       }
 
@@ -151,13 +153,13 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
       */
       while(1)
       {
-         ReadStatus = OS_read(AppFile, &c, 1);
-         if ( ReadStatus == OS_ERROR )
+         Status = OS_read(AppFile, &c, 1);
+         if ( Status < 0 )
          {
-            CFE_ES_WriteToSysLog ("ES Startup: Error Reading Startup file. EC = 0x%08X\n",(unsigned int)ReadStatus);
+            CFE_ES_WriteToSysLog ("ES Startup: Error Reading Startup file. EC = 0x%08X\n",(unsigned int)Status);
             break;
          }
-         else if ( ReadStatus == 0 )
+         else if ( Status == 0 )
          {
             /*
             ** EOF Reached
@@ -365,8 +367,8 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
    int32   ReturnCode;
    uint32  i;
    bool    AppSlotFound;
-   uint32  ModuleId;
-   uint32  MainTaskId;
+   osal_id_t  ModuleId;
+   osal_id_t  MainTaskId;
    CFE_ES_AppRecord_t *AppRecPtr;
    CFE_ES_TaskRecord_t *TaskRecPtr;
 
@@ -514,7 +516,7 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
          /*
          ** Record the ES_TaskTable entry
          */
-         AppRecPtr->TaskInfo.MainTaskId = MainTaskId;
+         AppRecPtr->TaskInfo.MainTaskId = CFE_ES_ResourceID_FromOSAL(MainTaskId);
          TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->TaskInfo.MainTaskId);
 
          if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) )
@@ -566,7 +568,7 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
    size_t                       StringLength;
    int32                        Status;
    uint32                       CheckSlot;
-   uint32                       ModuleId;
+   osal_id_t                    ModuleId;
    bool                         IsModuleLoaded;
 
    /*
@@ -585,7 +587,7 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
    IsModuleLoaded = false;
    LibSlotPtr = NULL;
    FunctionPointer = NULL;
-   ModuleId = 0;
+   ModuleId = OS_OBJECT_ID_UNDEFINED;
    Status = CFE_ES_ERR_LOAD_LIB;    /* error that will be returned if no slots found */
    CFE_ES_LockSharedData(__func__,__LINE__);
    for ( CheckSlot = 0; CheckSlot < CFE_PLATFORM_ES_MAX_LIBRARIES; CheckSlot++ )
@@ -1175,7 +1177,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
       if ( Status == OS_ERROR )
       {
            CFE_ES_SysLogWrite_Unsync("CFE_ES_CleanUpApp: Module (ID:0x%08lX) Unload failed. RC=0x%08X\n",
-                                 (unsigned long)AppRecPtr->StartParams.ModuleId, (unsigned int)Status);
+                                 OS_ObjectIdToInteger(AppRecPtr->StartParams.ModuleId), (unsigned int)Status);
            ReturnCode = CFE_ES_APP_CLEANUP_ERR;
       }
       CFE_ES_Global.RegisteredExternalApps--;
@@ -1213,7 +1215,7 @@ typedef struct
 **   NOTE: This is called while holding the ES global lock
 **---------------------------------------------------------------------------------------
 */
-void CFE_ES_CleanupObjectCallback(uint32 ObjectId, void *arg)
+void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
 {
     CFE_ES_CleanupState_t   *CleanState;
     int32                   Status;
@@ -1265,8 +1267,8 @@ void CFE_ES_CleanupObjectCallback(uint32 ObjectId, void *arg)
         }
         else
         {
-            CFE_ES_SysLogWrite_Unsync("Call to OSAL Delete Object (ID:%d) failed. RC=0x%08X\n",
-                         (int)ObjectId, (unsigned int)Status);
+            CFE_ES_SysLogWrite_Unsync("Call to OSAL Delete Object (ID:%lu) failed. RC=0x%08X\n",
+                         OS_ObjectIdToInteger(ObjectId), (unsigned int)Status);
             if (CleanState->OverallStatus == CFE_SUCCESS)
             {
                 /*
@@ -1316,10 +1318,10 @@ int32 CFE_ES_CleanupTaskResources(uint32 TaskId)
     CFE_ES_CleanupState_t   CleanState;
     int32                   Result;
     CFE_ES_TaskRecord_t     *TaskRecPtr;
-    uint32                  OsalId;
+    osal_id_t               OsalId;
 
     /* Get the Task ID for calling OSAL APIs (convert type) */
-    OsalId = TaskId;
+    OsalId = CFE_ES_ResourceID_ToOSAL(TaskId);
 
     /*
     ** Delete all OSAL resources that belong to this task

@@ -1833,7 +1833,7 @@ void Test_GetPipeName(void)
     CFE_SB_PipeId_t PipeId = 0;
 
     OS_queue_prop_t queue_info = {
-        "TestPipe1", 0
+        "TestPipe1"
     };
 
     SETUP(CFE_SB_CreatePipe(&PipeId, 4, "TestPipe1"));

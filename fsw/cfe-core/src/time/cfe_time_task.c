@@ -198,8 +198,8 @@ void CFE_TIME_TaskMain(void)
 int32 CFE_TIME_TaskInit(void)
 {
     int32 Status = CFE_SUCCESS;
-    uint32 TimeBaseId;
-    uint32 TimerId;
+    osal_id_t TimeBaseId;
+    osal_id_t TimerId;
 
     Status = CFE_ES_RegisterApp();
     if(Status != CFE_SUCCESS)

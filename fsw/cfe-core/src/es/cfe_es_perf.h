@@ -110,7 +110,7 @@ typedef struct
     CFE_ES_PerfDumpState_t  PendingState;   /* the pending/next state, if transitioning */
 
     char                DataFileName[OS_MAX_PATH_LEN];  /* output file name from dump command */
-    int32               FileDesc;                       /* file descriptor for writing */
+    osal_id_t           FileDesc;                       /* file descriptor for writing */
     uint32              WorkCredit;                     /* accumulator based on the passage of time */
     uint32              StateCounter;                   /* number of blocks/items left in current state */
     uint32              DataPos;                        /* last position within the Perf Log */

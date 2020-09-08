@@ -271,7 +271,7 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfData_t *data)
 bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 {
     CFE_ES_PerfDumpGlobal_t *State = (CFE_ES_PerfDumpGlobal_t *)Arg;
-    int32               WriteStat;
+    int32               Status;
     CFE_FS_Header_t     FileHdr;
     uint32              BlockSize;
 
@@ -311,7 +311,19 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
             {
             case CFE_ES_PerfDumpState_OPEN_FILE:
                 /* Create the file to dump to */
-                State->FileDesc = OS_creat(State->DataFileName, OS_WRITE_ONLY);
+                Status = OS_creat(State->DataFileName, OS_WRITE_ONLY);
+                if (Status >= 0)
+                {
+                    State->FileDesc = OS_ObjectIdFromInteger(Status);
+                }
+                else
+                {
+                    State->FileDesc = OS_OBJECT_ID_UNDEFINED;
+                    CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID,CFE_EVS_EventType_ERROR,
+                            "Error creating file %s, RC = %d",
+                            State->DataFileName, (int)Status);
+
+                }
                 State->FileSize = 0;
                 break;
 
@@ -352,10 +364,10 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 
             case CFE_ES_PerfDumpState_CLOSE_FILE:
                 /* close the fd */
-                if (State->FileDesc != 0)
+                if (OS_ObjectIdDefined(State->FileDesc))
                 {
                     OS_close(State->FileDesc);
-                    State->FileDesc = 0;
+                    State->FileDesc = OS_OBJECT_ID_UNDEFINED;
                 }
                 break;
 
@@ -390,12 +402,8 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
             switch(State->CurrentState)
             {
             case CFE_ES_PerfDumpState_OPEN_FILE:
-                if(State->FileDesc < 0)
+                if (!OS_ObjectIdDefined(State->FileDesc))
                 {
-                    CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID,CFE_EVS_EventType_ERROR,
-                            "Error creating file %s, RC = 0x%08X",
-                            State->DataFileName, (unsigned int)State->FileDesc);
-
                     State->PendingState = CFE_ES_PerfDumpState_IDLE;
                 } /* end if */
                 break;
@@ -417,7 +425,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
             /*
              * State is in progress, perform work item(s) as required
              */
-            WriteStat = 0;
+            Status = 0;
             BlockSize = 0;
             switch(State->CurrentState)
             {
@@ -427,7 +435,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
                 /* predicted total length of final output */
                 FileHdr.Length = sizeof(CFE_ES_PerfMetaData_t) + (Perf->MetaData.DataCount * sizeof(CFE_ES_PerfDataEntry_t));
                 /* write the cFE header to the file */
-                WriteStat = CFE_FS_WriteHeader(State->FileDesc,
+                Status = CFE_FS_WriteHeader(State->FileDesc,
                         &FileHdr);
                 BlockSize = sizeof(CFE_FS_Header_t);
                 break;
@@ -435,13 +443,13 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
             case CFE_ES_PerfDumpState_WRITE_PERF_METADATA:
                 /* write the performance metadata to the file */
                 BlockSize = sizeof(CFE_ES_PerfMetaData_t);
-                WriteStat = OS_write(State->FileDesc,
+                Status = OS_write(State->FileDesc,
                         &Perf->MetaData, BlockSize);
                 break;
 
             case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
                 BlockSize = sizeof(CFE_ES_PerfDataEntry_t);
-                WriteStat = OS_write (State->FileDesc,
+                Status = OS_write (State->FileDesc,
                         &Perf->DataBuffer[State->DataPos],
                         BlockSize);
 
@@ -458,9 +466,9 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 
             if (BlockSize != 0)
             {
-                if (WriteStat != BlockSize)
+                if (Status != BlockSize)
                 {
-                    CFE_ES_FileWriteByteCntErr(State->DataFileName, BlockSize, WriteStat);
+                    CFE_ES_FileWriteByteCntErr(State->DataFileName, BlockSize, Status);
 
                     /* skip to cleanup  */
                     if (State->CurrentState < CFE_ES_PerfDumpState_CLEANUP)

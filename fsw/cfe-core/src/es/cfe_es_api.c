@@ -926,7 +926,7 @@ int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
    uint32         TaskId;
    uint32         ChildTaskId;
    uint32         ParentTaskId;
-   uint32         OsalId;
+   osal_id_t      OsalId;
 
    /*
    ** Validate some of the arguments
@@ -974,7 +974,8 @@ int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
          ** First, Make sure the Calling Task is a cFE Main task.
          ** TaskID must be the same as the Parent Task ID.
          */
-         TaskId = OS_TaskGetId();
+         OsalId = OS_TaskGetId();
+         TaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
          ParentTaskId = AppRecPtr->TaskInfo.MainTaskId;
          if ( TaskId == ParentTaskId )
          {
@@ -997,7 +998,7 @@ int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
             */
             if ( Result == OS_SUCCESS )
             {
-               ChildTaskId = OsalId;
+               ChildTaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
                TaskRecPtr = CFE_ES_LocateTaskRecordByID(ChildTaskId);
 
                CFE_ES_TaskRecordSetUsed(TaskRecPtr, ChildTaskId);
@@ -1091,7 +1092,7 @@ void CFE_ES_IncrementTaskCounter(void)
      * Because the global data is not locked, only minimal validation
      * is performed.
      */
-    TaskID = OS_TaskGetId();
+    TaskID = CFE_ES_ResourceID_FromOSAL(OS_TaskGetId());
     TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskID);
     if (TaskRecPtr != NULL)
     {
@@ -1113,6 +1114,7 @@ int32 CFE_ES_DeleteChildTask(uint32 TaskId)
     bool    TaskIsMain = false;
     int32   ReturnCode = CFE_SUCCESS;
     int32   OSReturnCode;
+    osal_id_t   OsalId;
 
     /*
     ** Make sure the task ID is within range
@@ -1154,7 +1156,8 @@ int32 CFE_ES_DeleteChildTask(uint32 TaskId)
              /*
              ** Can delete the Task
              */
-             OSReturnCode = OS_TaskDelete(TaskId);
+             OsalId = CFE_ES_ResourceID_ToOSAL(TaskId);
+             OSReturnCode = OS_TaskDelete(OsalId);
              if ( OSReturnCode == OS_SUCCESS )
              {
                 /*
@@ -1673,7 +1676,10 @@ int32 CFE_ES_AppID_ToIndex(uint32 AppId, uint32 *Idx)
  */
 int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx)
 {
-    if (OS_ConvertToArrayIndex(TaskID, Idx) != OS_SUCCESS)
+    osal_id_t OsalID;
+
+    OsalID = CFE_ES_ResourceID_ToOSAL(TaskID);
+    if (OS_ConvertToArrayIndex(OsalID, Idx) != OS_SUCCESS)
     {
         return CFE_ES_ERR_TASKID;
     }
@@ -1684,6 +1690,33 @@ int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx)
 /***************************************************************************************
 ** Private API functions
 */
+
+/**
+ * Convert a CFE_ES_ResourceID_t type to an OSAL ID type.
+ *
+ * This should only be used on ES resource IDs that are known to refer to
+ * an OSAL resource (e.g. a task ID).
+ *
+ * Note this may result in an invalid OSAL ID if the CFE_ES_ResourceID_t did
+ * not actually refer to an OSAL resource.
+ */
+osal_id_t CFE_ES_ResourceID_ToOSAL(uint32 id)
+{
+    unsigned long val = (uint32)id; /* type conversion */
+    return OS_ObjectIdFromInteger(val);
+}
+
+/**
+ * Convert an OSAL ID type to a CFE_ES_ResourceID_t type.
+ *
+ * Any OSAL ID can also be represented as a CFE_ES_ResourceID_t
+ */
+uint32 CFE_ES_ResourceID_FromOSAL(osal_id_t id)
+{
+    unsigned long val = OS_ObjectIdToInteger(id);
+    return (uint32)val; /* type conversion */
+}
+
 
 /*
  * Note - this gets the table entry pointer but does not dereference or
@@ -1741,7 +1774,7 @@ CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
     /*
     ** Use the OS task ID to get the ES task record
     */
-    TaskID = OS_TaskGetId();
+    TaskID = CFE_ES_ResourceID_FromOSAL(OS_TaskGetId());
     TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskID);
 
     /*

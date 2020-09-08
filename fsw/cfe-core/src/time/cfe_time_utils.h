@@ -300,8 +300,8 @@ typedef struct
   /*
   ** Interrupt task semaphores...
   */
-  uint32                LocalSemaphore;
-  uint32                ToneSemaphore;
+  osal_id_t             LocalSemaphore;
+  osal_id_t             ToneSemaphore;
   /*
   ** Interrupt task ID's...
   */
@@ -462,7 +462,7 @@ void CFE_TIME_NotifyTimeSynchApps(void);
 */
 void CFE_TIME_Local1HzTask(void);
 void CFE_TIME_Local1HzStateMachine(void);
-void CFE_TIME_Local1HzTimerCallback(uint32 TimerId, void *Arg);
+void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg);
 
 
 #endif /* _cfe_time_utils_ */

@@ -122,7 +122,7 @@ typedef struct
    */
    CFE_EVS_HousekeepingTlm_t    EVS_TlmPkt;
    CFE_SB_PipeId_t     EVS_CommandPipe;
-   uint32              EVS_SharedDataMutexID;
+   osal_id_t           EVS_SharedDataMutexID;
    uint32              EVS_AppID;
 
 } CFE_EVS_GlobalData_t;
