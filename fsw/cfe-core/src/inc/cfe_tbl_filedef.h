@@ -58,7 +58,7 @@
  * The definition of the file definition metadata that can be used by
  * external tools (e.g. elf2cfetbl) to generate CFE table data files.
  */
-typedef struct
+typedef struct CFE_TBL_FileDef
 {
     char        ObjectName[64];                             /**< \brief Name of instantiated variable that contains desired table image */
     char        TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table as defined onboard */
@@ -78,7 +78,7 @@ typedef struct
  
     #include "cfe_tbl_filedef.h"
 
-   typedef struct
+   typedef struct MyTblStruct
    {
        int     Int1;
        int     Int2;

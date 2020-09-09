@@ -491,11 +491,11 @@ typedef CFE_SB_CmdHdr_t  CFE_SB_SendPrevSubs_t;
 **  'Write Pipe Info to File' #CFE_SB_SEND_PIPE_INFO_CC and
 **  'Write Map Info to File' #CFE_SB_SEND_MAP_INFO_CC.
 */
-typedef struct{
+typedef struct CFE_SB_WriteFileInfoCmd_Payload {
    char Filename[CFE_MISSION_MAX_PATH_LEN];/**< \brief Path and Filename of data to be loaded */
 } CFE_SB_WriteFileInfoCmd_Payload_t;
 
-typedef struct{
+typedef struct CFE_SB_WriteFileInfoCmd {
     CFE_SB_CmdHdr_t                     Hdr;/**< \brief cFE Software Bus Command Message Header #CFE_SB_CmdHdr_t */
     CFE_SB_WriteFileInfoCmd_Payload_t   Payload;
 }CFE_SB_WriteFileInfoCmd_t;
@@ -515,14 +515,14 @@ typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendMapInfo_t;
 **  A route is the destination pipe for a  particular message and is therefore defined
 **  as a MsgId and PipeId combination.
 */
-typedef struct {
+typedef struct CFE_SB_RouteCmd_Payload {
 
    CFE_SB_MsgId_t       MsgId;/**< \brief Message ID of route to be enabled or disabled #CFE_SB_MsgId_t */
    CFE_SB_PipeId_t      Pipe;/**< \brief Pipe ID of route to be enabled or disabled #CFE_SB_PipeId_t */
    uint8                Spare;/**<\brief Spare byte to make command even number of bytes */
 } CFE_SB_RouteCmd_Payload_t;
 
-typedef struct{
+typedef struct CFE_SB_RouteCmd {
     CFE_SB_CmdHdr_t             Hdr;/**< \brief cFE Software Bus Command Message Header #CFE_SB_CmdHdr_t */
     CFE_SB_RouteCmd_Payload_t  Payload;
 } CFE_SB_RouteCmd_t;
@@ -540,7 +540,7 @@ typedef CFE_SB_RouteCmd_t CFE_SB_DisableRoute_t;
 /**
 **  \cfesbtlm Software Bus task housekeeping Packet
 */
-typedef struct {
+typedef struct CFE_SB_HousekeepingTlm_Payload {
 
     uint8           CommandCounter;/**< \cfetlmmnemonic \SB_CMDPC
                                     \brief Count of valid commands received */
@@ -583,7 +583,7 @@ typedef struct {
                                      \brief cfg param CFE_PLATFORM_SB_BUF_MEMORY_BYTES minus Peak Memory in use */
 } CFE_SB_HousekeepingTlm_Payload_t;
 
-typedef struct{
+typedef struct CFE_SB_HousekeepingTlm {
     CFE_SB_TlmHdr_t         Hdr;/**< \brief cFE Software Bus Telemetry Message Header */
     CFE_SB_HousekeepingTlm_Payload_t  Payload;
 } CFE_SB_HousekeepingTlm_t;
@@ -594,7 +594,7 @@ typedef struct{
 **
 ** Used in SB Statistics Telemetry Packet #CFE_SB_StatsTlm_t
 */
-typedef struct {
+typedef struct CFE_SB_PipeDepthStats {
 
     CFE_SB_PipeId_t     PipeId;/**< \cfetlmmnemonic \SB_PDPIPEID
                                     \brief Pipe Id associated with the stats below */
@@ -614,7 +614,7 @@ typedef struct {
 **
 ** SB Statistics packet sent (via CFE_SB_SendMsg) in response to #CFE_SB_SEND_SB_STATS_CC
 */
-typedef struct {
+typedef struct CFE_SB_StatsTlm_Payload {
 
     uint32              MsgIdsInUse;/**< \cfetlmmnemonic \SB_SMMIDIU
                                          \brief Current number of MsgIds with a destination */
@@ -656,7 +656,7 @@ typedef struct {
                                                                   \brief Pipe Depth Statistics #CFE_SB_PipeDepthStats_t*/
 } CFE_SB_StatsTlm_Payload_t;
 
-typedef struct{
+typedef struct CFE_SB_StatsTlm {
     CFE_SB_TlmHdr_t             Hdr;/**< \brief cFE Software Bus Telemetry Message Header */
     CFE_SB_StatsTlm_Payload_t    Payload;
 } CFE_SB_StatsTlm_t;
@@ -667,7 +667,7 @@ typedef struct{
 **
 ** Structure of one element of the routing information in response to #CFE_SB_SEND_ROUTING_INFO_CC
 */
-typedef struct{
+typedef struct CFE_SB_RoutingFileEntry {
     CFE_SB_MsgId_t      MsgId;/**< \brief Message Id portion of the route */
     CFE_SB_PipeId_t     PipeId;/**< \brief Pipe Id portion of the route */
     uint8               State;/**< \brief Route Enabled or Disabled */
@@ -682,7 +682,7 @@ typedef struct{
 **
 ** Structure of one element of the map information in response to #CFE_SB_SEND_MAP_INFO_CC
 */
-typedef struct{
+typedef struct CFE_SB_MsgMapFileEntry {
     CFE_SB_MsgId_t             MsgId;/**< \brief Message Id which has been subscribed to */
     CFE_SB_MsgRouteIdx_Atom_t  Index;/**< \brief Routing table index where pipe destinations are found */
 }CFE_SB_MsgMapFileEntry_t;
@@ -698,7 +698,7 @@ typedef struct{
 **
 ** \sa #CFE_SB_ENABLE_SUB_REPORTING_CC, #CFE_SB_DISABLE_SUB_REPORTING_CC
 */
-typedef struct {
+typedef struct CFE_SB_SingleSubscriptionTlm_Payload {
 
    uint8                SubType;/**< \brief Subscription or Unsubscription */
    CFE_SB_MsgId_t       MsgId;/**< \brief MsgId subscribed or unsubscribe to */
@@ -707,7 +707,7 @@ typedef struct {
 
 } CFE_SB_SingleSubscriptionTlm_Payload_t;
 
-typedef struct{
+typedef struct CFE_SB_SingleSubscriptionTlm {
     CFE_SB_TlmHdr_t             Hdr;/**< \brief cFE Software Bus Telemetry Message Header */
     CFE_SB_SingleSubscriptionTlm_Payload_t Payload;
 } CFE_SB_SingleSubscriptionTlm_t;
@@ -721,7 +721,7 @@ typedef struct{
 **
 ** Used in structure definition #CFE_SB_AllSubscriptionsTlm_t
 */
-typedef struct {
+typedef struct CFE_SB_SubEntries {
 
    CFE_SB_MsgId_t       MsgId;/**< \brief MsgId portion of the subscription */
    CFE_SB_Qos_t         Qos;/**< \brief Qos portion of the subscription */
@@ -739,7 +739,7 @@ typedef struct {
 ** there are more subscriptions than can fit in one pkt. The complete list of
 ** subscriptions is sent via a series of segmented pkts.
 */
-typedef struct {
+typedef struct CFE_SB_AllSubscriptionsTlm_Payload {
 
    uint32               PktSegment;/**< \brief Pkt number(starts at 1) in the series */
    uint32               TotalSegments;/**< \brief Total number of pkts needed to complete the request */
@@ -747,7 +747,7 @@ typedef struct {
    CFE_SB_SubEntries_t  Entry[CFE_SB_SUB_ENTRIES_PER_PKT];/**< \brief Array of #CFE_SB_SubEntries_t entries */
 } CFE_SB_AllSubscriptionsTlm_Payload_t;
 
-typedef struct{
+typedef struct CFE_SB_AllSubscriptionsTlm {
     CFE_SB_TlmHdr_t             Hdr;/**< \brief cFE Software Bus Telemetry Message Header */
     CFE_SB_AllSubscriptionsTlm_Payload_t Payload;
 } CFE_SB_AllSubscriptionsTlm_t;

@@ -204,7 +204,7 @@ typedef cpuaddr CFE_ES_MemHandle_t;
  * Structure that is used to provide information about an app.
  * It is primarily used for the QueryOne and QueryAll Commands.
  */
-typedef struct
+typedef struct CFE_ES_AppInfo
 {
    uint32   AppId;                          /**< \cfetlmmnemonic \ES_APP_ID
                                                  \brief Application ID for this Application */
@@ -257,7 +257,7 @@ typedef struct
 /**
  * \brief Task Info
  */
-typedef struct
+typedef struct CFE_ES_TaskInfo
 {
    uint32   TaskId;                    /**< \brief Task Id */
    uint32   ExecutionCounter;          /**< \brief Task Execution Counter */
@@ -270,7 +270,7 @@ typedef struct
 /**
  * \brief Block statistics
  */
-typedef struct
+typedef struct CFE_ES_BlockStats
 {
     uint32  BlockSize;               /**< \brief Number of bytes in each of these blocks */
     uint32  NumCreated;              /**< \brief Number of Memory Blocks of this size created */
@@ -280,7 +280,7 @@ typedef struct
 /**
  * \brief Memory Pool Statistics
  */
-typedef struct
+typedef struct CFE_ES_MemPoolStats
 {
     uint32                PoolSize;                /**< \cfetlmmnemonic \ES_POOLSIZE
                                                         \brief  Size of Memory Pool (in bytes) */
@@ -304,7 +304,7 @@ typedef cpuaddr CFE_ES_CDSHandle_t;
 /**
  * \brief CDS Register Dump Record
  */
-typedef struct
+typedef struct CFE_ES_CDSRegDumpRec
 {
     CFE_ES_CDSHandle_t    Handle;          /**< \brief Handle of CDS */
     uint32                Size;            /**< \brief Size, in bytes, of the CDS memory block */
@@ -326,7 +326,7 @@ typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(uint32 LibId); /**< \brief Require
  * It contains the longest native data types such that the alignment of this structure
  * should reflect the largest possible alignment requirements for any data on this processor.
  */
-typedef union
+typedef union CFE_ES_PoolAlign
 {
     void *Ptr; /**< \brief Aligned pointer */
     /* note -- native types (int/double) are intentional here */

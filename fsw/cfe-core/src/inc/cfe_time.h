@@ -112,7 +112,7 @@
 **       elapsed since the epoch.
 **
 */
-typedef struct
+typedef struct CFE_TIME_SysTime
 {
   uint32  Seconds;            /**< \brief Number of seconds since epoch */
   uint32  Subseconds;         /**< \brief Number of subseconds since epoch (LSB = 2^(-32) seconds) */
@@ -135,7 +135,7 @@ typedef struct
 **       to be "negative".  This can lead to some confusion about what relationship exists between two time values.
 **       To resolve this confusion, the cFE provides the API #CFE_TIME_Compare which returns these enumerated values.
 */
-typedef enum  
+typedef enum CFE_TIME_Compare
 {
   CFE_TIME_A_LT_B  = -1,      /**< \brief The first specified time is considered to be before the second specified time */
   CFE_TIME_EQUAL   =  0,      /**< \brief The two specified times are considered to be equal */
@@ -150,7 +150,7 @@ typedef enum
 **       in an area of memory that is not cleared during a Processor Reset.  This allows the
 **       cFE Time Service to maintain time to the best of its ability after a Processor Reset.
 */
-typedef struct
+typedef struct CFE_TIME_ResetVars
 {
   uint32 Signature;                     /**< \brief Data validation signature used to verify data structure contents*/
   int16  LeapSeconds;                   /**< \brief Leap seconds value */

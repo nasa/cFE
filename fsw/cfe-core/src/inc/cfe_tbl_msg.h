@@ -490,7 +490,7 @@
 ** -# The No-Op Command (For details, see #CFE_TBL_NOOP_CC)
 ** -# The Reset Counters Command (For details, see #CFE_TBL_RESET_COUNTERS_CC)
 */
-typedef struct
+typedef struct CFE_TBL_NoArgsCmd
 {
     uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];   /**< \brief cFE Software Bus Command Message Header */
 
@@ -510,14 +510,14 @@ typedef CFE_TBL_NoArgsCmd_t CFE_TBL_ResetCounters_t;
 ** For command details, see #CFE_TBL_LOAD_CC
 **
 **/
-typedef struct
+typedef struct CFE_TBL_LoadCmd_Payload
 {
     char                  LoadFilename[CFE_MISSION_MAX_PATH_LEN];  /**< \brief Filename (and path) of data to be loaded */
                                                           /**< ASCII Character string containing full path 
                                                                filename for file to be loaded */
 } CFE_TBL_LoadCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_Load
 {
     uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_LoadCmd_Payload_t   Payload;
@@ -528,7 +528,7 @@ typedef struct
 **
 ** For command details, see #CFE_TBL_DUMP_CC
 */
-typedef struct
+typedef struct CFE_TBL_DumpCmd_Payload
 {
     uint16                ActiveTableFlag;                        /**< \brief #CFE_TBL_BufferSelect_INACTIVE=Inactive Table, 
                                                                             #CFE_TBL_BufferSelect_ACTIVE=Active Table */
@@ -544,7 +544,7 @@ typedef struct
                                                                      where data is to be dumped */
 } CFE_TBL_DumpCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_DumpCmd
 {
     uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_DumpCmd_Payload_t   Payload;
@@ -555,7 +555,7 @@ typedef struct
 **
 ** For command details, see #CFE_TBL_VALIDATE_CC
 */
-typedef struct
+typedef struct CFE_TBL_ValidateCmd_Payload
 {
     uint16                ActiveTableFlag;                         /**< \brief #CFE_TBL_BufferSelect_INACTIVE=Inactive Table, 
                                                                              #CFE_TBL_BufferSelect_ACTIVE=Active Table */
@@ -568,7 +568,7 @@ typedef struct
                                                                       identifier of table to be validated */
 } CFE_TBL_ValidateCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_Validate
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_ValidateCmd_Payload_t   Payload;
@@ -579,14 +579,14 @@ typedef struct
 **
 ** For command details, see #CFE_TBL_ACTIVATE_CC
 */
-typedef struct
+typedef struct CFE_TBL_ActivateCmd_Payload
 {
     char                  TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];  /**< \brief Full Name of Table to be activated */
                                                                  /**< ASCII string containing full table name 
                                                                       identifier of table to be activated */
 } CFE_TBL_ActivateCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_Activate
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_ActivateCmd_Payload_t   Payload;
@@ -597,7 +597,7 @@ typedef struct
 **
 ** For command details, see #CFE_TBL_DUMP_REGISTRY_CC
 */
-typedef struct
+typedef struct CFE_TBL_DumpRegistryCmd_Payload
 {
     char                  DumpFilename[CFE_MISSION_MAX_PATH_LEN];        /**< \brief Full Filename where dumped data is to be 
                                                                      written */
@@ -605,7 +605,7 @@ typedef struct
                                                                      where registry is to be dumped */
 } CFE_TBL_DumpRegistryCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_DumpRegistry
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_DumpRegistryCmd_Payload_t    Payload;
@@ -616,7 +616,7 @@ typedef struct
 **
 ** For command details, see #CFE_TBL_SEND_REGISTRY_CC
 */
-typedef struct
+typedef struct CFE_TBL_SendRegistryCmd_Payload
 {
     char                  TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];  /**< \brief Full Name of Table whose registry entry
                                                                       is to be telemetered */
@@ -625,7 +625,7 @@ typedef struct
                                                                       to be telemetered via #CFE_TBL_TableRegistryTlm_t */
 } CFE_TBL_SendRegistryCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_SendRegistry
 {
     uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_SendRegistryCmd_Payload_t Payload;
@@ -636,7 +636,7 @@ typedef struct
 **
 ** For command details, see #CFE_TBL_DELETE_CDS_CC
 */
-typedef struct
+typedef struct CFE_TBL_DelCDSCmd_Payload
 {
     char                  TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];  /**< \brief Full Name of Table whose CDS is
                                                                       to be deleted */
@@ -645,7 +645,7 @@ typedef struct
                                                                       CDS is to be deleted */
 } CFE_TBL_DelCDSCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_DeleteCDS
 {
     uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_DelCDSCmd_Payload_t Payload;
@@ -656,14 +656,14 @@ typedef struct
 **
 ** For command details, see #CFE_TBL_ABORT_LOAD_CC
 */
-typedef struct
+typedef struct CFE_TBL_AbortLoadCmd_Payload
 {
     char                  TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN];  /**< \brief Full Name of Table whose load is to be aborted */
                                                                  /**< ASCII string containing full table name 
                                                                       identifier of a table whose load is to be aborted */
 } CFE_TBL_AbortLoadCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_AbortLoad
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_AbortLoadCmd_Payload_t    Payload;
@@ -683,12 +683,12 @@ typedef struct
 **      command message with the application specified message ID, command code and
 **      parameter whenever the table requires management (e.g. - loads and validations).
 */
-typedef struct
+typedef struct CFE_TBL_NotifyCmd_Payload
 {
     uint32                Parameter;                             /**< \brief Application specified command parameter */
 } CFE_TBL_NotifyCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_NotifyCmd
 {
     uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
     CFE_TBL_NotifyCmd_Payload_t Payload;
@@ -701,7 +701,7 @@ typedef struct
 /** 
 **  \cfetbltlm Table Services Housekeeping Packet
 **/
-typedef struct
+typedef struct CFE_TBL_HousekeepingTlm_Payload
 {
     /*
     ** Task command interface counters...
@@ -760,7 +760,7 @@ typedef struct
                                                                           \brief Name of the last table loaded */
 } CFE_TBL_HousekeepingTlm_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_HousekeepingTlm
 {
     uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE];       /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_TBL_HousekeepingTlm_Payload_t  Payload;
@@ -770,7 +770,7 @@ typedef struct
 /** 
 **  \cfetbltlm Table Registry Info Packet
 **/
-typedef struct
+typedef struct CFE_TBL_TblRegPacket_Payload
 {
     uint32                      Size;                           /**< \cfetlmmnemonic \TBL_SIZE 
                                                                      \brief Size, in bytes, of Table */
@@ -808,7 +808,7 @@ typedef struct
                                                                      \brief Spare byte to maintain byte alignment */
 } CFE_TBL_TblRegPacket_Payload_t;
 
-typedef struct
+typedef struct CFE_TBL_TableRegistryTlm
 {
     uint8                           TlmHeader[CFE_SB_TLM_HDR_SIZE];       /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_TBL_TblRegPacket_Payload_t  Payload;

@@ -66,7 +66,7 @@ typedef uint16                                           CFE_TBL_BufferSelect_En
  *
  * This header follows the CFE_FS header and precedes the the actual table data.
  */
-typedef struct
+typedef struct CFE_TBL_File_Hdr
 {
     uint32                   Reserved;                             /**< Future Use: NumTblSegments in File?   */
     uint32                   Offset;                               /**< Byte Offset at which load should commence */

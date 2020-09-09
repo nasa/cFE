@@ -150,13 +150,13 @@
 typedef CFE_MSG_Message_t CFE_SB_Msg_t;
 
 /** \brief Aligned Software Bus command header */
-typedef union {
+typedef union CFE_SB_CmdHdr {
     CFE_MSG_CommandHeader_t Cmd;
     CFE_SB_Msg_t            BaseMsg;
 } CFE_SB_CmdHdr_t;
 
 /** \brief Aligned Software Bus telemetry header */
-typedef union {
+typedef union CFE_SB_TlmHdr {
     CFE_MSG_TelemetryHeader_t Tlm;
     CFE_SB_Msg_t              BaseMsg;
 } CFE_SB_TlmHdr_t;
