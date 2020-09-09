@@ -10,6 +10,16 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev65
+
+- In the next major CFE release, this code will be no longer supported at all. It should be removed early in the cycle to avoid needing to maintain this compatibility code.
+- The CFE_ES_FindCDSInRegistry function had an unusual loop control structure with mixed types of signed and unsigned. This has the possibility of being infinite if the MaxNumRegEntries is zero due to the way the end condition is structured. Simplify to be like other loops and use unsigned int control variable.
+- Fixes the cast-align error (use the aligned Msg since it's available already).
+- HOTFIX-20200902 - Fix sb unit test setup issue.
+- HOTFIX 20200902 - Update documentation links for deprecated symbols.
+- HOTFIX 20200902 - Fix SB Test_CleanupApp_API AppID.
+- See <https://github.com/nasa/cFE/pull/861>
+
 ### Development Build: 6.8.0-rc1+dev42
 
 - Removes reference from documentation.
