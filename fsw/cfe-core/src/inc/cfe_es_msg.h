@@ -170,56 +170,6 @@
 */
 #define CFE_ES_RESTART_CC              2
 
-#ifndef CFE_OMIT_DEPRECATED_6_7
-/** \cfeescmd DEPRECATED: Executive Services O/S Shell Command
-**  \deprecated
-**
-**  \par Description
-**       This command passes an ASCII string as a command line to the
-**       underlying realtime operating system shell.  Any response to
-**       the command is both written to the shell command output file
-**       and sent as a series of shell command output telemetry packets.
-**
-**       If the shell command output filename argument is empty, then
-**       #CFE_PLATFORM_ES_DEFAULT_SHELL_FILENAME will be used as the filename.
-**
-**  \cfecmdmnemonic \ES_SHELL
-**
-**  \par Command Structure
-**       #CFE_ES_Shell_t
-**
-**  \par Command Verification
-**       Successful execution of this command may be verified with 
-**       the following telemetry:
-**       - \b \c \ES_CMDPC - command execution counter will 
-**         increment
-**       - The #CFE_ES_SHELL_INF_EID informational event message will be 
-**         generated
-**
-**  \par Error Conditions
-**       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**       - Failure to create the shell command output file
-**       - The shell command started with <tt> ES_ </tt> but was not one of the
-**         recognized cFE shell commands
-**       - There was an error while performing a #OS_lseek on the shell command output file
-**       - There was an error while redirecting the shell command response to the
-**         shell command output file
-**
-**       Evidence of failure may be found in the following telemetry:
-**       - \b \c \ES_CMDEC - command error counter will increment
-**       - the #CFE_ES_SHELL_ERR_EID error event message will be generated
-**       - Additional information on the error should be found in the System Log
-**
-**  \par Criticality
-**       This command should be used with caution.  Interfering with the
-**       operation of the underlying realtime operating system can cause
-**       significant problems.
-**
-**  \sa 
-*/
-#define CFE_ES_SHELL_CC            3
-#endif /* CFE_OMIT_DEPRECATED_6_7 */
 
 /** \cfeescmd Load and Start an Application
 **
@@ -1155,32 +1105,6 @@ typedef struct
     CFE_ES_RestartCmd_Payload_t Payload;
 } CFE_ES_Restart_t;
 
-#ifndef CFE_OMIT_DEPRECATED_6_7
-/**
-** \brief DEPRECATED: Shell Command
-** \deprecated
-**
-** For command details, see #CFE_ES_SHELL_CC
-**
-**/
-typedef struct
-{
-  char                  CmdString[CFE_MISSION_ES_MAX_SHELL_CMD];   /**< \brief ASCII text string containing shell command
-                                                                to be executed */
-  char                  OutputFilename[CFE_MISSION_MAX_PATH_LEN];   /**< \brief Filename where shell command output is to
-                                                                be written */
-} CFE_ES_ShellCmd_Payload_t;
-
-/**
- * \deprecated
- */
-typedef struct
-{
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_ShellCmd_Payload_t   Payload;
-} CFE_ES_Shell_t;
-#endif /* CFE_OMIT_DEPRECATED_6_7 */
-
 
 /**
 ** \brief Payload format for commands which accept a single file name
@@ -1585,43 +1509,6 @@ typedef struct
   
 } CFE_ES_HousekeepingTlm_t;
 
-#ifndef CFE_OMIT_DEPRECATED_6_7
-/** 
-**  \cfeestlm DEPRECATED: OS Shell Output Packet
-**  \deprecated
-**/
-typedef struct
-{
-  char                  ShellOutput[CFE_MISSION_ES_MAX_SHELL_PKT];  /**< \brief ASCII text string containing output from OS Shell
-                                                                 that was received in response to an OS Shell Command */
-} CFE_ES_ShellPacket_Payload_t;
-
-/**
- * \deprecated
- */
-typedef struct
-{
-    CFE_SB_TlmHdr_t                 TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_ES_ShellPacket_Payload_t    Payload;
-}CFE_ES_ShellTlm_t;
-#endif /* CFE_OMIT_DEPRECATED_6_7 */
-
-/*************************************************************************/
-
-/*
- * COMPATIBILITY TYPEDEFS:
- * In some circumstances applications may subscribe to telemetry from this component,
- * and therefore the name changes may break existing code.  For these situations a
- * typedef is created to continue supporting the previous name.  These should be
- * removed in the next CFE release.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-typedef CFE_ES_HousekeepingTlm_t    CFE_ES_HkPacket_t;
-typedef CFE_ES_ShellTlm_t           CFE_ES_ShellPacket_t;
-typedef CFE_ES_MemStatsTlm_t        CFE_ES_PoolStatsTlm_t;
-
-#endif /* CFE_OMIT_DEPRECATED_6_6 */
 
 #endif /* _cfe_es_msg_ */
 

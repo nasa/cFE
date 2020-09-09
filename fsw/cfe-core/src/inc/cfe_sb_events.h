@@ -568,35 +568,6 @@
 #define CFE_SB_CMD1_RCVD_EID            29
 
 
-#ifndef CFE_OMIT_DEPRECATED_6_8
-
-/** \brief <tt> 'SB GetLastSender Err:Rcvd Null Ptr,Pipe=%d,App=%s' </tt>
-**  \event <tt> 'SB GetLastSender Err:Rcvd Null Ptr,Pipe=%d,App=%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This error event message is issued when SB receives a Null pointer from the
-**  caller of CFE_SB_GetLastSenderId.
-**/
-#define CFE_SB_LSTSNDER_ERR1_EID        30
-
-/** \brief <tt> 'SB GetLastSender Err:Rcvd Invalid Pipe=%d,App=%s' </tt>
-**  \event <tt> 'SB GetLastSender Err:Rcvd Invalid Pipe=%d,App=%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This error event message is issued when SB receives an invalid pipe from the
-**  caller of CFE_SB_GetLastSenderId.
-**/
-#define CFE_SB_LSTSNDER_ERR2_EID        31
-
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
-
-
 /** \brief <tt> 'Software Bus Statistics packet sent' </tt>
 **  \event <tt> 'Software Bus Statistics packet sent' </tt>
 **
@@ -714,23 +685,6 @@
 **  the OS.
 **/
 #define CFE_SB_SND_RTG_ERR1_EID         40
-
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
-
-/** \brief <tt> 'SB GetLastSender Err:Caller(\%s) is not the owner of pipe \%d' </tt>
-**  \event <tt> 'SB GetLastSender Err:Caller(\%s) is not the owner of pipe \%d' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This error event message is issued when the caller of CFE_SB_GetLastSenderId is
-**  not the owner of the given pipe Id.
-**/
-#define CFE_SB_GLS_INV_CALLER_EID       41
-
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /** \brief <tt> 'Invalid Cmd, Unexpected Command Code \%d' </tt>
 **  \event <tt> 'Invalid Cmd, Unexpected Command Code \%d' </tt>

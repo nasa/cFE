@@ -1235,23 +1235,6 @@ typedef struct {
 
 } CFE_EVS_ShortEventTlm_t;
 
-/*
- * COMPATIBILITY TYPEDEFS:
- * In some circumstances applications may subscribe to telemetry from this component,
- * and therefore the name changes may break existing code.  For these situations a
- * typedef is created to continue supporting the previous name.  These should be
- * removed in the next CFE release.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-typedef CFE_EVS_LongEventTlm_t      CFE_EVS_Packet_t;
-typedef CFE_EVS_HousekeepingTlm_t   CFE_EVS_TlmPkt_t;
-
-/* the CFE_EVS_HK_TLM_LNGTH macro is no longer used in EVS, but might be used in apps */
-#define CFE_EVS_HK_TLM_LNGTH  sizeof(CFE_EVS_TlmPkt_t)
-
-#endif /* CFE_OMIT_DEPRECATED_6_6 */
-
 
 #endif
 

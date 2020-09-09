@@ -55,6 +55,10 @@ CFE_TBL_Handle_t App2TblHandle1;
 CFE_TBL_Handle_t App2TblHandle2;
 CFE_TBL_Handle_t ArrayOfHandles[2];
 
+static const uint32 UT_TBL_APPID_1 =  1;
+static const uint32 UT_TBL_APPID_2 =  2;
+static const uint32 UT_TBL_APPID_10 = 10;
+
 void *Tbl1Ptr = NULL;
 void *Tbl2Ptr = NULL;
 void **ArrayOfPtrsToTblPtrs[2];
@@ -149,7 +153,7 @@ void UT_InitializeTableRegistryNames()
     {
         snprintf(CFE_TBL_TaskData.Registry[i].Name,
                  CFE_TBL_MAX_FULL_NAME_LEN, "%d", i);
-        CFE_TBL_TaskData.Registry[i].OwnerAppId = 0;
+        CFE_TBL_TaskData.Registry[i].OwnerAppId = UT_TBL_APPID_2;
     }
 }
 
@@ -168,7 +172,7 @@ void UT_ResetTableRegistry(void)
     /* Initialize the table access descriptors */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
-        CFE_TBL_TaskData.Handles[i].AppId = CFE_ES_ERR_APPID;
+        CFE_TBL_TaskData.Handles[i].AppId = CFE_TBL_NOT_OWNED;
         CFE_TBL_TaskData.Handles[i].RegIndex = 0;
         CFE_TBL_TaskData.Handles[i].PrevLink = CFE_TBL_END_OF_LIST;
         CFE_TBL_TaskData.Handles[i].NextLink = CFE_TBL_END_OF_LIST;
@@ -1047,6 +1051,10 @@ void Test_CFE_TBL_GetHkData(void)
     int32 NumLoadPendingIndex = CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1;
     int32 FreeSharedBuffIndex = CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS - 1;
     int32 ValTableIndex = CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS - 1;
+    uint32 AppID;
+
+    /* Get the AppID being used for UT */
+    CFE_ES_GetAppID(&AppID);
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Get Housekeeping Data\n");
@@ -1060,7 +1068,7 @@ void Test_CFE_TBL_GetHkData(void)
     /* Test raising the count of load pending tables */
     UT_InitData();
     CFE_TBL_TaskData.Registry[NumLoadPendingIndex].LoadPending = true;
-    CFE_TBL_TaskData.Registry[NumLoadPendingIndex].OwnerAppId = 0;
+    CFE_TBL_TaskData.Registry[NumLoadPendingIndex].OwnerAppId = AppID;
     CFE_TBL_GetHkData();
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.HkPacket.Payload.NumLoadPending == 1,
@@ -1140,6 +1148,11 @@ void Test_CFE_TBL_DumpRegCmd(void)
 {
     int                  q;
     CFE_TBL_DumpRegistry_t DumpRegCmd;
+    uint32 AppID;
+
+    /* Get the AppID being used for UT */
+    CFE_ES_GetAppID(&AppID);
+
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Dump Register Command\n");
@@ -1175,7 +1188,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 10, sizeof(CFE_FS_Header_t));
-    CFE_TBL_TaskData.Registry[0].OwnerAppId = 0;
+    CFE_TBL_TaskData.Registry[0].OwnerAppId = AppID;
     CFE_TBL_TaskData.Registry[0].HeadOfAccessList = CFE_TBL_END_OF_LIST;
     CFE_TBL_TaskData.Registry[1].OwnerAppId = CFE_TBL_NOT_OWNED;
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
@@ -1233,6 +1246,9 @@ void Test_CFE_TBL_DumpCmd(void)
     uint8              *BuffPtr = &Buff;
     CFE_TBL_LoadBuff_t Load = {0};
     CFE_TBL_Dump_t     DumpCmd;
+    uint32 AppID;
+
+    CFE_ES_GetAppID(&AppID);
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Dump Command\n");
@@ -1258,7 +1274,7 @@ void Test_CFE_TBL_DumpCmd(void)
     strncpy(CFE_TBL_TaskData.Registry[2].Name, "DumpCmdTest",
             CFE_TBL_MAX_FULL_NAME_LEN);
     CFE_TBL_TaskData.Registry[2].Name[CFE_TBL_MAX_FULL_NAME_LEN - 1] = '\0';
-    CFE_TBL_TaskData.Registry[2].OwnerAppId = 0;
+    CFE_TBL_TaskData.Registry[2].OwnerAppId = AppID;
     strncpy(DumpCmd.Payload.TableName, CFE_TBL_TaskData.Registry[2].Name,
             sizeof(DumpCmd.Payload.TableName));
     DumpCmd.Payload.ActiveTableFlag = CFE_TBL_BufferSelect_ACTIVE;
@@ -1410,6 +1426,9 @@ void Test_CFE_TBL_LoadCmd(void)
     CFE_FS_Header_t    StdFileHeader;
     CFE_TBL_LoadBuff_t BufferPtr = CFE_TBL_TaskData.LoadBuffs[0];
     CFE_TBL_Load_t     LoadCmd;
+    uint32 AppID;
+
+    CFE_ES_GetAppID(&AppID);
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Load Command\n");
@@ -1455,7 +1474,7 @@ void Test_CFE_TBL_LoadCmd(void)
 
     /* Test attempt to load a dump only table */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[0].OwnerAppId = 0;
+    CFE_TBL_TaskData.Registry[0].OwnerAppId = AppID;
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t) + 1;
@@ -1468,7 +1487,7 @@ void Test_CFE_TBL_LoadCmd(void)
 
     /* Test attempt to load a table with a load already pending */
     UT_InitData();
-    CFE_TBL_TaskData.Registry[0].OwnerAppId = 0;
+    CFE_TBL_TaskData.Registry[0].OwnerAppId = AppID;
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t) + 1;
@@ -1774,7 +1793,7 @@ void Test_CFE_TBL_ApiInit(void)
     UT_SetAppID(1);
     UT_ResetCDS();
     CFE_TBL_EarlyInit();
-    CFE_TBL_TaskData.TableTaskAppId = 10;
+    CFE_TBL_TaskData.TableTaskAppId = UT_TBL_APPID_10;
 }
 
 /*
@@ -1810,20 +1829,6 @@ void Test_CFE_TBL_Register(void)
               RtnCode == CFE_ES_ERR_APPID && EventsCorrect,
               "CFE_TBL_Register",
               "Invalid application ID");
-
-    /* Test response to an application ID larger than the maximum allowed */
-    UT_InitData();
-    UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_SUCCESS);
-    RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
-                               sizeof(UT_Table1_t),
-                               CFE_TBL_OPT_DEFAULT, NULL);
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
-                     UT_GetNumEventsSent() == 1);
-    UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_TBL_ERR_BAD_APP_ID && EventsCorrect,
-              "CFE_TBL_Register",
-              "Application ID > maximum allowed");
 
     /* Test response to a table name longer than the maximum allowed */
     UT_InitData();
@@ -2533,18 +2538,6 @@ void Test_CFE_TBL_Share(void)
               "CFE_TBL_Share",
               "Invalid application ID");
 
-    /* Test response to an application ID larger than the maximum allowed */
-    UT_InitData();
-    UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_SUCCESS);
-    RtnCode = CFE_TBL_Share(&App2TblHandle1, "ut_cfe_tbl.UT_Table2");
-    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == true &&
-                     UT_GetNumEventsSent() == 1);
-    UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_TBL_ERR_BAD_APP_ID && EventsCorrect,
-              "CFE_TBL_Share",
-              "Application ID > maximum allowed");
-
     /* Test response when table name is not in the registry */
     UT_InitData();
     UT_SetAppID(1);
@@ -3246,7 +3239,7 @@ void Test_CFE_TBL_GetAddresses(void)
     RtnCode = CFE_TBL_GetAddresses(ArrayOfPtrsToTblPtrs, 2, ArrayOfHandles);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_TBL_ERR_BAD_APP_ID && EventsCorrect,
+              RtnCode == CFE_TBL_ERR_NO_ACCESS && EventsCorrect,
               "CFE_TBL_Validate",
               "Attempt to get addresses of tables that application is not "
                 "allowed to see");
@@ -3297,7 +3290,7 @@ void Test_CFE_TBL_Validate(void)
     RtnCode = CFE_TBL_Validate(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_TBL_ERR_BAD_APP_ID && EventsCorrect,
+              RtnCode == CFE_TBL_ERR_NO_ACCESS && EventsCorrect,
               "CFE_TBL_Validate",
               "Attempt to validate table that application is not allowed "
                 "to see");
@@ -3593,7 +3586,7 @@ void Test_CFE_TBL_Manage(void)
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
     CFE_TBL_TaskData.Handles[AccessIterator].NextLink = RegRecPtr->HeadOfAccessList;
-    CFE_TBL_TaskData.Handles[AccessIterator].AppId = 2;
+    CFE_TBL_TaskData.Handles[AccessIterator].AppId = UT_TBL_APPID_2;
     RegRecPtr->HeadOfAccessList = AccessIterator;
     CFE_TBL_TaskData.Handles[AccessIterator].BufferIndex = 1;
     CFE_TBL_TaskData.Handles[AccessIterator].LockFlag = true;
@@ -3787,7 +3780,7 @@ void Test_CFE_TBL_Update(void)
     RtnCode = CFE_TBL_Update(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_TBL_ERR_BAD_APP_ID && EventsCorrect,
+              RtnCode == CFE_TBL_ERR_NO_ACCESS && EventsCorrect,
               "CFE_TBL_Update",
               "Bad application ID");
 }
@@ -3812,7 +3805,7 @@ void Test_CFE_TBL_GetStatus(void)
     RtnCode = CFE_TBL_GetStatus(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_TBL_ERR_BAD_APP_ID && EventsCorrect,
+              RtnCode == CFE_TBL_ERR_NO_ACCESS && EventsCorrect,
               "CFE_TBL_GetStatus",
               "Attempt to get status on a table that the application is not "
                 "allowed to see");
@@ -3825,7 +3818,7 @@ void Test_CFE_TBL_GetStatus(void)
     RtnCode = CFE_TBL_DumpToBuffer(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_TBL_ERR_BAD_APP_ID && EventsCorrect,
+              RtnCode == CFE_TBL_ERR_NO_ACCESS && EventsCorrect,
               "CFE_TBL_GetStatus",
               "Attempt to to dump the buffer on a table that the application "
                 "is not allowed to see");
@@ -3998,7 +3991,7 @@ void Test_CFE_TBL_TblMod(void)
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle1];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
     CFE_TBL_TaskData.Handles[AccessIterator].NextLink = RegRecPtr->HeadOfAccessList;
-    CFE_TBL_TaskData.Handles[AccessIterator].AppId = 2;
+    CFE_TBL_TaskData.Handles[AccessIterator].AppId = UT_TBL_APPID_2;
     RegRecPtr->HeadOfAccessList = AccessIterator;
 
     /* Configure for successful file read to initialize table */
@@ -4068,7 +4061,7 @@ void Test_CFE_TBL_TblMod(void)
 void Test_CFE_TBL_Internal(void)
 {
     int32                      RtnCode;
-    bool                    EventsCorrect;
+    bool                       EventsCorrect;
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
@@ -4892,11 +4885,11 @@ void Test_CFE_TBL_Internal(void)
     CFE_TBL_TaskData.DumpControlBlocks[3].RegRecPtr = RegRecPtr;
     RegRecPtr->LoadInProgress = 1;
     CFE_TBL_TaskData.LoadBuffs[1].Taken = true;
-    CFE_TBL_CleanUpApp(1);
+    CFE_TBL_CleanUpApp(UT_TBL_APPID_1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.DumpControlBlocks[3].State ==
                   CFE_TBL_DUMP_FREE &&
-              RegRecPtr->OwnerAppId == (uint32) CFE_TBL_NOT_OWNED &&
+              RegRecPtr->OwnerAppId ==  CFE_TBL_NOT_OWNED &&
               CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken ==
                   false &&
               RegRecPtr->LoadInProgress == CFE_TBL_NO_LOAD_IN_PROGRESS,
@@ -4947,8 +4940,8 @@ void Test_CFE_TBL_Internal(void)
      * the table task application ID
      */
     UT_InitData();
-    CFE_TBL_TaskData.TableTaskAppId = 1;
-    RtnCode = CFE_TBL_CheckAccessRights(App2TblHandle1, 1);
+    CFE_TBL_TaskData.TableTaskAppId = UT_TBL_APPID_1;
+    RtnCode = CFE_TBL_CheckAccessRights(App2TblHandle1, UT_TBL_APPID_1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS && EventsCorrect,
@@ -5057,17 +5050,17 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     UT_SetAppID(1);
     UT_SetForceFail(UT_KEY(CFE_ES_PutPoolBuf), -1);
-    CFE_TBL_TaskData.Handles[0].AppId = 1;
+    CFE_TBL_TaskData.Handles[0].AppId = UT_TBL_APPID_1;
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-    RegRecPtr->OwnerAppId = -1;
+    RegRecPtr->OwnerAppId = CFE_TBL_NOT_OWNED;
     CFE_TBL_TaskData.DumpControlBlocks[3].State = CFE_TBL_DUMP_PENDING;
     CFE_TBL_TaskData.DumpControlBlocks[3].RegRecPtr = RegRecPtr;
-    CFE_TBL_CleanUpApp(1);
+    CFE_TBL_CleanUpApp(UT_TBL_APPID_1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.DumpControlBlocks[3].State ==
             CFE_TBL_DUMP_PENDING &&
-              RegRecPtr->OwnerAppId == (uint32) CFE_TBL_NOT_OWNED ,
+              RegRecPtr->OwnerAppId ==  CFE_TBL_NOT_OWNED,
               "CFE_TBL_CleanUpApp",
               "Execute clean up - no dumped tables to delete, application "
                   "doesn't own table");

@@ -172,9 +172,6 @@ typedef struct {
      uint16            UseCount;
      uint32            Size;
      void              *Buffer;
-#ifndef CFE_OMIT_DEPRECATED_6_8
-     CFE_SB_SenderId_t Sender;
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
 } CFE_SB_BufferD_t;
 
 

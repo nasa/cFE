@@ -148,30 +148,61 @@ function(read_targetconfig)
   set(TGTSYS_LIST)
   set(MISSION_APPS)
   set(MISSION_PSPMODULES)
+  
+  # This while loop checks for a sequential set of variables prefixed with TGT<x>_
+  # where <x> is a sequence number starting with 1.  The first "gap" (undefined name)
+  # is treated as the end of list.
+  # This is the historical way of specifying CPU configs.  New/future development should
+  # prefer the name-based specification. This translates the sequential TGT<x> variable
+  # to a name-based variable.
   set(TGTID 0)
   while(1)
     math(EXPR TGTID "${TGTID} + 1")
     if (NOT DEFINED TGT${TGTID}_NAME)
       break()
     endif()
-    if (NOT DEFINED TGT${TGTID}_SYSTEM)
-      set(TGT${TGTID}_SYSTEM "cpu${TGTID}")
-      set(TGT${TGTID}_SYSTEM "${TGT${TGTID}_SYSTEM}" PARENT_SCOPE)
-    endif()
-    if (NOT DEFINED TGT${TGTID}_PLATFORM)
-      set(TGT${TGTID}_PLATFORM "default" "${TGT${TGTID}_NAME}")
-      set(TGT${TGTID}_PLATFORM "${TGT${TGTID}_PLATFORM}" PARENT_SCOPE)
-    endif()
+    set(CPUNAME ${TGT${TGTID}_NAME})
+    # by default if PROCESSORID isn't specified, then use TGTID number.
+    if(NOT DEFINED TGT${TGTID}_PROCESSORID)
+        set(TGT${TGTID}_PROCESSORID ${TGTID})
+    endif()    
     
-    if (SIMULATION)
+    # Translate the TGT<x> prefix to the CPU name prefix
+    # also propagate the value to parent scope
+    foreach(PROP PROCESSORID
+                 APPLIST
+                 STATIC_APPLIST
+                 STATIC_SYMLIST
+                 PSP_MODULELIST
+                 FILELIST
+                 EMBED_FILELIST
+                 SYSTEM
+                 PLATFORM)
+         set(${CPUNAME}_${PROP} ${TGT${TGTID}_${PROP}})
+         set(${CPUNAME}_${PROP} ${${CPUNAME}_${PROP}} PARENT_SCOPE)
+    endforeach()
+    list(APPEND MISSION_CPUNAMES ${CPUNAME}) 
+  endwhile()
+  
+  foreach(CPUNAME ${MISSION_CPUNAMES})
+    if (DEFINED SIMULATION)
       # if simulation use simulation system architecture for all targets
       set(TOOLCHAIN_NAME "${SIMULATION}")
-    else (SIMULATION)
+    elseif (DEFINED ${CPUNAME}_SYSTEM)
       # get the target system arch identifier string
-      set(TOOLCHAIN_NAME "${TGT${TGTID}_SYSTEM}")
-    endif (SIMULATION)
+      set(TOOLCHAIN_NAME "${${CPUNAME}_SYSTEM}")
+    else()
+      # assume a toolchain name matching the CPU name
+      set(TOOLCHAIN_NAME "${CPUNAME}")
+      set(${CPUNAME}_SYSTEM ${TOOLCHAIN_NAME} PARENT_SCOPE)
+    endif ()
+
+    if (NOT DEFINED ${CPUNAME}_PLATFORM)
+      set(${CPUNAME}_PLATFORM "default" "${CPUNAME}")
+      set(${CPUNAME}_PLATFORM "${${CPUNAME}_PLATFORM}" PARENT_SCOPE)
+    endif()
     
-    set(BUILD_CONFIG ${TOOLCHAIN_NAME} ${TGT${TGTID}_PLATFORM})
+    set(BUILD_CONFIG ${TOOLCHAIN_NAME} ${${CPUNAME}_PLATFORM})
     
     # convert to a the string which is safe for a variable name
     string(REGEX REPLACE "[^A-Za-z0-9]" "_" SYSVAR "${BUILD_CONFIG}")
@@ -181,25 +212,25 @@ function(read_targetconfig)
     
     # if the "global" applist is not empty, append to every CPU applist
     if (MISSION_GLOBAL_APPLIST)
-      list(APPEND TGT${TGTID}_APPLIST ${MISSION_GLOBAL_APPLIST})
-      set(TGT${TGTID}_APPLIST ${TGT${TGTID}_APPLIST} PARENT_SCOPE)
+      list(APPEND ${CPUNAME}_APPLIST ${MISSION_GLOBAL_APPLIST})
+      set(${CPUNAME}_APPLIST ${${CPUNAME}_APPLIST} PARENT_SCOPE)
     endif (MISSION_GLOBAL_APPLIST)
 
     if (MISSION_GLOBAL_STATIC_APPLIST)
-      list(APPEND TGT${TGTID}_STATIC_APPLIST ${MISSION_GLOBAL_STATIC_APPLIST})
-      set(TGT${TGTID}_STATIC_APPLIST ${TGT${TGTID}_STATIC_APPLIST} PARENT_SCOPE)
+      list(APPEND ${CPUNAME}_STATIC_APPLIST ${MISSION_GLOBAL_STATIC_APPLIST})
+      set(${CPUNAME}_STATIC_APPLIST ${${CPUNAME}_STATIC_APPLIST} PARENT_SCOPE)
     endif (MISSION_GLOBAL_STATIC_APPLIST)
 
     # Append to global lists
     list(APPEND TGTSYS_LIST "${SYSVAR}")
-    list(APPEND TGTSYS_${SYSVAR} "${TGTID}")
-    list(APPEND TGTSYS_${SYSVAR}_APPS ${TGT${TGTID}_APPLIST})
-    list(APPEND TGTSYS_${SYSVAR}_STATICAPPS ${TGT${TGTID}_STATIC_APPLIST})
-    list(APPEND TGTSYS_${SYSVAR}_PSPMODULES ${TGT${TGTID}_PSP_MODULELIST})
-    list(APPEND MISSION_APPS ${TGT${TGTID}_APPLIST} ${TGT${TGTID}_STATIC_APPLIST})
-    list(APPEND MISSION_PSPMODULES ${TGT${TGTID}_PSP_MODULELIST})
+    list(APPEND TGTSYS_${SYSVAR} "${CPUNAME}")
+    list(APPEND TGTSYS_${SYSVAR}_APPS ${${CPUNAME}_APPLIST})
+    list(APPEND TGTSYS_${SYSVAR}_STATICAPPS ${${CPUNAME}_STATIC_APPLIST})
+    list(APPEND TGTSYS_${SYSVAR}_PSPMODULES ${${CPUNAME}_PSP_MODULELIST})
+    list(APPEND MISSION_APPS ${${CPUNAME}_APPLIST} ${${CPUNAME}_STATIC_APPLIST})
+    list(APPEND MISSION_PSPMODULES ${${CPUNAME}_PSP_MODULELIST})
   
-  endwhile()
+  endforeach()
 
   # Remove duplicate entries in the generated lists
   list(REMOVE_DUPLICATES TGTSYS_LIST)
@@ -214,6 +245,7 @@ function(read_targetconfig)
   set(TGTSYS_LIST ${TGTSYS_LIST} PARENT_SCOPE)
   set(MISSION_APPS ${MISSION_APPS} PARENT_SCOPE)
   set(MISSION_PSPMODULES ${MISSION_PSPMODULES} PARENT_SCOPE)
+  set(MISSION_CPUNAMES ${MISSION_CPUNAMES} PARENT_SCOPE)
   
   foreach(SYSVAR ${TGTSYS_LIST})
     set(TGTSYS_${SYSVAR} ${TGTSYS_${SYSVAR}} PARENT_SCOPE)
@@ -229,7 +261,7 @@ function(read_targetconfig)
       list(REMOVE_DUPLICATES TGTSYS_${SYSVAR}_PSPMODULES)
       set(TGTSYS_${SYSVAR}_PSPMODULES ${TGTSYS_${SYSVAR}_PSPMODULES} PARENT_SCOPE)
     endif(TGTSYS_${SYSVAR}_PSPMODULES)
-  endforeach(SYSVAR IN LISTS TGTSYS_LIST)
+  endforeach(SYSVAR ${TGTSYS_LIST})
   
 endfunction(read_targetconfig)
 

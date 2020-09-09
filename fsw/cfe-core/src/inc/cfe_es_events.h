@@ -101,20 +101,6 @@
 **/
 #define CFE_ES_RESET_INF_EID      4
 
-/** \brief <tt> 'Invoked shell command \%s' </tt>
-**  \event <tt> 'Invoked shell command \%s' </tt> 
-**
-**  \par Type: INFORMATION
-**
-**  \par Cause:
-**
-**  This event message is always automatically issued in response
-**  to a cFE Executive Services \link #CFE_ES_SHELL_CC Shell Command \endlink
-**
-**  The \c 's' string contains the actual shell command string issued.
-**/
-#define CFE_ES_SHELL_INF_EID      5
-
 /** \brief <tt> 'Started \%s from \%s, AppID = \%d' </tt>
 **  \event <tt> 'Started \%s from \%s, AppID = \%d' </tt> 
 **
@@ -431,22 +417,6 @@
 **  in the received cFE Restart Command Packet.
 **/
 #define CFE_ES_BOOT_ERR_EID      24    /* command specific "error" */
-
-/** \brief <tt> 'Failed to invoke shell command \%s, rc = \%08X' </tt>
-**  \event <tt> 'Failed to invoke shell command \%s, rc = \%08X' </tt> 
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This event message is generated whenever the cFE Executive Services receives an OS Shell
-**  command, via the \link #CFE_ES_SHELL_CC Executive Services Shell Command \endlink, and
-**  the underlying OS returns an error code.
-**
-**  The 's' field in the message identifies the shell command string that was issued
-**  and the \c rc field displays the shell's return code, in hex.
-**/
-#define CFE_ES_SHELL_ERR_EID     25
 
 /** \brief <tt> 'Failed to start \%s from \%s, RC = \%08X' </tt>
 **  \event <tt> 'Failed to start \%s from \%s, RC = \%08X' </tt>

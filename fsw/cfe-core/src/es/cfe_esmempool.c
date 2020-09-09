@@ -318,14 +318,16 @@ int32 CFE_ES_GetPoolBuf(uint32             **BufPtr,
       if (Handle != PoolPtr->PoolHandle)
       {
          CFE_ES_GetAppID(&AppId);
-         CFE_ES_WriteToSysLog("CFE_ES:getPoolBuf err:Bad handle(0x%08lX) AppId=%d\n",(unsigned long)Handle,(int)AppId);
+         CFE_ES_WriteToSysLog("CFE_ES:getPoolBuf err:Bad handle(0x%08lX) AppId=%lu\n",
+                 (unsigned long)Handle, CFE_ES_ResourceID_ToInteger(AppId));
          return(CFE_ES_ERR_MEM_HANDLE);
       }
    }
    else
    {
       CFE_ES_GetAppID(&AppId);
-      CFE_ES_WriteToSysLog("CFE_ES:getPoolBuf err:Bad handle(0x%08lX) AppId=%d\n",(unsigned long)Handle,(int)AppId);
+      CFE_ES_WriteToSysLog("CFE_ES:getPoolBuf err:Bad handle(0x%08lX) AppId=%lu\n",
+                 (unsigned long)Handle, CFE_ES_ResourceID_ToInteger(AppId));
       return(CFE_ES_ERR_MEM_HANDLE);
    }
 
@@ -636,7 +638,8 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
     if (PoolPtr == NULL || Handle != PoolPtr->PoolHandle)
     {
         CFE_ES_GetAppID(&AppId);
-        CFE_ES_WriteToSysLog("CFE_ES:getMemPoolStats err:Bad handle(0x%08lX) AppId=%d\n", (unsigned long)Handle, (int)AppId);
+        CFE_ES_WriteToSysLog("CFE_ES:getMemPoolStats err:Bad handle(0x%08lX) AppId=%lu\n",
+                (unsigned long)Handle, CFE_ES_ResourceID_ToInteger(AppId));
         return(CFE_ES_ERR_MEM_HANDLE);
     }
 

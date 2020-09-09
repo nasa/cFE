@@ -600,66 +600,6 @@ uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
 
 } /* End of CFE_TIME_Micro2SubSecs() */
 
-#ifndef CFE_OMIT_DEPRECATED_6_7
-/*
- * Function: CFE_TIME_CFE2FSSeconds - See API and header file for details
- */
-uint32 CFE_TIME_CFE2FSSeconds(uint32 SecondsCFE)
-{
-    /*
-    ** Using a signed integer allows the factor to be negative...
-    */
-    int32 ConvertFactor = CFE_MISSION_TIME_FS_FACTOR;
-
-    /*
-    ** File system time = cFE time + conversion factor...
-    */
-    uint32 SecondsFS = SecondsCFE + (uint32) ConvertFactor;
-
-    /*
-    ** Prevent file system time from going below zero...
-    */
-    if (ConvertFactor < 0)
-    {
-        if (-ConvertFactor > SecondsCFE)
-        {
-            SecondsFS = 0;
-        }
-    }
-
-    return(SecondsFS);
-
-} /* End of CFE_TIME_CFE2FSSeconds() */
-
-
-/*
- * Function: CFE_TIME_FS2CFESeconds() - See API and header file for details
- */
-uint32 CFE_TIME_FS2CFESeconds(uint32 SecondsFS)
-{
-    /*
-    ** Using a signed integer allows the factor to be negative...
-    */
-    int32 ConvertFactor = CFE_MISSION_TIME_FS_FACTOR;
-
-    /*
-    ** cFE time = file system time - conversion factor...
-    */
-    uint32 SecondsCFE = SecondsFS - (uint32) ConvertFactor;
-
-    /*
-    ** Prevent cFE time from going below zero...
-    */
-    if (ConvertFactor > SecondsFS)
-    {
-        SecondsCFE = 0;
-    }
-
-    return(SecondsCFE);
-
-} /* End of CFE_TIME_FS2CFESeconds() */
-#endif /* CFE_OMIT_DEPRECATED_6_7 */
-
 /*
  * Function: CFE_TIME_Print - See API and header file for details
  */
@@ -819,22 +759,27 @@ int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPt
 {
     int32  Status;
     uint32 AppId;
+    uint32 AppIndex;
 
     Status = CFE_ES_GetAppID(&AppId);
+    if (Status == CFE_SUCCESS)
+    {
+        Status = CFE_ES_AppID_ToIndex(AppId, &AppIndex);
+    }
     if (Status != CFE_SUCCESS)
     {
         /* Called from an invalid context */
         return Status;
     }
 
-    if (AppId >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
-        CFE_TIME_TaskData.SynchCallback[AppId].Ptr != NULL)
+    if (AppIndex >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
+        CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr != NULL)
     {
         Status = CFE_TIME_TOO_MANY_SYNCH_CALLBACKS;
     }
     else
     {
-        CFE_TIME_TaskData.SynchCallback[AppId].Ptr = CallbackFuncPtr;
+        CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr = CallbackFuncPtr;
     }
     
     return Status;
@@ -848,22 +793,27 @@ int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFunc
 {
     int32  Status;
     uint32 AppId;
+    uint32 AppIndex;
 
     Status = CFE_ES_GetAppID(&AppId);
+    if (Status == CFE_SUCCESS)
+    {
+        Status = CFE_ES_AppID_ToIndex(AppId, &AppIndex);
+    }
     if (Status != CFE_SUCCESS)
     {
         /* Called from an invalid context */
         return Status;
     }
 
-    if (AppId >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
-            CFE_TIME_TaskData.SynchCallback[AppId].Ptr != CallbackFuncPtr)
+    if (AppIndex >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
+            CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr != CallbackFuncPtr)
     {
         Status = CFE_TIME_CALLBACK_NOT_REGISTERED;
     }
     else
     {
-        CFE_TIME_TaskData.SynchCallback[AppId].Ptr = NULL;
+        CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr = NULL;
     }
     
     return Status;

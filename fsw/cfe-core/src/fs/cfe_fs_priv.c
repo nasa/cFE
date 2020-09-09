@@ -99,8 +99,8 @@ void CFE_FS_LockSharedData(const char *FunctionName)
     {
         CFE_ES_GetAppID(&AppId);
 
-        CFE_ES_WriteToSysLog("FS SharedData Mutex Take Err Stat=0x%x,App=%d,Function=%s\n",
-                (unsigned int)Status,(int)AppId,FunctionName);
+        CFE_ES_WriteToSysLog("FS SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n",
+                (unsigned int)Status,CFE_ES_ResourceID_ToInteger(AppId),FunctionName);
 
     }/* end if */
 
@@ -130,8 +130,8 @@ void CFE_FS_UnlockSharedData(const char *FunctionName)
    if (Status != OS_SUCCESS) 
    {
        CFE_ES_GetAppID(&AppId);
-       CFE_ES_WriteToSysLog("FS SharedData Mutex Give Err Stat=0x%x,App=%d,Function=%s\n",
-               (unsigned int)Status,(int)AppId,FunctionName);
+       CFE_ES_WriteToSysLog("FS SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n",
+               (unsigned int)Status,CFE_ES_ResourceID_ToInteger(AppId),FunctionName);
 
    }/* end if */
    return;

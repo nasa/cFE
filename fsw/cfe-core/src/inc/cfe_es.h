@@ -93,97 +93,6 @@
 #define CFE_ES_NO_MUTEX                 0 /**< \brief Indicates that the memory pool selection will not use a semaphore */
 #define CFE_ES_USE_MUTEX                1 /**< \brief Indicates that the memory pool selection will use a semaphore */
 
-/*
- * To preserve source-code compatibility with existing code,
- * this allows the old enum names to still work.  This should
- * be turned off after the new names are established.
- *  (sed -i -e 's/<old-name>/<new-name>/g' should take care of it)
- *
- * Note about why this is a good idea to do --
- * In the list below there are two values with similar names:
- *   CFE_ES_EXCEPTION, CFE_ES_SYS_EXCEPTION
- *
- * But these map to different values for two different purposes,
- * one is a app status and the other is a reset subtype.  Using the
- * new names makes it much clearer as to which is which, will
- * greatly reduce the chance of getting them mixed up, and make it
- * much more obvious to a code reviewer if the ARE mixed up somewhere.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-#define CFE_ES_PROCESSOR_RESET            CFE_PSP_RST_TYPE_PROCESSOR
-#define CFE_ES_POWERON_RESET              CFE_PSP_RST_TYPE_POWERON
-
-#define CFE_ES_POWER_CYCLE                CFE_PSP_RST_SUBTYPE_POWER_CYCLE
-#define CFE_ES_PUSH_BUTTON                CFE_PSP_RST_SUBTYPE_PUSH_BUTTON
-#define CFE_ES_HW_SPECIAL_COMMAND         CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND
-#define CFE_ES_HW_WATCHDOG                CFE_PSP_RST_SUBTYPE_HW_WATCHDOG
-#define CFE_ES_RESET_COMMAND              CFE_PSP_RST_SUBTYPE_RESET_COMMAND
-#define CFE_ES_EXCEPTION                  CFE_PSP_RST_SUBTYPE_EXCEPTION
-#define CFE_ES_UNDEFINED_RESET            CFE_PSP_RST_SUBTYPE_UNDEFINED_RESET
-#define CFE_ES_HWDEBUG_RESET              CFE_PSP_RST_SUBTYPE_HWDEBUG_RESET
-#define CFE_ES_BANKSWITCH_RESET           CFE_PSP_RST_SUBTYPE_BANKSWITCH_RESET
-
-/*
- * Compatibility Macros for the SystemState enumeration
- */
-#define CFE_ES_SYSTEM_STATE_UNDEFINED       CFE_ES_SystemState_UNDEFINED
-#define CFE_ES_SYSTEM_STATE_EARLY_INIT      CFE_ES_SystemState_EARLY_INIT
-#define CFE_ES_SYSTEM_STATE_CORE_STARTUP    CFE_ES_SystemState_CORE_STARTUP
-#define CFE_ES_SYSTEM_STATE_CORE_READY      CFE_ES_SystemState_CORE_READY
-#define CFE_ES_SYSTEM_STATE_APPS_INIT       CFE_ES_SystemState_APPS_INIT
-#define CFE_ES_SYSTEM_STATE_OPERATIONAL     CFE_ES_SystemState_OPERATIONAL
-#define CFE_ES_SYSTEM_STATE_SHUTDOWN        CFE_ES_SystemState_SHUTDOWN
-
-/*
- * Compatibility Macros for the RunStatus enumeration
- */
-#define CFE_ES_APP_RUN                      CFE_ES_RunStatus_APP_RUN
-#define CFE_ES_APP_EXIT                     CFE_ES_RunStatus_APP_EXIT
-#define CFE_ES_APP_ERROR                    CFE_ES_RunStatus_APP_ERROR
-#define CFE_ES_SYS_EXCEPTION                CFE_ES_RunStatus_SYS_EXCEPTION
-#define CFE_ES_SYS_RESTART                  CFE_ES_RunStatus_SYS_RESTART
-#define CFE_ES_SYS_RELOAD                   CFE_ES_RunStatus_SYS_RELOAD
-#define CFE_ES_SYS_DELETE                   CFE_ES_RunStatus_SYS_DELETE
-#define CFE_ES_CORE_APP_INIT_ERROR          CFE_ES_RunStatus_CORE_APP_INIT_ERROR
-#define CFE_ES_CORE_APP_RUNTIME_ERROR       CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR
-
-/*
- * Compatibility Macros for the AppState enumeration
- */
-#define CFE_ES_APP_STATE_UNDEFINED          CFE_ES_AppState_UNDEFINED
-#define CFE_ES_APP_STATE_EARLY_INIT         CFE_ES_AppState_EARLY_INIT
-#define CFE_ES_APP_STATE_LATE_INIT          CFE_ES_AppState_LATE_INIT
-#define CFE_ES_APP_STATE_RUNNING            CFE_ES_AppState_RUNNING
-#define CFE_ES_APP_STATE_WAITING            CFE_ES_AppState_WAITING
-#define CFE_ES_APP_STATE_STOPPED            CFE_ES_AppState_STOPPED
-
-/*
- * Compatibility Macros for the AppType enumeration
- */
-#define CFE_ES_APP_TYPE_CORE                CFE_ES_AppType_CORE
-#define CFE_ES_APP_TYPE_EXTERNAL            CFE_ES_AppType_EXTERNAL
-
-/*
- * Compatibility Macros for the LogMode enumeration
- */
-#define CFE_ES_LOG_DISCARD                  CFE_ES_LogMode_DISCARD
-#define CFE_ES_LOG_OVERWRITE                CFE_ES_LogMode_OVERWRITE
-
-/*
- * Compatibility Macros for the ExceptionAction enumeration
- */
-#define CFE_ES_APP_EXCEPTION_RESTART_APP    CFE_ES_ExceptionAction_RESTART_APP
-#define CFE_ES_APP_EXCEPTION_PROC_RESTART   CFE_ES_ExceptionAction_PROC_RESTART
-
-/*
- * Compatibility Macros for the LogEntryType enumeration
- */
-#define CFE_ES_CORE_LOG_ENTRY               CFE_ES_LogEntryType_CORE
-#define CFE_ES_APPLICATION_LOG_ENTRY        CFE_ES_LogEntryType_APPLICATION
-
-
-#endif
 
 /*****************************************************************************/
 /*
@@ -197,6 +106,101 @@
  *  created via CFE_ES_PoolCreate and CFE_ES_PoolCreateNoSem
  */
 typedef cpuaddr CFE_ES_MemHandle_t;
+
+/**
+ * @brief Convert a resource ID to an integer.
+ *
+ * This is primarily intended for logging purposes, such was writing
+ * to debug console, event messages, or log files, using printf-like APIs.
+ *
+ * For compatibility with C library APIs, this returns an "unsigned long"
+ * type and should be used with the "%lx" format specifier in a printf
+ * format string.
+ *
+ * @note No assumptions should be made about the actual integer value,
+ * such as its base/range.  It may be printed, but should not be modified
+ * or tested/compared using other arithmetic ops, and should never be used
+ * as the index to an array or table.  See the related function
+ * CFE_ES_ResourceID_ToIndex() for cases where a zero-based array/table index
+ * is needed.
+ *
+ * @sa CFE_ES_ResourceID_FromInteger()
+ *
+ * @param[in]   id    Resource ID to convert
+ * @returns Integer value corresponding to ID
+ */
+static inline unsigned long CFE_ES_ResourceID_ToInteger(uint32 id)
+{
+    return (id);
+}
+
+/**
+ * @brief Convert an integer to a resource ID.
+ *
+ * This is the inverse of CFE_ES_ResourceID_ToInteger(), and reconstitutes
+ * the original CFE_ES_ResourceID_t value from the integer representation.
+ *
+ * This may be used, for instance, where an ID value is parsed from a text
+ * file or message using C library APIs such as scanf() or strtoul().
+ *
+ * @sa CFE_ES_ResourceID_ToInteger()
+ *
+ * @param[in]   Value    Integer value to convert
+ * @returns ID value corresponding to integer
+ */
+static inline uint32 CFE_ES_ResourceID_FromInteger(unsigned long Value)
+{
+    return (Value);
+}
+
+
+/**
+ * @brief Obtain an index value correlating to an ES Application ID
+ *
+ * This calculates a zero based integer value that may be used for indexing
+ * into a local resource table/array.
+ *
+ * Index values are only guaranteed to be unique for resources of the same
+ * type.  For instance, the indices corresponding to two [valid] application
+ * IDs will never overlap, but the index of an application and a library ID
+ * may be the same.  Furthermore, indices may be reused if a resource is
+ * deleted and re-created.
+ *
+ * @note There is no inverse of this function - indices cannot be converted
+ * back to the original AppID value.  The caller should retain the original ID
+ * for future use.
+ *
+ * @param[in]   AppID  Application ID to convert
+ * @param[out]  Idx    Buffer where the calculated index will be stored
+ *
+ * @return Execution status, see @ref CFEReturnCodes
+ * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
+ */
+int32 CFE_ES_AppID_ToIndex(uint32 AppID, uint32 *Idx);
+
+/**
+ * @brief Obtain an index value correlating to an ES Task ID
+ *
+ * This calculates a zero based integer value that may be used for indexing
+ * into a local resource table/array.
+ *
+ * Index values are only guaranteed to be unique for resources of the same
+ * type.  For instance, the indices corresponding to two [valid] Task
+ * IDs will never overlap, but the index of an Task and a library ID
+ * may be the same.  Furthermore, indices may be reused if a resource is
+ * deleted and re-created.
+ *
+ * @note There is no inverse of this function - indices cannot be converted
+ * back to the original TaskID value.  The caller should retain the original ID
+ * for future use.
+ *
+ * @param[in]   TaskID  Task ID to convert
+ * @param[out]  Idx     Buffer where the calculated index will be stored
+ *
+ * @return Execution status, see @ref CFEReturnCodes
+ * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
+ */
+int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx);
 
 /**
  * \brief Application Information
@@ -683,6 +687,28 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr);
 **
 ******************************************************************************/
 int32 CFE_ES_GetAppID(uint32 *AppIdPtr);
+
+/*****************************************************************************/
+/**
+** \brief Get the task ID of the calling context
+**
+** \par Description
+**        This retrieves the current task context from OSAL
+**
+** \par Assumptions, External Events, and Notes:
+**        Applications which desire to call other CFE ES services such as
+**        CFE_ES_TaskGetInfo() should use this API rather than getting the ID
+**        from OSAL directly via OS_TaskGetId().
+**
+** \param[out]   TaskIdPtr      Pointer to variable that is to receive the ID.
+**                              Will be set to the ID of the calling task.
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_TASKID    \copybrief CFE_ES_ERR_TASKID
+**
+******************************************************************************/
+int32 CFE_ES_GetTaskID(uint32 *TaskIdPtr);
 
 /*****************************************************************************/
 /**

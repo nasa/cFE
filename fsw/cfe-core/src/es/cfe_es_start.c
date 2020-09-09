@@ -85,6 +85,8 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
 {
    uint32 i;
    int32 ReturnCode;
+   CFE_ES_AppRecord_t *AppRecPtr;
+   CFE_ES_TaskRecord_t *TaskRecPtr;
 
    /*
    ** Indicate that the CFE is the earliest initialization state
@@ -176,18 +178,22 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    ** Initialize the ES Application Table
    ** to mark all entries as unused.
    */
+   AppRecPtr = CFE_ES_Global.AppTable;
    for ( i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++ )
    {
-      CFE_ES_Global.AppTable[i].AppState = CFE_ES_AppState_UNDEFINED;
+       CFE_ES_AppRecordSetFree(AppRecPtr);
+       ++AppRecPtr;
    }
    
    /*
    ** Initialize the ES Task Table
    ** to mark all entries as unused.
    */
+   TaskRecPtr = CFE_ES_Global.TaskTable;
    for ( i = 0; i < OS_MAX_TASKS; i++ )
    {
-      CFE_ES_Global.TaskTable[i].RecordUsed = false;
+       CFE_ES_TaskRecordSetFree(TaskRecPtr);
+       ++TaskRecPtr;
    }
 
    /*
@@ -345,10 +351,10 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
    ** Determine how the system was started. The choices are:
    **   CFE_ES_POWER_ON_RESET, or CFE_PSP_RST_TYPE_PROCESSOR
    ** The subtypes include:
-   **   CFE_PSP_RST_SUBTYPE_POWER_CYCLE, CFE_ES_PUSH_BUTTON, CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND,
-   **   CFE_ES_HW_WATCHDOG, CFE_PSP_RST_TYPE_COMMAND, or CFE_ES_EXCEPTION.
+   **   CFE_PSP_RST_SUBTYPE_POWER_CYCLE, CFE_PSP_RST_SUBTYPE_PUSH_BUTTON, CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND,
+   **   CFE_PSP_RST_SUBTYPE_HW_WATCHDOG, CFE_PSP_RST_TYPE_COMMAND, or CFE_PSP_RST_SUBTYPE_EXCEPTION.
    ** Some of these reset types are logged before the system is restarted.
-   **  ( CFE_PSP_RST_TYPE_COMMAND, CFE_ES_EXCEPTION ) while others occur
+   **  ( CFE_PSP_RST_TYPE_COMMAND, CFE_PSP_RST_SUBTYPE_EXCEPTION ) while others occur
    **  without the knowledge of the software and must be logged here.
    */
    if ( StartType == CFE_PSP_RST_TYPE_POWERON )
@@ -764,10 +770,12 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
 void  CFE_ES_CreateObjects(void)
 {
     int32     ReturnCode;
-    uint32    TaskIndex;
     bool      AppSlotFound;
     uint16    i;
     uint16    j;
+    uint32    OsalId;
+    CFE_ES_AppRecord_t *AppRecPtr;
+    CFE_ES_TaskRecord_t *TaskRecPtr;
 
     CFE_ES_WriteToSysLog("ES Startup: Starting Object Creation calls.\n");
 
@@ -782,13 +790,15 @@ void  CFE_ES_CreateObjects(void)
             ** Allocate an ES AppTable entry
             */
             AppSlotFound = false;
+            AppRecPtr = CFE_ES_Global.AppTable;
             for ( j = 0; j < CFE_PLATFORM_ES_MAX_APPLICATIONS; j++ )
             {
-               if ( CFE_ES_Global.AppTable[j].AppState == CFE_ES_AppState_UNDEFINED )
+               if ( !CFE_ES_AppRecordIsUsed(AppRecPtr) )
                {
                   AppSlotFound = true;
                   break;
                }
+               ++AppRecPtr;
             }
 
             /*
@@ -802,38 +812,38 @@ void  CFE_ES_CreateObjects(void)
                /*
                ** Allocate and populate the ES_AppTable entry
                */
-               memset ( &(CFE_ES_Global.AppTable[j]), 0, sizeof(CFE_ES_AppRecord_t));
+               memset ( AppRecPtr, 0, sizeof(CFE_ES_AppRecord_t));
                /*
                ** Core apps still have the notion of an init/running state
                ** Set the state here to mark the record as used.
                */
-               CFE_ES_Global.AppTable[j].AppState = CFE_ES_AppState_EARLY_INIT;
+               CFE_ES_AppRecordSetUsed(AppRecPtr, j);
                
-               CFE_ES_Global.AppTable[j].Type = CFE_ES_AppType_CORE;
+               AppRecPtr->Type = CFE_ES_AppType_CORE;
                
                /*
                ** Fill out the parameters in the AppStartParams sub-structure
                */         
-               strncpy((char *)CFE_ES_Global.AppTable[j].StartParams.Name, (char *)CFE_ES_ObjectTable[i].ObjectName, OS_MAX_API_NAME);
-               CFE_ES_Global.AppTable[j].StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
+               strncpy((char *)AppRecPtr->StartParams.Name, (char *)CFE_ES_ObjectTable[i].ObjectName, OS_MAX_API_NAME);
+               AppRecPtr->StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
                /* EntryPoint field is not valid here for base apps */
                /* FileName is not valid for base apps, either */
-               CFE_ES_Global.AppTable[j].StartParams.StackSize = CFE_ES_ObjectTable[i].ObjectSize;
-               CFE_ES_Global.AppTable[j].StartParams.StartAddress = (cpuaddr)CFE_ES_ObjectTable[i].FuncPtrUnion.VoidPtr;
-               CFE_ES_Global.AppTable[j].StartParams.ExceptionAction = CFE_ES_ExceptionAction_PROC_RESTART;
-               CFE_ES_Global.AppTable[j].StartParams.Priority = CFE_ES_ObjectTable[i].ObjectPriority;
+               AppRecPtr->StartParams.StackSize = CFE_ES_ObjectTable[i].ObjectSize;
+               AppRecPtr->StartParams.StartAddress = (cpuaddr)CFE_ES_ObjectTable[i].FuncPtrUnion.VoidPtr;
+               AppRecPtr->StartParams.ExceptionAction = CFE_ES_ExceptionAction_PROC_RESTART;
+               AppRecPtr->StartParams.Priority = CFE_ES_ObjectTable[i].ObjectPriority;
                
                
                /*
                ** Fill out the Task Info
                */
-               strncpy((char *)CFE_ES_Global.AppTable[j].TaskInfo.MainTaskName, (char *)CFE_ES_ObjectTable[i].ObjectName, OS_MAX_API_NAME);
-               CFE_ES_Global.AppTable[j].TaskInfo.MainTaskName[OS_MAX_API_NAME - 1] = '\0';
+               strncpy((char *)AppRecPtr->TaskInfo.MainTaskName, (char *)CFE_ES_ObjectTable[i].ObjectName, OS_MAX_API_NAME);
+               AppRecPtr->TaskInfo.MainTaskName[OS_MAX_API_NAME - 1] = '\0';
                
                /*
                ** Create the task
                */
-               ReturnCode = OS_TaskCreate(&CFE_ES_Global.AppTable[j].TaskInfo.MainTaskId, /* task id */
+               ReturnCode = OS_TaskCreate(&OsalId,                               /* task id */
                                   CFE_ES_ObjectTable[i].ObjectName,              /* task name */
                                   CFE_ES_ObjectTable[i].FuncPtrUnion.MainAppPtr, /* task function pointer */
                                   NULL,                                          /* stack pointer */
@@ -843,7 +853,7 @@ void  CFE_ES_CreateObjects(void)
 
                if(ReturnCode != OS_SUCCESS)
                {
-                  CFE_ES_Global.AppTable[j].AppState = CFE_ES_AppState_UNDEFINED;
+                  CFE_ES_AppRecordSetFree(AppRecPtr);
                   CFE_ES_UnlockSharedData(__func__,__LINE__);
 
                   CFE_ES_WriteToSysLog("ES Startup: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n",
@@ -862,27 +872,25 @@ void  CFE_ES_CreateObjects(void)
                }
                else
                {
-                  OS_ConvertToArrayIndex(CFE_ES_Global.AppTable[j].TaskInfo.MainTaskId, &TaskIndex);
+                  AppRecPtr->TaskInfo.MainTaskId = OsalId;
+                  TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->TaskInfo.MainTaskId);
 
                   /*
                   ** Allocate and populate the CFE_ES_Global.TaskTable entry
                   */
-                  if ( CFE_ES_Global.TaskTable[TaskIndex].RecordUsed == true )
+                  if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) )
                   {
                      CFE_ES_SysLogWrite_Unsync("ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
                                            CFE_ES_ObjectTable[i].ObjectName);
                   }
-                  else
-                  {
-                     CFE_ES_Global.TaskTable[TaskIndex].RecordUsed = true;
-                  }
-                  CFE_ES_Global.TaskTable[TaskIndex].AppId = j;
-                  CFE_ES_Global.TaskTable[TaskIndex].TaskId = CFE_ES_Global.AppTable[j].TaskInfo.MainTaskId;
-                  strncpy((char *)CFE_ES_Global.TaskTable[TaskIndex].TaskName, (char *)CFE_ES_Global.AppTable[j].TaskInfo.MainTaskName, OS_MAX_API_NAME);
-                  CFE_ES_Global.TaskTable[TaskIndex].TaskName[OS_MAX_API_NAME - 1] = '\0';
+                  CFE_ES_TaskRecordSetUsed(TaskRecPtr, AppRecPtr->TaskInfo.MainTaskId);
+                  TaskRecPtr->AppId = CFE_ES_AppRecordGetID(AppRecPtr);
+                  strncpy((char *)TaskRecPtr->TaskName, (char *)AppRecPtr->TaskInfo.MainTaskName, OS_MAX_API_NAME);
+                  TaskRecPtr->TaskName[OS_MAX_API_NAME - 1] = '\0';
 
-                  CFE_ES_SysLogWrite_Unsync("ES Startup: Core App: %s created. App ID: %d\n",
-                                       CFE_ES_ObjectTable[i].ObjectName,j);
+                  CFE_ES_SysLogWrite_Unsync("ES Startup: Core App: %s created. App ID: %lu\n",
+                                       CFE_ES_ObjectTable[i].ObjectName,
+                                       CFE_ES_ResourceID_ToInteger(CFE_ES_AppRecordGetID(AppRecPtr)));
                                        
                   /*
                   ** Increment the registered App and Registered External Task variables.
@@ -988,6 +996,7 @@ int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds)
     uint32 WaitTime;
     uint32 WaitRemaining;
     uint32 AppNotReadyCounter;
+    CFE_ES_AppRecord_t *AppRecPtr;
 
     Status = CFE_ES_OPERATION_TIMED_OUT;
     WaitRemaining = TimeOutMilliseconds;
@@ -999,13 +1008,15 @@ int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds)
          * Count the number of apps that are NOT in (at least) in the state requested
          */
         CFE_ES_LockSharedData(__func__,__LINE__);
+        AppRecPtr = CFE_ES_Global.AppTable;
         for ( i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++ )
         {
-           if (CFE_ES_Global.AppTable[i].AppState != CFE_ES_AppState_UNDEFINED &&
-               (CFE_ES_Global.AppTable[i].AppState < AppStateId))
+           if ( CFE_ES_AppRecordIsUsed(AppRecPtr) &&
+               (AppRecPtr->AppState < AppStateId))
            {
                ++AppNotReadyCounter;
            }
+           ++AppRecPtr;
         }
         CFE_ES_UnlockSharedData(__func__,__LINE__);
 

@@ -602,7 +602,7 @@
           - Operating in FLYWHEEL mode is not considered a choice related
           to clock source, but rather an element of the clock state.  See below
           for a description of the #CFE_TIME_SET_STATE_CC command.
-          - This command is only valid when the #CFE_TIME_CFG_SOURCE configuration
+          - This command is only valid when the #CFE_PLATFORM_TIME_CFG_SOURCE configuration
           parameter in the cfe_platform_cfg.h file has been set to true.
           \cfecmdmnemonic  \TIME_SETSOURCE
 
@@ -1202,7 +1202,7 @@
           hardware configuration.
           
           Notes:
-          - This command is only valid when the #CFE_TIME_CFG_SIGNAL configuration
+          - This command is only valid when the #CFE_PLATFORM_TIME_CFG_SIGNAL configuration
           parameter in the cfe_platform_cfg.h file has been set to true.
           \cfecmdmnemonic  \TIME_SETSIGNAL
 

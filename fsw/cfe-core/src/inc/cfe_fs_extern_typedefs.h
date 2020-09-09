@@ -103,8 +103,7 @@ enum CFE_FS_SubType
     *
     *
     * Executive Services Shell Response Data File which is generated in response to a
-    * \link #CFE_ES_SHELL_CC \ES_SHELL \endlink
-    * command.
+    * shell command.
     *
     */
    CFE_FS_SubType_ES_SHELL                            = 5,

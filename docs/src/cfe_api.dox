@@ -106,12 +106,6 @@
 	  <LI> #CFE_FS_WriteHeader - \copybrief CFE_FS_WriteHeader
 	  <LI> #CFE_FS_SetTimestamp - \copybrief CFE_FS_SetTimestamp
     </UL>
-    <LI> \ref CFEAPIFSCompress
-    <UL>
-	  <LI> #CFE_FS_IsGzFile - \copybrief CFE_FS_IsGzFile
-	  <LI> #CFE_FS_Decompress - \copybrief CFE_FS_Decompress
-          <LI> #CFE_FS_GetUncompressedFile - \copybrief CFE_FS_GetUncompressedFile
-    </UL>
     <LI> \ref CFEAPIFSUtil
     <UL>
 	  <LI> #CFE_FS_ExtractFilenameFromPath - \copybrief CFE_FS_ExtractFilenameFromPath
@@ -169,7 +163,6 @@
       <LI> #CFE_SB_GetTotalMsgLength - \copybrief CFE_SB_GetTotalMsgLength
       <LI> #CFE_SB_GetMsgTime - \copybrief CFE_SB_GetMsgTime
       <LI> #CFE_SB_GetCmdCode - \copybrief CFE_SB_GetCmdCode
-      <LI> #CFE_SB_GetLastSenderId - \copybrief CFE_SB_GetLastSenderId
       <LI> #CFE_SB_MessageStringGet - \copybrief CFE_SB_MessageStringGet
     </UL>
     <LI> \ref CFEAPISBChecksum
@@ -247,8 +240,6 @@
       <LI> #CFE_TIME_MET2SCTime - \copybrief CFE_TIME_MET2SCTime
       <LI> #CFE_TIME_Sub2MicroSecs - \copybrief CFE_TIME_Sub2MicroSecs
       <LI> #CFE_TIME_Micro2SubSecs - \copybrief CFE_TIME_Micro2SubSecs
-      <LI> #CFE_TIME_CFE2FSSeconds - \copybrief CFE_TIME_CFE2FSSeconds
-      <LI> #CFE_TIME_FS2CFESeconds - \copybrief CFE_TIME_FS2CFESeconds
     </UL>
     <LI> \ref CFEAPITIMEExternSource
     <UL>

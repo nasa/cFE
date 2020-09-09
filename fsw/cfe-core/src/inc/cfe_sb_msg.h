@@ -651,7 +651,7 @@ typedef struct {
                                                 \brief Max number of SB message buffers in use */
 
     uint32              MaxPipeDepthAllowed;/**< \cfetlmmnemonic \SB_SMMPDALW
-                                                 \brief cFE Cfg Param \link #CFE_SB_MAX_PIPE_DEPTH \endlink */
+                                                 \brief cFE Cfg Param \link #CFE_PLATFORM_SB_MAX_PIPE_DEPTH \endlink */
     CFE_SB_PipeDepthStats_t PipeDepthStats[CFE_MISSION_SB_MAX_PIPES];/**< \cfetlmmnemonic \SB_SMPDS
                                                                   \brief Pipe Depth Statistics #CFE_SB_PipeDepthStats_t*/
 } CFE_SB_StatsTlm_Payload_t;
@@ -751,22 +751,6 @@ typedef struct{
     CFE_SB_TlmHdr_t             Hdr;/**< \brief cFE Software Bus Telemetry Message Header */
     CFE_SB_AllSubscriptionsTlm_Payload_t Payload;
 } CFE_SB_AllSubscriptionsTlm_t;
-
-/*
- * COMPATIBILITY TYPEDEFS:
- * In some circumstances applications may subscribe to telemetry from this component,
- * and therefore the name changes may break existing code.  For these situations a
- * typedef is created to continue supporting the previous name.  These should be
- * removed in the next CFE release.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-typedef CFE_SB_HousekeepingTlm_t        CFE_SB_HKMsg_t;
-typedef CFE_SB_StatsTlm_t               CFE_SB_StatMsg_t;
-typedef CFE_SB_AllSubscriptionsTlm_t    CFE_SB_PrevSubMsg_t;
-typedef CFE_SB_SingleSubscriptionTlm_t  CFE_SB_SubRprtMsg_t;
-
-#endif /* CFE_OMIT_DEPRECATED_6_6 */
 
 
 #endif /* _cfe_sb_msg_ */

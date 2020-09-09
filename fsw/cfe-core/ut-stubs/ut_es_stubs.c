@@ -60,6 +60,25 @@
 #define CFE_UT_ES_POOL_STATIC_BLOCK_SIZE    4096
 
 /*
+ * Default value to return from calls that output an App ID, if the
+ * test case does not provide a value
+ */
+#define CFE_UT_ES_DEFAULT_APPID     ((uint32)1)
+
+/*
+ * Default value to return from calls that output a Task ID, if the
+ * test case does not provide a value
+ */
+#define CFE_UT_ES_DEFAULT_TASKID    ((uint32)1)
+
+/*
+ * Invalid value to output from calls as resource ID for the
+ * calls that return failure.  If subsequently used by application code,
+ * it will likely induce a segfault or other noticeably bad behavior.
+ */
+#define CFE_UT_ES_ID_INVALID        ((uint32)0xDEADBEEF)
+
+/*
 ** Functions
 */
 /*****************************************************************************/
@@ -145,8 +164,45 @@ int32 CFE_ES_GetAppID(uint32 *AppIdPtr)
         }
         else
         {
-            *AppIdPtr = 0;
+            *AppIdPtr = CFE_UT_ES_DEFAULT_APPID;
         }
+    }
+
+    if (status < 0)
+    {
+        *AppIdPtr = CFE_UT_ES_ID_INVALID;
+    }
+
+    return status;
+}
+
+int32 CFE_ES_GetTaskID(uint32 *TaskIdPtr)
+{
+    UT_Stub_RegisterContext(UT_KEY(CFE_ES_GetTaskID), TaskIdPtr);
+
+    int32 status;
+    uint32 *IdBuff;
+    uint32 BuffSize;
+    uint32 Position;
+
+    status = UT_DEFAULT_IMPL(CFE_ES_GetTaskID);
+
+    if (status >= 0)
+    {
+        UT_GetDataBuffer(UT_KEY(CFE_ES_GetTaskID), (void **)&IdBuff, &BuffSize, &Position);
+        if (IdBuff != NULL && BuffSize == sizeof(*TaskIdPtr))
+        {
+            *TaskIdPtr = *IdBuff;
+        }
+        else
+        {
+            *TaskIdPtr = CFE_UT_ES_DEFAULT_TASKID;
+        }
+    }
+
+    if (status < 0)
+    {
+        *TaskIdPtr = CFE_UT_ES_ID_INVALID;
     }
 
     return status;
@@ -204,9 +260,14 @@ int32 CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName)
             }
             else
             {
-                *AppIdPtr = 0;
+                *AppIdPtr = CFE_UT_ES_DEFAULT_APPID;
             }
         }
+    }
+
+    if (status < 0)
+    {
+        *AppIdPtr = CFE_UT_ES_ID_INVALID;
     }
 
     return status;
@@ -751,7 +812,7 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, uint32 TaskId)
         if (UT_Stub_CopyToLocal(UT_KEY(CFE_ES_GetTaskInfo), (uint8*)TaskInfo, sizeof(*TaskInfo)) < sizeof(*TaskInfo))
         {
             memset(TaskInfo, 0, sizeof(*TaskInfo));
-            TaskInfo->AppId = 3; /* Fake ID number */
+            TaskInfo->AppId = CFE_UT_ES_DEFAULT_APPID;
             strncpy((char *) &TaskInfo->AppName, "UT", sizeof(TaskInfo->AppName));
             strncpy((char *) &TaskInfo->TaskName, "UT", sizeof(TaskInfo->TaskName));
         }
@@ -1201,3 +1262,50 @@ int32 CFE_ES_SetGenCount(uint32 CounterId, uint32 Count)
     return status;
 }
 
+int32 CFE_ES_AppID_ToIndex(uint32 AppID, uint32 *Idx)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_AppID_ToIndex), AppID);
+    UT_Stub_RegisterContext(UT_KEY(CFE_ES_AppID_ToIndex), Idx);
+
+    int32 return_code;
+
+    *Idx = AppID & 0xFFFF;
+    return_code = UT_DEFAULT_IMPL_RC(CFE_ES_AppID_ToIndex, 1);
+
+    if (return_code == 1)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_ES_AppID_ToIndex), Idx, sizeof(*Idx));
+        return_code = CFE_SUCCESS;
+    }
+
+    if (return_code != CFE_SUCCESS)
+    {
+        *Idx = 0xDEADBEEFU;
+    }
+
+    return return_code;
+}
+
+int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_TaskID_ToIndex), TaskID);
+    UT_Stub_RegisterContext(UT_KEY(CFE_ES_TaskID_ToIndex), Idx);
+
+    int32 return_code;
+
+    *Idx = TaskID & 0xFFFF;
+    return_code = UT_DEFAULT_IMPL_RC(CFE_ES_TaskID_ToIndex, 1);
+
+    if (return_code == 1)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_ES_TaskID_ToIndex), Idx, sizeof(*Idx));
+        return_code = CFE_SUCCESS;
+    }
+
+    if (return_code != CFE_SUCCESS)
+    {
+        *Idx = 0xDEADBEEFU;
+    }
+
+    return return_code;
+}

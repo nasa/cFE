@@ -142,7 +142,7 @@
   message, ALL event messages of the specified type are affected.  Typically, event 
   meesages of type DEBUG are disabled on-orbit.  Note that EVS provides the capability 
   to affect multiple types within one command using a bit mask.  Note also that the 
-  configuration parameter #CFE_EVS_DEFAULT_TYPE_FLAG in the cfe_platform_cfg.h file 
+  configuration parameter #CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG in the cfe_platform_cfg.h file 
   specifies which event message types are enabled/disabled by default.  
 
   <CENTER><H2> Event Message Control - By Application </H2></CENTER>
@@ -170,7 +170,7 @@
   the events that it wants to register for filtering along with the 
   \ref cfeevsugmsgfilter (only the Binary Filtering Scheme 
   exists currently).   Note that applications are limited in the number of events that 
-  they can register for filtering (see #CFE_EVS_MAX_EVENT_FILTERS in cfe_platform_cfg.h 
+  they can register for filtering (see #CFE_PLATFORM_EVS_MAX_EVENT_FILTERS in cfe_platform_cfg.h 
   for the mission defined limit).  The filtering method uses a mask to determine if the 
   message is forwarded to the software bus, making it available in telemetry (see 
   \ref cfeevsugmsgfilter for a description on filtering).  Commands are available to 
@@ -340,7 +340,7 @@
      <LI> Active Flag - If equal to FALSE (0), all events from this Application are Filtered <BR>
      <LI> Event Count - Total number of events issued by this Application.  Note that this value
      stop incrementing at 65535. <BR>
-     <BR>The following information for each Filtered Event (up to #CFE_EVS_MAX_EVENT_FILTERS): <BR><BR>
+     <BR>The following information for each Filtered Event (up to #CFE_PLATFORM_EVS_MAX_EVENT_FILTERS): <BR><BR>
      <LI> Event ID - Event ID for event whose filter has been defined <BR>
      <LI> Mask - Binary Filter mask value (see \ref cfeevsugmsgfilter for an explanation) <BR>
      <LI> Count - Current number of times this Event ID has been issued by this Application <BR>

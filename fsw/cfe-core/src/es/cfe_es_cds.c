@@ -528,35 +528,6 @@ int32 CFE_ES_UpdateCDSRegistry(void)
     return Status;
 }
 
-/*******************************************************************
-**
-** CFE_ES_CDS_ValidateAppID
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
-int32 CFE_ES_CDS_ValidateAppID(uint32 *AppIdPtr)
-{
-    int32 Status = CFE_ES_GetAppID(AppIdPtr);
-
-    if (Status == CFE_SUCCESS)
-    {
-        if (*AppIdPtr >= CFE_PLATFORM_ES_MAX_APPLICATIONS)
-        {
-            Status = CFE_ES_ERR_APPID;
-
-            CFE_ES_WriteToSysLog("CFE_CDS:ValidateAppID-AppId=%d > Max Apps (%d)\n",
-                                 (int)(*AppIdPtr), CFE_PLATFORM_ES_MAX_APPLICATIONS);
-        }
-    }
-    else
-    {
-        CFE_ES_WriteToSysLog("CFE_CDS:ValidateAppID-GetAppID failed (Stat=0x%08X)\n", (unsigned int)Status);
-    }
-
-    return Status;
-}   /* End of CFE_ES_CDS_ValidateAppID() */
-
 
 /*******************************************************************
 **
@@ -637,13 +608,10 @@ int32 CFE_ES_UnlockCDSRegistry(void)
 int32 CFE_ES_FindCDSInRegistry(const char *CDSName)
 {
     int32 RegIndx = CFE_ES_CDS_NOT_FOUND;
-    int32 i = -1;
+    uint32 i = 0;
 
-    do
+    while ( (RegIndx == CFE_ES_CDS_NOT_FOUND) && (i < CFE_ES_Global.CDSVars.MaxNumRegEntries) )
     {
-        /* Point to next record in the CDS Registry */
-        i++;
-
         /* Check to see if the record is currently being used */
         if (CFE_ES_Global.CDSVars.Registry[i].Taken == true)
         {
@@ -654,7 +622,11 @@ int32 CFE_ES_FindCDSInRegistry(const char *CDSName)
                 RegIndx = i;
             }
         }
-    } while ( (RegIndx == CFE_ES_CDS_NOT_FOUND) && (i < (CFE_ES_Global.CDSVars.MaxNumRegEntries-1)) );
+
+        /* Point to next record in the CDS Registry */
+        i++;
+
+    };
 
     return RegIndx;
 }   /* End of CFE_ES_FindCDSInRegistry() */
@@ -670,7 +642,7 @@ int32 CFE_ES_FindCDSInRegistry(const char *CDSName)
 int32 CFE_ES_FindFreeCDSRegistryEntry(void)
 {
     int32 RegIndx = CFE_ES_CDS_NOT_FOUND;
-    int32 i = 0;
+    uint32 i = 0;
 
     while ( (RegIndx == CFE_ES_CDS_NOT_FOUND) && (i < CFE_ES_Global.CDSVars.MaxNumRegEntries) )
     {

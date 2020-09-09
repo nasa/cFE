@@ -345,7 +345,7 @@ void CFE_ES_PerfLogDump(void);
  *
  * \param EntryType Whether the event is relevant to the CORE or an APPLICATION (#CFE_ES_LogEntryType_Enum_t)
  * \param ResetType The type of the last reset
- * \param ResetSubType The subtype of the last reset
+ * \param ResetSubtype The subtype of the last reset
  * \param Description A summary of the event
  *
  * \return CFE_SUCCESS if successful, or an appropriate error code from cfe_error.h

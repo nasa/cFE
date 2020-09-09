@@ -88,21 +88,6 @@
 #define CFE_TBL_REG_TLM_MID         CFE_MISSION_TLM_MID_BASE1 + CFE_MISSION_TBL_REG_TLM_MSG     /* 0x080C */
 #define CFE_SB_ALLSUBS_TLM_MID      CFE_MISSION_TLM_MID_BASE1 + CFE_MISSION_SB_ALLSUBS_TLM_MSG  /* 0x080D */
 #define CFE_SB_ONESUB_TLM_MID       CFE_MISSION_TLM_MID_BASE1 + CFE_MISSION_SB_ONESUB_TLM_MSG   /* 0x080E */
-
-#ifndef CFE_OMIT_DEPRECATED_6_7
-  #define CFE_ES_SHELL_TLM_MID        CFE_MISSION_TLM_MID_BASE1 + CFE_MISSION_ES_SHELL_TLM_MSG    /* 0x080F */
-#endif
-
 #define CFE_ES_MEMSTATS_TLM_MID     CFE_MISSION_TLM_MID_BASE1 + CFE_MISSION_ES_MEMSTATS_TLM_MSG /* 0x0810 */
-
-/*
- * MID definitions by these older names are required to make some existing apps compile
- * These are deprecated and should be removed after CFE 6.6
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-#define CFE_EVS_EVENT_MSG_MID        CFE_EVS_LONG_EVENT_MSG_MID
-
-#endif
 
 #endif

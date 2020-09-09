@@ -127,7 +127,7 @@
   in the subscription is sometimes referred to as the destination of the message.
   There are a maximum number of destinations for a particular message. This
   value is specified by the platform configuration parameter
-  #CFE_SB_MAX_DEST_PER_PKT.
+  #CFE_PLATFORM_SB_MAX_DEST_PER_PKT.
 
   As subscriptions are received, the destinations are added to the head of a
   linked list. During the sending of a message, the list is traversed beginning
@@ -158,10 +158,10 @@
 
   The software bus statically allocates a block of memory for message buffers and
   subscription blocks. The size of this memory block is defined by the platform configuration
-  parameter #CFE_SB_BUF_MEMORY_BYTES. The memory is managed by the cFE ES memory
+  parameter #CFE_PLATFORM_SB_BUF_MEMORY_BYTES. The memory is managed by the cFE ES memory
   pool and is used only by the software bus. The ES memory pool allows an application to define
   the block sizes for the pool at compile time. These sizes are defined by the platform
-  configuration parameters prefixed with CFE_SB_MEM_BLOCK_SIZE (for example, #CFE_SB_MEM_BLOCK_SIZE_01).
+  configuration parameters prefixed with CFE_SB_MEM_BLOCK_SIZE (for example, #CFE_PLATFORM_SB_MEM_BLOCK_SIZE_01).
   It is recommended that a project tailor these values for the mission, based on the software
   bus packet sizes.
 
@@ -179,7 +179,7 @@
   The software bus provides a set of figures regarding memory capacity, current memory
   utilization and high water marks relevant to the SB memory pool. This information may be
   requested by sending the command to dump the SB statistics packet. In addition, the
-  current memory utilization value and the 'unmarked memory' value (#CFE_SB_BUF_MEMORY_BYTES
+  current memory utilization value and the 'unmarked memory' value (#CFE_PLATFORM_SB_BUF_MEMORY_BYTES
   minus peak memory in use)  are sent in software bus housekeeping telemetry. The unmarked
   memory value  should be monitored regularly to ensure that the value (in bytes) does not
   continue to decline or approach zero. If this value were to approach zero, there is a
@@ -336,7 +336,7 @@
   If this error occurs during nominal conditions, it could be an indication that the
   'message limit' is not set correctly. The message limit is given at the time of the
   subscription and given as a parameter in the subscribe API. With the #CFE_SB_Subscribe
-  API, the SB uses a default message limit value specified by #CFE_SB_DEFAULT_MSG_LIMIT.
+  API, the SB uses a default message limit value specified by #CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT.
   This constant is currently set to a value of four. If the default value is insufficient,
   the message limit value can be specified in the #CFE_SB_SubscribeEx API.
 
@@ -478,7 +478,7 @@
 
   The simplest way to prevent this behavior is to ensure that there is margin when sizing the
   SB memory pool. To check the margin, monitor the "Peak Memory in Use" vs. the configuration
-  parameter #CFE_SB_BUF_MEMORY_BYTES which indicates the amount allocated.
+  parameter #CFE_PLATFORM_SB_BUF_MEMORY_BYTES which indicates the amount allocated.
 
   Next: \ref cfesbugfaq <BR>
   Prev: \ref cfesbugqos <BR>

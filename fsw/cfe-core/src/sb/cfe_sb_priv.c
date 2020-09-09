@@ -288,8 +288,8 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber){
 
         CFE_ES_GetAppID(&AppId);
 
-        CFE_ES_WriteToSysLog("SB SharedData Mutex Take Err Stat=0x%x,App=%d,Func=%s,Line=%d\n",
-                (unsigned int)Status,(int)AppId,FuncName,(int)LineNumber);
+        CFE_ES_WriteToSysLog("SB SharedData Mutex Take Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n",
+                (unsigned int)Status,CFE_ES_ResourceID_ToInteger(AppId),FuncName,(int)LineNumber);
 
     }/* end if */
 
@@ -323,8 +323,8 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber){
 
         CFE_ES_GetAppID(&AppId);
 
-        CFE_ES_WriteToSysLog("SB SharedData Mutex Give Err Stat=0x%x,App=%d,Func=%s,Line=%d\n",
-                (unsigned int)Status,(int)AppId,FuncName,(int)LineNumber);
+        CFE_ES_WriteToSysLog("SB SharedData Mutex Give Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n",
+                (unsigned int)Status,CFE_ES_ResourceID_ToInteger(AppId),FuncName,(int)LineNumber);
 
     }/* end if */
 
@@ -673,17 +673,22 @@ char *CFE_SB_GetAppTskName(uint32 TaskId,char *FullName){
 */
 uint32 CFE_SB_RequestToSendEvent(uint32 TaskId, uint32 Bit){
 
-    OS_ConvertToArrayIndex(TaskId, &TaskId);
+    uint32 Indx;
+
+    if (CFE_ES_TaskID_ToIndex(TaskId, &Indx) != CFE_SUCCESS)
+    {
+        return CFE_SB_DENIED;
+    }
 
     /* if bit is set... */
-    if(CFE_TST(CFE_SB.StopRecurseFlags[TaskId],Bit))
+    if(CFE_TST(CFE_SB.StopRecurseFlags[Indx],Bit))
     {
 
       return CFE_SB_DENIED;
 
     }else{
 
-      CFE_SET(CFE_SB.StopRecurseFlags[TaskId],Bit);
+      CFE_SET(CFE_SB.StopRecurseFlags[Indx],Bit);
       return CFE_SB_GRANTED;
 
     }/* end if */
@@ -705,10 +710,15 @@ uint32 CFE_SB_RequestToSendEvent(uint32 TaskId, uint32 Bit){
 */
 void CFE_SB_FinishSendEvent(uint32 TaskId, uint32 Bit){
 
-    OS_ConvertToArrayIndex(TaskId, &TaskId);
+    uint32 Indx;
+
+    if (CFE_ES_TaskID_ToIndex(TaskId, &Indx) != CFE_SUCCESS)
+    {
+        return;
+    }
 
     /* clear the bit so the task may send this event again */
-    CFE_CLR(CFE_SB.StopRecurseFlags[TaskId],Bit);
+    CFE_CLR(CFE_SB.StopRecurseFlags[Indx],Bit);
 }/* end CFE_SB_RequestToSendEvent */
 
 

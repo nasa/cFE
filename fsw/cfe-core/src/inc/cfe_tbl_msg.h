@@ -814,22 +814,6 @@ typedef struct
     CFE_TBL_TblRegPacket_Payload_t  Payload;
 } CFE_TBL_TableRegistryTlm_t;
 
-/*************************************************************************/
-
-/*
- * COMPATIBILITY TYPEDEFS:
- * In some circumstances applications may subscribe to telemetry from this component,
- * and therefore the name changes may break existing code.  For these situations a
- * typedef is created to continue supporting the previous name.  These should be
- * removed in the next CFE release.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-typedef CFE_TBL_HousekeepingTlm_t        CFE_TBL_HkPacket_t;
-typedef CFE_TBL_TableRegistryTlm_t       CFE_TBL_TblRegPacket_t;
-
-#endif /* CFE_OMIT_DEPRECATED_6_6 */
-
 
 #endif /* _cfe_tbl_msg_ */
 

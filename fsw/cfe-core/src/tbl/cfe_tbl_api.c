@@ -67,7 +67,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
     CFE_TBL_Handle_t            AccessIndex;
 
     /* Check to make sure calling application is legit */
-    Status = CFE_TBL_ValidateAppID(&ThisAppId);
+    Status = CFE_ES_GetAppID(&ThisAppId);
 
     if (Status == CFE_SUCCESS)
     {
@@ -147,7 +147,8 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
     }
     else  /* Application ID was invalid */
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:Register-Bad AppId(%d)\n", (int)ThisAppId);
+        CFE_ES_WriteToSysLog("CFE_TBL:Register-Bad AppId(%lu)\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId));
     }
 
     /* If input parameters appear acceptable, register the table */
@@ -208,8 +209,9 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
             {
                 Status = CFE_TBL_ERR_DUPLICATE_NOT_OWNED;
 
-                CFE_ES_WriteToSysLog("CFE_TBL:Register-App(%d) Registering Duplicate Table '%s' owned by App(%d)\n",
-                                     (int)ThisAppId, TblName, (int)RegRecPtr->OwnerAppId);
+                CFE_ES_WriteToSysLog("CFE_TBL:Register-App(%lu) Registering Duplicate Table '%s' owned by App(%lu)\n",
+                                     CFE_ES_ResourceID_ToInteger(ThisAppId), TblName,
+                                     CFE_ES_ResourceID_ToInteger(RegRecPtr->OwnerAppId));
             }
         }
         else  /* Table not already in registry */
@@ -515,7 +517,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
     char    AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
 
     /* Get a valid Application ID for calling App */
-    Status = CFE_TBL_ValidateAppID(&ThisAppId);
+    Status = CFE_ES_GetAppID(&ThisAppId);
 
     if (Status == CFE_SUCCESS)
     {
@@ -579,7 +581,8 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
     }
     else  /* Application ID was invalid */
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:Share-Bad AppId(%d)\n", (int)ThisAppId);
+        CFE_ES_WriteToSysLog("CFE_TBL:Share-Bad AppId(%lu)\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId));
     }
 
     /* On Error conditions, notify ground of screw up */
@@ -629,7 +632,7 @@ int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle )
             /* NOTE: Allocated memory is freed when all Access Links have been    */
             /*       removed.  This allows Applications to continue to use the    */
             /*       data until they acknowledge that the table has been removed. */
-            RegRecPtr->OwnerAppId = (uint32)CFE_TBL_NOT_OWNED;
+            RegRecPtr->OwnerAppId = CFE_TBL_NOT_OWNED;
 
             /* Remove Table Name */
             RegRecPtr->Name[0] = '\0';
@@ -642,8 +645,8 @@ int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle )
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:Unregister-App(%d) does not have access to Tbl Handle=%d\n",
-                             (int)ThisAppId, (int)TblHandle);
+        CFE_ES_WriteToSysLog("CFE_TBL:Unregister-App(%lu) does not have access to Tbl Handle=%d\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId), (int)TblHandle);
     }
 
     /* On Error conditions, notify ground of screw up */
@@ -925,13 +928,14 @@ int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle )
 
         if (Status != CFE_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("CFE_TBL:Update-App(%d) fail to update Tbl '%s' (Stat=0x%08X)\n",
-                                 (int)ThisAppId, RegRecPtr->Name, (unsigned int)Status);
+            CFE_ES_WriteToSysLog("CFE_TBL:Update-App(%lu) fail to update Tbl '%s' (Stat=0x%08X)\n",
+                    CFE_ES_ResourceID_ToInteger(ThisAppId), RegRecPtr->Name, (unsigned int)Status);
         }
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:Update-App(%d) does not have access to Tbl Handle=%d\n", (int)ThisAppId, (int)TblHandle);
+        CFE_ES_WriteToSysLog("CFE_TBL:Update-App(%lu) does not have access to Tbl Handle=%d\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId), (int)TblHandle);
     }
 
     if (Status != CFE_TBL_ERR_BAD_APP_ID)
@@ -993,7 +997,7 @@ int32 CFE_TBL_GetAddress( void **TblPtr,
     *TblPtr = NULL;
 
     /* Validate the calling application's AppID */
-    Status = CFE_TBL_ValidateAppID(&ThisAppId);
+    Status = CFE_ES_GetAppID(&ThisAppId);
 
     if (Status == CFE_SUCCESS)
     {
@@ -1005,7 +1009,8 @@ int32 CFE_TBL_GetAddress( void **TblPtr,
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:GetAddress-Bad AppId=%d\n", (int)ThisAppId);
+        CFE_ES_WriteToSysLog("CFE_TBL:GetAddress-Bad AppId=%lu\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId));
     }
 
     return Status;
@@ -1036,8 +1041,8 @@ int32 CFE_TBL_ReleaseAddress( CFE_TBL_Handle_t TblHandle )
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:ReleaseAddress-App(%d) does not have access to Tbl Handle=%d\n",
-                             (int)ThisAppId, (int)TblHandle);
+        CFE_ES_WriteToSysLog("CFE_TBL:ReleaseAddress-App(%lu) does not have access to Tbl Handle=%u\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId), (unsigned int)TblHandle);
     }
 
     return Status;
@@ -1061,7 +1066,7 @@ int32 CFE_TBL_GetAddresses( void **TblPtrs[],
     }
 
     /* Validate the calling application's AppID */
-    Status = CFE_TBL_ValidateAppID(&ThisAppId);
+    Status = CFE_ES_GetAppID(&ThisAppId);
 
     if (Status == CFE_SUCCESS)
     {
@@ -1082,7 +1087,8 @@ int32 CFE_TBL_GetAddresses( void **TblPtrs[],
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:GetAddresses-Bad AppId=%d\n", (int)ThisAppId);
+        CFE_ES_WriteToSysLog("CFE_TBL:GetAddresses-Bad AppId=%lu\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId));
     }
 
     return Status;
@@ -1184,8 +1190,8 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
                 
                 if (Status > CFE_SUCCESS)
                 {
-                    CFE_ES_WriteToSysLog("CFE_TBL:Validate-App(%u) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
-                            (unsigned int)CFE_TBL_TaskData.TableTaskAppId, (unsigned int)Status, RegRecPtr->Name);
+                    CFE_ES_WriteToSysLog("CFE_TBL:Validate-App(%lu) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
+                            CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.TableTaskAppId), (unsigned int)Status, RegRecPtr->Name);
                 }
             }
 
@@ -1233,8 +1239,8 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
                 
                 if (Status > CFE_SUCCESS)
                 {
-                    CFE_ES_WriteToSysLog("CFE_TBL:Validate-App(%u) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
-                            (unsigned int)CFE_TBL_TaskData.TableTaskAppId, (unsigned int)Status, RegRecPtr->Name);
+                    CFE_ES_WriteToSysLog("CFE_TBL:Validate-App(%lu) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
+                            CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.TableTaskAppId), (unsigned int)Status, RegRecPtr->Name);
                 }
             }
 
@@ -1256,8 +1262,8 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:Validate-App(%d) does not have access to Tbl Handle=%d\n",
-                             (int)ThisAppId, (int)TblHandle);
+        CFE_ES_WriteToSysLog("CFE_TBL:Validate-App(%lu) does not have access to Tbl Handle=%d\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId), (int)TblHandle);
     }
 
     return Status;
@@ -1356,8 +1362,8 @@ int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle )
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:GetStatus-App(%d) does not have access to Tbl Handle=%d\n",
-                             (int)ThisAppId, (int)TblHandle);
+        CFE_ES_WriteToSysLog("CFE_TBL:GetStatus-App(%lu) does not have access to Tbl Handle=%d\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId), (int)TblHandle);
     }
 
     return Status;
@@ -1519,8 +1525,8 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:Modified-App(%d) does not have access to Tbl Handle=%d\n",
-                             (int)ThisAppId, (int)TblHandle);
+        CFE_ES_WriteToSysLog("CFE_TBL:Modified-App(%lu) does not have access to Tbl Handle=%d\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId), (int)TblHandle);
     }
 
     
@@ -1558,8 +1564,8 @@ int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, 
         else
         {
             Status = CFE_TBL_ERR_NO_ACCESS;
-            CFE_ES_WriteToSysLog("CFE_TBL:NotifyByMsg-App(%d) does not own Tbl Handle=%d\n",
-                                 (int)ThisAppId, (int)TblHandle);
+            CFE_ES_WriteToSysLog("CFE_TBL:NotifyByMsg-App(%lu) does not own Tbl Handle=%d\n",
+                    CFE_ES_ResourceID_ToInteger(ThisAppId), (int)TblHandle);
         }
     }
     

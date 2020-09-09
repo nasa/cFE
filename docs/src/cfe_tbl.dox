@@ -162,7 +162,7 @@
   single buffered tables represent the most memory resource efficient method of being managed.
 
   The number of single buffered tables that can have inactive table images being manipulated at one
-  time is specified by a TBL Services configuration parameter (#CFE_TBL_MAX_SIMULTANEOUS_LOADS) found
+  time is specified by a TBL Services configuration parameter (#CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS) found
   in the cfe_platform_cfg.h file associated with the processor in question.  This parameter identifies
   the number of shared table buffers that are available.
 
@@ -194,7 +194,7 @@
   Applications which have unusually large tables may decide to conserve memory resources by making
   them double buffered.  This is because the shared buffers used by single buffered tables must be
   sized to match the largest table.  If there is one table that is unusually large, there is little
-  reason to allocate up to #CFE_TBL_MAX_SIMULTANEOUS_LOADS number of buffers that size.  A double
+  reason to allocate up to #CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS number of buffers that size.  A double
   buffered table will only allocate ONE extra buffer of that size.
   
   Performance minded Applications that are required to perform processing with tight timing deadlines
@@ -324,7 +324,7 @@
   Table Services produces two different telemetry packets.  The first packet, referred to as the Table
   Services Housekeeping Packet, is routinely produced by Table Services upon receipt of the Housekeeping
   Request message that is typically sent to all Applications by an on board scheduler.  The contents and
-  format of this packet are described in detail at #CFE_TBL_HkPacket_t.
+  format of this packet are described in detail at #CFE_TBL_HousekeepingTlm_t.
     
   Next: \ref cfetblugprocreset <BR>
   Prev: \ref cfetblugregistry <BR>

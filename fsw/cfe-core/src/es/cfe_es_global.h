@@ -155,6 +155,222 @@ extern CFE_ES_Global_t CFE_ES_Global;
 */
 extern CFE_ES_ResetData_t *CFE_ES_ResetDataPtr;
 
+/**
+ * @brief Locate the app table entry correlating with a given app ID.
+ *
+ * This only returns a pointer to the table entry and does _not_
+ * otherwise check/validate the entry.
+ *
+ * @param[in]   AppID   the app ID to locate
+ * @return pointer to App Table entry for the given app ID
+ */
+extern CFE_ES_AppRecord_t* CFE_ES_LocateAppRecordByID(uint32 AppID);
+
+/**
+ * @brief Locate the task table entry correlating with a given task ID.
+ *
+ * This only returns a pointer to the table entry and does _not_
+ * otherwise check/validate the entry.
+ *
+ * @param[in]   TaskID   the task ID to locate
+ * @return pointer to Task Table entry for the given task ID
+ */
+extern CFE_ES_TaskRecord_t* CFE_ES_LocateTaskRecordByID(uint32 TaskID);
+
+/**
+ * @brief Check if an app record is in use or free/empty
+ *
+ * This routine checks if the App table entry is in use or if it is free
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   AppRecPtr   pointer to app table entry
+ * @returns true if the entry is in use/configured, or false if it is free/empty
+ */
+static inline bool CFE_ES_AppRecordIsUsed(const CFE_ES_AppRecord_t *AppRecPtr)
+{
+    return (AppRecPtr->AppState != CFE_ES_AppState_UNDEFINED);
+}
+
+/**
+ * @brief Get the ID value from an app table entry
+ *
+ * This routine converts the table entry back to an abstract ID.
+ *
+ * @param[in]   AppRecPtr   pointer to app table entry
+ * @returns AppID of entry
+ */
+static inline uint32 CFE_ES_AppRecordGetID(const CFE_ES_AppRecord_t *AppRecPtr)
+{
+    /*
+     * The initial implementation does not store the ID in the entry;
+     * the ID is simply the zero-based index into the table.
+     */
+    return (AppRecPtr - CFE_ES_Global.AppTable);
+}
+
+/**
+ * @brief Marks an app table entry as used (not free)
+ *
+ * This sets the internal field(s) within this entry, and marks
+ * it as being associated with the given app ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   AppRecPtr   pointer to app table entry
+ * @param[in]   AppID       the app ID of this entry
+ */
+static inline void CFE_ES_AppRecordSetUsed(CFE_ES_AppRecord_t *AppRecPtr, uint32 AppID)
+{
+    AppRecPtr->AppState = CFE_ES_AppState_EARLY_INIT;
+}
+
+/**
+ * @brief Set an app record table entry free (not used)
+ *
+ * This clears the internal field(s) within this entry, and allows the
+ * memory to be re-used in the future.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   AppRecPtr   pointer to app table entry
+ */
+static inline void CFE_ES_AppRecordSetFree(CFE_ES_AppRecord_t *AppRecPtr)
+{
+    AppRecPtr->AppState = CFE_ES_AppState_UNDEFINED;
+}
+
+/**
+ * @brief Check if an app record is a match for the given AppID
+ *
+ * This routine confirms that the previously-located record is valid
+ * and matches the expected app ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   AppRecPtr   pointer to app table entry
+ * @param[in]   AppID       expected app ID
+ * @returns true if the entry matches the given app ID
+ */
+static inline bool CFE_ES_AppRecordIsMatch(const CFE_ES_AppRecord_t *AppRecPtr, uint32 AppID)
+{
+    return (AppRecPtr != NULL && CFE_ES_AppRecordIsUsed(AppRecPtr) &&
+            CFE_ES_AppRecordGetID(AppRecPtr) == AppID);
+}
+
+/**
+ * @brief Get the ID value from an Task table entry
+ *
+ * This routine converts the table entry back to an abstract ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   TaskRecPtr   pointer to Task table entry
+ * @returns TaskID of entry
+ */
+static inline uint32 CFE_ES_TaskRecordGetID(const CFE_ES_TaskRecord_t *TaskRecPtr)
+{
+    return (TaskRecPtr->TaskId);
+}
+
+/**
+ * @brief Check if a Task record is in use or free/empty
+ *
+ * This routine checks if the Task table entry is in use or if it is free
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   TaskRecPtr   pointer to task table entry
+ * @returns true if the entry is in use/configured, or false if it is free/empty
+ */
+static inline bool CFE_ES_TaskRecordIsUsed(const CFE_ES_TaskRecord_t *TaskRecPtr)
+{
+    return (TaskRecPtr->RecordUsed);
+}
+
+/**
+ * @brief Marks an Task table entry as used (not free)
+ *
+ * This sets the internal field(s) within this entry, and marks
+ * it as being associated with the given Task ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   TaskRecPtr   pointer to Task table entry
+ * @param[in]   TaskID       the Task ID of this entry
+ */
+static inline void CFE_ES_TaskRecordSetUsed(CFE_ES_TaskRecord_t *TaskRecPtr, uint32 TaskID)
+{
+    TaskRecPtr->TaskId = TaskID;
+    TaskRecPtr->RecordUsed = true;
+}
+
+/**
+ * @brief Set a Task record table entry free
+ *
+ * This allows the table entry to be re-used by another Task.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   TaskRecPtr   pointer to task table entry
+ * @returns true if the entry is in use/configured, or false if it is free/empty
+ */
+static inline void CFE_ES_TaskRecordSetFree(CFE_ES_TaskRecord_t *TaskRecPtr)
+{
+    TaskRecPtr->TaskId = 0;
+    TaskRecPtr->RecordUsed = false;
+}
+
+/**
+ * @brief Check if a Task record is a match for the given TaskID
+ *
+ * This routine confirms that the previously-located record is valid
+ * and matches the expected Task ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   TaskRecPtr   pointer to task table entry
+ * @param[in]   TaskID       The expected task ID to verify
+ * @returns true if the entry matches the given task ID
+ */
+static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPtr, uint32 TaskID)
+{
+    return (TaskRecPtr != NULL && CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
+            CFE_ES_TaskRecordGetID(TaskRecPtr) == TaskID);
+}
+
+/**
+ * Locate and validate the app record for the calling context.
+ *
+ * Finds and validates the ES AppTable entry corresponding to the
+ * caller. This confirms that the fields within the table entry match the
+ * expected value(s), otherwise NULL is returned if no matching entry
+ * is found.
+ *
+ * The global data lock should be obtained prior to invoking this function.
+ */
+extern CFE_ES_AppRecord_t* CFE_ES_GetAppRecordByContext(void);
+
+/**
+ * Locate and validate the task record for the calling context.
+ *
+ * Finds and validates the ES TaskTable entry corresponding to the
+ * caller. This confirms that the fields within the table entry match the
+ * expected value(s), otherwise NULL is returned if no matching entry
+ * is found.
+ *
+ * The global data lock should be obtained prior to invoking this function.
+ */
+extern CFE_ES_TaskRecord_t* CFE_ES_GetTaskRecordByContext(void);
 
 /*
 ** Functions used to lock/unlock shared data

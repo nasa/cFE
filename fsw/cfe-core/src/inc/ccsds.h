@@ -36,32 +36,6 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_msg_hdr.h"
 
-/*
- * COMPATIBILITY TYPEDEFS:
- * These typdefs provide compatibility for existing code.  These should be
- * removed in the next CFE release.
- */
-#ifndef CFE_OMIT_DEPRECATED_6_6
-
-typedef CFE_MSG_CommandHeader_t     CCSDS_CmdPkt_t;
-typedef CFE_MSG_TelemetryHeader_t   CCSDS_TlmPkt_t;
-
-#endif /* CFE_OMIT_DEPRECATED_6_6 */
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
-
-typedef struct{
-   CCSDS_PrimaryHeader_t Pri;
-   CCSDS_ExtendedHeader_t ApidQ;
-} CCSDS_APIDQHdr_t;
-typedef CCSDS_ExtendedHeader_t CCSDS_APIDqualifiers_t;
-typedef CCSDS_PrimaryHeader_t  CCSDS_PriHdr_t;
-typedef CFE_MSG_CommandSecondaryHeader_t CCSDS_CmdSecHdr_t;
-typedef CFE_MSG_TelemetrySecondaryHeader_t CCSDS_TlmSecHdr_t;
-typedef CFE_MSG_CommandHeader_t CCSDS_CommandPacket_t;  /* Element names changed, direct access will break */
-typedef CFE_MSG_TelemetryHeader_t CCSDS_TelemetryPacket_t;  /* Element names changed, direct access will break */
-
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /* Macro to convert 16/32 bit types from platform "endianness" to Big Endian */
 #ifdef SOFTWARE_BIG_BIT_ORDER

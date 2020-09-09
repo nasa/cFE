@@ -228,7 +228,7 @@
               \cfetlmmnemonic  \SB_SMPMIDIU
             </LongDescription>
           </Entry>
-          <Entry name="MaxMsgIdsAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_SB_MAX_MSG_IDS \endlink">
+          <Entry name="MaxMsgIdsAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_PLATFORM_SB_MAX_MSG_IDS \endlink">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMMIDALW
             </LongDescription>
@@ -243,7 +243,7 @@
               \cfetlmmnemonic  \SB_SMPPIU
             </LongDescription>
           </Entry>
-          <Entry name="MaxPipesAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_SB_MAX_PIPES \endlink">
+          <Entry name="MaxPipesAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_PLATFORM_SB_MAX_PIPES \endlink">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMPALW
             </LongDescription>
@@ -258,7 +258,7 @@
               \cfetlmmnemonic  \SB_SMPBMIU
             </LongDescription>
           </Entry>
-          <Entry name="MaxMemAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_SB_BUF_MEMORY_BYTES \endlink">
+          <Entry name="MaxMemAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_PLATFORM_SB_BUF_MEMORY_BYTES \endlink">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMBMALW
             </LongDescription>
@@ -276,8 +276,8 @@
           <Entry name="MaxSubscriptionsAllowed" type="BASE_TYPES/uint32">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMSALW
-              \brief  product of \link #CFE_SB_MAX_MSG_IDS \endlink
-              and \link #CFE_SB_MAX_DEST_PER_PKT \endlink
+              \brief  product of \link #CFE_PLATFORM_SB_MAX_MSG_IDS \endlink
+              and \link #CFE_PLATFORM_SB_MAX_DEST_PER_PKT \endlink
             </LongDescription>
           </Entry>
           <Entry name="SBBuffersInUse" type="BASE_TYPES/uint32" shortDescription="Number of SB message buffers currently in use">
@@ -290,7 +290,7 @@
               \cfetlmmnemonic  \SB_SMPSBBIU
             </LongDescription>
           </Entry>
-          <Entry name="MaxPipeDepthAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_SB_MAX_PIPE_DEPTH \endlink">
+          <Entry name="MaxPipeDepthAllowed" type="BASE_TYPES/uint32" shortDescription="cFE Cfg Param \link #CFE_PLATFORM_SB_MAX_PIPE_DEPTH \endlink">
             <LongDescription>
               \cfetlmmnemonic  \SB_SMMPDALW
             </LongDescription>
@@ -530,7 +530,7 @@
           If this command field contains an empty string (NULL terminator as
           the first character) the default file path and name is used.
           The default file path and name is defined in the platform
-          configuration file as #CFE_SB_DEFAULT_ROUTING_FILENAME.
+          configuration file as #CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME.
           \cfecmdmnemonic  \SB_WRITEROUTING2FILE
 
           \par  Command Structure
@@ -675,7 +675,7 @@
           If this command field contains an empty string (NULL terminator as
           the first character) the default file path and name is used.
           The default file path and name is defined in the platform
-          configuration file as #CFE_SB_DEFAULT_PIPE_FILENAME.
+          configuration file as #CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME.
           \cfecmdmnemonic  \SB_WRITEPIPE2FILE
 
           \par  Command Structure
@@ -726,7 +726,7 @@
           in the command. If this command field contains an empty string
           (NULL terminator as the first character) the default file path and
           name is used. The default file path and name is defined in the
-          platform configuration file as #CFE_SB_DEFAULT_MAP_FILENAME.
+          platform configuration file as #CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME.
           \cfecmdmnemonic  \SB_WRITEMAP2FILE
 
           \par  Command Structure

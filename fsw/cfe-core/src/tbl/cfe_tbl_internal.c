@@ -80,7 +80,7 @@ int32 CFE_TBL_EarlyInit (void)
     /* Initialize the Table Access Descriptors */
     for (i=0; i<CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
-        CFE_TBL_TaskData.Handles[i].AppId = CFE_ES_ERR_APPID;
+        CFE_TBL_TaskData.Handles[i].AppId = CFE_TBL_NOT_OWNED;
         CFE_TBL_TaskData.Handles[i].RegIndex = 0;
         CFE_TBL_TaskData.Handles[i].PrevLink = CFE_TBL_END_OF_LIST;
         CFE_TBL_TaskData.Handles[i].NextLink = CFE_TBL_END_OF_LIST;
@@ -331,28 +331,6 @@ int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle)
 
 /*******************************************************************
 **
-** CFE_TBL_ValidateAppID
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
-int32 CFE_TBL_ValidateAppID(uint32 *AppIdPtr)
-{
-    int32 Status = CFE_ES_GetAppID(AppIdPtr);
-
-    if (Status == CFE_SUCCESS)
-    {
-        if (*AppIdPtr >= CFE_PLATFORM_ES_MAX_APPLICATIONS)
-        {
-            return CFE_TBL_ERR_BAD_APP_ID;
-        }
-    }
-
-    return Status;
-}   /* End of CFE_TBL_ValidateAppID() */
-
-/*******************************************************************
-**
 ** CFE_TBL_ValidateAccess
 **
 ** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
@@ -363,7 +341,7 @@ int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, uint32 *AppIdPtr)
     int32 Status;
 
     /* Check to make sure App ID is legit */
-    Status = CFE_TBL_ValidateAppID(AppIdPtr);
+    Status = CFE_ES_GetAppID(AppIdPtr);
 
     if (Status != CFE_SUCCESS)
     {
@@ -535,8 +513,8 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, uint
             {
                 Status = CFE_TBL_ERR_UNREGISTERED;
 
-                CFE_ES_WriteToSysLog("CFE_TBL:GetAddressInternal-App(%d) attempt to access unowned Tbl Handle=%d\n",
-                                     (int)ThisAppId, (int)TblHandle);
+                CFE_ES_WriteToSysLog("CFE_TBL:GetAddressInternal-App(%lu) attempt to access unowned Tbl Handle=%d\n",
+                                     CFE_ES_ResourceID_ToInteger(ThisAppId), (int)TblHandle);
             }
             else /* Table Registry Entry is valid */
             {
@@ -559,14 +537,14 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, uint
         }
         else
         {
-            CFE_ES_WriteToSysLog("CFE_TBL:GetAddressInternal-App(%d) does not have access to Tbl Handle=%d\n",
-                                 (int)ThisAppId, (int)TblHandle);
+            CFE_ES_WriteToSysLog("CFE_TBL:GetAddressInternal-App(%lu) does not have access to Tbl Handle=%d\n",
+                    CFE_ES_ResourceID_ToInteger(ThisAppId), (int)TblHandle);
         }
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:GetAddressInternal-App(%d) using invalid Tbl Handle=%d\n",
-                             (int)ThisAppId, (int)TblHandle);
+        CFE_ES_WriteToSysLog("CFE_TBL:GetAddressInternal-App(%lu) using invalid Tbl Handle=%d\n",
+                CFE_ES_ResourceID_ToInteger(ThisAppId), (int)TblHandle);
     }
 
     return Status;
@@ -830,8 +808,8 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
                     {
                         Status = CFE_TBL_ERR_NO_BUFFER_AVAIL;
 
-                        CFE_ES_WriteToSysLog("CFE_TBL:GetWorkingBuffer-Inactive Dbl Buff Locked for '%s' by AppId=%d\n",
-                                             RegRecPtr->Name, (int)CFE_TBL_TaskData.Handles[AccessIterator].AppId);
+                        CFE_ES_WriteToSysLog("CFE_TBL:GetWorkingBuffer-Inactive Dbl Buff Locked for '%s' by AppId=%lu\n",
+                                             RegRecPtr->Name, CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.Handles[AccessIterator].AppId));
                     }
 
                     /* Move to next access descriptor in linked list */
@@ -1417,7 +1395,7 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
                 /* NOTE: Allocated memory is freed when all Access Links have been    */
                 /*       removed.  This allows Applications to continue to use the    */
                 /*       data until they acknowledge that the table has been removed. */
-                RegRecPtr->OwnerAppId = (uint32)CFE_TBL_NOT_OWNED;
+                RegRecPtr->OwnerAppId = CFE_TBL_NOT_OWNED;
 
                 /* Remove Table Name */
                 RegRecPtr->Name[0] = '\0';
@@ -1428,7 +1406,7 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
             /*       memory buffers are set free as well.         */
             CFE_TBL_RemoveAccessLink(i);
 	    
-            CFE_TBL_TaskData.Handles[i].AppId = (uint32)CFE_TBL_NOT_OWNED;
+            CFE_TBL_TaskData.Handles[i].AppId = CFE_TBL_NOT_OWNED;
 
         }
     }

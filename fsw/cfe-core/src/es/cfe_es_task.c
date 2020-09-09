@@ -44,7 +44,6 @@
 #include "cfe_es_events.h"
 #include "cfe_es_verify.h"
 #include "cfe_es_task.h"
-#include "cfe_es_shell.h"
 #include "cfe_es_log.h"
 #include "cfe_es_cds.h"
 #include "cfe_fs.h"
@@ -255,15 +254,6 @@ int32 CFE_ES_TaskInit(void)
     CFE_SB_InitMsg(&CFE_ES_TaskData.HkPacket,
             CFE_SB_ValueToMsgId(CFE_ES_HK_TLM_MID),
             sizeof(CFE_ES_TaskData.HkPacket), true);
-
-#ifndef CFE_OMIT_DEPRECATED_6_7
-    /*
-    ** Initialize shell output packet (clear user data area)
-    */
-    CFE_SB_InitMsg(&CFE_ES_TaskData.ShellPacket,
-            CFE_SB_ValueToMsgId(CFE_ES_SHELL_TLM_MID),
-            sizeof(CFE_ES_TaskData.ShellPacket), true);
-#endif
 
     /*
     ** Initialize single application telemetry packet
@@ -486,15 +476,6 @@ void CFE_ES_TaskPipe(CFE_SB_MsgPtr_t Msg)
                         CFE_ES_RestartCmd((CFE_ES_Restart_t*)Msg);
                     }
                     break;
-
-#ifndef CFE_OMIT_DEPRECATED_6_7
-                case CFE_ES_SHELL_CC:
-                    if (CFE_ES_VerifyCmdLength(Msg, sizeof(CFE_ES_Shell_t)))
-                    {
-                        CFE_ES_ShellCmd((CFE_ES_Shell_t*)Msg);
-                    }
-                    break;
-#endif
 
                 case CFE_ES_START_APP_CC:
                     if (CFE_ES_VerifyCmdLength(Msg, sizeof(CFE_ES_StartApp_t)))
@@ -865,53 +846,6 @@ int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data)
     return CFE_SUCCESS;
 } /* End of CFE_ES_RestartCmd() */
 
-#ifndef CFE_OMIT_DEPRECATED_6_7
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_ShellCmd() -- Pass thru string to O/S shell              */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-int32 CFE_ES_ShellCmd(const CFE_ES_Shell_t *data)
-{
-    int32 Result;
-    const CFE_ES_ShellCmd_Payload_t *cmd = &data->Payload;
-    char LocalCmd[CFE_PLATFORM_ES_MAX_SHELL_CMD];
-    char LocalFile[OS_MAX_PATH_LEN];
-
-    /* Create local copies of both input strings and ensure null termination */
-    CFE_SB_MessageStringGet(LocalCmd, (char *)cmd->CmdString, NULL,
-                CFE_PLATFORM_ES_MAX_SHELL_CMD, sizeof(cmd->CmdString));
-
-        CFE_SB_MessageStringGet(LocalFile, (char *)cmd->OutputFilename, NULL,
-                OS_MAX_PATH_LEN, sizeof(cmd->OutputFilename));
-
-    /*
-    ** Call the Shell command API
-    */
-    Result = CFE_ES_ShellOutputCommand(LocalCmd, LocalFile);
-    /*
-    ** Send appropriate event message.
-    */
-    if (Result == CFE_SUCCESS)
-    {
-        CFE_ES_TaskData.CommandCounter++;
-        CFE_EVS_SendEvent(CFE_ES_SHELL_INF_EID, CFE_EVS_EventType_INFORMATION,
-                "Invoked shell command: '%s'",
-                LocalCmd);
-    }
-    else
-    {
-        CFE_ES_TaskData.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_ES_SHELL_ERR_EID, CFE_EVS_EventType_ERROR,
-                "Failed to invoke shell command: '%s', RC = 0x%08X",
-                LocalCmd, (unsigned int)Result);
-    }
-
-    return CFE_SUCCESS;
-} /* End of CFE_ES_ShellCmd() */
-#endif /* CFE_OMIT_DEPRECATED_6_7 */
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
 /* CFE_ES_StartAppCmd() -- Load (and start) single application     */
@@ -1003,8 +937,8 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data)
         {
             CFE_ES_TaskData.CommandCounter++;
             CFE_EVS_SendEvent(CFE_ES_START_INF_EID, CFE_EVS_EventType_INFORMATION,
-                    "Started %s from %s, AppID = %d",
-                    LocalAppName, LocalFile, (int)AppID);
+                    "Started %s from %s, AppID = %lu",
+                    LocalAppName, LocalFile, CFE_ES_ResourceID_ToInteger(AppID));
         }
         else
         {
@@ -1192,13 +1126,16 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data)
 
     Result = CFE_ES_GetAppIDByName(&AppID, LocalApp);
 
+    if (Result == CFE_SUCCESS)
+    {
+        Result = CFE_ES_GetAppInfo(&(CFE_ES_TaskData.OneAppPacket.Payload.AppInfo), AppID);
+    }
+
     /*
     ** Send appropriate event message...
     */
     if (Result == CFE_SUCCESS)
     {
-
-        CFE_ES_GetAppInfoInternal(AppID, &(CFE_ES_TaskData.OneAppPacket.Payload.AppInfo));
         /*
         ** Send application status telemetry packet.
         */
@@ -1246,6 +1183,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
     CFE_ES_AppInfo_t      AppInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                  QueryAllFilename[OS_MAX_PATH_LEN];
+    CFE_ES_AppRecord_t    *AppRecPtr;
 
     /*
     ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
@@ -1301,20 +1239,22 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
         /*
         ** Loop through the ES AppTable for main applications
         */
+        AppRecPtr = CFE_ES_Global.AppTable;
         for(i=0;i<CFE_PLATFORM_ES_MAX_APPLICATIONS;i++)
         {
-            if(CFE_ES_Global.AppTable[i].AppState != CFE_ES_AppState_UNDEFINED)
+            /*
+            ** zero out the local entry
+            */
+            memset(&AppInfo,0,sizeof(CFE_ES_AppInfo_t));
+
+            /*
+            ** Populate the AppInfo entry
+            ** The internal routine checks the status of the entry
+            */
+            Result = CFE_ES_GetAppInfoInternal(AppRecPtr, &AppInfo);
+
+            if ( Result == CFE_SUCCESS )
             {
-                /*
-                ** zero out the local entry
-                */
-                memset(&AppInfo,0,sizeof(CFE_ES_AppInfo_t));
-
-                /*
-                ** Populate the AppInfo entry
-                */
-                CFE_ES_GetAppInfoInternal(i, &AppInfo);
-
                 /*
                 ** Write the local entry to file
                 */
@@ -1336,6 +1276,8 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
                 FileSize += Result;
                 EntryCount ++;
             }
+
+            ++AppRecPtr;
         } /* end for */
 
         OS_close(FileDescriptor);
@@ -1371,7 +1313,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
     CFE_ES_TaskInfo_t          TaskInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                       QueryAllFilename[OS_MAX_PATH_LEN];
-
+    CFE_ES_TaskRecord_t        *TaskRecPtr;
     /*
     ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
     */
@@ -1426,20 +1368,21 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
         /*
         ** Loop through the ES AppTable for main applications
         */
+        TaskRecPtr = CFE_ES_Global.TaskTable;
         for(i=0;i<OS_MAX_TASKS;i++)
         {
-            if(CFE_ES_Global.TaskTable[i].RecordUsed != false)
+            /*
+            ** zero out the local entry
+            */
+            memset(&TaskInfo,0,sizeof(CFE_ES_TaskInfo_t));
+
+            /*
+            ** Populate the TaskInfo entry
+            */
+            Result = CFE_ES_GetTaskInfoInternal(TaskRecPtr, &TaskInfo);
+
+            if(Result == CFE_SUCCESS)
             {
-                /*
-                ** zero out the local entry
-                */
-                memset(&TaskInfo,0,sizeof(CFE_ES_TaskInfo_t));
-
-                /*
-                ** Populate the AppInfo entry
-                */
-                CFE_ES_GetTaskInfo(&TaskInfo,CFE_ES_Global.TaskTable[i].TaskId);
-
                 /*
                 ** Write the local entry to file
                 */
@@ -1461,6 +1404,8 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
                 FileSize += Result;
                 EntryCount ++;
             }
+
+            ++TaskRecPtr;
 
         } /* end for */
 

@@ -184,15 +184,18 @@ int32 CFE_EVS_EarlyInit ( void )
 int32 CFE_EVS_CleanUpApp(uint32 AppID)
 {
    int32  Status = CFE_SUCCESS;
+   EVS_AppData_t *AppDataPtr;
 
-   if (AppID >= CFE_PLATFORM_ES_MAX_APPLICATIONS)
+   /* Query and verify the caller's AppID */
+   AppDataPtr = EVS_GetAppDataByID(AppID);
+   if (AppDataPtr == NULL)
    {
       Status = CFE_EVS_APP_ILLEGAL_APP_ID;
    }
-   else if (CFE_EVS_GlobalData.AppData[AppID].RegisterFlag == true)
+   else if (EVS_AppDataIsMatch(AppDataPtr, AppID))
    {
       /* Same cleanup as CFE_EVS_Unregister() */
-      memset(&CFE_EVS_GlobalData.AppData[AppID], 0, sizeof(EVS_AppData_t));
+      EVS_AppDataSetFree(AppDataPtr);
    }
     
    return(Status);
@@ -289,8 +292,8 @@ int32 CFE_EVS_TaskInit ( void )
       return Status;
    }
 
-   /* Query and verify the EVS AppID */
-   Status = EVS_GetAppID(&AppID);
+   /* Query and verify the AppID */
+   Status = CFE_ES_GetAppID(&AppID);
    if (Status != CFE_SUCCESS)
    {
       CFE_ES_WriteToSysLog("EVS:Call to CFE_ES_GetAppID Failed:RC=0x%08X\n",(unsigned int)Status);
@@ -689,7 +692,8 @@ int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLog_t *data)
 int32 CFE_EVS_ReportHousekeepingCmd (const CFE_SB_CmdHdr_t *data)
 {
    uint32 i, j;
-
+   EVS_AppData_t *AppDataPtr;
+   CFE_EVS_AppTlmData_t *AppTlmDataPtr;
 
    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == true)
    {   
@@ -700,23 +704,27 @@ int32 CFE_EVS_ReportHousekeepingCmd (const CFE_SB_CmdHdr_t *data)
    }
 
    /* Write event state data for registered apps to telemetry packet */
+   AppDataPtr = CFE_EVS_GlobalData.AppData;
+   AppTlmDataPtr = CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData;
    for (i = 0, j = 0; j < CFE_MISSION_ES_MAX_APPLICATIONS && i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
    {
-      if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == true)
+      if ( EVS_AppDataIsUsed(AppDataPtr) )
       {
-         CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[j].AppID = i;
-         CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[j].AppEnableStatus = CFE_EVS_GlobalData.AppData[i].ActiveFlag;
-         CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[j].AppMessageSentCounter = CFE_EVS_GlobalData.AppData[i].EventCount;
-         j++;
+          AppTlmDataPtr->AppID = EVS_AppDataGetID(AppDataPtr);
+          AppTlmDataPtr->AppEnableStatus = AppDataPtr->ActiveFlag;
+          AppTlmDataPtr->AppMessageSentCounter = AppDataPtr->EventCount;
+          ++j;
+          ++AppTlmDataPtr;
       }
+      ++AppDataPtr;
    }
 
    /* Clear unused portion of event state data in telemetry packet */
    for (i = j; i < CFE_MISSION_ES_MAX_APPLICATIONS; i++)
    {
-      CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[i].AppID = 0;
-      CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[i].AppEnableStatus = false;
-      CFE_EVS_GlobalData.EVS_TlmPkt.Payload.AppData[i].AppMessageSentCounter = 0;
+       AppTlmDataPtr->AppID = 0;
+       AppTlmDataPtr->AppEnableStatus = false;
+       AppTlmDataPtr->AppMessageSentCounter = 0;
    }
 
    CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &CFE_EVS_GlobalData.EVS_TlmPkt);
@@ -772,7 +780,6 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilter_t *data)
 {
    const CFE_EVS_AppNameEventIDMaskCmd_Payload_t *CmdPtr = &data->Payload;
    EVS_BinFilter_t    *FilterPtr;
-   uint32              AppID = CFE_EVS_UNDEF_APPID;
    int32               Status;
    EVS_AppData_t      *AppDataPtr;
    char                LocalName[OS_MAX_API_NAME];
@@ -784,12 +791,10 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilter_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retreive application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if (Status == CFE_SUCCESS)
    {
-      AppDataPtr = &CFE_EVS_GlobalData.AppData[AppID];
-
       FilterPtr = EVS_FindEventID(CmdPtr->EventID, AppDataPtr->BinFilters);
 
       if(FilterPtr != NULL)
@@ -820,8 +825,8 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilter_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
       EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                        "Illegal application ID %d retrieved for %s: CC = %lu",
-                        (int)AppID, LocalName, (long unsigned int)CFE_EVS_SET_FILTER_CC);
+                        "Illegal application ID retrieved for %s: CC = %lu",
+                        LocalName, (long unsigned int)CFE_EVS_SET_FILTER_CC);
    }
    else
    {
@@ -966,6 +971,7 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventType_t *data)
    uint32      i;
    const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
    int32  ReturnCode;
+   EVS_AppData_t *AppDataPtr;
 
    /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
@@ -977,13 +983,15 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventType_t *data)
    }
    else
    {
+       AppDataPtr = CFE_EVS_GlobalData.AppData;
        for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
        {
            /* Make sure application is registered for event services */
-           if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == true)
+           if ( EVS_AppDataIsUsed(AppDataPtr) )
            {
-               EVS_EnableTypes(CmdPtr->BitMask, i);
+               EVS_EnableTypes(AppDataPtr, CmdPtr->BitMask);
            }
+           ++AppDataPtr;
        }
 
        EVS_SendEvent(CFE_EVS_ENAEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
@@ -1014,6 +1022,7 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventType_t *data)
    uint32   i;
    const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
    int32  ReturnCode;
+   EVS_AppData_t *AppDataPtr;
 
    /* Need to check for an out of range bitmask, since our bit masks are only 4 bits */
    if (CmdPtr->BitMask == 0x0 || CmdPtr->BitMask > 0x0F)
@@ -1026,13 +1035,15 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventType_t *data)
 
    else
    {
+       AppDataPtr = CFE_EVS_GlobalData.AppData;
        for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
        {
            /* Make sure application is registered for event services */
-           if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == true)
+           if ( EVS_AppDataIsUsed(AppDataPtr) )
            {
-               EVS_DisableTypes(CmdPtr->BitMask, i);
+               EVS_DisableTypes(AppDataPtr, CmdPtr->BitMask);
            }
+           ++AppDataPtr;
        }
 
        EVS_SendEvent(CFE_EVS_DISEVTTYPE_EID, CFE_EVS_EventType_DEBUG,
@@ -1099,7 +1110,7 @@ int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatMode_t *data)
 int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventType_t *data)
 {
    const CFE_EVS_AppNameBitMaskCmd_Payload_t *CmdPtr = &data->Payload;
-   uint32  AppID = CFE_EVS_UNDEF_APPID;
+   EVS_AppData_t *AppDataPtr;
    int32   Status;
    char    LocalName[OS_MAX_API_NAME];
 
@@ -1110,7 +1121,7 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventType_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retrieve application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if(Status == CFE_SUCCESS)
    {
@@ -1125,7 +1136,7 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventType_t *data)
         }
         else
         {
-            EVS_EnableTypes(CmdPtr->BitMask, AppID);
+            EVS_EnableTypes(AppDataPtr, CmdPtr->BitMask);
         }
    }
    else if(Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -1137,8 +1148,8 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventType_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
       EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                        "Illegal application ID %d retrieved for %s: CC = %lu",
-                        (int)AppID, LocalName, (long unsigned int)CFE_EVS_ENABLE_APP_EVENT_TYPE_CC);
+                        "Illegal application ID retrieved for %s: CC = %lu",
+                        LocalName, (long unsigned int)CFE_EVS_ENABLE_APP_EVENT_TYPE_CC);
    }
    else
    {
@@ -1172,7 +1183,7 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventType_t *data)
 */
 int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventType_t *data)
 {
-   uint32 AppID  = CFE_EVS_UNDEF_APPID;
+   EVS_AppData_t *AppDataPtr;
    const CFE_EVS_AppNameBitMaskCmd_Payload_t *CmdPtr = &data->Payload;
    int32  Status;
    char    LocalName[OS_MAX_API_NAME];
@@ -1184,7 +1195,7 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventType_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retreive application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if(Status == CFE_SUCCESS)
    {
@@ -1199,7 +1210,7 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventType_t *data)
         }
         else
         {
-            EVS_DisableTypes(CmdPtr->BitMask, AppID);
+            EVS_DisableTypes(AppDataPtr, CmdPtr->BitMask);
         }
    }
    else if(Status == CFE_EVS_APP_NOT_REGISTERED)
@@ -1211,8 +1222,8 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventType_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
       EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                        "Illegal application ID %d retrieved for %s: CC = %lu",
-                        (int)AppID, LocalName, (long unsigned int)CFE_EVS_DISABLE_APP_EVENT_TYPE_CC);
+                        "Illegal application ID retrieved for %s: CC = %lu",
+                        LocalName, (long unsigned int)CFE_EVS_DISABLE_APP_EVENT_TYPE_CC);
    }
    else
    {
@@ -1245,7 +1256,7 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventType_t *data)
 */
 int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEvents_t *data)
 {
-   uint32 AppID  = CFE_EVS_UNDEF_APPID;
+   EVS_AppData_t *AppDataPtr;
    const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
    int32  Status;
    char                LocalName[OS_MAX_API_NAME];
@@ -1257,11 +1268,11 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEvents_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retrieve application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if(Status == CFE_SUCCESS)
    {
-        CFE_EVS_GlobalData.AppData[AppID].ActiveFlag = true;
+        AppDataPtr->ActiveFlag = true;
 
         EVS_SendEvent(CFE_EVS_ENAAPPEVT_EID, CFE_EVS_EventType_DEBUG,
                           "Enable App Events Command Received with AppName = %s",
@@ -1276,8 +1287,8 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEvents_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
       EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                        "Illegal application ID %d retrieved for %s: CC = %lu",
-                        (int)AppID, LocalName, (long unsigned int)CFE_EVS_ENABLE_APP_EVENTS_CC);
+                        "Illegal application ID retrieved for %s: CC = %lu",
+                        LocalName, (long unsigned int)CFE_EVS_ENABLE_APP_EVENTS_CC);
    }
    else
    {
@@ -1303,7 +1314,7 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEvents_t *data)
 */
 int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEvents_t *data)
 {
-   uint32 AppID  = CFE_EVS_UNDEF_APPID;
+   EVS_AppData_t *AppDataPtr;
    const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
    int32  Status;
    char                LocalName[OS_MAX_API_NAME];
@@ -1315,11 +1326,11 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEvents_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retreive application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if(Status == CFE_SUCCESS)
    {
-       CFE_EVS_GlobalData.AppData[AppID].ActiveFlag = false;
+       AppDataPtr->ActiveFlag = false;
 
        EVS_SendEvent(CFE_EVS_DISAPPEVT_EID, CFE_EVS_EventType_DEBUG,
                "Disable App Events Command Received with AppName = %s",
@@ -1334,8 +1345,8 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEvents_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-               "Illegal application ID %d retrieved for %s: CC = %lu",
-               (int)AppID, LocalName,(long unsigned int)CFE_EVS_DISABLE_APP_EVENTS_CC);
+               "Illegal application ID retrieved for %s: CC = %lu",
+               LocalName,(long unsigned int)CFE_EVS_DISABLE_APP_EVENTS_CC);
    }
    else
    {
@@ -1362,7 +1373,7 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEvents_t *data)
 */
 int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounter_t *data)
 {
-   uint32 AppID  = CFE_EVS_UNDEF_APPID;
+   EVS_AppData_t *AppDataPtr;
    const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
    int32  Status;
    char   LocalName[OS_MAX_API_NAME];
@@ -1374,11 +1385,11 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounter_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retreive application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if(Status == CFE_SUCCESS)
    {
-       CFE_EVS_GlobalData.AppData[AppID].EventCount = 0;
+       AppDataPtr->EventCount = 0;
 
        EVS_SendEvent(CFE_EVS_RSTEVTCNT_EID, CFE_EVS_EventType_DEBUG,
                "Reset Event Counter Command Received with AppName = %s",
@@ -1393,8 +1404,8 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounter_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-               "Illegal application ID %d retrieved for %s: CC = %lu",
-               (int)AppID, LocalName,(long unsigned int) CFE_EVS_RESET_APP_COUNTER_CC);
+               "Illegal application ID retrieved for %s: CC = %lu",
+               LocalName,(long unsigned int) CFE_EVS_RESET_APP_COUNTER_CC);
    }
    else
    {
@@ -1423,7 +1434,6 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilter_t *data)
 {
    const CFE_EVS_AppNameEventIDCmd_Payload_t *CmdPtr = &data->Payload;
    EVS_BinFilter_t     *FilterPtr;
-   uint32               AppID = CFE_EVS_UNDEF_APPID;
    int32                Status;
    EVS_AppData_t       *AppDataPtr;
    char                 LocalName[OS_MAX_API_NAME];
@@ -1435,12 +1445,10 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilter_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retreive application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if(Status == CFE_SUCCESS)
    {
-      AppDataPtr = &CFE_EVS_GlobalData.AppData[AppID];
-
       FilterPtr = EVS_FindEventID(CmdPtr->EventID, AppDataPtr->BinFilters);
 
       if(FilterPtr != NULL)
@@ -1469,8 +1477,8 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilter_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
       EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                        "Illegal application ID %d retrieved for %s: CC = %lu",
-                        (int)AppID, LocalName, (long unsigned int)CFE_EVS_RESET_FILTER_CC);
+                        "Illegal application ID retrieved for %s: CC = %lu",
+                        LocalName, (long unsigned int)CFE_EVS_RESET_FILTER_CC);
    }
    else
    {
@@ -1497,7 +1505,7 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilter_t *data)
 */
 int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFilters_t *data)
 {
-   uint32                    AppID  = CFE_EVS_UNDEF_APPID;
+   EVS_AppData_t            *AppDataPtr;
    const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
    int32                     Status;
    uint32                    i;
@@ -1510,13 +1518,13 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFilters_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retreive application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if(Status == CFE_SUCCESS)
    {
        for(i=0; i<CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
        {
-           CFE_EVS_GlobalData.AppData[AppID].BinFilters[i].Count = 0;
+           AppDataPtr->BinFilters[i].Count = 0;
        }
 
        EVS_SendEvent(CFE_EVS_RSTALLFILTER_EID, CFE_EVS_EventType_DEBUG,
@@ -1532,8 +1540,8 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFilters_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
        EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-               "Illegal application ID %d retrieved for %s: CC = %lu",
-               (int)AppID, LocalName, (long unsigned int)CFE_EVS_RESET_ALL_FILTERS_CC);
+               "Illegal application ID retrieved for %s: CC = %lu",
+               LocalName, (long unsigned int)CFE_EVS_RESET_ALL_FILTERS_CC);
    }
    else
    {
@@ -1561,7 +1569,6 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilter_t *data)
 {
    const CFE_EVS_AppNameEventIDMaskCmd_Payload_t *CmdPtr = &data->Payload;
    EVS_BinFilter_t     *FilterPtr;
-   uint32               AppID = CFE_EVS_UNDEF_APPID;
    int32                Status;
    EVS_AppData_t       *AppDataPtr;
    char                 LocalName[OS_MAX_API_NAME];
@@ -1573,12 +1580,10 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilter_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retreive application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if(Status == CFE_SUCCESS)
    {
-      AppDataPtr = &CFE_EVS_GlobalData.AppData[AppID];
-
       /* Check to see if this event is already registered for filtering */
       FilterPtr = EVS_FindEventID(CmdPtr->EventID, AppDataPtr->BinFilters);
 
@@ -1627,8 +1632,8 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilter_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
       EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                        "Illegal application ID %d retrieved for %s: CC = %lu",
-                        (int)AppID, LocalName, (long unsigned int)CFE_EVS_ADD_EVENT_FILTER_CC);
+                        "Illegal application ID retrieved for %s: CC = %lu",
+                        LocalName, (long unsigned int)CFE_EVS_ADD_EVENT_FILTER_CC);
    }
    else
    {
@@ -1656,7 +1661,6 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilter_t *data)
 {
    const CFE_EVS_AppNameEventIDCmd_Payload_t *CmdPtr = &data->Payload;
    EVS_BinFilter_t     *FilterPtr;
-   uint32               AppID = CFE_EVS_UNDEF_APPID;
    int32                Status;
    EVS_AppData_t       *AppDataPtr;
    char                 LocalName[OS_MAX_API_NAME];
@@ -1668,12 +1672,10 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilter_t *data)
    CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, OS_MAX_API_NAME, sizeof(CmdPtr->AppName));
 
    /* Retreive application data */
-   Status = EVS_GetApplicationInfo(&AppID, LocalName);
+   Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
    if(Status == CFE_SUCCESS)
    {
-      AppDataPtr = &CFE_EVS_GlobalData.AppData[AppID];
-
       FilterPtr = EVS_FindEventID(CmdPtr->EventID, AppDataPtr->BinFilters);
 
       if(FilterPtr != NULL)
@@ -1705,8 +1707,8 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilter_t *data)
    else if(Status == CFE_EVS_APP_ILLEGAL_APP_ID)
    {
       EVS_SendEvent(CFE_EVS_ERR_ILLAPPIDRANGE_EID, CFE_EVS_EventType_ERROR,
-                        "Illegal application ID %d retrieved for %s: CC = %lu",
-                        (int)AppID, LocalName, (long unsigned int)CFE_EVS_DELETE_EVENT_FILTER_CC);
+                        "Illegal application ID retrieved for %s: CC = %lu",
+                        LocalName, (long unsigned int)CFE_EVS_DELETE_EVENT_FILTER_CC);
    }
    else
    {
@@ -1773,18 +1775,17 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFile_t *data)
 
       if (BytesWritten == sizeof(CFE_FS_Header_t))
       {
+         AppDataPtr = CFE_EVS_GlobalData.AppData;
          for (i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++)
          {
             /* Only have data for apps that are registered */
-            if (CFE_EVS_GlobalData.AppData[i].RegisterFlag == true)
+            if ( EVS_AppDataIsUsed(AppDataPtr) )
             {
-               AppDataPtr = &CFE_EVS_GlobalData.AppData[i];
-
                /* Clear application file data record */
                memset(&AppDataFile, 0, sizeof(CFE_EVS_AppDataFile_t));
 
                /* Copy application data to application file data record */
-               CFE_ES_GetAppName(AppDataFile.AppName, i, OS_MAX_API_NAME);
+               CFE_ES_GetAppName(AppDataFile.AppName, EVS_AppDataGetID(AppDataPtr), OS_MAX_API_NAME);
                AppDataFile.ActiveFlag = AppDataPtr->ActiveFlag;
                AppDataFile.EventCount = AppDataPtr->EventCount;
                AppDataFile.EventTypesActiveFlag = AppDataPtr->EventTypesActiveFlag;
@@ -1808,6 +1809,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFile_t *data)
                   break;
                }
             }
+            ++AppDataPtr;
          }
 
          /* Process command handler success result */
