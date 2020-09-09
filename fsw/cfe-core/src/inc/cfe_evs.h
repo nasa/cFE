@@ -62,10 +62,11 @@
 /*
 ** Utility macros to make for simpler/more compact/readable code.
 */
-#define CFE_EVS_SendDbg(E,...) CFE_EVS_SendEvent((E), CFE_EVS_EventType_DEBUG, __VA_ARGS__)
-#define CFE_EVS_SendInfo(E,...) CFE_EVS_SendEvent((E), CFE_EVS_EventType_INFORMATION, __VA_ARGS__)
-#define CFE_EVS_SendErr(E,...) CFE_EVS_SendEvent((E), CFE_EVS_EventType_ERROR, __VA_ARGS__)
-#define CFE_EVS_SendCrit(E,...) CFE_EVS_SendEvent((E), CFE_EVS_EventType_CRITICAL, __VA_ARGS__)
+#define CFE_EVS_Send(E,T,...) CFE_EVS_SendEvent((E), CFE_EVS_EventType_##T, __VA_ARGS__)
+#define CFE_EVS_SendDbg(E,...) CFE_EVS_Send(E, DEBUG, __VA_ARGS__)
+#define CFE_EVS_SendInfo(E,...) CFE_EVS_Send(E, INFORMATION, __VA_ARGS__)
+#define CFE_EVS_SendErr(E,...) CFE_EVS_Send(E, ERROR, __VA_ARGS__)
+#define CFE_EVS_SendCrit(E,...) CFE_EVS_Send(E, CRITICAL, __VA_ARGS__)
 
 /** \name Common Event Filter Mask Values  */
 /** \{ */
