@@ -2456,6 +2456,12 @@ void Test_Unsubscribe_Basic(void)
 
     EVTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
+    /* Check unsubscribe after unsubscribe produces event */
+    UT_ClearEventHistory();
+    ASSERT(CFE_SB_Unsubscribe(MsgId, TestPipe));
+    EVTCNT(2);
+    EVTSENT(CFE_SB_UNSUB_NO_SUBS_EID);
+
     TEARDOWN(CFE_SB_DeletePipe(TestPipe));
 
 } /* end Test_Unsubscribe_Basic */
