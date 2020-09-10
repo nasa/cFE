@@ -895,7 +895,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     int32                Status = CFE_SUCCESS;
     CFE_FS_Header_t      StdFileHeader;
     CFE_TBL_File_Hdr_t   TblFileHeader;
-    int32                FileDescriptor;
+    osal_id_t            FileDescriptor;
     size_t               FilenameLen = strlen(Filename);
     uint32               NumBytes;
     uint8                ExtraByte;
@@ -912,17 +912,19 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     }
 
     /* Try to open the specified table file */
-    FileDescriptor = OS_open(Filename, OS_READ_ONLY, 0);
+    Status = OS_open(Filename, OS_READ_ONLY, 0);
 
-    if (FileDescriptor < 0)
+    if (Status < 0)
     {
         CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_ACCESS_ERR_EID,
             CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
             "%s: Unable to open file (FileDescriptor=%d)",
-            AppName, (int)FileDescriptor);
+            AppName, (int)Status);
 
             return CFE_TBL_ERR_ACCESS;
     }
+
+    FileDescriptor = OS_ObjectIdFromInteger(Status);
 
     Status = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader, &TblFileHeader, Filename);
 
@@ -1163,7 +1165,7 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 ** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
 ********************************************************************/
 
-int32 CFE_TBL_ReadHeaders( int32 FileDescriptor,
+int32 CFE_TBL_ReadHeaders( osal_id_t FileDescriptor,
                            CFE_FS_Header_t *StdFileHeaderPtr,
                            CFE_TBL_File_Hdr_t *TblFileHeaderPtr,
                            const char *LoadFilename )

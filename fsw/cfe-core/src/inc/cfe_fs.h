@@ -70,7 +70,7 @@
 ** \sa #CFE_FS_WriteHeader
 **
 ******************************************************************************/
-int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, int32 FileDes);
+int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes);
 
 /*****************************************************************************/
 /**
@@ -128,7 +128,7 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 ** \sa #CFE_FS_ReadHeader
 **
 ******************************************************************************/
-int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr);
+int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr);
 
 /*****************************************************************************/
 /**
@@ -153,7 +153,7 @@ int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr);
 ** \return Execution status, see \ref CFEReturnCodes
 **               
 ******************************************************************************/
-int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp);
+int32 CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp);
 /**@}*/
 
 

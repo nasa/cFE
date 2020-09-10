@@ -75,7 +75,7 @@ typedef struct
 
 typedef struct
 {
-    uint32               RegistryMutex;                         /**< \brief Mutex that controls access to CDS Registry */
+    osal_id_t            RegistryMutex;                         /**< \brief Mutex that controls access to CDS Registry */
     uint32               CDSSize;                               /**< \brief Total size of the CDS as reported by BSP */
     uint32               MemPoolSize;
     uint32               MaxNumRegEntries;                      /**< \brief Maximum number of Registry entries */

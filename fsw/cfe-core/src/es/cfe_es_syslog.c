@@ -468,7 +468,7 @@ void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStr
  */
 int32 CFE_ES_SysLogDump(const char *Filename)
 {
-    int32   fd;
+    osal_id_t   fd;
     int32   Status;
     size_t  WritePos;
     size_t  TotalSize;
@@ -479,14 +479,16 @@ int32 CFE_ES_SysLogDump(const char *Filename)
         CFE_FS_Header_t FileHdr;
     } Buffer;
 
-    fd = OS_creat(Filename, OS_WRITE_ONLY);
-    if(fd < 0)
+    Status = OS_creat(Filename, OS_WRITE_ONLY);
+    if(Status < 0)
     {
         CFE_EVS_SendEvent(CFE_ES_SYSLOG2_ERR_EID,CFE_EVS_EventType_ERROR,
                 "Error creating file %s, RC = 0x%08X",
-                Filename,(unsigned int)fd);
+                Filename,(unsigned int)Status);
         return CFE_ES_FILE_IO_ERR;
     }/* end if */
+
+    fd = OS_ObjectIdFromInteger(Status);
 
     CFE_FS_InitHeader(&Buffer.FileHdr, CFE_ES_SYS_LOG_DESC, CFE_FS_SubType_ES_SYSLOG);
 

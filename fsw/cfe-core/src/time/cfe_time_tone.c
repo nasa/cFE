@@ -1068,7 +1068,7 @@ void CFE_TIME_ToneUpdate(void)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-void CFE_TIME_Local1HzTimerCallback(uint32 TimerId, void *Arg)
+void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg)
 {
     CFE_TIME_Local1HzISR();
 }

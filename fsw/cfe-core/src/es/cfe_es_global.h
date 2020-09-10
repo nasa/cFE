@@ -75,7 +75,7 @@ typedef struct
 typedef struct
 {
     uint32 TaskID;          /**< OSAL ID of the background task */
-    uint32 WorkSem;         /**< Semaphore that is given whenever background work is pending */
+    osal_id_t WorkSem;      /**< Semaphore that is given whenever background work is pending */
     uint32 NumJobsRunning;  /**< Current Number of active jobs (updated by background task) */
 } CFE_ES_BackgroundTaskState_t;
 
@@ -95,12 +95,12 @@ typedef struct
    /*
    ** Shared Data Semaphore
    */
-   uint32 SharedDataMutex;
+   osal_id_t SharedDataMutex;
 
    /*
    ** Performance Data Mutex
    */
-   uint32 PerfDataMutex;
+   osal_id_t PerfDataMutex;
 
    /*
    ** Startup Sync
@@ -467,6 +467,47 @@ extern CFE_ES_AppRecord_t* CFE_ES_GetAppRecordByContext(void);
  * The global data lock should be obtained prior to invoking this function.
  */
 extern CFE_ES_TaskRecord_t* CFE_ES_GetTaskRecordByContext(void);
+
+/**
+ * @brief Convert an ES Task ID to an OSAL task ID
+ *
+ * Task IDs created via CFE ES are also OSAL task IDs, but technically
+ * do refer to a different scope and therefore have a different type
+ * to represent them.
+ *
+ * This function facilitates converting between the types.
+ *
+ * @note Currently the numeric values are the same and can be interchanged
+ * for backward compatibility, however they may diverge in a future version.
+ * New code should not assume equivalence between OSAL and ES task IDs.
+ *
+ * @sa CFE_ES_ResourceID_FromOSAL
+ *
+ * @param[in] id    The ES task ID
+ * @returns         The OSAL task ID
+ */
+osal_id_t CFE_ES_ResourceID_ToOSAL(uint32 id);
+
+/**
+ * @brief Convert an ES Task ID to an OSAL task ID
+ *
+ * Task IDs created via CFE ES are also OSAL task IDs, but technically
+ * do refer to a different scope and therefore have a different type
+ * to represent them.
+ *
+ * This function facilitates converting between the types.
+ *
+ * @note Currently the numeric values are the same and can be interchanged
+ * for backward compatibility, however they may diverge in a future version.
+ * New code should not assume equivalence between OSAL and ES task IDs.
+ *
+ * @sa CFE_ES_ResourceID_ToOSAL
+ *
+ * @param[in] id    The OSAL task ID
+ * @returns         The ES task ID
+ */
+uint32 CFE_ES_ResourceID_FromOSAL(osal_id_t id);
+
 
 /*
 ** Functions used to lock/unlock shared data

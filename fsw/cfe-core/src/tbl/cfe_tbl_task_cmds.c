@@ -59,7 +59,7 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
     uint32                    i;
     CFE_TBL_DumpControl_t    *DumpCtrlPtr;
     CFE_TIME_SysTime_t        DumpTime;
-    int32                     FileDescriptor;
+    osal_id_t                 FileDescriptor;
     
     /*
     ** Collect housekeeping data from Table Services
@@ -113,10 +113,12 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
                 DumpTime.Seconds = DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSecs;
                 DumpTime.Subseconds = DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSubSecs;
             
-                FileDescriptor = OS_open(DumpCtrlPtr->DumpBufferPtr->DataSource, OS_READ_WRITE, 0);
+                Status = OS_open(DumpCtrlPtr->DumpBufferPtr->DataSource, OS_READ_WRITE, 0);
 
-                if (FileDescriptor >= 0)
+                if (Status >= 0)
                 {
+                    FileDescriptor = OS_ObjectIdFromInteger(Status);
+
                     Status = CFE_FS_SetTimestamp(FileDescriptor, DumpTime);
                     
                     if (Status != OS_SUCCESS)
@@ -373,7 +375,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data)
     const CFE_TBL_LoadCmd_Payload_t    *CmdPtr = &data->Payload;
     CFE_FS_Header_t             StdFileHeader;
     CFE_TBL_File_Hdr_t          TblFileHeader;
-    int32                       FileDescriptor;
+    osal_id_t                   FileDescriptor;
     int32                       Status;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
@@ -385,10 +387,12 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data)
             OS_MAX_PATH_LEN, sizeof(CmdPtr->LoadFilename));
 
     /* Try to open the specified table file */
-    FileDescriptor = OS_open(LoadFilename, OS_READ_ONLY, 0);
+    Status = OS_open(LoadFilename, OS_READ_ONLY, 0);
 
-    if (FileDescriptor >= 0)
+    if (Status >= 0)
     {
+        FileDescriptor = OS_ObjectIdFromInteger(Status);
+
         Status = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader, &TblFileHeader, &LoadFilename[0]);
 
         if (Status == CFE_SUCCESS)
@@ -557,7 +561,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data)
         CFE_EVS_SendEvent(CFE_TBL_FILE_ACCESS_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Unable to open file '%s' for table load, Status = 0x%08X",
-                          LoadFilename, (unsigned int)FileDescriptor);
+                          LoadFilename, (unsigned int)Status);
     }
 
     return ReturnCode;
@@ -736,7 +740,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
     bool                        FileExistedPrev = false;
     CFE_FS_Header_t             StdFileHeader;
     CFE_TBL_File_Hdr_t          TblFileHeader;
-    int32                       FileDescriptor;
+    osal_id_t                   FileDescriptor;
     int32                       Status;
     int32                       EndianCheck = 0x01020304;
     
@@ -744,20 +748,22 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
     memset(&TblFileHeader, 0, sizeof(CFE_TBL_File_Hdr_t));
 
     /* Check to see if the dump file already exists */
-    FileDescriptor = OS_open(DumpFilename, OS_READ_ONLY, 0);
+    Status = OS_open(DumpFilename, OS_READ_ONLY, 0);
 
-    if (FileDescriptor >= 0)
+    if (Status >= 0)
     {
         FileExistedPrev = true;
-
+        FileDescriptor = OS_ObjectIdFromInteger(Status);
         OS_close(FileDescriptor);
     }
 
     /* Create a new dump file, overwriting anything that may have existed previously */
-    FileDescriptor = OS_creat(DumpFilename, OS_WRITE_ONLY);
+    Status = OS_creat(DumpFilename, OS_WRITE_ONLY);
 
-    if (FileDescriptor >= OS_SUCCESS)
+    if (Status >= OS_SUCCESS)
     {
+        FileDescriptor = OS_ObjectIdFromInteger(Status);
+
         /* Initialize the standard cFE File Header for the Dump File */
         CFE_FS_InitHeader(&StdFileHeader, "Table Dump Image", CFE_FS_SubType_TBL_IMG);
 
@@ -852,7 +858,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
         CFE_EVS_SendEvent(CFE_TBL_CREATING_DUMP_FILE_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Error creating dump file '%s', Status=0x%08X",
-                          DumpFilename, (unsigned int)FileDescriptor);
+                          DumpFilename, (unsigned int)Status);
     }
     
     return ReturnCode;
@@ -1120,7 +1126,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
     CFE_TBL_CmdProcRet_t        ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
     bool                        FileExistedPrev = false;
     CFE_FS_Header_t             StdFileHeader;
-    int32                       FileDescriptor;
+    osal_id_t                   FileDescriptor;
     int32                       Status;
     int16                       RegIndex=0;
     const CFE_TBL_DumpRegistryCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1136,20 +1142,22 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
             OS_MAX_PATH_LEN, sizeof(CmdPtr->DumpFilename));
 
     /* Check to see if the dump file already exists */
-    FileDescriptor = OS_open(DumpFilename, OS_READ_ONLY, 0);
+    Status = OS_open(DumpFilename, OS_READ_ONLY, 0);
 
-    if (FileDescriptor >= 0)
+    if (Status >= 0)
     {
         FileExistedPrev = true;
-
+        FileDescriptor = OS_ObjectIdFromInteger(Status);
         OS_close(FileDescriptor);
     }
 
     /* Create a new dump file, overwriting anything that may have existed previously */
-    FileDescriptor = OS_creat(DumpFilename, OS_WRITE_ONLY);
+    Status = OS_creat(DumpFilename, OS_WRITE_ONLY);
 
-    if (FileDescriptor >= OS_SUCCESS)
+    if (Status >= OS_SUCCESS)
     {
+        FileDescriptor = OS_ObjectIdFromInteger(Status);
+
         /* Initialize the standard cFE File Header for the Dump File */
         CFE_FS_InitHeader(&StdFileHeader, "Table Registry", CFE_FS_SubType_TBL_REG);
 
@@ -1286,7 +1294,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
         CFE_EVS_SendEvent(CFE_TBL_CREATING_DUMP_FILE_ERR_EID,
                           CFE_EVS_EventType_ERROR,
                           "Error creating dump file '%s', Status=0x%08X",
-                          DumpFilename, (unsigned int)FileDescriptor);
+                          DumpFilename, (unsigned int)Status);
     }
 
     return ReturnCode;

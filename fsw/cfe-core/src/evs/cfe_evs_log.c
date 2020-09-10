@@ -154,7 +154,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data)
     int32           Result;
     int32           LogIndex;
     int32           BytesWritten;
-    int32           LogFileHandle;
+    osal_id_t       LogFileHandle;
     uint32          i;
     CFE_FS_Header_t LogFileHdr;
     char            LogFilename[OS_MAX_PATH_LEN];
@@ -172,18 +172,19 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data)
                 OS_MAX_PATH_LEN, sizeof(CmdPtr->LogFilename));
 
         /* Create the log file */
-        LogFileHandle = OS_creat(LogFilename, OS_WRITE_ONLY);
+        Result = OS_creat(LogFilename, OS_WRITE_ONLY);
 
-        if (LogFileHandle < OS_SUCCESS)
+        if (Result < OS_SUCCESS)
         {
             EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID, CFE_EVS_EventType_ERROR,
                     "Write Log File Command Error: OS_creat = 0x%08X, filename = %s",
-                    (unsigned int)LogFileHandle, LogFilename);
+                    (unsigned int)Result, LogFilename);
 
-            Result = LogFileHandle;
         }
         else
         {
+            LogFileHandle = OS_ObjectIdFromInteger(Result);
+
             /* Result will be overridden if everything works */
             Result = CFE_EVS_FILE_WRITE_ERROR;
 

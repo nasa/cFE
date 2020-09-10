@@ -82,7 +82,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
 {
     uint32          AppId = 0xFFFFFFFF;
     uint32          TskId = 0;
-    uint32          SysQueueId = 0;
+    osal_id_t       SysQueueId;
     int32           Status;
     CFE_SB_PipeId_t OriginalPipeIdParamValue = (PipeIdPtr == NULL) ? 0 : (*PipeIdPtr);
     CFE_SB_PipeId_t PipeTblIdx;
@@ -561,7 +561,7 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
     int32         Status = CFE_SUCCESS;
     int32         RtnFromVal = 0;
     uint32        TskId = 0;
-    uint32        QueueId = 0;
+    osal_id_t     QueueId;
     char          FullName[(OS_MAX_API_NAME * 2)];
 
     /* get TaskId of caller for events */
@@ -593,7 +593,7 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
                 PipeTblIdx++)
             {
                 if(CFE_SB.PipeTbl[PipeTblIdx].InUse != 0
-                    && CFE_SB.PipeTbl[PipeTblIdx].SysQueueId == QueueId)
+                    && OS_ObjectIdEqual(CFE_SB.PipeTbl[PipeTblIdx].SysQueueId, QueueId))
                 {
                     /* grab the ID before we release the lock */
                     *PipeIdPtr = CFE_SB.PipeTbl[PipeTblIdx].PipeId;

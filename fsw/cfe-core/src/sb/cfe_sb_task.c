@@ -861,8 +861,8 @@ int32 CFE_SB_SendRtgInfo(const char *Filename)
     CFE_SB_MsgRouteIdx_t        RtgTblIdx;
     const CFE_SB_RouteEntry_t*  RtgTblPtr;
     CFE_SB_MsgKey_Atom_t        MsgKeyVal;
-    int32                       fd = 0;
-    int32                       WriteStat;
+    osal_id_t                   fd;
+    int32                       Status;
     uint32                      FileSize = 0;
     uint32                      EntryCount = 0;
     CFE_SB_RoutingFileEntry_t   Entry;
@@ -870,25 +870,27 @@ int32 CFE_SB_SendRtgInfo(const char *Filename)
     CFE_SB_PipeD_t              *pd; 
     CFE_SB_DestinationD_t       *DestPtr;
 
-    fd = OS_creat(Filename, OS_WRITE_ONLY);
-    if(fd < OS_SUCCESS){
+    Status = OS_creat(Filename, OS_WRITE_ONLY);
+    if(Status < OS_SUCCESS){
         CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
                       "Error creating file %s, stat=0x%x",
-                      Filename,(unsigned int)fd);
+                      Filename,(unsigned int)Status);
         return CFE_SB_FILE_IO_ERR;
     }/* end if */
+
+    fd = OS_ObjectIdFromInteger(Status);
 
     /* clear out the cfe file header fields, then populate description and subtype */
     CFE_FS_InitHeader(&FileHdr, "SB Routing Information", CFE_FS_SubType_SB_ROUTEDATA);
 
-    WriteStat = CFE_FS_WriteHeader(fd, &FileHdr);
-    if(WriteStat != sizeof(CFE_FS_Header_t)){
-        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),WriteStat);
+    Status = CFE_FS_WriteHeader(fd, &FileHdr);
+    if(Status != sizeof(CFE_FS_Header_t)){
+        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),Status);
         OS_close(fd);
         return CFE_SB_FILE_IO_ERR;
     }/* end if */
 
-    FileSize = WriteStat;
+    FileSize = Status;
 
     /* loop through the entire MsgMap */
     for(MsgKeyVal=0; MsgKeyVal < CFE_SB_MAX_NUMBER_OF_MSG_KEYS; ++MsgKeyVal)
@@ -928,16 +930,16 @@ int32 CFE_SB_SendRtgInfo(const char *Filename)
                 CFE_ES_GetAppName(&Entry.AppName[0], pd->AppId, sizeof(Entry.AppName));
                 CFE_SB_GetPipeName(Entry.PipeName, sizeof(Entry.PipeName), Entry.PipeId);
 
-                WriteStat = OS_write (fd, &Entry, sizeof(CFE_SB_RoutingFileEntry_t));
-                if(WriteStat != sizeof(CFE_SB_RoutingFileEntry_t)){
+                Status = OS_write (fd, &Entry, sizeof(CFE_SB_RoutingFileEntry_t));
+                if(Status != sizeof(CFE_SB_RoutingFileEntry_t)){
                     CFE_SB_FileWriteByteCntErr(Filename,
                                            sizeof(CFE_SB_RoutingFileEntry_t),
-                                           WriteStat);
+                                           Status);
                     OS_close(fd);
                     return CFE_SB_FILE_IO_ERR;
                 }/* end if */
 
-                FileSize += WriteStat;
+                FileSize += Status;
                 EntryCount ++;
             }
             
@@ -973,46 +975,48 @@ int32 CFE_SB_SendRtgInfo(const char *Filename)
 int32 CFE_SB_SendPipeInfo(const char *Filename)
 {
     uint16 i;
-    int32  fd = 0;
-    int32  WriteStat;
+    osal_id_t  fd;
+    int32  Status;
     uint32 FileSize = 0;
     uint32 EntryCount = 0;
     CFE_FS_Header_t FileHdr;
 
-    fd = OS_creat(Filename, OS_WRITE_ONLY);
+    Status = OS_creat(Filename, OS_WRITE_ONLY);
 
-    if(fd < OS_SUCCESS){
+    if(Status < OS_SUCCESS){
         CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
                           "Error creating file %s, stat=0x%x",
-                           Filename,(unsigned int)fd);
+                           Filename,(unsigned int)Status);
         return CFE_SB_FILE_IO_ERR;
     }/* end if */
+
+    fd = OS_ObjectIdFromInteger(Status);
 
     /* clear out the cfe file header fields, then populate description and subtype */
     CFE_FS_InitHeader(&FileHdr, "SB Pipe Information", CFE_FS_SubType_SB_PIPEDATA);
     
-    WriteStat = CFE_FS_WriteHeader(fd, &FileHdr);
-    if(WriteStat != sizeof(CFE_FS_Header_t)){
-        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),WriteStat);
+    Status = CFE_FS_WriteHeader(fd, &FileHdr);
+    if(Status != sizeof(CFE_FS_Header_t)){
+        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),Status);
         OS_close(fd);
         return CFE_SB_FILE_IO_ERR;
     }/* end if */
 
-    FileSize = WriteStat;
+    FileSize = Status;
 
     /* loop through the pipe table */
     for(i=0;i<CFE_PLATFORM_SB_MAX_PIPES;i++){
 
         if(CFE_SB.PipeTbl[i].InUse==CFE_SB_IN_USE){
 
-            WriteStat = OS_write (fd, &(CFE_SB.PipeTbl[i]), sizeof(CFE_SB_PipeD_t));
-            if(WriteStat != sizeof(CFE_SB_PipeD_t)){
-                CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_SB_PipeD_t),WriteStat);
+            Status = OS_write (fd, &(CFE_SB.PipeTbl[i]), sizeof(CFE_SB_PipeD_t));
+            if(Status != sizeof(CFE_SB_PipeD_t)){
+                CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_SB_PipeD_t),Status);
                 OS_close(fd);
                 return CFE_SB_FILE_IO_ERR;
             }/* end if */
 
-            FileSize += WriteStat;
+            FileSize += Status;
             EntryCount ++;
 
         }/* end if */
@@ -1047,33 +1051,35 @@ int32 CFE_SB_SendMapInfo(const char *Filename)
     const CFE_SB_RouteEntry_t*  RtgTblPtr;
     CFE_SB_MsgRouteIdx_t        RtgTblIdx;
     CFE_SB_MsgKey_Atom_t        MsgKeyVal;
-    int32  fd = 0;
-    int32  WriteStat;
+    osal_id_t  fd;
+    int32  Status;
     uint32 FileSize = 0;
     uint32 EntryCount = 0;
     CFE_SB_MsgMapFileEntry_t Entry;
     CFE_FS_Header_t FileHdr;
 
-    fd = OS_creat(Filename, OS_WRITE_ONLY);
+    Status = OS_creat(Filename, OS_WRITE_ONLY);
 
-    if (fd < OS_SUCCESS){
+    if (Status < OS_SUCCESS){
         CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
                           "Error creating file %s, stat=0x%x",
-                           Filename,(unsigned int)fd);
+                           Filename,(unsigned int)Status);
         return CFE_SB_FILE_IO_ERR;
     }/* end if */
+
+    fd = OS_ObjectIdFromInteger(Status);
 
     /* clear out the cfe file header fields, then populate description and subtype */
     CFE_FS_InitHeader(&FileHdr, "SB Message Map Information", CFE_FS_SubType_SB_MAPDATA);
 
-    WriteStat = CFE_FS_WriteHeader(fd, &FileHdr);
-    if(WriteStat != sizeof(CFE_FS_Header_t)){
-        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),WriteStat);
+    Status = CFE_FS_WriteHeader(fd, &FileHdr);
+    if(Status != sizeof(CFE_FS_Header_t)){
+        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),Status);
         OS_close(fd);
         return CFE_SB_FILE_IO_ERR;
     }/* end if */
 
-    FileSize = WriteStat;
+    FileSize = Status;
 
     /* loop through the entire MsgMap */
     for(MsgKeyVal=0; MsgKeyVal < CFE_SB_MAX_NUMBER_OF_MSG_KEYS; ++MsgKeyVal)
@@ -1087,14 +1093,14 @@ int32 CFE_SB_SendMapInfo(const char *Filename)
             Entry.MsgId = RtgTblPtr->MsgId;
             Entry.Index = CFE_SB_RouteIdxToValue(RtgTblIdx);
 
-            WriteStat = OS_write (fd, &Entry, sizeof(CFE_SB_MsgMapFileEntry_t));
-            if(WriteStat != sizeof(CFE_SB_MsgMapFileEntry_t)){
-                CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_SB_MsgMapFileEntry_t),WriteStat);
+            Status = OS_write (fd, &Entry, sizeof(CFE_SB_MsgMapFileEntry_t));
+            if(Status != sizeof(CFE_SB_MsgMapFileEntry_t)){
+                CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_SB_MsgMapFileEntry_t),Status);
                 OS_close(fd);
                 return CFE_SB_FILE_IO_ERR;
             }/* end if */
 
-            FileSize += WriteStat;
+            FileSize += Status;
             EntryCount ++;
 
         }/* end for */

@@ -81,7 +81,7 @@ typedef struct {
    int32    SizeIndex;
    uint16   CheckErrCntr;
    uint16   RequestCntr;
-   uint32   MutexId;
+   osal_id_t   MutexId;
    uint32   MinBlockSize;
    CFE_ES_CDSBlockSizeDesc_t SizeDesc[CFE_ES_CDS_NUM_BLOCK_SIZES];
 } CFE_ES_CDSPool_t;

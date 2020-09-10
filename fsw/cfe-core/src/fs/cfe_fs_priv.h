@@ -57,7 +57,7 @@
 */
 typedef struct 
 {
-    uint32              SharedDataMutexId;
+    osal_id_t              SharedDataMutexId;
 
 } CFE_FS_t;
 

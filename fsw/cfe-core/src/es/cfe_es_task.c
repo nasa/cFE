@@ -1175,7 +1175,7 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data)
 int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
 {
     CFE_FS_Header_t       FileHeader;
-    int32                 FileDescriptor;
+    osal_id_t             FileDescriptor;
     uint32                i;
     uint32                EntryCount = 0;
     uint32                FileSize = 0;
@@ -1194,9 +1194,10 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
     /*
     ** Check to see if the file already exists
     */
-    FileDescriptor = OS_open(QueryAllFilename, OS_READ_ONLY, 0);
-    if (FileDescriptor >= 0)
+    Result = OS_open(QueryAllFilename, OS_READ_ONLY, 0);
+    if (Result >= 0)
     {
+        FileDescriptor = OS_ObjectIdFromInteger(Result);
         OS_close(FileDescriptor);
         OS_remove(QueryAllFilename);
     }
@@ -1204,9 +1205,10 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
     /*
     ** Create ES task log data file
     */
-    FileDescriptor = OS_creat(QueryAllFilename, OS_WRITE_ONLY);
-    if (FileDescriptor >= 0)
+    Result = OS_creat(QueryAllFilename, OS_WRITE_ONLY);
+    if (Result >= 0)
     {
+        FileDescriptor = OS_ObjectIdFromInteger(Result);
         /*
         ** Initialize cFE file header
         */
@@ -1290,7 +1292,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
     {
         CFE_ES_TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_OSCREATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                "Failed to write App Info file, OS_creat RC = 0x%08X",(unsigned int)FileDescriptor);
+                "Failed to write App Info file, OS_creat RC = 0x%08X",(unsigned int)Result);
     }
 
     return CFE_SUCCESS;
@@ -1305,7 +1307,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
 int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
 {
     CFE_FS_Header_t            FileHeader;
-    int32                      FileDescriptor;
+    osal_id_t                  FileDescriptor;
     uint32                     i;
     uint32                     EntryCount = 0;
     uint32                     FileSize = 0;
@@ -1323,9 +1325,10 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
     /*
     ** Check to see if the file already exists
     */
-    FileDescriptor = OS_open(QueryAllFilename, OS_READ_ONLY, 0);
-    if (FileDescriptor >= 0)
+    Result = OS_open(QueryAllFilename, OS_READ_ONLY, 0);
+    if (Result >= 0)
     {
+        FileDescriptor = OS_ObjectIdFromInteger(Result);
         OS_close(FileDescriptor);
         OS_remove(QueryAllFilename);
     }
@@ -1333,9 +1336,10 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
     /*
     ** Create ES task log data file
     */
-    FileDescriptor = OS_creat(QueryAllFilename, OS_WRITE_ONLY);
-    if (FileDescriptor >= 0)
+    Result = OS_creat(QueryAllFilename, OS_WRITE_ONLY);
+    if (Result >= 0)
     {
+        FileDescriptor = OS_ObjectIdFromInteger(Result);
         /*
         ** Initialize cFE file header
         */
@@ -1419,7 +1423,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
     {
         CFE_ES_TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_TASKINFO_OSCREATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                "Failed to write Task Info file, OS_creat RC = 0x%08X",(unsigned int)FileDescriptor);
+                "Failed to write Task Info file, OS_creat RC = 0x%08X",(unsigned int)Result);
     }
 
     return CFE_SUCCESS;
@@ -1784,7 +1788,7 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStats_t *data)
 int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
 {
     CFE_FS_Header_t               StdFileHeader;
-    int32                         FileDescriptor;
+    osal_id_t                     FileDescriptor;
     int32                         Status;
     int16                         RegIndex=0;
     const CFE_ES_DumpCDSRegistryCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1799,10 +1803,12 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
             OS_MAX_PATH_LEN, sizeof(CmdPtr->DumpFilename));
 
     /* Create a new dump file, overwriting anything that may have existed previously */
-    FileDescriptor = OS_creat(DumpFilename, OS_WRITE_ONLY);
+    Status = OS_creat(DumpFilename, OS_WRITE_ONLY);
 
-    if (FileDescriptor >= OS_SUCCESS)
+    if (Status >= OS_SUCCESS)
     {
+        FileDescriptor = OS_ObjectIdFromInteger(Status);
+
         /* Initialize the standard cFE File Header for the Dump File */
         CFE_FS_InitHeader(&StdFileHeader, "CDS_Registry", CFE_FS_SubType_ES_CDS_REG);
 
@@ -1886,7 +1892,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
         CFE_EVS_SendEvent(CFE_ES_CREATING_CDS_DUMP_ERR_EID,
                 CFE_EVS_EventType_ERROR,
                 "Error creating CDS dump file '%s', Status=0x%08X",
-                DumpFilename, (unsigned int)FileDescriptor);
+                DumpFilename, (unsigned int)Status);
 
         /* Increment Command Error Counter */
         CFE_ES_TaskData.CommandErrorCounter++;

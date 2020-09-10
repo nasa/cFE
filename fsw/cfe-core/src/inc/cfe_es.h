@@ -224,7 +224,7 @@ typedef struct
 
    uint32   StackSize;                      /**< \cfetlmmnemonic \ES_STACKSIZE
                                                  \brief The Stack Size of the Application */
-   uint32   ModuleId;                       /**< \cfetlmmnemonic \ES_MODULEID
+   osal_id_t   ModuleId;                       /**< \cfetlmmnemonic \ES_MODULEID
                                                  \brief The ID of the Loadable Module for the Application */
    uint32   AddressesAreValid;              /**< \cfetlmmnemonic \ES_ADDRVALID
                                                  \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */

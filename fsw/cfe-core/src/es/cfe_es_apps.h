@@ -76,7 +76,7 @@ typedef struct
 
   uint32                StackSize;
   cpuaddr               StartAddress;
-  uint32                ModuleId;
+  osal_id_t             ModuleId;
 
   uint16                ExceptionAction;
   uint16                Priority;

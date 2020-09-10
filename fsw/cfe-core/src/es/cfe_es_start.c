@@ -776,7 +776,7 @@ void  CFE_ES_CreateObjects(void)
     bool      AppSlotFound;
     uint16    i;
     uint16    j;
-    uint32    OsalId;
+    osal_id_t OsalId;
     CFE_ES_AppRecord_t *AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
 
@@ -875,7 +875,7 @@ void  CFE_ES_CreateObjects(void)
                }
                else
                {
-                  AppRecPtr->TaskInfo.MainTaskId = OsalId;
+                  AppRecPtr->TaskInfo.MainTaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
                   TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->TaskInfo.MainTaskId);
 
                   /*

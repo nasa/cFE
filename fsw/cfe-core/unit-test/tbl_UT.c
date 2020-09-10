@@ -4069,13 +4069,14 @@ void Test_CFE_TBL_Internal(void)
     int32                      i;
     CFE_FS_Header_t            StdFileHeader;
     CFE_TBL_File_Hdr_t         TblFileHeader;
-    int32                      FileDescriptor = 0;
+    osal_id_t                  FileDescriptor;
     void                       *TblPtr;
 
 #ifdef UT_VERBOSE
     UT_Text("Begin Test Internal\n");
 #endif
 
+    FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
     StdFileHeader.ProcessorID = CFE_PLATFORM_TBL_VALID_PRID_1;
 

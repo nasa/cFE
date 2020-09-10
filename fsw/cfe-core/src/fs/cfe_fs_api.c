@@ -46,7 +46,7 @@
 /*
 ** CFE_FS_ReadHeader() - See API and header file for details
 */
-int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, int32 FileDes)
+int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 {
     int32   Result;
     int32   EndianCheck = 0x01020304;
@@ -89,7 +89,7 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 /*
 ** CFE_FS_WriteHeader() - See API and header file for details
 */
-int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr)
+int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 {
     CFE_TIME_SysTime_t Time;
     int32   Result;
@@ -158,7 +158,7 @@ int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr)
 /*
 ** CFE_FS_SetTimestamp - See API and header file for details
 */
-int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp)
+int32 CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp)
 {
     int32              Result;
     CFE_FS_Header_t    TempHdr;

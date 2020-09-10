@@ -3198,7 +3198,7 @@ void Test_1Hz(void)
     CFE_TIME_TaskData.OneHzAdjust.Subseconds = 0;
     CFE_TIME_FinishReferenceUpdate(RefState);
     UT_SetBSP_Time(0, 0);
-    CFE_TIME_Local1HzTimerCallback(123, &Arg);
+    CFE_TIME_Local1HzTimerCallback(OS_ObjectIdFromInteger(123), &Arg);
     UT_Report(__FILE__, __LINE__,
               CFE_TIME_TaskData.LocalIntCounter == 2,
               "CFE_TIME_Local1HzTimerCallback",

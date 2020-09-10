@@ -324,8 +324,8 @@ typedef struct
   /*
   ** Registry Access Mutex and Load Buffer Semaphores
   */
-  uint32                 RegistryMutex;                   /**< \brief Mutex that controls access to Table Registry */
-  uint32                 WorkBufMutex;                    /**< \brief Mutex that controls assignment of Working Buffers */
+  osal_id_t              RegistryMutex;                   /**< \brief Mutex that controls access to Table Registry */
+  osal_id_t              WorkBufMutex;                    /**< \brief Mutex that controls assignment of Working Buffers */
   CFE_ES_CDSHandle_t     CritRegHandle;                   /**< \brief Handle to Critical Table Registry in CDS */
   CFE_TBL_LoadBuff_t     LoadBuffs[CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS];  /**< \brief Working table buffers shared by single buffered tables */
 

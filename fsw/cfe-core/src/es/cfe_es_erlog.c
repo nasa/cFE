@@ -191,14 +191,14 @@ int32 CFE_ES_WriteToERLog( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  Reset
 bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg)
 {
     CFE_ES_BackgroundLogDumpGlobal_t *State = (CFE_ES_BackgroundLogDumpGlobal_t *)Arg;
-    int32               WriteStat;
+    int32               Status;
     int32               PspStatus;
     CFE_FS_Header_t     FileHdr;
     CFE_ES_ERLog_FileEntry_t FileEntry;
     CFE_ES_ERLog_MetaData_t *EntryPtr;
     uint32              FileSize;
     uint32              i;
-    int32   fd;
+    osal_id_t           fd;
 
 
     if (!State->IsPending)
@@ -207,26 +207,27 @@ bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg)
     }
 
     FileSize = 0;
-    fd = OS_creat(State->DataFileName, OS_WRITE_ONLY);
-    if(fd < 0)
+    Status = OS_creat(State->DataFileName, OS_WRITE_ONLY);
+    if(Status < 0)
     {
         CFE_EVS_SendEvent(CFE_ES_ERLOG2_ERR_EID,CFE_EVS_EventType_ERROR,
-                "Error creating file %s, RC = 0x%08X",
-                State->DataFileName, (unsigned int)fd);
+                "Error creating file %s, RC = %d",
+                State->DataFileName, (int)Status);
     }
     else
     {
+        fd = OS_ObjectIdFromInteger(Status);
         CFE_FS_InitHeader(&FileHdr, CFE_ES_ER_LOG_DESC, CFE_FS_SubType_ES_ERLOG);
 
         /* write the cFE header to the file */
-        WriteStat = CFE_FS_WriteHeader(fd, &FileHdr);
-        if(WriteStat != sizeof(CFE_FS_Header_t))
+        Status = CFE_FS_WriteHeader(fd, &FileHdr);
+        if(Status != sizeof(CFE_FS_Header_t))
         {
-            CFE_ES_FileWriteByteCntErr(State->DataFileName,sizeof(CFE_FS_Header_t),WriteStat);
+            CFE_ES_FileWriteByteCntErr(State->DataFileName,sizeof(CFE_FS_Header_t),Status);
         }
         else
         {
-            FileSize += WriteStat;
+            FileSize += Status;
 
             /* write a single ER log entry on each pass */
             for(i=0;i<CFE_PLATFORM_ES_ER_LOG_ENTRIES;i++)
@@ -269,15 +270,15 @@ bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg)
                 /*
                  * Now write to file
                  */
-                WriteStat = OS_write(fd,&FileEntry,sizeof(FileEntry));
+                Status = OS_write(fd,&FileEntry,sizeof(FileEntry));
 
-                if(WriteStat != sizeof(FileEntry))
+                if(Status != sizeof(FileEntry))
                 {
-                    CFE_ES_FileWriteByteCntErr(State->DataFileName,sizeof(FileEntry),WriteStat);
+                    CFE_ES_FileWriteByteCntErr(State->DataFileName,sizeof(FileEntry),Status);
                     break;
                 }/* end if */
 
-                FileSize += WriteStat;
+                FileSize += Status;
 
             } /* end for */
 
@@ -315,7 +316,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
     uint32              PspContextId;
     char                ReasonString[CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH];
     CFE_ES_TaskInfo_t   EsTaskInfo;
-    uint32              ExceptionTaskID;
+    osal_id_t           ExceptionTaskID;
     uint32              ResetType;
     CFE_ES_LogEntryType_Enum_t LogType;
     CFE_ES_AppRecord_t  *AppRecPtr;
@@ -338,7 +339,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
         /* reason string is not available - populate with something for the log */
         snprintf(ReasonString, sizeof(ReasonString), "Unknown - CFE_PSP_ExceptionGetSummary() error %ld", (long)Status);
         PspContextId = 0;
-        ExceptionTaskID = 0;
+        ExceptionTaskID = OS_OBJECT_ID_UNDEFINED;
     } /* end if */
 
     /*
@@ -346,7 +347,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
      * so by writing to SysLog here it becomes visible in both places.
      */
     CFE_ES_WriteToSysLog("ExceptionID 0x%lx in TaskID %lu: %s\n",
-            (unsigned long)PspContextId, (unsigned long)ExceptionTaskID, ReasonString);
+            (unsigned long)PspContextId, OS_ObjectIdToInteger(ExceptionTaskID), ReasonString);
 
     /*
      * If task ID is 0, this means it was a system level exception and
@@ -355,9 +356,9 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
      * Otherwise, if it was related to a task, determine the associated AppID
      * so the exception action can be checked.
      */
-    if (ExceptionTaskID != 0)
+    if (OS_ObjectIdDefined(ExceptionTaskID))
     {
-        Status = CFE_ES_GetTaskInfo( &EsTaskInfo, ExceptionTaskID );
+        Status = CFE_ES_GetTaskInfo( &EsTaskInfo, CFE_ES_ResourceID_FromOSAL(ExceptionTaskID) );
 
         /*
          * The App ID was found, now see if the ExceptionAction is set for a reset
