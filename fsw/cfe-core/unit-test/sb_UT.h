@@ -82,8 +82,8 @@ typedef struct {
      uint16       Tlm16Param2;
 } SB_UT_TstPktWoSecHdr_t;
 
-#define SB_UT_CMD_MID_VALUE_BASE    CFE_MISSION_CMD_MID_BASE1 + 1
-#define SB_UT_TLM_MID_VALUE_BASE    CFE_MISSION_TLM_MID_BASE1 + 1
+#define SB_UT_CMD_MID_VALUE_BASE    CFE_PLATFORM_CMD_MID_BASE + 1
+#define SB_UT_TLM_MID_VALUE_BASE    CFE_PLATFORM_TLM_MID_BASE + 1
 
 /* SB unit test functions */
 /*****************************************************************************/
@@ -3113,7 +3113,6 @@ void Test_CFE_SB_SetGetMsgId(void);
 **
 ** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_SetMsgId,
 ** \sa #CFE_SB_SetUserDataLength, #CFE_SB_GetUserDataLength,
-** \sa #UT_GetActualPktLenField, #UT_Report
 **
 ******************************************************************************/
 void Test_CFE_SB_SetGetUserDataLength(void);
@@ -3133,7 +3132,6 @@ void Test_CFE_SB_SetGetUserDataLength(void);
 **
 ** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_SetMsgId,
 ** \sa #CFE_SB_SetTotalMsgLength, #CFE_SB_GetTotalMsgLength,
-** \sa #UT_GetActualPktLenField, #UT_Report
 **
 ******************************************************************************/
 void Test_CFE_SB_SetGetTotalMsgLength(void);
@@ -3171,8 +3169,7 @@ void Test_CFE_SB_SetGetMsgTime(void);
 **        This function does not return a value.
 **
 ** \sa #UT_Text, #SB_ResetUnitTest, #CFE_SB_SetMsgId, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_GetCmdCode, #UT_GetActualCmdCodeField, #UT_DisplayPkt,
-** \sa #UT_Report
+** \sa #CFE_SB_GetCmdCode, #UT_DisplayPkt
 **
 ******************************************************************************/
 void Test_CFE_SB_SetGetCmdCode(void);

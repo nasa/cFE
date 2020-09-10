@@ -619,42 +619,6 @@ void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, uint32 size);
 
 /*****************************************************************************/
 /**
-** \brief Return the actual packet length
-**
-** \par Description
-**        Return the actual packet length field from the specified packet.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param[in] MsgPtr  Message packet
-**
-** \returns
-**        Returns a pointer to the SB packet length.
-**
-******************************************************************************/
-/*uint16 TODO*/int16 UT_GetActualPktLenField(CFE_SB_MsgPtr_t MsgPtr);
-
-/*****************************************************************************/
-/**
-** \brief Return the actual command code
-**
-** \par Description
-**        Return the actual command code from the specified packet.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param[in] MsgPtr  Message packet
-**
-** \returns
-**        Returns the actual SB packet command code.
-**
-******************************************************************************/
-/*uint16 TODO*/uint8 UT_GetActualCmdCodeField(CFE_SB_MsgPtr_t MsgPtr);
-
-/*****************************************************************************/
-/**
 ** \brief Report and close any sockets found open
 **
 ** \par Description
