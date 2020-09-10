@@ -2545,7 +2545,7 @@ void Test_Unsubscribe_NoMatch(void)
     CFE_SB.RoutingTbl[CFE_SB_RouteIdxToValue(Idx)].ListHeadPtr->Next = NULL;
     ASSERT(CFE_SB_Unsubscribe(MsgId, TestPipe));
 
-    EVTCNT(6);
+    EVTCNT(7);
 
     EVTSENT(CFE_SB_UNSUB_NO_SUBS_EID);
 
