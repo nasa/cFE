@@ -4741,11 +4741,6 @@ void TestGenericCounterAPI(void)
     /* Test registering a generic counter with a null counter name */
     ES_ResetUnitTest();
 
-    for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
-    {
-       CFE_ES_Global.CounterTable[i].RecordUsed = false;
-    }
-
     UT_Report(__FILE__, __LINE__,
              CFE_ES_RegisterGenCounter(&CounterId,
                                         NULL) == CFE_ES_BAD_ARGUMENT,
@@ -4761,7 +4756,6 @@ void TestGenericCounterAPI(void)
 
     /* Test setting a generic counter where the record is not in use */
     ES_ResetUnitTest();
-    CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
     UT_Report(__FILE__, __LINE__,
              CFE_ES_SetGenCount(CounterId, 0) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_SetGenCount",
@@ -4769,7 +4763,6 @@ void TestGenericCounterAPI(void)
 
     /* Test getting a generic counter where the record is not in use */
     ES_ResetUnitTest();
-    CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
     UT_Report(__FILE__, __LINE__,
              CFE_ES_GetGenCount(CounterId, &CounterCount)
                 == CFE_ES_BAD_ARGUMENT,
@@ -4778,7 +4771,6 @@ void TestGenericCounterAPI(void)
 
     /* Test getting a generic counter where the count is null */
     ES_ResetUnitTest();
-    CFE_ES_Global.CounterTable[CounterId].RecordUsed = true;
     UT_Report(__FILE__, __LINE__,
              CFE_ES_GetGenCount(CounterId, NULL)
                 == CFE_ES_BAD_ARGUMENT,

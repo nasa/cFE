@@ -178,6 +178,17 @@ extern CFE_ES_AppRecord_t* CFE_ES_LocateAppRecordByID(uint32 AppID);
 extern CFE_ES_TaskRecord_t* CFE_ES_LocateTaskRecordByID(uint32 TaskID);
 
 /**
+ * @brief Locate the Counter table entry correlating with a given Counter ID.
+ *
+ * This only returns a pointer to the table entry and does _not_
+ * otherwise check/validate the entry.
+ *
+ * @param[in]   CounterID   the Counter ID to locate
+ * @return pointer to Counter Table entry for the given Counter ID
+ */
+extern CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(uint32 CounterID);
+
+/**
  * @brief Check if an app record is in use or free/empty
  *
  * This routine checks if the App table entry is in use or if it is free
@@ -346,6 +357,91 @@ static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPt
 {
     return (TaskRecPtr != NULL && CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
             CFE_ES_TaskRecordGetID(TaskRecPtr) == TaskID);
+}
+
+/**
+ * @brief Check if an Counter record is in use or free/empty
+ *
+ * This routine checks if the Counter table entry is in use or if it is free
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ * @returns true if the entry is in use/configured, or false if it is free/empty
+ */
+static inline bool CFE_ES_CounterRecordIsUsed(const CFE_ES_GenCounterRecord_t *CounterRecPtr)
+{
+    return (CounterRecPtr->RecordUsed);
+}
+
+/**
+ * @brief Get the ID value from an Counter table entry
+ *
+ * This routine converts the table entry back to an abstract ID.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ * @returns CounterID of entry
+ */
+static inline uint32 CFE_ES_CounterRecordGetID(const CFE_ES_GenCounterRecord_t *CounterRecPtr)
+{
+    /*
+     * The initial implementation does not store the ID in the entry;
+     * the ID is simply the zero-based index into the table.
+     */
+    return (CounterRecPtr - CFE_ES_Global.CounterTable);
+}
+
+/**
+ * @brief Marks an Counter table entry as used (not free)
+ *
+ * This sets the internal field(s) within this entry, and marks
+ * it as being associated with the given Counter ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ * @param[in]   CounterID       the Counter ID of this entry
+ */
+static inline void CFE_ES_CounterRecordSetUsed(CFE_ES_GenCounterRecord_t *CounterRecPtr, uint32 CounterID)
+{
+    CounterRecPtr->RecordUsed = true;
+}
+
+/**
+ * @brief Set an Counter record table entry free (not used)
+ *
+ * This clears the internal field(s) within this entry, and allows the
+ * memory to be re-used in the future.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ */
+static inline void CFE_ES_CounterRecordSetFree(CFE_ES_GenCounterRecord_t *CounterRecPtr)
+{
+    CounterRecPtr->RecordUsed = false;
+}
+
+/**
+ * @brief Check if an Counter record is a match for the given CounterID
+ *
+ * This routine confirms that the previously-located record is valid
+ * and matches the expected Counter ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ * @param[in]   CounterID       expected Counter ID
+ * @returns true if the entry matches the given Counter ID
+ */
+static inline bool CFE_ES_CounterRecordIsMatch(const CFE_ES_GenCounterRecord_t *CounterRecPtr, uint32 CounterID)
+{
+    return (CounterRecPtr != NULL && CFE_ES_CounterRecordIsUsed(CounterRecPtr) &&
+            CFE_ES_CounterRecordGetID(CounterRecPtr) == CounterID);
 }
 
 /**

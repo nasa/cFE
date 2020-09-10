@@ -1507,27 +1507,31 @@ int32 CFE_ES_RegisterGenCounter(uint32 *CounterIdPtr, const char *CounterName)
    uint32 CheckPtr;
    int32 Status;
    uint32 i;
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
 
    Status = CFE_ES_GetGenCounterIDByName(&CheckPtr, CounterName);
 
    if ((CounterIdPtr != NULL) && (CounterName != NULL) && (Status != CFE_SUCCESS))
    {
+      CFE_ES_LockSharedData(__func__,__LINE__);
+      CountRecPtr = CFE_ES_Global.CounterTable;
       for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
       {
-         if ( CFE_ES_Global.CounterTable[i].RecordUsed == false )
+         if ( !CFE_ES_CounterRecordIsUsed(CountRecPtr) )
          {
-            strncpy((char *)CFE_ES_Global.CounterTable[i].CounterName,CounterName,OS_MAX_API_NAME);
-
-            CFE_ES_Global.CounterTable[i].RecordUsed = true;
-            CFE_ES_Global.CounterTable[i].Counter = 0;
-            *CounterIdPtr = i;
+            strncpy(CountRecPtr->CounterName,CounterName,OS_MAX_API_NAME);
+            CountRecPtr->Counter = 0;
+            CFE_ES_CounterRecordSetUsed(CountRecPtr, i);
+            *CounterIdPtr = CFE_ES_CounterRecordGetID(CountRecPtr);
             break;
          }
+         ++CountRecPtr;
       }
       if (i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
       {
          ReturnCode = CFE_SUCCESS;
       }
+      CFE_ES_UnlockSharedData(__func__,__LINE__);
    }
 
    return ReturnCode;
@@ -1542,14 +1546,20 @@ int32 CFE_ES_RegisterGenCounter(uint32 *CounterIdPtr, const char *CounterName)
 */
 int32 CFE_ES_DeleteGenCounter(uint32 CounterId)
 {
-
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
    int32 Status = CFE_ES_BAD_ARGUMENT;
 
-   if(CounterId < CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
+   CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+   if(CountRecPtr != NULL)
    {
-      CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
-      CFE_ES_Global.CounterTable[CounterId].Counter = 0;
-      Status = CFE_SUCCESS;
+      CFE_ES_LockSharedData(__func__,__LINE__);
+      if (CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId))
+      {
+          CountRecPtr->Counter = 0;
+          CFE_ES_CounterRecordSetFree(CountRecPtr);
+          Status = CFE_SUCCESS;
+      }
+      CFE_ES_UnlockSharedData(__func__,__LINE__);
    }
 
    return Status;
@@ -1565,12 +1575,13 @@ int32 CFE_ES_DeleteGenCounter(uint32 CounterId)
 int32 CFE_ES_IncrementGenCounter(uint32 CounterId)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
 
-   if((CounterId < CFE_PLATFORM_ES_MAX_GEN_COUNTERS) &&
-      (CFE_ES_Global.CounterTable[CounterId].RecordUsed == true))
+   CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+   if(CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId))
    {
-      CFE_ES_Global.CounterTable[CounterId].Counter++;
-      Status = CFE_SUCCESS;
+       ++CountRecPtr->Counter;
+       Status = CFE_SUCCESS;
    }
    return Status;
 
@@ -1585,11 +1596,12 @@ int32 CFE_ES_IncrementGenCounter(uint32 CounterId)
 int32 CFE_ES_SetGenCount(uint32 CounterId, uint32 Count)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
 
-   if((CounterId < CFE_PLATFORM_ES_MAX_GEN_COUNTERS) &&
-      (CFE_ES_Global.CounterTable[CounterId].RecordUsed == true))
+   CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+   if(CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId))
    {
-      CFE_ES_Global.CounterTable[CounterId].Counter = Count;
+      CountRecPtr->Counter = Count;
       Status = CFE_SUCCESS;
    }
    return Status;
@@ -1604,12 +1616,13 @@ int32 CFE_ES_SetGenCount(uint32 CounterId, uint32 Count)
 int32 CFE_ES_GetGenCount(uint32 CounterId, uint32 *Count)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
 
-   if((CounterId < CFE_PLATFORM_ES_MAX_GEN_COUNTERS) &&
-      (CFE_ES_Global.CounterTable[CounterId].RecordUsed == true) &&
-      (Count != NULL ))
+   CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+   if(CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId) &&
+           Count != NULL)
    {
-      *Count = CFE_ES_Global.CounterTable[CounterId].Counter;
+      *Count = CountRecPtr->Counter;
       Status = CFE_SUCCESS;
    }
    return Status;
@@ -1617,28 +1630,33 @@ int32 CFE_ES_GetGenCount(uint32 CounterId, uint32 *Count)
 
 int32 CFE_ES_GetGenCounterIDByName(uint32 *CounterIdPtr, const char *CounterName)
 {
-
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
    int32 Result = CFE_ES_BAD_ARGUMENT;
    uint32   i;
 
    /*
    ** Search the ES Generic Counter table for a counter with a matching name.
    */
+   CFE_ES_LockSharedData(__func__,__LINE__);
+   CountRecPtr = CFE_ES_Global.CounterTable;
+
    for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
    {
-      if ( CFE_ES_Global.CounterTable[i].RecordUsed == true )
+      if ( CFE_ES_CounterRecordIsUsed(CountRecPtr) )
       {
-         if ( strncmp(CounterName, (char *)CFE_ES_Global.CounterTable[i].CounterName, OS_MAX_API_NAME) == 0 )
+         if ( strncmp(CounterName, CountRecPtr->CounterName, OS_MAX_API_NAME) == 0 )
          {
             if(CounterIdPtr != NULL)
             {
-               *CounterIdPtr = i;
+               *CounterIdPtr = CFE_ES_CounterRecordGetID(CountRecPtr);
                Result = CFE_SUCCESS;
             }
             break;
          }
       }
+      ++CountRecPtr;
    } /* end for */
+   CFE_ES_UnlockSharedData(__func__,__LINE__);
 
    return(Result);
 
@@ -1678,6 +1696,25 @@ int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx)
         return CFE_ES_ERR_TASKID;
     }
 
+    return CFE_SUCCESS;
+}
+
+/*
+ * A conversion function to obtain an index value correlating to a CounterID
+ * This is a zero based value that can be used for indexing into a table.
+ */
+int32 CFE_ES_CounterID_ToIndex(uint32 CounterId, uint32 *Idx)
+{
+    if (CounterId >= CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
+    {
+        return CFE_ES_BAD_ARGUMENT; /* these do not have a dedicated error */
+    }
+
+    /*
+     * Currently this is a direct/simple pass through.
+     * Will evolve in a future rev to make it more safe.
+     */
+    *Idx = CounterId;
     return CFE_SUCCESS;
 }
 
@@ -1728,6 +1765,24 @@ CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(uint32 TaskID)
 
     return TaskRecPtr;
 }
+
+CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(uint32 CounterID)
+{
+    CFE_ES_GenCounterRecord_t *CounterRecPtr;
+    uint32 Idx;
+
+    if (CFE_ES_CounterID_ToIndex(CounterID, &Idx) == CFE_SUCCESS)
+    {
+        CounterRecPtr = &CFE_ES_Global.CounterTable[Idx];
+    }
+    else
+    {
+        CounterRecPtr = NULL;
+    }
+
+    return CounterRecPtr;
+}
+
 
 /*
  * This function does additional validation on the task record
