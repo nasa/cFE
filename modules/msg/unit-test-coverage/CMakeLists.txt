@@ -60,4 +60,6 @@ target_link_libraries(${DEP}_UT
     ut_assert)
 
 add_test(${DEP}_UT ${DEP}_UT)
-install(TARGETS ${DEP}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
+foreach(TGT ${INSTALL_TARGET_LIST})
+    install(TARGETS ${DEP}_UT DESTINATION ${TGT}/${UT_INSTALL_SUBDIR})
+endforeach()
