@@ -36,11 +36,6 @@
 #ifndef _cfe_platform_cfg_
 #define _cfe_platform_cfg_
 
-/*
-** Allow reference to CFE_MISSION_SPACECRAFT_ID (see CFE_TBL_VALID_ definitions below)
-*/
-#include "cfe_mission_cfg.h"
-
 /**
 **  \cfesbcfg Maximum Number of Unique Message IDs SB Routing Table can hold
 **
@@ -1742,7 +1737,7 @@
 **  \par Limits
 **       This value can be any 32 bit unsigned integer.
 */
-#define CFE_PLATFORM_TBL_VALID_SCID_1            (CFE_MISSION_SPACECRAFT_ID)
+#define CFE_PLATFORM_TBL_VALID_SCID_1            (0x42)
 #define CFE_PLATFORM_TBL_VALID_SCID_2            (CFE_PLATFORM_TBL_U32FROM4CHARS('a', 'b', 'c', 'd'))
 
 /**
@@ -1776,7 +1771,7 @@
 **  \par Limits
 **       This value can be any 32 bit unsigned integer.
 */
-#define CFE_PLATFORM_TBL_VALID_PRID_1            (10)
+#define CFE_PLATFORM_TBL_VALID_PRID_1            (1)
 #define CFE_PLATFORM_TBL_VALID_PRID_2            (CFE_PLATFORM_TBL_U32FROM4CHARS('a', 'b', 'c', 'd'))
 #define CFE_PLATFORM_TBL_VALID_PRID_3            0
 #define CFE_PLATFORM_TBL_VALID_PRID_4            0

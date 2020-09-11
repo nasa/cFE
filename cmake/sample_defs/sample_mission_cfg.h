@@ -39,20 +39,6 @@
 
 
 /**
-**  \cfemissioncfg Spacecraft ID
-**
-**  \par Description:
-**      This defines the value that is returned by the call to
-**      CFE_PSP_GetSpacecraftId.
-**
-**  \par Limits
-**       The cFE does not place a limit on this configuration paramter.
-**       CCSDS allocates 8 bits for this field in the standard VCDU.
-*/
-#define CFE_MISSION_SPACECRAFT_ID       0x42
-
-
-/**
 **  \cfesbcfg Maximum SB Message Size
 **
 **  \par Description:
