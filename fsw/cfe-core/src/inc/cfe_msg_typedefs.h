@@ -54,7 +54,7 @@ typedef uint16 CFE_MSG_Subsystem_t;     /**< \brief Message subsystem */
 typedef uint16 CFE_MSG_System_t;        /**< \brief Message system */
 
 /** \brief Message type */
-typedef enum
+typedef enum CFE_MSG_Type
 {
     CFE_MSG_Type_Invalid, /**< \brief Message type invalid, undefined, not implemented */
     CFE_MSG_Type_Cmd,     /**< \brief Command message type */
@@ -62,7 +62,7 @@ typedef enum
 } CFE_MSG_Type_t;
 
 /** \brief Segmentation flags */
-typedef enum
+typedef enum CFE_MSG_SegmentationFlag
 {
     CFE_MSG_SegFlag_Invalid,    /**< \brief Invalid segmentation flag */
     CFE_MSG_SegFlag_Continue,   /**< \brief Continuation segment of User Data */
@@ -72,7 +72,7 @@ typedef enum
 } CFE_MSG_SegmentationFlag_t;
 
 /** \brief Endian flag */
-typedef enum
+typedef enum CFE_MSG_Endian
 {
     CFE_MSG_Endian_Invalid, /**< \brief Invalid endian setting */
     CFE_MSG_Endian_Big,     /**< \brief Big endian */
@@ -80,7 +80,7 @@ typedef enum
 } CFE_MSG_Endian_t;
 
 /** \brief Playback flag */
-typedef enum
+typedef enum CFE_MSG_PlaybackFlag
 {
     CFE_MSG_PlayFlag_Invalid,  /**< \brief Invalid playback setting */
     CFE_MSG_PlayFlag_Original, /**< \brief Original */

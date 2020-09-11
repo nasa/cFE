@@ -94,7 +94,7 @@ typedef int32 (*CFE_TBL_CallbackFuncPtr_t)(void *TblPtr);
 typedef int16 CFE_TBL_Handle_t;
 
 /** \brief Table Source */
-typedef enum 
+typedef enum CFE_TBL_SrcEnum
 {
     CFE_TBL_SRC_FILE = 0, /**< \brief File source
                                When this option is selected, the \c SrcDataPtr 
@@ -113,7 +113,7 @@ typedef enum
 } CFE_TBL_SrcEnum_t;
 
 /** \brief Table Info */
-typedef struct
+typedef struct CFE_TBL_Info
 {
     uint32                Size;                             /**< \brief Size, in bytes, of Table */
     uint32                NumUsers;                         /**< \brief Number of Apps with access to the table */

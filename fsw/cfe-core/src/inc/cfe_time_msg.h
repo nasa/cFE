@@ -726,7 +726,7 @@
 /*
 ** Type definition (generic "no arguments" command)...
 */
-typedef struct
+typedef struct CFE_TIME_NoArgsCmd
 {
   uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];
 
@@ -744,12 +744,12 @@ typedef CFE_TIME_NoArgsCmd_t CFE_TIME_SendDiagnosticTlm_t;
 /*
 ** Type definition (leap seconds command)...
 */
-typedef struct
+typedef struct CFE_TIME_LeapsCmd_Payload
 {
     int16                 LeapSeconds;
 } CFE_TIME_LeapsCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TIME_SetLeapSeconds
 {
   uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
   CFE_TIME_LeapsCmd_Payload_t   Payload;
@@ -759,7 +759,7 @@ typedef struct
 /*
 ** Type definition (clock state command)...
 */
-typedef struct
+typedef struct CFE_TIME_StateCmd_Payload
 {
     int16                 ClockState;                    /**< \brief #CFE_TIME_ClockState_INVALID=Spacecraft time has not been accurately set,
                                                                      #CFE_TIME_ClockState_VALID=Spacecraft clock has been accurately set,
@@ -767,7 +767,7 @@ typedef struct
                                                          /**< Selects the current clock state */
 } CFE_TIME_StateCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TIME_SetStateCmd
 {
   uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
   CFE_TIME_StateCmd_Payload_t   Payload;
@@ -777,14 +777,14 @@ typedef struct
 /*
 ** Type definition (time data source command)...
 */
-typedef struct
+typedef struct CFE_TIME_SourceCmd_Payload
 {
     int16                 TimeSource;                    /**< \brief #CFE_TIME_SourceSelect_INTERNAL=Internal Source,
                                                                      #CFE_TIME_SourceSelect_EXTERNAL=External Source   */
                                                          /**< Selects either the "Internal" and "External" clock source */
 } CFE_TIME_SourceCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TIME_SetSource
 {
   uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
   CFE_TIME_SourceCmd_Payload_t  Payload;
@@ -794,14 +794,14 @@ typedef struct
 /*
 ** Type definition (tone signal source command)...
 */
-typedef struct
+typedef struct CFE_TIME_SignalCmd_Payload
 {
     int16                 ToneSource;                    /**< \brief #CFE_TIME_ToneSignalSelect_PRIMARY=Primary Source,
                                                                      #CFE_TIME_ToneSignalSelect_REDUNDANT=Redundant Source   */
                                                          /**< Selects either the "Primary" or "Redundant" tone signal source */
 } CFE_TIME_SignalCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TIME_SetSignal
 {
   uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
   CFE_TIME_SignalCmd_Payload_t  Payload;
@@ -812,13 +812,13 @@ typedef struct
 /*
 ** Type definition (generic "time argument" command)...
 */
-typedef struct
+typedef struct CFE_TIME_TimeCmd_Payload
 {
     uint32                Seconds;
     uint32                MicroSeconds;
 } CFE_TIME_TimeCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TIME_TimeCmd
 {
   uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
   CFE_TIME_TimeCmd_Payload_t    Payload;
@@ -841,14 +841,14 @@ typedef CFE_TIME_TimeCmd_t CFE_TIME_SetTime_t;
 /*
 ** Type definition (1Hz STCF adjustment "time argument" command)...
 */
-typedef struct
+typedef struct CFE_TIME_OneHzAdjustmentCmd_Payload
 {
     uint32                Seconds;
     uint32                Subseconds;
 
 } CFE_TIME_OneHzAdjustmentCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TIME_OneHzAdjustmentCmd
 {
   uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
   CFE_TIME_OneHzAdjustmentCmd_Payload_t  Payload;
@@ -866,7 +866,7 @@ typedef CFE_TIME_OneHzAdjustmentCmd_t CFE_TIME_Sub1HZAdjustment_t;
 /*
 ** Type definition (local 1Hz wake-up command)...
 */
-typedef struct
+typedef struct CFE_TIME_1HzCmd
 {
   uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];
 
@@ -876,7 +876,7 @@ typedef struct
 /*
 ** Type definition (time at the tone signal command)...
 */
-typedef struct
+typedef struct CFE_TIME_ToneSignalCmd
 {
   CFE_SB_CmdHdr_t         CmdHeader;
 
@@ -886,7 +886,7 @@ typedef struct
 /*
 ** Type definition ("fake" time at the tone signal command)...
 */
-typedef struct
+typedef struct CFE_TIME_FakeToneCmd
 {
     CFE_SB_CmdHdr_t       CmdHeader;
 
@@ -896,7 +896,7 @@ typedef struct
 /*
 ** Type definition (time at the tone data command)...
 */
-typedef struct
+typedef struct CFE_TIME_ToneDataCmd_Payload
 {
     CFE_TIME_SysTime_t    AtToneMET;    /**< \brief MET at time of tone */
     CFE_TIME_SysTime_t    AtToneSTCF;   /**< \brief STCF at time of tone */
@@ -904,7 +904,7 @@ typedef struct
     int16                 AtToneState;  /**< \brief Clock state at time of tone */
 } CFE_TIME_ToneDataCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_TIME_ToneDataCmd
 {
   uint8                             CmdHeader[CFE_SB_CMD_HDR_SIZE];
   CFE_TIME_ToneDataCmd_Payload_t    Payload;
@@ -916,7 +916,7 @@ typedef struct
 /** 
 **  \cfetimetlm Time Services Housekeeping Packet
 **/
-typedef struct
+typedef struct CFE_TIME_HousekeepingTlm_Payload
 {
     /*
     ** Task command interface counters...
@@ -975,7 +975,7 @@ typedef struct
 
 } CFE_TIME_HousekeepingTlm_Payload_t;
 
-typedef struct
+typedef struct CFE_TIME_HousekeepingTlm
 {
   uint8                         TlmHeader[CFE_SB_TLM_HDR_SIZE];
   CFE_TIME_HousekeepingTlm_Payload_t   Payload;
@@ -987,7 +987,7 @@ typedef struct
 /** 
 **  \cfetimetlm Time Services Diagnostics Packet
 **/
-typedef struct
+typedef struct CFE_TIME_DiagnosticTlm_Payload
 {
     /*
      ** Data values used to compute time (in reference to "tone")...
@@ -1133,7 +1133,7 @@ typedef struct
 	                                               \brief Data Store status (preserved across processor reset) */
 } CFE_TIME_DiagnosticTlm_Payload_t;
 
-typedef struct
+typedef struct CFE_TIME_DiagnosticTlm
 {
   uint8                 		TlmHeader[CFE_SB_TLM_HDR_SIZE];
   CFE_TIME_DiagnosticTlm_Payload_t Payload;

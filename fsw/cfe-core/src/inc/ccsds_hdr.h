@@ -49,7 +49,7 @@
 /**
  * \brief CCSDS packet primary header
  */
-typedef struct {
+typedef struct CCSDS_PrimaryHeader {
 
    uint8   StreamId[2];  /**< \brief packet identifier word (stream ID) */
       /*  bits  shift   ------------ description ---------------- */
@@ -72,7 +72,7 @@ typedef struct {
 /**
  * \brief CCSDS packet extended header
  */
-typedef struct {
+typedef struct CCSDS_ExtendedHeader {
 
    uint8 Subsystem[2]; /**< \brief subsystem qualifier */
       /*  bits  shift   ------------ description ---------------- */
