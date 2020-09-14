@@ -167,6 +167,17 @@ extern CFE_ES_ResetData_t *CFE_ES_ResetDataPtr;
 extern CFE_ES_AppRecord_t* CFE_ES_LocateAppRecordByID(uint32 AppID);
 
 /**
+ * @brief Locate the Library table entry correlating with a given Lib ID.
+ *
+ * This only returns a pointer to the table entry and does _not_
+ * otherwise check/validate the entry.
+ *
+ * @param[in]   LibID   the Lib ID to locate
+ * @return pointer to Library Table entry for the given Lib ID
+ */
+extern CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(uint32 LibID);
+
+/**
  * @brief Locate the task table entry correlating with a given task ID.
  *
  * This only returns a pointer to the table entry and does _not_
@@ -271,6 +282,85 @@ static inline bool CFE_ES_AppRecordIsMatch(const CFE_ES_AppRecord_t *AppRecPtr, 
 {
     return (AppRecPtr != NULL && CFE_ES_AppRecordIsUsed(AppRecPtr) &&
             CFE_ES_AppRecordGetID(AppRecPtr) == AppID);
+}
+
+/**
+ * @brief Check if a Library record is in use or free/empty
+ *
+ * This routine checks if the Lib table entry is in use or if it is free
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   LibRecPtr   pointer to Lib table entry
+ * @returns true if the entry is in use/configured, or false if it is free/empty
+ */
+static inline bool CFE_ES_LibRecordIsUsed(const CFE_ES_LibRecord_t *LibRecPtr)
+{
+    return (LibRecPtr->RecordUsed);
+}
+
+/**
+ * @brief Get the ID value from a Library table entry
+ *
+ * This routine converts the table entry back to an abstract ID.
+ *
+ * @param[in]   LibRecPtr   pointer to Lib table entry
+ * @returns LibID of entry
+ */
+static inline uint32 CFE_ES_LibRecordGetID(const CFE_ES_LibRecord_t *LibRecPtr)
+{
+    /*
+     * The initial implementation does not store the ID in the entry;
+     * the ID is simply the zero-based index into the table.
+     */
+    return (LibRecPtr - CFE_ES_Global.LibTable);
+}
+
+/**
+ * @brief Marks a Library table entry as used (not free)
+ *
+ * This sets the internal field(s) within this entry, and marks
+ * it as being associated with the given Lib ID.
+ *
+ * @param[in]   LibRecPtr   pointer to Lib table entry
+ * @param[in]   LibID       the Lib ID of this entry
+ */
+static inline void CFE_ES_LibRecordSetUsed(CFE_ES_LibRecord_t *LibRecPtr, uint32 LibID)
+{
+    LibRecPtr->RecordUsed = true;
+}
+
+/**
+ * @brief Set a Library record table entry free (not used)
+ *
+ * This clears the internal field(s) within this entry, and allows the
+ * memory to be re-used in the future.
+ *
+ * @param[in]   LibRecPtr   pointer to Lib table entry
+ */
+static inline void CFE_ES_LibRecordSetFree(CFE_ES_LibRecord_t *LibRecPtr)
+{
+    LibRecPtr->RecordUsed = false;
+}
+
+/**
+ * @brief Check if a Library record is a match for the given LibID
+ *
+ * This routine confirms that the previously-located record is valid
+ * and matches the expected Lib ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   LibRecPtr   pointer to Lib table entry
+ * @param[in]   LibID       expected Lib ID
+ * @returns true if the entry matches the given Lib ID
+ */
+static inline bool CFE_ES_LibRecordIsMatch(const CFE_ES_LibRecord_t *LibRecPtr, uint32 LibID)
+{
+    return (LibRecPtr != NULL && CFE_ES_LibRecordIsUsed(LibRecPtr) &&
+            CFE_ES_LibRecordGetID(LibRecPtr) == LibID);
 }
 
 /**

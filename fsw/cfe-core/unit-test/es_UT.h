@@ -333,5 +333,6 @@ void TestESMempool(void);
 
 void TestSysLog(void);
 void TestGenericCounterAPI(void);
+void TestLibs(void);
 
 #endif /* _es_ut_h_ */
