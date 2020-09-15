@@ -926,7 +926,7 @@ int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
    uint32         TaskId;
    uint32         ChildTaskId;
    uint32         ParentTaskId;
-   uint32         OsalId;
+   osal_id_t      OsalId;
 
    /*
    ** Validate some of the arguments
@@ -974,7 +974,8 @@ int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
          ** First, Make sure the Calling Task is a cFE Main task.
          ** TaskID must be the same as the Parent Task ID.
          */
-         TaskId = OS_TaskGetId();
+         OsalId = OS_TaskGetId();
+         TaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
          ParentTaskId = AppRecPtr->TaskInfo.MainTaskId;
          if ( TaskId == ParentTaskId )
          {
@@ -997,7 +998,7 @@ int32 CFE_ES_CreateChildTask(uint32 *TaskIdPtr,
             */
             if ( Result == OS_SUCCESS )
             {
-               ChildTaskId = OsalId;
+               ChildTaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
                TaskRecPtr = CFE_ES_LocateTaskRecordByID(ChildTaskId);
 
                CFE_ES_TaskRecordSetUsed(TaskRecPtr, ChildTaskId);
@@ -1091,7 +1092,7 @@ void CFE_ES_IncrementTaskCounter(void)
      * Because the global data is not locked, only minimal validation
      * is performed.
      */
-    TaskID = OS_TaskGetId();
+    TaskID = CFE_ES_ResourceID_FromOSAL(OS_TaskGetId());
     TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskID);
     if (TaskRecPtr != NULL)
     {
@@ -1113,6 +1114,7 @@ int32 CFE_ES_DeleteChildTask(uint32 TaskId)
     bool    TaskIsMain = false;
     int32   ReturnCode = CFE_SUCCESS;
     int32   OSReturnCode;
+    osal_id_t   OsalId;
 
     /*
     ** Make sure the task ID is within range
@@ -1154,7 +1156,8 @@ int32 CFE_ES_DeleteChildTask(uint32 TaskId)
              /*
              ** Can delete the Task
              */
-             OSReturnCode = OS_TaskDelete(TaskId);
+             OsalId = CFE_ES_ResourceID_ToOSAL(TaskId);
+             OSReturnCode = OS_TaskDelete(OsalId);
              if ( OSReturnCode == OS_SUCCESS )
              {
                 /*
@@ -1507,27 +1510,31 @@ int32 CFE_ES_RegisterGenCounter(uint32 *CounterIdPtr, const char *CounterName)
    uint32 CheckPtr;
    int32 Status;
    uint32 i;
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
 
    Status = CFE_ES_GetGenCounterIDByName(&CheckPtr, CounterName);
 
    if ((CounterIdPtr != NULL) && (CounterName != NULL) && (Status != CFE_SUCCESS))
    {
+      CFE_ES_LockSharedData(__func__,__LINE__);
+      CountRecPtr = CFE_ES_Global.CounterTable;
       for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
       {
-         if ( CFE_ES_Global.CounterTable[i].RecordUsed == false )
+         if ( !CFE_ES_CounterRecordIsUsed(CountRecPtr) )
          {
-            strncpy((char *)CFE_ES_Global.CounterTable[i].CounterName,CounterName,OS_MAX_API_NAME);
-
-            CFE_ES_Global.CounterTable[i].RecordUsed = true;
-            CFE_ES_Global.CounterTable[i].Counter = 0;
-            *CounterIdPtr = i;
+            strncpy(CountRecPtr->CounterName,CounterName,OS_MAX_API_NAME);
+            CountRecPtr->Counter = 0;
+            CFE_ES_CounterRecordSetUsed(CountRecPtr, i);
+            *CounterIdPtr = CFE_ES_CounterRecordGetID(CountRecPtr);
             break;
          }
+         ++CountRecPtr;
       }
       if (i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
       {
          ReturnCode = CFE_SUCCESS;
       }
+      CFE_ES_UnlockSharedData(__func__,__LINE__);
    }
 
    return ReturnCode;
@@ -1542,14 +1549,20 @@ int32 CFE_ES_RegisterGenCounter(uint32 *CounterIdPtr, const char *CounterName)
 */
 int32 CFE_ES_DeleteGenCounter(uint32 CounterId)
 {
-
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
    int32 Status = CFE_ES_BAD_ARGUMENT;
 
-   if(CounterId < CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
+   CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+   if(CountRecPtr != NULL)
    {
-      CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
-      CFE_ES_Global.CounterTable[CounterId].Counter = 0;
-      Status = CFE_SUCCESS;
+      CFE_ES_LockSharedData(__func__,__LINE__);
+      if (CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId))
+      {
+          CountRecPtr->Counter = 0;
+          CFE_ES_CounterRecordSetFree(CountRecPtr);
+          Status = CFE_SUCCESS;
+      }
+      CFE_ES_UnlockSharedData(__func__,__LINE__);
    }
 
    return Status;
@@ -1565,12 +1578,13 @@ int32 CFE_ES_DeleteGenCounter(uint32 CounterId)
 int32 CFE_ES_IncrementGenCounter(uint32 CounterId)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
 
-   if((CounterId < CFE_PLATFORM_ES_MAX_GEN_COUNTERS) &&
-      (CFE_ES_Global.CounterTable[CounterId].RecordUsed == true))
+   CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+   if(CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId))
    {
-      CFE_ES_Global.CounterTable[CounterId].Counter++;
-      Status = CFE_SUCCESS;
+       ++CountRecPtr->Counter;
+       Status = CFE_SUCCESS;
    }
    return Status;
 
@@ -1585,11 +1599,12 @@ int32 CFE_ES_IncrementGenCounter(uint32 CounterId)
 int32 CFE_ES_SetGenCount(uint32 CounterId, uint32 Count)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
 
-   if((CounterId < CFE_PLATFORM_ES_MAX_GEN_COUNTERS) &&
-      (CFE_ES_Global.CounterTable[CounterId].RecordUsed == true))
+   CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+   if(CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId))
    {
-      CFE_ES_Global.CounterTable[CounterId].Counter = Count;
+      CountRecPtr->Counter = Count;
       Status = CFE_SUCCESS;
    }
    return Status;
@@ -1604,12 +1619,13 @@ int32 CFE_ES_SetGenCount(uint32 CounterId, uint32 Count)
 int32 CFE_ES_GetGenCount(uint32 CounterId, uint32 *Count)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
 
-   if((CounterId < CFE_PLATFORM_ES_MAX_GEN_COUNTERS) &&
-      (CFE_ES_Global.CounterTable[CounterId].RecordUsed == true) &&
-      (Count != NULL ))
+   CountRecPtr = CFE_ES_LocateCounterRecordByID(CounterId);
+   if(CFE_ES_CounterRecordIsMatch(CountRecPtr, CounterId) &&
+           Count != NULL)
    {
-      *Count = CFE_ES_Global.CounterTable[CounterId].Counter;
+      *Count = CountRecPtr->Counter;
       Status = CFE_SUCCESS;
    }
    return Status;
@@ -1617,28 +1633,33 @@ int32 CFE_ES_GetGenCount(uint32 CounterId, uint32 *Count)
 
 int32 CFE_ES_GetGenCounterIDByName(uint32 *CounterIdPtr, const char *CounterName)
 {
-
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
    int32 Result = CFE_ES_BAD_ARGUMENT;
    uint32   i;
 
    /*
    ** Search the ES Generic Counter table for a counter with a matching name.
    */
+   CFE_ES_LockSharedData(__func__,__LINE__);
+   CountRecPtr = CFE_ES_Global.CounterTable;
+
    for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
    {
-      if ( CFE_ES_Global.CounterTable[i].RecordUsed == true )
+      if ( CFE_ES_CounterRecordIsUsed(CountRecPtr) )
       {
-         if ( strncmp(CounterName, (char *)CFE_ES_Global.CounterTable[i].CounterName, OS_MAX_API_NAME) == 0 )
+         if ( strncmp(CounterName, CountRecPtr->CounterName, OS_MAX_API_NAME) == 0 )
          {
             if(CounterIdPtr != NULL)
             {
-               *CounterIdPtr = i;
+               *CounterIdPtr = CFE_ES_CounterRecordGetID(CountRecPtr);
                Result = CFE_SUCCESS;
             }
             break;
          }
       }
+      ++CountRecPtr;
    } /* end for */
+   CFE_ES_UnlockSharedData(__func__,__LINE__);
 
    return(Result);
 
@@ -1673,7 +1694,10 @@ int32 CFE_ES_AppID_ToIndex(uint32 AppId, uint32 *Idx)
  */
 int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx)
 {
-    if (OS_ConvertToArrayIndex(TaskID, Idx) != OS_SUCCESS)
+    osal_id_t OsalID;
+
+    OsalID = CFE_ES_ResourceID_ToOSAL(TaskID);
+    if (OS_ConvertToArrayIndex(OsalID, Idx) != OS_SUCCESS)
     {
         return CFE_ES_ERR_TASKID;
     }
@@ -1681,9 +1705,55 @@ int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx)
     return CFE_SUCCESS;
 }
 
+/*
+ * A conversion function to obtain an index value correlating to a CounterID
+ * This is a zero based value that can be used for indexing into a table.
+ */
+int32 CFE_ES_CounterID_ToIndex(uint32 CounterId, uint32 *Idx)
+{
+    if (CounterId >= CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
+    {
+        return CFE_ES_BAD_ARGUMENT; /* these do not have a dedicated error */
+    }
+
+    /*
+     * Currently this is a direct/simple pass through.
+     * Will evolve in a future rev to make it more safe.
+     */
+    *Idx = CounterId;
+    return CFE_SUCCESS;
+}
+
 /***************************************************************************************
 ** Private API functions
 */
+
+/**
+ * Convert a CFE_ES_ResourceID_t type to an OSAL ID type.
+ *
+ * This should only be used on ES resource IDs that are known to refer to
+ * an OSAL resource (e.g. a task ID).
+ *
+ * Note this may result in an invalid OSAL ID if the CFE_ES_ResourceID_t did
+ * not actually refer to an OSAL resource.
+ */
+osal_id_t CFE_ES_ResourceID_ToOSAL(uint32 id)
+{
+    unsigned long val = (uint32)id; /* type conversion */
+    return OS_ObjectIdFromInteger(val);
+}
+
+/**
+ * Convert an OSAL ID type to a CFE_ES_ResourceID_t type.
+ *
+ * Any OSAL ID can also be represented as a CFE_ES_ResourceID_t
+ */
+uint32 CFE_ES_ResourceID_FromOSAL(osal_id_t id)
+{
+    unsigned long val = OS_ObjectIdToInteger(id);
+    return (uint32)val; /* type conversion */
+}
+
 
 /*
  * Note - this gets the table entry pointer but does not dereference or
@@ -1729,6 +1799,24 @@ CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(uint32 TaskID)
     return TaskRecPtr;
 }
 
+CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(uint32 CounterID)
+{
+    CFE_ES_GenCounterRecord_t *CounterRecPtr;
+    uint32 Idx;
+
+    if (CFE_ES_CounterID_ToIndex(CounterID, &Idx) == CFE_SUCCESS)
+    {
+        CounterRecPtr = &CFE_ES_Global.CounterTable[Idx];
+    }
+    else
+    {
+        CounterRecPtr = NULL;
+    }
+
+    return CounterRecPtr;
+}
+
+
 /*
  * This function does additional validation on the task record
  * and should only be called when global data is locked.
@@ -1741,7 +1829,7 @@ CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
     /*
     ** Use the OS task ID to get the ES task record
     */
-    TaskID = OS_TaskGetId();
+    TaskID = CFE_ES_ResourceID_FromOSAL(OS_TaskGetId());
     TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskID);
 
     /*

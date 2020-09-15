@@ -1068,7 +1068,7 @@
 ** -# The No-Op Command (For details, see #CFE_ES_NOOP_CC)
 ** -# The Reset Counters Command (For details, see #CFE_ES_RESET_COUNTERS_CC)
 */
-typedef struct
+typedef struct CFE_ES_NoArgsCmd
 {
   uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];     /**< \brief cFE Software Bus Command Message Header */
 
@@ -1093,13 +1093,13 @@ typedef CFE_ES_NoArgsCmd_t      CFE_ES_ResetPRCount_t;
 ** For command details, see #CFE_ES_RESTART_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_RestartCmd_Payload
 {
   uint16                RestartType;                       /**< \brief #CFE_PSP_RST_TYPE_PROCESSOR=Processor Reset
                                                                 or #CFE_PSP_RST_TYPE_POWERON=Power-On Reset        */
 } CFE_ES_RestartCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_Restart
 {
     uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_RestartCmd_Payload_t Payload;
@@ -1114,13 +1114,13 @@ typedef struct
 ** #CFE_ES_WRITE_SYSLOG_CC, and #CFE_ES_WRITE_ER_LOG_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_FileNameCmd_Payload
 {
   char                  FileName[CFE_MISSION_MAX_PATH_LEN]; /**< \brief ASCII text string containing full path and
                                                                 filename of file in which Application data is to be dumped */
 } CFE_ES_FileNameCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_FileNameCmd
 {
     uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_FileNameCmd_Payload_t Payload;
@@ -1141,14 +1141,14 @@ typedef CFE_ES_FileNameCmd_t CFE_ES_WriteERLog_t;
 ** For command details, see #CFE_ES_OVER_WRITE_SYSLOG_CC
 **
 **/
-typedef struct 
+typedef struct CFE_ES_OverWriteSysLogCmd_Payload
 {
    uint32               Mode;                            /**< \brief #CFE_ES_LogMode_DISCARD=Throw away most recent messages,
                                                                      #CFE_ES_LogMode_OVERWRITE=Overwrite oldest with most recent */
 
 } CFE_ES_OverWriteSysLogCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_OverWriteSyslog
 {
     uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_OverWriteSysLogCmd_Payload_t Payload;
@@ -1160,7 +1160,7 @@ typedef struct
 ** For command details, see #CFE_ES_START_APP_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_StartAppCmd_Payload
 {
   char                  Application[CFE_MISSION_MAX_API_LEN];    /**< \brief Name of Application to be started */
   char                  AppEntryPoint[CFE_MISSION_MAX_API_LEN];  /**< \brief Symbolic name of Application's entry point */
@@ -1177,7 +1177,7 @@ typedef struct
 
 } CFE_ES_StartAppCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_StartApp
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_StartAppCmd_Payload_t    Payload;
@@ -1189,12 +1189,12 @@ typedef struct
 ** For command details, see #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_QUERY_ONE_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_AppNameCmd_Payload
 {
   char                  Application[CFE_MISSION_MAX_API_LEN];    /**< \brief ASCII text string containing Application Name */
 } CFE_ES_AppNameCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_AppNameCmd
 {
     uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_AppNameCmd_Payload_t Payload;
@@ -1215,14 +1215,14 @@ typedef CFE_ES_AppNameCmd_t CFE_ES_QueryOne_t;
 ** For command details, see #CFE_ES_RELOAD_APP_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_AppReloadCmd_Payload
 {
   char                  Application[CFE_MISSION_MAX_API_LEN];   /**< \brief ASCII text string containing Application Name */
   char                  AppFileName[CFE_MISSION_MAX_PATH_LEN];   /**< \brief Full path and filename of Application's 
                                                                     executable image */
 } CFE_ES_AppReloadCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_ReloadApp
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_AppReloadCmd_Payload_t   Payload;
@@ -1234,13 +1234,13 @@ typedef struct
 ** For command details, see #CFE_ES_SET_MAX_PR_COUNT_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_SetMaxPRCountCmd_Payload
 {
   uint16                MaxPRCount;                     /**< \brief New maximum number of Processor Resets before
                                                                     an automatic Power-On Reset is performed */
 } CFE_ES_SetMaxPRCountCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_SetMaxPRCount
 {
     uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_SetMaxPRCountCmd_Payload_t   Payload;
@@ -1252,13 +1252,13 @@ typedef struct
 ** For command details, see #CFE_ES_DELETE_CDS_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_DeleteCDSCmd_Payload
 {
   char                  CdsName[CFE_MISSION_ES_CDS_MAX_NAME_LEN]; /**< \brief ASCII text string containing name of CDS to delete */
 
 } CFE_ES_DeleteCDSCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_DeleteCDS
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_DeleteCDSCmd_Payload_t   Payload;
@@ -1270,12 +1270,12 @@ typedef struct
 ** For command details, see #CFE_ES_START_PERF_DATA_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_StartPerfCmd_Payload
 {
   uint32                TriggerMode;                    /**< \brief Desired trigger position (Start, Center, End) */
 } CFE_ES_StartPerfCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_StartPerfData
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_StartPerfCmd_Payload_t   Payload;
@@ -1287,13 +1287,13 @@ typedef struct
 ** For command details, see #CFE_ES_STOP_PERF_DATA_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_StopPerfCmd_Payload
 {
   char                  DataFileName[CFE_MISSION_MAX_PATH_LEN];  /**< \brief ASCII text string of full path and filename 
                                                                     of file Performance Analyzer data is to be written */
 } CFE_ES_StopPerfCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_StopPerfData
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_StopPerfCmd_Payload_t    Payload;
@@ -1306,14 +1306,14 @@ typedef struct
 ** For command details, see #CFE_ES_SET_PERF_FILTER_MASK_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_SetPerfFilterMaskCmd_Payload
 {
   uint32                FilterMaskNum;                   /**< \brief Index into array of Filter Masks */
   uint32                FilterMask;                      /**< \brief New Mask for specified entry in array of Filter Masks */
 
 } CFE_ES_SetPerfFilterMaskCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_SetPerfFilterMask
 {
     uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_SetPerfFilterMaskCmd_Payload_t Payload;
@@ -1325,14 +1325,14 @@ typedef struct
 ** For command details, see #CFE_ES_SET_PERF_TRIGGER_MASK_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_SetPerfTrigMaskCmd_Payload
 {
   uint32                TriggerMaskNum;                 /**< \brief Index into array of Trigger Masks */
   uint32                TriggerMask;                    /**< \brief New Mask for specified entry in array of Trigger Masks */
 
 } CFE_ES_SetPerfTrigMaskCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_SetPerfTriggerMask
 {
     uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_SetPerfTrigMaskCmd_Payload_t Payload;
@@ -1344,14 +1344,14 @@ typedef struct
 ** For command details, see #CFE_ES_SEND_MEM_POOL_STATS_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_SendMemPoolStatsCmd_Payload
 {
   char                  Application[CFE_MISSION_MAX_API_LEN];   /**< \brief - RESERVED - should be all zeroes */
   CFE_ES_MemHandle_t    PoolHandle;                     /**< \brief Handle of Pool whose statistics are to be telemetered */
 
 } CFE_ES_SendMemPoolStatsCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_SendMemPoolStats
 {
     uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_SendMemPoolStatsCmd_Payload_t    Payload;
@@ -1363,13 +1363,13 @@ typedef struct
 ** For command details, see #CFE_ES_DUMP_CDS_REGISTRY_CC
 **
 **/
-typedef struct
+typedef struct CFE_ES_DumpCDSRegistryCmd_Payload
 {
   char                  DumpFilename[CFE_MISSION_MAX_PATH_LEN];  /**< \brief ASCII text string of full path and filename 
                                                                     of file CDS Registry is to be written */
 } CFE_ES_DumpCDSRegistryCmd_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_DumpCDSRegistry
 {
     uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
     CFE_ES_DumpCDSRegistryCmd_Payload_t  Payload;
@@ -1383,13 +1383,13 @@ typedef struct
 /** 
 **  \cfeestlm Single Application Information Packet
 **/
-typedef struct
+typedef struct CFE_ES_OneAppTlm_Payload
 {
   CFE_ES_AppInfo_t      AppInfo;                        /**< \brief For more information, see #CFE_ES_AppInfo_t */
   
 } CFE_ES_OneAppTlm_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_OneAppTlm
 {
     uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_OneAppTlm_Payload_t  Payload;
@@ -1398,14 +1398,14 @@ typedef struct
 /** 
 **  \cfeestlm Memory Pool Statistics Packet
 **/
-typedef struct
+typedef struct CFE_ES_PoolStatsTlm_Payload
 {
   CFE_ES_MemHandle_t    PoolHandle;                     /**< \cfetlmmnemonic \ES_POOLHANDLE
                                                              \brief Handle of memory pool whose stats are being telemetered */
   CFE_ES_MemPoolStats_t PoolStats;                      /**< \brief For more info, see #CFE_ES_MemPoolStats_t */
 } CFE_ES_PoolStatsTlm_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_MemStatsTlm
 {
     uint8                           TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_PoolStatsTlm_Payload_t   Payload;
@@ -1416,7 +1416,7 @@ typedef struct
 /** 
 **  \cfeestlm Executive Services Housekeeping Packet
 **/
-typedef struct
+typedef struct CFE_ES_HousekeepingTlm_Payload
 {
   uint8                 CommandCounter;  /**< \cfetlmmnemonic \ES_CMDPC 
                                           \brief The ES Application Command Counter */
@@ -1502,7 +1502,7 @@ typedef struct
                                               \brief Number of bytes in the largest free block */
 } CFE_ES_HousekeepingTlm_Payload_t;
 
-typedef struct
+typedef struct CFE_ES_HousekeepingTlm
 {
     uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_HousekeepingTlm_Payload_t   Payload;

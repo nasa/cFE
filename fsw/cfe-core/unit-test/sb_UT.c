@@ -1833,7 +1833,7 @@ void Test_GetPipeName(void)
     CFE_SB_PipeId_t PipeId = 0;
 
     OS_queue_prop_t queue_info = {
-        "TestPipe1", 0
+        "TestPipe1"
     };
 
     SETUP(CFE_SB_CreatePipe(&PipeId, 4, "TestPipe1"));
@@ -2456,6 +2456,12 @@ void Test_Unsubscribe_Basic(void)
 
     EVTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
+    /* Check unsubscribe after unsubscribe produces event */
+    UT_ClearEventHistory();
+    ASSERT(CFE_SB_Unsubscribe(MsgId, TestPipe));
+    EVTCNT(2);
+    EVTSENT(CFE_SB_UNSUB_NO_SUBS_EID);
+
     TEARDOWN(CFE_SB_DeletePipe(TestPipe));
 
 } /* end Test_Unsubscribe_Basic */
@@ -2545,7 +2551,7 @@ void Test_Unsubscribe_NoMatch(void)
     CFE_SB.RoutingTbl[CFE_SB_RouteIdxToValue(Idx)].ListHeadPtr->Next = NULL;
     ASSERT(CFE_SB_Unsubscribe(MsgId, TestPipe));
 
-    EVTCNT(6);
+    EVTCNT(7);
 
     EVTSENT(CFE_SB_UNSUB_NO_SUBS_EID);
 

@@ -87,6 +87,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    int32 ReturnCode;
    CFE_ES_AppRecord_t *AppRecPtr;
    CFE_ES_TaskRecord_t *TaskRecPtr;
+   CFE_ES_GenCounterRecord_t *CountRecPtr;
 
    /*
    ** Indicate that the CFE is the earliest initialization state
@@ -200,9 +201,11 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    ** Initialize the ES Generic Counter Table
    ** to mark all entries as unused.
    */
+   CountRecPtr = CFE_ES_Global.CounterTable;
    for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
    {
-      CFE_ES_Global.CounterTable[i].RecordUsed = false;
+       CFE_ES_CounterRecordSetFree(CountRecPtr);
+       ++CountRecPtr;
    }
 
    /*
@@ -773,7 +776,7 @@ void  CFE_ES_CreateObjects(void)
     bool      AppSlotFound;
     uint16    i;
     uint16    j;
-    uint32    OsalId;
+    osal_id_t OsalId;
     CFE_ES_AppRecord_t *AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
 
@@ -872,7 +875,7 @@ void  CFE_ES_CreateObjects(void)
                }
                else
                {
-                  AppRecPtr->TaskInfo.MainTaskId = OsalId;
+                  AppRecPtr->TaskInfo.MainTaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
                   TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->TaskInfo.MainTaskId);
 
                   /*

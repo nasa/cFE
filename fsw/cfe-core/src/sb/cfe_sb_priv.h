@@ -48,7 +48,7 @@
 
 #define CFE_SB_INVALID_ROUTE_IDX        ((CFE_SB_MsgRouteIdx_t){ .RouteIdx = 0 })
 #define CFE_SB_INVALID_MSG_KEY          ((CFE_SB_MsgKey_t){ .KeyIdx = 0 })
-#define CFE_SB_UNUSED_QUEUE             0xFFFF
+#define CFE_SB_UNUSED_QUEUE             OS_OBJECT_ID_UNDEFINED
 #define CFE_SB_INVALID_PIPE             0xFF
 #define CFE_SB_NO_DESTINATION           0xFF
 #define CFE_SB_FAILED                   1
@@ -249,7 +249,7 @@ typedef struct {
      uint8              Opts;
      uint8              Spare;
      uint32             AppId;
-     uint32             SysQueueId;
+     osal_id_t          SysQueueId;
      uint32             LastSender;
      uint16             QueueDepth;
      uint16             SendErrors;
@@ -280,7 +280,7 @@ typedef struct {
 **     This structure contains the SB global variables.
 */
 typedef struct {
-    uint32              SharedDataMutexId;
+    osal_id_t           SharedDataMutexId;
     uint32              SubscriptionReporting;
     uint32              SenderReporting;
     uint32              AppId;

@@ -68,7 +68,7 @@ typedef struct
    BlockSizeDesc_t *SizeDescPtr;
    uint16           CheckErrCntr;
    uint16           RequestCntr;
-   uint32           MutexId;
+   osal_id_t        MutexId;
    uint32           UseMutex;
    BlockSizeDesc_t  SizeDesc[CFE_ES_MAX_MEMPOOL_BLOCK_SIZES];
 } Pool_t;

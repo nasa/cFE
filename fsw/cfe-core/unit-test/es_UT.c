@@ -216,16 +216,14 @@ uint32 ES_UT_MakeTaskIdForIndex(uint32 ArrayIdx)
 void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_t AppState,
         const char *AppName, CFE_ES_AppRecord_t **OutAppRec, CFE_ES_TaskRecord_t **OutTaskRec)
 {
-    uint32 UtOsalId;
+    osal_id_t UtOsalId;
     uint32 UtTaskId;
     uint32 UtAppId;
-    uint32 ArrayIdx;
     CFE_ES_AppRecord_t *LocalAppPtr;
     CFE_ES_TaskRecord_t *LocalTaskPtr;
 
     OS_TaskCreate(&UtOsalId, "UT", NULL, NULL, 0, 0, 0);
-    OS_ConvertToArrayIndex(UtOsalId, &ArrayIdx);
-    UtTaskId = UtOsalId;
+    UtTaskId = CFE_ES_ResourceID_FromOSAL(UtOsalId);
     UtAppId = ES_UT_MakeAppIdForIndex(ES_UT_NumApps);
     ++ES_UT_NumApps;
 
@@ -275,19 +273,17 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
  */
 void ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *TaskName, CFE_ES_TaskRecord_t **OutTaskRec)
 {
-    uint32 UtOsalId;
+    osal_id_t UtOsalId;
     uint32 UtTaskId;
     uint32 UtAppId;
-    uint32 ArrayIdx;
     CFE_ES_TaskRecord_t *LocalTaskPtr;
 
     UtAppId = CFE_ES_AppRecordGetID(ParentApp);
 
     OS_TaskCreate(&UtOsalId, "C", NULL, NULL, 0, 0, 0);
-    OS_ConvertToArrayIndex(UtOsalId, &ArrayIdx);
-    UtTaskId = UtOsalId;
+    UtTaskId = CFE_ES_ResourceID_FromOSAL(UtOsalId);
 
-    LocalTaskPtr = &CFE_ES_Global.TaskTable[ArrayIdx];
+    LocalTaskPtr = CFE_ES_LocateTaskRecordByID(UtTaskId);
     CFE_ES_TaskRecordSetUsed(LocalTaskPtr, UtTaskId);
     LocalTaskPtr->AppId = UtAppId;
 
@@ -345,7 +341,7 @@ int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode,
                                uint32 CallCount,
                                const UT_StubContext_t *Context)
 {
-    uint32 ObjList[7];
+    osal_id_t ObjList[7];
 
     /* On the first call, Use the stub functions to generate one object of
      * each type
@@ -358,7 +354,7 @@ int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode,
         OS_BinSemCreate(&ObjList[3], NULL, 0, 0);
         OS_CountSemCreate(&ObjList[4], NULL, 0, 0);
         OS_TimerCreate(&ObjList[5], NULL, NULL, NULL);
-        ObjList[6] = OS_open(NULL, 0, 0);
+        ObjList[6] = OS_ObjectIdFromInteger(OS_open(NULL, 0, 0));
 
         UT_SetDataBuffer((UT_EntryKey_t)&OS_ForEachObject, ObjList,
                           sizeof(ObjList), true);
@@ -2031,7 +2027,7 @@ void TestTask(void)
 {
     uint32                      ResetType;
     uint32                      UT_ContextData;
-    uint32                   UT_ContextTask;
+    osal_id_t                   UT_ContextTask;
     union
     {
         CFE_SB_Msg_t             Msg;
@@ -2888,7 +2884,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
-    UT_ContextTask = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_ContextTask = CFE_ES_ResourceID_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextTask, sizeof(UT_ContextTask), false);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->StartParams.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
@@ -2909,7 +2905,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
-    UT_ContextTask = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_ContextTask = CFE_ES_ResourceID_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextTask, sizeof(UT_ContextTask), false);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->StartParams.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
@@ -3858,7 +3854,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc = OS_creat("UT", OS_WRITE_ONLY);
+    CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc = OS_ObjectIdFromInteger(OS_creat("UT", OS_WRITE_ONLY));
     CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
     CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
     CFE_ES_TaskData.BackgroundPerfDumpState.DataPos = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - 2;
@@ -3879,7 +3875,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc = OS_creat("UT", OS_WRITE_ONLY);
+    CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc = OS_ObjectIdFromInteger(OS_creat("UT", OS_WRITE_ONLY));
     CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_METADATA;
     CFE_ES_TaskData.BackgroundPerfDumpState.StateCounter = 10;
     Perf->MetaData.DataCount = 100;
@@ -3892,7 +3888,7 @@ void TestPerf(void)
 
 void TestAPI(void)
 {
-    uint32 TestObjId;
+    osal_id_t TestObjId;
     char AppName[32];
     uint32 StackBuf[8];
     int32  Return;
@@ -4309,8 +4305,8 @@ void TestAPI(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
-    TestObjId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
-    UT_SetForceFail(UT_KEY(OS_TaskGetId), (unsigned long)TestObjId); /* Set context to that of child */
+    TestObjId = CFE_ES_ResourceID_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
+    UT_SetForceFail(UT_KEY(OS_TaskGetId), OS_ObjectIdToInteger(TestObjId)); /* Set context to that of child */
     Return = CFE_ES_CreateChildTask(&TaskId,
                                     "TaskName",
                                     TestAPI,
@@ -4398,8 +4394,8 @@ void TestAPI(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
-    TestObjId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
-    UT_SetForceFail(UT_KEY(OS_TaskGetId), (unsigned long)TestObjId); /* Set context to that of child */
+    TestObjId = CFE_ES_ResourceID_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
+    UT_SetForceFail(UT_KEY(OS_TaskGetId), OS_ObjectIdToInteger(TestObjId)); /* Set context to that of child */
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(OS_TaskExit)) == 1,
@@ -4741,11 +4737,6 @@ void TestGenericCounterAPI(void)
     /* Test registering a generic counter with a null counter name */
     ES_ResetUnitTest();
 
-    for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
-    {
-       CFE_ES_Global.CounterTable[i].RecordUsed = false;
-    }
-
     UT_Report(__FILE__, __LINE__,
              CFE_ES_RegisterGenCounter(&CounterId,
                                         NULL) == CFE_ES_BAD_ARGUMENT,
@@ -4761,7 +4752,6 @@ void TestGenericCounterAPI(void)
 
     /* Test setting a generic counter where the record is not in use */
     ES_ResetUnitTest();
-    CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
     UT_Report(__FILE__, __LINE__,
              CFE_ES_SetGenCount(CounterId, 0) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_SetGenCount",
@@ -4769,7 +4759,6 @@ void TestGenericCounterAPI(void)
 
     /* Test getting a generic counter where the record is not in use */
     ES_ResetUnitTest();
-    CFE_ES_Global.CounterTable[CounterId].RecordUsed = false;
     UT_Report(__FILE__, __LINE__,
              CFE_ES_GetGenCount(CounterId, &CounterCount)
                 == CFE_ES_BAD_ARGUMENT,
@@ -4778,7 +4767,6 @@ void TestGenericCounterAPI(void)
 
     /* Test getting a generic counter where the count is null */
     ES_ResetUnitTest();
-    CFE_ES_Global.CounterTable[CounterId].RecordUsed = true;
     UT_Report(__FILE__, __LINE__,
              CFE_ES_GetGenCount(CounterId, NULL)
                 == CFE_ES_BAD_ARGUMENT,

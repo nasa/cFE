@@ -246,7 +246,7 @@ void CFE_ES_BackgroundCleanup(void)
     OS_BinSemDelete(CFE_ES_Global.BackgroundTask.WorkSem);
 
     CFE_ES_Global.BackgroundTask.TaskID = 0;
-    CFE_ES_Global.BackgroundTask.WorkSem = 0;
+    CFE_ES_Global.BackgroundTask.WorkSem = OS_OBJECT_ID_UNDEFINED;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */

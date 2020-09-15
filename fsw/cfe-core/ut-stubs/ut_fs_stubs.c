@@ -87,7 +87,7 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **        CFE_FS_Header_t structure in bytes.
 **
 ******************************************************************************/
-int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr)
+int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_WriteHeader), FileDes);
     UT_Stub_RegisterContext(UT_KEY(CFE_FS_WriteHeader), Hdr);
@@ -126,7 +126,7 @@ int32 CFE_FS_WriteHeader(int32 FileDes, CFE_FS_Header_t *Hdr)
 **        CFE_FS_Header_t structure in bytes.
 **
 ******************************************************************************/
-int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, int32 FileDes)
+int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_FS_ReadHeader), Hdr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_ReadHeader), FileDes);
@@ -163,7 +163,7 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, int32 FileDes)
 **        Returns either a user-defined status flag or OS_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_FS_SetTimestamp(int32 FileDes, CFE_TIME_SysTime_t NewTimestamp)
+int32 CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_SetTimestamp), FileDes);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_SetTimestamp), NewTimestamp);

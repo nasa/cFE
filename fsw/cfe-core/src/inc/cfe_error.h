@@ -631,7 +631,7 @@
  *  due to insufficient space in the log buffer.
  *
  */
-#define CFE_ES_ERR_SYS_LOG_TRUNCATED  ((int32)0x44000028)
+#define CFE_ES_ERR_SYS_LOG_TRUNCATED  ((int32)0x44000029)
 
 /**
  * @brief Not Implemented

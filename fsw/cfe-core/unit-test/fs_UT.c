@@ -88,7 +88,7 @@ void Test_CFE_FS_InitHeader(void)
 */
 void Test_CFE_FS_ReadHeader(void)
 {
-    int32 FileDes = 0;
+    osal_id_t FileDes = OS_OBJECT_ID_UNDEFINED;
     CFE_FS_Header_t Hdr;
 
 #ifdef UT_VERBOSE
@@ -118,7 +118,7 @@ void Test_CFE_FS_ReadHeader(void)
 */
 void Test_CFE_FS_WriteHeader(void)
 {
-    int32 FileDes = 0;
+    osal_id_t FileDes = OS_OBJECT_ID_UNDEFINED;
     CFE_FS_Header_t Hdr;
 
 #ifdef UT_VERBOSE
@@ -148,7 +148,7 @@ void Test_CFE_FS_WriteHeader(void)
 */
 void Test_CFE_FS_SetTimestamp(void)
 {
-    int32 FileDes = 0;
+    osal_id_t FileDes = OS_OBJECT_ID_UNDEFINED;
     CFE_TIME_SysTime_t NewTimestamp = {0, 0};
 
 #ifdef UT_VERBOSE

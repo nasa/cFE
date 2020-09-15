@@ -77,7 +77,7 @@
 /******************  Structure Definitions *********************/
 
 /** \brief Event message filter defintion structure */
-typedef struct {
+typedef struct CFE_EVS_BinFilter {
    uint16 EventID;	/**< \brief Numerical event identifier */
    uint16 Mask;		/**< \brief Binary filter mask value */
 
@@ -114,7 +114,7 @@ typedef struct {
 **          <b> Code: </b> CFE_EVS_EventFilter_BINARY <BR>
 **          <b> Filter Structure: </b> 
 **          \code
-**                     typedef struct {
+**                     typedef struct CFE_EVS_BinFilter {
 **                           uint16  EventID,
 **                           uint16  Mask ;
 **                     } CFE_EVS_BinFilter_t;

@@ -75,7 +75,7 @@ typedef struct
 typedef struct
 {
     uint32 TaskID;          /**< OSAL ID of the background task */
-    uint32 WorkSem;         /**< Semaphore that is given whenever background work is pending */
+    osal_id_t WorkSem;      /**< Semaphore that is given whenever background work is pending */
     uint32 NumJobsRunning;  /**< Current Number of active jobs (updated by background task) */
 } CFE_ES_BackgroundTaskState_t;
 
@@ -95,12 +95,12 @@ typedef struct
    /*
    ** Shared Data Semaphore
    */
-   uint32 SharedDataMutex;
+   osal_id_t SharedDataMutex;
 
    /*
    ** Performance Data Mutex
    */
-   uint32 PerfDataMutex;
+   osal_id_t PerfDataMutex;
 
    /*
    ** Startup Sync
@@ -176,6 +176,17 @@ extern CFE_ES_AppRecord_t* CFE_ES_LocateAppRecordByID(uint32 AppID);
  * @return pointer to Task Table entry for the given task ID
  */
 extern CFE_ES_TaskRecord_t* CFE_ES_LocateTaskRecordByID(uint32 TaskID);
+
+/**
+ * @brief Locate the Counter table entry correlating with a given Counter ID.
+ *
+ * This only returns a pointer to the table entry and does _not_
+ * otherwise check/validate the entry.
+ *
+ * @param[in]   CounterID   the Counter ID to locate
+ * @return pointer to Counter Table entry for the given Counter ID
+ */
+extern CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(uint32 CounterID);
 
 /**
  * @brief Check if an app record is in use or free/empty
@@ -349,6 +360,91 @@ static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPt
 }
 
 /**
+ * @brief Check if an Counter record is in use or free/empty
+ *
+ * This routine checks if the Counter table entry is in use or if it is free
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ * @returns true if the entry is in use/configured, or false if it is free/empty
+ */
+static inline bool CFE_ES_CounterRecordIsUsed(const CFE_ES_GenCounterRecord_t *CounterRecPtr)
+{
+    return (CounterRecPtr->RecordUsed);
+}
+
+/**
+ * @brief Get the ID value from an Counter table entry
+ *
+ * This routine converts the table entry back to an abstract ID.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ * @returns CounterID of entry
+ */
+static inline uint32 CFE_ES_CounterRecordGetID(const CFE_ES_GenCounterRecord_t *CounterRecPtr)
+{
+    /*
+     * The initial implementation does not store the ID in the entry;
+     * the ID is simply the zero-based index into the table.
+     */
+    return (CounterRecPtr - CFE_ES_Global.CounterTable);
+}
+
+/**
+ * @brief Marks an Counter table entry as used (not free)
+ *
+ * This sets the internal field(s) within this entry, and marks
+ * it as being associated with the given Counter ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ * @param[in]   CounterID       the Counter ID of this entry
+ */
+static inline void CFE_ES_CounterRecordSetUsed(CFE_ES_GenCounterRecord_t *CounterRecPtr, uint32 CounterID)
+{
+    CounterRecPtr->RecordUsed = true;
+}
+
+/**
+ * @brief Set an Counter record table entry free (not used)
+ *
+ * This clears the internal field(s) within this entry, and allows the
+ * memory to be re-used in the future.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ */
+static inline void CFE_ES_CounterRecordSetFree(CFE_ES_GenCounterRecord_t *CounterRecPtr)
+{
+    CounterRecPtr->RecordUsed = false;
+}
+
+/**
+ * @brief Check if an Counter record is a match for the given CounterID
+ *
+ * This routine confirms that the previously-located record is valid
+ * and matches the expected Counter ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CounterRecPtr   pointer to Counter table entry
+ * @param[in]   CounterID       expected Counter ID
+ * @returns true if the entry matches the given Counter ID
+ */
+static inline bool CFE_ES_CounterRecordIsMatch(const CFE_ES_GenCounterRecord_t *CounterRecPtr, uint32 CounterID)
+{
+    return (CounterRecPtr != NULL && CFE_ES_CounterRecordIsUsed(CounterRecPtr) &&
+            CFE_ES_CounterRecordGetID(CounterRecPtr) == CounterID);
+}
+
+/**
  * Locate and validate the app record for the calling context.
  *
  * Finds and validates the ES AppTable entry corresponding to the
@@ -371,6 +467,47 @@ extern CFE_ES_AppRecord_t* CFE_ES_GetAppRecordByContext(void);
  * The global data lock should be obtained prior to invoking this function.
  */
 extern CFE_ES_TaskRecord_t* CFE_ES_GetTaskRecordByContext(void);
+
+/**
+ * @brief Convert an ES Task ID to an OSAL task ID
+ *
+ * Task IDs created via CFE ES are also OSAL task IDs, but technically
+ * do refer to a different scope and therefore have a different type
+ * to represent them.
+ *
+ * This function facilitates converting between the types.
+ *
+ * @note Currently the numeric values are the same and can be interchanged
+ * for backward compatibility, however they may diverge in a future version.
+ * New code should not assume equivalence between OSAL and ES task IDs.
+ *
+ * @sa CFE_ES_ResourceID_FromOSAL
+ *
+ * @param[in] id    The ES task ID
+ * @returns         The OSAL task ID
+ */
+osal_id_t CFE_ES_ResourceID_ToOSAL(uint32 id);
+
+/**
+ * @brief Convert an ES Task ID to an OSAL task ID
+ *
+ * Task IDs created via CFE ES are also OSAL task IDs, but technically
+ * do refer to a different scope and therefore have a different type
+ * to represent them.
+ *
+ * This function facilitates converting between the types.
+ *
+ * @note Currently the numeric values are the same and can be interchanged
+ * for backward compatibility, however they may diverge in a future version.
+ * New code should not assume equivalence between OSAL and ES task IDs.
+ *
+ * @sa CFE_ES_ResourceID_ToOSAL
+ *
+ * @param[in] id    The OSAL task ID
+ * @returns         The ES task ID
+ */
+uint32 CFE_ES_ResourceID_FromOSAL(osal_id_t id);
+
 
 /*
 ** Functions used to lock/unlock shared data

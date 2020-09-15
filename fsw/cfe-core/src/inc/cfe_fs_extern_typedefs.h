@@ -219,7 +219,7 @@ typedef uint32                                           CFE_FS_SubType_Enum_t;
 /**
 ** \brief Standard cFE File header structure definition
 */
-typedef struct
+typedef struct CFE_FS_Header
 {
     uint32  ContentType;           /**< \brief Identifies the content type (='cFE1'=0x63464531)*/
     uint32  SubType;               /**< \brief Type of \c ContentType, if necessary */
