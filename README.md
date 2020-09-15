@@ -10,6 +10,17 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev81
+
+- Deconflict CFE_ES_LIB_ALREADY_LOADED and CFE_ES_ERR_SYS_LOG_TRUNCATED EIDs
+- Scrub all CFE references/uses of OSAL IDs to use the proper osal_id_t type. Any place that an OSAL ID is stored in memory or passed in an API call are changed to the osal_id_t type, rather than uint32. Conversions between this and other types (e.g. bare integer) is done using the OSAL-supplied conversion helpers.
+- After the changes implemented in #101, there may be routing table entries with no subscribers (RoutePtr->ListHeadPtr would be NULL.) This could cause a seg-fault. Also, even if there are entries in the routing table, there will be no event generated if the unsubscribe does not find a matching route entry.
+- Adds debug message.
+- Applies the appid/taskid pattern to Generic Counter resources.
+- Adds test for SB subscribe/unusubscribe/unsubscribe.
+- See <https://github.com/nasa/cFE/pull/876>
+
+
 ### Development Build: 6.8.0-rc1+dev65
 
 - In the next major CFE release, this code will be no longer supported at all. It should be removed early in the cycle to avoid needing to maintain this compatibility code.
