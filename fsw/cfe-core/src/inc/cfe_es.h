@@ -41,6 +41,7 @@
 #include "cfe_es_extern_typedefs.h"
 #include "cfe_mission_cfg.h"
 #include "cfe_perfids.h"
+#include "cfe_error.h"
 
 /*****************************************************************************/
 
@@ -176,7 +177,7 @@ static inline uint32 CFE_ES_ResourceID_FromInteger(unsigned long Value)
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
  */
-int32 CFE_ES_AppID_ToIndex(uint32 AppID, uint32 *Idx);
+CFE_RC_t CFE_ES_AppID_ToIndex(uint32 AppID, uint32 *Idx);
 
 /**
  * @brief Obtain an index value correlating to an ES Task ID
@@ -200,7 +201,7 @@ int32 CFE_ES_AppID_ToIndex(uint32 AppID, uint32 *Idx);
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
  */
-int32 CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx);
+CFE_RC_t CFE_ES_TaskID_ToIndex(uint32 TaskID, uint32 *Idx);
 
 /**
  * \brief Application Information
@@ -407,7 +408,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId , const ch
 ** \sa #CFE_ES_Main
 **
 ******************************************************************************/
-int32  CFE_ES_ResetCFE(uint32 ResetType);
+CFE_RC_t  CFE_ES_ResetCFE(uint32 ResetType);
 /**@}*/
 
 /** @defgroup CFEAPIESAppControl cFE Application Control APIs
@@ -431,7 +432,7 @@ int32  CFE_ES_ResetCFE(uint32 ResetType);
 ** \sa #CFE_ES_ReloadApp, #CFE_ES_DeleteApp
 **
 ******************************************************************************/
-int32 CFE_ES_RestartApp(uint32 AppID);
+CFE_RC_t CFE_ES_RestartApp(uint32 AppID);
 
 /*****************************************************************************/
 /**
@@ -458,7 +459,7 @@ int32 CFE_ES_RestartApp(uint32 AppID);
 ** \sa #CFE_ES_RestartApp, #CFE_ES_DeleteApp, #CFE_ES_START_APP_CC
 **
 ******************************************************************************/
-int32 CFE_ES_ReloadApp(uint32 AppID, const char *AppFileName);
+CFE_RC_t CFE_ES_ReloadApp(uint32 AppID, const char *AppFileName);
 
 /*****************************************************************************/
 /**
@@ -477,7 +478,7 @@ int32 CFE_ES_ReloadApp(uint32 AppID, const char *AppFileName);
 ** \sa #CFE_ES_RestartApp, #CFE_ES_ReloadApp
 **
 ******************************************************************************/
-int32 CFE_ES_DeleteApp(uint32 AppID);
+CFE_RC_t CFE_ES_DeleteApp(uint32 AppID);
 /**@}*/
 
 /** @defgroup CFEAPIESAppBehavior cFE Application Behavior APIs
@@ -562,7 +563,7 @@ bool CFE_ES_RunLoop(uint32 *ExitStatus);
 ** \sa #CFE_ES_RunLoop
 **
 ******************************************************************************/
-int32 CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMilliseconds);
+CFE_RC_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMilliseconds);
 
 /*****************************************************************************/
 /**
@@ -611,7 +612,7 @@ void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds);
 ** \sa #CFE_ES_ExitApp, #CFE_ES_RunLoop
 **
 ******************************************************************************/
-int32 CFE_ES_RegisterApp(void);
+CFE_RC_t CFE_ES_RegisterApp(void);
 
 /*****************************************************************************/
 /**
@@ -686,7 +687,7 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr);
 ** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName, #CFE_ES_GetTaskInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetAppID(uint32 *AppIdPtr);
+CFE_RC_t CFE_ES_GetAppID(uint32 *AppIdPtr);
 
 /*****************************************************************************/
 /**
@@ -708,7 +709,7 @@ int32 CFE_ES_GetAppID(uint32 *AppIdPtr);
 ** \retval #CFE_ES_ERR_TASKID    \copybrief CFE_ES_ERR_TASKID
 **
 ******************************************************************************/
-int32 CFE_ES_GetTaskID(uint32 *TaskIdPtr);
+CFE_RC_t CFE_ES_GetTaskID(uint32 *TaskIdPtr);
 
 /*****************************************************************************/
 /**
@@ -734,7 +735,7 @@ int32 CFE_ES_GetTaskID(uint32 *TaskIdPtr);
 ** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppID, #CFE_ES_GetAppName, #CFE_ES_GetTaskInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName);
+CFE_RC_t CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName);
 
 /*****************************************************************************/
 /**
@@ -766,7 +767,7 @@ int32 CFE_ES_GetAppIDByName(uint32 *AppIdPtr, const char *AppName);
 ** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetTaskInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetAppName(char *AppName, uint32 AppId, uint32 BufferLength);
+CFE_RC_t CFE_ES_GetAppName(char *AppName, uint32 AppId, uint32 BufferLength);
 
 /*****************************************************************************/
 /**
@@ -795,7 +796,7 @@ int32 CFE_ES_GetAppName(char *AppName, uint32 AppId, uint32 BufferLength);
 ** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName
 **
 ******************************************************************************/
-int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, uint32 AppId);
+CFE_RC_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, uint32 AppId);
 
 /*****************************************************************************/
 /**
@@ -824,7 +825,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, uint32 AppId);
 ** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName
 **
 ******************************************************************************/
-int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, uint32 TaskId);
+CFE_RC_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, uint32 TaskId);
 /**@}*/
 
 /** @defgroup CFEAPIESChildTask cFE Child Task APIs
@@ -849,7 +850,7 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, uint32 TaskId);
 ** \sa #CFE_ES_CreateChildTask, #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
-int32  CFE_ES_RegisterChildTask(void);
+CFE_RC_t  CFE_ES_RegisterChildTask(void);
 
 /*****************************************************************************/
 /**
@@ -888,7 +889,7 @@ int32  CFE_ES_RegisterChildTask(void);
 ** \sa #CFE_ES_RegisterChildTask, #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
-int32  CFE_ES_CreateChildTask(uint32                          *TaskIdPtr,
+CFE_RC_t  CFE_ES_CreateChildTask(uint32                       *TaskIdPtr,
                               const char                      *TaskName,
                               CFE_ES_ChildTaskMainFuncPtr_t    FunctionPtr,
                               uint32                          *StackPtr,
@@ -916,7 +917,7 @@ int32  CFE_ES_CreateChildTask(uint32                          *TaskIdPtr,
 ** \sa #CFE_ES_RegisterChildTask, #CFE_ES_CreateChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
-int32 CFE_ES_DeleteChildTask(uint32 TaskId);
+CFE_RC_t CFE_ES_DeleteChildTask(uint32 TaskId);
 
 /*****************************************************************************/
 /**
@@ -965,7 +966,7 @@ void CFE_ES_ExitChildTask(void);
 ** \retval #CFE_ES_ERR_SYS_LOG_FULL \copybrief CFE_ES_ERR_SYS_LOG_FULL
 **
 ******************************************************************************/
-int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1,2);
+CFE_RC_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1,2);
 
 /*****************************************************************************/
 /**
@@ -1051,7 +1052,7 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
 **
 ******************************************************************************/
-int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name);
+CFE_RC_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name);
 
 /*****************************************************************************/
 /**
@@ -1077,7 +1078,7 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const c
 ** \sa #CFE_ES_RegisterCDS, #CFE_ES_RestoreFromCDS
 **
 */
-int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy);
+CFE_RC_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy);
 
 /*****************************************************************************/
 /**
@@ -1106,7 +1107,7 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy);
 ** \sa #CFE_ES_RegisterCDS, #CFE_ES_CopyToCDS
 **
 */
-int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle);
+CFE_RC_t CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle);
 /**@}*/
 
 /** @defgroup CFEAPIESMemManage cFE Memory Manager APIs
@@ -1140,7 +1141,7 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle);
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Size);
+CFE_RC_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Size);
 
 /*****************************************************************************/
 /**
@@ -1169,7 +1170,7 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint3
 ** \sa #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Size);
+CFE_RC_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Size);
 
 /*****************************************************************************/
 /**
@@ -1207,7 +1208,7 @@ int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Siz
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Size, uint32 NumBlockSizes, uint32 *BlockSizes, uint16 UseMutex);
+CFE_RC_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Size, uint32 NumBlockSizes, uint32 *BlockSizes, uint16 UseMutex);
 
 /*****************************************************************************/
 /**
@@ -1256,7 +1257,7 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t HandlePtr, uint32 Si
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_PutPoolBuf
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr);
+CFE_RC_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr);
 
 /*****************************************************************************/
 /**
@@ -1305,7 +1306,7 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr);
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf
 **
 ******************************************************************************/
-int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHandle_t  Handle);
+CFE_RC_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHandle_t  Handle);
 /**@}*/
 
 /** @defgroup CFEAPIESPerfMon cFE Performance Monitor APIs
@@ -1397,7 +1398,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit);
 ** \sa #CFE_ES_IncrementGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-int32 CFE_ES_RegisterGenCounter(uint32 *CounterIdPtr, const char *CounterName);
+CFE_RC_t CFE_ES_RegisterGenCounter(uint32 *CounterIdPtr, const char *CounterName);
 
 /*****************************************************************************/
 /**
@@ -1418,7 +1419,7 @@ int32 CFE_ES_RegisterGenCounter(uint32 *CounterIdPtr, const char *CounterName);
 ** \sa #CFE_ES_IncrementGenCounter, #CFE_ES_RegisterGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-int32 CFE_ES_DeleteGenCounter(uint32 CounterId);
+CFE_RC_t CFE_ES_DeleteGenCounter(uint32 CounterId);
 
 /*****************************************************************************/
 /**
@@ -1439,7 +1440,7 @@ int32 CFE_ES_DeleteGenCounter(uint32 CounterId);
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-int32 CFE_ES_IncrementGenCounter(uint32 CounterId);
+CFE_RC_t CFE_ES_IncrementGenCounter(uint32 CounterId);
 
 /*****************************************************************************/
 /**
@@ -1462,7 +1463,7 @@ int32 CFE_ES_IncrementGenCounter(uint32 CounterId);
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_IncrementGenCounter, #CFE_ES_GetGenCount, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-int32 CFE_ES_SetGenCount(uint32 CounterId, uint32 Count);
+CFE_RC_t CFE_ES_SetGenCount(uint32 CounterId, uint32 Count);
 
 /*****************************************************************************/
 /**
@@ -1485,7 +1486,7 @@ int32 CFE_ES_SetGenCount(uint32 CounterId, uint32 Count);
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_IncrementGenCounter, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-int32 CFE_ES_GetGenCount(uint32 CounterId, uint32 *Count);
+CFE_RC_t CFE_ES_GetGenCount(uint32 CounterId, uint32 *Count);
 
 
 /*****************************************************************************/
@@ -1508,7 +1509,7 @@ int32 CFE_ES_GetGenCount(uint32 CounterId, uint32 *Count);
 **
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_IncrementGenCounter, #CFE_ES_GetGenCount
 ******************************************************************************/
-int32 CFE_ES_GetGenCounterIDByName(uint32 *CounterIdPtr, const char *CounterName);
+CFE_RC_t CFE_ES_GetGenCounterIDByName(uint32 *CounterIdPtr, const char *CounterName);
 /**@}*/
 
 #endif  /* _cfe_es_ */

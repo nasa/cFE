@@ -40,6 +40,7 @@
 ** Includes
 */
 #include "cfe_time_extern_typedefs.h"
+#include "cfe_error.h"
 #include "common_types.h"
 
 /*****************************************************************************/
@@ -713,7 +714,7 @@ void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime);
 ** \sa #CFE_TIME_UnregisterSynchCallback
 **
 ******************************************************************************/
-int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr);   
+CFE_RC_t  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr);   
 
 
 /*****************************************************************************/
@@ -737,7 +738,7 @@ int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPt
 ** \sa #CFE_TIME_RegisterSynchCallback
 **
 ******************************************************************************/
-int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr);   
+CFE_RC_t  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr);   
 /**@}*/
 
 /** @defgroup CFEAPITIMEMisc cFE Miscellaneous Time APIs

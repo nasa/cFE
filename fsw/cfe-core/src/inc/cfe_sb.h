@@ -36,6 +36,7 @@
 ** Includes
 */
 #include "cfe_sb_extern_typedefs.h"
+#include "cfe_error.h"
 #include "osconfig.h"
 #include "cfe_psp.h"
 #include "common_types.h"
@@ -243,9 +244,7 @@ extern CFE_SB_Qos_t CFE_SB_Default_Qos;/**< \brief  Defines a default priority a
 **
 ** \sa #CFE_SB_DeletePipe #CFE_SB_GetPipeOpts #CFE_SB_SetPipeOpts #CFE_SB_GetPipeIdByName
 **/
-int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr,
-                         uint16  Depth,
-                         const char *PipeName);
+CFE_RC_t  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const char *PipeName);
 
 /*****************************************************************************/
 /**
@@ -274,7 +273,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr,
 **
 ** \sa #CFE_SB_CreatePipe #CFE_SB_GetPipeOpts #CFE_SB_SetPipeOpts #CFE_SB_GetPipeIdByName
 **/
-int32  CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId);
+CFE_RC_t  CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId);
 
 /*****************************************************************************/
 /**
@@ -294,8 +293,7 @@ int32  CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId);
 **
 ** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_GetPipeOpts #CFE_SB_GetPipeIdByName #CFE_SB_PIPEOPTS_IGNOREMINE
 **/
-int32  CFE_SB_SetPipeOpts(CFE_SB_PipeId_t     PipeId,
-                          uint8               Opts);
+CFE_RC_t  CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts);
 
 /*****************************************************************************/
 /**
@@ -314,8 +312,7 @@ int32  CFE_SB_SetPipeOpts(CFE_SB_PipeId_t     PipeId,
 **
 ** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_SetPipeOpts #CFE_SB_GetPipeIdByName #CFE_SB_PIPEOPTS_IGNOREMINE
 **/
-int32  CFE_SB_GetPipeOpts(CFE_SB_PipeId_t     PipeId,
-                          uint8               *OptPtr);
+CFE_RC_t  CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptPtr);
 
 /*****************************************************************************/
 /**
@@ -336,7 +333,7 @@ int32  CFE_SB_GetPipeOpts(CFE_SB_PipeId_t     PipeId,
 **
 ** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_SetPipeOpts #CFE_SB_GetPipeIdByName
 **/
-int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId);
+CFE_RC_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId);
 
 /*****************************************************************************/
 /**
@@ -355,7 +352,7 @@ int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t
 **
 ** \sa #CFE_SB_CreatePipe #CFE_SB_DeletePipe #CFE_SB_SetPipeOpts #CFE_SB_PIPEOPTS_IGNOREMINE
 **/
-int32  CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName);
+CFE_RC_t  CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName);
 /**@}*/
 
 /** @defgroup CFEAPISBSubscription cFE Message Subscription Control APIs
@@ -400,10 +397,7 @@ int32  CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName);
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeLocal, #CFE_SB_Unsubscribe, #CFE_SB_UnsubscribeLocal
 **/
-int32  CFE_SB_SubscribeEx(CFE_SB_MsgId_t      MsgId,
-                          CFE_SB_PipeId_t     PipeId,
-                          CFE_SB_Qos_t        Quality,
-                          uint16              MsgLim);
+CFE_RC_t  CFE_SB_SubscribeEx(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim);
 
 /*****************************************************************************/
 /**
@@ -438,7 +432,7 @@ int32  CFE_SB_SubscribeEx(CFE_SB_MsgId_t      MsgId,
 **
 ** \sa #CFE_SB_SubscribeEx, #CFE_SB_SubscribeLocal, #CFE_SB_Unsubscribe, #CFE_SB_UnsubscribeLocal
 **/
-int32 CFE_SB_Subscribe(CFE_SB_MsgId_t  MsgId, CFE_SB_PipeId_t PipeId);
+CFE_RC_t CFE_SB_Subscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 
 /*****************************************************************************/
 /**
@@ -472,9 +466,7 @@ int32 CFE_SB_Subscribe(CFE_SB_MsgId_t  MsgId, CFE_SB_PipeId_t PipeId);
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeEx, #CFE_SB_Unsubscribe, #CFE_SB_UnsubscribeLocal
 **/
-int32 CFE_SB_SubscribeLocal(CFE_SB_MsgId_t MsgId,
-                            CFE_SB_PipeId_t PipeId,
-                            uint16 MsgLim);
+CFE_RC_t CFE_SB_SubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint16 MsgLim);
 
 /*****************************************************************************/
 /**
@@ -499,7 +491,7 @@ int32 CFE_SB_SubscribeLocal(CFE_SB_MsgId_t MsgId,
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeEx, #CFE_SB_SubscribeLocal, #CFE_SB_UnsubscribeLocal
 **/
-int32  CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
+CFE_RC_t  CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 
 /*****************************************************************************/
 /**
@@ -524,7 +516,7 @@ int32  CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeEx, #CFE_SB_SubscribeLocal, #CFE_SB_Unsubscribe
 **/
-int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
+CFE_RC_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 /**@}*/
 
 /** @defgroup CFEAPISBMessage cFE Send/Receive Message APIs
@@ -561,7 +553,7 @@ int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 **
 ** \sa #CFE_SB_RcvMsg, #CFE_SB_ZeroCopySend, #CFE_SB_PassMsg
 **/
-int32  CFE_SB_SendMsg(CFE_SB_Msg_t   *MsgPtr);
+CFE_RC_t  CFE_SB_SendMsg(CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /**
@@ -594,7 +586,7 @@ int32  CFE_SB_SendMsg(CFE_SB_Msg_t   *MsgPtr);
 **
 ** \sa #CFE_SB_RcvMsg, #CFE_SB_ZeroCopySend, #CFE_SB_SendMsg
 **/
-int32  CFE_SB_PassMsg(CFE_SB_Msg_t   *MsgPtr);
+CFE_RC_t  CFE_SB_PassMsg(CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /**
@@ -638,9 +630,7 @@ int32  CFE_SB_PassMsg(CFE_SB_Msg_t   *MsgPtr);
 **
 ** \sa #CFE_SB_SendMsg, #CFE_SB_ZeroCopySend
 **/
-int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t  *BufPtr,
-                     CFE_SB_PipeId_t  PipeId,
-                     int32            TimeOut);
+CFE_RC_t  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t *BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut);
 /**@}*/
 
 /** @defgroup CFEAPISBZeroCopy cFE Zero Copy Message APIs
@@ -711,8 +701,7 @@ CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16  MsgSize,
 **
 ** \sa #CFE_SB_ZeroCopyGetPtr, #CFE_SB_ZeroCopySend
 **/
-int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
-                                CFE_SB_ZeroCopyHandle_t         BufferHandle);
+CFE_RC_t CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
 
 /*****************************************************************************/
 /**
@@ -752,8 +741,7 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
 **
 ** \sa #CFE_SB_SendMsg, #CFE_SB_RcvMsg, #CFE_SB_ZeroCopyReleasePtr, #CFE_SB_ZeroCopyGetPtr
 **/
-int32 CFE_SB_ZeroCopySend(CFE_SB_Msg_t   *MsgPtr,
-                          CFE_SB_ZeroCopyHandle_t          BufferHandle);
+CFE_RC_t CFE_SB_ZeroCopySend(CFE_SB_Msg_t *MsgPtr, CFE_SB_ZeroCopyHandle_t BufferHandle);
 
 /*****************************************************************************/
 /**
@@ -795,8 +783,7 @@ int32 CFE_SB_ZeroCopySend(CFE_SB_Msg_t   *MsgPtr,
 **
 ** \sa #CFE_SB_PassMsg, #CFE_SB_ZeroCopySend, #CFE_SB_ZeroCopyReleasePtr, #CFE_SB_ZeroCopyGetPtr
 **/
-int32 CFE_SB_ZeroCopyPass(CFE_SB_Msg_t   *MsgPtr,
-                          CFE_SB_ZeroCopyHandle_t          BufferHandle);
+CFE_RC_t CFE_SB_ZeroCopyPass(CFE_SB_Msg_t *MsgPtr, CFE_SB_ZeroCopyHandle_t BufferHandle);
 /**@}*/
 
 /** @defgroup CFEAPISBSetMessage cFE Setting Message Characteristics APIs
@@ -938,8 +925,7 @@ void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength);
 ** \sa #CFE_SB_SetMsgId, #CFE_SB_SetUserDataLength, #CFE_SB_SetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_TimeStampMsg, #CFE_SB_SetCmdCode, #CFE_SB_InitMsg
 **/
-int32 CFE_SB_SetMsgTime(CFE_SB_MsgPtr_t MsgPtr,
-                       CFE_TIME_SysTime_t Time);
+CFE_RC_t CFE_SB_SetMsgTime(CFE_SB_MsgPtr_t MsgPtr, CFE_TIME_SysTime_t Time);
 
 /*****************************************************************************/
 /**
@@ -987,8 +973,7 @@ void CFE_SB_TimeStampMsg(CFE_SB_MsgPtr_t MsgPtr);
 ** \sa #CFE_SB_SetMsgId, #CFE_SB_SetUserDataLength, #CFE_SB_SetTotalMsgLength,
 **     #CFE_SB_SetMsgTime, #CFE_SB_TimeStampMsg, #CFE_SB_GetCmdCode, #CFE_SB_InitMsg
 **/
-int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr,
-                        uint16 CmdCode);
+CFE_RC_t CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr, uint16 CmdCode);
 
 /******************************************************************************/
 /**

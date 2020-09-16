@@ -41,6 +41,7 @@
 /********************* Include Files  ************************/
 #include "cfe_tbl_extern_typedefs.h"
 #include "cfe_sb_extern_typedefs.h"
+#include "cfe_error.h"
 #include "common_types.h"  /* Basic Data Types */
 #include "cfe_time.h"
 #include "osconfig.h"
@@ -264,11 +265,11 @@ typedef struct
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Share
 **/
-int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,                   /* Returned Handle */
-                        const char   *Name,                               /* Application specific name  */
-                        uint32  Size,                                     /* Size, in bytes, of table   */
-                        uint16  TblOptionFlags,                           /* Tbl Options Settings     */
-                        CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr ); /* Ptr to func that validates tbl */
+CFE_RC_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr,                  /* Returned Handle */
+                          const char   *Name,                              /* Application specific name  */
+                          uint32  Size,                                    /* Size, in bytes, of table   */
+                          uint16  TblOptionFlags,                          /* Tbl Options Settings     */
+                          CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr); /* Ptr to func that validates tbl */
 
 /*****************************************************************************/
 /**
@@ -308,8 +309,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,                   /* Ret
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Register
 **
 ******************************************************************************/
-int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,      /* Returned Handle */
-                     const char *TblName );
+CFE_RC_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName);
 
 /*****************************************************************************/
 /**
@@ -339,7 +339,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,      /* Returned Handle */
 ** \sa #CFE_TBL_Share, #CFE_TBL_Register
 ** 
 ******************************************************************************/
-int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle );
+CFE_RC_t CFE_TBL_Unregister (CFE_TBL_Handle_t TblHandle);
 /**@}*/
 
 /** @defgroup CFEAPITBLManage cFE Manage Table Content APIs
@@ -396,9 +396,7 @@ int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle );
 ** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Manage 
 **
 ******************************************************************************/
-int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
-                    CFE_TBL_SrcEnum_t SrcType,
-                    const void *SrcDataPtr );
+CFE_RC_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType, const void *SrcDataPtr);
 
 /*****************************************************************************/
 /**
@@ -431,7 +429,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
 ** \sa #CFE_TBL_Load, #CFE_TBL_Validate, #CFE_TBL_Manage
 **
 ******************************************************************************/
-int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle );
+CFE_RC_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -464,7 +462,7 @@ int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle );
 ** \sa #CFE_TBL_Update, #CFE_TBL_Manage, #CFE_TBL_Load
 **
 ******************************************************************************/
-int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle );
+CFE_RC_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -496,7 +494,7 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle );
 ** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Load, #CFE_TBL_DumpToBuffer
 **
 ******************************************************************************/
-int32 CFE_TBL_Manage( CFE_TBL_Handle_t TblHandle );
+CFE_RC_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -525,7 +523,7 @@ int32 CFE_TBL_Manage( CFE_TBL_Handle_t TblHandle );
 ** \sa #CFE_TBL_Manage
 **
 ******************************************************************************/
-int32   CFE_TBL_DumpToBuffer( CFE_TBL_Handle_t TblHandle );
+CFE_RC_t   CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -553,7 +551,7 @@ int32   CFE_TBL_DumpToBuffer( CFE_TBL_Handle_t TblHandle );
 ** \sa #CFE_TBL_Manage
 **
 ******************************************************************************/
-int32   CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle );
+CFE_RC_t   CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
 /**@}*/
 
 /** @defgroup CFEAPITBLAccess cFE Access Table Content APIs
@@ -608,8 +606,7 @@ int32   CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle );
 ** \sa #CFE_TBL_ReleaseAddress, #CFE_TBL_GetAddresses, #CFE_TBL_ReleaseAddresses
 **
 ******************************************************************************/
-int32 CFE_TBL_GetAddress( void **TblPtr,
-                          CFE_TBL_Handle_t TblHandle );
+CFE_RC_t CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -641,7 +638,7 @@ int32 CFE_TBL_GetAddress( void **TblPtr,
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_GetAddresses, #CFE_TBL_ReleaseAddresses
 **
 ******************************************************************************/
-int32 CFE_TBL_ReleaseAddress( CFE_TBL_Handle_t TblHandle );
+CFE_RC_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -693,9 +690,7 @@ int32 CFE_TBL_ReleaseAddress( CFE_TBL_Handle_t TblHandle );
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_ReleaseAddress, #CFE_TBL_ReleaseAddresses
 **
 ******************************************************************************/
-int32 CFE_TBL_GetAddresses( void **TblPtrs[],
-                            uint16 NumTables,
-                            const CFE_TBL_Handle_t TblHandles[] );
+CFE_RC_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_TBL_Handle_t TblHandles[]);
 
 /*****************************************************************************/
 /**
@@ -729,8 +724,7 @@ int32 CFE_TBL_GetAddresses( void **TblPtrs[],
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_ReleaseAddress, #CFE_TBL_GetAddresses
 **
 ******************************************************************************/
-int32 CFE_TBL_ReleaseAddresses( uint16 NumTables,
-                                const CFE_TBL_Handle_t TblHandles[] );
+CFE_RC_t CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t TblHandles[]);
 /**@}*/
 
 /** @defgroup CFEAPITBLInfo cFE Get Table Information APIs
@@ -769,7 +763,7 @@ int32 CFE_TBL_ReleaseAddresses( uint16 NumTables,
 ** \sa #CFE_TBL_Manage, #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_GetInfo
 **
 ******************************************************************************/
-int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle );
+CFE_RC_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -802,7 +796,7 @@ int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle );
 ** \sa #CFE_TBL_GetStatus
 **
 ******************************************************************************/
-int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName );
+CFE_RC_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName);
 
 /*****************************************************************************/
 /**
@@ -845,7 +839,7 @@ int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName );
 ** \sa #CFE_TBL_Register
 **
 ******************************************************************************/
-int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, uint16 CommandCode, uint32 Parameter);
+CFE_RC_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, uint16 CommandCode, uint32 Parameter);
 /**@}*/
 
 #endif  /* _cfe_tbl_ */

@@ -43,6 +43,19 @@
 #include "osapi.h"
 
 /*
+ * Define a type for readability.
+ */
+
+typedef int32 CFE_Status_t;
+typedef CFE_Status_t CFE_RC_t;
+
+/*
+ * Utility macros.
+ */
+#define CFE_ISSUCCESS(S) ((S) & CFE_SEVERITY_BITMASK != CFE_SEVERITY_ERROR)
+#define CFE_ISINFO(S) ((S) & CFE_SEVERITY_BITMASK == CFE_SEVERITY_INFO)
+
+/*
 **  Status Codes are 32 bit values formatted as follows:
 **
 **   3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1

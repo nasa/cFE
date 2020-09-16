@@ -29,6 +29,7 @@
  * Includes
  */
 #include "common_types.h"
+#include "cfe_error.h"
 #include "cfe_msg_hdr.h"
 #include "cfe_msg_typedefs.h"
 #include "cfe_time.h"
@@ -56,7 +57,7 @@
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size, bool Clear);
+CFE_RC_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size, bool Clear);
 
 /*****************************************************************************/
 /**
@@ -72,7 +73,7 @@ int32 CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetSize(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t *Size);
+CFE_RC_t CFE_MSG_GetSize(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t *Size);
 
 /*****************************************************************************/
 /**
@@ -88,7 +89,7 @@ int32 CFE_MSG_GetSize(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t *Size);
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetSize(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t Size);
+CFE_RC_t CFE_MSG_SetSize(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t Size);
 
 /*****************************************************************************/
 /**
@@ -104,7 +105,7 @@ int32 CFE_MSG_SetSize(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t Size);
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Type);
+CFE_RC_t CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Type);
 
 /*****************************************************************************/
 /**
@@ -120,7 +121,7 @@ int32 CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Type);
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type);
+CFE_RC_t CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type);
 
 /*****************************************************************************/
 /**
@@ -136,7 +137,7 @@ int32 CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type);
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetHeaderVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVersion_t *Version);
+CFE_RC_t CFE_MSG_GetHeaderVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVersion_t *Version);
 
 /*****************************************************************************/
 /**
@@ -153,7 +154,7 @@ int32 CFE_MSG_GetHeaderVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVe
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetHeaderVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVersion_t Version);
+CFE_RC_t CFE_MSG_SetHeaderVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVersion_t Version);
 
 /*****************************************************************************/
 /**
@@ -169,7 +170,7 @@ int32 CFE_MSG_SetHeaderVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVersion_
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetHasSecondaryHeader(const CFE_MSG_Message_t *MsgPtr, bool *HasSecondary);
+CFE_RC_t CFE_MSG_GetHasSecondaryHeader(const CFE_MSG_Message_t *MsgPtr, bool *HasSecondary);
 
 /*****************************************************************************/
 /**
@@ -186,7 +187,7 @@ int32 CFE_MSG_GetHasSecondaryHeader(const CFE_MSG_Message_t *MsgPtr, bool *HasSe
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetHasSecondaryHeader(CFE_MSG_Message_t *MsgPtr, bool HasSecondary);
+CFE_RC_t CFE_MSG_SetHasSecondaryHeader(CFE_MSG_Message_t *MsgPtr, bool HasSecondary);
 
 /*****************************************************************************/
 /**
@@ -202,7 +203,7 @@ int32 CFE_MSG_SetHasSecondaryHeader(CFE_MSG_Message_t *MsgPtr, bool HasSecondary
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetApId(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t *ApId);
+CFE_RC_t CFE_MSG_GetApId(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t *ApId);
 
 /*****************************************************************************/
 /**
@@ -220,7 +221,7 @@ int32 CFE_MSG_GetApId(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t *ApId);
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetApId(CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t ApId);
+CFE_RC_t CFE_MSG_SetApId(CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t ApId);
 
 /*****************************************************************************/
 /**
@@ -236,7 +237,7 @@ int32 CFE_MSG_SetApId(CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t ApId);
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetSegmentationFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_SegmentationFlag_t *SegFlag);
+CFE_RC_t CFE_MSG_GetSegmentationFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_SegmentationFlag_t *SegFlag);
 
 /*****************************************************************************/
 /**
@@ -252,7 +253,7 @@ int32 CFE_MSG_GetSegmentationFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Segme
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetSegmentationFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SegmentationFlag_t SegFlag);
+CFE_RC_t CFE_MSG_SetSegmentationFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SegmentationFlag_t SegFlag);
 
 /*****************************************************************************/
 /**
@@ -268,7 +269,7 @@ int32 CFE_MSG_SetSegmentationFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Segmentatio
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetSequenceCount(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t *SeqCnt);
+CFE_RC_t CFE_MSG_GetSequenceCount(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t *SeqCnt);
 
 /*****************************************************************************/
 /**
@@ -284,7 +285,7 @@ int32 CFE_MSG_GetSequenceCount(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Sequence
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetSequenceCount(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt);
+CFE_RC_t CFE_MSG_SetSequenceCount(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt);
 
 /*****************************************************************************/
 /**
@@ -300,7 +301,7 @@ int32 CFE_MSG_SetSequenceCount(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetEDSVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_t *Version);
+CFE_RC_t CFE_MSG_GetEDSVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_t *Version);
 
 /*****************************************************************************/
 /**
@@ -316,7 +317,7 @@ int32 CFE_MSG_GetEDSVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetEDSVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_t Version);
+CFE_RC_t CFE_MSG_SetEDSVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_t Version);
 
 /*****************************************************************************/
 /**
@@ -332,7 +333,7 @@ int32 CFE_MSG_SetEDSVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_t Vers
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetEndian(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t *Endian);
+CFE_RC_t CFE_MSG_GetEndian(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t *Endian);
 
 /*****************************************************************************/
 /**
@@ -349,7 +350,7 @@ int32 CFE_MSG_GetEndian(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t *Endia
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetEndian(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t Endian);
+CFE_RC_t CFE_MSG_SetEndian(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t Endian);
 
 /*****************************************************************************/
 /**
@@ -365,7 +366,7 @@ int32 CFE_MSG_SetEndian(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t Endian);
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetPlaybackFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackFlag_t *PlayFlag);
+CFE_RC_t CFE_MSG_GetPlaybackFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackFlag_t *PlayFlag);
 
 /*****************************************************************************/
 /**
@@ -381,7 +382,7 @@ int32 CFE_MSG_GetPlaybackFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackF
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetPlaybackFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackFlag_t PlayFlag);
+CFE_RC_t CFE_MSG_SetPlaybackFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackFlag_t PlayFlag);
 
 /*****************************************************************************/
 /**
@@ -397,7 +398,7 @@ int32 CFE_MSG_SetPlaybackFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackFlag_t 
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetSubsystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t *Subsystem);
+CFE_RC_t CFE_MSG_GetSubsystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t *Subsystem);
 
 /*****************************************************************************/
 /**
@@ -415,7 +416,7 @@ int32 CFE_MSG_GetSubsystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t 
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetSubsystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t Subsystem);
+CFE_RC_t CFE_MSG_SetSubsystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t Subsystem);
 
 /*****************************************************************************/
 /**
@@ -431,7 +432,7 @@ int32 CFE_MSG_SetSubsystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t Subsys
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetSystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t *System);
+CFE_RC_t CFE_MSG_GetSystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t *System);
 
 /*****************************************************************************/
 /**
@@ -449,7 +450,7 @@ int32 CFE_MSG_GetSystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t *Syste
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetSystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t System);
+CFE_RC_t CFE_MSG_SetSystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t System);
 
 /*****************************************************************************/
 /**
@@ -474,7 +475,7 @@ int32 CFE_MSG_SetSystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t System);
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  * \retval #CFE_MSG_WRONG_MSG_TYPE  \copybrief CFE_MSG_WRONG_MSG_TYPE
  */
-int32 CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr);
+CFE_RC_t CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr);
 
 /*****************************************************************************/
 /**
@@ -500,7 +501,7 @@ int32 CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr);
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  * \retval #CFE_MSG_WRONG_MSG_TYPE  \copybrief CFE_MSG_WRONG_MSG_TYPE
  */
-int32 CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsValid);
+CFE_RC_t CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsValid);
 
 /*****************************************************************************/
 /**
@@ -523,7 +524,7 @@ int32 CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsValid);
  * \retval #CFE_MSG_WRONG_MSG_TYPE  \copybrief CFE_MSG_WRONG_MSG_TYPE
  *
  */
-int32 CFE_MSG_SetFcnCode(CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t FcnCode);
+CFE_RC_t CFE_MSG_SetFcnCode(CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t FcnCode);
 
 /*****************************************************************************/
 /**
@@ -545,7 +546,7 @@ int32 CFE_MSG_SetFcnCode(CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t FcnCode);
  * \retval #CFE_MSG_BAD_ARGUMENT   \copybrief CFE_MSG_BAD_ARGUMENT
  * \retval #CFE_MSG_WRONG_MSG_TYPE \copybrief CFE_MSG_WRONG_MSG_TYPE
  */
-int32 CFE_MSG_GetFcnCode(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t *FcnCode);
+CFE_RC_t CFE_MSG_GetFcnCode(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t *FcnCode);
 
 /*****************************************************************************/
 /**
@@ -568,7 +569,7 @@ int32 CFE_MSG_GetFcnCode(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t *Fcn
  * \retval #CFE_MSG_BAD_ARGUMENT   \copybrief CFE_MSG_BAD_ARGUMENT
  * \retval #CFE_MSG_WRONG_MSG_TYPE \copybrief CFE_MSG_WRONG_MSG_TYPE
  */
-int32 CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t *Time);
+CFE_RC_t CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t *Time);
 
 /*****************************************************************************/
 /**
@@ -595,7 +596,7 @@ int32 CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t *Ti
  * \retval #CFE_MSG_BAD_ARGUMENT   \copybrief CFE_MSG_BAD_ARGUMENT
  * \retval #CFE_MSG_WRONG_MSG_TYPE \copybrief CFE_MSG_WRONG_MSG_TYPE
  */
-int32 CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t Time);
+CFE_RC_t CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t Time);
 
 /**\}*/
 
@@ -620,7 +621,7 @@ int32 CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t Time);
  * \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT   \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId);
+CFE_RC_t CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId);
 
 /*****************************************************************************/
 /**
@@ -642,7 +643,7 @@ int32 CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId);
  * \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT   \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId);
+CFE_RC_t CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId);
 
 /*****************************************************************************/
 /**
@@ -658,7 +659,7 @@ int32 CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId);
  * \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT   \copybrief CFE_MSG_BAD_ARGUMENT
  */
-int32 CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type);
+CFE_RC_t CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type);
 
 /**\}*/
 
