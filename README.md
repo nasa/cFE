@@ -10,6 +10,14 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev91
+
+- Sets Revision to 99 for development build.
+- Installs unit test to target directory.
+- Returns processor ID to default to unbreak toolchain
+- Applies the appid/taskid/counterid pattern to Library resources.
+- See <https://github.com/nasa/cFE/pull/891>
+
 ### Development Build: 6.8.0-rc1+dev81
 
 - Deconflict CFE_ES_LIB_ALREADY_LOADED and CFE_ES_ERR_SYS_LOG_TRUNCATED EIDs
