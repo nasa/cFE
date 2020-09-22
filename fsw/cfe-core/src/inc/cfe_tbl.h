@@ -126,7 +126,7 @@ typedef struct CFE_TBL_Info
     bool                  DoubleBuffered;                      /**< \brief Flag indicating Table has a dedicated inactive buffer */
     bool                  UserDefAddr;                      /**< \brief Flag indicating Table address was defined by Owner Application */
     bool                  Critical;                         /**< \brief Flag indicating Table contents are maintained in a CDS */
-    char                  LastFileLoaded[OS_MAX_PATH_LEN];  /**< \brief Filename of last file loaded into table */
+    char                  LastFileLoaded[CFE_MISSION_MAX_PATH_LEN];  /**< \brief Filename of last file loaded into table */
 } CFE_TBL_Info_t;
 
 /*************************** Function Prototypes ******************************/
