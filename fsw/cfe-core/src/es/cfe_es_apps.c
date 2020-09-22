@@ -567,7 +567,8 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
    CFE_ES_LibRecord_t *         LibSlotPtr;
    size_t                       StringLength;
    int32                        Status;
-   uint32                       CheckSlot;
+   uint32                       LibIndex;
+   uint32                       PendingLibId;
    osal_id_t                    ModuleId;
    bool                         IsModuleLoaded;
 
@@ -576,7 +577,7 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
     *  (currently sized to OS_MAX_API_NAME, but not assuming that will always be)
     */
    StringLength = strlen(LibName);
-   if (StringLength >= sizeof(CFE_ES_Global.LibTable[0].LibName))
+   if (StringLength >= sizeof(LibSlotPtr->LibName))
    {
        return CFE_ES_BAD_ARGUMENT;
    }
@@ -585,16 +586,17 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
    ** Allocate an ES_LibTable entry
    */
    IsModuleLoaded = false;
-   LibSlotPtr = NULL;
    FunctionPointer = NULL;
    ModuleId = OS_OBJECT_ID_UNDEFINED;
+   PendingLibId = 0xFFFFFFFF;
    Status = CFE_ES_ERR_LOAD_LIB;    /* error that will be returned if no slots found */
    CFE_ES_LockSharedData(__func__,__LINE__);
-   for ( CheckSlot = 0; CheckSlot < CFE_PLATFORM_ES_MAX_LIBRARIES; CheckSlot++ )
+   LibSlotPtr = CFE_ES_Global.LibTable;
+   for ( LibIndex = 0; LibIndex < CFE_PLATFORM_ES_MAX_LIBRARIES; ++LibIndex )
    {
-      if (CFE_ES_Global.LibTable[CheckSlot].RecordUsed)
+      if (CFE_ES_LibRecordIsUsed(LibSlotPtr))
       {
-          if (strcmp(CFE_ES_Global.LibTable[CheckSlot].LibName, LibName) == 0)
+          if (strcmp(LibSlotPtr->LibName, LibName) == 0)
           {
               /*
                * Indicate to caller that the library is already loaded.
@@ -603,29 +605,34 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
                * Do nothing more; not logging this event as it may or may
                * not be an error.
                */
-              *LibraryIdPtr = CheckSlot;
+              *LibraryIdPtr = CFE_ES_LibRecordGetID(LibSlotPtr);
               Status = CFE_ES_LIB_ALREADY_LOADED;
               break;
           }
       }
-      else if (LibSlotPtr == NULL)
+      else if (PendingLibId == 0xFFFFFFFF)
       {
          /* Remember list position as possible place for new entry. */
-          LibSlotPtr = &CFE_ES_Global.LibTable[CheckSlot];
-          *LibraryIdPtr = CheckSlot;
+          PendingLibId = LibIndex;
           Status = CFE_SUCCESS;
       }
       else
       {
          /* No action */
       }
+
+      ++LibSlotPtr;
    }
 
    if (Status == CFE_SUCCESS)
    {
+       /* reset back to the saved index that was free */
+       LibSlotPtr = CFE_ES_LocateLibRecordByID(PendingLibId);
+
        /* reserve the slot while still under lock */
        strcpy(LibSlotPtr->LibName, LibName);
-       LibSlotPtr->RecordUsed = true;
+       CFE_ES_LibRecordSetUsed(LibSlotPtr, PendingLibId);
+       *LibraryIdPtr = PendingLibId;
    }
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
@@ -761,8 +768,8 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
            OS_ModuleUnload( ModuleId );
        }
 
-       /* Release Slot - No need to lock as it is resetting just a single bool value */
-       LibSlotPtr->RecordUsed = false;
+       /* Release Slot - No need to lock as it is resetting just a single value */
+       CFE_ES_LibRecordSetFree(LibSlotPtr);
    }
 
    return(Status);

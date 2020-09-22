@@ -74,9 +74,9 @@ foreach(MODULE ${CFE_CORE_MODULES})
         ut_assert)
 
   add_test(${UT_TARGET_NAME}_UT ${UT_TARGET_NAME}_UT)
-  foreach(TGTNAME ${TGTSYS_${SYSVAR}})
+  foreach(TGTNAME ${INSTALL_TARGET_LIST})
       install(TARGETS ${UT_TARGET_NAME}_UT DESTINATION ${TGTNAME}/${UT_INSTALL_SUBDIR})
-  endforeach(TGTNAME ${TGTSYS_${SYSVAR}})
+  endforeach(TGTNAME ${INSTALL_TARGET_LIST})
 endforeach(MODULE ${CFE_CORE_MODULES})
 
 # Generate the FS test input files

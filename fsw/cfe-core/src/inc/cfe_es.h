@@ -179,6 +179,30 @@ static inline uint32 CFE_ES_ResourceID_FromInteger(unsigned long Value)
 int32 CFE_ES_AppID_ToIndex(uint32 AppID, uint32 *Idx);
 
 /**
+ * @brief Obtain an index value correlating to an ES Library ID
+ *
+ * This calculates a zero based integer value that may be used for indexing
+ * into a local resource table/array.
+ *
+ * Index values are only guaranteed to be unique for resources of the same
+ * type.  For instance, the indices corresponding to two [valid] Library
+ * IDs will never overlap, but the index of an Library and a library ID
+ * may be the same.  Furthermore, indices may be reused if a resource is
+ * deleted and re-created.
+ *
+ * @note There is no inverse of this function - indices cannot be converted
+ * back to the original LibID value.  The caller should retain the original ID
+ * for future use.
+ *
+ * @param[in]   LibID  Library ID to convert
+ * @param[out]  Idx    Buffer where the calculated index will be stored
+ *
+ * @return Execution status, see @ref CFEReturnCodes
+ * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
+ */
+int32 CFE_ES_LibID_ToIndex(uint32 LibID, uint32 *Idx);
+
+/**
  * @brief Obtain an index value correlating to an ES Task ID
  *
  * This calculates a zero based integer value that may be used for indexing

@@ -416,6 +416,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(TestInit);
     UT_ADD_TEST(TestStartupErrorPaths);
     UT_ADD_TEST(TestApps);
+    UT_ADD_TEST(TestLibs);
     UT_ADD_TEST(TestERLog);
     UT_ADD_TEST(TestTask);
     UT_ADD_TEST(TestPerf);
@@ -937,7 +938,6 @@ void TestApps(void)
     int Return;
     int j;
     CFE_ES_AppInfo_t AppInfo;
-    char LongLibraryName[sizeof(CFE_ES_Global.LibTable[0].LibName)+1];
     uint32 Id;
     CFE_ES_TaskRecord_t *UtTaskRecPtr;
     CFE_ES_AppRecord_t *UtAppRecPtr;
@@ -1173,123 +1173,6 @@ void TestApps(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MODULE_UNLOAD_FAILED]),
               "CFE_ES_AppCreate",
               "Module unload failure after entry point lookup failure");
-
-    /* Test shared library loading and initialization where the initialization
-     * routine returns an error
-     */
-    ES_ResetUnitTest();
-    UT_SetDummyFuncRtn(-444);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "filename",
-                                "EntryPoint",
-                                "LibName");
-    UT_Report(__FILE__, __LINE__,
-              Return == -444 &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_SHARED_LIBRARY_INIT]),
-              "CFE_ES_LoadLibrary",
-              "Load shared library initialization failure");
-
-    
-    /* Test Load library returning an error on a too long library name */
-    memset(&LongLibraryName[0], 'a', sizeof(CFE_ES_Global.LibTable[0].LibName));
-    LongLibraryName[sizeof(CFE_ES_Global.LibTable[0].LibName)] = '\0';
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "filename",
-                                "EntryPoint",
-                                &LongLibraryName[0]);
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_LoadLibrary",
-              "Load shared library bad argument (library name too long)");
-    
-#ifdef jphfix
-    /* Test successful shared library loading and initialization */
-    UT_InitData();
-    UT_SetDummyFuncRtn(OS_SUCCESS);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "TST_LIB_Init",
-                                "TST_LIB");
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_SUCCESS &&
-              CFE_ES_ResourceId < CFE_PLATFORM_ES_MAX_LIBRARIES &&
-              CFE_ES_Global.LibTable[Id].RecordUsed == true,
-              "CFE_ES_LoadLibrary",
-              "successful");
-
-    /* Try loading same library again, should return the DUPLICATE code */
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "TST_LIB_Init",
-                                "TST_LIB");
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_LIB_ALREADY_LOADED &&
-              Id < CFE_PLATFORM_ES_MAX_LIBRARIES &&
-              CFE_ES_Global.LibTable[Id].RecordUsed == true,
-              "CFE_ES_LoadLibrary",
-              "Duplicate");
-#endif
-    /* Test shared library loading and initialization where the library
-     * fails to load
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, -1);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "TST_LIB_Init",
-                                "TST_LIB");
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_LOAD_LIB,
-              "CFE_ES_LoadLibrary",
-              "Load shared library failure");
-
-    /* Test shared library loading and initialization where the library
-     * entry point symbol cannot be found
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "TST_LIB_Init",
-                                "TST_LIB");
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_LOAD_LIB,
-              "CFE_ES_LoadLibrary",
-              "Could not find library initialization symbol");
-
-    /* Test shared library loading and initialization where the library
-     * initialization function fails and then must be cleaned up
-     */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_remove), OS_ERROR); /* for coverage of error path */
-    UT_SetForceFail(UT_KEY(dummy_function), -555);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "dummy_function",
-                            "TST_LIB");
-    UT_Report(__FILE__, __LINE__,
-              Return == -555,
-              "CFE_ES_LoadLibrary",
-              "Library initialization function failure");
-
-    /* Test shared library loading and initialization where there are no
-     * library slots available
-     */
-    ES_ResetUnitTest();
-    for (j = 0; j < CFE_PLATFORM_ES_MAX_LIBRARIES; j++)
-    {
-        CFE_ES_Global.LibTable[j].RecordUsed = true;
-    }
-
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "filename",
-                                "EntryPoint",
-                                "LibName");
-    UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_LOAD_LIB &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LIBRARY_SLOTS]),
-              "CFE_ES_LoadLibrary",
-              "No free library slots");
 
     /* Test scanning and acting on the application table where the timer
      * expires for a waiting application
@@ -1977,6 +1860,135 @@ void TestApps(void)
               CFE_ES_CleanupTaskResources(Id) == CFE_SUCCESS,
               "CFE_ES_CleanupTaskResources",
               "Get OS information failures");
+}
+
+void TestLibs(void)
+{
+    CFE_ES_LibRecord_t *UtLibRecPtr;
+    char LongLibraryName[sizeof(UtLibRecPtr->LibName)+1];
+    uint32 Id;
+    uint32 j;
+    int32 Return;
+
+    /* Test shared library loading and initialization where the initialization
+     * routine returns an error
+     */
+    ES_ResetUnitTest();
+    UT_SetDummyFuncRtn(-444);
+    Return = CFE_ES_LoadLibrary(&Id,
+                                "filename",
+                                "EntryPoint",
+                                "LibName");
+    UT_Report(__FILE__, __LINE__,
+              Return == -444 &&
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_SHARED_LIBRARY_INIT]),
+              "CFE_ES_LoadLibrary",
+              "Load shared library initialization failure");
+
+
+    /* Test Load library returning an error on a too long library name */
+    memset(&LongLibraryName[0], 'a', sizeof(UtLibRecPtr->LibName));
+    LongLibraryName[sizeof(UtLibRecPtr->LibName)] = '\0';
+    Return = CFE_ES_LoadLibrary(&Id,
+                                "filename",
+                                "EntryPoint",
+                                &LongLibraryName[0]);
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_LoadLibrary",
+              "Load shared library bad argument (library name too long)");
+
+    /* Test successful shared library loading and initialization */
+    UT_InitData();
+    UT_SetDummyFuncRtn(OS_SUCCESS);
+    Return = CFE_ES_LoadLibrary(&Id,
+                                "/cf/apps/tst_lib.bundle",
+                                "TST_LIB_Init",
+                                "TST_LIB");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_SUCCESS,
+              "CFE_ES_LoadLibrary",
+              "successful");
+
+    UtLibRecPtr = CFE_ES_LocateLibRecordByID(Id);
+    UtAssert_True(UtLibRecPtr != NULL, "CFE_ES_LoadLibrary() return valid ID");
+    UtAssert_True(CFE_ES_LibRecordIsUsed(UtLibRecPtr), "CFE_ES_LoadLibrary() record used");
+
+    /* Try loading same library again, should return the DUPLICATE code */
+    Return = CFE_ES_LoadLibrary(&Id,
+                                "/cf/apps/tst_lib.bundle",
+                                "TST_LIB_Init",
+                                "TST_LIB");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_LIB_ALREADY_LOADED,
+              "CFE_ES_LoadLibrary",
+              "Duplicate");
+    UtAssert_True(Id == CFE_ES_LibRecordGetID(UtLibRecPtr), "CFE_ES_LoadLibrary() returned previous ID");
+
+    /* Test shared library loading and initialization where the library
+     * fails to load
+     */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, -1);
+    Return = CFE_ES_LoadLibrary(&Id,
+                                "/cf/apps/tst_lib.bundle",
+                                "TST_LIB_Init",
+                                "TST_LIB");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_ERR_LOAD_LIB,
+              "CFE_ES_LoadLibrary",
+              "Load shared library failure");
+
+    /* Test shared library loading and initialization where the library
+     * entry point symbol cannot be found
+     */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
+    Return = CFE_ES_LoadLibrary(&Id,
+                                "/cf/apps/tst_lib.bundle",
+                                "TST_LIB_Init",
+                                "TST_LIB");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_ERR_LOAD_LIB,
+              "CFE_ES_LoadLibrary",
+              "Could not find library initialization symbol");
+
+    /* Test shared library loading and initialization where the library
+     * initialization function fails and then must be cleaned up
+     */
+    ES_ResetUnitTest();
+    UT_SetForceFail(UT_KEY(OS_remove), OS_ERROR); /* for coverage of error path */
+    UT_SetForceFail(UT_KEY(dummy_function), -555);
+    Return = CFE_ES_LoadLibrary(&Id,
+                                "/cf/apps/tst_lib.bundle",
+                                "dummy_function",
+                            "TST_LIB");
+    UT_Report(__FILE__, __LINE__,
+              Return == -555,
+              "CFE_ES_LoadLibrary",
+              "Library initialization function failure");
+
+    /* Test shared library loading and initialization where there are no
+     * library slots available
+     */
+    ES_ResetUnitTest();
+    UtLibRecPtr = CFE_ES_Global.LibTable;
+    for (j = 0; j < CFE_PLATFORM_ES_MAX_LIBRARIES; j++)
+    {
+        CFE_ES_LibRecordSetUsed(UtLibRecPtr, j);
+        ++UtLibRecPtr;
+    }
+
+    Return = CFE_ES_LoadLibrary(&Id,
+                                "filename",
+                                "EntryPoint",
+                                "LibName");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_ERR_LOAD_LIB &&
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LIBRARY_SLOTS]),
+              "CFE_ES_LoadLibrary",
+              "No free library slots");
+
 }
 
 void TestERLog(void)

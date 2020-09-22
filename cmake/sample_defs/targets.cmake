@@ -100,13 +100,13 @@ SET(FT_INSTALL_SUBDIR "host/functional-test")
 # Each target board can have its own HW arch selection and set of included apps
 SET(MISSION_CPUNAMES cpu1)
 
-SET(cpu1_PROCESSORID 10)
+SET(cpu1_PROCESSORID 1)
 SET(cpu1_APPLIST ci_lab to_lab sch_lab)
 SET(cpu1_FILELIST cfe_es_startup.scr)
 
-# CPU2/3 are duplicates of CPU1.  These are not built by default anymore but are
-# commented out to serve as an example of how one would configure multiple cpus.
-SET(cpu2_PROCESSORID 11)
+# CPU2 example.  This is not built by default anymore but 
+# serves as an example of how one would configure multiple cpus.
+SET(cpu2_PROCESSORID 2)
 SET(cpu2_APPLIST ci_lab to_lab sch_lab)
 SET(cpu2_FILELIST cfe_es_startup.scr)
 

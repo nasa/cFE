@@ -1686,6 +1686,25 @@ int32 CFE_ES_AppID_ToIndex(uint32 AppId, uint32 *Idx)
 }
 
 /*
+ * A conversion function to obtain an index value correlating to a LibID
+ * This is a zero based value that can be used for indexing into a table.
+ */
+int32 CFE_ES_LibID_ToIndex(uint32 LibId, uint32 *Idx)
+{
+    if (LibId >= CFE_PLATFORM_ES_MAX_LIBRARIES)
+    {
+        return CFE_ES_BAD_ARGUMENT; /* these do not have a dedicated error */
+    }
+
+    /*
+     * Currently this is a direct/simple pass through.
+     * Will evolve in a future rev to make it more safe.
+     */
+    *Idx = LibId;
+    return CFE_SUCCESS;
+}
+
+/*
  * A conversion function to obtain an index value correlating to an TaskID
  * This is a zero based value that can be used for indexing into a table.
  * 
@@ -1776,6 +1795,24 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(uint32 AppID)
 
     return AppRecPtr;
 }
+
+extern CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(uint32 LibID)
+{
+    CFE_ES_LibRecord_t *LibRecPtr;
+    uint32 Idx;
+
+    if (CFE_ES_LibID_ToIndex(LibID, &Idx) == CFE_SUCCESS)
+    {
+        LibRecPtr = &CFE_ES_Global.LibTable[Idx];
+    }
+    else
+    {
+        LibRecPtr = NULL;
+    }
+
+    return LibRecPtr;
+}
+
 
 /*
  * Note - this gets the table entry pointer but does not dereference or
