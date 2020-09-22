@@ -271,7 +271,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
    unsigned int Priority;
    unsigned int StackSize;
    unsigned int ExceptionAction;
-   uint32 ApplicationId;
+   CFE_ES_ResourceID_t ApplicationId;
    int32  CreateStatus = CFE_ES_ERR_APP_CREATE;
 
    /*
@@ -355,7 +355,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 **
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
+int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
                        const char   *FileName,
                        const void   *EntryPointData,
                        const char   *AppName,
@@ -393,7 +393,7 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
          AppSlotFound = true;
          memset ( AppRecPtr, 0, sizeof(CFE_ES_AppRecord_t));
          /* set state EARLY_INIT for OS_TaskCreate below (indicates record is in use) */
-         CFE_ES_AppRecordSetUsed(AppRecPtr, i);
+         CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_ResourceID_FromInteger(i + CFE_ES_APPID_BASE));
          break;
       }
       ++AppRecPtr;
@@ -558,7 +558,7 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
 **
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
+int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
                          const char   *FileName,
                          const void   *EntryPointData,
                          const char   *LibName)
@@ -568,7 +568,7 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
    size_t                       StringLength;
    int32                        Status;
    uint32                       LibIndex;
-   uint32                       PendingLibId;
+   CFE_ES_ResourceID_t          PendingLibId;
    osal_id_t                    ModuleId;
    bool                         IsModuleLoaded;
 
@@ -588,7 +588,7 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
    IsModuleLoaded = false;
    FunctionPointer = NULL;
    ModuleId = OS_OBJECT_ID_UNDEFINED;
-   PendingLibId = 0xFFFFFFFF;
+   PendingLibId = CFE_ES_RESOURCEID_UNDEFINED;
    Status = CFE_ES_ERR_LOAD_LIB;    /* error that will be returned if no slots found */
    CFE_ES_LockSharedData(__func__,__LINE__);
    LibSlotPtr = CFE_ES_Global.LibTable;
@@ -610,10 +610,10 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
               break;
           }
       }
-      else if (PendingLibId == 0xFFFFFFFF)
+      else if (!CFE_ES_ResourceID_IsDefined(PendingLibId))
       {
          /* Remember list position as possible place for new entry. */
-          PendingLibId = LibIndex;
+          PendingLibId = CFE_ES_ResourceID_FromInteger(LibIndex + CFE_ES_LIBID_BASE);
           Status = CFE_SUCCESS;
       }
       else
@@ -631,7 +631,7 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
 
        /* reserve the slot while still under lock */
        strcpy(LibSlotPtr->LibName, LibName);
-       CFE_ES_LibRecordSetUsed(LibSlotPtr, PendingLibId);
+       CFE_ES_LibRecordSetUsed(LibSlotPtr, CFE_ES_RESOURCEID_RESERVED);
        *LibraryIdPtr = PendingLibId;
    }
 
@@ -755,6 +755,7 @@ int32 CFE_ES_LoadLibrary(uint32       *LibraryIdPtr,
    {
        /* Increment the counter, which needs to be done under lock */
        CFE_ES_LockSharedData(__func__,__LINE__);
+       CFE_ES_LibRecordSetUsed(LibSlotPtr, PendingLibId);
        CFE_ES_Global.RegisteredLibs++;
        CFE_ES_UnlockSharedData(__func__,__LINE__);
    }
@@ -902,7 +903,7 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppRecord_t *AppRecPtr)
 
    int32                   Status;
    CFE_ES_AppStartParams_t AppStartParams;
-   uint32                  NewAppId;
+   CFE_ES_ResourceID_t     NewAppId;
 
    /*
    ** First get a copy of the Apps Start Parameters
@@ -1085,11 +1086,11 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
 {
    uint32    i;
    int32  Status;
-   uint32 MainTaskId;
-   uint32 CurrTaskId;
+   CFE_ES_ResourceID_t MainTaskId;
+   CFE_ES_ResourceID_t CurrTaskId;
    int32  ReturnCode = CFE_SUCCESS;
    CFE_ES_TaskRecord_t *TaskRecPtr;
-   uint32 AppId;
+   CFE_ES_ResourceID_t AppId;
 
    /*
     * Retrieve the abstract AppID for calling cleanup
@@ -1142,10 +1143,10 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
    {
       /* delete only CHILD tasks - not the MainTaskId, which will be deleted later (below) */
       if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
-          (TaskRecPtr->AppId == AppId))
+          CFE_ES_ResourceID_Equal(TaskRecPtr->AppId, AppId))
       {
           CurrTaskId = CFE_ES_TaskRecordGetID(TaskRecPtr);
-          if (CurrTaskId != MainTaskId)
+          if (!CFE_ES_ResourceID_Equal(CurrTaskId, MainTaskId))
           {
              Status = CFE_ES_CleanupTaskResources(CurrTaskId);
              if ( Status != CFE_SUCCESS )
@@ -1320,7 +1321,7 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
 **   Purpose: Clean up the OS resources associated with an individual Task
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_CleanupTaskResources(uint32 TaskId)
+int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId)
 {
     CFE_ES_CleanupState_t   CleanState;
     int32                   Result;
@@ -1408,7 +1409,7 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
    OS_module_prop_t   ModuleInfo;
    uint32             i;
    CFE_ES_TaskRecord_t *TaskRecPtr;
-   uint32             AppId;
+   CFE_ES_ResourceID_t AppId;
 
    CFE_ES_LockSharedData(__func__,__LINE__);
 
@@ -1456,8 +1457,8 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
        for (i=0; i<OS_MAX_TASKS; i++ )
        {
           if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
-                  TaskRecPtr->AppId == AppId &&
-                  CFE_ES_TaskRecordGetID(TaskRecPtr) != AppInfoPtr->MainTaskId )
+                  CFE_ES_ResourceID_Equal(TaskRecPtr->AppId, AppId) &&
+                  !CFE_ES_ResourceID_Equal(CFE_ES_TaskRecordGetID(TaskRecPtr), AppInfoPtr->MainTaskId) )
           {
              AppInfoPtr->NumOfChildTasks++;
           }

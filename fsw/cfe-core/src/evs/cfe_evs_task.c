@@ -85,8 +85,6 @@ int32 CFE_EVS_EarlyInit ( void )
 
    memset(&CFE_EVS_GlobalData, 0, sizeof(CFE_EVS_GlobalData_t));
 
-   CFE_EVS_GlobalData.EVS_AppID = CFE_EVS_UNDEF_APPID;
-
    /* Initialize housekeeping packet */
    CFE_SB_InitMsg(&CFE_EVS_GlobalData.EVS_TlmPkt, CFE_SB_ValueToMsgId(CFE_EVS_HK_TLM_MID),
            sizeof(CFE_EVS_GlobalData.EVS_TlmPkt), false);
@@ -181,7 +179,7 @@ int32 CFE_EVS_EarlyInit ( void )
 **
 ** Assumptions and Notes:
 */
-int32 CFE_EVS_CleanUpApp(uint32 AppID)
+int32 CFE_EVS_CleanUpApp(CFE_ES_ResourceID_t AppID)
 {
    int32  Status = CFE_SUCCESS;
    EVS_AppData_t *AppDataPtr;
@@ -282,7 +280,7 @@ void CFE_EVS_TaskMain(void)
 int32 CFE_EVS_TaskInit ( void )
 {
    int32 Status;
-   uint32 AppID;
+   CFE_ES_ResourceID_t AppID;
  
    /* Register EVS application */
    Status = CFE_ES_RegisterApp();
@@ -722,7 +720,7 @@ int32 CFE_EVS_ReportHousekeepingCmd (const CFE_SB_CmdHdr_t *data)
    /* Clear unused portion of event state data in telemetry packet */
    for (i = j; i < CFE_MISSION_ES_MAX_APPLICATIONS; i++)
    {
-       AppTlmDataPtr->AppID = 0;
+       AppTlmDataPtr->AppID = CFE_ES_RESOURCEID_UNDEFINED;
        AppTlmDataPtr->AppEnableStatus = false;
        AppTlmDataPtr->AppMessageSentCounter = 0;
    }

@@ -855,7 +855,7 @@ int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data)
 int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data)
 {
     const CFE_ES_StartAppCmd_Payload_t *cmd = &data->Payload;
-    uint32                AppID          = 0;
+    CFE_ES_ResourceID_t   AppID;
     int32                 Result;
     int32                 FilenameLen;
     int32                 AppEntryLen;
@@ -964,7 +964,7 @@ int32 CFE_ES_StopAppCmd(const CFE_ES_StopApp_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
     int32 Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, OS_MAX_API_NAME, sizeof(cmd->Application));
@@ -1017,7 +1017,7 @@ int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartApp_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
     int32 Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, OS_MAX_API_NAME, sizeof(cmd->Application));
@@ -1067,8 +1067,7 @@ int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadApp_t *data)
     const CFE_ES_AppReloadCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
     char LocalFileName[OS_MAX_PATH_LEN];
-
-    uint32  AppID;
+    CFE_ES_ResourceID_t  AppID;
     int32   Result;
 
     CFE_SB_MessageStringGet(LocalFileName, (char *)cmd->AppFileName, NULL, sizeof(LocalFileName), sizeof(cmd->AppFileName));
@@ -1119,7 +1118,7 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
     int32 Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, OS_MAX_API_NAME, sizeof(cmd->Application));

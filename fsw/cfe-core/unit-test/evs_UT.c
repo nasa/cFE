@@ -284,8 +284,6 @@ void Test_Init(void)
     UT_Text("Begin Test Init\n");
 #endif
 
-    UT_SetAppID(1); /*jphfix*/
-
     strncpy((char *) appbitcmd.Payload.AppName, "ut_cfe_evs",
             sizeof(appbitcmd.Payload.AppName));
 
@@ -549,7 +547,7 @@ void Test_IllegalAppID(void)
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_SendEventWithAppID(0,
                                          0,
-                                         0,
+                                         CFE_ES_RESOURCEID_UNDEFINED,
                                          "NULL") == CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_SendEventWithAppID",
               "Illegal app ID");
@@ -574,7 +572,7 @@ void Test_IllegalAppID(void)
     UT_InitData();
     UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_APPID);
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_CleanUpApp(0) ==
+              CFE_EVS_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED) ==
                   CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_CleanUpApp",
               "Illegal app ID");
@@ -588,7 +586,7 @@ void Test_UnregisteredApp(void)
 {
     CFE_TIME_SysTime_t time = {0, 0};
     EVS_AppData_t       *AppDataPtr;
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
 
     /* Get a local ref to the "current" AppData table entry */
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
@@ -674,7 +672,7 @@ void Test_FilterRegistration(void)
     CFE_EVS_BinFilter_t filter[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS + 1];
     EVS_BinFilter_t     *FilterPtr = NULL;
     EVS_AppData_t       *AppDataPtr;
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
     CFE_TIME_SysTime_t  time = {0, 0};
 
     /* Get a local ref to the "current" AppData table entry */
@@ -808,6 +806,7 @@ void Test_FilterRegistration(void)
      * application
      */
     UT_InitData();
+    AppDataPtr->AppID = AppID;
     AppDataPtr->ActiveFlag = false;
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_SendEventWithAppID(0,
@@ -819,6 +818,7 @@ void Test_FilterRegistration(void)
 
     /* Test sending a timed event to a registered, filtered application */
     UT_InitData();
+    AppDataPtr->AppID = AppID;
     AppDataPtr->ActiveFlag = false;
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_SendTimedEvent(time,
@@ -917,7 +917,7 @@ void Test_Format(void)
             .SnapshotSize = sizeof(CapturedMsg)
     };
     EVS_AppData_t       *AppDataPtr;
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
 
     /* Get a local ref to the "current" AppData table entry */
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
@@ -2677,7 +2677,7 @@ void Test_Misc(void)
         CFE_EVS_WriteLogDataFile_t writelogdatacmd;
     } PktBuf;
 
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
     EVS_AppData_t       *AppDataPtr;
     int                i;
     char               msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + 2];
@@ -2733,7 +2733,7 @@ void Test_Misc(void)
     /* Test successful application cleanup */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_CleanUpApp(0) == CFE_SUCCESS,
+              CFE_EVS_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED) == CFE_SUCCESS,
               "CFE_EVS_CleanUpApp",
               "Application cleanup - successful");
 
@@ -2786,7 +2786,7 @@ void Test_Misc(void)
 
     msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH] = '\0';
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageTruncCounter = 0;
-    AppDataPtr->RegisterFlag = true;
+    EVS_AppDataSetUsed(AppDataPtr, AppID);
     AppDataPtr->ActiveFlag = true;
     AppDataPtr->EventTypesActiveFlag |=
         CFE_EVS_INFORMATION_BIT;

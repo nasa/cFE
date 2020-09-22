@@ -43,7 +43,7 @@ uint8  UT_Endianess;
 
 static char    UT_appname[80];
 static char    UT_subsys[5];
-static uint32  UT_AppID;
+static CFE_ES_ResourceID_t  UT_AppID;
 static uint32  UT_LastCDSSize = 0;
 
 typedef union
@@ -170,7 +170,6 @@ void UT_InitData(void)
      * This should return the UT_appname
      */
     UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppName), (uint8*)UT_appname, sizeof(UT_appname), false);
-    UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppID), (uint8*)&UT_AppID, sizeof(UT_AppID), false);
 
     /*
      * Reset the OSAL stubs to the default state
@@ -274,9 +273,10 @@ int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCo
 /*
 ** Set the application ID returned by unit test stubs
 */
-void UT_SetAppID(int32 AppID_in)
+void UT_SetAppID(CFE_ES_ResourceID_t AppID_in)
 {
     UT_AppID = AppID_in;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppID), (uint8*)&UT_AppID, sizeof(UT_AppID), false);
 }
 
 /*

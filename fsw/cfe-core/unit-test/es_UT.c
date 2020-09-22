@@ -195,19 +195,27 @@ static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_SEND_HK =
 /*
 ** Functions
 */
-uint32 ES_UT_MakeAppIdForIndex(uint32 ArrayIdx)
+CFE_ES_ResourceID_t ES_UT_MakeAppIdForIndex(uint32 ArrayIdx)
 {
     /* UT hack - make up AppID values in a manner similar to FSW.
      * Real apps should never do this. */
-    return ArrayIdx;
+    return CFE_ES_ResourceID_FromInteger(ArrayIdx + CFE_ES_APPID_BASE);
 }
 
-uint32 ES_UT_MakeTaskIdForIndex(uint32 ArrayIdx)
+CFE_ES_ResourceID_t ES_UT_MakeTaskIdForIndex(uint32 ArrayIdx)
 {
     /* UT hack - make up TaskID values in a manner similar to FSW.
      * Real apps should never do this. */
-    return (ArrayIdx + 0x40010000);
+    return CFE_ES_ResourceID_FromInteger(ArrayIdx + 0x40010000);
 }
+
+CFE_ES_ResourceID_t ES_UT_MakeLibIdForIndex(uint32 ArrayIdx)
+{
+    /* UT hack - make up LibID values in a manner similar to FSW.
+     * Real apps should never do this. */
+    return CFE_ES_ResourceID_FromInteger(ArrayIdx + CFE_ES_LIBID_BASE);
+}
+
 /*
  * Helper function to setup a single app ID in the given state, along with
  * a main task ID.  A pointer to the App and Task record is output so the
@@ -217,8 +225,8 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
         const char *AppName, CFE_ES_AppRecord_t **OutAppRec, CFE_ES_TaskRecord_t **OutTaskRec)
 {
     osal_id_t UtOsalId;
-    uint32 UtTaskId;
-    uint32 UtAppId;
+    CFE_ES_ResourceID_t UtTaskId;
+    CFE_ES_ResourceID_t UtAppId;
     CFE_ES_AppRecord_t *LocalAppPtr;
     CFE_ES_TaskRecord_t *LocalTaskPtr;
 
@@ -274,8 +282,8 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
 void ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *TaskName, CFE_ES_TaskRecord_t **OutTaskRec)
 {
     osal_id_t UtOsalId;
-    uint32 UtTaskId;
-    uint32 UtAppId;
+    CFE_ES_ResourceID_t UtTaskId;
+    CFE_ES_ResourceID_t UtAppId;
     CFE_ES_TaskRecord_t *LocalTaskPtr;
 
     UtAppId = CFE_ES_AppRecordGetID(ParentApp);
@@ -938,7 +946,7 @@ void TestApps(void)
     int Return;
     int j;
     CFE_ES_AppInfo_t AppInfo;
-    uint32 Id;
+    CFE_ES_ResourceID_t Id;
     CFE_ES_TaskRecord_t *UtTaskRecPtr;
     CFE_ES_AppRecord_t *UtAppRecPtr;
 
@@ -1866,7 +1874,7 @@ void TestLibs(void)
 {
     CFE_ES_LibRecord_t *UtLibRecPtr;
     char LongLibraryName[sizeof(UtLibRecPtr->LibName)+1];
-    uint32 Id;
+    CFE_ES_ResourceID_t Id;
     uint32 j;
     int32 Return;
 
@@ -1923,7 +1931,8 @@ void TestLibs(void)
               Return == CFE_ES_LIB_ALREADY_LOADED,
               "CFE_ES_LoadLibrary",
               "Duplicate");
-    UtAssert_True(Id == CFE_ES_LibRecordGetID(UtLibRecPtr), "CFE_ES_LoadLibrary() returned previous ID");
+    UtAssert_True(CFE_ES_ResourceID_Equal(Id, CFE_ES_LibRecordGetID(UtLibRecPtr)),
+            "CFE_ES_LoadLibrary() returned previous ID");
 
     /* Test shared library loading and initialization where the library
      * fails to load
@@ -1975,7 +1984,8 @@ void TestLibs(void)
     UtLibRecPtr = CFE_ES_Global.LibTable;
     for (j = 0; j < CFE_PLATFORM_ES_MAX_LIBRARIES; j++)
     {
-        CFE_ES_LibRecordSetUsed(UtLibRecPtr, j);
+        CFE_ES_LibRecordSetUsed(UtLibRecPtr,
+                ES_UT_MakeLibIdForIndex(j));
         ++UtLibRecPtr;
     }
 
@@ -3907,8 +3917,8 @@ void TestAPI(void)
     uint8  Data[12];
     uint32 ResetType;
     uint32 *ResetTypePtr;
-    uint32 AppId;
-    uint32 TaskId;
+    CFE_ES_ResourceID_t AppId;
+    CFE_ES_ResourceID_t TaskId;
     uint32 RunStatus;
     CFE_ES_TaskInfo_t TaskInfo;
     CFE_ES_AppInfo_t AppInfo;
@@ -4183,7 +4193,7 @@ void TestAPI(void)
               "Get task info by ID; NULL buffer");
 
     /* Test getting task information using the task ID - bad task ID  */
-    UT_SetForceFail(UT_KEY(OS_ConvertToArrayIndex), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_ObjectIdToArrayIndex), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_TASKID,
               "CFE_ES_GetTaskInfo",
@@ -4221,7 +4231,7 @@ void TestAPI(void)
 
     /* Test getting task information using the task ID with invalid task ID */
     ES_ResetUnitTest();
-    TaskId = ES_UT_MakeTaskIdForIndex(99999);
+    TaskId = CFE_ES_RESOURCEID_UNDEFINED;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_TASKID,
               "CFE_ES_GetTaskInfo",
@@ -4356,7 +4366,7 @@ void TestAPI(void)
               "Task ID belongs to a main task");
 
     /* Test deleting a child task with an invalid task ID */
-    UT_SetForceFail(UT_KEY(OS_ConvertToArrayIndex), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_ObjectIdToArrayIndex), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_DeleteChildTask(TaskId) == CFE_ES_ERR_TASKID,
               "CFE_ES_DeleteChildTask",
@@ -4396,7 +4406,7 @@ void TestAPI(void)
 
     /* Test deleting a child task with the task ID out of range */
     ES_ResetUnitTest();
-    TaskId = ES_UT_MakeTaskIdForIndex(99999);
+    TaskId = CFE_ES_RESOURCEID_UNDEFINED;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_DeleteChildTask(TaskId) == CFE_ES_ERR_TASKID,
               "CFE_ES_DeleteChildTask",
@@ -4618,7 +4628,7 @@ void TestAPI(void)
 void TestGenericCounterAPI(void)
 {
     char CounterName[11];
-    uint32 CounterId;
+    CFE_ES_ResourceID_t CounterId;
     uint32 CounterCount;
     int i;
 
@@ -4676,7 +4686,7 @@ void TestGenericCounterAPI(void)
 
     /* Test deleting a registered generic counter that doesn't exist */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteGenCounter(123456) == CFE_ES_BAD_ARGUMENT,
+              CFE_ES_DeleteGenCounter(CFE_ES_RESOURCEID_UNDEFINED) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_DeleteGenCounter",
               "Cannot delete counter that does not exist");
 
@@ -4696,7 +4706,7 @@ void TestGenericCounterAPI(void)
 
     /* Test incrementing a generic counter that doesn't exist */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_IncrementGenCounter(CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
+              CFE_ES_IncrementGenCounter(CFE_ES_RESOURCEID_UNDEFINED)
                 == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_IncrementGenCounter",
               "Bad counter ID");
@@ -4709,7 +4719,7 @@ void TestGenericCounterAPI(void)
 
     /* Test getting a generic counter value for a counter that doesn't exist */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetGenCount(123456, &CounterCount) == CFE_ES_BAD_ARGUMENT,
+              CFE_ES_GetGenCount(CFE_ES_RESOURCEID_UNDEFINED, &CounterCount) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_GetGenCount",
               "Bad counter ID");
 
@@ -4722,7 +4732,7 @@ void TestGenericCounterAPI(void)
 
     /* Test setting a generic counter value for a counter that doesn't exist */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_SetGenCount(123456, 5) == CFE_ES_BAD_ARGUMENT,
+              CFE_ES_SetGenCount(CFE_ES_RESOURCEID_UNDEFINED, 5) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_SetGenCount",
               "Bad counter ID");
 

@@ -92,7 +92,7 @@ int32 CFE_FS_EarlyInit (void)
 void CFE_FS_LockSharedData(const char *FunctionName)
 {
     int32   Status;
-    uint32  AppId = 0;
+    CFE_ES_ResourceID_t  AppId;
 
     Status = OS_MutSemTake(CFE_FS.SharedDataMutexId);
     if (Status != OS_SUCCESS) 
@@ -124,7 +124,7 @@ void CFE_FS_LockSharedData(const char *FunctionName)
 void CFE_FS_UnlockSharedData(const char *FunctionName)
 {
    int32   Status;
-   uint32  AppId = 0;
+   CFE_ES_ResourceID_t  AppId;
 
    Status = OS_MutSemGive(CFE_FS.SharedDataMutexId);
    if (Status != OS_SUCCESS) 

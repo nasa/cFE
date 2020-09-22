@@ -226,7 +226,7 @@ extern int32 CFE_FS_EarlyInit(void);
 **           the specified application from the Critical Data Store.
 **
 ******************************************************************************/
-extern int32 CFE_TBL_CleanUpApp(uint32 AppId);
+extern int32 CFE_TBL_CleanUpApp(CFE_ES_ResourceID_t AppId);
 
 /*****************************************************************************/
 /**
@@ -238,7 +238,7 @@ extern int32 CFE_TBL_CleanUpApp(uint32 AppId);
 **        that have been allocated to the specified Application.
 **
 ******************************************************************************/
-extern int32 CFE_SB_CleanUpApp(uint32 AppId);
+extern int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId);
 
 /*****************************************************************************/
 /**
@@ -250,7 +250,7 @@ extern int32 CFE_SB_CleanUpApp(uint32 AppId);
 **        that have been allocated to the specified Application.
 **
 ******************************************************************************/
-extern int32 CFE_EVS_CleanUpApp(uint32 AppId);
+extern int32 CFE_EVS_CleanUpApp(CFE_ES_ResourceID_t AppId);
 
 /*****************************************************************************/
 /**
@@ -262,7 +262,7 @@ extern int32 CFE_EVS_CleanUpApp(uint32 AppId);
 **        that have been allocated to the specified Application.
 **
 ******************************************************************************/
-extern int32 CFE_TIME_CleanUpApp(uint32 AppId);
+extern int32 CFE_TIME_CleanUpApp(CFE_ES_ResourceID_t AppId);
 
 
 /*****************************************************************************/

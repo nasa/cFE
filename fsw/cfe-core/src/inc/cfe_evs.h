@@ -265,7 +265,7 @@ int32 CFE_EVS_SendEvent (uint16 EventID,
 **/
 int32 CFE_EVS_SendEventWithAppID (uint16 EventID,
                                   uint16 EventType,
-                                  uint32 AppID, 
+                                  CFE_ES_ResourceID_t AppID,
                                   const char *Spec, ... ) OS_PRINTF(4,5);
 
 

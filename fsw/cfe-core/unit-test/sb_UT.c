@@ -116,10 +116,10 @@ const CFE_SB_MsgId_t SB_UT_BARE_TLM_MID3 = CFE_SB_MSGID_WRAP_VALUE(0x0003);
  * Helper function to "corrupt" a resource ID value in a consistent/predicatble way,
  * which can also be un-done easily.
  */
-uint32 UT_SB_ResourceID_Modify(uint32 InitialID, int32 Modifier)
+CFE_ES_ResourceID_t UT_SB_ResourceID_Modify(CFE_ES_ResourceID_t InitialID, int32 Modifier)
 {
-    uint32 NewValue = InitialID + Modifier;
-    return (NewValue);
+    unsigned long NewValue = CFE_ES_ResourceID_ToInteger(InitialID) + Modifier;
+    return CFE_ES_ResourceID_FromInteger(NewValue);
 }
 
 /*
@@ -1732,7 +1732,7 @@ void Test_DeletePipe_InvalidPipeId(void)
 void Test_DeletePipe_InvalidPipeOwner(void)
 {
     CFE_SB_PipeId_t PipedId;
-    uint32          RealOwner;
+    CFE_ES_ResourceID_t  RealOwner;
     uint16          PipeDepth = 10;
 
     SETUP(CFE_SB_CreatePipe(&PipedId, PipeDepth, "TestPipe"));
@@ -1760,7 +1760,7 @@ void Test_DeletePipe_InvalidPipeOwner(void)
 void Test_DeletePipe_WithAppid(void)
 {
     CFE_SB_PipeId_t PipedId;
-    uint32			AppId = 0;
+    CFE_ES_ResourceID_t AppId;
     uint16          PipeDepth = 10;
 
     SETUP(CFE_SB_CreatePipe(&PipedId, PipeDepth, "TestPipe"));
@@ -1768,6 +1768,7 @@ void Test_DeletePipe_WithAppid(void)
     SETUP(CFE_SB_Subscribe(SB_UT_CMD_MID2, PipedId));
     SETUP(CFE_SB_Subscribe(SB_UT_CMD_MID3, PipedId));
     SETUP(CFE_SB_Subscribe(SB_UT_CMD_MID4, PipedId));
+    SETUP(CFE_ES_GetAppID(&AppId));
 
     ASSERT(CFE_SB_DeletePipeWithAppId(PipedId, AppId));
 
@@ -1932,14 +1933,14 @@ void Test_SetPipeOpts_NotOwner(void)
 {
     CFE_SB_PipeId_t PipeID = 0;
     uint8 PipeTblIdx = 0;
-    uint32 OrigOwner = 0;
+    CFE_ES_ResourceID_t OrigOwner;
 
     SETUP(CFE_SB_CreatePipe(&PipeID, 4, "TestPipe1"));
 
     PipeTblIdx = CFE_SB_GetPipeIdx(PipeID);
 
     OrigOwner = CFE_SB.PipeTbl[PipeTblIdx].AppId;
-    CFE_SB.PipeTbl[PipeTblIdx].AppId = 0xFFFFFFFF;
+    CFE_SB.PipeTbl[PipeTblIdx].AppId = UT_SB_ResourceID_Modify(OrigOwner, 1);
     ASSERT_EQ(CFE_SB_SetPipeOpts(PipeID, 0), CFE_SB_BAD_ARGUMENT);
 
     CFE_SB.PipeTbl[PipeTblIdx].AppId = OrigOwner;
@@ -2401,7 +2402,7 @@ void Test_Subscribe_InvalidPipeOwner(void)
     CFE_SB_PipeId_t PipeId;
     CFE_SB_MsgId_t  MsgId = SB_UT_TLM_MID;
     uint16          PipeDepth = 10;
-    uint32          RealOwner;
+    CFE_ES_ResourceID_t  RealOwner;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
 
@@ -2494,7 +2495,7 @@ void Test_Unsubscribe_Local(void)
 void Test_Unsubscribe_InvalParam(void)
 {
     CFE_SB_PipeId_t TestPipe;
-    uint32          CallerId = 0xFFFFFFFF;
+    CFE_ES_ResourceID_t  CallerId;
     uint16          PipeDepth = 50;
     CFE_SB_PipeId_t SavedPipeId;
 
@@ -2588,7 +2589,7 @@ void Test_Unsubscribe_InvalidPipeOwner(void)
 {
     CFE_SB_PipeId_t PipeId;
     CFE_SB_MsgId_t  MsgId = SB_UT_TLM_MID;
-    uint32          RealOwner;
+    CFE_ES_ResourceID_t RealOwner;
     uint16          PipeDepth = 10;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
@@ -3549,9 +3550,8 @@ void Test_CleanupApp_API(void)
     CFE_SB_PipeId_t         PipeId;
     CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl = 0;
     uint16                  PipeDepth = 50;
-    uint32     AppID;
+    CFE_ES_ResourceID_t     AppID;
 
-    UT_SetAppID(1);
     CFE_ES_GetAppID(&AppID);
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
@@ -3567,7 +3567,7 @@ void Test_CleanupApp_API(void)
     /* Attempt with a bad application ID first in order to get full branch path
      * coverage in CFE_SB_ZeroCopyReleaseAppId
      */
-    CFE_SB_CleanUpApp(0);
+    CFE_SB_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED);
 
     /* Attempt again with a valid application ID */
     CFE_SB_CleanUpApp(AppID);
@@ -3921,7 +3921,7 @@ void Test_OS_MutSem_ErrLogic(void)
 */
 void Test_ReqToSendEvent_ErrLogic(void)
 {
-    uint32 TaskId;
+    CFE_ES_ResourceID_t TaskId;
     uint32 Bit = 5;
 
     /* Clear task bits, then call function, which should set the bit for
@@ -4013,7 +4013,7 @@ void Test_CFE_SB_BadPipeInfo(void)
     CFE_SB_PipeId_t PipeId;
     uint16          PipeDepth = 10;
     CFE_SB_Qos_t    CFE_SB_Default_Qos;
-    uint32          AppID;
+    CFE_ES_ResourceID_t AppID;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe1"));
 

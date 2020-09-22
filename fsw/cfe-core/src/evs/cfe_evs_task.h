@@ -63,7 +63,6 @@
 #define CFE_EVS_MAX_EVENT_SEND_COUNT    65535
 #define CFE_EVS_MAX_FILTER_COUNT        65535
 #define CFE_EVS_PIPE_NAME               "EVS_CMD_PIPE"
-#define CFE_EVS_UNDEF_APPID             0xFFFFFFFF
 #define CFE_EVS_MAX_PORT_MSG_LENGTH     (CFE_MISSION_EVS_MAX_MESSAGE_LENGTH+OS_MAX_API_NAME+30)
 
 /* Since CFE_EVS_MAX_PORT_MSG_LENGTH is the size of the buffer that is sent to 
@@ -89,12 +88,12 @@ typedef struct
 
 typedef struct
 {
+    CFE_ES_ResourceID_t AppID;
     EVS_BinFilter_t    BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS];  /* Array of binary filters */
 
     uint8              ActiveFlag;             /* Application event service active flag */
     uint8              EventTypesActiveFlag;   /* Application event types active flag */
     uint16             EventCount;             /* Application event counter */
-    uint16             RegisterFlag;           /* Application has registered flag */
 
 } EVS_AppData_t;
 
@@ -123,7 +122,7 @@ typedef struct
    CFE_EVS_HousekeepingTlm_t    EVS_TlmPkt;
    CFE_SB_PipeId_t     EVS_CommandPipe;
    osal_id_t           EVS_SharedDataMutexID;
-   uint32              EVS_AppID;
+   CFE_ES_ResourceID_t EVS_AppID;
 
 } CFE_EVS_GlobalData_t;
 

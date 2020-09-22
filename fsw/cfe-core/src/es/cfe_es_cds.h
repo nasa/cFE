@@ -134,7 +134,7 @@ int32 CFE_ES_UpdateCDSRegistry(void);
 **
 **
 ******************************************************************************/
-void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, uint32 ThisAppId);
+void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceID_t ThisAppId);
 
 /*****************************************************************************/
 /**

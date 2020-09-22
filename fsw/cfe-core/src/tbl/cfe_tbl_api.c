@@ -61,7 +61,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
     int32                       Status;
     size_t                      NameLen = 0;
     int16                       RegIndx = -1;
-    uint32                      ThisAppId;
+    CFE_ES_ResourceID_t         ThisAppId;
     char                        AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
     char                        TblName[CFE_TBL_MAX_FULL_NAME_LEN] = {""};
     CFE_TBL_Handle_t            AccessIndex;
@@ -168,7 +168,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
             RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndx];
 
             /* If this app previously owned the table, then allow them to re-register */
-            if (RegRecPtr->OwnerAppId == ThisAppId)
+            if ( CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, ThisAppId) )
             {
                 /* If the new table is the same size as the old, then no need to reallocate memory */
                 if (Size != RegRecPtr->Size)
@@ -193,7 +193,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                     while ((AccessIndex != CFE_TBL_END_OF_LIST) && (*TblHandlePtr == CFE_TBL_BAD_TABLE_HANDLE))
                     {
                         if ((CFE_TBL_TaskData.Handles[AccessIndex].UsedFlag == true) &&
-                            (CFE_TBL_TaskData.Handles[AccessIndex].AppId == ThisAppId) &&
+                            CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Handles[AccessIndex].AppId, ThisAppId) &&
                             (CFE_TBL_TaskData.Handles[AccessIndex].RegIndex == RegIndx))
                         {
                             *TblHandlePtr = AccessIndex;
@@ -510,7 +510,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
                      const char *TblName )
 {
     int32   Status;
-    uint32  ThisAppId;
+    CFE_ES_ResourceID_t  ThisAppId;
     int16   RegIndx = CFE_TBL_NOT_FOUND;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
@@ -608,7 +608,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
 int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle )
 {
     int32   Status;
-    uint32  ThisAppId;
+    CFE_ES_ResourceID_t  ThisAppId;
     CFE_TBL_RegistryRec_t *RegRecPtr = NULL;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
     char    AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
@@ -625,7 +625,7 @@ int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle )
         RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
 
         /* Verify that the application unregistering the table owns the table */
-        if (RegRecPtr->OwnerAppId == ThisAppId)
+        if (CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, ThisAppId))
         {
             /* Mark table as free, although, technically, it isn't free until the */
             /* linked list of Access Descriptors has no links in it.              */
@@ -679,7 +679,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                     const void *SrcDataPtr )
 {
     int32                       Status;
-    uint32                      ThisAppId;
+    CFE_ES_ResourceID_t         ThisAppId;
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
@@ -910,7 +910,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
 int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle )
 {
     int32                       Status;
-    uint32                      ThisAppId;
+    CFE_ES_ResourceID_t         ThisAppId;
     CFE_TBL_RegistryRec_t      *RegRecPtr=NULL;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr=NULL;
     char                        AppName[OS_MAX_API_NAME]={"UNKNOWN"};
@@ -991,7 +991,7 @@ int32 CFE_TBL_GetAddress( void **TblPtr,
                           CFE_TBL_Handle_t TblHandle )
 {
     int32   Status;
-    uint32  ThisAppId;
+    CFE_ES_ResourceID_t  ThisAppId;
 
     /* Assume failure at returning the table address */
     *TblPtr = NULL;
@@ -1022,7 +1022,7 @@ int32 CFE_TBL_GetAddress( void **TblPtr,
 int32 CFE_TBL_ReleaseAddress( CFE_TBL_Handle_t TblHandle )
 {
     int32   Status;
-    uint32  ThisAppId;
+    CFE_ES_ResourceID_t   ThisAppId;
 
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_ValidateAccess(TblHandle, &ThisAppId);
@@ -1057,7 +1057,7 @@ int32 CFE_TBL_GetAddresses( void **TblPtrs[],
 {
     uint16  i;
     int32   Status;
-    uint32  ThisAppId;
+    CFE_ES_ResourceID_t   ThisAppId;
 
     /* Assume failure at returning the table addresses */
     for (i=0; i<NumTables; i++)
@@ -1128,7 +1128,7 @@ int32 CFE_TBL_ReleaseAddresses( uint16 NumTables,
 int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
 {
     int32                       Status;
-    uint32                      ThisAppId;
+    CFE_ES_ResourceID_t         ThisAppId;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     char                        AppName[OS_MAX_API_NAME]={"UNKNWON"};
@@ -1332,7 +1332,7 @@ int32 CFE_TBL_Manage( CFE_TBL_Handle_t TblHandle )
 int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle )
 {
     int32                       Status ;
-    uint32                      ThisAppId;
+    CFE_ES_ResourceID_t         ThisAppId;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
@@ -1472,7 +1472,7 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
     CFE_TBL_Handle_t            AccessIterator;
-    uint32                      ThisAppId;
+    CFE_ES_ResourceID_t         ThisAppId;
     size_t                      FilenameLen = 0;
 
     /* Verify that this application has the right to perform operation */
@@ -1515,7 +1515,7 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
         while (AccessIterator != CFE_TBL_END_OF_LIST)
         {
             /* Only notify *OTHER* applications that the contents have changed */
-            if (CFE_TBL_TaskData.Handles[AccessIterator].AppId != ThisAppId)
+            if (!CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Handles[AccessIterator].AppId, ThisAppId))
             {
                 CFE_TBL_TaskData.Handles[AccessIterator].Updated = true;
             }
@@ -1542,7 +1542,7 @@ int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, 
     int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
-    uint32                      ThisAppId;
+    CFE_ES_ResourceID_t         ThisAppId;
 
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_ValidateAccess(TblHandle, &ThisAppId);
@@ -1554,7 +1554,7 @@ int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, 
         RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
         
         /* Verify that the calling application is the table owner */
-        if (RegRecPtr->OwnerAppId == ThisAppId)
+        if (CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, ThisAppId))
         {
             RegRecPtr->NotificationMsgId = MsgId;
             RegRecPtr->NotificationCC = CommandCode;

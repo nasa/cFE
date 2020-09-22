@@ -211,7 +211,7 @@ typedef struct {
 */
 
 typedef struct {
-     uint32            AppID;
+     CFE_ES_ResourceID_t AppID;
      uint32            Size;
      void              *Buffer;
      void              *Next;
@@ -248,7 +248,7 @@ typedef struct {
      char               AppName[OS_MAX_API_NAME];
      uint8              Opts;
      uint8              Spare;
-     uint32             AppId;
+     CFE_ES_ResourceID_t AppId;
      osal_id_t          SysQueueId;
      uint32             LastSender;
      uint16             QueueDepth;
@@ -283,8 +283,8 @@ typedef struct {
     osal_id_t           SharedDataMutexId;
     uint32              SubscriptionReporting;
     uint32              SenderReporting;
-    uint32              AppId;
-    uint32              StopRecurseFlags[CFE_PLATFORM_ES_MAX_APPLICATIONS];
+    CFE_ES_ResourceID_t AppId;
+    uint32              StopRecurseFlags[OS_MAX_TASKS];
     void               *ZeroCopyTail;
     CFE_SB_PipeD_t      PipeTbl[CFE_PLATFORM_SB_MAX_PIPES];
     CFE_SB_HousekeepingTlm_t        HKTlmMsg;
@@ -346,7 +346,7 @@ CFE_SB_MsgKey_t CFE_SB_ConvertMsgIdtoMsgKey(CFE_SB_MsgId_t MsgId);
 void   CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber);
 void   CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
 void   CFE_SB_ReleaseBuffer (CFE_SB_BufferD_t *bd, CFE_SB_DestinationD_t *dest);
-int32  CFE_SB_ReadQueue(CFE_SB_PipeD_t *PipeDscPtr,uint32 TskId,
+int32  CFE_SB_ReadQueue(CFE_SB_PipeD_t *PipeDscPtr,CFE_ES_ResourceID_t TskId,
                         CFE_SB_TimeOut_t Time_Out,CFE_SB_BufferD_t **Message );
 int32  CFE_SB_WriteQueue(CFE_SB_PipeD_t *pd,uint32 TskId,
                          const CFE_SB_BufferD_t *bd,CFE_SB_MsgId_t MsgId );
@@ -359,14 +359,14 @@ void   CFE_SB_SetRoutingTblIdx(CFE_SB_MsgKey_t MsgKey, CFE_SB_MsgRouteIdx_t Valu
 CFE_SB_RouteEntry_t* CFE_SB_GetRoutePtrFromIdx(CFE_SB_MsgRouteIdx_t RouteIdx);
 void   CFE_SB_ResetCounters(void);
 void   CFE_SB_SetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr,uint32 Count);
-char   *CFE_SB_GetAppTskName(uint32 TaskId, char* FullName);
+char   *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId, char* FullName);
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, uint16 Size);
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromCaller(CFE_SB_MsgId_t MsgId, void *Address);
 CFE_SB_PipeD_t   *CFE_SB_GetPipePtr(CFE_SB_PipeId_t PipeId);
 CFE_SB_PipeId_t  CFE_SB_GetAvailPipeIdx(void);
 CFE_SB_DestinationD_t *CFE_SB_GetDestPtr (CFE_SB_MsgKey_t MsgKey, CFE_SB_PipeId_t PipeId);
-int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId,uint32 AppId);
-int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,uint32 AppId);
+int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId);
+int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId);
 int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
                            CFE_SB_PipeId_t  PipeId,
                            CFE_SB_Qos_t     Quality,
@@ -374,16 +374,16 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
                            uint8            Scope);
 
 int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
-                                   uint32 AppId);
+        CFE_ES_ResourceID_t AppId);
 
 int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
-                              uint8 Scope, uint32 AppId);
+                              uint8 Scope, CFE_ES_ResourceID_t AppId);
 int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t   *MsgPtr, uint32 TlmCntIncrements, uint32 CopyMode);
 int32 CFE_SB_SendRtgInfo(const char *Filename);
 int32 CFE_SB_SendPipeInfo(const char *Filename);
 int32 CFE_SB_SendMapInfo(const char *Filename);
 int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Msg_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
-int32 CFE_SB_ZeroCopyReleaseAppId(uint32         AppId);
+int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId);
 int32 CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
 int32 CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId);
@@ -391,8 +391,8 @@ void CFE_SB_IncrCmdCtr(int32 status);
 void CFE_SB_FileWriteByteCntErr(const char *Filename,uint32 Requested,uint32 Actual);
 void CFE_SB_SetSubscriptionReporting(uint32 state);
 uint32 CFE_SB_FindGlobalMsgIdCnt(void);
-uint32 CFE_SB_RequestToSendEvent(uint32 TaskId, uint32 Bit);
-void CFE_SB_FinishSendEvent(uint32 TaskId, uint32 Bit);
+uint32 CFE_SB_RequestToSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit);
+void CFE_SB_FinishSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit);
 CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void);
 int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest);
 int32 CFE_SB_AddDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *NewNode);
