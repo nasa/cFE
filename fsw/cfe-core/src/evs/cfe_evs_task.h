@@ -89,6 +89,8 @@ typedef struct
 typedef struct
 {
     CFE_ES_ResourceID_t AppID;
+    CFE_ES_ResourceID_t UnregAppID;
+
     EVS_BinFilter_t    BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS];  /* Array of binary filters */
 
     uint8              ActiveFlag;             /* Application event service active flag */

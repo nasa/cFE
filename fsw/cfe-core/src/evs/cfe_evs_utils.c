@@ -185,13 +185,13 @@ int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, CFE_ES_ResourceID_t CallerID
    char AppName[OS_MAX_API_NAME];
 
    /* Send only one "not registered" event per application */
-   if (AppDataPtr->EventCount == 0) 
+   if ( !CFE_ES_ResourceID_Equal(AppDataPtr->UnregAppID, CallerID) )
    { 
       /* Increment count of "not registered" applications */
       CFE_EVS_GlobalData.EVS_TlmPkt.Payload.UnregisteredAppCounter++;
 
       /* Indicate that "not registered" event has been sent for this app */
-      AppDataPtr->EventCount++;
+      AppDataPtr->UnregAppID = CallerID;
 
       /* Get the name of the "not registered" app */
       CFE_ES_GetAppName(AppName, CallerID, OS_MAX_API_NAME);
