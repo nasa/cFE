@@ -912,7 +912,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     }
 
     /* Try to open the specified table file */
-    Status = OS_open(Filename, OS_READ_ONLY, 0);
+    Status = OS_OpenCreate(&FileDescriptor, Filename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
 
     if (Status < 0)
     {
@@ -923,8 +923,6 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
 
             return CFE_TBL_ERR_ACCESS;
     }
-
-    FileDescriptor = OS_ObjectIdFromInteger(Status);
 
     Status = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader, &TblFileHeader, Filename);
 

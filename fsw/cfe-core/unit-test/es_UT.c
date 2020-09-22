@@ -354,7 +354,7 @@ int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode,
         OS_BinSemCreate(&ObjList[3], NULL, 0, 0);
         OS_CountSemCreate(&ObjList[4], NULL, 0, 0);
         OS_TimerCreate(&ObjList[5], NULL, NULL, NULL);
-        ObjList[6] = OS_ObjectIdFromInteger(OS_open(NULL, 0, 0));
+        OS_OpenCreate(&ObjList[6], NULL, 0, 0);
 
         UT_SetDataBuffer((UT_EntryKey_t)&OS_ForEachObject, ObjList,
                           sizeof(ObjList), true);
@@ -512,7 +512,7 @@ void TestStartupErrorPaths(void)
     /* Perform ES main startup with a file open failure */
     ES_ResetUnitTest();
     UT_SetDummyFuncRtn(OS_SUCCESS);
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
                 (char *) CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
@@ -1006,7 +1006,7 @@ void TestApps(void)
 
     /* Test starting an application with an open failure */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UT_Report(__FILE__, __LINE__,
@@ -2620,7 +2620,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAll_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2667,7 +2667,7 @@ void TestTask(void)
     /* Test write of all task data to a file with an OS create failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAllTasks_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2734,7 +2734,7 @@ void TestTask(void)
     /* Test writing the system log with an OS create failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     strncpy((char *) CmdBuf.WriteSyslogCmd.Payload.FileName, "",
             sizeof(CmdBuf.WriteSyslogCmd.Payload.FileName));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteSyslog_t),
@@ -2839,7 +2839,7 @@ void TestTask(void)
     /* Test writing the E&R log with an OS create failure */
     ES_ResetUnitTest();
     CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_ERLOG2_ERR_EID),
@@ -3056,7 +3056,7 @@ void TestTask(void)
     /* Test dumping of the CDS to a file with an OS create failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DumpCDSRegistry_t),
             UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3257,7 +3257,7 @@ void TestTask(void)
     /* Test write of all app data to file with a file open failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAll_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3279,7 +3279,7 @@ void TestTask(void)
     /* Test write of all task data to file with a file open failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAllTasks_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3816,7 +3816,7 @@ void TestPerf(void)
     UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_DELAY,
             "CFE_ES_RunPerfLogDump - CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == DELAY (%d)",
             (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_DELAY);
-    UtAssert_True(UT_GetStubCount(UT_KEY(OS_creat)) == 1, "CFE_ES_RunPerfLogDump - OS_creat() called");
+    UtAssert_True(UT_GetStubCount(UT_KEY(OS_OpenCreate)) == 1, "CFE_ES_RunPerfLogDump - OS_OpenCreate() called");
 
     /* Nominal call 2 - should go through up to the remainder of states, back to IDLE */
     CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
@@ -3831,7 +3831,7 @@ void TestPerf(void)
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
                 sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
     CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
-    UT_SetForceFail(UT_KEY(OS_creat), -10);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), -10);
     CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
     UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
             "CFE_ES_RunPerfLogDump - OS create fail, CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == IDLE (%d)",
@@ -3866,7 +3866,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc = OS_ObjectIdFromInteger(OS_creat("UT", OS_WRITE_ONLY));
+    OS_OpenCreate(&CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
     CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
     CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
     CFE_ES_TaskData.BackgroundPerfDumpState.DataPos = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - 2;
@@ -3887,7 +3887,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc = OS_ObjectIdFromInteger(OS_creat("UT", OS_WRITE_ONLY));
+    OS_OpenCreate(&CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
     CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_METADATA;
     CFE_ES_TaskData.BackgroundPerfDumpState.StateCounter = 10;
     Perf->MetaData.DataCount = 100;

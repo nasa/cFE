@@ -843,8 +843,8 @@
 #define CFE_ES_ONE_APPID_ERR_EID       50
 
 
-/** \brief <tt> 'Failed to write App Info file, OS_creat returned \%d' </tt>
-**  \event <tt> 'Failed to write App Info file, OS_creat returned \%d' </tt> 
+/** \brief <tt> 'Failed to write App Info file, OS_OpenCreate returned \%d' </tt>
+**  \event <tt> 'Failed to write App Info file, OS_OpenCreate returned \%d' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -853,7 +853,7 @@
 **  This event message is generated when an Executive Services \link #CFE_ES_QUERY_ALL_CC Dump Application
 **  Data Command \endlink fails to create the dump file.
 **
-**  The \c 'd' parameter identifies, in decimal, the error code returned by #OS_creat when the attempt was made
+**  The \c 'd' parameter identifies, in decimal, the error code returned by #OS_OpenCreate when the attempt was made
 **  to create the file.
 **/
 #define CFE_ES_OSCREATE_ERR_EID  51
@@ -900,7 +900,7 @@
 **  Command \endlink fails while attempting to create the specified file.
 **
 **  The \c 's' field identifies the name of the file that was attempted to be created and the \c stat field
-**  specifies, in hex, the error code returned by the #OS_creat API.
+**  specifies, in hex, the error code returned by the #OS_OpenCreate API.
 **/
 #define CFE_ES_SYSLOG2_ERR_EID     55
 
@@ -915,7 +915,7 @@
 **  Command \endlink fails while attempting to create the specified file.
 **
 **  The \c 's' field identifies the name of the file that was attempted to be created and the \c stat field
-**  specifies, in hex, the error code returned by the #OS_creat API.
+**  specifies, in hex, the error code returned by the #OS_OpenCreate API.
 **/
 #define CFE_ES_ERLOG2_ERR_EID    56
 
@@ -1072,7 +1072,7 @@
 **  fails to create the associated logic analyzer dump file.
 **
 **  The \c 's' field identifies the name of the file that was attempted to be created and the \c stat field
-**  specifies, in decimal, the error code returned by the #OS_creat API.
+**  specifies, in decimal, the error code returned by the #OS_OpenCreate API.
 **/
 #define CFE_ES_PERF_LOG_ERR_EID     67
 
@@ -1362,7 +1362,7 @@
 **  is unable to create the specified file on the onboard filesystem. 
 **
 **  The \c 's' field identifies the CDS Registry Dump Filename.
-**  The \c '08X' field identifies error code returned by the API #OS_creat.
+**  The \c '08X' field identifies error code returned by the API #OS_OpenCreate.
 **/
 #define CFE_ES_CREATING_CDS_DUMP_ERR_EID      86
 
@@ -1385,8 +1385,8 @@
 #define CFE_ES_TASKINFO_EID      87
 
 
-/** \brief <tt> 'Failed to write Task Info file, OS_creat returned \%d' </tt>
-**  \event <tt> 'Failed to write Task Info file, OS_creat returned \%d' </tt> 
+/** \brief <tt> 'Failed to write Task Info file, OS_OpenCreate returned \%d' </tt>
+**  \event <tt> 'Failed to write Task Info file, OS_OpenCreate returned \%d' </tt> 
 **
 **  \par Type: ERROR
 **
@@ -1395,7 +1395,7 @@
 **  This event message is generated when an Executive Services \link #CFE_ES_QUERY_ALL_TASKS_CC Dump Task
 **  Data Command \endlink fails to create the dump file.
 **
-**  The \c 'd' parameter identifies, in decimal, the error code returned by #OS_creat when the attempt was made
+**  The \c 'd' parameter identifies, in decimal, the error code returned by #OS_OpenCreate when the attempt was made
 **  to create the file.
 **/
 #define CFE_ES_TASKINFO_OSCREATE_ERR_EID  88

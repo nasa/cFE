@@ -752,7 +752,7 @@ void Test_CFE_TBL_DumpToFile(void)
 
     /* Test with an error creating the dump file */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_ERR_CTR,
@@ -793,7 +793,7 @@ void Test_CFE_TBL_DumpToFile(void)
 
     /* Test successful file creation and data dumped */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_CMD_CTR,
@@ -1167,7 +1167,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_InitData();
     strncpy((char *)DumpRegCmd.Payload.DumpFilename, "",
             sizeof(DumpRegCmd.Payload.DumpFilename));
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1193,7 +1193,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
     CFE_TBL_TaskData.Registry[1].OwnerAppId = CFE_TBL_NOT_OWNED;
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     CFE_TBL_TaskData.Registry[0].DoubleBuffered = true;
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -1441,7 +1441,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_InitData();
     strncpy((char *)LoadCmd.Payload.LoadFilename, "LoadFileName",
             sizeof(LoadCmd.Payload.LoadFilename));
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_LoadCmd(&LoadCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1759,7 +1759,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     UT_InitData();
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,
               "CFE_TBL_HousekeepingCmd",
@@ -1769,7 +1769,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     UT_InitData();
     CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,
               "CFE_TBL_HousekeepingCmd",
@@ -4281,7 +4281,7 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     RtnCode = CFE_TBL_LoadFromFile("UT", WorkingBufferPtr, RegRecPtr, Filename);
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_FILE_ACCESS_ERR_EID) == true &&
         UT_GetNumEventsSent() == 1);

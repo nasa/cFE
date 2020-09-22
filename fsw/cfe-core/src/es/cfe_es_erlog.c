@@ -207,7 +207,7 @@ bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg)
     }
 
     FileSize = 0;
-    Status = OS_creat(State->DataFileName, OS_WRITE_ONLY);
+    Status = OS_OpenCreate(&fd, State->DataFileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
     if(Status < 0)
     {
         CFE_EVS_SendEvent(CFE_ES_ERLOG2_ERR_EID,CFE_EVS_EventType_ERROR,
@@ -216,7 +216,6 @@ bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg)
     }
     else
     {
-        fd = OS_ObjectIdFromInteger(Status);
         CFE_FS_InitHeader(&FileHdr, CFE_ES_ER_LOG_DESC, CFE_FS_SubType_ES_ERLOG);
 
         /* write the cFE header to the file */
