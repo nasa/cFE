@@ -128,7 +128,7 @@ uint32 UT_SB_ResourceID_Modify(uint32 InitialID, int32 Modifier)
 void UtTest_Setup(void)
 {
     UT_Init("sb");
-    UT_Text("cFE SB Unit Test Output File\n\n");
+    UtPrintf("cFE SB Unit Test Output File\n\n");
 
     Test_SB_AppInit();
     Test_SB_MainRoutine();

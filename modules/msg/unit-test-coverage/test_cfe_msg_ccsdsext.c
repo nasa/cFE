@@ -68,7 +68,7 @@ void Test_MSG_Init_Ext(void)
     /* Set up return */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_GetSpacecraftId), 1, sc_id);
 
-    UT_Text("Set to all F's, msgid value = 0, and run with clearing");
+    UtPrintf("Set to all F's, msgid value = 0, and run with clearing");
     memset(&msg, 0xFF, sizeof(msg));
     msgidval_exp = 0;
     ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg), true), CFE_SUCCESS);
@@ -100,7 +100,7 @@ void Test_MSG_Init_Ext(void)
     /* Confirm the rest of the fields not already explicitly checked */
     ASSERT_EQ(Test_MSG_Ext_NotZero(&msg) & ~(MSG_EDSVER_FLAG | MSG_ENDIAN_FLAG | MSG_SUBSYS_FLAG | MSG_SYSTEM_FLAG), 0);
 
-    UT_Text("Set to all 0, max msgid value, and run without clearing");
+    UtPrintf("Set to all 0, max msgid value, and run without clearing");
     memset(&msg, 0, sizeof(msg));
     msgidval_exp = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
     ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg), false), CFE_SUCCESS);
@@ -124,7 +124,7 @@ void Test_MSG_EDSVersion(void)
     CFE_MSG_EDSVersion_t actual  = TEST_EDSVER_MAX;
     int                  i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetEDSVersion(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, TEST_EDSVER_MAX);
@@ -136,7 +136,7 @@ void Test_MSG_EDSVersion(void)
     ASSERT_EQ(CFE_MSG_SetEDSVersion(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -156,7 +156,7 @@ void Test_MSG_EDSVersion(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
@@ -184,7 +184,7 @@ void Test_MSG_Endian(void)
     CFE_MSG_Endian_t  actual  = 0;
     int               i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (CFE_MSG_Endian_Invalid, CFE_MSG_Endian_Little + 1");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (CFE_MSG_Endian_Invalid, CFE_MSG_Endian_Little + 1");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetEndian(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, 0);
@@ -196,7 +196,7 @@ void Test_MSG_Endian(void)
     ASSERT_EQ(CFE_MSG_SetEndian(&msg, CFE_MSG_Endian_Little + 1), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -216,7 +216,7 @@ void Test_MSG_Endian(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
@@ -244,7 +244,7 @@ void Test_MSG_PlaybackFlag(void)
     CFE_MSG_PlaybackFlag_t actual  = 0;
     int                    i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (CFE_MSG_PlayFlag_Invalid, CFE_MSG_PlayFlag_Playback + 1");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (CFE_MSG_PlayFlag_Invalid, CFE_MSG_PlayFlag_Playback + 1");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetPlaybackFlag(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, 0);
@@ -256,7 +256,7 @@ void Test_MSG_PlaybackFlag(void)
     ASSERT_EQ(CFE_MSG_SetPlaybackFlag(&msg, CFE_MSG_PlayFlag_Playback + 1), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -276,7 +276,7 @@ void Test_MSG_PlaybackFlag(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
@@ -304,7 +304,7 @@ void Test_MSG_Subsystem(void)
     CFE_MSG_Subsystem_t actual  = TEST_SUBSYS_MAX;
     int                 i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetSubsystem(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, TEST_SUBSYS_MAX);
@@ -316,7 +316,7 @@ void Test_MSG_Subsystem(void)
     ASSERT_EQ(CFE_MSG_SetSubsystem(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -336,7 +336,7 @@ void Test_MSG_Subsystem(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
@@ -364,7 +364,7 @@ void Test_MSG_System(void)
     CFE_MSG_ApId_t    actual  = TEST_SYSTEM_MAX;
     int               i;
 
-    UT_Text("Bad parameter tests, Null pointers");
+    UtPrintf("Bad parameter tests, Null pointers");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetSystem(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, TEST_SYSTEM_MAX);
@@ -373,7 +373,7 @@ void Test_MSG_System(void)
     ASSERT_EQ(CFE_MSG_SetSystem(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -393,7 +393,7 @@ void Test_MSG_System(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));

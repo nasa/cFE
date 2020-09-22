@@ -201,14 +201,6 @@ void UT_ResetPoolBufferIndex(void)
 }
 
 /*
-** Output a text string
-*/
-void UT_Text(const char *text)
-{
-    UtPrintf("%s\n", text);
-}
-
-/*
 ** Output single test's pass/fail status
 */
 void UT_Report(const char *file, uint32 line, bool test, const char *fun_name,
@@ -464,7 +456,7 @@ void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, uint32 size)
         ++BytePtr;
     }
 
-    UT_Text(DisplayMsg);
+    UtPrintf("%s", DisplayMsg);
 }
 
 

@@ -42,7 +42,7 @@ void Test_MSG_Time(void)
     CFE_TIME_SysTime_t actual  = {0xFFFFFFFF, 0xFFFFFFFF};
     int                i;
 
-    UT_Text("Bad parameter tests, Null pointers, no secondary header");
+    UtPrintf("Bad parameter tests, Null pointers, no secondary header");
     memset(&tlm, 0, sizeof(tlm));
     ASSERT_EQ(CFE_MSG_GetMsgTime(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual.Seconds, 0xFFFFFFFF);
@@ -56,7 +56,7 @@ void Test_MSG_Time(void)
     ASSERT_EQ(actual.Seconds, 0);
     ASSERT_EQ(actual.Subseconds, 0);
 
-    UT_Text("Bad <F2>message, wrong type (command)");
+    UtPrintf("Bad <F2>message, wrong type (command)");
     ASSERT_EQ(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_SetMsgTime(msgptr, actual), CFE_MSG_WRONG_MSG_TYPE);
     ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_TYPE_FLAG);
@@ -64,7 +64,7 @@ void Test_MSG_Time(void)
     ASSERT_EQ(actual.Seconds, 0);
     ASSERT_EQ(actual.Subseconds, 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&tlm, 0xFF, sizeof(tlm));
@@ -80,7 +80,7 @@ void Test_MSG_Time(void)
         ASSERT_EQ(Test_MSG_NotF(msgptr), MSG_TYPE_FLAG);
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&tlm, 0, sizeof(tlm));

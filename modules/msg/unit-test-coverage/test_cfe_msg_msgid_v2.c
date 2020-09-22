@@ -49,7 +49,7 @@ void Test_MSG_MsgId(void)
         local_subsys_flag = MSG_SUBSYS_FLAG;
     }
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (max valid + 1)");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1)");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetMsgId(NULL, &msgid), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 1);
@@ -63,7 +63,7 @@ void Test_MSG_MsgId(void)
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, 0xFFFFFFFF), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set msg to all F's, set msgid to 0 and verify");
+    UtPrintf("Set msg to all F's, set msgid to 0 and verify");
     memset(&msg, 0xFF, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 0xFFFF);
@@ -73,7 +73,7 @@ void Test_MSG_MsgId(void)
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 0);
     ASSERT_EQ(Test_MSG_NotF(&msg), MSG_APID_FLAG | MSG_TYPE_FLAG | local_subsys_flag);
 
-    UT_Text("Set msg to all 0, set msgid to max and verify");
+    UtPrintf("Set msg to all 0, set msgid to max and verify");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 0);
@@ -91,21 +91,21 @@ void Test_MSG_MsgId(void)
         ASSERT_EQ(subsystem, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID >> 8);
     }
 
-    UT_Text("Set ApId msgid bits only and verify");
+    UtPrintf("Set ApId msgid bits only and verify");
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0x007F)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_APID_FLAG);
     ASSERT_EQ(CFE_MSG_GetApId(&msg, &apid), CFE_SUCCESS);
     ASSERT_EQ(apid, 0x007F);
 
-    UT_Text("Set type msgid bit only and verify");
+    UtPrintf("Set type msgid bit only and verify");
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0x0080)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_TYPE_FLAG);
     ASSERT_EQ(CFE_MSG_GetType(&msg, &type), CFE_SUCCESS);
     ASSERT_EQ(type, CFE_MSG_Type_Cmd);
 
-    UT_Text("Set subsystem msgid bits only and verify");
+    UtPrintf("Set subsystem msgid bits only and verify");
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0xFF00 & CFE_PLATFORM_SB_HIGHEST_VALID_MSGID)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(Test_MSG_NotZero(&msg), local_subsys_flag);

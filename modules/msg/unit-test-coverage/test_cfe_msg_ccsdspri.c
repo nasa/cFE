@@ -48,7 +48,7 @@ void Test_MSG_Size(void)
     CFE_MSG_Size_t    actual  = 0;
     int               i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (0, min valid - 1, max valid + 1, max)");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (0, min valid - 1, max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetSize(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, 0);
@@ -64,7 +64,7 @@ void Test_MSG_Size(void)
     ASSERT_EQ(CFE_MSG_SetSize(&msg, 0xFFFFFFFF), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -84,7 +84,7 @@ void Test_MSG_Size(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
@@ -112,7 +112,7 @@ void Test_MSG_Type(void)
     CFE_MSG_Type_t    actual  = 0;
     int               i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (CFE_MSG_Type_Invalid, CFE_MSG_Type_Tlm + 1");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (CFE_MSG_Type_Invalid, CFE_MSG_Type_Tlm + 1");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetType(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, 0);
@@ -124,7 +124,7 @@ void Test_MSG_Type(void)
     ASSERT_EQ(CFE_MSG_SetType(&msg, CFE_MSG_Type_Tlm + 1), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -144,7 +144,7 @@ void Test_MSG_Type(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
@@ -172,7 +172,7 @@ void Test_MSG_HeaderVersion(void)
     CFE_MSG_HeaderVersion_t actual  = TEST_CCSDSVER_MAX;
     int                     i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetHeaderVersion(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, TEST_CCSDSVER_MAX);
@@ -184,7 +184,7 @@ void Test_MSG_HeaderVersion(void)
     ASSERT_EQ(CFE_MSG_SetHeaderVersion(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -204,7 +204,7 @@ void Test_MSG_HeaderVersion(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
@@ -230,7 +230,7 @@ void Test_MSG_HasSecondaryHeader(void)
     CFE_MSG_Message_t msg;
     bool              actual = true;
 
-    UT_Text("Bad parameter tests, Null pointers");
+    UtPrintf("Bad parameter tests, Null pointers");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, true);
@@ -238,7 +238,7 @@ void Test_MSG_HasSecondaryHeader(void)
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
     ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(NULL, false), CFE_MSG_BAD_ARGUMENT);
 
-    UT_Text("Set to all F's, true and false inputs");
+    UtPrintf("Set to all F's, true and false inputs");
     memset(&msg, 0xFF, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, true);
@@ -255,7 +255,7 @@ void Test_MSG_HasSecondaryHeader(void)
     ASSERT_EQ(actual, false);
     ASSERT_EQ(Test_MSG_NotF(&msg), MSG_HASSEC_FLAG);
 
-    UT_Text("Set to all 0, true and false inputs");
+    UtPrintf("Set to all 0, true and false inputs");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, false);
@@ -280,7 +280,7 @@ void Test_MSG_ApId(void)
     CFE_MSG_ApId_t    actual  = TEST_APID_MAX;
     int               i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetApId(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, TEST_APID_MAX);
@@ -292,7 +292,7 @@ void Test_MSG_ApId(void)
     ASSERT_EQ(CFE_MSG_SetApId(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -312,7 +312,7 @@ void Test_MSG_ApId(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
@@ -341,7 +341,7 @@ void Test_MSG_SegmentationFlag(void)
     CFE_MSG_SegmentationFlag_t actual  = CFE_MSG_SegFlag_Invalid;
     int                        i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (*_Invalid, max valid + 1");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (*_Invalid, max valid + 1");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetSegmentationFlag(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, CFE_MSG_SegFlag_Invalid);
@@ -353,7 +353,7 @@ void Test_MSG_SegmentationFlag(void)
     ASSERT_EQ(CFE_MSG_SetSegmentationFlag(&msg, CFE_MSG_SegFlag_Unsegmented + 1), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -373,7 +373,7 @@ void Test_MSG_SegmentationFlag(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
@@ -401,7 +401,7 @@ void Test_MSG_SequenceCount(void)
     CFE_MSG_ApId_t    actual  = TEST_SEQUENCE_MAX;
     int               i;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetSequenceCount(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, TEST_SEQUENCE_MAX);
@@ -413,7 +413,7 @@ void Test_MSG_SequenceCount(void)
     ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
@@ -433,7 +433,7 @@ void Test_MSG_SequenceCount(void)
         }
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));

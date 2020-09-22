@@ -41,7 +41,7 @@ void Test_MSG_MsgId(void)
     CFE_MSG_ApId_t    apid;
     bool              hassec;
 
-    UT_Text("Bad parameter tests, Null pointers and invalid (max valid + 1)");
+    UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1)");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetMsgId(NULL, &msgid), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 1);
@@ -55,7 +55,7 @@ void Test_MSG_MsgId(void)
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set msg to all F's, set msgid to 0 and verify");
+    UtPrintf("Set msg to all F's, set msgid to 0 and verify");
     memset(&msg, 0xFF, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 0xFFFF);
@@ -65,7 +65,7 @@ void Test_MSG_MsgId(void)
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 0);
     ASSERT_EQ(Test_MSG_NotF(&msg), MSG_HDRVER_FLAG | MSG_APID_FLAG | MSG_TYPE_FLAG | MSG_HASSEC_FLAG);
 
-    UT_Text("Set msg to all 0, set msgid to max and verify");
+    UtPrintf("Set msg to all 0, set msgid to max and verify");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 0);
@@ -81,21 +81,21 @@ void Test_MSG_MsgId(void)
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &hassec), CFE_SUCCESS);
     ASSERT_EQ(hassec, true);
 
-    UT_Text("Set ApId msgid bits only and verify");
+    UtPrintf("Set ApId msgid bits only and verify");
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(TEST_MAX_APID)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_APID_FLAG);
     ASSERT_EQ(CFE_MSG_GetApId(&msg, &apid), CFE_SUCCESS);
     ASSERT_EQ(apid, TEST_MAX_APID);
 
-    UT_Text("Set has secondary header bit only and verify");
+    UtPrintf("Set has secondary header bit only and verify");
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0x0800)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_HASSEC_FLAG);
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &hassec), CFE_SUCCESS);
     ASSERT_EQ(hassec, true);
 
-    UT_Text("Set type msgid bit only and verify");
+    UtPrintf("Set type msgid bit only and verify");
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0x1000)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_TYPE_FLAG);

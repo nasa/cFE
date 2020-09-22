@@ -203,7 +203,7 @@ void UtTest_Setup(void)
 {
     /* Initialize unit test */
     UT_Init("time");
-    UT_Text("cFE TIME Unit Test Output File\n\n");
+    UtPrintf("cFE TIME Unit Test Output File\n\n");
 
     UT_ADD_TEST(Test_Main);
     UT_ADD_TEST(Test_Init);
@@ -229,9 +229,7 @@ void UtTest_Setup(void)
 */
 void Test_Main(void)
 {
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Main\n");
-#endif
+    UtPrintf("Begin Test Main");
 
     /* Test successful run through (a pipe read error is expected) */
     UT_InitData();
@@ -264,9 +262,7 @@ void Test_Init(void)
     int16 SubLocalErrCnt = 0;
 #endif
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Init\n");
-#endif
+    UtPrintf("Begin Test Init");
 
     /* Test successful API initialization */
     UT_InitData();
@@ -525,9 +521,7 @@ void Test_GetTime(void)
     const char *expectedSTCF = "1980-001-01:00:00.00000";
     volatile CFE_TIME_ReferenceState_t *RefState;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Get Time\n");
-#endif
+    UtPrintf("Begin Test Get Time");
 
     CFE_TIME_TaskData.LastVersionCounter = 0x1000;
 
@@ -737,9 +731,7 @@ void Test_TimeOp(void)
 {
     CFE_TIME_SysTime_t time1, time2, result, exp_result;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Time Operations\n");
-#endif
+    UtPrintf("Begin Test Time Operations");
 
     /* Initialize to zero time values */
     time1.Subseconds = 0;
@@ -1038,9 +1030,7 @@ void Test_ConvertTime(void)
     const char *expectedSCTime = "1980-001-02:00:08.00000";
 #endif
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Convert Time\n");
-#endif
+    UtPrintf("Begin Test Convert Time");
 
     /* Test MET to SCTF conversion */
     UT_InitData();
@@ -1158,9 +1148,7 @@ void Test_Print(void)
     char testDesc[1+UT_MAX_MESSAGE_LENGTH];
     CFE_TIME_SysTime_t time;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Print\n");
-#endif
+    UtPrintf("Begin Test Print");
 
     /* Test with zero time value */
     UT_InitData();
@@ -1234,9 +1222,7 @@ void Test_RegisterSyncCallbackTrue(void)
 {
     int32   Result;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Register Synch Callback\n");
-#endif
+    UtPrintf("Begin Test Register Synch Callback");
 
     /*
      * One callback per application is allowed; the first should succeed,
@@ -1305,9 +1291,7 @@ void Test_RegisterSyncCallbackTrue(void)
 */
 void Test_ExternalTone(void)
 {
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test External Tone\n");
-#endif
+    UtPrintf("Begin Test External Tone");
 
     UT_InitData();
     UT_SetBSP_Time(123, 0);
@@ -1333,9 +1317,7 @@ void Test_External(void)
     CFE_TIME_SysTime_t settime = {5, 4};
 #endif
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test External Time Set\n");
-#endif
+    UtPrintf("Begin Test External Time Set");
 
 #if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
     /* Test setting time data from MET using an external source with the clock
@@ -1783,9 +1765,7 @@ void Test_PipeCmds(void)
     uint32 count;
 #endif
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Pipe Commands\n");
-#endif
+    UtPrintf("Begin Test Pipe Commands");
 
     memset(&CmdBuf, 0, sizeof(CmdBuf));
 
@@ -2396,9 +2376,7 @@ void Test_ResetArea(void)
 {
     CFE_TIME_Reference_t Reference;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Reset Area\n");
-#endif
+    UtPrintf("Begin Test Reset Area");
 
     /* Test successfully updating the reset area */
     UT_InitData();
@@ -2500,9 +2478,7 @@ void Test_State(void)
     CFE_TIME_Reference_t Reference;
     volatile CFE_TIME_ReferenceState_t *RefState;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Time State\n");
-#endif
+    UtPrintf("Begin Test Time State");
 
     /* Test determining if the clock state is valid with the server state
      * in "no flywheel"
@@ -2610,9 +2586,7 @@ void Test_GetReference(void)
     CFE_TIME_Reference_t Reference;
     volatile CFE_TIME_ReferenceState_t *RefState;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Get Reference\n");
-#endif
+    UtPrintf("Begin Test Get Reference");
 
     /* Test with local clock rollover */
     UT_InitData();
@@ -2678,9 +2652,7 @@ void Test_Tone(void)
     uint32 MinElapsed = CFE_TIME_TaskData.MinElapsed;
     uint32 MaxElapsed = CFE_TIME_TaskData.MaxElapsed;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Tone\n");
-#endif
+    UtPrintf("Begin Test Tone");
 
     /* Test time at the tone in flywheel mode */
     UT_InitData();
@@ -3215,9 +3187,7 @@ void Test_UnregisterSynchCallback(void)
 
     ut_time_CallbackCalled = 0;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Unregister Callback\n");
-#endif
+    UtPrintf("Begin Test Unregister Callback");
 
     /* Unregister callback function one too many times to test both valid and
      * invalid cases
@@ -3300,9 +3270,7 @@ void Test_CleanUpApp(void)
     uint32 AppIndex;
     uint32 TestAppId;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Cleanup App\n");
-#endif
+    UtPrintf("Begin Test Cleanup App");
 
     UT_InitData();
     CFE_ES_GetAppID(&TestAppId);

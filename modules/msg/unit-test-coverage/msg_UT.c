@@ -42,7 +42,7 @@
 void UtTest_Setup(void)
 {
     UT_Init("msg");
-    UT_Text("Message header coverage test...");
+    UtPrintf("Message header coverage test...");
 
     UT_ADD_TEST(Test_MSG_Init);
     Test_MSG_CCSDSPri();

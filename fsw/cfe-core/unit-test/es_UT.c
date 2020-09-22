@@ -408,7 +408,7 @@ static int32 ES_UT_SetAppStateHook(void *UserObj, int32 StubRetcode,
 void UtTest_Setup(void)
 {
     UT_Init("es");
-    UT_Text("cFE ES Unit Test Output File\n\n");
+    UtPrintf("cFE ES Unit Test Output File\n\n");
 
     /* Set up the performance logging variable */
     Perf = (CFE_ES_PerfData_t *) &CFE_ES_ResetDataPtr->Perf;
@@ -442,9 +442,7 @@ void ES_ResetUnitTest(void)
 
 void TestInit(void)
 {
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Init\n");
-#endif
+    UtPrintf("Begin Test Init");
 
     UT_SetCDSSize(128 * 1024);
     UT_SetSizeofESResetArea(sizeof(CFE_ES_ResetData_t));
@@ -483,9 +481,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_TaskRecord_t *TaskRecPtr;
     CFE_ES_AppRecord_t *AppRecPtr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Startup Error Paths\n");
-#endif
+    UtPrintf("Begin Test Startup Error Paths");
 
     /* Set up the startup script for reading */
     strncpy(StartupScript,
@@ -942,9 +938,7 @@ void TestApps(void)
     CFE_ES_TaskRecord_t *UtTaskRecPtr;
     CFE_ES_AppRecord_t *UtAppRecPtr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Apps\n");
-#endif
+    UtPrintf("Begin Test Apps");
 
     /* Test starting an application where the startup script is too long */
     ES_ResetUnitTest();
@@ -1995,9 +1989,7 @@ void TestERLog(void)
 {
     int Return;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Exception and Reset Log\n");
-#endif
+    UtPrintf("Begin Test Exception and Reset Log");
 
     /* Test initial rolling over log entry,
      * null description,
@@ -2064,9 +2056,8 @@ void TestTask(void)
     CFE_ES_AppRecord_t          *UtAppRecPtr;
     CFE_ES_TaskRecord_t         *UtTaskRecPtr;
     CFE_ES_CDS_RegRec_t         *UtCDSRegRecPtr;
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Task\n");
-#endif
+
+    UtPrintf("Begin Test Task");
 
     /* Reset the log index; CFE_ES_TaskMain() calls CFE_ES_TaskInit() which
      * sets SystemLogMode to DISCARD, which can result in a log overflow
@@ -3413,9 +3404,7 @@ void TestPerf(void)
         CFE_ES_SetPerfTriggerMask_t PerfSetTrigMaskCmd;
     } CmdBuf;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Performance Log\n");
-#endif
+    UtPrintf("Begin Test Performance Log");
 
     /* Test successful performance mask and value initialization */
     ES_ResetUnitTest();
@@ -3915,9 +3904,7 @@ void TestAPI(void)
     CFE_ES_AppRecord_t *UtAppRecPtr;
     CFE_ES_TaskRecord_t *UtTaskRecPtr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test API\n");
-#endif
+    UtPrintf("Begin Test API");
 
     /* Test resetting the cFE with a processor reset */
     ES_ResetUnitTest();
@@ -4805,10 +4792,7 @@ void TestCDS()
     uint32 i;
     uint32 TempSize;
 
-
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test CDS\n");
-#endif
+    UtPrintf("Begin Test CDS");
 
     /* Set up the PSP stubs for CDS testing */
     UT_SetCDSSize(128 * 1024);
@@ -5185,9 +5169,8 @@ void TestCDSMempool(void)
 
     extern uint32 CFE_ES_CDSMemPoolDefSize[];
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test CDS memory pool\n");
-#endif
+    UtPrintf("Begin Test CDS memory pool");
+
     UT_SetCDSSize(0);
 
     /* Set up the CDS block to read in the following tests */
@@ -5604,9 +5587,7 @@ void TestESMempool(void)
     CFE_ES_MemHandle_t    HandlePtrSave;
     uint32                i;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test ES memory pool\n");
-#endif
+    UtPrintf("Begin Test ES memory pool");
 
     /* Test creating memory pool without using a mutex with the pool size
       * too small
@@ -6137,10 +6118,8 @@ void TestSysLog(void)
     char                      LogString[(CFE_PLATFORM_ES_SYSTEM_LOG_SIZE / 2) + 2];
 
     char          TmpString[CFE_ES_MAX_SYSLOG_MSG_SIZE + 1];
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Sys Log\n");
-#endif
 
+    UtPrintf("Begin Test Sys Log");
 
     /* Test loop in CFE_ES_SysLogReadStart_Unsync that ensures
      * reading at the start of a message */

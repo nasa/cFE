@@ -124,7 +124,7 @@ void UT_ResetTableRegistry(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TBL_TaskMain, #UT_Report, #UT_SetRtnCode,
+** \sa #UT_InitData, #CFE_TBL_TaskMain, #UT_Report, #UT_SetRtnCode,
 ** \sa #CFE_TBL_TaskInit, #UT_SetSBTotalMsgLen, #CFE_SB_SetMsgId,
 ** \sa #CFE_SB_SetCmdCode, #CFE_TBL_TaskPipe
 **
@@ -144,7 +144,7 @@ void Test_CFE_TBL_TaskInit(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TBL_InitData, #UT_Report
+** \sa #UT_InitData, #CFE_TBL_InitData, #UT_Report
 **
 ******************************************************************************/
 void Test_CFE_TBL_InitData(void);
@@ -164,7 +164,7 @@ void Test_CFE_TBL_InitData(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TBL_SearchCmdHndlrTbl,
+** \sa #UT_InitData, #UT_Report, #CFE_TBL_SearchCmdHndlrTbl,
 **
 ******************************************************************************/
 void Test_CFE_TBL_SearchCmdHndlrTbl(void);
@@ -183,7 +183,7 @@ void Test_CFE_TBL_SearchCmdHndlrTbl(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TBL_DeleteCDSCmd,
+** \sa #UT_InitData, #UT_Report, #CFE_TBL_DeleteCDSCmd,
 ** \sa #UT_SetRtnCode
 **
 ******************************************************************************/
@@ -203,7 +203,7 @@ void Test_CFE_TBL_DeleteCDSCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TBL_SendRegistryCmd
+** \sa #UT_InitData, #UT_Report, #CFE_TBL_SendRegistryCmd
 **
 ******************************************************************************/
 void Test_CFE_TBL_TlmRegCmd(void);
@@ -222,7 +222,7 @@ void Test_CFE_TBL_TlmRegCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TBL_AbortLoadCmd
+** \sa #UT_InitData, #UT_Report, #CFE_TBL_AbortLoadCmd
 **
 ******************************************************************************/
 void Test_CFE_TBL_AbortLoadCmd(void);
@@ -240,7 +240,7 @@ void Test_CFE_TBL_AbortLoadCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TBL_ActivateCmd
+** \sa #UT_InitData, #UT_Report, #CFE_TBL_ActivateCmd
 **
 ******************************************************************************/
 void Test_CFE_TBL_ActivateCmd(void);
@@ -258,7 +258,7 @@ void Test_CFE_TBL_ActivateCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_TBL_DumpToFile,
+** \sa #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_TBL_DumpToFile,
 ** \sa #UT_SetRtnCode
 **
 ******************************************************************************/
@@ -278,7 +278,7 @@ void Test_CFE_TBL_DumpToFile(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_Report, #CFE_TBL_ResetCountersCmd
+** \sa #UT_Report, #CFE_TBL_ResetCountersCmd
 **
 ******************************************************************************/
 void Test_CFE_TBL_ResetCmd(void);
@@ -296,7 +296,7 @@ void Test_CFE_TBL_ResetCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TBL_ValidateCmd
+** \sa #UT_InitData, #UT_Report, #CFE_TBL_ValidateCmd
 **
 ******************************************************************************/
 void Test_CFE_TBL_ValidateCmd(void);
@@ -315,7 +315,7 @@ void Test_CFE_TBL_ValidateCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TBL_NoopCmd
+** \sa #UT_InitData, #UT_Report, #CFE_TBL_NoopCmd
 **
 ******************************************************************************/
 void Test_CFE_TBL_NoopCmd(void);
@@ -335,7 +335,7 @@ void Test_CFE_TBL_NoopCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TBL_GetTblRegData, #UT_Report
+** \sa #UT_InitData, #CFE_TBL_GetTblRegData, #UT_Report
 **
 ******************************************************************************/
 void Test_CFE_TBL_GetTblRegData(void);
@@ -355,7 +355,7 @@ void Test_CFE_TBL_GetTblRegData(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TBL_GetHkData, #UT_Report
+** \sa #UT_InitData, #CFE_TBL_GetHkData, #UT_Report
 **
 ******************************************************************************/
 void Test_CFE_TBL_GetHkData(void);
@@ -375,7 +375,7 @@ void Test_CFE_TBL_GetHkData(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_TBL_DumpRegistryCmd,
+** \sa #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_TBL_DumpRegistryCmd,
 ** \sa #UT_SetRtnCode
 **
 ******************************************************************************/
@@ -395,7 +395,7 @@ void Test_CFE_TBL_DumpRegCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TBL_DumpCmd, #UT_SetRtnCode
+** \sa #UT_InitData, #UT_Report, #CFE_TBL_DumpCmd, #UT_SetRtnCode
 **
 ******************************************************************************/
 void Test_CFE_TBL_DumpCmd(void);
@@ -415,7 +415,7 @@ void Test_CFE_TBL_DumpCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_TBL_LoadCmd,
+** \sa #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_TBL_LoadCmd,
 ** \sa #UT_SetReadBuffer, #UT_SetReadHeader, #CFE_TBL_ByteSwapUint32,
 ** \sa #UT_SetRtnCode
 **
@@ -436,7 +436,7 @@ void Test_CFE_TBL_LoadCmd(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetRtnCode, #UT_Report,
+** \sa #UT_InitData, #UT_SetRtnCode, #UT_Report,
 ** \sa #CFE_TBL_HousekeepingCmd, #UT_SetOSFail
 **
 ******************************************************************************/
@@ -475,7 +475,7 @@ void Test_CFE_TBL_ApiInit(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetRtnCode, #CFE_TBL_Register,
+** \sa #UT_InitData, #UT_SetRtnCode, #CFE_TBL_Register,
 ** \sa #UT_EventIsInHistory, #UT_GetNumEventsSent, #UT_Report, #UT_SetAppID,
 ** \sa #UT_ResetTableRegistry
 **
@@ -497,7 +497,7 @@ void Test_CFE_TBL_Register(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetRtnCode, #CFE_TBL_Share,
+** \sa #UT_InitData, #UT_SetRtnCode, #CFE_TBL_Share,
 ** \sa #UT_EventIsInHistory, #UT_GetNumEventsSent, #UT_Report, #UT_SetAppID,
 ** \sa #CFE_TBL_Unregister, #UT_SetOSFail, #CFE_TBL_ByteSwapUint32,
 ** \sa #UT_SetReadBuffer, #UT_SetReadHeader
@@ -520,7 +520,7 @@ void Test_CFE_TBL_Share(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #CFE_TBL_Unregister,
+** \sa #UT_InitData, #UT_SetAppID, #CFE_TBL_Unregister,
 ** \sa #UT_EventIsInHistory, #UT_GetNumEventsSent, #UT_Report
 **
 ******************************************************************************/
@@ -542,7 +542,7 @@ void Test_CFE_TBL_Unregister(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #UT_ResetCDS, #CFE_TBL_EarlyInit,
+** \sa #UT_InitData, #UT_SetAppID, #UT_ResetCDS, #CFE_TBL_EarlyInit,
 ** \sa #UT_ResetPoolBufferIndex, #CFE_TBL_Register, #UT_GetNumEventsSent,
 ** \sa #UT_Report, #CFE_TBL_NotifyByMessage
 **
@@ -564,7 +564,7 @@ void Test_CFE_TBL_NotifyByMessage(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #UT_ResetTableRegistry,
+** \sa #UT_InitData, #UT_SetAppID, #UT_ResetTableRegistry,
 ** \sa #CFE_TBL_Register, #UT_EventIsInHistory, #UT_GetNumEventsSent,
 ** \sa #UT_Report, #UT_SetOSFail, #CFE_TBL_ByteSwapUint32, #UT_SetReadBuffer,
 ** \sa #UT_SetReadHeader, #UT_SetRtnCode, #CFE_TBL_Load, #CFE_TBL_Share,
@@ -588,7 +588,7 @@ void Test_CFE_TBL_Load(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #CFE_TBL_GetAddress,
+** \sa #UT_InitData, #UT_SetAppID, #CFE_TBL_GetAddress,
 ** \sa #UT_GetNumEventsSent, #UT_Report, #UT_SetRtnCode, #CFE_TBL_Unregister
 **
 ******************************************************************************/
@@ -609,7 +609,7 @@ void Test_CFE_TBL_GetAddress(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #UT_ResetTableRegistry,
+** \sa #UT_InitData, #UT_SetAppID, #UT_ResetTableRegistry,
 ** \sa #CFE_TBL_Register, #UT_EventIsInHistory, #UT_GetNumEventsSent,
 ** \sa #UT_Report, #CFE_TBL_ReleaseAddress
 **
@@ -631,7 +631,7 @@ void Test_CFE_TBL_ReleaseAddress(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #CFE_TBL_Register,
+** \sa #UT_InitData, #UT_SetAppID, #CFE_TBL_Register,
 ** \sa #UT_EventIsInHistory, #UT_GetNumEventsSent, #UT_Report,
 ** #CFE_TBL_GetAddresses
 **
@@ -653,7 +653,7 @@ void Test_CFE_TBL_GetAddresses(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #CFE_TBL_ReleaseAddresses,
+** \sa #UT_InitData, #UT_SetAppID, #CFE_TBL_ReleaseAddresses,
 ** \sa #UT_GetNumEventsSent, #UT_Report
 **
 ******************************************************************************/
@@ -673,7 +673,7 @@ void Test_CFE_TBL_ReleaseAddresses(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #CFE_TBL_Validate,
+** \sa #UT_InitData, #UT_SetAppID, #CFE_TBL_Validate,
 ** \sa #UT_GetNumEventsSent, #UT_Report
 **
 ******************************************************************************/
@@ -694,7 +694,7 @@ void Test_CFE_TBL_Validate(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TBL_Manage, #UT_GetNumEventsSent,
+** \sa #UT_InitData, #CFE_TBL_Manage, #UT_GetNumEventsSent,
 ** \sa #UT_Report, #CFE_TBL_FindTableInRegistry, #CFE_TBL_GetWorkingBuffer,
 ** \sa #UT_SetAppID, #CFE_TBL_Load, #UT_EventIsInHistory, #UT_SetRtnCode,
 **
@@ -716,7 +716,7 @@ void Test_CFE_TBL_Manage(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #CFE_TBL_Update,
+** \sa #UT_InitData, #UT_SetAppID, #CFE_TBL_Update,
 ** \sa #UT_EventIsInHistory, #UT_GetNumEventsSent, #UT_Report
 **
 ******************************************************************************/
@@ -737,7 +737,7 @@ void Test_CFE_TBL_Update(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #CFE_TBL_GetStatus,
+** \sa #UT_InitData, #UT_SetAppID, #CFE_TBL_GetStatus,
 ** \sa #UT_GetNumEventsSent, #UT_Report
 **
 ******************************************************************************/
@@ -758,7 +758,7 @@ void Test_CFE_TBL_GetStatus(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #
+** \sa #
 **
 ******************************************************************************/
 void Test_CFE_TBL_GetInfo(void);
@@ -778,7 +778,7 @@ void Test_CFE_TBL_GetInfo(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetAppID, #UT_ResetCDS, #CFE_TBL_EarlyInit,
+** \sa #UT_InitData, #UT_SetAppID, #UT_ResetCDS, #CFE_TBL_EarlyInit,
 ** \sa #UT_ResetPoolBufferIndex, #CFE_TBL_Register, #UT_GetNumEventsSent,
 ** \sa #UT_Report, #CFE_TBL_ByteSwapUint32, #UT_SetReadBuffer,
 ** \sa #UT_SetReadHeader, #CFE_TBL_Load, #UT_EventIsInHistory,
@@ -800,7 +800,7 @@ void Test_CFE_TBL_TblMod(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TBL_GetWorkingBuffer, #UT_GetNumEventsSent,
+** \sa #UT_InitData, #CFE_TBL_GetWorkingBuffer, #UT_GetNumEventsSent,
 ** \sa #UT_Report, #UT_SetRtnCode, #CFE_TBL_LoadFromFile,
 ** \sa #CFE_TBL_ByteSwapUint32, #UT_SetReadBuffer, #UT_SetReadHeader,
 ** \sa #UT_EventIsInHistory, #CFE_TBL_ReadHeaders, #CFE_TBL_Unregister,
