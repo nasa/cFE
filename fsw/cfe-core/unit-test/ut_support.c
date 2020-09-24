@@ -467,45 +467,6 @@ void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, uint32 size)
     UT_Text(DisplayMsg);
 }
 
-/*
-** Return the actual packet length
-*/
-int16 UT_GetActualPktLenField(CFE_SB_MsgPtr_t MsgPtr)
-{
-    return ( ( MsgPtr->CCSDS.Pri.Length[0] << 8) + MsgPtr->CCSDS.Pri.Length[1] );
-}
-
-/*
-** Return the actual command code
-*/
-uint8 UT_GetActualCmdCodeField(CFE_SB_MsgPtr_t MsgPtr)
-{
-    /*
-     * This function is used to "go around" the structure field
-     * definitions and access macro definitions, to look for the
-     * bits of the function code in the exact spot where we are
-     * expecting to find them.
-     *
-     * The CCSDS Command Function Code is defined as living in
-     * the first byte of the command secondary header (mask 0x7F)
-     * NOTE: this definition is endian agnostic
-     *
-     * CCSDS version 1 - cmd sec header is offset 6 bytes
-     * CCSDS Version 2 - cmd sec header is offset 10 bytes
-     */
-
-    uint8 Index; /* Field index (in BYTES) */
-    uint8 *w = (uint8 *)MsgPtr;
-
-#ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2
-    Index = 6;
-#else
-    Index = 10;
-#endif
-    return (w[Index] & 0x7F);
-}
-
-
 
 CFE_ES_ResetData_t *UT_GetResetDataPtr(void)
 {

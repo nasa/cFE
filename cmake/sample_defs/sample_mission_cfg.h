@@ -53,21 +53,6 @@
 
 
 /**
-**  \cfemissioncfg cFE SB message format
-**
-**  \par Description:
-**      Dictates the message format used by the cFE.
-**   
-**  \par Limits
-**      All versions of the cFE currently support only CCSDS as the message format
-**      Defining MESSAGE_FORMAT_IS_CCSDS_VER_2 implements the APID extended header format
-**      MESSAGE_FORMAT_IS_CCSDS_VER_2 is optional
-*/
-/* #define MESSAGE_FORMAT_IS_CCSDS_VER_2 */
-#undef MESSAGE_FORMAT_IS_CCSDS_VER_2
-
-
-/**
 **  \cfesbcfg Maximum SB Message Size
 **
 **  \par Description:
@@ -333,48 +318,6 @@
 **       any possible neighboring fields without implicit padding.
 */
 #define CFE_MISSION_TBL_MAX_NAME_LENGTH         16
-
-
-/**
-**  \cfemissioncfg cFE Message ID Base Numbers
-**
-**  \par Description:
-**      Message Id base numbers for the cFE messages
-**      These will now differ in format when using CCSDS version 2 as they will no longer
-**      include the Secondary Header Flag and CCSDS version bits. 
-**
-**      NOTES: cFE MsgIds are the sum of the base numbers and the portable msg
-**             numbers.
-**
-**             For MESSAGE_FORMAT_IS_CCSDS_VER_2 These base MsgIds values are dependent on the
-**             values returned by the following SB Macros to form a 16 bit message ID (default
-**             macro definitions are in cfe_sb_msg_id_utils.h, default values below are
-**             representative of default macro definitions) :
-**               CFE_SB_CMD_MESSAGE_TYPE, CFE_SB_RD_APID_FROM_MSGID
-**               CFE_SB_RD_SUBSYS_ID_FROM_MSGID and CFE_SB_RD_TYPE_FROM_MSGID
-**
-**  \par Limits
-**      Must be less than CFE_PLATFORM_SB_HIGHEST_VALID_MSGID
-*/
-#ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2
-#define CFE_MISSION_CMD_MID_BASE1   0x1800
-#define CFE_MISSION_TLM_MID_BASE1   0x0800
-#else
-#define CFE_MISSION_CMD_MID_BASE1   0x0080
-#define CFE_MISSION_TLM_MID_BASE1   0x0000
-#endif
-
-#define CFE_MISSION_CMD_APPID_BASE1 1
-#define CFE_MISSION_TLM_APPID_BASE1 0
-
-#ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2
-#define CFE_MISSION_CMD_MID_BASE_GLOB   0x1860
-#define CFE_MISSION_TLM_MID_BASE_GLOB   0x0860
-#else
-#define CFE_MISSION_CMD_MID_BASE_GLOB   0x00E0
-#define CFE_MISSION_TLM_MID_BASE_GLOB   0x0060
-#endif
-
 
 
 /**

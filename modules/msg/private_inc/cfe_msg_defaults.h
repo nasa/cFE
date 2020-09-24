@@ -42,11 +42,7 @@
 #endif
 
 #ifndef CFE_MISSION_CCSDSVER
-#ifdef MESSAGE_FORMAT_IS_CCSDS_VER_2
-#define CFE_MISSION_CCSDSVER 1 /**< \brief Default CCSDS Version, cFS Ver 2 historically = 1 */
-#else
-#define CFE_MISSION_CCSDSVER 0 /**< \brief Default CCSDS Version, cFS Ver 1 historically = 0 */
-#endif
+#define CFE_MISSION_CCSDSVER 0 /**< \brief Default CCSDS Version */
 #endif
 
 #ifndef CFE_PLATFORM_DEFAULT_SUBSYS

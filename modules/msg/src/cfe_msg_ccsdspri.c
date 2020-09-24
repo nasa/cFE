@@ -49,7 +49,7 @@ void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr)
     /* cFS standard is for secondary header to be present */
     CFE_MSG_SetHasSecondaryHeader(MsgPtr, true);
 
-    /* cFS standard for CCSDS Version is Ver 1 = 0, Ver 2 = 1, but mission may redefine */
+    /* cFS standard for CCSDS Version */
     CFE_MSG_SetHeaderVersion(MsgPtr, CFE_MISSION_CCSDSVER);
 
     /* Default bits of the APID, for whatever isn't set by MsgId */

@@ -223,12 +223,6 @@ void CFE_SB_InitMsgMap(void){
         CFE_SB.MsgMap[KeyVal] = CFE_SB_INVALID_ROUTE_IDX;
     }
 
-#ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2  /* Then use the default, version 1 */
-    CFE_ES_WriteToSysLog("SB internal message format: CCSDS Space Packet Protocol version 1\n");
-#else   /* VER_2 is the same now but will change for larger and/or distributed systems */
-    CFE_ES_WriteToSysLog("SB internal message format: Space Packet Protocol version 2 (extended hdr)\n");
-#endif
-
 }/* end CFE_SB_InitMsgMap */
 
 
