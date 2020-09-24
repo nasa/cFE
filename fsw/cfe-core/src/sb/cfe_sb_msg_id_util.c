@@ -20,66 +20,8 @@
 
 /******************************************************************************
 ** File: cfe_sb_msg_id_util.c
-**
-** Purpose:
-**      This file contains 'access' macros and functions for reading and
-**      writing message ID header fields.
-**      
-**      The function prototypes are in cfe_sb.h except for ConvertMsgIdToMsgKey
-**      which is in cfe_sb_priv.h
-*
-**      The MsgId is a mission defined message identifier to publish or subscribe to that must be 
-**      unique within the system(s). CFE_SB_MsgId_t is a uint32 that can be created from any 
-**      combination of bits from the primary header SID (StreamId) and the secondary header APID Qualifiers
-**      
-**      Implementation is based on CCSDS Space Packet Protocol 133.0.B-1 with Technical Corrigendum 2, September 2012
-**      Multi-mission Interoperable extended secondary headers should be registered in Space
-**      Assigned Numbers Authority (SANA). The process for SANA registration is documented in
-**      133.0.B-2. Mission specific headers need not be registered
-**
-**      For  MESSAGE_FORMAT_IS_CCSDS_VER_2 the default setup will combine:
-**       1 bit for the command/telemetry flag 
-**       7 bits from the primary header APID
-**       0 bits from the Playback flag
-**       8 bits from the secondary header APID qualifier (Subsystem)
-**       0 bits from the secondary header APID qualifier as the System
-**    = 16 bits total 
-**     
-**
-**     The APID qualifier System field can be populated in the Secondary header but
-**     but will be ignored in the default case for SB/SBN routing purposes. It is suggested 
-**     that the CCSDS Spacecraft ID be used for that field.
-**
-** Notes: The following 4 terms have been or are used in the cFS architecture and implementation
-**         
-**      StreamId - First 16 bits of CCSDS Space Packet Protocol (SPP) 133.0-B.1c2 Blue Book 
-**                 packet primary header. It contains the 3 bit Version Number, 1 bit Packet Type ID,
-**                 1 bit Secondary Header flag, and 11 bit Application Process ID
-**                 It was used in earlier cFS implementaions and defined here for historical reference
-**                 It is NOT exposed to user applications.
-**
-**      MsgId    - Unique numeric message identifier within a mission namespace. It is used by cFS
-**                 applications to the identify messages for publishing and subscribing
-**                 It is used by the SB API and encoded in a mission defended way in the header of 
-**                 all cFS messages.
-**                 It is exposed to all cFS applications
-**
-**      ApId     - CCSDS Application Process Id field in the primary header. 
-**                 It has default bit mask of 0x07FF and is part of the cFS message Id
-**                 It should not be confused with the cFE Executive Services (ES) term appId which
-**                 identifies the software application/component
-**                 It is NOT exposed to user applications.
-**
-**      MsgIdkey - This is a unique numeric key within a mission namespace that is used with  
-**                 cFS software bus internal structures. 
-**                 It is algorithmically created in a mission defined way from the MsgId to support
-**                 efficient lookup and mapping implementations 
-**                 It is NOT exposed to user applications.
-**
-** Author:   J. Wilmot/NASA
-**
-******************************************************************************/
-
+** Purpose: message ID utility functions
+*/
 
 /*
 ** Include Files

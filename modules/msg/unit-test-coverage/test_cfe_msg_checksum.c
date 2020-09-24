@@ -40,7 +40,7 @@ void Test_MSG_Checksum(void)
     CFE_MSG_Message_t *msgptr = (CFE_MSG_Message_t *)&cmd;
     bool               actual;
 
-    UT_Text("Bad parameter tests, Null pointers");
+    UtPrintf("Bad parameter tests, Null pointers");
     memset(&cmd, 0, sizeof(cmd));
     actual = true;
     ASSERT_EQ(CFE_MSG_GenerateChecksum(NULL), CFE_MSG_BAD_ARGUMENT);
@@ -49,14 +49,14 @@ void Test_MSG_Checksum(void)
     ASSERT_EQ(CFE_MSG_ValidateChecksum(msgptr, NULL), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(msgptr), 0);
 
-    UT_Text("Bad message, no secondary header");
+    UtPrintf("Bad message, no secondary header");
     ASSERT_EQ(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_ValidateChecksum(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
     ASSERT_EQ(actual, true);
     ASSERT_EQ(CFE_MSG_GenerateChecksum(msgptr), CFE_MSG_WRONG_MSG_TYPE);
     ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_TYPE_FLAG);
 
-    UT_Text("Bad message, wrong type (telemetry)");
+    UtPrintf("Bad message, wrong type (telemetry)");
     ASSERT_EQ(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Tlm), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(msgptr, true), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_ValidateChecksum(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
@@ -64,7 +64,7 @@ void Test_MSG_Checksum(void)
     ASSERT_EQ(CFE_MSG_GenerateChecksum(msgptr), CFE_MSG_WRONG_MSG_TYPE);
     ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG);
 
-    UT_Text("Set to all F's, validate/generate/validate");
+    UtPrintf("Set to all F's, validate/generate/validate");
     memset(&cmd, 0xFF, sizeof(cmd));
     ASSERT_EQ(CFE_MSG_SetSize(msgptr, sizeof(cmd)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_ValidateChecksum(msgptr, &actual), CFE_SUCCESS);
@@ -75,7 +75,7 @@ void Test_MSG_Checksum(void)
     ASSERT_EQ(actual, true);
     ASSERT_EQ(Test_MSG_NotF(msgptr), MSG_LENGTH_FLAG);
 
-    UT_Text("Set to all 0 except secheader and type, validate/generate/validate");
+    UtPrintf("Set to all 0 except secheader and type, validate/generate/validate");
     memset(&cmd, 0, sizeof(cmd));
     ASSERT_EQ(CFE_MSG_SetSize(msgptr, sizeof(cmd)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd), CFE_SUCCESS);

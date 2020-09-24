@@ -94,14 +94,13 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
       /*
       ** Open the file in the volatile disk.
       */
-      Status = OS_open( CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE, OS_READ_ONLY, 0);
+      Status = OS_OpenCreate(&AppFile, CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE, OS_FILE_FLAG_NONE, OS_READ_ONLY);
 
       if ( Status >= 0 )
       {
          CFE_ES_WriteToSysLog ("ES Startup: Opened ES App Startup file: %s\n",
                                 CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE);
          FileOpened = true;
-         AppFile = OS_ObjectIdFromInteger(Status);
       }
       else
       {
@@ -120,13 +119,12 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
       /*
       ** Try to Open the file passed in to the cFE start.
       */
-      Status = OS_open( (const char *)StartFilePath, OS_READ_ONLY, 0);
+      Status = OS_OpenCreate(&AppFile, StartFilePath, OS_FILE_FLAG_NONE, OS_READ_ONLY);
 
       if ( Status >= 0 )
       {
          CFE_ES_WriteToSysLog ("ES Startup: Opened ES App Startup file: %s\n",StartFilePath);
          FileOpened = true;
-         AppFile = OS_ObjectIdFromInteger(Status);
       }
       else
       {

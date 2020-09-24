@@ -32,19 +32,6 @@
 #ifndef _UT_CFE_SUPPORT_H_
 #define _UT_CFE_SUPPORT_H_
 
-/* Compiler flags:
-   - Define UT_SHOW_PASS to display PASSED (and FAILED) test results;
-     undefine to show only FAILED test results
-   - Define UT_VERBOSE to display stub routine messages in unit test
-     log files
-   - Define SOCKET_QUEUE to use Linux socket queue functions; undefine
-     to use an embedded queue replacement
-   - Define CFE_LINUX if compiling under Linux; undefine when compiling
-     on the GHS target
-   - Define OS_USE_EMBEDDED_PRINTF to use the embedded (replacement) printf
-     functions; undefine to use the standard printf library functions
-*/
-
 /*
 ** Includes
 */
@@ -171,9 +158,6 @@ typedef struct
 **        This function must be called prior to executing any of the cFE unit
 **        tests.
 **
-** \par Assumptions, External Events, and Notes:
-**        A log file is written only if CFE_LINUX is defined.
-**
 ** \param[in] subsys  Pointer to subsystem ID character string
 **
 ** \returns
@@ -240,26 +224,6 @@ void UT_ResetPoolBufferIndex(void);
 
 /*****************************************************************************/
 /**
-** \brief Output text string
-**
-** \par Description
-**        Output a text string to the log file or other target.
-**
-** \par Assumptions, External Events, and Notes:
-**        If CFE_LINUX is not defined then a suitable target function for the
-**        text output must be designated.
-**
-** \param[in] text  Pointer to character string to output
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-/* Output text string to log file */
-void UT_Text(const char *text);
-
-/*****************************************************************************/
-/**
 ** \brief Output single test's pass/fail status
 **
 ** \par Description
@@ -279,8 +243,6 @@ void UT_Text(const char *text);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text
-**
 ******************************************************************************/
 void UT_Report(const char *file, uint32 line, bool test, const char *fun_name,
 		       const char *info);
@@ -292,13 +254,8 @@ void UT_Report(const char *file, uint32 line, bool test, const char *fun_name,
 ** \par Description
 **        Output total number of tests passed and failed.
 **
-** \par Assumptions, External Events, and Notes:
-**        If CFE_LINUX is defined then the output is also sent to the console
-**
 ** \returns
 **        This function does not return a value.
-**
-** \sa #UT_Text
 **
 ******************************************************************************/
 void UT_ReportFailures(void);
@@ -616,42 +573,6 @@ uint16 UT_GetNumEventsSent(void);
 **
 ******************************************************************************/
 void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, uint32 size);
-
-/*****************************************************************************/
-/**
-** \brief Return the actual packet length
-**
-** \par Description
-**        Return the actual packet length field from the specified packet.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param[in] MsgPtr  Message packet
-**
-** \returns
-**        Returns a pointer to the SB packet length.
-**
-******************************************************************************/
-/*uint16 TODO*/int16 UT_GetActualPktLenField(CFE_SB_MsgPtr_t MsgPtr);
-
-/*****************************************************************************/
-/**
-** \brief Return the actual command code
-**
-** \par Description
-**        Return the actual command code from the specified packet.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \param[in] MsgPtr  Message packet
-**
-** \returns
-**        Returns the actual SB packet command code.
-**
-******************************************************************************/
-/*uint16 TODO*/uint8 UT_GetActualCmdCodeField(CFE_SB_MsgPtr_t MsgPtr);
 
 /*****************************************************************************/
 /**

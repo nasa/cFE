@@ -318,7 +318,7 @@
 **  -# The length (including terminator) of the filename and/or path exceeds the 
 **     allowable length (see #OS_MAX_PATH_LEN and #OS_MAX_FILE_NAME, respectively)
 **
-**  The \c Status field in the event message indicates the error code returned by the #OS_open
+**  The \c Status field in the event message indicates the error code returned by the #OS_OpenCreate
 **  API. 
 **/
 #define CFE_TBL_FILE_ACCESS_ERR_EID            53
@@ -468,7 +468,7 @@
 **  This event message is generated when a Table Dump or Table Registry Dump command was 
 **  received and the cFE Table Services is unable to create the specified file.
 **
-**  The \c Status field provides the return status from the #OS_creat function call.
+**  The \c Status field provides the return status from the #OS_OpenCreate function call.
 **/
 #define CFE_TBL_CREATING_DUMP_FILE_ERR_EID     62  
 

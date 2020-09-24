@@ -56,10 +56,10 @@
 **        the given File Descriptor.
 **
 ** \par Assumptions, External Events, and Notes:
-**        -# The File has already been successfully opened using #OS_open and
+**        -# The File has already been successfully opened using #OS_OpenCreate and
 **           the caller has a legitimate File Descriptor.
 **
-** \param[in] FileDes File Descriptor obtained from a previous call to #OS_open
+** \param[in] FileDes File Descriptor obtained from a previous call to #OS_OpenCreate
 **                    that is associated with the file whose header is to be read.
 **
 ** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
@@ -112,12 +112,12 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **        
 **        
 ** \par Assumptions, External Events, and Notes:
-**        -# The File has already been successfully opened using #OS_open and
+**        -# The File has already been successfully opened using #OS_OpenCreate and
 **           the caller has a legitimate File Descriptor.
 **        -# The \c SubType field has been filled appropriately by the Application.
 **        -# The \c Description field has been filled appropriately by the Application.
 **
-** \param[in] FileDes File Descriptor obtained from a previous call to #OS_open
+** \param[in] FileDes File Descriptor obtained from a previous call to #OS_OpenCreate
 **                    that is associated with the file whose header is to be read.
 **
 ** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
@@ -140,11 +140,11 @@ int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr);
 **        with the time specified by the caller.
 **
 ** \par Assumptions, External Events, and Notes:
-**        -# The File has already been successfully opened using #OS_open and
+**        -# The File has already been successfully opened using #OS_OpenCreate and
 **           the caller has a legitimate File Descriptor.
 **        -# The \c NewTimestamp field has been filled appropriately by the Application.
 **
-** \param[in] FileDes File Descriptor obtained from a previous call to #OS_open
+** \param[in] FileDes File Descriptor obtained from a previous call to #OS_OpenCreate
 **                    that is associated with the file whose header is to be read.
 **
 ** \param[in] NewTimestamp A #CFE_TIME_SysTime_t data structure containing the desired time

@@ -87,8 +87,8 @@
 **/
 #define CFE_EVS_ERR_WRLOGFILE_EID          2
 
-/** \brief <tt> 'Write Log File Command Error: OS_creat = 0x\%08X, filename = \%s' </tt>
-**  \event <tt> 'Write Log File Command Error: OS_creat = 0x\%08X, filename = \%s' </tt>
+/** \brief <tt> 'Write Log File Command Error: OS_OpenCreate = 0x\%08X, filename = \%s' </tt>
+**  \event <tt> 'Write Log File Command Error: OS_OpenCreate = 0x\%08X, filename = \%s' </tt>
 **
 **  \par Type: ERROR
 **
@@ -241,8 +241,8 @@
 **/
 #define CFE_EVS_ERR_WRDATFILE_EID         12
 
-/** \brief <tt> 'Write App Data Command Error: OS_creat = 0x\%08X, filename = \%s' </tt>
-**  \event <tt> 'Write App Data Command Error: OS_creat = 0x\%08X, filename = \%s' </tt> 
+/** \brief <tt> 'Write App Data Command Error: OS_OpenCreate = 0x\%08X, filename = \%s' </tt>
+**  \event <tt> 'Write App Data Command Error: OS_OpenCreate = 0x\%08X, filename = \%s' </tt> 
 **
 **  \par Type: ERROR
 **

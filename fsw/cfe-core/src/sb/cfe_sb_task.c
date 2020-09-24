@@ -870,15 +870,14 @@ int32 CFE_SB_SendRtgInfo(const char *Filename)
     CFE_SB_PipeD_t              *pd; 
     CFE_SB_DestinationD_t       *DestPtr;
 
-    Status = OS_creat(Filename, OS_WRITE_ONLY);
+    Status = OS_OpenCreate(&fd, Filename,
+            OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
     if(Status < OS_SUCCESS){
         CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
                       "Error creating file %s, stat=0x%x",
                       Filename,(unsigned int)Status);
         return CFE_SB_FILE_IO_ERR;
     }/* end if */
-
-    fd = OS_ObjectIdFromInteger(Status);
 
     /* clear out the cfe file header fields, then populate description and subtype */
     CFE_FS_InitHeader(&FileHdr, "SB Routing Information", CFE_FS_SubType_SB_ROUTEDATA);
@@ -981,7 +980,7 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
     uint32 EntryCount = 0;
     CFE_FS_Header_t FileHdr;
 
-    Status = OS_creat(Filename, OS_WRITE_ONLY);
+    Status = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
 
     if(Status < OS_SUCCESS){
         CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
@@ -989,8 +988,6 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
                            Filename,(unsigned int)Status);
         return CFE_SB_FILE_IO_ERR;
     }/* end if */
-
-    fd = OS_ObjectIdFromInteger(Status);
 
     /* clear out the cfe file header fields, then populate description and subtype */
     CFE_FS_InitHeader(&FileHdr, "SB Pipe Information", CFE_FS_SubType_SB_PIPEDATA);
@@ -1058,7 +1055,7 @@ int32 CFE_SB_SendMapInfo(const char *Filename)
     CFE_SB_MsgMapFileEntry_t Entry;
     CFE_FS_Header_t FileHdr;
 
-    Status = OS_creat(Filename, OS_WRITE_ONLY);
+    Status = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
 
     if (Status < OS_SUCCESS){
         CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
@@ -1066,8 +1063,6 @@ int32 CFE_SB_SendMapInfo(const char *Filename)
                            Filename,(unsigned int)Status);
         return CFE_SB_FILE_IO_ERR;
     }/* end if */
-
-    fd = OS_ObjectIdFromInteger(Status);
 
     /* clear out the cfe file header fields, then populate description and subtype */
     CFE_FS_InitHeader(&FileHdr, "SB Message Map Information", CFE_FS_SubType_SB_MAPDATA);

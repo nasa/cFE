@@ -128,7 +128,7 @@ uint32 UT_SB_ResourceID_Modify(uint32 InitialID, int32 Modifier)
 void UtTest_Setup(void)
 {
     UT_Init("sb");
-    UT_Text("cFE SB Unit Test Output File\n\n");
+    UtPrintf("cFE SB Unit Test Output File\n\n");
 
     Test_SB_AppInit();
     Test_SB_MainRoutine();
@@ -566,7 +566,7 @@ void Test_SB_Cmds_RoutingInfoCreateFail(void)
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &WriteFileCmd;
 
     /* Make function CFE_SB_SendRtgInfo return CFE_SB_FILE_IO_ERR */
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
 
     CFE_SB_ProcessCmdPipePkt();
 
@@ -686,7 +686,7 @@ void Test_SB_Cmds_PipeInfoSpec(void)
 */
 void Test_SB_Cmds_PipeInfoCreateFail(void)
 {
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     ASSERT_EQ(CFE_SB_SendPipeInfo("PipeTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(1);
@@ -821,7 +821,7 @@ void Test_SB_Cmds_MapInfoSpec(void)
 */
 void Test_SB_Cmds_MapInfoCreateFail(void)
 {
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     ASSERT_EQ(CFE_SB_SendMapInfo("MapTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(1);

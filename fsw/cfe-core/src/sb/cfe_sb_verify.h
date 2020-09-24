@@ -38,16 +38,6 @@
     #error CFE_PLATFORM_SB_MAX_MSG_IDS cannot be less than 1!
 #endif
 
-#ifndef MESSAGE_FORMAT_IS_CCSDS_VER_2
-   #if CFE_PLATFORM_SB_MAX_MSG_IDS > 4096
-       #error CFE_PLATFORM_SB_MAX_MSG_IDS cannot be greater than 2^12 (4096)!
-   #endif
-#else
-   #if CFE_PLATFORM_SB_MAX_MSG_IDS > 65536
-       #error CFE_PLATFORM_SB_MAX_MSG_IDS cannot be greater than 2^16 (65536)!
-   #endif
-#endif
-
 #if CFE_PLATFORM_SB_MAX_PIPES < 1
     #error CFE_PLATFORM_SB_MAX_PIPES cannot be less than 1!
 #endif

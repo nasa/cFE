@@ -10,6 +10,16 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev105
+- Removes dependency on CCSDS version define.
+- Removes old name and id defines.
+- CFE_ES_CalculateCRC default stub behavior.
+- Replaces calls to OS_open and OS_creat
+- Replaces UT_Text with UtPrintf
+- Updates variable checks in read_targetconfig
+
+- See <https://github.com/nasa/cFE/pull/912>
+
 ### Development Build: 6.8.0-rc1+dev91
 
 - Sets Revision to 99 for development build.

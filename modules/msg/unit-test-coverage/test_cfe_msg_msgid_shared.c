@@ -40,12 +40,12 @@ void Test_MSG_GetTypeFromMsgId(void)
     CFE_SB_MsgId_t    msgid  = CFE_SB_ValueToMsgId(0);
     CFE_MSG_Type_t    actual = CFE_MSG_Type_Invalid;
 
-    UT_Text("Bad parameter tests, Null pointer");
+    UtPrintf("Bad parameter tests, Null pointer");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetTypeFromMsgId(msgid, NULL), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, test cmd and tlm");
+    UtPrintf("Set to all F's, test cmd and tlm");
     memset(&msg, 0xFF, sizeof(msg));
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID)), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_SetType(&msg, CFE_MSG_Type_Tlm), CFE_SUCCESS);
@@ -58,7 +58,7 @@ void Test_MSG_GetTypeFromMsgId(void)
     ASSERT_EQ(CFE_MSG_GetTypeFromMsgId(msgid, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, CFE_MSG_Type_Cmd);
 
-    UT_Text("Set to all 0, test cmd and tlm");
+    UtPrintf("Set to all 0, test cmd and tlm");
     ASSERT_EQ(CFE_MSG_SetType(&msg, CFE_MSG_Type_Cmd), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetTypeFromMsgId(msgid, &actual), CFE_SUCCESS);

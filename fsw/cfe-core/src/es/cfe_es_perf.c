@@ -311,12 +311,9 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
             {
             case CFE_ES_PerfDumpState_OPEN_FILE:
                 /* Create the file to dump to */
-                Status = OS_creat(State->DataFileName, OS_WRITE_ONLY);
-                if (Status >= 0)
-                {
-                    State->FileDesc = OS_ObjectIdFromInteger(Status);
-                }
-                else
+                Status = OS_OpenCreate(&State->FileDesc, State->DataFileName,
+                        OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+                if (Status < 0)
                 {
                     State->FileDesc = OS_OBJECT_ID_UNDEFINED;
                     CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID,CFE_EVS_EventType_ERROR,

@@ -479,7 +479,7 @@ int32 CFE_ES_SysLogDump(const char *Filename)
         CFE_FS_Header_t FileHdr;
     } Buffer;
 
-    Status = OS_creat(Filename, OS_WRITE_ONLY);
+    Status = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
     if(Status < 0)
     {
         CFE_EVS_SendEvent(CFE_ES_SYSLOG2_ERR_EID,CFE_EVS_EventType_ERROR,
@@ -487,8 +487,6 @@ int32 CFE_ES_SysLogDump(const char *Filename)
                 Filename,(unsigned int)Status);
         return CFE_ES_FILE_IO_ERR;
     }/* end if */
-
-    fd = OS_ObjectIdFromInteger(Status);
 
     CFE_FS_InitHeader(&Buffer.FileHdr, CFE_ES_SYS_LOG_DESC, CFE_FS_SubType_ES_SYSLOG);
 

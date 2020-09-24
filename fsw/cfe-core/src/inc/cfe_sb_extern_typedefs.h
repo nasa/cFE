@@ -94,12 +94,9 @@ typedef uint16  CFE_SB_MsgRouteIdx_Atom_t;
  * @brief  CFE_SB_MsgId_Atom_t primitive type definition
  *
  * This is an integer type capable of holding any Message ID value
+ * Note: This value is limited via #CFE_PLATFORM_SB_HIGHEST_VALID_MSGID
  */
-#ifdef MESSAGE_FORMAT_IS_CCSDS_VER_2
 typedef uint32 CFE_SB_MsgId_Atom_t;
-#else
-typedef uint16 CFE_SB_MsgId_Atom_t;
-#endif
 
 /**
  * @brief  CFE_SB_MsgId_t type definition

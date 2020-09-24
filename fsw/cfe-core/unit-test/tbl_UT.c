@@ -95,7 +95,7 @@ void UtTest_Setup(void)
 {
     /* Initialize unit test */
     UT_Init("tbl");
-    UT_Text("cFE TBL Unit Test Output File\n\n");
+    UtPrintf("cFE TBL Unit Test Output File\n\n");
     UT_InitializeTableRegistryNames();
 
     /* cfe_tbl_task.c functions */
@@ -221,9 +221,7 @@ void Test_CFE_TBL_TaskInit(void)
         CFE_SB_Msg_t Msg;
     } CmdBuf;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Task Init\n");
-#endif
+    UtPrintf("Begin Test Task Init");
 
     memset(&CmdBuf, 0, sizeof(CmdBuf));
 
@@ -371,9 +369,7 @@ void Test_CFE_TBL_TaskInit(void)
 */
 void Test_CFE_TBL_InitData(void)
 {
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Init Data\n");
-#endif
+    UtPrintf("Begin Test Init Data");
 
     /* This function has only one possible path with no return code */
     UT_InitData();
@@ -395,9 +391,7 @@ void Test_CFE_TBL_SearchCmdHndlrTbl(void)
     uint16         CmdCode;
     CFE_SB_MsgId_t MsgID;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Search Command Handler Table\n");
-#endif
+    UtPrintf("Begin Test Search Command Handler Table");
 
     /* Test successfully finding a matching message ID and command code */
     UT_InitData();
@@ -449,9 +443,7 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
     int                 j, k;
     CFE_TBL_DeleteCDS_t DelCDSCmd;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Delete CDS Command\n");
-#endif
+    UtPrintf("Begin Test Delete CDS Command");
 
     /* Test successfully finding the table name in the table registry */
     UT_InitData();
@@ -539,9 +531,7 @@ void Test_CFE_TBL_TlmRegCmd(void)
 {
     CFE_TBL_SendRegistry_t TlmRegCmd;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Telemetry Registry Command\n");
-#endif
+    UtPrintf("Begin Test Telemetry Registry Command");
 
     /* Test when table name does exist */
     UT_InitData();
@@ -577,9 +567,7 @@ void Test_CFE_TBL_AbortLoadCmd(void)
     int load = (int) CFE_TBL_TaskData.Registry[0].LoadInProgress;
     CFE_TBL_AbortLoad_t  AbortLdCmd;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Abort Load Command\n");
-#endif
+    UtPrintf("Begin Test Abort Load Command");
 
     /* Test when table name does exist and a table load is in progress */
     UT_InitData();
@@ -651,9 +639,7 @@ void Test_CFE_TBL_ActivateCmd(void)
     uint8                 dump = CFE_TBL_TaskData.Registry[0].DumpOnly;
     CFE_TBL_Activate_t    ActivateCmd;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Activate Command\n");
-#endif
+    UtPrintf("Begin Test Activate Command");
 
     /* Enter the if statement with a table name that is in the registry */
     strncpy(ActivateCmd.Payload.TableName, CFE_TBL_TaskData.Registry[0].Name,
@@ -746,13 +732,11 @@ void Test_CFE_TBL_DumpToFile(void)
 {
     uint32 TblSizeInBytes = 9;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Dump to File\n");
-#endif
+    UtPrintf("Begin Test Dump to File");
 
     /* Test with an error creating the dump file */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_ERR_CTR,
@@ -793,7 +777,7 @@ void Test_CFE_TBL_DumpToFile(void)
 
     /* Test successful file creation and data dumped */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpToFile("filename" ,"tablename" ,"dumpaddress",
                                  TblSizeInBytes) == CFE_TBL_INC_CMD_CTR,
@@ -814,9 +798,7 @@ void Test_CFE_TBL_DumpToFile(void)
 */
 void Test_CFE_TBL_ResetCmd(void)
 {
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Reset Command\n");
-#endif
+    UtPrintf("Begin Test Reset Command");
 
     /* Test run through function (there are no additional paths) */
     UT_InitData();
@@ -839,9 +821,7 @@ void Test_CFE_TBL_ValidateCmd(void)
                                              ((unsigned long )
                                                &UT_InitializeTableRegistryNames);
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Validate Command\n");
-#endif
+    UtPrintf("Begin Test Validate Command");
 
     /* Test when table name is not found in the registry */
     UT_InitData();
@@ -983,9 +963,7 @@ void Test_CFE_TBL_ValidateCmd(void)
 void Test_CFE_TBL_NoopCmd(void)
 {
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test No-Op Command\n");
-#endif
+    UtPrintf("Begin Test No-Op Command");
 
     /* Test run through function (there are no additional paths) */
     UT_InitData();
@@ -1001,9 +979,7 @@ void Test_CFE_TBL_NoopCmd(void)
 */
 void Test_CFE_TBL_GetTblRegData(void)
 {
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Get Table Registry Command\n");
-#endif
+    UtPrintf("Begin Test Get Table Registry Command");
 
     /* Test using a double buffered table */
     UT_InitData();
@@ -1056,9 +1032,7 @@ void Test_CFE_TBL_GetHkData(void)
     /* Get the AppID being used for UT */
     CFE_ES_GetAppID(&AppID);
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Get Housekeeping Data\n");
-#endif
+    UtPrintf("Begin Test Get Housekeeping Data");
 
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_NUM_TABLES; i++)
     {
@@ -1154,9 +1128,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
     CFE_ES_GetAppID(&AppID);
 
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Dump Register Command\n");
-#endif
+    UtPrintf("Begin Test Dump Register Command");
 
     for (q = 0; q < CFE_PLATFORM_TBL_MAX_NUM_TABLES; q++)
     {
@@ -1167,7 +1139,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_InitData();
     strncpy((char *)DumpRegCmd.Payload.DumpFilename, "",
             sizeof(DumpRegCmd.Payload.DumpFilename));
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1193,7 +1165,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
     CFE_TBL_TaskData.Registry[1].OwnerAppId = CFE_TBL_NOT_OWNED;
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     CFE_TBL_TaskData.Registry[0].DoubleBuffered = true;
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -1250,9 +1222,7 @@ void Test_CFE_TBL_DumpCmd(void)
 
     CFE_ES_GetAppID(&AppID);
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Dump Command\n");
-#endif
+    UtPrintf("Begin Test Dump Command");
 
     memset(&DumpCmd, 0, sizeof(DumpCmd));
 
@@ -1430,9 +1400,7 @@ void Test_CFE_TBL_LoadCmd(void)
 
     CFE_ES_GetAppID(&AppID);
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Load Command\n");
-#endif
+    UtPrintf("Begin Test Load Command");
 
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
     StdFileHeader.ProcessorID = CFE_PLATFORM_TBL_VALID_PRID_1;
@@ -1441,7 +1409,7 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_InitData();
     strncpy((char *)LoadCmd.Payload.LoadFilename, "LoadFileName",
             sizeof(LoadCmd.Payload.LoadFilename));
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_LoadCmd(&LoadCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1710,9 +1678,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     uint32                SubSecs = 0;
     int32                 LoadInProg = 0;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Housekeeping Command\n");
-#endif
+    UtPrintf("Begin Test Housekeeping Command");
 
     /* Test response to inability to update timestamp in dump file + inability
      * to send Hk packet
@@ -1759,7 +1725,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     UT_InitData();
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
     CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,
               "CFE_TBL_HousekeepingCmd",
@@ -1769,7 +1735,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     UT_InitData();
     CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,
               "CFE_TBL_HousekeepingCmd",
@@ -1813,9 +1779,7 @@ void Test_CFE_TBL_Register(void)
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Register\n");
-#endif
+    UtPrintf("Begin Test Register");
 
     /* Test response to an invalid application ID */
     UT_InitData();
@@ -2520,9 +2484,7 @@ void Test_CFE_TBL_Share(void)
     CFE_FS_Header_t    StdFileHeader;
     CFE_TBL_File_Hdr_t TblFileHeader;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Share\n");
-#endif
+    UtPrintf("Begin Test Share");
 
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
     StdFileHeader.ProcessorID = CFE_PLATFORM_TBL_VALID_PRID_1;
@@ -2636,9 +2598,7 @@ void Test_CFE_TBL_Unregister(void)
     int32   RtnCode;
     bool EventsCorrect;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Unregister\n");
-#endif
+    UtPrintf("Begin Test Unregister");
 
     /* Test response to unregistering a table with an invalid handle */
     UT_InitData();
@@ -2682,9 +2642,7 @@ void Test_CFE_TBL_NotifyByMessage(void)
     int32   RtnCode;
     bool EventsCorrect;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Notify by Message\n");
-#endif
+    UtPrintf("Begin Test Notify by Message");
 
     /* Set up notify by message tests */
     UT_InitData();
@@ -2750,9 +2708,7 @@ void Test_CFE_TBL_Load(void)
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Load\n");
-#endif
+    UtPrintf("Begin Test Load");
 
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
     StdFileHeader.ProcessorID = CFE_PLATFORM_TBL_VALID_PRID_1;
@@ -3087,9 +3043,7 @@ void Test_CFE_TBL_GetAddress(void)
     UT_Table1_t *App3TblPtr;
     UT_Table1_t *App2TblPtr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Get Address\n");
-#endif
+    UtPrintf("Begin Test Get Address");
 
     /* Test attempt to get the address of a table for which the application
      * does not have access
@@ -3154,9 +3108,7 @@ void Test_CFE_TBL_ReleaseAddress(void)
     int32   RtnCode;
     bool EventsCorrect;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Release Address\n");
-#endif
+    UtPrintf("Begin Test Release Address");
 
     /* Test address release using an invalid application ID */
     /* a. Test setup - register single buffered table */
@@ -3194,9 +3146,7 @@ void Test_CFE_TBL_GetAddresses(void)
     int32   RtnCode;
     bool EventsCorrect;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Get Addresses\n");
-#endif
+    UtPrintf("Begin Test Get Addresses");
 
     /* Test setup - register a double buffered table */
     UT_InitData();
@@ -3254,9 +3204,7 @@ void Test_CFE_TBL_ReleaseAddresses(void)
     int32   RtnCode;
     bool EventsCorrect;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Release Addresses\n");
-#endif
+    UtPrintf("Begin Test Release Addresses");
 
     /* Test response to releasing two tables that have not been loaded */
     UT_InitData();
@@ -3278,9 +3226,7 @@ void Test_CFE_TBL_Validate(void)
     int32   RtnCode;
     bool EventsCorrect;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Validate\n");
-#endif
+    UtPrintf("Begin Test Validate");
 
     /* Test response to attempt to validate a table that an application is
      * not allowed to see
@@ -3325,9 +3271,7 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_Handle_t           AccessIterator;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Manage\n");
-#endif
+    UtPrintf("Begin Test Manage");
 
     /* Test response to attempt to manage a table that doesn't need managing */
     UT_InitData();
@@ -3742,9 +3686,7 @@ void Test_CFE_TBL_Update(void)
     int32   RtnCode;
     bool EventsCorrect;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Update\n");
-#endif
+    UtPrintf("Begin Test Update");
 
     /* Test processing an update on a single buffered table without
      * privileges
@@ -3793,9 +3735,7 @@ void Test_CFE_TBL_GetStatus(void)
     int32   RtnCode;
     bool EventsCorrect;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Get Status\n");
-#endif
+    UtPrintf("Begin Test Get Status");
 
     /* Test response to an attempt to get the status on a table that the
      * application is not allowed to see
@@ -3833,9 +3773,7 @@ void Test_CFE_TBL_GetInfo(void)
     bool        EventsCorrect;
     CFE_TBL_Info_t TblInfo;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Get Info\n");
-#endif
+    UtPrintf("Begin Test Get Info");
 
     /* Test successfully getting information on a table */
     UT_InitData();
@@ -3877,9 +3815,7 @@ void Test_CFE_TBL_TblMod(void)
     CFE_TBL_Handle_t           AccessIterator;
     uint8                       CDS_Data[sizeof(UT_Table1_t)];
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Table Modified\n");
-#endif
+    UtPrintf("Begin Test Table Modified");
 
     FileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
     FileHeader.ProcessorID = CFE_PLATFORM_TBL_VALID_PRID_1;
@@ -4072,9 +4008,7 @@ void Test_CFE_TBL_Internal(void)
     osal_id_t                  FileDescriptor;
     void                       *TblPtr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Internal\n");
-#endif
+    UtPrintf("Begin Test Internal");
 
     FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
@@ -4281,7 +4215,7 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    UT_SetForceFail(UT_KEY(OS_open), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     RtnCode = CFE_TBL_LoadFromFile("UT", WorkingBufferPtr, RegRecPtr, Filename);
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_FILE_ACCESS_ERR_EID) == true &&
         UT_GetNumEventsSent() == 1);
