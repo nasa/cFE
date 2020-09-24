@@ -185,10 +185,10 @@ function(read_targetconfig)
   endwhile()
   
   foreach(CPUNAME ${MISSION_CPUNAMES})
-    if (DEFINED SIMULATION)
+    if (SIMULATION)
       # if simulation use simulation system architecture for all targets
       set(TOOLCHAIN_NAME "${SIMULATION}")
-    elseif (DEFINED ${CPUNAME}_SYSTEM)
+    elseif (${CPUNAME}_SYSTEM)
       # get the target system arch identifier string
       set(TOOLCHAIN_NAME "${${CPUNAME}_SYSTEM}")
     else()
