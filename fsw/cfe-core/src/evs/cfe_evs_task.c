@@ -1752,18 +1752,16 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFile_t *data)
            OS_MAX_PATH_LEN, sizeof(CmdPtr->AppDataFilename));
 
    /* Create Application Data File */
-   Result = OS_creat(LocalName, OS_WRITE_ONLY);
+   Result = OS_OpenCreate(&FileHandle, LocalName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
 
    if (Result < OS_SUCCESS)
    {
       EVS_SendEvent(CFE_EVS_ERR_CRDATFILE_EID, CFE_EVS_EventType_ERROR,
-                   "Write App Data Command Error: OS_creat = 0x%08X, filename = %s",
+                   "Write App Data Command Error: OS_OpenCreate = 0x%08X, filename = %s",
                     (unsigned int)Result, LocalName);
    }
    else
    {
-      FileHandle = OS_ObjectIdFromInteger(Result);
-
       /* Result will be overridden if everything works */
       Result = CFE_EVS_FILE_WRITE_ERROR;
 

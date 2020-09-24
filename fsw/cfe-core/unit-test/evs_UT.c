@@ -1373,7 +1373,7 @@ void Test_Logging(void)
     /* Test writing a log entry with a create failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) != CFE_SUCCESS,
               "CFE_EVS_WriteLogDataFileCmd",
@@ -1471,7 +1471,7 @@ void Test_WriteApp(void)
     UT_InitData();
     strncpy((char *) CmdBuf.AppDataCmd.Payload.AppDataFilename, "ut_cfe_evs",
             sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename));
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
                UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC,
                &UT_EVS_EventBuf);
@@ -1508,7 +1508,7 @@ void Test_WriteApp(void)
     UT_InitData();
     strncpy((char *) CmdBuf.AppDataCmd.Payload.AppDataFilename, "AppDataFileName",
             sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename));
-    UT_SetForceFail(UT_KEY(OS_creat), OS_ERROR);
+    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
                UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC,
                &UT_EVS_EventBuf);
