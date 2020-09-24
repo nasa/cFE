@@ -47,7 +47,7 @@ void Test_MSG_FcnCode(void)
     CFE_MSG_FcnCode_t  actual  = TEST_FCNCODE_MAX;
     int                i;
 
-    UT_Text("Bad parameter tests, Null pointers, invalid (max valid + 1, max)");
+    UtPrintf("Bad parameter tests, Null pointers, invalid (max valid + 1, max)");
     memset(&cmd, 0, sizeof(cmd));
     ASSERT_EQ(CFE_MSG_GetFcnCode(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(actual, TEST_FCNCODE_MAX);
@@ -59,14 +59,14 @@ void Test_MSG_FcnCode(void)
     ASSERT_EQ(CFE_MSG_SetFcnCode(msgptr, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(msgptr), 0);
 
-    UT_Text("Bad message, no secondary header");
+    UtPrintf("Bad message, no secondary header");
     ASSERT_EQ(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
     ASSERT_EQ(actual, 0);
     ASSERT_EQ(CFE_MSG_SetFcnCode(msgptr, 0), CFE_MSG_WRONG_MSG_TYPE);
     ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_TYPE_FLAG);
 
-    UT_Text("Bad message, wrong type (telemetry)");
+    UtPrintf("Bad message, wrong type (telemetry)");
     memset(&cmd, 0, sizeof(cmd));
     actual = TEST_FCNCODE_MAX;
     ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(msgptr, true), CFE_SUCCESS);
@@ -75,7 +75,7 @@ void Test_MSG_FcnCode(void)
     ASSERT_EQ(CFE_MSG_SetFcnCode(msgptr, 0), CFE_MSG_WRONG_MSG_TYPE);
     ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG);
 
-    UT_Text("Set to all F's, various valid inputs");
+    UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&cmd, 0xFF, sizeof(cmd));
@@ -88,7 +88,7 @@ void Test_MSG_FcnCode(void)
         ASSERT_EQ(Test_MSG_NotF(msgptr), 0);
     }
 
-    UT_Text("Set to all 0, various valid inputs");
+    UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&cmd, 0, sizeof(cmd));

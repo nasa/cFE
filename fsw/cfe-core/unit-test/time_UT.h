@@ -67,7 +67,7 @@
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, CFE_TIME_TaskMain, #UT_Report, #UT_SetRtnCode
+** \sa #UT_InitData, CFE_TIME_TaskMain, #UT_Report, #UT_SetRtnCode
 **
 ******************************************************************************/
 void Test_Main(void);
@@ -87,7 +87,7 @@ void Test_Main(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #CFE_TIME_EarlyInit, #UT_InitData, #UT_Report,
+** \sa #CFE_TIME_EarlyInit, #UT_InitData, #UT_Report,
 ** \sa #CFE_TIME_TaskInit, #UT_SetRtnCode
 **
 ******************************************************************************/
@@ -106,7 +106,7 @@ void Test_Init(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetBSP_Time, #CFE_TIME_Print,
+** \sa #UT_InitData, #UT_SetBSP_Time, #CFE_TIME_Print,
 ** \sa #CFE_TIME_GetMET, #UT_Report, #CFE_TIME_GetMETseconds,
 ** \sa #CFE_TIME_GetMETsubsecs, #CFE_TIME_Micro2SubSecs,
 ** \sa #CFE_TIME_GetLeapSeconds, #CFE_TIME_GetTAI, #CFE_TIME_GetUTC,
@@ -128,7 +128,7 @@ void Test_GetTime(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TIME_Add, #UT_Report, #CFE_TIME_Subtract,
+** \sa #UT_InitData, #CFE_TIME_Add, #UT_Report, #CFE_TIME_Subtract,
 ** \sa #CFE_TIME_Compare
 **
 ******************************************************************************/
@@ -147,7 +147,7 @@ void Test_TimeOp(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TIME_Print, #CFE_TIME_MET2SCTime,
+** \sa #UT_InitData, #CFE_TIME_Print, #CFE_TIME_MET2SCTime,
 ** \sa #UT_Report, #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs
 **
 ******************************************************************************/
@@ -168,7 +168,7 @@ void Test_ConvertTime(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TIME_Print, #UT_Report
+** \sa #UT_InitData, #CFE_TIME_Print, #UT_Report
 **
 ******************************************************************************/
 void Test_Print(void);
@@ -211,7 +211,7 @@ int32 ut_time_MyCallbackFunc(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TIME_RegisterSynchCallback, #UT_Report
+** \sa #UT_InitData, #CFE_TIME_RegisterSynchCallback, #UT_Report
 **
 ******************************************************************************/
 void Test_RegisterSyncCallback(bool reportResults);
@@ -248,7 +248,7 @@ void Test_RegisterSyncCallbackTrue(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetBSP_Time, #CFE_TIME_ExternalTone,
+** \sa #UT_InitData, #UT_SetBSP_Time, #CFE_TIME_ExternalTone,
 ** \sa #UT_Report
 **
 ******************************************************************************/
@@ -267,7 +267,7 @@ void Test_ExternalTone(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TIME_ExternalMET, #UT_Report,
+** \sa #UT_InitData, #CFE_TIME_ExternalMET, #UT_Report,
 ** \sa #CFE_TIME_ExternalGPS, #CFE_TIME_ExternalTime
 **
 ******************************************************************************/
@@ -286,7 +286,7 @@ void Test_External(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SendMsg, #UT_Report, #UT_SetBSP_Time
+** \sa #UT_InitData, #UT_SendMsg, #UT_Report, #UT_SetBSP_Time
 **
 ******************************************************************************/
 void Test_PipeCmds(void);
@@ -304,7 +304,7 @@ void Test_PipeCmds(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetStatusBSPResetArea,
+** \sa #UT_InitData, #UT_SetStatusBSPResetArea,
 ** \sa #CFE_TIME_QueryResetVars, #CFE_TIME_UpdateResetVars, #UT_Report
 **
 ******************************************************************************/
@@ -323,7 +323,7 @@ void Test_ResetArea(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_TIME_CalculateState,
+** \sa #UT_InitData, #UT_Report, #CFE_TIME_CalculateState,
 ** \sa #CFE_TIME_SetState, #CFE_TIME_GetStateFlags
 **
 ******************************************************************************/
@@ -342,7 +342,7 @@ void Test_State(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #UT_SetBSP_Time, #CFE_TIME_GetReference,
+** \sa #UT_InitData, #UT_SetBSP_Time, #CFE_TIME_GetReference,
 ** \sa #UT_Report
 **
 ******************************************************************************/
@@ -362,7 +362,7 @@ void Test_GetReference(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TIME_SetState, #UT_SetBSP_Time,
+** \sa #UT_InitData, #CFE_TIME_SetState, #UT_SetBSP_Time,
 ** \sa #UT_Report, #CFE_TIME_ToneSend, #CFE_TIME_ToneVerify, CFE_TIME_SetState,
 **
 ******************************************************************************/
@@ -383,7 +383,7 @@ void Test_Tone(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TIME_Set1HzAdj, #CFE_TIME_Local1HzISR,
+** \sa #UT_InitData, #CFE_TIME_Set1HzAdj, #CFE_TIME_Local1HzISR,
 ** \sa #UT_Report, #UT_SetBSP_Time, #UT_SetBinSemFail, #CFE_TIME_Local1HzTask,
 ** \sa #CFE_TIME_Tone1HzTask
 **
@@ -403,7 +403,7 @@ void Test_1Hz(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #CFE_TIME_UnregisterSynchCallback, #UT_Report
+** \sa #UT_InitData, #CFE_TIME_UnregisterSynchCallback, #UT_Report
 **
 ******************************************************************************/
 void Test_UnregisterSynchCallback(void);
@@ -421,7 +421,7 @@ void Test_UnregisterSynchCallback(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_InitData, #Test_RegisterSyncCallback,
+** \sa #UT_InitData, #Test_RegisterSyncCallback,
 ** \sa #CFE_TIME_CleanUpApp, #CFE_TIME_UnregisterSynchCallback, #UT_Report
 **
 ******************************************************************************/

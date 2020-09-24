@@ -82,7 +82,7 @@
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Init, #UT_Text, #UT_SetCDSSize, #UT_SetSizeofESResetArea
+** \sa #UT_Init, #UT_SetCDSSize, #UT_SetSizeofESResetArea
 ** \sa #UT_SetStatusBSPResetArea, #UT_SetReadBuffer, #UT_SetRtnCode
 ** \sa #UT_SetDummyFuncRtn, #UT_SetBSPloadAppFileResult, #CFE_ES_Main
 ** \sa #UT_Report
@@ -108,7 +108,7 @@ void TestInit(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_SetRtnCode, #UT_SetOSFail, #CFE_ES_Main, #UT_Report
+** \sa #UT_SetRtnCode, #UT_SetOSFail, #CFE_ES_Main, #UT_Report
 ** \sa #CFE_ES_SetupResetVariables, #UT_SetStatusBSPResetArea
 ** \sa #UT_SetSizeofESResetArea, #CFE_ES_InitializeFileSystems, #UT_SetBSPFail
 ** \sa #CFE_ES_CreateObjects
@@ -132,7 +132,7 @@ void TestStartupErrorPaths(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Text, #UT_SetReadBuffer, #UT_SetRtnCode, #CFE_ES_StartApplications
+** \sa #UT_SetReadBuffer, #UT_SetRtnCode, #CFE_ES_StartApplications
 ** \sa #UT_Report, #UT_SetOSFail, #CFE_ES_ParseFileEntry
 ** \sa #UT_SetBSPloadAppFileResult, #CFE_ES_AppCreate, #UT_SetDummyFuncRtn
 ** \sa #CFE_ES_LoadLibrary, #CFE_ES_ScanAppTable, #CFE_ES_ProcessControlRequest
@@ -158,7 +158,7 @@ void TestApps(void);
 ** \returns
 **        This function does not return a value.  
 **
-** \sa #UT_Text, #CFE_ES_WriteToERLog, #UT_Report
+** \sa #CFE_ES_WriteToERLog, #UT_Report
 **
 ******************************************************************************/
 void TestERLog(void);
@@ -178,7 +178,7 @@ void TestERLog(void);
 ** \returns
 **        This function does not return a value.  
 **
-** \sa #UT_Text, #UT_SetRtnCode, #CFE_ES_TaskMain, #UT_Report, #UT_SetOSFail
+** \sa #UT_SetRtnCode, #CFE_ES_TaskMain, #UT_Report, #UT_SetOSFail
 ** \sa #CFE_ES_TaskInit, #UT_SetSBTotalMsgLen, #UT_SendMsg
 ** \sa #UT_SetBSPloadAppFileResult, #UT_SetStatusBSPResetArea
 ** \sa #CFE_ES_HousekeepingCmd, #CFE_ES_NoopCmd, #CFE_ES_ResetCountersCmd
@@ -224,7 +224,7 @@ void TestBackground(void);
 ** \returns
 **        This function does not return a value.  
 **
-** \sa #UT_Text, #CFE_ES_SetupPerfVariables, #UT_Report, #UT_SetRtnCode
+** \sa #CFE_ES_SetupPerfVariables, #UT_Report, #UT_SetRtnCode
 ** \sa #UT_SetSBTotalMsgLen, #UT_SendMsg, #UT_SetBSPloadAppFileResult
 ** \sa #CFE_ES_PerfLogDump, #CFE_ES_PerfLogAdd, #CFE_ES_StartPerfDataCmd
 ** \sa #CFE_ES_StopPerfDataCmd, #CFE_ES_SetPerfFilterMaskCmd
@@ -246,7 +246,7 @@ void TestPerf(void);
 ** \returns
 **        This function does not return a value.  
 **
-** \sa #UT_Text, #UT_SetRtnCode, #CFE_ES_ResetCFE, #UT_Report
+** \sa #UT_SetRtnCode, #CFE_ES_ResetCFE, #UT_Report
 ** \sa #CFE_ES_GetResetType, #CFE_ES_RestartApp, #CFE_ES_ReloadApp
 ** \sa #CFE_ES_DeleteApp, #CFE_ES_ExitApp, #CFE_ES_RunLoop
 ** \sa #CFE_ES_RegisterApp, #CFE_ES_GetAppID, #CFE_ES_GetAppName
@@ -276,7 +276,7 @@ void TestAPI(void);
 ** \returns
 **        This function does not return a value.  
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_ES_CDS_ValidateAppID
+** \sa #UT_InitData, #UT_Report, #CFE_ES_CDS_ValidateAppID
 ** \sa #UT_SetBSPFail, #CFE_ES_RebuildCDS, #UT_SetRtnCode
 ** \sa #CFE_ES_InitCDSRegistry, #UT_SetCDSSize, #CFE_ES_CDS_EarlyInit
 ** \sa #UT_SetCDSBSPCheckValidity, #CFE_ES_ValidateCDS, #UT_SetCDSReadGoodEnd
@@ -300,7 +300,7 @@ void TestCDS(void);
 ** \returns
 **        This function does not return a value.  
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_ES_CreateCDSPool
+** \sa #UT_InitData, #UT_Report, #CFE_ES_CreateCDSPool
 ** \sa #CFE_ES_RebuildCDSPool, #UT_SetRtnCode, #UT_SetBSPFail
 ** \sa #CFE_ES_GetCDSBlock, #CFE_ES_PutCDSBlock, #CFE_ES_CDSBlockWrite
 ** \sa #CFE_ES_CDSBlockRead
@@ -323,7 +323,7 @@ void TestCDSMempool(void);
 ** \returns
 **        This function does not return a value.  
 **
-** \sa #UT_Text, #UT_InitData, #UT_Report, #CFE_ES_PoolCreateNoSem
+** \sa #UT_InitData, #UT_Report, #CFE_ES_PoolCreateNoSem
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_GetPoolBuf, #CFE_ES_GetPoolBufInfo
 ** \sa #CFE_ES_PutPoolBuf, #CFE_ES_ValidateHandle, #UT_SetRtnCode
 ** \sa #CFE_ES_GetMemPoolStats, #CFE_ES_PoolCreateEx, #CFE_ES_PoolCreateNoSem

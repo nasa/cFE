@@ -54,7 +54,7 @@ void UtTest_Setup(void)
 {
     /* Initialize unit test */
     UT_Init("fs");
-    UT_Text("cFE FS Unit Test Output File\n\n");
+    UtPrintf("cFE FS Unit Test Output File\n\n");
 
     /* Perform tests */
     UT_ADD_TEST(Test_CFE_FS_InitHeader);
@@ -91,9 +91,7 @@ void Test_CFE_FS_ReadHeader(void)
     osal_id_t FileDes = OS_OBJECT_ID_UNDEFINED;
     CFE_FS_Header_t Hdr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Read Header\n");
-#endif
+    UtPrintf("Begin Test Read Header");
 
     /* Test reading the header with a lseek failure */
     UT_InitData();
@@ -121,9 +119,7 @@ void Test_CFE_FS_WriteHeader(void)
     osal_id_t FileDes = OS_OBJECT_ID_UNDEFINED;
     CFE_FS_Header_t Hdr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Write Header\n");
-#endif
+    UtPrintf("Begin Test Write Header");
 
     /* Test writing the header with a lseek failure */
     UT_InitData();
@@ -151,9 +147,7 @@ void Test_CFE_FS_SetTimestamp(void)
     osal_id_t FileDes = OS_OBJECT_ID_UNDEFINED;
     CFE_TIME_SysTime_t NewTimestamp = {0, 0};
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Set Time Stamp\n");
-#endif
+    UtPrintf("Begin Test Set Time Stamp");
 
     /* Test setting the time stamp with a lseek failure */
     UT_InitData();
@@ -194,9 +188,7 @@ void Test_CFE_FS_ByteSwapCFEHeader(void)
 {
     CFE_FS_Header_t Hdr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Byte Swap cFE Header\n");
-#endif
+    UtPrintf("Begin Test Byte Swap cFE Header");
 
     UT_InitData();
     Hdr.ContentType = 0x11223344;
@@ -229,9 +221,7 @@ void Test_CFE_FS_ByteSwapUint32(void)
     uint32 test = 0x11223344;
     uint32 *testptr = &test;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Byte Swap uint32\n");
-#endif
+    UtPrintf("Begin Test Byte Swap uint32");
 
     /* Test byte-swapping a uint32 value */
     UT_InitData();
@@ -251,9 +241,7 @@ void Test_CFE_FS_ExtractFileNameFromPath(void)
     char LongFileName[OS_MAX_PATH_LEN + 7];
     int j;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Extract File Name from Path\n");
-#endif
+    UtPrintf("Begin Test Extract File Name from Path");
 
     /* Test extracting the file name from a path/file name that's
      * missing the path
@@ -314,9 +302,7 @@ void Test_CFE_FS_ExtractFileNameFromPath(void)
 */
 void Test_CFE_FS_Private(void)
 {
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Private\n");
-#endif
+    UtPrintf("Begin Test Private");
 
     /* Test successful FS initialization */
     UT_InitData();
@@ -369,8 +355,6 @@ void Test_CFE_FS_Private(void)
               "CFE_FS_UnlockSharedData",
               "SharedData mutex give error");
 
-#ifdef UT_VERBOSE
-    UT_Text("End Test Private\n\n");
-#endif
+    UtPrintf("End Test Private\n");
 }
 

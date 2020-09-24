@@ -253,7 +253,7 @@ void UtTest_Setup(void)
 {
     /* Initialize unit test */
     UT_Init("evs");
-    UT_Text("cFE EVS Unit Test Output File\n\n");
+    UtPrintf("cFE EVS Unit Test Output File\n\n");
 
     /* Test_Init is a test but also MUST be called first and only once */
     UT_ADD_TEST(Test_Init);
@@ -280,9 +280,7 @@ void Test_Init(void)
     CFE_EVS_BitMaskCmd_t        bitmaskcmd;
     CFE_EVS_AppNameBitMaskCmd_t appbitcmd;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Init\n");
-#endif
+    UtPrintf("Begin Test Init");
 
     UT_SetAppID(1); /*jphfix*/
 
@@ -494,9 +492,7 @@ void Test_IllegalAppID(void)
 {
     CFE_TIME_SysTime_t time = {0, 0};
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Illegal App ID\n");
-#endif
+    UtPrintf("Begin Test Illegal App ID");
 
     /* Set test up with illegal application ID */
     UT_InitData();
@@ -593,10 +589,7 @@ void Test_UnregisteredApp(void)
     /* Get a local ref to the "current" AppData table entry */
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
 
-
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Unregistered App\n");
-#endif
+    UtPrintf("Begin Test Unregistered App");
 
     UT_InitData();
 
@@ -680,9 +673,7 @@ void Test_FilterRegistration(void)
     /* Get a local ref to the "current" AppData table entry */
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Filter Registration\n");
-#endif
+    UtPrintf("Begin Test Filter Registration");
 
     CFE_EVS_GlobalData.EVS_AppID = AppID;
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
@@ -836,9 +827,7 @@ void Test_FilterReset(void)
 {
     CFE_EVS_BinFilter_t filter;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Filter Reset\n");
-#endif
+    UtPrintf("Begin Test Filter Reset");
 
     /* Test successful filter registration */
     UT_InitData();
@@ -922,9 +911,7 @@ void Test_Format(void)
     /* Get a local ref to the "current" AppData table entry */
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Format\n");
-#endif
+    UtPrintf("Begin Test Format");
 
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
@@ -1072,9 +1059,7 @@ void Test_Ports(void)
             .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID)
     };
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Ports\n");
-#endif
+    UtPrintf("Begin Test Ports");
 
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
@@ -1218,9 +1203,7 @@ void Test_Logging(void)
     cpuaddr              TempAddr;
     CFE_ES_ResetData_t   *CFE_EVS_ResetDataPtr;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Logging\n");
-#endif
+    UtPrintf("Begin Test Logging");
 
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
@@ -1434,9 +1417,7 @@ void Test_WriteApp(void)
         CFE_EVS_AppNameBitMaskCmd_t appbitcmd;
     } CmdBuf;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Write App\n");
-#endif
+    UtPrintf("Begin Test Write App");
 
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
@@ -1538,9 +1519,7 @@ void Test_BadAppCmd(void)
     CFE_EVS_AppNameEventIDCmd_t     appcmdcmd;
     uint32 TestAppIndex;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Bad App Command\n");
-#endif
+    UtPrintf("Begin Test Bad App Command");
 
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
@@ -1945,9 +1924,7 @@ void Test_EventCmd(void)
         .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID)
     };
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Event Command\n");
-#endif
+    UtPrintf("Begin Test Event Command");
 
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
@@ -2188,9 +2165,7 @@ void Test_FilterCmd(void)
     CFE_EVS_AppNameEventIDCmd_t     appcmdcmd;
     CFE_EVS_AppNameBitMaskCmd_t     appbitcmd;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Filter Command\n");
-#endif
+    UtPrintf("Begin Test Filter Command");
 
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
@@ -2422,9 +2397,7 @@ void Test_InvalidCmd(void)
 {
     CFE_EVS_NoArgsCmd_t cmd;
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Invalid Command\n");
-#endif
+    UtPrintf("Begin Test Invalid Command");
 
     /* Test invalid msg id event */
     UT_InitData();
@@ -2688,9 +2661,7 @@ void Test_Misc(void)
 
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
 
-#ifdef UT_VERBOSE
-    UT_Text("Begin Test Miscellaneous\n");
-#endif
+    UtPrintf("Begin Test Miscellaneous");
 
     memset(&PktBuf, 0, sizeof(PktBuf));
     CFE_EVS_GlobalData.EVS_AppID = AppID;

@@ -54,7 +54,7 @@ void Test_MSG_Init(void)
     bool                       hassec;
     bool                       is_v1;
 
-    UT_Text("Bad parameter tests, Null pointer, invalid size, invalid msgid");
+    UtPrintf("Bad parameter tests, Null pointer, invalid size, invalid msgid");
     memset(&msg, 0, sizeof(msg));
     ASSERT_EQ(CFE_MSG_Init(NULL, CFE_SB_ValueToMsgId(0), sizeof(msg), false), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(0), 0, false), CFE_MSG_BAD_ARGUMENT);
@@ -63,7 +63,7 @@ void Test_MSG_Init(void)
     ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(-1), sizeof(msg), false), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UT_Text("Set to all F's, msgid value = 0, and run without clearing");
+    UtPrintf("Set to all F's, msgid value = 0, and run without clearing");
     memset(&msg, 0xFF, sizeof(msg));
     msgidval_exp = 0;
     ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg), false), CFE_SUCCESS);
@@ -83,7 +83,7 @@ void Test_MSG_Init(void)
     ASSERT_EQ(CFE_MSG_GetSize(&msg, &size), CFE_SUCCESS);
     ASSERT_EQ(size, sizeof(msg));
 
-    UT_Text("Set to all F's, msgid value = 0, and run with clearing");
+    UtPrintf("Set to all F's, msgid value = 0, and run with clearing");
     memset(&msg, 0xFF, sizeof(msg));
     msgidval_exp = 0;
 
@@ -116,7 +116,7 @@ void Test_MSG_Init(void)
     ASSERT_EQ(Test_MSG_Pri_NotZero(&msg) & ~(MSG_APID_FLAG | MSG_HDRVER_FLAG | MSG_HASSEC_FLAG),
               MSG_LENGTH_FLAG | MSG_SEGMENT_FLAG);
 
-    UT_Text("Set to all 0, max msgid value, and run without clearing");
+    UtPrintf("Set to all 0, max msgid value, and run without clearing");
     memset(&msg, 0, sizeof(msg));
     msgidval_exp = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
     ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg), false), CFE_SUCCESS);
