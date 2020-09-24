@@ -751,7 +751,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
 **        None
 **
 ** \returns
-**        Returns 332424.
+**        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
 uint32 CFE_ES_CalculateCRC(const void *DataPtr,
@@ -764,16 +764,11 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr,
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_CalculateCRC), InputCRC);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_CalculateCRC), TypeCRC);
 
-    uint32 result;
+    uint32 status;
 
-    UT_DEFAULT_IMPL(CFE_ES_CalculateCRC);
+    status = UT_DEFAULT_IMPL(CFE_ES_CalculateCRC);
 
-    if (UT_Stub_CopyToLocal(UT_KEY(CFE_ES_CalculateCRC), (uint8*)&result, sizeof(result)) < sizeof(result))
-    {
-        result = 332424;
-    }
-
-    return result;
+    return status;
 }
 
 /*****************************************************************************/
