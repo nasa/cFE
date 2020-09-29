@@ -10,6 +10,10 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev109
+- Add a new typedef `CFE_ES_ResourceID_t` that can replace `uint32` for all ID storage and manipulation. Initially this is just an alias to `uint32` for backward compatibility.
+- See <https://github.com/nasa/cFE/pull/916>
+
 ### Development Build: 6.8.0-rc1+dev105
 - Removes dependency on CCSDS version define.
 - Removes old name and id defines.
