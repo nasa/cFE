@@ -60,7 +60,8 @@
 #define CFE_ES_DBIT(x) (1L << (x))                                    /* Places a one at bit positions 0 thru 31 */
 #define CFE_ES_DTEST(i,x) (((i) & CFE_ES_DBIT(x)) != 0)               /* true iff bit x of i is set */
 #define CFE_ES_TEST_LONG_MASK(m,s)  (CFE_ES_DTEST(m[(s)/32],(s)%32))  /* Test a bit within an array of 32-bit integers. */
-#define CFE_ES_MAX_MEMPOOL_BLOCK_SIZES     17    /**< Max number of size divisions allowed in a memory pool */
+
+#define CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES     17    /**< Default number of size divisions in a memory pool */
 
 /*
 ** Note about reset type and subtypes:
@@ -100,14 +101,6 @@
 */
 
 /**
- * \brief Memory Handle type
- *
- *  Data type used to hold Handles of Memory Pools
- *  created via CFE_ES_PoolCreate and CFE_ES_PoolCreateNoSem
- */
-typedef cpuaddr CFE_ES_MemHandle_t;
-
-/**
  * @brief A type that provides a common, abstract identifier for
  * all ES managed resources (e.g. apps, tasks, counters, etc).
  *
@@ -123,6 +116,28 @@ typedef cpuaddr CFE_ES_MemHandle_t;
  *  - Convert simple integer to ID (inverse of above)
  */
 typedef uint32 CFE_ES_ResourceID_t;
+
+/**
+ * \brief Memory Handle type
+ *
+ *  Data type used to hold Handles of Memory Pools
+ *  created via CFE_ES_PoolCreate and CFE_ES_PoolCreateNoSem
+ */
+typedef CFE_ES_ResourceID_t CFE_ES_MemHandle_t;
+
+/**
+ * Type used for memory pool offsets
+ *
+ * For backward compatibility with existing CFE code this can be uint32,
+ * but pools will be limited to 4GB in size as a result.
+ *
+ * On 64-bit platforms this can be a 64-bit value (e.g. size_t) which should
+ * allow larger pools.
+ *
+ * In either case this _must_ be an unsigned type.
+ */
+typedef uint32 CFE_ES_MemOffset_t;
+
 
 /**
  * @brief A resource ID value that represents an undefined/unused resource
@@ -367,7 +382,7 @@ typedef struct CFE_ES_TaskInfo
  */
 typedef struct CFE_ES_BlockStats
 {
-    uint32  BlockSize;               /**< \brief Number of bytes in each of these blocks */
+    CFE_ES_MemOffset_t BlockSize;    /**< \brief Number of bytes in each of these blocks */
     uint32  NumCreated;              /**< \brief Number of Memory Blocks of this size created */
     uint32  NumFree;                 /**< \brief Number of Memory Blocks of this size that are free */
 } CFE_ES_BlockStats_t;
@@ -377,15 +392,15 @@ typedef struct CFE_ES_BlockStats
  */
 typedef struct CFE_ES_MemPoolStats
 {
-    uint32                PoolSize;                /**< \cfetlmmnemonic \ES_POOLSIZE
+    CFE_ES_MemOffset_t    PoolSize;                /**< \cfetlmmnemonic \ES_POOLSIZE
                                                         \brief  Size of Memory Pool (in bytes) */
     uint32                NumBlocksRequested;      /**< \cfetlmmnemonic \ES_BLKSREQ
                                                         \brief Number of times a memory block has been allocated */
     uint32                CheckErrCtr;             /**< \cfetlmmnemonic \ES_BLKERRCTR
                                                         \brief Number of errors detected when freeing a memory block */
-    uint32                NumFreeBytes;            /**< \cfetlmmnemonic \ES_FREEBYTES
+    CFE_ES_MemOffset_t    NumFreeBytes;            /**< \cfetlmmnemonic \ES_FREEBYTES
                                                         \brief Number of bytes never allocated to a block */
-    CFE_ES_BlockStats_t   BlockStats[CFE_ES_MAX_MEMPOOL_BLOCK_SIZES]; /**< \cfetlmmnemonic \ES_BLKSTATS
+    CFE_ES_BlockStats_t   BlockStats[CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES]; /**< \cfetlmmnemonic \ES_BLKSTATS
                                                                            \brief Contains stats on each block size */
 } CFE_ES_MemPoolStats_t;
 
@@ -1217,7 +1232,7 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle);
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in, out]   HandlePtr   A pointer to the variable the caller wishes to have the memory pool handle kept in. *HandlePtr is the memory pool handle.
+** \param[in, out]   PoolID   A pointer to the variable the caller wishes to have the memory pool handle kept in. *PoolID is the memory pool handle.
 **
 ** \param[in]   MemPtr      A Pointer to the pool of memory created by the calling application. This address must
 **                          be on a 32-bit boundary.
@@ -1231,7 +1246,7 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle);
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Size);
+int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, CFE_ES_MemOffset_t Size);
 
 /*****************************************************************************/
 /**
@@ -1246,7 +1261,7 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint3
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in, out]   HandlePtr   A pointer to the variable the caller wishes to have the memory pool handle kept in. *HandlePtr is the memory pool handle.
+** \param[in, out]   PoolID   A pointer to the variable the caller wishes to have the memory pool handle kept in. *PoolID is the memory pool handle.
 **
 ** \param[in]   MemPtr      A Pointer to the pool of memory created by the calling application. This address must
 **                          be on a 32-bit boundary.
@@ -1260,7 +1275,7 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint3
 ** \sa #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Size);
+int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, CFE_ES_MemOffset_t Size);
 
 /*****************************************************************************/
 /**
@@ -1274,7 +1289,7 @@ int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Siz
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in, out]   HandlePtr      A pointer to the variable the caller wishes to have the memory pool handle kept in. *HandlePtr is the memory pool handle.
+** \param[in, out]   PoolID      A pointer to the variable the caller wishes to have the memory pool handle kept in. *PoolID is the memory pool handle.
 **
 ** \param[in]   MemPtr         A Pointer to the pool of memory created by the calling application. This address must
 **                             be on a 32-bit boundary.
@@ -1298,7 +1313,39 @@ int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Siz
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 Size, uint32 NumBlockSizes, uint32 *BlockSizes, uint16 UseMutex);
+int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t        *PoolID,
+                          uint8                     *MemPtr,
+                          CFE_ES_MemOffset_t         Size,
+                          uint16                     NumBlockSizes,
+                          const CFE_ES_MemOffset_t  *BlockSizes,
+                          uint16                     UseMutex );
+
+
+/*****************************************************************************/
+/**
+** \brief Deletes a memory pool that was previously created
+**
+** \par Description
+**        This routine removes the pool ID and frees the global table
+**        entry for future re-use.
+**
+** \par Assumptions, External Events, and Notes:
+**        All buffers associated with the pool become invalid after this call.
+**        The application should ensure that buffers/references to the
+**        pool are returned before deleting the pool.
+**
+** \param[in]   PoolID         The ID of the pool to delete
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_MEM_HANDLE \copybrief CFE_ES_ERR_MEM_HANDLE
+**
+** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
+**
+******************************************************************************/
+int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
+
+
 
 /*****************************************************************************/
 /**
@@ -1312,7 +1359,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 S
 **
 ** \param[in, out]   BufPtr      A pointer to the Application's pointer in which will be stored the address of the allocated memory buffer. *BufPtr is the address of the requested buffer.
 **
-** \param[in]   HandlePtr   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
+** \param[in]   PoolID   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
 ** \param[in]   Size        The size of the buffer requested.  NOTE: The size allocated may be larger.
 **
@@ -1323,7 +1370,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *HandlePtr, uint8 *MemPtr, uint32 S
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_GetPoolBufInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t HandlePtr, uint32 Size);
+int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t PoolID, CFE_ES_MemOffset_t Size);
 
 /*****************************************************************************/
 /**
@@ -1335,7 +1382,7 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t HandlePtr, uint32 Si
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   HandlePtr   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
+** \param[in]   PoolID   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
 ** \param[in]   BufPtr      A pointer to the memory buffer to provide status for.
 **
@@ -1347,7 +1394,7 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t HandlePtr, uint32 Si
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_PutPoolBuf
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr);
+int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr);
 
 /*****************************************************************************/
 /**
@@ -1359,7 +1406,7 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   HandlePtr   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
+** \param[in]   PoolID   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
 ** \param[in]   BufPtr      A pointer to the memory buffer to be released.
 **
@@ -1369,7 +1416,7 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr);
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_GetPoolBufInfo
 **
 ******************************************************************************/
-int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr);
+int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr);
 
 /*****************************************************************************/
 /**

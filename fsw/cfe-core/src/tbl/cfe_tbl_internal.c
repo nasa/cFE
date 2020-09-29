@@ -443,7 +443,7 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
             if (Status < 0)
             {
                 CFE_ES_WriteToSysLog("CFE_TBL:RemoveAccessLink-PutPoolBuf[0] Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n",
-                        (unsigned int)Status, (unsigned long)CFE_TBL_TaskData.Buf.PoolHdl, (unsigned long)RegRecPtr->Buffers[0].BufferPtr);
+                        (unsigned int)Status, CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.Buf.PoolHdl), (unsigned long)RegRecPtr->Buffers[0].BufferPtr);
             }
 
             /* If a double buffered table, then free the second buffer as well */
@@ -455,7 +455,7 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
                 if (Status < 0)
                 {
                     CFE_ES_WriteToSysLog("CFE_TBL:RemoveAccessLink-PutPoolBuf[1] Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n",
-                            (unsigned int)Status, (unsigned long)CFE_TBL_TaskData.Buf.PoolHdl, (unsigned long)RegRecPtr->Buffers[1].BufferPtr);
+                            (unsigned int)Status, CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.Buf.PoolHdl), (unsigned long)RegRecPtr->Buffers[1].BufferPtr);
                 }
             }
             else

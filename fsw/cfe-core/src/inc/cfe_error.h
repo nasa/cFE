@@ -155,6 +155,18 @@
 #define CFE_STATUS_BAD_COMMAND_CODE         ((int32)0xc8000004)
 
 /**
+ * @brief External failure
+ *
+ *  This error indicates that the operation failed for
+ *  some reason outside the scope of CFE.  The real failure may
+ *  have been in OSAL, PSP, or another dependent library.  
+ *
+ *  Details of the original failure should be written to syslog
+ *  and/or a system event before returning this error.
+ */
+#define CFE_STATUS_EXTERNAL_RESOURCE_FAIL  ((int32)0xc8000005)
+
+/**
  * @brief Not Implemented
  *
  *  Current version does not have the function or the feature
@@ -652,6 +664,25 @@
  *
  */
 #define CFE_ES_NO_RESOURCE_IDS_AVAILABLE     ((int32)0xc400002B)
+
+/**
+ * @brief Invalid pool block
+ *
+ *  Software attempted to "put" a block back into a pool which
+ *  does not appear to belong to that pool.  This may mean the
+ *  pool has become unusable due to memory corruption.
+ *
+ */
+#define CFE_ES_POOL_BLOCK_INVALID     ((int32)0xc400002C)
+
+/**
+ * @brief Invalid pool size or buffer address
+ *
+ *  A specified pool address or size is outside the acceptable
+ *  bounds for that pool configuration.
+ *
+ */
+#define CFE_ES_POOL_BOUNDS_ERROR     ((int32)0xc400002D)
 
 
 /**

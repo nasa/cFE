@@ -1365,6 +1365,40 @@
 #define CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS           2
 
 
+/** \cfeescfg Maximum number of block sizes in pool structures
+**
+**  \par Description:
+**      The upper limit for the number of block sizes supported in the generic
+**      pool implementation, which in turn implements the memory pools and CDS.
+**
+**  \par Limits:
+**       Must be at least one.  No specific upper limit, but the number is
+**       anticipated to be reasonably small (i.e. tens, not hundreds).  Large
+**       values have not been tested.
+**
+**       The ES and CDS block size lists must correlate with this value
+ */
+#define CFE_PLATFORM_ES_POOL_MAX_BUCKETS      17
+
+/** \cfeescfg Maximum number of memory pools
+**
+**  \par Description:
+**      The upper limit for the number of memory pools than can concurrently
+**      exist within the system.
+**
+**      The CFE_SB and CFE_TBL core subsystems each define a memory pool.
+**
+**      Individual applications may also create memory pools, so this value
+**      should be set sufficiently high enough to support the applications
+**      being used on this platform.
+**
+**  \par Limits:
+**       Must be at least 2 to support CFE core - SB and TBL pools.  No
+**       specific upper limit.
+ */
+#define CFE_PLATFORM_ES_MAX_MEMORY_POOLS        10
+
+
 /**
 **  \cfeescfg Define Default ES Memory Pool Block Sizes
 **

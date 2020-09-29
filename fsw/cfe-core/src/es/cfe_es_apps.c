@@ -1088,6 +1088,8 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
    CFE_ES_ResourceID_t CurrTaskId;
    int32  ReturnCode = CFE_SUCCESS;
    CFE_ES_TaskRecord_t *TaskRecPtr;
+   CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
+   CFE_ES_MemHandle_t PoolId;
    CFE_ES_ResourceID_t AppId;
 
    /*
@@ -1190,6 +1192,38 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
    }
 
    CFE_ES_AppRecordSetFree(AppRecPtr);
+
+   /*
+   ** Delete any memory pools associated with this app
+   */
+   MemPoolRecPtr = CFE_ES_Global.MemPoolTable;
+   for ( i = 0; i < CFE_PLATFORM_ES_MAX_MEMORY_POOLS; i++ )
+   {
+      if ( CFE_ES_MemPoolRecordIsUsed(MemPoolRecPtr) &&
+          CFE_ES_ResourceID_Equal(MemPoolRecPtr->OwnerAppID, AppId))
+      {
+          PoolId = CFE_ES_MemPoolRecordGetID(MemPoolRecPtr);
+
+          /*
+           * This needs to release the lock first because
+           * CFE_ES_PoolDelete acquires the lock.
+           */
+          CFE_ES_UnlockSharedData(__func__, __LINE__);
+          Status = CFE_ES_PoolDelete(PoolId);
+          CFE_ES_LockSharedData(__func__, __LINE__);
+
+          if ( Status != CFE_SUCCESS )
+          {
+              CFE_ES_SysLogWrite_Unsync("CFE_ES_MemPoolCleanupApp: delete pool %lu returned Error: 0x%08X\n",
+                      CFE_ES_ResourceID_ToInteger(PoolId), (unsigned int)Status);
+              ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+          }
+      }
+
+      ++MemPoolRecPtr;
+   } /* end for */
+
+
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
