@@ -43,8 +43,6 @@
 /*
 ** External global variables
 */
-extern uint32              UT_AppID;
-
 const char *TIME_SYSLOG_MSGS[] =
 {
         NULL,
@@ -1221,6 +1219,7 @@ int32 ut_time_MyCallbackFunc(void)
 void Test_RegisterSyncCallbackTrue(void)
 {
     int32   Result;
+    uint32  AppIndex;
 
     UtPrintf("Begin Test Register Synch Callback");
 
@@ -1245,8 +1244,6 @@ void Test_RegisterSyncCallbackTrue(void)
      */
     UT_InitData();
 
-    UT_SetAppID(1);
-
     /*
      * One callback per application is allowed; the first should succeed,
      * the second should fail.
@@ -1264,7 +1261,8 @@ void Test_RegisterSyncCallbackTrue(void)
               "CFE_TIME_RegisterSynchCallback",
               "Too Many registered callbacks");
 
-    UT_SetAppID(2);
+    AppIndex = 2;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
 
     Result = CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
     UT_Report(__FILE__, __LINE__,
@@ -1277,7 +1275,8 @@ void Test_RegisterSyncCallbackTrue(void)
      * return "success" with an appid out of range, but nonetheless
      * we need to make sure we do not overwrite our own memory here.
      */
-    UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    AppIndex = 99999;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
     Result = CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
     UT_Report(__FILE__, __LINE__,
             Result == CFE_TIME_TOO_MANY_SYNCH_CALLBACKS,
@@ -3184,6 +3183,7 @@ void Test_UnregisterSynchCallback(void)
 {
     uint32  i = 0;
     int32   Result;
+    uint32  AppIndex;
 
     ut_time_CallbackCalled = 0;
 
@@ -3209,7 +3209,8 @@ void Test_UnregisterSynchCallback(void)
     }
 
     /* App ID 4 should not have a callback */
-    UT_SetAppID(4);
+    AppIndex = 4;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
 
     Result = CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc);
     UT_Report(__FILE__, __LINE__,
@@ -3222,7 +3223,8 @@ void Test_UnregisterSynchCallback(void)
      * the second should fail.
      */
     /* App ID 2 should have a callback */
-    UT_SetAppID(2);
+    AppIndex = 2;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
 
     Result = CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc);
     UT_Report(__FILE__, __LINE__,
@@ -3230,6 +3232,7 @@ void Test_UnregisterSynchCallback(void)
               "CFE_TIME_UnregisterSynchCallback",
               "Successfully unregister callback");
 
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
     Result = CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc);
     UT_Report(__FILE__, __LINE__,
               Result == CFE_TIME_CALLBACK_NOT_REGISTERED,
@@ -3268,7 +3271,7 @@ void Test_CleanUpApp(void)
     uint16 Count;
     int32  Status = CFE_SUCCESS;
     uint32 AppIndex;
-    uint32 TestAppId;
+    CFE_ES_ResourceID_t TestAppId;
 
     UtPrintf("Begin Test Cleanup App");
 
@@ -3342,7 +3345,9 @@ void Test_CleanUpApp(void)
 
     /* Test response to a bad application ID -
      * This is effectively a no-op but here for coverage */
-    Status = CFE_TIME_CleanUpApp(99999);
+    AppIndex = 99999;
+    UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
+    Status = CFE_TIME_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED);
     UT_Report(__FILE__, __LINE__,
               Status == CFE_TIME_CALLBACK_NOT_REGISTERED,
               "CFE_TIME_CleanUpApp",

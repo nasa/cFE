@@ -55,6 +55,26 @@
 */
 
 /*
+ * Limits/definitions related to CFE_ES_ResourceID_t values.
+ *
+ * Defining based on OSAL ID values makes this object a superset of
+ * the OSAL ID type, such that OSAL IDs can be represented as ES resource IDs
+ * and not conflict with/alias each other.
+ *
+ * NOTE: This reflects a bit if "inside knowledge" about how OSAL IDs are
+ * constructed.  The overlap between OSAL IDs and ES IDs may not always be
+ * consistent, and they can diverge in a future version.
+ */
+#define CFE_ES_RESOURCEID_SHIFT OS_OBJECT_TYPE_SHIFT
+#define CFE_ES_RESOURCEID_MAX   ((1 << CFE_ES_RESOURCEID_SHIFT)-1)
+#define CFE_ES_RESOURCEID_MARK  (0x02000000)
+
+#define CFE_ES_APPID_BASE       (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+1) << CFE_ES_RESOURCEID_SHIFT))
+#define CFE_ES_LIBID_BASE       (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+2) << CFE_ES_RESOURCEID_SHIFT))
+#define CFE_ES_COUNTID_BASE     (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+3) << CFE_ES_RESOURCEID_SHIFT))
+#define CFE_ES_POOLID_BASE      (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+4) << CFE_ES_RESOURCEID_SHIFT))
+
+/*
 ** Typedefs
 */
 
@@ -64,7 +84,7 @@
 */
 typedef struct
 {
-   bool           RecordUsed;                     /* Is the record used(1) or available(0) ? */
+   CFE_ES_ResourceID_t CounterId;   /**< The actual counter ID of this entry, or undefined */
    uint32         Counter;
    char           CounterName[OS_MAX_API_NAME];   /* Counter Name */
 } CFE_ES_GenCounterRecord_t;
@@ -74,9 +94,9 @@ typedef struct
  */
 typedef struct
 {
-    uint32 TaskID;          /**< OSAL ID of the background task */
-    osal_id_t WorkSem;      /**< Semaphore that is given whenever background work is pending */
-    uint32 NumJobsRunning;  /**< Current Number of active jobs (updated by background task) */
+    CFE_ES_ResourceID_t TaskID; /**< ES ID of the background task */
+    osal_id_t WorkSem;          /**< Semaphore that is given whenever background work is pending */
+    uint32 NumJobsRunning;      /**< Current Number of active jobs (updated by background task) */
 } CFE_ES_BackgroundTaskState_t;
 
 
@@ -164,7 +184,7 @@ extern CFE_ES_ResetData_t *CFE_ES_ResetDataPtr;
  * @param[in]   AppID   the app ID to locate
  * @return pointer to App Table entry for the given app ID
  */
-extern CFE_ES_AppRecord_t* CFE_ES_LocateAppRecordByID(uint32 AppID);
+extern CFE_ES_AppRecord_t* CFE_ES_LocateAppRecordByID(CFE_ES_ResourceID_t AppID);
 
 /**
  * @brief Locate the Library table entry correlating with a given Lib ID.
@@ -175,7 +195,7 @@ extern CFE_ES_AppRecord_t* CFE_ES_LocateAppRecordByID(uint32 AppID);
  * @param[in]   LibID   the Lib ID to locate
  * @return pointer to Library Table entry for the given Lib ID
  */
-extern CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(uint32 LibID);
+extern CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(CFE_ES_ResourceID_t LibID);
 
 /**
  * @brief Locate the task table entry correlating with a given task ID.
@@ -186,7 +206,7 @@ extern CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(uint32 LibID);
  * @param[in]   TaskID   the task ID to locate
  * @return pointer to Task Table entry for the given task ID
  */
-extern CFE_ES_TaskRecord_t* CFE_ES_LocateTaskRecordByID(uint32 TaskID);
+extern CFE_ES_TaskRecord_t* CFE_ES_LocateTaskRecordByID(CFE_ES_ResourceID_t TaskID);
 
 /**
  * @brief Locate the Counter table entry correlating with a given Counter ID.
@@ -197,7 +217,7 @@ extern CFE_ES_TaskRecord_t* CFE_ES_LocateTaskRecordByID(uint32 TaskID);
  * @param[in]   CounterID   the Counter ID to locate
  * @return pointer to Counter Table entry for the given Counter ID
  */
-extern CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(uint32 CounterID);
+extern CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(CFE_ES_ResourceID_t CounterID);
 
 /**
  * @brief Check if an app record is in use or free/empty
@@ -212,7 +232,7 @@ extern CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(uint32 CounterI
  */
 static inline bool CFE_ES_AppRecordIsUsed(const CFE_ES_AppRecord_t *AppRecPtr)
 {
-    return (AppRecPtr->AppState != CFE_ES_AppState_UNDEFINED);
+    return CFE_ES_ResourceID_IsDefined(AppRecPtr->AppId);
 }
 
 /**
@@ -223,13 +243,9 @@ static inline bool CFE_ES_AppRecordIsUsed(const CFE_ES_AppRecord_t *AppRecPtr)
  * @param[in]   AppRecPtr   pointer to app table entry
  * @returns AppID of entry
  */
-static inline uint32 CFE_ES_AppRecordGetID(const CFE_ES_AppRecord_t *AppRecPtr)
+static inline CFE_ES_ResourceID_t CFE_ES_AppRecordGetID(const CFE_ES_AppRecord_t *AppRecPtr)
 {
-    /*
-     * The initial implementation does not store the ID in the entry;
-     * the ID is simply the zero-based index into the table.
-     */
-    return (AppRecPtr - CFE_ES_Global.AppTable);
+    return AppRecPtr->AppId;
 }
 
 /**
@@ -244,9 +260,9 @@ static inline uint32 CFE_ES_AppRecordGetID(const CFE_ES_AppRecord_t *AppRecPtr)
  * @param[in]   AppRecPtr   pointer to app table entry
  * @param[in]   AppID       the app ID of this entry
  */
-static inline void CFE_ES_AppRecordSetUsed(CFE_ES_AppRecord_t *AppRecPtr, uint32 AppID)
+static inline void CFE_ES_AppRecordSetUsed(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_ResourceID_t AppID)
 {
-    AppRecPtr->AppState = CFE_ES_AppState_EARLY_INIT;
+    AppRecPtr->AppId = AppID;
 }
 
 /**
@@ -262,7 +278,7 @@ static inline void CFE_ES_AppRecordSetUsed(CFE_ES_AppRecord_t *AppRecPtr, uint32
  */
 static inline void CFE_ES_AppRecordSetFree(CFE_ES_AppRecord_t *AppRecPtr)
 {
-    AppRecPtr->AppState = CFE_ES_AppState_UNDEFINED;
+    AppRecPtr->AppId = CFE_ES_RESOURCEID_UNDEFINED;
 }
 
 /**
@@ -278,10 +294,9 @@ static inline void CFE_ES_AppRecordSetFree(CFE_ES_AppRecord_t *AppRecPtr)
  * @param[in]   AppID       expected app ID
  * @returns true if the entry matches the given app ID
  */
-static inline bool CFE_ES_AppRecordIsMatch(const CFE_ES_AppRecord_t *AppRecPtr, uint32 AppID)
+static inline bool CFE_ES_AppRecordIsMatch(const CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_ResourceID_t AppID)
 {
-    return (AppRecPtr != NULL && CFE_ES_AppRecordIsUsed(AppRecPtr) &&
-            CFE_ES_AppRecordGetID(AppRecPtr) == AppID);
+    return (AppRecPtr != NULL && CFE_ES_ResourceID_Equal(AppRecPtr->AppId, AppID));
 }
 
 /**
@@ -297,7 +312,7 @@ static inline bool CFE_ES_AppRecordIsMatch(const CFE_ES_AppRecord_t *AppRecPtr, 
  */
 static inline bool CFE_ES_LibRecordIsUsed(const CFE_ES_LibRecord_t *LibRecPtr)
 {
-    return (LibRecPtr->RecordUsed);
+    return CFE_ES_ResourceID_IsDefined(LibRecPtr->LibId);
 }
 
 /**
@@ -308,13 +323,13 @@ static inline bool CFE_ES_LibRecordIsUsed(const CFE_ES_LibRecord_t *LibRecPtr)
  * @param[in]   LibRecPtr   pointer to Lib table entry
  * @returns LibID of entry
  */
-static inline uint32 CFE_ES_LibRecordGetID(const CFE_ES_LibRecord_t *LibRecPtr)
+static inline CFE_ES_ResourceID_t CFE_ES_LibRecordGetID(const CFE_ES_LibRecord_t *LibRecPtr)
 {
     /*
      * The initial implementation does not store the ID in the entry;
      * the ID is simply the zero-based index into the table.
      */
-    return (LibRecPtr - CFE_ES_Global.LibTable);
+    return (LibRecPtr->LibId);
 }
 
 /**
@@ -326,9 +341,9 @@ static inline uint32 CFE_ES_LibRecordGetID(const CFE_ES_LibRecord_t *LibRecPtr)
  * @param[in]   LibRecPtr   pointer to Lib table entry
  * @param[in]   LibID       the Lib ID of this entry
  */
-static inline void CFE_ES_LibRecordSetUsed(CFE_ES_LibRecord_t *LibRecPtr, uint32 LibID)
+static inline void CFE_ES_LibRecordSetUsed(CFE_ES_LibRecord_t *LibRecPtr, CFE_ES_ResourceID_t LibID)
 {
-    LibRecPtr->RecordUsed = true;
+    LibRecPtr->LibId = LibID;
 }
 
 /**
@@ -341,7 +356,7 @@ static inline void CFE_ES_LibRecordSetUsed(CFE_ES_LibRecord_t *LibRecPtr, uint32
  */
 static inline void CFE_ES_LibRecordSetFree(CFE_ES_LibRecord_t *LibRecPtr)
 {
-    LibRecPtr->RecordUsed = false;
+    LibRecPtr->LibId = CFE_ES_RESOURCEID_UNDEFINED;
 }
 
 /**
@@ -357,10 +372,9 @@ static inline void CFE_ES_LibRecordSetFree(CFE_ES_LibRecord_t *LibRecPtr)
  * @param[in]   LibID       expected Lib ID
  * @returns true if the entry matches the given Lib ID
  */
-static inline bool CFE_ES_LibRecordIsMatch(const CFE_ES_LibRecord_t *LibRecPtr, uint32 LibID)
+static inline bool CFE_ES_LibRecordIsMatch(const CFE_ES_LibRecord_t *LibRecPtr, CFE_ES_ResourceID_t LibID)
 {
-    return (LibRecPtr != NULL && CFE_ES_LibRecordIsUsed(LibRecPtr) &&
-            CFE_ES_LibRecordGetID(LibRecPtr) == LibID);
+    return (LibRecPtr != NULL && CFE_ES_ResourceID_Equal(LibRecPtr->LibId, LibID));
 }
 
 /**
@@ -374,7 +388,7 @@ static inline bool CFE_ES_LibRecordIsMatch(const CFE_ES_LibRecord_t *LibRecPtr, 
  * @param[in]   TaskRecPtr   pointer to Task table entry
  * @returns TaskID of entry
  */
-static inline uint32 CFE_ES_TaskRecordGetID(const CFE_ES_TaskRecord_t *TaskRecPtr)
+static inline CFE_ES_ResourceID_t CFE_ES_TaskRecordGetID(const CFE_ES_TaskRecord_t *TaskRecPtr)
 {
     return (TaskRecPtr->TaskId);
 }
@@ -392,7 +406,7 @@ static inline uint32 CFE_ES_TaskRecordGetID(const CFE_ES_TaskRecord_t *TaskRecPt
  */
 static inline bool CFE_ES_TaskRecordIsUsed(const CFE_ES_TaskRecord_t *TaskRecPtr)
 {
-    return (TaskRecPtr->RecordUsed);
+    return CFE_ES_ResourceID_IsDefined(TaskRecPtr->TaskId);
 }
 
 /**
@@ -407,10 +421,9 @@ static inline bool CFE_ES_TaskRecordIsUsed(const CFE_ES_TaskRecord_t *TaskRecPtr
  * @param[in]   TaskRecPtr   pointer to Task table entry
  * @param[in]   TaskID       the Task ID of this entry
  */
-static inline void CFE_ES_TaskRecordSetUsed(CFE_ES_TaskRecord_t *TaskRecPtr, uint32 TaskID)
+static inline void CFE_ES_TaskRecordSetUsed(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_ResourceID_t TaskID)
 {
     TaskRecPtr->TaskId = TaskID;
-    TaskRecPtr->RecordUsed = true;
 }
 
 /**
@@ -426,8 +439,7 @@ static inline void CFE_ES_TaskRecordSetUsed(CFE_ES_TaskRecord_t *TaskRecPtr, uin
  */
 static inline void CFE_ES_TaskRecordSetFree(CFE_ES_TaskRecord_t *TaskRecPtr)
 {
-    TaskRecPtr->TaskId = 0;
-    TaskRecPtr->RecordUsed = false;
+    TaskRecPtr->TaskId = CFE_ES_RESOURCEID_UNDEFINED;
 }
 
 /**
@@ -443,10 +455,9 @@ static inline void CFE_ES_TaskRecordSetFree(CFE_ES_TaskRecord_t *TaskRecPtr)
  * @param[in]   TaskID       The expected task ID to verify
  * @returns true if the entry matches the given task ID
  */
-static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPtr, uint32 TaskID)
+static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_ResourceID_t TaskID)
 {
-    return (TaskRecPtr != NULL && CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
-            CFE_ES_TaskRecordGetID(TaskRecPtr) == TaskID);
+    return (TaskRecPtr != NULL && CFE_ES_ResourceID_Equal(TaskRecPtr->TaskId, TaskID));
 }
 
 /**
@@ -462,7 +473,7 @@ static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPt
  */
 static inline bool CFE_ES_CounterRecordIsUsed(const CFE_ES_GenCounterRecord_t *CounterRecPtr)
 {
-    return (CounterRecPtr->RecordUsed);
+    return CFE_ES_ResourceID_IsDefined(CounterRecPtr->CounterId);
 }
 
 /**
@@ -473,13 +484,9 @@ static inline bool CFE_ES_CounterRecordIsUsed(const CFE_ES_GenCounterRecord_t *C
  * @param[in]   CounterRecPtr   pointer to Counter table entry
  * @returns CounterID of entry
  */
-static inline uint32 CFE_ES_CounterRecordGetID(const CFE_ES_GenCounterRecord_t *CounterRecPtr)
+static inline CFE_ES_ResourceID_t CFE_ES_CounterRecordGetID(const CFE_ES_GenCounterRecord_t *CounterRecPtr)
 {
-    /*
-     * The initial implementation does not store the ID in the entry;
-     * the ID is simply the zero-based index into the table.
-     */
-    return (CounterRecPtr - CFE_ES_Global.CounterTable);
+    return CounterRecPtr->CounterId;
 }
 
 /**
@@ -494,9 +501,9 @@ static inline uint32 CFE_ES_CounterRecordGetID(const CFE_ES_GenCounterRecord_t *
  * @param[in]   CounterRecPtr   pointer to Counter table entry
  * @param[in]   CounterID       the Counter ID of this entry
  */
-static inline void CFE_ES_CounterRecordSetUsed(CFE_ES_GenCounterRecord_t *CounterRecPtr, uint32 CounterID)
+static inline void CFE_ES_CounterRecordSetUsed(CFE_ES_GenCounterRecord_t *CounterRecPtr, CFE_ES_ResourceID_t CounterID)
 {
-    CounterRecPtr->RecordUsed = true;
+    CounterRecPtr->CounterId = CounterID;
 }
 
 /**
@@ -512,7 +519,7 @@ static inline void CFE_ES_CounterRecordSetUsed(CFE_ES_GenCounterRecord_t *Counte
  */
 static inline void CFE_ES_CounterRecordSetFree(CFE_ES_GenCounterRecord_t *CounterRecPtr)
 {
-    CounterRecPtr->RecordUsed = false;
+    CounterRecPtr->CounterId = CFE_ES_RESOURCEID_UNDEFINED;
 }
 
 /**
@@ -528,10 +535,9 @@ static inline void CFE_ES_CounterRecordSetFree(CFE_ES_GenCounterRecord_t *Counte
  * @param[in]   CounterID       expected Counter ID
  * @returns true if the entry matches the given Counter ID
  */
-static inline bool CFE_ES_CounterRecordIsMatch(const CFE_ES_GenCounterRecord_t *CounterRecPtr, uint32 CounterID)
+static inline bool CFE_ES_CounterRecordIsMatch(const CFE_ES_GenCounterRecord_t *CounterRecPtr, CFE_ES_ResourceID_t CounterID)
 {
-    return (CounterRecPtr != NULL && CFE_ES_CounterRecordIsUsed(CounterRecPtr) &&
-            CFE_ES_CounterRecordGetID(CounterRecPtr) == CounterID);
+    return (CounterRecPtr != NULL && CFE_ES_ResourceID_Equal(CounterRecPtr->CounterId, CounterID));
 }
 
 /**
@@ -576,7 +582,7 @@ extern CFE_ES_TaskRecord_t* CFE_ES_GetTaskRecordByContext(void);
  * @param[in] id    The ES task ID
  * @returns         The OSAL task ID
  */
-osal_id_t CFE_ES_ResourceID_ToOSAL(uint32 id);
+osal_id_t CFE_ES_ResourceID_ToOSAL(CFE_ES_ResourceID_t id);
 
 /**
  * @brief Convert an ES Task ID to an OSAL task ID
@@ -596,13 +602,22 @@ osal_id_t CFE_ES_ResourceID_ToOSAL(uint32 id);
  * @param[in] id    The OSAL task ID
  * @returns         The ES task ID
  */
-uint32 CFE_ES_ResourceID_FromOSAL(osal_id_t id);
+CFE_ES_ResourceID_t CFE_ES_ResourceID_FromOSAL(osal_id_t id);
 
+/**
+ * @brief Internal routine to aid in converting an ES resource ID to an array index
+
+ * @param[in]  Serial    The resource serial number (type info masked out)
+ * @param[in]  TableSize The size of the internal table (MAX value)
+ * @param[out] Idx       The output index
+ * @returns Status code, CFE_SUCCESS if successful.
+ */
+int32 CFE_ES_ResourceID_ToIndex_Internal(uint32 Serial, uint32 TableSize, uint32 *Idx);
 
 /*
 ** Functions used to lock/unlock shared data
 */
-extern int32 CFE_ES_GetAppIDInternal(uint32 *AppIdPtr);
+extern int32 CFE_ES_GetAppIDInternal(CFE_ES_ResourceID_t *AppIdPtr);
 extern void  CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber);
 extern void  CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber);
 

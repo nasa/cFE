@@ -820,7 +820,7 @@ void  CFE_ES_CreateObjects(void)
                ** Core apps still have the notion of an init/running state
                ** Set the state here to mark the record as used.
                */
-               CFE_ES_AppRecordSetUsed(AppRecPtr, j);
+               CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_ResourceID_FromInteger(j + CFE_ES_APPID_BASE));
                
                AppRecPtr->Type = CFE_ES_AppType_CORE;
                

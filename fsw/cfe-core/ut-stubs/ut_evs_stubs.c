@@ -240,7 +240,7 @@ int32 CFE_EVS_Register(void *Filters,
 ******************************************************************************/
 int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
                                  uint16 EventType,
-                                 uint32 AppID,
+                                 CFE_ES_ResourceID_t AppID,
                                  const char *Spec,
                                  ...)
 {

@@ -55,9 +55,10 @@ CFE_TBL_Handle_t App2TblHandle1;
 CFE_TBL_Handle_t App2TblHandle2;
 CFE_TBL_Handle_t ArrayOfHandles[2];
 
-static const uint32 UT_TBL_APPID_1 =  1;
-static const uint32 UT_TBL_APPID_2 =  2;
-static const uint32 UT_TBL_APPID_10 = 10;
+static const CFE_ES_ResourceID_t UT_TBL_APPID_1 =  { 0x02010001 };
+static const CFE_ES_ResourceID_t UT_TBL_APPID_2 =  { 0x02010002 };
+static const CFE_ES_ResourceID_t UT_TBL_APPID_3 =  { 0x02010003 };
+static const CFE_ES_ResourceID_t UT_TBL_APPID_10 = { 0x0201000A };
 
 void *Tbl1Ptr = NULL;
 void *Tbl2Ptr = NULL;
@@ -1027,7 +1028,7 @@ void Test_CFE_TBL_GetHkData(void)
     int32 NumLoadPendingIndex = CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1;
     int32 FreeSharedBuffIndex = CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS - 1;
     int32 ValTableIndex = CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS - 1;
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
 
     /* Get the AppID being used for UT */
     CFE_ES_GetAppID(&AppID);
@@ -1122,7 +1123,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
 {
     int                  q;
     CFE_TBL_DumpRegistry_t DumpRegCmd;
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
 
     /* Get the AppID being used for UT */
     CFE_ES_GetAppID(&AppID);
@@ -1218,7 +1219,7 @@ void Test_CFE_TBL_DumpCmd(void)
     uint8              *BuffPtr = &Buff;
     CFE_TBL_LoadBuff_t Load = {0};
     CFE_TBL_Dump_t     DumpCmd;
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
 
     CFE_ES_GetAppID(&AppID);
 
@@ -1396,7 +1397,7 @@ void Test_CFE_TBL_LoadCmd(void)
     CFE_FS_Header_t    StdFileHeader;
     CFE_TBL_LoadBuff_t BufferPtr = CFE_TBL_TaskData.LoadBuffs[0];
     CFE_TBL_Load_t     LoadCmd;
-    uint32 AppID;
+    CFE_ES_ResourceID_t AppID;
 
     CFE_ES_GetAppID(&AppID);
 
@@ -1756,7 +1757,6 @@ void Test_CFE_TBL_HousekeepingCmd(void)
 */
 void Test_CFE_TBL_ApiInit(void)
 {
-    UT_SetAppID(1);
     UT_ResetCDS();
     CFE_TBL_EarlyInit();
     CFE_TBL_TaskData.TableTaskAppId = UT_TBL_APPID_10;
@@ -1804,7 +1804,6 @@ void Test_CFE_TBL_Register(void)
     }
 
     TblName[i] = '\0';
-    UT_SetAppID(1);
     RtnCode = CFE_TBL_Register(&TblHandle1, TblName,
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
@@ -1982,7 +1981,7 @@ void Test_CFE_TBL_Register(void)
 
     /* Test attempt to register table owned by another application */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_Register(&TblHandle3, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DBL_BUFFER, NULL);
@@ -1995,7 +1994,7 @@ void Test_CFE_TBL_Register(void)
 
     /* Test attempt to register existing table with a different size */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Register(&TblHandle3, "UT_Table1",
                                sizeof(UT_Table2_t),
                                CFE_TBL_OPT_DBL_BUFFER, NULL);
@@ -2009,7 +2008,7 @@ void Test_CFE_TBL_Register(void)
     /* Test attempt to register a table with the same size and name */
     /* a. Test setup */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     RtnCode = CFE_TBL_Share(&TblHandle3, "ut_cfe_tbl.UT_Table1");
     UT_Report(__FILE__, __LINE__,
@@ -2019,7 +2018,7 @@ void Test_CFE_TBL_Register(void)
 
     /* b. Perform test */
     UT_InitData();
-    UT_SetAppID(1); /* Restore AppID to proper value */
+    UT_SetAppID(UT_TBL_APPID_1); /* Restore AppID to proper value */
     RtnCode = CFE_TBL_Register(&TblHandle2, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DBL_BUFFER, NULL);
@@ -2032,9 +2031,9 @@ void Test_CFE_TBL_Register(void)
 
     /* c. Test cleanup: unregister tables */
     UT_ClearEventHistory();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Unregister(TblHandle2);
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode2 = CFE_TBL_Unregister(TblHandle3);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -2046,7 +2045,7 @@ void Test_CFE_TBL_Register(void)
     /* Test registering a single buffered table */
     /* a. Perform test */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
@@ -2454,7 +2453,7 @@ void Test_CFE_TBL_Register(void)
    /* Test attempt to register a double buffered table with a pool buffer
     * error */
    UT_InitData();
-   UT_SetAppID(1);
+   UT_SetAppID(UT_TBL_APPID_1);
    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_SEVERITY_ERROR);
    snprintf(TblName, CFE_MISSION_TBL_MAX_NAME_LENGTH, "UT_Table%d",
             CFE_PLATFORM_TBL_MAX_NUM_TABLES);
@@ -2502,7 +2501,7 @@ void Test_CFE_TBL_Share(void)
 
     /* Test response when table name is not in the registry */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Share(&App1TblHandle1, "ut_cfe_tbl.NOT_Table2");
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
@@ -2571,7 +2570,7 @@ void Test_CFE_TBL_Share(void)
 
     /* Test successful share of a table that has not been loaded once */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_Share(&App2TblHandle1, "ut_cfe_tbl.UT_Table3");
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -2602,7 +2601,7 @@ void Test_CFE_TBL_Unregister(void)
 
     /* Test response to unregistering a table with an invalid handle */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Unregister(CFE_PLATFORM_TBL_MAX_NUM_HANDLES);
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_UNREGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
@@ -2622,13 +2621,13 @@ void Test_CFE_TBL_Unregister(void)
 
     /* Test response to unregistering an unowned table */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_Unregister(App2TblHandle2);
     EventsCorrect =
-        (UT_EventIsInHistory(CFE_TBL_UNREGISTER_ERR_EID) == false &&
-         UT_GetNumEventsSent() == 0);
+        (UT_EventIsInHistory(CFE_TBL_UNREGISTER_ERR_EID) == true &&
+         UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_SUCCESS && EventsCorrect,
+              RtnCode == CFE_TBL_ERR_NO_ACCESS && EventsCorrect,
               "CFE_TBL_Unregister",
               "Unregister unowned table");
 }
@@ -2646,7 +2645,7 @@ void Test_CFE_TBL_NotifyByMessage(void)
 
     /* Set up notify by message tests */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     CFE_TBL_EarlyInit();
     UT_ResetPoolBufferIndex();
 
@@ -2715,7 +2714,7 @@ void Test_CFE_TBL_Load(void)
 
     /* Set up for table load test */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     UT_ResetTableRegistry();
     RtnCode = CFE_TBL_Register(&App1TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
@@ -2814,7 +2813,7 @@ void Test_CFE_TBL_Load(void)
     /* Set up for double buffer table load test */
     /* Test setup - register a double buffered table */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Register(&App1TblHandle2,
                                "UT_Table2x",
                                sizeof(UT_Table1_t),
@@ -2994,7 +2993,7 @@ void Test_CFE_TBL_Load(void)
     /* Test attempt to load a locked shared table */
     /* a. Test setup part 1 */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_Share(&App2TblHandle1, "ut_cfe_tbl.UT_Table1");
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3003,7 +3002,6 @@ void Test_CFE_TBL_Load(void)
               "Attempt to load locked shared table (setup part 1)");
 
     /* a. Test setup part 2 */
-    UT_InitData();
     RtnCode = CFE_TBL_GetAddress((void **) &App2TblPtr, App2TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3013,7 +3011,7 @@ void Test_CFE_TBL_Load(void)
 
     /* c. Perform test */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1);
     EventsCorrect = (UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
@@ -3023,7 +3021,7 @@ void Test_CFE_TBL_Load(void)
 
     /* d. Test cleanup */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_ReleaseAddress(App2TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3049,7 +3047,7 @@ void Test_CFE_TBL_GetAddress(void)
      * does not have access
      */
     UT_InitData();
-    UT_SetAppID(3);
+    UT_SetAppID(UT_TBL_APPID_3);
     RtnCode = CFE_TBL_GetAddress((void **) &App3TblPtr, App2TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3080,7 +3078,7 @@ void Test_CFE_TBL_GetAddress(void)
     /* Attempt to get the address of an unregistered (unowned) table */
     /* a. Test setup */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Unregister(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3090,7 +3088,7 @@ void Test_CFE_TBL_GetAddress(void)
 
     /* b. Perform test */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_GetAddress((void **) &App2TblPtr, App2TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3113,7 +3111,7 @@ void Test_CFE_TBL_ReleaseAddress(void)
     /* Test address release using an invalid application ID */
     /* a. Test setup - register single buffered table */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     UT_ResetTableRegistry();
     RtnCode = CFE_TBL_Register(&App1TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
@@ -3150,7 +3148,7 @@ void Test_CFE_TBL_GetAddresses(void)
 
     /* Test setup - register a double buffered table */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Register(&App1TblHandle2,
                                "UT_Table2",
                                sizeof(UT_Table1_t),
@@ -3185,7 +3183,7 @@ void Test_CFE_TBL_GetAddresses(void)
      * allowed to see
      */
     UT_InitData();
-    UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
     RtnCode = CFE_TBL_GetAddresses(ArrayOfPtrsToTblPtrs, 2, ArrayOfHandles);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3208,7 +3206,7 @@ void Test_CFE_TBL_ReleaseAddresses(void)
 
     /* Test response to releasing two tables that have not been loaded */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_ReleaseAddresses(2, ArrayOfHandles);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3232,7 +3230,7 @@ void Test_CFE_TBL_Validate(void)
      * not allowed to see
      */
     UT_InitData();
-    UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
     RtnCode = CFE_TBL_Validate(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3245,7 +3243,7 @@ void Test_CFE_TBL_Validate(void)
      * pending
      */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Validate(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3289,7 +3287,7 @@ void Test_CFE_TBL_Manage(void)
     RegIndex = CFE_TBL_FindTableInRegistry("ut_cfe_tbl.UT_Table1");
     RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndex];
     RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false);
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1);
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_IN_PROGRESS_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
@@ -3457,7 +3455,7 @@ void Test_CFE_TBL_Manage(void)
     /* Test response to processing an update request on a locked table */
     /* a. Test setup - part 1 */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_Share(&App2TblHandle1, "ut_cfe_tbl.UT_Table1");
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3466,7 +3464,6 @@ void Test_CFE_TBL_Manage(void)
               "Process an update request on a locked table (setup - part 1)");
 
     /* a. Test setup - part 2 */
-    UT_InitData();
     RtnCode = CFE_TBL_GetAddress((void **) &App2TblPtr, App2TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3476,7 +3473,7 @@ void Test_CFE_TBL_Manage(void)
 
     /* c. Perform test */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
 
     /* Configure table for update */
     RegRecPtr->LoadPending = true;
@@ -3494,7 +3491,7 @@ void Test_CFE_TBL_Manage(void)
 
     /* Test unlocking a table by releasing the address */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_ReleaseAddress(App2TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3506,7 +3503,7 @@ void Test_CFE_TBL_Manage(void)
      * buffered table
      */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
 
     /* Configure table for Update */
     RegRecPtr->LoadPending = true;
@@ -3692,7 +3689,7 @@ void Test_CFE_TBL_Update(void)
      * privileges
      */
     UT_InitData();
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_Update(App1TblHandle1);
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_UPDATE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
@@ -3706,7 +3703,7 @@ void Test_CFE_TBL_Update(void)
      * is pending
      */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Update(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3718,7 +3715,7 @@ void Test_CFE_TBL_Update(void)
     /* Test processing an update on an application with a bad ID
      */
     UT_InitData();
-    UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
     RtnCode = CFE_TBL_Update(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
@@ -3741,7 +3738,7 @@ void Test_CFE_TBL_GetStatus(void)
      * application is not allowed to see
      */
     UT_InitData();
-    UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
     RtnCode = CFE_TBL_GetStatus(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3754,7 +3751,7 @@ void Test_CFE_TBL_GetStatus(void)
      * application is not allowed to see
      */
     UT_InitData();
-    UT_SetAppID(CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
     RtnCode = CFE_TBL_DumpToBuffer(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3777,7 +3774,7 @@ void Test_CFE_TBL_GetInfo(void)
 
     /* Test successfully getting information on a table */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_GetInfo(&TblInfo, "ut_cfe_tbl.UT_Table1");
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3825,7 +3822,7 @@ void Test_CFE_TBL_TblMod(void)
      */
     /* a. Test setup */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     CFE_TBL_EarlyInit();
     UT_ResetPoolBufferIndex();
 
@@ -4016,7 +4013,7 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test setup - register a double buffered table */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_Register(&App1TblHandle2,
                                "UT_Table3",
                                sizeof(UT_Table1_t),
@@ -4461,7 +4458,7 @@ void Test_CFE_TBL_Internal(void)
     /* Reset, then register tables for subsequent tests */
     /* a. Reset tables */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     RtnCode = CFE_TBL_EarlyInit();
     UT_Report(__FILE__, __LINE__,
               (RtnCode == CFE_SUCCESS),
@@ -4794,7 +4791,7 @@ void Test_CFE_TBL_Internal(void)
     /* a. Share table */
     UT_InitData();
     CFE_TBL_TaskData.CritReg[0].CDSHandle = RegRecPtr->CDSHandle;
-    UT_SetAppID(2);
+    UT_SetAppID(UT_TBL_APPID_2);
     RtnCode = CFE_TBL_Share(&App2TblHandle1, "ut_cfe_tbl.UT_Table1");
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_SUCCESS,
@@ -4812,7 +4809,7 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test successful application cleanup */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     UT_SetForceFail(UT_KEY(CFE_ES_PutPoolBuf), -1);
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle1];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
@@ -4824,7 +4821,7 @@ void Test_CFE_TBL_Internal(void)
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.DumpControlBlocks[3].State ==
                   CFE_TBL_DUMP_FREE &&
-              RegRecPtr->OwnerAppId ==  CFE_TBL_NOT_OWNED &&
+              CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED) &&
               CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken ==
                   false &&
               RegRecPtr->LoadInProgress == CFE_TBL_NO_LOAD_IN_PROGRESS,
@@ -4983,7 +4980,7 @@ void Test_CFE_TBL_Internal(void)
      * the application doesn't own the table
      */
     UT_InitData();
-    UT_SetAppID(1);
+    UT_SetAppID(UT_TBL_APPID_1);
     UT_SetForceFail(UT_KEY(CFE_ES_PutPoolBuf), -1);
     CFE_TBL_TaskData.Handles[0].AppId = UT_TBL_APPID_1;
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
@@ -4995,7 +4992,7 @@ void Test_CFE_TBL_Internal(void)
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.DumpControlBlocks[3].State ==
             CFE_TBL_DUMP_PENDING &&
-              RegRecPtr->OwnerAppId ==  CFE_TBL_NOT_OWNED,
+              CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED),
               "CFE_TBL_CleanUpApp",
               "Execute clean up - no dumped tables to delete, application "
                   "doesn't own table");

@@ -90,8 +90,8 @@ typedef struct
 */
 typedef struct
 {
-   uint32   MainTaskId;                     /* The Application's Main Task ID */
-   char     MainTaskName[OS_MAX_API_NAME];  /* The Application's Main Task ID */
+   CFE_ES_ResourceID_t  MainTaskId;                     /* The Application's Main Task ID */
+   char                 MainTaskName[OS_MAX_API_NAME];  /* The Application's Main Task ID */
 } CFE_ES_MainTaskInfo_t;
 
 
@@ -101,6 +101,7 @@ typedef struct
 */
 typedef struct
 {
+   CFE_ES_ResourceID_t     AppId;                       /* The actual AppID of this entry, or undefined */
    CFE_ES_AppState_Enum_t  AppState;                    /* Is the app running, or stopped, or waiting? */
    uint32                  Type;                        /* The type of App: CORE or EXTERNAL */
    CFE_ES_AppStartParams_t StartParams;                 /* The start parameters for an App */
@@ -116,9 +117,8 @@ typedef struct
 */
 typedef struct
 {
-   bool      RecordUsed;                      /* Is the record used(1) or available(0) */
-   uint32    AppId;                           /* The parent Application's App ID */
-   uint32    TaskId;                          /* Task ID */
+   CFE_ES_ResourceID_t     TaskId;            /* The actual TaskID of this entry, or undefined */
+   CFE_ES_ResourceID_t     AppId;             /* The parent Application's App ID */
    uint32    ExecutionCounter;                /* The execution counter for the Child task */
    char      TaskName[OS_MAX_API_NAME];       /* Task Name */
 
@@ -131,7 +131,7 @@ typedef struct
 */
 typedef struct
 {
-   bool      RecordUsed;                      /* Is the record used(1) or available(0) */
+   CFE_ES_ResourceID_t     LibId;             /* The actual LibID of this entry, or undefined */
    char      LibName[OS_MAX_API_NAME];        /* Library Name */
 } CFE_ES_LibRecord_t;
 
@@ -167,7 +167,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
 ** Internal function to create/start a new cFE app
 ** based on the parameters passed in
 */
-int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
+int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
                        const char   *FileName,
                        const void   *EntryPointData,
                        const char   *AppName,
@@ -177,7 +177,7 @@ int32 CFE_ES_AppCreate(uint32 *ApplicationIdPtr,
 /*
 ** Internal function to load a a new cFE shared Library
 */
-int32 CFE_ES_LoadLibrary(uint32 *LibraryIdPtr,
+int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t *LibraryIdPtr,
                        const char   *FileName,
                        const void   *EntryPointData,
                        const char   *LibName);
@@ -221,7 +221,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr);
 /*
 ** Clean up all Task resources and detete the task
 */
-int32 CFE_ES_CleanupTaskResources(uint32 TaskId);
+int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId);
 
 /*
 ** Populate the cFE_ES_AppInfo structure with the data for an app
