@@ -449,7 +449,7 @@
 /**
  * @brief Task ID Error
  *
- *  Occurs when the Task ID passed into #CFE_ES_GetTaskInfo is invalid.
+ *  Occurs when the Task ID passed into a task-related API is invalid.
  *
  */
 #define CFE_ES_ERR_TASKID  ((int32)0xc4000016)
@@ -632,6 +632,27 @@
  *
  */
 #define CFE_ES_ERR_SYS_LOG_TRUNCATED  ((int32)0x44000029)
+
+
+/**
+ * @brief Resource ID is not valid
+ *
+ *  This error indicates that the passed in resource identifier
+ *  (App ID, Lib ID, Counter ID, etc) did not validate.
+ *
+ */
+#define CFE_ES_RESOURCE_ID_INVALID     ((int32)0xc400002A)
+
+/**
+ * @brief Resource ID is not available
+ *
+ *  This error indicates that the maximum resource identifiers
+ *  (App ID, Lib ID, Counter ID, etc) has already been reached
+ *  and a new ID cannot be allocated.
+ *
+ */
+#define CFE_ES_NO_RESOURCE_IDS_AVAILABLE     ((int32)0xc400002B)
+
 
 /**
  * @brief Not Implemented

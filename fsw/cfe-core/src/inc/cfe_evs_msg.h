@@ -1127,7 +1127,7 @@ typedef CFE_EVS_AppNameEventIDMaskCmd_t CFE_EVS_SetFilter_t;
 /* Telemetry Message Data Formats */
 /**********************************/
 typedef struct CFE_EVS_AppTlmData {
-   uint32               AppID;                  /**< \cfetlmmnemonic \EVS_APPID
+   CFE_ES_ResourceID_t  AppID;                  /**< \cfetlmmnemonic \EVS_APPID
                                                      \brief Numerical application identifier */
    uint16               AppMessageSentCounter;  /**< \cfetlmmnemonic \EVS_APPMSGSENTC
                                                      \brief Application message sent counter */

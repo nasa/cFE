@@ -63,7 +63,7 @@
  * @param[in]   AppID   AppID to find
  * @returns Pointer to app table entry, or NULL if ID is invalid.
  */
-EVS_AppData_t *EVS_GetAppDataByID (uint32 AppID);
+EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_ResourceID_t AppID);
 
 /**
  * @brief Obtain the context information for the currently running app
@@ -74,7 +74,7 @@ EVS_AppData_t *EVS_GetAppDataByID (uint32 AppID);
  * @param[out]   AppIDOut       Location to store AppID
  * @returns CFE_SUCCESS if successful, or relevant error code.
  */
-int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, uint32 *AppIDOut);
+int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, CFE_ES_ResourceID_t *AppIDOut);
 
 
 /**
@@ -90,7 +90,7 @@ int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, uint32 *AppIDOut);
  */
 static inline bool EVS_AppDataIsUsed(EVS_AppData_t *AppDataPtr)
 {
-    return (AppDataPtr->RegisterFlag);
+    return CFE_ES_ResourceID_IsDefined(AppDataPtr->AppID);
 }
 
 /**
@@ -101,13 +101,13 @@ static inline bool EVS_AppDataIsUsed(EVS_AppData_t *AppDataPtr)
  * @param[in]   AppDataPtr   pointer to app table entry
  * @returns AppID of entry
  */
-static inline uint32 EVS_AppDataGetID(EVS_AppData_t *AppDataPtr)
+static inline CFE_ES_ResourceID_t EVS_AppDataGetID(EVS_AppData_t *AppDataPtr)
 {
     /*
      * The initial implementation does not store the ID in the entry;
      * the ID is simply the zero-based index into the table.
      */
-    return (AppDataPtr - CFE_EVS_GlobalData.AppData);
+    return (AppDataPtr->AppID);
 }
 
 /**
@@ -122,9 +122,9 @@ static inline uint32 EVS_AppDataGetID(EVS_AppData_t *AppDataPtr)
  * @param[in]   AppDataPtr   pointer to app table entry
  * @param[in]   AppID       the app ID of this entry
  */
-static inline void EVS_AppDataSetUsed(EVS_AppData_t *AppDataPtr, uint32 AppID)
+static inline void EVS_AppDataSetUsed(EVS_AppData_t *AppDataPtr, CFE_ES_ResourceID_t AppID)
 {
-    AppDataPtr->RegisterFlag = true;
+    AppDataPtr->AppID = AppID;
 }
 
 /**
@@ -137,7 +137,7 @@ static inline void EVS_AppDataSetUsed(EVS_AppData_t *AppDataPtr, uint32 AppID)
  */
 static inline void EVS_AppDataSetFree(EVS_AppData_t *AppDataPtr)
 {
-    AppDataPtr->RegisterFlag = false;
+    AppDataPtr->AppID = CFE_ES_RESOURCEID_UNDEFINED;
 }
 
 /**
@@ -150,17 +150,16 @@ static inline void EVS_AppDataSetFree(EVS_AppData_t *AppDataPtr)
  * @param[in]   AppID       expected app ID
  * @returns true if the entry matches the given app ID
  */
-static inline bool EVS_AppDataIsMatch(EVS_AppData_t *AppDataPtr, uint32 AppID)
+static inline bool EVS_AppDataIsMatch(EVS_AppData_t *AppDataPtr, CFE_ES_ResourceID_t AppID)
 {
-    return (AppDataPtr != NULL && EVS_AppDataIsUsed(AppDataPtr) &&
-            EVS_AppDataGetID(AppDataPtr) == AppID);
+    return (AppDataPtr != NULL && CFE_ES_ResourceID_Equal(AppDataPtr->AppID, AppID));
 }
 
 
 
 int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName);
 
-int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, uint32 AppID);
+int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, CFE_ES_ResourceID_t CallerID);
 
 bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType);
 

@@ -94,6 +94,7 @@ int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
     CFE_TIME_SysTime_t Time;
     int32   Result;
     int32   EndianCheck = 0x01020304;
+    CFE_ES_ResourceID_t AppID;
 
     /*
     ** Ensure that we are at the start of the file...
@@ -107,7 +108,8 @@ int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
         */
           Hdr->SpacecraftID  = CFE_PSP_GetSpacecraftId();
           Hdr->ProcessorID   = CFE_PSP_GetProcessorId();
-          CFE_ES_GetAppID((uint32 *)&(Hdr->ApplicationID));
+          CFE_ES_GetAppID(&AppID);
+          Hdr->ApplicationID = CFE_ES_ResourceID_ToInteger(AppID);
 
           /* Fill in length field */
 

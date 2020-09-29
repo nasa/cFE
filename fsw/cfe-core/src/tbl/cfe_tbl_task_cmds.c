@@ -172,7 +172,7 @@ void CFE_TBL_GetHkData(void)
     Count = 0;
     for (i=0; i<CFE_PLATFORM_TBL_MAX_NUM_TABLES; i++)
     {
-        if (CFE_TBL_TaskData.Registry[i].OwnerAppId != CFE_TBL_NOT_OWNED)
+        if (!CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED))
         {
             Count++;
 
@@ -246,7 +246,7 @@ void CFE_TBL_GetHkData(void)
         (CFE_TBL_TaskData.LastTblUpdated < CFE_PLATFORM_TBL_MAX_NUM_TABLES))
     {
         /* Check to make sure the Registry Entry is still valid */
-        if (CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.LastTblUpdated].OwnerAppId != CFE_TBL_NOT_OWNED)
+        if (!CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.LastTblUpdated].OwnerAppId, CFE_TBL_NOT_OWNED))
         {
             /* Get the time at the last table update */
             CFE_TBL_TaskData.HkPacket.Payload.LastUpdateTime =
@@ -1168,7 +1168,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
                 RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndex];
 
                 /* Check to see if the Registry entry is empty */
-                if ((RegRecPtr->OwnerAppId != CFE_TBL_NOT_OWNED) ||
+                if (!CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED) ||
                     (RegRecPtr->HeadOfAccessList != CFE_TBL_END_OF_LIST))
                 {
                     /* Fill Registry Dump Record with relevant information */
@@ -1220,7 +1220,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
                     }
 
                     /* Determine the name of the owning application */
-                    if (RegRecPtr->OwnerAppId != CFE_TBL_NOT_OWNED)
+                    if (!CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED))
                     {
                         CFE_ES_GetAppName(DumpRecord.OwnerAppName, RegRecPtr->OwnerAppId, sizeof(DumpRecord.OwnerAppName));
                     }

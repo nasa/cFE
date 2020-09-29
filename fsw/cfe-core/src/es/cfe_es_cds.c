@@ -536,7 +536,7 @@ int32 CFE_ES_UpdateCDSRegistry(void)
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, uint32 ThisAppId)
+void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceID_t ThisAppId)
 {
     char AppName[OS_MAX_API_NAME];
 
@@ -728,7 +728,7 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
     int32                RegIndx;
     CFE_ES_CDS_RegRec_t *RegRecPtr = NULL;
     char                 OwnerName[OS_MAX_API_NAME];
-    uint32               AppId;
+    CFE_ES_ResourceID_t  AppId;
     uint32               i;
     char                 LogMessage[CFE_ES_MAX_SYSLOG_MSG_SIZE];
     

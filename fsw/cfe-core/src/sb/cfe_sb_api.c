@@ -80,8 +80,8 @@
  */
 int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *PipeName)
 {
-    uint32          AppId = 0xFFFFFFFF;
-    uint32          TskId = 0;
+    CFE_ES_ResourceID_t  AppId;
+    CFE_ES_ResourceID_t  TskId;
     osal_id_t       SysQueueId;
     int32           Status;
     CFE_SB_PipeId_t OriginalPipeIdParamValue = (PipeIdPtr == NULL) ? 0 : (*PipeIdPtr);
@@ -210,7 +210,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
  */
 int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 {
-    uint32  CallerId = 0xFFFFFFFF;
+    CFE_ES_ResourceID_t CallerId;
     int32   Status = 0;
 
     /* get the callers Application Id */
@@ -236,7 +236,7 @@ int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 **  Return:
 **    CFE_SUCCESS or cFE Error Code
 */
-int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, uint32 AppId)
+int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_ResourceID_t AppId)
 {
     int32   Status = 0;
 
@@ -263,12 +263,13 @@ int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, uint32 AppId)
 **  Return:
 **    CFE_SUCCESS or cFE Error Code
 */
-int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,uint32 AppId)
+int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
 {
     uint8         PipeTblIdx;
     int32         RtnFromVal,Stat;
-    uint32        Owner,i;
-    uint32        TskId = 0;
+    CFE_ES_ResourceID_t Owner;
+    uint32        i;
+    CFE_ES_ResourceID_t TskId;
     CFE_SB_Msg_t  *PipeMsgPtr;
     CFE_SB_DestinationD_t *DestPtr = NULL;
     char          FullName[(OS_MAX_API_NAME * 2)];
@@ -295,7 +296,8 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,uint32 AppId)
     Owner = CFE_SB.PipeTbl[PipeTblIdx].AppId;
 
     /* check that the given AppId is the owner of the pipe */
-    if(AppId != Owner){
+    if( !CFE_ES_ResourceID_Equal(AppId, Owner) )
+    {
         CFE_SB.HKTlmMsg.Payload.CreatePipeErrorCounter++;
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_DEL_PIPE_ERR2_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
@@ -391,7 +393,10 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
 {
     uint8         PipeTblIdx = 0;
     int32         RtnFromVal = 0;
-    uint32        Owner = 0, AppID = 0, TskId = 0, Status = 0;
+    CFE_ES_ResourceID_t        Owner;
+    CFE_ES_ResourceID_t        AppID;
+    CFE_ES_ResourceID_t        TskId;
+    int32         Status;
     char          FullName[(OS_MAX_API_NAME * 2)];
 
     Status = CFE_ES_GetAppID(&AppID);
@@ -428,7 +433,8 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
 
     /* check that the given AppId is the owner of the pipe */
     Owner = CFE_SB.PipeTbl[PipeTblIdx].AppId;
-    if(AppID != Owner){
+    if( !CFE_ES_ResourceID_Equal(AppID, Owner) )
+    {
         CFE_SB.HKTlmMsg.Payload.PipeOptsErrorCounter++;
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_OWNER_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
@@ -462,7 +468,7 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 {
     uint8         PipeTblIdx = 0;
     int32         RtnFromVal = 0;
-    uint32        TskId = 0;
+    CFE_ES_ResourceID_t        TskId;
     char          FullName[(OS_MAX_API_NAME * 2)];
 
     /* get TaskId of caller for events */
@@ -508,7 +514,7 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId){
     OS_queue_prop_t queue_prop;
     int32 Status = CFE_SUCCESS;
-    uint32 TskId = 0;
+    CFE_ES_ResourceID_t        TskId;
     char FullName[(OS_MAX_API_NAME * 2)];
 
     if(PipeNameBuf == NULL || PipeNameSize == 0) {
@@ -539,6 +545,7 @@ int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t
                 "GetPipeName name=%s id=%d",
                 PipeNameBuf, PipeId);
         } else{
+            CFE_ES_GetTaskID(&TskId);
             CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_ID_ERR_EID, CFE_EVS_EventType_ERROR,
                 CFE_SB.AppId, "Pipe Id Error:Bad Argument,Id=%d,Requestor %s",
                 PipeId,CFE_SB_GetAppTskName(TskId,FullName));
@@ -560,7 +567,7 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
     uint8         PipeTblIdx = 0;
     int32         Status = CFE_SUCCESS;
     int32         RtnFromVal = 0;
-    uint32        TskId = 0;
+    CFE_ES_ResourceID_t        TskId;
     osal_id_t     QueueId;
     char          FullName[(OS_MAX_API_NAME * 2)];
 
@@ -725,8 +732,8 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
     CFE_SB_RouteEntry_t* RoutePtr;
     int32  Stat;
     CFE_SB_MsgKey_t   MsgKey;
-    uint32 TskId = 0;
-    uint32 AppId = 0xFFFFFFFF;
+    CFE_ES_ResourceID_t        TskId;
+    CFE_ES_ResourceID_t  AppId;
     uint8  PipeIdx;
     CFE_SB_DestinationD_t *DestBlkPtr = NULL;
     char   FullName[(OS_MAX_API_NAME * 2)];
@@ -755,7 +762,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
     }/* end if */
 
     /* check that the requestor is the owner of the pipe */
-    if(CFE_SB.PipeTbl[PipeIdx].AppId != AppId){
+    if( !CFE_ES_ResourceID_Equal(CFE_SB.PipeTbl[PipeIdx].AppId, AppId)){
       CFE_SB.HKTlmMsg.Payload.SubscribeErrorCounter++;
       CFE_SB_UnlockSharedData(__func__,__LINE__);
       CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_CALLER_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
@@ -917,7 +924,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
  */
 int32 CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
-    uint32  CallerId = 0xFFFFFFFF;
+    CFE_ES_ResourceID_t CallerId;
     int32   Status = 0;
 
     /* get the callers Application Id */
@@ -935,7 +942,7 @@ int32 CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
  */
 int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
-    uint32  CallerId = 0xFFFFFFFF;
+    CFE_ES_ResourceID_t CallerId;
     int32   Status = 0;
 
     /* get the callers Application Id */
@@ -972,7 +979,7 @@ int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 ******************************************************************************/
 int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId,
                               CFE_SB_PipeId_t PipeId,
-                              uint32 AppId)
+                              CFE_ES_ResourceID_t AppId)
 {
     int32   Status = 0;
 
@@ -1012,13 +1019,13 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId,
 **
 ******************************************************************************/
 int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
-                             uint8 Scope,uint32 AppId)
+                             uint8 Scope,CFE_ES_ResourceID_t AppId)
 {
     CFE_SB_MsgKey_t MsgKey;
     CFE_SB_MsgRouteIdx_t RouteIdx;
     CFE_SB_RouteEntry_t* RoutePtr;
     uint32  PipeIdx;
-    uint32  TskId = 0;
+    CFE_ES_ResourceID_t        TskId;
     CFE_SB_DestinationD_t   *DestPtr = NULL;
     char    FullName[(OS_MAX_API_NAME * 2)];
 
@@ -1040,7 +1047,8 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
     }/* end if */
 
     /* if given 'AppId' is not the owner of the pipe, send error event and return */
-    if(CFE_SB.PipeTbl[PipeIdx].AppId != AppId){
+    if( !CFE_ES_ResourceID_Equal(CFE_SB.PipeTbl[PipeIdx].AppId, AppId) )
+    {
       CFE_SB_UnlockSharedData(__func__,__LINE__);
       CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_INV_CALLER_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
             "Unsubscribe Err:Caller(%s) is not the owner of pipe %d,Msg=0x%x",
@@ -1189,7 +1197,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     CFE_SB_BufferD_t        *BufDscPtr;
     uint16                  TotalMsgSize;
     CFE_SB_MsgRouteIdx_t    RtgTblIdx;
-    uint32                  TskId = 0;
+    CFE_ES_ResourceID_t     TskId;
     uint32                  i;
     char                    FullName[(OS_MAX_API_NAME * 2)];
     CFE_SB_EventBuf_t       SBSndErr;
@@ -1350,11 +1358,11 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 
         if(PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE)
         {
-            uint32 AppId = 0xFFFFFFFF;
+            CFE_ES_ResourceID_t  AppId;
 
             CFE_ES_GetAppID(&AppId);
 
-            if(PipeDscPtr->AppId == AppId)
+            if( CFE_ES_ResourceID_Equal(PipeDscPtr->AppId, AppId) )
             {
                 continue;
             }
@@ -1509,7 +1517,7 @@ int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
     CFE_SB_BufferD_t       *Message;
     CFE_SB_PipeD_t         *PipeDscPtr;
     CFE_SB_DestinationD_t  *DestPtr = NULL;
-    uint32                 TskId = 0;
+    CFE_ES_ResourceID_t    TskId;
     char                   FullName[(OS_MAX_API_NAME * 2)];
 
     /* get task id for events */
@@ -1628,7 +1636,7 @@ CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
                                      CFE_SB_ZeroCopyHandle_t *BufferHandle)
 {
    int32                stat1;
-   uint32               AppId = 0xFFFFFFFF;
+   CFE_ES_ResourceID_t  AppId;
    cpuaddr              address = 0;
    CFE_SB_ZeroCopyD_t  *zcd = NULL;
    CFE_SB_BufferD_t    *bd = NULL;
@@ -1871,7 +1879,7 @@ int32 CFE_SB_ZeroCopyPass(CFE_SB_Msg_t   *MsgPtr,
 */
 
 int32  CFE_SB_ReadQueue (CFE_SB_PipeD_t         *PipeDscPtr,
-                         uint32                 TskId,
+                         CFE_ES_ResourceID_t    TskId,
                          CFE_SB_TimeOut_t       Time_Out,
                          CFE_SB_BufferD_t       **Message)
 {

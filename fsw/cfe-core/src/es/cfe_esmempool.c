@@ -311,7 +311,7 @@ int32 CFE_ES_GetPoolBuf(uint32             **BufPtr,
    Pool_t  * PoolPtr = (Pool_t *)Handle;
    uint32   BlockSize;
    MemPoolAddr_t BlockAddr;
-   uint32    AppId= 0xFFFFFFFF;
+   CFE_ES_ResourceID_t    AppId;
 
    if (PoolPtr != NULL)
    {
@@ -629,7 +629,7 @@ uint32 CFE_ES_GetBlockSize(Pool_t  *PoolPtr, uint32 Size)
 int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
                              CFE_ES_MemHandle_t  Handle)
 {
-    uint32    AppId = 0xFFFFFFFF;
+    CFE_ES_ResourceID_t    AppId;
     Pool_t   *PoolPtr;
     uint32    i;
     

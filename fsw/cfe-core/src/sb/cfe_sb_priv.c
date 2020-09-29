@@ -122,14 +122,14 @@ void CFE_SB_InitIdxStack(void)
 **  Return:
 **    None
 */
-int32 CFE_SB_CleanUpApp(uint32 AppId){
+int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId){
 
   uint32 i;
 
   /* loop through the pipe table looking for pipes owned by AppId */
   for(i=0;i<CFE_PLATFORM_SB_MAX_PIPES;i++){
     if((CFE_SB.PipeTbl[i].InUse == CFE_SB_IN_USE)&&
-       (CFE_SB.PipeTbl[i].AppId == AppId))
+       CFE_ES_ResourceID_Equal(CFE_SB.PipeTbl[i].AppId, AppId))
     {
       CFE_SB_DeletePipeWithAppId(CFE_SB.PipeTbl[i].PipeId,AppId);
     }/* end if */
@@ -281,7 +281,7 @@ uint8 CFE_SB_GetPipeIdx(CFE_SB_PipeId_t PipeId){
 void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber){
 
     int32   Status;
-    uint32  AppId = 0xFFFFFFFF;
+    CFE_ES_ResourceID_t AppId;
 
     Status = OS_MutSemTake(CFE_SB.SharedDataMutexId);
     if (Status != OS_SUCCESS) {
@@ -316,7 +316,7 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber){
 void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber){
 
    int32   Status;
-   uint32  AppId = 0xFFFFFFFF;
+   CFE_ES_ResourceID_t AppId;
 
     Status = OS_MutSemGive(CFE_SB.SharedDataMutexId);
     if (Status != OS_SUCCESS) {
@@ -621,7 +621,7 @@ int32 CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId){
 **  Note: With taskId, Parent App name and Child Task name can be queried from ES
 **
 */
-char *CFE_SB_GetAppTskName(uint32 TaskId,char *FullName){
+char *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId,char *FullName){
 
     CFE_ES_TaskInfo_t  TaskInfo;
     CFE_ES_TaskInfo_t  *ptr = &TaskInfo;
@@ -671,7 +671,7 @@ char *CFE_SB_GetAppTskName(uint32 TaskId,char *FullName){
 **    If the bit is set this function will return CFE_SB_DENIED.
 **    If bit is not set, this function set the bit and return CFE_SB_GRANTED.
 */
-uint32 CFE_SB_RequestToSendEvent(uint32 TaskId, uint32 Bit){
+uint32 CFE_SB_RequestToSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit){
 
     uint32 Indx;
 
@@ -708,7 +708,7 @@ uint32 CFE_SB_RequestToSendEvent(uint32 TaskId, uint32 Bit){
 **    If the bit is set this function will return CFE_SB_DENIED.
 **    If bit is not set, this function set the bit and return CFE_SB_GRANTED.
 */
-void CFE_SB_FinishSendEvent(uint32 TaskId, uint32 Bit){
+void CFE_SB_FinishSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit){
 
     uint32 Indx;
 
@@ -854,14 +854,15 @@ int32 CFE_SB_RemoveDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *
 **          Status
 **
 ******************************************************************************/
-int32 CFE_SB_ZeroCopyReleaseAppId(uint32         AppId)
+int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId)
 {
     CFE_SB_ZeroCopyD_t *prev = NULL;
     CFE_SB_ZeroCopyD_t *zcd = (CFE_SB_ZeroCopyD_t *) (CFE_SB.ZeroCopyTail);
 
     while(zcd != NULL){
         prev = (CFE_SB_ZeroCopyD_t *) (zcd->Prev);
-        if(zcd->AppID == AppId){
+        if( CFE_ES_ResourceID_Equal(zcd->AppID, AppId) )
+        {
             CFE_SB_ZeroCopyReleasePtr((CFE_SB_Msg_t *) zcd->Buffer, (CFE_SB_ZeroCopyHandle_t) zcd);
         }
         zcd = prev;

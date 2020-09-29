@@ -336,7 +336,7 @@ int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle)
 ** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
 ********************************************************************/
 
-int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, uint32 *AppIdPtr)
+int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_ResourceID_t *AppIdPtr)
 {
     int32 Status;
 
@@ -369,15 +369,15 @@ int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, uint32 *AppIdPtr)
 ** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
 ********************************************************************/
 
-int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, uint32 ThisAppId)
+int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_ResourceID_t ThisAppId)
 {
     int32 Status = CFE_SUCCESS;
 
-    if (ThisAppId != CFE_TBL_TaskData.Handles[TblHandle].AppId)
+    if (!CFE_ES_ResourceID_Equal(ThisAppId, CFE_TBL_TaskData.Handles[TblHandle].AppId))
     {
         /* The Table Service Task always has access rights so that tables */
         /* can be manipulated via ground command                          */
-        if (ThisAppId != CFE_TBL_TaskData.TableTaskAppId)
+        if (!CFE_ES_ResourceID_Equal(ThisAppId, CFE_TBL_TaskData.TableTaskAppId))
         {
             Status = CFE_TBL_ERR_NO_ACCESS;
         }
@@ -486,7 +486,7 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
 ********************************************************************/
 
 
-int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, uint32 ThisAppId)
+int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_ES_ResourceID_t ThisAppId)
 {
     int32   Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
@@ -509,7 +509,7 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, uint
             RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
 
             /* If table is unowned, then owner must have unregistered it when we weren't looking */
-            if (RegRecPtr->OwnerAppId == CFE_TBL_NOT_OWNED)
+            if (CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED))
             {
                 Status = CFE_TBL_ERR_UNREGISTERED;
 
@@ -597,7 +597,7 @@ int16 CFE_TBL_FindTableInRegistry(const char *TblName)
         i++;
 
         /* Check to see if the record is currently being used */
-        if (CFE_TBL_TaskData.Registry[i].OwnerAppId != CFE_TBL_NOT_OWNED)
+        if ( !CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED) )
         {
             /* Perform a case sensitive name comparison */
             if (strcmp(TblName, CFE_TBL_TaskData.Registry[i].Name) == 0)
@@ -628,7 +628,7 @@ int16 CFE_TBL_FindFreeRegistryEntry(void)
     {
         /* A Table Registry is only "Free" when there isn't an owner AND */
         /* all other applications are not sharing or locking the table   */
-        if ((CFE_TBL_TaskData.Registry[i].OwnerAppId == CFE_TBL_NOT_OWNED) &&
+        if (CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED) &&
             (CFE_TBL_TaskData.Registry[i].HeadOfAccessList == CFE_TBL_END_OF_LIST))
         {
             RegIndx = i;
@@ -678,7 +678,7 @@ CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void)
 ** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
 ********************************************************************/
 
-void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, uint32 ThisAppId)
+void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_ResourceID_t ThisAppId)
 {
     char AppName[OS_MAX_API_NAME];
 
@@ -1355,7 +1355,7 @@ void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
 ** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
 ********************************************************************/
 
-int32 CFE_TBL_CleanUpApp(uint32 AppId)
+int32 CFE_TBL_CleanUpApp(CFE_ES_ResourceID_t AppId)
 {
     uint32 i;
     CFE_TBL_RegistryRec_t *RegRecPtr = NULL;
@@ -1367,7 +1367,7 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
     {
         /* Check to see if the table to be dumped is owned by the App to be deleted */
         if ((CFE_TBL_TaskData.DumpControlBlocks[i].State != CFE_TBL_DUMP_FREE) && 
-           (CFE_TBL_TaskData.DumpControlBlocks[i].RegRecPtr->OwnerAppId == AppId))
+                CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.DumpControlBlocks[i].RegRecPtr->OwnerAppId, AppId))
         {
             /* If so, then remove the dump request */
             CFE_TBL_TaskData.DumpControlBlocks[i].State = CFE_TBL_DUMP_FREE;
@@ -1378,7 +1378,8 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
     for (i=0; i<CFE_PLATFORM_TBL_MAX_NUM_HANDLES; i++)
     {
         /* Check to see if the Handle belongs to the Application being deleted */
-        if (CFE_TBL_TaskData.Handles[i].AppId == AppId && CFE_TBL_TaskData.Handles[i].UsedFlag == true)
+        if (CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Handles[i].AppId, AppId) &&
+                CFE_TBL_TaskData.Handles[i].UsedFlag == true)
         {
             /* Delete the handle (and the table, if the App owned it) */
             /* Get a pointer to the relevant Access Descriptor */
@@ -1388,7 +1389,7 @@ int32 CFE_TBL_CleanUpApp(uint32 AppId)
             RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
 
             /* Determine if the Application owned this particular table */
-            if (RegRecPtr->OwnerAppId == AppId)
+            if (CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, AppId))
             {
                 /* Mark table as free, although, technically, it isn't free until the */
                 /* linked list of Access Descriptors has no links in it.              */
