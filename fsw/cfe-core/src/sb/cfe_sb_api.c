@@ -1134,11 +1134,9 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
  */
 int32  CFE_SB_SendMsg(CFE_SB_Msg_t    *MsgPtr)
 {
-    int32   Status = 0;
+    CFE_SB_SendStatus_t SendStatus;
 
-    Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_INCREMENT_TLM,CFE_SB_SEND_ONECOPY);
-
-    return Status;
+    return CFE_SB_SendMsgFull(MsgPtr,CFE_SB_INCREMENT_TLM,CFE_SB_SEND_ONECOPY, &SendStatus);
 
 }/* end CFE_SB_SendMsg */
 
@@ -1149,44 +1147,43 @@ int32  CFE_SB_SendMsg(CFE_SB_Msg_t    *MsgPtr)
  */
 int32  CFE_SB_PassMsg(CFE_SB_Msg_t    *MsgPtr)
 {
-    int32   Status = 0;
+    CFE_SB_SendStatus_t SendStatus;
 
-    Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_DO_NOT_INCREMENT,CFE_SB_SEND_ONECOPY);
-
-    return Status;
+    return CFE_SB_SendMsgFull(MsgPtr,CFE_SB_DO_NOT_INCREMENT,CFE_SB_SEND_ONECOPY, &SendStatus);
 
 }/* end CFE_SB_PassMsg */
 
-
+/*
+ * Function: CFE_SB_SendMsgWithStatus - See API and header file for details
+ */
+int32  CFE_SB_SendMsgWithStatus(CFE_SB_Msg_t *MsgPtr, CFE_SB_SendStatus_t *SendStatus)
+{
+    return CFE_SB_SendMsgFull(MsgPtr, CFE_SB_INCREMENT_TLM, CFE_SB_SEND_ONECOPY, SendStatus);
+}
 
 /******************************************************************************
 ** Name:    CFE_SB_SendMsgFull
 **
-** Purpose: API used to send a message on the software bus.
-**
-** Assumptions, External Events, and Notes:
-**
-**          Note: This function increments and tracks the source sequence
-**                counter for all telemetry messages.
-**
-** Date Written:
-**          04/25/2005
+** Purpose: Internal function called by APIs to send a message on the software bus.
+**          Options passed into control copy mode and if the sequence counter
+**          should be incremented.
 **
 ** Input Arguments:
-**          MsgPtr
-**          TlmCntIncrements
-**          CopyMode
+**          MsgPtr - message to send
+**          TlmCntIncrements - send (increment) or pass (no increment) option
+**          CopyMode - one or zero copy option
 **
 ** Output Arguments:
-**          None
+**          SendStatus - status of send
 **
 ** Return Values:
 **          Status
 **
 ******************************************************************************/
-int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
-                          uint32           TlmCntIncrements,
-                          uint32           CopyMode)
+int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t        *MsgPtr,
+                          uint32              TlmCntIncrements,
+                          uint32              CopyMode,
+                          CFE_SB_SendStatus_t *SendStatus)
 {
     CFE_SB_MsgKey_t         MsgKey;
     CFE_SB_MsgId_t          MsgId;
@@ -1203,13 +1200,18 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     CFE_SB_EventBuf_t       SBSndErr;
     char                    PipeName[OS_MAX_API_NAME] = {'\0'};
 
+    if (SendStatus != NULL)
+    {
+        *SendStatus = CFE_SB_SentInvalid;
+    }
+
     SBSndErr.EvtsToSnd = 0;
 
     /* get task id for events and Sender Info*/
     CFE_ES_GetTaskID(&TskId);
 
     /* check input parameter */
-    if(MsgPtr == NULL){
+    if((MsgPtr == NULL) || (SendStatus == NULL)){
         CFE_SB_LockSharedData(__func__,__LINE__);
         CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter++;
         CFE_SB_UnlockSharedData(__func__,__LINE__);
@@ -1290,6 +1292,11 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
            CFE_SB_FinishSendEvent(TskId,CFE_SB_SEND_NO_SUBS_EID_BIT);
         }/* end if */
 
+        if (SendStatus != NULL)
+        {
+            *SendStatus = CFE_SB_SentNoSubscribers;
+        }
+
         return CFE_SUCCESS;
     }/* end if */
 
@@ -1337,6 +1344,11 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     }/* end if */
 
     /* At this point there must be at least one destination for pkt */
+    if (SendStatus != NULL)
+    {
+        /* Initialize to none */
+        *SendStatus = CFE_SB_SentToNone;
+    }
 
     /* Send the packet to all destinations  */
     for (i=0, DestPtr = RtgTblPtr -> ListHeadPtr;
@@ -1402,6 +1414,12 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
                 }/* end if */
             }
 
+            /* Set to success, error handling after loop */
+            if (SendStatus != NULL)
+            {
+                *SendStatus = CFE_SB_SentToAll;
+            }
+
         }else if(Status == OS_QUEUE_FULL) {
 
             SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId  = DestPtr->PipeId;
@@ -1409,7 +1427,6 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
             SBSndErr.EvtsToSnd++;
             CFE_SB.HKTlmMsg.Payload.PipeOverflowErrorCounter++;
             PipeDscPtr->SendErrors++;
-
 
         }else{ /* Unexpected error while writing to queue. */
 
@@ -1420,7 +1437,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
             CFE_SB.HKTlmMsg.Payload.InternalErrorCounter++;
             PipeDscPtr->SendErrors++;
 
-                }/*end if */
+         }/*end if */
 
     } /* end loop over destinations */
     
@@ -1436,6 +1453,11 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     /* release the semaphore */
     CFE_SB_UnlockSharedData(__func__,__LINE__);
 
+    /* Update send status if there were errors */
+    if ((SendStatus != NULL) && (SBSndErr.EvtsToSnd != 0) && (*SendStatus == CFE_SB_SentToAll))
+    {
+        *SendStatus = CFE_SB_SentToSome;
+    }
 
     /* send an event for each pipe write error that may have occurred */
     for(i=0;i < SBSndErr.EvtsToSnd; i++)
@@ -1820,12 +1842,13 @@ int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Msg_t  *Ptr2Release,
 int32 CFE_SB_ZeroCopySend(CFE_SB_Msg_t   *MsgPtr,
                           CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
-    int32   Status = 0;
+    int32               Status = 0;
+    CFE_SB_SendStatus_t SendStatus;
 
     Status = CFE_SB_ZeroCopyReleaseDesc(MsgPtr, BufferHandle);
 
     if(Status == CFE_SUCCESS){
-        Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_INCREMENT_TLM,CFE_SB_SEND_ZEROCOPY);
+        Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_INCREMENT_TLM,CFE_SB_SEND_ZEROCOPY, &SendStatus);
     }
 
     return Status;
@@ -1839,12 +1862,13 @@ int32 CFE_SB_ZeroCopySend(CFE_SB_Msg_t   *MsgPtr,
 int32 CFE_SB_ZeroCopyPass(CFE_SB_Msg_t   *MsgPtr,
                           CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
-    int32   Status = 0;
+    int32               Status = 0;
+    CFE_SB_SendStatus_t SendStatus;
 
     Status = CFE_SB_ZeroCopyReleaseDesc(MsgPtr, BufferHandle);
 
     if(Status == CFE_SUCCESS){
-        Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_DO_NOT_INCREMENT,CFE_SB_SEND_ZEROCOPY);
+        Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_DO_NOT_INCREMENT,CFE_SB_SEND_ZEROCOPY, &SendStatus);
     }
 
     return Status;

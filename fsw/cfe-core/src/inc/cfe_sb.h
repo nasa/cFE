@@ -202,6 +202,17 @@ typedef  struct {
 
 extern CFE_SB_Qos_t CFE_SB_Default_Qos;/**< \brief  Defines a default priority and reliabilty for off-board routing */
 
+/** \brief Send status enumeration
+**
+** Can be used by senders for flow control or critical message logic
+**/
+typedef enum {
+    CFE_SB_SentInvalid,       /** \brief Invalid send status (undetermined) */
+    CFE_SB_SentNoSubscribers, /** \brief No subscribers */
+    CFE_SB_SentToNone,        /** \brief Sent to none of the subscribers */
+    CFE_SB_SentToSome,        /** \brief Sent to some of the subscribers */
+    CFE_SB_SentToAll          /** \brief Sent to all the subscribers */
+} CFE_SB_SendStatus_t;
 
 /****************** Function Prototypes **********************/
 
@@ -562,6 +573,31 @@ int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 ** \sa #CFE_SB_RcvMsg, #CFE_SB_ZeroCopySend, #CFE_SB_PassMsg
 **/
 int32  CFE_SB_SendMsg(CFE_SB_Msg_t   *MsgPtr);
+
+/*****************************************************************************/
+/**
+** \brief Send a software bus message with a status response
+**
+** \par Description
+**          Same functionality as #CFE_SB_SendMsg with the addition of a
+**          send status response parameter.
+**
+** \par Assumptions, External Events, and Notes:
+**          - See #CFE_SB_SendMsg
+**
+** \param[in]  MsgPtr       A pointer to the message to be sent.  This must point
+**                          to the first byte of the software bus message header
+**                          (#CFE_SB_Msg_t).
+** \param[out] SendStatus   Send status enumeration, see #CFE_SB_SendStatus_t
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
+** \retval #CFE_SB_BAD_ARGUMENT \copybrief CFE_SB_BAD_ARGUMENT
+** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
+** \retval #CFE_SB_BUF_ALOC_ERR \copybrief CFE_SB_BUF_ALOC_ERR
+**
+**/
+int32  CFE_SB_SendMsgWithStatus(CFE_SB_Msg_t *MsgPtr, CFE_SB_SendStatus_t *SendStatus);
 
 /*****************************************************************************/
 /**

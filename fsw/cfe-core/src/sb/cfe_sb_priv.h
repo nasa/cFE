@@ -378,7 +378,8 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
 
 int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
                               uint8 Scope, CFE_ES_ResourceID_t AppId);
-int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t   *MsgPtr, uint32 TlmCntIncrements, uint32 CopyMode);
+int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t   *MsgPtr, uint32 TlmCntIncrements, uint32 CopyMode,
+                          CFE_SB_SendStatus_t *SendStatus);
 int32 CFE_SB_SendRtgInfo(const char *Filename);
 int32 CFE_SB_SendPipeInfo(const char *Filename);
 int32 CFE_SB_SendMapInfo(const char *Filename);
