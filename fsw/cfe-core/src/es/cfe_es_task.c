@@ -1746,7 +1746,7 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStats_t *data)
     Cmd = &data->Payload;
 
     /* Verify the handle to make sure it is legit */
-    MemHandle = CFE_SB_GET_MEMADDR(Cmd->PoolHandle);
+    MemHandle = Cmd->PoolHandle;
     ValidHandle = CFE_ES_ValidateHandle(MemHandle);
 
     if (ValidHandle)
@@ -1755,7 +1755,7 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStats_t *data)
         CFE_ES_GetMemPoolStats(&CFE_ES_TaskData.MemStatsPacket.Payload.PoolStats, MemHandle);
 
         /* Echo the specified pool handle in the telemetry packet */
-        CFE_SB_SET_MEMADDR(CFE_ES_TaskData.MemStatsPacket.Payload.PoolHandle, MemHandle);
+        CFE_ES_TaskData.MemStatsPacket.Payload.PoolHandle = MemHandle;
 
         /*
         ** Send memory statistics telemetry packet.
@@ -1765,14 +1765,15 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStats_t *data)
 
         CFE_ES_TaskData.CommandCounter++;
         CFE_EVS_SendEvent(CFE_ES_TLM_POOL_STATS_INFO_EID, CFE_EVS_EventType_DEBUG,
-                "Successfully telemetered memory pool stats for 0x%08lX", (unsigned long)Cmd->PoolHandle);
+                "Successfully telemetered memory pool stats for 0x%08lX",
+                CFE_ES_ResourceID_ToInteger(Cmd->PoolHandle));
     }
     else
     {
         CFE_ES_TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_INVALID_POOL_HANDLE_ERR_EID, CFE_EVS_EventType_ERROR,
                 "Cannot telemeter memory pool stats. Illegal Handle (0x%08lX)",
-                (unsigned long)Cmd->PoolHandle);
+                CFE_ES_ResourceID_ToInteger(Cmd->PoolHandle));
     }
 
     return CFE_SUCCESS;

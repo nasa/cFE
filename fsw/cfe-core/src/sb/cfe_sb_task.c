@@ -231,7 +231,7 @@ int32 CFE_SB_AppInit(void){
                    true);    
 
     /* Populate the fixed fields in the HK Tlm Msg */
-    CFE_SB_SET_MEMADDR(CFE_SB.HKTlmMsg.Payload.MemPoolHandle, CFE_SB.Mem.PoolHdl);
+    CFE_SB.HKTlmMsg.Payload.MemPoolHandle = CFE_SB.Mem.PoolHdl;
     
     /* Populate the fixed fields in the Stat Tlm Msg */
     CFE_SB.StatTlmMsg.Payload.MaxMsgIdsAllowed = CFE_PLATFORM_SB_MAX_MSG_IDS;

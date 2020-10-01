@@ -445,11 +445,11 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 **
 ******************************************************************************/
 int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
-                        CFE_ES_MemHandle_t HandlePtr,
-                        uint32 Size)
+                        CFE_ES_MemHandle_t PoolID,
+                        CFE_ES_MemOffset_t Size)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_GetPoolBuf), BufPtr);
-    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetPoolBuf), HandlePtr);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetPoolBuf), PoolID);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetPoolBuf), Size);
 
     static union
@@ -554,9 +554,9 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
 **        Returns either a user-defined status flag or OS_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreate(cpuaddr *HandlePtr, uint8 *MemPtr, uint32 Size)
+int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, CFE_ES_MemOffset_t Size)
 {
-    UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreate), HandlePtr);
+    UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreate), PoolID);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreate), MemPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_PoolCreate), Size);
 
@@ -566,7 +566,7 @@ int32 CFE_ES_PoolCreate(cpuaddr *HandlePtr, uint8 *MemPtr, uint32 Size)
 
     if (status >= 0)
     {
-        UT_Stub_CopyToLocal(UT_KEY(CFE_ES_PoolCreate), (uint8*)HandlePtr, sizeof(*HandlePtr));
+        UT_Stub_CopyToLocal(UT_KEY(CFE_ES_PoolCreate), (uint8*)PoolID, sizeof(*PoolID));
     }
 
     return status;
@@ -587,11 +587,11 @@ int32 CFE_ES_PoolCreate(cpuaddr *HandlePtr, uint8 *MemPtr, uint32 Size)
 **        Returns OS_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr,
+int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID,
                              uint8 *MemPtr,
-                             uint32 Size)
+                             CFE_ES_MemOffset_t Size)
 {
-    UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateNoSem), HandlePtr);
+    UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateNoSem), PoolID);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateNoSem), MemPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_PoolCreateNoSem), Size);
 
@@ -601,7 +601,7 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr,
 
     if (status >= 0)
     {
-        UT_Stub_CopyToLocal(UT_KEY(CFE_ES_PoolCreateNoSem), (uint8*)HandlePtr, sizeof(*HandlePtr));
+        UT_Stub_CopyToLocal(UT_KEY(CFE_ES_PoolCreateNoSem), (uint8*)PoolID, sizeof(*PoolID));
     }
 
     return status;
@@ -627,14 +627,14 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *HandlePtr,
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreateEx(cpuaddr *HandlePtr,
-                          uint8 *MemPtr,
-                          uint32 Size,
-                          uint32 NumBlockSizes,
-                          uint32 *BlockSizes,
-                          uint16 UseMutex)
+int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t  *PoolID,
+                          uint8               *MemPtr,
+                          CFE_ES_MemOffset_t   Size,
+                          uint16               NumBlockSizes,
+                          const CFE_ES_MemOffset_t  *BlockSizes,
+                          uint16               UseMutex )
 {
-    UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateEx), HandlePtr);
+    UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateEx), PoolID);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateEx), MemPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_PoolCreateEx), Size);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_PoolCreateEx), NumBlockSizes);
@@ -647,6 +647,22 @@ int32 CFE_ES_PoolCreateEx(cpuaddr *HandlePtr,
 
     return status;
 }
+
+/*****************************************************************************/
+/**
+ * \brief CFE_ES_PoolDelete stub function
+ */
+int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_PoolDelete), PoolID);
+
+    int32 status = CFE_SUCCESS;
+
+    status = UT_DEFAULT_IMPL(CFE_ES_PoolDelete);
+
+    return status;
+}
+
 
 /*****************************************************************************/
 /**
@@ -671,9 +687,9 @@ int32 CFE_ES_PoolCreateEx(cpuaddr *HandlePtr,
 **        Returns either a user-defined status flag, 16, or -1.
 **
 ******************************************************************************/
-int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr)
+int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr)
 {
-    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_PutPoolBuf), HandlePtr);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_PutPoolBuf), PoolID);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PutPoolBuf), BufPtr);
 
     int32   status;
@@ -703,9 +719,9 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr)
 **        Returns either a user-defined status flag or 16.
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t HandlePtr, uint32 *BufPtr)
+int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr)
 {
-    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetPoolBufInfo), HandlePtr);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetPoolBufInfo), PoolID);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_GetPoolBufInfo), BufPtr);
 
     int32   status;

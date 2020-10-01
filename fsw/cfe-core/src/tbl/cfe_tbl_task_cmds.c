@@ -166,7 +166,7 @@ void CFE_TBL_GetHkData(void)
     CFE_TBL_TaskData.HkPacket.Payload.CommandErrorCounter = CFE_TBL_TaskData.CommandErrorCounter;
     CFE_TBL_TaskData.HkPacket.Payload.FailedValCounter = CFE_TBL_TaskData.FailedValCounter;
     CFE_TBL_TaskData.HkPacket.Payload.NumLoadPending = 0;
-    CFE_SB_SET_MEMADDR(CFE_TBL_TaskData.HkPacket.Payload.MemPoolHandle, CFE_TBL_TaskData.Buf.PoolHdl);
+    CFE_TBL_TaskData.HkPacket.Payload.MemPoolHandle = CFE_TBL_TaskData.Buf.PoolHdl;
 
     /* Determine the number of tables currently registered and Number of Load Pending Tables */
     Count = 0;
