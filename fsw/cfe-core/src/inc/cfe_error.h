@@ -43,6 +43,12 @@
 #include "osapi.h"
 
 /*
+ * Define a type for readability.
+ */
+
+typedef int32 CFE_Status_t;
+
+/*
 **  Status Codes are 32 bit values formatted as follows:
 **
 **   3 3 2 2 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1

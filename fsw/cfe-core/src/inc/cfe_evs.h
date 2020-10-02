@@ -37,6 +37,7 @@
 
 /********************************** Include Files  ************************************/
 #include "cfe_evs_extern_typedefs.h"
+#include "cfe_error.h"
 #include "common_types.h"    /* Basic data types */
 #include "cfe_time.h"        /* Time library function definitions */
 #include "cfe_evs_msg.h"        /* EVS command codes and data structures*/
@@ -139,7 +140,7 @@ typedef struct CFE_EVS_BinFilter {
 ** \sa #CFE_EVS_Unregister
 **
 **/
-int32 CFE_EVS_Register (void                 *Filters,           /* Pointer to an array of filters */
+CFE_Status_t CFE_EVS_Register (void              *Filters,           /* Pointer to an array of filters */
                         uint16               NumFilteredEvents,  /* How many elements in the array? */
                         uint16               FilterScheme);      /* Filtering Algorithm to be implemented */
 
@@ -163,7 +164,7 @@ int32 CFE_EVS_Register (void                 *Filters,           /* Pointer to a
 ** \sa #CFE_EVS_Register
 **
 **/
-int32 CFE_EVS_Unregister( void );
+CFE_Status_t CFE_EVS_Unregister( void );
 /**@}*/
 
 /** @defgroup CFEAPIEVSSend cFE Send Event APIs
@@ -212,9 +213,9 @@ int32 CFE_EVS_Unregister( void );
 ** \sa #CFE_EVS_SendEventWithAppID, #CFE_EVS_SendTimedEvent
 **
 **/
-int32 CFE_EVS_SendEvent (uint16 EventID,
-                         uint16 EventType,
-                         const char *Spec, ... )  OS_PRINTF(3,4);
+CFE_Status_t CFE_EVS_SendEvent (uint16 EventID,
+                            uint16 EventType,
+                            const char *Spec, ... )  OS_PRINTF(3,4);
 
 
 /** 
@@ -263,10 +264,10 @@ int32 CFE_EVS_SendEvent (uint16 EventID,
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendTimedEvent
 **
 **/
-int32 CFE_EVS_SendEventWithAppID (uint16 EventID,
-                                  uint16 EventType,
-                                  CFE_ES_ResourceID_t AppID,
-                                  const char *Spec, ... ) OS_PRINTF(4,5);
+CFE_Status_t CFE_EVS_SendEventWithAppID (uint16 EventID,
+                                         uint16 EventType,
+                                         CFE_ES_ResourceID_t AppID,
+                                         const char *Spec, ... ) OS_PRINTF(4,5);
 
 
 /** 
@@ -315,10 +316,10 @@ int32 CFE_EVS_SendEventWithAppID (uint16 EventID,
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendEventWithAppID
 **
 **/
-int32 CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time,
-                              uint16 EventID,
-                              uint16 EventType,
-                              const char *Spec, ... ) OS_PRINTF(4,5);
+CFE_Status_t CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time,
+                                 uint16 EventID,
+                                 uint16 EventType,
+                                 const char *Spec, ... ) OS_PRINTF(4,5);
 /**@}*/
 
 /** @defgroup CFEAPIEVSResetFilter cFE Reset Event Filter APIs
@@ -346,7 +347,7 @@ int32 CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time,
 ** \sa #CFE_EVS_ResetAllFilters
 **
 **/
-int32 CFE_EVS_ResetFilter (int16 EventID);
+CFE_Status_t CFE_EVS_ResetFilter (int16 EventID);
 
 
 /** 
@@ -367,7 +368,7 @@ int32 CFE_EVS_ResetFilter (int16 EventID);
 ** \sa #CFE_EVS_ResetFilter
 **
 **/
-int32 CFE_EVS_ResetAllFilters ( void );
+CFE_Status_t CFE_EVS_ResetAllFilters ( void );
 /**@}*/
 
 
