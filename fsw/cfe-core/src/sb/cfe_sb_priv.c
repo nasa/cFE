@@ -634,7 +634,7 @@ char *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId,char *FullName){
       strncpy(FullName,"Unknown",OS_MAX_API_NAME-1);
       FullName[OS_MAX_API_NAME-1] = '\0';
 
-    }else if(strncmp((char *)ptr->AppName,(char *)ptr->TaskName,OS_MAX_API_NAME-1) == 0){
+    }else if(strncmp((char *)ptr->AppName,(char *)ptr->TaskName,sizeof(ptr->AppName)) == 0){
 
       /* if app name and task name are the same */
       strncpy(FullName,(char *)ptr->AppName,OS_MAX_API_NAME-1);

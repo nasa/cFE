@@ -86,7 +86,7 @@
 /** \{ */
 /** Maximum length allowed for CDS name. <BR>
 ** NOTE: "+2" is for NULL Character and "." (i.e. - "AppName.CDSName") */
-#define CFE_ES_CDS_MAX_FULL_NAME_LEN (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + OS_MAX_API_NAME + 2)
+#define CFE_ES_CDS_MAX_FULL_NAME_LEN (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 2)
 
 #define CFE_ES_CDS_BAD_HANDLE  (CFE_ES_CDSHandle_t) 0xFFFF
 /** \} */
@@ -321,11 +321,11 @@ typedef struct CFE_ES_AppInfo
    uint32   Type;                           /**< \cfetlmmnemonic \ES_APPTYPE
                                                  \brief The type of App: CORE or EXTERNAL */
 
-   char     Name[OS_MAX_API_NAME];          /**< \cfetlmmnemonic \ES_APPNAME
+   char     Name[CFE_MISSION_MAX_API_LEN];  /**< \cfetlmmnemonic \ES_APPNAME
                                                  \brief The Registered Name of the Application */
-   char     EntryPoint[OS_MAX_API_NAME];    /**< \cfetlmmnemonic \ES_APPENTRYPT
+   char     EntryPoint[CFE_MISSION_MAX_API_LEN];    /**< \cfetlmmnemonic \ES_APPENTRYPT
                                                  \brief The Entry Point label for the Application */
-   char     FileName[OS_MAX_PATH_LEN];      /**< \cfetlmmnemonic \ES_APPFILENAME
+   char     FileName[CFE_MISSION_MAX_PATH_LEN];     /**< \cfetlmmnemonic \ES_APPFILENAME
                                                  \brief The Filename of the file containing the Application */
 
    uint32   StackSize;                      /**< \cfetlmmnemonic \ES_STACKSIZE
@@ -357,7 +357,7 @@ typedef struct CFE_ES_AppInfo
                                                  \brief The Application's Main Task ID */
    uint32   ExecutionCounter;               /**< \cfetlmmnemonic \ES_MAINTASKEXECNT
                                                  \brief The Application's Main Task Execution Counter */
-   char     MainTaskName[OS_MAX_API_NAME];  /**< \cfetlmmnemonic \ES_MAINTASKNAME
+   char     MainTaskName[CFE_MISSION_MAX_API_LEN];  /**< \cfetlmmnemonic \ES_MAINTASKNAME
                                                  \brief The Application's Main Task ID */
    uint32   NumOfChildTasks;                /**< \cfetlmmnemonic \ES_CHILDTASKS
                                                  \brief Number of Child tasks for an App */
@@ -369,12 +369,11 @@ typedef struct CFE_ES_AppInfo
  */
 typedef struct CFE_ES_TaskInfo
 {
-   CFE_ES_ResourceID_t   TaskId;       /**< \brief Task Id */
-   uint32   ExecutionCounter;          /**< \brief Task Execution Counter */
-   char     TaskName[OS_MAX_API_NAME]; /**< \brief Task Name */
-   CFE_ES_ResourceID_t   AppId;        /**< \brief Parent Application ID */
-   char     AppName[OS_MAX_API_NAME];  /**< \brief Parent Application Name */
-
+   CFE_ES_ResourceID_t TaskId;                            /**< \brief Task Id */
+   uint32              ExecutionCounter;                  /**< \brief Task Execution Counter */
+   char                TaskName[CFE_MISSION_MAX_API_LEN]; /**< \brief Task Name */
+   CFE_ES_ResourceID_t AppId;                             /**< \brief Parent Application ID */
+   char                AppName[CFE_MISSION_MAX_API_LEN];  /**< \brief Parent Application Name */
 } CFE_ES_TaskInfo_t;
 
 /**

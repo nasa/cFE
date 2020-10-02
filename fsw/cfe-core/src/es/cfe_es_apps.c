@@ -1565,9 +1565,9 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       ** Get the Application ID and Task Name
       */
       TaskInfoPtr->AppId = TaskRecPtr->AppId;
-      strncpy((char *)TaskInfoPtr->TaskName,
-              (char *)TaskRecPtr->TaskName,OS_MAX_API_NAME);
-      TaskInfoPtr->TaskName[OS_MAX_API_NAME - 1] = '\0';
+      strncpy((char*)TaskInfoPtr->TaskName, TaskRecPtr->TaskName,
+              sizeof(TaskInfoPtr->TaskName)-1);
+      TaskInfoPtr->TaskName[sizeof(TaskInfoPtr->TaskName)-1] = '\0';
 
       /*
       ** Store away the Task ID ( for the QueryAllTasks Cmd )
@@ -1585,9 +1585,9 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       AppRecPtr = CFE_ES_LocateAppRecordByID(TaskRecPtr->AppId);
       if (CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId))
       {
-         strncpy((char*)TaskInfoPtr->AppName,
-                 (char*)AppRecPtr->StartParams.Name,
+         strncpy((char*)TaskInfoPtr->AppName, AppRecPtr->StartParams.Name,
                  sizeof(TaskInfoPtr->AppName)-1);
+         TaskInfoPtr->AppName[sizeof(TaskInfoPtr->AppName)-1] = '\0';
          ReturnCode = CFE_SUCCESS;
       }
       else
