@@ -280,7 +280,7 @@
 **  \par Limits
 **       These sizes MUST be increasing and MUST be an integral multiple of 4.
 **       The number of block sizes defined cannot exceed
-**       #CFE_ES_MAX_MEMPOOL_BLOCK_SIZES
+**       #CFE_PLATFORM_ES_POOL_MAX_BUCKETS
 */
 #define CFE_PLATFORM_SB_MEM_BLOCK_SIZE_01              8
 #define CFE_PLATFORM_SB_MEM_BLOCK_SIZE_02             16
