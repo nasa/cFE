@@ -1088,6 +1088,8 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
    CFE_ES_ResourceID_t CurrTaskId;
    int32  ReturnCode = CFE_SUCCESS;
    CFE_ES_TaskRecord_t *TaskRecPtr;
+   CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
+   CFE_ES_MemHandle_t PoolId;
    CFE_ES_ResourceID_t AppId;
 
    /*
@@ -1190,6 +1192,38 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
    }
 
    CFE_ES_AppRecordSetFree(AppRecPtr);
+
+   /*
+   ** Delete any memory pools associated with this app
+   */
+   MemPoolRecPtr = CFE_ES_Global.MemPoolTable;
+   for ( i = 0; i < CFE_PLATFORM_ES_MAX_MEMORY_POOLS; i++ )
+   {
+      if ( CFE_ES_MemPoolRecordIsUsed(MemPoolRecPtr) &&
+          CFE_ES_ResourceID_Equal(MemPoolRecPtr->OwnerAppID, AppId))
+      {
+          PoolId = CFE_ES_MemPoolRecordGetID(MemPoolRecPtr);
+
+          /*
+           * This needs to release the lock first because
+           * CFE_ES_PoolDelete acquires the lock.
+           */
+          CFE_ES_UnlockSharedData(__func__, __LINE__);
+          Status = CFE_ES_PoolDelete(PoolId);
+          CFE_ES_LockSharedData(__func__, __LINE__);
+
+          if ( Status != CFE_SUCCESS )
+          {
+              CFE_ES_SysLogWrite_Unsync("CFE_ES_MemPoolCleanupApp: delete pool %lu returned Error: 0x%08X\n",
+                      CFE_ES_ResourceID_ToInteger(PoolId), (unsigned int)Status);
+              ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+          }
+      }
+
+      ++MemPoolRecPtr;
+   } /* end for */
+
+
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
@@ -1531,9 +1565,9 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       ** Get the Application ID and Task Name
       */
       TaskInfoPtr->AppId = TaskRecPtr->AppId;
-      strncpy((char *)TaskInfoPtr->TaskName,
-              (char *)TaskRecPtr->TaskName,OS_MAX_API_NAME);
-      TaskInfoPtr->TaskName[OS_MAX_API_NAME - 1] = '\0';
+      strncpy((char*)TaskInfoPtr->TaskName, TaskRecPtr->TaskName,
+              sizeof(TaskInfoPtr->TaskName)-1);
+      TaskInfoPtr->TaskName[sizeof(TaskInfoPtr->TaskName)-1] = '\0';
 
       /*
       ** Store away the Task ID ( for the QueryAllTasks Cmd )
@@ -1551,9 +1585,9 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       AppRecPtr = CFE_ES_LocateAppRecordByID(TaskRecPtr->AppId);
       if (CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId))
       {
-         strncpy((char*)TaskInfoPtr->AppName,
-                 (char*)AppRecPtr->StartParams.Name,
+         strncpy((char*)TaskInfoPtr->AppName, AppRecPtr->StartParams.Name,
                  sizeof(TaskInfoPtr->AppName)-1);
+         TaskInfoPtr->AppName[sizeof(TaskInfoPtr->AppName)-1] = '\0';
          ReturnCode = CFE_SUCCESS;
       }
       else

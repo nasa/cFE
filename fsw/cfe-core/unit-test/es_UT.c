@@ -51,11 +51,32 @@ extern int32 dummy_function(void);
 /*
 ** Global variables
 */
+
+/* Buffers to support memory pool testing */
+typedef union
+{
+    CFE_ES_PoolAlign_t  Align;      /* make aligned */
+    uint8               Data[300];
+} CFE_ES_GMP_DirectBuffer_t;
+
+typedef struct
+{
+    CFE_ES_GenPoolBD_t  BD;
+    CFE_ES_PoolAlign_t  Align;      /* make aligned */
+    uint8               Spare;      /* make unaligned */
+    uint8               Data[(sizeof(CFE_ES_GenPoolBD_t) * 4) + 157];  /* oddball size */
+} CFE_ES_GMP_IndirectBuffer_t;
+
+
+CFE_ES_GMP_DirectBuffer_t   UT_MemPoolDirectBuffer;
+CFE_ES_GMP_IndirectBuffer_t UT_MemPoolIndirectBuffer;
+
 /* Create a startup script buffer for a maximum of 5 lines * 80 chars/line */
 char StartupScript[MAX_STARTUP_SCRIPT];
 
 /* Number of apps instantiated */
 uint32 ES_UT_NumApps;
+uint32 ES_UT_NumPools;
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_NOOP_CC =
 {
@@ -216,6 +237,13 @@ CFE_ES_ResourceID_t ES_UT_MakeLibIdForIndex(uint32 ArrayIdx)
     return CFE_ES_ResourceID_FromInteger(ArrayIdx + CFE_ES_LIBID_BASE);
 }
 
+CFE_ES_MemHandle_t ES_UT_MakePoolIdForIndex(uint32 ArrayIdx)
+{
+    /* UT hack - make up PoolID values in a manner similar to FSW.
+     * Real apps should never do this. */
+    return CFE_ES_ResourceID_FromInteger(ArrayIdx + CFE_ES_POOLID_BASE);
+}
+
 /*
  * Helper function to setup a single app ID in the given state, along with
  * a main task ID.  A pointer to the App and Task record is output so the
@@ -310,6 +338,63 @@ void ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *Tas
     ++CFE_ES_Global.RegisteredTasks;
 }
 
+int32 ES_UT_PoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+        CFE_ES_GenPoolBD_t **BdPtr)
+{
+    *BdPtr = (CFE_ES_GenPoolBD_t*)((void*)&UT_MemPoolDirectBuffer.Data[Offset]);
+    return CFE_SUCCESS;
+}
+
+int32 ES_UT_PoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+        const CFE_ES_GenPoolBD_t *BdPtr)
+{
+    return CFE_SUCCESS;
+}
+
+int32 ES_UT_PoolIndirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+        CFE_ES_GenPoolBD_t **BdPtr)
+{
+    memcpy(&UT_MemPoolIndirectBuffer.BD, &UT_MemPoolIndirectBuffer.Data[Offset], sizeof(CFE_ES_GenPoolBD_t));
+    *BdPtr = &UT_MemPoolIndirectBuffer.BD;
+    return CFE_SUCCESS;
+}
+
+int32 ES_UT_PoolIndirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+        const CFE_ES_GenPoolBD_t *BdPtr)
+{
+    memcpy(&UT_MemPoolIndirectBuffer.Data[Offset], BdPtr, sizeof(CFE_ES_GenPoolBD_t));
+    return CFE_SUCCESS;
+}
+
+void ES_UT_SetupMemPoolId(CFE_ES_MemPoolRecord_t **OutPoolRecPtr)
+{
+    CFE_ES_MemHandle_t UtPoolID;
+    CFE_ES_MemPoolRecord_t *LocalPoolRecPtr;
+
+    UtPoolID = ES_UT_MakePoolIdForIndex(ES_UT_NumPools);
+    ++ES_UT_NumPools;
+
+    LocalPoolRecPtr = CFE_ES_LocateMemPoolRecordByID(UtPoolID);
+
+    /* in order to validate the size must be nonzero */
+    LocalPoolRecPtr->Pool.PoolTotalSize = sizeof(UT_MemPoolDirectBuffer.Data);
+    LocalPoolRecPtr->Pool.PoolMaxOffset =  sizeof(UT_MemPoolDirectBuffer.Data);
+    LocalPoolRecPtr->Pool.Buckets[0].BlockSize = 16;
+    LocalPoolRecPtr->Pool.NumBuckets = 1;
+    LocalPoolRecPtr->Pool.Retrieve = ES_UT_PoolDirectRetrieve;
+    LocalPoolRecPtr->Pool.Commit = ES_UT_PoolDirectCommit;
+    LocalPoolRecPtr->BaseAddr = (cpuaddr)UT_MemPoolDirectBuffer.Data;
+    OS_MutSemCreate(&LocalPoolRecPtr->MutexId, NULL, 0);
+
+    CFE_ES_MemPoolRecordSetUsed(LocalPoolRecPtr, UtPoolID);
+
+    if (OutPoolRecPtr)
+    {
+        *OutPoolRecPtr = LocalPoolRecPtr;
+    }
+
+}
+
 void ES_UT_SetupSingleCDSRegistry(const char *CDSName, bool IsTable,
         CFE_ES_CDS_RegRec_t **OutRegRec)
 {
@@ -335,6 +420,7 @@ void ES_UT_SetupSingleCDSRegistry(const char *CDSName, bool IsTable,
     }
     LocalRegRecPtr->Taken = true;
     LocalRegRecPtr->Table = IsTable;
+
     LocalRegRecPtr->MemHandle =
         sizeof(CFE_ES_Global.CDSVars.ValidityField);
 
@@ -431,6 +517,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(TestAPI);
     UT_ADD_TEST(TestGenericCounterAPI);
     UT_ADD_TEST(TestCDS);
+    UT_ADD_TEST(TestGenericPool);
     UT_ADD_TEST(TestCDSMempool);
     UT_ADD_TEST(TestESMempool);
     UT_ADD_TEST(TestSysLog);
@@ -446,6 +533,7 @@ void ES_ResetUnitTest(void)
 
     memset(&CFE_ES_Global, 0, sizeof(CFE_ES_Global));
     ES_UT_NumApps = 0;
+    ES_UT_NumPools = 0;
 } /* end ES_ResetUnitTest() */
 
 void TestInit(void)
@@ -2037,6 +2125,250 @@ void TestERLog(void)
               "No log entry rollover; no description; no context");
 }
 
+
+void TestGenericPool(void)
+{
+    CFE_ES_GenPoolRecord_t Pool1;
+    CFE_ES_GenPoolRecord_t Pool2;
+    CFE_ES_MemOffset_t     Offset1;
+    CFE_ES_MemOffset_t     Offset2;
+    CFE_ES_MemOffset_t     Offset3;
+    CFE_ES_MemOffset_t     Offset4;
+    CFE_ES_MemOffset_t     OffsetEnd;
+    CFE_ES_MemOffset_t     BlockSize;
+    CFE_ES_MemOffset_t     FreeSize;
+    CFE_ES_MemOffset_t     TotalSize;
+    uint16                 NumBlocks;
+    uint32                 CountBuf;
+    uint32                 ErrBuf;
+    CFE_ES_BlockStats_t    BlockStats;
+    static const CFE_ES_MemOffset_t  UT_POOL_BLOCK_SIZES[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
+    {
+            /*
+             * These are intentionally in a mixed order
+             * so that the implementation will sort them.
+             */
+            16, 56, 60, 40, 44, 48,
+            64, 128, 20, 24, 28, 12,
+            52, 32, 4, 8, 36
+    };
+    uint16 i;
+    uint32 ExpectedCount;
+
+    ES_ResetUnitTest();
+
+    /* Test successfully creating direct access pool, with alignment, no mutex */
+    memset(&UT_MemPoolDirectBuffer, 0xee, sizeof(UT_MemPoolDirectBuffer));
+    OffsetEnd = sizeof(UT_MemPoolDirectBuffer.Data);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolInitialize(&Pool1,
+                0,
+                OffsetEnd,
+                32,
+                CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
+                UT_POOL_BLOCK_SIZES,
+                ES_UT_PoolDirectRetrieve,
+                ES_UT_PoolDirectCommit),
+            CFE_SUCCESS);
+
+    /* Allocate buffers until no space left */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, 44), CFE_SUCCESS);
+    UtAssert_True(Offset1 > 0 && Offset1 < OffsetEnd, "0 < Offset(%lu) < %lu",
+            (unsigned long)Offset1, (unsigned long)OffsetEnd);
+    UtAssert_True((Offset1 & 0x1F) == 0, "Offset(%lu) 32 byte alignment",
+            (unsigned long)Offset1);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset2, 72), CFE_SUCCESS);
+    UtAssert_True(Offset2 > Offset1 && Offset2 < OffsetEnd, "%lu < Offset(%lu) < %lu",
+            (unsigned long)Offset1, (unsigned long)Offset2, (unsigned long)OffsetEnd);
+    UtAssert_True((Offset2 & 0x1F) == 0, "Offset(%lu) 32 byte alignment",
+            (unsigned long)Offset2);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset3, 72), CFE_ES_ERR_MEM_BLOCK_SIZE);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset3, 6), CFE_SUCCESS);
+    UtAssert_True(Offset3 > Offset2 && Offset3 < OffsetEnd, "%lu < Offset(%lu) < %lu",
+            (unsigned long)Offset2, (unsigned long)Offset3, (unsigned long)OffsetEnd);
+    UtAssert_True((Offset3 & 0x1F) == 0, "Offset(%lu) 32 byte alignment",
+            (unsigned long)Offset3);
+
+    /* Free a buffer and attempt to reallocate */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset2), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(BlockSize, 72);
+
+    /* Should not be able to free more than once */
+    /* This should increment the validation error count */
+    UtAssert_ZERO(Pool1.ValidationErrorCount);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset2), CFE_ES_POOL_BLOCK_INVALID);
+    UtAssert_NONZERO(Pool1.ValidationErrorCount);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset4, 100), CFE_SUCCESS);
+    UtAssert_True(Offset4 == Offset2, "New Offset(%lu) == Old Offset(%lu)",
+            (unsigned long)Offset4, (unsigned long)Offset2);
+
+    /* Attempt Bigger than the largest bucket */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, 1000), CFE_ES_ERR_MEM_BLOCK_SIZE);
+
+    /* Call stats functions for coverage (no return code) */
+    CFE_ES_GenPoolGetUsage(&Pool1, &FreeSize, &TotalSize);
+    CFE_ES_GenPoolGetCounts(&Pool1, &NumBlocks, &CountBuf, &ErrBuf);
+    CFE_ES_GenPoolGetBucketUsage(&Pool1, 1, &BlockStats);
+
+    /* Check various outputs to ensure correctness */
+    UtAssert_UINT32_EQ(TotalSize, OffsetEnd);
+    UtAssert_UINT32_EQ(CountBuf, 3);
+    UtAssert_True(FreeSize > 0, "FreeSize(%lu) > 0", (unsigned long)FreeSize);
+
+    /* put blocks so the pool has a mixture of allocated an deallocated blocks */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset2), CFE_SUCCESS);
+
+    /* Now wipe the pool management structure, and attempt to rebuild it. */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolInitialize(&Pool2,
+                0,
+                OffsetEnd,
+                32,
+                CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
+                UT_POOL_BLOCK_SIZES,
+                ES_UT_PoolDirectRetrieve,
+                ES_UT_PoolDirectCommit),
+            CFE_SUCCESS);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolRebuild(&Pool2),
+            CFE_SUCCESS);
+
+    /* After rebuilding, Pool2 should have similar state data to Pool1. */
+    UtAssert_UINT32_EQ(Pool1.TailPosition, Pool2.TailPosition);
+    UtAssert_UINT32_EQ(Pool1.AllocationCount, Pool2.AllocationCount);
+
+    for (i=0; i < Pool1.NumBuckets; ++i)
+    {
+        /* Allocation counts should match exactly */
+        UtAssert_UINT32_EQ(Pool1.Buckets[i].AllocationCount, Pool2.Buckets[i].AllocationCount);
+
+        /*
+         * The recovery is not aware of how many times the block was
+         * recycled, so this needs to be adjusted.
+         */
+        ExpectedCount = Pool1.Buckets[i].ReleaseCount - Pool1.Buckets[i].RecycleCount;
+        UtAssert_UINT32_EQ(ExpectedCount, Pool2.Buckets[i].ReleaseCount);
+    }
+
+    /* Get blocks again, from the recovered pool, to demonstrate that
+     * the pool is functional after recovery. */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset3, 44), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(Offset3, Offset1);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset4, 72), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(Offset4, Offset2);
+
+
+
+    /* Test successfully creating indirect memory pool, no alignment, with mutex */
+    memset(&UT_MemPoolIndirectBuffer, 0xee, sizeof(UT_MemPoolIndirectBuffer));
+    OffsetEnd = sizeof(UT_MemPoolIndirectBuffer.Data);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolInitialize(&Pool2,
+                2,
+                OffsetEnd - 2,
+                0,
+                CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
+                UT_POOL_BLOCK_SIZES,
+                ES_UT_PoolIndirectRetrieve,
+                ES_UT_PoolIndirectCommit),
+            CFE_SUCCESS);
+
+    /* Do Series of allocations - confirm that the implementation is
+     * properly adhering to the block sizes specified. */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset1, 1), CFE_SUCCESS);
+
+    /* With no alignment adjustments, the result offset should be exactly matching */
+    UtAssert_True(Offset1 == 2 + sizeof(CFE_ES_GenPoolBD_t), "Offset(%lu) match",
+            (unsigned long)Offset1);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset2, 55), CFE_SUCCESS);
+    /* the previous block should be 4 in size (smallest block) */
+    UtAssert_True(Offset2 == Offset1 + 4 + sizeof(CFE_ES_GenPoolBD_t), "Offset(%lu) match",
+            (unsigned long)Offset2);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset3, 15), CFE_SUCCESS);
+    /* the previous block should be 56 in size */
+    UtAssert_True(Offset3 == Offset2 + 56 + sizeof(CFE_ES_GenPoolBD_t), "Offset(%lu) match",
+            (unsigned long)Offset3);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset4, 54), CFE_SUCCESS);
+    /* the previous block should be 16 in size */
+    UtAssert_True(Offset4 == Offset3 + 16 + sizeof(CFE_ES_GenPoolBD_t), "Offset(%lu) match",
+            (unsigned long)Offset4);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool2, &BlockSize, Offset1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool2, &BlockSize, Offset2), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool2, &BlockSize, Offset3), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool2, &BlockSize, Offset4), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset1, 56), CFE_SUCCESS);
+
+    /* should re-issue previous block */
+    UtAssert_True(Offset4 == Offset1, "Offset(%lu) match",
+            (unsigned long)Offset1);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset3, 56), CFE_SUCCESS);
+
+    /* should re-issue previous block */
+    UtAssert_True(Offset3 == Offset2, "Offset(%lu) match",
+            (unsigned long)Offset3);
+
+    /* Getting another will fail, despite being enough space,
+     * because its now fragmented. */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset2, 12), CFE_ES_ERR_MEM_BLOCK_SIZE);
+
+    /* Put the buffer, then corrupt the memory and try to recycle */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool2, &BlockSize, Offset3), CFE_SUCCESS);
+    memset(UT_MemPoolIndirectBuffer.Data, 0xee, sizeof(UT_MemPoolIndirectBuffer.Data));
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset3, 56), CFE_ES_ERR_MEM_BLOCK_SIZE);
+
+    /* Test with just a single block size */
+    ES_ResetUnitTest();
+    memset(&UT_MemPoolDirectBuffer, 0xee, sizeof(UT_MemPoolDirectBuffer));
+    /* Calculate exact (predicted) pool consumption per block */
+    OffsetEnd = (sizeof(CFE_ES_GenPoolBD_t) + 31) & 0xFFF0;
+    OffsetEnd *= 2; /* make enough for 2 */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolInitialize(&Pool1,
+                0,
+                OffsetEnd,
+                16,
+                1,
+                UT_POOL_BLOCK_SIZES,
+                ES_UT_PoolDirectRetrieve,
+                ES_UT_PoolDirectCommit),
+            CFE_SUCCESS);
+
+    /*
+     * This should be exactly enough for 2 allocations.
+     * Allocation larger than 16 should fail.
+     */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, 32), CFE_ES_ERR_MEM_BLOCK_SIZE);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset2, 1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset3, 16), CFE_SUCCESS);
+
+    /* Call stats functions for coverage (no return code) */
+    CFE_ES_GenPoolGetUsage(&Pool1, &FreeSize, &TotalSize);
+    CFE_ES_GenPoolGetCounts(&Pool1, &NumBlocks, &CountBuf, &ErrBuf);
+
+    /* Check various outputs to ensure correctness */
+    UtAssert_UINT32_EQ(TotalSize, OffsetEnd);
+    UtAssert_UINT32_EQ(FreeSize, 0);
+    UtAssert_UINT32_EQ(CountBuf, 2);
+
+    /*
+     * Check other validation
+     */
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, 0), CFE_ES_BUFFER_NOT_IN_POOL);
+    UtAssert_True(CFE_ES_GenPoolValidateState(&Pool1), "Nominal Handle validation");
+
+    Pool1.TailPosition = 0xFFFFFF;
+    UtAssert_True(!CFE_ES_GenPoolValidateState(&Pool1), "Validate Corrupt handle");
+
+}
+
+
 void TestTask(void)
 {
     uint32                      ResetType;
@@ -2062,10 +2394,10 @@ void TestTask(void)
         CFE_ES_DumpCDSRegistry_t DumpCDSRegCmd;
         CFE_ES_QueryAllTasks_t   QueryAllTasksCmd;
     } CmdBuf;
-    Pool_t                      UT_TestPool;
     CFE_ES_AppRecord_t          *UtAppRecPtr;
     CFE_ES_TaskRecord_t         *UtTaskRecPtr;
     CFE_ES_CDS_RegRec_t         *UtCDSRegRecPtr;
+    CFE_ES_MemPoolRecord_t      *UtPoolRecPtr;
 
     UtPrintf("Begin Test Task");
 
@@ -3080,11 +3412,6 @@ void TestTask(void)
     /* Test telemetry pool statistics retrieval with an invalid handle */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    memset(&UT_TestPool, 0, sizeof(UT_TestPool));
-    CFE_SB_SET_MEMADDR(CmdBuf.TlmPoolStatsCmd.Payload.PoolHandle, &UT_TestPool);
-    UT_TestPool.PoolHandle = (cpuaddr)&UT_TestPool;
-    UT_TestPool.Size = 64;
-    UT_TestPool.End = UT_TestPool.PoolHandle;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_SendMemPoolStats_t),
             UT_TPID_CFE_ES_CMD_SEND_MEM_POOL_STATS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3094,10 +3421,8 @@ void TestTask(void)
 
     /* Test successful telemetry pool statistics retrieval */
     ES_ResetUnitTest();
-    memset(&UT_TestPool, 0, sizeof(UT_TestPool));
-    UT_TestPool.PoolHandle = (cpuaddr)&UT_TestPool;
-    UT_TestPool.Size = 64;
-    UT_TestPool.End = UT_TestPool.PoolHandle + UT_TestPool.Size;
+    ES_UT_SetupMemPoolId(&UtPoolRecPtr);
+    CmdBuf.TlmPoolStatsCmd.Payload.PoolHandle = CFE_ES_MemPoolRecordGetID(UtPoolRecPtr);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_SendMemPoolStats_t),
             UT_TPID_CFE_ES_CMD_SEND_MEM_POOL_STATS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -5585,133 +5910,129 @@ void TestCDSMempool(void)
 
 void TestESMempool(void)
 {
-    CFE_ES_MemHandle_t    HandlePtr;
-    uint8                 Buffer[CFE_PLATFORM_ES_MAX_BLOCK_SIZE];
-    uint32                *address = NULL;
-    uint32                *address2 = NULL;
-    Pool_t                *PoolPtr;
+    CFE_ES_MemHandle_t    PoolID1;      /* Poo1 1 handle, no mutex */
+    CFE_ES_MemHandle_t    PoolID2;      /* Poo1 2 handle, with mutex */
+    uint8                 Buffer1[1024];
+    uint8                 Buffer2[1024];
+    uint32                *addressp1 = NULL; /* Pool 1 buffer address */
+    uint32                *addressp2 = NULL; /* Pool 2 buffer address */
+    CFE_ES_MemPoolRecord_t   *PoolPtr;
     CFE_ES_MemPoolStats_t Stats;
-    uint32                BlockSizes[4];
-    BD_t                  *BdPtr;
-    CFE_ES_MemHandle_t    HandlePtr2;
-    CFE_ES_MemHandle_t    HandlePtrSave;
+    CFE_ES_MemOffset_t    BlockSizes[CFE_PLATFORM_ES_POOL_MAX_BUCKETS+2];
+    CFE_ES_GenPoolBD_t    *BdPtr;
     uint32                i;
 
     UtPrintf("Begin Test ES memory pool");
+
+    memset(BlockSizes, 0, sizeof(BlockSizes));
 
     /* Test creating memory pool without using a mutex with the pool size
       * too small
       */
     ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateNoSem(&HandlePtr,
-                                     Buffer,
+              CFE_ES_PoolCreateNoSem(&PoolID1,
+                                     Buffer1,
                                      0) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreateNoSem",
               "Pool size too small");
 
     /* Test successfully creating memory pool without using a mutex */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateNoSem(&HandlePtr,
-                                     Buffer,
-                                     CFE_PLATFORM_ES_MAX_BLOCK_SIZE) == CFE_SUCCESS,
+              CFE_ES_PoolCreateNoSem(&PoolID1,
+                                     Buffer1,
+                                     sizeof(Buffer1)) == CFE_SUCCESS,
               "CFE_ES_PoolCreateNoSem",
               "Memory pool create; successful");
 
     /* Test creating memory pool using a mutex with the pool size too small */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreate(&HandlePtr, Buffer, 0) == CFE_ES_BAD_ARGUMENT,
+              CFE_ES_PoolCreate(&PoolID2, Buffer2, 0) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreate",
               "Pool size too small");
 
     /* Test successfully creating memory pool using a mutex */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreate(&HandlePtr,
-                                Buffer,
-                                CFE_PLATFORM_ES_MAX_BLOCK_SIZE) == CFE_SUCCESS,
+              CFE_ES_PoolCreate(&PoolID2,
+                                Buffer2,
+                                sizeof(Buffer2)) == CFE_SUCCESS,
               "CFE_ES_PoolCreate",
               "Create memory pool (using mutex) [1]; successful");
 
     /* Test successfully allocating a pool buffer */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf((uint32 **) &address, HandlePtr, 256) > 0,
+              CFE_ES_GetPoolBuf((uint32 **) &addressp1, PoolID1, 256) > 0,
               "CFE_ES_GetPoolBuf",
               "Allocate pool buffer [1]; successful");
 
-    /* Test successfully getting the size of an existing pool buffer */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBufInfo(HandlePtr, address) > 0,
+              CFE_ES_GetPoolBuf((uint32 **) &addressp2, PoolID2, 256) > 0,
+              "CFE_ES_GetPoolBuf",
+              "Allocate pool buffer [2]; successful");
+
+    /* Test successfully getting the size of an existing pool buffer */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetPoolBufInfo(PoolID2, addressp2) > 0,
               "CFE_ES_GetPoolBufInfo",
               "Get pool buffer size; successful");
 
     /* Test successfully getting the size of an existing pool buffer.  Use no
      * mutex in order to get branch path coverage
      */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBufInfo(HandlePtr, address) > 0,
+              CFE_ES_GetPoolBufInfo(PoolID1, addressp1) > 0,
               "CFE_ES_GetPoolBufInfo",
               "Get pool buffer size; successful (no mutex)");
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
 
     /* Test successfully returning a pool buffer to the memory pool */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr, address) > 0,
+              CFE_ES_PutPoolBuf(PoolID1, addressp1) > 0,
+              "CFE_ES_PutPoolBuf",
+              "Return buffer to the memory pool; successful");
+
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_PutPoolBuf(PoolID2, addressp2) > 0,
               "CFE_ES_PutPoolBuf",
               "Return buffer to the memory pool; successful");
 
     /* Test successfully allocating an additional pool buffer */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf(&address, HandlePtr, 256) > 0,
+              CFE_ES_GetPoolBuf(&addressp2, PoolID2, 256) > 0,
               "CFE_ES_GetPoolBuf",
               "Allocate pool buffer [2]; successful");
 
     /* Test successfully returning a pool buffer to the second memory pool.
      * Use no mutex in order to get branch path coverage
      */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr, address) > 0,
+              CFE_ES_PutPoolBuf(PoolID2, addressp2) > 0,
               "CFE_ES_PutPoolBuf",
               "Return buffer to the second memory pool; successful");
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
 
     /* Test handle validation using a handle with an invalid memory address */
-    ES_ResetUnitTest();
-    PoolPtr = (Pool_t *) &HandlePtr2;
-    PoolPtr->PoolHandle = (cpuaddr)&HandlePtrSave;
-    PoolPtr->Size = 64;
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ValidateHandle(HandlePtr2) == false,
+              CFE_ES_ValidateHandle(PoolID2) == false,
               "CFE_ES_ValidateHandle",
               "Invalid handle; bad memory address");
 
     /* Test handle validation using a handle where the first pool structure
      * field is not the pool start address
      */
-    ES_ResetUnitTest();
+    PoolPtr = CFE_ES_LocateMemPoolRecordByID(PoolID2);
+    PoolPtr->PoolID = CFE_ES_ResourceID_FromInteger(
+            CFE_ES_ResourceID_ToInteger(PoolPtr->PoolID) ^ 10); /* cause it to fail validation */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ValidateHandle(HandlePtr2) == false,
+              CFE_ES_ValidateHandle(PoolID2) == false,
               "CFE_ES_ValidateHandle",
               "Invalid handle; not pool start address");
 
     /* Test allocating a pool buffer where the memory handle is not the pool
      * start address
      */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf(&address,
-                                HandlePtr2,
+              CFE_ES_GetPoolBuf(&addressp2,
+                                PoolID2,
                                 256) == CFE_ES_ERR_MEM_HANDLE,
               "CFE_ES_GetPoolBuf",
               "Invalid handle; not pool start address");
@@ -5719,20 +6040,18 @@ void TestESMempool(void)
     /* Test getting memory pool statistics where the memory handle is not
      * the pool start address
      */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetMemPoolStats(&Stats,
-                                     HandlePtr2) == CFE_ES_ERR_MEM_HANDLE,
+                                     CFE_ES_RESOURCEID_UNDEFINED) == CFE_ES_ERR_MEM_HANDLE,
               "CFE_ES_GetMemPoolStats",
               "Invalid handle; not pool start address");
 
     /* Test allocating a pool buffer where the memory block doesn't fit within
      * the remaining memory
      */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf(&address,
-                                HandlePtr,
+              CFE_ES_GetPoolBuf(&addressp1,
+                                PoolID1,
                                 75000) == CFE_ES_ERR_MEM_BLOCK_SIZE,
               "CFE_ES_GetPoolBuf",
               "Requested pool size too large");
@@ -5740,18 +6059,19 @@ void TestESMempool(void)
     /* Test getting the size of an existing pool buffer using an
      * invalid handle
      */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBufInfo(HandlePtr, address) ==
-                  CFE_ES_BUFFER_NOT_IN_POOL,
+              CFE_ES_GetPoolBufInfo(PoolID2, addressp2) ==
+                      CFE_ES_ERR_MEM_HANDLE,
               "CFE_ES_GetPoolBufInfo",
               "Invalid memory pool handle");
 
+    PoolPtr->PoolID = CFE_ES_ResourceID_FromInteger(
+            CFE_ES_ResourceID_ToInteger(PoolPtr->PoolID) ^ 10); /* Repair Pool2 ID */
+
     /* Test returning a pool buffer using an invalid memory block */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr,
-                                address) == CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_PutPoolBuf(PoolID2,
+                      addressp2 - 10) == CFE_ES_BUFFER_NOT_IN_POOL,
               "CFE_ES_PutPoolBuf",
               "Invalid memory block");
 
@@ -5760,10 +6080,10 @@ void TestESMempool(void)
      */
     ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateEx(&HandlePtr,
-                                  Buffer,
-                                  sizeof(Buffer),
-                                  CFE_ES_MAX_MEMPOOL_BLOCK_SIZES + 2,
+              CFE_ES_PoolCreateEx(&PoolID1,
+                                  Buffer1,
+                                  sizeof(Buffer1),
+                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS + 2,
                                   BlockSizes,
                                   CFE_ES_USE_MUTEX) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreateEx",
@@ -5772,13 +6092,12 @@ void TestESMempool(void)
     /* Test initializing a pre-allocated pool specifying a pool size that
      * is too small and using the default block size
      */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateEx(&HandlePtr,
-                                  Buffer,
-                                  sizeof(Pool_t) / 2,
-                                  CFE_ES_MAX_MEMPOOL_BLOCK_SIZES - 2,
-                                  NULL,
+              CFE_ES_PoolCreateEx(&PoolID1,
+                                  Buffer1,
+                                  sizeof(CFE_ES_GenPoolBD_t) / 2,
+                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES - 2,
+                                  BlockSizes,
                                   CFE_ES_USE_MUTEX) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreateEx",
               "Memory pool size too small (default block size)");
@@ -5787,11 +6106,10 @@ void TestESMempool(void)
     /* 
      * Test to use default block sizes if none are given
      */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateEx(&HandlePtr,
-                                  Buffer,
-                                  sizeof(Buffer),
+              CFE_ES_PoolCreateEx(&PoolID1,
+                                  Buffer1,
+                                  sizeof(Buffer1),
                                   0,
                                   NULL,
                                   CFE_ES_USE_MUTEX) == CFE_SUCCESS,
@@ -5799,20 +6117,18 @@ void TestESMempool(void)
               "Use default block sizes when none are given");
 
     /* Test initializing a pre-allocated pool using an invalid mutex option */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateEx(&HandlePtr,
-                                  Buffer,
-                                  sizeof(Buffer),
-                                  CFE_ES_MAX_MEMPOOL_BLOCK_SIZES - 2,
+              CFE_ES_PoolCreateEx(&PoolID1,
+                                  Buffer1,
+                                  sizeof(Buffer1),
+                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES - 2,
                                   BlockSizes,
                                   2) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreateEx",
               "Invalid mutex option");
 
-    /* Test initializing a pre-allocated pool specifying a pool size that
-     * is too small and specifying the block size with one block size set
-     * to zero
+    /* Test initializing a pre-allocated pool specifying
+     * the block size with one block size set to zero
      */
     ES_ResetUnitTest();
     BlockSizes[0] = 10;
@@ -5820,22 +6136,21 @@ void TestESMempool(void)
     BlockSizes[2] = 100;
     BlockSizes[3] = 0;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateEx(&HandlePtr,
-                                 Buffer,
-                                 sizeof(Pool_t) + sizeof(BD_t),
+              CFE_ES_PoolCreateEx(&PoolID1,
+                                 Buffer1,
+                                 sizeof(Buffer1),
                                  4,
                                  BlockSizes,
-                                 CFE_ES_USE_MUTEX) == CFE_ES_BAD_ARGUMENT,
+                                 CFE_ES_USE_MUTEX) == CFE_ES_ERR_MEM_BLOCK_SIZE,
               "CFE_ES_PoolCreateEx",
-              "Memory pool size too small (block size specified)");
+              "Memory pool block size zero (block size specified)");
 
-    ES_ResetUnitTest();
     BlockSizes[0] = 10;
     BlockSizes[1] = 50;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateEx(&HandlePtr,
-                                 Buffer,
-                                 sizeof(Pool_t) + sizeof(BD_t) + sizeof(CFE_ES_STATIC_POOL_TYPE(CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN)),
+              CFE_ES_PoolCreateEx(&PoolID1,
+                                 Buffer1,
+                                 sizeof(Buffer1),
                                  2,
                                  BlockSizes,
                                  CFE_ES_USE_MUTEX) == CFE_SUCCESS,
@@ -5847,199 +6162,205 @@ void TestESMempool(void)
      */
     ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreate(&HandlePtr,
-                                Buffer,
-                                CFE_PLATFORM_ES_MAX_BLOCK_SIZE) == CFE_SUCCESS,
+              CFE_ES_PoolCreate(&PoolID1,
+                                Buffer1,
+                                sizeof(Buffer1)) == CFE_SUCCESS,
               "CFE_ES_PoolCreate",
               "Create memory pool (using mutex) [2]; successful");
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_PoolCreate(&PoolID2,
+                                Buffer2,
+                                sizeof(Buffer2)) == CFE_SUCCESS,
+              "CFE_ES_PoolCreate",
+              "Create memory pool (no mutex) [2]; successful");
 
     /* Test successfully allocating an additional pool buffer for
      * subsequent tests
      */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf((uint32 **) &address, HandlePtr, 256) > 0,
+              CFE_ES_GetPoolBuf((uint32 **) &addressp1, PoolID1, 256) > 0,
+              "CFE_ES_GetPoolBuf",
+              "Allocate pool buffer [3]; successful");
+
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetPoolBuf((uint32 **) &addressp2, PoolID2, 256) > 0,
               "CFE_ES_GetPoolBuf",
               "Allocate pool buffer [3]; successful");
 
     /* Test getting the size of an existing pool buffer using an
      * unallocated block
      */
-    ES_ResetUnitTest();
-    BdPtr = ((BD_t *)address) - 1;
-    BdPtr->Allocated = 717;
+    BdPtr = ((CFE_ES_GenPoolBD_t *)addressp1) - 1;
+    BdPtr->Allocated ^= 717;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBufInfo(HandlePtr,
-                                    address) ==
-                  CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_GetPoolBufInfo(PoolID1, addressp1) ==
+                              CFE_ES_POOL_BLOCK_INVALID,
               "CFE_ES_GetPoolBufInfo",
               "Invalid memory pool handle; unallocated block");
 
-    /* Test getting the size of an existing pool buffer using an
-     * unallocated block.  Use no mutex in order to get branch path coverage
-     */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
-    BdPtr = ((BD_t *)address) - 1;
-    BdPtr->Allocated = 717;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBufInfo(HandlePtr, address) ==
-                  CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_GetPoolBufInfo",
-              "Invalid memory pool handle; unallocated block (no mutex)");
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
-
     /* Test returning a pool buffer using an unallocated block */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr, address) == CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_PutPoolBuf(PoolID1, addressp1) == CFE_ES_POOL_BLOCK_INVALID,
               "CFE_ES_PutPoolBuf",
               "Deallocate an unallocated block");
 
-    /* Test returning a pool buffer using an unallocated block.  Use no mutex
-     * in order to get branch path coverage
-     */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr, address) == CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_PutPoolBuf",
-              "Deallocate an unallocated block (no mutex)");
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
+    BdPtr->Allocated ^= 717;    /* repair */
 
     /* Test getting the size of an existing pool buffer using an
      * invalid check bit pattern
      */
-    ES_ResetUnitTest();
     BdPtr->Allocated = 0xaaaa;
-    BdPtr->CheckBits = 717;
+    BdPtr->CheckBits ^= 717;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBufInfo(HandlePtr, address) ==
-                  CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_GetPoolBufInfo(PoolID1, addressp1) ==
+                      CFE_ES_POOL_BLOCK_INVALID,
               "CFE_ES_GetPoolBufInfo",
               "Invalid memory pool handle; check bit pattern");
+
+    BdPtr->CheckBits ^= 717;    /* repair */
+
+    /* Test returning a pool buffer using an invalid or corrupted
+     * memory descriptor
+     */
+    BdPtr->ActualSize = 0xFFFFFFFF;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_PutPoolBuf(PoolID1, addressp1) ==
+                      CFE_ES_POOL_BLOCK_INVALID,
+              "CFE_ES_PutPoolBuf",
+              "Invalid/corrupted memory descriptor");
+
+    /* Test getting the size of an existing pool buffer using an
+     * unallocated block.  Use no mutex in order to get branch path coverage
+     */
+    BdPtr = ((CFE_ES_GenPoolBD_t *)addressp2) - 1;
+    BdPtr->Allocated ^= 717;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetPoolBufInfo(PoolID2, addressp2) ==
+                      CFE_ES_POOL_BLOCK_INVALID,
+              "CFE_ES_GetPoolBufInfo",
+              "Invalid memory pool handle; unallocated block (no mutex)");
+
+    /* Test returning a pool buffer using an unallocated block.  Use no mutex
+     * in order to get branch path coverage
+     */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_PutPoolBuf(PoolID2, addressp2) == CFE_ES_POOL_BLOCK_INVALID,
+              "CFE_ES_PutPoolBuf",
+              "Deallocate an unallocated block (no mutex)");
+
+    BdPtr->Allocated ^= 717;    /* repair */
 
     /* Test getting the size of an existing pool buffer using an
      * invalid check bit pattern.  Use no mutex in order to get branch path
      * coverage
      */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
-    BdPtr->Allocated = 0xaaaa;
-    BdPtr->CheckBits = 717;
+    BdPtr->CheckBits ^= 717;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBufInfo(HandlePtr, address) ==
-                  CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_GetPoolBufInfo(PoolID2, addressp2) ==
+                      CFE_ES_POOL_BLOCK_INVALID,
               "CFE_ES_GetPoolBufInfo",
               "Invalid memory pool handle; check bit pattern (no mutex)");
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
 
-    /* Test returning a pool buffer using an invalid or corrupted
-     * memory descriptor
-     */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr, address) ==
-                  CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_PutPoolBuf",
-              "Invalid/corrupted memory descriptor");
+    BdPtr->CheckBits ^= 717;    /* repair */
 
     /* Test returning a pool buffer using an invalid or corrupted
      * memory descriptor.  Use no mutex in order to get branch path coverage
      */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
+    BdPtr->ActualSize = 0xFFFFFFFF;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr, address) ==
-                  CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_PutPoolBuf(PoolID2, addressp2) ==
+                      CFE_ES_POOL_BLOCK_INVALID,
               "CFE_ES_PutPoolBuf",
               "Invalid/corrupted memory descriptor (no mutex)");
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
 
     /* Test successfully creating memory pool using a mutex for
      * subsequent tests
      */
     ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreate(&HandlePtr,
-                                Buffer,
-                                CFE_PLATFORM_ES_MAX_BLOCK_SIZE) == CFE_SUCCESS,
+              CFE_ES_PoolCreate(&PoolID1,
+                                Buffer1,
+                                sizeof(Buffer1)) == CFE_SUCCESS,
               "CFE_ES_PoolCreate",
               "Create memory pool (using mutex) [3]; successful");
 
     /* Test successfully allocating an additional pool buffer for
      * subsequent tests.  Use no mutex in order to get branch path coverage
      */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf(&address, HandlePtr, 256) > 0,
+              CFE_ES_PoolCreate(&PoolID2,
+                                Buffer2,
+                                sizeof(Buffer2)) == CFE_SUCCESS,
+              "CFE_ES_PoolCreate",
+              "Create memory pool (using mutex) [3]; successful");
+
+    /* Test successfully allocating an additional pool buffer for
+     * subsequent tests
+     */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetPoolBuf((uint32 **) &addressp1, PoolID1, 256) > 0,
               "CFE_ES_GetPoolBuf",
-              "Allocate pool buffer [4]; successful");
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
+              "Allocate pool buffer [3]; successful");
+
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetPoolBuf((uint32 **) &addressp2, PoolID2, 256) > 0,
+              "CFE_ES_GetPoolBuf",
+              "Allocate pool buffer [3]; successful");
 
     /* Test returning a pool buffer using a buffer size larger than
      * the maximum
      */
-    ES_ResetUnitTest();
-    BdPtr->CheckBits = 0x5a5a;
-    BdPtr->Size =CFE_PLATFORM_ES_MAX_BLOCK_SIZE +1;
+    BdPtr = ((CFE_ES_GenPoolBD_t *)addressp1) - 1;
+    BdPtr->ActualSize = CFE_PLATFORM_ES_MAX_BLOCK_SIZE +1;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr, address) == CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_PutPoolBuf(PoolID1, addressp1) == CFE_ES_POOL_BLOCK_INVALID,
               "CFE_ES_PutPoolBuf",
               "Pool buffer size exceeds maximum");
 
     /* Test returning a pool buffer using a buffer size larger than
      * the maximum.  Use no mutex in order to get branch path coverage
      */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
-    BdPtr->CheckBits = 0x5a5a;
-    BdPtr->Size =CFE_PLATFORM_ES_MAX_BLOCK_SIZE +1;
+    BdPtr = ((CFE_ES_GenPoolBD_t *)addressp2) - 1;
+    BdPtr->ActualSize =CFE_PLATFORM_ES_MAX_BLOCK_SIZE +1;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr, address) == CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_PutPoolBuf(PoolID2, addressp2) == CFE_ES_POOL_BLOCK_INVALID,
               "CFE_ES_PutPoolBuf",
               "Pool buffer size exceeds maximum (no mutex)");
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
 
     /* Test allocating an additional pool buffer using a buffer size larger
      * than the maximum
      */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf(&address2,
-                                HandlePtr,
+              CFE_ES_GetPoolBuf(&addressp2,
+                                PoolID1,
                                 99000) == CFE_ES_ERR_MEM_BLOCK_SIZE,
               "CFE_ES_GetPoolBuf",
               "Pool buffer size exceeds maximum");
 
     /* Test handle validation using a null handle */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ValidateHandle(0) == false,
+              CFE_ES_ValidateHandle(CFE_ES_RESOURCEID_UNDEFINED) == false,
               "CFE_ES_ValidateHandle",
               "NULL handle");
 
     /* Test returning a pool buffer using a null handle */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(0, address) == CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_PutPoolBuf(CFE_ES_RESOURCEID_UNDEFINED, addressp2) == CFE_ES_ERR_MEM_HANDLE,
               "CFE_ES_PutPoolBuf",
               "NULL memory handle");
 
     /* Test allocating a pool buffer using a null handle */
     ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf(&address,
-                                0,
+              CFE_ES_GetPoolBuf(&addressp2,
+                                CFE_ES_RESOURCEID_UNDEFINED,
                                 256) == CFE_ES_ERR_MEM_HANDLE,
               "CFE_ES_GetPoolBuf",
               "NULL memory handle");
 
     /* Test getting the size of an existing pool buffer using a null handle */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBufInfo(0, address) ==
+              CFE_ES_GetPoolBufInfo(CFE_ES_RESOURCEID_UNDEFINED, addressp1) ==
                   CFE_ES_ERR_MEM_HANDLE,
               "CFE_ES_GetPoolBufInfo",
               "NULL memory handle");
@@ -6048,10 +6369,9 @@ void TestESMempool(void)
     ES_ResetUnitTest();
     BlockSizes[0] = 16;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateEx(&HandlePtr,
-                                  Buffer,
-                                  sizeof(Pool_t) + sizeof(BD_t) + 16 +
-                                  sizeof(CFE_ES_STATIC_POOL_TYPE(CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN)),
+              CFE_ES_PoolCreateEx(&PoolID1,
+                                  Buffer1,
+                                  128,
                                   1,
                                   BlockSizes,
                                   CFE_ES_USE_MUTEX) == CFE_SUCCESS,
@@ -6059,17 +6379,14 @@ void TestESMempool(void)
               "Allocate small memory pool");
 
     /* Test allocating an additional pool buffer using a buffer size larger
-     * than the maximum.  Use no mutex in order to get branch path coverage
+     * than the maximum.
      */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf(&address2,
-                                HandlePtr,
+              CFE_ES_GetPoolBuf(&addressp1,
+                                 PoolID1,
                                 32) == CFE_ES_ERR_MEM_BLOCK_SIZE,
               "CFE_ES_GetPoolBuf",
               "Pool buffer size exceeds maximum (no mutex)");
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
 
     /*
      * Test allocating a pool buffer where the memory block doesn't fit within
@@ -6085,37 +6402,32 @@ void TestESMempool(void)
      * successful ones is dependent on the CPU architecture and the setting of
      * CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN.  Expect a failure within 20 allocations.
      */
-    ES_ResetUnitTest();
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_NO_MUTEX;
     for (i=0; i < 25; ++i)
     {
-        if (CFE_ES_GetPoolBuf(&address, HandlePtr,
+        if (CFE_ES_GetPoolBuf(&addressp1, PoolID1,
                           12) == CFE_ES_ERR_MEM_BLOCK_SIZE)
         {
             break;
         }
     }
-    ((Pool_t *) HandlePtr)->UseMutex = CFE_ES_USE_MUTEX;
 
     UT_Report(__FILE__, __LINE__,
               i >= 1 && i <= 20,
               "CFE_ES_GetPoolBuf",
-              "Pool fully allocated (no mutex)");
+              "Pool fully allocated");
 
     /* Test getting the size of a pool buffer that is not in the pool */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBufInfo(HandlePtr,
-                                    (uint32 *) HandlePtr + 1) ==
+              CFE_ES_GetPoolBufInfo(PoolID1,
+                                    (uint32 *) addressp1 + 100) ==
                                         CFE_ES_BUFFER_NOT_IN_POOL,
               "CFE_ES_GetPoolBufInfo",
               "Invalid pool buffer");
 
     /* Test getting the size of a pool buffer with an invalid memory handle */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(HandlePtr,
-                                (uint32 *) HandlePtr + 1) ==
+              CFE_ES_PutPoolBuf(CFE_ES_RESOURCEID_UNDEFINED,
+                                addressp1) ==
                                         CFE_ES_ERR_MEM_HANDLE,
               "CFE_ES_PutPoolBuf",
               "Invalid memory handle");

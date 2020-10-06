@@ -261,7 +261,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                     if(Status < 0)
                     {
                         CFE_ES_WriteToSysLog("CFE_TBL:Register-1st Buf Alloc GetPool fail Stat=0x%08X MemPoolHndl=0x%08lX\n",
-                                (unsigned int)Status, (unsigned long)CFE_TBL_TaskData.Buf.PoolHdl);
+                                (unsigned int)Status, CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.Buf.PoolHdl));
                     }
                     else
                     {
@@ -287,7 +287,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                     if(Status < 0)
                     {
                         CFE_ES_WriteToSysLog("CFE_TBL:Register-2nd Buf Alloc GetPool fail Stat=0x%08X MemPoolHndl=0x%08lX\n",
-                                (unsigned int)Status, (unsigned long)CFE_TBL_TaskData.Buf.PoolHdl);
+                                (unsigned int)Status, CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.Buf.PoolHdl));
                     }
                     else
                     {
@@ -1401,7 +1401,9 @@ int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName )
         TblInfoPtr->FileCreateTimeSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
         TblInfoPtr->FileCreateTimeSubSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
         TblInfoPtr->Crc = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
-        strncpy(TblInfoPtr->LastFileLoaded, RegRecPtr->LastFileLoaded, OS_MAX_PATH_LEN);
+        strncpy(TblInfoPtr->LastFileLoaded, RegRecPtr->LastFileLoaded,
+                sizeof(TblInfoPtr->LastFileLoaded)-1);
+        TblInfoPtr->LastFileLoaded[sizeof(TblInfoPtr->LastFileLoaded)-1] = 0;
         
         /* Count the number of Access Descriptors to determine the number of users */
         HandleIterator = RegRecPtr->HeadOfAccessList;

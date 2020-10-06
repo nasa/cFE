@@ -44,6 +44,8 @@
 #include "cfe_es_apps.h"
 #include "cfe_es_cds.h"
 #include "cfe_es_perf.h"
+#include "cfe_es_generic_pool.h"
+#include "cfe_es_mempool.h"
 #include "cfe_time.h"
 #include "cfe_platform_cfg.h"
 #include "cfe_evs.h"
@@ -162,6 +164,10 @@ typedef struct
     */
    CFE_ES_BackgroundTaskState_t BackgroundTask;
 
+   /*
+   ** Memory Pools
+   */
+   CFE_ES_MemPoolRecord_t MemPoolTable[CFE_PLATFORM_ES_MAX_MEMORY_POOLS];
 
 } CFE_ES_Global_t;
 

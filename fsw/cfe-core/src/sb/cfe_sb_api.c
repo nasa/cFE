@@ -1197,6 +1197,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     CFE_SB_BufferD_t        *BufDscPtr;
     uint16                  TotalMsgSize;
     CFE_SB_MsgRouteIdx_t    RtgTblIdx;
+    CFE_ES_ResourceID_t     AppId;
     CFE_ES_ResourceID_t     TskId;
     uint32                  i;
     char                    FullName[(OS_MAX_API_NAME * 2)];
@@ -1204,6 +1205,9 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     char                    PipeName[OS_MAX_API_NAME] = {'\0'};
 
     SBSndErr.EvtsToSnd = 0;
+
+    /* get app id for loopback testing */
+    CFE_ES_GetAppID(&AppId);
 
     /* get task id for events and Sender Info*/
     CFE_ES_GetTaskID(&TskId);
@@ -1356,16 +1360,10 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 
         PipeDscPtr = &CFE_SB.PipeTbl[DestPtr->PipeId];
 
-        if(PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE)
+        if((PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE) != 0 &&
+                CFE_ES_ResourceID_Equal(PipeDscPtr->AppId, AppId))
         {
-            CFE_ES_ResourceID_t  AppId;
-
-            CFE_ES_GetAppID(&AppId);
-
-            if( CFE_ES_ResourceID_Equal(PipeDscPtr->AppId, AppId) )
-            {
-                continue;
-            }
+            continue;
         }/* end if */
 
         /* if Msg limit exceeded, log event, increment counter */

@@ -44,7 +44,7 @@
 #include "cfe_evs_task.h"
 #include "cfe_es_global.h"
 #include "cfe_es_cds.h"
-#include "cfe_esmempool.h"
+#include "cfe_es_generic_pool.h"
 #include "cfe_time_utils.h"
 
 #include "utassert.h"
