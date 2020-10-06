@@ -10,11 +10,24 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev122
+
+- Adds the field `UnregAppID` to track whether an "unregistered" event was generated, un-overloading the EventCount field to serve its primary purpose of counting actual events generated from a valid/registered AppID.
+- Move the AppID lookup execution to be early in the `CFE_SB_SendMsgFull` implementation. This avoids double locking between SB+ES and avoids a block-scope local variable.
+- Instead of identifying a memory pool by its memory address, use a resource ID. IDs are a constant size, regardless of whether the host machine is 32 or 64 bits.
+  - IDs can be put into commands/telemetry and maintain a more consistent format with consistent alignment requirements.
+  - IDs can be independently verified without dereferencing memory. Previously the only way to validate a memory pool was to read the address pointed to, which results in a segfault if the address was bad.
+- Change from `OS_MAX*` defines to appropriately-scoped CFE defines for array sizing
+- This creates the new `CFE_Status_t` typedef for function's return status codes. Also adds a note to `CFE_TBL_GetStatus` since its behavior will likely change in the future in the hopes of not having a non-zero "info" status.
+- See <https://github.com/nasa/cFE/pull/936>
+
 ### Development Build: 6.8.0-rc1+dev109
+
 - Add a new typedef `CFE_ES_ResourceID_t` that can replace `uint32` for all ID storage and manipulation. Initially this is just an alias to `uint32` for backward compatibility.
 - See <https://github.com/nasa/cFE/pull/916>
 
 ### Development Build: 6.8.0-rc1+dev105
+
 - Removes dependency on CCSDS version define.
 - Removes old name and id defines.
 - CFE_ES_CalculateCRC default stub behavior.
