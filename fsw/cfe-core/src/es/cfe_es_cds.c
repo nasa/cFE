@@ -50,175 +50,250 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-/* Define offset addresses for CDS data segments */
-/* Each segment is guaranteed to start at a 4-byte offset boundary */
-#define CDS_REG_SIZE_OFFSET ((sizeof(CFE_ES_Global.CDSVars.ValidityField)+3) & 0xfffffffc)
-#define CDS_REG_OFFSET      (((CDS_REG_SIZE_OFFSET + sizeof(CFE_ES_Global.CDSVars.MaxNumRegEntries)) + 3) & 0xfffffffc)
-#define CDS_POOL_OFFSET     (((CDS_REG_OFFSET + (CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES * sizeof(CFE_ES_CDS_RegRec_t))) + 3) & 0xfffffffc)
-
 /*****************************************************************************/
-/**
-** \brief Determines whether a CDS currently exists
-**
-** \par Description
-**        Reads a set of bytes from the beginning and end of the CDS memory
-**        area and determines if a fixed pattern is present, thus determining
-**        whether the CDS still likely contains valid data or not.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \return #CFE_SUCCESS         \copydoc CFE_SUCCESS
-** \return #CFE_ES_CDS_INVALID  \copydoc CFE_ES_CDS_INVALID
-** \return Any of the return values from #CFE_PSP_ReadFromCDS
-**                     
-******************************************************************************/
-int32 CFE_ES_ValidateCDS(void);
-
+/*
+ * CFE_ES_CDS_EarlyInit
+ *
+ * NOTE: For complete prolog information, see 'cfe_es_cds.h'
+ */
 /*****************************************************************************/
-/**
-** \brief Initializes the contents of the CDS
-**
-** \par Description
-**        Stores a fixed pattern at the beginning and end of the CDS memory
-**        to tag it for future verification following a reset.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \param[in]  CDSSize Total size of CDS memory area (in bytes)
-**
-** \return #OS_SUCCESS          \copydoc OS_SUCCESS
-** \return Any of the return values from #CFE_PSP_WriteToCDS
-** \return Any of the return values from #CFE_ES_CreateCDSPool
-**                     
-******************************************************************************/
-int32 CFE_ES_InitializeCDS(uint32 CDSSize);
-
-/*****************************************************************************/
-/**
-** \brief Initializes the CDS Registry
-**
-** \par Description
-**        Initializes the data structure used to keep track of CDS blocks and
-**        who they belong to.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \retval #CFE_SUCCESS         \copydoc CFE_SUCCESS
-**                     
-******************************************************************************/
-int32 CFE_ES_InitCDSRegistry(void);
-
-
-/*****************************************************************************/
-/**
-** \brief Rebuilds memory pool for CDS and recovers existing registry
-**
-** \par Description
-**        Scans memory for existing CDS and initializes memory pool and registry
-**        settings accordingly
-**
-** \par Assumptions, External Events, and Notes:
-**        -# Assumes the validity of the CDS has already been determined
-**
-** \return #CFE_SUCCESS         \copydoc CFE_SUCCESS
-** \return Any of the return values from #CFE_PSP_ReadFromCDS
-**                     
-******************************************************************************/
-int32 CFE_ES_RebuildCDS(void);
-
-/*****************************************************************************/
-/**
-** \brief Initializes CDS data constructs
-**
-** \par Description
-**        Locates and validates any pre-existing CDS memory or initializes the
-**        memory as a fresh CDS.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \par SysLog Messages
-**
-**
-** \return None
-**
-******************************************************************************/
 int32 CFE_ES_CDS_EarlyInit(void)
 {
-    uint32  MinRequiredSize = 0;
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    CFE_ES_CDS_Offset_t  MinRequiredSize;
     int32   Status;
     
-    /* Compute the minimum size required for the CDS with the current configuration of the cFE */
-    MinRequiredSize = (sizeof(CFE_ES_Global.CDSVars.ValidityField) * 2) +            /* Minimum size for validity fields */
-                      (CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES * sizeof(CFE_ES_CDS_RegRec_t)) +   /* Minimum size for CDS Registry contents */
-                      CFE_ES_CDSReqdMinSize(CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES);             /* Max # of Min Sized Blocks */
-    
-    /* Get CDS size from OS BSP */
-    Status = CFE_PSP_GetCDSSize(&CFE_ES_Global.CDSVars.CDSSize);
-    
-    /* If the size was obtained successfully and meets the minimum requirements, then check its contents */
-    if (Status == CFE_PSP_SUCCESS)
+    CFE_ES_Global.CDSIsAvailable = false;
+
+    /* Create CDS general access mutex */
+    Status = OS_MutSemCreate(&CDS->GenMutex,
+            CFE_ES_CDS_MUT_REG_NAME, CFE_ES_CDS_MUT_REG_VALUE);
+    if (Status != OS_SUCCESS)
     {
-        /* Always truncate the size to the nearest 4 byte boundary */
-        CFE_ES_Global.CDSVars.CDSSize &= 0xfffffffc;
-        
-        if (CFE_ES_Global.CDSVars.CDSSize >= MinRequiredSize)
+        CFE_ES_SysLogWrite_Unsync("CFE_ES_CDS_EarlyInit: Failed to create mutex with error %d\n", (int)Status);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    }
+
+    /* Get CDS size from OS BSP */
+    Status = CFE_PSP_GetCDSSize(&CDS->TotalSize);
+    if (Status != CFE_PSP_SUCCESS)
+    {
+        /* Error getting the size of the CDS from the BSP */
+        CFE_ES_WriteToSysLog("CFE_CDS:EarlyInit-Unable to obtain CDS Size from BSP (Err=0x%08X)\n", (unsigned int)Status);
+        return Status;
+    }
+
+    /* Always truncate the size to the nearest 4 byte boundary */
+    CDS->TotalSize &= 0xfffffffc;
+
+    /* Compute the minimum size required for the CDS with the current configuration of the cFE */
+    MinRequiredSize = CDS_RESERVED_MIN_SIZE;
+    MinRequiredSize += CFE_ES_CDSReqdMinSize(CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES);     /* Max # of Min Sized Blocks */
+    
+    if (CDS->TotalSize < MinRequiredSize)
+    {
+        CFE_ES_WriteToSysLog("CFE_CDS:EarlyInit-CDS Size (%lu) less than required (%lu)\n",
+                         (unsigned long)CDS->TotalSize, (unsigned long)MinRequiredSize);
+        Status = CFE_SUCCESS;
+    }
+    else
+    {
+        CDS->DataSize = CDS->TotalSize;
+        CDS->DataSize -= CDS_RESERVED_MIN_SIZE;
+
+        /* If the size was obtained successfully and meets the minimum requirements, then check its contents */
+        Status = CFE_ES_ValidateCDS();
+    
+        if (Status == CFE_SUCCESS)
         {
-            Status = CFE_ES_ValidateCDS();
-            
-            /* If the CDS is accessible but invalid, then create a new one */
-            if (Status == CFE_ES_CDS_INVALID)
+            /* If a valid CDS was found, rebuild the memory pool */
+            Status = CFE_ES_RebuildCDS();
+        }
+
+        /* If the CDS is accessible but invalid, then create a new one */
+        if (Status == CFE_ES_CDS_INVALID)
+        {
+            /* First wipe the entire CDS area */
+            Status = CFE_ES_ClearCDS();
+
+            if (Status == CFE_SUCCESS)
             {
-                Status = CFE_ES_InitializeCDS(CFE_ES_Global.CDSVars.CDSSize);
-            }
-            else if (Status == CFE_SUCCESS)
-            {
-                /* If a valid CDS was found, rebuild the memory pool */
-                Status = CFE_ES_RebuildCDS();
-                
-                /* If rebuilding is not possible, then create a new one from scratch */
-                if (Status == CFE_ES_CDS_INVALID)
-                {
-                    Status = CFE_ES_InitializeCDS(CFE_ES_Global.CDSVars.CDSSize);
-                }
-            }
-            else /* Unrecoverable error while reading the CDS */
-            {
-                CFE_ES_WriteToSysLog("CFE_CDS:EarlyInit-Read error validating CDS (Err=0x%08X)\n", (unsigned int)Status);
-                CFE_ES_Global.CDSVars.MemPoolSize = 0;
-                return Status;
+                Status = CFE_ES_InitCDSSignatures();
             }
 
             if (Status == CFE_SUCCESS)
             {
-                /* Create CDS registry access mutex */
-                OS_MutSemCreate(&CFE_ES_Global.CDSVars.RegistryMutex,
-                                 CFE_ES_CDS_MUT_REG_NAME,
-                                 CFE_ES_CDS_MUT_REG_VALUE);
-            }     
+                /* Initialize the variables for managing the CDS Memory Pool */
+                Status = CFE_ES_CreateCDSPool(CDS->DataSize, CDS_POOL_OFFSET);
+            }
+
+            if (Status == CFE_SUCCESS)
+            {
+                Status = CFE_ES_InitCDSRegistry();
+            }
         }
-        else /* Size < MinRequiredSize */
+
+        if (Status != CFE_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("CFE_CDS:EarlyInit-CDS Size (%d) less than required (%d)\n", 
-	                         (int)CFE_ES_Global.CDSVars.CDSSize, (int)MinRequiredSize);
-            CFE_ES_Global.CDSVars.MemPoolSize = 0;
-            return Status;
+            /* Unrecoverable error while reading the CDS */
+            CFE_ES_WriteToSysLog("CFE_CDS:EarlyInit-error validating/initializing CDS (0x%08lX)\n", (unsigned long)Status);
+        }
+        else
+        {
+            /* Set the CDS Overall flag to be present/valid */
+            CFE_ES_Global.CDSIsAvailable = true;
         }
     }
-    else /* Error getting the size of the CDS from the BSP */
-    {
-        CFE_ES_WriteToSysLog("CFE_CDS:EarlyInit-Unable to obtain CDS Size from BSP (Err=0x%08X)\n", (unsigned int)Status);
-        CFE_ES_Global.CDSVars.MemPoolSize = 0;
-        return Status;
-    }
-    
-    
-    return(CFE_SUCCESS);
+
+    return Status;
     
 }   /* End of CFE_ES_CDS_EarlyInit() */
+
+/*******************************************************************/
+/*
+ * CFE_ES_LocateCDSBlockRecordByID
+ *
+ * NOTE: For complete prolog information, see 'cfe_es_cds.h'
+ */
+/*******************************************************************/
+int32 CFE_ES_CDSBlockID_ToIndex(CFE_ES_ResourceID_t BlockID, uint32 *Idx)
+{
+    return CFE_ES_ResourceID_ToIndex_Internal(
+            CFE_ES_ResourceID_ToInteger(BlockID) - CFE_ES_CDSBLOCKID_BASE,
+            CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES,
+            Idx);
+}
+
+/*******************************************************************/
+/*
+ * CFE_ES_LocateCDSBlockRecordByID
+ *
+ * NOTE: For complete prolog information, see 'cfe_es_cds.h'
+ */
+/*******************************************************************/
+CFE_ES_CDS_RegRec_t* CFE_ES_LocateCDSBlockRecordByID(CFE_ES_ResourceID_t BlockID)
+{
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    CFE_ES_CDS_RegRec_t *CDSRegRecPtr;
+    uint32 Idx;
+
+    if (CFE_ES_CDSBlockID_ToIndex(BlockID, &Idx) == CFE_SUCCESS)
+    {
+        CDSRegRecPtr = &CDS->Registry[Idx];
+    }
+    else
+    {
+        CDSRegRecPtr = NULL;
+    }
+
+    return CDSRegRecPtr;
+}
+
+
+/*******************************************************************/
+/*
+ * CFE_ES_CacheRead()
+ *
+ * NOTE: For complete prolog information, see 'cfe_es_cds.h'
+ */
+/*******************************************************************/
+int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache,
+        CFE_ES_CDS_Offset_t Offset, CFE_ES_CDS_Offset_t Size)
+{
+    int32 Status;
+
+    if (Size > 0 && Size <= sizeof(Cache->Data))
+    {
+        Cache->AccessStatus = CFE_PSP_ReadFromCDS(&Cache->Data,
+                Offset, Size);
+
+        if (Cache->AccessStatus == CFE_PSP_SUCCESS)
+        {
+            Cache->Offset = Offset;
+            Cache->Size = Size;
+            Status = CFE_SUCCESS;
+        }
+        else
+        {
+            Status = CFE_ES_CDS_ACCESS_ERROR;
+        }
+    }
+    else
+    {
+        Status = CFE_ES_CDS_INVALID_SIZE;
+    }
+
+    return Status;
+}
+
+/*******************************************************************/
+/*
+ * CFE_ES_CDS_CacheFlush()
+ *
+ * NOTE: For complete prolog information, see 'cfe_es_cds.h'
+ */
+/*******************************************************************/
+int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
+{
+    int32 Status;
+
+    if (Cache->Size > 0 && Cache->Size <= sizeof(Cache->Data))
+    {
+        Cache->AccessStatus = CFE_PSP_WriteToCDS(&Cache->Data,
+                Cache->Offset, Cache->Size);
+
+        if (Cache->AccessStatus == CFE_PSP_SUCCESS)
+        {
+            Status = CFE_SUCCESS;
+        }
+        else
+        {
+            Status = CFE_ES_CDS_ACCESS_ERROR;
+        }
+    }
+    else
+    {
+        Status = CFE_ES_CDS_INVALID_SIZE;
+    }
+
+    return Status;
+}
+
+/*******************************************************************/
+/*
+ * CFE_ES_CDS_CachePreload()
+ *
+ * NOTE: For complete prolog information, see 'cfe_es_cds.h'
+ */
+/*******************************************************************/
+int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, CFE_ES_CDS_Offset_t Offset, CFE_ES_CDS_Offset_t Size)
+{
+    int32 Status;
+
+    if (Size > 0 && Size <= sizeof(Cache->Data))
+    {
+        if (Source == NULL)
+        {
+            /* just zero it out */
+            memset(&Cache->Data, 0, Size);
+        }
+        else if (Source != &Cache->Data)
+        {
+            /* copy from the user-supplied preload data */
+            memcpy(&Cache->Data, Source, Size);
+        }
+        Cache->Size = Size;
+        Cache->Offset = Offset;
+        Status = CFE_SUCCESS;
+    }
+    else
+    {
+        Status = CFE_ES_CDS_INVALID_SIZE;
+    }
+
+    return Status;
+}
+
 
 /*******************************************************************
 **
@@ -227,94 +302,151 @@ int32 CFE_ES_CDS_EarlyInit(void)
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name, bool CriticalTbl)
+int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t UserBlockSize, const char *Name, bool CriticalTbl)
 {
-    int32   Status = CFE_SUCCESS;
-    uint32  RegIndx;
-    CFE_ES_CDS_RegRec_t *RegRecPtr = NULL;
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    int32 Status = CFE_SUCCESS;
+    int32 RegUpdateStatus = CFE_SUCCESS;
+    CFE_ES_CDS_RegRec_t *RegRecPtr;
+    CFE_ES_MemOffset_t BlockOffset;
+    CFE_ES_MemOffset_t OldBlockSize;
+    CFE_ES_MemOffset_t NewBlockSize;
+    bool IsNewEntry = false;
+    bool IsNewOffset = false;
     
+    if (UserBlockSize == 0 || UserBlockSize > CDS_ABS_MAX_BLOCK_SIZE)
+    {
+        /* Block size is not supportable */
+        return CFE_ES_CDS_INVALID_SIZE;
+    }
+
     /* Lock Registry for update.  This prevents two applications from */
     /* trying to register CDSs at the same location at the same time  */
-    CFE_ES_LockCDSRegistry();
+    CFE_ES_LockCDS();
 
     /* Check for duplicate CDS name */
-    RegIndx = CFE_ES_FindCDSInRegistry(Name);
+    RegRecPtr = CFE_ES_FindCDSInRegistry(Name);
 
-    /* Check to see if CDS is already in the registry */
-    if (RegIndx != CFE_ES_CDS_NOT_FOUND)
+    /* If not found then make a new entry */
+    if (RegRecPtr == NULL)
     {
-        /* Get pointer to Registry Record Entry to speed up processing */
-        RegRecPtr = &CFE_ES_Global.CDSVars.Registry[RegIndx];
+        RegRecPtr = CFE_ES_AllocateNewCDSRegistryEntry();
+        IsNewEntry = true;
+    }
 
-        /* If the new CDS is the same size as the old, then no need to reallocate memory */
-        if (BlockSize != RegRecPtr->Size)
+    if (RegRecPtr == NULL)
+    {
+        Status = CFE_ES_CDS_REGISTRY_FULL;
+    }
+    else
+    {
+        /* Account for the extra header which will be added */
+        NewBlockSize = UserBlockSize;
+        NewBlockSize += sizeof(CFE_ES_CDS_BlockHeader_t);
+
+
+        /* If a reallocation is needed, the old block may need to be freed first */
+        if (Status == CFE_SUCCESS &&
+                RegRecPtr->BlockOffset != 0 &&
+                NewBlockSize != RegRecPtr->BlockSize)
         {
             /* If the new size is different, the old CDS must be deleted first  */
-            /* Free the old memory */
-            Status = CFE_ES_PutCDSBlock(RegRecPtr->MemHandle);
+            Status = CFE_ES_GenPoolPutBlock(&CDS->Pool, &OldBlockSize, RegRecPtr->BlockOffset);
+
+            /*
+             * Note because CDS puts a signature at the very beginning of the memory,
+             * valid data offsets are never zero.
+             */
+            if (Status == CFE_SUCCESS)
+            {
+                RegRecPtr->BlockOffset = 0;
+                RegRecPtr->BlockSize = 0;
+            }
         }
-        else
+
+        /* If a new allocation is needed, do it now */
+        if (Status == CFE_SUCCESS && RegRecPtr->BlockOffset == 0)
         {
-            /* Warn calling application that this is a duplicate registration */
-            Status = CFE_ES_CDS_ALREADY_EXISTS;
-               
-            /* Return the index into the registry as the handle to the CDS */
-            *HandlePtr = RegIndx;
+            /* Allocate the block for the CDS */
+            Status = CFE_ES_GenPoolGetBlock(&CDS->Pool, &BlockOffset, NewBlockSize);
+            if (Status == CFE_SUCCESS)
+            {
+                /* Save the size of the CDS */
+                RegRecPtr->BlockOffset = BlockOffset;
+                RegRecPtr->BlockSize = NewBlockSize;
+                IsNewOffset = true;
+            }
         }
-    }
-    else  /* CDS not already in registry */
-    {
-        /* Locate empty slot in table registry */
-        RegIndx = CFE_ES_FindFreeCDSRegistryEntry();
-        
-        /* Check to make sure we found a free entry in registry */
-        if (RegIndx == CFE_ES_CDS_NOT_FOUND)
+
+        if (IsNewEntry)
         {
-            Status = CFE_ES_CDS_REGISTRY_FULL;
-            CFE_ES_WriteToSysLog("CFE_CDS:Register-Registry full\n");
+            if (Status == CFE_SUCCESS)
+            {
+                /* Save flag indicating whether it is a Critical Table or not */
+                RegRecPtr->Table = CriticalTbl;
+
+                /* Save CDS Name in Registry */
+                strncpy(RegRecPtr->Name, Name, sizeof(RegRecPtr->Name)-1);
+                RegRecPtr->Name[sizeof(RegRecPtr->Name)-1] = 0;
+            }
+            else
+            {
+                /* On failure set it free */
+                CFE_ES_CDSBlockRecordSetFree(RegRecPtr);
+            }
         }
-        else
+
+        if (IsNewOffset || IsNewEntry)
         {
-            RegRecPtr = &CFE_ES_Global.CDSVars.Registry[RegIndx];
+            /* If we succeeded at creating a CDS, save updated registry in the CDS */
+            RegUpdateStatus = CFE_ES_UpdateCDSRegistry();
         }
     }
 
-    /* If no errors, then initialize the CDS registry entry     */
+    /*
+     * Export handle to caller before unlock
+     */
     if (Status == CFE_SUCCESS)
     {
-        /* Allocate the memory buffer for the CDS */
-        Status = CFE_ES_GetCDSBlock((CFE_ES_CDSBlockHandle_t *)&RegRecPtr->MemHandle, BlockSize);
-            
-        if (Status == CFE_SUCCESS)
-        {
-           RegRecPtr->Taken = true;
-        
-           /* Save the size of the CDS */
-           RegRecPtr->Size = BlockSize;
-        
-           /* Save flag indicating whether it is a Critical Table or not */
-           RegRecPtr->Table = CriticalTbl;
-
-           /* Save CDS Name in Registry */
-           strncpy(RegRecPtr->Name, Name, sizeof(RegRecPtr->Name)-1);
-           RegRecPtr->Name[sizeof(RegRecPtr->Name)-1] = 0;
-               
-           /* Return the index into the registry as the handle to the CDS */
-           *HandlePtr = RegIndx;
-        
-           /* If we succeeded at creating a CDS, save updated registry in the CDS */
-           Status = CFE_ES_UpdateCDSRegistry();
-                
-           if (Status != CFE_SUCCESS)
-           {
-              CFE_ES_WriteToSysLog("CFE_CDS:RegCDS-Failed to update CDS Registry (Stat=0x%08X)\n", (unsigned int)Status);
-           }
-        }
+        *HandlePtr = CFE_ES_CDSBlockRecordGetID(RegRecPtr);
+    }
+    else
+    {
+        *HandlePtr = CFE_ES_RESOURCEID_UNDEFINED;
     }
 
     /* Unlock Registry for update */
-    CFE_ES_UnlockCDSRegistry();
+    CFE_ES_UnlockCDS();
+
+    /* Log any failures AFTER releasing the lock */
+    if (RegUpdateStatus != CFE_SUCCESS)
+    {
+       CFE_ES_WriteToSysLog("CFE_CDS:RegCDS-Failed to update CDS Registry (Stat=0x%08X)\n", (unsigned int)RegUpdateStatus);
+
+       /*
+        * Return failure only if this was the primary error,
+        * do not overwrite a preexisting error.
+        */
+       if (Status == CFE_SUCCESS)
+       {
+           Status = RegUpdateStatus;
+       }
+    }
     
+    if (Status == CFE_SUCCESS && !IsNewOffset)
+    {
+        /*
+         * For backward compatibility, return the
+         * special non-success success code when
+         * reallocating an existing CDS.
+         *
+         * Note this intentionally needs to return CFE_SUCCESS
+         * when reusing an exiting entry but changing the size.
+         */
+        Status = CFE_ES_CDS_ALREADY_EXISTS;
+    }
+
+
     return (Status);
 
 }  /* End of CFE_ES_RegisterCDSEx() */
@@ -328,141 +460,133 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const
 
 int32 CFE_ES_ValidateCDS(void)
 {
-    /* Assume the CDS is invalid */
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    CFE_ES_CDS_Offset_t TrailerOffset;
+    const CFE_ES_CDS_Offset_t SIG_CDS_SIZE = { CFE_ES_CDS_SIGNATURE_LEN };
     int32 Status;
     
     /* Perform 2 checks to validate the CDS Memory Pool */
     /* First, determine if the first validity check field is correct */
-    Status = CFE_PSP_ReadFromCDS(&CFE_ES_Global.CDSVars.ValidityField, 0, sizeof(CFE_ES_Global.CDSVars.ValidityField));
-
-    if (Status == CFE_PSP_SUCCESS)
-    {
-        if (strncmp(CFE_ES_Global.CDSVars.ValidityField, "_CDSBeg_", sizeof(CFE_ES_Global.CDSVars.ValidityField)) == 0)
-        {
-            Status = CFE_PSP_ReadFromCDS(&CFE_ES_Global.CDSVars.ValidityField, 
-                                       (CFE_ES_Global.CDSVars.CDSSize-sizeof(CFE_ES_Global.CDSVars.ValidityField)), 
-                                       sizeof(CFE_ES_Global.CDSVars.ValidityField));
-        
-            if (Status == CFE_PSP_SUCCESS)
-            {
-                if (strncmp(CFE_ES_Global.CDSVars.ValidityField, "_CDSEnd_", sizeof(CFE_ES_Global.CDSVars.ValidityField)) == 0)
-                {
-                    Status = CFE_SUCCESS;
-                }
-                else /* Validity Field failed */
-                {
-                    Status = CFE_ES_CDS_INVALID;
-                }
-            }
-            else /* BSP reported an error reading from CDS */
-            {
-                CFE_ES_WriteToSysLog("CFE_CDS:Validate-2nd ReadFromCDS Failed. Status=0x%X\n", (unsigned int)Status);
-            }
-        }
-        else /* Validity Field failed */
-        {
-            Status = CFE_ES_CDS_INVALID;
-        }
-    }
-    else /* BSP reported an error reading from CDS */
+    Status = CFE_ES_CDS_CacheFetch(&CDS->Cache, CDS_SIG_BEGIN_OFFSET, SIG_CDS_SIZE);
+    if (Status != CFE_PSP_SUCCESS)
     {
         CFE_ES_WriteToSysLog("CFE_CDS:Validate-1st ReadFromCDS Failed. Status=0x%X\n", (unsigned int)Status);
+        return Status;
+    }
+
+    if (strncmp(CDS->Cache.Data.Sig, CFE_ES_CDS_SIGNATURE_BEGIN, CFE_ES_CDS_SIGNATURE_LEN) != 0)
+    {
+        /* Beginning Validity Field failed */
+        return CFE_ES_CDS_INVALID;
+    }
+
+    TrailerOffset = CDS->TotalSize;
+    TrailerOffset -= sizeof(CFE_ES_CDS_PersistentTrailer_t);
+
+    Status = CFE_ES_CDS_CacheFetch(&CDS->Cache, TrailerOffset, SIG_CDS_SIZE);
+    if (Status != CFE_PSP_SUCCESS)
+    {
+        /* BSP reported an error reading from CDS */
+        CFE_ES_WriteToSysLog("CFE_CDS:Validate-2nd ReadFromCDS Failed. Status=0x%X\n", (unsigned int)Status);
+        return Status;
+    }
+
+    if (strncmp(CDS->Cache.Data.Sig, CFE_ES_CDS_SIGNATURE_END, CFE_ES_CDS_SIGNATURE_LEN) != 0)
+    {
+        /* Ending Validity Field failed */
+        return CFE_ES_CDS_INVALID;
     }
     
-    return Status;
+    /* All sanity checks passed */
+    return CFE_SUCCESS;
 }   /* End of CFE_ES_ValidateCDS() */
 
 /*******************************************************************
 **
-** CFE_ES_InitializeCDS
+** CFE_ES_ClearCDS
 **
 ** NOTE: For complete prolog information, see prototype above
 ********************************************************************/
 
-int32 CFE_ES_InitializeCDS(uint32 CDSSize)
+int32 CFE_ES_ClearCDS(void)
 {
-    int32  Status = CFE_SUCCESS;
-    uint32 MemBlock[32];
-    uint32 NumWritten=0;
-    uint32 Uint32Zero=0;
-    
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    CFE_ES_CDS_Offset_t RemainSize;
+    int32  Status;
+
     /* Clear the CDS to ensure everything is gone */
     /* Create a block of zeros to write to the CDS */
-    memset(MemBlock, 0, sizeof(MemBlock));
-    
+    Status = CFE_ES_CDS_CachePreload(&CDS->Cache, NULL,
+            0, sizeof(CDS->Cache.Data.Zero));
+
     /* While there is space to write another block of zeros, then do so */
-    while (((NumWritten + sizeof(MemBlock)) <= CDSSize) && (Status == OS_SUCCESS))
+    while (CDS->Cache.Offset < CDS->TotalSize)
     {
-        Status = CFE_PSP_WriteToCDS(MemBlock, NumWritten, sizeof(MemBlock));
-        
-        if (Status == CFE_PSP_SUCCESS)
+        RemainSize = CDS->TotalSize - CDS->Cache.Offset;
+        if (RemainSize < sizeof(CDS->Cache.Data.Zero))
         {
-            NumWritten += sizeof(MemBlock);
+            /* partial size */
+            CDS->Cache.Size = RemainSize;
         }
-    }
-    
-    /* While there is space to write a uint32 of zeros, then do so */
-    if ((Status == CFE_PSP_SUCCESS) && (NumWritten < CDSSize))
-    {
-        while (((NumWritten + sizeof(uint32)) <= CDSSize) && (Status == CFE_PSP_SUCCESS))
+        Status = CFE_ES_CDS_CacheFlush(&CDS->Cache);
+        if (Status != CFE_SUCCESS)
         {
-            Status = CFE_PSP_WriteToCDS(&Uint32Zero, NumWritten, sizeof(uint32));
-            
-            if (Status == CFE_PSP_SUCCESS)
-            {
-                NumWritten += sizeof(uint32);
-            }
+            break;
         }
+
+        CDS->Cache.Offset += CDS->Cache.Size;
     }
 
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("CFE_CDS:Init-Clear CDS failed @ Offset=%lu Status=0x%08X\n",
+                (unsigned long)CDS->Cache.Offset, (unsigned int)CDS->Cache.AccessStatus);
+    }
+
+    return Status;
+}
+
+/*******************************************************************
+**
+** CFE_ES_InitCDSSignatures
+**
+** NOTE: For complete prolog information, see prototype above
+********************************************************************/
+
+int32 CFE_ES_InitCDSSignatures(void)
+{
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    CFE_ES_CDS_Offset_t SigOffset;
+    int32  Status;
+    
+    /* Initialize the Validity Check strings */
+    SigOffset = 0;
+    CFE_ES_CDS_CachePreload(&CDS->Cache, CFE_ES_CDS_SIGNATURE_BEGIN,
+            SigOffset, CFE_ES_CDS_SIGNATURE_LEN);
+    Status = CFE_ES_CDS_CacheFlush(&CDS->Cache);
+    if (Status != CFE_SUCCESS)
+    {
+        /* BSP reported an error writing to CDS */
+        CFE_ES_WriteToSysLog("CFE_CDS:Init-'_CDSBeg_' write failed. Status=0x%08X\n",
+                (unsigned int)CDS->Cache.AccessStatus);
+        return Status;
+    }
+
+    SigOffset = CDS->TotalSize;
+    SigOffset -= sizeof(CFE_ES_CDS_PersistentTrailer_t);
+
+    CFE_ES_CDS_CachePreload(&CDS->Cache, CFE_ES_CDS_SIGNATURE_END,
+            SigOffset, CFE_ES_CDS_SIGNATURE_LEN);
+    Status = CFE_ES_CDS_CacheFlush(&CDS->Cache);
     if (Status != CFE_PSP_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:Init-Clear CDS failed @ Offset=%d Status=0x%08X\n", (int)NumWritten, (unsigned int)Status);
+        CFE_ES_WriteToSysLog("CFE_CDS:Init-'_CDSEnd_' write failed. Status=0x%08X\n",
+                (unsigned int)CDS->Cache.AccessStatus);
+        return Status;
     }
-    else
-    {
-        /* Initialize the Validity Check strings */
-        Status = CFE_PSP_WriteToCDS("_CDSBeg_", 0, sizeof(CFE_ES_Global.CDSVars.ValidityField));
-        if (Status == CFE_PSP_SUCCESS)
-        {
-            Status = CFE_PSP_WriteToCDS("_CDSEnd_", 
-                                      (CDSSize-sizeof(CFE_ES_Global.CDSVars.ValidityField)), 
-                                      sizeof(CFE_ES_Global.CDSVars.ValidityField));
-            if (Status != CFE_PSP_SUCCESS)
-            {
-                CFE_ES_WriteToSysLog("CFE_CDS:Init-'_CDSEnd_' write failed. Status=0x%08X\n", (unsigned int)Status);
-            }
-            else
-            {
-                /* Determine the amount of CDS memory is available for the CDS Memory Pool */
-                /* Total CDS Size minus the validity fields and the space for the registry and the registry size */
-                if (CDSSize < (CDS_POOL_OFFSET + sizeof(CFE_ES_Global.CDSVars.ValidityField)))
-                {
-                    /* Invalid - passing zero will cause the CFE_ES_CreateCDSPool() to fail */
-                    CFE_ES_Global.CDSVars.MemPoolSize = 0;
-                }
-                else
-                {
-                    CFE_ES_Global.CDSVars.MemPoolSize = CDSSize - CDS_POOL_OFFSET - sizeof(CFE_ES_Global.CDSVars.ValidityField);
-                }
 
-                /* Initialize the variables for managing the CDS Memory Pool */
-                Status = CFE_ES_CreateCDSPool(CFE_ES_Global.CDSVars.MemPoolSize, CDS_POOL_OFFSET);
-                
-                if (Status == CFE_SUCCESS)
-                {
-                    Status = CFE_ES_InitCDSRegistry();
-                }
-            }
-        }
-        else /* BSP reported an error writing to CDS */
-        {
-            CFE_ES_WriteToSysLog("CFE_CDS:Init-'_CDSBeg_' write failed. Status=0x%08X\n", (unsigned int)Status);
-        }
-    }
-    
     return Status;
-}   /* End of CFE_ES_InitializeCDS() */
+}   /* End of CFE_ES_InitCDSSignatures() */
 
 /*******************************************************************
 **
@@ -473,32 +597,26 @@ int32 CFE_ES_InitializeCDS(uint32 CDSSize)
 
 int32 CFE_ES_InitCDSRegistry(void)
 {
-    int32 Status = CFE_SUCCESS;
-    uint32 i = 0;
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    int32 Status;
+    uint32 RegSize;
     
     /* Initialize the local CDS Registry */
-    CFE_ES_Global.CDSVars.MaxNumRegEntries = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES;
-    for (i=0; i<CFE_ES_Global.CDSVars.MaxNumRegEntries; i++)
-    {
-        CFE_ES_Global.CDSVars.Registry[i].Name[0] = '\0';
-        CFE_ES_Global.CDSVars.Registry[i].Size = 0;
-        CFE_ES_Global.CDSVars.Registry[i].MemHandle = 0;
-        CFE_ES_Global.CDSVars.Registry[i].Taken = false;
-        CFE_ES_Global.CDSVars.Registry[i].Table = false;
-    }
-    
+    RegSize = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES;
+    CFE_ES_CDS_CachePreload(&CDS->Cache, &RegSize,
+            CDS_REG_SIZE_OFFSET,sizeof(RegSize));
     /* Copy the number of registry entries to the CDS */
-    Status = CFE_PSP_WriteToCDS(&CFE_ES_Global.CDSVars.MaxNumRegEntries, 
-                               CDS_REG_SIZE_OFFSET, 
-                               sizeof(CFE_ES_Global.CDSVars.MaxNumRegEntries));
-    
-    if (Status == CFE_PSP_SUCCESS)
+    Status = CFE_ES_CDS_CacheFlush(&CDS->Cache);
+    if (Status == CFE_SUCCESS)
     {
+        memset(CDS->Registry, 0, sizeof(CDS->Registry));
+
         Status = CFE_ES_UpdateCDSRegistry();
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:InitReg-Failed to write Reg Size. Status=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("CFE_CDS:InitReg-Failed to write Reg Size. Status=0x%08X\n",
+                (unsigned int)CDS->Cache.AccessStatus);
     }
     
     return Status;
@@ -513,16 +631,18 @@ int32 CFE_ES_InitCDSRegistry(void)
 
 int32 CFE_ES_UpdateCDSRegistry(void)
 {
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32 Status;
     
     /* Copy the contents of the local registry to the CDS */
-    Status = CFE_PSP_WriteToCDS(CFE_ES_Global.CDSVars.Registry, 
+    Status = CFE_PSP_WriteToCDS(CDS->Registry,
                               CDS_REG_OFFSET,
-                              sizeof(CFE_ES_Global.CDSVars.Registry));
+                              sizeof(CDS->Registry));
     
-    if (Status != OS_SUCCESS)
+    if (Status != CFE_PSP_SUCCESS)
     {
         CFE_ES_WriteToSysLog("CFE_CDS:UpdateReg-Failed to write CDS Registry. Status=0x%08X\n", (unsigned int)Status);
+        Status = CFE_ES_CDS_ACCESS_ERROR;
     }
     
     return Status;
@@ -559,15 +679,21 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceI
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-int32 CFE_ES_LockCDSRegistry(void)
+int32 CFE_ES_LockCDS(void)
 {
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32   Status;
 
-    Status = OS_MutSemTake(CFE_ES_Global.CDSVars.RegistryMutex);
+    Status = OS_MutSemTake(CDS->GenMutex);
 
+    /* Convert to CFE return code */
     if (Status == OS_SUCCESS)
     {
         Status = CFE_SUCCESS;
+    }
+    else
+    {
+        Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     return Status;
@@ -582,15 +708,21 @@ int32 CFE_ES_LockCDSRegistry(void)
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-int32 CFE_ES_UnlockCDSRegistry(void)
+int32 CFE_ES_UnlockCDS(void)
 {
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32   Status;
 
-    Status = OS_MutSemGive(CFE_ES_Global.CDSVars.RegistryMutex);
+    Status = OS_MutSemGive(CDS->GenMutex);
 
+    /* Convert to CFE return code */
     if (Status == OS_SUCCESS)
     {
         Status = CFE_SUCCESS;
+    }
+    else
+    {
+        Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     return Status;
@@ -605,30 +737,37 @@ int32 CFE_ES_UnlockCDSRegistry(void)
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-int32 CFE_ES_FindCDSInRegistry(const char *CDSName)
+CFE_ES_CDS_RegRec_t *CFE_ES_FindCDSInRegistry(const char *CDSName)
 {
-    int32 RegIndx = CFE_ES_CDS_NOT_FOUND;
-    uint32 i = 0;
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    CFE_ES_CDS_RegRec_t *CDSRegRecPtr;
+    uint32 NumReg;
 
-    while ( (RegIndx == CFE_ES_CDS_NOT_FOUND) && (i < CFE_ES_Global.CDSVars.MaxNumRegEntries) )
+    CDSRegRecPtr = CDS->Registry;
+    NumReg = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES;
+    while (true)
     {
-        /* Check to see if the record is currently being used */
-        if (CFE_ES_Global.CDSVars.Registry[i].Taken == true)
+        if (NumReg == 0)
+        {
+            CDSRegRecPtr = NULL; /* not found */
+            break;
+        }
+
+        if (CFE_ES_CDSBlockRecordIsUsed(CDSRegRecPtr))
         {
             /* Perform a case sensitive name comparison */
-            if (strcmp(CDSName, CFE_ES_Global.CDSVars.Registry[i].Name) == 0)
+            if (strcmp(CDSName, CDSRegRecPtr->Name) == 0)
             {
-                /* If the names match, then return the index */
-                RegIndx = i;
+                /* If the names match, then stop */
+                break;
             }
         }
 
-        /* Point to next record in the CDS Registry */
-        i++;
+        ++CDSRegRecPtr;
+        --NumReg;
+    }
 
-    };
-
-    return RegIndx;
+    return CDSRegRecPtr;
 }   /* End of CFE_ES_FindCDSInRegistry() */
 
 
@@ -639,24 +778,40 @@ int32 CFE_ES_FindCDSInRegistry(const char *CDSName)
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-int32 CFE_ES_FindFreeCDSRegistryEntry(void)
+CFE_ES_CDS_RegRec_t *CFE_ES_AllocateNewCDSRegistryEntry()
 {
-    int32 RegIndx = CFE_ES_CDS_NOT_FOUND;
-    uint32 i = 0;
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    CFE_ES_CDS_RegRec_t *CDSRegRecPtr;
+    uint32 NumReg;
 
-    while ( (RegIndx == CFE_ES_CDS_NOT_FOUND) && (i < CFE_ES_Global.CDSVars.MaxNumRegEntries) )
+    CDSRegRecPtr = CDS->Registry;
+    NumReg = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES;
+    while (true)
     {
-        if (CFE_ES_Global.CDSVars.Registry[i].Taken == false)
+        if (NumReg == 0)
         {
-            RegIndx = i;
+            CDSRegRecPtr = NULL; /* not found */
+            break;
         }
-        else
+
+        if (!CFE_ES_CDSBlockRecordIsUsed(CDSRegRecPtr))
         {
-            i++;
+            /* Wipe it, just in case of stale data */
+            memset(CDSRegRecPtr, 0, sizeof(*CDSRegRecPtr));
+
+            /* Set the ID which marks it as used */
+            CFE_ES_CDSBlockRecordSetUsed(CDSRegRecPtr,
+                    CFE_ES_ResourceID_FromInteger(
+                            (CDSRegRecPtr - CDS->Registry)
+                            + CFE_ES_CDSBLOCKID_BASE));
+            break;
         }
+
+        ++CDSRegRecPtr;
+        --NumReg;
     }
 
-    return RegIndx;
+    return CDSRegRecPtr;
 }   /* End of CFE_ES_FindFreeCDSRegistryEntry() */
 
 
@@ -669,46 +824,40 @@ int32 CFE_ES_FindFreeCDSRegistryEntry(void)
 
 int32 CFE_ES_RebuildCDS(void)
 {
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32 Status;
-    int32 PoolOffset;
     
     /* First, determine if the CDS registry stored in the CDS is smaller or equal */
     /* in size to the CDS registry we are currently configured for                */
     /* Copy the number of registry entries to the CDS */
-    Status = CFE_PSP_ReadFromCDS(&CFE_ES_Global.CDSVars.MaxNumRegEntries, 
-                               CDS_REG_SIZE_OFFSET, 
-                               sizeof(CFE_ES_Global.CDSVars.MaxNumRegEntries));
-                               
-    if ((Status == CFE_PSP_SUCCESS)  &&
-        (CFE_ES_Global.CDSVars.MaxNumRegEntries <= CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES))
+    Status = CFE_ES_CDS_CacheFetch(&CDS->Cache, CDS_REG_SIZE_OFFSET, sizeof(CDS->Cache.Data.RegistrySize));
+    if (Status != CFE_SUCCESS)
     {
-        Status = CFE_PSP_ReadFromCDS(&CFE_ES_Global.CDSVars.Registry,
-                                   CDS_REG_OFFSET,
-                                   (CFE_ES_Global.CDSVars.MaxNumRegEntries * sizeof(CFE_ES_CDS_RegRec_t)));
-                            
-        if (Status == CFE_PSP_SUCCESS)
-        {
-            /* Calculate the starting offset of the memory pool */
-            PoolOffset = (CDS_REG_OFFSET + (CFE_ES_Global.CDSVars.MaxNumRegEntries * sizeof(CFE_ES_CDS_RegRec_t)) + 3) & 0xfffffffc;;
+        CFE_ES_WriteToSysLog("CFE_CDS:Rebuild-PSP Error reading Registry size (%lx)\n", (unsigned long)CDS->Cache.AccessStatus);
+        return CFE_ES_CDS_INVALID;
+    }
 
-            /* Calculate the size of the memory pool */
-            CFE_ES_Global.CDSVars.MemPoolSize = CFE_ES_Global.CDSVars.CDSSize - PoolOffset - sizeof(CFE_ES_Global.CDSVars.ValidityField);
-            
-            /* Scan the memory pool and identify the created but currently unused memory blocks */
-            Status = CFE_ES_RebuildCDSPool(CFE_ES_Global.CDSVars.MemPoolSize, PoolOffset);
-        }
-        else
-        {
-            /* Registry in CDS is unreadable */
-            Status = CFE_ES_CDS_INVALID;
-            CFE_ES_WriteToSysLog("CFE_CDS:Rebuild-Registry in CDS is unreadable\n");
-        }
+    if (CDS->Cache.Data.RegistrySize != CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES)
+    {
+        /* Registry in CDS is incompatible size to recover */
+        CFE_ES_WriteToSysLog("CFE_CDS:Rebuild-Registry in CDS incorrect size (%lu)\n", (unsigned long)CDS->Cache.Data.RegistrySize);
+        return CFE_ES_CDS_INVALID;
+    }
+
+    Status = CFE_PSP_ReadFromCDS(&CDS->Registry,
+            CDS_REG_OFFSET,
+            sizeof(CDS->Registry));
+
+    if (Status == CFE_PSP_SUCCESS)
+    {
+        /* Scan the memory pool and identify the created but currently unused memory blocks */
+        Status = CFE_ES_RebuildCDSPool(CDS->DataSize, CDS_POOL_OFFSET);
     }
     else
     {
-        /* Registry in CDS is too large to recover */
+        /* Registry in CDS is unreadable */
+        CFE_ES_WriteToSysLog("CFE_CDS:Rebuild-Registry in CDS is unreadable, PSP error %lx\n", (unsigned long)Status);
         Status = CFE_ES_CDS_INVALID;
-        CFE_ES_WriteToSysLog("CFE_CDS:Rebuild-Registry in CDS too large to recover\n");
     }
            
     return Status;    
@@ -724,29 +873,27 @@ int32 CFE_ES_RebuildCDS(void)
 
 int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
 {
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32                Status;
-    int32                RegIndx;
-    CFE_ES_CDS_RegRec_t *RegRecPtr = NULL;
+    CFE_ES_CDS_RegRec_t *RegRecPtr;
     char                 OwnerName[OS_MAX_API_NAME];
     CFE_ES_ResourceID_t  AppId;
     uint32               i;
     char                 LogMessage[CFE_ES_MAX_SYSLOG_MSG_SIZE];
+    CFE_ES_MemOffset_t    OldBlockSize;
     
     LogMessage[0] = 0;
 
     /* Lock Registry for update.  This prevents two applications from */
     /* trying to change the CDS registry at the same time  */
-    CFE_ES_LockCDSRegistry();
+    CFE_ES_LockCDS();
 
     /* Find CDS name in registry */
-    RegIndx = CFE_ES_FindCDSInRegistry(CDSName);
+    RegRecPtr = CFE_ES_FindCDSInRegistry(CDSName);
 
     /* Check to see if CDS is already in the registry */
-    if (RegIndx != CFE_ES_CDS_NOT_FOUND)
+    if (RegRecPtr != NULL)
     {
-        /* Get pointer to Registry Record Entry to speed up processing */
-        RegRecPtr = &CFE_ES_Global.CDSVars.Registry[RegIndx];
-        
         /* Critical tables are not allowed to be deleted via an ES Command. */
         /* They must be deleted by a Table Services Command */
         if (RegRecPtr->Table != CalledByTblServices)
@@ -771,23 +918,23 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
             Status = CFE_ES_GetAppIDByName(&AppId, OwnerName);
             
             /* If we can't find the name, then things are good */
-            if (Status == CFE_ES_ERR_APPNAME)
+            if (Status != CFE_SUCCESS)
             {
                 /* Free the registry entry and the CDS memory block associated with it */
-                Status = CFE_ES_PutCDSBlock(RegRecPtr->MemHandle);
+                Status = CFE_ES_GenPoolPutBlock(&CDS->Pool, &OldBlockSize, RegRecPtr->BlockOffset);
     
                 /* Report any errors incurred while freeing the CDS Memory Block */
-                if (Status < 0)
+                if (Status != CFE_SUCCESS)
                 {
                     CFE_ES_SysLog_snprintf(LogMessage, sizeof(LogMessage),
                             "CFE_ES:DeleteCDS-Failed to free CDS Mem Block (Handle=0x%08lX)(Stat=0x%08X)\n",
-                            (unsigned long)RegRecPtr->MemHandle, (unsigned int)Status);
+                            (unsigned long)RegRecPtr->BlockOffset, (unsigned int)Status);
                 }
                 else
                 {
                     /* Remove entry from the CDS Registry */
-                    RegRecPtr->Taken = false;
-        
+                    CFE_ES_CDSBlockRecordSetFree(RegRecPtr);
+
                     Status = CFE_ES_UpdateCDSRegistry();
             
                     if (Status != CFE_SUCCESS)
@@ -809,7 +956,7 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
     }
 
     /* Unlock Registry for future updates */
-    CFE_ES_UnlockCDSRegistry();
+    CFE_ES_UnlockCDS();
 
     /* Output the message to syslog once the CDS registry resource is unlocked */
     if (LogMessage[0] != 0)

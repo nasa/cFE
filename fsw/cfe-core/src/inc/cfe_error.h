@@ -412,7 +412,8 @@ typedef int32 CFE_Status_t;
 /**
  * @brief CDS Invalid Size
  *
- *  The Application is requesting a CDS Block with a size of zero.
+ *  The Application is requesting a CDS Block or Pool with a size
+ *  beyond the applicable limits, either too large or too small/zero.
  *
  */
 #define CFE_ES_CDS_INVALID_SIZE  ((int32)0xc4000010)

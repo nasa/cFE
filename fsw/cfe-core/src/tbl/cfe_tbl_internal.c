@@ -1431,7 +1431,7 @@ void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CD
     
     for (i=0; i<CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
     {
-        if (CFE_TBL_TaskData.CritReg[i].CDSHandle == CDSHandleToFind)
+        if ( CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.CritReg[i].CDSHandle, CDSHandleToFind) )
         {
             *CritRegRecPtr = &CFE_TBL_TaskData.CritReg[i];
             break;

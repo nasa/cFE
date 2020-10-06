@@ -1820,17 +1820,15 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
         if (Status == sizeof(CFE_FS_Header_t))
         {
             Status = sizeof(CFE_ES_CDSRegDumpRec_t);
+            RegRecPtr = CFE_ES_Global.CDSVars.Registry;
             while ((RegIndex < CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES) && (Status == sizeof(CFE_ES_CDSRegDumpRec_t)))
             {
-                /* Make a pointer to simplify code look and to remove redundant indexing into registry */
-                RegRecPtr = &CFE_ES_Global.CDSVars.Registry[RegIndex];
-
                 /* Check to see if the Registry entry is empty */
-                if (RegRecPtr->Taken == true)
+                if ( CFE_ES_CDSBlockRecordIsUsed(RegRecPtr) )
                 {
                     /* Fill CDS Registry Dump Record with relevant information */
-                    DumpRecord.Size             = RegRecPtr->Size;
-                    DumpRecord.Handle           = RegRecPtr->MemHandle;
+                    DumpRecord.Size             = CFE_ES_CDSBlockRecordGetUserSize(RegRecPtr);
+                    DumpRecord.Handle           = CFE_ES_CDSBlockRecordGetID(RegRecPtr);
                     DumpRecord.Table            = RegRecPtr->Table;
                     DumpRecord.ByteAlignSpare1  = 0;
 
@@ -1848,7 +1846,8 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
                 }
 
                 /* Look at the next entry in the Registry */
-                RegIndex++;
+                ++RegIndex;
+                ++RegRecPtr;
             }
 
             if (Status == sizeof(CFE_ES_CDSRegDumpRec_t))

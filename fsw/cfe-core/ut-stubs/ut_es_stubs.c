@@ -72,6 +72,12 @@
 #define CFE_UT_ES_DEFAULT_TASKID    ((CFE_ES_ResourceID_t){0x02020001})
 
 /*
+ * Default value to return from calls that output a CDS ID, if the
+ * test case does not provide a value
+ */
+#define CFE_UT_ES_DEFAULT_CDSID     ((CFE_ES_ResourceID_t){0x02050001})
+
+/*
  * Invalid value to output from calls as resource ID for the
  * calls that return failure.  If subsequently used by application code,
  * it will likely induce a segfault or other noticeably bad behavior.
@@ -884,7 +890,7 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
     int32   status;
     uint32  CdsBufferSize;
 
-    UT_Stub_RegisterContext(UT_KEY(CFE_ES_CopyToCDS), (void*)Handle);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_CopyToCDS), Handle);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_CopyToCDS), DataToCopy);
     status = UT_DEFAULT_IMPL(CFE_ES_CopyToCDS);
 
@@ -927,7 +933,7 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
     uint32  CdsBufferSize;
 
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_RestoreFromCDS), RestoreToMemory);
-    UT_Stub_RegisterContext(UT_KEY(CFE_ES_RestoreFromCDS), (void*)Handle);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_RestoreFromCDS), Handle);
     status = UT_DEFAULT_IMPL(CFE_ES_RestoreFromCDS);
 
     if (status >= 0)
@@ -976,7 +982,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr,
     {
         if (UT_Stub_CopyToLocal(UT_KEY(CFE_ES_RegisterCDSEx), (uint8*)HandlePtr, sizeof(*HandlePtr)) < sizeof(*HandlePtr))
         {
-            *HandlePtr = 1;
+            *HandlePtr = CFE_UT_ES_DEFAULT_CDSID;
         }
     }
 
@@ -1105,7 +1111,7 @@ bool CFE_ES_RunLoop(uint32 *ExitStatus)
     return UT_DEFAULT_IMPL(CFE_ES_RunLoop) != 0;
 }
 
-int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name)
+int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t BlockSize, const char *Name)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_RegisterCDS), HandlePtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_RegisterCDS), BlockSize);
