@@ -143,6 +143,9 @@ typedef const struct
     uint16 Default_CpuId;        /**< Compile-time value for CPU number */
     uint16 Default_SpacecraftId; /**< Compile-time value for Spacecraft ID (mission-wide) */
 
+    const char *Default_ModuleExtension; /**< Default system extension for dynamic modules */
+    const char *Default_CoreFilename;    /**< Default file name for CFE core executable/library */
+
     Target_CfeConfigData *CfeConfig;   /**< CFE configuration sub-structure */
     Target_PspConfigData *PspConfig;   /**< PSP configuration sub-structure */
     CFE_StaticModuleLoadEntry_t *PspModuleList; /**< List of PSP modules (API structures) statically linked into the core EXE */
