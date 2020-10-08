@@ -274,7 +274,7 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
  * @param[in]  BlockID the ID/handle of the CDS block to retrieve
  * @param[out] Idx     Output buffer to store the index
  * @returns    #CFE_SUCCESS if conversion successful. @copydoc CFE_SUCCESS
- *             #CFE_ES_RESOURCE_ID_INVALID if block ID is outside valid range
+ *             #CFE_ES_ERR_RESOURCEID_NOT_VALID if block ID is outside valid range
  */
 int32 CFE_ES_CDSBlockID_ToIndex(CFE_ES_ResourceID_t BlockID, uint32 *Idx);
 
@@ -505,7 +505,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceI
 
 /*****************************************************************************/
 /**
-** \brief Returns the Registry Index for the specified CDS Name
+** \brief Returns the Registry Record for the specified CDS Name
 **
 ** \par Description
 **        Locates given CDS Name in the CDS Registry and
@@ -520,7 +520,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceI
 ** \retval NULL if not found, Non null entry pointer on success
 **
 ******************************************************************************/
-CFE_ES_CDS_RegRec_t *CFE_ES_FindCDSInRegistry(const char *CDSName);
+CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName);
 
 /*****************************************************************************/
 /**

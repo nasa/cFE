@@ -709,7 +709,6 @@ void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_TIME_TOO_MANY_SYNCH_CALLBACKS \copybrief CFE_TIME_TOO_MANY_SYNCH_CALLBACKS
-** \retval #CFE_ES_ERR_APPID                  \copybrief CFE_ES_ERR_APPID
 **
 ** \sa #CFE_TIME_UnregisterSynchCallback
 **
@@ -733,7 +732,6 @@ CFE_Status_t  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callbac
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_TIME_CALLBACK_NOT_REGISTERED \copybrief CFE_TIME_CALLBACK_NOT_REGISTERED
-** \retval #CFE_ES_ERR_APPID                 \copybrief CFE_ES_ERR_APPID
 **
 ** \sa #CFE_TIME_RegisterSynchCallback
 **

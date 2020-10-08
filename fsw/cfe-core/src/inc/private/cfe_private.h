@@ -325,7 +325,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t Us
 ** \return #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \return #CFE_ES_CDS_WRONG_TYPE_ERR       \copydoc CFE_ES_CDS_WRONG_TYPE_ERR
 ** \return #CFE_ES_CDS_OWNER_ACTIVE_ERR     \copydoc CFE_ES_CDS_OWNER_ACTIVE_ERR
-** \return #CFE_ES_CDS_NOT_FOUND_ERR        \copydoc CFE_ES_CDS_NOT_FOUND_ERR
+** \return #CFE_ES_ERR_NAME_NOT_FOUND       \copydoc CFE_ES_ERR_NAME_NOT_FOUND
 ** \return Any of the return values from #CFE_ES_UpdateCDSRegistry
 ** \return Any of the return values from #CFE_ES_PutCDSBlock
 **

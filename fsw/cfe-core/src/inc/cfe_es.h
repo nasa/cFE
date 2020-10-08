@@ -257,7 +257,8 @@ static inline bool CFE_ES_ResourceID_IsDefined(CFE_ES_ResourceID_t id)
  * @param[out]  Idx    Buffer where the calculated index will be stored
  *
  * @return Execution status, see @ref CFEReturnCodes
- * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
+ * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
+ * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
 CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx);
 
@@ -281,7 +282,8 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx);
  * @param[out]  Idx    Buffer where the calculated index will be stored
  *
  * @return Execution status, see @ref CFEReturnCodes
- * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
+ * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
+ * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
 int32 CFE_ES_LibID_ToIndex(CFE_ES_ResourceID_t LibID, uint32 *Idx);
 
@@ -305,9 +307,36 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_ResourceID_t LibID, uint32 *Idx);
  * @param[out]  Idx     Buffer where the calculated index will be stored
  *
  * @return Execution status, see @ref CFEReturnCodes
- * @retval #CFE_SUCCESS                 @copybrief CFE_SUCCESS
+ * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
+ * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
 CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx);
+
+/**
+ * @brief Obtain an index value correlating to an ES Counter ID
+ *
+ * This calculates a zero based integer value that may be used for indexing
+ * into a local resource table/array.
+ *
+ * Index values are only guaranteed to be unique for resources of the same
+ * type.  For instance, the indices corresponding to two [valid] Counter
+ * IDs will never overlap, but the index of an Counter and a library ID
+ * may be the same.  Furthermore, indices may be reused if a resource is
+ * deleted and re-created.
+ *
+ * @note There is no inverse of this function - indices cannot be converted
+ * back to the original CounterID value.  The caller should retain the original ID
+ * for future use.
+ *
+ * @param[in]   CounterID  Counter ID to convert
+ * @param[out]  Idx     Buffer where the calculated index will be stored
+ *
+ * @return Execution status, see @ref CFEReturnCodes
+ * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
+ * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+ */
+CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_ResourceID_t CounterID, uint32 *Idx);
+
 
 /**
  * \brief Application Information
@@ -801,9 +830,9 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr);
 **
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS       \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_APPID  \copybrief CFE_ES_ERR_APPID
-** \retval #CFE_ES_ERR_BUFFER \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
 **
 ** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName, #CFE_ES_GetTaskInfo
 **
@@ -826,8 +855,9 @@ CFE_Status_t CFE_ES_GetAppID(CFE_ES_ResourceID_t *AppIdPtr);
 **                              Will be set to the ID of the calling task.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_TASKID    \copybrief CFE_ES_ERR_TASKID
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr);
@@ -848,14 +878,39 @@ CFE_Status_t CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr);
 **
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_APPNAME  \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER   \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
+** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
 **
-** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppID, #CFE_ES_GetAppName, #CFE_ES_GetTaskInfo
+** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppName, #CFE_ES_GetAppInfo
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *AppName);
+
+/*****************************************************************************/
+/**
+** \brief Get a Library ID associated with a specified Library name
+**
+** \par Description
+**        This routine retrieves the cFE Library ID associated with a
+**        specified Library name.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param[out]  LibIdPtr       Pointer to variable that is to receive the Library's ID.
+** \param[in]   LibName        Pointer to null terminated character string containing a Library name.
+**
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
+** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+**
+** \sa #CFE_ES_GetLibName
+**
+******************************************************************************/
+CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_ResourceID_t *LibIdPtr, const char *LibName);
 
 /*****************************************************************************/
 /**
@@ -866,12 +921,10 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *Ap
 **        specified Application ID.
 **
 ** \par Assumptions, External Events, and Notes:
-**        In the case of a failure (#CFE_ES_ERR_APPID), an empty string is returned.  #CFE_ES_ERR_APPID
-**        will be returned if the specified Application ID (AppId) is invalid or not in use.
+**        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
 **
-** \param[in, out]   AppName       Pointer to a character array of at least \c BufferLength in size that will
-**                            be filled with the appropriate Application name.  *AppName is the null terminated Application name of the Application associated with the 
-**                            specified Application ID
+** \param[out]  AppName       Pointer to a character array of at least \c BufferLength in size that will
+**                            be filled with the appropriate Application name.
 **
 ** \param[in]   AppId         Application ID of Application whose name is being requested.
 **
@@ -881,13 +934,43 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *Ap
 **
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_APPID    \copybrief CFE_ES_ERR_APPID
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 **
-** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetTaskInfo
+** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppInfo
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, uint32 BufferLength);
+
+/*****************************************************************************/
+/**
+** \brief Get a Library name for a specified Library ID
+**
+** \par Description
+**        This routine retrieves the cFE Library name associated with a
+**        specified Library ID.
+**
+** \par Assumptions, External Events, and Notes:
+**        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
+**
+** \param[out]  LibName       Pointer to a character array of at least \c BufferLength in size that will
+**                            be filled with the Library name.
+**
+** \param[in]   LibId         Library ID of Library whose name is being requested.
+**
+** \param[in]   BufferLength  The maximum number of characters, including the null terminator, that can be put
+**                            into the \c LibName buffer.  This routine will truncate the name to this length,
+**                            if necessary.
+**
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+**
+** \sa #CFE_ES_GetLibIDByName
+**
+******************************************************************************/
+CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, uint32 BufferLength);
 
 /*****************************************************************************/
 /**
@@ -909,11 +992,11 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, uint32 
 **
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_APPID    \copybrief CFE_ES_ERR_APPID
-** \retval #CFE_ES_ERR_BUFFER   \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
 **
-** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName
+** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId);
@@ -930,7 +1013,7 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t Ap
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in, out]   TaskInfo      Pointer to a \c CFE_ES_TaskInfo_t structure that holds the specific 
+** \param[out]   TaskInfo     Pointer to a \c CFE_ES_TaskInfo_t structure that holds the specific 
 **                            task information. *TaskInfo is the filled out \c CFE_ES_TaskInfo_t structure containing the 
 **                            Task Name, Parent App Name, Parent App ID among other fields.
 **
@@ -938,11 +1021,11 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t Ap
 **
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_TASKID   \copybrief CFE_ES_ERR_TASKID
-** \retval #CFE_ES_ERR_BUFFER   \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
 **
-** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName
+** \sa #CFE_ES_GetTaskID, #CFE_ES_GetTaskIDByName, #CFE_ES_GetTaskName
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_ResourceID_t TaskId);
@@ -1016,6 +1099,61 @@ CFE_Status_t  CFE_ES_CreateChildTask(CFE_ES_ResourceID_t             *TaskIdPtr,
                                      uint32                           StackSize,
                                      uint32                           Priority,
                                      uint32                           Flags);
+
+/*****************************************************************************/
+/**
+** \brief Get a Task ID associated with a specified Task name
+**
+** \par Description
+**        This routine retrieves the cFE Task ID associated with a
+**        specified Task name.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param[out]  TaskIdPtr       Pointer to variable that is to receive the Task's ID.
+** \param[in]   TaskName        Pointer to null terminated character string containing an Task name.
+**
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
+** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+**
+** \sa #CFE_ES_GetTaskName
+**
+******************************************************************************/
+CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_ResourceID_t *TaskIdPtr, const char *TaskName);
+
+/*****************************************************************************/
+/**
+** \brief Get a Task name for a specified Task ID
+**
+** \par Description
+**        This routine retrieves the cFE Task name associated with a
+**        specified Task ID.
+**
+** \par Assumptions, External Events, and Notes:
+**        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
+**
+** \param[out]  TaskName      Pointer to a character array of at least \c BufferLength in size that will
+**                            be filled with the Task name.
+**
+** \param[in]   TaskId        Task ID of Task whose name is being requested.
+**
+** \param[in]   BufferLength  The maximum number of characters, including the null terminator, that can be put
+**                            into the \c TaskName buffer.  This routine will truncate the name to this length,
+**                            if necessary.
+**
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+**
+** \sa #CFE_ES_GetTaskIDByName
+**
+******************************************************************************/
+CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, uint32 BufferLength);
 
 /*****************************************************************************/
 /**
@@ -1176,6 +1314,62 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset
 
 /*****************************************************************************/
 /**
+** \brief Get a CDS Block ID associated with a specified CDS Block name
+**
+** \par Description
+**        This routine retrieves the CDS Block ID associated with a
+**        specified CDS Block name.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param[out]  BlockIdPtr       Pointer to variable that is to receive the CDS Block ID.
+** \param[in]   BlockName        Pointer to null terminated character string containing a CDS Block name.
+**
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
+** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+**
+** \sa #CFE_ES_GetCDSBlockName
+**
+******************************************************************************/
+CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_ResourceID_t *BlockIdPtr, const char *BlockName);
+
+/*****************************************************************************/
+/**
+** \brief Get a Block name for a specified Block ID
+**
+** \par Description
+**        This routine retrieves the cFE Block name associated with a
+**        specified Block ID.
+**
+** \par Assumptions, External Events, and Notes:
+**        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
+**
+** \param[out]  BlockName     Pointer to a character array of at least \c BufferLength in size that will
+**                            be filled with the CDS Block name.
+**
+** \param[in]   BlockId       Block ID/Handle of CDS registry entry whose name is being requested.
+**
+** \param[in]   BufferLength  The maximum number of characters, including the null terminator, that can be put
+**                            into the \c BlockName buffer.  This routine will truncate the name to this length,
+**                            if necessary.
+**
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+**
+** \sa #CFE_ES_GetCDSBlockIDByName
+**
+******************************************************************************/
+CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_ResourceID_t BlockId, uint32 BufferLength);
+
+
+/*****************************************************************************/
+/**
 ** \brief Save a block of data in the Critical Data Store (CDS)
 **
 ** \par Description
@@ -1191,9 +1385,8 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset
 ** \param[in]   DataToCopy   A Pointer to the block of memory to be copied into the CDS.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #OS_SUCCESS              \copybrief OS_SUCCESS
-** \retval #CFE_ES_ERR_MEM_HANDLE   \copybrief CFE_ES_ERR_MEM_HANDLE
-** \retval #OS_ERROR                Problem with handle or a size mismatch
+** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 **
 ** \sa #CFE_ES_RegisterCDS, #CFE_ES_RestoreFromCDS
 **
@@ -1221,8 +1414,8 @@ CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy);
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_ES_CDS_BLOCK_CRC_ERR   \copybrief CFE_ES_CDS_BLOCK_CRC_ERR
-** \retval #OS_ERROR                   Problem with handle or a size mismatch
 **
 ** \sa #CFE_ES_RegisterCDS, #CFE_ES_CopyToCDS
 **
@@ -1352,8 +1545,8 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t        *PoolID,
 ** \param[in]   PoolID         The ID of the pool to delete
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_MEM_HANDLE \copybrief CFE_ES_ERR_MEM_HANDLE
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
@@ -1378,8 +1571,8 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 ** \param[in]   Size        The size of the buffer requested.  NOTE: The size allocated may be larger.
 **
 ** \return Bytes Allocated, or error code \ref CFEReturnCodes
-** \retval #CFE_ES_ERR_MEM_HANDLE      \copybrief CFE_ES_ERR_MEM_HANDLE
-** \retval #CFE_ES_ERR_MEM_BLOCK_SIZE  \copybrief CFE_ES_ERR_MEM_BLOCK_SIZE
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_ERR_MEM_BLOCK_SIZE         \copybrief CFE_ES_ERR_MEM_BLOCK_SIZE
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_GetPoolBufInfo
 **
@@ -1401,9 +1594,9 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t PoolID, CFE_ES_MemOf
 ** \param[in]   BufPtr      A pointer to the memory buffer to provide status for.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_MEM_HANDLE      \copybrief CFE_ES_ERR_MEM_HANDLE
-** \retval #CFE_ES_BUFFER_NOT_IN_POOL  \copybrief CFE_ES_BUFFER_NOT_IN_POOL
+** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BUFFER_NOT_IN_POOL         \copybrief CFE_ES_BUFFER_NOT_IN_POOL
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_PutPoolBuf
 **
@@ -1425,7 +1618,7 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr);
 ** \param[in]   BufPtr      A pointer to the memory buffer to be released.
 **
 ** \return Bytes released, or error code \ref CFEReturnCodes
-** \retval #CFE_ES_ERR_MEM_HANDLE  \copybrief CFE_ES_ERR_MEM_HANDLE
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_GetPoolBufInfo
 **
@@ -1451,8 +1644,8 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr);
 **
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_MEM_HANDLE      \copybrief CFE_ES_ERR_MEM_HANDLE
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf
 **
@@ -1650,17 +1843,49 @@ CFE_Status_t CFE_ES_GetGenCount(CFE_ES_ResourceID_t CounterId, uint32 *Count);
 ** \par Assumptions, External Events, and Notes:
 **        None.
 **
-** \param[in]   *CounterName     The name of the Counter.
-**
-** \param[out]  *CounterIdPtr    The Counter Id for the given name.
+** \param[out]  CounterIdPtr       Pointer to variable that is to receive the Counter's ID.
+** \param[in]   CounterName        Pointer to null terminated character string containing a Counter name.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
-** \retval #CFE_ES_BAD_ARGUMENT  \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
+** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
 **
-** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_IncrementGenCounter, #CFE_ES_GetGenCount
+** \sa #CFE_ES_GetGenCounterName
+**
 ******************************************************************************/
 CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_ResourceID_t *CounterIdPtr, const char *CounterName);
+
+/*****************************************************************************/
+/**
+** \brief Get a Counter name for a specified Counter ID
+**
+** \par Description
+**        This routine retrieves the cFE Counter name associated with a
+**        specified Counter ID.
+**
+** \par Assumptions, External Events, and Notes:
+**        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
+**
+** \param[out]  CounterName   Pointer to a character array of at least \c BufferLength in size that will
+**                            be filled with the Counter name.
+**
+** \param[in]   CounterId     ID of Counter whose name is being requested.
+**
+** \param[in]   BufferLength  The maximum number of characters, including the null terminator, that can be put
+**                            into the \c CounterName buffer.  This routine will truncate the name to this length,
+**                            if necessary.
+**
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+**
+** \sa #CFE_ES_GetGenCounterIDByName
+**
+******************************************************************************/
+CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t CounterId, uint32 BufferLength);
+
 /**@}*/
 
 #endif  /* _cfe_es_ */

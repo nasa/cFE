@@ -284,20 +284,21 @@ typedef int32 CFE_Status_t;
 */
 
 /**
- * @brief Application ID Error
+ * @brief Resource ID is not valid
  *
- *  The given application ID does not reflect a currently active application.
+ *  This error indicates that the passed in resource identifier
+ *  (App ID, Lib ID, Counter ID, etc) did not validate.
  *
  */
-#define CFE_ES_ERR_APPID     ((int32)0xc4000001)
+#define CFE_ES_ERR_RESOURCEID_NOT_VALID     ((int32)0xc4000001)
 
 /**
- * @brief Application Name Error
+ * @brief Resource Name Error
  *
- *  There is no match for the given application name in the current application list.
+ *  There is no match in the system for the given name.
  *
  */
-#define CFE_ES_ERR_APPNAME   ((int32)0xc4000002)
+#define CFE_ES_ERR_NAME_NOT_FOUND   ((int32)0xc4000002)
 
 /**
  * @brief Invalid Pointer
@@ -331,14 +332,6 @@ typedef int32 CFE_Status_t;
  *
  */
 #define CFE_ES_ERR_SYS_LOG_FULL  ((int32)0xc4000006)
-
-/**
- * @brief Memory Handle Error
- *
- *  The Memory Pool handle is invalid.
- *
- */
-#define CFE_ES_ERR_MEM_HANDLE  ((int32)0xc4000007)
 
 /**
  * @brief Memory Block Size Error
@@ -466,14 +459,6 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_RST_ACCESS_ERR  ((int32)0xc4000015)
 
 /**
- * @brief Task ID Error
- *
- *  Occurs when the Task ID passed into a task-related API is invalid.
- *
- */
-#define CFE_ES_ERR_TASKID  ((int32)0xc4000016)
-
-/**
  * @brief Application Register Error
  *
  *  Occurs when the #CFE_ES_RegisterApp fails.
@@ -565,15 +550,6 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_CDS_WRONG_TYPE_ERR  ((int32)0xc4000020)
 
 /**
- * @brief CDS Not Found Error
- *
- *  Occurs when a search of the Critical Data Store Registry does not find a
- *  critical data store with the specified name.
- *
- */
-#define CFE_ES_CDS_NOT_FOUND_ERR   ((int32)0xc4000021)
-
-/**
  * @brief CDS Owner Active Error
  *
  *  Occurs when an attempt was made to delete a CDS when an application
@@ -652,15 +628,6 @@ typedef int32 CFE_Status_t;
  */
 #define CFE_ES_ERR_SYS_LOG_TRUNCATED  ((int32)0x44000029)
 
-
-/**
- * @brief Resource ID is not valid
- *
- *  This error indicates that the passed in resource identifier
- *  (App ID, Lib ID, Counter ID, etc) did not validate.
- *
- */
-#define CFE_ES_RESOURCE_ID_INVALID     ((int32)0xc400002A)
 
 /**
  * @brief Resource ID is not available
@@ -1438,5 +1405,16 @@ typedef int32 CFE_Status_t;
  */
 #define CFE_TIME_CALLBACK_NOT_REGISTERED ((int32)0xce000004)
 /**@}*/
+
+
+/* Compatibility for error names which have been updated */
+#ifndef CFE_OMIT_DEPRECATED_6_8
+#define CFE_ES_ERR_TASKID           CFE_ES_ERR_RESOURCEID_NOT_VALID
+#define CFE_ES_ERR_APPID            CFE_ES_ERR_RESOURCEID_NOT_VALID
+#define CFE_ES_ERR_MEM_HANDLE       CFE_ES_ERR_RESOURCEID_NOT_VALID
+#define CFE_ES_ERR_APPNAME          CFE_ES_ERR_NAME_NOT_FOUND
+#define CFE_ES_CDS_NOT_FOUND_ERR    CFE_ES_ERR_NAME_NOT_FOUND
+#endif
+
 
 #endif  /* _cfe_error_ */

@@ -283,7 +283,7 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
     }
     else
     {
-        Status = CFE_ES_RESOURCE_ID_INVALID;
+        Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     CFE_ES_UnlockCDS();
@@ -379,7 +379,7 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
     }
     else
     {
-        Status = CFE_ES_RESOURCE_ID_INVALID;
+        Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     CFE_ES_UnlockCDS();

@@ -42,6 +42,7 @@
 #include "cfe_es_apps.h"
 #include "cfe_es_cds.h"
 #include "cfe_es_global.h"
+#include "cfe_es_resource.h"
 #include "cfe_es_log.h"
 #include "cfe_psp.h"
 #include "cfe_es_cds_mempool.h"
@@ -325,7 +326,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t Us
     CFE_ES_LockCDS();
 
     /* Check for duplicate CDS name */
-    RegRecPtr = CFE_ES_FindCDSInRegistry(Name);
+    RegRecPtr = CFE_ES_LocateCDSBlockRecordByName(Name);
 
     /* If not found then make a new entry */
     if (RegRecPtr == NULL)
@@ -732,12 +733,12 @@ int32 CFE_ES_UnlockCDS(void)
 
 /*******************************************************************
 **
-** CFE_ES_FindCDSInRegistry
+** CFE_ES_LocateCDSBlockRecordByName
 **
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-CFE_ES_CDS_RegRec_t *CFE_ES_FindCDSInRegistry(const char *CDSName)
+CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     CFE_ES_CDS_RegRec_t *CDSRegRecPtr;
@@ -768,7 +769,7 @@ CFE_ES_CDS_RegRec_t *CFE_ES_FindCDSInRegistry(const char *CDSName)
     }
 
     return CDSRegRecPtr;
-}   /* End of CFE_ES_FindCDSInRegistry() */
+}   /* End of CFE_ES_LocateCDSBlockRecordByName() */
 
 
 /*******************************************************************
@@ -889,7 +890,7 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
     CFE_ES_LockCDS();
 
     /* Find CDS name in registry */
-    RegRecPtr = CFE_ES_FindCDSInRegistry(CDSName);
+    RegRecPtr = CFE_ES_LocateCDSBlockRecordByName(CDSName);
 
     /* Check to see if CDS is already in the registry */
     if (RegRecPtr != NULL)
@@ -952,7 +953,7 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
     }
     else  /* Error - CDS not in registry */
     {
-        Status = CFE_ES_CDS_NOT_FOUND_ERR;
+        Status = CFE_ES_ERR_NAME_NOT_FOUND;
     }
 
     /* Unlock Registry for future updates */

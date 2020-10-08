@@ -43,6 +43,7 @@
 #include "cfe_es_task.h"
 #include "cfe_es_apps.h"
 #include "cfe_es_log.h"
+#include "cfe_es_resource.h"
 
 #include <stdio.h>
 #include <string.h> /* memset() */
@@ -78,7 +79,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
    char ES_AppLoadBuffer[ES_START_BUFF_SIZE];  /* A buffer of for a line in a file */
    const char *TokenList[CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE];
    uint32      NumTokens;
-   uint32      BuffLen = 0;                            /* Length of the current buffer */
+   uint32      BuffLen;                            /* Length of the current buffer */
    osal_id_t   AppFile;
    int32       Status;
    char        c;
@@ -1447,7 +1448,7 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
 
    if ( !CFE_ES_AppRecordIsUsed(AppRecPtr) )
    {
-       Status = CFE_ES_ERR_APPID;
+       Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
    }
    else
    {
@@ -1456,8 +1457,8 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
        AppId = CFE_ES_AppRecordGetID(AppRecPtr);
        AppInfoPtr->AppId = AppId;
        AppInfoPtr->Type = AppRecPtr->Type;
-       strncpy((char *)AppInfoPtr->Name,
-               AppRecPtr->StartParams.Name,
+       strncpy(AppInfoPtr->Name,
+               CFE_ES_AppRecordGetName(AppRecPtr),
                sizeof(AppInfoPtr->Name)-1);
        AppInfoPtr->Name[sizeof(AppInfoPtr->Name)-1] = '\0';
 
@@ -1565,7 +1566,8 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       ** Get the Application ID and Task Name
       */
       TaskInfoPtr->AppId = TaskRecPtr->AppId;
-      strncpy((char*)TaskInfoPtr->TaskName, TaskRecPtr->TaskName,
+      strncpy(TaskInfoPtr->TaskName,
+              CFE_ES_TaskRecordGetName(TaskRecPtr),
               sizeof(TaskInfoPtr->TaskName)-1);
       TaskInfoPtr->TaskName[sizeof(TaskInfoPtr->TaskName)-1] = '\0';
 
@@ -1585,7 +1587,8 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       AppRecPtr = CFE_ES_LocateAppRecordByID(TaskRecPtr->AppId);
       if (CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId))
       {
-         strncpy((char*)TaskInfoPtr->AppName, AppRecPtr->StartParams.Name,
+         strncpy(TaskInfoPtr->AppName,
+                 CFE_ES_AppRecordGetName(AppRecPtr),
                  sizeof(TaskInfoPtr->AppName)-1);
          TaskInfoPtr->AppName[sizeof(TaskInfoPtr->AppName)-1] = '\0';
          ReturnCode = CFE_SUCCESS;
@@ -1593,13 +1596,13 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       else
       {
          /* task ID was OK but parent app ID is bad */
-         ReturnCode = CFE_ES_ERR_APPID;
+         ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
       }
    }
    else
    {
       /* task ID is bad */
-      ReturnCode = CFE_ES_ERR_TASKID;
+      ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
    }
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);

@@ -1702,7 +1702,7 @@ int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDS_t *data)
 
         CFE_ES_TaskData.CommandErrorCounter++;
     }
-    else if (Status == CFE_ES_CDS_NOT_FOUND_ERR)
+    else if (Status == CFE_ES_ERR_NAME_NOT_FOUND)
     {
         CFE_EVS_SendEvent(CFE_ES_CDS_NAME_ERR_EID, CFE_EVS_EventType_ERROR,
                 "Unable to locate '%s' in CDS Registry", LocalCdsName);

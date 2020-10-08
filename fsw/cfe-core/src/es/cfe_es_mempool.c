@@ -43,6 +43,7 @@
 #include "cfe_es.h"
 #include "cfe_es_task.h"
 #include "cfe_es_log.h"
+#include "cfe_es_resource.h"
 
 /**
  * Macro that determines the native alignment requirement of a specific type
@@ -356,7 +357,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
     else
     {
         MutexId = OS_OBJECT_ID_UNDEFINED;
-        Status = CFE_ES_ERR_MEM_HANDLE;
+        Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
@@ -408,7 +409,7 @@ int32 CFE_ES_GetPoolBuf(uint32               **BufPtr,
         CFE_ES_WriteToSysLog("CFE_ES:getPoolBuf err:Bad handle(0x%08lX) AppId=%lu\n",
                 CFE_ES_ResourceID_ToInteger(Handle),
                 CFE_ES_ResourceID_ToInteger(AppId));
-        return(CFE_ES_ERR_MEM_HANDLE);
+        return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 
     /*
@@ -467,7 +468,7 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t   Handle,
     /* basic sanity check */
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
-        return(CFE_ES_ERR_MEM_HANDLE);
+        return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 
     /*
@@ -524,7 +525,7 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
         CFE_ES_WriteToSysLog("CFE_ES:putPoolBuf err:Invalid Memory Handle (0x%08lX).\n",
                 CFE_ES_ResourceID_ToInteger(Handle));
 
-        return(CFE_ES_ERR_MEM_HANDLE);
+        return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 
     /*
@@ -602,7 +603,7 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("CFE_ES:getMemPoolStats err:Bad handle(0x%08lX) AppId=%lu\n",
                 CFE_ES_ResourceID_ToInteger(Handle), CFE_ES_ResourceID_ToInteger(AppId));
-        return(CFE_ES_ERR_MEM_HANDLE);
+        return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 
     /*

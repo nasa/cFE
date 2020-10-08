@@ -57,6 +57,7 @@
 #include "cfe_es_cds_mempool.h"
 #include "cfe_es_generic_pool.h"
 #include "cfe_es_global.h"
+#include "cfe_es_resource.h"
 #include "cfe_es_log.h"
 #include "cfe_es_perf.h"
 #include "cfe_es_task.h"

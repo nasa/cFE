@@ -40,6 +40,7 @@
 #include "private/cfe_private.h"
 #include "cfe_es.h"
 #include "cfe_es_global.h"       
+#include "cfe_es_resource.h"
 #include "cfe_es_start.h" 
 #include "cfe_es_apps.h"
 #include "cfe_es_log.h"

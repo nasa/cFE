@@ -76,6 +76,7 @@ char StartupScript[MAX_STARTUP_SCRIPT];
 
 /* Number of apps instantiated */
 uint32 ES_UT_NumApps;
+uint32 ES_UT_NumLibs;
 uint32 ES_UT_NumPools;
 uint32 ES_UT_NumCDS;
 
@@ -346,6 +347,36 @@ void ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *Tas
     ++CFE_ES_Global.RegisteredTasks;
 }
 
+/*
+ * Helper function to setup a single Lib ID.  A pointer to the Lib
+ * record is output so the record can be modified
+ */
+void ES_UT_SetupSingleLibId(const char *LibName, CFE_ES_LibRecord_t **OutLibRec)
+{
+    CFE_ES_ResourceID_t UtLibId;
+    CFE_ES_LibRecord_t *LocalLibPtr;
+
+    UtLibId = ES_UT_MakeLibIdForIndex(ES_UT_NumLibs);
+    ++ES_UT_NumLibs;
+
+    LocalLibPtr = CFE_ES_LocateLibRecordByID(UtLibId);
+    CFE_ES_LibRecordSetUsed(LocalLibPtr, UtLibId);
+
+    if (LibName)
+    {
+        strncpy(LocalLibPtr->LibName, LibName,
+                sizeof(LocalLibPtr->LibName)-1);
+        LocalLibPtr->LibName[sizeof(LocalLibPtr->LibName)-1] = 0;
+    }
+
+    if (OutLibRec)
+    {
+        *OutLibRec = LocalLibPtr;
+    }
+
+    ++CFE_ES_Global.RegisteredLibs;
+}
+
 int32 ES_UT_PoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
         CFE_ES_GenPoolBD_t **BdPtr)
 {
@@ -449,7 +480,7 @@ void ES_UT_SetupSingleCDSRegistry(const char *CDSName, CFE_ES_MemOffset_t BlockS
 
 
     /* first time this is done, set up the global */
-    if (ES_UT_NumCDS == 0 && CFE_ES_Global.CDSVars.Pool.TailPosition == 0)
+    if (!CFE_ES_Global.CDSIsAvailable)
     {
         UT_GetDataBuffer(UT_KEY(CFE_PSP_GetCDSSize), NULL, &UT_CDS_BufferSize, NULL);
         if (UT_CDS_BufferSize > (2*CFE_ES_CDS_SIGNATURE_LEN))
@@ -471,6 +502,8 @@ void ES_UT_SetupSingleCDSRegistry(const char *CDSName, CFE_ES_MemOffset_t BlockS
         CFE_ES_Global.CDSVars.Pool.TailPosition = CFE_ES_CDS_SIGNATURE_LEN;
         CFE_ES_Global.CDSVars.Pool.PoolTotalSize = CFE_ES_Global.CDSVars.Pool.PoolMaxOffset -
                 CFE_ES_Global.CDSVars.Pool.TailPosition;
+
+        CFE_ES_Global.CDSIsAvailable = true;
     }
 
     UtCDSID = ES_UT_MakeCDSIdForIndex(ES_UT_NumCDS);
@@ -613,6 +646,7 @@ void ES_ResetUnitTest(void)
 
     memset(&CFE_ES_Global, 0, sizeof(CFE_ES_Global));
     ES_UT_NumApps = 0;
+    ES_UT_NumLibs = 0;
     ES_UT_NumPools = 0;
     ES_UT_NumCDS = 0;
 } /* end ES_ResetUnitTest() */
@@ -1683,7 +1717,7 @@ void TestApps(void)
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_AppRecordSetFree(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppInfo(&AppInfo, Id) == CFE_ES_ERR_APPID,
+              CFE_ES_GetAppInfo(&AppInfo, Id) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetAppInfo",
               "Application ID not active");
 
@@ -1693,7 +1727,7 @@ void TestApps(void)
     ES_ResetUnitTest();
     Id = ES_UT_MakeAppIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppInfo(&AppInfo, Id) == CFE_ES_ERR_APPID,
+              CFE_ES_GetAppInfo(&AppInfo, Id) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetAppInfo",
               "Application ID exceeds maximum");
 
@@ -2162,6 +2196,18 @@ void TestLibs(void)
               "CFE_ES_LoadLibrary",
               "No free library slots");
 
+    /*
+     * Test public Name+ID query/lookup API
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleLibId("UT", &UtLibRecPtr);
+    UtAssert_INT32_EQ(CFE_ES_GetLibName(LongLibraryName, Id, sizeof(LongLibraryName)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&Id, "Nonexistent"), CFE_ES_ERR_NAME_NOT_FOUND);
+    UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&Id, LongLibraryName), CFE_SUCCESS);
+    UtAssert_True(CFE_ES_ResourceID_Equal(Id, CFE_ES_LibRecordGetID(UtLibRecPtr)), "Library IDs Match");
+    UtAssert_INT32_EQ(CFE_ES_GetLibName(LongLibraryName, CFE_ES_RESOURCEID_UNDEFINED, sizeof(LongLibraryName)), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetLibName(NULL, Id, sizeof(LongLibraryName)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&Id, NULL), CFE_ES_BAD_ARGUMENT);
 }
 
 void TestERLog(void)
@@ -4287,7 +4333,7 @@ void TestPerf(void)
 void TestAPI(void)
 {
     osal_id_t TestObjId;
-    char AppName[32];
+    char AppName[OS_MAX_API_NAME + 12];
     uint32 StackBuf[8];
     int32  Return;
     uint8  Data[12];
@@ -4353,7 +4399,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     AppId = ES_UT_MakeAppIdForIndex(ES_UT_NumApps); /* Should be within range, but not used */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RestartApp(AppId) == CFE_ES_ERR_APPID,
+              CFE_ES_RestartApp(AppId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_RestartApp",
               "Bad application ID");
 
@@ -4361,7 +4407,7 @@ void TestAPI(void)
     ES_ResetUnitTest();
     AppId = ES_UT_MakeAppIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RestartApp(AppId) == CFE_ES_ERR_APPID,
+              CFE_ES_RestartApp(AppId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_RestartApp",
               "Application ID too large");
 
@@ -4370,7 +4416,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ReloadApp(AppId, "filename") == CFE_ES_ERR_APPID,
+              CFE_ES_ReloadApp(AppId, "filename") == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_ReloadApp",
               "Bad application ID");
 
@@ -4379,7 +4425,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteApp(AppId) == CFE_ES_ERR_APPID,
+              CFE_ES_DeleteApp(AppId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_DeleteApp",
               "Bad application ID");
 
@@ -4521,19 +4567,23 @@ void TestAPI(void)
               "CFE_ES_RegisterApp",
               "Application registration successful");
 
-    /* Test getting the cFE application ID by its name */
+    /* Test getting the cFE application and task ID by context */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppID(&AppId) == CFE_SUCCESS,
               "CFE_ES_GetAppID",
-              "Get application ID by name successful");
+              "Get application ID by context successful");
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_GetTaskID(&TaskId) == CFE_SUCCESS,
+              "CFE_ES_GetTaskID",
+              "Get task ID by context successful");
 
     /* Test getting the app name with a bad app ID */
     ES_ResetUnitTest();
     AppId = ES_UT_MakeAppIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppName(AppName, AppId, 32) == CFE_ES_ERR_APPID,
+              CFE_ES_GetAppName(AppName, AppId, 32) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetAppName",
               "Get application name by ID; bad application ID");
 
@@ -4544,7 +4594,7 @@ void TestAPI(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppName(AppName,
                                 AppId,
-                                32) == CFE_ES_ERR_APPID,
+                                32) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetAppName",
               "Get application name by ID; ID out of range");
 
@@ -4569,7 +4619,7 @@ void TestAPI(void)
     /* Test getting task information using the task ID - bad task ID  */
     UT_SetForceFail(UT_KEY(OS_ObjectIdToArrayIndex), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_TASKID,
+              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetTaskInfo",
               "Get task info by ID; bad task ID");
 
@@ -4589,7 +4639,7 @@ void TestAPI(void)
     TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     CFE_ES_AppRecordSetFree(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_APPID,
+              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetTaskInfo",
               "Get task info by ID; parent application not active");
 
@@ -4599,7 +4649,7 @@ void TestAPI(void)
     TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     CFE_ES_TaskRecordSetFree(UtTaskRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_TASKID,
+              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetTaskInfo",
               "Get task info by ID; task not active");
 
@@ -4607,7 +4657,7 @@ void TestAPI(void)
     ES_ResetUnitTest();
     TaskId = CFE_ES_RESOURCEID_UNDEFINED;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_TASKID,
+              CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetTaskInfo",
               "Get task info by ID; invalid task ID");
 
@@ -4621,7 +4671,7 @@ void TestAPI(void)
                                     400,
                                     0);
     UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_APPID,
+              Return == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_ChildTaskCreate",
               "Bad application ID");
 
@@ -4742,7 +4792,7 @@ void TestAPI(void)
     /* Test deleting a child task with an invalid task ID */
     UT_SetForceFail(UT_KEY(OS_ObjectIdToArrayIndex), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteChildTask(TaskId) == CFE_ES_ERR_TASKID,
+              CFE_ES_DeleteChildTask(TaskId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_DeleteChildTask",
               "Task ID invalid");
 
@@ -4782,7 +4832,7 @@ void TestAPI(void)
     ES_ResetUnitTest();
     TaskId = CFE_ES_RESOURCEID_UNDEFINED;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteChildTask(TaskId) == CFE_ES_ERR_TASKID,
+              CFE_ES_DeleteChildTask(TaskId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_DeleteChildTask",
               "Task ID too large");
 
@@ -4997,12 +5047,30 @@ void TestAPI(void)
                "CFE_ES_RunLoop",
                "Application error run status");
 
+     /*
+      * Test public Name+ID query/lookup API for tasks
+      * This just uses OSAL routines to implement, but need to cover error paths.
+      */
+     ES_ResetUnitTest();
+     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, &UtTaskRecPtr);
+     TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+     UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, CFE_ES_RESOURCEID_UNDEFINED, sizeof(AppName)), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+     UtAssert_INT32_EQ(CFE_ES_GetTaskName(NULL, TaskId, sizeof(AppName)), CFE_ES_BAD_ARGUMENT);
+     UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)), CFE_SUCCESS);
+     UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERROR);
+     UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskId, NULL), CFE_ES_BAD_ARGUMENT);
+     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskId, AppName), CFE_SUCCESS);
+     UT_SetDeferredRetcode(UT_KEY(OS_TaskGetIdByName), 1, OS_ERROR);
+     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskId, "Nonexistent"), CFE_ES_ERR_NAME_NOT_FOUND);
 }
 
 void TestGenericCounterAPI(void)
 {
     char CounterName[11];
     CFE_ES_ResourceID_t CounterId;
+    CFE_ES_ResourceID_t CounterId2;
     uint32 CounterCount;
     int i;
 
@@ -5046,8 +5114,7 @@ void TestGenericCounterAPI(void)
     /* Test getting a registered generic counter that doesn't exist */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetGenCounterIDByName(&CounterId,
-                                           "Counter999") ==
-                  CFE_ES_BAD_ARGUMENT,
+                                           "Counter999") == CFE_ES_ERR_NAME_NOT_FOUND,
               "CFE_ES_GetGenCounterIDByName",
               "Cannot get counter that does not exist");
 
@@ -5178,6 +5245,19 @@ void TestGenericCounterAPI(void)
                                            "CounterX") == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_GetGenCounterIDByName",
               "Null name");
+
+    /*
+     * Test Name-ID query/conversion API
+     */
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_RegisterGenCounter(&CounterId, "Counter1"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetGenCounterName(CounterName, CounterId, sizeof(CounterName)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CounterId2, "Nonexistent"), CFE_ES_ERR_NAME_NOT_FOUND);
+    UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CounterId2, CounterName), CFE_SUCCESS);
+    UtAssert_True(CFE_ES_ResourceID_Equal(CounterId, CounterId2), "Counter IDs Match");
+    UtAssert_INT32_EQ(CFE_ES_GetGenCounterName(CounterName, CFE_ES_RESOURCEID_UNDEFINED, sizeof(CounterName)), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetGenCounterName(NULL, CounterId, sizeof(CounterName)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CounterId, NULL), CFE_ES_BAD_ARGUMENT);
 }
 
 void TestCDS()
@@ -5335,19 +5415,19 @@ void TestCDS()
     /* Test CDS registering using a bad app ID */
     ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name2") == CFE_ES_ERR_APPID,
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name2") == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_RegisterCDS",
               "Bad application ID");
 
     /* Test copying to CDS with bad handle */
     CDSHandle = CFE_ES_RESOURCEID_UNDEFINED;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CopyToCDS(CDSHandle, &TempSize) == CFE_ES_RESOURCE_ID_INVALID,
+              CFE_ES_CopyToCDS(CDSHandle, &TempSize) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_CopyToCDS",
               "Copy to CDS bad handle");
     /* Test restoring from a CDS with bad handle */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RestoreFromCDS(&TempSize, CDSHandle) == CFE_ES_RESOURCE_ID_INVALID,
+              CFE_ES_RestoreFromCDS(&TempSize, CDSHandle) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_RestoreFromCDS",
               "Restore from CDS bad handle");
 
@@ -5638,10 +5718,24 @@ void TestCDS()
     CDSName[sizeof(CDSName) - 1] = '\0';
     ES_UT_SetupSingleCDSRegistry(CDSName, ES_UT_CDS_BLOCK_SIZE, true, NULL);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_DeleteCDS(CDSName,
-                               true) == CFE_ES_CDS_NOT_FOUND_ERR,
+              CFE_ES_DeleteCDS(CDSName, true) == CFE_ES_ERR_NAME_NOT_FOUND,
               "CFE_ES_DeleteCDS",
               "CDS name too long");
+
+    /*
+     * Test Name-ID query/conversion API
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleCDSRegistry("CDS1", ES_UT_CDS_BLOCK_SIZE, false, &UtCDSRegRecPtr);
+    CDSHandle = CFE_ES_CDSBlockRecordGetID(UtCDSRegRecPtr);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSName, CDSHandle, sizeof(CDSName)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&CDSHandle, "Nonexistent"), CFE_ES_ERR_NAME_NOT_FOUND);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&CDSHandle, CDSName), CFE_SUCCESS);
+    UtAssert_True(CFE_ES_ResourceID_Equal(CDSHandle, CFE_ES_CDSBlockRecordGetID(UtCDSRegRecPtr)), "CDS Handle IDs Match");
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSName, CFE_ES_RESOURCEID_UNDEFINED, sizeof(CDSName)), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(NULL, CDSHandle, sizeof(CDSName)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&CDSHandle, NULL), CFE_ES_BAD_ARGUMENT);
+
 } /* End TestCDS */
 
 void TestCDSMempool(void)
@@ -5707,11 +5801,11 @@ void TestCDSMempool(void)
     ES_ResetUnitTest();
     BlockHandle = CFE_ES_ResourceID_FromInteger(7);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == CFE_ES_RESOURCE_ID_INVALID,
+              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_CDSBlockWrite",
               "Invalid memory handle");
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_RESOURCE_ID_INVALID,
+              CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_CDSBlockRead",
               "Invalid memory handle");
 
@@ -5938,7 +6032,7 @@ void TestESMempool(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetPoolBuf(&addressp2,
                                 PoolID2,
-                                256) == CFE_ES_ERR_MEM_HANDLE,
+                                256) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetPoolBuf",
               "Invalid handle; not pool start address");
 
@@ -5947,7 +6041,7 @@ void TestESMempool(void)
      */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetMemPoolStats(&Stats,
-                                     CFE_ES_RESOURCEID_UNDEFINED) == CFE_ES_ERR_MEM_HANDLE,
+                                     CFE_ES_RESOURCEID_UNDEFINED) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetMemPoolStats",
               "Invalid handle; not pool start address");
 
@@ -5966,7 +6060,7 @@ void TestESMempool(void)
      */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetPoolBufInfo(PoolID2, addressp2) ==
-                      CFE_ES_ERR_MEM_HANDLE,
+                      CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetPoolBufInfo",
               "Invalid memory pool handle");
 
@@ -6250,7 +6344,7 @@ void TestESMempool(void)
 
     /* Test returning a pool buffer using a null handle */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutPoolBuf(CFE_ES_RESOURCEID_UNDEFINED, addressp2) == CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_PutPoolBuf(CFE_ES_RESOURCEID_UNDEFINED, addressp2) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_PutPoolBuf",
               "NULL memory handle");
 
@@ -6259,14 +6353,14 @@ void TestESMempool(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetPoolBuf(&addressp2,
                                 CFE_ES_RESOURCEID_UNDEFINED,
-                                256) == CFE_ES_ERR_MEM_HANDLE,
+                                256) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetPoolBuf",
               "NULL memory handle");
 
     /* Test getting the size of an existing pool buffer using a null handle */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetPoolBufInfo(CFE_ES_RESOURCEID_UNDEFINED, addressp1) ==
-                  CFE_ES_ERR_MEM_HANDLE,
+                  CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetPoolBufInfo",
               "NULL memory handle");
 
@@ -6333,7 +6427,7 @@ void TestESMempool(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_PutPoolBuf(CFE_ES_RESOURCEID_UNDEFINED,
                                 addressp1) ==
-                                        CFE_ES_ERR_MEM_HANDLE,
+                                        CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_PutPoolBuf",
               "Invalid memory handle");
 }
@@ -6438,7 +6532,7 @@ void TestBackground(void)
      */
     ES_ResetUnitTest();
     status = CFE_ES_BackgroundInit();
-    UtAssert_True(status == CFE_ES_ERR_APPID, "CFE_ES_BackgroundInit - CFE_ES_CreateChildTask failure (%08x)", (unsigned int)status);
+    UtAssert_True(status == CFE_ES_ERR_RESOURCEID_NOT_VALID, "CFE_ES_BackgroundInit - CFE_ES_CreateChildTask failure (%08x)", (unsigned int)status);
 
     /* The CFE_ES_BackgroundCleanup() function has no conditionals -
      * it just needs to be executed as part of this routine,
