@@ -54,6 +54,13 @@
 #define CFE_SPACECRAFT_ID_VALUE     0x42
 #endif
 
+#ifndef CFE_DEFAULT_MODULE_EXTENSION
+#define CFE_DEFAULT_MODULE_EXTENSION    ""
+#endif
+
+#ifndef CFE_DEFAULT_CORE_FILENAME
+#define CFE_DEFAULT_CORE_FILENAME       ""
+#endif
 
 Target_CfeConfigData GLOBAL_CFE_CONFIGDATA =
 {
