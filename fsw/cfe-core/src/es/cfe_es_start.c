@@ -84,11 +84,14 @@ CFE_ES_ResetData_t  *CFE_ES_ResetDataPtr;
 */
 void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const char *StartFilePath )
 {
-   uint32 i;
    int32 ReturnCode;
-   CFE_ES_AppRecord_t *AppRecPtr;
-   CFE_ES_TaskRecord_t *TaskRecPtr;
-   CFE_ES_GenCounterRecord_t *CountRecPtr;
+
+   /*
+    * Clear the entire global data structure.
+    * This also takes care of setting all resource IDs on all table entries
+    * to be "undefined" (not in use).
+    */
+   memset(&CFE_ES_Global, 0, sizeof(CFE_ES_Global));
 
    /*
    ** Indicate that the CFE is the earliest initialization state
@@ -177,37 +180,12 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    CFE_PSP_AttachExceptions();
 
    /*
-   ** Initialize the ES Application Table
-   ** to mark all entries as unused.
+   ** Initialize the Last Id
    */
-   AppRecPtr = CFE_ES_Global.AppTable;
-   for ( i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++ )
-   {
-       CFE_ES_AppRecordSetFree(AppRecPtr);
-       ++AppRecPtr;
-   }
-   
-   /*
-   ** Initialize the ES Task Table
-   ** to mark all entries as unused.
-   */
-   TaskRecPtr = CFE_ES_Global.TaskTable;
-   for ( i = 0; i < OS_MAX_TASKS; i++ )
-   {
-       CFE_ES_TaskRecordSetFree(TaskRecPtr);
-       ++TaskRecPtr;
-   }
-
-   /*
-   ** Initialize the ES Generic Counter Table
-   ** to mark all entries as unused.
-   */
-   CountRecPtr = CFE_ES_Global.CounterTable;
-   for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
-   {
-       CFE_ES_CounterRecordSetFree(CountRecPtr);
-       ++CountRecPtr;
-   }
+   CFE_ES_Global.LastAppId = CFE_ES_ResourceID_FromInteger(CFE_ES_APPID_BASE);
+   CFE_ES_Global.LastLibId = CFE_ES_ResourceID_FromInteger(CFE_ES_LIBID_BASE);
+   CFE_ES_Global.LastCounterId = CFE_ES_ResourceID_FromInteger(CFE_ES_COUNTID_BASE);
+   CFE_ES_Global.LastMemPoolId = CFE_ES_ResourceID_FromInteger(CFE_ES_POOLID_BASE);
 
    /*
    ** Indicate that the CFE core is now starting up / going multi-threaded
@@ -774,12 +752,11 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
 void  CFE_ES_CreateObjects(void)
 {
     int32     ReturnCode;
-    bool      AppSlotFound;
     uint16    i;
-    uint16    j;
     osal_id_t OsalId;
     CFE_ES_AppRecord_t *AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
+    CFE_ES_ResourceID_t PendingAppId;
 
     CFE_ES_WriteToSysLog("ES Startup: Starting Object Creation calls.\n");
 
@@ -793,36 +770,25 @@ void  CFE_ES_CreateObjects(void)
             /*
             ** Allocate an ES AppTable entry
             */
-            AppSlotFound = false;
-            AppRecPtr = CFE_ES_Global.AppTable;
-            for ( j = 0; j < CFE_PLATFORM_ES_MAX_APPLICATIONS; j++ )
+            CFE_ES_LockSharedData(__func__,__LINE__);
+
+            PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+            AppRecPtr = CFE_ES_LocateAppRecordByID(PendingAppId);
+            if (AppRecPtr != NULL)
             {
-               if ( !CFE_ES_AppRecordIsUsed(AppRecPtr) )
-               {
-                  AppSlotFound = true;
-                  break;
-               }
-               ++AppRecPtr;
+                CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_RESOURCEID_RESERVED);
             }
+
+            CFE_ES_UnlockSharedData(__func__,__LINE__);
 
             /*
             ** If a slot was found, create the application
             */
-            if ( AppSlotFound == true )
+            if (AppRecPtr != NULL)
             {
             
                CFE_ES_LockSharedData(__func__,__LINE__);
 
-               /*
-               ** Allocate and populate the ES_AppTable entry
-               */
-               memset ( AppRecPtr, 0, sizeof(CFE_ES_AppRecord_t));
-               /*
-               ** Core apps still have the notion of an init/running state
-               ** Set the state here to mark the record as used.
-               */
-               CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_ResourceID_FromInteger(j + CFE_ES_APPID_BASE));
-               
                AppRecPtr->Type = CFE_ES_AppType_CORE;
                
                /*
@@ -895,6 +861,8 @@ void  CFE_ES_CreateObjects(void)
                   CFE_ES_SysLogWrite_Unsync("ES Startup: Core App: %s created. App ID: %lu\n",
                                        CFE_ES_ObjectTable[i].ObjectName,
                                        CFE_ES_ResourceID_ToInteger(CFE_ES_AppRecordGetID(AppRecPtr)));
+
+                  CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
                                        
                   /*
                   ** Increment the registered App and Registered External Task variables.

@@ -1719,39 +1719,59 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 
 int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *CounterName)
 {
-   int32 ReturnCode = CFE_ES_BAD_ARGUMENT;
-   CFE_ES_ResourceID_t CheckPtr;
-   int32 Status;
-   uint32 i;
    CFE_ES_GenCounterRecord_t *CountRecPtr;
+   CFE_ES_ResourceID_t PendingCounterId;
+   int32 Status;
 
-   Status = CFE_ES_GetGenCounterIDByName(&CheckPtr, CounterName);
-
-   if ((CounterIdPtr != NULL) && (CounterName != NULL) && (Status != CFE_SUCCESS))
+   if (CounterName == NULL || CounterIdPtr == NULL)
    {
-      CFE_ES_LockSharedData(__func__,__LINE__);
-      CountRecPtr = CFE_ES_Global.CounterTable;
-      for ( i = 0; i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; i++ )
-      {
-         if ( !CFE_ES_CounterRecordIsUsed(CountRecPtr) )
-         {
-            strncpy(CountRecPtr->CounterName,CounterName,OS_MAX_API_NAME);
-            CountRecPtr->Counter = 0;
-            CFE_ES_CounterRecordSetUsed(CountRecPtr,
-                    CFE_ES_ResourceID_FromInteger(i + CFE_ES_COUNTID_BASE));
-            *CounterIdPtr = CFE_ES_CounterRecordGetID(CountRecPtr);
-            break;
-         }
-         ++CountRecPtr;
-      }
-      if (i < CFE_PLATFORM_ES_MAX_GEN_COUNTERS)
-      {
-         ReturnCode = CFE_SUCCESS;
-      }
-      CFE_ES_UnlockSharedData(__func__,__LINE__);
+       return CFE_ES_BAD_ARGUMENT;
    }
 
-   return ReturnCode;
+   if (strlen(CounterName) >= sizeof(CountRecPtr->CounterName))
+   {
+       return CFE_ES_BAD_ARGUMENT;
+   }
+
+
+   CFE_ES_LockSharedData(__func__,__LINE__);
+
+   /*
+    * Check for an existing entry with the same name.
+    */
+   CountRecPtr = CFE_ES_LocateCounterRecordByName(CounterName);
+   if (CountRecPtr != NULL)
+   {
+       CFE_ES_SysLogWrite_Unsync("ES Startup: Duplicate Counter name '%s'\n", CounterName);
+       Status = CFE_ES_ERR_DUPLICATE_NAME;
+       PendingCounterId = CFE_ES_RESOURCEID_UNDEFINED;
+   }
+   else
+   {
+       /* scan for a free slot */
+       PendingCounterId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastCounterId, CFE_PLATFORM_ES_MAX_GEN_COUNTERS);
+       CountRecPtr = CFE_ES_LocateCounterRecordByID(PendingCounterId);
+
+       if (CountRecPtr == NULL)
+       {
+           CFE_ES_SysLogWrite_Unsync("ES Startup: No free Counter slots available\n");
+           Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+       }
+       else
+       {
+           strncpy(CountRecPtr->CounterName,CounterName,
+                   sizeof(CountRecPtr->CounterName));
+           CountRecPtr->Counter = 0;
+           CFE_ES_CounterRecordSetUsed(CountRecPtr, PendingCounterId);
+           CFE_ES_Global.LastCounterId = PendingCounterId;
+           Status = CFE_SUCCESS;
+       }
+   }
+
+   CFE_ES_UnlockSharedData(__func__,__LINE__);
+
+   *CounterIdPtr = PendingCounterId;
+   return Status;
 
 }
 

@@ -83,6 +83,68 @@ CFE_ES_ResourceID_t CFE_ES_ResourceID_FromOSAL(osal_id_t id)
     return CFE_ES_ResourceID_FromInteger(val ^ CFE_ES_RESOURCEID_MARK);
 }
 
+/*********************************************************************/
+/*
+ * CFE_ES_FindNextAvailableId
+ *
+ * For complete API information, see prototype in header
+ */
+CFE_ES_ResourceID_t CFE_ES_FindNextAvailableId(CFE_ES_ResourceID_t StartId, uint32 TableSize)
+{
+    uint32 Serial;
+    uint32 Count;
+    uint32 ResourceType;
+    CFE_ES_ResourceID_t CheckId;
+    bool IsTaken;
+
+    ResourceType = CFE_ES_ResourceID_ToInteger(StartId);
+    Serial = ResourceType & CFE_ES_RESOURCEID_MAX;
+    ResourceType -= Serial;
+    Count = TableSize;
+    IsTaken = true;
+
+    do
+    {
+        if (Count == 0)
+        {
+            CheckId = CFE_ES_RESOURCEID_UNDEFINED;
+            break;
+        }
+
+        --Count;
+        ++Serial;
+        if (Serial >= CFE_ES_RESOURCEID_MAX)
+        {
+            Serial %= TableSize;
+        }
+        CheckId = CFE_ES_ResourceID_FromInteger(ResourceType + Serial);
+
+        switch (ResourceType)
+        {
+        case CFE_ES_APPID_BASE:
+            IsTaken = CFE_ES_AppRecordIsUsed(CFE_ES_LocateAppRecordByID(CheckId));
+            break;
+        case CFE_ES_LIBID_BASE:
+            IsTaken = CFE_ES_LibRecordIsUsed(CFE_ES_LocateLibRecordByID(CheckId));
+            break;
+        case CFE_ES_COUNTID_BASE:
+            IsTaken = CFE_ES_CounterRecordIsUsed(CFE_ES_LocateCounterRecordByID(CheckId));
+            break;
+        case CFE_ES_POOLID_BASE:
+            IsTaken = CFE_ES_MemPoolRecordIsUsed(CFE_ES_LocateMemPoolRecordByID(CheckId));
+            break;
+        case CFE_ES_CDSBLOCKID_BASE:
+            IsTaken = CFE_ES_CDSBlockRecordIsUsed(CFE_ES_LocateCDSBlockRecordByID(CheckId));
+            break;
+        default:
+            /* do nothing, should never happen */
+            break;
+        }
+    }
+    while (IsTaken);
+
+    return CheckId;
+}
 
 /*********************************************************************/
 /*

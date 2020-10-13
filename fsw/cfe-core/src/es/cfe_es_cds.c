@@ -75,6 +75,8 @@ int32 CFE_ES_CDS_EarlyInit(void)
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
+    CDS->LastCDSBlockId = CFE_ES_ResourceID_FromInteger(CFE_ES_CDSBLOCKID_BASE);
+
     /* Get CDS size from OS BSP */
     Status = CFE_PSP_GetCDSSize(&CDS->TotalSize);
     if (Status != CFE_PSP_SUCCESS)
@@ -306,14 +308,20 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
 int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t UserBlockSize, const char *Name, bool CriticalTbl)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32 Status = CFE_SUCCESS;
-    int32 RegUpdateStatus = CFE_SUCCESS;
+    int32 Status;
+    int32 RegUpdateStatus;
     CFE_ES_CDS_RegRec_t *RegRecPtr;
     CFE_ES_MemOffset_t BlockOffset;
     CFE_ES_MemOffset_t OldBlockSize;
     CFE_ES_MemOffset_t NewBlockSize;
-    bool IsNewEntry = false;
-    bool IsNewOffset = false;
+    CFE_ES_ResourceID_t PendingBlockId;
+    bool IsNewEntry;
+    bool IsNewOffset;
+
+    Status = CFE_SUCCESS;
+    RegUpdateStatus = CFE_SUCCESS;
+    IsNewEntry = false;
+    IsNewOffset = false;
     
     if (UserBlockSize == 0 || UserBlockSize > CDS_ABS_MAX_BLOCK_SIZE)
     {
@@ -325,21 +333,38 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t Us
     /* trying to register CDSs at the same location at the same time  */
     CFE_ES_LockCDS();
 
-    /* Check for duplicate CDS name */
+    /*
+     * Check for an existing entry with the same name.
+     */
     RegRecPtr = CFE_ES_LocateCDSBlockRecordByName(Name);
-
-    /* If not found then make a new entry */
-    if (RegRecPtr == NULL)
+    if (RegRecPtr != NULL)
     {
-        RegRecPtr = CFE_ES_AllocateNewCDSRegistryEntry();
-        IsNewEntry = true;
-    }
-
-    if (RegRecPtr == NULL)
-    {
-        Status = CFE_ES_CDS_REGISTRY_FULL;
+        /* in CDS a duplicate name is not necessarily an error, we
+         * may reuse/resize the existing entry */
+        PendingBlockId = CFE_ES_CDSBlockRecordGetID(RegRecPtr);
     }
     else
+    {
+        /* scan for a free slot */
+        PendingBlockId = CFE_ES_FindNextAvailableId(CDS->LastCDSBlockId, CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES);
+        RegRecPtr = CFE_ES_LocateCDSBlockRecordByID(PendingBlockId);
+
+        if (RegRecPtr != NULL)
+        {
+            /* Fully clear the entry, just in case of stale data */
+            memset(RegRecPtr, 0, sizeof(*RegRecPtr));
+            CDS->LastCDSBlockId = PendingBlockId;
+            IsNewEntry = true;
+            Status = CFE_SUCCESS;
+        }
+        else
+        {
+            Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+            PendingBlockId = CFE_ES_RESOURCEID_UNDEFINED;
+        }
+    }
+
+    if (RegRecPtr != NULL)
     {
         /* Account for the extra header which will be added */
         NewBlockSize = UserBlockSize;
@@ -379,41 +404,22 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t Us
             }
         }
 
-        if (IsNewEntry)
+        if (Status == CFE_SUCCESS && IsNewEntry)
         {
-            if (Status == CFE_SUCCESS)
-            {
-                /* Save flag indicating whether it is a Critical Table or not */
-                RegRecPtr->Table = CriticalTbl;
+            /* Save flag indicating whether it is a Critical Table or not */
+            RegRecPtr->Table = CriticalTbl;
 
-                /* Save CDS Name in Registry */
-                strncpy(RegRecPtr->Name, Name, sizeof(RegRecPtr->Name)-1);
-                RegRecPtr->Name[sizeof(RegRecPtr->Name)-1] = 0;
-            }
-            else
-            {
-                /* On failure set it free */
-                CFE_ES_CDSBlockRecordSetFree(RegRecPtr);
-            }
+            /* Save CDS Name in Registry */
+            strncpy(RegRecPtr->Name, Name, sizeof(RegRecPtr->Name)-1);
+            RegRecPtr->Name[sizeof(RegRecPtr->Name)-1] = 0;
+            CFE_ES_CDSBlockRecordSetUsed(RegRecPtr, PendingBlockId);
         }
 
-        if (IsNewOffset || IsNewEntry)
+        if (Status == CFE_SUCCESS && (IsNewOffset || IsNewEntry))
         {
             /* If we succeeded at creating a CDS, save updated registry in the CDS */
             RegUpdateStatus = CFE_ES_UpdateCDSRegistry();
         }
-    }
-
-    /*
-     * Export handle to caller before unlock
-     */
-    if (Status == CFE_SUCCESS)
-    {
-        *HandlePtr = CFE_ES_CDSBlockRecordGetID(RegRecPtr);
-    }
-    else
-    {
-        *HandlePtr = CFE_ES_RESOURCEID_UNDEFINED;
     }
 
     /* Unlock Registry for update */
@@ -447,6 +453,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t Us
         Status = CFE_ES_CDS_ALREADY_EXISTS;
     }
 
+    *HandlePtr = PendingBlockId;
 
     return (Status);
 
@@ -770,50 +777,6 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName)
 
     return CDSRegRecPtr;
 }   /* End of CFE_ES_LocateCDSBlockRecordByName() */
-
-
-/*******************************************************************
-**
-** CFE_ES_FindFreeCDSRegistryEntry
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
-CFE_ES_CDS_RegRec_t *CFE_ES_AllocateNewCDSRegistryEntry()
-{
-    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    CFE_ES_CDS_RegRec_t *CDSRegRecPtr;
-    uint32 NumReg;
-
-    CDSRegRecPtr = CDS->Registry;
-    NumReg = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES;
-    while (true)
-    {
-        if (NumReg == 0)
-        {
-            CDSRegRecPtr = NULL; /* not found */
-            break;
-        }
-
-        if (!CFE_ES_CDSBlockRecordIsUsed(CDSRegRecPtr))
-        {
-            /* Wipe it, just in case of stale data */
-            memset(CDSRegRecPtr, 0, sizeof(*CDSRegRecPtr));
-
-            /* Set the ID which marks it as used */
-            CFE_ES_CDSBlockRecordSetUsed(CDSRegRecPtr,
-                    CFE_ES_ResourceID_FromInteger(
-                            (CDSRegRecPtr - CDS->Registry)
-                            + CFE_ES_CDSBLOCKID_BASE));
-            break;
-        }
-
-        ++CDSRegRecPtr;
-        --NumReg;
-    }
-
-    return CDSRegRecPtr;
-}   /* End of CFE_ES_FindFreeCDSRegistryEntry() */
 
 
 /*******************************************************************

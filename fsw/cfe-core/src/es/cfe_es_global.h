@@ -117,17 +117,20 @@ typedef struct
    */
    uint32             RegisteredCoreApps;
    uint32             RegisteredExternalApps;
+   CFE_ES_ResourceID_t LastAppId;
    CFE_ES_AppRecord_t AppTable[CFE_PLATFORM_ES_MAX_APPLICATIONS];
 
    /*
    ** ES Shared Library Table
    */
    uint32             RegisteredLibs;
+   CFE_ES_ResourceID_t LastLibId;
    CFE_ES_LibRecord_t LibTable[CFE_PLATFORM_ES_MAX_LIBRARIES];
 
    /*
    ** ES Generic Counters Table
    */
+   CFE_ES_ResourceID_t LastCounterId;
    CFE_ES_GenCounterRecord_t CounterTable[CFE_PLATFORM_ES_MAX_GEN_COUNTERS];
 
    /*
@@ -145,6 +148,7 @@ typedef struct
    /*
    ** Memory Pools
    */
+   CFE_ES_ResourceID_t LastMemPoolId;
    CFE_ES_MemPoolRecord_t MemPoolTable[CFE_PLATFORM_ES_MAX_MEMORY_POOLS];
 
 } CFE_ES_Global_t;

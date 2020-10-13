@@ -364,45 +364,82 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
 {
    cpuaddr StartAddr;
    int32   ReturnCode;
-   uint32  i;
-   bool    AppSlotFound;
+   CFE_Status_t Status;
    osal_id_t  ModuleId;
    osal_id_t  MainTaskId;
    CFE_ES_AppRecord_t *AppRecPtr;
    CFE_ES_TaskRecord_t *TaskRecPtr;
+   CFE_ES_ResourceID_t PendingAppId;
 
    /*
     * The FileName must not be NULL
     */
-   if (FileName == NULL)
+   if (FileName == NULL || AppName == NULL)
    {
-       return CFE_ES_ERR_APP_CREATE;
+       return CFE_ES_BAD_ARGUMENT;
+   }
+
+   if (strlen(AppName) >= OS_MAX_API_NAME)
+   {
+       return CFE_ES_BAD_ARGUMENT;
    }
 
    /*
    ** Allocate an ES_AppTable entry
    */
    CFE_ES_LockSharedData(__func__,__LINE__);
-   AppSlotFound = false;
-   AppRecPtr = CFE_ES_Global.AppTable;
-   for ( i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++ )
+
+   /*
+   ** Find an ES AppTable entry, and set to RESERVED
+   **
+   ** In this state, the entry is no longer free, but also will not pass the
+   ** validation test.  So this function effectively has exclusive access
+   ** without holding the global lock.
+   **
+   ** IMPORTANT: it must set the ID to something else before leaving
+   ** this function or else the resource will be leaked.  After this
+   ** point, execution must proceed to the end of the function to
+   ** guarantee that the entry is either completed or freed.
+   */
+
+   /*
+    * Check for an existing entry with the same name.
+    * Also check for a matching Library name.
+    * (Apps and libraries should be uniquely named)
+    */
+   AppRecPtr = CFE_ES_LocateAppRecordByName(AppName);
+   if (AppRecPtr != NULL)
    {
-      if ( !CFE_ES_AppRecordIsUsed(AppRecPtr) )
-      {
-         AppSlotFound = true;
-         memset ( AppRecPtr, 0, sizeof(CFE_ES_AppRecord_t));
-         /* set state EARLY_INIT for OS_TaskCreate below (indicates record is in use) */
-         CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_ResourceID_FromInteger(i + CFE_ES_APPID_BASE));
-         break;
-      }
-      ++AppRecPtr;
+       CFE_ES_SysLogWrite_Unsync("ES Startup: Duplicate app name '%s'\n", AppName);
+       Status = CFE_ES_ERR_DUPLICATE_NAME;
    }
+   else
+   {
+       /* scan for a free slot */
+       PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+       AppRecPtr = CFE_ES_LocateAppRecordByID(PendingAppId);
+
+       if (AppRecPtr == NULL)
+       {
+            CFE_ES_SysLogWrite_Unsync("ES Startup: No free application slots available\n");
+            Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+       }
+       else
+       {
+           /* Fully clear the entry, just in case of stale data */
+           memset(AppRecPtr, 0, sizeof(*AppRecPtr));
+           CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_RESOURCEID_RESERVED);
+           CFE_ES_Global.LastAppId = PendingAppId;
+           Status = CFE_SUCCESS;
+       }
+   }
+
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
    /*
    ** If a slot was found, create the application
    */
-   if ( AppSlotFound == true)
+   if (Status == CFE_SUCCESS)
    {
       /*
       ** Load the module
@@ -507,7 +544,7 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
          CFE_ES_AppRecordSetFree(AppRecPtr); /* Release slot */
          CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-         return(CFE_ES_ERR_APP_CREATE);
+         Status = CFE_ES_ERR_APP_CREATE;
       }
       else
       {
@@ -523,12 +560,13 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
             CFE_ES_SysLogWrite_Unsync("ES Startup: Error: ES_TaskTable slot in use at task creation!\n");
          }
          CFE_ES_TaskRecordSetUsed(TaskRecPtr,AppRecPtr->TaskInfo.MainTaskId);
-         TaskRecPtr->AppId = CFE_ES_AppRecordGetID(AppRecPtr);
+         TaskRecPtr->AppId = PendingAppId;
          strncpy((char *)TaskRecPtr->TaskName,
              (char *)AppRecPtr->TaskInfo.MainTaskName,OS_MAX_API_NAME );
          TaskRecPtr->TaskName[OS_MAX_API_NAME - 1]='\0';
+         CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
          CFE_ES_SysLogWrite_Unsync("ES Startup: %s loaded and created\n", AppName);
-         *ApplicationIdPtr = CFE_ES_AppRecordGetID(AppRecPtr);
+         *ApplicationIdPtr = PendingAppId;
 
          /*
          ** Increment the registered App and Registered External Task variables.
@@ -538,15 +576,10 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
 
          CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-         return(CFE_SUCCESS);
-
       } /* End If OS_TaskCreate */
    }
-   else /* appSlot not found */
-   {
-      CFE_ES_WriteToSysLog("ES Startup: No free application slots available\n");
-      return(CFE_ES_ERR_APP_CREATE);
-   }
+
+   return Status;
 
 } /* End Function */
 /*
@@ -564,19 +597,20 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
 {
    CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
    CFE_ES_LibRecord_t *         LibSlotPtr;
-   size_t                       StringLength;
    int32                        Status;
-   uint32                       LibIndex;
    CFE_ES_ResourceID_t          PendingLibId;
    osal_id_t                    ModuleId;
    bool                         IsModuleLoaded;
 
    /*
-    * First, should verify that the supplied "LibName" fits within the internal limit
-    *  (currently sized to OS_MAX_API_NAME, but not assuming that will always be)
+    * The FileName must not be NULL
     */
-   StringLength = strlen(LibName);
-   if (StringLength >= sizeof(LibSlotPtr->LibName))
+   if (FileName == NULL || LibName == NULL)
+   {
+       return CFE_ES_BAD_ARGUMENT;
+   }
+
+   if (strlen(LibName) >= OS_MAX_API_NAME)
    {
        return CFE_ES_BAD_ARGUMENT;
    }
@@ -589,65 +623,67 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
    ModuleId = OS_OBJECT_ID_UNDEFINED;
    PendingLibId = CFE_ES_RESOURCEID_UNDEFINED;
    Status = CFE_ES_ERR_LOAD_LIB;    /* error that will be returned if no slots found */
+
+    /*
+    ** Find an ES AppTable entry, and set to RESERVED
+    **
+    ** In this state, the entry is no longer free, but also will not pass the
+    ** validation test.  So this function effectively has exclusive access
+    ** without holding the global lock.
+    **
+    ** IMPORTANT: it must set the ID to something else before leaving
+    ** this function or else the resource will be leaked.  After this
+    ** point, execution must proceed to the end of the function to
+    ** guarantee that the entry is either completed or freed.
+    */
    CFE_ES_LockSharedData(__func__,__LINE__);
-   LibSlotPtr = CFE_ES_Global.LibTable;
-   for ( LibIndex = 0; LibIndex < CFE_PLATFORM_ES_MAX_LIBRARIES; ++LibIndex )
-   {
-      if (CFE_ES_LibRecordIsUsed(LibSlotPtr))
-      {
-          if (strcmp(LibSlotPtr->LibName, LibName) == 0)
-          {
-              /*
-               * Indicate to caller that the library is already loaded.
-               * (This is when there was a matching LibName in the table)
-               *
-               * Do nothing more; not logging this event as it may or may
-               * not be an error.
-               */
-              *LibraryIdPtr = CFE_ES_LibRecordGetID(LibSlotPtr);
-              Status = CFE_ES_LIB_ALREADY_LOADED;
-              break;
-          }
-      }
-      else if (!CFE_ES_ResourceID_IsDefined(PendingLibId))
-      {
-         /* Remember list position as possible place for new entry. */
-          PendingLibId = CFE_ES_ResourceID_FromInteger(LibIndex + CFE_ES_LIBID_BASE);
-          Status = CFE_SUCCESS;
-      }
-      else
-      {
-         /* No action */
-      }
 
-      ++LibSlotPtr;
+   /*
+    * Check for an existing entry with the same name.
+    * Also check for a matching Library name.
+    * (Libs and libraries should be uniquely named)
+    */
+   LibSlotPtr = CFE_ES_LocateLibRecordByName(LibName);
+   if (LibSlotPtr != NULL || CFE_ES_LocateAppRecordByName(LibName) != NULL)
+   {
+       CFE_ES_SysLogWrite_Unsync("ES Startup: Duplicate Lib name '%s'\n", LibName);
+       if (LibSlotPtr != NULL)
+       {
+           PendingLibId = CFE_ES_LibRecordGetID(LibSlotPtr);
+       }
+       Status = CFE_ES_ERR_DUPLICATE_NAME;
    }
-
-   if (Status == CFE_SUCCESS)
+   else
    {
-       /* reset back to the saved index that was free */
+       /* scan for a free slot */
+       PendingLibId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastLibId, CFE_PLATFORM_ES_MAX_LIBRARIES);
        LibSlotPtr = CFE_ES_LocateLibRecordByID(PendingLibId);
 
-       /* reserve the slot while still under lock */
-       strcpy(LibSlotPtr->LibName, LibName);
-       CFE_ES_LibRecordSetUsed(LibSlotPtr, CFE_ES_RESOURCEID_RESERVED);
-       *LibraryIdPtr = PendingLibId;
+       if (LibSlotPtr == NULL)
+       {
+           CFE_ES_SysLogWrite_Unsync("ES Startup: No free library slots available\n");
+           Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+       }
+       else
+       {
+           /* Fully clear the entry, just in case of stale data */
+           memset(LibSlotPtr, 0, sizeof(*LibSlotPtr));
+           strcpy(LibSlotPtr->LibName, LibName); /* Size already checked */
+           CFE_ES_LibRecordSetUsed(LibSlotPtr, CFE_ES_RESOURCEID_RESERVED);
+           CFE_ES_Global.LastLibId = PendingLibId;
+           Status = CFE_SUCCESS;
+       }
    }
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
    /*
     * If any off-nominal condition exists, skip the rest of this logic.
-    * Additionally write any extra information about what happened to syslog
-    * Note - not logging "already loaded" conditions, as this is not necessarily an error.
+    * (Log message already written)
     */
    if (Status != CFE_SUCCESS)
    {
-       if (Status == CFE_ES_ERR_LOAD_LIB)
-       {
-           CFE_ES_WriteToSysLog("ES Startup: No free library slots available\n");
-       }
-
+       *LibraryIdPtr = PendingLibId;
        return Status;
    }
 
@@ -770,7 +806,11 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
 
        /* Release Slot - No need to lock as it is resetting just a single value */
        CFE_ES_LibRecordSetFree(LibSlotPtr);
+
+       PendingLibId = CFE_ES_RESOURCEID_UNDEFINED;
    }
+
+   *LibraryIdPtr = PendingLibId;
 
    return(Status);
 

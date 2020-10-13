@@ -162,7 +162,6 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
                           uint16                    UseMutex )
 {
     int32 Status;
-    uint32 Index;
     CFE_ES_MemHandle_t PendingID;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
     CFE_ES_MemOffset_t Alignment;
@@ -216,25 +215,27 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
 
 
 
-    /*
-     * Find an open slot in the Pool Table
-     */
-    PendingID = CFE_ES_RESOURCEID_UNDEFINED;
-    PoolRecPtr = CFE_ES_Global.MemPoolTable;
-    CFE_ES_LockSharedData(__func__, __LINE__);
-    for (Index = 0; Index < CFE_PLATFORM_ES_MAX_MEMORY_POOLS; ++Index)
+    CFE_ES_LockSharedData(__func__,__LINE__);
+
+    /* scan for a free slot */
+    PendingID = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastMemPoolId, CFE_PLATFORM_ES_MAX_MEMORY_POOLS);
+    PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(PendingID);
+
+    if (PoolRecPtr == NULL)
     {
-        if (!CFE_ES_MemPoolRecordIsUsed(PoolRecPtr))
-        {
-            /* reset/clear all contents */
-            memset(PoolRecPtr, 0, sizeof(*PoolRecPtr));
-            PendingID = CFE_ES_ResourceID_FromInteger(Index + CFE_ES_POOLID_BASE);
-            CFE_ES_MemPoolRecordSetUsed(PoolRecPtr, CFE_ES_RESOURCEID_RESERVED);
-            break;
-        }
-        ++PoolRecPtr;
+        CFE_ES_SysLogWrite_Unsync("ES Startup: No free MemPoolrary slots available\n");
+        Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
     }
-    CFE_ES_UnlockSharedData(__func__, __LINE__);
+    else
+    {
+        /* Fully clear the entry, just in case of stale data */
+        memset(PoolRecPtr, 0, sizeof(*PoolRecPtr));
+        CFE_ES_MemPoolRecordSetUsed(PoolRecPtr, CFE_ES_RESOURCEID_RESERVED);
+        CFE_ES_Global.LastMemPoolId = PendingID;
+        Status = CFE_SUCCESS;
+    }
+
+    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
     /*
      * If no open resource ID was found, return now.
@@ -243,14 +244,19 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
      * must continue to the end of this function where the ID is freed
      * if not fully successful.
      */
-    if (!CFE_ES_ResourceID_IsDefined(PendingID))
+    if (Status != CFE_SUCCESS)
     {
-        return CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+        return Status;
     }
 
     Alignment = ALIGN_OF(CFE_ES_PoolAlign_t);  /* memory mapped pools should be aligned */
     if (Alignment < CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN)
     {
+        /*
+         * Note about path coverage testing - depending on the
+         * system architecture and configuration this line may be
+         * unreachable.  This is OK.
+         */
         Alignment = CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN;
     }
 

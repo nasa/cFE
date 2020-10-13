@@ -413,17 +413,6 @@ typedef int32 CFE_Status_t;
 
 
 /**
- * @brief CDS Registry Full
- *
- *  The CDS Registry has as many entries in it as it can hold.  The
- *  CDS Registry size can be adjusted with the #CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES
- *  macro defined in the cfe_platform_cfg.h file.
- *
- */
-#define CFE_ES_CDS_REGISTRY_FULL  ((int32)0xc4000011)
-
-
-/**
  * @brief CDS Invalid
  *
  *  The CDS contents are invalid.
@@ -658,6 +647,14 @@ typedef int32 CFE_Status_t;
  */
 #define CFE_ES_POOL_BOUNDS_ERROR     ((int32)0xc400002D)
 
+
+/**
+ * @brief Duplicate Name Error
+ *
+ *  Resource creation failed due to the name already existing in the system.
+ *
+ */
+#define CFE_ES_ERR_DUPLICATE_NAME           ((int32)0xc400002E)
 
 /**
  * @brief Not Implemented
@@ -1414,6 +1411,7 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_ERR_MEM_HANDLE       CFE_ES_ERR_RESOURCEID_NOT_VALID
 #define CFE_ES_ERR_APPNAME          CFE_ES_ERR_NAME_NOT_FOUND
 #define CFE_ES_CDS_NOT_FOUND_ERR    CFE_ES_ERR_NAME_NOT_FOUND
+#define CFE_ES_CDS_REGISTRY_FULL    CFE_ES_NO_RESOURCE_IDS_AVAILABLE
 #endif
 
 

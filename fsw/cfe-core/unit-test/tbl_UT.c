@@ -2285,7 +2285,7 @@ void Test_CFE_TBL_Register(void)
      * is full
      */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_REGISTRY_FULL);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_NO_RESOURCE_IDS_AVAILABLE);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);

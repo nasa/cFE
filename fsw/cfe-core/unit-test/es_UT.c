@@ -74,12 +74,6 @@ CFE_ES_GMP_IndirectBuffer_t UT_MemPoolIndirectBuffer;
 /* Create a startup script buffer for a maximum of 5 lines * 80 chars/line */
 char StartupScript[MAX_STARTUP_SCRIPT];
 
-/* Number of apps instantiated */
-uint32 ES_UT_NumApps;
-uint32 ES_UT_NumLibs;
-uint32 ES_UT_NumPools;
-uint32 ES_UT_NumCDS;
-
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_NOOP_CC =
 {
         .MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_ES_CMD_MID),
@@ -269,8 +263,9 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
 
     OS_TaskCreate(&UtOsalId, "UT", NULL, NULL, 0, 0, 0);
     UtTaskId = CFE_ES_ResourceID_FromOSAL(UtOsalId);
-    UtAppId = ES_UT_MakeAppIdForIndex(ES_UT_NumApps);
-    ++ES_UT_NumApps;
+    UtAppId = CFE_ES_Global.LastAppId;
+    CFE_ES_Global.LastAppId = CFE_ES_ResourceID_FromInteger(
+            CFE_ES_ResourceID_ToInteger(UtAppId) + 1);
 
     LocalTaskPtr = CFE_ES_LocateTaskRecordByID(UtTaskId);
     LocalAppPtr = CFE_ES_LocateAppRecordByID(UtAppId);
@@ -356,8 +351,9 @@ void ES_UT_SetupSingleLibId(const char *LibName, CFE_ES_LibRecord_t **OutLibRec)
     CFE_ES_ResourceID_t UtLibId;
     CFE_ES_LibRecord_t *LocalLibPtr;
 
-    UtLibId = ES_UT_MakeLibIdForIndex(ES_UT_NumLibs);
-    ++ES_UT_NumLibs;
+    UtLibId = CFE_ES_Global.LastLibId;
+    CFE_ES_Global.LastLibId = CFE_ES_ResourceID_FromInteger(
+            CFE_ES_ResourceID_ToInteger(UtLibId) + 1);
 
     LocalLibPtr = CFE_ES_LocateLibRecordByID(UtLibId);
     CFE_ES_LibRecordSetUsed(LocalLibPtr, UtLibId);
@@ -425,8 +421,10 @@ void ES_UT_SetupMemPoolId(CFE_ES_MemPoolRecord_t **OutPoolRecPtr)
     CFE_ES_MemHandle_t UtPoolID;
     CFE_ES_MemPoolRecord_t *LocalPoolRecPtr;
 
-    UtPoolID = ES_UT_MakePoolIdForIndex(ES_UT_NumPools);
-    ++ES_UT_NumPools;
+    UtPoolID = CFE_ES_Global.LastMemPoolId;
+    CFE_ES_Global.LastMemPoolId = CFE_ES_ResourceID_FromInteger(
+            CFE_ES_ResourceID_ToInteger(UtPoolID) + 1);
+
 
     LocalPoolRecPtr = CFE_ES_LocateMemPoolRecordByID(UtPoolID);
 
@@ -506,8 +504,9 @@ void ES_UT_SetupSingleCDSRegistry(const char *CDSName, CFE_ES_MemOffset_t BlockS
         CFE_ES_Global.CDSIsAvailable = true;
     }
 
-    UtCDSID = ES_UT_MakeCDSIdForIndex(ES_UT_NumCDS);
-    ++ES_UT_NumCDS;
+    UtCDSID = CFE_ES_Global.CDSVars.LastCDSBlockId;
+    CFE_ES_Global.CDSVars.LastCDSBlockId = CFE_ES_ResourceID_FromInteger(
+            CFE_ES_ResourceID_ToInteger(UtCDSID) + 1);
 
     LocalRegRecPtr = CFE_ES_LocateCDSBlockRecordByID(UtCDSID);
     if (CDSName != NULL)
@@ -622,6 +621,7 @@ void UtTest_Setup(void)
 
     UT_ADD_TEST(TestInit);
     UT_ADD_TEST(TestStartupErrorPaths);
+    UT_ADD_TEST(TestResourceID);
     UT_ADD_TEST(TestApps);
     UT_ADD_TEST(TestLibs);
     UT_ADD_TEST(TestERLog);
@@ -645,10 +645,17 @@ void ES_ResetUnitTest(void)
     UT_InitData();
 
     memset(&CFE_ES_Global, 0, sizeof(CFE_ES_Global));
-    ES_UT_NumApps = 0;
-    ES_UT_NumLibs = 0;
-    ES_UT_NumPools = 0;
-    ES_UT_NumCDS = 0;
+
+    /*
+    ** Initialize the Last Id
+    */
+    CFE_ES_Global.LastAppId = CFE_ES_ResourceID_FromInteger(CFE_ES_APPID_BASE);
+    CFE_ES_Global.LastLibId = CFE_ES_ResourceID_FromInteger(CFE_ES_LIBID_BASE);
+    CFE_ES_Global.LastCounterId = CFE_ES_ResourceID_FromInteger(CFE_ES_COUNTID_BASE);
+    CFE_ES_Global.LastMemPoolId = CFE_ES_ResourceID_FromInteger(CFE_ES_POOLID_BASE);
+    CFE_ES_Global.CDSVars.LastCDSBlockId = CFE_ES_ResourceID_FromInteger(CFE_ES_CDSBLOCKID_BASE);
+
+
 } /* end ES_ResetUnitTest() */
 
 void TestInit(void)
@@ -1148,6 +1155,8 @@ void TestApps(void)
     CFE_ES_ResourceID_t Id;
     CFE_ES_TaskRecord_t *UtTaskRecPtr;
     CFE_ES_AppRecord_t *UtAppRecPtr;
+    CFE_ES_MemPoolRecord_t *UtPoolRecPtr;
+    char NameBuffer[OS_MAX_API_NAME+5];
 
     UtPrintf("Begin Test Apps");
 
@@ -1284,10 +1293,26 @@ void TestApps(void)
                               4096,
                               1);
     UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_APP_CREATE,
+              Return == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_AppCreate",
               "NULL file name");
     
+    /* Test application creation with name too long */
+    memset(NameBuffer, 'x', sizeof(NameBuffer)-1);
+    NameBuffer[sizeof(NameBuffer)-1] = 0;
+    Return = CFE_ES_AppCreate(&Id,
+                              "ut/filename.x",
+                              "EntryPoint",
+                              NameBuffer,
+                              170,
+                              4096,
+                              1);
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_AppCreate",
+              "Name too long");
+
+
     /* Test successful application loading and creation  */
     ES_ResetUnitTest();
     Return = CFE_ES_AppCreate(&Id,
@@ -1302,13 +1327,26 @@ void TestApps(void)
               "CFE_ES_AppCreate",
               "Application load/create; successful");
 
+    /* Test application loading of the same name again */
+    Return = CFE_ES_AppCreate(&Id,
+                              "ut/filename.x",
+                              "EntryPoint",
+                              "AppName",
+                              170,
+                              8192,
+                              1);
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_ERR_DUPLICATE_NAME,
+              "CFE_ES_AppCreate",
+              "Duplicate name");
+
     /* Test application loading and creation where the file cannot be loaded */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, -1);
     Return = CFE_ES_AppCreate(&Id,
                               "ut/filename.x",
                               "EntryPoint",
-                              "AppName",
+                              "AppName2",
                               170,
                               8192,
                               1);
@@ -1335,7 +1373,7 @@ void TestApps(void)
                               8192,
                               1);
     UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_APP_CREATE &&
+              Return == CFE_ES_NO_RESOURCE_IDS_AVAILABLE &&
                 UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_FREE_APP_SLOTS]),
               "CFE_ES_AppCreate",
               "No free application slots available");
@@ -1378,6 +1416,15 @@ void TestApps(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MODULE_UNLOAD_FAILED]),
               "CFE_ES_AppCreate",
               "Module unload failure after entry point lookup failure");
+
+    /*
+     * Set up a situation where attempting to get appID by context,
+     * but the task record does not match the app record.
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    UtTaskRecPtr->AppId = CFE_ES_RESOURCEID_UNDEFINED;
+    UtAssert_NULL(CFE_ES_GetAppRecordByContext());
 
     /* Test scanning and acting on the application table where the timer
      * expires for a waiting application
@@ -1963,6 +2010,8 @@ void TestApps(void)
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     /* Setup a second entry which will NOT be deleted */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    ES_UT_SetupMemPoolId(&UtPoolRecPtr);
+    UtPoolRecPtr->OwnerAppID = CFE_ES_AppRecordGetID(UtAppRecPtr);
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     /* Associate a child task with the app to be deleted */
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
@@ -1974,6 +2023,29 @@ void TestApps(void)
               CFE_ES_TaskRecordIsUsed(UtTaskRecPtr),
               "CFE_ES_CleanUpApp",
               "Main task ID matches task ID, other task unaffected");
+    UT_Report(__FILE__, __LINE__,
+              !CFE_ES_MemPoolRecordIsUsed(UtPoolRecPtr),
+              "CFE_ES_CleanUpApp",
+              "Main task ID matches task ID, memory pool deleted");
+
+    /* Test deleting an application and cleaning up its resources where the
+     * memory pool deletion fails
+     */
+    ES_ResetUnitTest();
+    /* Setup an entry which will be deleted */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
+    ES_UT_SetupMemPoolId(&UtPoolRecPtr);
+    UtPoolRecPtr->OwnerAppID = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtPoolRecPtr->PoolID = CFE_ES_ResourceID_FromInteger(99999);    /* Mismatch */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
+              "CFE_ES_CleanUpApp",
+              "Mem Pool delete error");
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_MemPoolRecordIsUsed(UtPoolRecPtr),
+              "CFE_ES_CleanUpApp",
+              "Mem Pool not freed");
 
     /* Test deleting an application and cleaning up its resources where the
      * application ID doesn't match the main task ID
@@ -2065,6 +2137,45 @@ void TestApps(void)
               CFE_ES_CleanupTaskResources(Id) == CFE_SUCCESS,
               "CFE_ES_CleanupTaskResources",
               "Get OS information failures");
+
+}
+
+void TestResourceID(void)
+{
+    /*
+     * Test cases for generic resource ID functions which are
+     * not sufficiently covered by other app/lib tests.
+     */
+    CFE_ES_ResourceID_t Id;
+    CFE_ES_ResourceID_t LastId;
+    uint32 Count;
+
+    /* Call CFE_ES_FindNextAvailableId() using an invalid resource type */
+    ES_ResetUnitTest();
+    Id = CFE_ES_FindNextAvailableId(CFE_ES_RESOURCEID_UNDEFINED, 5);
+    UtAssert_True(!CFE_ES_ResourceID_IsDefined(Id), "CFE_ES_FindNextAvailableId() on undefined resource type");
+
+    /* Verify that CFE_ES_FindNextAvailableId() does not repeat until CFE_ES_RESOURCEID_MAX is reached */
+    LastId = CFE_ES_Global.LastAppId;
+    Count = CFE_ES_RESOURCEID_MAX-1;
+    while (Count > 0)
+    {
+        Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+        if (CFE_ES_ResourceID_ToInteger(Id) - CFE_ES_ResourceID_ToInteger(LastId) != 1)
+        {
+            /* Numbers should be incrementing by 1 each time, never decreasing */
+            break;
+        }
+
+        LastId = Id;
+        --Count;
+    }
+    UtAssert_True(Count == 0, "CFE_ES_FindNextAvailableId() allocate all resource ID space");
+
+    /* Now verify that CFE_ES_FindNextAvailableId() recycles the first item again */
+    Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    UtAssert_True(CFE_ES_ResourceID_IsDefined(Id), "CFE_ES_FindNextAvailableId() after wrap");
+    UtAssert_True(CFE_ES_ResourceID_ToInteger(Id) < (CFE_ES_APPID_BASE + CFE_PLATFORM_ES_MAX_APPLICATIONS), "CFE_ES_FindNextAvailableId() wrap ID");
 }
 
 void TestLibs(void)
@@ -2090,6 +2201,24 @@ void TestLibs(void)
               "CFE_ES_LoadLibrary",
               "Load shared library initialization failure");
 
+    /* Test Load library returning an error on a null pointer argument */
+    Return = CFE_ES_LoadLibrary(&Id,
+                                NULL,
+                                "EntryPoint",
+                                "LibName");
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_LoadLibrary",
+              "Load shared library bad argument (NULL filename)");
+
+    Return = CFE_ES_LoadLibrary(&Id,
+                                "filename",
+                                "EntryPoint",
+                                NULL);
+    UT_Report(__FILE__, __LINE__,
+              Return == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_LoadLibrary",
+              "Load shared library bad argument (NULL library name)");
 
     /* Test Load library returning an error on a too long library name */
     memset(&LongLibraryName[0], 'a', sizeof(UtLibRecPtr->LibName));
@@ -2125,7 +2254,7 @@ void TestLibs(void)
                                 "TST_LIB_Init",
                                 "TST_LIB");
     UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_LIB_ALREADY_LOADED,
+              Return == CFE_ES_ERR_DUPLICATE_NAME,
               "CFE_ES_LoadLibrary",
               "Duplicate");
     UtAssert_True(CFE_ES_ResourceID_Equal(Id, CFE_ES_LibRecordGetID(UtLibRecPtr)),
@@ -2191,7 +2320,7 @@ void TestLibs(void)
                                 "EntryPoint",
                                 "LibName");
     UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_LOAD_LIB &&
+              Return == CFE_ES_NO_RESOURCE_IDS_AVAILABLE &&
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LIBRARY_SLOTS]),
               "CFE_ES_LoadLibrary",
               "No free library slots");
@@ -2201,6 +2330,7 @@ void TestLibs(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleLibId("UT", &UtLibRecPtr);
+    Id = CFE_ES_LibRecordGetID(UtLibRecPtr);
     UtAssert_INT32_EQ(CFE_ES_GetLibName(LongLibraryName, Id, sizeof(LongLibraryName)), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&Id, "Nonexistent"), CFE_ES_ERR_NAME_NOT_FOUND);
     UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&Id, LongLibraryName), CFE_SUCCESS);
@@ -4397,7 +4527,7 @@ void TestAPI(void)
     /* Test restarting an app that doesn't exist */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
-    AppId = ES_UT_MakeAppIdForIndex(ES_UT_NumApps); /* Should be within range, but not used */
+    AppId = ES_UT_MakeAppIdForIndex(CFE_PLATFORM_ES_MAX_APPLICATIONS-1); /* Should be within range, but not used */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RestartApp(AppId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_RestartApp",
@@ -5084,7 +5214,7 @@ void TestGenericCounterAPI(void)
     /* Test registering a generic counter that is already registered */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RegisterGenCounter(&CounterId,
-                                        "Counter1") == CFE_ES_BAD_ARGUMENT,
+                                        "Counter1") == CFE_ES_ERR_DUPLICATE_NAME,
               "CFE_ES_RegisterGenCounter",
               "Attempt to register an existing counter");
 
@@ -5107,7 +5237,7 @@ void TestGenericCounterAPI(void)
     /* Test registering a generic counter after the maximum are registered */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RegisterGenCounter(&CounterId,
-                                        "Counter999") == CFE_ES_BAD_ARGUMENT,
+                                        "Counter999") == CFE_ES_NO_RESOURCE_IDS_AVAILABLE,
               "CFE_ES_RegisterGenCounter",
               "Maximum number of counters exceeded");
 
@@ -5408,7 +5538,7 @@ void TestCDS()
     }
 
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name2") == CFE_ES_CDS_REGISTRY_FULL,
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name2") == CFE_ES_NO_RESOURCE_IDS_AVAILABLE,
               "CFE_ES_RegisterCDS",
               "No available entries");
 
@@ -6101,6 +6231,28 @@ void TestESMempool(void)
               "CFE_ES_PoolCreateEx",
               "Memory pool size too small (default block size)");
 
+    /* Test calling CFE_ES_PoolCreateEx() with NULL pointer arguments
+     */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_PoolCreateEx(NULL,
+                                  Buffer1,
+                                  sizeof(Buffer1),
+                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES,
+                                  BlockSizes,
+                                  CFE_ES_USE_MUTEX) == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_PoolCreateEx",
+              "Memory pool bad arguments (NULL handle pointer)");
+
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_PoolCreateEx(&PoolID1,
+                                  NULL,
+                                  sizeof(Buffer1),
+                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES,
+                                  BlockSizes,
+                                  CFE_ES_USE_MUTEX) == CFE_ES_BAD_ARGUMENT,
+              "CFE_ES_PoolCreateEx",
+              "Memory pool bad arguments (NULL mem pointer)");
+
 
     /* 
      * Test to use default block sizes if none are given
@@ -6125,6 +6277,54 @@ void TestESMempool(void)
                                   2) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreateEx",
               "Invalid mutex option");
+
+    /*
+     * Test creating a memory pool after the limit reached (no slots)
+     */
+    ES_ResetUnitTest();
+    PoolPtr = CFE_ES_Global.MemPoolTable;
+    for (i = 0; i < CFE_PLATFORM_ES_MAX_MEMORY_POOLS; ++i)
+    {
+        CFE_ES_MemPoolRecordSetUsed(PoolPtr, CFE_ES_ResourceID_FromInteger(i + CFE_ES_POOLID_BASE));
+        ++PoolPtr;
+    }
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_PoolCreateEx(&PoolID1,
+                                  Buffer1,
+                                  sizeof(Buffer1),
+                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES,
+                                  BlockSizes,
+                                  CFE_ES_USE_MUTEX) == CFE_ES_NO_RESOURCE_IDS_AVAILABLE,
+              "CFE_ES_PoolCreateEx",
+              "Memory pool limit reached");
+
+    /*
+     * Test creating a memory pool with a semaphore error
+     */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_PoolCreate(&PoolID1,
+                                  Buffer1,
+                                  sizeof(Buffer1)) == CFE_STATUS_EXTERNAL_RESOURCE_FAIL,
+              "CFE_ES_PoolCreateEx",
+              "Memory pool mutex create error");
+
+    /*
+     * Test creating a memory pool with a semaphore error
+     * This still returns success as there is no recourse, but there
+     * should be a syslog about it.
+     */
+    ES_UT_SetupMemPoolId(&PoolPtr);
+    OS_MutSemCreate(&PoolPtr->MutexId, "UT", 0);
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemDelete), 1, OS_ERROR);
+    PoolID1 = CFE_ES_MemPoolRecordGetID(PoolPtr);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_PoolDelete(PoolID1) == CFE_SUCCESS,
+              "CFE_ES_PoolDelete",
+              "Memory pool delete with semaphore delete error");
+
+
 
     /* Test initializing a pre-allocated pool specifying
      * the block size with one block size set to zero

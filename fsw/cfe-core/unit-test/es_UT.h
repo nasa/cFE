@@ -333,6 +333,7 @@ void TestCDSMempool(void);
 void TestESMempool(void);
 
 void TestSysLog(void);
+void TestResourceID(void);
 void TestGenericCounterAPI(void);
 void TestGenericPool(void);
 void TestLibs(void);

@@ -63,6 +63,24 @@
 
 
 /**
+ * @brief Locate the next resource ID which does not map to an in-use table entry
+ *
+ * This begins searching from StartId which should be the most recently issued ID
+ * for the resource category.  This will then search for the next ID which does
+ * _not_ map to a table entry that is in use.  That is, it does not alias any
+ * valid ID when converted to an array index.
+ *
+ * returns an undefined ID value if no open slots are available
+ *
+ * @param[in]   StartId   the last issued ID for the resource category (app, lib, etc).
+ * @returns     Next ID value which does not map to a valid entry
+ * @retval      #CFE_ES_RESOURCEID_UNDEFINED if no open slots.
+ *
+ */
+CFE_ES_ResourceID_t CFE_ES_FindNextAvailableId(CFE_ES_ResourceID_t StartId, uint32 TableSize);
+
+
+/**
  * @brief Locate the app table entry correlating with a given app ID.
  *
  * This only returns a pointer to the table entry and does _not_
