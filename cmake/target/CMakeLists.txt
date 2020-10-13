@@ -47,6 +47,8 @@ file (REMOVE "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp")
 add_executable(core-${TGTNAME} src/target_config.c)
 
 target_compile_definitions(core-${TGTNAME} PRIVATE 
+    CFE_DEFAULT_MODULE_EXTENSION="${CMAKE_SHARED_MODULE_SUFFIX}"
+    CFE_DEFAULT_CORE_FILENAME="$<TARGET_FILE_NAME:core-${TGTNAME}>"
     CFE_CPU_NAME_VALUE="${TGTNAME}"
     CFE_SPACECRAFT_ID_VALUE=${SPACECRAFT_ID}
     CFE_CPU_ID_VALUE=${${TGTNAME}_PROCESSORID}
