@@ -10,6 +10,11 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.7.0+dev298
+
+- Revision version number now reports 99 during development versions. ES Housekeeping data reports 6.7.99 in the version string.
+- See <https://github.com/nasa/cFE/pull/853>
+
 ### Development Build: 6.7.0+dev292
 
 - Add missing include path to the target/h and wrn/coreip directory.
@@ -27,7 +32,7 @@ Remove unrelated comment about CEXP (remnant from RTEMS). No more errors about m
   - All parameters to the stub function are registered in the context object, so the values will be available to hook functions.
   - The names of all parameters match the prototype/documentation, so hook functions that use name-based argument value retrieval will work.
 -  Adds to table search path in `arch_build.cmake`
-- Calls to OS_open() now use the OSAL-defined symbol, not the POSIX symbol. 
+- Calls to OS_open() now use the OSAL-defined symbol, not the POSIX symbol.
 -  Defines new macros to report the build number and build baseline and new strings containing the version number of cFE and a combined string with the version number for OSAL, PSP, and CFE.
 - Allow explicitly setting of the processor ID in `targets.cmake`. The `TGTx_PROCESSOR_ID` setting will be passed to the final build/link of CFE core as the CPU ID. If unspecified, then the CMake index value is used instead (backward compatible).
 - `cmake` now detects conditions where no files were present to fulfill an config include file requirement and reports an error during `make prep` lists the files it checked for rather than generating an empty file.
@@ -39,7 +44,7 @@ Remove unrelated comment about CEXP (remnant from RTEMS). No more errors about m
 - Added cFE User's Guide Reference to README.md
 - Removes old license
 - See <https://github.com/nasa/cFE/pull/743>
- 
+
 ### Development Build: 6.7.20
 
 - SB Unit use of the UT assert framework is closer to original design intent
