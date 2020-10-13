@@ -292,7 +292,7 @@ extern int32 CFE_TIME_CleanUpApp(CFE_ES_ResourceID_t AppId);
 **
 ** \param[in, out]   HandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle. *HandlePtr is the handle of the CDS block that can be used in #CFE_ES_CopyToCDS and #CFE_ES_RestoreFromCDS.
 **
-** \param[in]   BlockSize   The number of bytes needed in the CDS.
+** \param[in]   UserBlockSize   The number of bytes needed in the CDS.
 **
 ** \param[in]   Name        Pointer to character string containing the Application's local name for
 **                          the CDS.
@@ -303,7 +303,7 @@ extern int32 CFE_TIME_CleanUpApp(CFE_ES_ResourceID_t AppId);
 ** \return See return codes for #CFE_ES_RegisterCDS
 **
 ******************************************************************************/
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name, bool CriticalTbl);
+int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t UserBlockSize, const char *Name, bool CriticalTbl);
 
 /*****************************************************************************/
 /**

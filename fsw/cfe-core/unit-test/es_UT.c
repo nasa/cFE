@@ -40,11 +40,11 @@
 */
 #include "es_UT.h"
 
+#define ES_UT_CDS_BLOCK_SIZE        16
+
 extern CFE_ES_PerfData_t     *Perf;
 extern CFE_ES_Global_t       CFE_ES_Global;
-extern CFE_ES_CDSBlockDesc_t CFE_ES_CDSBlockDesc;
 extern CFE_ES_TaskData_t     CFE_ES_TaskData;
-extern CFE_ES_CDSPool_t      CFE_ES_CDSMemPool;
 
 extern int32 dummy_function(void);
 
@@ -77,6 +77,7 @@ char StartupScript[MAX_STARTUP_SCRIPT];
 /* Number of apps instantiated */
 uint32 ES_UT_NumApps;
 uint32 ES_UT_NumPools;
+uint32 ES_UT_NumCDS;
 
 static const UT_TaskPipeDispatchId_t  UT_TPID_CFE_ES_CMD_NOOP_CC =
 {
@@ -244,6 +245,13 @@ CFE_ES_MemHandle_t ES_UT_MakePoolIdForIndex(uint32 ArrayIdx)
     return CFE_ES_ResourceID_FromInteger(ArrayIdx + CFE_ES_POOLID_BASE);
 }
 
+CFE_ES_ResourceID_t ES_UT_MakeCDSIdForIndex(uint32 ArrayIdx)
+{
+    /* UT hack - make up CDSID values in a manner similar to FSW.
+     * Real apps should never do this. */
+    return CFE_ES_ResourceID_FromInteger(ArrayIdx + CFE_ES_CDSBLOCKID_BASE);
+}
+
 /*
  * Helper function to setup a single app ID in the given state, along with
  * a main task ID.  A pointer to the App and Task record is output so the
@@ -366,6 +374,21 @@ int32 ES_UT_PoolIndirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOff
     return CFE_SUCCESS;
 }
 
+int32 ES_UT_CDSPoolRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+        CFE_ES_GenPoolBD_t **BdPtr)
+{
+    static CFE_ES_GenPoolBD_t BdBuf;
+
+    *BdPtr = &BdBuf;
+    return CFE_PSP_ReadFromCDS(&BdBuf, Offset, sizeof(BdBuf));
+}
+
+int32 ES_UT_CDSPoolCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+        const CFE_ES_GenPoolBD_t *BdPtr)
+{
+    return CFE_PSP_WriteToCDS(BdPtr, Offset, sizeof(*BdPtr));
+}
+
 void ES_UT_SetupMemPoolId(CFE_ES_MemPoolRecord_t **OutPoolRecPtr)
 {
     CFE_ES_MemHandle_t UtPoolID;
@@ -392,22 +415,68 @@ void ES_UT_SetupMemPoolId(CFE_ES_MemPoolRecord_t **OutPoolRecPtr)
     {
         *OutPoolRecPtr = LocalPoolRecPtr;
     }
-
 }
 
-void ES_UT_SetupSingleCDSRegistry(const char *CDSName, bool IsTable,
+void ES_UT_SetupCDSGlobal(uint32 CDS_Size)
+{
+    CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+
+    UT_SetCDSSize(CDS_Size);
+
+    if (CDS_Size > CDS_RESERVED_MIN_SIZE)
+    {
+        OS_MutSemCreate(&CDS->GenMutex, "UT", 0);
+        CDS->TotalSize = CDS_Size;
+        CDS->DataSize = CDS->TotalSize;
+        CDS->DataSize -= CDS_RESERVED_MIN_SIZE;
+
+        CFE_ES_InitCDSSignatures();
+        CFE_ES_CreateCDSPool(CDS->DataSize, CDS_POOL_OFFSET);
+        CFE_ES_InitCDSRegistry();
+
+        CFE_ES_Global.CDSIsAvailable = true;
+    }
+}
+
+
+void ES_UT_SetupSingleCDSRegistry(const char *CDSName, CFE_ES_MemOffset_t BlockSize, bool IsTable,
         CFE_ES_CDS_RegRec_t **OutRegRec)
 {
     CFE_ES_CDS_RegRec_t *LocalRegRecPtr;
+    CFE_ES_ResourceID_t UtCDSID;
+    CFE_ES_GenPoolBD_t LocalBD;
+    uint32 UT_CDS_BufferSize;
 
-    /*
-     * Note - because the "ES_ResetUnitTest()" routine wipes the entire
-     * global data structure, this runtime var needs to be re-initialized.
-     */
-    CFE_ES_Global.CDSVars.MaxNumRegEntries =
-            sizeof(CFE_ES_Global.CDSVars.Registry) / sizeof(CFE_ES_CDS_RegRec_t);
 
-    LocalRegRecPtr = &CFE_ES_Global.CDSVars.Registry[0];
+    /* first time this is done, set up the global */
+    if (ES_UT_NumCDS == 0 && CFE_ES_Global.CDSVars.Pool.TailPosition == 0)
+    {
+        UT_GetDataBuffer(UT_KEY(CFE_PSP_GetCDSSize), NULL, &UT_CDS_BufferSize, NULL);
+        if (UT_CDS_BufferSize > (2*CFE_ES_CDS_SIGNATURE_LEN))
+        {
+            /* Use the CDS buffer from ut_support.c if it was configured */
+            CFE_ES_Global.CDSVars.Pool.PoolMaxOffset = UT_CDS_BufferSize - CFE_ES_CDS_SIGNATURE_LEN;
+            CFE_ES_Global.CDSVars.Pool.Retrieve = ES_UT_CDSPoolRetrieve;
+            CFE_ES_Global.CDSVars.Pool.Commit = ES_UT_CDSPoolCommit;
+        }
+        else
+        {
+            CFE_ES_Global.CDSVars.Pool.PoolMaxOffset = sizeof(UT_MemPoolIndirectBuffer.Data);
+            CFE_ES_Global.CDSVars.Pool.Retrieve = ES_UT_PoolIndirectRetrieve;
+            CFE_ES_Global.CDSVars.Pool.Commit = ES_UT_PoolIndirectCommit;
+        }
+
+        CFE_ES_Global.CDSVars.Pool.Buckets[0].BlockSize = ES_UT_CDS_BLOCK_SIZE;
+        CFE_ES_Global.CDSVars.Pool.NumBuckets = 1;
+        CFE_ES_Global.CDSVars.Pool.TailPosition = CFE_ES_CDS_SIGNATURE_LEN;
+        CFE_ES_Global.CDSVars.Pool.PoolTotalSize = CFE_ES_Global.CDSVars.Pool.PoolMaxOffset -
+                CFE_ES_Global.CDSVars.Pool.TailPosition;
+    }
+
+    UtCDSID = ES_UT_MakeCDSIdForIndex(ES_UT_NumCDS);
+    ++ES_UT_NumCDS;
+
+    LocalRegRecPtr = CFE_ES_LocateCDSBlockRecordByID(UtCDSID);
     if (CDSName != NULL)
     {
         strncpy(LocalRegRecPtr->Name, CDSName,
@@ -418,11 +487,22 @@ void ES_UT_SetupSingleCDSRegistry(const char *CDSName, bool IsTable,
     {
         LocalRegRecPtr->Name[0] = 0;
     }
-    LocalRegRecPtr->Taken = true;
-    LocalRegRecPtr->Table = IsTable;
 
-    LocalRegRecPtr->MemHandle =
-        sizeof(CFE_ES_Global.CDSVars.ValidityField);
+    LocalRegRecPtr->Table = IsTable;
+    LocalRegRecPtr->BlockOffset = CFE_ES_Global.CDSVars.Pool.TailPosition + sizeof(LocalBD);
+    LocalRegRecPtr->BlockSize = BlockSize;
+
+    LocalBD.CheckBits = CFE_ES_CHECK_PATTERN;
+    LocalBD.Allocated = CFE_ES_MEMORY_ALLOCATED + 1;
+    LocalBD.ActualSize = BlockSize;
+    LocalBD.NextOffset = 0;
+    CFE_ES_Global.CDSVars.Pool.Commit(&CFE_ES_Global.CDSVars.Pool,
+            CFE_ES_Global.CDSVars.Pool.TailPosition,
+            &LocalBD);
+
+    CFE_ES_Global.CDSVars.Pool.TailPosition = LocalRegRecPtr->BlockOffset + LocalRegRecPtr->BlockSize;
+
+    CFE_ES_CDSBlockRecordSetUsed(LocalRegRecPtr, UtCDSID);
 
     if (OutRegRec)
     {
@@ -534,6 +614,7 @@ void ES_ResetUnitTest(void)
     memset(&CFE_ES_Global, 0, sizeof(CFE_ES_Global));
     ES_UT_NumApps = 0;
     ES_UT_NumPools = 0;
+    ES_UT_NumCDS = 0;
 } /* end ES_ResetUnitTest() */
 
 void TestInit(void)
@@ -3302,7 +3383,8 @@ void TestTask(void)
 
     /* Test failed deletion of specified CDS */
     ES_ResetUnitTest();
-    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, false, &UtCDSRegRecPtr);
+    UtCDSRegRecPtr->BlockOffset = 0xFFFFFFFF;  /* Fails validation in PutBuf */
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy(CmdBuf.DeleteCDSCmd.Payload.CdsName,
             "CFE_ES.CDS_NAME",
@@ -3317,7 +3399,7 @@ void TestTask(void)
     /* Test failed deletion of specified critical table CDS */
     /* NOTE - reuse command from previous test */
     ES_ResetUnitTest();
-    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", true, NULL);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, true, NULL);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DeleteCDS_t),
             UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3328,13 +3410,9 @@ void TestTask(void)
     /* Test successful deletion of a specified CDS */
     ES_ResetUnitTest();
     UT_SetCDSSize(0); /* defeats the "ReadFromCDS" and causes it to use the value here */
-    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, false, NULL);
 
     /* Set up the block to read what we need to from the CDS */
-    CFE_ES_CDSBlockDesc.CheckBits = CFE_ES_CDS_CHECK_PATTERN;
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
-    CFE_ES_CDSBlockDesc.ActualSize =  512;
-    CFE_ES_CDSBlockDesc.SizeUsed =  512;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DeleteCDS_t),
             UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3344,7 +3422,7 @@ void TestTask(void)
 
     /* Test deletion of a specified CDS with the owning app being active */
     ES_ResetUnitTest();
-    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, false, NULL);
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DeleteCDS_t),
             UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
@@ -3355,9 +3433,9 @@ void TestTask(void)
 
     /* Test deletion of a specified CDS with the name not found */
     ES_ResetUnitTest();
-    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, &UtCDSRegRecPtr);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, false, &UtCDSRegRecPtr);
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_BAD", NULL, NULL);
-    UtCDSRegRecPtr->Taken = false;
+    CFE_ES_CDSBlockRecordSetFree(UtCDSRegRecPtr);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DeleteCDS_t),
             UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3401,7 +3479,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
-    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, false, NULL);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DumpCDSRegistry_t),
             UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3438,22 +3516,6 @@ void TestTask(void)
               UT_EventIsInHistory(CFE_ES_CC1_ERR_EID),
               "CFE_ES_TaskPipe",
               "Invalid ground command");
-
-    /* Test locking the CDS registry with a mutex take failure */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_LockCDSRegistry() == OS_ERROR,
-              "CFE_ES_LockCDSRegistry",
-              "Mutex take failed");
-
-    /* Test unlocking the CDS registry with a mutex give failure */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 1, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_UnlockCDSRegistry() == OS_ERROR,
-              "CFE_ES_UnlockCDSRegistry",
-              "Mutex give failed");
 
     /* Test sending a no-op command with an invalid command length */
     ES_ResetUnitTest();
@@ -3717,7 +3779,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", false, NULL);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, false, NULL);
     strncpy(CmdBuf.DumpCDSRegCmd.Payload.DumpFilename, "DumpFile",
             sizeof(CmdBuf.DumpCDSRegCmd.Payload.DumpFilename));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DumpCDSRegistry_t),
@@ -5124,30 +5186,95 @@ void TestCDS()
     uint8 *CdsPtr;
     char CDSName[CFE_ES_CDS_MAX_FULL_NAME_LEN + 4];
     CFE_ES_CDSHandle_t CDSHandle;
+    CFE_ES_CDS_RegRec_t *UtCDSRegRecPtr;
     uint32 i;
     uint32 TempSize;
+    uint8 BlockData[ES_UT_CDS_BLOCK_SIZE];
 
     UtPrintf("Begin Test CDS");
+
+    /* Test init with a mutex create failure */
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDS_EarlyInit() == CFE_STATUS_EXTERNAL_RESOURCE_FAIL,
+              "CFE_ES_CDS_EarlyInit",
+              "Mutex create failed");
+
+    /* Test locking the CDS registry with a mutex take failure */
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_LockCDS() == CFE_STATUS_EXTERNAL_RESOURCE_FAIL,
+              "CFE_ES_LockCDS",
+              "Mutex take failed");
+
+    /* Test unlocking the CDS registry with a mutex give failure */
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 1, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_UnlockCDS() == CFE_STATUS_EXTERNAL_RESOURCE_FAIL,
+              "CFE_ES_UnlockCDS",
+              "Mutex give failed");
 
     /* Set up the PSP stubs for CDS testing */
     UT_SetCDSSize(128 * 1024);
 
+    /* Test the CDS Cache Fetch/Flush/Load routine error cases */
+    ES_ResetUnitTest();
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDS_CacheFetch(&CFE_ES_Global.CDSVars.Cache,
+                      4,
+                      0) == CFE_ES_CDS_INVALID_SIZE,
+              "CFE_ES_CDS_CacheFetch",
+              "Invalid Size");
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDS_CacheFlush(&CFE_ES_Global.CDSVars.Cache) == CFE_ES_CDS_INVALID_SIZE,
+              "CFE_ES_CDS_CacheFlush",
+              "Invalid Size");
+
+    UT_Report(__FILE__, __LINE__,
+            CFE_ES_CDS_CachePreload(&CFE_ES_Global.CDSVars.Cache, NULL,
+                      4,
+                      0) == CFE_ES_CDS_INVALID_SIZE,
+              "CFE_ES_CDS_CachePreload",
+              "Invalid Size");
+    TempSize = 5;
+    UT_Report(__FILE__, __LINE__,
+            CFE_ES_CDS_CachePreload(&CFE_ES_Global.CDSVars.Cache, &TempSize,
+                      4,
+                      4) == CFE_SUCCESS,
+              "CFE_ES_CDS_CachePreload",
+              "Nominal");
+
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDS_CacheFetch(&CFE_ES_Global.CDSVars.Cache,
+                      4,
+                      4) == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_CDS_CacheFetch",
+              "Access error");
+
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDS_CacheFlush(&CFE_ES_Global.CDSVars.Cache) == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_CDS_CacheFlush",
+              "Access Error");
+
+
     /* Test CDS registering with a write CDS failure */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
-    UT_SetCDSSize(50000);
-    CFE_ES_InitializeCDS(50000);
+    ES_UT_SetupCDSGlobal(50000);
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name3") == OS_ERROR,
+              CFE_ES_RegisterCDS(&CDSHandle,
+                      4,
+                      "Name3") == CFE_ES_CDS_ACCESS_ERROR,
               "CFE_ES_RegisterCDS",
               "Writing to BSP CDS failure");
 
     /* Test successful CDS registering */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
-    UT_SetCDSSize(50000);
-    CFE_ES_InitializeCDS(50000);
+    ES_UT_SetupCDSGlobal(50000);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RegisterCDS(&CDSHandle, 4, "Name") == CFE_SUCCESS,
               "CFE_ES_RegisterCDS",
@@ -5156,9 +5283,7 @@ void TestCDS()
     /* Test CDS registering using an already registered name */
     /* No reset here -- just attempt to register the same name again */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle,
-                                 4,
-                                 "Name") == CFE_ES_CDS_ALREADY_EXISTS,
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name") == CFE_ES_CDS_ALREADY_EXISTS,
               "CFE_ES_RegisterCDS",
               "Retrieve existing CDS");
 
@@ -5177,9 +5302,7 @@ void TestCDS()
 
     /* Test CDS registering with a block size of zero */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle,
-                                 0,
-                                 "Name") == CFE_ES_CDS_INVALID_SIZE,
+              CFE_ES_RegisterCDS(&CDSHandle, 0, "Name") == CFE_ES_CDS_INVALID_SIZE,
               "CFE_ES_RegisterCDS",
               "Block size zero");
 
@@ -5187,28 +5310,25 @@ void TestCDS()
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle,
-                                 4,
-                                 "Name") == CFE_ES_NOT_IMPLEMENTED,
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name") == CFE_ES_NOT_IMPLEMENTED,
               "CFE_ES_RegisterCDS",
               "No memory pool available");
 
     /* Test CDS registering with all the CDS registries taken */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
-    UT_SetCDSSize(50000);
-    CFE_ES_InitializeCDS(50000);
+    ES_UT_SetupCDSGlobal(50000);
 
     /* Set all the CDS registries to 'taken' */
-    for (i = 0; i < CFE_ES_Global.CDSVars.MaxNumRegEntries; i++)
+    UtCDSRegRecPtr = CFE_ES_Global.CDSVars.Registry;
+    for (i = 0; i < CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES; i++)
     {
-        CFE_ES_Global.CDSVars.Registry[i].Taken = true;
+        CFE_ES_CDSBlockRecordSetUsed(UtCDSRegRecPtr, CFE_ES_RESOURCEID_RESERVED);
+        ++UtCDSRegRecPtr;
     }
 
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle,
-                                 4,
-                                 "Name2") == CFE_ES_CDS_REGISTRY_FULL,
+              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name2") == CFE_ES_CDS_REGISTRY_FULL,
               "CFE_ES_RegisterCDS",
               "No available entries");
 
@@ -5219,34 +5339,39 @@ void TestCDS()
               "CFE_ES_RegisterCDS",
               "Bad application ID");
 
-    /* Register CDS to set up for the copy test */
-    ES_ResetUnitTest();
-    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
-    UT_SetCDSSize(50000);
-    CFE_ES_InitializeCDS(50000);
+    /* Test copying to CDS with bad handle */
+    CDSHandle = CFE_ES_RESOURCEID_UNDEFINED;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RegisterCDS(&CDSHandle, 4, "Name") == CFE_SUCCESS,
-              "CFE_ES_RegisterCDS",
-              "Register CDS successful (set up for copy test)");
+              CFE_ES_CopyToCDS(CDSHandle, &TempSize) == CFE_ES_RESOURCE_ID_INVALID,
+              "CFE_ES_CopyToCDS",
+              "Copy to CDS bad handle");
+    /* Test restoring from a CDS with bad handle */
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_RestoreFromCDS(&TempSize, CDSHandle) == CFE_ES_RESOURCE_ID_INVALID,
+              "CFE_ES_RestoreFromCDS",
+              "Restore from CDS bad handle");
 
-    /* Test successfully copying to CDS */
+
+    /* Test successfully copying to a CDS */
+    ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_SUCCESS);
+    ES_UT_SetupSingleCDSRegistry("UT", ES_UT_CDS_BLOCK_SIZE, false, &UtCDSRegRecPtr);
+    CDSHandle = CFE_ES_CDSBlockRecordGetID(UtCDSRegRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CopyToCDS(CDSHandle, &TempSize) == CFE_SUCCESS,
+              CFE_ES_CopyToCDS(CDSHandle, &BlockData) == CFE_SUCCESS,
               "CFE_ES_CopyToCDS",
               "Copy to CDS successful");
 
     /* Test successfully restoring from a CDS */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RestoreFromCDS(&TempSize, CDSHandle) == CFE_SUCCESS,
+              CFE_ES_RestoreFromCDS(&BlockData, CDSHandle) == CFE_SUCCESS,
               "CFE_ES_RestoreFromCDS",
               "Restore from CDS successful");
 
     /* Test CDS registering using a name longer than the maximum allowed */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
-    UT_SetCDSSize(50000);
-    CFE_ES_InitializeCDS(50000);
+    ES_UT_SetupCDSGlobal(50000);
 
     for (i = 0; i < CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + 1; i++)
     {
@@ -5264,7 +5389,14 @@ void TestCDS()
     /* Test unsuccessful CDS registering */
     UT_Report(__FILE__, __LINE__,
              CFE_ES_RegisterCDS(&CDSHandle,
-                                 0xffffffff,
+                     CDS_ABS_MAX_BLOCK_SIZE+1,
+                                 "Name") == CFE_ES_CDS_INVALID_SIZE,
+              "CFE_ES_RegisterCDS",
+              "Register CDS unsuccessful");
+
+    UT_Report(__FILE__, __LINE__,
+             CFE_ES_RegisterCDS(&CDSHandle,
+                     CDS_ABS_MAX_BLOCK_SIZE-1,
                                  "Name") == CFE_ES_ERR_MEM_BLOCK_SIZE,
               "CFE_ES_RegisterCDS",
               "Register CDS unsuccessful");
@@ -5288,7 +5420,7 @@ void TestCDS()
     /* Test CDS registry initialization with a CDS write failure */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, -1);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_InitCDSRegistry() == -1,
+              CFE_ES_InitCDSRegistry() == CFE_ES_CDS_ACCESS_ERROR,
               "CFE_ES_InitCDSRegistry",
               "Failed to write registry size");
 
@@ -5303,7 +5435,7 @@ void TestCDS()
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, -1);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDS_EarlyInit() == -1,
+              CFE_ES_CDS_EarlyInit() == CFE_ES_CDS_ACCESS_ERROR,
               "CFE_ES_CDS_EarlyInit",
               "Unrecoverable read error");
 
@@ -5311,7 +5443,7 @@ void TestCDS()
     ES_ResetUnitTest();
     UT_SetCDSSize(1024);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDS_EarlyInit() == OS_SUCCESS &&
+              CFE_ES_CDS_EarlyInit() == CFE_SUCCESS &&
               UT_GetStubCount(UT_KEY(CFE_PSP_GetCDSSize)) == 1,
               "CFE_ES_CDS_EarlyInit",
               "CDS size less than minimum");
@@ -5325,88 +5457,110 @@ void TestCDS()
               "Unable to obtain CDS size");
 
     /* Reset back to a sufficient CDS size */
-    UT_SetCDSSize(128 * 1024);
+    UT_SetCDSSize(128*1024);
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void**)&CdsPtr, &CdsSize, NULL);
 
     /* Test CDS initialization with rebuilding not possible */
     ES_ResetUnitTest();
-    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void**)&CdsPtr, &CdsSize, NULL);
-    memcpy(CdsPtr, "_CDSBeg_", 8);
-    memcpy(CdsPtr + CdsSize - 8, "_CDSEnd_", 8);
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 3, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDS_EarlyInit() == OS_SUCCESS,
+              CFE_ES_CDS_EarlyInit() == CFE_SUCCESS,
               "CFE_ES_CDS_EarlyInit",
               "Rebuilding not possible; create new CDS");
 
+    /* Test CDS validation with first CDS read call failure */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_ValidateCDS() == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_ValidateCDS",
+              "CDS read (first call) failed");
+
     /* Test CDS validation with second CDS read call failure */
-    ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 2, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ValidateCDS() == OS_ERROR,
+              CFE_ES_ValidateCDS() == CFE_ES_CDS_ACCESS_ERROR,
               "CFE_ES_ValidateCDS",
               "CDS read (second call) failed");
 
     /* Test CDS validation with CDS read end check failure */
-    ES_ResetUnitTest();
-    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void**)&CdsPtr, &CdsSize, NULL);
-    CFE_ES_Global.CDSVars.CDSSize = CdsSize;
-    memcpy(CdsPtr + CdsSize - 8, "gibberish", 8);
+    memset(CdsPtr + CdsSize - CFE_ES_CDS_SIGNATURE_LEN, 'x', CFE_ES_CDS_SIGNATURE_LEN);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_ValidateCDS() == CFE_ES_CDS_INVALID,
               "CFE_ES_ValidateCDS",
               "Reading from CDS failed end check");
 
-    /* Test CDS validation with first CDS read call failure */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, -1);
+    /* Test CDS validation with CDS read begin check failure */
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void**)&CdsPtr, &CdsSize, NULL);
+    memset(CdsPtr, 'x', CFE_ES_CDS_SIGNATURE_LEN);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ValidateCDS() == -1,
+              CFE_ES_ValidateCDS() == CFE_ES_CDS_INVALID,
               "CFE_ES_ValidateCDS",
-              "CDS read (first call) failed");
+              "Reading from CDS failed begin check");
 
     /* Test CDS initialization where first write call to the CDS fails */
-    ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_InitializeCDS(128 * 1024) == OS_ERROR,
-              "CFE_ES_InitializeCDS",
-              "Clear CDS failed");
+              CFE_ES_InitCDSSignatures() == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_InitCDSSignatures",
+              "CDS write (first call) failed");
 
     /* Test CDS initialization where second write call to the CDS fails */
-    /* Note - the PSP is zeroed by writing 4x uint32 values.  The 2nd
-     * call in the source code will be the 5th call to the PSP function. */
-    ES_ResetUnitTest();
-    UT_SetCDSSize(16);
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 5, OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_InitializeCDS(16) == OS_ERROR,
-              "CFE_ES_InitializeCDS",
+              CFE_ES_InitCDSSignatures() == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_InitCDSSignatures",
               "CDS write (second call) failed");
 
-    /* Test CDS initialization where third write call to the CDS fails */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 6, OS_ERROR);
+    /* Test CDS clear where write call to the CDS fails */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_InitializeCDS(16) == OS_ERROR,
-              "CFE_ES_InitializeCDS",
-              "CDS write (third call) failed");
+              CFE_ES_ClearCDS() == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_ClearCDS",
+              "CDS write failed");
 
-    /* Test rebuilding the CDS where the registry is too large */
+    /* Test rebuilding the CDS where the registry is not the same size */
     ES_ResetUnitTest();
-    UT_SetCDSSize(0);
-    CFE_ES_Global.CDSVars.MaxNumRegEntries = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES + 1;
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void**)&CdsPtr, &CdsSize, NULL);
+    TempSize = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES + 1;
+    memcpy(CdsPtr + CDS_REG_SIZE_OFFSET, &TempSize, sizeof(TempSize));
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RebuildCDS() == CFE_ES_CDS_INVALID,
               "CFE_ES_RebuildCDS",
               "Registry too large to recover");
 
+    /* Test clearing CDS where size is an odd number (requires partial write) */
+    ES_ResetUnitTest();
+    CFE_ES_Global.CDSVars.TotalSize = 53;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_ClearCDS() == CFE_SUCCESS,
+              "CFE_ES_ClearCDS",
+              "CDS write failed");
+
+    /*
+     * To prepare for the rebuild tests, set up a clean area in PSP mem,
+     * and make a registry entry.
+     */
+    ES_UT_SetupCDSGlobal(50000);
+    ES_UT_SetupSingleCDSRegistry("UT", 8, false, &UtCDSRegRecPtr);
+    UtAssert_NONZERO(UtCDSRegRecPtr->BlockOffset);
+    UtAssert_NONZERO(UtCDSRegRecPtr->BlockSize);
+    UtAssert_INT32_EQ(CFE_ES_UpdateCDSRegistry(), CFE_SUCCESS);
+
     /* Test successfully rebuilding the CDS */
     ES_ResetUnitTest();
-    CFE_ES_Global.CDSVars.MaxNumRegEntries = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES - 4;
+
+    /* The reset would have cleared the registry data */
+    UtAssert_ZERO(UtCDSRegRecPtr->BlockOffset);
+    UtAssert_ZERO(UtCDSRegRecPtr->BlockSize);
+
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RebuildCDS() == CFE_SUCCESS,
+            CFE_ES_CDS_EarlyInit() == CFE_SUCCESS,
               "CFE_ES_RebuildCDS",
               "CDS rebuild successful");
+
+    /* Check that the registry entry exists again (was recovered) */
+    UtAssert_NONZERO(UtCDSRegRecPtr->BlockOffset);
+    UtAssert_NONZERO(UtCDSRegRecPtr->BlockSize);
 
     /* Test rebuilding the CDS with the registry unreadable */
     ES_ResetUnitTest();
@@ -5418,13 +5572,15 @@ void TestCDS()
 
     /* Test deleting the CDS from the registry with a registry write failure */
     ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.CheckBits = CFE_ES_CDS_CHECK_PATTERN;
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
-    CFE_ES_CDSBlockDesc.ActualSize =  512;
-    ES_UT_SetupSingleCDSRegistry("NO_APP.CDS_NAME", true, NULL);
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
+    ES_UT_SetupSingleCDSRegistry("NO_APP.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, true, NULL);
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_DeleteCDS("NO_APP.CDS_NAME", true) == -1,
+              "CFE_ES_DeleteCDS",
+              "CDS block descriptor write failed");
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_DeleteCDS("NO_APP.CDS_NAME", true) == CFE_ES_CDS_ACCESS_ERROR,
               "CFE_ES_DeleteCDS",
               "CDS registry write failed");
 
@@ -5432,7 +5588,7 @@ void TestCDS()
      * still active
      */
     ES_ResetUnitTest();
-    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", true, NULL);
+    ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, true, NULL);
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_DeleteCDS("CFE_ES.CDS_NAME", true) ==
@@ -5440,13 +5596,13 @@ void TestCDS()
               "CFE_ES_DeleteCDS",
               "Owner application still active");
 
+    /*
+     * To prepare for the rebuild tests, set up a clean area in PSP mem
+     */
+    ES_UT_SetupCDSGlobal(128 * 1024);
+
     /* Test CDS initialization where rebuilding the CDS is successful */
     ES_ResetUnitTest();
-    CdsSize = 128 * 1024;
-    CdsPtr = UT_SetCDSSize(128 * 1024);
-    memcpy(CdsPtr, "_CDSBeg_", 8);
-    memcpy(CdsPtr + CdsSize - 8, "_CDSEnd_", 8);
-    CFE_ES_Global.CDSVars.MaxNumRegEntries = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES - 4;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CDS_EarlyInit() == CFE_SUCCESS,
               "CFE_ES_CDS_EarlyInit",
@@ -5455,457 +5611,206 @@ void TestCDS()
     /* Test CDS initialization where rebuilding the CDS is unsuccessful */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 3, OS_ERROR);
-    CFE_ES_Global.CDSVars.MaxNumRegEntries = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES - 4;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CDS_EarlyInit() == CFE_SUCCESS,
               "CFE_ES_CDS_EarlyInit",
               "Initialization with unsuccessful rebuild");
 
-    /* Test CDS initialization where write call to the CDS fails while filling
-     * in extra uint32 space
-     */
+    /* Test CDS initialization where initializing the CDS registry fails */
     ES_ResetUnitTest();
-    UT_SetCDSSize(0);
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 5, OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_InitializeCDS(32 * 4 - 4) == OS_ERROR,
-              "CFE_ES_InitializeCDS",
-              "CDS write failed while filling extra space");
+            CFE_ES_InitCDSRegistry() == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_InitCDSRegistry",
+              "CDS registry write size failed");
 
-    /* Test CDS initialization where creating the CDS pool fails */
-    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_InitializeCDS(sizeof(CFE_ES_Global.CDSVars.ValidityField)) ==
-                                     CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_InitializeCDS",
-              "CDS pool create failed");
+            CFE_ES_InitCDSRegistry() == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_InitCDSRegistry",
+              "CDS registry write content failed");
 
     /* Test deleting the CDS from the registry with a CDS name longer than the
      * maximum allowed
      */
     ES_ResetUnitTest();
-    memset(CDSName, 'a', CFE_ES_CDS_MAX_FULL_NAME_LEN - 1);
-    CDSName[CFE_ES_CDS_MAX_FULL_NAME_LEN - 1] = '\0';
-    ES_UT_SetupSingleCDSRegistry(CDSName, true, NULL);
+    memset(CDSName, 'a', sizeof(CDSName) - 1);
+    CDSName[sizeof(CDSName) - 1] = '\0';
+    ES_UT_SetupSingleCDSRegistry(CDSName, ES_UT_CDS_BLOCK_SIZE, true, NULL);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_DeleteCDS(CDSName,
-                               true) == CFE_ES_ERR_MEM_HANDLE,
+                               true) == CFE_ES_CDS_NOT_FOUND_ERR,
               "CFE_ES_DeleteCDS",
               "CDS name too long");
 } /* End TestCDS */
 
 void TestCDSMempool(void)
 {
-    uint32                  MinCDSSize = CFE_ES_CDS_MIN_BLOCK_SIZE +
-                                         sizeof(CFE_ES_CDSBlockDesc_t);
-    CFE_ES_CDSBlockHandle_t BlockHandle;
-    int                     Data;
-    uint32                  i;
-
-    extern uint32 CFE_ES_CDSMemPoolDefSize[];
+    CFE_ES_CDS_RegRec_t   *UtCdsRegRecPtr;
+    int                    Data;
+    CFE_ES_ResourceID_t    BlockHandle;
+    CFE_ES_CDS_Offset_t    SavedSize;
+    CFE_ES_CDS_Offset_t    SavedOffset;
+    uint8 *CdsPtr;
 
     UtPrintf("Begin Test CDS memory pool");
 
-    UT_SetCDSSize(0);
-
-    /* Set up the CDS block to read in the following tests */
-    CFE_ES_CDSBlockDesc.CheckBits = CFE_ES_CDS_CHECK_PATTERN;
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
-    CFE_ES_CDSBlockDesc.ActualSize =  512;
-    CFE_ES_CDSBlockDesc.SizeUsed =  512;
+    ES_UT_SetupCDSGlobal(0);
 
     /* Test creating the CDS pool with the pool size too small */
     ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CreateCDSPool(0, 0) == CFE_ES_BAD_ARGUMENT,
+              CFE_ES_CreateCDSPool(2, 1) == CFE_ES_CDS_INVALID_SIZE,
               "CFE_ES_CreateCDSPool",
               "CDS pool size too small");
 
     /* Test rebuilding the CDS pool with the pool size too small */
-    ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_RebuildCDSPool(0, 0) == CFE_ES_BAD_ARGUMENT,
+              CFE_ES_RebuildCDSPool(2, 1) == CFE_ES_CDS_INVALID_SIZE,
               "CFE_ES_RebuildCDSPool",
               "CDS pool size too small");
 
-    /* Test rebuilding the CDS pool with the CDS block unused */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 2, OS_ERROR);
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_UNUSED;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RebuildCDSPool(MinCDSSize, 0) == CFE_SUCCESS,
-              "CFE_ES_RebuildCDSPool",
-              "CDS block unused");
-
-    /* Test rebuilding the CDS pool with a CDS read failure */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_ReadFromCDS), -1);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RebuildCDSPool(MinCDSSize, 0) == CFE_ES_CDS_ACCESS_ERROR,
-              "CFE_ES_RebuildCDSPool",
-              "Error reading CDS");
-
-    /* Test rebuilding the CDS pool with a CDS write failure */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 2, OS_ERROR);
-    UT_SetForceFail(UT_KEY(CFE_PSP_WriteToCDS), OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RebuildCDSPool(MinCDSSize, 0) == CFE_ES_CDS_ACCESS_ERROR,
-              "CFE_ES_RebuildCDSPool",
-              "Error writing CDS");
-
-    /* Test rebuilding the CDS pool with a block not previously used */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.CheckBits = 1;
-
-    /* Set flags so as to fail on second CDS read */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_SUCCESS);
-    UT_SetForceFail(UT_KEY(CFE_PSP_ReadFromCDS), -1);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RebuildCDSPool(MinCDSSize, 1) == OS_SUCCESS,
-              "CFE_ES_RebuildCDSPool",
-              "CDS block not used before");
-    CFE_ES_CDSBlockDesc.CheckBits = CFE_ES_CDS_CHECK_PATTERN;
-
-    /* Test rebuilding the CDS pool with an invalid block descriptor */
-    ES_ResetUnitTest();
-    CFE_ES_CDSMemPoolDefSize[0] = 0;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RebuildCDSPool(MinCDSSize, 0) == CFE_ES_CDS_ACCESS_ERROR,
-              "CFE_ES_RebuildCDSPool",
-              "Invalid block descriptor");
-    CFE_ES_CDSMemPoolDefSize[0] = CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE;
-
-    /* Test successfully creating a pool where the offset = 0 */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CreateCDSPool(1000000, 0) == CFE_SUCCESS,
-              "CFE_ES_CreateCDSPool",
-              "Create with zero offset; successful");
-
-    /* Test allocating a CDS block with a block size error */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetCDSBlock(&BlockHandle,
-                                 800) == CFE_ES_ERR_MEM_BLOCK_SIZE,
-              "CFE_ES_GetCDSBlock",
-              "Block size error");
-
-    /* Test returning a CDS block to the memory pool using an invalid
-         block descriptor */
-    ES_ResetUnitTest();
-    BlockHandle = 0;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutCDSBlock(BlockHandle) == CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_PutCDSBlock",
-              "Invalid block descriptor");
-
-    /* Test creating a new pool and set up for getting a pre-made block */
-    ES_ResetUnitTest();
-    BlockHandle = 0;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CreateCDSPool(1000000, 8) == CFE_SUCCESS,
-              "CFE_ES_CreateCDSPool",
-              "Create with non-zero offset; successful");
-
-    /* Test successfully allocating a pre-made CDS block */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetCDSBlock(&BlockHandle, 800) == OS_SUCCESS,
-              "CFE_ES_GetCDSBlock",
-              "Get a CDS block; successful");
-
-    /* Test successfully returning a CDS block back to the memory pool */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutCDSBlock(BlockHandle) == OS_SUCCESS,
-              "CFE_ES_PutCDSBlock",
-              "Return a CDS block; successful");
-
-    /* Test allocating a CDS block with a CDS read failure */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, -1);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetCDSBlock(&BlockHandle, 800) == CFE_ES_CDS_ACCESS_ERROR,
-              "CFE_ES_GetCDSBlock",
-              "Error reading CDS");
-
-    /* Test allocating a CDS block with a CDS write failure */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_WriteToCDS), OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetCDSBlock(&BlockHandle, 800) == CFE_ES_CDS_ACCESS_ERROR,
-              "CFE_ES_GetCDSBlock",
-              "Error writing CDS");
-
-    /* Test allocating a CDS block using a block size that's too large */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetCDSBlock(&BlockHandle,
-                                 CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE + 1) ==
-                  CFE_ES_ERR_MEM_BLOCK_SIZE,
-              "CFE_ES_GetCDSBlock",
-              "Block size too large");
-
-    /* Test returning a CDS block to the memory pool with an
-     * invalid CDS handle
+    /* Test rebuilding CDS pool with CDS access errors */
+    /*
+     * To setup - Create a CDS registry and delete it, which creates
+     * a freed block in the pool.  Then attempt to rebuild.
      */
     ES_ResetUnitTest();
-    BlockHandle = sizeof(CFE_ES_Global.CDSVars.ValidityField) - 1;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutCDSBlock(BlockHandle) == CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_PutCDSBlock",
-              "Invalid CDS handle");
+    ES_UT_SetupCDSGlobal(50000);
+    SavedSize = CFE_ES_Global.CDSVars.TotalSize;
+    SavedOffset = CFE_ES_Global.CDSVars.Pool.TailPosition;
+    ES_UT_SetupSingleCDSRegistry("UT", sizeof(Data) + sizeof(CFE_ES_CDS_BlockHeader_t),
+            false, &UtCdsRegRecPtr);
+    UtAssert_NONZERO(UtCdsRegRecPtr->BlockOffset);
+    UtAssert_NONZERO(UtCdsRegRecPtr->BlockSize);
+    CFE_ES_DeleteCDS("UT",false);
+    UtAssert_INT32_EQ(CFE_ES_UpdateCDSRegistry(), CFE_SUCCESS);
 
-    /* Test returning a CDS block to the memory pool with a CDS read error */
+    /* Clear/reset the global state */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_ReadFromCDS), -1);
-    BlockHandle = 10;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutCDSBlock(BlockHandle) == CFE_ES_CDS_ACCESS_ERROR,
-              "CFE_ES_PutCDSBlock",
-              "Error reading CDS");
 
-    /* Test returning a CDS block to the memory pool with an invalid
-     * block descriptor
-     */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_UNUSED;
+    /* Test rebuilding the CDS pool with a descriptor retrieve error */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutCDSBlock(BlockHandle) == CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_PutCDSBlock",
-              "Invalid block descriptor");
+              CFE_ES_RebuildCDSPool(SavedSize, SavedOffset) == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_RebuildCDSPool",
+              "CDS descriptor retrieve error");
 
-    /* Test returning a CDS block to the memory pool with the block size
-     * too large
-     */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.ActualSize  = CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE + 1;
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
+    /* Test rebuilding the CDS pool with a descriptor commit error */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutCDSBlock(BlockHandle) == CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_PutCDSBlock",
-              "Invalid memory handle");
-
-    /* Test returning a CDS block to the memory pool with a CDS write error */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.ActualSize  = 452;
-    UT_SetForceFail(UT_KEY(CFE_PSP_WriteToCDS), OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutCDSBlock(BlockHandle) == CFE_ES_CDS_ACCESS_ERROR,
-              "CFE_ES_PutCDSBlock",
-              "Error writing CDS");
+              CFE_ES_RebuildCDSPool(SavedSize, SavedOffset) == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_RebuildCDSPool",
+              "CDS descriptor commit error");
 
     /* Test CDS block write using an invalid memory handle */
     ES_ResetUnitTest();
-    BlockHandle = 7;
+    BlockHandle = CFE_ES_ResourceID_FromInteger(7);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockWrite(BlockHandle,
-                                   &Data) == CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == CFE_ES_RESOURCE_ID_INVALID,
               "CFE_ES_CDSBlockWrite",
               "Invalid memory handle");
-    BlockHandle = 10;
-
-    /* Test CDS block write with the block size too large */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.ActualSize  = CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE + 1;
-    CFE_ES_CDSBlockDesc.CheckBits = CFE_ES_CDS_CHECK_PATTERN;
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockWrite(BlockHandle,
-                                   &Data) == CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_CDSBlockWrite",
-              "Actual size too large");
-    CFE_ES_CDSBlockDesc.ActualSize  = 452;
+              CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_RESOURCE_ID_INVALID,
+              "CFE_ES_CDSBlockRead",
+              "Invalid memory handle");
 
-    /* Test CDS block write using an invalid (unused) block */
+    /* Test CDS block access */
     ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_UNUSED;
+    ES_UT_SetupCDSGlobal(50000);
+    ES_UT_SetupSingleCDSRegistry("UT", sizeof(Data) + sizeof(CFE_ES_CDS_BlockHeader_t),
+            false, &UtCdsRegRecPtr);
+    BlockHandle = CFE_ES_CDSBlockRecordGetID(UtCdsRegRecPtr);
+    Data = 42;
+
+    /* Basic success path */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockWrite(BlockHandle,
-                                   &Data) == CFE_ES_ERR_MEM_HANDLE,
+              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == CFE_SUCCESS,
               "CFE_ES_CDSBlockWrite",
-              "Invalid CDS block");
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
+              "Nominal");
+    Data = 0;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_SUCCESS,
+              "CFE_ES_CDSBlockRead",
+              "Nominal");
 
-    /* Test CDS block write with a CDS write error (block descriptor) */
-    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(Data, 42);
+
+
+    /* Corrupt/change the block offset, should fail validation */
+    --UtCdsRegRecPtr->BlockOffset;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == CFE_ES_POOL_BLOCK_INVALID,
+              "CFE_ES_CDSBlockWrite",
+              "Block offset error");
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_POOL_BLOCK_INVALID,
+              "CFE_ES_CDSBlockRead",
+              "Block offset error");
+
+    ++UtCdsRegRecPtr->BlockOffset;
+
+    /* Corrupt/change the block size, should trigger invalid size error */
+    --UtCdsRegRecPtr->BlockSize;
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == CFE_ES_CDS_INVALID_SIZE,
+              "CFE_ES_CDSBlockWrite",
+              "Block size error");
+    UT_Report(__FILE__, __LINE__,
+            CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_CDS_INVALID_SIZE,
+              "CFE_ES_CDSBlockRead",
+              "Block size error");
+    ++UtCdsRegRecPtr->BlockSize;
+
+    /* Test CDS block read/write with a CDS read error (block descriptor) */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_CDSBlockWrite",
+              "Read error on descriptor");
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+              CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_CDSBlockRead",
+              "Read error on descriptor");
+
+
+    /* Test CDS block write with a CDS write error (block header) */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == OS_ERROR,
+              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == CFE_ES_CDS_ACCESS_ERROR,
               "CFE_ES_CDSBlockWrite",
-              "Error writing block descriptor to CDS");
+              "Write error on header");
 
-    /* Test CDS block write with a CDS write error (new data) */
-    ES_ResetUnitTest();
+    /* Test CDS block read with a CDS read error (block header) */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 2, OS_ERROR);
+    UT_Report(__FILE__, __LINE__,
+            CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_CDS_ACCESS_ERROR,
+              "CFE_ES_CDSBlockRead",
+              "Read error on header");
+
+    /* Test CDS block write with a CDS write error (data content) */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CDSBlockWrite(BlockHandle, &Data) == OS_ERROR,
               "CFE_ES_CDSBlockWrite",
-              "Error writing new data to CDS");
+              "Write error on content");
 
-    /* Test CDS block write with a CDS read error */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_ReadFromCDS), -1);
+    /* Test CDS block read with a CDS read error (data content) */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 3, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockWrite(BlockHandle, &Data) == OS_ERROR,
-              "CFE_ES_CDSBlockWrite",
-              "Error reading CDS");
-
-    /* Test CDS block read with an invalid memory handle */
-    ES_ResetUnitTest();
-    BlockHandle = 7;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_ERR_MEM_HANDLE,
+            CFE_ES_CDSBlockRead(&Data, BlockHandle) == OS_ERROR,
               "CFE_ES_CDSBlockRead",
-              "Invalid memory handle");
-    BlockHandle = 10;
+              "Read error on content");
 
-    /* Test CDS block read with the block size too large */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.ActualSize  = CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE + 1;
-    CFE_ES_CDSBlockDesc.CheckBits = CFE_ES_CDS_CHECK_PATTERN;
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
+    /* Corrupt the data as to cause a CRC mismatch */
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void**)&CdsPtr, NULL, NULL);
+    CdsPtr[UtCdsRegRecPtr->BlockOffset] ^= 0x02;  /* Bit flip */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_ERR_MEM_HANDLE,
+            CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_CDS_BLOCK_CRC_ERR,
               "CFE_ES_CDSBlockRead",
-              "Actual size too large");
-    CFE_ES_CDSBlockDesc.ActualSize = 452;
-
-    /* Test CDS block read using an invalid (unused) block */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_UNUSED;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockRead(&Data, BlockHandle) == CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_CDSBlockRead",
-              "Invalid CDS block");
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
-
-    /* Test CDS block read with a CRC mismatch */
-    ES_ResetUnitTest();
-    Data = CFE_ES_CDSBlockDesc.CRC;
-    CFE_ES_CDSBlockDesc.CRC = 56456464;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockRead(&Data,
-                                  BlockHandle) == CFE_ES_CDS_BLOCK_CRC_ERR,
-              "CFE_ES_CDSBlockRead",
-              "CRC doesn't match");
-    CFE_ES_CDSBlockDesc.CRC = Data;
-
-    /* Test CDS block read with a CDS read error (block descriptor) */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_ReadFromCDS), -1);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockRead(&Data, BlockHandle) == OS_ERROR,
-              "CFE_ES_CDSBlockRead",
-              "Error reading block descriptor from CDS");
-
-    /* Test CDS block read with a CDS read error (block data) */
-    ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_ReadFromCDS), -1);
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_SUCCESS);
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockRead(&Data, BlockHandle) == OS_ERROR,
-              "CFE_ES_CDSBlockRead",
-              "Error reading block data from CDS");
-
-    /* Test allocating a CDS block with a block size error (path 2)*/
-    ES_ResetUnitTest();
-    CFE_ES_CDSMemPool.Current = CFE_ES_CDSMemPool.End;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetCDSBlock(&BlockHandle,
-                                 800) == CFE_ES_ERR_MEM_BLOCK_SIZE,
-              "CFE_ES_GetCDSBlock",
-              "Block size error (second path)");
-
-    /* Test rebuilding the CDS pool with an invalid block descriptor */
-    ES_ResetUnitTest();
-    CFE_ES_CDSMemPoolDefSize[0] = 0;
-    CFE_ES_CDSBlockDesc.AllocatedFlag = CFE_ES_CDS_BLOCK_USED;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_RebuildCDSPool(MinCDSSize, 0) == OS_SUCCESS,
-              "CFE_ES_RebuildCDSPool",
-              "Invalid block descriptor");
-
-    /* Test returning a CDS block to the memory pool with an
-     * invalid check bit pattern
-     */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.CheckBits = 0x1111;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutCDSBlock(BlockHandle) == CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_PutCDSBlock",
-              "Invalid check bit pattern");
-
-    /* Test returning a CDS block to the memory pool with an
-     * invalid check bit pattern
-     */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.CheckBits = 0x1111;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockWrite(BlockHandle, &Data) ==
-                  CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_CDSBlockWrite",
-              "Invalid check bit pattern");
-
-    /* Test returning a CDS block to the memory pool with an
-     * invalid check bit pattern
-     */
-    ES_ResetUnitTest();
-    CFE_ES_CDSBlockDesc.CheckBits = 0x1111;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockRead(&Data, BlockHandle) ==
-                  CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_CDSBlockRead",
-              "Invalid check bit pattern");
-
-    /* Test returning a CDS block to the memory pool with an
-     * invalid CDS handle (path 2)
-     */
-    ES_ResetUnitTest();
-    BlockHandle = CFE_ES_CDSMemPool.End - sizeof(CFE_ES_CDSBlockDesc_t) -
-            CFE_ES_CDSMemPool.MinBlockSize -
-            sizeof(CFE_ES_Global.CDSVars.ValidityField) + 1;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PutCDSBlock(BlockHandle) == CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_PutCDSBlock",
-              "Invalid CDS handle (second path)");
-
-    /* Test CDS block write with a CDS read error (path 2) */
-    ES_ResetUnitTest();
-    BlockHandle = CFE_ES_CDSMemPool.End - sizeof(CFE_ES_CDSBlockDesc_t) -
-            CFE_ES_CDSMemPool.MinBlockSize -
-            sizeof(CFE_ES_Global.CDSVars.ValidityField) + 1;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockWrite(BlockHandle, &Data) ==
-                  CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_CDSBlockWrite",
-              "Error writing CDS (second path)");
-
-    /* Test CDS block read with a CDS read error (path 2) */
-    ES_ResetUnitTest();
-    BlockHandle = CFE_ES_CDSMemPool.End - sizeof(CFE_ES_CDSBlockDesc_t) -
-            CFE_ES_CDSMemPool.MinBlockSize -
-            sizeof(CFE_ES_Global.CDSVars.ValidityField) + 1;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSBlockRead(&Data, BlockHandle) ==
-                  CFE_ES_ERR_MEM_HANDLE,
-              "CFE_ES_CDSBlockRead",
-              "Error reading CDS (second path)");
-
-    /* Test CDS minimum memory pool size with no non-zero blocks defined */
-    ES_ResetUnitTest();
-
-    for (i = 0; i < CFE_ES_CDS_NUM_BLOCK_SIZES; i++)
-    {
-        CFE_ES_CDSMemPoolDefSize[i] = 0;
-    }
-
-    CFE_ES_CDSMemPool.MinBlockSize = 0;
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_CDSReqdMinSize(1) == sizeof(CFE_ES_CDSBlockDesc_t),
-              "CFE_ES_CDSReqdMinSize",
-              "No non-zero blocks");
+              "CRC error on content");
+    CdsPtr[UtCdsRegRecPtr->BlockOffset] ^= 0x02;  /* Fix Bit */
 }
 
 void TestESMempool(void)

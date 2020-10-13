@@ -280,7 +280,7 @@ void TestAPI(void);
 ** \sa #UT_SetBSPFail, #CFE_ES_RebuildCDS, #UT_SetRtnCode
 ** \sa #CFE_ES_InitCDSRegistry, #UT_SetCDSSize, #CFE_ES_CDS_EarlyInit
 ** \sa #UT_SetCDSBSPCheckValidity, #CFE_ES_ValidateCDS, #UT_SetCDSReadGoodEnd
-** \sa #CFE_ES_InitializeCDS, #CFE_ES_RebuildCDS, #CFE_ES_DeleteCDS
+** \sa #CFE_ES_InitCDSSignatures, #CFE_ES_RebuildCDS, #CFE_ES_DeleteCDS
 **
 ******************************************************************************/
 void TestCDS(void);

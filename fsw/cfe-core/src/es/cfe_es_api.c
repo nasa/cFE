@@ -1397,7 +1397,7 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, uint32 DataLength, uint32 InputC
 ** Purpose:  Allocate a data block for a Critical Data Store.
 **
 */
-int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, int32 BlockSize, const char *Name)
+int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, CFE_ES_CDS_Offset_t BlockSize, const char *Name)
 {
     int32   Status;
     size_t  NameLen = 0;
@@ -1406,6 +1406,9 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, int32 BlockSize, cons
     char    AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
     char    CDSName[CFE_ES_CDS_MAX_FULL_NAME_LEN] = {""};
 
+    /* Initialize output to safe value, in case this fails */
+    *CDSHandlePtr = CFE_ES_RESOURCEID_UNDEFINED;
+
     /* Check to make sure calling application is legit */
     Status = CFE_ES_GetAppID(&ThisAppId);
 
@@ -1413,7 +1416,7 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, int32 BlockSize, cons
     {
          CFE_ES_WriteToSysLog("CFE_CDS:Register-Bad AppId context\n");
     }
-    else if (CFE_ES_Global.CDSVars.MemPoolSize == 0)
+    else if (!CFE_ES_Global.CDSIsAvailable)
     {
         CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS not available\n");
         Status = CFE_ES_NOT_IMPLEMENTED;
@@ -1441,16 +1444,13 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, int32 BlockSize, cons
            /* of the form "AppName.Name"                          */
            CFE_ES_FormCDSName(CDSName, Name, ThisAppId);
 
-           /* Make sure the specified size is acceptable */
-           if (BlockSize == 0)
+           /* Create CDS and designate it as NOT being a Critical Table */
+           Status = CFE_ES_RegisterCDSEx(CDSHandlePtr, BlockSize, CDSName, false);
+
+           /* If size is unacceptable, log it */
+           if (Status == CFE_ES_CDS_INVALID_SIZE)
            {
-              Status = CFE_ES_CDS_INVALID_SIZE;
-              CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS %s has size of zero\n", Name);
-           }
-           else
-           {
-              /* Create CDS and designate it as NOT being a Critical Table */
-              Status = CFE_ES_RegisterCDSEx(CDSHandlePtr, BlockSize, CDSName, false);
+              CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS %s has invalid size (%lu)\n", Name, (unsigned long)BlockSize);
            }
         }
     }
@@ -1479,11 +1479,7 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, int32 BlockSize, cons
 */
 int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 {
-    int32 Status;
-
-    Status = CFE_ES_CDSBlockWrite(CFE_ES_Global.CDSVars.Registry[Handle].MemHandle, DataToCopy);
-
-    return Status;
+    return CFE_ES_CDSBlockWrite(Handle, DataToCopy);
 } /* End of CFE_ES_CopyToCDS() */
 
 /*
@@ -1494,11 +1490,7 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 */
 int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 {
-    int32 Status;
-
-    Status = CFE_ES_CDSBlockRead(RestoreToMemory, CFE_ES_Global.CDSVars.Registry[Handle].MemHandle);
-
-    return Status;
+    return CFE_ES_CDSBlockRead(RestoreToMemory, Handle);
 } /* End of CFE_ES_RestoreFromCDS() */
 
 /* end of file */

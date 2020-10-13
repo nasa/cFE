@@ -54,6 +54,13 @@
 #define CFE_SPACECRAFT_ID_VALUE     0x42
 #endif
 
+#ifndef CFE_DEFAULT_MODULE_EXTENSION
+#define CFE_DEFAULT_MODULE_EXTENSION    ""
+#endif
+
+#ifndef CFE_DEFAULT_CORE_FILENAME
+#define CFE_DEFAULT_CORE_FILENAME       ""
+#endif
 
 Target_CfeConfigData GLOBAL_CFE_CONFIGDATA =
 {
@@ -139,6 +146,8 @@ Target_ConfigData GLOBAL_CONFIGDATA =
         .Default_CpuName = CFE_CPU_NAME_VALUE,
         .Default_CpuId = CFE_CPU_ID_VALUE,
         .Default_SpacecraftId = CFE_SPACECRAFT_ID_VALUE,
+        .Default_ModuleExtension = CFE_DEFAULT_MODULE_EXTENSION,
+        .Default_CoreFilename = CFE_DEFAULT_CORE_FILENAME,
         .CfeConfig = &GLOBAL_CFE_CONFIGDATA,
         .PspConfig = &GLOBAL_PSP_CONFIGDATA,
         .PspModuleList = GLOBAL_PSP_MODULELIST,

@@ -2257,7 +2257,7 @@ void Test_CFE_TBL_Register(void)
     /* a. Perform test */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
     {
-        CFE_TBL_TaskData.CritReg[i].CDSHandle = 1;
+        CFE_TBL_TaskData.CritReg[i].CDSHandle = CFE_ES_RESOURCEID_UNDEFINED;
     }
 
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
@@ -4771,9 +4771,9 @@ void Test_CFE_TBL_Internal(void)
 
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
     {
-        if (CFE_TBL_TaskData.CritReg[i].CDSHandle == RegRecPtr->CDSHandle)
+        if ( CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.CritReg[i].CDSHandle, RegRecPtr->CDSHandle) )
         {
-            CFE_TBL_TaskData.CritReg[i].CDSHandle = CFE_ES_CDS_BAD_HANDLE - 1;
+            CFE_TBL_TaskData.CritReg[i].CDSHandle = CFE_ES_RESOURCEID_RESERVED;
         }
     }
 

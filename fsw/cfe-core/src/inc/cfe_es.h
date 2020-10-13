@@ -89,7 +89,7 @@
 ** NOTE: "+2" is for NULL Character and "." (i.e. - "AppName.CDSName") */
 #define CFE_ES_CDS_MAX_FULL_NAME_LEN (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 2)
 
-#define CFE_ES_CDS_BAD_HANDLE  (CFE_ES_CDSHandle_t) 0xFFFF
+#define CFE_ES_CDS_BAD_HANDLE  CFE_ES_RESOURCEID_UNDEFINED
 /** \} */
 
 #define CFE_ES_NO_MUTEX                 0 /**< \brief Indicates that the memory pool selection will not use a semaphore */
@@ -409,7 +409,22 @@ typedef struct CFE_ES_MemPoolStats
  *
  * Data type used to hold Handles of Critical Data Stores. See #CFE_ES_RegisterCDS
  */
-typedef cpuaddr CFE_ES_CDSHandle_t;
+typedef CFE_ES_ResourceID_t CFE_ES_CDSHandle_t;
+
+/**
+ * Type used for CDS sizes and offsets.
+ *
+ * This must match the type used in the PSP CDS API, e.g.:
+ * CFE_PSP_GetCDSSize()
+ * CFE_PSP_WriteToCDS()
+ * CFE_PSP_ReadFromCDS()
+ *
+ * It is defined separately from the CFE_ES_MemOffset_t as the type used in
+ * the PSP CDS access API may be different than the ES Pool API.
+ *
+ * In either case this _must_ be an unsigned type.
+ */
+typedef uint32 CFE_ES_CDS_Offset_t;
 
 /**
  * \brief CDS Register Dump Record
@@ -1157,7 +1172,7 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, int32 BlockSize, const char *Name);
+CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t BlockSize, const char *Name);
 
 /*****************************************************************************/
 /**

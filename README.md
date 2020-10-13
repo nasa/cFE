@@ -10,6 +10,12 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev129
+
+- Rather than having a second pool implementation only for CDS, use the generic pool implementation. This also uses the abstract resource identifiers to identify CDS blocks, rather than a direct reference.
+- Add the system-specific module suffix (.o, .so, .obj, etc) and the default CFE core executable name to the configdata structure.
+- See <https://github.com/nasa/cFE/pull/944>
+
 ### Development Build: 6.8.0-rc1+dev122
 
 - Adds the field `UnregAppID` to track whether an "unregistered" event was generated, un-overloading the EventCount field to serve its primary purpose of counting actual events generated from a valid/registered AppID.
