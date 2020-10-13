@@ -42,58 +42,12 @@
 ** Include Files
 */
 #include "private/cfe_private.h"
+#include "cfe_es_cds.h"
 
 /*
 ** Macro Definitions
 */
 #define CFE_ES_CDS_NUM_BLOCK_SIZES     17
-
-/*
-** Type Definitions
-*/
-
-typedef uint32 CFE_ES_CDSBlockHandle_t;
-
-typedef struct
-{
-  uint16    CheckBits;
-  uint16    AllocatedFlag;
-  uint32    SizeUsed;
-  uint32    ActualSize;
-  uint32    CRC;
-  uint32    Next;
-} CFE_ES_CDSBlockDesc_t;
-
-typedef struct
-{
-   uint32   Top;
-   uint32   NumCreated;
-   uint32   MaxSize;
-} CFE_ES_CDSBlockSizeDesc_t;
-/*
-** Memory Pool Type
-*/
-typedef struct {
-   uint32   Start;
-   uint32   Size;
-   uint32   End;
-   uint32   Current;
-   int32    SizeIndex;
-   uint16   CheckErrCntr;
-   uint16   RequestCntr;
-   osal_id_t   MutexId;
-   uint32   MinBlockSize;
-   CFE_ES_CDSBlockSizeDesc_t SizeDesc[CFE_ES_CDS_NUM_BLOCK_SIZES];
-} CFE_ES_CDSPool_t;
-
-/*
- * External variables
- *
- * Note - these globals should not be modified outside of this module,
- * however the unit test code does tweak them directly in order to test specific code paths
- */
-extern CFE_ES_CDSPool_t      CFE_ES_CDSMemPool;
-extern CFE_ES_CDSBlockDesc_t CFE_ES_CDSBlockDesc;
 
 
 /*****************************************************************************/
@@ -115,18 +69,14 @@ extern CFE_ES_CDSBlockDesc_t CFE_ES_CDSBlockDesc;
 ** \return #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 **                     
 ******************************************************************************/
-int32 CFE_ES_CreateCDSPool(uint32 CDSPoolSize, uint32 StartOffset);
+int32 CFE_ES_CreateCDSPool(CFE_ES_CDS_Offset_t CDSPoolSize, CFE_ES_CDS_Offset_t StartOffset);
 
 
-int32 CFE_ES_RebuildCDSPool(uint32 CDSPoolSize, uint32 StartOffset);
+int32 CFE_ES_RebuildCDSPool(CFE_ES_CDS_Offset_t CDSPoolSize, CFE_ES_CDS_Offset_t StartOffset);
 
-int32 CFE_ES_GetCDSBlock(CFE_ES_CDSBlockHandle_t *BlockHandle, uint32  BlockSize);
+int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite);
 
-int32 CFE_ES_PutCDSBlock(CFE_ES_CDSBlockHandle_t BlockHandle);
-
-int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSBlockHandle_t BlockHandle, void *DataToWrite);
-
-int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSBlockHandle_t BlockHandle);
+int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle);
 
 uint32 CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport);
 

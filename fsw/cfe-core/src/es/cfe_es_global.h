@@ -46,6 +46,7 @@
 #include "cfe_es_perf.h"
 #include "cfe_es_generic_pool.h"
 #include "cfe_es_mempool.h"
+#include "cfe_es_cds_mempool.h"
 #include "cfe_time.h"
 #include "cfe_platform_cfg.h"
 #include "cfe_evs.h"
@@ -75,6 +76,7 @@
 #define CFE_ES_LIBID_BASE       (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+2) << CFE_ES_RESOURCEID_SHIFT))
 #define CFE_ES_COUNTID_BASE     (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+3) << CFE_ES_RESOURCEID_SHIFT))
 #define CFE_ES_POOLID_BASE      (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+4) << CFE_ES_RESOURCEID_SHIFT))
+#define CFE_ES_CDSBLOCKID_BASE  (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+5) << CFE_ES_RESOURCEID_SHIFT))
 
 /*
 ** Typedefs
@@ -156,7 +158,8 @@ typedef struct
    /*
    ** Critical Data Store Management Variables
    */
-   CFE_ES_CDSVariables_t CDSVars;
+   CFE_ES_CDS_Instance_t CDSVars;
+   bool                  CDSIsAvailable;        /**< \brief Whether or not the CDS service is active/valid */
 
    /*
     * Background task for handling long-running, non real time tasks
