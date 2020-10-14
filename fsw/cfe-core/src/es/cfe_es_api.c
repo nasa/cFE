@@ -1116,7 +1116,7 @@ int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
          */
          OsalId = OS_TaskGetId();
          TaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
-         ParentTaskId = AppRecPtr->TaskInfo.MainTaskId;
+         ParentTaskId = AppRecPtr->MainTaskId;
          if ( CFE_ES_ResourceID_Equal(TaskId, ParentTaskId) )
          {
             /*
@@ -1279,7 +1279,7 @@ int32 CFE_ES_DeleteChildTask(CFE_ES_ResourceID_t TaskId)
           {
              if ( CFE_ES_AppRecordIsUsed(AppRecPtr) )
              {
-                if ( CFE_ES_ResourceID_Equal(AppRecPtr->TaskInfo.MainTaskId, TaskId) )
+                if ( CFE_ES_ResourceID_Equal(AppRecPtr->MainTaskId, TaskId) )
                 {
                    /*
                    ** Error, the task Id is an App Main Task ID
@@ -1381,7 +1381,7 @@ void CFE_ES_ExitChildTask(void)
        AppRecPtr = CFE_ES_LocateAppRecordByID(TaskRecPtr->AppId);
 
        if ( CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId) &&
-               !CFE_ES_TaskRecordIsMatch(TaskRecPtr, AppRecPtr->TaskInfo.MainTaskId))
+               !CFE_ES_TaskRecordIsMatch(TaskRecPtr, AppRecPtr->MainTaskId))
       {
             /*
             ** Invalidate the task table entry

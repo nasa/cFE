@@ -805,12 +805,6 @@ void  CFE_ES_CreateObjects(void)
                
                
                /*
-               ** Fill out the Task Info
-               */
-               strncpy((char *)AppRecPtr->TaskInfo.MainTaskName, (char *)CFE_ES_ObjectTable[i].ObjectName, OS_MAX_API_NAME);
-               AppRecPtr->TaskInfo.MainTaskName[OS_MAX_API_NAME - 1] = '\0';
-               
-               /*
                ** Create the task
                */
                ReturnCode = OS_TaskCreate(&OsalId,                               /* task id */
@@ -842,8 +836,8 @@ void  CFE_ES_CreateObjects(void)
                }
                else
                {
-                  AppRecPtr->TaskInfo.MainTaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
-                  TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->TaskInfo.MainTaskId);
+                  AppRecPtr->MainTaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
+                  TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->MainTaskId);
 
                   /*
                   ** Allocate and populate the CFE_ES_Global.TaskTable entry
@@ -853,10 +847,10 @@ void  CFE_ES_CreateObjects(void)
                      CFE_ES_SysLogWrite_Unsync("ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
                                            CFE_ES_ObjectTable[i].ObjectName);
                   }
-                  CFE_ES_TaskRecordSetUsed(TaskRecPtr, AppRecPtr->TaskInfo.MainTaskId);
+                  CFE_ES_TaskRecordSetUsed(TaskRecPtr, AppRecPtr->MainTaskId);
                   TaskRecPtr->AppId = CFE_ES_AppRecordGetID(AppRecPtr);
-                  strncpy((char *)TaskRecPtr->TaskName, (char *)AppRecPtr->TaskInfo.MainTaskName, OS_MAX_API_NAME);
-                  TaskRecPtr->TaskName[OS_MAX_API_NAME - 1] = '\0';
+                  strncpy(TaskRecPtr->TaskName, CFE_ES_ObjectTable[i].ObjectName, sizeof(TaskRecPtr->TaskName)-1);
+                  TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName)-1] = '\0';
 
                   CFE_ES_SysLogWrite_Unsync("ES Startup: Core App: %s created. App ID: %lu\n",
                                        CFE_ES_ObjectTable[i].ObjectName,

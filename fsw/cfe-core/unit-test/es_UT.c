@@ -272,7 +272,7 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
     CFE_ES_TaskRecordSetUsed(LocalTaskPtr, UtTaskId);
     CFE_ES_AppRecordSetUsed(LocalAppPtr, UtAppId);
     LocalTaskPtr->AppId = UtAppId;
-    LocalAppPtr->TaskInfo.MainTaskId = UtTaskId;
+    LocalAppPtr->MainTaskId = UtTaskId;
     LocalAppPtr->AppState = AppState;
     LocalAppPtr->Type = AppType;
 
@@ -2062,7 +2062,7 @@ void TestApps(void)
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
 
     /* switch the main task association (makes it wrong) */
-    UtAppRecPtr->TaskInfo.MainTaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UtAppRecPtr->MainTaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
 
     UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
@@ -2086,7 +2086,7 @@ void TestApps(void)
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
 
     /* switch the main task association (makes it wrong) */
-    UtAppRecPtr->TaskInfo.MainTaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UtAppRecPtr->MainTaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
 
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_SUCCESS,

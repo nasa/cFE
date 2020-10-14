@@ -513,12 +513,6 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
       AppRecPtr->StartParams.Priority = Priority;
 
       /*
-      ** Fill out the Task Info
-      */
-      strncpy((char *)AppRecPtr->TaskInfo.MainTaskName, AppName, OS_MAX_API_NAME);
-      AppRecPtr->TaskInfo.MainTaskName[OS_MAX_API_NAME - 1] = '\0';
-
-      /*
       ** Fill out the Task State info
       */
       AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
@@ -552,18 +546,19 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
          /*
          ** Record the ES_TaskTable entry
          */
-         AppRecPtr->TaskInfo.MainTaskId = CFE_ES_ResourceID_FromOSAL(MainTaskId);
-         TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->TaskInfo.MainTaskId);
+         AppRecPtr->MainTaskId = CFE_ES_ResourceID_FromOSAL(MainTaskId);
+         TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->MainTaskId);
 
          if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) )
          {
             CFE_ES_SysLogWrite_Unsync("ES Startup: Error: ES_TaskTable slot in use at task creation!\n");
          }
-         CFE_ES_TaskRecordSetUsed(TaskRecPtr,AppRecPtr->TaskInfo.MainTaskId);
+         CFE_ES_TaskRecordSetUsed(TaskRecPtr,AppRecPtr->MainTaskId);
          TaskRecPtr->AppId = PendingAppId;
-         strncpy((char *)TaskRecPtr->TaskName,
-             (char *)AppRecPtr->TaskInfo.MainTaskName,OS_MAX_API_NAME );
-         TaskRecPtr->TaskName[OS_MAX_API_NAME - 1]='\0';
+         /* The main task name is the same as the app name */
+         strncpy(TaskRecPtr->TaskName, AppName,
+                 sizeof(TaskRecPtr->TaskName)-1);
+         TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName)-1]='\0';
          CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
          CFE_ES_SysLogWrite_Unsync("ES Startup: %s loaded and created\n", AppName);
          *ApplicationIdPtr = PendingAppId;
@@ -1174,7 +1169,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
    /*
    ** Get Main Task ID
    */
-   MainTaskId = AppRecPtr->TaskInfo.MainTaskId;
+   MainTaskId = AppRecPtr->MainTaskId;
 
    /*
    ** Delete any child tasks associated with this app
@@ -1517,10 +1512,7 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
        AppInfoPtr->ExceptionAction = AppRecPtr->StartParams.ExceptionAction;
        AppInfoPtr->Priority = AppRecPtr->StartParams.Priority;
 
-       AppInfoPtr->MainTaskId = AppRecPtr->TaskInfo.MainTaskId;
-       strncpy((char *)AppInfoPtr->MainTaskName, (char *)AppRecPtr->TaskInfo.MainTaskName,
-               sizeof(AppInfoPtr->MainTaskName) - 1);
-       AppInfoPtr->MainTaskName[sizeof(AppInfoPtr->MainTaskName) - 1] = '\0';
+       AppInfoPtr->MainTaskId = AppRecPtr->MainTaskId;
 
        /*
        ** Calculate the number of child tasks
@@ -1545,6 +1537,9 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
        if (CFE_ES_TaskRecordIsMatch(TaskRecPtr,AppInfoPtr->MainTaskId))
        {
           AppInfoPtr->ExecutionCounter = TaskRecPtr->ExecutionCounter;
+          strncpy(AppInfoPtr->MainTaskName, TaskRecPtr->TaskName,
+                  sizeof(AppInfoPtr->MainTaskName) - 1);
+          AppInfoPtr->MainTaskName[sizeof(AppInfoPtr->MainTaskName) - 1] = '\0';
        }
 
        /*
