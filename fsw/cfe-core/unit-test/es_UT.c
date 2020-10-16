@@ -1437,8 +1437,7 @@ void TestApps(void)
     CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) &&
-              UtAppRecPtr->ControlReq.AppTimerMsec == 0 &&
-              UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE,
+              UtAppRecPtr->ControlReq.AppTimerMsec == 0,
               "CFE_ES_RunAppTableScan",
               "Waiting; process control request");
 
@@ -1466,7 +1465,6 @@ void TestApps(void)
     CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) &&
-              UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_SYS_DELETE &&
               UtAppRecPtr->ControlReq.AppTimerMsec == 0,
               "CFE_ES_RunAppTableScan",
               "Stopped; process control request");
@@ -1490,7 +1488,8 @@ void TestApps(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = 0x12345;
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1512,7 +1511,8 @@ void TestApps(void)
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_EXIT;
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_EXIT_APP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1526,7 +1526,8 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_EXIT_APP_ERR_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1541,7 +1542,8 @@ void TestApps(void)
         CFE_ES_RunStatus_SYS_DELETE;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_STOP_ERR3_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1556,7 +1558,8 @@ void TestApps(void)
         CFE_ES_RunStatus_SYS_RESTART;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RESTART_APP_ERR4_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1571,7 +1574,8 @@ void TestApps(void)
         CFE_ES_RunStatus_SYS_RESTART;
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RESTART_APP_ERR3_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1586,7 +1590,8 @@ void TestApps(void)
         CFE_ES_RunStatus_SYS_RELOAD;
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RELOAD_APP_ERR4_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1601,7 +1606,8 @@ void TestApps(void)
         CFE_ES_RunStatus_SYS_RELOAD;
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RELOAD_APP_ERR3_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1625,7 +1631,8 @@ void TestApps(void)
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_ERROR;
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_ERREXIT_APP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1640,7 +1647,8 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_ERROR;
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_ERREXIT_APP_ERR_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1662,7 +1670,8 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_DELETE;
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_STOP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1684,7 +1693,8 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RESTART;
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RESTART_APP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1706,7 +1716,8 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RELOAD;
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_RELOAD_APP_INF_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1730,7 +1741,8 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_EXCEPTION;
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
-    CFE_ES_ProcessControlRequest(UtAppRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_PCR_ERR1_EID),
               "CFE_ES_ProcessControlRequest",
@@ -1800,8 +1812,9 @@ void TestApps(void)
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
     UT_SetForceFail(UT_KEY(OS_close), OS_ERROR);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "Task OS delete and close failure");
 
@@ -1814,8 +1827,9 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     ES_UT_SetupForOSCleanup();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemDelete), 1, OS_ERROR);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "Task mutex delete failure");
 
@@ -1826,8 +1840,9 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleUnload), 1, OS_ERROR);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "Module unload failure");
 
@@ -1838,8 +1853,9 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "EVS application cleanup failure");
 
@@ -2015,8 +2031,9 @@ void TestApps(void)
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, NULL, NULL);
     /* Associate a child task with the app to be deleted */
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_SUCCESS,
+              CFE_ES_CleanUpApp(Id) == CFE_SUCCESS,
               "CFE_ES_CleanUpApp",
               "Main task ID matches task ID, nominal");
     UT_Report(__FILE__, __LINE__,
@@ -2038,8 +2055,9 @@ void TestApps(void)
     ES_UT_SetupMemPoolId(&UtPoolRecPtr);
     UtPoolRecPtr->OwnerAppID = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UtPoolRecPtr->PoolID = CFE_ES_ResourceID_FromInteger(99999);    /* Mismatch */
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "Mem Pool delete error");
     UT_Report(__FILE__, __LINE__,
@@ -2065,12 +2083,13 @@ void TestApps(void)
     UtAppRecPtr->MainTaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
 
     UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_ES_APP_CLEANUP_ERR,
+              CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
               "CFE_ES_CleanUpApp",
               "Main task ID doesn't match task ID, CFE_ES_APP_CLEANUP_ERR");
     UT_Report(__FILE__, __LINE__,
-              !CFE_ES_TaskRecordIsUsed(UtTaskRecPtr),
+              CFE_ES_TaskRecordIsUsed(UtTaskRecPtr),
               "CFE_ES_CleanUpApp",
               "Main task ID doesn't match task ID, second task unchanged");
 
@@ -2087,14 +2106,15 @@ void TestApps(void)
 
     /* switch the main task association (makes it wrong) */
     UtAppRecPtr->MainTaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
 
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_SUCCESS,
+              CFE_ES_CleanUpApp(Id) == CFE_SUCCESS,
               "CFE_ES_CleanUpApp",
               "Application ID mismatch; core application");
 
     UT_Report(__FILE__, __LINE__,
-              !CFE_ES_TaskRecordIsUsed(UtTaskRecPtr),
+              CFE_ES_TaskRecordIsUsed(UtTaskRecPtr),
               "CFE_ES_CleanUpApp",
               "Application ID mismatch; core application");
 
@@ -2113,8 +2133,9 @@ void TestApps(void)
 
     OS_ModuleLoad(&UtAppRecPtr->StartParams.ModuleId, "UT",
                   "ut-module");
+    Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_CleanUpApp(UtAppRecPtr) == CFE_SUCCESS &&
+              CFE_ES_CleanUpApp(Id) == CFE_SUCCESS &&
               !CFE_ES_TaskRecordIsUsed(UtTaskRecPtr) &&
               CFE_ES_Global.RegisteredExternalApps == 0,
               "CFE_ES_CleanUpApp",

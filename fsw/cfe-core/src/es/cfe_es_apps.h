@@ -199,12 +199,12 @@ bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg);
 /*
 ** Perform the requested control action for an application
 */
-void CFE_ES_ProcessControlRequest(CFE_ES_AppRecord_t *AppRecPtr);
+void CFE_ES_ProcessControlRequest(CFE_ES_ResourceID_t AppId);
 
 /*
 ** Clean up all app resources and delete it
 */
-int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr);
+int32 CFE_ES_CleanUpApp(CFE_ES_ResourceID_t AppId);
 
 /*
 ** Clean up all Task resources and detete the task
