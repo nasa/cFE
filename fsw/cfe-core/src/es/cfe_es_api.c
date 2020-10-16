@@ -256,7 +256,7 @@ int32 CFE_ES_ReloadApp(CFE_ES_ResourceID_t AppID, const char *AppFileName)
        {
            CFE_ES_SysLogWrite_Unsync("CFE_ES_ReloadApp: Reload Application %s Initiated. New filename = %s\n",
                    CFE_ES_AppRecordGetName(AppRecPtr), AppFileName);
-           strncpy((char *)AppRecPtr->StartParams.FileName, AppFileName, OS_MAX_PATH_LEN);
+           strncpy(AppRecPtr->StartParams.BasicInfo.FileName, AppFileName, OS_MAX_PATH_LEN);
            AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RELOAD;
        }
        else

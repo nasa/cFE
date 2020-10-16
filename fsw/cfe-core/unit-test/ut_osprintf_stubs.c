@@ -93,7 +93,7 @@ const char *UT_OSP_MESSAGES[] =
         /* ES Startup: Error Re-Formating Volatile(RAM) Volume. EC = 0x~ */
         [UT_OSP_REFORMAT_VOLATILE] = "ES Startup: Error Re-Formating Volatile(RAM) Volume. EC = 0x%08X\n",
         /* ES Startup: Could not load cFE application file:ut/filename.x. EC = 0x~ */
-        [UT_OSP_EXTRACT_FILENAME_UT55] = "ES Startup: Could not load cFE application file:%s. EC = 0x%08X\n",
+        [UT_OSP_EXTRACT_FILENAME_UT55] = "ES Startup: Could not load file:%s. EC = 0x%08X\n",
         /* ES Startup: Unable to extract filename from path: ut46/ */
         [UT_OSP_EXTRACT_FILENAME_UT46] = "ES Startup: Unable to extract filename from path: %s.\n",
         /* ES Startup: No free application slots available */
@@ -123,7 +123,7 @@ const char *UT_OSP_MESSAGES[] =
         /* ES Startup: Error Creating Volatile(RAM) Volume. EC = 0x~ */
         [UT_OSP_CREATE_VOLATILE] = "ES Startup: Error Creating Volatile(RAM) Volume. EC = 0x%08X\n",
         /* ES Startup: Failed to unload APP: AppName. EC = 0x~ */
-        [UT_OSP_MODULE_UNLOAD_FAILED] = "ES Startup: Failed to unload APP: %s. EC = 0x%08X\n",
+        [UT_OSP_MODULE_UNLOAD_FAILED] = "ES Startup: Failed to unload: %s. EC = 0x%08X\n",
         /* POWERON RESET called from CFE_ES_ResetCFE (Commanded). */
         [UT_OSP_POR_COMMANDED] = "POWERON RESET called from CFE_ES_ResetCFE (Commanded).\n",
         /* ES Startup: Error Re-Mounting Volatile(RAM) Volume. EC = 0x~ */
@@ -159,7 +159,7 @@ const char *UT_OSP_MESSAGES[] =
         /* ES Startup: Error, No free application slots available for CORE App! */
         [UT_OSP_NO_FREE_CORE_APP_SLOTS] = "ES Startup: Error, No free application slots available for CORE App!\n",
         /* ES Startup: CFE_ES_Global.TaskTable record used error for App: CFE_EVS, continuing. */
-        [UT_OSP_RECORD_USED] = "ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
+        [UT_OSP_RECORD_USED] = "ES Startup: Error: ES_TaskTable slot for ID %lx in use at task creation!\n",
         /* CFE_ES_ExitChildTask called from invalid task context */
         [UT_OSP_TASKEXIT_BAD_CONTEXT] = "CFE_ES_ExitChildTask called from invalid task context\n",
 };
