@@ -279,18 +279,33 @@ int32 CFE_ES_CleanUpApp(CFE_ES_ResourceID_t AppId);
 */
 int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId);
 
-/*
-** Populate the cFE_ES_AppInfo structure with the data for an app
-** This is an internal function for use in ES.
-** The newer external API is : CFE_ES_GetAppInfo
-*/
-int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t *AppInfoPtr );
 
 /*
- * Populate the CFE_ES_TaskInfo_t structure with the data for a task
- * This is an internal function for use in ES.
- * (Equivalent pattern to CFE_ES_GetAppInfoInternal() but for tasks)
- */
-int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInfo_t *TaskInfoPtr );
+**---------------------------------------------------------------------------------------
+**   Name: CFE_ES_CopyModuleBasicInfo
+**
+**   Purpose: Populate the cFE_ES_AppInfo structure from the CFE_ES_ModuleLoadParams_t data
+**---------------------------------------------------------------------------------------
+*/
+void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_ES_AppInfo_t *AppInfoPtr);
+
+/*
+**---------------------------------------------------------------------------------------
+**   Name: CFE_ES_CopyModuleStatusInfo
+**
+**   Purpose: Populate the cFE_ES_AppInfo structure from the CFE_ES_ModuleLoadStatus_t data
+**---------------------------------------------------------------------------------------
+*/
+void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE_ES_AppInfo_t *AppInfoPtr);
+
+/*
+**---------------------------------------------------------------------------------------
+**   Name: CFE_ES_CopyModuleAddressInfo
+**
+**   Purpose: Populate the cFE_ES_AppInfo structure with address information from OSAL.
+**---------------------------------------------------------------------------------------
+*/
+void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoPtr);
+
 
 #endif  /* _cfe_es_apps_ */

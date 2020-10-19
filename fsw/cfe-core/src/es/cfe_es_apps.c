@@ -1713,7 +1713,7 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId)
 
 /*
 **---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GetAppInfoInternal
+**   Name: CFE_ES_CopyModuleBasicInfo
 **
 **   Purpose: Populate the cFE_ES_AppInfo structure with the data for an app.
 **
@@ -1721,180 +1721,71 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId)
 **   to check the return code and log any relevant errors based on the context.
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t *AppInfoPtr )
+void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
-   int32              Status;
-   int32              ReturnCode;
-   OS_module_prop_t   ModuleInfo;
-   uint32             i;
-   CFE_ES_TaskRecord_t *TaskRecPtr;
-   CFE_ES_ResourceID_t AppId;
+    strncpy(AppInfoPtr->Name, ParamsPtr->Name,
+            sizeof(AppInfoPtr->Name)-1);
+    AppInfoPtr->Name[sizeof(AppInfoPtr->Name)-1] = '\0';
 
-   CFE_ES_LockSharedData(__func__,__LINE__);
+    strncpy(AppInfoPtr->EntryPoint, ParamsPtr->EntryPoint,
+            sizeof(AppInfoPtr->EntryPoint) - 1);
+    AppInfoPtr->EntryPoint[sizeof(AppInfoPtr->EntryPoint) - 1] = '\0';
 
-   if ( !CFE_ES_AppRecordIsUsed(AppRecPtr) )
-   {
-       Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-   }
-   else
-   {
-       Status = CFE_SUCCESS;
-
-       AppId = CFE_ES_AppRecordGetID(AppRecPtr);
-       AppInfoPtr->AppId = AppId;
-       AppInfoPtr->Type = AppRecPtr->Type;
-       strncpy(AppInfoPtr->Name,
-               CFE_ES_AppRecordGetName(AppRecPtr),
-               sizeof(AppInfoPtr->Name)-1);
-       AppInfoPtr->Name[sizeof(AppInfoPtr->Name)-1] = '\0';
-
-       strncpy(AppInfoPtr->EntryPoint, AppRecPtr->StartParams.BasicInfo.EntryPoint,
-               sizeof(AppInfoPtr->EntryPoint) - 1);
-       AppInfoPtr->EntryPoint[sizeof(AppInfoPtr->EntryPoint) - 1] = '\0';
-
-       strncpy(AppInfoPtr->FileName, AppRecPtr->StartParams.BasicInfo.FileName,
-               sizeof(AppInfoPtr->FileName) - 1);
-       AppInfoPtr->FileName[sizeof(AppInfoPtr->FileName) - 1] = '\0';
-
-       AppInfoPtr->ModuleId = AppRecPtr->ModuleInfo.ModuleId;
-       AppInfoPtr->StackSize = AppRecPtr->StartParams.StackSize;
-       CFE_SB_SET_MEMADDR(AppInfoPtr->StartAddress, AppRecPtr->ModuleInfo.EntryAddress);
-       AppInfoPtr->ExceptionAction = AppRecPtr->StartParams.ExceptionAction;
-       AppInfoPtr->Priority = AppRecPtr->StartParams.Priority;
-
-       AppInfoPtr->MainTaskId = AppRecPtr->MainTaskId;
-
-       /*
-       ** Calculate the number of child tasks
-       */
-       AppInfoPtr->NumOfChildTasks = 0;
-       TaskRecPtr = CFE_ES_Global.TaskTable;
-       for (i=0; i<OS_MAX_TASKS; i++ )
-       {
-          if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
-                  CFE_ES_ResourceID_Equal(TaskRecPtr->AppId, AppId) &&
-                  !CFE_ES_ResourceID_Equal(CFE_ES_TaskRecordGetID(TaskRecPtr), AppInfoPtr->MainTaskId) )
-          {
-             AppInfoPtr->NumOfChildTasks++;
-          }
-          ++TaskRecPtr;
-       }
-
-       /*
-       ** Get the execution counter for the main task
-       */
-       TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppInfoPtr->MainTaskId);
-       if (CFE_ES_TaskRecordIsMatch(TaskRecPtr,AppInfoPtr->MainTaskId))
-       {
-          AppInfoPtr->ExecutionCounter = TaskRecPtr->ExecutionCounter;
-          strncpy(AppInfoPtr->MainTaskName, TaskRecPtr->TaskName,
-                  sizeof(AppInfoPtr->MainTaskName) - 1);
-          AppInfoPtr->MainTaskName[sizeof(AppInfoPtr->MainTaskName) - 1] = '\0';
-       }
-
-       /*
-       ** Get the address information from the OSAL
-       */
-       ReturnCode = OS_ModuleInfo ( AppInfoPtr->ModuleId, &ModuleInfo );
-       if ( ReturnCode == OS_SUCCESS )
-       {
-          AppInfoPtr->AddressesAreValid =
-                  (sizeof(ModuleInfo.addr.code_address) <= sizeof(AppInfoPtr->CodeAddress)) &&
-                  ModuleInfo.addr.valid;
-          CFE_SB_SET_MEMADDR(AppInfoPtr->CodeAddress, ModuleInfo.addr.code_address);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->CodeSize, ModuleInfo.addr.code_size);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->DataAddress, ModuleInfo.addr.data_address);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->DataSize, ModuleInfo.addr.data_size);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->BSSAddress, ModuleInfo.addr.bss_address);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->BSSSize, ModuleInfo.addr.bss_size);
-       }
-       else
-       {
-          AppInfoPtr->AddressesAreValid = false;
-          AppInfoPtr->CodeAddress = 0;
-          AppInfoPtr->CodeSize = 0;
-          AppInfoPtr->DataAddress = 0;
-          AppInfoPtr->DataSize = 0;
-          AppInfoPtr->BSSAddress = 0;
-          AppInfoPtr->BSSSize = 0;
-       }
-
-   }
-
-   CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-   return Status;
-
-} /* end function */
+    strncpy(AppInfoPtr->FileName, ParamsPtr->FileName,
+            sizeof(AppInfoPtr->FileName) - 1);
+    AppInfoPtr->FileName[sizeof(AppInfoPtr->FileName) - 1] = '\0';
+}
 
 /*
 **---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GetAppInfoInternal
+**   Name: CFE_ES_CopyModuleStatusInfo
 **
-**   Purpose: Populate the cFE_ES_TaskInfo structure with the data for a task.
+**   Purpose: Populate the cFE_ES_AppInfo structure with the data for an app.
 **
 **   This internal function does not log any errors/events.  The caller is expected
 **   to check the return code and log any relevant errors based on the context.
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInfo_t *TaskInfoPtr)
+void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
-   CFE_ES_AppRecord_t *AppRecPtr;
-   int32  ReturnCode;
+    AppInfoPtr->ModuleId = StatusPtr->ModuleId;
+    CFE_SB_SET_MEMADDR(AppInfoPtr->StartAddress, StatusPtr->EntryAddress);
+}
 
-   CFE_ES_LockSharedData(__func__,__LINE__);
+/*
+**---------------------------------------------------------------------------------------
+**   Name: CFE_ES_CopyModuleAddressInfo
+**
+**   Purpose: Populate the cFE_ES_AppInfo structure with the data for an app.
+**
+**   This internal function does not log any errors/events.  The caller is expected
+**   to check the return code and log any relevant errors based on the context.
+**---------------------------------------------------------------------------------------
+*/
+void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoPtr)
+{
+    OS_module_prop_t   ModuleInfo;
+    int32              ReturnCode;
 
-   if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) )
-   {
+    ReturnCode = OS_ModuleInfo ( ModuleId, &ModuleInfo );
+    if ( ReturnCode == OS_SUCCESS )
+    {
+        AppInfoPtr->AddressesAreValid =
+                (sizeof(ModuleInfo.addr.code_address) <= sizeof(AppInfoPtr->CodeAddress)) &&
+                ModuleInfo.addr.valid;
+    }
+    else
+    {
+        AppInfoPtr->AddressesAreValid = false;
+        memset(&ModuleInfo, 0, sizeof(ModuleInfo));
+    }
 
-      /*
-      ** Get the Application ID and Task Name
-      */
-      TaskInfoPtr->AppId = TaskRecPtr->AppId;
-      strncpy(TaskInfoPtr->TaskName,
-              CFE_ES_TaskRecordGetName(TaskRecPtr),
-              sizeof(TaskInfoPtr->TaskName)-1);
-      TaskInfoPtr->TaskName[sizeof(TaskInfoPtr->TaskName)-1] = '\0';
-
-      /*
-      ** Store away the Task ID ( for the QueryAllTasks Cmd )
-      */
-      TaskInfoPtr->TaskId = CFE_ES_TaskRecordGetID(TaskRecPtr);
-
-      /*
-      ** Get the Execution counter for the task
-      */
-      TaskInfoPtr->ExecutionCounter =  TaskRecPtr->ExecutionCounter;
-
-      /*
-      ** Get the Application Details
-      */
-      AppRecPtr = CFE_ES_LocateAppRecordByID(TaskRecPtr->AppId);
-      if (CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId))
-      {
-         strncpy(TaskInfoPtr->AppName,
-                 CFE_ES_AppRecordGetName(AppRecPtr),
-                 sizeof(TaskInfoPtr->AppName)-1);
-         TaskInfoPtr->AppName[sizeof(TaskInfoPtr->AppName)-1] = '\0';
-         ReturnCode = CFE_SUCCESS;
-      }
-      else
-      {
-         /* task ID was OK but parent app ID is bad */
-         ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-      }
-   }
-   else
-   {
-      /* task ID is bad */
-      ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-   }
-
-   CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-   return(ReturnCode);
-
-} /* End of CFE_ES_GetTaskInfoInternal() */
-
+    CFE_SB_SET_MEMADDR(AppInfoPtr->CodeAddress, ModuleInfo.addr.code_address);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->CodeSize, ModuleInfo.addr.code_size);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->DataAddress, ModuleInfo.addr.data_address);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->DataSize, ModuleInfo.addr.data_size);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->BSSAddress, ModuleInfo.addr.bss_address);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->BSSSize, ModuleInfo.addr.bss_size);
+}
 
 

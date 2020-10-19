@@ -99,7 +99,12 @@ enum CFE_ES_AppType
    /**
     * @brief CFE external application
     */
-   CFE_ES_AppType_EXTERNAL                            = 2
+   CFE_ES_AppType_EXTERNAL                            = 2,
+
+   /**
+    * @brief CFE library
+    */
+   CFE_ES_AppType_LIBRARY                             = 3
 };
 
 /**

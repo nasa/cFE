@@ -41,6 +41,7 @@
 #include "cfe_version.h"
 #include "cfe_es_global.h"
 #include "cfe_es_apps.h"
+#include "cfe_es_resource.h"
 #include "cfe_es_events.h"
 #include "cfe_es_verify.h"
 #include "cfe_es_task.h"
@@ -1118,16 +1119,21 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_ResourceID_t ResourceID;
     int32 Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, OS_MAX_API_NAME, sizeof(cmd->Application));
 
-    Result = CFE_ES_GetAppIDByName(&AppID, LocalApp);
+    Result = CFE_ES_GetAppIDByName(&ResourceID, LocalApp);
+    if (Result == CFE_ES_ERR_NAME_NOT_FOUND)
+    {
+        /* Also check for a matching library name */
+        Result = CFE_ES_GetLibIDByName(&ResourceID, LocalApp);
+    }
 
     if (Result == CFE_SUCCESS)
     {
-        Result = CFE_ES_GetAppInfo(&(CFE_ES_TaskData.OneAppPacket.Payload.AppInfo), AppID);
+        Result = CFE_ES_GetModuleInfo(&(CFE_ES_TaskData.OneAppPacket.Payload.AppInfo), ResourceID);
     }
 
     /*
@@ -1182,13 +1188,48 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
     CFE_ES_AppInfo_t      AppInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                  QueryAllFilename[OS_MAX_PATH_LEN];
+    CFE_ES_ResourceID_t   ResourceList[CFE_ES_QUERY_ALL_MAX_ENTRIES];
+    uint32                NumResources;
     CFE_ES_AppRecord_t    *AppRecPtr;
+    CFE_ES_LibRecord_t    *LibRecPtr;
 
     /*
     ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
     */
     CFE_SB_MessageStringGet(QueryAllFilename, (char *)CmdPtr->FileName,
             CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE, OS_MAX_PATH_LEN, sizeof(CmdPtr->FileName));
+
+    /*
+     * Collect list of active resource IDs.
+     *
+     * This should be done while locked, but the actual writing
+     * of the AppInfo data should be done while NOT locked.
+     */
+    CFE_ES_LockSharedData(__func__, __LINE__);
+    NumResources = 0;
+    AppRecPtr = CFE_ES_Global.AppTable;
+    for(i=0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS &&
+             NumResources < CFE_ES_QUERY_ALL_MAX_ENTRIES; ++i)
+    {
+        if (CFE_ES_AppRecordIsUsed(AppRecPtr))
+        {
+            ResourceList[NumResources] = CFE_ES_AppRecordGetID(AppRecPtr);
+            ++NumResources;
+        }
+        ++AppRecPtr;
+    }
+    LibRecPtr = CFE_ES_Global.LibTable;
+    for(i=0; i < CFE_PLATFORM_ES_MAX_LIBRARIES &&
+             NumResources < CFE_ES_QUERY_ALL_MAX_ENTRIES; ++i)
+    {
+        if (CFE_ES_LibRecordIsUsed(LibRecPtr))
+        {
+            ResourceList[NumResources] = CFE_ES_LibRecordGetID(LibRecPtr);
+            ++NumResources;
+        }
+        ++LibRecPtr;
+    }
+    CFE_ES_UnlockSharedData(__func__, __LINE__);
 
     /*
     ** Check to see if the file already exists
@@ -1240,21 +1281,13 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
         /*
         ** Loop through the ES AppTable for main applications
         */
-        AppRecPtr = CFE_ES_Global.AppTable;
-        for(i=0;i<CFE_PLATFORM_ES_MAX_APPLICATIONS;i++)
+        for(i=0; i < NumResources; ++i)
         {
             /*
-            ** zero out the local entry
-            */
-            memset(&AppInfo,0,sizeof(CFE_ES_AppInfo_t));
-
-            /*
-            ** Populate the AppInfo entry
-            ** The internal routine checks the status of the entry
-            */
-            Result = CFE_ES_GetAppInfoInternal(AppRecPtr, &AppInfo);
-
-            if ( Result == CFE_SUCCESS )
+             ** Populate the AppInfo entry
+             */
+            Result = CFE_ES_GetModuleInfo(&AppInfo, ResourceList[i]);
+            if (Result == CFE_SUCCESS)
             {
                 /*
                 ** Write the local entry to file
@@ -1314,12 +1347,35 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
     CFE_ES_TaskInfo_t          TaskInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                       QueryAllFilename[OS_MAX_PATH_LEN];
+    CFE_ES_ResourceID_t        TaskList[OS_MAX_TASKS];
+    uint32                     NumTasks;
     CFE_ES_TaskRecord_t        *TaskRecPtr;
+
     /*
     ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
     */
     CFE_SB_MessageStringGet(QueryAllFilename, (char *)CmdPtr->FileName,
             CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE, OS_MAX_PATH_LEN, sizeof(CmdPtr->FileName));
+
+    /*
+     * Collect list of active task IDs.
+     *
+     * This should be done while locked, but the actual writing
+     * of the AppInfo data should be done while NOT locked.
+     */
+    CFE_ES_LockSharedData(__func__, __LINE__);
+    NumTasks = 0;
+    TaskRecPtr = CFE_ES_Global.TaskTable;
+    for(i=0; i < OS_MAX_TASKS; ++i)
+    {
+        if (CFE_ES_TaskRecordIsUsed(TaskRecPtr))
+        {
+            TaskList[NumTasks] = CFE_ES_TaskRecordGetID(TaskRecPtr);
+            ++NumTasks;
+        }
+        ++TaskRecPtr;
+    }
+    CFE_ES_UnlockSharedData(__func__, __LINE__);
 
     /*
     ** Check to see if the file already exists
@@ -1371,20 +1427,13 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
         /*
         ** Loop through the ES AppTable for main applications
         */
-        TaskRecPtr = CFE_ES_Global.TaskTable;
-        for(i=0;i<OS_MAX_TASKS;i++)
+        for(i=0; i < NumTasks; ++i)
         {
             /*
-            ** zero out the local entry
+            ** Populate the AppInfo entry
             */
-            memset(&TaskInfo,0,sizeof(CFE_ES_TaskInfo_t));
-
-            /*
-            ** Populate the TaskInfo entry
-            */
-            Result = CFE_ES_GetTaskInfoInternal(TaskRecPtr, &TaskInfo);
-
-            if(Result == CFE_SUCCESS)
+            Result = CFE_ES_GetTaskInfo(&TaskInfo, TaskList[i]);
+            if (Result == CFE_SUCCESS)
             {
                 /*
                 ** Write the local entry to file
@@ -1407,8 +1456,6 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
                 FileSize += Result;
                 EntryCount ++;
             }
-
-            ++TaskRecPtr;
 
         } /* end for */
 
