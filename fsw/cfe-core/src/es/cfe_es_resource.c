@@ -49,6 +49,11 @@
  */
 int32 CFE_ES_ResourceID_ToIndex_Internal(uint32 Serial, uint32 TableSize, uint32 *Idx)
 {
+    if (Idx == NULL)
+    {
+        return CFE_ES_ERR_BUFFER;
+    }
+
     if (Serial > CFE_ES_RESOURCEID_MAX)
     {
         return CFE_ES_ERR_RESOURCEID_NOT_VALID;
