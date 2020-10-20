@@ -134,6 +134,42 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
     Buffer->BlockSize = 0;
 } /* End of CFE_ES_SysLogReadStart_Unsync() */
 
+
+/*
+ * -----------------------------------------------------------------
+ * CFE_ES_SysLogIncReadInit_Unsync --
+ * Initialize Buffer for an incremental reading the system log
+ * -----------------------------------------------------------------
+ */
+void CFE_ES_SysLogIncReadInit_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
+{
+    if ( ( CFE_ES_ResetDataPtr->SystemLogMode != CFE_ES_LogMode_OVERWRITE ) ||
+         ( Buffer->LastOffset > CFE_ES_ResetDataPtr->SystemLogEndIdx ) )
+    {
+        CFE_ES_SysLogReadStart_Unsync(Buffer);
+    }
+    else
+    {
+        /* LastOffset is left at its passed in position. */
+        /* Since CFE_ES_SysLogReadStart_Unsync has been called, no new line
+         * logic added. */
+        if ( CFE_ES_ResetDataPtr->SystemLogWriteIdx < Buffer->LastOffset )
+        {
+            Buffer->SizeLeft = CFE_ES_ResetDataPtr->SystemLogEndIdx - 
+                               Buffer->LastOffset +
+                               CFE_ES_ResetDataPtr->SystemLogWriteIdx;
+        }
+        else
+        {
+            Buffer->SizeLeft = CFE_ES_ResetDataPtr->SystemLogWriteIdx - 
+                               Buffer->LastOffset;
+        }
+        Buffer->BlockSize = 0;
+        Buffer->EndIdx    = CFE_ES_ResetDataPtr->SystemLogEndIdx;
+    }
+} /* End of CFE_ES_SysLogIncReadInit_Unsync() */
+
+
 /*
  * -----------------------------------------------------------------
  * CFE_ES_SysLogAppend_Unsync() --

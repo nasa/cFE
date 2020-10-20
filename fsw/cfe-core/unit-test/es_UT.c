@@ -6416,6 +6416,39 @@ void TestSysLog(void)
               "CFE_ES_SysLogDump",
               "Multiple reads and writes to sys log");
    
+    /* Test Incremental Reading without wrap*/
+    ES_ResetUnitTest();
+    CFE_ES_ResetDataPtr->SystemLogMode     = CFE_ES_LogMode_OVERWRITE;
+    CFE_ES_ResetDataPtr->SystemLogEndIdx   = sizeof(CFE_ES_ResetDataPtr->SystemLog) - 1;
+    CFE_ES_ResetDataPtr->SystemLogWriteIdx = CFE_ES_ResetDataPtr->SystemLogEndIdx - 1;
+    SysLogBuffer.LastOffset = CFE_ES_ResetDataPtr->SystemLogWriteIdx - 2;;
+    
+    CFE_ES_SysLogIncReadInit_Unsync(&SysLogBuffer);
+    
+    UT_Report(__FILE__, __LINE__,
+              SysLogBuffer.EndIdx == (sizeof(CFE_ES_ResetDataPtr->SystemLog) - 1) &&
+              SysLogBuffer.BlockSize == 0 &&
+              SysLogBuffer.SizeLeft == 2,
+              "CFE_ES_SysLogIncReadInit_Unsync",
+              "Incremental read without wrap");
+
+    /* Test Incremental Reading with wrap*/
+    ES_ResetUnitTest();
+    CFE_ES_ResetDataPtr->SystemLogMode     = CFE_ES_LogMode_OVERWRITE;
+    CFE_ES_ResetDataPtr->SystemLogEndIdx   = sizeof(CFE_ES_ResetDataPtr->SystemLog) - 1;
+    SysLogBuffer.LastOffset                = 3;
+    CFE_ES_ResetDataPtr->SystemLogWriteIdx = 2;
+    
+    CFE_ES_SysLogIncReadInit_Unsync(&SysLogBuffer);
+    
+    UT_Report(__FILE__, __LINE__,
+              SysLogBuffer.EndIdx == (sizeof(CFE_ES_ResetDataPtr->SystemLog) - 1) &&
+              SysLogBuffer.LastOffset == 3 &&
+              SysLogBuffer.BlockSize == 0 &&
+              SysLogBuffer.SizeLeft == (SysLogBuffer.EndIdx - 3 + 2),
+              "CFE_ES_SysLogIncReadInit_Unsync",
+              "Incremental read with wrap");
+
     /* Test "message got truncated"  */
     ES_ResetUnitTest();
     memset(TmpString, 'a', CFE_ES_MAX_SYSLOG_MSG_SIZE);
