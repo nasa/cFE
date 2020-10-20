@@ -73,7 +73,7 @@ int32 CFE_ES_ResourceID_ToIndex_Internal(uint32 Serial, uint32 TableSize, uint32
 osal_id_t CFE_ES_ResourceID_ToOSAL(CFE_ES_ResourceID_t id)
 {
     unsigned long val = CFE_ES_ResourceID_ToInteger(id);
-    return OS_ObjectIdFromInteger(val ^ CFE_ES_RESOURCEID_MARK);
+    return OS_ObjectIdFromInteger(val);
 }
 
 /*********************************************************************/
@@ -85,7 +85,7 @@ osal_id_t CFE_ES_ResourceID_ToOSAL(CFE_ES_ResourceID_t id)
 CFE_ES_ResourceID_t CFE_ES_ResourceID_FromOSAL(osal_id_t id)
 {
     unsigned long val = OS_ObjectIdToInteger(id);
-    return CFE_ES_ResourceID_FromInteger(val ^ CFE_ES_RESOURCEID_MARK);
+    return CFE_ES_ResourceID_FromInteger(val);
 }
 
 /*********************************************************************/
