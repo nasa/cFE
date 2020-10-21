@@ -232,7 +232,7 @@ int32 CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr)
 **        None
 **
 ** \returns
-**        Returns either CFE_ES_ERR_APPNAME or CFE_SUCCESS.
+**        Returns either CFE_ES_ERR_NAME_NOT_FOUND or CFE_SUCCESS.
 **
 ******************************************************************************/
 int32 CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *AppName)

@@ -42,6 +42,7 @@
 #include "cfe_es.h"
 #include "cfe_es_apps.h"
 #include "cfe_es_global.h"
+#include "cfe_es_resource.h"
 #include "cfe_es_log.h"
 #include "cfe_es_task.h"
 #include "cfe_psp.h"

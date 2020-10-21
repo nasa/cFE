@@ -57,6 +57,7 @@
 #include "cfe_es_cds_mempool.h"
 #include "cfe_es_generic_pool.h"
 #include "cfe_es_global.h"
+#include "cfe_es_resource.h"
 #include "cfe_es_log.h"
 #include "cfe_es_perf.h"
 #include "cfe_es_task.h"
@@ -332,6 +333,7 @@ void TestCDSMempool(void);
 void TestESMempool(void);
 
 void TestSysLog(void);
+void TestResourceID(void);
 void TestGenericCounterAPI(void);
 void TestGenericPool(void);
 void TestLibs(void);

@@ -1396,7 +1396,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDS_t *data)
                                   "CDS '%s' owning app is still active", 
                                   TableName);
             }
-            else if (Status == CFE_ES_CDS_NOT_FOUND_ERR)
+            else if (Status == CFE_ES_ERR_NAME_NOT_FOUND)
             {
                 CFE_EVS_SendEvent(CFE_TBL_CDS_NOT_FOUND_ERR_EID, CFE_EVS_EventType_ERROR,        
                                  "Unable to locate '%s' in CDS Registry", TableName);

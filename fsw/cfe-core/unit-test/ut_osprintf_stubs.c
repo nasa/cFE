@@ -67,7 +67,7 @@ const char *UT_OSP_MESSAGES[] =
         /* PROCESSOR RESET called from CFE_ES_ResetCFE (Commanded). */
         [UT_OSP_PROC_RESET_COMMANDED] = "PROCESSOR RESET called from CFE_ES_ResetCFE (Commanded).\n",
         /* ES SharedData Mutex Take Err Stat=0x~,App=1,Func=TestAPI,Line=12345 */
-        [UT_OSP_MUTEX_TAKE] = "ES SharedData Mutex Take Err Stat=0x%x,App=%d,Func=%s,Line=%d\n",
+        [UT_OSP_MUTEX_TAKE] = "ES SharedData Mutex Take Err Stat=0x%x,Func=%s,Line=%d\n",
         /* ES Startup: Startup Sync failed - Applications may not have all started */
         [UT_OSP_STARTUP_SYNC_FAIL_1] = "ES Startup: Startup Sync failed - Applications may not have all started\n",
         /* Warning: System Log full, log entry discarded. */
@@ -101,7 +101,7 @@ const char *UT_OSP_MESSAGES[] =
         /* ES Startup: Unable to extract filename from path: ut57/ */
         [UT_OSP_EXTRACT_FILENAME_UT57] = "ES Startup: Unable to extract filename from path: %s.\n",
         /* ES SharedData Mutex Give Err Stat=0x~,App=1,Func=TestAPI,Line=98765 */
-        [UT_OSP_MUTEX_GIVE] = "ES SharedData Mutex Give Err Stat=0x%x,App=%d,Func=%s,Line=%d\n",
+        [UT_OSP_MUTEX_GIVE] = "ES SharedData Mutex Give Err Stat=0x%x,Func=%s,Line=%d\n",
         /* ES Startup: Could not find symbol:EntryPoint. EC = 0x~ */
         [UT_OSP_CANNOT_FIND_SYMBOL] = "ES Startup: Could not find symbol:%s. EC = 0x%08X\n",
         /* ES Startup: Error Initializing Volatile(RAM) Volume. EC = 0x~ */

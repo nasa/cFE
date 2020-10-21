@@ -170,6 +170,7 @@ typedef struct
     osal_id_t            GenMutex;                           /**< \brief Mutex that controls access to CDS and registry */
     CFE_ES_CDS_Offset_t  TotalSize;                          /**< \brief Total size of the CDS as reported by BSP */
     CFE_ES_CDS_Offset_t  DataSize;                           /**< \brief Size of actual user data pool */
+    CFE_ES_ResourceID_t  LastCDSBlockId;                     /**< \brief Last issued CDS block ID */
     CFE_ES_CDS_RegRec_t  Registry[CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES];  /**< \brief CDS Registry (Local Copy) */
 } CFE_ES_CDS_Instance_t;
 
@@ -274,7 +275,7 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
  * @param[in]  BlockID the ID/handle of the CDS block to retrieve
  * @param[out] Idx     Output buffer to store the index
  * @returns    #CFE_SUCCESS if conversion successful. @copydoc CFE_SUCCESS
- *             #CFE_ES_RESOURCE_ID_INVALID if block ID is outside valid range
+ *             #CFE_ES_ERR_RESOURCEID_NOT_VALID if block ID is outside valid range
  */
 int32 CFE_ES_CDSBlockID_ToIndex(CFE_ES_ResourceID_t BlockID, uint32 *Idx);
 
@@ -505,7 +506,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceI
 
 /*****************************************************************************/
 /**
-** \brief Returns the Registry Index for the specified CDS Name
+** \brief Returns the Registry Record for the specified CDS Name
 **
 ** \par Description
 **        Locates given CDS Name in the CDS Registry and
@@ -520,22 +521,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceI
 ** \retval NULL if not found, Non null entry pointer on success
 **
 ******************************************************************************/
-CFE_ES_CDS_RegRec_t *CFE_ES_FindCDSInRegistry(const char *CDSName);
-
-/*****************************************************************************/
-/**
-** \brief Locates a free slot in the CDS Registry and configures it for new use.
-**
-** \par Description
-**        Locates a free slot in the CDS Registry, assigns an ID,
-**        and marks the entry as used.
-**
-** \par Assumptions, External Events, and Notes:
-**        Note: This function assumes the registry has been locked.
-**
-** \retval NULL if registry full, Non null entry pointer on success
-******************************************************************************/
-CFE_ES_CDS_RegRec_t *CFE_ES_AllocateNewCDSRegistryEntry(void);
+CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName);
 
 /*****************************************************************************/
 /**

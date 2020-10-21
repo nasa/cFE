@@ -10,6 +10,12 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev139
+
+- For all resource types which have names, IDs are not re-issued after deletion, helping ensure safety as previously deleted IDs will not validate. Provides a consistent Name-ID translation API for all resource types. Enforces consistent argument/name validation on all resource types, and also enforces name uniqueness where relevant.
+- Enhancement to use the full 16 bits of resource ID space, which avoids repeating ID values that have already been used. This significantly decreases the likelihood that a previously deleted ID will alias a newly allocated/valid ID.
+- See <https://github.com/nasa/cFE/pull/959>
+
 ### Development Build: 6.8.0-rc1+dev129
 
 - Rather than having a second pool implementation only for CDS, use the generic pool implementation. This also uses the abstract resource identifiers to identify CDS blocks, rather than a direct reference.

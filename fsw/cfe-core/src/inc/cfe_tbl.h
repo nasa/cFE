@@ -260,8 +260,6 @@ typedef struct CFE_TBL_Info
 ** \retval #CFE_TBL_ERR_INVALID_SIZE         \copybrief CFE_TBL_ERR_INVALID_SIZE
 ** \retval #CFE_TBL_ERR_INVALID_NAME         \copybrief CFE_TBL_ERR_INVALID_NAME
 ** \retval #CFE_TBL_ERR_BAD_APP_ID           \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_ES_ERR_APPNAME               \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Share
 **/
@@ -303,8 +301,6 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr,                  /
 ** \retval #CFE_TBL_ERR_HANDLES_FULL \copybrief CFE_TBL_ERR_HANDLES_FULL
 ** \retval #CFE_TBL_ERR_INVALID_NAME \copybrief CFE_TBL_ERR_INVALID_NAME
 ** \retval #CFE_TBL_ERR_BAD_APP_ID   \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_ES_ERR_APPNAME       \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER        \copybrief CFE_ES_ERR_BUFFER
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Register
 **
@@ -333,8 +329,6 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName);
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 **
 ** \sa #CFE_TBL_Share, #CFE_TBL_Register
 ** 
@@ -382,8 +376,6 @@ CFE_Status_t CFE_TBL_Unregister (CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_BAD_APP_ID        \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS         \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE    \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_ES_ERR_APPNAME            \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER             \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_DUMP_ONLY         \copybrief CFE_TBL_ERR_DUMP_ONLY
 ** \retval #CFE_TBL_ERR_ILLEGAL_SRC_TYPE  \copybrief CFE_TBL_ERR_ILLEGAL_SRC_TYPE
 ** \retval #CFE_TBL_ERR_LOAD_IN_PROGRESS  \copybrief CFE_TBL_ERR_LOAD_IN_PROGRESS
@@ -423,8 +415,6 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 ** \retval #CFE_TBL_ERR_BAD_APP_ID         \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS          \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE     \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_ES_ERR_APPNAME             \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER              \copybrief CFE_ES_ERR_BUFFER
 **
 ** \sa #CFE_TBL_Load, #CFE_TBL_Validate, #CFE_TBL_Manage
 **
@@ -453,8 +443,6 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                        \copybrief CFE_SUCCESS
 ** \retval #CFE_TBL_INFO_NO_VALIDATION_PENDING \copybrief CFE_TBL_INFO_NO_VALIDATION_PENDING
-** \retval #CFE_ES_ERR_APPNAME                 \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER                  \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_BAD_APP_ID             \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS              \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE         \copybrief CFE_TBL_ERR_INVALID_HANDLE
@@ -485,8 +473,6 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
 ** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
-** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
@@ -514,8 +500,6 @@ CFE_Status_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle);
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
@@ -542,8 +526,6 @@ CFE_Status_t   CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle);
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
@@ -598,8 +580,6 @@ CFE_Status_t   CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_UNREGISTERED   \copybrief CFE_TBL_ERR_UNREGISTERED
 ** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
 **
@@ -631,8 +611,6 @@ CFE_Status_t CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_GetAddresses, #CFE_TBL_ReleaseAddresses
@@ -682,8 +660,6 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_UNREGISTERED   \copybrief CFE_TBL_ERR_UNREGISTERED
 ** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
 **
@@ -717,8 +693,6 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_ReleaseAddress, #CFE_TBL_GetAddresses
@@ -754,8 +728,6 @@ CFE_Status_t CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t T
 ** \retval #CFE_TBL_INFO_UPDATE_PENDING     \copybrief CFE_TBL_INFO_UPDATE_PENDING
 ** \retval #CFE_TBL_INFO_VALIDATION_PENDING \copybrief CFE_TBL_INFO_VALIDATION_PENDING
 ** \retval #CFE_TBL_INFO_DUMP_PENDING       \copybrief CFE_TBL_INFO_DUMP_PENDING
-** \retval #CFE_ES_ERR_APPNAME              \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER               \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_BAD_APP_ID          \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
@@ -833,8 +805,6 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName);
 ** 
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_APPNAME         \copybrief CFE_ES_ERR_APPNAME
-** \retval #CFE_ES_ERR_BUFFER          \copybrief CFE_ES_ERR_BUFFER
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
