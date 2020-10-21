@@ -88,31 +88,6 @@
 #include <string.h>
 
 /******************************************************************************
-**  Function:  CFE_SB_InitIdxStack()
-**
-**  Purpose: Initialize a push/pop stack of routing table indexes.
-**           On init each must be unique. After system initialization SB_Idx_top
-**           will always point/index to the next available routing table index
-**
-**  Arguments:
-**
-**  Return:
-**    None
-*/
-
-void CFE_SB_InitIdxStack(void)
-{
-   uint16 i;
-
-   CFE_SB.RouteIdxTop = 0;
-   for (i=0; i<CFE_PLATFORM_SB_MAX_MSG_IDS; i++)
-    {
-       CFE_SB.RouteIdxStack[i] = CFE_SB_ValueToRouteIdx(i);
-    }
-}
-
-
-/******************************************************************************
 **  Function:  CFE_SB_CleanUpApp()
 **
 **  Purpose:
@@ -174,64 +149,6 @@ CFE_SB_PipeId_t CFE_SB_GetAvailPipeIdx(void){
 
 }/* end CFE_SB_GetAvailPipeIdx */
 
-/******************************************************************************
-**  Function:  CFE_SB_RouteIdxPop_Unsync()
-**
-**  Purpose:
-**    SB internal function to get the next available Routing Table element
-**    (CFE_SB_RouteEntry_t). Typically called when an application subscribes
-**    to a message.
-**
-**  Assumptions, External Events, and Notes:
-**      Calls to this function assumed to be protected by a semaphore
-**  Arguments:
-**      None
-**
-**  Return:
-**    Returns the index of an empty Routing Table element or
-**    CFE_SB_INVALID_ROUTE_IDX if there are no more elements available.
-*/
-CFE_SB_MsgRouteIdx_t CFE_SB_RouteIdxPop_Unsync (void) {
-
-    CFE_SB_MsgRouteIdx_t retValue;
-
-    /* This stack grows from 0 to (CFE_PLATFORM_SB_MAX_MSG_IDS - 1) */
-    if (CFE_SB.RouteIdxTop >= CFE_PLATFORM_SB_MAX_MSG_IDS) {
-        retValue = CFE_SB_INVALID_ROUTE_IDX; /* no more Idx remaining, all used */
-    } else {    
-        retValue = CFE_SB.RouteIdxStack[CFE_SB.RouteIdxTop];
-        ++CFE_SB.RouteIdxTop;
-    }
-
-    return (retValue);
-} /* end CFE_SB_IdxPop_Unsync */
-
-
-/******************************************************************************
-**  Function:  CFE_SB_RouteIdxPush_Unsync()
-**
-**  Purpose:
-**    SB internal function to return a Routing Table element to the available stack
-**    (CFE_SB_RouteEntry_t). Typically called when an application un-subscribes
-**    to a message. 0 is a valid idx.
-**
-**  Assumptions, External Events, and Notes:
-**      Calls to this function assumed to be protected by a semaphore
-** 
-**  Arguments:
-**    None
-**
-**  Return:
-**    None
-*/
-void CFE_SB_RouteIdxPush_Unsync (CFE_SB_MsgRouteIdx_t idx) {
-
-    /* This stack grows from 0 to (CFE_PLATFORM_SB_MAX_MSG_IDS - 1) */
-    if (CFE_SB.RouteIdxTop > 0) {
-        --CFE_SB.RouteIdxTop;
-        CFE_SB.RouteIdxStack[CFE_SB.RouteIdxTop] = idx;
-    }
-} /* end CFE_SB_IdxPush_Unsync */
 
 /******************************************************************************
 **  Function:  CFE_SB_GetPipeIdx()
@@ -363,176 +280,27 @@ CFE_SB_PipeD_t *CFE_SB_GetPipePtr(CFE_SB_PipeId_t PipeId) {
 
 }/* end CFE_SB_GetPipePtr */
 
-
-
 /******************************************************************************
-**  Function:  CFE_SB_GetDestPtr()
-**
-**  Purpose:
-**    SB internal function to get a pointer to the destination descriptor
-**    associated with the given message id/pipe id combination.
-**
-**  Arguments:
-**    MsgId  : ID of the message
-**    PipeId : Pipe ID for the destination.
-**
-**  Return:
-**    Pointer to the destination descriptor that corresponds to the msg/pipe
-**    combination. If the destination does not exist, return NULL.
-*/
-CFE_SB_DestinationD_t  *CFE_SB_GetDestPtr(CFE_SB_MsgKey_t MsgKey,
-                                          CFE_SB_PipeId_t PipeId){
-
-    CFE_SB_MsgRouteIdx_t    Idx;
-    CFE_SB_DestinationD_t   *DestPtr;
-
-    Idx = CFE_SB_GetRoutingTblIdx(MsgKey);
-
-    if(!CFE_SB_IsValidRouteIdx(Idx))
-    {
-        return NULL;
-    }/* end if */
-
-    DestPtr = CFE_SB_GetRoutePtrFromIdx(Idx)->ListHeadPtr;
-
-    while(DestPtr != NULL){
-
-        if(DestPtr -> PipeId == PipeId){
-            return DestPtr;
-        }/* end if */
-
-        DestPtr = DestPtr->Next;
-
-    }/* end while */
-
-    return NULL;
-
-}/* end CFE_SB_GetDestPtr */
-
-
-
-/******************************************************************************
-**  Function:  CFE_SB_GetRoutingTblIdx()
-**
-**  Purpose:
-**    SB internal function to get the index of the routing table element
-**    associated with the given message id.
-**
-**  Assumptions:
-**    Calls to this are predicated by a call to CFE_SB_IsValidMsgKey
-**    which already check the MsgKey argument
-**
-**  Arguments:
-**    MsgKey  : ID of the message
-**    PipeId : Pipe ID for the destination.
-**
-**  Return:
-**    Will return the index of the routing table element for the given message ID
-*/
-CFE_SB_MsgRouteIdx_t CFE_SB_GetRoutingTblIdx(CFE_SB_MsgKey_t MsgKey){
-
-    return CFE_SB.MsgMap[CFE_SB_MsgKeyToValue(MsgKey)];
-
-}/* end CFE_SB_GetRoutingTblIdx */
-
-
-
-/******************************************************************************
-**  Function:  CFE_SB_SetRoutingTblIdx()
-**
-**  Purpose:
-**    SB internal function to set a value in the message map. The "Value" is
-**    the routing table index of the given message ID. The message map is used
-**    for quick routing table index lookups of a given message ID. The cost of
-**    this quick lookup is 8K bytes of memory(for CCSDS).
-**
-**  Assumptions:
-**    Calls to this are predicated by a call to CFE_SB_IsValidMsgKey
-**    which already check the MsgKey argument
-**
-**  Arguments:
-**    MsgKey  : ID of the message
-**    Value  : value to set.
-**
-**  Return:
-**
-*/
-void CFE_SB_SetRoutingTblIdx(CFE_SB_MsgKey_t MsgKey, CFE_SB_MsgRouteIdx_t Value){
-
-    CFE_SB.MsgMap[CFE_SB_MsgKeyToValue(MsgKey)] = Value;
-
-}/* end CFE_SB_SetRoutingTblIdx */
-
-
-/******************************************************************************
-**  Function:  CFE_SB_GetRoutePtrFromIdx()
-**
-**  Purpose:
-**    SB internal function to obtain a pointer to a routing table entry
-**    based on a CFE_SB_MsgRouteIdx_t value.
-**
-**  Assumptions:
-**    Calls to this are predicated by a call to CFE_SB_IsValidRouteIdx
-**    which already check the RouteIdx argument
-**
-**  Arguments:
-**    RouteIdx  : ID of the route to get
-**
-**  Return:
-**    Pointer to route entry
-**
-*/
-CFE_SB_RouteEntry_t* CFE_SB_GetRoutePtrFromIdx(CFE_SB_MsgRouteIdx_t RouteIdx)
+ * SB private function to get destination pointer - see description in header
+ */
+CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeId_t PipeId)
 {
-    return &CFE_SB.RoutingTbl[CFE_SB_RouteIdxToValue(RouteIdx)];
-} /* end CFE_SB_GetRouteFromIdx */
+    CFE_SB_DestinationD_t *destptr;
 
-/******************************************************************************
-**  Function:  CFE_SB_DuplicateSubscribeCheck()
-**
-**  Purpose:
-**    SB internal function to check for a duplicate subscription.
-**
-**  Arguments:
-**    MsgId  : ID of the message
-**    PipeId : ID of the pipe
-**
-**  Return:
-**    Will return CFE_SB_DUPLICATE if the given MsgId/PipeId subscription
-**    exists in SB routing tables, otherwise will return CFE_SB_NO_DUPLICATE.
-*/
-int32 CFE_SB_DuplicateSubscribeCheck(CFE_SB_MsgKey_t MsgKey,
-                                       CFE_SB_PipeId_t PipeId){
+    destptr = CFE_SBR_GetDestListHeadPtr(RouteId);
 
-    CFE_SB_MsgRouteIdx_t    Idx;
-    CFE_SB_DestinationD_t   *DestPtr;
-
-    Idx = CFE_SB_GetRoutingTblIdx(MsgKey);
-
-    if(!CFE_SB_IsValidRouteIdx(Idx))
+    /* Check all destinations */
+    while(destptr != NULL)
     {
-        DestPtr = NULL;
+        if(destptr->PipeId == PipeId)
+        {
+            break;
+        }
+        destptr = destptr->Next;
     }
-    else
-    {
-        DestPtr = CFE_SB_GetRoutePtrFromIdx(Idx)->ListHeadPtr;
-    }/* end if */
 
-    while(DestPtr != NULL){
-
-        if(DestPtr -> PipeId == PipeId){
-            return CFE_SB_DUPLICATE;
-        }/* end if */
-
-        DestPtr = DestPtr->Next;
-
-    }/* end while */
-
-    return CFE_SB_NO_DUPLICATE;
-
-}/* end CFE_SB_DuplicateSubscribeCheck */
-
-
+    return destptr;
+}
 
 /******************************************************************************
 **  Function:  CFE_SB_SetMsgSeqCnt()
@@ -721,38 +489,26 @@ void CFE_SB_FinishSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit){
     CFE_CLR(CFE_SB.StopRecurseFlags[Indx],Bit);
 }/* end CFE_SB_RequestToSendEvent */
 
-
-
 /******************************************************************************
-**  Function:  CFE_SB_AddDest()
-**
-**  Purpose:
-**      This function will add the given node to the head of the list.
-**
-**  Arguments:
-**      RtgTblIdx - Routing table index
-**      Dest - Pointer to the destination block to add to the list
-**
-**  Return:
-**
-*/
-int32 CFE_SB_AddDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *NewNode){
+ * SB private function to add a destination node - see description in header
+ */
+int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode){
 
     CFE_SB_DestinationD_t *WBS;/* Will Be Second (WBS) node */
+    CFE_SB_DestinationD_t *listheadptr;
+
+    listheadptr = CFE_SBR_GetDestListHeadPtr(RouteId);
 
     /* if first node in list */
-    if(RouteEntry->ListHeadPtr == NULL){
-
+    if(listheadptr == NULL)
+    {
         /* initialize the new node */
         NewNode->Next = NULL;
         NewNode->Prev = NULL;
-
-        /* insert the new node */
-        RouteEntry->ListHeadPtr = NewNode;
-
-    }else{
-
-        WBS = RouteEntry->ListHeadPtr;
+    }
+    else
+    {
+        WBS = listheadptr;
 
         /* initialize the new node */
         NewNode->Next = WBS;
@@ -760,75 +516,63 @@ int32 CFE_SB_AddDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *New
 
         /* insert the new node */
         WBS -> Prev = NewNode;
-        RouteEntry->ListHeadPtr = NewNode;
+    }
 
-    }/* end if */
+    /* Update Head */
+    CFE_SBR_SetDestListHeadPtr(RouteId, NewNode);
 
     return CFE_SUCCESS;
-
-}/* CFE_SB_AddDest */
-
-
+}
 
 /******************************************************************************
-**  Function:  CFE_SB_RemoveDest()
-**
-**  Purpose:
-**      This function will remove the given node from the list.
-**      This function assumes there is at least one node in the list.
-**
-**  Arguments:
-**      RtgTblIdx - Routing table index
-**      Dest - Pointer to the destination block to remove from the list
-**
-**  Return:
-**
-*/
-int32 CFE_SB_RemoveDest(CFE_SB_RouteEntry_t *RouteEntry, CFE_SB_DestinationD_t *NodeToRemove){
+ * SB private function to remove a destination - see description in header
+ */
+void CFE_SB_RemoveDest(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr)
+{
+    CFE_SB_RemoveDestNode(RouteId, DestPtr);
+    CFE_SB_PutDestinationBlk(DestPtr);
+    CFE_SB.StatTlmMsg.Payload.SubscriptionsInUse--;
+}
 
+/******************************************************************************
+ * SB private function to remove a destination node - see description in header
+ */
+void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NodeToRemove)
+{
     CFE_SB_DestinationD_t *PrevNode;
     CFE_SB_DestinationD_t *NextNode;
 
-    /* if this is the only node in the list */
-    if((NodeToRemove->Prev == NULL) && (NodeToRemove->Next == NULL)){
-
-        RouteEntry->ListHeadPtr = NULL;
-
-    /* if first node in the list and list has more than one */
-    }else if(NodeToRemove->Prev == NULL){
-
+    if((NodeToRemove->Prev == NULL) && (NodeToRemove->Next == NULL))
+    {
+        /* Clear destinations if this is the only node in the list */
+        CFE_SBR_SetDestListHeadPtr(RouteId, NULL);
+    }
+    else if(NodeToRemove->Prev == NULL)
+    {
+        /* First in the list, set the next node to list head */
         NextNode = NodeToRemove->Next;
-
         NextNode -> Prev = NULL;
+        CFE_SBR_SetDestListHeadPtr(RouteId, NextNode);
+    }
+    else if(NodeToRemove->Next == NULL){
 
-        RouteEntry->ListHeadPtr = NextNode;
-
-    /* if last node in the list and list has more than one */
-    }else if(NodeToRemove->Next == NULL){
-
+        /* Last in the list, remove previous pointer */
         PrevNode = NodeToRemove->Prev;
-
         PrevNode -> Next = NULL;
-
-    /* NodeToRemove has node(s) before and node(s) after */
-    }else{
-
+    }
+    else
+    {
+        /* Middle of list, remove */
         PrevNode = NodeToRemove->Prev;
         NextNode = NodeToRemove->Next;
-
         PrevNode -> Next = NextNode;
         NextNode -> Prev = PrevNode;
-
-    }/* end if */
-
+    }
 
     /* initialize the node before returning it to the heap */
     NodeToRemove -> Next = NULL;
     NodeToRemove -> Prev = NULL;
-
-    return CFE_SUCCESS;
-
-}/* CFE_SB_RemoveDest */
+}
 
 
 /******************************************************************************

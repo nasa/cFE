@@ -112,15 +112,9 @@ int32 CFE_SB_EarlyInit (void) {
     /* Initialize the pipe table. */
     CFE_SB_InitPipeTbl();
 
-    /* Initialize the routing index look up table */
-    CFE_SB_InitMsgMap();
+    /* Initialize the routing module */
+    CFE_SBR_Init();
 
-    /* Initialize the routing table. */
-    CFE_SB_InitRoutingTbl();
-
-    /* Initialize the APID to routing index map table */
-    CFE_SB_InitIdxStack();
-    
     /* Initialize the SB Statistics Pkt */
     CFE_SB_InitMsg(&CFE_SB.StatTlmMsg,
                    CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
@@ -197,64 +191,5 @@ void CFE_SB_InitPipeTbl(void){
     }/* end for */
 
 }/* end CFE_SB_InitPipeTbl */
-
-
-
-/******************************************************************************
-**  Function:  CFE_SB_InitMsgMap()
-**
-**  Purpose:
-**    Initialize the Software Bus Message Map.
-**
-**  Arguments:
-**
-**  Notes:
-**    This function MUST be called before any SB API's are called.
-**
-**  Return:
-**    none
-*/
-void CFE_SB_InitMsgMap(void){
-
-    CFE_SB_MsgKey_Atom_t   KeyVal;
-
-    for (KeyVal=0; KeyVal < CFE_SB_MAX_NUMBER_OF_MSG_KEYS; KeyVal++)
-    {
-        CFE_SB.MsgMap[KeyVal] = CFE_SB_INVALID_ROUTE_IDX;
-    }
-
-}/* end CFE_SB_InitMsgMap */
-
-
-
-/******************************************************************************
-**  Function:  CFE_SB_InitRoutingTbl()
-**
-**  Purpose:
-**    Initialize the Software Bus Routing Table.
-**
-**  Arguments:
-**
-**  Notes:
-**    This function MUST be called before any SB API's are called.
-**
-**  Return:
-**    none
-*/
-void CFE_SB_InitRoutingTbl(void){
-
-    uint32  i;
-
-    /* Initialize routing table */
-    for(i=0;i<CFE_PLATFORM_SB_MAX_MSG_IDS;i++){
-
-        CFE_SB.RoutingTbl[i].MsgId = CFE_SB_INVALID_MSG_ID;
-        CFE_SB.RoutingTbl[i].SeqCnt = 0;
-        CFE_SB.RoutingTbl[i].Destinations = 0;
-        CFE_SB.RoutingTbl[i].ListHeadPtr = NULL;
-
-    }/* end for */
-
-}/* end CFE_SB_InitRoutingTbl */
 
 /*****************************************************************************/

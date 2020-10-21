@@ -15,6 +15,7 @@ set(MISSION_CORE_MODULES
     "osal"
     "psp"
     "msg"
+    "sbr"
 )
 
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built
