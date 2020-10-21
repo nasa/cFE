@@ -497,6 +497,21 @@
 **/
 #define CFE_SB_SUBSCRIPTION_RPT_EID     22
 
+/** \brief <tt> 'Msg hash collision: MsgId = 0x\%x, collisions = \%u' </tt>
+**  \event <tt> 'Msg hash collision: MsgId = 0x\%x, collisions = \%u' </tt>
+**
+**  \par Type: DEBUG
+**
+**  \par Cause:
+**
+**  This event message is generated when a message id hash collision occurs when subscribing
+**  to a message.  Collisions indicate how many slots were incremented to find an opening.
+**
+**  Number of collisions will directly impact software bus performance.  These can be resolved
+**  by adjusting MsgId values or increasing CFE_PLATFORM_SB_MAX_MSG_IDS.
+**/
+#define CFE_SB_HASHCOLLISION_EID        23
+
 /** \brief <tt> 'Pipe Overflow,MsgId 0x\%x,pipe \%s,stat 0x\%x,app \%s' </tt>
 **  \event <tt> 'Pipe Overflow,MsgId 0x\%x,pipe \%s,stat 0x\%x,app \%s' </tt>
 **

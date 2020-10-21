@@ -47,7 +47,11 @@
 **       regarding this parameter, send an SB command to 'Send Statistics Pkt'.
 **
 **  \par Limits
-**       This parameter has a lower limit of 1 and an upper limit of 1024.
+**       This must be a power of two if software bus message routing hash implementation
+**       is being used.  Lower than 64 will cause unit test failures, and
+**       telemetry reporting is impacted below 32.  There is no hard
+**       upper limit, but impacts memory footprint.  For software bus message routing
+**       search implementation the number of msg ids subscribed to impacts performance.
 **
 */
 #define CFE_PLATFORM_SB_MAX_MSG_IDS              256

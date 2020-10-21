@@ -34,29 +34,6 @@
 #include "cfe_sb_priv.h"
 #include "cfe_msg_api.h"
 
-
-/******************************************************************************
-**  Function:  CFE_SB_ConvertMsgIdtoMsgKey
-**
-**  Purpose:
-**    Convert the full message Id to the mission defined MsgKey format
-**    No conversion is needed for the default implementation as it
-**    is limited to less than 16 bits by CFE_PLATFORM_SB_HIGHEST_VALID_MSGID
-**     If CFE_PLATFORM_SB_HIGHEST_VALID_MSGID is greater than 16 bits this function
-**    may need modification to ensure SB internal data structures are a
-**    reasonable size.
-**
-**  Arguments:
-**    Message ID 
-**
-**  Return:
-**    Converted MsgKey in SB internal format
-*/
-CFE_SB_MsgKey_t CFE_SB_ConvertMsgIdtoMsgKey( CFE_SB_MsgId_t MsgId)
-{
-    return CFE_SB_ValueToMsgKey(CFE_SB_MsgIdToValue(MsgId));
-}/* CFE_SB_ConvertMsgIdtoMsgKey */
-
 /*
  * Function: CFE_SB_GetMsgId - See API and header file for details
  */

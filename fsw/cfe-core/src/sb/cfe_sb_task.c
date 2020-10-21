@@ -48,6 +48,15 @@
 cfe_sb_t                CFE_SB;
 CFE_SB_Qos_t            CFE_SB_Default_Qos;
 
+/* Local structure for file writing callbacks */
+typedef struct
+{
+    const char *Filename;   /* File name for error reporting */
+    osal_id_t   Fd;         /* File id for writing */
+    uint32      FileSize;   /* File size for reporting */
+    uint32      EntryCount; /* Entry count for reporting */
+    int32       Status;     /* File write status */
+} CFE_SB_FileWriteCallback_t;
 
 /******************************************************************************
 **  Function:  CFE_SB_TaskMain()
@@ -638,7 +647,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRoute_t *data)
        return CFE_SUCCESS;
     }/* end if */
 
-    DestPtr = CFE_SB_GetDestPtr(CFE_SB_ConvertMsgIdtoMsgKey(MsgId), PipeId);
+    DestPtr = CFE_SB_GetDestPtr(CFE_SBR_GetRouteId(MsgId), PipeId);
     if(DestPtr == NULL){
         CFE_EVS_SendEvent(CFE_SB_ENBL_RTE1_EID,CFE_EVS_EventType_ERROR,
                 "Enbl Route Cmd:Route does not exist.Msg 0x%x,Pipe %d",
@@ -702,7 +711,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRoute_t *data)
        return CFE_SUCCESS;
     }/* end if */
 
-    DestPtr = CFE_SB_GetDestPtr(CFE_SB_ConvertMsgIdtoMsgKey(MsgId), PipeId);
+    DestPtr = CFE_SB_GetDestPtr(CFE_SBR_GetRouteId(MsgId), PipeId);
     if(DestPtr == NULL){
         CFE_EVS_SendEvent(CFE_SB_DSBL_RTE1_EID,CFE_EVS_EventType_ERROR,
             "Disable Route Cmd:Route does not exist,Msg 0x%x,Pipe %d",
@@ -843,6 +852,61 @@ int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfo_t *data)
     return CFE_SUCCESS;
 }/* end CFE_SB_SendMapInfoCmd */
 
+/******************************************************************************
+ * Local callback helper for writing routing info to a file
+ */
+void CFE_SB_WriteRouteToFile(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
+{
+    CFE_SB_FileWriteCallback_t *args;
+    CFE_SB_DestinationD_t      *destptr;
+    CFE_SB_PipeD_t             *pipedptr;
+    int32                       status;
+    CFE_SB_RoutingFileEntry_t   entry;
+
+    /* Cast arguments for local use */
+    args = (CFE_SB_FileWriteCallback_t *)ArgPtr;
+
+    destptr = CFE_SBR_GetDestListHeadPtr(RouteId);
+
+    while((destptr != NULL) && (args->Status != CFE_SB_FILE_IO_ERR))
+    {
+
+        pipedptr = CFE_SB_GetPipePtr(destptr->PipeId);
+
+        /* If invalid id, continue on to next entry */
+        if (pipedptr != NULL)
+        {
+
+            entry.MsgId     = CFE_SBR_GetMsgId(RouteId);
+            entry.PipeId    = destptr->PipeId;
+            entry.State     = destptr->Active;
+            entry.MsgCnt    = destptr->DestCnt;
+
+            entry.AppName[0] = 0;
+            /*
+             * NOTE: as long as CFE_ES_GetAppName() returns success, then it
+             * guarantees null termination of the output.  Return code is not
+             * checked here (bad) but in case of error it does not seem to touch
+             * the buffer, therefore the initialization above will protect for now
+             */
+            CFE_ES_GetAppName(entry.AppName, pipedptr->AppId, sizeof(entry.AppName));
+            CFE_SB_GetPipeName(entry.PipeName, sizeof(entry.PipeName), entry.PipeId);
+
+            status = OS_write (args->Fd, &entry, sizeof(CFE_SB_RoutingFileEntry_t));
+            if(status != sizeof(CFE_SB_RoutingFileEntry_t))
+            {
+                CFE_SB_FileWriteByteCntErr(args->Filename, sizeof(CFE_SB_RoutingFileEntry_t), status);
+                OS_close(args->Fd);
+                args->Status = CFE_SB_FILE_IO_ERR;
+            }
+
+            args->FileSize += status;
+            args->EntryCount++;
+        }
+
+        destptr = destptr->Next;
+    }
+}
 
 /******************************************************************************
 **  Function:  CFE_SB_SendRoutingInfo()
@@ -858,103 +922,49 @@ int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfo_t *data)
 */
 int32 CFE_SB_SendRtgInfo(const char *Filename)
 {
-    CFE_SB_MsgRouteIdx_t        RtgTblIdx;
-    const CFE_SB_RouteEntry_t*  RtgTblPtr;
-    CFE_SB_MsgKey_Atom_t        MsgKeyVal;
-    osal_id_t                   fd;
+    CFE_SB_FileWriteCallback_t  args = {0};
     int32                       Status;
-    uint32                      FileSize = 0;
-    uint32                      EntryCount = 0;
-    CFE_SB_RoutingFileEntry_t   Entry;
     CFE_FS_Header_t             FileHdr;
-    CFE_SB_PipeD_t              *pd; 
-    CFE_SB_DestinationD_t       *DestPtr;
 
-    Status = OS_OpenCreate(&fd, Filename,
-            OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-    if(Status < OS_SUCCESS){
-        CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
+    Status = OS_OpenCreate(&args.Fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+    if(Status < OS_SUCCESS)
+    {
+        CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID, CFE_EVS_EventType_ERROR,
                       "Error creating file %s, stat=0x%x",
-                      Filename,(unsigned int)Status);
+                      Filename, (unsigned int)Status);
         return CFE_SB_FILE_IO_ERR;
-    }/* end if */
+    }
 
     /* clear out the cfe file header fields, then populate description and subtype */
     CFE_FS_InitHeader(&FileHdr, "SB Routing Information", CFE_FS_SubType_SB_ROUTEDATA);
 
-    Status = CFE_FS_WriteHeader(fd, &FileHdr);
-    if(Status != sizeof(CFE_FS_Header_t)){
-        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),Status);
-        OS_close(fd);
-        return CFE_SB_FILE_IO_ERR;
-    }/* end if */
-
-    FileSize = Status;
-
-    /* loop through the entire MsgMap */
-    for(MsgKeyVal=0; MsgKeyVal < CFE_SB_MAX_NUMBER_OF_MSG_KEYS; ++MsgKeyVal)
+    Status = CFE_FS_WriteHeader(args.Fd, &FileHdr);
+    if(Status != sizeof(CFE_FS_Header_t))
     {
-        RtgTblIdx = CFE_SB.MsgMap[MsgKeyVal];
+        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),Status);
+        OS_close(args.Fd);
+        return CFE_SB_FILE_IO_ERR;
+    }
 
-        /* Only process table entry if it is used. */
-        if(!CFE_SB_IsValidRouteIdx(RtgTblIdx))
-        {
-            DestPtr = NULL;
-            RtgTblPtr = NULL;
-        } 
-        else 
-        {
-            RtgTblPtr = CFE_SB_GetRoutePtrFromIdx(RtgTblIdx);
-            DestPtr = RtgTblPtr->ListHeadPtr;
-        }
+    /* Initialize the reset of the nonzero callback argument elements */
+    args.FileSize = Status;
+    args.Filename = Filename;
 
-        while(DestPtr != NULL){
+    /* Write route info to file */
+    CFE_SBR_ForEachRouteId(CFE_SB_WriteRouteToFile, &args, NULL);
 
-            pd = CFE_SB_GetPipePtr(DestPtr -> PipeId);
-            /* If invalid id, continue on to next entry */
-            if (pd != NULL) {
-            
-                Entry.MsgId     = RtgTblPtr->MsgId;
-                Entry.PipeId    = DestPtr -> PipeId;
-                Entry.State     = DestPtr -> Active;
-                Entry.MsgCnt    = DestPtr -> DestCnt;               
-            
-                Entry.AppName[0] = 0;
-                /* 
-                 * NOTE: as long as CFE_ES_GetAppName() returns success, then it 
-                 * guarantees null termination of the output.  Return code is not
-                 * checked here (bad) but in case of error it does not seem to touch
-                 * the buffer, therefore the initialization above will protect for now 
-                 */
-                CFE_ES_GetAppName(&Entry.AppName[0], pd->AppId, sizeof(Entry.AppName));
-                CFE_SB_GetPipeName(Entry.PipeName, sizeof(Entry.PipeName), Entry.PipeId);
-
-                Status = OS_write (fd, &Entry, sizeof(CFE_SB_RoutingFileEntry_t));
-                if(Status != sizeof(CFE_SB_RoutingFileEntry_t)){
-                    CFE_SB_FileWriteByteCntErr(Filename,
-                                           sizeof(CFE_SB_RoutingFileEntry_t),
-                                           Status);
-                    OS_close(fd);
-                    return CFE_SB_FILE_IO_ERR;
-                }/* end if */
-
-                FileSize += Status;
-                EntryCount ++;
-            }
-            
-            DestPtr = DestPtr->Next;
-
-        }/* end while */
-
-    }/* end for */
-
-    OS_close(fd);
-
-    CFE_EVS_SendEvent(CFE_SB_SND_RTG_EID,CFE_EVS_EventType_DEBUG,
-                      "%s written:Size=%d,Entries=%d",
-                      Filename,(int)FileSize,(int)EntryCount);
-
-    return CFE_SUCCESS;
+    if (args.Status != 0)
+    {
+        return args.Status;
+    }
+    else
+    {
+        OS_close(args.Fd);
+        CFE_EVS_SendEvent(CFE_SB_SND_RTG_EID,CFE_EVS_EventType_DEBUG,
+                          "%s written:Size=%d,Entries=%d",
+                          Filename, (int)args.FileSize, (int)args.EntryCount);
+        return CFE_SUCCESS;
+    }
 
 }/* end CFE_SB_SendRtgInfo */
 
@@ -1032,6 +1042,36 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
 
 
 /******************************************************************************
+ * Local callback helper for writing map info to a file
+ */
+void CFE_SB_WriteMapToFile(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
+{
+    CFE_SB_FileWriteCallback_t *args;
+    int32                       status;
+    CFE_SB_MsgMapFileEntry_t    entry;
+
+    /* Cast arguments for local use */
+    args = (CFE_SB_FileWriteCallback_t *)ArgPtr;
+
+    if(args->Status != CFE_SB_FILE_IO_ERR)
+    {
+        entry.MsgId = CFE_SBR_GetMsgId(RouteId);
+        entry.Index = CFE_SBR_RouteIdToValue(RouteId);
+
+        status = OS_write (args->Fd, &entry, sizeof(CFE_SB_MsgMapFileEntry_t));
+        if(status != sizeof(CFE_SB_MsgMapFileEntry_t))
+        {
+            CFE_SB_FileWriteByteCntErr(args->Filename, sizeof(CFE_SB_MsgMapFileEntry_t), status);
+            OS_close(args->Fd);
+            args->Status = CFE_SB_FILE_IO_ERR;
+        }
+
+        args->FileSize += status;
+        args->EntryCount++;
+    }
+}
+
+/******************************************************************************
 **  Function:  CFE_SB_SendMapInfo()
 **
 **  Purpose:
@@ -1045,73 +1085,103 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
 */
 int32 CFE_SB_SendMapInfo(const char *Filename)
 {
-    const CFE_SB_RouteEntry_t*  RtgTblPtr;
-    CFE_SB_MsgRouteIdx_t        RtgTblIdx;
-    CFE_SB_MsgKey_Atom_t        MsgKeyVal;
-    osal_id_t  fd;
-    int32  Status;
-    uint32 FileSize = 0;
-    uint32 EntryCount = 0;
-    CFE_SB_MsgMapFileEntry_t Entry;
-    CFE_FS_Header_t FileHdr;
+    CFE_SB_FileWriteCallback_t args = {0};
+    int32                      Status;
+    CFE_FS_Header_t            FileHdr;
 
-    Status = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+    Status = OS_OpenCreate(&args.Fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
 
-    if (Status < OS_SUCCESS){
-        CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
+    if (Status < OS_SUCCESS)
+    {
+        CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID, CFE_EVS_EventType_ERROR,
                           "Error creating file %s, stat=0x%x",
-                           Filename,(unsigned int)Status);
+                           Filename, (unsigned int)Status);
         return CFE_SB_FILE_IO_ERR;
-    }/* end if */
+    }
 
     /* clear out the cfe file header fields, then populate description and subtype */
     CFE_FS_InitHeader(&FileHdr, "SB Message Map Information", CFE_FS_SubType_SB_MAPDATA);
 
-    Status = CFE_FS_WriteHeader(fd, &FileHdr);
-    if(Status != sizeof(CFE_FS_Header_t)){
-        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),Status);
-        OS_close(fd);
-        return CFE_SB_FILE_IO_ERR;
-    }/* end if */
-
-    FileSize = Status;
-
-    /* loop through the entire MsgMap */
-    for(MsgKeyVal=0; MsgKeyVal < CFE_SB_MAX_NUMBER_OF_MSG_KEYS; ++MsgKeyVal)
+    Status = CFE_FS_WriteHeader(args.Fd, &FileHdr);
+    if(Status != sizeof(CFE_FS_Header_t))
     {
-        RtgTblIdx = CFE_SB_GetRoutingTblIdx(CFE_SB_ValueToMsgKey(MsgKeyVal));
+        CFE_SB_FileWriteByteCntErr(Filename, sizeof(CFE_FS_Header_t), Status);
+        OS_close(args.Fd);
+        return CFE_SB_FILE_IO_ERR;
+    }
 
-        if(CFE_SB_IsValidRouteIdx(RtgTblIdx))
+    /* Initialize the reset of the nonzero callback argument elements */
+    args.FileSize = Status;
+    args.Filename = Filename;
+
+    /* Write route info to file */
+    CFE_SBR_ForEachRouteId(CFE_SB_WriteMapToFile, &args, NULL);
+
+    if (args.Status != 0)
+    {
+        return args.Status;
+    }
+    else
+    {
+        OS_close(args.Fd);
+        CFE_EVS_SendEvent(CFE_SB_SND_RTG_EID, CFE_EVS_EventType_DEBUG,
+                          "%s written:Size=%d,Entries=%d",
+                          Filename, (int)args.FileSize, (int)args.EntryCount);
+        return CFE_SUCCESS;
+    }
+}
+
+/******************************************************************************
+ * Local callback helper for sending route subscriptions
+ */
+void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
+{
+    CFE_SB_DestinationD_t *destptr;
+    int32                  status;
+
+    destptr = CFE_SBR_GetDestListHeadPtr(RouteId);
+
+    /* Loop through destinations */
+    while(destptr != NULL)
+    {
+
+        if(destptr->Scope == CFE_SB_GLOBAL)
         {
-            RtgTblPtr = CFE_SB_GetRoutePtrFromIdx(RtgTblIdx);
 
-            Entry.MsgId = RtgTblPtr->MsgId;
-            Entry.Index = CFE_SB_RouteIdxToValue(RtgTblIdx);
+            /* ...add entry into pkt */
+            CFE_SB.PrevSubMsg.Payload.Entry[CFE_SB.PrevSubMsg.Payload.Entries].MsgId = CFE_SBR_GetMsgId(RouteId);
+            CFE_SB.PrevSubMsg.Payload.Entry[CFE_SB.PrevSubMsg.Payload.Entries].Qos.Priority = 0;
+            CFE_SB.PrevSubMsg.Payload.Entry[CFE_SB.PrevSubMsg.Payload.Entries].Qos.Reliability = 0;
+            CFE_SB.PrevSubMsg.Payload.Entries++;
 
-            Status = OS_write (fd, &Entry, sizeof(CFE_SB_MsgMapFileEntry_t));
-            if(Status != sizeof(CFE_SB_MsgMapFileEntry_t)){
-                CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_SB_MsgMapFileEntry_t),Status);
-                OS_close(fd);
-                return CFE_SB_FILE_IO_ERR;
-            }/* end if */
+            /* send pkt if full */
+            if(CFE_SB.PrevSubMsg.Payload.Entries >= CFE_SB_SUB_ENTRIES_PER_PKT)
+            {
+                CFE_SB_UnlockSharedData(__func__,__LINE__);
+                status = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.PrevSubMsg);
+                CFE_EVS_SendEvent(CFE_SB_FULL_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
+                                  "Full Sub Pkt %d Sent,Entries=%d,Stat=0x%x\n",
+                                  (int)CFE_SB.PrevSubMsg.Payload.PktSegment,
+                                  (int)CFE_SB.PrevSubMsg.Payload.Entries, (unsigned int)status);
+                CFE_SB_LockSharedData(__func__,__LINE__);
+                CFE_SB.PrevSubMsg.Payload.Entries = 0;
+                CFE_SB.PrevSubMsg.Payload.PktSegment++;
+            }
 
-            FileSize += Status;
-            EntryCount ++;
+            /*
+             * break while loop through destinations, onto next route
+             * This is done because we want only one network subscription per msgid
+             * Later when Qos is used, we may want to take just the highest priority
+             * subscription if there are more than one
+             */
+            break;
 
-        }/* end for */
-    }/* end for */
+        }
 
-    OS_close(fd);
-
-    CFE_EVS_SendEvent(CFE_SB_SND_RTG_EID,CFE_EVS_EventType_DEBUG,
-                      "%s written:Size=%d,Entries=%d",
-                      Filename,(int)FileSize,(int)EntryCount);
-
-    return CFE_SUCCESS;
-
-}/* end CFE_SB_SendMapInfo */
-
-
+        /* Advance to next destination */
+        destptr = destptr->Next;
+    }
+}
 
 /******************************************************************************
 **  Function:  CFE_SB_SendPrevSubsCmd()
@@ -1129,140 +1199,32 @@ int32 CFE_SB_SendMapInfo(const char *Filename)
 */
 int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubs_t *data)
 {
-  CFE_SB_MsgRouteIdx_Atom_t i;
-  const CFE_SB_RouteEntry_t* RoutePtr;
-  uint32 EntryNum = 0;
-  uint32 SegNum = 1;
-  int32  Stat;
-  CFE_SB_DestinationD_t *DestPtr = NULL;
+    int32 status;
 
-  /* Take semaphore to ensure data does not change during this function */
-  CFE_SB_LockSharedData(__func__,__LINE__);
-
-  /* seek msgids that are in use */
-  for(i=0;i<CFE_PLATFORM_SB_MAX_MSG_IDS;++i)
-  {
-      RoutePtr = CFE_SB_GetRoutePtrFromIdx(CFE_SB_ValueToRouteIdx(i));
-      if(!CFE_SB_IsValidMsgId(RoutePtr->MsgId))
-      {
-          DestPtr = NULL;
-      }
-      else
-      {
-          DestPtr = CFE_SB.RoutingTbl[i].ListHeadPtr;
-      }
-        
-        while(DestPtr != NULL){
-
-            if(DestPtr->Scope == CFE_SB_GLOBAL){
-            
-                /* ...add entry into pkt */
-                CFE_SB.PrevSubMsg.Payload.Entry[EntryNum].MsgId = RoutePtr->MsgId;
-                CFE_SB.PrevSubMsg.Payload.Entry[EntryNum].Qos.Priority = 0;
-                CFE_SB.PrevSubMsg.Payload.Entry[EntryNum].Qos.Reliability = 0;
-                EntryNum++;
-        
-                /* send pkt if full */
-                if(EntryNum >= CFE_SB_SUB_ENTRIES_PER_PKT){
-                  CFE_SB.PrevSubMsg.Payload.PktSegment = SegNum;
-                  CFE_SB.PrevSubMsg.Payload.Entries = EntryNum;
-                  CFE_SB_UnlockSharedData(__func__,__LINE__);
-                  Stat = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.PrevSubMsg);
-                  CFE_SB_LockSharedData(__func__,__LINE__);
-                  CFE_EVS_SendEvent(CFE_SB_FULL_SUB_PKT_EID,CFE_EVS_EventType_DEBUG,
-                      "Full Sub Pkt %d Sent,Entries=%d,Stat=0x%x\n",(int)SegNum,(int)EntryNum,(unsigned int)Stat);
-                  EntryNum = 0;
-                  SegNum++;
-                }/* end if */
-        
-                /* break while loop through destinations, onto next CFE_SB.RoutingTbl index */
-                /* This is done because we want only one network subscription per msgid */
-                /* Later when Qos is used, we may want to take just the highest priority */
-                /* subscription if there are more than one */
-                break;
-                
-            }/* end if */
-            
-            /* Check next destination (if another exists) for global scope */
-            DestPtr = DestPtr -> Next;
-        
-        }/* end while */
-  
-  }/* end for */ 
-
-  /* if pkt has any number of entries, send it as a partial pkt */
-  if(EntryNum > 0){
-    CFE_SB.PrevSubMsg.Payload.PktSegment = SegNum;
-    CFE_SB.PrevSubMsg.Payload.Entries = EntryNum;
-    CFE_SB_UnlockSharedData(__func__,__LINE__);
-    Stat = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.PrevSubMsg);
+    /* Take semaphore to ensure data does not change during this function */
     CFE_SB_LockSharedData(__func__,__LINE__);
-    CFE_EVS_SendEvent(CFE_SB_PART_SUB_PKT_EID,CFE_EVS_EventType_DEBUG,
-        "Partial Sub Pkt %d Sent,Entries=%d,Stat=0x%x",(int)SegNum,(int)EntryNum,(unsigned int)Stat);
-  }/* end if */
 
-  CFE_SB_UnlockSharedData(__func__,__LINE__);
+    /* Initialize entry/segment tracking */
+    CFE_SB.PrevSubMsg.Payload.PktSegment = 1;
+    CFE_SB.PrevSubMsg.Payload.Entries = 0;
 
-  return CFE_SUCCESS;
-}/* end CFE_SB_SendPrevSubsCmd */
+    /* Send subcription for each route */
+    CFE_SBR_ForEachRouteId(CFE_SB_SendRouteSub, NULL, NULL);
 
+    CFE_SB_UnlockSharedData(__func__,__LINE__);
 
-/******************************************************************************
-**  Function:  CFE_SB_FindGlobalMsgIdCnt()
-**
-**  Purpose:
-**    SB internal function to get a count of the global message ids in use.
-**
-**  Notes:
-**    Subscriptions made with CFE_SB_SubscribeLocal would not be counted.
-**    Subscription made with a subscribe API other than CFE_SB_SubscribeLocal are
-**    considerd to be global subscriptions. MsgIds with both global and local
-**    subscriptions would be counted.
-**
-**  Arguments:
-**
-**  Return:
-**    None
-*/
-uint32 CFE_SB_FindGlobalMsgIdCnt(void){
-
-    CFE_SB_MsgRouteIdx_Atom_t i;
-    uint32 cnt = 0;
-    const CFE_SB_RouteEntry_t* RoutePtr;
-    CFE_SB_DestinationD_t *DestPtr = NULL;
-    
-    for(i=0;i<CFE_PLATFORM_SB_MAX_MSG_IDS;i++)
+    /* if pkt has any number of entries, send it as a partial pkt */
+    if(CFE_SB.PrevSubMsg.Payload.Entries > 0)
     {
-        RoutePtr = CFE_SB_GetRoutePtrFromIdx(CFE_SB_ValueToRouteIdx(i));
-        if(!CFE_SB_IsValidMsgId(RoutePtr->MsgId))
-        {
-            DestPtr = NULL;
-        }
-        else
-        {
-            DestPtr = RoutePtr->ListHeadPtr;
-        }
-        
-        while(DestPtr != NULL){
-    
-            if(DestPtr->Scope == CFE_SB_GLOBAL){
+        status = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.PrevSubMsg);
+        CFE_EVS_SendEvent(CFE_SB_PART_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
+                          "Partial Sub Pkt %d Sent,Entries=%d,Stat=0x%x",
+                          (int)CFE_SB.PrevSubMsg.Payload.PktSegment, (int)CFE_SB.PrevSubMsg.Payload.Entries,
+                          (unsigned int)status);
+    }
 
-                cnt++;
-                break;
-
-            }/* end if */
-            
-            /* Check next destination (if another exists) for global scope */
-            DestPtr = DestPtr -> Next;
-            
-        }/* end while */
-
-    }/* end for */
-
-  return cnt;
-
-}/* end CFE_SB_FindGlobalMsgIdCnt */
-
+    return CFE_SUCCESS;
+}/* end CFE_SB_SendPrevSubsCmd */
 
 
 
