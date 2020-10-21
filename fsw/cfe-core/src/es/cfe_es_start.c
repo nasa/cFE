@@ -848,13 +848,13 @@ void  CFE_ES_CreateObjects(void)
                                            CFE_ES_ObjectTable[i].ObjectName);
                   }
                   CFE_ES_TaskRecordSetUsed(TaskRecPtr, AppRecPtr->MainTaskId);
-                  TaskRecPtr->AppId = CFE_ES_AppRecordGetID(AppRecPtr);
+                  TaskRecPtr->AppId = PendingAppId;
                   strncpy(TaskRecPtr->TaskName, CFE_ES_ObjectTable[i].ObjectName, sizeof(TaskRecPtr->TaskName)-1);
                   TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName)-1] = '\0';
 
                   CFE_ES_SysLogWrite_Unsync("ES Startup: Core App: %s created. App ID: %lu\n",
                                        CFE_ES_ObjectTable[i].ObjectName,
-                                       CFE_ES_ResourceID_ToInteger(CFE_ES_AppRecordGetID(AppRecPtr)));
+                                       CFE_ES_ResourceID_ToInteger(PendingAppId));
 
                   CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
                                        
