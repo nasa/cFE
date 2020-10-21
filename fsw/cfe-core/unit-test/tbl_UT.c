@@ -499,7 +499,7 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
 
     /* Test deletion where the table cannot be located in the CDS registry */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_DeleteCDS), 1, CFE_ES_CDS_NOT_FOUND_ERR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_DeleteCDS), 1, CFE_ES_ERR_NAME_NOT_FOUND);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DeleteCDSCmd(&DelCDSCmd) ==
                 CFE_TBL_INC_ERR_CTR,
@@ -1783,14 +1783,14 @@ void Test_CFE_TBL_Register(void)
 
     /* Test response to an invalid application ID */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_ES_ERR_APPID && EventsCorrect,
+              RtnCode == CFE_ES_ERR_RESOURCEID_NOT_VALID && EventsCorrect,
               "CFE_TBL_Register",
               "Invalid application ID");
 
@@ -1930,14 +1930,14 @@ void Test_CFE_TBL_Register(void)
 
     /* Test response to a memory handle error */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_DEFAULT, NULL);
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_REGISTER_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_ES_ERR_MEM_HANDLE && EventsCorrect,
+              RtnCode == CFE_ES_ERR_RESOURCEID_NOT_VALID && EventsCorrect,
               "CFE_TBL_Register",
               "Memory handle error");
 
@@ -2191,7 +2191,7 @@ void Test_CFE_TBL_Register(void)
     /* a. Perform test */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RestoreFromCDS), 1, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RestoreFromCDS), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);
@@ -2285,7 +2285,7 @@ void Test_CFE_TBL_Register(void)
      * is full
      */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_REGISTRY_FULL);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_NO_RESOURCE_IDS_AVAILABLE);
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
                                sizeof(UT_Table1_t),
                                CFE_TBL_OPT_CRITICAL, NULL);
@@ -2490,12 +2490,12 @@ void Test_CFE_TBL_Share(void)
 
     /* Test response to an invalid application ID */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_Share(&App2TblHandle1, "ut_cfe_tbl.UT_Table2");
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_SHARE_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_ES_ERR_APPID && EventsCorrect,
+              RtnCode == CFE_ES_ERR_RESOURCEID_NOT_VALID && EventsCorrect,
               "CFE_TBL_Share",
               "Invalid application ID");
 
@@ -2531,7 +2531,7 @@ void Test_CFE_TBL_Share(void)
 
     /* Test unregister response to a PutPoolBuf error */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_Unregister(CFE_PLATFORM_TBL_MAX_NUM_HANDLES / 2 + 1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -2681,11 +2681,11 @@ void Test_CFE_TBL_NotifyByMessage(void)
 
     /* Test response to notification request when the application ID is bad */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     RtnCode = CFE_TBL_NotifyByMessage(App1TblHandle1, CFE_SB_ValueToMsgId(1), 1, 1);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_ES_ERR_APPID && EventsCorrect,
+              RtnCode == CFE_ES_ERR_RESOURCEID_NOT_VALID && EventsCorrect,
               "CFE_TBL_NotifyByMessage",
               "Notify - bad application ID");
 }
@@ -3057,11 +3057,11 @@ void Test_CFE_TBL_GetAddress(void)
 
     /* Test attempt to get the address with an invalid application ID */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_GetAddress((void **) &App3TblPtr, App2TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_ES_ERR_APPID && EventsCorrect,
+              RtnCode == CFE_ES_ERR_RESOURCEID_NOT_VALID && EventsCorrect,
               "CFE_TBL_GetAddress",
               "Invalid application ID");
 
@@ -3126,11 +3126,11 @@ void Test_CFE_TBL_ReleaseAddress(void)
 
     /* b. Perform test */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_APPID);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_ReleaseAddress(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_ES_ERR_APPID && EventsCorrect,
+              RtnCode == CFE_ES_ERR_RESOURCEID_NOT_VALID && EventsCorrect,
               "CFE_TBL_GetAddress",
               "Attempt to release address with invalid application ID");
 }
@@ -4372,11 +4372,11 @@ void Test_CFE_TBL_Internal(void)
      * memory buffer for a double buffered table
      */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 2, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 2, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_RemoveAccessLink(App1TblHandle2);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_ES_ERR_MEM_HANDLE && EventsCorrect,
+              RtnCode == CFE_ES_ERR_RESOURCEID_NOT_VALID && EventsCorrect,
               "CFE_TBL_RemoveAccessLink",
               "Fail to put back memory buffer for double buffered table");
 
@@ -4412,11 +4412,11 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_EarlyInit reponse to a get pool buffer failure */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_ES_ERR_MEM_HANDLE && EventsCorrect,
+              RtnCode == CFE_ES_ERR_RESOURCEID_NOT_VALID && EventsCorrect,
               "CFE_TBL_EarlyInit",
               "Get pool buffer failure");
 
@@ -4447,7 +4447,7 @@ void Test_CFE_TBL_Internal(void)
      * registry to the CDS
      */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_EarlyInit();
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4667,7 +4667,7 @@ void Test_CFE_TBL_Internal(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
@@ -4715,7 +4715,7 @@ void Test_CFE_TBL_Internal(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect =
@@ -4765,7 +4765,7 @@ void Test_CFE_TBL_Internal(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
 
@@ -4846,7 +4846,7 @@ void Test_CFE_TBL_Internal(void)
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 2, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_Load(App1TblHandle2, CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_HANDLE_ACCESS_ERR_EID) == true &&
@@ -4951,7 +4951,7 @@ void Test_CFE_TBL_Internal(void)
     RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     RegRecPtr->CriticalTable = false;
     RegRecPtr->DoubleBuffered = true;
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_MEM_HANDLE);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     RtnCode = CFE_TBL_UpdateInternal(App1TblHandle2, RegRecPtr, AccessDescPtr);
      EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,

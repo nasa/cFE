@@ -84,18 +84,6 @@ typedef struct
 } CFE_ES_AppStartParams_t;
 
 /*
-** CFE_ES_MainTaskInfo_t is a structure of information about the main
-** task and child tasks in a cFE application. This structure is just used in the
-** cFE_ES_AppRecord_t structure.
-*/
-typedef struct
-{
-   CFE_ES_ResourceID_t  MainTaskId;                     /* The Application's Main Task ID */
-   char                 MainTaskName[OS_MAX_API_NAME];  /* The Application's Main Task ID */
-} CFE_ES_MainTaskInfo_t;
-
-
-/*
 ** CFE_ES_AppRecord_t is an internal structure used to keep track of
 ** CFE Applications that are active in the system.
 */
@@ -106,7 +94,7 @@ typedef struct
    uint32                  Type;                        /* The type of App: CORE or EXTERNAL */
    CFE_ES_AppStartParams_t StartParams;                 /* The start parameters for an App */
    CFE_ES_ControlReq_t     ControlReq;                  /* The Control Request Record for External cFE Apps */
-   CFE_ES_MainTaskInfo_t   TaskInfo;                    /* Information about the Tasks */
+   CFE_ES_ResourceID_t     MainTaskId;                  /* The Application's Main Task ID */
 
 } CFE_ES_AppRecord_t;
 

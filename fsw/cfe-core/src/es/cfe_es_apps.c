@@ -43,6 +43,7 @@
 #include "cfe_es_task.h"
 #include "cfe_es_apps.h"
 #include "cfe_es_log.h"
+#include "cfe_es_resource.h"
 
 #include <stdio.h>
 #include <string.h> /* memset() */
@@ -78,7 +79,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
    char ES_AppLoadBuffer[ES_START_BUFF_SIZE];  /* A buffer of for a line in a file */
    const char *TokenList[CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE];
    uint32      NumTokens;
-   uint32      BuffLen = 0;                            /* Length of the current buffer */
+   uint32      BuffLen;                            /* Length of the current buffer */
    osal_id_t   AppFile;
    int32       Status;
    char        c;
@@ -363,45 +364,82 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
 {
    cpuaddr StartAddr;
    int32   ReturnCode;
-   uint32  i;
-   bool    AppSlotFound;
+   CFE_Status_t Status;
    osal_id_t  ModuleId;
    osal_id_t  MainTaskId;
    CFE_ES_AppRecord_t *AppRecPtr;
    CFE_ES_TaskRecord_t *TaskRecPtr;
+   CFE_ES_ResourceID_t PendingAppId;
 
    /*
     * The FileName must not be NULL
     */
-   if (FileName == NULL)
+   if (FileName == NULL || AppName == NULL)
    {
-       return CFE_ES_ERR_APP_CREATE;
+       return CFE_ES_BAD_ARGUMENT;
+   }
+
+   if (strlen(AppName) >= OS_MAX_API_NAME)
+   {
+       return CFE_ES_BAD_ARGUMENT;
    }
 
    /*
    ** Allocate an ES_AppTable entry
    */
    CFE_ES_LockSharedData(__func__,__LINE__);
-   AppSlotFound = false;
-   AppRecPtr = CFE_ES_Global.AppTable;
-   for ( i = 0; i < CFE_PLATFORM_ES_MAX_APPLICATIONS; i++ )
+
+   /*
+   ** Find an ES AppTable entry, and set to RESERVED
+   **
+   ** In this state, the entry is no longer free, but also will not pass the
+   ** validation test.  So this function effectively has exclusive access
+   ** without holding the global lock.
+   **
+   ** IMPORTANT: it must set the ID to something else before leaving
+   ** this function or else the resource will be leaked.  After this
+   ** point, execution must proceed to the end of the function to
+   ** guarantee that the entry is either completed or freed.
+   */
+
+   /*
+    * Check for an existing entry with the same name.
+    * Also check for a matching Library name.
+    * (Apps and libraries should be uniquely named)
+    */
+   AppRecPtr = CFE_ES_LocateAppRecordByName(AppName);
+   if (AppRecPtr != NULL)
    {
-      if ( !CFE_ES_AppRecordIsUsed(AppRecPtr) )
-      {
-         AppSlotFound = true;
-         memset ( AppRecPtr, 0, sizeof(CFE_ES_AppRecord_t));
-         /* set state EARLY_INIT for OS_TaskCreate below (indicates record is in use) */
-         CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_ResourceID_FromInteger(i + CFE_ES_APPID_BASE));
-         break;
-      }
-      ++AppRecPtr;
+       CFE_ES_SysLogWrite_Unsync("ES Startup: Duplicate app name '%s'\n", AppName);
+       Status = CFE_ES_ERR_DUPLICATE_NAME;
    }
+   else
+   {
+       /* scan for a free slot */
+       PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+       AppRecPtr = CFE_ES_LocateAppRecordByID(PendingAppId);
+
+       if (AppRecPtr == NULL)
+       {
+            CFE_ES_SysLogWrite_Unsync("ES Startup: No free application slots available\n");
+            Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+       }
+       else
+       {
+           /* Fully clear the entry, just in case of stale data */
+           memset(AppRecPtr, 0, sizeof(*AppRecPtr));
+           CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_RESOURCEID_RESERVED);
+           CFE_ES_Global.LastAppId = PendingAppId;
+           Status = CFE_SUCCESS;
+       }
+   }
+
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
    /*
    ** If a slot was found, create the application
    */
-   if ( AppSlotFound == true)
+   if (Status == CFE_SUCCESS)
    {
       /*
       ** Load the module
@@ -475,12 +513,6 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
       AppRecPtr->StartParams.Priority = Priority;
 
       /*
-      ** Fill out the Task Info
-      */
-      strncpy((char *)AppRecPtr->TaskInfo.MainTaskName, AppName, OS_MAX_API_NAME);
-      AppRecPtr->TaskInfo.MainTaskName[OS_MAX_API_NAME - 1] = '\0';
-
-      /*
       ** Fill out the Task State info
       */
       AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
@@ -506,7 +538,7 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
          CFE_ES_AppRecordSetFree(AppRecPtr); /* Release slot */
          CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-         return(CFE_ES_ERR_APP_CREATE);
+         Status = CFE_ES_ERR_APP_CREATE;
       }
       else
       {
@@ -514,20 +546,22 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
          /*
          ** Record the ES_TaskTable entry
          */
-         AppRecPtr->TaskInfo.MainTaskId = CFE_ES_ResourceID_FromOSAL(MainTaskId);
-         TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->TaskInfo.MainTaskId);
+         AppRecPtr->MainTaskId = CFE_ES_ResourceID_FromOSAL(MainTaskId);
+         TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->MainTaskId);
 
          if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) )
          {
             CFE_ES_SysLogWrite_Unsync("ES Startup: Error: ES_TaskTable slot in use at task creation!\n");
          }
-         CFE_ES_TaskRecordSetUsed(TaskRecPtr,AppRecPtr->TaskInfo.MainTaskId);
-         TaskRecPtr->AppId = CFE_ES_AppRecordGetID(AppRecPtr);
-         strncpy((char *)TaskRecPtr->TaskName,
-             (char *)AppRecPtr->TaskInfo.MainTaskName,OS_MAX_API_NAME );
-         TaskRecPtr->TaskName[OS_MAX_API_NAME - 1]='\0';
+         CFE_ES_TaskRecordSetUsed(TaskRecPtr,AppRecPtr->MainTaskId);
+         TaskRecPtr->AppId = PendingAppId;
+         /* The main task name is the same as the app name */
+         strncpy(TaskRecPtr->TaskName, AppName,
+                 sizeof(TaskRecPtr->TaskName)-1);
+         TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName)-1]='\0';
+         CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
          CFE_ES_SysLogWrite_Unsync("ES Startup: %s loaded and created\n", AppName);
-         *ApplicationIdPtr = CFE_ES_AppRecordGetID(AppRecPtr);
+         *ApplicationIdPtr = PendingAppId;
 
          /*
          ** Increment the registered App and Registered External Task variables.
@@ -537,15 +571,10 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
 
          CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-         return(CFE_SUCCESS);
-
       } /* End If OS_TaskCreate */
    }
-   else /* appSlot not found */
-   {
-      CFE_ES_WriteToSysLog("ES Startup: No free application slots available\n");
-      return(CFE_ES_ERR_APP_CREATE);
-   }
+
+   return Status;
 
 } /* End Function */
 /*
@@ -563,19 +592,20 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
 {
    CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
    CFE_ES_LibRecord_t *         LibSlotPtr;
-   size_t                       StringLength;
    int32                        Status;
-   uint32                       LibIndex;
    CFE_ES_ResourceID_t          PendingLibId;
    osal_id_t                    ModuleId;
    bool                         IsModuleLoaded;
 
    /*
-    * First, should verify that the supplied "LibName" fits within the internal limit
-    *  (currently sized to OS_MAX_API_NAME, but not assuming that will always be)
+    * The FileName must not be NULL
     */
-   StringLength = strlen(LibName);
-   if (StringLength >= sizeof(LibSlotPtr->LibName))
+   if (FileName == NULL || LibName == NULL)
+   {
+       return CFE_ES_BAD_ARGUMENT;
+   }
+
+   if (strlen(LibName) >= OS_MAX_API_NAME)
    {
        return CFE_ES_BAD_ARGUMENT;
    }
@@ -588,65 +618,67 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
    ModuleId = OS_OBJECT_ID_UNDEFINED;
    PendingLibId = CFE_ES_RESOURCEID_UNDEFINED;
    Status = CFE_ES_ERR_LOAD_LIB;    /* error that will be returned if no slots found */
+
+    /*
+    ** Find an ES AppTable entry, and set to RESERVED
+    **
+    ** In this state, the entry is no longer free, but also will not pass the
+    ** validation test.  So this function effectively has exclusive access
+    ** without holding the global lock.
+    **
+    ** IMPORTANT: it must set the ID to something else before leaving
+    ** this function or else the resource will be leaked.  After this
+    ** point, execution must proceed to the end of the function to
+    ** guarantee that the entry is either completed or freed.
+    */
    CFE_ES_LockSharedData(__func__,__LINE__);
-   LibSlotPtr = CFE_ES_Global.LibTable;
-   for ( LibIndex = 0; LibIndex < CFE_PLATFORM_ES_MAX_LIBRARIES; ++LibIndex )
-   {
-      if (CFE_ES_LibRecordIsUsed(LibSlotPtr))
-      {
-          if (strcmp(LibSlotPtr->LibName, LibName) == 0)
-          {
-              /*
-               * Indicate to caller that the library is already loaded.
-               * (This is when there was a matching LibName in the table)
-               *
-               * Do nothing more; not logging this event as it may or may
-               * not be an error.
-               */
-              *LibraryIdPtr = CFE_ES_LibRecordGetID(LibSlotPtr);
-              Status = CFE_ES_LIB_ALREADY_LOADED;
-              break;
-          }
-      }
-      else if (!CFE_ES_ResourceID_IsDefined(PendingLibId))
-      {
-         /* Remember list position as possible place for new entry. */
-          PendingLibId = CFE_ES_ResourceID_FromInteger(LibIndex + CFE_ES_LIBID_BASE);
-          Status = CFE_SUCCESS;
-      }
-      else
-      {
-         /* No action */
-      }
 
-      ++LibSlotPtr;
+   /*
+    * Check for an existing entry with the same name.
+    * Also check for a matching Library name.
+    * (Libs and libraries should be uniquely named)
+    */
+   LibSlotPtr = CFE_ES_LocateLibRecordByName(LibName);
+   if (LibSlotPtr != NULL || CFE_ES_LocateAppRecordByName(LibName) != NULL)
+   {
+       CFE_ES_SysLogWrite_Unsync("ES Startup: Duplicate Lib name '%s'\n", LibName);
+       if (LibSlotPtr != NULL)
+       {
+           PendingLibId = CFE_ES_LibRecordGetID(LibSlotPtr);
+       }
+       Status = CFE_ES_ERR_DUPLICATE_NAME;
    }
-
-   if (Status == CFE_SUCCESS)
+   else
    {
-       /* reset back to the saved index that was free */
+       /* scan for a free slot */
+       PendingLibId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastLibId, CFE_PLATFORM_ES_MAX_LIBRARIES);
        LibSlotPtr = CFE_ES_LocateLibRecordByID(PendingLibId);
 
-       /* reserve the slot while still under lock */
-       strcpy(LibSlotPtr->LibName, LibName);
-       CFE_ES_LibRecordSetUsed(LibSlotPtr, CFE_ES_RESOURCEID_RESERVED);
-       *LibraryIdPtr = PendingLibId;
+       if (LibSlotPtr == NULL)
+       {
+           CFE_ES_SysLogWrite_Unsync("ES Startup: No free library slots available\n");
+           Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
+       }
+       else
+       {
+           /* Fully clear the entry, just in case of stale data */
+           memset(LibSlotPtr, 0, sizeof(*LibSlotPtr));
+           strcpy(LibSlotPtr->LibName, LibName); /* Size already checked */
+           CFE_ES_LibRecordSetUsed(LibSlotPtr, CFE_ES_RESOURCEID_RESERVED);
+           CFE_ES_Global.LastLibId = PendingLibId;
+           Status = CFE_SUCCESS;
+       }
    }
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
    /*
     * If any off-nominal condition exists, skip the rest of this logic.
-    * Additionally write any extra information about what happened to syslog
-    * Note - not logging "already loaded" conditions, as this is not necessarily an error.
+    * (Log message already written)
     */
    if (Status != CFE_SUCCESS)
    {
-       if (Status == CFE_ES_ERR_LOAD_LIB)
-       {
-           CFE_ES_WriteToSysLog("ES Startup: No free library slots available\n");
-       }
-
+       *LibraryIdPtr = PendingLibId;
        return Status;
    }
 
@@ -769,7 +801,11 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
 
        /* Release Slot - No need to lock as it is resetting just a single value */
        CFE_ES_LibRecordSetFree(LibSlotPtr);
+
+       PendingLibId = CFE_ES_RESOURCEID_UNDEFINED;
    }
+
+   *LibraryIdPtr = PendingLibId;
 
    return(Status);
 
@@ -1133,7 +1169,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
    /*
    ** Get Main Task ID
    */
-   MainTaskId = AppRecPtr->TaskInfo.MainTaskId;
+   MainTaskId = AppRecPtr->MainTaskId;
 
    /*
    ** Delete any child tasks associated with this app
@@ -1447,7 +1483,7 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
 
    if ( !CFE_ES_AppRecordIsUsed(AppRecPtr) )
    {
-       Status = CFE_ES_ERR_APPID;
+       Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
    }
    else
    {
@@ -1456,8 +1492,8 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
        AppId = CFE_ES_AppRecordGetID(AppRecPtr);
        AppInfoPtr->AppId = AppId;
        AppInfoPtr->Type = AppRecPtr->Type;
-       strncpy((char *)AppInfoPtr->Name,
-               AppRecPtr->StartParams.Name,
+       strncpy(AppInfoPtr->Name,
+               CFE_ES_AppRecordGetName(AppRecPtr),
                sizeof(AppInfoPtr->Name)-1);
        AppInfoPtr->Name[sizeof(AppInfoPtr->Name)-1] = '\0';
 
@@ -1476,10 +1512,7 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
        AppInfoPtr->ExceptionAction = AppRecPtr->StartParams.ExceptionAction;
        AppInfoPtr->Priority = AppRecPtr->StartParams.Priority;
 
-       AppInfoPtr->MainTaskId = AppRecPtr->TaskInfo.MainTaskId;
-       strncpy((char *)AppInfoPtr->MainTaskName, (char *)AppRecPtr->TaskInfo.MainTaskName,
-               sizeof(AppInfoPtr->MainTaskName) - 1);
-       AppInfoPtr->MainTaskName[sizeof(AppInfoPtr->MainTaskName) - 1] = '\0';
+       AppInfoPtr->MainTaskId = AppRecPtr->MainTaskId;
 
        /*
        ** Calculate the number of child tasks
@@ -1504,6 +1537,9 @@ int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t 
        if (CFE_ES_TaskRecordIsMatch(TaskRecPtr,AppInfoPtr->MainTaskId))
        {
           AppInfoPtr->ExecutionCounter = TaskRecPtr->ExecutionCounter;
+          strncpy(AppInfoPtr->MainTaskName, TaskRecPtr->TaskName,
+                  sizeof(AppInfoPtr->MainTaskName) - 1);
+          AppInfoPtr->MainTaskName[sizeof(AppInfoPtr->MainTaskName) - 1] = '\0';
        }
 
        /*
@@ -1565,7 +1601,8 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       ** Get the Application ID and Task Name
       */
       TaskInfoPtr->AppId = TaskRecPtr->AppId;
-      strncpy((char*)TaskInfoPtr->TaskName, TaskRecPtr->TaskName,
+      strncpy(TaskInfoPtr->TaskName,
+              CFE_ES_TaskRecordGetName(TaskRecPtr),
               sizeof(TaskInfoPtr->TaskName)-1);
       TaskInfoPtr->TaskName[sizeof(TaskInfoPtr->TaskName)-1] = '\0';
 
@@ -1585,7 +1622,8 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       AppRecPtr = CFE_ES_LocateAppRecordByID(TaskRecPtr->AppId);
       if (CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId))
       {
-         strncpy((char*)TaskInfoPtr->AppName, AppRecPtr->StartParams.Name,
+         strncpy(TaskInfoPtr->AppName,
+                 CFE_ES_AppRecordGetName(AppRecPtr),
                  sizeof(TaskInfoPtr->AppName)-1);
          TaskInfoPtr->AppName[sizeof(TaskInfoPtr->AppName)-1] = '\0';
          ReturnCode = CFE_SUCCESS;
@@ -1593,13 +1631,13 @@ int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInf
       else
       {
          /* task ID was OK but parent app ID is bad */
-         ReturnCode = CFE_ES_ERR_APPID;
+         ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
       }
    }
    else
    {
       /* task ID is bad */
-      ReturnCode = CFE_ES_ERR_TASKID;
+      ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
    }
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
