@@ -39,6 +39,7 @@
 ** Includes 
 */
 #include "cfe_es_extern_typedefs.h"
+#include "cfe_es_msg.h"
 #include "cfe_mission_cfg.h"
 #include "cfe_perfids.h"
 #include "cfe_error.h"
@@ -62,7 +63,32 @@
 #define CFE_ES_DTEST(i,x) (((i) & CFE_ES_DBIT(x)) != 0)               /* true iff bit x of i is set */
 #define CFE_ES_TEST_LONG_MASK(m,s)  (CFE_ES_DTEST(m[(s)/32],(s)%32))  /* Test a bit within an array of 32-bit integers. */
 
-#define CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES     17    /**< Default number of size divisions in a memory pool */
+
+/** \name Resource ID predefined values */
+/** \{ */
+
+/**
+ * @brief A resource ID value that represents an undefined/unused resource
+ *
+ * This constant may be used to initialize local variables of the
+ * CFE_ES_ResourceID_t type to a safe value that will not alias a valid ID.
+ *
+ * By design, this value is also the result of zeroing a CFE_ES_ResourceID_t
+ * type via standard functions like memset(), such that objects initialized
+ * using this method will also be set to safe values.
+ */
+#define CFE_ES_RESOURCEID_UNDEFINED     ((CFE_ES_ResourceID_t)0)
+
+/**
+ * @brief A resource ID value that represents a reserved entry
+ *
+ * This is not a valid value for any resource type, but is used to mark
+ * table entries that are not available for use.  For instance, this may
+ * be used while setting up an entry initially.
+ */
+#define CFE_ES_RESOURCEID_RESERVED      ((CFE_ES_ResourceID_t)0xFFFFFFFF)
+
+/** \} */
 
 /*
 ** Note about reset type and subtypes:
@@ -85,9 +111,6 @@
 
 /** \name Critical Data Store Macros */
 /** \{ */
-/** Maximum length allowed for CDS name. <BR>
-** NOTE: "+2" is for NULL Character and "." (i.e. - "AppName.CDSName") */
-#define CFE_ES_CDS_MAX_FULL_NAME_LEN (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 2)
 
 #define CFE_ES_CDS_BAD_HANDLE  CFE_ES_RESOURCEID_UNDEFINED
 /** \} */
@@ -101,65 +124,46 @@
 ** Type Definitions
 */
 
-/**
- * @brief A type that provides a common, abstract identifier for
- * all ES managed resources (e.g. apps, tasks, counters, etc).
- *
- * Fundamentally an unsigned integer but users should treat it as
- * opaque, and only go through the ES API for introspection.
- *
- * Simple operations are provided as inline functions, which
- * should alleviate the need to do direct manipulation of the value:
- *
- *  - Check for undefined ID value
- *  - Check for equality of two ID values
- *  - Convert ID to simple integer (typically for printing/logging)
- *  - Convert simple integer to ID (inverse of above)
- */
-typedef uint32 CFE_ES_ResourceID_t;
+/*
+** Child Task Main Function Prototype
+*/
+typedef void (*CFE_ES_ChildTaskMainFuncPtr_t)(void); /**< \brief Required Prototype of Child Task Main Functions */
+typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(CFE_ES_ResourceID_t LibId); /**< \brief Required Prototype of Library Initialization Functions */
 
 /**
- * \brief Memory Handle type
+ * \brief Pool Alignement
  *
- *  Data type used to hold Handles of Memory Pools
- *  created via CFE_ES_PoolCreate and CFE_ES_PoolCreateNoSem
+ * Union that can be used for minimum memory alignment of ES memory pools on the target.
+ * It contains the longest native data types such that the alignment of this structure
+ * should reflect the largest possible alignment requirements for any data on this processor.
  */
-typedef CFE_ES_ResourceID_t CFE_ES_MemHandle_t;
+typedef union CFE_ES_PoolAlign
+{
+    void *Ptr; /**< \brief Aligned pointer */
+    /* note -- native types (int/double) are intentional here */
+    long long int LongInt; /**< \brief Aligned Long Integer */
+    long double LongDouble; /**< \brief Aligned Long Double */
+} CFE_ES_PoolAlign_t;
 
 /**
- * Type used for memory pool offsets
+ * \brief Static Pool Type
  *
- * For backward compatibility with existing CFE code this can be uint32,
- * but pools will be limited to 4GB in size as a result.
- *
- * On 64-bit platforms this can be a 64-bit value (e.g. size_t) which should
- * allow larger pools.
- *
- * In either case this _must_ be an unsigned type.
+ * A macro to help instantiate static memory pools that are correctly aligned.
+ * This resolves to a union type that contains a member called "Data" that will
+ * be correctly aligned to be a memory pool and sized according to the argument.
  */
-typedef uint32 CFE_ES_MemOffset_t;
+#define CFE_ES_STATIC_POOL_TYPE(size)    union { CFE_ES_PoolAlign_t Align; uint8 Data[size]; }
 
+/*****************************************************************************/
+/*
+** Exported Functions
+*/
 
-/**
- * @brief A resource ID value that represents an undefined/unused resource
- *
- * This constant may be used to initialize local variables of the
- * CFE_ES_ResourceID_t type to a safe value that will not alias a valid ID.
- *
- * By design, this value is also the result of zeroing a CFE_ES_ResourceID_t
- * type via standard functions like memset(), such that objects initialzed
- * using this method will also be set to safe values.
+/*****************************************************************************/
+
+/** @defgroup CFEAPIESResourceID cFE Resource ID APIs
+ * @{
  */
-#define CFE_ES_RESOURCEID_UNDEFINED     ((CFE_ES_ResourceID_t)0)
-
-/**
- * @brief A resource ID value that represents a reserved entry
- *
- * This is not a valid value for any resource type, but is used to mark
- * table entries that are not available for use.  For instance, this may
- * be used while setting up an entry initially.
- */
-#define CFE_ES_RESOURCEID_RESERVED      ((CFE_ES_ResourceID_t)0xFFFFFFFF)
 
 /**
  * @brief Convert a resource ID to an integer.
@@ -337,170 +341,8 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx);
  */
 CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_ResourceID_t CounterID, uint32 *Idx);
 
+/** @} */
 
-/**
- * \brief Application Information
- * 
- * Structure that is used to provide information about an app.
- * It is primarily used for the QueryOne and QueryAll Commands.
- */
-typedef struct CFE_ES_AppInfo
-{
-   CFE_ES_ResourceID_t   AppId;                          /**< \cfetlmmnemonic \ES_APP_ID
-                                                 \brief Application ID for this Application */
-   uint32   Type;                           /**< \cfetlmmnemonic \ES_APPTYPE
-                                                 \brief The type of App: CORE or EXTERNAL */
-
-   char     Name[CFE_MISSION_MAX_API_LEN];  /**< \cfetlmmnemonic \ES_APPNAME
-                                                 \brief The Registered Name of the Application */
-   char     EntryPoint[CFE_MISSION_MAX_API_LEN];    /**< \cfetlmmnemonic \ES_APPENTRYPT
-                                                 \brief The Entry Point label for the Application */
-   char     FileName[CFE_MISSION_MAX_PATH_LEN];     /**< \cfetlmmnemonic \ES_APPFILENAME
-                                                 \brief The Filename of the file containing the Application */
-
-   uint32   StackSize;                      /**< \cfetlmmnemonic \ES_STACKSIZE
-                                                 \brief The Stack Size of the Application */
-   osal_id_t   ModuleId;                       /**< \cfetlmmnemonic \ES_MODULEID
-                                                 \brief The ID of the Loadable Module for the Application */
-   uint32   AddressesAreValid;              /**< \cfetlmmnemonic \ES_ADDRVALID
-                                                 \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
-   uint32   CodeAddress;                    /**< \cfetlmmnemonic \ES_CODEADDR
-                                                 \brief The Address of the Application Code Segment*/
-   uint32   CodeSize;                       /**< \cfetlmmnemonic \ES_CODESIZE
-                                                 \brief The Code Size of the Application */
-   uint32   DataAddress;                    /**< \cfetlmmnemonic \ES_DATAADDR
-                                                 \brief The Address of the Application Data Segment*/
-   uint32   DataSize;                       /**< \cfetlmmnemonic \ES_DATASIZE
-                                                 \brief The Data Size of the Application */
-   uint32   BSSAddress;                     /**< \cfetlmmnemonic \ES_BSSADDR
-                                                 \brief The Address of the Application BSS Segment*/
-   uint32   BSSSize;                        /**< \cfetlmmnemonic \ES_BSSSIZE
-                                                  \brief The BSS Size of the Application */
-   uint32   StartAddress;                   /**< \cfetlmmnemonic \ES_STARTADDR
-                                                 \brief The Start Address of the Application */
-   uint16   ExceptionAction;                /**< \cfetlmmnemonic \ES_EXCEPTNACTN
-                                                 \brief What should occur if Application has an exception
-                                                 (Restart Application OR Restart Processor) */
-   uint16   Priority;                       /**< \cfetlmmnemonic \ES_PRIORITY
-                                                 \brief The Priority of the Application */
-   CFE_ES_ResourceID_t   MainTaskId;        /**< \cfetlmmnemonic \ES_MAINTASKID
-                                                 \brief The Application's Main Task ID */
-   uint32   ExecutionCounter;               /**< \cfetlmmnemonic \ES_MAINTASKEXECNT
-                                                 \brief The Application's Main Task Execution Counter */
-   char     MainTaskName[CFE_MISSION_MAX_API_LEN];  /**< \cfetlmmnemonic \ES_MAINTASKNAME
-                                                 \brief The Application's Main Task ID */
-   uint32   NumOfChildTasks;                /**< \cfetlmmnemonic \ES_CHILDTASKS
-                                                 \brief Number of Child tasks for an App */
-
-} CFE_ES_AppInfo_t;
-
-/**
- * \brief Task Info
- */
-typedef struct CFE_ES_TaskInfo
-{
-   CFE_ES_ResourceID_t TaskId;                            /**< \brief Task Id */
-   uint32              ExecutionCounter;                  /**< \brief Task Execution Counter */
-   char                TaskName[CFE_MISSION_MAX_API_LEN]; /**< \brief Task Name */
-   CFE_ES_ResourceID_t AppId;                             /**< \brief Parent Application ID */
-   char                AppName[CFE_MISSION_MAX_API_LEN];  /**< \brief Parent Application Name */
-} CFE_ES_TaskInfo_t;
-
-/**
- * \brief Block statistics
- */
-typedef struct CFE_ES_BlockStats
-{
-    CFE_ES_MemOffset_t BlockSize;    /**< \brief Number of bytes in each of these blocks */
-    uint32  NumCreated;              /**< \brief Number of Memory Blocks of this size created */
-    uint32  NumFree;                 /**< \brief Number of Memory Blocks of this size that are free */
-} CFE_ES_BlockStats_t;
-
-/**
- * \brief Memory Pool Statistics
- */
-typedef struct CFE_ES_MemPoolStats
-{
-    CFE_ES_MemOffset_t    PoolSize;                /**< \cfetlmmnemonic \ES_POOLSIZE
-                                                        \brief  Size of Memory Pool (in bytes) */
-    uint32                NumBlocksRequested;      /**< \cfetlmmnemonic \ES_BLKSREQ
-                                                        \brief Number of times a memory block has been allocated */
-    uint32                CheckErrCtr;             /**< \cfetlmmnemonic \ES_BLKERRCTR
-                                                        \brief Number of errors detected when freeing a memory block */
-    CFE_ES_MemOffset_t    NumFreeBytes;            /**< \cfetlmmnemonic \ES_FREEBYTES
-                                                        \brief Number of bytes never allocated to a block */
-    CFE_ES_BlockStats_t   BlockStats[CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES]; /**< \cfetlmmnemonic \ES_BLKSTATS
-                                                                           \brief Contains stats on each block size */
-} CFE_ES_MemPoolStats_t;
-
-/**
- * \brief CDS Handle type
- *
- * Data type used to hold Handles of Critical Data Stores. See #CFE_ES_RegisterCDS
- */
-typedef CFE_ES_ResourceID_t CFE_ES_CDSHandle_t;
-
-/**
- * Type used for CDS sizes and offsets.
- *
- * This must match the type used in the PSP CDS API, e.g.:
- * CFE_PSP_GetCDSSize()
- * CFE_PSP_WriteToCDS()
- * CFE_PSP_ReadFromCDS()
- *
- * It is defined separately from the CFE_ES_MemOffset_t as the type used in
- * the PSP CDS access API may be different than the ES Pool API.
- *
- * In either case this _must_ be an unsigned type.
- */
-typedef uint32 CFE_ES_CDS_Offset_t;
-
-/**
- * \brief CDS Register Dump Record
- */
-typedef struct CFE_ES_CDSRegDumpRec
-{
-    CFE_ES_CDSHandle_t    Handle;          /**< \brief Handle of CDS */
-    uint32                Size;            /**< \brief Size, in bytes, of the CDS memory block */
-    bool                  Table;           /**< \brief Flag that indicates whether CDS contains a Critical Table */
-    char                  Name[CFE_ES_CDS_MAX_FULL_NAME_LEN]; /**< \brief Processor Unique Name of CDS */
-    uint8                 ByteAlignSpare1; /**< \brief Spare byte to insure structure size is multiple of 4 bytes */
-} CFE_ES_CDSRegDumpRec_t;
-
-/*
-** Child Task Main Function Prototype
-*/
-typedef void (*CFE_ES_ChildTaskMainFuncPtr_t)(void); /**< \brief Required Prototype of Child Task Main Functions */
-typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(CFE_ES_ResourceID_t LibId); /**< \brief Required Prototype of Library Initialization Functions */
-
-/**
- * \brief Pool Alignement
- *
- * Union that can be used for minimum memory alignment of ES memory pools on the target.
- * It contains the longest native data types such that the alignment of this structure
- * should reflect the largest possible alignment requirements for any data on this processor.
- */
-typedef union CFE_ES_PoolAlign
-{
-    void *Ptr; /**< \brief Aligned pointer */
-    /* note -- native types (int/double) are intentional here */
-    long long int LongInt; /**< \brief Aligned Long Integer */
-    long double LongDouble; /**< \brief Aligned Long Double */
-} CFE_ES_PoolAlign_t;
-
-/**
- * \brief Static Pool Type
- *
- * A macro to help instantiate static memory pools that are correctly aligned.
- * This resolves to a union type that contains a member called "Data" that will
- * be correctly aligned to be a memory pool and sized according to the argument.
- */
-#define CFE_ES_STATIC_POOL_TYPE(size)    union { CFE_ES_PoolAlign_t Align; uint8 Data[size]; }
-
-/*****************************************************************************/
-/*
-** Exported Functions
-*/
 
 /*****************************************************************************/
 

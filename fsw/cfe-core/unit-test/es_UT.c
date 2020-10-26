@@ -5394,7 +5394,7 @@ void TestCDS()
 {
     uint32 CdsSize;
     uint8 *CdsPtr;
-    char CDSName[CFE_ES_CDS_MAX_FULL_NAME_LEN + 4];
+    char CDSName[CFE_MISSION_ES_CDS_MAX_NAME_LEN + 4];
     CFE_ES_CDSHandle_t CDSHandle;
     CFE_ES_CDS_RegRec_t *UtCDSRegRecPtr;
     uint32 i;
@@ -6225,7 +6225,7 @@ void TestESMempool(void)
               CFE_ES_PoolCreateEx(&PoolID1,
                                   Buffer1,
                                   sizeof(CFE_ES_GenPoolBD_t) / 2,
-                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES - 2,
+                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS - 2,
                                   BlockSizes,
                                   CFE_ES_USE_MUTEX) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreateEx",
@@ -6237,7 +6237,7 @@ void TestESMempool(void)
               CFE_ES_PoolCreateEx(NULL,
                                   Buffer1,
                                   sizeof(Buffer1),
-                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES,
+                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
                                   BlockSizes,
                                   CFE_ES_USE_MUTEX) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreateEx",
@@ -6247,7 +6247,7 @@ void TestESMempool(void)
               CFE_ES_PoolCreateEx(&PoolID1,
                                   NULL,
                                   sizeof(Buffer1),
-                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES,
+                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
                                   BlockSizes,
                                   CFE_ES_USE_MUTEX) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreateEx",
@@ -6272,7 +6272,7 @@ void TestESMempool(void)
               CFE_ES_PoolCreateEx(&PoolID1,
                                   Buffer1,
                                   sizeof(Buffer1),
-                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES - 2,
+                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS - 2,
                                   BlockSizes,
                                   2) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_PoolCreateEx",
@@ -6292,7 +6292,7 @@ void TestESMempool(void)
               CFE_ES_PoolCreateEx(&PoolID1,
                                   Buffer1,
                                   sizeof(Buffer1),
-                                  CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES,
+                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
                                   BlockSizes,
                                   CFE_ES_USE_MUTEX) == CFE_ES_NO_RESOURCE_IDS_AVAILABLE,
               "CFE_ES_PoolCreateEx",

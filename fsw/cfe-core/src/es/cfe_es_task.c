@@ -1680,10 +1680,10 @@ int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDS_t *data)
 {
     int32   Status;
     const CFE_ES_DeleteCDSCmd_Payload_t *cmd = &data->Payload;
-    char LocalCdsName[CFE_ES_CDS_MAX_FULL_NAME_LEN];
+    char LocalCdsName[CFE_MISSION_ES_CDS_MAX_NAME_LEN];
 
     CFE_SB_MessageStringGet(LocalCdsName, (char *)cmd->CdsName, NULL,
-            CFE_ES_CDS_MAX_FULL_NAME_LEN, sizeof(cmd->CdsName));
+            CFE_MISSION_ES_CDS_MAX_NAME_LEN, sizeof(cmd->CdsName));
 
     Status = CFE_ES_DeleteCDS(LocalCdsName, false);
 

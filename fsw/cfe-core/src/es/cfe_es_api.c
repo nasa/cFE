@@ -1544,7 +1544,7 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, CFE_ES_CDS_Offset_t B
     CFE_ES_ResourceID_t  ThisAppId;
 
     char    AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
-    char    CDSName[CFE_ES_CDS_MAX_FULL_NAME_LEN] = {""};
+    char    CDSName[CFE_MISSION_ES_CDS_MAX_NAME_LEN] = {""};
 
     /* Initialize output to safe value, in case this fails */
     *CDSHandlePtr = CFE_ES_RESOURCEID_UNDEFINED;

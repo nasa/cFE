@@ -47,7 +47,7 @@
 **  External Declarations
 */
 
-const CFE_ES_MemOffset_t CFE_SB_MemPoolDefSize[CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES] =
+const CFE_ES_MemOffset_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
 {
     CFE_PLATFORM_SB_MAX_BLOCK_SIZE,
     CFE_PLATFORM_SB_MEM_BLOCK_SIZE_16,
@@ -156,7 +156,7 @@ int32  CFE_SB_InitBuffers(void) {
     Stat = CFE_ES_PoolCreateEx(&CFE_SB.Mem.PoolHdl, 
                                 CFE_SB.Mem.Partition.Data,
                                 CFE_PLATFORM_SB_BUF_MEMORY_BYTES, 
-                                CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES,
+                                CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
                                 &CFE_SB_MemPoolDefSize[0],
                                 CFE_ES_NO_MUTEX);
     

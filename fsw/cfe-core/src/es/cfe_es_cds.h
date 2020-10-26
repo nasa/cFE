@@ -115,7 +115,7 @@ typedef struct
     CFE_ES_ResourceID_t       BlockID;      /**< Abstract ID associated with this CDS block */
     CFE_ES_CDS_Offset_t       BlockOffset;  /**< Start offset of the block in CDS memory */
     CFE_ES_CDS_Offset_t       BlockSize;    /**< Size, in bytes, of the CDS memory block */
-    char                      Name[CFE_ES_CDS_MAX_FULL_NAME_LEN];
+    char                      Name[CFE_MISSION_ES_CDS_MAX_NAME_LEN];
     bool                      Table;        /**< \brief Flag that indicates whether CDS contains a Critical Table */
 } CFE_ES_CDS_RegRec_t;
 
