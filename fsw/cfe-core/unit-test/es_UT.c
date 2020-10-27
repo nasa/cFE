@@ -5394,7 +5394,7 @@ void TestCDS()
 {
     uint32 CdsSize;
     uint8 *CdsPtr;
-    char CDSName[CFE_MISSION_ES_CDS_MAX_NAME_LEN + 4];
+    char CDSName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN + 4];
     CFE_ES_CDSHandle_t CDSHandle;
     CFE_ES_CDS_RegRec_t *UtCDSRegRecPtr;
     uint32 i;
