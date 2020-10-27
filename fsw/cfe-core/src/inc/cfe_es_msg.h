@@ -1478,7 +1478,7 @@ typedef struct CFE_ES_CDSRegDumpRec
     CFE_ES_CDS_Offset_t   Size;            /**< \brief Size, in bytes, of the CDS memory block */
     bool                  Table;           /**< \brief Flag that indicates whether CDS contains a Critical Table */
     char                  Name[CFE_MISSION_ES_CDS_MAX_NAME_LEN]; /**< \brief Processor Unique Name of CDS */
-    uint8                 ByteAlignSpare1; /**< \brief Spare byte to insure structure size is multiple of 4 bytes */
+    uint8                 ByteAlignSpare[3]; /**< \brief Spare bytes to ensure structure size is multiple of 4 bytes */
 } CFE_ES_CDSRegDumpRec_t;
 
 /**
