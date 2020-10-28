@@ -65,21 +65,61 @@ typedef struct
 
 
 /*
-** CFE_ES_AppStartParams_t is a structure of information used when an application is
-**   created in the system. It is stored in the cFE ES App Table
+** CFE_ES_ModuleLoadParams_t contains the information used when a module
+** (library or app) load request initially processed in the system.  It captures
+** the fundamental information - the name, the file to load, its entry point.
+** It contains information directly provided by the user, not runtime status or
+** other derived information.
+**
+** This information should remain fairly constant after initial allocation, even
+** if the application is restarted for some reason.  The major exception is the
+** ReloadApp command, which can change the FileName.
 */
 typedef struct
 {
-  char                  Name[OS_MAX_API_NAME];
-  char                  EntryPoint[OS_MAX_API_NAME];
-  char                  FileName[OS_MAX_PATH_LEN];
+    char                  Name[OS_MAX_API_NAME];
+    char                  EntryPoint[OS_MAX_API_NAME];
+    char                  FileName[OS_MAX_PATH_LEN];
 
-  uint32                StackSize;
-  cpuaddr               StartAddress;
-  osal_id_t             ModuleId;
+} CFE_ES_ModuleLoadParams_t;
 
-  uint16                ExceptionAction;
-  uint16                Priority;
+/*
+** CFE_ES_ModuleLoadStatus_t is a structure of information used when a module
+** (library or app) is actually loaded in the system.  It captures the
+** runtime information - the module ID and starting address.
+**
+** This information may change if the module is reloaded.
+*/
+typedef struct
+{
+    cpuaddr               EntryAddress;
+    osal_id_t             ModuleId;
+
+} CFE_ES_ModuleLoadStatus_t;
+
+
+
+/*
+** CFE_ES_AppStartParams_t is a structure of information used when an application is
+**   created in the system.
+**
+** This is an extension of the CFE_ES_ModuleLoadParams_t which adds information
+** about the task stack size and priority.  It is only used for apps, as libraries
+** do not have a task associated.
+*/
+typedef struct
+{
+    /*
+     * Basic (static) information about the module
+     */
+    CFE_ES_ModuleLoadParams_t       BasicInfo;
+
+    /*
+     * Extra information the pertains to applications only, not libraries.
+     */
+    cpusize                         StackSize;
+    uint16                          Priority;
+    CFE_ES_ExceptionAction_Enum_t   ExceptionAction;
 
 } CFE_ES_AppStartParams_t;
 
@@ -89,12 +129,13 @@ typedef struct
 */
 typedef struct
 {
-   CFE_ES_ResourceID_t     AppId;                       /* The actual AppID of this entry, or undefined */
-   CFE_ES_AppState_Enum_t  AppState;                    /* Is the app running, or stopped, or waiting? */
-   uint32                  Type;                        /* The type of App: CORE or EXTERNAL */
-   CFE_ES_AppStartParams_t StartParams;                 /* The start parameters for an App */
-   CFE_ES_ControlReq_t     ControlReq;                  /* The Control Request Record for External cFE Apps */
-   CFE_ES_ResourceID_t     MainTaskId;                  /* The Application's Main Task ID */
+   CFE_ES_ResourceID_t        AppId;                 /* The actual AppID of this entry, or undefined */
+   CFE_ES_AppState_Enum_t     AppState;              /* Is the app running, or stopped, or waiting? */
+   CFE_ES_AppType_Enum_t      Type;                  /* The type of App: CORE or EXTERNAL */
+   CFE_ES_AppStartParams_t    StartParams;           /* The start parameters for an App */
+   CFE_ES_ModuleLoadStatus_t  ModuleInfo;            /* Runtime module information */
+   CFE_ES_ControlReq_t        ControlReq;            /* The Control Request Record for External cFE Apps */
+   CFE_ES_ResourceID_t        MainTaskId;            /* The Application's Main Task ID */
 
 } CFE_ES_AppRecord_t;
 
@@ -119,8 +160,9 @@ typedef struct
 */
 typedef struct
 {
-   CFE_ES_ResourceID_t     LibId;             /* The actual LibID of this entry, or undefined */
-   char      LibName[OS_MAX_API_NAME];        /* Library Name */
+   CFE_ES_ResourceID_t        LibId;          /* The actual LibID of this entry, or undefined */
+   CFE_ES_ModuleLoadParams_t  BasicInfo;      /* Basic (static) information about the module */
+   CFE_ES_ModuleLoadStatus_t  ModuleInfo;     /* Runtime information about the module */
 } CFE_ES_LibRecord_t;
 
 /*
@@ -152,12 +194,38 @@ void  CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath );
 int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
 
 /*
+** Internal function to load a module (app or library)
+** This only loads the code and looks up relevent runtime information.
+** It does not start any tasks.
+*/
+int32 CFE_ES_LoadModule(const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
+
+/*
+** Internal function to determine the entry point of an app.
+** If the app isn't fully registered in the global app table,
+** then this delays until the app is completely configured and the entry point is
+** confirmed to be valid.
+*/
+int32 CFE_ES_GetAppEntryPoint(osal_task_entry *FuncPtr);
+
+/*
+** Intermediate entry point of an app.  Determines the actual
+** entry point from the global data structures.
+*/
+void CFE_ES_AppEntryPoint(void);
+
+/*
+** Internal function to start the main task of an app.
+*/
+int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_ResourceID_t RefAppId, CFE_ES_ResourceID_t *TaskIdPtr);
+
+/*
 ** Internal function to create/start a new cFE app
 ** based on the parameters passed in
 */
 int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
                        const char   *FileName,
-                       const void   *EntryPointData,
+                       const char   *EntryPointName,
                        const char   *AppName,
                        uint32  Priority,
                        uint32  StackSize,
@@ -167,7 +235,7 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
 */
 int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t *LibraryIdPtr,
                        const char   *FileName,
-                       const void   *EntryPointData,
+                       const char   *EntryPointName,
                        const char   *LibName);
 
 /*
@@ -199,30 +267,45 @@ bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg);
 /*
 ** Perform the requested control action for an application
 */
-void CFE_ES_ProcessControlRequest(CFE_ES_AppRecord_t *AppRecPtr);
+void CFE_ES_ProcessControlRequest(CFE_ES_ResourceID_t AppId);
 
 /*
 ** Clean up all app resources and delete it
 */
-int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr);
+int32 CFE_ES_CleanUpApp(CFE_ES_ResourceID_t AppId);
 
 /*
 ** Clean up all Task resources and detete the task
 */
 int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId);
 
-/*
-** Populate the cFE_ES_AppInfo structure with the data for an app
-** This is an internal function for use in ES.
-** The newer external API is : CFE_ES_GetAppInfo
-*/
-int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t *AppInfoPtr );
 
 /*
- * Populate the CFE_ES_TaskInfo_t structure with the data for a task
- * This is an internal function for use in ES.
- * (Equivalent pattern to CFE_ES_GetAppInfoInternal() but for tasks)
- */
-int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInfo_t *TaskInfoPtr );
+**---------------------------------------------------------------------------------------
+**   Name: CFE_ES_CopyModuleBasicInfo
+**
+**   Purpose: Populate the cFE_ES_AppInfo structure from the CFE_ES_ModuleLoadParams_t data
+**---------------------------------------------------------------------------------------
+*/
+void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_ES_AppInfo_t *AppInfoPtr);
+
+/*
+**---------------------------------------------------------------------------------------
+**   Name: CFE_ES_CopyModuleStatusInfo
+**
+**   Purpose: Populate the cFE_ES_AppInfo structure from the CFE_ES_ModuleLoadStatus_t data
+**---------------------------------------------------------------------------------------
+*/
+void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE_ES_AppInfo_t *AppInfoPtr);
+
+/*
+**---------------------------------------------------------------------------------------
+**   Name: CFE_ES_CopyModuleAddressInfo
+**
+**   Purpose: Populate the cFE_ES_AppInfo structure with address information from OSAL.
+**---------------------------------------------------------------------------------------
+*/
+void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoPtr);
+
 
 #endif  /* _cfe_es_apps_ */

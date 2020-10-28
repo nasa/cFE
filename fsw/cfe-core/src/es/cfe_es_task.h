@@ -56,6 +56,12 @@
 #define CFE_ES_ER_LOG_DESC     "ES ERlog data file"
 #define CFE_ES_PERF_LOG_DESC   "ES Performance data file"
 
+/*
+ * Limit for the total number of entries that may be
+ * produced by a "query all" type command.
+ */
+#define CFE_ES_QUERY_ALL_MAX_ENTRIES    (CFE_PLATFORM_ES_MAX_APPLICATIONS + CFE_PLATFORM_ES_MAX_LIBRARIES)
+
 /*************************************************************************/
 /*
 ** Type definitions

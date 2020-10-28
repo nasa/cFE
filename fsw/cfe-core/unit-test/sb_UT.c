@@ -1287,7 +1287,16 @@ void Test_SB_Cmds_SendPrevSubs(void)
     CFE_SB_ProcessCmdPipePkt();
 
     NumEvts += 8;  /* +2 for the subscribe, +6 for the SEND_PREV_SUBS_CC */
-    EVTCNT(NumEvts);
+
+    /* Event count is only exact if there were no collisions */
+    if (UT_EventIsInHistory(CFE_SB_HASHCOLLISION_EID))
+    {
+        ASSERT_TRUE(UT_GetNumEventsSent() > NumEvts);
+    }
+    else
+    {
+        EVTCNT(NumEvts);
+    }
 
     /* Round out the number to three full pkts in order to test branch path
      * coverage, MSGID 0x0D was skipped in previous subscription loop
@@ -1321,7 +1330,15 @@ void Test_SB_Cmds_SendPrevSubs(void)
 
     NumEvts += 8;  /* +2 for the subscribe, +6 for the SEND_PREV_SUBS_CC */
 
-    EVTCNT(NumEvts);
+    /* Event count is only exact if there were no collisions */
+    if (UT_EventIsInHistory(CFE_SB_HASHCOLLISION_EID))
+    {
+        ASSERT_TRUE(UT_GetNumEventsSent() > NumEvts);
+    }
+    else
+    {
+        EVTCNT(NumEvts);
+    }
 
     EVTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
     EVTSENT(CFE_SB_SEND_NO_SUBS_EID);
@@ -1704,7 +1721,7 @@ void Test_DeletePipe_WithSubs(void)
     SETUP(CFE_SB_Subscribe(MsgId3, PipedId));
     ASSERT(CFE_SB_DeletePipe(PipedId));
 
-    EVTCNT(14);
+    EVTCNT(10);
 
     EVTSENT(CFE_SB_PIPE_ADDED_EID);
     EVTSENT(CFE_SB_PIPE_DELETED_EID);
@@ -1772,7 +1789,7 @@ void Test_DeletePipe_WithAppid(void)
 
     ASSERT(CFE_SB_DeletePipeWithAppId(PipedId, AppId));
 
-    EVTCNT(14);
+    EVTCNT(10);
 
 } /* end Test_DeletePipe_WithAppid */
 
@@ -2030,7 +2047,6 @@ void Test_Subscribe_API(void)
     SB_UT_ADD_SUBTEST(Test_Subscribe_MaxDestCount);
     SB_UT_ADD_SUBTEST(Test_Subscribe_MaxMsgIdCount);
     SB_UT_ADD_SUBTEST(Test_Subscribe_SendPrevSubs);
-    SB_UT_ADD_SUBTEST(Test_Subscribe_FindGlobalMsgIdCnt);
     SB_UT_ADD_SUBTEST(Test_Subscribe_PipeNonexistent);
     SB_UT_ADD_SUBTEST(Test_Subscribe_SubscriptionReporting);
     SB_UT_ADD_SUBTEST(Test_Subscribe_InvalidPipeOwner);
@@ -2274,9 +2290,6 @@ void Test_Subscribe_SendPrevSubs(void)
     SETUP(CFE_SB_Subscribe(MsgId2, PipeId1));
     SETUP(CFE_SB_Subscribe(MsgId0, PipeId2));
 
-    /* Set the last list header pointer to NULL to get branch path coverage */
-    CFE_SB.RoutingTbl[2].ListHeadPtr = NULL;
-
     /* For internal SendMsg call */
     MsgIdCmd = CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID);
     Size = sizeof(CFE_SB.PrevSubMsg);
@@ -2294,46 +2307,6 @@ void Test_Subscribe_SendPrevSubs(void)
     TEARDOWN(CFE_SB_DeletePipe(PipeId2));
 
 } /* end Test_Subscribe_SendPrevSubs */
-
-/*
-** Test function to get a count of the global message ids in use
-*/
-void Test_Subscribe_FindGlobalMsgIdCnt(void)
-{
-    CFE_SB_PipeId_t PipeId0;
-    CFE_SB_PipeId_t PipeId1;
-    CFE_SB_PipeId_t PipeId2;
-    CFE_SB_MsgId_t  MsgId0 = SB_UT_TLM_MID1;
-    CFE_SB_MsgId_t  MsgId1 = SB_UT_TLM_MID2;
-    CFE_SB_MsgId_t  MsgId2 = SB_UT_TLM_MID3;
-    uint16          PipeDepth = 50;
-    uint16          MsgLim = 4;
-
-    SETUP(CFE_SB_CreatePipe(&PipeId0, PipeDepth, "TestPipe0"));
-    SETUP(CFE_SB_CreatePipe(&PipeId1, PipeDepth, "TestPipe1"));
-    SETUP(CFE_SB_CreatePipe(&PipeId2, PipeDepth, "TestPipe2"));
-    SETUP(CFE_SB_Subscribe(MsgId0, PipeId0));
-    SETUP(CFE_SB_Subscribe(MsgId1, PipeId0));
-    SETUP(CFE_SB_Subscribe(MsgId2, PipeId0));
-    SETUP(CFE_SB_Subscribe(MsgId0, PipeId1));
-    SETUP(CFE_SB_Subscribe(MsgId1, PipeId1));
-    SETUP(CFE_SB_Subscribe(MsgId2, PipeId1));
-    SETUP(CFE_SB_SubscribeLocal(MsgId0, PipeId2, MsgLim));
-
-    /* Set the last list head pointer to NULL for branch path coverage */
-    CFE_SB.RoutingTbl[2].ListHeadPtr = NULL;
-
-    ASSERT_EQ(CFE_SB_FindGlobalMsgIdCnt(), 2); /* 2 unique msg ids; the third is set to skip */
-
-    EVTCNT(17);
-
-    EVTSENT(CFE_SB_PIPE_ADDED_EID);
-
-    TEARDOWN(CFE_SB_DeletePipe(PipeId0));
-    TEARDOWN(CFE_SB_DeletePipe(PipeId1));
-    TEARDOWN(CFE_SB_DeletePipe(PipeId2));
-
-} /* end Test_Subscribe_FindGlobalMsgIdCnt */
 
 /*
 ** Test message subscription response to nonexistent pipe
@@ -2366,7 +2339,7 @@ void Test_Subscribe_SubscriptionReporting(void)
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
 
     /* Enable subscription reporting */
-	CFE_SB_SetSubscriptionReporting(CFE_SB_ENABLE);
+    CFE_SB_SetSubscriptionReporting(CFE_SB_ENABLE);
 
     /* For internal SendMsg call that will report subscription */
     MsgIdRpt = CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID);
@@ -2374,21 +2347,21 @@ void Test_Subscribe_SubscriptionReporting(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgIdRpt, sizeof(MsgIdRpt), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
-	/* Subscribe to message: GLOBAL */
-	SETUP(CFE_SB_Subscribe(MsgId, PipeId));
+    /* Subscribe to message: GLOBAL */
+    SETUP(CFE_SB_Subscribe(MsgId, PipeId));
 
-	/* Unsubscribe so that a local subscription can be tested */
-	SETUP(CFE_SB_Unsubscribe(MsgId, PipeId));
+    /* Unsubscribe so that a local subscription can be tested */
+    SETUP(CFE_SB_Unsubscribe(MsgId, PipeId));
 
-	/* Subscribe to message: LOCAL */
-	ASSERT(CFE_SB_SubscribeFull(MsgId, PipeId, Quality, CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, CFE_SB_LOCAL));
+    /* Subscribe to message: LOCAL */
+    ASSERT(CFE_SB_SubscribeFull(MsgId, PipeId, Quality, CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, CFE_SB_LOCAL));
 
-	EVTCNT(8);
+    EVTCNT(8);
 
-	EVTSENT(CFE_SB_SUBSCRIPTION_RPT_EID);
+    EVTSENT(CFE_SB_SUBSCRIPTION_RPT_EID);
 
-	/* Disable subscription reporting */
-	CFE_SB_SetSubscriptionReporting(CFE_SB_DISABLE);
+    /* Disable subscription reporting */
+    CFE_SB_SetSubscriptionReporting(CFE_SB_DISABLE);
 
     TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
@@ -2538,22 +2511,21 @@ void Test_Unsubscribe_NoMatch(void)
 {
     CFE_SB_PipeId_t TestPipe;
     CFE_SB_MsgId_t  MsgId = SB_UT_TLM_MID;
-    CFE_SB_MsgRouteIdx_t Idx;
     uint16          PipeDepth = 50;
 
+    /* Create pipe, subscribe, unsubscribe */
     SETUP(CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe"));
     SETUP(CFE_SB_Subscribe(MsgId, TestPipe));
+    SETUP(CFE_SB_Unsubscribe(MsgId, TestPipe));
+    UT_ClearEventHistory();
 
+    /* Check that unsubscribe to msgid that was never subscribed reports error */
     ASSERT(CFE_SB_Unsubscribe(SB_UT_TLM_MID1, TestPipe));
+    EVTSENT(CFE_SB_UNSUB_NO_SUBS_EID);
+    UT_ClearEventHistory();
 
-    /* Get index into routing table */
-    Idx = CFE_SB_GetRoutingTblIdx(CFE_SB_ConvertMsgIdtoMsgKey(MsgId));
-    CFE_SB.RoutingTbl[CFE_SB_RouteIdxToValue(Idx)].ListHeadPtr->PipeId = 1;
-    CFE_SB.RoutingTbl[CFE_SB_RouteIdxToValue(Idx)].ListHeadPtr->Next = NULL;
+    /* Check that repeated unsubscribe to msgid that was subscribted reports error */
     ASSERT(CFE_SB_Unsubscribe(MsgId, TestPipe));
-
-    EVTCNT(7);
-
     EVTSENT(CFE_SB_UNSUB_NO_SUBS_EID);
 
     TEARDOWN(CFE_SB_DeletePipe(TestPipe));
@@ -2681,10 +2653,11 @@ void Test_Unsubscribe_MiddleDestWithMany(void)
 */
 void Test_Unsubscribe_GetDestPtr(void)
 {
-    CFE_SB_MsgId_t  MsgId = SB_UT_CMD_MID;
-    CFE_SB_PipeId_t TestPipe1;
-    CFE_SB_PipeId_t TestPipe2;
-    uint16          PipeDepth = 50;
+    CFE_SB_MsgId_t    MsgId = SB_UT_CMD_MID;
+    CFE_SB_PipeId_t   TestPipe1;
+    CFE_SB_PipeId_t   TestPipe2;
+    uint16            PipeDepth = 50;
+    CFE_SBR_RouteId_t RouteId;
 
     SETUP(CFE_SB_CreatePipe(&TestPipe1, PipeDepth, "TestPipe1"));
     SETUP(CFE_SB_CreatePipe(&TestPipe2, PipeDepth, "TestPipe2"));
@@ -2692,7 +2665,9 @@ void Test_Unsubscribe_GetDestPtr(void)
     SETUP(CFE_SB_Subscribe(MsgId, TestPipe2));
     SETUP(CFE_SB_Unsubscribe(MsgId, TestPipe2));
 
-    ASSERT_TRUE(CFE_SB_GetDestPtr(CFE_SB_ConvertMsgIdtoMsgKey(MsgId), TestPipe2) == NULL);
+    /* TODO for now just get route id and use it, will need update when stubbed */
+    RouteId = CFE_SBR_GetRouteId(MsgId);
+    ASSERT_TRUE(CFE_SB_GetDestPtr(RouteId, TestPipe2) == NULL);
 
     EVTCNT(7);
 
@@ -3252,12 +3227,15 @@ void Test_SendMsg_DisabledDestination(void)
     int32                 PipeDepth;
     CFE_MSG_Type_t        Type = CFE_MSG_Type_Tlm;
     CFE_MSG_Size_t        Size = sizeof(TlmPkt);
+    CFE_SBR_RouteId_t     RouteId;
 
     PipeDepth = 2;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
     SETUP(CFE_SB_Subscribe(MsgId, PipeId));
-    DestPtr = CFE_SB_GetDestPtr(CFE_SB_ConvertMsgIdtoMsgKey(MsgId), PipeId);
+
+    RouteId = CFE_SBR_GetRouteId(MsgId);
+    DestPtr = CFE_SB_GetDestPtr(RouteId, PipeId);
     DestPtr->Active = CFE_SB_INACTIVE;
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
@@ -3857,40 +3835,7 @@ void Test_SB_SpecialCases(void)
     SB_UT_ADD_SUBTEST(Test_SB_SendMsgPaths_IgnoreOpt);
     SB_UT_ADD_SUBTEST(Test_RcvMsg_UnsubResubPath);
     SB_UT_ADD_SUBTEST(Test_MessageString);
-    SB_UT_ADD_SUBTEST(Test_SB_IdxPushPop);
 } /* end Test_SB_SpecialCases */
-
-/*
-** Test msg key idx push pop
-*/
-void Test_SB_IdxPushPop()
-{
-    int32           i;
-    CFE_SB_MsgRouteIdx_t Idx;
-
-    CFE_SB_InitIdxStack();
-
-    for (i = 0; i < CFE_PLATFORM_SB_MAX_MSG_IDS; i++)
-    {
-        /* Subscribe to maximum number of messages */
-        Idx = CFE_SB_RouteIdxPop_Unsync();
-        ASSERT_EQ(CFE_SB_RouteIdxToValue(Idx), i);
-    }
-
-
-    Idx = CFE_SB_RouteIdxPop_Unsync();
-    ASSERT_EQ(CFE_SB_RouteIdxToValue(Idx), CFE_SB_RouteIdxToValue(CFE_SB_INVALID_ROUTE_IDX));
-
-    for (i = 0; i < CFE_PLATFORM_SB_MAX_MSG_IDS; i++)
-    {
-        /* Un-subscribe from all messages */
-        CFE_SB_RouteIdxPush_Unsync(CFE_SB_ValueToRouteIdx(i));
-    }
-
-    CFE_SB_RouteIdxPush_Unsync(CFE_SB_ValueToRouteIdx(i));
-
-
-} /* end Test_SB_IdxPushPop */
 
 /*
 ** Test pipe creation with semaphore take and give failures
@@ -4037,10 +3982,10 @@ void Test_CFE_SB_BadPipeInfo(void)
 
 
 } /* end Test_CFE_SB_BadPipeInfo */
+
 /*
 ** Test send housekeeping information command
 */
-
 void Test_SB_SendMsgPaths_Nominal(void)
 {
     CFE_SB_CmdHdr_t  NoParamCmd;
@@ -4062,12 +4007,17 @@ void Test_SB_SendMsgPaths_Nominal(void)
     MsgId = CFE_SB_ValueToMsgId(CFE_SB_SEND_HK_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
 
+    /* Repress sending the no subscriptions event and process request */
+    CFE_SB.HKTlmMsg.Payload.NoSubscribersCounter = 0;
     CFE_SB.CmdPipePktPtr = (CFE_SB_MsgPtr_t) &NoParamCmd;
     CFE_SB.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_NO_SUBS_EID_BIT);
     CFE_SB_ProcessCmdPipePkt();
 
+    /* The no subs event should not be in history but count should increment */
     ASSERT_TRUE(!UT_EventIsInHistory(CFE_SB_SEND_NO_SUBS_EID));
+    ASSERT_EQ(CFE_SB.HKTlmMsg.Payload.NoSubscribersCounter, 1);
 
+    /* Repress get buffer error */
     CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
     CFE_SB.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_GET_BUF_ERR_EID_BIT);
 
@@ -4081,7 +4031,6 @@ void Test_SB_SendMsgPaths_Nominal(void)
     MsgId = CFE_SB_ValueToMsgId(CFE_SB_SEND_HK_MID);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
 
-    CFE_SB.MsgMap[CFE_SB_MsgKeyToValue(CFE_SB_ConvertMsgIdtoMsgKey(CFE_SB_HK_TLM_MID))] = CFE_SB_INVALID_ROUTE_IDX;
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
     CFE_SB_ProcessCmdPipePkt();
     ASSERT_EQ(CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter, 0);

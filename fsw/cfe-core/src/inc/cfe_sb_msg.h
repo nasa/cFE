@@ -683,8 +683,8 @@ typedef struct CFE_SB_RoutingFileEntry {
 ** Structure of one element of the map information in response to #CFE_SB_SEND_MAP_INFO_CC
 */
 typedef struct CFE_SB_MsgMapFileEntry {
-    CFE_SB_MsgId_t             MsgId;/**< \brief Message Id which has been subscribed to */
-    CFE_SB_MsgRouteIdx_Atom_t  Index;/**< \brief Routing table index where pipe destinations are found */
+    CFE_SB_MsgId_t        MsgId;/**< \brief Message Id which has been subscribed to */
+    CFE_SB_RouteId_Atom_t Index;/**< \brief Routing raw index value (0 based, not Route ID) */
 }CFE_SB_MsgMapFileEntry_t;
 
 

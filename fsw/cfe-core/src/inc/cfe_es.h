@@ -984,11 +984,9 @@ CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, uint32 
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in, out]   AppInfo      Pointer to a \c CFE_ES_AppInfo_t structure that holds the specific 
-**                            Application information. *AppInfo is the filled out \c CFE_ES_AppInfo_t structure containing the 
-**                            App Name, and application memory addresses among other fields.
-**
-** \param[in]   AppId        Application ID of Application whose name is being requested.
+** \param[out]  AppInfo      Pointer to a structure that will be filled with
+**                           resource name and memory addresses information.
+** \param[in]   AppId        ID of application to obtain information about
 **
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -1029,6 +1027,74 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t Ap
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_ResourceID_t TaskId);
+
+/*****************************************************************************/
+/**
+** \brief Get Library Information given a specified Resource ID
+**
+** \par Description
+**        This routine retrieves the information about a Library
+**        associated with a specified ID. The information includes all of the
+**        information ES maintains for this resource type ( documented in
+**        the CFE_ES_AppInfo_t type ).
+**
+**        This shares the same output structure as CFE_ES_GetAppInfo, such that
+**        informational commands can be executed against either applications or
+**        libraries.  When applied to a library, the task information in the
+**        structure will be omitted, as libraries do not have tasks associated.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param[out]  LibInfo      Pointer to a structure that will be filled with
+**                           resource name and memory addresses information.
+** \param[in]   LibId        ID of application to obtain information about
+**
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+**
+** \sa #CFE_ES_GetLibIDByName, #CFE_ES_GetLibName
+**
+******************************************************************************/
+int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId);
+
+/*****************************************************************************/
+/**
+** \brief Get Information given a specified Resource ID
+**
+** \par Description
+**        This routine retrieves the information about an Application or Library
+**        associated with a specified ID.
+**
+**        This is a wrapper API that in turn calls either CFE_ES_GetAppInfo or
+**        CFE_ES_GetLibInfo if passed an AppId or LibId, respectively.
+**
+**        This allows commands originally targeted to operate on AppIDs to be
+**        easily ported to operate on either Libraries or Applications, where
+**        relevant.
+**
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \param[out]  ModuleInfo   Pointer to a structure that will be filled with
+**                           resource name and memory addresses information.
+** \param[in]   ResourceId   ID of application or library to obtain information about
+**
+**
+** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+**
+** \sa #CFE_ES_GetLibInfo, #CFE_ES_GetAppInfo
+**
+******************************************************************************/
+int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ES_ResourceID_t ResourceId);
+
 /**@}*/
 
 /** @defgroup CFEAPIESChildTask cFE Child Task APIs

@@ -10,6 +10,25 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev150
+
+- Provide new Library API similar to App API
+- Allows the existing CFE_ES_AppInfo_t structure to be extended to libraries as well as applications by introducing a new value (3) for the Type field.
+- Allows Libraries to be queried via API calls similar to App API.
+- Extends the Query All/Query One commands to operate on Libraries or Applications.
+- Breaks up the monolithic AppCreate and LoadLibrary functions and have these call subroutines that operate on the common components.
+- Fix race conditions in app request processing state machine.
+- Adds SBR module which includes message map and routing table. The access APIs are on the SB side which still owns the destination logic
+- Removes passing of route index or pointers being. Everything is now based on route and message id
+- Oversized the hash message map (4x) to minimize collisions
+- Hash designed for 32 bit, a change in CFE_SB_MsgId_Atom_t size may require implementation updates
+- Adds debug event for collisions during add
+- Dropped routing push/pop, dropped "key" in direct implementation
+- Deletes unused code CFE_SB_FindGlobalMsgIdCnt
+- Fixes variable declaration violations of coding standard
+- Individual events for deleting destinations when deleting a pipe removed to avoid a race condition around a 10-20% performance hit to hash via rough comparison on a linux box, no memory impact
+- See <https://github.com/nasa/cFE/pull/975>
+
 ### Development Build: 6.8.0-rc1+dev139
 
 - For all resource types which have names, IDs are not re-issued after deletion, helping ensure safety as previously deleted IDs will not validate. Provides a consistent Name-ID translation API for all resource types. Enforces consistent argument/name validation on all resource types, and also enforces name uniqueness where relevant.

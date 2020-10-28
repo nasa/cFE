@@ -88,7 +88,7 @@ typedef uint8                                            CFE_SB_QosReliability_E
 /**
  * @brief An integer type that should be used for indexing into the Routing Table
  */
-typedef uint16  CFE_SB_MsgRouteIdx_Atom_t;
+typedef uint16  CFE_SB_RouteId_Atom_t;
 
 /**
  * @brief  CFE_SB_MsgId_Atom_t primitive type definition
