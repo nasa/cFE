@@ -414,12 +414,11 @@ int32 CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type)
  * Stub implementation of CFE_MSG_Init
  * -----------------------------------------------------------
  */
-int32 CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size, bool Clear)
+int32 CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_MSG_Init), MsgPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_MSG_Init), MsgId);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_MSG_Init), Size);
-    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_MSG_Init), Clear);
 
     int32 status;
 

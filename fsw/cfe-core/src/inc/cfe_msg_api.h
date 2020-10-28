@@ -44,20 +44,19 @@
  * \brief Initialize a message
  *
  * \par Description
- *          This routine initialize a message.  If Clear is true the
- *          message is cleard and constant header defaults are set.
- *          The bits from MsgId and message size are always set.
+ *          This routine initialize a message.  The entire message is
+ *          set to zero (based on size), defaults are set, then the
+ *          size and bits from MsgId are set.
  *
  * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message.
  * \param[in]       MsgId       MsgId that corresponds to message
  * \param[in]       Size        Total size of the mesage (used to set length field)
- * \param[in]       Clear       Boolean to clear and set defaults
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
-CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size, bool Clear);
+CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size);
 
 /*****************************************************************************/
 /**
