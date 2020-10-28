@@ -344,6 +344,236 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 }
 
 /*
+**-------------------------------------------------------------------------------------
+** Name: CFE_ES_LoadModule
+**
+** Helper function to load + configure (but not start) a new app/lib module
+**
+** Loads the module file via OSAL and stores all relevant info in the table entry as necessary.
+**
+**-------------------------------------------------------------------------------------
+*/
+int32 CFE_ES_LoadModule(const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
+{
+    osal_id_t ModuleId;
+    cpuaddr StartAddr;
+    int32 ReturnCode;
+    int32 StatusCode;
+
+    StartAddr = 0;
+    ReturnCode = CFE_SUCCESS;
+
+    if (LoadParams->FileName[0] != 0)
+    {
+        /*
+         ** Load the module via OSAL.
+         */
+        StatusCode = OS_ModuleLoad ( &ModuleId,
+                LoadParams->Name,
+                LoadParams->FileName );
+
+        if (StatusCode != OS_SUCCESS)
+        {
+            CFE_ES_WriteToSysLog("ES Startup: Could not load file:%s. EC = 0x%08X\n",
+                    LoadParams->FileName, (unsigned int)StatusCode);
+            ModuleId = OS_OBJECT_ID_UNDEFINED;
+            ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        }
+    }
+    else
+    {
+        ModuleId = OS_OBJECT_ID_UNDEFINED;
+    }
+
+    /*
+     ** If the Load was OK, then lookup the address of the entry point
+     */
+    if (ReturnCode == CFE_SUCCESS && LoadParams->EntryPoint[0] != 0)
+    {
+        StatusCode = OS_SymbolLookup(&StartAddr, LoadParams->EntryPoint);
+        if (StatusCode != OS_SUCCESS)
+        {
+            CFE_ES_WriteToSysLog("ES Startup: Could not find symbol:%s. EC = 0x%08X\n",
+                    LoadParams->EntryPoint, (unsigned int)StatusCode);
+            ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        }
+    }
+
+    if ( ReturnCode == CFE_SUCCESS )
+    {
+        /* store the data in the app record after successful load+lookup */
+        LoadStatus->ModuleId = ModuleId;
+        LoadStatus->EntryAddress = StartAddr;
+    }
+    else if (OS_ObjectIdDefined(ModuleId))
+    {
+        /* If the module had been successfully loaded, then unload it,
+         * so that it does not consume resources */
+        StatusCode = OS_ModuleUnload(ModuleId);
+        if ( StatusCode != OS_SUCCESS ) /* There's not much we can do except notify */
+        {
+            CFE_ES_WriteToSysLog("ES Startup: Failed to unload: %s. EC = 0x%08X\n",
+                    LoadParams->Name, (unsigned int)StatusCode);
+        }
+    }
+
+    return ReturnCode;
+}
+
+/*
+**-------------------------------------------------------------------------------------
+** Name: CFE_ES_GetAppEntryPoint
+**
+** Helper function to act as the intermediate entry point of an app
+** This is to support starting apps before having a fully completed entry in the
+** global app table.  The app startup will delay until the app creation is completed
+** and verified, then the actual entry point will be determined.
+**
+**-------------------------------------------------------------------------------------
+*/
+int32 CFE_ES_GetAppEntryPoint(osal_task_entry *FuncPtr)
+{
+    CFE_ES_AppRecord_t *AppRecPtr;
+    int32 ReturnCode;
+    int32 Timeout;
+
+    /*
+     * Use the same timeout as was used for the startup script itself.
+     */
+    ReturnCode = CFE_ES_ERR_APP_REGISTER;
+    Timeout = CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC;
+
+    while(true)
+    {
+        OS_TaskDelay(CFE_PLATFORM_ES_STARTUP_SYNC_POLL_MSEC);
+
+        CFE_ES_LockSharedData(__func__,__LINE__);
+        AppRecPtr = CFE_ES_GetAppRecordByContext();
+        if (AppRecPtr != NULL)
+        {
+            AppRecPtr->AppState = CFE_ES_AppState_EARLY_INIT;
+            *FuncPtr = (osal_task_entry)AppRecPtr->ModuleInfo.EntryAddress;
+            ReturnCode = CFE_SUCCESS;
+        }
+        CFE_ES_UnlockSharedData(__func__,__LINE__);
+
+        if (ReturnCode == CFE_SUCCESS || Timeout <= 0)
+        {
+            /* end of loop condition */
+            break;
+        }
+
+        Timeout -= CFE_PLATFORM_ES_STARTUP_SYNC_POLL_MSEC;
+    }
+
+    return (ReturnCode);
+}
+
+/*
+**-------------------------------------------------------------------------------------
+** Name: CFE_ES_AppEntryPoint
+**
+** Helper function to act as the intermediate entry point of an app
+** This is to support starting apps before having a fully completed entry in the
+** global app table.  The app startup will delay until the app creation is completed
+** and verified, then the actual entry point will be determined.
+**
+**-------------------------------------------------------------------------------------
+*/
+void CFE_ES_AppEntryPoint(void)
+{
+    osal_task_entry RealEntryFunc;
+
+    if (CFE_ES_GetAppEntryPoint(&RealEntryFunc) == CFE_SUCCESS &&
+            RealEntryFunc != NULL)
+    {
+        (*RealEntryFunc)();
+    }
+}
+
+/*
+**-------------------------------------------------------------------------------------
+** Name: CFE_ES_StartMainTask
+**
+** Helper function to start (but not load) a new app/lib module
+**
+** Note that OSAL does not separate the action of creating and start a task, providing
+** only OS_TaskCreate which does both.  But there is a potential race condition if
+** the real task code starts and calls e.g. CFE_ES_RegisterApp() or any other function
+** that depends on having an AppID context, before its fully registered in the global app table.
+**
+** Therefore this calls a dedicated CFE_ES_AppEntryPoint which then will wait until
+** the task is fully registered in the global, before calling the actual app entry point.
+**
+**-------------------------------------------------------------------------------------
+*/
+int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_ResourceID_t RefAppId, CFE_ES_ResourceID_t *TaskIdPtr)
+{
+    CFE_ES_TaskRecord_t *TaskRecPtr;
+    osal_id_t OsalTaskId;
+    CFE_ES_ResourceID_t TaskId;
+    int32 StatusCode;
+    int32 ReturnCode;
+
+    /*
+     ** Create the primary task for the newly loaded task
+     */
+    StatusCode = OS_TaskCreate(&OsalTaskId,   /* task id */
+            StartParams->BasicInfo.Name,      /* task name */
+            CFE_ES_AppEntryPoint,             /* task function pointer */
+            NULL,                             /* stack pointer (allocate) */
+            StartParams->StackSize,           /* stack size */
+            StartParams->Priority,            /* task priority */
+            OS_FP_ENABLED);                   /* task options */
+
+    CFE_ES_LockSharedData(__func__,__LINE__);
+
+    if ( StatusCode == OS_SUCCESS )
+    {
+        /*
+         * As this is a newly-created task, this shouldn't fail.
+         * The entry is not (yet) matching the task ID - it will be
+         * initialized here.
+         */
+        TaskId = CFE_ES_ResourceID_FromOSAL(OsalTaskId);
+        TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskId);
+        if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) )
+        {
+            CFE_ES_SysLogWrite_Unsync("ES Startup: Error: ES_TaskTable slot for ID %lx in use at task creation!\n",
+                    OS_ObjectIdToInteger(OsalTaskId));
+        }
+
+        /*
+         * Clear any other/stale data that might be in the entry,
+         * and reset all fields to the correct value.
+         */
+        memset(TaskRecPtr, 0, sizeof(*TaskRecPtr));
+
+        TaskRecPtr->AppId = RefAppId;
+        strncpy(TaskRecPtr->TaskName, StartParams->BasicInfo.Name, sizeof(TaskRecPtr->TaskName)-1);
+        CFE_ES_TaskRecordSetUsed(TaskRecPtr, TaskId);
+
+        /*
+         ** Increment the registered Task count.
+         */
+        CFE_ES_Global.RegisteredTasks++;
+        ReturnCode = CFE_SUCCESS;
+        *TaskIdPtr = TaskId;
+    }
+    else
+    {
+        CFE_ES_SysLogWrite_Unsync("ES Startup: AppCreate Error: TaskCreate %s Failed. EC = 0x%08X!\n",
+                    StartParams->BasicInfo.Name,(unsigned int)StatusCode);
+        ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        *TaskIdPtr = CFE_ES_RESOURCEID_UNDEFINED;
+    }
+
+    CFE_ES_UnlockSharedData(__func__,__LINE__);
+
+    return ReturnCode;
+}
+
+/*
 **---------------------------------------------------------------------------------------
 ** Name: ES_AppCreate
 **
@@ -356,19 +586,15 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 */
 int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
                        const char   *FileName,
-                       const void   *EntryPointData,
+                       const char   *EntryPointName,
                        const char   *AppName,
                        uint32  Priority,
                        uint32  StackSize,
                        uint32  ExceptionAction)
 {
-   cpuaddr StartAddr;
-   int32   ReturnCode;
    CFE_Status_t Status;
-   osal_id_t  ModuleId;
-   osal_id_t  MainTaskId;
+   CFE_ES_ResourceID_t MainTaskId;
    CFE_ES_AppRecord_t *AppRecPtr;
-   CFE_ES_TaskRecord_t *TaskRecPtr;
    CFE_ES_ResourceID_t PendingAppId;
 
    /*
@@ -428,6 +654,31 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
        {
            /* Fully clear the entry, just in case of stale data */
            memset(AppRecPtr, 0, sizeof(*AppRecPtr));
+
+           /*
+            * Fill out the parameters in the StartParams sub-structure
+            */
+           AppRecPtr->Type = CFE_ES_AppType_EXTERNAL;
+           strncpy(AppRecPtr->StartParams.BasicInfo.Name, AppName,
+                   sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1);
+           strncpy(AppRecPtr->StartParams.BasicInfo.FileName, FileName,
+                   sizeof(AppRecPtr->StartParams.BasicInfo.FileName)-1);
+           if (EntryPointName != NULL && strcmp(EntryPointName, "NULL") != 0)
+           {
+               strncpy(AppRecPtr->StartParams.BasicInfo.EntryPoint, EntryPointName,
+                       sizeof(AppRecPtr->StartParams.BasicInfo.EntryPoint)-1);
+           }
+
+           AppRecPtr->StartParams.StackSize = StackSize;
+           AppRecPtr->StartParams.ExceptionAction = ExceptionAction;
+           AppRecPtr->StartParams.Priority = Priority;
+
+           /*
+            * Fill out the Task State info
+            */
+           AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+           AppRecPtr->ControlReq.AppTimerMsec = 0;
+
            CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_RESOURCEID_RESERVED);
            CFE_ES_Global.LastAppId = PendingAppId;
            Status = CFE_SUCCESS;
@@ -437,142 +688,63 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
    /*
-   ** If a slot was found, create the application
-   */
+    * If ID allocation was not successful, return now.
+    * A message regarding the issue should have already been logged
+    */
+   if (Status != CFE_SUCCESS)
+   {
+       return Status;
+   }
+
+   /*
+    * Load the module based on StartParams configured above.
+    */
+   Status = CFE_ES_LoadModule(&AppRecPtr->StartParams.BasicInfo, &AppRecPtr->ModuleInfo);
+
+   /*
+    * If the Load was OK, then complete the initialization
+    */
    if (Status == CFE_SUCCESS)
    {
-      /*
-      ** Load the module
-      */
-      ReturnCode = OS_ModuleLoad ( &ModuleId, AppName, FileName );
-
-      /*
-      ** If the Load was OK, then lookup the address of the entry point
-      */
-      if ( ReturnCode == OS_SUCCESS )
-      {
-         ReturnCode = OS_SymbolLookup( &StartAddr, (const char*)EntryPointData );
-         if ( ReturnCode != OS_SUCCESS )
-         {
-             CFE_ES_WriteToSysLog("ES Startup: Could not find symbol:%s. EC = 0x%08X\n",
-                     (const char*)EntryPointData, (unsigned int)ReturnCode);
-
-             CFE_ES_LockSharedData(__func__,__LINE__);
-             CFE_ES_AppRecordSetFree(AppRecPtr); /* Release slot */
-             CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-             /* Unload the module from memory, so that it does not consume resources */
-             ReturnCode = OS_ModuleUnload(ModuleId);
-             if ( ReturnCode != OS_SUCCESS ) /* There's not much we can do except notify */
-             {
-                CFE_ES_WriteToSysLog("ES Startup: Failed to unload APP: %s. EC = 0x%08X\n",
-                        AppName, (unsigned int)ReturnCode);
-             }
-
-             return(CFE_ES_ERR_APP_CREATE);
-         }
-      }
-      else /* load not successful */
-      {
-          CFE_ES_WriteToSysLog("ES Startup: Could not load cFE application file:%s. EC = 0x%08X\n",
-                            FileName, (unsigned int)ReturnCode);
-
-          CFE_ES_LockSharedData(__func__,__LINE__);
-          CFE_ES_AppRecordSetFree(AppRecPtr); /* Release slot */
-          CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-          return(CFE_ES_ERR_APP_CREATE);
-      }
-
-      /*
-      ** If the EntryPoint symbol was found, then start creating the App
-      */
-      CFE_ES_LockSharedData(__func__,__LINE__);
-      /*
-      ** Allocate and populate the ES_AppTable entry
-      */
-      AppRecPtr->Type = CFE_ES_AppType_EXTERNAL;
-
-      /*
-      ** Fill out the parameters in the AppStartParams sub-structure
-      */
-      strncpy((char *)AppRecPtr->StartParams.Name, AppName, OS_MAX_API_NAME);
-      AppRecPtr->StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
-
-      strncpy((char *)AppRecPtr->StartParams.EntryPoint, (const char *)EntryPointData, OS_MAX_API_NAME);
-      AppRecPtr->StartParams.EntryPoint[OS_MAX_API_NAME - 1] = '\0';
-      strncpy((char *)AppRecPtr->StartParams.FileName, FileName, OS_MAX_PATH_LEN);
-      AppRecPtr->StartParams.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-
-      AppRecPtr->StartParams.StackSize = StackSize;
-
-      AppRecPtr->StartParams.StartAddress = StartAddr;
-      AppRecPtr->StartParams.ModuleId = ModuleId;
-
-      AppRecPtr->StartParams.ExceptionAction = ExceptionAction;
-      AppRecPtr->StartParams.Priority = Priority;
-
-      /*
-      ** Fill out the Task State info
-      */
-      AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-      AppRecPtr->ControlReq.AppTimerMsec = 0;
-
-      /*
-      ** Create the primary task for the newly loaded task
-      */
-      ReturnCode = OS_TaskCreate(&MainTaskId,   /* task id */
-                       AppName,             /* task name */
-                       (osal_task_entry)StartAddr,   /* task function pointer */
-                       NULL,                /* stack pointer */
-                       StackSize,           /* stack size */
-                       Priority,            /* task priority */
-                       OS_FP_ENABLED);     /* task options */
-
-
-      if(ReturnCode != OS_SUCCESS)
-      {
-         CFE_ES_SysLogWrite_Unsync("ES Startup: AppCreate Error: TaskCreate %s Failed. EC = 0x%08X!\n",
-                       AppName,(unsigned int)ReturnCode);
-
-         CFE_ES_AppRecordSetFree(AppRecPtr); /* Release slot */
-         CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-         Status = CFE_ES_ERR_APP_CREATE;
-      }
-      else
-      {
-
-         /*
-         ** Record the ES_TaskTable entry
-         */
-         AppRecPtr->MainTaskId = CFE_ES_ResourceID_FromOSAL(MainTaskId);
-         TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->MainTaskId);
-
-         if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) )
-         {
-            CFE_ES_SysLogWrite_Unsync("ES Startup: Error: ES_TaskTable slot in use at task creation!\n");
-         }
-         CFE_ES_TaskRecordSetUsed(TaskRecPtr,AppRecPtr->MainTaskId);
-         TaskRecPtr->AppId = PendingAppId;
-         /* The main task name is the same as the app name */
-         strncpy(TaskRecPtr->TaskName, AppName,
-                 sizeof(TaskRecPtr->TaskName)-1);
-         TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName)-1]='\0';
-         CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
-         CFE_ES_SysLogWrite_Unsync("ES Startup: %s loaded and created\n", AppName);
-         *ApplicationIdPtr = PendingAppId;
-
-         /*
-         ** Increment the registered App and Registered External Task variables.
-         */
-         CFE_ES_Global.RegisteredTasks++;
-         CFE_ES_Global.RegisteredExternalApps++;
-
-         CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-      } /* End If OS_TaskCreate */
+       Status = CFE_ES_StartAppTask(&AppRecPtr->StartParams, PendingAppId, &MainTaskId);
    }
+   else
+   {
+       MainTaskId = CFE_ES_RESOURCEID_UNDEFINED;
+   }
+
+   /*
+    * Finalize data in the app table entry, which must be done under lock.
+    * This transitions the entry from being RESERVED to the real ID.
+    */
+   CFE_ES_LockSharedData(__func__,__LINE__);
+
+   if ( Status == CFE_SUCCESS )
+   {
+       /*
+        * important - set the ID to its proper value
+        * which turns this into a real/valid table entry
+        */
+       AppRecPtr->MainTaskId = MainTaskId;
+       CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
+
+       /*
+        ** Increment the registered App counter.
+        */
+       CFE_ES_Global.RegisteredExternalApps++;
+   }
+   else
+   {
+       /*
+        * Set the table entry back to free
+        */
+       CFE_ES_AppRecordSetFree(AppRecPtr);
+       PendingAppId = CFE_ES_RESOURCEID_UNDEFINED;
+   }
+
+   CFE_ES_UnlockSharedData(__func__,__LINE__);
+
+   *ApplicationIdPtr = PendingAppId;
 
    return Status;
 
@@ -587,15 +759,13 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
 */
 int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
                          const char   *FileName,
-                         const void   *EntryPointData,
+                         const char   *EntryPointName,
                          const char   *LibName)
 {
    CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
    CFE_ES_LibRecord_t *         LibSlotPtr;
    int32                        Status;
    CFE_ES_ResourceID_t          PendingLibId;
-   osal_id_t                    ModuleId;
-   bool                         IsModuleLoaded;
 
    /*
     * The FileName must not be NULL
@@ -613,11 +783,8 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
    /*
    ** Allocate an ES_LibTable entry
    */
-   IsModuleLoaded = false;
    FunctionPointer = NULL;
-   ModuleId = OS_OBJECT_ID_UNDEFINED;
    PendingLibId = CFE_ES_RESOURCEID_UNDEFINED;
-   Status = CFE_ES_ERR_LOAD_LIB;    /* error that will be returned if no slots found */
 
     /*
     ** Find an ES AppTable entry, and set to RESERVED
@@ -663,7 +830,20 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
        {
            /* Fully clear the entry, just in case of stale data */
            memset(LibSlotPtr, 0, sizeof(*LibSlotPtr));
-           strcpy(LibSlotPtr->LibName, LibName); /* Size already checked */
+
+           /*
+            * Fill out the parameters in the AppStartParams sub-structure
+            */
+           strncpy(LibSlotPtr->BasicInfo.Name, LibName,
+                   sizeof(LibSlotPtr->BasicInfo.Name)-1);
+           strncpy(LibSlotPtr->BasicInfo.FileName, FileName,
+                   sizeof(LibSlotPtr->BasicInfo.FileName)-1);
+           if (EntryPointName != NULL && strcmp(EntryPointName, "NULL") != 0)
+           {
+              strncpy(LibSlotPtr->BasicInfo.EntryPoint, EntryPointName,
+                      sizeof(LibSlotPtr->BasicInfo.EntryPoint)-1);
+           }
+
            CFE_ES_LibRecordSetUsed(LibSlotPtr, CFE_ES_RESOURCEID_RESERVED);
            CFE_ES_Global.LastLibId = PendingLibId;
            Status = CFE_SUCCESS;
@@ -683,127 +863,50 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
    }
 
    /*
-    * -------------------
-    * IMPORTANT:
-    *
-    * there is now a reserved entry in the global library table,
-    * which must be freed if something goes wrong hereafter.
-    *
-    * Avoid any inline "return" statements - all paths must proceed to
-    * the end of this function where the cleanup will be done.
-    *
-    * Record sufficient breadcrumbs along the way, such that proper
-    * cleanup can be done in case it is necessary.
-    * -------------------
+    * Load the module based on StartParams configured above.
     */
-
-   /*
-    * STAGE 2:
-    * Do the OS_ModuleLoad() if is called for (i.e. ModuleLoadFile is NOT null)
-    */
-   if (Status == CFE_SUCCESS && FileName != NULL)
+   Status = CFE_ES_LoadModule(&LibSlotPtr->BasicInfo, &LibSlotPtr->ModuleInfo);
+   if (Status == CFE_SUCCESS)
    {
-       Status = OS_ModuleLoad( &ModuleId, LibName, FileName );
-       if (Status == OS_SUCCESS)
-       {
-           Status = CFE_SUCCESS; /* just in case CFE_SUCCESS is different than OS_SUCCESS */
-           IsModuleLoaded = true;
-       }
-       else
-       {
-           /* load not successful.  Note OS errors are better displayed as decimal integers. */
-           CFE_ES_WriteToSysLog("ES Startup: Could not load cFE Shared Library: %d\n", (int)Status);
-           Status = CFE_ES_ERR_LOAD_LIB;    /* convert OS error to CFE error code */
-       }
+      FunctionPointer = (CFE_ES_LibraryEntryFuncPtr_t)LibSlotPtr->ModuleInfo.EntryAddress;
+      if (FunctionPointer != NULL)
+      {
+         Status = (*FunctionPointer)(PendingLibId);
+         if (Status != CFE_SUCCESS)
+         {
+             CFE_ES_WriteToSysLog("ES Startup: Load Shared Library Init Error = 0x%08x\n",
+                     (unsigned int)Status);
+         }
+      }
    }
 
    /*
-    * STAGE 3:
-    * Figure out the Entry point / Initialization function.
-    *
-    * This depends on whether it is a dynamically loaded or a statically linked library,
-    * or it could be omitted altogether for libraries which do not require an init function.
-    *
-    * For dynamically loaded objects where FileName is non-NULL, the
-    * "EntryPointData" is a normal C string (const char *) with the name of the function.
-    *
-    * If the name of the function is the string "NULL" -- then treat this as no function
-    * needed and skip the lookup entirely (this is to support startup scripts where some
-    * string must be in the entry point field).
+    * Finalize data in the app table entry, which must be done under lock.
+    * This transitions the entry from being RESERVED to the real type,
+    * either MAIN_TASK (success) or returning to INVALID (failure).
     */
-   if (Status == CFE_SUCCESS && EntryPointData != NULL)
-   {
-       if (strcmp(EntryPointData, "NULL") != 0)
-       {
-           /*
-            * If the entry point is explicitly set as NULL,
-            * this means the library has no init function - skip the lookup.
-            * Otherwise lookup the address of the entry point
-            */
-           cpuaddr StartAddr;
+   CFE_ES_LockSharedData(__func__,__LINE__);
 
-           Status = OS_SymbolLookup( &StartAddr, EntryPointData );
-           if (Status == OS_SUCCESS)
-           {
-               Status = CFE_SUCCESS; /* just in case CFE_SUCCESS is different than OS_SUCCESS */
-               FunctionPointer = (CFE_ES_LibraryEntryFuncPtr_t)StartAddr;
-           }
-           else
-           {
-               /* could not find symbol.  Note OS errors are better displayed as decimal integers */
-               CFE_ES_WriteToSysLog("ES Startup: Could not find Library Init symbol:%s. EC = %d\n",
-                                      (const char *)EntryPointData, (int)Status);
-               Status = CFE_ES_ERR_LOAD_LIB;    /* convert OS error to CFE error code */
-           }
-       }
-   }
-
-   /*
-    * STAGE 4:
-    * Call the Initialization function, if one was identified during the previous stage
-    */
-   if (Status == CFE_SUCCESS && FunctionPointer != NULL)
+   if ( Status == CFE_SUCCESS )
    {
-       /*
-       ** Call the library initialization routine
+      /*
+       * important - set the ID to its proper value
+       * which turns this into a real/valid table entry
        */
-       Status = (*FunctionPointer)(*LibraryIdPtr);
-       if (Status != CFE_SUCCESS)
-       {
-           CFE_ES_WriteToSysLog("ES Startup: Load Shared Library Init Error = 0x%08x\n", (unsigned int)Status);
-       }
-   }
+      CFE_ES_LibRecordSetUsed(LibSlotPtr, PendingLibId);
 
-   /*
-    * LAST STAGE:
-    * Do final clean-up
-    *
-    * If fully successful, then increment the "RegisteredLibs" counter.
-    * Otherwise in case of an error, do clean up based on the breadcrumbs
-    */
-   if(Status == CFE_SUCCESS)
-   {
-       /* Increment the counter, which needs to be done under lock */
-       CFE_ES_LockSharedData(__func__,__LINE__);
-       CFE_ES_LibRecordSetUsed(LibSlotPtr, PendingLibId);
-       CFE_ES_Global.RegisteredLibs++;
-       CFE_ES_UnlockSharedData(__func__,__LINE__);
+       /*
+       * Increment the registered Lib counter.
+       */
+      CFE_ES_Global.RegisteredLibs++;
    }
    else
    {
-       /*
-        * If the above code had loaded a module, then unload it
-        */
-       if (IsModuleLoaded)
-       {
-           OS_ModuleUnload( ModuleId );
-       }
-
-       /* Release Slot - No need to lock as it is resetting just a single value */
-       CFE_ES_LibRecordSetFree(LibSlotPtr);
-
-       PendingLibId = CFE_ES_RESOURCEID_UNDEFINED;
+      CFE_ES_LibRecordSetFree(LibSlotPtr);
+      PendingLibId = CFE_ES_RESOURCEID_UNDEFINED;
    }
+
+   CFE_ES_UnlockSharedData(__func__,__LINE__);
 
    *LibraryIdPtr = PendingLibId;
 
@@ -822,9 +925,11 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
 */
 bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
 {
-   uint32 i;
-   CFE_ES_AppRecord_t *AppPtr;
    CFE_ES_AppTableScanState_t *State = (CFE_ES_AppTableScanState_t *)Arg;
+   uint32                      i;
+   CFE_ES_AppRecord_t         *AppPtr;
+   CFE_ES_ResourceID_t         AppTimeoutList[CFE_PLATFORM_ES_MAX_APPLICATIONS];
+   uint32                      NumAppTimeouts;
 
    if (State->PendingAppStateChanges == 0)
    {
@@ -845,6 +950,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
     * reset the background scan timer to the full value,
     * and take a snapshot of the the command counter.
     */
+   NumAppTimeouts = 0;
    State->BackgroundScanTimer = CFE_PLATFORM_ES_APP_SCAN_RATE;
    State->LastScanCommandCount = CFE_ES_TaskData.CommandCounter;
    State->PendingAppStateChanges = 0;
@@ -888,14 +994,10 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
                {
                    AppPtr->ControlReq.AppTimerMsec = 0;
 
-                   /*
-                    * Temporarily unlock the table, and invoke the
-                    * control request function for this app.
-                    */
-                   CFE_ES_UnlockSharedData(__func__,__LINE__);
-                   CFE_ES_ProcessControlRequest(AppPtr);
-                   CFE_ES_LockSharedData(__func__,__LINE__);
-               } /* end if */
+                   /* Add it to the list to be processed later */
+                   AppTimeoutList[NumAppTimeouts] = CFE_ES_AppRecordGetID(AppPtr);
+                   ++NumAppTimeouts;
+               }
            }
            else if (AppPtr->AppState == CFE_ES_AppState_RUNNING &&
                        AppPtr->ControlReq.AppControlRequest > CFE_ES_RunStatus_APP_RUN)
@@ -915,6 +1017,22 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
+
+   /*
+    * Now invoke the CFE_ES_ProcessControlRequest() routine for any app
+    * which has reached that point.
+    */
+   for ( i = 0; i < NumAppTimeouts; i++ )
+   {
+       /*
+        * Call CFE_ES_ProcessControlRequest() with a reference to
+        * the _copies_ of the app record details.  (This avoids
+        * needing to access the global records outside of the lock).
+        */
+       CFE_ES_ProcessControlRequest(AppTimeoutList[i]);
+   }
+
+
    /*
     * This state machine is considered active if there are any
     * pending app state changes.  Returning "true" will cause this job
@@ -932,180 +1050,228 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
 **   Purpose: This function will perform the requested control action for an application.
 **---------------------------------------------------------------------------------------
 */
-void CFE_ES_ProcessControlRequest(CFE_ES_AppRecord_t *AppRecPtr)
+void CFE_ES_ProcessControlRequest(CFE_ES_ResourceID_t AppId)
 {
+    CFE_ES_AppRecord_t      *AppRecPtr;
+    uint32                   PendingControlReq;
+    CFE_ES_AppStartParams_t  OrigStartParams;
+    CFE_Status_t             CleanupStatus;
+    CFE_Status_t             StartupStatus;
+    CFE_ES_ResourceID_t      NewAppId;
+    const char              *ReqName;
+    char                     MessageDetail[48];
+    uint16                   EventID;
+    CFE_EVS_EventType_Enum_t EventType;
 
-   int32                   Status;
-   CFE_ES_AppStartParams_t AppStartParams;
-   CFE_ES_ResourceID_t     NewAppId;
+    /* Init/clear all local state variables */
+    ReqName = NULL;
+    MessageDetail[0] = 0;
+    EventID = 0;
+    EventType = 0;
+    StartupStatus = CFE_SUCCESS;
+    PendingControlReq = 0;
+    NewAppId = CFE_ES_RESOURCEID_UNDEFINED;
+    AppRecPtr = CFE_ES_LocateAppRecordByID(AppId);
+    memset(&OrigStartParams, 0, sizeof(OrigStartParams));
 
-   /*
-   ** First get a copy of the Apps Start Parameters
-   */
-   memcpy(&AppStartParams, &(AppRecPtr->StartParams), sizeof(CFE_ES_AppStartParams_t));
 
-   /*
-   ** Now, find out what kind of Application control is being requested
-   */
-   switch ( AppRecPtr->ControlReq.AppControlRequest )
-   {
+    /*
+     * Take a local snapshot of the important app record data
+     * This way it becomes private and can be accessed without
+     * concerns about other threads/tasks, even after the global
+     * data records are eventually cleared.
+     */
+    CFE_ES_LockSharedData(__func__,__LINE__);
 
-      case CFE_ES_RunStatus_APP_EXIT:
-         /*
-         ** Kill the app, and dont restart it
+    if (CFE_ES_AppRecordIsMatch(AppRecPtr, AppId))
+    {
+        PendingControlReq = AppRecPtr->ControlReq.AppControlRequest;
+        OrigStartParams = AppRecPtr->StartParams;
+    }
+
+    CFE_ES_UnlockSharedData(__func__,__LINE__);
+
+    /*
+     * All control requests start by deleting the app/task and
+     * all associated resources.
+     *
+     * The reload/restart requests will start it again, and it gets
+     * a new appID.  For other requests it just leaves it deleted.
+     *
+     * Note that Cleanup can fail for a variety of reasons, including
+     * situations where e.g. a task ID had become stale because the task
+     * already exited itself.  In most cases these are minor errors and
+     * reflect problems with the consistency of the old app record.
+     *
+     * Even when this happens the cleanup should still do its best effort
+     * to release all relevant global data entries.  So it should not
+     * prevent starting the new app, if a restart/reload is indicated.
+     */
+    CleanupStatus = CFE_ES_CleanUpApp(AppId);
+
+    /*
+     * Attempt to restart the app if the request indicated to do so,
+     * regardless of the CleanupStatus.
+     */
+    if ( PendingControlReq == CFE_ES_RunStatus_SYS_RESTART ||
+            PendingControlReq == CFE_ES_RunStatus_SYS_RELOAD )
+    {
+        StartupStatus = CFE_ES_AppCreate(&NewAppId,
+                OrigStartParams.BasicInfo.FileName,
+                OrigStartParams.BasicInfo.EntryPoint,
+                OrigStartParams.BasicInfo.Name,
+                OrigStartParams.Priority,
+                OrigStartParams.StackSize,
+                OrigStartParams.ExceptionAction);
+    }
+
+    /*
+     * Determine the event ID associated with the control request,
+     * which indicates the success/failure of the operation and
+     * any other relevant detail.
+     *
+     * Note that the specific event ID that gets generated is the only
+     * other difference between all these control request types.
+     */
+    switch ( PendingControlReq )
+    {
+    case CFE_ES_RunStatus_APP_EXIT:
+        ReqName = "Exit";
+        if (CleanupStatus != CFE_SUCCESS)
+        {
+            /* error event for this request */
+            EventID = CFE_ES_EXIT_APP_ERR_EID;
+        }
+        else
+        {
+            /* success event for this request */
+            EventID = CFE_ES_EXIT_APP_INF_EID;
+        }
+        break;
+
+    case CFE_ES_RunStatus_APP_ERROR:
+        ReqName = "Exit";
+        if ( CleanupStatus != CFE_SUCCESS )
+        {
+            /* error event for this request */
+            EventID = CFE_ES_ERREXIT_APP_ERR_EID;
+        }
+        else
+        {
+            /* success event for this request */
+            EventID = CFE_ES_ERREXIT_APP_INF_EID;
+        }
+        break;
+
+    case CFE_ES_RunStatus_SYS_DELETE:
+        ReqName = "Stop";
+        if ( CleanupStatus != CFE_SUCCESS )
+        {
+            /* error event for this request */
+            EventID = CFE_ES_STOP_ERR3_EID;
+        }
+        else
+        {
+            /* success event for this request */
+            EventID = CFE_ES_STOP_INF_EID;
+        }
+        break;
+
+    case CFE_ES_RunStatus_SYS_RESTART:
+        ReqName = "Restart";
+        if ( CleanupStatus != CFE_SUCCESS )
+        {
+            /* error event for this request */
+            EventID = CFE_ES_RESTART_APP_ERR4_EID;
+        }
+        else if ( StartupStatus != CFE_SUCCESS )
+        {
+            /* error event for this request */
+            EventID = CFE_ES_RESTART_APP_ERR3_EID;
+        }
+        else
+        {
+            /* success event for this request */
+            EventID = CFE_ES_RESTART_APP_INF_EID;
+        }
+        break;
+
+    case CFE_ES_RunStatus_SYS_RELOAD:
+        ReqName = "Reload";
+        if ( CleanupStatus != CFE_SUCCESS )
+        {
+            /* error event for this request */
+            EventID = CFE_ES_RELOAD_APP_ERR4_EID;
+        }
+        else if ( StartupStatus != CFE_SUCCESS )
+        {
+            /* error event for this request */
+            EventID = CFE_ES_RELOAD_APP_ERR3_EID;
+        }
+        else
+        {
+            /* success event for this request */
+            EventID = CFE_ES_RELOAD_APP_INF_EID;
+        }
+        break;
+
+        /*
+         * These two cases below should never occur so they are always
+         * reported as errors, but the  CFE_ES_CleanUpApp() should hopefully
+         * have fixed it either way.
          */
-         Status = CFE_ES_CleanUpApp(AppRecPtr);
+    case CFE_ES_RunStatus_SYS_EXCEPTION:
+        ReqName = "ES_ProcControlReq: Invalid State";
+        EventID = CFE_ES_PCR_ERR1_EID;
+        snprintf(MessageDetail, sizeof(MessageDetail), "EXCEPTION");
+        break;
 
-         if ( Status == CFE_SUCCESS )
-         {
-            CFE_EVS_SendEvent(CFE_ES_EXIT_APP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                              "Exit Application %s Completed.",AppStartParams.Name);
-         }
-         else
-         {
-            CFE_EVS_SendEvent(CFE_ES_EXIT_APP_ERR_EID, CFE_EVS_EventType_ERROR,
-                               "Exit Application %s Failed: CleanUpApp Error 0x%08X.",AppStartParams.Name, (unsigned int)Status);
-         }
-         break;
+    default:
+        ReqName = "ES_ProcControlReq: Unknown State";
+        EventID = CFE_ES_PCR_ERR2_EID;
+        snprintf(MessageDetail, sizeof(MessageDetail), "( %lu )",
+                (unsigned long)PendingControlReq);
+        break;
+    }
 
-      case CFE_ES_RunStatus_APP_ERROR:
-         /*
-         ** Kill the app, and dont restart it
-         */
-         Status = CFE_ES_CleanUpApp(AppRecPtr);
+    if (EventID != 0 && ReqName != NULL)
+    {
+        if ( MessageDetail[0] != 0 )
+        {
+            /* Detail message already set, assume it is an error event */
+            EventType = CFE_EVS_EventType_ERROR;
+        }
+        else if ( StartupStatus != CFE_SUCCESS )
+        {
+            /* Make detail message for event containing startup error code */
+            EventType = CFE_EVS_EventType_ERROR;
+            snprintf(MessageDetail, sizeof(MessageDetail),
+                    "Failed: AppCreate Error 0x%08X.",(unsigned int)StartupStatus);
+        }
+        else if ( CleanupStatus != CFE_SUCCESS )
+        {
+            /* Make detail message for event containing cleanup error code */
+            EventType = CFE_EVS_EventType_ERROR;
+            snprintf(MessageDetail, sizeof(MessageDetail),
+                    "Failed: CleanUpApp Error 0x%08X.",(unsigned int)CleanupStatus);
+        }
+        else if (CFE_ES_ResourceID_IsDefined(NewAppId))
+        {
+            /* Record success message for event where app is restarted */
+            EventType = CFE_EVS_EventType_INFORMATION;
+            snprintf(MessageDetail, sizeof(MessageDetail), "Completed, AppID=%lu",
+                    CFE_ES_ResourceID_ToInteger(NewAppId));
+        }
+        else
+        {
+            /* Record success message for event */
+            EventType = CFE_EVS_EventType_INFORMATION;
+            snprintf(MessageDetail, sizeof(MessageDetail), "Completed.");
+        }
 
-         if ( Status == CFE_SUCCESS )
-         {
-            CFE_EVS_SendEvent(CFE_ES_ERREXIT_APP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                               "Exit Application %s on Error Completed.",AppStartParams.Name);
-         }
-         else
-         {
-            CFE_EVS_SendEvent(CFE_ES_ERREXIT_APP_ERR_EID, CFE_EVS_EventType_ERROR,
-                              "Exit Application %s on Error Failed: CleanUpApp Error 0x%08X.",AppStartParams.Name, (unsigned int)Status);
-         }
-         break;
-
-      case CFE_ES_RunStatus_SYS_DELETE:
-         /*
-         ** Kill the app, and dont restart it
-         */
-         Status = CFE_ES_CleanUpApp(AppRecPtr);
-
-         if ( Status == CFE_SUCCESS )
-         {
-            CFE_EVS_SendEvent(CFE_ES_STOP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                              "Stop Application %s Completed.",AppStartParams.Name);
-         }
-         else
-         {
-            CFE_EVS_SendEvent(CFE_ES_STOP_ERR3_EID, CFE_EVS_EventType_ERROR,
-                              "Stop Application %s Failed: CleanUpApp Error 0x%08X.",AppStartParams.Name, (unsigned int)Status);
-         }
-         break;
-
-      case CFE_ES_RunStatus_SYS_RESTART:
-         /*
-         ** Kill the app
-         */
-         Status = CFE_ES_CleanUpApp(AppRecPtr);
-
-         if ( Status == CFE_SUCCESS )
-         {
-            /*
-            ** And start it back up again
-            */
-            Status = CFE_ES_AppCreate(&NewAppId, (char *)AppStartParams.FileName,
-                                           (char *)AppStartParams.EntryPoint,
-                                           (char *)AppStartParams.Name,
-                                           AppStartParams.Priority,
-                                           AppStartParams.StackSize,
-                                           AppStartParams.ExceptionAction);
-
-            if ( Status == CFE_SUCCESS )
-            {
-               CFE_EVS_SendEvent(CFE_ES_RESTART_APP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Restart Application %s Completed.", AppStartParams.Name);
-            }
-            else
-            {
-               CFE_EVS_SendEvent(CFE_ES_RESTART_APP_ERR3_EID, CFE_EVS_EventType_ERROR,
-                                  "Restart Application %s Failed: AppCreate Error 0x%08X.", AppStartParams.Name, (unsigned int)Status);
-            }
-         }
-         else
-         {
-               CFE_EVS_SendEvent(CFE_ES_RESTART_APP_ERR4_EID, CFE_EVS_EventType_ERROR,
-                                  "Restart Application %s Failed: CleanUpApp Error 0x%08X.", AppStartParams.Name, (unsigned int)Status);
-         }
-         break;
-
-      case CFE_ES_RunStatus_SYS_RELOAD:
-         /*
-         ** Kill the app
-         */
-         Status = CFE_ES_CleanUpApp(AppRecPtr);
-
-         if ( Status == CFE_SUCCESS )
-         {
-            /*
-            ** And start it back up again
-            */
-            Status = CFE_ES_AppCreate(&NewAppId, (char *)AppStartParams.FileName,
-                                           (char *)AppStartParams.EntryPoint,
-                                           (char *)AppStartParams.Name,
-                                           AppStartParams.Priority,
-                                           AppStartParams.StackSize,
-                                           AppStartParams.ExceptionAction);
-            if ( Status == CFE_SUCCESS )
-            {
-               CFE_EVS_SendEvent(CFE_ES_RELOAD_APP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                                  "Reload Application %s Completed.", AppStartParams.Name);
-            }
-            else
-            {
-               CFE_EVS_SendEvent(CFE_ES_RELOAD_APP_ERR3_EID, CFE_EVS_EventType_ERROR,
-                                  "Reload Application %s Failed: AppCreate Error 0x%08X.", AppStartParams.Name, (unsigned int)Status);
-            }
-         }
-         else
-         {
-            CFE_EVS_SendEvent(CFE_ES_RELOAD_APP_ERR4_EID, CFE_EVS_EventType_ERROR,
-                              "Reload Application %s Failed: CleanUpApp Error 0x%08X.", AppStartParams.Name, (unsigned int)Status);
-         }
-
-         break;
-
-      case CFE_ES_RunStatus_SYS_EXCEPTION:
-
-         CFE_EVS_SendEvent(CFE_ES_PCR_ERR1_EID, CFE_EVS_EventType_ERROR,
-                            "ES_ProcControlReq: Invalid State (EXCEPTION) Application %s.",
-                             AppStartParams.Name);
-         /*
-          * Bug #58: This message/event keeps repeating itself indefinitely.
-          *
-          * Change the request state to DELETE so the next scan will clean
-          * up this table entry.
-          */
-         AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_DELETE;
-         break;
-
-      default:
-
-         CFE_EVS_SendEvent(CFE_ES_PCR_ERR2_EID, CFE_EVS_EventType_ERROR,
-                            "ES_ProcControlReq: Unknown State ( %d ) Application %s.",
-                            (int)AppRecPtr->ControlReq.AppControlRequest, AppStartParams.Name);
-
-         /*
-          * Bug #58: This message/event keeps repeating itself indefinitely.
-          *
-          * Change the request state to DELETE so the next scan will clean
-          * up this table entry.
-          */
-         AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_DELETE;
-         break;
-
-   }
+        CFE_EVS_SendEvent(EventID, EventType, "%s Application %s %s",
+                ReqName, OrigStartParams.BasicInfo.Name, MessageDetail);
+    }
 
 } /* End Function */
 
@@ -1116,154 +1282,248 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppRecord_t *AppRecPtr)
 **   Purpose: Delete an application by cleaning up all of it's resources.
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_CleanUpApp(CFE_ES_AppRecord_t *AppRecPtr)
+int32 CFE_ES_CleanUpApp(CFE_ES_ResourceID_t AppId)
 {
-   uint32    i;
-   int32  Status;
-   CFE_ES_ResourceID_t MainTaskId;
-   CFE_ES_ResourceID_t CurrTaskId;
-   int32  ReturnCode = CFE_SUCCESS;
-   CFE_ES_TaskRecord_t *TaskRecPtr;
-   CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
-   CFE_ES_MemHandle_t PoolId;
-   CFE_ES_ResourceID_t AppId;
+    uint32                   i;
+    int32                    Status;
+    int32                    ReturnCode;
+    CFE_ES_ResourceID_t      TaskList[OS_MAX_TASKS];
+    CFE_ES_MemHandle_t       PoolList[CFE_PLATFORM_ES_MAX_MEMORY_POOLS];
+    osal_id_t                ModuleId;
+    uint32                   NumTasks;
+    uint32                   NumPools;
+    CFE_ES_AppRecord_t      *AppRecPtr;
+    CFE_ES_TaskRecord_t     *TaskRecPtr;
+    CFE_ES_MemPoolRecord_t  *MemPoolRecPtr;
 
-   /*
-    * Retrieve the abstract AppID for calling cleanup
-    * routine in _other_ modules.
-    */
-   AppId = CFE_ES_AppRecordGetID(AppRecPtr);
 
-   /*
-   ** Call the Table Clean up function
-   */
-#ifndef EXCLUDE_CFE_TBL
-   CFE_TBL_CleanUpApp(AppId);
+    NumTasks = 0;
+    NumPools = 0;
+    ModuleId = OS_OBJECT_ID_UNDEFINED;
+    ReturnCode = CFE_SUCCESS;
+
+    AppRecPtr = CFE_ES_LocateAppRecordByID(AppId);
+
+    /*
+     * Collect a list of resources previously owned by this app, which
+     * must be done while the global data is locked.
+     */
+    CFE_ES_LockSharedData(__func__,__LINE__);
+
+    if (CFE_ES_AppRecordIsMatch(AppRecPtr, AppId))
+    {
+        if (AppRecPtr->Type == CFE_ES_AppType_EXTERNAL)
+        {
+            CFE_ES_Global.RegisteredExternalApps--;
+
+            /*
+             * Get the Module ID, if it was an external app
+             *
+             * (this will be OS_OBJECT_ID_UNDEFINED if it was not loaded dynamically)
+             */
+            ModuleId = AppRecPtr->ModuleInfo.ModuleId;
+        }
+
+        /*
+         * Collect all tasks associated with this app
+         */
+        TaskRecPtr = CFE_ES_Global.TaskTable;
+        for ( i = 0; i < OS_MAX_TASKS; i++ )
+        {
+            if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
+                    CFE_ES_ResourceID_Equal(TaskRecPtr->AppId, AppId))
+            {
+                TaskList[NumTasks] = CFE_ES_TaskRecordGetID(TaskRecPtr);
+
+                /* Store the main task ID at index 0 (swap with whatever was there) */
+                if (CFE_ES_ResourceID_Equal(TaskList[NumTasks], AppRecPtr->MainTaskId) &&
+                        NumTasks != 0)
+                {
+                    TaskList[NumTasks] = TaskList[0];
+                    TaskList[0] = AppRecPtr->MainTaskId;
+                }
+
+                /* Mark record for removal */
+                CFE_ES_TaskRecordSetUsed(TaskRecPtr, CFE_ES_RESOURCEID_RESERVED);
+                ++NumTasks;
+            }
+
+            ++TaskRecPtr;
+        } /* end for */
+
+        CFE_ES_Global.RegisteredTasks -= NumTasks;
+
+        /*
+         * Collect memory pools associated with this app
+         */
+        MemPoolRecPtr = CFE_ES_Global.MemPoolTable;
+        for ( i = 0; i < CFE_PLATFORM_ES_MAX_MEMORY_POOLS; i++ )
+        {
+            if ( CFE_ES_MemPoolRecordIsUsed(MemPoolRecPtr) &&
+                    CFE_ES_ResourceID_Equal(MemPoolRecPtr->OwnerAppID, AppId))
+            {
+                PoolList[NumPools] = CFE_ES_MemPoolRecordGetID(MemPoolRecPtr);
+                ++NumPools;
+            }
+
+            ++MemPoolRecPtr;
+        } /* end for */
+
+        /*
+         * Set the record to RESERVED.
+         *
+         * This prevents reallocation of this slot while the remainder
+         * of resources are freed.
+         */
+        CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_RESOURCEID_RESERVED);
+
+        ReturnCode = CFE_SUCCESS;
+    }
+    else
+    {
+        CFE_ES_SysLogWrite_Unsync("CFE_ES_CleanUpApp: AppID %lu is not valid for deletion\n",
+                CFE_ES_ResourceID_ToInteger(AppId));
+        ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+    }
+
+    CFE_ES_UnlockSharedData(__func__, __LINE__);
+
+    if (ReturnCode != CFE_SUCCESS)
+    {
+        return ReturnCode;
+    }
+
+
+    /*
+     * Now actually delete all the resources associated with the task.
+     *
+     * Most of this involves calling into other subsystems, so it is
+     * done while the ES global data is UNLOCKED to avoid holding more
+     * than one lock at a time.
+     */
+
+    /*
+     ** Call the Table Clean up function
+     */
+    CFE_TBL_CleanUpApp(AppId);
+
+    /*
+     ** Call the Software Bus clean up function
+     */
+    CFE_SB_CleanUpApp(AppId);
+
+    /*
+     ** Call the TIME Clean up function
+     */
+    CFE_TIME_CleanUpApp(AppId);
+
+    /*
+     ** Call the EVS Clean up function
+     */
+    Status = CFE_EVS_CleanUpApp(AppId);
+    if ( Status != CFE_SUCCESS )
+    {
+        CFE_ES_WriteToSysLog("CFE_ES_CleanUpApp: Call to CFE_EVS_CleanUpApp returned Error: 0x%08X\n",(unsigned int)Status);
+        ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+    }
+
+    /*
+     * Delete all tasks.
+     *
+     * Note that the main task is always positioned at index 0 in this list.
+     *
+     * This iterates the list in reverse order, such that the child
+     * tasks are deleted first (in any order) and main task is deleted last.
+     */
+    i = NumTasks;
+    while (i > 0)
+    {
+        --i;
+        Status = CFE_ES_CleanupTaskResources(TaskList[i]);
+        if ( Status != CFE_SUCCESS )
+        {
+            CFE_ES_WriteToSysLog("CFE_ES_CleanUpApp: CleanUpTaskResources for Task ID:%lu returned Error: 0x%08X\n",
+                    CFE_ES_ResourceID_ToInteger(TaskList[i]), (unsigned int)Status);
+            ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+        }
+    }
+
+    /*
+     * Delete all mem pools.
+     */
+    for (i=0; i < NumPools; ++i)
+    {
+        Status = CFE_ES_PoolDelete(PoolList[i]);
+        if ( Status != CFE_SUCCESS )
+        {
+            CFE_ES_WriteToSysLog("CFE_ES_MemPoolCleanupApp: delete pool %lu returned Error: 0x%08X\n",
+                    CFE_ES_ResourceID_ToInteger(PoolList[i]), (unsigned int)Status);
+            ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+        }
+    }
+
+    /*
+     ** Unload the module, if applicable
+     */
+    if ( OS_ObjectIdDefined(ModuleId) )
+    {
+        /*
+         ** Unload the module only if it is an external app
+         */
+        Status = OS_ModuleUnload(ModuleId);
+        if ( Status != OS_SUCCESS )
+        {
+            CFE_ES_WriteToSysLog("CFE_ES_CleanUpApp: Module (ID:0x%08lX) Unload failed. RC=0x%08X\n",
+                    OS_ObjectIdToInteger(ModuleId), (unsigned int)Status);
+            ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+        }
+    }
+
+    /*
+     * Finally, re-acquire the ES lock and set all
+     * table entries free for re-use.
+     */
+    CFE_ES_LockSharedData(__func__,__LINE__);
+
+#ifdef jphfix
+    /*
+     * This just confirms that the main task ID associated with this app was properly
+     * located and deleted during the previous process.
+     *
+     * If not, display a log message about it - this indicates table corruption or a
+     * bug with the record keeping.
+     */
+    if (NumTasks == 0 || !CFE_ES_ResourceID_Equal(TaskList[0], AppRecPtr->MainTaskId))
+    {
+        CFE_ES_SysLogWrite_Unsync("CFE_ES_CleanUpApp: MainTask ID:%lu not found when deleting AppID %lu\n",
+                CFE_ES_ResourceID_ToInteger(AppRecPtr->MainTaskId), CFE_ES_ResourceID_ToInteger(AppId));
+        ReturnCode = CFE_ES_APP_CLEANUP_ERR;
+    }
 #endif
-   /*
-   ** Call the Software Bus clean up function
-   */
-   CFE_SB_CleanUpApp(AppId);
 
-   /*
-   ** Call the TIME Clean up function
-   */
-   CFE_TIME_CleanUpApp(AppId);
+    /*
+     * Free all task records.
+     */
+    for (i=0; i < NumTasks; ++i)
+    {
+        TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskList[i]);
+        if (CFE_ES_TaskRecordIsMatch(TaskRecPtr, CFE_ES_RESOURCEID_RESERVED))
+        {
+            CFE_ES_TaskRecordSetFree(TaskRecPtr);
+        }
+    }
 
-   /*
-   ** Call the EVS Clean up function
-   */
-   Status = CFE_EVS_CleanUpApp(AppId);
-   if ( Status != CFE_SUCCESS )
-   {
-      CFE_ES_WriteToSysLog("CFE_ES_CleanUpApp: Call to CFE_EVS_CleanUpApp returned Error: 0x%08X\n",(unsigned int)Status);
-      ReturnCode = CFE_ES_APP_CLEANUP_ERR;
-   }
+    /*
+     * Now finally delete the record and allow re-use of the slot.
+     */
+    if (CFE_ES_AppRecordIsMatch(AppRecPtr, CFE_ES_RESOURCEID_RESERVED))
+    {
+        CFE_ES_AppRecordSetFree(AppRecPtr);
+    }
 
+    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-   /*
-   ** Delete the ES Resources
-   */
-   CFE_ES_LockSharedData(__func__,__LINE__);
-
-   /*
-   ** Get Main Task ID
-   */
-   MainTaskId = AppRecPtr->MainTaskId;
-
-   /*
-   ** Delete any child tasks associated with this app
-   */
-   TaskRecPtr = CFE_ES_Global.TaskTable;
-   for ( i = 0; i < OS_MAX_TASKS; i++ )
-   {
-      /* delete only CHILD tasks - not the MainTaskId, which will be deleted later (below) */
-      if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
-          CFE_ES_ResourceID_Equal(TaskRecPtr->AppId, AppId))
-      {
-          CurrTaskId = CFE_ES_TaskRecordGetID(TaskRecPtr);
-          if (!CFE_ES_ResourceID_Equal(CurrTaskId, MainTaskId))
-          {
-             Status = CFE_ES_CleanupTaskResources(CurrTaskId);
-             if ( Status != CFE_SUCCESS )
-             {
-                CFE_ES_SysLogWrite_Unsync("CFE_ES_CleanUpApp: CleanUpTaskResources for Task ID:%lu returned Error: 0x%08X\n",
-                                      CFE_ES_ResourceID_ToInteger(CurrTaskId), (unsigned int)Status);
-                ReturnCode = CFE_ES_APP_CLEANUP_ERR;
-             }
-          } /* end if */
-      }
-
-      ++TaskRecPtr;
-   } /* end for */
-
-   /*
-   ** Delete all of the OS resources, close files, and delete the main task
-   */
-   Status = CFE_ES_CleanupTaskResources(MainTaskId);
-   if ( Status != CFE_SUCCESS )
-   {
-      CFE_ES_SysLogWrite_Unsync("CFE_ES_CleanUpApp: CleanUpTaskResources for Task ID:%lu returned Error: 0x%08X\n",
-              CFE_ES_ResourceID_ToInteger(MainTaskId), (unsigned int)Status);
-      ReturnCode = CFE_ES_APP_CLEANUP_ERR;
-
-   }
-
-   /*
-   ** Remove the app from the AppTable
-   */
-   if ( AppRecPtr->Type == CFE_ES_AppType_EXTERNAL )
-   {
-      /*
-      ** Unload the module only if it is an external app
-      */
-      Status = OS_ModuleUnload(AppRecPtr->StartParams.ModuleId);
-      if ( Status == OS_ERROR )
-      {
-           CFE_ES_SysLogWrite_Unsync("CFE_ES_CleanUpApp: Module (ID:0x%08lX) Unload failed. RC=0x%08X\n",
-                                 OS_ObjectIdToInteger(AppRecPtr->StartParams.ModuleId), (unsigned int)Status);
-           ReturnCode = CFE_ES_APP_CLEANUP_ERR;
-      }
-      CFE_ES_Global.RegisteredExternalApps--;
-   }
-
-   CFE_ES_AppRecordSetFree(AppRecPtr);
-
-   /*
-   ** Delete any memory pools associated with this app
-   */
-   MemPoolRecPtr = CFE_ES_Global.MemPoolTable;
-   for ( i = 0; i < CFE_PLATFORM_ES_MAX_MEMORY_POOLS; i++ )
-   {
-      if ( CFE_ES_MemPoolRecordIsUsed(MemPoolRecPtr) &&
-          CFE_ES_ResourceID_Equal(MemPoolRecPtr->OwnerAppID, AppId))
-      {
-          PoolId = CFE_ES_MemPoolRecordGetID(MemPoolRecPtr);
-
-          /*
-           * This needs to release the lock first because
-           * CFE_ES_PoolDelete acquires the lock.
-           */
-          CFE_ES_UnlockSharedData(__func__, __LINE__);
-          Status = CFE_ES_PoolDelete(PoolId);
-          CFE_ES_LockSharedData(__func__, __LINE__);
-
-          if ( Status != CFE_SUCCESS )
-          {
-              CFE_ES_SysLogWrite_Unsync("CFE_ES_MemPoolCleanupApp: delete pool %lu returned Error: 0x%08X\n",
-                      CFE_ES_ResourceID_ToInteger(PoolId), (unsigned int)Status);
-              ReturnCode = CFE_ES_APP_CLEANUP_ERR;
-          }
-      }
-
-      ++MemPoolRecPtr;
-   } /* end for */
-
-
-
-   CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-   return(ReturnCode);
+    return(ReturnCode);
 
 } /* end function */
 
@@ -1387,13 +1647,14 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
 **   Name: CFE_ES_CleanupTaskResources
 **
 **   Purpose: Clean up the OS resources associated with an individual Task
+**   Note: This is called when the ES global is UNLOCKED - so it should not touch
+**         any ES global data structures.  It should only clean up at the OSAL level.
 **---------------------------------------------------------------------------------------
 */
 int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId)
 {
     CFE_ES_CleanupState_t   CleanState;
     int32                   Result;
-    CFE_ES_TaskRecord_t     *TaskRecPtr;
     osal_id_t               OsalId;
 
     /* Get the Task ID for calling OSAL APIs (convert type) */
@@ -1425,15 +1686,14 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId)
     }
 
     /*
-     * Locate the ES Task table entry
-     */
-    TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskId);
-
-    /*
     ** Delete the task itself
+    **
+    ** Note, if the task self exited, then the ID becomes invalid.
+    ** In this case the OS_ERR_INVALID_ID status is returned, but
+    ** that is OK, there is nothing else needed to do.
     */
     Result = OS_TaskDelete(OsalId);
-    if (Result == OS_SUCCESS)
+    if (Result == OS_SUCCESS || Result == OS_ERR_INVALID_ID)
     {
         Result = CleanState.OverallStatus;
         if (Result == CFE_SUCCESS && CleanState.FoundObjects > 0)
@@ -1447,22 +1707,13 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId)
         Result = CFE_ES_TASK_DELETE_ERR;
     }
 
-    /*
-    ** Invalidate ES Task Table entry
-    */
-    if (TaskRecPtr != NULL)
-    {
-       CFE_ES_TaskRecordSetFree(TaskRecPtr);
-    }
-
-    CFE_ES_Global.RegisteredTasks--;
     return(Result);
 
 }
 
 /*
 **---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GetAppInfoInternal
+**   Name: CFE_ES_CopyModuleBasicInfo
 **
 **   Purpose: Populate the cFE_ES_AppInfo structure with the data for an app.
 **
@@ -1470,181 +1721,71 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId)
 **   to check the return code and log any relevant errors based on the context.
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_GetAppInfoInternal(CFE_ES_AppRecord_t *AppRecPtr, CFE_ES_AppInfo_t *AppInfoPtr )
+void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
-   int32              Status;
-   int32              ReturnCode;
-   OS_module_prop_t   ModuleInfo;
-   uint32             i;
-   CFE_ES_TaskRecord_t *TaskRecPtr;
-   CFE_ES_ResourceID_t AppId;
+    strncpy(AppInfoPtr->Name, ParamsPtr->Name,
+            sizeof(AppInfoPtr->Name)-1);
+    AppInfoPtr->Name[sizeof(AppInfoPtr->Name)-1] = '\0';
 
-   CFE_ES_LockSharedData(__func__,__LINE__);
+    strncpy(AppInfoPtr->EntryPoint, ParamsPtr->EntryPoint,
+            sizeof(AppInfoPtr->EntryPoint) - 1);
+    AppInfoPtr->EntryPoint[sizeof(AppInfoPtr->EntryPoint) - 1] = '\0';
 
-   if ( !CFE_ES_AppRecordIsUsed(AppRecPtr) )
-   {
-       Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-   }
-   else
-   {
-       Status = CFE_SUCCESS;
-
-       AppId = CFE_ES_AppRecordGetID(AppRecPtr);
-       AppInfoPtr->AppId = AppId;
-       AppInfoPtr->Type = AppRecPtr->Type;
-       strncpy(AppInfoPtr->Name,
-               CFE_ES_AppRecordGetName(AppRecPtr),
-               sizeof(AppInfoPtr->Name)-1);
-       AppInfoPtr->Name[sizeof(AppInfoPtr->Name)-1] = '\0';
-
-       strncpy((char *)AppInfoPtr->EntryPoint,
-               AppRecPtr->StartParams.EntryPoint,
-               sizeof(AppInfoPtr->EntryPoint) - 1);
-       AppInfoPtr->EntryPoint[sizeof(AppInfoPtr->EntryPoint) - 1] = '\0';
-
-       strncpy((char *)AppInfoPtr->FileName, (char *)AppRecPtr->StartParams.FileName,
-               sizeof(AppInfoPtr->FileName) - 1);
-       AppInfoPtr->FileName[sizeof(AppInfoPtr->FileName) - 1] = '\0';
-
-       AppInfoPtr->ModuleId = AppRecPtr->StartParams.ModuleId;
-       AppInfoPtr->StackSize = AppRecPtr->StartParams.StackSize;
-       CFE_SB_SET_MEMADDR(AppInfoPtr->StartAddress, AppRecPtr->StartParams.StartAddress);
-       AppInfoPtr->ExceptionAction = AppRecPtr->StartParams.ExceptionAction;
-       AppInfoPtr->Priority = AppRecPtr->StartParams.Priority;
-
-       AppInfoPtr->MainTaskId = AppRecPtr->MainTaskId;
-
-       /*
-       ** Calculate the number of child tasks
-       */
-       AppInfoPtr->NumOfChildTasks = 0;
-       TaskRecPtr = CFE_ES_Global.TaskTable;
-       for (i=0; i<OS_MAX_TASKS; i++ )
-       {
-          if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
-                  CFE_ES_ResourceID_Equal(TaskRecPtr->AppId, AppId) &&
-                  !CFE_ES_ResourceID_Equal(CFE_ES_TaskRecordGetID(TaskRecPtr), AppInfoPtr->MainTaskId) )
-          {
-             AppInfoPtr->NumOfChildTasks++;
-          }
-          ++TaskRecPtr;
-       }
-
-       /*
-       ** Get the execution counter for the main task
-       */
-       TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppInfoPtr->MainTaskId);
-       if (CFE_ES_TaskRecordIsMatch(TaskRecPtr,AppInfoPtr->MainTaskId))
-       {
-          AppInfoPtr->ExecutionCounter = TaskRecPtr->ExecutionCounter;
-          strncpy(AppInfoPtr->MainTaskName, TaskRecPtr->TaskName,
-                  sizeof(AppInfoPtr->MainTaskName) - 1);
-          AppInfoPtr->MainTaskName[sizeof(AppInfoPtr->MainTaskName) - 1] = '\0';
-       }
-
-       /*
-       ** Get the address information from the OSAL
-       */
-       ReturnCode = OS_ModuleInfo ( AppInfoPtr->ModuleId, &ModuleInfo );
-       if ( ReturnCode == OS_SUCCESS )
-       {
-          AppInfoPtr->AddressesAreValid =
-                  (sizeof(ModuleInfo.addr.code_address) <= sizeof(AppInfoPtr->CodeAddress)) &&
-                  ModuleInfo.addr.valid;
-          CFE_SB_SET_MEMADDR(AppInfoPtr->CodeAddress, ModuleInfo.addr.code_address);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->CodeSize, ModuleInfo.addr.code_size);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->DataAddress, ModuleInfo.addr.data_address);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->DataSize, ModuleInfo.addr.data_size);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->BSSAddress, ModuleInfo.addr.bss_address);
-          CFE_SB_SET_MEMADDR(AppInfoPtr->BSSSize, ModuleInfo.addr.bss_size);
-       }
-       else
-       {
-          AppInfoPtr->AddressesAreValid = false;
-          AppInfoPtr->CodeAddress = 0;
-          AppInfoPtr->CodeSize = 0;
-          AppInfoPtr->DataAddress = 0;
-          AppInfoPtr->DataSize = 0;
-          AppInfoPtr->BSSAddress = 0;
-          AppInfoPtr->BSSSize = 0;
-       }
-
-   }
-
-   CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-   return Status;
-
-} /* end function */
+    strncpy(AppInfoPtr->FileName, ParamsPtr->FileName,
+            sizeof(AppInfoPtr->FileName) - 1);
+    AppInfoPtr->FileName[sizeof(AppInfoPtr->FileName) - 1] = '\0';
+}
 
 /*
 **---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GetAppInfoInternal
+**   Name: CFE_ES_CopyModuleStatusInfo
 **
-**   Purpose: Populate the cFE_ES_TaskInfo structure with the data for a task.
+**   Purpose: Populate the cFE_ES_AppInfo structure with the data for an app.
 **
 **   This internal function does not log any errors/events.  The caller is expected
 **   to check the return code and log any relevant errors based on the context.
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_GetTaskInfoInternal(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ES_TaskInfo_t *TaskInfoPtr)
+void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
-   CFE_ES_AppRecord_t *AppRecPtr;
-   int32  ReturnCode;
+    AppInfoPtr->ModuleId = StatusPtr->ModuleId;
+    CFE_SB_SET_MEMADDR(AppInfoPtr->StartAddress, StatusPtr->EntryAddress);
+}
 
-   CFE_ES_LockSharedData(__func__,__LINE__);
+/*
+**---------------------------------------------------------------------------------------
+**   Name: CFE_ES_CopyModuleAddressInfo
+**
+**   Purpose: Populate the cFE_ES_AppInfo structure with the data for an app.
+**
+**   This internal function does not log any errors/events.  The caller is expected
+**   to check the return code and log any relevant errors based on the context.
+**---------------------------------------------------------------------------------------
+*/
+void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoPtr)
+{
+    OS_module_prop_t   ModuleInfo;
+    int32              ReturnCode;
 
-   if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) )
-   {
+    ReturnCode = OS_ModuleInfo ( ModuleId, &ModuleInfo );
+    if ( ReturnCode == OS_SUCCESS )
+    {
+        AppInfoPtr->AddressesAreValid =
+                (sizeof(ModuleInfo.addr.code_address) <= sizeof(AppInfoPtr->CodeAddress)) &&
+                ModuleInfo.addr.valid;
+    }
+    else
+    {
+        AppInfoPtr->AddressesAreValid = false;
+        memset(&ModuleInfo, 0, sizeof(ModuleInfo));
+    }
 
-      /*
-      ** Get the Application ID and Task Name
-      */
-      TaskInfoPtr->AppId = TaskRecPtr->AppId;
-      strncpy(TaskInfoPtr->TaskName,
-              CFE_ES_TaskRecordGetName(TaskRecPtr),
-              sizeof(TaskInfoPtr->TaskName)-1);
-      TaskInfoPtr->TaskName[sizeof(TaskInfoPtr->TaskName)-1] = '\0';
-
-      /*
-      ** Store away the Task ID ( for the QueryAllTasks Cmd )
-      */
-      TaskInfoPtr->TaskId = CFE_ES_TaskRecordGetID(TaskRecPtr);
-
-      /*
-      ** Get the Execution counter for the task
-      */
-      TaskInfoPtr->ExecutionCounter =  TaskRecPtr->ExecutionCounter;
-
-      /*
-      ** Get the Application Details
-      */
-      AppRecPtr = CFE_ES_LocateAppRecordByID(TaskRecPtr->AppId);
-      if (CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId))
-      {
-         strncpy(TaskInfoPtr->AppName,
-                 CFE_ES_AppRecordGetName(AppRecPtr),
-                 sizeof(TaskInfoPtr->AppName)-1);
-         TaskInfoPtr->AppName[sizeof(TaskInfoPtr->AppName)-1] = '\0';
-         ReturnCode = CFE_SUCCESS;
-      }
-      else
-      {
-         /* task ID was OK but parent app ID is bad */
-         ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-      }
-   }
-   else
-   {
-      /* task ID is bad */
-      ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-   }
-
-   CFE_ES_UnlockSharedData(__func__,__LINE__);
-
-   return(ReturnCode);
-
-} /* End of CFE_ES_GetTaskInfoInternal() */
-
+    CFE_SB_SET_MEMADDR(AppInfoPtr->CodeAddress, ModuleInfo.addr.code_address);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->CodeSize, ModuleInfo.addr.code_size);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->DataAddress, ModuleInfo.addr.data_address);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->DataSize, ModuleInfo.addr.data_size);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->BSSAddress, ModuleInfo.addr.bss_address);
+    CFE_SB_SET_MEMADDR(AppInfoPtr->BSSSize, ModuleInfo.addr.bss_size);
+}
 
 

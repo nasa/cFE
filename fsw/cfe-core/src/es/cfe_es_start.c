@@ -753,10 +753,9 @@ void  CFE_ES_CreateObjects(void)
 {
     int32     ReturnCode;
     uint16    i;
-    osal_id_t OsalId;
     CFE_ES_AppRecord_t *AppRecPtr;
-    CFE_ES_TaskRecord_t *TaskRecPtr;
     CFE_ES_ResourceID_t PendingAppId;
+    CFE_ES_ResourceID_t PendingTaskId;
 
     CFE_ES_WriteToSysLog("ES Startup: Starting Object Creation calls.\n");
 
@@ -776,7 +775,27 @@ void  CFE_ES_CreateObjects(void)
             AppRecPtr = CFE_ES_LocateAppRecordByID(PendingAppId);
             if (AppRecPtr != NULL)
             {
+                /*
+                ** Fill out the parameters in the AppStartParams sub-structure
+                */
+                AppRecPtr->Type = CFE_ES_AppType_CORE;
+                strncpy(AppRecPtr->StartParams.BasicInfo.Name, CFE_ES_ObjectTable[i].ObjectName,
+                        sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1);
+
+                /* FileName and EntryPoint is not valid for core apps */
+                AppRecPtr->StartParams.StackSize = CFE_ES_ObjectTable[i].ObjectSize;
+                AppRecPtr->StartParams.ExceptionAction = CFE_ES_ExceptionAction_PROC_RESTART;
+                AppRecPtr->StartParams.Priority = CFE_ES_ObjectTable[i].ObjectPriority;
+                AppRecPtr->ModuleInfo.EntryAddress = (cpuaddr)CFE_ES_ObjectTable[i].FuncPtrUnion.VoidPtr;
+
+                /*
+                ** Fill out the Task State info
+                */
+                AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+                AppRecPtr->ControlReq.AppTimerMsec = 0;
+
                 CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_RESOURCEID_RESERVED);
+                CFE_ES_Global.LastAppId = PendingAppId;
             }
 
             CFE_ES_UnlockSharedData(__func__,__LINE__);
@@ -786,111 +805,60 @@ void  CFE_ES_CreateObjects(void)
             */
             if (AppRecPtr != NULL)
             {
-            
-               CFE_ES_LockSharedData(__func__,__LINE__);
+                /*
+                ** Start the core app main task
+                ** (core apps are already in memory - no loading needed)
+                */
+                ReturnCode = CFE_ES_StartAppTask(&AppRecPtr->StartParams, PendingAppId, &PendingTaskId);
 
-               AppRecPtr->Type = CFE_ES_AppType_CORE;
-               
-               /*
-               ** Fill out the parameters in the AppStartParams sub-structure
-               */         
-               strncpy((char *)AppRecPtr->StartParams.Name, (char *)CFE_ES_ObjectTable[i].ObjectName, OS_MAX_API_NAME);
-               AppRecPtr->StartParams.Name[OS_MAX_API_NAME - 1] = '\0';
-               /* EntryPoint field is not valid here for base apps */
-               /* FileName is not valid for base apps, either */
-               AppRecPtr->StartParams.StackSize = CFE_ES_ObjectTable[i].ObjectSize;
-               AppRecPtr->StartParams.StartAddress = (cpuaddr)CFE_ES_ObjectTable[i].FuncPtrUnion.VoidPtr;
-               AppRecPtr->StartParams.ExceptionAction = CFE_ES_ExceptionAction_PROC_RESTART;
-               AppRecPtr->StartParams.Priority = CFE_ES_ObjectTable[i].ObjectPriority;
-               
-               
-               /*
-               ** Create the task
-               */
-               ReturnCode = OS_TaskCreate(&OsalId,                               /* task id */
-                                  CFE_ES_ObjectTable[i].ObjectName,              /* task name */
-                                  CFE_ES_ObjectTable[i].FuncPtrUnion.MainAppPtr, /* task function pointer */
-                                  NULL,                                          /* stack pointer */
-                                  CFE_ES_ObjectTable[i].ObjectSize,              /* stack size */
-                                  CFE_ES_ObjectTable[i].ObjectPriority,          /* task priority */
-                                  OS_FP_ENABLED);                                /* task options */
+                /*
+                 * Finalize data in the app table entry, which must be done under lock.
+                 * This transitions the entry from being RESERVED to the real type,
+                 * either MAIN_TASK (success) or returning to INVALID (failure).
+                 */
+                CFE_ES_LockSharedData(__func__,__LINE__);
 
-               if(ReturnCode != OS_SUCCESS)
-               {
-                  CFE_ES_AppRecordSetFree(AppRecPtr);
-                  CFE_ES_UnlockSharedData(__func__,__LINE__);
+                if ( ReturnCode == OS_SUCCESS )
+                {
+                    AppRecPtr->MainTaskId = PendingTaskId;
+                    CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
 
-                  CFE_ES_WriteToSysLog("ES Startup: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n",
-                                        CFE_ES_ObjectTable[i].ObjectName, (unsigned int)ReturnCode);
+                    /*
+                    ** Increment the Core App counter.
+                    */
+                    CFE_ES_Global.RegisteredCoreApps++;
+                    ReturnCode = CFE_SUCCESS;
+                }
+                else
+                {
+                    /* failure mode - just clear the whole app table entry.
+                     * This will set the AppType back to CFE_ES_ResourceType_INVALID (0),
+                     * as well as clearing any other data that had been written */
+                    memset(AppRecPtr, 0, sizeof(*AppRecPtr));
+                }
 
-                  /*
-                  ** Delay to allow the message to be read
-                  */
-                  OS_TaskDelay(CFE_ES_PANIC_DELAY);
-      
-                  /* 
-                  ** cFE Cannot continue to start up.  
-                  */
-                  CFE_PSP_Panic(CFE_PSP_PANIC_CORE_APP);
-                                              
-               }
-               else
-               {
-                  AppRecPtr->MainTaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
-                  TaskRecPtr = CFE_ES_LocateTaskRecordByID(AppRecPtr->MainTaskId);
-
-                  /*
-                  ** Allocate and populate the CFE_ES_Global.TaskTable entry
-                  */
-                  if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) )
-                  {
-                     CFE_ES_SysLogWrite_Unsync("ES Startup: CFE_ES_Global.TaskTable record used error for App: %s, continuing.\n",
-                                           CFE_ES_ObjectTable[i].ObjectName);
-                  }
-                  CFE_ES_TaskRecordSetUsed(TaskRecPtr, AppRecPtr->MainTaskId);
-                  TaskRecPtr->AppId = PendingAppId;
-                  strncpy(TaskRecPtr->TaskName, CFE_ES_ObjectTable[i].ObjectName, sizeof(TaskRecPtr->TaskName)-1);
-                  TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName)-1] = '\0';
-
-                  CFE_ES_SysLogWrite_Unsync("ES Startup: Core App: %s created. App ID: %lu\n",
-                                       CFE_ES_ObjectTable[i].ObjectName,
-                                       CFE_ES_ResourceID_ToInteger(PendingAppId));
-
-                  CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
-                                       
-                  /*
-                  ** Increment the registered App and Registered External Task variables.
-                  */
-                  CFE_ES_Global.RegisteredTasks++;
-                  CFE_ES_Global.RegisteredCoreApps++;
-                  
-                  CFE_ES_UnlockSharedData(__func__,__LINE__);
-                                                                                                      
-               }
+                CFE_ES_UnlockSharedData(__func__,__LINE__);
             }
-            else /* appSlot not found -- This should never happen!*/
+            else
             {
-               CFE_ES_WriteToSysLog("ES Startup: Error, No free application slots available for CORE App!\n");
-               /*
-               ** Delay to allow the message to be read
-               */
-               OS_TaskDelay(CFE_ES_PANIC_DELAY);
-      
-               /* 
-               ** cFE Cannot continue to start up.  
-               */
-               CFE_PSP_Panic(CFE_PSP_PANIC_CORE_APP);
-            
+                /* appSlot not found -- This should never happen!*/
+                CFE_ES_WriteToSysLog("ES Startup: Error, No free application slots available for CORE App!\n");
+                ReturnCode = CFE_ES_ERR_APP_CREATE;
             }
 
-            /*
-             * CFE_ES_MainTaskSyncDelay() will delay this thread until the
-             * newly-started thread calls CFE_ES_WaitForSystemState()
-             */
-            if (CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_RUNNING, CFE_PLATFORM_CORE_MAX_STARTUP_MSEC) != CFE_SUCCESS)
+            if ( ReturnCode == CFE_SUCCESS )
             {
-                CFE_ES_WriteToSysLog("ES Startup: Core App %s did not complete initialization\n",
-                                      CFE_ES_ObjectTable[i].ObjectName);
+                /*
+                 * CFE_ES_MainTaskSyncDelay() will delay this thread until the
+                 * newly-started thread calls CFE_ES_WaitForSystemState()
+                 */
+                ReturnCode = CFE_ES_MainTaskSyncDelay(CFE_ES_AppState_RUNNING, CFE_PLATFORM_CORE_MAX_STARTUP_MSEC*1000);
+            }
+
+            if ( ReturnCode != CFE_SUCCESS )
+            {
+                CFE_ES_WriteToSysLog("ES Startup: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n",
+                        CFE_ES_ObjectTable[i].ObjectName, (unsigned int)ReturnCode);
 
                 /*
                 ** Delay to allow the message to be read

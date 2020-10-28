@@ -256,7 +256,7 @@ int32 CFE_ES_ReloadApp(CFE_ES_ResourceID_t AppID, const char *AppFileName)
        {
            CFE_ES_SysLogWrite_Unsync("CFE_ES_ReloadApp: Reload Application %s Initiated. New filename = %s\n",
                    CFE_ES_AppRecordGetName(AppRecPtr), AppFileName);
-           strncpy((char *)AppRecPtr->StartParams.FileName, AppFileName, OS_MAX_PATH_LEN);
+           strncpy(AppRecPtr->StartParams.BasicInfo.FileName, AppFileName, OS_MAX_PATH_LEN);
            AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RELOAD;
        }
        else
@@ -965,8 +965,10 @@ int32 CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, uint32 Buff
 */
 int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
 {
-   int32  ReturnCode = CFE_SUCCESS;
    CFE_ES_AppRecord_t *AppRecPtr;
+   CFE_ES_TaskRecord_t *TaskRecPtr;
+   int32              Status;
+   uint32             i;
 
    if ( AppInfo == NULL )
    {
@@ -976,73 +978,233 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
 
    memset(AppInfo, 0, sizeof(*AppInfo));
 
-   /*
-   ** Get App Record
-   */
    AppRecPtr = CFE_ES_LocateAppRecordByID(AppId);
-   if ( AppRecPtr == NULL )
-   {
-       CFE_ES_WriteToSysLog("CFE_ES_GetAppInfo: App ID Invalid: %lu\n",
-               CFE_ES_ResourceID_ToInteger(AppId));
-       return CFE_ES_ERR_RESOURCEID_NOT_VALID;
-    }
 
-   /*
-    * Note - cannot check if the AppID is active here,
-    * as the table is not locked.  The internal function
-    * should lock and check.
-    */
-   ReturnCode = CFE_ES_GetAppInfoInternal(AppRecPtr, AppInfo);
-   if (ReturnCode != CFE_SUCCESS)
+   CFE_ES_LockSharedData(__func__,__LINE__);
+
+   if ( !CFE_ES_AppRecordIsMatch(AppRecPtr, AppId) )
    {
-      CFE_ES_WriteToSysLog("CFE_ES_GetAppInfo: App ID Not Active: %lu\n",
-              CFE_ES_ResourceID_ToInteger(AppId));
+       /*
+        * Log a message if called with an invalid ID.
+        */
+       CFE_ES_WriteToSysLog("CFE_ES_GetAppInfo: App ID not active: %lu\n",
+               CFE_ES_ResourceID_ToInteger(AppId));
+
+       Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+   }
+   else
+   {
+       AppInfo->AppId = AppId;
+       AppInfo->Type = AppRecPtr->Type;
+
+       CFE_ES_CopyModuleBasicInfo(&AppRecPtr->StartParams.BasicInfo, AppInfo);
+       CFE_ES_CopyModuleStatusInfo(&AppRecPtr->ModuleInfo, AppInfo);
+
+       AppInfo->StackSize = AppRecPtr->StartParams.StackSize;
+       AppInfo->ExceptionAction = AppRecPtr->StartParams.ExceptionAction;
+       AppInfo->Priority = AppRecPtr->StartParams.Priority;
+       AppInfo->MainTaskId = AppRecPtr->MainTaskId;
+
+       /*
+       ** Calculate the number of child tasks
+       */
+       AppInfo->NumOfChildTasks = 0;
+       TaskRecPtr = CFE_ES_Global.TaskTable;
+       for (i=0; i<OS_MAX_TASKS; i++ )
+       {
+          if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
+                  CFE_ES_ResourceID_Equal(TaskRecPtr->AppId, AppId))
+          {
+              if (CFE_ES_ResourceID_Equal(CFE_ES_TaskRecordGetID(TaskRecPtr), AppInfo->MainTaskId))
+              {
+                  /* This is the main task - capture its name and execution count */
+                  AppInfo->ExecutionCounter = TaskRecPtr->ExecutionCounter;
+                  strncpy(AppInfo->MainTaskName, TaskRecPtr->TaskName,
+                          sizeof(AppInfo->MainTaskName) - 1);
+                  AppInfo->MainTaskName[sizeof(AppInfo->MainTaskName) - 1] = '\0';
+              }
+              else
+              {
+                  /* This is a child task, no extra info, just increment count */
+                  ++AppInfo->NumOfChildTasks;
+              }
+          }
+          ++TaskRecPtr;
+       }
+
+       Status = CFE_SUCCESS;
    }
 
-   return(ReturnCode);
+   CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-} /* End of CFE_ES_GetAppInfo() */
+   /*
+   ** Get the address information from the OSAL
+   */
+   if (Status == CFE_SUCCESS)
+   {
+       CFE_ES_CopyModuleAddressInfo(AppInfo->ModuleId, AppInfo);
+   }
+
+   return Status;
+}
+
+/*
+** Function: CFE_ES_GetLibInfo - See API and header file for details
+*/
+int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
+{
+    int32              Status;
+    CFE_ES_LibRecord_t *LibRecPtr;
+
+    if ( LibInfo == NULL )
+    {
+       CFE_ES_WriteToSysLog("CFE_ES_GetLibInfo: Invalid Parameter ( Null Pointer )\n");
+       return CFE_ES_ERR_BUFFER;
+    }
+
+    LibRecPtr = CFE_ES_LocateLibRecordByID(LibId);
+
+    CFE_ES_LockSharedData(__func__,__LINE__);
+
+    if ( !CFE_ES_LibRecordIsMatch(LibRecPtr, LibId) )
+    {
+        /*
+         * Log a message if called with an invalid ID.
+         */
+        CFE_ES_SysLogWrite_Unsync("CFE_ES_GetLibInfo: Lib ID not active: %lu\n",
+                CFE_ES_ResourceID_ToInteger(LibId));
+
+        Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+    }
+    else
+    {
+        LibInfo->AppId = CFE_ES_LibRecordGetID(LibRecPtr);;
+        LibInfo->Type = CFE_ES_AppType_LIBRARY;
+
+        CFE_ES_CopyModuleBasicInfo(&LibRecPtr->BasicInfo, LibInfo);
+        CFE_ES_CopyModuleStatusInfo(&LibRecPtr->ModuleInfo, LibInfo);
+
+        Status = CFE_SUCCESS;
+    }
+
+    CFE_ES_UnlockSharedData(__func__,__LINE__);
+
+    /*
+     ** Get the address information from the OSAL
+     */
+    if (Status == CFE_SUCCESS)
+    {
+        CFE_ES_CopyModuleAddressInfo(LibInfo->ModuleId, LibInfo);
+    }
+
+    return Status;
+}
+
+/*
+** Function: CFE_ES_GetModuleInfo - See API and header file for details
+*/
+int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ES_ResourceID_t ResourceId)
+{
+    uint32 ResourceType;
+    int32 Status;
+
+    ResourceType = CFE_ES_ResourceID_ToInteger(ResourceId);
+    ResourceType -= ResourceType & CFE_ES_RESOURCEID_MAX;
+    switch(ResourceType)
+    {
+    case CFE_ES_APPID_BASE:
+        Status = CFE_ES_GetAppInfo(ModuleInfo, ResourceId);
+        break;
+    case CFE_ES_LIBID_BASE:
+        Status = CFE_ES_GetLibInfo(ModuleInfo, ResourceId);
+        break;
+    default:
+        /*
+         * Log a message if called with an invalid ID.
+         */
+        CFE_ES_WriteToSysLog("CFE_ES_GetModuleInfo: Resource ID not valid: %lu\n",
+                CFE_ES_ResourceID_ToInteger(ResourceId));
+        Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        break;
+
+    }
+
+    return(Status);
+
+} /* End of CFE_ES_GetModuleInfo() */
 
 /*
 ** Function: CFE_ES_GetTaskInfo - See API and header file for details
 */
 int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_ResourceID_t TaskId)
 {
-   CFE_ES_TaskRecord_t *TaskRecPtr;
-   int32  ReturnCode;
+    CFE_ES_TaskRecord_t *TaskRecPtr;
+    CFE_ES_AppRecord_t *AppRecPtr;
+    int32  Status;
 
-   if ( TaskInfo == NULL )
-   {
-      CFE_ES_WriteToSysLog("CFE_ES_GetTaskInfo: Invalid Parameter ( Null Pointer )\n");
-      return CFE_ES_ERR_BUFFER;
-   }
+    if ( TaskInfo == NULL )
+    {
+        CFE_ES_WriteToSysLog("CFE_ES_GetTaskInfo: Invalid Parameter ( Null Pointer )\n");
+        return CFE_ES_ERR_BUFFER;
+    }
 
-   memset(TaskInfo, 0, sizeof(*TaskInfo));
+    memset(TaskInfo, 0, sizeof(*TaskInfo));
 
-   /*
-   ** Get Task Record
-   */
-   TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskId);
-   if ( TaskRecPtr == NULL )
-   {
-      CFE_ES_WriteToSysLog("CFE_ES_GetTaskInfo: Task ID Not Valid: %lu\n",
-              CFE_ES_ResourceID_ToInteger(TaskId));
-      return CFE_ES_ERR_RESOURCEID_NOT_VALID;
-   }
+    TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskId);
 
-   /*
-    * Note - cannot check if the TaskID is active here,
-    * as the table is not locked.  The internal function
-    * should lock and check.
-    */
-   ReturnCode = CFE_ES_GetTaskInfoInternal(TaskRecPtr, TaskInfo);
-   if (ReturnCode != CFE_SUCCESS)
-   {
-      CFE_ES_WriteToSysLog("CFE_ES_GetTaskInfo: Task ID Not Active: %lu\n",
-              CFE_ES_ResourceID_ToInteger(TaskId));
-   }
+    CFE_ES_LockSharedData(__func__,__LINE__);
 
-   return(ReturnCode);
+    if ( !CFE_ES_TaskRecordIsMatch(TaskRecPtr, TaskId) )
+    {
+        /* task ID is bad */
+        Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        CFE_ES_SysLogWrite_Unsync("CFE_ES_GetTaskInfo: Task ID Not Active: %lu\n",
+                CFE_ES_ResourceID_ToInteger(TaskId));
+    }
+    else
+    {
+
+        /*
+        ** Get the Application ID and Task Name
+        */
+        TaskInfo->AppId = TaskRecPtr->AppId;
+        strncpy(TaskInfo->TaskName,
+                CFE_ES_TaskRecordGetName(TaskRecPtr),
+                sizeof(TaskInfo->TaskName)-1);
+        TaskInfo->TaskName[sizeof(TaskInfo->TaskName)-1] = '\0';
+
+        /*
+        ** Store away the Task ID ( for the QueryAllTasks Cmd )
+        */
+        TaskInfo->TaskId = CFE_ES_TaskRecordGetID(TaskRecPtr);
+
+        /*
+        ** Get the Execution counter for the task
+        */
+        TaskInfo->ExecutionCounter =  TaskRecPtr->ExecutionCounter;
+
+        /*
+        ** Get the Application Details
+        */
+        AppRecPtr = CFE_ES_LocateAppRecordByID(TaskRecPtr->AppId);
+        if (CFE_ES_AppRecordIsMatch(AppRecPtr, TaskRecPtr->AppId))
+        {
+            strncpy(TaskInfo->AppName,
+                    CFE_ES_AppRecordGetName(AppRecPtr),
+                    sizeof(TaskInfo->AppName)-1);
+            TaskInfo->AppName[sizeof(TaskInfo->AppName)-1] = '\0';
+            Status = CFE_SUCCESS;
+        }
+        else
+        {
+            /* task ID was OK but parent app ID is bad */
+            Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        }
+    }
+
+    CFE_ES_UnlockSharedData(__func__,__LINE__);
+
+    return(Status);
 
 } /* End of CFE_ES_GetTaskInfo() */
 

@@ -167,8 +167,8 @@
 **/
 #define CFE_ES_RESTART_APP_DBG_EID  9
 
-/** \brief <tt> 'Restart Application \%s Completed.' </tt>
-**  \event <tt> 'Restart Application \%s Completed.' </tt> 
+/** \brief <tt> 'Restart Application \%s Completed, AppID=%lu' </tt>
+**  \event <tt> 'Restart Application \%s Completed, AppID=%lu' </tt>
 **
 **  \par Type: INFORMATION
 **
@@ -178,7 +178,8 @@
 **  That was started when the \link #CFE_ES_RESTART_APP_CC Restart Application command \endlink
 **  was issued.
 **
-**  The \c 's' field identifies the name of the Application that was reloaded.
+**  The \c 's' field identifies the name of the Application that was restarted, and
+**  the %lu field identifies the new Application ID
 */
 #define CFE_ES_RESTART_APP_INF_EID  10
 
@@ -202,8 +203,8 @@
 #define CFE_ES_RELOAD_APP_DBG_EID 11
 
 
-/** \brief <tt> 'Reload Application \%s Completed.' </tt>
-**  \event <tt> 'Reload Application \%s Completed.' </tt>
+/** \brief <tt> 'Reload Application \%s Completed, AppID=%lu' </tt>
+**  \event <tt> 'Reload Application \%s Completed, AppID=%lu' </tt>
 **
 **  \par Type: INFORMATION
 **
@@ -213,7 +214,8 @@
 **  That was started when the \link #CFE_ES_RELOAD_APP_CC Restart Application command \endlink
 **  was issued.
 **
-**  The \c 's' field identifies the name of the Application that was reloaded.
+**  The \c 's' field identifies the name of the Application that was reloaded, and
+**  the %lu field identifies the new Application ID
 */
 #define CFE_ES_RELOAD_APP_INF_EID 12 
 
