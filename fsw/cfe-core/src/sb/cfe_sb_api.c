@@ -896,7 +896,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
     {
         CFE_EVS_SendEventWithAppID(CFE_SB_HASHCOLLISION_EID, CFE_EVS_EventType_DEBUG, CFE_SB.AppId,
         "Msg hash collision: MsgId = 0x%x, collisions = %u",
-        (unsigned int)CFE_SB_MsgIdToValue(MsgId), Collisions);
+        (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)Collisions);
     }
 
     return CFE_SUCCESS;

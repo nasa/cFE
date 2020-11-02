@@ -105,7 +105,7 @@ void Test_SBR_Map_Hash(void)
             count++;
         }
     }
-    UtPrintf("Valid route id's encountered in performance loop: %u", count);
+    UtPrintf("Valid route id's encountered in performance loop: %u", (unsigned int)count);
 }
 
 /* Main unit test routine */
