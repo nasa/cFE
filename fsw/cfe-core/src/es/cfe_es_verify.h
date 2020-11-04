@@ -362,8 +362,8 @@
 #if ((CFE_MISSION_ES_CDS_MAX_NAME_LENGTH % 4) != 0)
     #error CFE_MISSION_ES_CDS_MAX_NAME_LENGTH must be a multiple of 4
 #endif
-#if ((CFE_MISSION_ES_CDS_MAX_NAME_LEN % 4) != 0)
-    #error CFE_MISSION_ES_CDS_MAX_NAME_LEN must be a multiple of 4
+#if ((CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN % 4) != 0)
+    #error CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN must be a multiple of 4
 #endif
 
 

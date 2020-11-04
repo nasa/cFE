@@ -760,7 +760,7 @@
     <LI> <B>Number of Free Bytes</B> - The total number of bytes in the Memory Pool that have never
          been allocated to a Memory Block<BR>
     <LI> <B>Block Statistics</B> - For each specified size of memory block (of which there are 
-         #CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES), the following statistics are kept<BR>
+         #CFE_MISSION_ES_POOL_MAX_BUCKETS), the following statistics are kept<BR>
        <UL>
           <LI> <B>Block Size</B> - The size, in bytes, of all blocks of this type<BR>
           <LI> <B>Number of Blocks Allocated</B> - The number of this sized block which are currently

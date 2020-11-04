@@ -61,7 +61,7 @@
 ** Type Definitions
 */
 
-const CFE_ES_MemOffset_t CFE_ES_MemPoolDefSize[CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES] =
+const CFE_ES_MemOffset_t CFE_ES_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
 {
     CFE_PLATFORM_ES_MAX_BLOCK_SIZE,
     CFE_PLATFORM_ES_MEM_BLOCK_SIZE_16,
@@ -138,7 +138,7 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t  *PoolID,
                              uint8               *MemPtr,
                              CFE_ES_MemOffset_t   Size )
 {
-    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES,
+    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
                                &CFE_ES_MemPoolDefSize[0],CFE_ES_NO_MUTEX);
 }
 
@@ -149,7 +149,7 @@ int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t  *PoolID,
                         uint8               *MemPtr,
                         CFE_ES_MemOffset_t   Size )
 {
-    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES,
+    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
                                &CFE_ES_MemPoolDefSize[0],CFE_ES_USE_MUTEX);
 }
 
@@ -195,9 +195,9 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
     if (BlockSizes == NULL)
     {
         BlockSizes = CFE_ES_MemPoolDefSize;
-        if (NumBlockSizes == 0 || NumBlockSizes > CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES)
+        if (NumBlockSizes == 0 || NumBlockSizes > CFE_PLATFORM_ES_POOL_MAX_BUCKETS)
         {
-            NumBlockSizes = CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES;
+            NumBlockSizes = CFE_PLATFORM_ES_POOL_MAX_BUCKETS;
         }
     }
 
@@ -636,7 +636,7 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
             &BufPtr->NumBlocksRequested,
             &BufPtr->CheckErrCtr);
 
-    for (Idx = 0; Idx < CFE_ES_DEFAULT_MEMPOOL_BLOCK_SIZES; ++Idx)
+    for (Idx = 0; Idx < CFE_MISSION_ES_POOL_MAX_BUCKETS; ++Idx)
     {
         CFE_ES_GenPoolGetBucketUsage(&PoolRecPtr->Pool, NumBuckets,
                 &BufPtr->BlockStats[Idx]);

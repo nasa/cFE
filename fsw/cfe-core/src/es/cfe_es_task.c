@@ -1727,10 +1727,10 @@ int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDS_t *data)
 {
     int32   Status;
     const CFE_ES_DeleteCDSCmd_Payload_t *cmd = &data->Payload;
-    char LocalCdsName[CFE_ES_CDS_MAX_FULL_NAME_LEN];
+    char LocalCdsName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
 
     CFE_SB_MessageStringGet(LocalCdsName, (char *)cmd->CdsName, NULL,
-            CFE_ES_CDS_MAX_FULL_NAME_LEN, sizeof(cmd->CdsName));
+            CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN, sizeof(cmd->CdsName));
 
     Status = CFE_ES_DeleteCDS(LocalCdsName, false);
 
@@ -1874,14 +1874,11 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
                 if ( CFE_ES_CDSBlockRecordIsUsed(RegRecPtr) )
                 {
                     /* Fill CDS Registry Dump Record with relevant information */
+                    memset(&DumpRecord, 0, sizeof(DumpRecord));
                     DumpRecord.Size             = CFE_ES_CDSBlockRecordGetUserSize(RegRecPtr);
                     DumpRecord.Handle           = CFE_ES_CDSBlockRecordGetID(RegRecPtr);
                     DumpRecord.Table            = RegRecPtr->Table;
-                    DumpRecord.ByteAlignSpare1  = 0;
-
-                    /* strncpy will zero out any unused buffer - memset not necessary */
                     strncpy(DumpRecord.Name, RegRecPtr->Name, sizeof(DumpRecord.Name)-1);
-                    DumpRecord.Name[sizeof(DumpRecord.Name)-1] = 0;
 
                     /* Output Registry Dump Record to Registry Dump File */
                     Status = OS_write(FileDescriptor,

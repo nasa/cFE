@@ -41,8 +41,8 @@
 #include "cfe_es_global.h"
 #include "cfe_es_task.h"
 
-#define CFE_ES_BACKGROUND_SEM_NAME             "ES_BackgroundSem"
-#define CFE_ES_BACKGROUND_CHILD_NAME           "ES_BackgroundTask"
+#define CFE_ES_BACKGROUND_SEM_NAME             "ES_BG_SEM"
+#define CFE_ES_BACKGROUND_CHILD_NAME           "ES_BG_TASK"
 #define CFE_ES_BACKGROUND_CHILD_STACK_PTR      NULL
 #define CFE_ES_BACKGROUND_CHILD_STACK_SIZE     CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE
 #define CFE_ES_BACKGROUND_CHILD_PRIORITY       CFE_PLATFORM_ES_PERF_CHILD_PRIORITY

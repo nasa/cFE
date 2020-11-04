@@ -330,6 +330,93 @@ enum CFE_ES_AppState
 typedef uint32                                           CFE_ES_AppState_Enum_t;
 
 
+
+/**
+ * @brief A type that provides a common, abstract identifier for
+ * all ES managed resources (e.g. apps, tasks, counters, etc).
+ *
+ * Fundamentally an unsigned integer but users should treat it as
+ * opaque, and only go through the ES API for introspection.
+ *
+ * Simple operations are provided as inline functions, which
+ * should alleviate the need to do direct manipulation of the value:
+ *
+ *  - Check for undefined ID value
+ *  - Check for equality of two ID values
+ *  - Convert ID to simple integer (typically for printing/logging)
+ *  - Convert simple integer to ID (inverse of above)
+ */
+typedef uint32 CFE_ES_ResourceID_t;
+
+/**
+ * @brief Memory Handle type
+ *
+ * Data type used to hold Handles of Memory Pools
+ * created via CFE_ES_PoolCreate and CFE_ES_PoolCreateNoSem
+ */
+typedef CFE_ES_ResourceID_t CFE_ES_MemHandle_t;
+
+/**
+ * @brief CDS Handle type
+ *
+ * Data type used to hold Handles of Critical Data Stores. See #CFE_ES_RegisterCDS
+ */
+typedef CFE_ES_ResourceID_t CFE_ES_CDSHandle_t;
+
+/**
+ * @brief Type used for memory sizes and offsets
+ *
+ * For backward compatibility with existing CFE code this should be uint32,
+ * but pools and other data structures will be limited to 4GB in size as a result.
+ *
+ * On 64-bit platforms this can be a 64-bit value which will allow larger
+ * memory objects, but this will break compatibility with existing control
+ * systems, and may also change the alignment/padding of messages.
+ *
+ * In either case this must be an unsigned type.
+ */
+typedef uint32 CFE_ES_MemOffset_t;
+
+
+/**
+ * @brief Type used for memory addresses
+ *
+ * For backward compatibility with existing CFE code this should be uint32,
+ * but if running on a 64-bit platform, addresses in telemetry will be
+ * truncated to 32 bits and therefore will not be valid.
+ *
+ * On 64-bit platforms this can be a 64-bit address which will allow the
+ * full memory address in commands and telemetry, but this will break
+ * compatibility with existing control systems, and may also change
+ * the alignment/padding of messages.
+ *
+ * In either case this must be an unsigned type.
+ *
+ * FSW code should access this value via the macros provided, which
+ * converts to the native "cpuaddr" type provided by OSAL.  This macro
+ * provides independence between the message representation and local
+ * representation of a memory address.
+ *
+ * @sa #CFE_SB_SET_MEMADDR, #CFE_SB_GET_MEMADDR
+ */
+typedef uint32 CFE_ES_MemAddress_t;
+
+/**
+ * @brief Type used for CDS sizes and offsets.
+ *
+ * This must match the type used in the PSP CDS API, e.g.:
+ * CFE_PSP_GetCDSSize()
+ * CFE_PSP_WriteToCDS()
+ * CFE_PSP_ReadFromCDS()
+ *
+ * It is defined separately from the CFE_ES_MemOffset_t as the type used in
+ * the PSP CDS access API may be different than the ES Pool API.
+ *
+ * In either case this must be an unsigned type.
+ */
+typedef uint32 CFE_ES_CDS_Offset_t;
+
+
 #endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* _CFE_ES_EXTERN_TYPEDEFS_H_ */

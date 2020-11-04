@@ -459,6 +459,27 @@
 */
 #define CFE_MISSION_ES_PERF_MAX_IDS                  128
 
+/** \cfeescfg Maximum number of block sizes in pool structures
+**
+**  \par Description:
+**      The upper limit for the number of block sizes supported in the generic
+**      pool implementation, which in turn implements the memory pools and CDS.
+**      This definition is used as the array size with the pool stats structure,
+**      and therefore should be consistent across all CPUs in a mission, as well
+**      as with the ground station.
+**
+**      There is also a platform-specific limit which may be fewer than this
+**      value.
+**
+**  \par Limits:
+**       Must be at least one.  No specific upper limit, but the number is
+**       anticipated to be reasonably small (i.e. tens, not hundreds).  Large
+**       values have not been tested.
+**
+**
+ */
+#define CFE_MISSION_ES_POOL_MAX_BUCKETS      17
+
 /**
 **  \cfetblcfg Maximum Length of Full Table Name in messages
 **
@@ -589,7 +610,7 @@
 **       This value should be kept as a multiple of 4, to maintain alignment of
 **       any possible neighboring fields without implicit padding.
 */
-#define CFE_MISSION_ES_CDS_MAX_NAME_LEN       (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 4)
+#define CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN       (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 4)
 
 
 

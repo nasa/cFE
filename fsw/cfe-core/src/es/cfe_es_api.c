@@ -256,7 +256,9 @@ int32 CFE_ES_ReloadApp(CFE_ES_ResourceID_t AppID, const char *AppFileName)
        {
            CFE_ES_SysLogWrite_Unsync("CFE_ES_ReloadApp: Reload Application %s Initiated. New filename = %s\n",
                    CFE_ES_AppRecordGetName(AppRecPtr), AppFileName);
-           strncpy(AppRecPtr->StartParams.BasicInfo.FileName, AppFileName, OS_MAX_PATH_LEN);
+           strncpy(AppRecPtr->StartParams.BasicInfo.FileName, AppFileName,
+                       sizeof(AppRecPtr->StartParams.BasicInfo.FileName)-1);
+           AppRecPtr->StartParams.BasicInfo.FileName[sizeof(AppRecPtr->StartParams.BasicInfo.FileName)-1] = 0;
            AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RELOAD;
        }
        else
@@ -1706,7 +1708,7 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, CFE_ES_CDS_Offset_t B
     CFE_ES_ResourceID_t  ThisAppId;
 
     char    AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
-    char    CDSName[CFE_ES_CDS_MAX_FULL_NAME_LEN] = {""};
+    char    CDSName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN] = {""};
 
     /* Initialize output to safe value, in case this fails */
     *CDSHandlePtr = CFE_ES_RESOURCEID_UNDEFINED;

@@ -38,8 +38,10 @@
 /*
 ** Includes
 */
-#include "cfe.h"
-#include "cfe_es.h"
+#include "cfe_es_extern_typedefs.h"
+
+/* The CFE_SB_CMD_HDR_SIZE and CFE_SB_TLM_HDR_SIZE are defined by cfe_sb.h */
+#include "cfe_sb.h"
 
 /*
 ** ES task command packet command codes
@@ -1254,7 +1256,7 @@ typedef struct CFE_ES_SetMaxPRCount
 **/
 typedef struct CFE_ES_DeleteCDSCmd_Payload
 {
-  char                  CdsName[CFE_MISSION_ES_CDS_MAX_NAME_LEN]; /**< \brief ASCII text string containing name of CDS to delete */
+  char                  CdsName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN]; /**< \brief ASCII text string containing name of CDS to delete */
 
 } CFE_ES_DeleteCDSCmd_Payload_t;
 
@@ -1377,6 +1379,144 @@ typedef struct CFE_ES_DumpCDSRegistry
 } CFE_ES_DumpCDSRegistry_t;
 
 /*************************************************************************/
+
+/************************************/
+/* Telemetry Interface Data Formats */
+/************************************/
+
+/**
+ * \brief Application Information
+ *
+ * Structure that is used to provide information about an app.
+ * It is primarily used for the QueryOne and QueryAll Commands.
+ */
+typedef struct CFE_ES_AppInfo
+{
+   CFE_ES_ResourceID_t   AppId;                /**< \cfetlmmnemonic \ES_APP_ID
+                                                    \brief Application ID for this Application */
+   uint32   Type;                              /**< \cfetlmmnemonic \ES_APPTYPE
+                                                    \brief The type of App: CORE or EXTERNAL */
+
+   char Name[CFE_MISSION_MAX_API_LEN];         /**< \cfetlmmnemonic \ES_APPNAME
+                                                    \brief The Registered Name of the Application */
+   char EntryPoint[CFE_MISSION_MAX_API_LEN];   /**< \cfetlmmnemonic \ES_APPENTRYPT
+                                                    \brief The Entry Point label for the Application */
+   char FileName[CFE_MISSION_MAX_PATH_LEN];    /**< \cfetlmmnemonic \ES_APPFILENAME
+                                                    \brief The Filename of the file containing the Application */
+
+   CFE_ES_MemOffset_t   StackSize;             /**< \cfetlmmnemonic \ES_STACKSIZE
+                                                    \brief The Stack Size of the Application */
+   osal_id_t   ModuleId;                       /**< \cfetlmmnemonic \ES_MODULEID
+                                                    \brief The ID of the Loadable Module for the Application */
+   uint32   AddressesAreValid;                 /**< \cfetlmmnemonic \ES_ADDRVALID
+                                                    \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
+   CFE_ES_MemAddress_t CodeAddress;            /**< \cfetlmmnemonic \ES_CODEADDR
+                                                    \brief The Address of the Application Code Segment*/
+   CFE_ES_MemOffset_t  CodeSize;               /**< \cfetlmmnemonic \ES_CODESIZE
+                                                    \brief The Code Size of the Application */
+   CFE_ES_MemAddress_t DataAddress;            /**< \cfetlmmnemonic \ES_DATAADDR
+                                                    \brief The Address of the Application Data Segment*/
+   CFE_ES_MemOffset_t  DataSize;               /**< \cfetlmmnemonic \ES_DATASIZE
+                                                    \brief The Data Size of the Application */
+   CFE_ES_MemAddress_t BSSAddress;             /**< \cfetlmmnemonic \ES_BSSADDR
+                                                    \brief The Address of the Application BSS Segment*/
+   CFE_ES_MemOffset_t  BSSSize;                /**< \cfetlmmnemonic \ES_BSSSIZE
+                                                    \brief The BSS Size of the Application */
+   CFE_ES_MemAddress_t StartAddress;           /**< \cfetlmmnemonic \ES_STARTADDR
+                                                    \brief The Start Address of the Application */
+   uint16   ExceptionAction;                   /**< \cfetlmmnemonic \ES_EXCEPTNACTN
+                                                    \brief What should occur if Application has an exception
+                                                    (Restart Application OR Restart Processor) */
+   uint16   Priority;                          /**< \cfetlmmnemonic \ES_PRIORITY
+                                                    \brief The Priority of the Application */
+   CFE_ES_ResourceID_t   MainTaskId;           /**< \cfetlmmnemonic \ES_MAINTASKID
+                                                    \brief The Application's Main Task ID */
+   uint32   ExecutionCounter;                  /**< \cfetlmmnemonic \ES_MAINTASKEXECNT
+                                                    \brief The Application's Main Task Execution Counter */
+   char MainTaskName[CFE_MISSION_MAX_API_LEN]; /**< \cfetlmmnemonic \ES_MAINTASKNAME
+                                                    \brief The Application's Main Task ID */
+   uint32   NumOfChildTasks;                   /**< \cfetlmmnemonic \ES_CHILDTASKS
+                                                    \brief Number of Child tasks for an App */
+
+} CFE_ES_AppInfo_t;
+
+/**
+ * \brief Task Information
+ *
+ * Structure that is used to provide information about a task. It is primarily
+ * used for the Query All Tasks (#CFE_ES_QUERY_ALL_TASKS_CC) command.
+ *
+ * \note There is not currently a telemetry message directly containing this
+ * data structure, but it does define the format of the data file generated
+ * by the Query All Tasks command.  Therefore it should be considered
+ * part of the overall telemetry interface.
+ */
+typedef struct CFE_ES_TaskInfo
+{
+   CFE_ES_ResourceID_t TaskId;                            /**< \brief Task Id */
+   uint32              ExecutionCounter;                  /**< \brief Task Execution Counter */
+   char                TaskName[CFE_MISSION_MAX_API_LEN]; /**< \brief Task Name */
+   CFE_ES_ResourceID_t AppId;                             /**< \brief Parent Application ID */
+   char                AppName[CFE_MISSION_MAX_API_LEN];  /**< \brief Parent Application Name */
+} CFE_ES_TaskInfo_t;
+
+/**
+ * \brief CDS Register Dump Record
+ *
+ * Structure that is used to provide information about a critical data store.
+ * It is primarily used for the Dump CDS registry (#CFE_ES_DUMP_CDS_REGISTRY_CC)
+ * command.
+ *
+ * \note There is not currently a telemetry message directly containing this
+ * data structure, but it does define the format of the data file generated
+ * by the Dump CDS registry command.  Therefore it should be considered
+ * part of the overall telemetry interface.
+ */
+typedef struct CFE_ES_CDSRegDumpRec
+{
+    CFE_ES_CDSHandle_t    Handle;          /**< \brief Handle of CDS */
+    CFE_ES_CDS_Offset_t   Size;            /**< \brief Size, in bytes, of the CDS memory block */
+    bool                  Table;           /**< \brief Flag that indicates whether CDS contains a Critical Table */
+    char                  Name[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN]; /**< \brief Processor Unique Name of CDS */
+    uint8                 ByteAlignSpare[3]; /**< \brief Spare bytes to ensure structure size is multiple of 4 bytes */
+} CFE_ES_CDSRegDumpRec_t;
+
+/**
+ * \brief Block statistics
+ *
+ * Sub-Structure that is used to provide information about a specific
+ * block size/bucket within a memory pool.
+ */
+typedef struct CFE_ES_BlockStats
+{
+    CFE_ES_MemOffset_t BlockSize;    /**< \brief Number of bytes in each of these blocks */
+    uint32  NumCreated;              /**< \brief Number of Memory Blocks of this size created */
+    uint32  NumFree;                 /**< \brief Number of Memory Blocks of this size that are free */
+} CFE_ES_BlockStats_t;
+
+/**
+ * \brief Memory Pool Statistics
+ *
+ * Structure that is used to provide information about a memory
+ * pool.  Used by the Memory Pool Stats telemetry message.
+ *
+ * \sa #CFE_ES_SEND_MEM_POOL_STATS_CC
+ */
+typedef struct CFE_ES_MemPoolStats
+{
+    CFE_ES_MemOffset_t    PoolSize;                /**< \cfetlmmnemonic \ES_POOLSIZE
+                                                        \brief  Size of Memory Pool (in bytes) */
+    uint32                NumBlocksRequested;      /**< \cfetlmmnemonic \ES_BLKSREQ
+                                                        \brief Number of times a memory block has been allocated */
+    uint32                CheckErrCtr;             /**< \cfetlmmnemonic \ES_BLKERRCTR
+                                                        \brief Number of errors detected when freeing a memory block */
+    CFE_ES_MemOffset_t    NumFreeBytes;            /**< \cfetlmmnemonic \ES_FREEBYTES
+                                                        \brief Number of bytes never allocated to a block */
+    CFE_ES_BlockStats_t   BlockStats[CFE_MISSION_ES_POOL_MAX_BUCKETS]; /**< \cfetlmmnemonic \ES_BLKSTATS
+                                                                            \brief Contains stats on each block size */
+} CFE_ES_MemPoolStats_t;
+
+
 /**********************************/
 /* Telemetry Message Data Formats */
 /**********************************/
