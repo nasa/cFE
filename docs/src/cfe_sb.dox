@@ -529,7 +529,7 @@
            can get confusing. How can I be sure that the correct address is given for this
            parameter.
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           Typically a caller declares a ptr of type CFE_SB_Msg_t (i.e. CFE_SB_Msg_t *Ptr)
+           Typically a caller declares a ptr of type CFE_MSG_Message_t (i.e. CFE_MSG_Message_t *Ptr)
            then gives the address of that pointer (&Ptr) as this parameter. After a successful
            call to #CFE_SB_RcvMsg, Ptr will point to the first byte of the software bus message
            header. This should be used as a read-only pointer. In systems with an MMU, writes
