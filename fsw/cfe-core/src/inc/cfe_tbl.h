@@ -45,6 +45,7 @@
 #include "common_types.h"  /* Basic Data Types */
 #include "cfe_time.h"
 #include "osconfig.h"
+#include "cfe_msg_typedefs.h"
 
 /******************* Macro Definitions ***********************/
 
@@ -812,7 +813,7 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName);
 ** \sa #CFE_TBL_Register
 **
 ******************************************************************************/
-CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, uint16 CommandCode, uint32 Parameter);
+CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode, uint32 Parameter);
 /**@}*/
 
 #endif  /* _cfe_tbl_ */

@@ -194,7 +194,7 @@ typedef struct
     CFE_SB_HousekeepingTlm_t       HKTlmMsg;
     CFE_SB_StatsTlm_t              StatTlmMsg;
     CFE_SB_PipeId_t                CmdPipe;
-    CFE_SB_Msg_t                  *CmdPipePktPtr;
+    CFE_MSG_Message_t             *CmdPipePktPtr;
     CFE_SB_MemParams_t             Mem;
     CFE_SB_AllSubscriptionsTlm_t   PrevSubMsg;
     CFE_SB_SingleSubscriptionTlm_t SubRprtMsg;
@@ -247,7 +247,7 @@ uint8  CFE_SB_GetPipeIdx(CFE_SB_PipeId_t PipeId);
 int32  CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
 void   CFE_SB_ProcessCmdPipePkt(void);
 void   CFE_SB_ResetCounters(void);
-void   CFE_SB_SetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr,uint32 Count);
+void   CFE_SB_SetMsgSeqCnt(CFE_MSG_Message_t *MsgPtr,uint32 Count);
 char   *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId, char* FullName);
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, uint16 Size);
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromCaller(CFE_SB_MsgId_t MsgId, void *Address);
@@ -266,11 +266,11 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
 
 int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
                               uint8 Scope, CFE_ES_ResourceID_t AppId);
-int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t   *MsgPtr, uint32 TlmCntIncrements, uint32 CopyMode);
+int32  CFE_SB_SendMsgFull(CFE_MSG_Message_t *MsgPtr, uint32 TlmCntIncrements, uint32 CopyMode);
 int32 CFE_SB_SendRtgInfo(const char *Filename);
 int32 CFE_SB_SendPipeInfo(const char *Filename);
 int32 CFE_SB_SendMapInfo(const char *Filename);
-int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Msg_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
+int32 CFE_SB_ZeroCopyReleaseDesc(CFE_MSG_Message_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId);
 int32 CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
@@ -356,11 +356,8 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
 **
 ** \returns The number of bytes in the software bus message header for
 **          messages with the given \c MsgId.
-**
-** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_GetTotalMsgLength,
-**     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum
 **/
-uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr);
+uint16 CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr);
 
 
 /*

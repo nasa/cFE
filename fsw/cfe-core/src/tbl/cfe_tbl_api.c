@@ -1539,7 +1539,7 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
 /*
  * Function: CFE_TBL_NotifyByMessage - See API and header file for details
  */
-int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, uint16 CommandCode, uint32 Parameter)
+int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode, uint32 Parameter)
 {
     int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;

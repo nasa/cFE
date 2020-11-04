@@ -856,7 +856,7 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Wrong Message Type
  *
- *  This error code will be returned when a request such as #CFE_SB_SetMsgTime
+ *  This error code will be returned when a request such as #CFE_MSG_SetMsgTime
  *  is made on a packet that does not include a field for msg time.
  *
  */

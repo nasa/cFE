@@ -293,7 +293,7 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
     int32                       Stat;
     CFE_ES_ResourceID_t         Owner;
     CFE_ES_ResourceID_t         TskId;
-    CFE_SB_Msg_t               *PipeMsgPtr;
+    CFE_MSG_Message_t          *PipeMsgPtr;
     char                        FullName[(OS_MAX_API_NAME * 2)];
     CFE_SB_RemovePipeCallback_t Args;
 
@@ -876,7 +876,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
       CFE_SB.SubRprtMsg.Payload.Qos.Reliability = Quality.Reliability;
       CFE_SB.SubRprtMsg.Payload.SubType = CFE_SB_SUBSCRIPTION;
       CFE_SB_UnlockSharedData(__func__,__LINE__);
-      Stat = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.SubRprtMsg);
+      Stat = CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.SubRprtMsg);
       CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
             "Sending Subscription Report Msg=0x%x,Pipe=%d,Stat=0x%x",
             (unsigned int)CFE_SB_MsgIdToValue(MsgId),
@@ -1102,7 +1102,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
 /*
  * Function: CFE_SB_SendMsg - See API and header file for details
  */
-int32  CFE_SB_SendMsg(CFE_SB_Msg_t    *MsgPtr)
+int32  CFE_SB_SendMsg(CFE_MSG_Message_t *MsgPtr)
 {
     int32   Status = 0;
 
@@ -1117,7 +1117,7 @@ int32  CFE_SB_SendMsg(CFE_SB_Msg_t    *MsgPtr)
 /*
  * Function: CFE_SB_PassMsg - See API and header file for details
  */
-int32  CFE_SB_PassMsg(CFE_SB_Msg_t    *MsgPtr)
+int32  CFE_SB_PassMsg(CFE_MSG_Message_t *MsgPtr)
 {
     int32   Status = 0;
 
@@ -1154,17 +1154,17 @@ int32  CFE_SB_PassMsg(CFE_SB_Msg_t    *MsgPtr)
 **          Status
 **
 ******************************************************************************/
-int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
-                          uint32           TlmCntIncrements,
-                          uint32           CopyMode)
+int32  CFE_SB_SendMsgFull(CFE_MSG_Message_t *MsgPtr,
+                          uint32             TlmCntIncrements,
+                          uint32             CopyMode)
 {
-    CFE_SB_MsgId_t          MsgId;
+    CFE_SB_MsgId_t          MsgId = CFE_SB_INVALID_MSG_ID;
     int32                   Status;
     CFE_SB_DestinationD_t   *DestPtr = NULL;
     CFE_SB_PipeD_t          *PipeDscPtr;
     CFE_SBR_RouteId_t       RouteId;
     CFE_SB_BufferD_t        *BufDscPtr;
-    uint16                  TotalMsgSize;
+    CFE_MSG_Size_t          TotalMsgSize = 0;
     CFE_ES_ResourceID_t     AppId;
     CFE_ES_ResourceID_t     TskId;
     uint32                  i;
@@ -1172,6 +1172,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     CFE_SB_EventBuf_t       SBSndErr;
     char                    PipeName[OS_MAX_API_NAME] = {'\0'};
     CFE_SB_PipeDepthStats_t *StatObj;
+    CFE_MSG_Type_t          MsgType = CFE_MSG_Type_Invalid;
 
     SBSndErr.EvtsToSnd = 0;
 
@@ -1192,7 +1193,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
         return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
-    MsgId = CFE_SB_GetMsgId(MsgPtr);
+    CFE_MSG_GetMsgId(MsgPtr, &MsgId);
 
     /* validate the msgid in the message */
     if(!CFE_SB_IsValidMsgId(MsgId))
@@ -1212,7 +1213,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
         return CFE_SB_BAD_ARGUMENT;
     }/* end if */
 
-    TotalMsgSize = CFE_SB_GetTotalMsgLength(MsgPtr);
+    CFE_MSG_GetSize(MsgPtr, &TotalMsgSize);
 
     /* Verify the size of the pkt is < or = the mission defined max */
     if(TotalMsgSize > CFE_MISSION_SB_MAX_SB_MSG_SIZE){
@@ -1294,14 +1295,15 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     /* Copy the packet into the SB memory space */
     if (CopyMode != CFE_SB_SEND_ZEROCOPY){
         /* Copy the packet into the SB memory space */
-        memcpy( BufDscPtr->Buffer, MsgPtr, (uint16)TotalMsgSize );
+        memcpy(BufDscPtr->Buffer, MsgPtr, TotalMsgSize);
     }
 
     /* For Tlm packets, increment the seq count if requested */
-    if((CFE_SB_GetPktType(MsgId)==CFE_SB_PKTTYPE_TLM) &&
+    CFE_MSG_GetType(MsgPtr, &MsgType);
+    if((MsgType == CFE_MSG_Type_Tlm) &&
        (TlmCntIncrements==CFE_SB_INCREMENT_TLM)){
         CFE_SBR_IncrementSequenceCounter(RouteId);
-        CFE_SB_SetMsgSeqCnt((CFE_SB_Msg_t *)BufDscPtr->Buffer, CFE_SBR_GetSequenceCounter(RouteId));
+        CFE_MSG_SetSequenceCount((CFE_MSG_Message_t *)BufDscPtr->Buffer, CFE_SBR_GetSequenceCounter(RouteId));
     }/* end if */
 
     /* Send the packet to all destinations  */
@@ -1458,9 +1460,9 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
 /*
  * Function: CFE_SB_RcvMsg - See API and header file for details
  */
-int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
-                     CFE_SB_PipeId_t    PipeId,
-                     int32              TimeOut)
+int32  CFE_SB_RcvMsg(CFE_MSG_Message_t **BufPtr,
+                     CFE_SB_PipeId_t     PipeId,
+                     int32               TimeOut)
 {
     int32                  Status;
     CFE_SB_BufferD_t       *Message;
@@ -1535,7 +1537,7 @@ int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
         PipeDscPtr->CurrentBuff = Message;
 
         /* Set the Receivers pointer to the address of the actual message */
-        *BufPtr = (CFE_SB_MsgPtr_t) Message->Buffer;
+        *BufPtr = (CFE_MSG_Message_t*) Message->Buffer;
 
         /* get pointer to destination to be used in decrementing msg limit cnt*/
         RouteId = CFE_SBR_GetRouteId(PipeDscPtr->CurrentBuff->MsgId);
@@ -1583,8 +1585,8 @@ int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
 /*
  * Function: CFE_SB_ZeroCopyGetPtr - See API and header file for details
  */
-CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
-                                     CFE_SB_ZeroCopyHandle_t *BufferHandle)
+CFE_MSG_Message_t *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
+                                         CFE_SB_ZeroCopyHandle_t *BufferHandle)
 {
    int32                stat1;
    CFE_ES_ResourceID_t  AppId;
@@ -1665,7 +1667,7 @@ CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
     bd->Size      = MsgSize;
     bd->Buffer    = (void *)address;
 
-    return (CFE_SB_Msg_t *)address;
+    return (CFE_MSG_Message_t *)address;
 
 }/* CFE_SB_ZeroCopyGetPtr */
 
@@ -1673,7 +1675,7 @@ CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
 /*
  * Function: CFE_SB_ZeroCopyReleasePtr - See API and header file for details
  */
-int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
+int32 CFE_SB_ZeroCopyReleasePtr(CFE_MSG_Message_t      *Ptr2Release,
                                 CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
     int32    Status;
@@ -1725,8 +1727,8 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Msg_t  *Ptr2Release,
 **          Status
 **
 ******************************************************************************/
-int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Msg_t  *Ptr2Release,
-                                 CFE_SB_ZeroCopyHandle_t  BufferHandle)
+int32 CFE_SB_ZeroCopyReleaseDesc(CFE_MSG_Message_t      *Ptr2Release,
+                                 CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
     int32    Stat;
     CFE_SB_ZeroCopyD_t *zcd = (CFE_SB_ZeroCopyD_t *) BufferHandle;
@@ -1768,7 +1770,7 @@ int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Msg_t  *Ptr2Release,
 /*
  * Function: CFE_SB_ZeroCopySend - See API and header file for details
  */
-int32 CFE_SB_ZeroCopySend(CFE_SB_Msg_t   *MsgPtr,
+int32 CFE_SB_ZeroCopySend(CFE_MSG_Message_t      *MsgPtr,
                           CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
     int32   Status = 0;
@@ -1787,7 +1789,7 @@ int32 CFE_SB_ZeroCopySend(CFE_SB_Msg_t   *MsgPtr,
 /*
  * Function: CFE_SB_ZeroCopyPass - See API and header file for details
  */
-int32 CFE_SB_ZeroCopyPass(CFE_SB_Msg_t   *MsgPtr,
+int32 CFE_SB_ZeroCopyPass(CFE_MSG_Message_t      *MsgPtr,
                           CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
     int32   Status = 0;

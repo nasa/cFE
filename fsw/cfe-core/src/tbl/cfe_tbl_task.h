@@ -197,7 +197,7 @@ typedef struct
     int32                       ValidateInactiveIndex;  /**< \brief Index to Validation Request on Inactive Table Result data */
     int32                       DumpControlIndex;       /**< \brief Index to Dump Control Block */
     CFE_ES_CDSHandle_t          CDSHandle;          /**< \brief Handle to Critical Data Store for Critical Tables */
-    uint16                      NotificationCC;     /**< \brief Command Code of an associated management notification message */
+    CFE_MSG_FcnCode_t           NotificationCC;     /**< \brief Command Code of an associated management notification message */
     bool                        CriticalTable;      /**< \brief Flag indicating whether table is a Critical Table */
     bool                        TableLoadedOnce;    /**< \brief Flag indicating whether table has been loaded once or not */
     bool                        LoadPending;        /**< \brief Flag indicating an inactive buffer is ready to be copied */
@@ -308,7 +308,7 @@ typedef struct
   /*
   ** Task operational data (not reported in housekeeping)...
   */
-  CFE_SB_Msg_t          *MsgPtr;                          /**< \brief Pointer to most recently received command message */
+  CFE_MSG_Message_t     *MsgPtr;                          /**< \brief Pointer to most recently received command message */
   CFE_SB_PipeId_t        CmdPipe;                         /**< \brief Table Task command pipe ID as obtained from Software Bus */
 
   /*
@@ -404,7 +404,7 @@ int32 CFE_TBL_TaskInit(void);
 **
 ** 
 ******************************************************************************/
-void  CFE_TBL_TaskPipe(CFE_SB_Msg_t *MessagePtr);
+void  CFE_TBL_TaskPipe(CFE_MSG_Message_t *MessagePtr);
 
 /*****************************************************************************/
 /**
