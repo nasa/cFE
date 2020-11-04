@@ -10,6 +10,17 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev164
+
+- Keeps task names under 16 chars to make more debugger friendly, regardless
+of the OSAL limit. Task name shows up as `ES_BG_TASK`
+- Move ES typedefs shared across API and telemetry messages into the `cfe_es_extern_typedefs.h`.
+- Move all ES typedefs that define the telemetry interface and structures that define the output of commands that write data files into this group (query all apps, query all tasks, query all CDS).
+- Remove some localized definitions and replace with MISSION scope definitions where appropriate/necessary.
+- Adjust `strncpy()` call to avoid compiler warning
+- Cast fixed width types to the type used in the `printf` call. Removes `printf` type warnings on the 32-bit RTEMS build.
+- See <https://github.com/nasa/cFE/pull/991>
+
 ### Development Build: 6.8.0-rc1+dev150
 
 - Provide new Library API similar to App API
