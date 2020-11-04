@@ -2631,7 +2631,7 @@ void TestTask(void)
     osal_id_t                   UT_ContextTask;
     union
     {
-        CFE_SB_Msg_t             Msg;
+        CFE_MSG_Message_t        Msg;
         CFE_ES_NoArgsCmd_t       NoArgsCmd;
         CFE_ES_Restart_t         RestartCmd;
         CFE_ES_StartApp_t        StartAppCmd;
@@ -2653,6 +2653,7 @@ void TestTask(void)
     CFE_ES_TaskRecord_t         *UtTaskRecPtr;
     CFE_ES_CDS_RegRec_t         *UtCDSRegRecPtr;
     CFE_ES_MemPoolRecord_t      *UtPoolRecPtr;
+    CFE_SB_MsgId_t               MsgId = CFE_SB_INVALID_MSG_ID;
 
     UtPrintf("Begin Test Task");
 
@@ -2668,6 +2669,9 @@ void TestTask(void)
     ES_ResetUnitTest();
     /* this is needed so CFE_ES_GetAppId works */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
+
+    /* Set up buffer for first cycle, pipe failure is on 2nd */
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     CFE_ES_TaskMain();
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]),
@@ -3968,7 +3972,7 @@ void TestPerf(void)
 {
     union
     {
-        CFE_SB_Msg_t                Msg;
+        CFE_MSG_Message_t           Msg;
         CFE_ES_StartPerfData_t      PerfStartCmd;
         CFE_ES_StopPerfData_t       PerfStopCmd;
         CFE_ES_SetPerfFilterMask_t  PerfSetFilterMaskCmd;

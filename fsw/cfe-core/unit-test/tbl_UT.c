@@ -219,8 +219,10 @@ void Test_CFE_TBL_TaskInit(void)
     union
     {
         CFE_TBL_NoArgsCmd_t NoArgsCmd;
-        CFE_SB_Msg_t Msg;
+        CFE_MSG_Message_t   Msg;
     } CmdBuf;
+    CFE_SB_MsgId_t    MsgId = CFE_SB_INVALID_MSG_ID;
+    CFE_MSG_FcnCode_t FcnCode = 0;
 
     UtPrintf("Begin Test Task Init");
 
@@ -230,6 +232,8 @@ void Test_CFE_TBL_TaskInit(void)
     UT_InitData();
     ExitCode = 0;
     UT_SetDataBuffer(UT_KEY(CFE_ES_ExitApp), &ExitCode, sizeof(ExitCode), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
     CFE_TBL_TaskMain();
     UT_Report(__FILE__, __LINE__,
               ExitCode == CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR &&
@@ -375,12 +379,7 @@ void Test_CFE_TBL_InitData(void)
     /* This function has only one possible path with no return code */
     UT_InitData();
     CFE_TBL_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_SB_MsgId_Equal(CFE_SB_GetMsgId((CFE_SB_Msg_t*)&CFE_TBL_TaskData.HkPacket), CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID)) &&
-              CFE_SB_MsgId_Equal(CFE_SB_GetMsgId((CFE_SB_Msg_t*)&CFE_TBL_TaskData.TblRegPacket), CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID)) &&
-              UT_GetStubCount(UT_KEY(CFE_SB_InitMsg)) == 2,
-              "CFE_TBL_SearchCmdHndlrTbl",
-              "Initialize data");
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 2);
 }
 
 /*
