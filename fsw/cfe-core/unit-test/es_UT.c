@@ -712,7 +712,7 @@ void TestStartupErrorPaths(void)
 
     /* Perform ES main startup with a mutex creation failure */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_MutSemCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_MutSemCreate), OS_ERROR);
     UT_SetReadBuffer(StartupScript, strlen(StartupScript));
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Panic), &PanicStatus, sizeof(PanicStatus), false);
     CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
@@ -726,7 +726,7 @@ void TestStartupErrorPaths(void)
     /* Perform ES main startup with a file open failure */
     ES_ResetUnitTest();
     UT_SetDummyFuncRtn(OS_SUCCESS);
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
                 (char *) CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
@@ -860,9 +860,9 @@ void TestStartupErrorPaths(void)
      * following a failure to create the RAM volume
      */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_initfs), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_mount), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_mkfs), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_initfs), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_mount), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_mkfs), OS_ERROR);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_POWERON);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CREATE_VOLATILE]) &&
@@ -875,9 +875,9 @@ void TestStartupErrorPaths(void)
      * following a failure to reformat the RAM volume
      */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_initfs), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_mount), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_mkfs), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_initfs), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_mount), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_mkfs), OS_ERROR);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -893,7 +893,7 @@ void TestStartupErrorPaths(void)
      * following failure to get the volatile disk memory
      */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_GetVolatileDiskMem), CFE_PSP_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_GetVolatileDiskMem), CFE_PSP_ERROR);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -905,7 +905,7 @@ void TestStartupErrorPaths(void)
      * reported is greater than the number of RAM disk sectors
      */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_mount), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_mount), OS_ERROR);
     UT_SetDeferredRetcode(UT_KEY(OS_fsBlocksFree), 1, CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS + 1);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
@@ -918,7 +918,7 @@ void TestStartupErrorPaths(void)
      * following a failure to remove the RAM volume
      */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_rmfs), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_rmfs), OS_ERROR);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -952,7 +952,7 @@ void TestStartupErrorPaths(void)
      * following a failure to remount the RAM volume
      */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_mount), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_mount), OS_ERROR);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -1022,8 +1022,8 @@ void TestStartupErrorPaths(void)
      * creating a core app
      */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_BinSemCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_BinSemCreate), OS_ERROR);
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_CreateObjects();
     UT_Report(__FILE__, __LINE__,
@@ -1089,8 +1089,8 @@ void TestStartupErrorPaths(void)
      * following a failure to initialize and mount the RAM volume
      */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_initfs), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_mount), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_initfs), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_mount), OS_ERROR);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -1220,7 +1220,7 @@ void TestApps(void)
 
     /* Test starting an application with an open failure */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UT_Report(__FILE__, __LINE__,
@@ -1267,7 +1267,7 @@ void TestApps(void)
 
     /* Test application loading and creation with a task creation failure */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     Return = CFE_ES_AppCreate(&Id,
                               "ut/filename",
                               "EntryPoint",
@@ -1559,7 +1559,7 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RESTART;
     OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
-    UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1591,7 +1591,7 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RELOAD;
     OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
-    UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1796,8 +1796,8 @@ void TestApps(void)
     ES_UT_SetupForOSCleanup();
 
     OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
-    UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_close), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskDelete), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_close), OS_ERROR);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
@@ -1926,7 +1926,7 @@ void TestApps(void)
     Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     ES_UT_SetupForOSCleanup();
     UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_close), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_close), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CleanupTaskResources(Id) != CFE_SUCCESS,
               "CFE_ES_CleanupTaskResources",
@@ -1939,7 +1939,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
     Id = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskDelete), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CleanupTaskResources(Id) == CFE_ES_TASK_DELETE_ERR,
               "CFE_ES_CleanupTaskResources",
@@ -2068,7 +2068,7 @@ void TestApps(void)
     /* switch the main task association (makes it wrong) */
     UtAppRecPtr->MainTaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
 
-    UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskDelete), OS_ERROR);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CleanUpApp(Id) == CFE_ES_APP_CLEANUP_ERR,
@@ -2290,8 +2290,8 @@ void TestLibs(void)
      * initialization function fails and then must be cleaned up
      */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_remove), OS_ERROR); /* for coverage of error path */
-    UT_SetForceFail(UT_KEY(dummy_function), -555);
+    UT_SetDefaultReturnValue(UT_KEY(OS_remove), OS_ERROR); /* for coverage of error path */
+    UT_SetDefaultReturnValue(UT_KEY(dummy_function), -555);
     Return = CFE_ES_LoadLibrary(&Id,
                                 "/cf/apps/tst_lib.bundle",
                                 "dummy_function",
@@ -2680,7 +2680,7 @@ void TestTask(void)
 
     /* Test task main process loop with an initialization failure */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_TaskRegister), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskRegister), OS_ERROR);
     CFE_ES_TaskMain();
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_APP_INIT]),
@@ -2733,7 +2733,7 @@ void TestTask(void)
 
     /* Test task main process loop with a register app failure */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_TaskRegister), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskRegister), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == CFE_ES_ERR_APP_REGISTER,
              "CFE_ES_TaskInit",
@@ -2882,7 +2882,7 @@ void TestTask(void)
 
     /* Test app create with an OS task create failure */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3196,7 +3196,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAll_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3208,7 +3208,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAll_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3244,7 +3244,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAllTasks_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3255,7 +3255,7 @@ void TestTask(void)
     /* Test write of all task data to a file with an OS create failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_QueryAllTasks_t),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3322,7 +3322,7 @@ void TestTask(void)
     /* Test writing the system log with an OS create failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     strncpy((char *) CmdBuf.WriteSyslogCmd.Payload.FileName, "",
             sizeof(CmdBuf.WriteSyslogCmd.Payload.FileName));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_WriteSyslog_t),
@@ -3335,7 +3335,7 @@ void TestTask(void)
     /* Test writing the system log with an OS write failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
     CFE_ES_ResetDataPtr->SystemLogWriteIdx = snprintf(CFE_ES_ResetDataPtr->SystemLog,
             sizeof(CFE_ES_ResetDataPtr->SystemLog),
             "0000-000-00:00:00.00000 Test Message\n");
@@ -3427,7 +3427,7 @@ void TestTask(void)
     /* Test writing the E&R log with an OS create failure */
     ES_ResetUnitTest();
     CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_ERLOG2_ERR_EID),
@@ -3437,7 +3437,7 @@ void TestTask(void)
     /* Test writing the E&R log with an OS write failure */
     ES_ResetUnitTest();
     CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
-    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
     CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID),
@@ -3456,7 +3456,7 @@ void TestTask(void)
 
     /* Test scan for exceptions in the PSP, should invoke a Processor Reset */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_Exception_GetCount), 1);
     CFE_ES_RunExceptionScan(0, NULL);
     UT_Report(__FILE__, __LINE__,
             UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 1,
@@ -3466,7 +3466,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = 0;
     CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount = 1;
-    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_Exception_GetCount), 1);
     CFE_ES_RunExceptionScan(0, NULL);
     /* first time should do a processor restart (limit reached) */
     UT_Report(__FILE__, __LINE__,
@@ -3482,7 +3482,7 @@ void TestTask(void)
 
     /* nominal for app restart - associate exception with a task ID */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_Exception_GetCount), 1);
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
     UT_ContextTask = CFE_ES_ResourceID_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextTask, sizeof(UT_ContextTask), false);
@@ -3503,7 +3503,7 @@ void TestTask(void)
 
     /* repeat, but for a CORE app, which cannot be restarted */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_Exception_GetCount), 1);
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
     UT_ContextTask = CFE_ES_ResourceID_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextTask, sizeof(UT_ContextTask), false);
@@ -3516,7 +3516,7 @@ void TestTask(void)
               "Scan for exceptions; core app, psp restart");
 
     /* check failure of getting summary data */
-    UT_SetForceFail(UT_KEY(CFE_PSP_Exception_GetSummary), CFE_PSP_NO_EXCEPTION_DATA);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_Exception_GetSummary), CFE_PSP_NO_EXCEPTION_DATA);
     CFE_ES_RunExceptionScan(0, NULL);
     UT_Report(__FILE__, __LINE__,
             UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 2,
@@ -3641,7 +3641,7 @@ void TestTask(void)
     /* Test dumping of the CDS to a file with an OS create failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DumpCDSRegistry_t),
             UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3652,7 +3652,7 @@ void TestTask(void)
     /* Test dumping of the CDS to a file with an OS write failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
     ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, false, NULL);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_DumpCDSRegistry_t),
             UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
@@ -4391,7 +4391,7 @@ void TestPerf(void)
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
                 sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
     CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), -10);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), -10);
     CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
     UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
             "CFE_ES_RunPerfLogDump - OS create fail, CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == IDLE (%d)",
@@ -4403,7 +4403,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    UT_SetForceFail(UT_KEY(OS_write), -10);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), -10);
     CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
     CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
     UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_DELAY,
@@ -4745,7 +4745,7 @@ void TestAPI(void)
               "Get task info by ID; NULL buffer");
 
     /* Test getting task information using the task ID - bad task ID  */
-    UT_SetForceFail(UT_KEY(OS_ObjectIdToArrayIndex), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_ObjectIdToArrayIndex), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetTaskInfo(&TaskInfo, TaskId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetTaskInfo",
@@ -4806,7 +4806,7 @@ void TestAPI(void)
     /* Test creating a child task with an OS task create failure */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
-    UT_SetForceFail(UT_KEY(OS_TaskCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     Return = CFE_ES_CreateChildTask(&TaskId,
                                     "TaskName",
                                     TestAPI,
@@ -4880,7 +4880,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
     TestObjId = CFE_ES_ResourceID_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
-    UT_SetForceFail(UT_KEY(OS_TaskGetId), OS_ObjectIdToInteger(TestObjId)); /* Set context to that of child */
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskGetId), OS_ObjectIdToInteger(TestObjId)); /* Set context to that of child */
     Return = CFE_ES_CreateChildTask(&TaskId,
                                     "TaskName",
                                     TestAPI,
@@ -4918,7 +4918,7 @@ void TestAPI(void)
               "Task ID belongs to a main task");
 
     /* Test deleting a child task with an invalid task ID */
-    UT_SetForceFail(UT_KEY(OS_ObjectIdToArrayIndex), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_ObjectIdToArrayIndex), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_DeleteChildTask(TaskId) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_DeleteChildTask",
@@ -4950,7 +4950,7 @@ void TestAPI(void)
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr); /* the app ID */
     TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr); /* the child task ID */
-    UT_SetForceFail(UT_KEY(OS_TaskDelete), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskDelete), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_DeleteChildTask(TaskId) <= 0,
               "CFE_ES_DeleteChildTask",
@@ -4969,7 +4969,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
     TestObjId = CFE_ES_ResourceID_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
-    UT_SetForceFail(UT_KEY(OS_TaskGetId), OS_ObjectIdToInteger(TestObjId)); /* Set context to that of child */
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskGetId), OS_ObjectIdToInteger(TestObjId)); /* Set context to that of child */
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(OS_TaskExit)) == 1,
@@ -4998,7 +4998,7 @@ void TestAPI(void)
 
     /* Test registering a child task with an OS task register failure */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(OS_TaskRegister), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskRegister), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RegisterChildTask() == CFE_ES_ERR_CHILD_TASK_REGISTER,
               "CFE_ES_RegisterChildTask",
@@ -5658,7 +5658,7 @@ void TestCDS()
 
     /* Test CDS initialization with size not obtainable */
     ES_ResetUnitTest();
-    UT_SetForceFail(UT_KEY(CFE_PSP_GetCDSSize), -1);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_GetCDSSize), -1);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CDS_EarlyInit() == OS_ERROR,
               "CFE_ES_CDS_EarlyInit",
@@ -6760,7 +6760,7 @@ void TestBackground(void)
     ES_ResetUnitTest();
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    UT_SetForceFail(UT_KEY(OS_write), -10);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), -10);
     CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemTimedWait), 3, -4);
     CFE_ES_BackgroundTask();

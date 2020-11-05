@@ -48,7 +48,7 @@ void Test_SBR_Map_Direct(void)
     CFE_SBR_Init_Map();
 
     /* Force valid msgid responses */
-    UT_SetForceFail(UT_KEY(CFE_SB_IsValidMsgId), true);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
 
     UtPrintf("Check that all entries are set invalid");
     count = 0;

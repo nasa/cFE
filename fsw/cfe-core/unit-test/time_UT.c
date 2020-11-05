@@ -470,7 +470,7 @@ void Test_Init(void)
 
     /* Test response to a failure to get the ID by name */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_TimeBaseGetIdByName), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TimeBaseGetIdByName), OS_ERROR);
     CFE_TIME_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 0,
@@ -482,7 +482,7 @@ void Test_Init(void)
      * error.  This allows the overall system to continue without the 1Hz
      */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_TimerAdd), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TimerAdd), OS_ERROR);
     CFE_TIME_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 1 &&
@@ -491,7 +491,7 @@ void Test_Init(void)
               "1Hz OS_TimerAdd failure");
 
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_TimerSet), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TimerSet), OS_ERROR);
     CFE_TIME_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 1 && UT_SyslogIsInHistory((TIME_SYSLOG_MSGS[4])),

@@ -281,7 +281,7 @@ void UT_SetStatusBSPResetArea(int32 status, uint32 Signature, uint32 ClockSignal
     UT_CFE_ES_ResetData.ResetData.TimeResetVars.ClockSignal = ClockSignal;
     if (status != 0)
     {
-        UT_SetForceFail(UT_KEY(CFE_PSP_GetResetArea), status);
+        UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_GetResetArea), status);
     }
     else
     {
@@ -310,7 +310,7 @@ void UT_SetReadHeader(void *Hdr, int NumBytes)
 */
 void UT_SetDummyFuncRtn(int Return)
 {
-    UT_SetForceFail(UT_KEY(dummy_function), Return);
+    UT_SetDefaultReturnValue(UT_KEY(dummy_function), Return);
 }
 
 /*
