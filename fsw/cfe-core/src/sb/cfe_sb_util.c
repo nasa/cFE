@@ -51,7 +51,7 @@ void CFE_SB_InitMsg(void           *MsgPtr,
                     bool        Clear )
 {
 
-   CFE_MSG_Init((CFE_MSG_Message_t *)MsgPtr, MsgId, Length, Clear);
+   CFE_MSG_Init((CFE_MSG_Message_t *)MsgPtr, MsgId, Length);
 
 } /* end CFE_SB_InitMsg */
 

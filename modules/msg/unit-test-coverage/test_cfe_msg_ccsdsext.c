@@ -49,29 +49,29 @@
 /* Extended header initialization specific coverage */
 void Test_MSG_Init_Ext(void)
 {
-    CFE_MSG_Message_t       msg;
-    CFE_SB_MsgId_Atom_t     msgidval_exp;
-    CFE_MSG_HeaderVersion_t hdrver;
-    CFE_MSG_Subsystem_t     subsys;
-    CFE_MSG_EDSVersion_t    edsver;
-    CFE_MSG_System_t        system;
-    CFE_MSG_Endian_t        endian;
-    bool                    is_v1;
-    int                     sc_id = 0xab;
+    CFE_MSG_Message_t    msg;
+    CFE_SB_MsgId_Atom_t  msgidval_exp;
+    CFE_MSG_Subsystem_t  subsys;
+    CFE_MSG_EDSVersion_t edsver;
+    CFE_MSG_System_t     system;
+    CFE_MSG_Endian_t     endian;
+    bool                 hassec;
+    bool                 is_v1;
+    int                  sc_id = 0xab;
 
-    /* Get msgid version by checking if msgid sets header version */
+    /* Get msgid version by checking if msgid sets "has secondary" field*/
     memset(&msg, 0xFF, sizeof(msg));
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0)), CFE_SUCCESS);
-    ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &hdrver), CFE_SUCCESS);
-    is_v1 = (hdrver == 0);
+    ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &hassec), CFE_SUCCESS);
+    is_v1 = !hassec;
 
     /* Set up return */
-    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_GetSpacecraftId), 1, sc_id);
+    UT_SetForceFail(UT_KEY(CFE_PSP_GetSpacecraftId), sc_id);
 
-    UtPrintf("Set to all F's, msgid value = 0, and run with clearing");
+    UtPrintf("Set to all F's, msgid value = 0");
     memset(&msg, 0xFF, sizeof(msg));
     msgidval_exp = 0;
-    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg), true), CFE_SUCCESS);
+    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg)), CFE_SUCCESS);
     Test_MSG_PrintMsg(&msg, 0);
 
     /* Default EDS version check */
@@ -100,21 +100,38 @@ void Test_MSG_Init_Ext(void)
     /* Confirm the rest of the fields not already explicitly checked */
     ASSERT_EQ(Test_MSG_Ext_NotZero(&msg) & ~(MSG_EDSVER_FLAG | MSG_ENDIAN_FLAG | MSG_SUBSYS_FLAG | MSG_SYSTEM_FLAG), 0);
 
-    UtPrintf("Set to all 0, max msgid value, and run without clearing");
+    UtPrintf("Set to all 0, max msgid value");
     memset(&msg, 0, sizeof(msg));
     msgidval_exp = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
-    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg), false), CFE_SUCCESS);
+    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg)), CFE_SUCCESS);
     Test_MSG_PrintMsg(&msg, 0);
+
+    /* Default EDS version check */
+    ASSERT_EQ(CFE_MSG_GetEDSVersion(&msg, &edsver), CFE_SUCCESS);
+    ASSERT_EQ(edsver, CFE_PLATFORM_EDSVER);
+
+    /* Default system check */
+    ASSERT_EQ(CFE_MSG_GetSystem(&msg, &system), CFE_SUCCESS);
+    ASSERT_EQ(system, sc_id);
+
+    /* Default endian check */
+    ASSERT_EQ(CFE_MSG_GetEndian(&msg, &endian), CFE_SUCCESS);
+#if (CFE_PLATFORM_ENDIAN == CCSDS_LITTLE_ENDIAN)
+    ASSERT_EQ(endian, CFE_MSG_Endian_Little);
+#else
+    ASSERT_EQ(endian, CFE_MSG_Endian_Big);
+#endif
 
     /* Default subsystem check */
     ASSERT_EQ(CFE_MSG_GetSubsystem(&msg, &subsys), CFE_SUCCESS);
     if (is_v1)
-        ASSERT_EQ(subsys, 0);
+        ASSERT_EQ(subsys, CFE_PLATFORM_DEFAULT_SUBSYS);
     else
-        ASSERT_EQ(subsys, 0xFF);
+        ASSERT_EQ(subsys, CFE_PLATFORM_DEFAULT_SUBSYS | ((msgidval_exp >> 8) & 0xFF));
 
     /* Confirm the rest of the fields not already explicitly checked */
-    ASSERT_EQ(Test_MSG_Ext_NotZero(&msg) & ~MSG_SUBSYS_FLAG, 0);
+    ASSERT_EQ(Test_MSG_Ext_NotZero(&msg) & ~(MSG_EDSVER_FLAG | MSG_ENDIAN_FLAG | MSG_SUBSYS_FLAG | MSG_SYSTEM_FLAG), 0);
+
 }
 
 void Test_MSG_EDSVersion(void)

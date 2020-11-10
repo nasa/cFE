@@ -50,44 +50,21 @@ void Test_MSG_Init(void)
     CFE_MSG_HeaderVersion_t    hdrver;
     CFE_MSG_ApId_t             apid;
     CFE_MSG_SegmentationFlag_t segflag;
-    unsigned int               flag_exp;
     bool                       hassec;
     bool                       is_v1;
 
     UtPrintf("Bad parameter tests, Null pointer, invalid size, invalid msgid");
-    memset(&msg, 0, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_Init(NULL, CFE_SB_ValueToMsgId(0), sizeof(msg), false), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(0), 0, false), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), sizeof(msg), false),
+    ASSERT_EQ(CFE_MSG_Init(NULL, CFE_SB_ValueToMsgId(0), sizeof(msg)), CFE_MSG_BAD_ARGUMENT);
+    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(0), 0), CFE_MSG_BAD_ARGUMENT);
+    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), sizeof(msg)),
               CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(-1), sizeof(msg), false), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(-1), sizeof(msg)), CFE_MSG_BAD_ARGUMENT);
 
-    UtPrintf("Set to all F's, msgid value = 0, and run without clearing");
-    memset(&msg, 0xFF, sizeof(msg));
-    msgidval_exp = 0;
-    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg), false), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&msg, 0);
-
-    /* Get msgid version by checking if header version was set */
-    ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &hdrver), CFE_SUCCESS);
-    is_v1 = (hdrver == 0);
-
-    flag_exp = MSG_TYPE_FLAG | MSG_LENGTH_FLAG | MSG_APID_FLAG;
-    if (is_v1)
-        flag_exp |= MSG_HDRVER_FLAG | MSG_HASSEC_FLAG;
-
-    ASSERT_EQ(Test_MSG_Pri_NotF(&msg), flag_exp);
-    ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid_act), CFE_SUCCESS);
-    ASSERT_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
-    ASSERT_EQ(CFE_MSG_GetSize(&msg, &size), CFE_SUCCESS);
-    ASSERT_EQ(size, sizeof(msg));
-
-    UtPrintf("Set to all F's, msgid value = 0, and run with clearing");
+    UtPrintf("Set to all F's, msgid value = 0");
     memset(&msg, 0xFF, sizeof(msg));
     msgidval_exp = 0;
 
-    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg), true), CFE_SUCCESS);
+    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg)), CFE_SUCCESS);
     Test_MSG_PrintMsg(&msg, 0);
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid_act), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
@@ -99,49 +76,52 @@ void Test_MSG_Init(void)
     ASSERT_EQ(CFE_MSG_GetApId(&msg, &apid), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &hdrver), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &hassec), CFE_SUCCESS);
+
+    /* A zero msgid will set hassec to false for v1 */
+    is_v1 = !hassec;
+
     if (!is_v1)
     {
         ASSERT_EQ(apid, CFE_PLATFORM_DEFAULT_APID & TEST_DEFAULT_APID_MASK);
         ASSERT_EQ(hdrver, CFE_MISSION_CCSDSVER);
-        ASSERT_EQ(hassec, true);
     }
     else
     {
         ASSERT_EQ(apid, 0);
         ASSERT_EQ(hdrver, 0);
-        ASSERT_EQ(hassec, false);
     }
 
     /* Confirm the rest of the fields not already explicitly checked */
     ASSERT_EQ(Test_MSG_Pri_NotZero(&msg) & ~(MSG_APID_FLAG | MSG_HDRVER_FLAG | MSG_HASSEC_FLAG),
               MSG_LENGTH_FLAG | MSG_SEGMENT_FLAG);
 
-    UtPrintf("Set to all 0, max msgid value, and run without clearing");
+    UtPrintf("Set to all 0, max msgid value");
     memset(&msg, 0, sizeof(msg));
     msgidval_exp = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
-    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg), false), CFE_SUCCESS);
+
+    ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg)), CFE_SUCCESS);
     Test_MSG_PrintMsg(&msg, 0);
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid_act), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
     ASSERT_EQ(CFE_MSG_GetSize(&msg, &size), CFE_SUCCESS);
     ASSERT_EQ(size, sizeof(msg));
+    ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, &segflag), CFE_SUCCESS);
+    ASSERT_EQ(segflag, CFE_MSG_SegFlag_Unsegmented);
 
     ASSERT_EQ(CFE_MSG_GetApId(&msg, &apid), CFE_SUCCESS);
+    ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &hdrver), CFE_SUCCESS);
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &hassec), CFE_SUCCESS);
+    ASSERT_EQ(hassec, true);
     if (!is_v1)
     {
         ASSERT_EQ(apid & TEST_DEFAULT_APID_MASK, CFE_PLATFORM_DEFAULT_APID & TEST_DEFAULT_APID_MASK);
-        ASSERT_EQ(hassec, false);
+        ASSERT_EQ(hdrver, CFE_MISSION_CCSDSVER);
     }
     else
     {
         ASSERT_EQ(apid, 0x7FF);
-        ASSERT_EQ(hassec, true);
+        ASSERT_EQ(hdrver, 0);
     }
 
-    ASSERT_EQ(Test_MSG_Pri_NotZero(&msg) & ~(MSG_APID_FLAG | MSG_HASSEC_FLAG), MSG_TYPE_FLAG | MSG_LENGTH_FLAG);
-
-    /* Zero (no default) header version check */
-    ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &hdrver), CFE_SUCCESS);
-    ASSERT_EQ(hdrver, 0);
+    ASSERT_EQ(Test_MSG_Pri_NotZero(&msg) & ~MSG_HDRVER_FLAG, MSG_APID_FLAG | MSG_HASSEC_FLAG | MSG_TYPE_FLAG | MSG_LENGTH_FLAG | MSG_SEGMENT_FLAG);
 }
