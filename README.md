@@ -10,6 +10,16 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev179
+
+- Adds macros for more compact calls to `CFE_EVS_SendEvent`, making the type be part of the function name.
+- The sample configs leap seconds default value is now up to date. (As of Oct 2020)
+- Removed the clear=false logic (and clear parameter) `CFE_MSG_Init()` now always zeroes entire message and sets defaults.
+- Adds flags parameter to calls to `OS_ModuleLoad()`. Initially just pass 0 (GLOBAL) to maintain old behavior.
+- Updates `CFE_ES_RegisterCDSEx` stub to match current signature
+- Includes `cfe_private.h` for stubs that implement related elements.
+- See <https://github.com/nasa/cFE/pull/1008>
+
 ### Development Build: 6.8.0-rc1+dev164
 
 - Keeps task names under 16 chars to make more debugger friendly, regardless
