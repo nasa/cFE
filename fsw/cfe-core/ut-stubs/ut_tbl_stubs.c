@@ -23,6 +23,7 @@
 */
 #include <string.h>
 #include "cfe.h"
+#include "private/cfe_private.h"
 #include "utstubs.h"
 
 /*
