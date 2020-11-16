@@ -1406,8 +1406,6 @@ typedef struct CFE_ES_AppInfo
 
    CFE_ES_MemOffset_t   StackSize;             /**< \cfetlmmnemonic \ES_STACKSIZE
                                                     \brief The Stack Size of the Application */
-   osal_id_t   ModuleId;                       /**< \cfetlmmnemonic \ES_MODULEID
-                                                    \brief The ID of the Loadable Module for the Application */
    uint32   AddressesAreValid;                 /**< \cfetlmmnemonic \ES_ADDRVALID
                                                     \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
    CFE_ES_MemAddress_t CodeAddress;            /**< \cfetlmmnemonic \ES_CODEADDR
