@@ -34,6 +34,7 @@
 */
 #include <string.h>
 #include "cfe.h"
+#include "private/cfe_private.h"
 #include "utstubs.h"
 #include "utassert.h"
 
@@ -970,7 +971,7 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 **
 ******************************************************************************/
 int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr,
-                           int32 BlockSize,
+                           CFE_ES_CDS_Offset_t UserBlockSize,
                            const char *Name,
                            bool CriticalTbl)
 {

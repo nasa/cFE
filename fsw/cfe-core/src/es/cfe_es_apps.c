@@ -370,7 +370,8 @@ int32 CFE_ES_LoadModule(const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_Modu
          */
         StatusCode = OS_ModuleLoad ( &ModuleId,
                 LoadParams->Name,
-                LoadParams->FileName );
+                LoadParams->FileName,
+                OS_MODULE_FLAG_GLOBAL_SYMBOLS );
 
         if (StatusCode != OS_SUCCESS)
         {

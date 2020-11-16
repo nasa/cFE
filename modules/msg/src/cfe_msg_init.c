@@ -29,7 +29,7 @@
 /******************************************************************************
  * Top level message initialization - See API and header file for details
  */
-int32 CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size, bool Clear)
+int32 CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size)
 {
 
     int32 status;
@@ -39,12 +39,9 @@ int32 CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size
         return CFE_MSG_BAD_ARGUMENT;
     }
 
-    /* Clear and set defaults if request */
-    if (Clear)
-    {
-        memset(MsgPtr, 0, Size);
-        CFE_MSG_InitDefaultHdr(MsgPtr);
-    }
+    /* Clear and set defaults */
+    memset(MsgPtr, 0, Size);
+    CFE_MSG_InitDefaultHdr(MsgPtr);
 
     /* Set values input */
     status = CFE_MSG_SetMsgId(MsgPtr, MsgId);

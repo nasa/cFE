@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "cfe_time.h"
+#include "private/cfe_private.h"
 #include "utstubs.h"
 
 /*

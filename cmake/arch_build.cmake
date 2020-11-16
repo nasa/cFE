@@ -81,7 +81,7 @@ function(add_cfe_app APP_NAME APP_SRC_FILES)
 
   # currently this will build an app with either static linkage or shared/module linkage,
   # but this does not currently support both for a single arch (could be revised if that is needed)
-  if (APP_INSTALL_LIST)
+  if (APP_DYNAMIC_TARGET_LIST)
      set(APPTYPE "MODULE")
   else()
      set(APPTYPE "STATIC")
@@ -90,9 +90,10 @@ function(add_cfe_app APP_NAME APP_SRC_FILES)
   # Create the app module
   add_library(${APP_NAME} ${APPTYPE} ${APP_SRC_FILES} ${ARGN})
   
-  if (APP_INSTALL_LIST)
-    cfs_app_do_install(${APP_NAME} ${APP_INSTALL_LIST})
-  endif (APP_INSTALL_LIST)
+  # An "install" step is only needed for dynamic/runtime loaded apps
+  if (APP_DYNAMIC_TARGET_LIST)
+    cfs_app_do_install(${APP_NAME} ${APP_DYNAMIC_TARGET_LIST})
+  endif (APP_DYNAMIC_TARGET_LIST)
   
 endfunction(add_cfe_app)
 
@@ -117,7 +118,7 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
     # Get name without extension (NAME_WE) and append to list of tables
     get_filename_component(TBLWE ${TBL} NAME_WE)
     
-    foreach(TGT ${APP_INSTALL_LIST})
+    foreach(TGT ${APP_STATIC_TARGET_LIST} ${APP_DYNAMIC_TARGET_LIST})
       set(TABLE_DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/tables_${TGT}")
       file(MAKE_DIRECTORY ${TABLE_DESTDIR})
       list(APPEND TBL_LIST "${TABLE_DESTDIR}/${TBLWE}.tbl")
@@ -162,7 +163,8 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
       )
       # Create the install targets for all the tables
       install(FILES ${TABLE_DESTDIR}/${TBLWE}.tbl DESTINATION ${TGT}/${INSTALL_SUBDIR})
-    endforeach(TGT ${APP_INSTALL_LIST})
+    endforeach(TGT ${APP_STATIC_TARGET_LIST} ${APP_DYNAMIC_TARGET_LIST})
+
     
   endforeach(TBL ${TBL_SRC_FILES} ${ARGN})
 
@@ -435,33 +437,34 @@ function(process_arch SYSVAR)
   endforeach()
   
   # Process each app that is used on this system architecture
-  set(APP_INSTALL_LIST)
-  foreach(APP ${TGTSYS_${SYSVAR}_STATICAPPS})
-    message(STATUS "Building Static App: ${APP}")
-    add_subdirectory("${${APP}_MISSION_DIR}" apps/${APP})
-  endforeach()
-
-  # Process each target that shares this system architecture
-  # First Pass: Assemble the list of apps that should be compiled 
-  foreach(APP ${TGTSYS_${SYSVAR}_APPS})
+  # First Pass: Assemble the list of apps that should be compiled
+  foreach(APP ${TGTSYS_${SYSVAR}_APPS} ${TGTSYS_${SYSVAR}_STATICAPPS})
     set(TGTLIST_${APP})
   endforeach()
 
   foreach(TGTNAME ${TGTSYS_${SYSVAR}})
       
     # Append to the app install list for this CPU
-    foreach(APP ${${TGTNAME}_APPLIST})
+    foreach(APP ${${TGTNAME}_APPLIST} ${${TGTNAME}_STATIC_APPLIST})
       list(APPEND TGTLIST_${APP} ${TGTNAME})
     endforeach(APP ${${TGTNAME}_APPLIST})
       
   endforeach(TGTNAME ${TGTSYS_${SYSVAR}})
   
-  # Process each app that is used on this system architecture
-  foreach(APP ${TGTSYS_${SYSVAR}_APPS})
-    set(APP_INSTALL_LIST ${TGTLIST_${APP}})
-    message(STATUS "Building App: ${APP} install=${APP_INSTALL_LIST}")
+  foreach(APP ${TGTSYS_${SYSVAR}_STATICAPPS})
+    set(APP_STATIC_TARGET_LIST ${TGTLIST_${APP}})
+    message(STATUS "Building Static App: ${APP} targets=${APP_STATIC_TARGET_LIST}")
     add_subdirectory("${${APP}_MISSION_DIR}" apps/${APP})
   endforeach()
+  unset(APP_STATIC_TARGET_LIST)
+
+  # Process each app that is used on this system architecture
+  foreach(APP ${TGTSYS_${SYSVAR}_APPS})
+    set(APP_DYNAMIC_TARGET_LIST ${TGTLIST_${APP}})
+    message(STATUS "Building Dynamic App: ${APP} targets=${APP_DYNAMIC_TARGET_LIST}")
+    add_subdirectory("${${APP}_MISSION_DIR}" apps/${APP})
+  endforeach()
+  unset(APP_DYNAMIC_TARGET_LIST)
   
   # Process each target that shares this system architecture
   # Second Pass: Build and link final target executable 
