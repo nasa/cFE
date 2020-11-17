@@ -488,23 +488,6 @@
 **/
 #define CFE_ES_START_NULL_APP_NAME_ERR_EID     29
 
-/** \brief <tt> 'CFE_ES_StartAppCmd: Stack size is less than system Minimum: \%d.' </tt>
-**  \event <tt> 'CFE_ES_StartAppCmd: Stack size is less than system Minimum: \%d.' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This event message is generated for an error encountered in response
-**  to an Executive Services \link #CFE_ES_START_APP_CC Start Application Command \endlink.
-**
-**  This message reports a command failure when the Application Stack Size parameter is 
-**  less than the default stack size defined in the cfe_platform_cfg.h file: CFE_PLATFORM_ES_DEFAULT_STACK_SIZE.
-**
-**  The \c 'd' term identifies the size of the stack that was given in the command.  
-**/
-#define CFE_ES_START_STACK_ERR_EID     30
-
 /** \brief <tt> 'CFE_ES_StartAppCmd: Priority is too large: \%d.' </tt>
 **  \event <tt> 'CFE_ES_StartAppCmd: Priority is too large: \%d.' </tt>
 **
