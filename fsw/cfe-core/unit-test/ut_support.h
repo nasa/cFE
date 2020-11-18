@@ -572,7 +572,7 @@ uint16 UT_GetNumEventsSent(void);
 **        This function does not return a value.
 **
 ******************************************************************************/
-void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, uint32 size);
+void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, size_t size);
 
 /*****************************************************************************/
 /**
