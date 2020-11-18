@@ -32,6 +32,7 @@
 /* Use the local definitions of these types */
 
 #include "common_types.h"
+#include "cfe_es_extern_typedefs.h"
 #include <cfe_mission_cfg.h>  /* for CFE_MISSION_TBL_MAX_FULL_NAME_LEN */
 
 /**
@@ -69,8 +70,8 @@ typedef uint16                                           CFE_TBL_BufferSelect_En
 typedef struct CFE_TBL_File_Hdr
 {
     uint32                   Reserved;                             /**< Future Use: NumTblSegments in File?   */
-    uint32                   Offset;                               /**< Byte Offset at which load should commence */
-    uint32                   NumBytes;                             /**< Number of bytes to load into table */
+    CFE_ES_MemOffset_t       Offset;                               /**< Byte Offset at which load should commence */
+    CFE_ES_MemOffset_t       NumBytes;                             /**< Number of bytes to load into table */
     char                     TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
 } CFE_TBL_File_Hdr_t;
 

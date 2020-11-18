@@ -265,7 +265,7 @@ void CFE_TBL_TaskPipe(CFE_SB_Msg_t *MessagePtr)
     CFE_SB_MsgId_t       MessageID = CFE_SB_GetMsgId(MessagePtr);
     uint16               CommandCode = CFE_SB_GetCmdCode(MessagePtr);
     int16                CmdIndx;
-    uint32               ActualLength;
+    size_t               ActualLength;
     CFE_TBL_CmdProcRet_t CmdStatus = CFE_TBL_INC_ERR_CTR; /* Assume a failed command */
 
     /* Search the Command Handler Table for a matching message */

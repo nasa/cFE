@@ -73,7 +73,7 @@ typedef enum
 typedef struct {
     CFE_SB_MsgId_t           MsgId;           /**< \brief Acceptable Message ID */
     uint32                   CmdCode;         /**< \brief Acceptable Command Code (if necessary) */
-    uint32                   ExpectedLength;  /**< \brief Expected Message Length (in bytes) including message header */
+    size_t                   ExpectedLength;  /**< \brief Expected Message Length (in bytes) including message header */
     CFE_TBL_MsgProcFuncPtr_t MsgProcFuncPtr;  /**< \brief Pointer to function to handle message  */
     CFE_TBL_MsgType_t        MsgTypes;        /**< \brief Message Type (i.e. - with/without Cmd Code)   */
 } CFE_TBL_CmdHandlerTblRec_t;
@@ -329,7 +329,7 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoad_t *data);
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
 extern CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *TableName,
-                                         const void *DumpDataAddr, uint32 TblSizeInBytes);
+                                         const void *DumpDataAddr, size_t TblSizeInBytes);
 
 /*****************************************************************************/
 /**

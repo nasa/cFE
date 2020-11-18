@@ -50,7 +50,7 @@
  */
 int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                         const char *Name,
-                        uint32  Size,
+                        size_t  Size,
                         uint16  TblOptionFlags,
                         CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr )
 {

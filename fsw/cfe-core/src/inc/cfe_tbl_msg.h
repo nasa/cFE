@@ -772,15 +772,15 @@ typedef struct CFE_TBL_HousekeepingTlm
 **/
 typedef struct CFE_TBL_TblRegPacket_Payload
 {
-    uint32                      Size;                           /**< \cfetlmmnemonic \TBL_SIZE 
+    CFE_ES_MemOffset_t          Size;                           /**< \cfetlmmnemonic \TBL_SIZE
                                                                      \brief Size, in bytes, of Table */
     uint32                      Crc;                            /**< \cfetlmmnemonic \TBL_CRC 
                                                                      \brief Most recently calculated CRC of Table */
-    cpuaddr                     ActiveBufferAddr;               /**< \cfetlmmnemonic \TBL_ACTBUFADD
+    CFE_ES_MemAddress_t         ActiveBufferAddr;               /**< \cfetlmmnemonic \TBL_ACTBUFADD
                                                                      \brief Address of Active Buffer */
-    cpuaddr                     InactiveBufferAddr;             /**< \cfetlmmnemonic \TBL_IACTBUFADD
+    CFE_ES_MemAddress_t         InactiveBufferAddr;             /**< \cfetlmmnemonic \TBL_IACTBUFADD
                                                                      \brief Address of Inactive Buffer */
-    cpuaddr                     ValidationFuncPtr;              /**< \cfetlmmnemonic \TBL_VALFUNCPTR
+    CFE_ES_MemAddress_t         ValidationFuncPtr;              /**< \cfetlmmnemonic \TBL_VALFUNCPTR
                                                                      \brief Ptr to Owner App's function that validates tbl contents */
     CFE_TIME_SysTime_t          TimeOfLastUpdate;               /**< \cfetlmmnemonic \TBL_TIMELASTUPD 
                                                                      \brief Time when Table was last updated */
