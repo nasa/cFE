@@ -1763,7 +1763,7 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, CFE_ES_CDS_Offset_t B
     if (Status < 0)
     {
         /* Translate AppID of caller into App Name */
-        CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+        CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
         CFE_EVS_SendEventWithAppID(CFE_ES_CDS_REGISTER_ERR_EID,
                                    CFE_EVS_EventType_ERROR,

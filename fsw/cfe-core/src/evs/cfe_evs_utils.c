@@ -194,7 +194,7 @@ int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, CFE_ES_ResourceID_t CallerID
       AppDataPtr->UnregAppID = CallerID;
 
       /* Get the name of the "not registered" app */
-      CFE_ES_GetAppName(AppName, CallerID, OS_MAX_API_NAME);
+      CFE_ES_GetAppName(AppName, CallerID, sizeof(AppName));
 
       /* Send the "not registered" event */
       EVS_SendEvent(CFE_EVS_ERR_UNREGISTERED_EVS_APP, CFE_EVS_EventType_ERROR,
@@ -300,7 +300,7 @@ bool EVS_IsFiltered (EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType
             /* Is it time to lock this filter? */
             if (FilterPtr->Count == CFE_EVS_MAX_FILTER_COUNT)
             {
-               CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), OS_MAX_API_NAME);
+               CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppName));
 
                EVS_SendEvent(CFE_EVS_FILTER_MAX_EID, CFE_EVS_EventType_INFORMATION,
                   "Max filter count reached, AppName = %s, EventID = 0x%08x: Filter locked until reset",

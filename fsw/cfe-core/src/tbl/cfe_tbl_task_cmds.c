@@ -382,7 +382,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data)
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(LoadFilename, (char *)CmdPtr->LoadFilename, NULL,
-            OS_MAX_PATH_LEN, sizeof(CmdPtr->LoadFilename));
+            sizeof(LoadFilename), sizeof(CmdPtr->LoadFilename));
 
     /* Try to open the specified table file */
     Status = OS_OpenCreate(&FileDescriptor, LoadFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
@@ -588,10 +588,10 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_Dump_t *data)
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(DumpFilename, (char *)CmdPtr->DumpFilename, NULL,
-            OS_MAX_PATH_LEN, sizeof(CmdPtr->DumpFilename));
+            sizeof(DumpFilename), sizeof(CmdPtr->DumpFilename));
 
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL,
-            CFE_TBL_MAX_FULL_NAME_LEN, sizeof(CmdPtr->TableName));
+            sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table that is to be dumped exists */
     RegIndex = CFE_TBL_FindTableInRegistry(TableName);
@@ -878,7 +878,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_Validate_t *data)
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL,
-            CFE_TBL_MAX_FULL_NAME_LEN, sizeof(CmdPtr->TableName));
+            sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table that is to be dumped exists */
     RegIndex = CFE_TBL_FindTableInRegistry(TableName);
@@ -1034,7 +1034,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_Activate_t *data)
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL,
-            CFE_TBL_MAX_FULL_NAME_LEN, sizeof(CmdPtr->TableName));
+            sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table that is to be dumped exists */
     RegIndex = CFE_TBL_FindTableInRegistry(TableName);
@@ -1133,7 +1133,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
 
     /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
     CFE_SB_MessageStringGet(DumpFilename, (char *)CmdPtr->DumpFilename, CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE,
-            OS_MAX_PATH_LEN, sizeof(CmdPtr->DumpFilename));
+            sizeof(DumpFilename), sizeof(CmdPtr->DumpFilename));
 
     /* Check to see if the dump file already exists */
     Status = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
@@ -1310,7 +1310,7 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistry_t *data)
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL,
-            CFE_TBL_MAX_FULL_NAME_LEN, sizeof(CmdPtr->TableName));
+            sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table registry entry that is to be telemetered exists */
     RegIndex = CFE_TBL_FindTableInRegistry(TableName);
@@ -1360,7 +1360,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDS_t *data)
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL,
-            CFE_TBL_MAX_FULL_NAME_LEN, sizeof(CmdPtr->TableName));
+            sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table is no longer in the registry */
     /* This would imply that the owning application has been terminated and that it */
@@ -1456,7 +1456,7 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoad_t *data)
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL,
-            CFE_TBL_MAX_FULL_NAME_LEN, sizeof(CmdPtr->TableName));
+            sizeof(TableName), sizeof(CmdPtr->TableName));
 
     /* Before doing anything, lets make sure the table registry entry that is to be telemetered exists */
     RegIndex = CFE_TBL_FindTableInRegistry(TableName);

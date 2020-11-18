@@ -783,7 +783,7 @@ int32 CFE_SB_SendRoutingInfoCmd(const CFE_SB_SendRoutingInfo_t *data)
     ptr = &data->Payload;
 
     CFE_SB_MessageStringGet(LocalFilename, ptr->Filename, CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME,
-            OS_MAX_PATH_LEN, sizeof(ptr->Filename));
+            sizeof(LocalFilename), sizeof(ptr->Filename));
 
     Stat = CFE_SB_SendRtgInfo(LocalFilename);
     CFE_SB_IncrCmdCtr(Stat);
@@ -813,7 +813,7 @@ int32 CFE_SB_SendPipeInfoCmd(const CFE_SB_SendPipeInfo_t *data)
     ptr = &data->Payload;
 
     CFE_SB_MessageStringGet(LocalFilename, ptr->Filename, CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME,
-            OS_MAX_PATH_LEN, sizeof(ptr->Filename));
+            sizeof(LocalFilename), sizeof(ptr->Filename));
 
     Stat = CFE_SB_SendPipeInfo(LocalFilename);
     CFE_SB_IncrCmdCtr(Stat);
@@ -843,7 +843,7 @@ int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfo_t *data)
     ptr = &data->Payload;
 
     CFE_SB_MessageStringGet(LocalFilename, ptr->Filename, CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME,
-            OS_MAX_PATH_LEN, sizeof(ptr->Filename));
+            sizeof(LocalFilename), sizeof(ptr->Filename));
 
     Stat = CFE_SB_SendMapInfo(LocalFilename);
 

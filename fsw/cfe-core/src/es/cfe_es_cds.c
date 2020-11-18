@@ -668,7 +668,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceI
 {
     char AppName[OS_MAX_API_NAME];
 
-    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
     /* Ensure that AppName is null terminated */
     AppName[OS_MAX_API_NAME-1] = '\0';

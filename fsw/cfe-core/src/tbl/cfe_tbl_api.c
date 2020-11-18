@@ -368,7 +368,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                                 /* possible at this point during table registration.  But we */
                                 /* do need to handle the error case because if the function */
                                 /* call did fail, WorkingBufferPtr would be a NULL pointer. */
-                                CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+                                CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
                                 CFE_ES_WriteToSysLog("CFE_TBL:Register-Failed to get work buffer for '%s.%s' (ErrCode=0x%08X)\n",
                                                      AppName, Name, (unsigned int)Status);
                             }
@@ -379,7 +379,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                         
                                 if (Status != CFE_SUCCESS)
                                 {
-                                    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+                                    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
                                     CFE_ES_WriteToSysLog("CFE_TBL:Register-Failed to recover '%s.%s' from CDS (ErrCode=0x%08X)\n",
                                                      AppName, Name, (unsigned int)Status);
                                 }
@@ -422,7 +422,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                                 {
                                     /* If an error occurred while trying to get the previous contents registry info, */
                                     /* Log the error in the System Log and pretend like we created a new CDS */
-                                    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+                                    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
                                     CFE_ES_WriteToSysLog("CFE_TBL:Register-Failed to recover '%s.%s' info from CDS TblReg\n",
                                                          AppName, Name);
                                     Status = CFE_SUCCESS;     
@@ -490,7 +490,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
         *TblHandlePtr = CFE_TBL_BAD_TABLE_HANDLE;
         
         /* Translate AppID of caller into App Name */
-        CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+        CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
         CFE_EVS_SendEventWithAppID(CFE_TBL_REGISTER_ERR_EID,
                                    CFE_EVS_EventType_ERROR,
@@ -589,7 +589,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
     if (Status < 0)
     {
         /* Translate AppID of caller into App Name */
-        CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+        CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
         CFE_EVS_SendEventWithAppID(CFE_TBL_SHARE_ERR_EID,
                                    CFE_EVS_EventType_ERROR,
@@ -653,7 +653,7 @@ int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle )
     if (Status < 0)
     {
         /* Translate AppID of caller into App Name */
-        CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+        CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
         CFE_EVS_SendEventWithAppID(CFE_TBL_UNREGISTER_ERR_EID,
                                    CFE_EVS_EventType_ERROR,
@@ -702,7 +702,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
 
     /* Translate AppID of caller into App Name */
-    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
     /* Initialize return pointer to NULL */
     WorkingBufferPtr = NULL;
@@ -941,7 +941,7 @@ int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle )
     if (Status != CFE_TBL_ERR_BAD_APP_ID)
     {
         /* Translate AppID of caller into App Name */
-        CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+        CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
     }
     
     /* On Error conditions, notify ground of screw up */
@@ -1142,7 +1142,7 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
         AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
         RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
 
-        CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+        CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
         /* Identify the image to be validated, starting with the Inactive Buffer */
         if (RegRecPtr->ValidateInactiveIndex != CFE_TBL_NO_VALIDATION_PENDING)

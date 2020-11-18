@@ -103,7 +103,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
     CFE_ES_GetTaskID(&TskId);
 
     /* get callers name */
-    CFE_ES_GetAppName(AppName, AppId, OS_MAX_API_NAME);
+    CFE_ES_GetAppName(AppName, AppId, sizeof(AppName));
 
     /* Hardcode a NULL terminator, in case rcvd name was too long */
     AppName[OS_MAX_API_NAME-1]= '\0';
