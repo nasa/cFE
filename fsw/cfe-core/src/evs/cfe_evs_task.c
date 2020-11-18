@@ -54,7 +54,7 @@ CFE_EVS_GlobalData_t CFE_EVS_GlobalData;
 ** Local function prototypes.
 */
 void  CFE_EVS_ProcessGroundCommand ( CFE_SB_MsgPtr_t EVS_MsgPtr );
-bool CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength);
+bool CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, size_t ExpectedLength);
 
 /* Function Definitions */
 
@@ -486,7 +486,7 @@ void CFE_EVS_ProcessGroundCommand ( CFE_SB_MsgPtr_t EVS_MsgPtr )
 
       case CFE_EVS_SET_FILTER_CC:
 
-         if (CFE_EVS_VerifyCmdLength(EVS_MsgPtr, (uint16) sizeof(CFE_EVS_SetFilter_t)))
+         if (CFE_EVS_VerifyCmdLength(EVS_MsgPtr, sizeof(CFE_EVS_SetFilter_t)))
          {
              Status = CFE_EVS_SetFilterCmd((CFE_EVS_SetFilter_t*)EVS_MsgPtr);
          }
@@ -608,10 +608,10 @@ void CFE_EVS_ProcessGroundCommand ( CFE_SB_MsgPtr_t EVS_MsgPtr )
 ** Assumptions and Notes:
 **
 */
-bool CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
+bool CFE_EVS_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, size_t ExpectedLength)
 {
     bool    result       = true;
-    uint16  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
+    size_t  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
 
     /*
     ** Verify the command packet length
