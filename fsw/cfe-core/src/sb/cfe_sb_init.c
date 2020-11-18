@@ -47,7 +47,7 @@
 **  External Declarations
 */
 
-const CFE_ES_MemOffset_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
+const size_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
 {
     CFE_PLATFORM_SB_MAX_BLOCK_SIZE,
     CFE_PLATFORM_SB_MEM_BLOCK_SIZE_16,

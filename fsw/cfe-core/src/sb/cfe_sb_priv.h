@@ -116,7 +116,7 @@
 typedef struct {
      CFE_SB_MsgId_t    MsgId;
      uint16            UseCount;
-     uint32            Size;
+     size_t            Size;
      void              *Buffer;
 } CFE_SB_BufferD_t;
 
@@ -133,7 +133,7 @@ typedef struct {
 
 typedef struct {
      CFE_ES_ResourceID_t AppID;
-     uint32            Size;
+     size_t              Size;
      void              *Buffer;
      void              *Next;
      void              *Prev;
@@ -249,7 +249,7 @@ void   CFE_SB_ProcessCmdPipePkt(void);
 void   CFE_SB_ResetCounters(void);
 void   CFE_SB_SetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr,uint32 Count);
 char   *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId, char* FullName);
-CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, uint16 Size);
+CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, size_t Size);
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromCaller(CFE_SB_MsgId_t MsgId, void *Address);
 CFE_SB_PipeD_t   *CFE_SB_GetPipePtr(CFE_SB_PipeId_t PipeId);
 CFE_SB_PipeId_t  CFE_SB_GetAvailPipeIdx(void);
@@ -360,7 +360,7 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
 ** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_GetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum
 **/
-uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr);
+size_t CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr);
 
 
 /*

@@ -323,10 +323,10 @@ int32 CFE_SB_AppInit(void){
 **  Return:
 **    true if length is acceptable
 */
-bool CFE_SB_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
+bool CFE_SB_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, size_t ExpectedLength)
 {
     bool result       = true;
-    uint16  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
+    size_t  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
 
     /*
     ** Verify the command packet length

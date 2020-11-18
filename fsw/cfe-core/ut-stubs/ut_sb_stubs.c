@@ -61,7 +61,7 @@ static CFE_SB_StubMsg_MetaData_t* CFE_SB_StubMsg_GetMetaData(const CFE_SB_Msg_t 
 {
     CFE_SB_StubMsg_MetaData_t* MetaPtr;
     CFE_SB_StubMsg_MetaData_t DefaultMeta;
-    uint32 MetaSize;
+    size_t MetaSize;
     UT_EntryKey_t MsgKey = (UT_EntryKey_t)MsgPtr;
 
     UT_GetDataBuffer(MsgKey, (void**)&MetaPtr, &MetaSize, NULL);
@@ -218,8 +218,8 @@ int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_GetPipeName), PipeNameSize);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_GetPipeName), PipeId);
 
-    uint32 UserBuffSize;
-    uint32 BuffPosition;
+    size_t UserBuffSize;
+    size_t BuffPosition;
     const char *NameBuff;
     int32 status;
 
@@ -378,10 +378,10 @@ CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
 **        This function does not return a value.
 **
 ******************************************************************************/
-void CFE_SB_InitMsg(void *MsgPtr,
+void CFE_SB_InitMsg(void           *MsgPtr,
                     CFE_SB_MsgId_t MsgId,
-                    uint16 Length,
-                    bool Clear)
+                    size_t         Length,
+                    bool           Clear )
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_InitMsg), MsgPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_InitMsg), MsgId);
@@ -730,7 +730,7 @@ void CFE_SB_TimeStampMsg(CFE_SB_MsgPtr_t MsgPtr)
 **        Returns a user-defined status value, UT_SB_TotalMsgLen.
 **
 ******************************************************************************/
-uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
+size_t CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_GetTotalMsgLength), MsgPtr);
 
@@ -780,7 +780,7 @@ int32 CFE_SB_CleanUpApp(uint32 AppId)
 **  See function prototype for full description
 **
 */
-int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString, uint32 DestMaxSize, uint32 SourceMaxSize)
+int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString, size_t DestMaxSize, size_t SourceMaxSize)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_MessageStringGet), DestStringPtr);
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_MessageStringGet), SourceStringPtr);
@@ -827,7 +827,7 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
 **  See function prototype for full description
 **
 */
-int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, uint32 DestMaxSize, uint32 SourceMaxSize)
+int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize, size_t SourceMaxSize)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_MessageStringSet), DestStringPtr);
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_MessageStringSet), SourceStringPtr);
@@ -943,7 +943,7 @@ void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
     return Result;
 }
 
-void CFE_SB_SetTotalMsgLength (CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength)
+void CFE_SB_SetTotalMsgLength (CFE_SB_MsgPtr_t MsgPtr,size_t TotalLength)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_SetTotalMsgLength), MsgPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_SetTotalMsgLength), TotalLength);
@@ -1000,7 +1000,7 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptPtr)
     return status;
 }
 
-uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
+size_t CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_GetUserDataLength), MsgPtr);
 
@@ -1049,7 +1049,7 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
     return status;
 }
 
-void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, uint16 DataLength)
+void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, size_t DataLength)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_SetUserDataLength), MsgPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_SetUserDataLength), DataLength);
@@ -1070,7 +1070,7 @@ int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
     return status;
 }
 
-CFE_SB_Msg_t* CFE_SB_ZeroCopyGetPtr(uint16 MsgSize, CFE_SB_ZeroCopyHandle_t *BufferHandle)
+CFE_SB_Msg_t* CFE_SB_ZeroCopyGetPtr(size_t MsgSize, CFE_SB_ZeroCopyHandle_t *BufferHandle)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ZeroCopyGetPtr), MsgSize);
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopyGetPtr), BufferHandle);

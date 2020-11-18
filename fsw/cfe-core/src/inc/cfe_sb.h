@@ -120,24 +120,6 @@
 #define CFE_CLR(i,x) ((i) &= ~CFE_BIT(x))     /**< \brief Clears bit x of i */
 #define CFE_TST(i,x) (((i) & CFE_BIT(x)) != 0)/**< \brief true(non zero) if bit x of i is set */
 
-/**
- * \brief Set memory address within SB Message
- *
- * Macro that should be used to set memory addresses within software bus messages.
- * For now this does a straight copy, but in a future revision this may translate the
- * raw memory address into a "safe" integer value.  This is particularly important if
- * the message is to be sent off this CPU.
- */
-#define CFE_SB_SET_MEMADDR(msgdst,src)       msgdst = (cpuaddr)src
-
-/**
- * \brief Get memory address from SB Message
- *
- * Macro that should be used to get memory addresses from software bus messages.
- * This is the inverse operation of CFE_SB_SET_MEMADDR.
- */
-#define CFE_SB_GET_MEMADDR(msgsrc)           (cpuaddr)msgsrc
-
 /*
 ** Pipe option bit fields.
 */
@@ -671,7 +653,7 @@ CFE_Status_t  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t *BufPtr, CFE_SB_PipeId_t PipeId, int
 **
 ** \sa #CFE_SB_ZeroCopyReleasePtr, #CFE_SB_ZeroCopySend
 **/
-CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16  MsgSize,
+CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(size_t  MsgSize,
                                      CFE_SB_ZeroCopyHandle_t *BufferHandle);
 
 /*****************************************************************************/
@@ -820,7 +802,7 @@ CFE_Status_t CFE_SB_ZeroCopyPass(CFE_SB_Msg_t *MsgPtr, CFE_SB_ZeroCopyHandle_t B
 **/
 void CFE_SB_InitMsg(void           *MsgPtr,
                     CFE_SB_MsgId_t MsgId,
-                    uint16         Length,
+                    size_t         Length,
                     bool           Clear );
 
 /*****************************************************************************/
@@ -868,7 +850,7 @@ void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
 ** \sa #CFE_SB_SetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_SetTotalMsgLength,
 **     #CFE_SB_SetMsgTime, #CFE_SB_TimeStampMsg, #CFE_SB_SetCmdCode, #CFE_SB_InitMsg
 **/
-void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr,uint16 DataLength);
+void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr,size_t DataLength);
 
 /*****************************************************************************/
 /**
@@ -893,7 +875,7 @@ void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr,uint16 DataLength);
 ** \sa #CFE_SB_SetMsgId, #CFE_SB_SetUserDataLength, #CFE_SB_GetTotalMsgLength,
 **     #CFE_SB_SetMsgTime, #CFE_SB_TimeStampMsg, #CFE_SB_SetCmdCode, #CFE_SB_InitMsg
 **/
-void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength);
+void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,size_t TotalLength);
 
 /*****************************************************************************/
 /**
@@ -1007,7 +989,7 @@ CFE_Status_t CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr, uint16 CmdCode);
 ** \return Number of characters copied or error code, see \ref CFEReturnCodes
 **
 */
-int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, uint32 DestMaxSize, uint32 SourceMaxSize);
+int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize, size_t SourceMaxSize);
 /**@}*/
 
 /** @defgroup CFEAPIGetMessage cFE Getting Message Characteristics APIs
@@ -1073,7 +1055,7 @@ CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr);
 ** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_SetUserDataLength, #CFE_SB_GetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum
 **/
-uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr);
+size_t CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /**
@@ -1094,7 +1076,7 @@ uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr);
 ** \sa #CFE_SB_GetUserData, #CFE_SB_GetMsgId, #CFE_SB_GetUserDataLength, #CFE_SB_SetTotalMsgLength,
 **     #CFE_SB_GetMsgTime, #CFE_SB_GetCmdCode, #CFE_SB_GetChecksum
 **/
-uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr);
+size_t CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr);
 
 /*****************************************************************************/
 /**
@@ -1182,7 +1164,7 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr);
 ** \return Number of characters copied or error code, see \ref CFEReturnCodes
 **
 */
-int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString, uint32 DestMaxSize, uint32 SourceMaxSize);
+int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString, size_t DestMaxSize, size_t SourceMaxSize);
 /**@}*/
 
 /** @defgroup CFEAPISBChecksum cFE Checksum Control APIs
