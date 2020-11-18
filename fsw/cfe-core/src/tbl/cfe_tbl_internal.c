@@ -169,7 +169,7 @@ int32 CFE_TBL_EarlyInit (void)
         do
         {
             /* Allocate memory for shared load buffers */
-            Status = CFE_ES_GetPoolBuf((uint32 **)&CFE_TBL_TaskData.LoadBuffs[j].BufferPtr,
+            Status = CFE_ES_GetPoolBuf(&CFE_TBL_TaskData.LoadBuffs[j].BufferPtr,
                                        CFE_TBL_TaskData.Buf.PoolHdl,
                                        CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE);
 
