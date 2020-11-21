@@ -156,7 +156,7 @@ int32 CFE_TBL_EarlyInit (void)
     /* Initialize memory partition and allocate shared table buffers. */
     Status = CFE_ES_PoolCreate(&CFE_TBL_TaskData.Buf.PoolHdl,
                                 CFE_TBL_TaskData.Buf.Partition.Data,
-                                CFE_PLATFORM_TBL_BUF_MEMORY_BYTES);        
+                                sizeof(CFE_TBL_TaskData.Buf.Partition));
 
     if(Status < 0)
     {
@@ -682,7 +682,7 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_Resour
 {
     char AppName[OS_MAX_API_NAME];
 
-    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
     /* Ensure that AppName is null terminated */
     AppName[OS_MAX_API_NAME-1] = '\0';

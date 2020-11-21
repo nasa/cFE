@@ -382,8 +382,8 @@ void UT_ClearEventHistory(void)
 static bool UT_CheckEventHistoryFromFunc(UT_EntryKey_t Func, uint16 EventIDToSearchFor)
 {
     bool Result = false;
-    uint32 Position;
-    uint32 MaxSize;
+    size_t Position;
+    size_t MaxSize;
     uint16 *EvBuf;
 
     UT_GetDataBuffer(Func, (void**)&EvBuf, &MaxSize, &Position);
@@ -421,8 +421,8 @@ bool UT_EventIsInHistory(uint16 EventIDToSearchFor)
 uint16 UT_GetNumEventsSent(void)
 {
     uint16 Total = 0;
-    uint32 Position;
-    uint32 MaxSize;
+    size_t Position;
+    size_t MaxSize;
     void *EvBuf;
 
     UT_GetDataBuffer(UT_KEY(CFE_EVS_SendEvent), &EvBuf, &MaxSize, &Position);
@@ -438,11 +438,11 @@ uint16 UT_GetNumEventsSent(void)
 /*
 ** Display the contents of a packet
 */
-void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, uint32 size)
+void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, size_t size)
 {
     uint8 *BytePtr = (uint8 *) ptr;
-    uint32 i;
-    uint32 BufSize = UT_MAX_MESSAGE_LENGTH;
+    size_t i;
+    size_t BufSize = UT_MAX_MESSAGE_LENGTH;
     char DisplayMsg[UT_MAX_MESSAGE_LENGTH];
     char *msgPtr = DisplayMsg;
 

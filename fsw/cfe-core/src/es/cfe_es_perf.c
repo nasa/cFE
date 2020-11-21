@@ -229,7 +229,8 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfData_t *data)
 
         /* Copy out the string, using default if unspecified */
         CFE_SB_MessageStringGet(PerfDumpState->DataFileName, CmdPtr->DataFileName,
-                CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME, OS_MAX_PATH_LEN, sizeof(CmdPtr->DataFileName));
+                CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME,
+                sizeof(PerfDumpState->DataFileName), sizeof(CmdPtr->DataFileName));
 
         PerfDumpState->PendingState = CFE_ES_PerfDumpState_INIT;
         CFE_ES_BackgroundWakeup();
@@ -273,7 +274,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
     CFE_ES_PerfDumpGlobal_t *State = (CFE_ES_PerfDumpGlobal_t *)Arg;
     int32               Status;
     CFE_FS_Header_t     FileHdr;
-    uint32              BlockSize;
+    size_t              BlockSize;
 
     /*
      * each time this background job is re-entered after a time delay,

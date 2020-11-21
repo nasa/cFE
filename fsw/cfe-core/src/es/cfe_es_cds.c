@@ -61,7 +61,8 @@
 int32 CFE_ES_CDS_EarlyInit(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    CFE_ES_CDS_Offset_t  MinRequiredSize;
+    uint32  PlatformSize;
+    size_t  MinRequiredSize;
     int32   Status;
     
     CFE_ES_Global.CDSIsAvailable = false;
@@ -77,8 +78,9 @@ int32 CFE_ES_CDS_EarlyInit(void)
 
     CDS->LastCDSBlockId = CFE_ES_ResourceID_FromInteger(CFE_ES_CDSBLOCKID_BASE);
 
-    /* Get CDS size from OS BSP */
-    Status = CFE_PSP_GetCDSSize(&CDS->TotalSize);
+    /* Get CDS size from PSP.  Note that the PSP interface
+     * uses "uint32" for size here. */
+    Status = CFE_PSP_GetCDSSize(&PlatformSize);
     if (Status != CFE_PSP_SUCCESS)
     {
         /* Error getting the size of the CDS from the BSP */
@@ -87,7 +89,7 @@ int32 CFE_ES_CDS_EarlyInit(void)
     }
 
     /* Always truncate the size to the nearest 4 byte boundary */
-    CDS->TotalSize &= 0xfffffffc;
+    CDS->TotalSize = PlatformSize & 0xfffffffc;
 
     /* Compute the minimum size required for the CDS with the current configuration of the cFE */
     MinRequiredSize = CDS_RESERVED_MIN_SIZE;
@@ -200,8 +202,7 @@ CFE_ES_CDS_RegRec_t* CFE_ES_LocateCDSBlockRecordByID(CFE_ES_ResourceID_t BlockID
  * NOTE: For complete prolog information, see 'cfe_es_cds.h'
  */
 /*******************************************************************/
-int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache,
-        CFE_ES_CDS_Offset_t Offset, CFE_ES_CDS_Offset_t Size)
+int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size_t Size)
 {
     int32 Status;
 
@@ -269,7 +270,7 @@ int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
  * NOTE: For complete prolog information, see 'cfe_es_cds.h'
  */
 /*******************************************************************/
-int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, CFE_ES_CDS_Offset_t Offset, CFE_ES_CDS_Offset_t Size)
+int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, size_t Offset, size_t Size)
 {
     int32 Status;
 
@@ -305,15 +306,15 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t UserBlockSize, const char *Name, bool CriticalTbl)
+int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name, bool CriticalTbl)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32 Status;
     int32 RegUpdateStatus;
     CFE_ES_CDS_RegRec_t *RegRecPtr;
-    CFE_ES_MemOffset_t BlockOffset;
-    CFE_ES_MemOffset_t OldBlockSize;
-    CFE_ES_MemOffset_t NewBlockSize;
+    size_t BlockOffset;
+    size_t OldBlockSize;
+    size_t NewBlockSize;
     CFE_ES_ResourceID_t PendingBlockId;
     bool IsNewEntry;
     bool IsNewOffset;
@@ -469,8 +470,8 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t Us
 int32 CFE_ES_ValidateCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    CFE_ES_CDS_Offset_t TrailerOffset;
-    const CFE_ES_CDS_Offset_t SIG_CDS_SIZE = { CFE_ES_CDS_SIGNATURE_LEN };
+    size_t TrailerOffset;
+    const size_t SIG_CDS_SIZE = { CFE_ES_CDS_SIGNATURE_LEN };
     int32 Status;
     
     /* Perform 2 checks to validate the CDS Memory Pool */
@@ -519,7 +520,7 @@ int32 CFE_ES_ValidateCDS(void)
 int32 CFE_ES_ClearCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    CFE_ES_CDS_Offset_t RemainSize;
+    size_t RemainSize;
     int32  Status;
 
     /* Clear the CDS to ensure everything is gone */
@@ -564,7 +565,7 @@ int32 CFE_ES_ClearCDS(void)
 int32 CFE_ES_InitCDSSignatures(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    CFE_ES_CDS_Offset_t SigOffset;
+    size_t SigOffset;
     int32  Status;
     
     /* Initialize the Validity Check strings */
@@ -668,7 +669,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceI
 {
     char AppName[OS_MAX_API_NAME];
 
-    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
     /* Ensure that AppName is null terminated */
     AppName[OS_MAX_API_NAME-1] = '\0';
@@ -844,7 +845,7 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
     CFE_ES_ResourceID_t  AppId;
     uint32               i;
     char                 LogMessage[CFE_ES_MAX_SYSLOG_MSG_SIZE];
-    CFE_ES_MemOffset_t    OldBlockSize;
+    size_t               OldBlockSize;
     
     LogMessage[0] = 0;
 

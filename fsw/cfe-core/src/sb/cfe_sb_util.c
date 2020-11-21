@@ -47,7 +47,7 @@
  */
 void CFE_SB_InitMsg(void           *MsgPtr,
                     CFE_SB_MsgId_t MsgId,
-                    uint16         Length,
+                    size_t         Length,
                     bool        Clear )
 {
 
@@ -67,10 +67,9 @@ void CFE_SB_InitMsg(void           *MsgPtr,
 **  Return:
 **     Size of Message Header.
 */
-uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
+size_t CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
 {
-
-    uint16         size = 0;
+    size_t         size = 0;
     bool           hassechdr = false;
     CFE_MSG_Type_t type = CFE_MSG_Type_Invalid;
 
@@ -103,7 +102,7 @@ uint16 CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
 void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
 {
     uint8           *BytePtr;
-    uint16          HdrSize;
+    size_t          HdrSize;
 
     BytePtr = (uint8 *)MsgPtr;
     HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
@@ -115,24 +114,25 @@ void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
 /*
  * Function: CFE_SB_GetUserDataLength - See API and header file for details
  */
-uint16 CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
+size_t CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
 {
-    uint32 TotalMsgSize;
-    uint16 HdrSize;
+    CFE_MSG_Size_t TotalMsgSize;
+    size_t HdrSize;
 
     CFE_MSG_GetSize(MsgPtr, &TotalMsgSize);
     HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
 
-    return (TotalMsgSize - HdrSize);
+    return TotalMsgSize - HdrSize;
 }/* end CFE_SB_GetUserDataLength */
 
 
 /*
  * Function: CFE_SB_SetUserDataLength - See API and header file for details
  */
-void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, uint16 DataLength)
+void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, size_t DataLength)
 {
-    uint32 TotalMsgSize, HdrSize;
+    CFE_MSG_Size_t TotalMsgSize;
+    size_t HdrSize;
 
     HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
     TotalMsgSize = HdrSize + DataLength;
@@ -144,15 +144,14 @@ void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, uint16 DataLength)
 /*
  * Function: CFE_SB_GetTotalMsgLength - See API and header file for details
  */
-uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
+size_t CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 {
 
     CFE_MSG_Size_t size;
 
     CFE_MSG_GetSize(MsgPtr, &size);
 
-    /* Known bug that this API can't return maximum ccsds size */
-    return (uint16)size;
+    return size;
 
 }/* end CFE_SB_GetTotalMsgLength */
 
@@ -160,7 +159,7 @@ uint16 CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 /*
  * Function: CFE_SB_SetTotalMsgLength - See API and header file for details
  */
-void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,uint16 TotalLength)
+void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,size_t TotalLength)
 {
 
     CFE_MSG_SetSize(MsgPtr, TotalLength);
@@ -279,7 +278,7 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 /*
  * Function: CFE_SB_MessageStringGet - See API and header file for details
  */
-int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString, uint32 DestMaxSize, uint32 SourceMaxSize)
+int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString, size_t DestMaxSize, size_t SourceMaxSize)
 {
     int32 Result;
 
@@ -331,7 +330,7 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
 /*
  * Function: CFE_SB_MessageStringSet - See API and header file for details
  */
-int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, uint32 DestMaxSize, uint32 SourceMaxSize)
+int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize, size_t SourceMaxSize)
 {
     int32 Result;
 

@@ -108,13 +108,13 @@
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
-                             const char *TaskName,
-                             CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr,
-                             uint32 *StackPtr,
-                             uint32 StackSize,
-                             uint32 Priority,
-                             uint32 Flags)
+CFE_Status_t  CFE_ES_CreateChildTask(CFE_ES_ResourceID_t             *TaskIdPtr,
+                                     const char                      *TaskName,
+                                     CFE_ES_ChildTaskMainFuncPtr_t    FunctionPtr,
+                                     CFE_ES_StackPointer_t            StackPtr,
+                                     size_t                           StackSize,
+                                     CFE_ES_TaskPriority_Atom_t       Priority,
+                                     uint32                           Flags)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_CreateChildTask), TaskIdPtr);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_CreateChildTask), TaskName);
@@ -157,8 +157,8 @@ int32 CFE_ES_GetAppID(CFE_ES_ResourceID_t *AppIdPtr)
 
     int32 status;
     CFE_ES_ResourceID_t *IdBuff;
-    uint32 BuffSize;
-    uint32 Position;
+    size_t BuffSize;
+    size_t Position;
 
     status = UT_DEFAULT_IMPL(CFE_ES_GetAppID);
 
@@ -189,8 +189,8 @@ int32 CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr)
 
     int32 status;
     CFE_ES_ResourceID_t *IdBuff;
-    uint32 BuffSize;
-    uint32 Position;
+    size_t BuffSize;
+    size_t Position;
 
     status = UT_DEFAULT_IMPL(CFE_ES_GetTaskID);
 
@@ -241,8 +241,8 @@ int32 CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *AppName)
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_GetAppIDByName), AppIdPtr);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_GetAppIDByName), AppName);
 
-    uint32 UserBuffSize;
-    uint32 BuffPosition;
+    size_t UserBuffSize;
+    size_t BuffPosition;
     const char *NameBuff;
     CFE_ES_ResourceID_t *IdBuff;
     int32 status;
@@ -297,14 +297,14 @@ int32 CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *AppName)
 **        Returns CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, uint32 BufferLength)
+CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, size_t BufferLength)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_GetAppName), AppName);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetAppName), AppId);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetAppName), BufferLength);
 
-    uint32 UserBuffSize;
-    uint32 BuffPosition;
+    size_t UserBuffSize;
+    size_t BuffPosition;
     const char *NameBuff;
     int32 status;
 
@@ -451,9 +451,7 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 **        value (0xffffffff if Size exceeds maximum value allowed).
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
-                        CFE_ES_MemHandle_t PoolID,
-                        CFE_ES_MemOffset_t Size)
+int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_GetPoolBuf), BufPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetPoolBuf), PoolID);
@@ -466,9 +464,9 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
         uint8 Bytes[CFE_UT_ES_POOL_STATIC_BLOCK_SIZE];
     } Buffer;
 
-    uint32 PoolSize;
-    uint32 PositionStart;
-    uint32 PositionEnd;
+    size_t PoolSize;
+    size_t PositionStart;
+    size_t PositionEnd;
     void *PoolPtr;
     cpuaddr BufAddrStart;
     cpuaddr BufAddrEnd;
@@ -561,7 +559,7 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr,
 **        Returns either a user-defined status flag or OS_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, CFE_ES_MemOffset_t Size)
+CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreate), PoolID);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreate), MemPtr);
@@ -594,9 +592,7 @@ int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, CFE_ES_MemOff
 **        Returns OS_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID,
-                             uint8 *MemPtr,
-                             CFE_ES_MemOffset_t Size)
+CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateNoSem), PoolID);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateNoSem), MemPtr);
@@ -634,12 +630,12 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID,
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t  *PoolID,
-                          uint8               *MemPtr,
-                          CFE_ES_MemOffset_t   Size,
-                          uint16               NumBlockSizes,
-                          const CFE_ES_MemOffset_t  *BlockSizes,
-                          uint16               UseMutex )
+CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t        *PoolID,
+                                 uint8                     *MemPtr,
+                                 size_t                     Size,
+                                 uint16                     NumBlockSizes,
+                                 const size_t              *BlockSizes,
+                                 bool                       UseMutex )
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateEx), PoolID);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_PoolCreateEx), MemPtr);
@@ -777,10 +773,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-uint32 CFE_ES_CalculateCRC(const void *DataPtr,
-                           uint32 DataLength,
-                           uint32 InputCRC,
-                           uint32 TypeCRC)
+uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, uint32 TypeCRC)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_CalculateCRC), DataPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_CalculateCRC), DataLength);
@@ -889,7 +882,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
 int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 {
     int32   status;
-    uint32  CdsBufferSize;
+    size_t  CdsBufferSize;
 
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_CopyToCDS), Handle);
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_CopyToCDS), DataToCopy);
@@ -931,7 +924,7 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 {
     int32   status;
-    uint32  CdsBufferSize;
+    size_t  CdsBufferSize;
 
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_RestoreFromCDS), RestoreToMemory);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_RestoreFromCDS), Handle);
@@ -971,7 +964,7 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 **
 ******************************************************************************/
 int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr,
-                           CFE_ES_CDS_Offset_t UserBlockSize,
+                           size_t UserBlockSize,
                            const char *Name,
                            bool CriticalTbl)
 {
@@ -1112,7 +1105,7 @@ bool CFE_ES_RunLoop(uint32 *ExitStatus)
     return UT_DEFAULT_IMPL(CFE_ES_RunLoop) != 0;
 }
 
-int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t BlockSize, const char *Name)
+CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, size_t BlockSize, const char *Name)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_RegisterCDS), HandlePtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_RegisterCDS), BlockSize);

@@ -103,7 +103,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
     CFE_ES_GetTaskID(&TskId);
 
     /* get callers name */
-    CFE_ES_GetAppName(AppName, AppId, OS_MAX_API_NAME);
+    CFE_ES_GetAppName(AppName, AppId, sizeof(AppName));
 
     /* Hardcode a NULL terminator, in case rcvd name was too long */
     AppName[OS_MAX_API_NAME-1]= '\0';
@@ -1164,7 +1164,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     CFE_SB_PipeD_t          *PipeDscPtr;
     CFE_SBR_RouteId_t       RouteId;
     CFE_SB_BufferD_t        *BufDscPtr;
-    uint16                  TotalMsgSize;
+    size_t                  TotalMsgSize;
     CFE_ES_ResourceID_t     AppId;
     CFE_ES_ResourceID_t     TskId;
     uint32                  i;
@@ -1294,7 +1294,7 @@ int32  CFE_SB_SendMsgFull(CFE_SB_Msg_t    *MsgPtr,
     /* Copy the packet into the SB memory space */
     if (CopyMode != CFE_SB_SEND_ZEROCOPY){
         /* Copy the packet into the SB memory space */
-        memcpy( BufDscPtr->Buffer, MsgPtr, (uint16)TotalMsgSize );
+        memcpy( BufDscPtr->Buffer, MsgPtr, TotalMsgSize );
     }
 
     /* For Tlm packets, increment the seq count if requested */
@@ -1583,7 +1583,7 @@ int32  CFE_SB_RcvMsg(CFE_SB_MsgPtr_t    *BufPtr,
 /*
  * Function: CFE_SB_ZeroCopyGetPtr - See API and header file for details
  */
-CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(uint16 MsgSize,
+CFE_SB_Msg_t  *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
                                      CFE_SB_ZeroCopyHandle_t *BufferHandle)
 {
    int32                stat1;
@@ -1835,7 +1835,7 @@ int32  CFE_SB_ReadQueue (CFE_SB_PipeD_t         *PipeDscPtr,
                          CFE_SB_BufferD_t       **Message)
 {
     int32              Status,TimeOut;
-    uint32             Nbytes;
+    size_t             Nbytes;
     char               FullName[(OS_MAX_API_NAME * 2)];
     char               PipeName[OS_MAX_API_NAME] = {'\0'};
 

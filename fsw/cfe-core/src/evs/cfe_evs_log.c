@@ -169,7 +169,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data)
     {
         /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
         CFE_SB_MessageStringGet(LogFilename, (const char *)CmdPtr->LogFilename, CFE_PLATFORM_EVS_DEFAULT_LOG_FILE,
-                OS_MAX_PATH_LEN, sizeof(CmdPtr->LogFilename));
+                sizeof(LogFilename), sizeof(CmdPtr->LogFilename));
 
         /* Create the log file */
         Result = OS_OpenCreate(&LogFileHandle, LogFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);

@@ -185,7 +185,7 @@ typedef struct
 typedef struct 
 {
     CFE_ES_ResourceID_t         OwnerAppId;         /**< \brief Application ID of App that Registered Table */
-    uint32                      Size;               /**< \brief Size, in bytes, of Table */
+    size_t                      Size;               /**< \brief Size, in bytes, of Table */
     CFE_SB_MsgId_t              NotificationMsgId;  /**< \brief Message ID of an associated management notification message */
     uint32                      NotificationParam;  /**< \brief Parameter of an associated management notification message */
     CFE_TBL_LoadBuff_t          Buffers[2];         /**< \brief Active and Inactive Buffer Pointers */
@@ -238,7 +238,7 @@ typedef struct
 typedef struct 
 {
     CFE_TBL_DumpState_t       State;          /**< \brief Current state of this block of data */
-    uint32                    Size;           /**< \brief Number of bytes to be dumped */
+    size_t                    Size;           /**< \brief Number of bytes to be dumped */
     CFE_TBL_LoadBuff_t       *DumpBufferPtr;  /**< \brief Address where dumped data is to be stored temporarily */
     CFE_TBL_RegistryRec_t    *RegRecPtr;      /**< \brief Ptr to dumped table's registry record */
     char                      TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being Dumped */
@@ -253,7 +253,7 @@ typedef struct
 */
 typedef struct 
 {
-    uint32                      Size;               /**< \brief Size, in bytes, of Table */
+    CFE_ES_MemOffset_t          Size;               /**< \brief Size, in bytes, of Table */
     CFE_TIME_SysTime_t          TimeOfLastUpdate;   /**< \brief Time when Table was last updated */
     uint32                      NumUsers;           /**< \brief Number of applications that are sharing the table */
     int32                       LoadInProgress;     /**< \brief Flag identifies inactive buffer and whether load in progress */

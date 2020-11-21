@@ -664,8 +664,8 @@ int32 CFE_ES_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
     CFE_ES_TaskData.HkPacket.Payload.CommandCounter = CFE_ES_TaskData.CommandCounter;
     CFE_ES_TaskData.HkPacket.Payload.CommandErrorCounter = CFE_ES_TaskData.CommandErrorCounter;
 
-    CFE_ES_TaskData.HkPacket.Payload.SysLogBytesUsed = CFE_ES_ResetDataPtr->SystemLogEndIdx;
-    CFE_ES_TaskData.HkPacket.Payload.SysLogSize = CFE_PLATFORM_ES_SYSTEM_LOG_SIZE;
+    CFE_ES_TaskData.HkPacket.Payload.SysLogBytesUsed = CFE_ES_MEMOFFSET_C(CFE_ES_ResetDataPtr->SystemLogEndIdx);
+    CFE_ES_TaskData.HkPacket.Payload.SysLogSize = CFE_ES_MEMOFFSET_C(CFE_PLATFORM_ES_SYSTEM_LOG_SIZE);
     CFE_ES_TaskData.HkPacket.Payload.SysLogEntries   = CFE_ES_ResetDataPtr->SystemLogEntryNum;
     CFE_ES_TaskData.HkPacket.Payload.SysLogMode = CFE_ES_ResetDataPtr->SystemLogMode;
 
@@ -729,18 +729,19 @@ int32 CFE_ES_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
 
     stat = OS_HeapGetInfo(&HeapProp);
 
-    if(stat == OS_SUCCESS)
+    /* 
+     * If retrieving info from OSAL was not successful, 
+     * zero out the property struct, so all sizes will
+     * in turn be reported in telemetry as 0.
+     */
+    if(stat != OS_SUCCESS)
     {
-        CFE_ES_TaskData.HkPacket.Payload.HeapBytesFree = HeapProp.free_bytes;
-        CFE_ES_TaskData.HkPacket.Payload.HeapBlocksFree = HeapProp.free_blocks;
-        CFE_ES_TaskData.HkPacket.Payload.HeapMaxBlockSize = HeapProp.largest_free_block;
+        memset(&HeapProp, 0, sizeof(HeapProp));
     }
-    else
-    {
-        CFE_ES_TaskData.HkPacket.Payload.HeapBytesFree = 0;
-        CFE_ES_TaskData.HkPacket.Payload.HeapBlocksFree = 0;
-        CFE_ES_TaskData.HkPacket.Payload.HeapMaxBlockSize = 0;
-    }
+
+    CFE_ES_TaskData.HkPacket.Payload.HeapBytesFree = CFE_ES_MEMOFFSET_C(HeapProp.free_bytes);
+    CFE_ES_TaskData.HkPacket.Payload.HeapBlocksFree = CFE_ES_MEMOFFSET_C(HeapProp.free_blocks);
+    CFE_ES_TaskData.HkPacket.Payload.HeapMaxBlockSize = CFE_ES_MEMOFFSET_C(HeapProp.largest_free_block);
 
     /*
     ** Send housekeeping telemetry packet.
@@ -867,13 +868,13 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data)
 
     /* Create local copies of all input strings and ensure null termination */
     FilenameLen = CFE_SB_MessageStringGet(LocalFile, (char *)cmd->AppFileName, NULL,
-            OS_MAX_PATH_LEN, sizeof(cmd->AppFileName));
+            sizeof(LocalFile), sizeof(cmd->AppFileName));
 
     AppEntryLen = CFE_SB_MessageStringGet(LocalEntryPt, (char *)cmd->AppEntryPoint, NULL,
-            OS_MAX_API_NAME, sizeof(cmd->AppEntryPoint));
+            sizeof(LocalEntryPt), sizeof(cmd->AppEntryPoint));
 
     AppNameLen = CFE_SB_MessageStringGet(LocalAppName, (char *)cmd->Application, NULL,
-            OS_MAX_API_NAME, sizeof(cmd->Application));
+            sizeof(LocalAppName), sizeof(cmd->Application));
 
     /*
     ** Verify command parameters
@@ -968,7 +969,8 @@ int32 CFE_ES_StopAppCmd(const CFE_ES_StopApp_t *data)
     CFE_ES_ResourceID_t AppID;
     int32 Result;
 
-    CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, OS_MAX_API_NAME, sizeof(cmd->Application));
+    CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL,
+            sizeof(LocalApp), sizeof(cmd->Application));
 
     Result = CFE_ES_GetAppIDByName(&AppID, LocalApp);
 
@@ -1021,7 +1023,8 @@ int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartApp_t *data)
     CFE_ES_ResourceID_t AppID;
     int32 Result;
 
-    CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, OS_MAX_API_NAME, sizeof(cmd->Application));
+    CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL,
+            sizeof(LocalApp), sizeof(cmd->Application));
 
     Result = CFE_ES_GetAppIDByName(&AppID, LocalApp);
 
@@ -1071,8 +1074,10 @@ int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadApp_t *data)
     CFE_ES_ResourceID_t  AppID;
     int32   Result;
 
-    CFE_SB_MessageStringGet(LocalFileName, (char *)cmd->AppFileName, NULL, sizeof(LocalFileName), sizeof(cmd->AppFileName));
-    CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, sizeof(LocalApp), sizeof(cmd->Application));
+    CFE_SB_MessageStringGet(LocalFileName, (char *)cmd->AppFileName, NULL,
+            sizeof(LocalFileName), sizeof(cmd->AppFileName));
+    CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL,
+            sizeof(LocalApp), sizeof(cmd->Application));
 
     Result = CFE_ES_GetAppIDByName(&AppID, LocalApp);
 
@@ -1122,7 +1127,8 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data)
     CFE_ES_ResourceID_t ResourceID;
     int32 Result;
 
-    CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, OS_MAX_API_NAME, sizeof(cmd->Application));
+    CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL,
+            sizeof(LocalApp), sizeof(cmd->Application));
 
     Result = CFE_ES_GetAppIDByName(&ResourceID, LocalApp);
     if (Result == CFE_ES_ERR_NAME_NOT_FOUND)
@@ -1196,8 +1202,8 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
     /*
     ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
     */
-    CFE_SB_MessageStringGet(QueryAllFilename, (char *)CmdPtr->FileName,
-            CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE, OS_MAX_PATH_LEN, sizeof(CmdPtr->FileName));
+    CFE_SB_MessageStringGet(QueryAllFilename, (char *)CmdPtr->FileName, CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE,
+            sizeof(QueryAllFilename), sizeof(CmdPtr->FileName));
 
     /*
      * Collect list of active resource IDs.
@@ -1354,8 +1360,8 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
     /*
     ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
     */
-    CFE_SB_MessageStringGet(QueryAllFilename, (char *)CmdPtr->FileName,
-            CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE, OS_MAX_PATH_LEN, sizeof(CmdPtr->FileName));
+    CFE_SB_MessageStringGet(QueryAllFilename, (char *)CmdPtr->FileName, CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE,
+            sizeof(QueryAllFilename), sizeof(CmdPtr->FileName));
 
     /*
      * Collect list of active task IDs.
@@ -1548,8 +1554,8 @@ int32 CFE_ES_WriteSyslogCmd(const CFE_ES_WriteSyslog_t *data)
     int32                     Stat;
     char                      LogFilename[OS_MAX_PATH_LEN];
 
-    CFE_SB_MessageStringGet(LogFilename, (char *)CmdPtr->FileName,
-            CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE, OS_MAX_PATH_LEN, sizeof(CmdPtr->FileName));
+    CFE_SB_MessageStringGet(LogFilename, (char *)CmdPtr->FileName, CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE,
+            sizeof(LogFilename), sizeof(CmdPtr->FileName));
 
     Stat = CFE_ES_SysLogDump(LogFilename);
 
@@ -1641,10 +1647,10 @@ int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLog_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-bool CFE_ES_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, uint16 ExpectedLength)
+bool CFE_ES_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, size_t ExpectedLength)
 {
     bool result       = true;
-    uint16  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
+    size_t  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
 
     /*
      ** Verify the command packet length
@@ -1730,7 +1736,7 @@ int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDS_t *data)
     char LocalCdsName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
 
     CFE_SB_MessageStringGet(LocalCdsName, (char *)cmd->CdsName, NULL,
-            CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN, sizeof(cmd->CdsName));
+            sizeof(LocalCdsName), sizeof(cmd->CdsName));
 
     Status = CFE_ES_DeleteCDS(LocalCdsName, false);
 
@@ -1847,7 +1853,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
 
     /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
     CFE_SB_MessageStringGet(DumpFilename, CmdPtr->DumpFilename, CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE,
-            OS_MAX_PATH_LEN, sizeof(CmdPtr->DumpFilename));
+            sizeof(DumpFilename), sizeof(CmdPtr->DumpFilename));
 
     /* Create a new dump file, overwriting anything that may have existed previously */
     Status = OS_OpenCreate(&FileDescriptor, DumpFilename,
@@ -1875,7 +1881,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
                 {
                     /* Fill CDS Registry Dump Record with relevant information */
                     memset(&DumpRecord, 0, sizeof(DumpRecord));
-                    DumpRecord.Size             = CFE_ES_CDSBlockRecordGetUserSize(RegRecPtr);
+                    DumpRecord.Size             = CFE_ES_MEMOFFSET_C(CFE_ES_CDSBlockRecordGetUserSize(RegRecPtr));
                     DumpRecord.Handle           = CFE_ES_CDSBlockRecordGetID(RegRecPtr);
                     DumpRecord.Table            = RegRecPtr->Table;
                     strncpy(DumpRecord.Name, RegRecPtr->Name, sizeof(DumpRecord.Name)-1);
@@ -1949,7 +1955,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
 /*                                a byte count discrepancy has been*/
 /*                                detected during the file write   */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void CFE_ES_FileWriteByteCntErr(const char *Filename,uint32 Requested,uint32 Actual)
+void CFE_ES_FileWriteByteCntErr(const char *Filename,size_t Requested,size_t Actual)
 {
 
     CFE_EVS_SendEvent(CFE_ES_FILEWRITE_ERR_EID,CFE_EVS_EventType_ERROR,

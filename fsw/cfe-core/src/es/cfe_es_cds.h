@@ -89,9 +89,12 @@
 /*
  * Absolute Maximum Block size conceivably supportable by the implementation.
  * User-defined platform limits (in cfe_platform_cfg.h) may be lower,
- * but this is a hard limit to avoid overflow of CFE_ES_CDS_Offset_t.
+ * but this is a hard limit to avoid overflow of a 32 bit integer.
+ *
+ * This ensures the size is safe for a PSP that uses 32 bit CDS offsets.
+ * (It is not anticipated that a CDS would need to exceed this size)
  */
-#define CDS_ABS_MAX_BLOCK_SIZE  ((1 << ((8 * sizeof(CFE_ES_CDS_Offset_t))-2)) - sizeof(CFE_ES_CDS_BlockHeader_t))
+#define CDS_ABS_MAX_BLOCK_SIZE  ((size_t)(1 << 30) - sizeof(CFE_ES_CDS_BlockHeader_t))
 
 
 
@@ -113,8 +116,8 @@ typedef struct
      * less than this.
      */
     CFE_ES_ResourceID_t       BlockID;      /**< Abstract ID associated with this CDS block */
-    CFE_ES_CDS_Offset_t       BlockOffset;  /**< Start offset of the block in CDS memory */
-    CFE_ES_CDS_Offset_t       BlockSize;    /**< Size, in bytes, of the CDS memory block */
+    size_t                    BlockOffset;  /**< Start offset of the block in CDS memory */
+    size_t                    BlockSize;    /**< Size, in bytes, of the CDS memory block */
     char                      Name[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
     bool                      Table;        /**< \brief Flag that indicates whether CDS contains a Critical Table */
 } CFE_ES_CDS_RegRec_t;
@@ -140,10 +143,10 @@ typedef union CFE_ES_CDS_AccessCacheData
 
 typedef struct CFE_ES_CDS_AccessCache
 {
-    CFE_ES_CDS_AccessCacheData_t Data;  /**< Cached data (varies in size) */
-    CFE_ES_CDS_Offset_t   Offset;  /**< The offset where Data is cached from */
-    CFE_ES_CDS_Offset_t   Size;    /**< The size of cached Data */
-    int32                 AccessStatus; /**< The PSP status of the last read/write from CDS memory */
+    CFE_ES_CDS_AccessCacheData_t Data;         /**< Cached data (varies in size) */
+    size_t                       Offset;       /**< The offset where Data is cached from */
+    size_t                       Size;         /**< The size of cached Data */
+    int32                        AccessStatus; /**< The PSP status of the last read/write from CDS memory */
 } CFE_ES_CDS_AccessCache_t;
 
 /**
@@ -168,8 +171,8 @@ typedef struct
     CFE_ES_CDS_AccessCache_t Cache;
 
     osal_id_t            GenMutex;                           /**< \brief Mutex that controls access to CDS and registry */
-    CFE_ES_CDS_Offset_t  TotalSize;                          /**< \brief Total size of the CDS as reported by BSP */
-    CFE_ES_CDS_Offset_t  DataSize;                           /**< \brief Size of actual user data pool */
+    size_t               TotalSize;                          /**< \brief Total size of the CDS as reported by BSP */
+    size_t               DataSize;                           /**< \brief Size of actual user data pool */
     CFE_ES_ResourceID_t  LastCDSBlockId;                     /**< \brief Last issued CDS block ID */
     CFE_ES_CDS_RegRec_t  Registry[CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES];  /**< \brief CDS Registry (Local Copy) */
 } CFE_ES_CDS_Instance_t;
@@ -221,7 +224,7 @@ typedef struct CFE_ES_CDS_PersistentTrailer
  * @returns #CFE_SUCCESS on success, or appropriate error code.
  */
 int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache,
-        CFE_ES_CDS_Offset_t Offset, CFE_ES_CDS_Offset_t Size);
+        size_t Offset, size_t Size);
 
 
 /**
@@ -264,7 +267,7 @@ int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache);
  * @returns #CFE_SUCCESS on success, or appropriate error code.
  */
 int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source,
-        CFE_ES_CDS_Offset_t Offset, CFE_ES_CDS_Offset_t Size);
+        size_t Offset, size_t Size);
 
 /**
  * @brief Get the registry array index correlating with a CDS block ID
@@ -383,7 +386,7 @@ static inline bool CFE_ES_CDSBlockRecordIsMatch(const CFE_ES_CDS_RegRec_t *CDSBl
  * @param[in]   CDSBlockRecPtr   pointer to registry table entry
  * @returns     Usable size of the CDS
  */
-static inline CFE_ES_MemOffset_t CFE_ES_CDSBlockRecordGetUserSize(const CFE_ES_CDS_RegRec_t *CDSBlockRecPtr)
+static inline size_t CFE_ES_CDSBlockRecordGetUserSize(const CFE_ES_CDS_RegRec_t *CDSBlockRecPtr)
 {
     return (CDSBlockRecPtr->BlockSize - sizeof(CFE_ES_CDS_BlockHeader_t));
 }

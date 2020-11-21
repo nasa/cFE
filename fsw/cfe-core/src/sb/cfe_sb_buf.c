@@ -57,7 +57,7 @@
 **    could not be allocated.
 */
 
-CFE_SB_BufferD_t * CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, uint16 Size) {
+CFE_SB_BufferD_t * CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, size_t Size) {
    int32                stat1;
    uint8               *address = NULL;
    CFE_SB_BufferD_t    *bd = NULL;
