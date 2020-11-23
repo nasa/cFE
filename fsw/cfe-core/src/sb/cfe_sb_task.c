@@ -224,20 +224,17 @@ int32 CFE_SB_AppInit(void){
     
     CFE_ES_WriteToSysLog("SB:Registered %d events for filtering\n",(int)CfgFileEventsToFilter);
 
-    CFE_SB_InitMsg(&CFE_SB.HKTlmMsg,
-                   CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID),
-                   sizeof(CFE_SB.HKTlmMsg),
-                   true);
+    CFE_MSG_Init(&CFE_SB.HKTlmMsg.Hdr.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID),
+                 sizeof(CFE_SB.HKTlmMsg));
 
-    CFE_SB_InitMsg(&CFE_SB.PrevSubMsg,
-                   CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID),
-                   sizeof(CFE_SB.PrevSubMsg),
-                   true);
+    CFE_MSG_Init(&CFE_SB.PrevSubMsg.Hdr.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID),
+                 sizeof(CFE_SB.PrevSubMsg));
 
-    CFE_SB_InitMsg(&CFE_SB.SubRprtMsg,
-                   CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID),
-                   sizeof(CFE_SB.SubRprtMsg),
-                   true);    
+    CFE_MSG_Init(&CFE_SB.SubRprtMsg.Hdr.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID),
+                 sizeof(CFE_SB.SubRprtMsg));
 
     /* Populate the fixed fields in the HK Tlm Msg */
     CFE_SB.HKTlmMsg.Payload.MemPoolHandle = CFE_SB.Mem.PoolHdl;
@@ -323,23 +320,27 @@ int32 CFE_SB_AppInit(void){
 **  Return:
 **    true if length is acceptable
 */
-bool CFE_SB_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, size_t ExpectedLength)
+bool CFE_SB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 {
-    bool result       = true;
-    size_t  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
+    bool              result       = true;
+    CFE_MSG_Size_t    ActualLength = 0;
+    CFE_MSG_FcnCode_t FcnCode      = 0;
+    CFE_SB_MsgId_t    MsgId        = CFE_SB_INVALID_MSG_ID;
+
+    CFE_MSG_GetSize(MsgPtr, &ActualLength);
 
     /*
     ** Verify the command packet length
     */
     if (ExpectedLength != ActualLength)
     {
-        CFE_SB_MsgId_t MessageID = CFE_SB_GetMsgId(Msg);
-        uint16 CommandCode = CFE_SB_GetCmdCode(Msg);
+        CFE_MSG_GetMsgId(MsgPtr, &MsgId);
+        CFE_MSG_GetFcnCode(MsgPtr, &FcnCode);
 
         CFE_EVS_SendEvent(CFE_SB_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                "Invalid cmd length: ID = 0x%X, CC = %d, Exp Len = %d, Len = %d",
-                (unsigned int)CFE_SB_MsgIdToValue(MessageID), (int)CommandCode,
-                (int)ExpectedLength, (int)ActualLength);
+                          "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
+                          (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode,
+                          (unsigned int)ActualLength, (unsigned int)ExpectedLength);
         result = false;
         ++CFE_SB.HKTlmMsg.Payload.CommandErrorCounter;
     }
@@ -363,9 +364,10 @@ bool CFE_SB_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, size_t ExpectedLength)
 **    none
 */
 void CFE_SB_ProcessCmdPipePkt(void) {
-   CFE_SB_MsgId_t MessageID;
+   CFE_SB_MsgId_t MessageID = CFE_SB_INVALID_MSG_ID;
+   CFE_MSG_FcnCode_t FcnCode = 0;
 
-   MessageID = CFE_SB_GetMsgId(CFE_SB.CmdPipePktPtr);
+   CFE_MSG_GetMsgId(CFE_SB.CmdPipePktPtr, &MessageID);
 
    switch(CFE_SB_MsgIdToValue(MessageID)){
 
@@ -376,7 +378,8 @@ void CFE_SB_ProcessCmdPipePkt(void) {
 
       case CFE_SB_SUB_RPT_CTRL_MID:
          /* Note: Command counter not incremented for this command */
-         switch (CFE_SB_GetCmdCode(CFE_SB.CmdPipePktPtr)) {
+         CFE_MSG_GetFcnCode(CFE_SB.CmdPipePktPtr, &FcnCode);
+         switch (FcnCode) {
             case CFE_SB_SEND_PREV_SUBS_CC:
                 if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_SendPrevSubs_t)))
                 {
@@ -400,15 +403,15 @@ void CFE_SB_ProcessCmdPipePkt(void) {
 
             default:
                CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID,CFE_EVS_EventType_ERROR,
-                     "Invalid Cmd, Unexpected Command Code %d",
-                     (int)CFE_SB_GetCmdCode(CFE_SB.CmdPipePktPtr));
+                     "Invalid Cmd, Unexpected Command Code %u", (unsigned int)FcnCode);
                CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
                break;
          } /* end switch on cmd code */
          break;
 
       case CFE_SB_CMD_MID:
-         switch (CFE_SB_GetCmdCode(CFE_SB.CmdPipePktPtr)) {
+         CFE_MSG_GetFcnCode(CFE_SB.CmdPipePktPtr, &FcnCode);
+         switch (FcnCode) {
             case CFE_SB_NOOP_CC:
                 if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_Noop_t)))
                 {
@@ -468,8 +471,7 @@ void CFE_SB_ProcessCmdPipePkt(void) {
 
             default:
                CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID,CFE_EVS_EventType_ERROR,
-                     "Invalid Cmd, Unexpected Command Code %d",
-                     (int)CFE_SB_GetCmdCode(CFE_SB.CmdPipePktPtr));
+                     "Invalid Cmd, Unexpected Command Code %u", FcnCode);
                CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
                break;
          } /* end switch on cmd code */
@@ -477,7 +479,7 @@ void CFE_SB_ProcessCmdPipePkt(void) {
 
          default:
             CFE_EVS_SendEvent(CFE_SB_BAD_MSGID_EID,CFE_EVS_EventType_ERROR,
-                  "Invalid Cmd, Unexpected Msg Id: 0x%04x",
+                  "Invalid Cmd, Unexpected Msg Id: 0x%x",
                   (unsigned int)CFE_SB_MsgIdToValue(MessageID));
             CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
             break;
@@ -568,8 +570,8 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_SB_CmdHdr_t *data)
     CFE_SB.HKTlmMsg.Payload.MemInUse        = CFE_SB.StatTlmMsg.Payload.MemInUse;
     CFE_SB.HKTlmMsg.Payload.UnmarkedMem     = CFE_PLATFORM_SB_BUF_MEMORY_BYTES - CFE_SB.StatTlmMsg.Payload.PeakMemInUse;
     
-    CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &CFE_SB.HKTlmMsg);
-    CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.HKTlmMsg);
+    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_SB.HKTlmMsg);
+    CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.HKTlmMsg);
 
     return CFE_SUCCESS;
 }/* end CFE_SB_SendHKTlmCmd */
@@ -750,8 +752,8 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRoute_t *data)
 int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStats_t *data)
 {
 
-    CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &CFE_SB.StatTlmMsg);
-    CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.StatTlmMsg);
+    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_SB.StatTlmMsg);
+    CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.StatTlmMsg);
 
     CFE_EVS_SendEvent(CFE_SB_SND_STATS_EID,CFE_EVS_EventType_DEBUG,
                       "Software Bus Statistics packet sent");
@@ -1158,7 +1160,7 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
             if(CFE_SB.PrevSubMsg.Payload.Entries >= CFE_SB_SUB_ENTRIES_PER_PKT)
             {
                 CFE_SB_UnlockSharedData(__func__,__LINE__);
-                status = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.PrevSubMsg);
+                status = CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.PrevSubMsg);
                 CFE_EVS_SendEvent(CFE_SB_FULL_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
                                   "Full Sub Pkt %d Sent,Entries=%d,Stat=0x%x\n",
                                   (int)CFE_SB.PrevSubMsg.Payload.PktSegment,
@@ -1216,7 +1218,7 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubs_t *data)
     /* if pkt has any number of entries, send it as a partial pkt */
     if(CFE_SB.PrevSubMsg.Payload.Entries > 0)
     {
-        status = CFE_SB_SendMsg((CFE_SB_Msg_t *)&CFE_SB.PrevSubMsg);
+        status = CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.PrevSubMsg);
         CFE_EVS_SendEvent(CFE_SB_PART_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
                           "Partial Sub Pkt %d Sent,Entries=%d,Stat=0x%x",
                           (int)CFE_SB.PrevSubMsg.Payload.PktSegment, (int)CFE_SB.PrevSubMsg.Payload.Entries,

@@ -183,8 +183,8 @@ typedef struct
   /*
   ** Task operational data (not reported in housekeeping)...
   */
-  CFE_SB_MsgPtr_t       MsgPtr;
-  CFE_SB_PipeId_t       CmdPipe;
+  CFE_MSG_Message_t *MsgPtr;
+  CFE_SB_PipeId_t    CmdPipe;
 
   /*
   ** Task initialization data (not reported in housekeeping)...
@@ -349,7 +349,7 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void);
 ** Function prototypes (Time Services utilities data)...
 */
 int32 CFE_TIME_TaskInit (void);
-void  CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr);
+void  CFE_TIME_TaskPipe(CFE_MSG_Message_t *MsgPtr);
 void CFE_TIME_InitData(void);
 void CFE_TIME_QueryResetVars(void);
 void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference);

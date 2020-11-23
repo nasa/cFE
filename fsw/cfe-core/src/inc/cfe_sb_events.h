@@ -713,8 +713,8 @@
 **/
 #define CFE_SB_BAD_CMD_CODE_EID         42
 
-/** \brief <tt> 'Invalid Cmd, Unexpected Msg Id: 0x\%04x' </tt>
-**  \event <tt> 'Invalid Cmd, Unexpected Msg Id: 0x\%04x' </tt>
+/** \brief <tt> 'Invalid Cmd, Unexpected Msg Id: 0x\%x' </tt>
+**  \event <tt> 'Invalid Cmd, Unexpected Msg Id: 0x\%x' </tt>
 **
 **  \par Type: ERROR
 **

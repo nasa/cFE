@@ -120,8 +120,8 @@ typedef struct
   /*
   ** ES Task operational data (not reported in housekeeping)
   */
-  CFE_SB_MsgPtr_t       MsgPtr;
-  CFE_SB_PipeId_t       CmdPipe;
+  CFE_MSG_Message_t *MsgPtr;
+  CFE_SB_PipeId_t    CmdPipe;
 
   /*
   ** ES Task initialization data (not reported in housekeeping)
@@ -160,7 +160,7 @@ extern CFE_ES_TaskData_t CFE_ES_TaskData;
 */
 void  CFE_ES_TaskMain(void);
 int32 CFE_ES_TaskInit(void);
-void  CFE_ES_TaskPipe(CFE_SB_MsgPtr_t Msg);
+void  CFE_ES_TaskPipe(CFE_MSG_Message_t *MsgPtr);
 
 
 /*
@@ -204,7 +204,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data);
 ** Message Handler Helper Functions
 */
 bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t  Handle);
-bool CFE_ES_VerifyCmdLength(CFE_SB_MsgPtr_t msg, size_t ExpectedLength);
+bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
 void CFE_ES_FileWriteByteCntErr(const char *Filename,size_t Requested,size_t Actual);
 
 /*************************************************************************/

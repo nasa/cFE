@@ -34,10 +34,11 @@
 #include "cfe_sb_priv.h"
 #include "cfe_msg_api.h"
 
+#ifndef CFE_OMIT_DEPRECATED_6_8
 /*
  * Function: CFE_SB_GetMsgId - See API and header file for details
  */
-CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
+CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_MSG_Message_t *MsgPtr)
 {
    CFE_SB_MsgId_t MsgId;
 
@@ -52,7 +53,7 @@ CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_SB_Msg_t *MsgPtr)
 /*
  * Function: CFE_SB_SetMsgId - See API and header file for details
  */
-void CFE_SB_SetMsgId(CFE_SB_MsgPtr_t MsgPtr,
+void CFE_SB_SetMsgId(CFE_MSG_Message_t *MsgPtr,
                      CFE_SB_MsgId_t MsgId)
 {
 
@@ -75,6 +76,7 @@ uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
   return type;
 
 }/* end CFE_SB_GetPktType */
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /*
  * Function: CFE_SB_IsValidMsgId - See API and header file for details

@@ -388,48 +388,48 @@ void CFE_TIME_InitData(void)
     /*
     ** Initialize housekeeping packet (clear user data area)...
     */
-    CFE_SB_InitMsg(&CFE_TIME_TaskData.HkPacket,
-                    CFE_SB_ValueToMsgId(CFE_TIME_HK_TLM_MID),
-                    sizeof(CFE_TIME_TaskData.HkPacket), true);
+    CFE_MSG_Init(&CFE_TIME_TaskData.HkPacket.TlmHeader.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_TIME_HK_TLM_MID),
+                 sizeof(CFE_TIME_TaskData.HkPacket));
 
     /*
     ** Initialize diagnostic packet (clear user data area)...
     */
-    CFE_SB_InitMsg(&CFE_TIME_TaskData.DiagPacket,
-                    CFE_SB_ValueToMsgId(CFE_TIME_DIAG_TLM_MID),
-                    sizeof(CFE_TIME_TaskData.DiagPacket), true);
+    CFE_MSG_Init(&CFE_TIME_TaskData.DiagPacket.TlmHeader.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_TIME_DIAG_TLM_MID),
+                 sizeof(CFE_TIME_TaskData.DiagPacket));
 
     /*
     ** Initialize "time at the tone" signal command packet...
     */
-    CFE_SB_InitMsg(&CFE_TIME_TaskData.ToneSignalCmd,
-                    CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
-                    sizeof(CFE_TIME_TaskData.ToneSignalCmd), true);
+    CFE_MSG_Init(&CFE_TIME_TaskData.ToneSignalCmd.CmdHeader.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
+                 sizeof(CFE_TIME_TaskData.ToneSignalCmd));
 
     /*
     ** Initialize "time at the tone" data command packet...
     */
     #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    CFE_SB_InitMsg(&CFE_TIME_TaskData.ToneDataCmd,
-                    CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
-                    sizeof(CFE_TIME_TaskData.ToneDataCmd), true);
+    CFE_MSG_Init((CFE_MSG_Message_t *)&CFE_TIME_TaskData.ToneDataCmd,
+                 CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
+                 sizeof(CFE_TIME_TaskData.ToneDataCmd));
     #endif
 
     /*
     ** Initialize simulated tone send message ("fake tone" mode only)...
     */
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
-    CFE_SB_InitMsg(&CFE_TIME_TaskData.ToneSendCmd,
-                    CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID),
-                    sizeof(CFE_TIME_TaskData.ToneSendCmd), true);
+    CFE_MSG_Init(&CFE_TIME_TaskData.ToneSendCmd.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID),
+                 sizeof(CFE_TIME_TaskData.ToneSendCmd));
 #endif
 
     /*
     ** Initialize local 1Hz "wake-up" command packet (optional)...
     */
-    CFE_SB_InitMsg(&CFE_TIME_TaskData.Local1HzCmd,
+    CFE_MSG_Init((CFE_MSG_Message_t *)&CFE_TIME_TaskData.Local1HzCmd,
                     CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
-                    sizeof(CFE_TIME_TaskData.Local1HzCmd), true);
+                    sizeof(CFE_TIME_TaskData.Local1HzCmd));
 
     return;
 

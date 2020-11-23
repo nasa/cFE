@@ -74,7 +74,7 @@ typedef struct {
 } SB_UT_Test_Tlm_t;
 
 typedef struct {
-     CFE_SB_Msg_t Pri; /* 6 bytes */
+     CFE_MSG_Message_t Pri; /* 6 bytes */
      uint8        Tlm8Param1;
      uint8        Tlm8Param2;
      uint32       Tlm32Param1;
@@ -99,9 +99,6 @@ typedef struct {
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #UT_CheckForOpenSockets, #UT_InitData, #CFE_SB_EarlyInit
-**
 ******************************************************************************/
 void SB_ResetUnitTest(void);
 
@@ -117,9 +114,6 @@ void SB_ResetUnitTest(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_SB_AppInit, #Test_SB_MainRoutine, #Test_SB_Cmds
-**
 ******************************************************************************/
 void Test_SB_App(void);
 
@@ -137,12 +131,6 @@ void Test_SB_App(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_SB_AppInit_ESRegFail(), #Test_SB_AppInit_EVSRegFail(),
-** \sa #Test_SB_AppInit_EVSSendEvtFail(), #Test_SB_AppInit_CrPipeFail(),
-** \sa #Test_SB_AppInit_Sub1Fail(), #Test_SB_AppInit_Sub2Fail(),
-** \sa #Test_SB_AppInit_GetPoolFail(), #Test_SB_AppInit_PutPoolFail()
-**
 ******************************************************************************/
 void Test_SB_AppInit(void);
 
@@ -158,10 +146,6 @@ void Test_SB_AppInit(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_AppInit,
-** \sa #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_AppInit_ESRegFail(void);
 
@@ -177,10 +161,6 @@ void Test_SB_AppInit_ESRegFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_AppInit,
-** \sa #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_AppInit_EVSRegFail(void);
 
@@ -197,10 +177,6 @@ void Test_SB_AppInit_EVSRegFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_AppInit,
-** \sa #UT_GetNumEventsSent, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_AppInit_EVSSendEvtFail(void);
 
@@ -216,10 +192,6 @@ void Test_SB_AppInit_EVSSendEvtFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_AppInit, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_AppInit_CrPipeFail(void);
 
@@ -236,11 +208,6 @@ void Test_SB_AppInit_CrPipeFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_AppInit,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_AppInit_Sub1Fail(void);
 
@@ -257,11 +224,6 @@ void Test_SB_AppInit_Sub1Fail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_AppInit,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_AppInit_Sub2Fail(void);
 
@@ -277,10 +239,6 @@ void Test_SB_AppInit_Sub2Fail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_AppInit,
-** \sa #UT_GetNumEventsSent, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_AppInit_GetPoolFail(void);
 
@@ -296,10 +254,6 @@ void Test_SB_AppInit_GetPoolFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_AppInit,
-** \sa #UT_GetNumEventsSent, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_AppInit_PutPoolFail(void);
 
@@ -315,9 +269,6 @@ void Test_SB_AppInit_PutPoolFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_SB_Main_RcvErr, #Test_SB_Main_InitErr
-**
 ******************************************************************************/
 void Test_SB_MainRoutine(void);
 
@@ -333,11 +284,6 @@ void Test_SB_MainRoutine(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_TaskMain,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Main_RcvErr(void);
 
@@ -354,10 +300,6 @@ void Test_SB_Main_RcvErr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_TaskMain,
-** \sa #UT_GetNumEventsSent, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Main_InitErr(void);
 
@@ -373,29 +315,6 @@ void Test_SB_Main_InitErr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_SB_Cmds_Noop(), #Test_SB_Cmds_RstCtrs(),
-** \sa #Test_SB_Cmds_Stats(), #Test_SB_Cmds_RoutingInfoDef(),
-** \sa #Test_SB_Cmds_RoutingInfoSpec(), #Test_SB_Cmds_RoutingInfoCreateFail(),
-** \sa #Test_SB_Cmds_PipeOpts(),
-** \sa #Test_SB_Cmds_GetPipeName(),
-** \sa #Test_SB_Cmds_GetPipeIdByName(),
-** \sa #Test_SB_Cmds_RoutingInfoHdrFail(),
-** \sa #Test_SB_Cmds_RoutingInfoWriteFail(), #Test_SB_Cmds_PipeInfoDef(),
-** \sa #Test_SB_Cmds_PipeInfoSpec(), #Test_SB_Cmds_PipeInfoCreateFail(),
-** \sa #Test_SB_Cmds_PipeInfoHdrFail(), #Test_SB_Cmds_PipeInfoWriteFail(),
-** \sa #Test_SB_Cmds_MapInfoDef(), #Test_SB_Cmds_MapInfoSpec(),
-** \sa #Test_SB_Cmds_MapInfoCreateFail(), #Test_SB_Cmds_MapInfoHdrFail(),
-** \sa #Test_SB_Cmds_MapInfoWriteFail(), #Test_SB_Cmds_EnRouteValParam(),
-** \sa #Test_SB_Cmds_EnRouteNonExist(), #Test_SB_Cmds_EnRouteInvParam(),
-** \sa #Test_SB_Cmds_EnRouteInvParam2(), #Test_SB_Cmds_EnRouteInvParam3(),
-** \sa #Test_SB_Cmds_DisRouteValParam(), #Test_SB_Cmds_DisRouteNonExist(),
-** \sa #Test_SB_Cmds_DisRouteInvParam(), #Test_SB_Cmds_DisRouteInvParam2(),
-** \sa #Test_SB_Cmds_DisRouteInvParam3(), #Test_SB_Cmds_SendHK(),
-** \sa #Test_SB_Cmds_SendPrevSubs(), #Test_SB_Cmds_SubRptOn(),
-** \sa #Test_SB_Cmds_SubRptOff(), #Test_SB_Cmds_UnexpCmdCode(),
-** \sa #Test_SB_Cmds_UnexpMsgId()
-**
 ******************************************************************************/
 void Test_SB_Cmds(void);
 
@@ -411,11 +330,6 @@ void Test_SB_Cmds(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_Noop(void);
 
@@ -431,11 +345,6 @@ void Test_SB_Cmds_Noop(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_RstCtrs(void);
 
@@ -451,11 +360,6 @@ void Test_SB_Cmds_RstCtrs(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_Stats(void);
 
@@ -472,11 +376,6 @@ void Test_SB_Cmds_Stats(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_AppInit, #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_RoutingInfoDef(void);
 
@@ -493,11 +392,6 @@ void Test_SB_Cmds_RoutingInfoDef(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_RoutingInfoSpec(void);
 
@@ -514,11 +408,6 @@ void Test_SB_Cmds_RoutingInfoSpec(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #UT_SetOSFail, #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_RoutingInfoCreateFail(void);
 
@@ -534,12 +423,6 @@ void Test_SB_Cmds_RoutingInfoCreateFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_SetPipeOpts_BadID, #Test_SetPipeOpts_NotOwner,
-** \sa #Test_SetPipeOpts,
-** \sa #Test_GetPipeOpts_BadID, #Test_GetPipeOpts_BadPtr,
-** \sa #Test_GetPipeOpts
-**
 ******************************************************************************/
 void Test_PipeOpts_API(void);
 
@@ -556,11 +439,6 @@ void Test_PipeOpts_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #UT_SetOSFail, #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SetPipeOpts_BadID(void);
 
@@ -577,11 +455,6 @@ void Test_SetPipeOpts_BadID(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #UT_SetOSFail, #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SetPipeOpts_NotOwner(void);
 
@@ -598,11 +471,6 @@ void Test_SetPipeOpts_NotOwner(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #UT_SetOSFail, #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SetPipeOpts(void);
 
@@ -619,11 +487,6 @@ void Test_SetPipeOpts(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #UT_SetOSFail, #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_GetPipeOpts_BadID(void);
 
@@ -640,11 +503,6 @@ void Test_GetPipeOpts_BadID(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #UT_SetOSFail, #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_GetPipeOpts_BadPtr(void);
 
@@ -661,11 +519,6 @@ void Test_GetPipeOpts_BadPtr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SetCmdCode,
-** \sa #UT_SetOSFail, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_GetPipeOpts(void);
 
@@ -681,9 +534,6 @@ void Test_GetPipeOpts(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_GetPipeName
-**
 ******************************************************************************/
 void Test_GetPipeName_API(void);
 
@@ -700,10 +550,6 @@ void Test_GetPipeName_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_GetPipeName_NullPtr(void);
 
@@ -720,10 +566,6 @@ void Test_GetPipeName_NullPtr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_GetPipeName_InvalidId(void);
 
@@ -740,11 +582,6 @@ void Test_GetPipeName_InvalidId(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SetCmdCode,
-** \sa #UT_SetOSFail, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_GetPipeName(void);
 
@@ -760,9 +597,6 @@ void Test_GetPipeName(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_GetPipeIdByName
-**
 ******************************************************************************/
 void Test_GetPipeIdByName_API(void);
 
@@ -779,10 +613,6 @@ void Test_GetPipeIdByName_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_GetPipeIdByName_NullPtrs(void);
 
@@ -799,10 +629,6 @@ void Test_GetPipeIdByName_NullPtrs(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_GetPipeIdByName_InvalidName(void);
 
@@ -819,11 +645,6 @@ void Test_GetPipeIdByName_InvalidName(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SetCmdCode,
-** \sa #UT_SetOSFail, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_GetPipeIdByName(void);
 
@@ -841,10 +662,6 @@ void Test_GetPipeIdByName(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_SendRtgInfo,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_RoutingInfoHdrFail(void);
 
@@ -862,11 +679,6 @@ void Test_SB_Cmds_RoutingInfoHdrFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_AppInit, #UT_SetRtnCode,
-** \sa #CFE_SB_SendRtgInfo, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_RoutingInfoWriteFail(void);
 
@@ -883,11 +695,6 @@ void Test_SB_Cmds_RoutingInfoWriteFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_CreatePipe, #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_PipeInfoDef(void);
 
@@ -904,11 +711,6 @@ void Test_SB_Cmds_PipeInfoDef(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_PipeInfoSpec(void);
 
@@ -925,10 +727,6 @@ void Test_SB_Cmds_PipeInfoSpec(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetOSFail, #CFE_SB_SendPipeInfo,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_PipeInfoCreateFail(void);
 
@@ -946,10 +744,6 @@ void Test_SB_Cmds_PipeInfoCreateFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_SendPipeInfo,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_PipeInfoHdrFail(void);
 
@@ -967,11 +761,6 @@ void Test_SB_Cmds_PipeInfoHdrFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #UT_SetRtnCode,
-** \sa #CFE_SB_SendPipeInfo, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_PipeInfoWriteFail(void);
 
@@ -988,12 +777,6 @@ void Test_SB_Cmds_PipeInfoWriteFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_CreatePipe, #CFE_SB_Subscribe, #CFE_SB_ProcessCmdPipePkt,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_MapInfoDef(void);
 
@@ -1010,11 +793,6 @@ void Test_SB_Cmds_MapInfoDef(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_MapInfoSpec(void);
 
@@ -1031,10 +809,6 @@ void Test_SB_Cmds_MapInfoSpec(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetOSFail, #CFE_SB_SendMapInfo,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_MapInfoCreateFail(void);
 
@@ -1051,10 +825,6 @@ void Test_SB_Cmds_MapInfoCreateFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_SendMapInfo,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_MapInfoHdrFail(void);
 
@@ -1072,11 +842,6 @@ void Test_SB_Cmds_MapInfoHdrFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #UT_SetRtnCode, #CFE_SB_SendMapInfo, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_MapInfoWriteFail(void);
 
@@ -1093,12 +858,6 @@ void Test_SB_Cmds_MapInfoWriteFail(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_InitMsg, #CFE_SB_SetCmdCode, #CFE_SB_ProcessCmdPipePkt,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_EnRouteValParam(void);
 
@@ -1116,12 +875,6 @@ void Test_SB_Cmds_EnRouteValParam(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_InitMsg, #CFE_SB_SetCmdCode, #CFE_SB_ProcessCmdPipePkt,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_EnRouteNonExist(void);
 
@@ -1138,11 +891,6 @@ void Test_SB_Cmds_EnRouteNonExist(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_EnRouteInvParam(void);
 
@@ -1159,11 +907,6 @@ void Test_SB_Cmds_EnRouteInvParam(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_EnRouteInvParam2(void);
 
@@ -1182,11 +925,6 @@ void Test_SB_Cmds_EnRouteInvParam2(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_EnRouteInvParam3(void);
 
@@ -1203,12 +941,6 @@ void Test_SB_Cmds_EnRouteInvParam3(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_InitMsg, #CFE_SB_SetCmdCode, #CFE_SB_ProcessCmdPipePkt,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_DisRouteValParam(void);
 
@@ -1225,12 +957,6 @@ void Test_SB_Cmds_DisRouteValParam(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_InitMsg, #CFE_SB_SetCmdCode, #CFE_SB_ProcessCmdPipePkt,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_DisRouteNonExist(void);
 
@@ -1247,11 +973,6 @@ void Test_SB_Cmds_DisRouteNonExist(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_DisRouteInvParam(void);
 
@@ -1268,11 +989,6 @@ void Test_SB_Cmds_DisRouteInvParam(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_DisRouteInvParam2(void);
 
@@ -1291,11 +1007,6 @@ void Test_SB_Cmds_DisRouteInvParam2(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_DisRouteInvParam3(void);
 
@@ -1311,10 +1022,6 @@ void Test_SB_Cmds_DisRouteInvParam3(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_ProcessCmdPipePkt,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_SendHK(void);
 
@@ -1332,12 +1039,6 @@ void Test_SB_Cmds_SendHK(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_CreatePipe, #CFE_SB_Subscribe, #CFE_SB_SubscribeLocal,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_SendPrevSubs(void);
 
@@ -1353,10 +1054,6 @@ void Test_SB_Cmds_SendPrevSubs(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_SubRptOn(void);
 
@@ -1372,10 +1069,6 @@ void Test_SB_Cmds_SubRptOn(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_SubRptOff(void);
 
@@ -1392,11 +1085,6 @@ void Test_SB_Cmds_SubRptOff(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_CmdUnexpCmdCode(void);
 
@@ -1413,11 +1101,6 @@ void Test_SB_Cmds_CmdUnexpCmdCode(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_SubRptUnexpCmdCode(void);
 
@@ -1434,11 +1117,6 @@ void Test_SB_Cmds_SubRptUnexpCmdCode(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_ProcessCmdPipePkt, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_BadCmdLength(void);
 
@@ -1455,10 +1133,6 @@ void Test_SB_Cmds_BadCmdLength(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_ProcessCmdPipePkt,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_Cmds_UnexpMsgId(void);
 
@@ -1476,9 +1150,6 @@ void Test_SB_Cmds_UnexpMsgId(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_SB_EarlyInit, #Test_SB_APIs, #Test_SB_Utils
-**
 ******************************************************************************/
 void Test_SB_Lib(void);
 
@@ -1494,10 +1165,6 @@ void Test_SB_Lib(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_SB_EarlyInit_SemCreateError,
-** \sa #Test_SB_EarlyInit_PoolCreateError, #Test_SB_EarlyInit_NoErrors
-**
 ******************************************************************************/
 void Test_SB_EarlyInit(void);
 
@@ -1514,9 +1181,6 @@ void Test_SB_EarlyInit(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_EarlyInit_SemCreateError(void);
 
@@ -1533,9 +1197,6 @@ void Test_SB_EarlyInit_SemCreateError(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_EarlyInit_PoolCreateError(void);
 
@@ -1551,9 +1212,6 @@ void Test_SB_EarlyInit_PoolCreateError(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_EarlyInit, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_EarlyInit_NoErrors(void);
 
@@ -1569,11 +1227,6 @@ void Test_SB_EarlyInit_NoErrors(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_CreatePipe_API, #Test_DeletePipe_API, #Test_Subscribe_API,
-** \sa #Test_Unsubscribe_API, #Test_SendMsg_API, #Test_RcvMsg_API,
-** \sa #Test_CleanupApp_API
-**
 ******************************************************************************/
 void Test_SB_APIs(void);
 
@@ -1589,12 +1242,6 @@ void Test_SB_APIs(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_CreatePipe_NullPtr, #Test_CreatePipe_ValPipeDepth,
-** \sa #Test_CreatePipe_InvalPipeDepth, #Test_CreatePipe_EmptyPipeName,
-** \sa #Test_CreatePipe_LongPipeName, #Test_CreatePipe_SamePipeName,
-** \sa #Test_CreatePipe_MaxPipes
-**
 ******************************************************************************/
 void Test_CreatePipe_API(void);
 
@@ -1611,10 +1258,6 @@ void Test_CreatePipe_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_CreatePipe_NullPtr(void);
 
@@ -1630,10 +1273,6 @@ void Test_CreatePipe_NullPtr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_CreatePipe_ValPipeDepth(void);
 
@@ -1649,10 +1288,6 @@ void Test_CreatePipe_ValPipeDepth(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_CreatePipe_InvalPipeDepth(void);
 
@@ -1668,10 +1303,6 @@ void Test_CreatePipe_InvalPipeDepth(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_CreatePipe_EmptyPipeName(void);
 
@@ -1688,10 +1319,6 @@ void Test_CreatePipe_EmptyPipeName(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_CreatePipe_LongPipeName(void);
 
@@ -1707,10 +1334,6 @@ void Test_CreatePipe_LongPipeName(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_CreatePipe_SamePipeName(void);
 
@@ -1726,10 +1349,6 @@ void Test_CreatePipe_SamePipeName(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #UT_GetNumEventsSent,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_CreatePipe_MaxPipes(void);
 
@@ -1745,11 +1364,6 @@ void Test_CreatePipe_MaxPipes(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_DeletePipe_NoSubs, #Test_DeletePipe_WithSubs,
-** \sa #Test_DeletePipe_InvalidPipeId, #Test_DeletePipe_InvalidPipeOwner,
-** \sa #Test_DeletePipe_WithAppid
-**
 ******************************************************************************/
 void Test_DeletePipe_API(void);
 
@@ -1766,10 +1380,6 @@ void Test_DeletePipe_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_DeletePipe, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_DeletePipe_NoSubs(void);
 
@@ -1786,10 +1396,6 @@ void Test_DeletePipe_NoSubs(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_DeletePipe, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_DeletePipe_WithSubs(void);
 
@@ -1805,10 +1411,6 @@ void Test_DeletePipe_WithSubs(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_DeletePipe, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_DeletePipe_InvalidPipeId(void);
 
@@ -1825,10 +1427,6 @@ void Test_DeletePipe_InvalidPipeId(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, CFE_SB_CreatePipe, #CFE_SB_DeletePipe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_DeletePipe_InvalidPipeOwner(void);
 
@@ -1844,10 +1442,6 @@ void Test_DeletePipe_InvalidPipeOwner(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_DeletePipeWithAppId, #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_DeletePipe_WithAppid(void);
 
@@ -1863,15 +1457,6 @@ void Test_DeletePipe_WithAppid(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_Subscribe_SubscribeEx, #Test_Subscribe_InvalidPipeId,
-** \sa #Test_Subscribe_InvalidMsgId, #Test_Subscribe_MaxMsgLim,
-** \sa #Test_Subscribe_DuplicateSubscription,
-** \sa #Test_Subscribe_LocalSubscription, #Test_Subscribe_MaxDestCount,
-** \sa #Test_Subscribe_MaxMsgIdCount, #Test_Subscribe_SendPrevSubs,
-** \sa #Test_Subscribe_FindGlobalMsgIdCnt, #Test_Subscribe_PipeNonexistent,
-** \sa #Test_Subscribe_SubscriptionReporting, #Test_Subscribe_InvalidPipeOwner
-**
 ******************************************************************************/
 void Test_Subscribe_API(void);
 
@@ -1887,11 +1472,6 @@ void Test_Subscribe_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_SubscribeEx,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_SubscribeEx(void);
 
@@ -1908,10 +1488,6 @@ void Test_Subscribe_SubscribeEx(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_Subscribe, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_InvalidPipeId(void);
 
@@ -1928,11 +1504,6 @@ void Test_Subscribe_InvalidPipeId(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_InvalidMsgId(void);
 
@@ -1949,11 +1520,6 @@ void Test_Subscribe_InvalidMsgId(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_SubscribeEx,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_MaxMsgLim(void);
 
@@ -1970,11 +1536,6 @@ void Test_Subscribe_MaxMsgLim(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_DuplicateSubscription(void);
 
@@ -1990,11 +1551,6 @@ void Test_Subscribe_DuplicateSubscription(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_SubscribeLocal,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_LocalSubscription(void);
 
@@ -2012,11 +1568,6 @@ void Test_Subscribe_LocalSubscription(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_MaxDestCount(void);
 
@@ -2034,10 +1585,6 @@ void Test_Subscribe_MaxDestCount(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #UT_EventIsInHistory, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_MaxMsgIdCount(void);
 
@@ -2054,11 +1601,6 @@ void Test_Subscribe_MaxMsgIdCount(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_SendPrevSubs, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_SendPrevSubs(void);
 
@@ -2075,12 +1617,6 @@ void Test_Subscribe_SendPrevSubs(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_SubscribeLocal, #CFE_SB_FindGlobalMsgIdCnt,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_FindGlobalMsgIdCnt(void);
 
@@ -2097,10 +1633,6 @@ void Test_Subscribe_FindGlobalMsgIdCnt(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_Subscribe, UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_PipeNonexistent(void);
 
@@ -2116,12 +1648,6 @@ void Test_Subscribe_PipeNonexistent(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_SetSubscriptionReporting, #CFE_SB_Subscribe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_SubscriptionReporting(void);
 
@@ -2138,10 +1664,6 @@ void Test_Subscribe_SubscriptionReporting(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #UT_EventIsInHistory, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Subscribe_InvalidPipeOwner(void);
 
@@ -2157,13 +1679,6 @@ void Test_Subscribe_InvalidPipeOwner(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_Unsubscribe_Basic, #Test_Unsubscribe_Local,
-** \sa #Test_Unsubscribe_InvalParam, #Test_Unsubscribe_NoMatch,
-** \sa #Test_Unsubscribe_SubscriptionReporting, #Test_Unsubscribe_InvalidPipe,
-** \sa #Test_Unsubscribe_InvalidPipeOwner, #Test_Unsubscribe_FirstDestWithMany,
-** \sa #Test_Unsubscribe_MiddleDestWithMany, #Test_Unsubscribe_GetDestPtr
-**
 ******************************************************************************/
 void Test_Unsubscribe_API(void);
 
@@ -2179,11 +1694,6 @@ void Test_Unsubscribe_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_Unsubscribe, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_Basic(void);
 
@@ -2201,11 +1711,6 @@ void Test_Unsubscribe_Basic(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_UnsubscribeLocal, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_Local(void);
 
@@ -2222,11 +1727,6 @@ void Test_Unsubscribe_Local(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_UnSubscribe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_InvalParam(void);
 
@@ -2244,11 +1744,6 @@ void Test_Unsubscribe_InvalParam(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_Unsubscribe, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_NoMatch(void);
 
@@ -2266,12 +1761,6 @@ void Test_Unsubscribe_NoMatch(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_SetSubscriptionReporting, #CFE_SB_Unsubscribe,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_SubscriptionReporting(void);
 
@@ -2288,11 +1777,6 @@ void Test_Unsubscribe_SubscriptionReporting(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_Unsubscribe, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_InvalidPipe(void);
 
@@ -2309,11 +1793,6 @@ void Test_Unsubscribe_InvalidPipe(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_Unsubscribe, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_InvalidPipeOwner(void);
 
@@ -2331,11 +1810,6 @@ void Test_Unsubscribe_InvalidPipeOwner(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_Unsubscribe, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_FirstDestWithMany(void);
 
@@ -2353,11 +1827,6 @@ void Test_Unsubscribe_FirstDestWithMany(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_Unsubscribe, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_MiddleDestWithMany(void);
 
@@ -2375,11 +1844,6 @@ void Test_Unsubscribe_MiddleDestWithMany(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_Unsubscribe, #CFE_SB_GetDestPtr, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_Unsubscribe_GetDestPtr(void);
 
@@ -2395,16 +1859,6 @@ void Test_Unsubscribe_GetDestPtr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_SendMsg_NullPtr, #Test_SendMsg_InvalidMsgId,
-** \sa #Test_SendMsg_NoSubscribers, #Test_SendMsg_MaxMsgSizePlusOne,
-** \sa #Test_SendMsg_BasicSend, #Test_SendMsg_SequenceCount,
-** \sa #Test_SendMsg_QueuePutError, #Test_SendMsg_PipeFull,
-** \sa #Test_SendMsg_MsgLimitExceeded, #Test_SendMsg_GetPoolBufErr,
-** \sa #Test_SendMsg_ZeroCopyGetPtr, #Test_SendMsg_ZeroCopySend,
-** \sa #Test_SendMsg_ZeroCopyPass, #Test_SendMsg_ZeroCopyReleasePtr,
-** \sa #Test_SendMsg_DisabledDestination, #Test_SendMsg_SendWithMetadata
-**
 ******************************************************************************/
 void Test_SendMsg_API(void);
 
@@ -2421,10 +1875,6 @@ void Test_SendMsg_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SendMsg, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_NullPtr(void);
 
@@ -2441,10 +1891,6 @@ void Test_SendMsg_NullPtr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SendMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_InvalidMsgId(void);
 
@@ -2461,10 +1907,6 @@ void Test_SendMsg_InvalidMsgId(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SendMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_NoSubscribers(void);
 
@@ -2482,10 +1924,6 @@ void Test_SendMsg_NoSubscribers(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SendMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_MaxMsgSizePlusOne(void);
 
@@ -2502,11 +1940,6 @@ void Test_SendMsg_MaxMsgSizePlusOne(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_InitMsg, #CFE_SB_SendMsg, #UT_GetNumEventsSent,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_BasicSend(void);
 
@@ -2523,12 +1956,6 @@ void Test_SendMsg_BasicSend(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_InitMsg,
-** \sa #CFE_SB_Subscribe, #CCSDS_WR_SEQ, #CFE_SB_SendMsg, #CFE_SB_RcvMsg,
-** \sa #CCSDS_RD_SEQ, #CFE_SB_PassMsg, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_SequenceCount(void);
 
@@ -2545,11 +1972,6 @@ void Test_SendMsg_SequenceCount(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_InitMsg, #CFE_SB_SendMsg, #UT_GetNumEventsSent,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_QueuePutError(void);
 
@@ -2566,11 +1988,6 @@ void Test_SendMsg_QueuePutError(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_Subscribe, #CFE_SB_SendMsg, #UT_GetNumEventsSent,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_PipeFull(void);
 
@@ -2587,11 +2004,6 @@ void Test_SendMsg_PipeFull(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_SubscribeEx, #CFE_SB_SendMsg, #UT_GetNumEventsSent,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_MsgLimitExceeded(void);
 
@@ -2608,11 +2020,6 @@ void Test_SendMsg_MsgLimitExceeded(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_Subscribe, #UT_SetRtnCode, #CFE_SB_SendMsg,
-** \sa #UT_GetNumEventsSent, #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_GetPoolBufErr(void);
 
@@ -2630,10 +2037,6 @@ void Test_SendMsg_GetPoolBufErr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_ZeroCopyGetPtr,
-** \sa #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_ZeroCopyGetPtr(void);
 
@@ -2651,13 +2054,6 @@ void Test_SendMsg_ZeroCopyGetPtr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_ZeroCopyGetPtr, #CFE_SB_InitMsg, #CCSDS_WR_SEQ,
-** \sa #CFE_SB_ZeroCopySend, #CFE_SB_RcvMsg, #CCSDS_RD_SEQ,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_ZeroCopySend(void);
 
@@ -2675,13 +2071,6 @@ void Test_SendMsg_ZeroCopySend(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_ZeroCopyGetPtr, #CFE_SB_InitMsg, #CCSDS_WR_SEQ,
-** \sa #CFE_SB_ZeroCopyPass, #CFE_SB_RcvMsg, #CCSDS_RD_SEQ,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_ZeroCopyPass(void);
 
@@ -2698,11 +2087,6 @@ void Test_SendMsg_ZeroCopyPass(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_ZeroCopyGetPtr,
-** \sa #CFE_SB_ZeroCopyReleasePtr, #UT_SetRtnCode, #UT_GetNumEventsSent,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_ZeroCopyReleasePtr(void);
 
@@ -2719,12 +2103,6 @@ void Test_SendMsg_ZeroCopyReleasePtr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_GetDestPtr, #CFE_SB_InitMsg, #CFE_SB_SendMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_DisabledDestination(void);
 
@@ -2740,11 +2118,6 @@ void Test_SendMsg_DisabledDestination(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_InitMsg, #CFE_SB_SendMsgFull, #UT_GetNumEventsSent,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_SendWithMetadata(void);
 
@@ -2762,10 +2135,6 @@ void Test_SendMsg_SendWithMetadata(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SendMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_InvalidMsgId_ZeroCopy(void);
 
@@ -2783,10 +2152,6 @@ void Test_SendMsg_InvalidMsgId_ZeroCopy(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SendMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_NoSubscribers_ZeroCopy(void);
 
@@ -2804,10 +2169,6 @@ void Test_SendMsg_NoSubscribers_ZeroCopy(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_SendMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_SendMsg_MaxMsgSizePlusOne_ZeroCopy(void);
 
@@ -2823,11 +2184,6 @@ void Test_SendMsg_MaxMsgSizePlusOne_ZeroCopy(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_RcvMsg_InvalidPipeId, #Test_RcvMsg_InvalidTimeout,
-** \sa #Test_RcvMsg_Poll, #Test_RcvMsg_Timeout,
-** \sa #Test_RcvMsg_PipeReadError, #Test_RcvMsg_PendForever
-**
 ******************************************************************************/
 void Test_RcvMsg_API(void);
 
@@ -2845,10 +2201,6 @@ void Test_RcvMsg_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_RcvMsg, #UT_GetNumEventsSent,
-** \sa #UT_EventIsInHistory, #UT_Report
-**
 ******************************************************************************/
 void Test_RcvMsg_InvalidPipeId(void);
 
@@ -2865,11 +2217,6 @@ void Test_RcvMsg_InvalidPipeId(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_RcvMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_RcvMsg_InvalidTimeout(void);
 
@@ -2887,11 +2234,6 @@ void Test_RcvMsg_InvalidTimeout(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_RcvMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_RcvMsg_Poll(void);
 
@@ -2907,11 +2249,6 @@ void Test_RcvMsg_Poll(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #UT_SetRtnCode,
-** \sa #CFE_SB_RcvMsg, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_RcvMsg_Timeout(void);
 
@@ -2928,11 +2265,6 @@ void Test_RcvMsg_Timeout(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_RcvMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_RcvMsg_PipeReadError(void);
 
@@ -2949,12 +2281,6 @@ void Test_RcvMsg_PipeReadError(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_InitMsg,
-** \sa #CFE_SB_Subscribe, #CFE_SB_SendMsg, #CFE_SB_RcvMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_RcvMsg_PendForever(void);
 
@@ -2971,11 +2297,6 @@ void Test_RcvMsg_PendForever(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_RcvMsg,
-** \sa #UT_GetNumEventsSent, #UT_EventIsInHistory, #CFE_SB_DeletePipe,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_RcvMsg_InvalidBufferPtr(void);
 
@@ -2993,11 +2314,6 @@ void Test_RcvMsg_InvalidBufferPtr(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_ZeroCopyGetPtr,
-** \sa #CFE_SB_CleanUpApp, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_CleanupApp_API(void);
 
@@ -3013,31 +2329,8 @@ void Test_CleanupApp_API(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_CFE_SB_InitMsg, #Test_CFE_SB_MsgHdrSize,
-** \sa #Test_CFE_SB_GetUserData, #Test_CFE_SB_SetGetMsgId,
-** \sa #Test_CFE_SB_SetGetUserDataLength, #Test_CFE_SB_SetGetTotalMsgLength,
-** \sa #Test_CFE_SB_SetGetMsgTime,
-** \sa #Test_CFE_SB_SetGetCmdCode, #Test_CFE_SB_ChecksumUtils
-**
 ******************************************************************************/
 void Test_SB_Utils(void);
-
-/*****************************************************************************/
-/**
-** \brief Function for calling SB init message test functions
-**
-** \par Description
-**        Function for calling SB init message test functions.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-void Test_CFE_SB_InitMsg(void);
 
 /*****************************************************************************/
 /**
@@ -3052,9 +2345,6 @@ void Test_CFE_SB_InitMsg(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_MsgHdrSize, #UT_Report
-**
 ******************************************************************************/
 void Test_CFE_SB_MsgHdrSize(void);
 
@@ -3071,31 +2361,8 @@ void Test_CFE_SB_MsgHdrSize(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SetMsgId, #CFE_SB_GetUserData,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_CFE_SB_GetUserData(void);
-
-/*****************************************************************************/
-/**
-** \brief Test setting and getting the message ID of a message
-**
-** \par Description
-**        This function tests setting and getting the message ID of a message.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SetMsgId, #CFE_SB_GetMsgId,
-** \sa #UT_Report
-**
-******************************************************************************/
-void Test_CFE_SB_SetGetMsgId(void);
 
 /*****************************************************************************/
 /**
@@ -3110,87 +2377,8 @@ void Test_CFE_SB_SetGetMsgId(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SetMsgId,
-** \sa #CFE_SB_SetUserDataLength, #CFE_SB_GetUserDataLength,
-**
 ******************************************************************************/
 void Test_CFE_SB_SetGetUserDataLength(void);
-
-/*****************************************************************************/
-/**
-** \brief Test setting and getting the total message size
-**
-** \par Description
-**        This function tests setting and getting the total message size.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SetMsgId,
-** \sa #CFE_SB_SetTotalMsgLength, #CFE_SB_GetTotalMsgLength,
-**
-******************************************************************************/
-void Test_CFE_SB_SetGetTotalMsgLength(void);
-
-/*****************************************************************************/
-/**
-** \brief Test setting and getting the message time field
-**
-** \par Description
-**        This function tests setting and getting the message time field.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SetMsgId, #CFE_SB_SetMsgTime,
-** \sa #CFE_SB_GetMsgTime, #UT_DisplayPkt, #UT_Report
-**
-******************************************************************************/
-void Test_CFE_SB_SetGetMsgTime(void);
-
-/*****************************************************************************/
-/**
-** \brief Test setting and getting the opcode field of message
-**
-** \par Description
-**        This function tests setting and getting the opcode field of message.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_SetMsgId, #CFE_SB_SetCmdCode,
-** \sa #CFE_SB_GetCmdCode, #UT_DisplayPkt
-**
-******************************************************************************/
-void Test_CFE_SB_SetGetCmdCode(void);
-
-/*****************************************************************************/
-/**
-** \brief Test generating, setting, getting, and validating a checksum field
-**        for a message
-**
-** \par Description
-**        This function tests generating, setting, getting, and validating a
-**        checksum field for a message.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-void Test_CFE_SB_ChecksumUtils(void);
 
 /*****************************************************************************/
 /**
@@ -3204,11 +2392,6 @@ void Test_CFE_SB_ChecksumUtils(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest,
-** \sa #CFE_SB_ValidateMsgId, #UT_DisplayPkt,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_CFE_SB_ValidateMsgId(void);
 
@@ -3224,10 +2407,6 @@ void Test_CFE_SB_ValidateMsgId(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #Test_OS_MutSem_ErrLogic,
-** \sa #Test_ReqToSendEvent_ErrLogic, #Test_PutDestBlk_ErrLogic
-**
 ******************************************************************************/
 void Test_SB_SpecialCases(void);
 
@@ -3244,11 +2423,6 @@ void Test_SB_SpecialCases(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #UT_SetRtnCode, #CFE_SB_CreatePipe,
-** \sa #CFE_SB_Subscribe, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_OS_MutSem_ErrLogic(void);
 
@@ -3264,10 +2438,6 @@ void Test_OS_MutSem_ErrLogic(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_RequestToSendEvent,
-** \sa #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_ReqToSendEvent_ErrLogic(void);
 
@@ -3285,10 +2455,6 @@ void Test_ReqToSendEvent_ErrLogic(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_PutDestinationBlk,
-** \sa #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_PutDestBlk_ErrLogic(void);
 
@@ -3306,10 +2472,6 @@ void Test_PutDestBlk_ErrLogic(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_GetPipeIdx, #UT_GetNumEventsSent,
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_CFE_SB_GetPipeIdx(void);
 
@@ -3326,11 +2488,6 @@ void Test_CFE_SB_GetPipeIdx(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_GetBufferFromPool,
-** \sa #CFE_SB_ReturnBufferToPool, #CFE_SB_DecrBufUseCnt,
-** \sa #CFE_SB_PutDestinationBlk, #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_CFE_SB_Buffers(void);
 
@@ -3346,10 +2503,6 @@ void Test_CFE_SB_Buffers(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_DeletePipeFull,
-** \sa #CFE_SB_SubscribeFull, #UT_GetNumEventsSent, #UT_Report
-**
 ******************************************************************************/
 void Test_CFE_SB_BadPipeInfo(void);
 
@@ -3365,12 +2518,6 @@ void Test_CFE_SB_BadPipeInfo(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_InitMsg, #CFE_SB_ProcessCmdPipePkt,
-** \sa #UT_EventIsInHistory, #CFE_SB_GetMsgId, #UT_SetRtnCode,
-** \sa #UT_GetNumEventsSent, #CFE_SB_CreatePipe, #CFE_SB_Subscribe,
-** \sa #CFE_SB_SendMsg, #CFE_SB_DeletePipe, #CFE_SB_SubscribeEx, #UT_Report
-**
 ******************************************************************************/
 void Test_SB_SendMsgPaths_Nominal(void);
 void Test_SB_SendMsgPaths_LimitErr(void);
@@ -3391,12 +2538,6 @@ void Test_SB_SendMsgPaths_IgnoreOpt(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #SB_ResetUnitTest, #CFE_SB_CreatePipe, #CFE_SB_InitMsg,
-** \sa #CFE_SB_Subscribe, #CFE_SB_SendMsg, #CFE_SB_Unsubscribe,
-** \sa #CFE_SB_RcvMsg, #UT_GetNumEventsSent, #UT_EventIsInHistory,
-** \sa #CFE_SB_DeletePipe, #UT_Report
-**
 ******************************************************************************/
 void Test_RcvMsg_UnsubResubPath(void);
 
@@ -3413,9 +2554,6 @@ void Test_RcvMsg_UnsubResubPath(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #UT_Report
-**
 ******************************************************************************/
 void Test_MessageString(void);
 

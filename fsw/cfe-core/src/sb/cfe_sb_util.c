@@ -42,6 +42,7 @@
 
 #include <string.h>
 
+#ifndef CFE_OMIT_DEPRECATED_6_8
 /*
  * Function: CFE_SB_InitMsg - See API and header file for details
  */
@@ -54,6 +55,7 @@ void CFE_SB_InitMsg(void           *MsgPtr,
    CFE_MSG_Init((CFE_MSG_Message_t *)MsgPtr, MsgId, Length);
 
 } /* end CFE_SB_InitMsg */
+#endif
 
 /******************************************************************************
 **  Function:  CFE_SB_MsgHdrSize()
@@ -67,7 +69,7 @@ void CFE_SB_InitMsg(void           *MsgPtr,
 **  Return:
 **     Size of Message Header.
 */
-size_t CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
+size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
 {
     size_t         size = 0;
     bool           hassechdr = false;
@@ -99,7 +101,7 @@ size_t CFE_SB_MsgHdrSize(const CFE_SB_Msg_t *MsgPtr)
 /*
  * Function: CFE_SB_GetUserData - See API and header file for details
  */
-void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
+void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
 {
     uint8           *BytePtr;
     size_t          HdrSize;
@@ -114,7 +116,7 @@ void *CFE_SB_GetUserData(CFE_SB_MsgPtr_t MsgPtr)
 /*
  * Function: CFE_SB_GetUserDataLength - See API and header file for details
  */
-size_t CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
+size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
 {
     CFE_MSG_Size_t TotalMsgSize;
     size_t HdrSize;
@@ -129,7 +131,7 @@ size_t CFE_SB_GetUserDataLength(const CFE_SB_Msg_t *MsgPtr)
 /*
  * Function: CFE_SB_SetUserDataLength - See API and header file for details
  */
-void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, size_t DataLength)
+void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
 {
     CFE_MSG_Size_t TotalMsgSize;
     size_t HdrSize;
@@ -141,10 +143,11 @@ void CFE_SB_SetUserDataLength(CFE_SB_MsgPtr_t MsgPtr, size_t DataLength)
 
 }/* end CFE_SB_SetUserDataLength */
 
+#ifndef CFE_OMIT_DEPRECATED_6_8
 /*
  * Function: CFE_SB_GetTotalMsgLength - See API and header file for details
  */
-size_t CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
+size_t CFE_SB_GetTotalMsgLength(const CFE_MSG_Message_t *MsgPtr)
 {
 
     CFE_MSG_Size_t size;
@@ -155,22 +158,20 @@ size_t CFE_SB_GetTotalMsgLength(const CFE_SB_Msg_t *MsgPtr)
 
 }/* end CFE_SB_GetTotalMsgLength */
 
-
 /*
  * Function: CFE_SB_SetTotalMsgLength - See API and header file for details
  */
-void CFE_SB_SetTotalMsgLength(CFE_SB_MsgPtr_t MsgPtr,size_t TotalLength)
+void CFE_SB_SetTotalMsgLength(CFE_MSG_Message_t *MsgPtr,size_t TotalLength)
 {
 
     CFE_MSG_SetSize(MsgPtr, TotalLength);
 
 }/* end CFE_SB_SetTotalMsgLength */
 
-
 /*
  * Function: CFE_SB_GetMsgTime - See API and header file for details
  */
-CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr)
+CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_MSG_Message_t *MsgPtr)
 {
     CFE_TIME_SysTime_t TimeFromMsg = {0};
 
@@ -180,32 +181,31 @@ CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_SB_MsgPtr_t MsgPtr)
 
 }/* end CFE_SB_GetMsgTime */
 
-
 /*
  * Function: CFE_SB_SetMsgTime - See API and header file for details
  */
-int32 CFE_SB_SetMsgTime(CFE_SB_MsgPtr_t MsgPtr, CFE_TIME_SysTime_t NewTime)
+int32 CFE_SB_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t NewTime)
 {
 
     return CFE_MSG_SetMsgTime(MsgPtr, NewTime);
 
 }/* end CFE_SB_SetMsgTime */
-
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /*
  * Function: CFE_SB_TimeStampMsg - See API and header file for details
  */
-void CFE_SB_TimeStampMsg(CFE_SB_MsgPtr_t MsgPtr)
+void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr)
 {
-    CFE_SB_SetMsgTime(MsgPtr,CFE_TIME_GetTime());
+    CFE_MSG_SetMsgTime(MsgPtr,CFE_TIME_GetTime());
 
 }/* end CFE_SB_TimeStampMsg */
 
-
+#ifndef CFE_OMIT_DEPRECATED_6_8
 /*
  * Function: CFE_SB_GetCmdCode - See API and header file for details
  */
-uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr)
+uint16 CFE_SB_GetCmdCode(CFE_MSG_Message_t *MsgPtr)
 {
 
     CFE_MSG_FcnCode_t fc;
@@ -220,7 +220,7 @@ uint16 CFE_SB_GetCmdCode(CFE_SB_MsgPtr_t MsgPtr)
 /*
  * Function: CFE_SB_SetCmdCode - See API and header file for details
  */
-int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr,
+int32 CFE_SB_SetCmdCode(CFE_MSG_Message_t *MsgPtr,
                       uint16 CmdCode)
 {
 
@@ -231,7 +231,7 @@ int32 CFE_SB_SetCmdCode(CFE_SB_MsgPtr_t MsgPtr,
 /*
  * Function: CFE_SB_GetChecksum - See API and header file for details
  */
-uint16 CFE_SB_GetChecksum(CFE_SB_MsgPtr_t MsgPtr)
+uint16 CFE_SB_GetChecksum(CFE_MSG_Message_t *MsgPtr)
 {
 
     CFE_MSG_Type_t type = CFE_MSG_Type_Invalid;
@@ -254,7 +254,7 @@ uint16 CFE_SB_GetChecksum(CFE_SB_MsgPtr_t MsgPtr)
 /*
  * Function: CFE_SB_GenerateChecksum - See API and header file for details
  */
-void CFE_SB_GenerateChecksum(CFE_SB_MsgPtr_t MsgPtr)
+void CFE_SB_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
 {
 
     CFE_MSG_GenerateChecksum(MsgPtr);
@@ -265,7 +265,7 @@ void CFE_SB_GenerateChecksum(CFE_SB_MsgPtr_t MsgPtr)
 /*
  * Function: CFE_SB_ValidateChecksum - See API and header file for details
  */
-bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr)
+bool CFE_SB_ValidateChecksum(CFE_MSG_Message_t *MsgPtr)
 {
     bool isvalid = false;
 
@@ -274,6 +274,7 @@ bool CFE_SB_ValidateChecksum(CFE_SB_MsgPtr_t MsgPtr)
     return isvalid;
 
 }/* end CFE_SB_ValidateChecksum */
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /*
  * Function: CFE_SB_MessageStringGet - See API and header file for details
