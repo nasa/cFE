@@ -427,23 +427,27 @@ int32 CFE_TIME_TaskInit(void)
 **  Return:
 **    true if length is acceptable
 */
-bool CFE_TIME_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, size_t ExpectedLength)
+bool CFE_TIME_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 {
-    bool    result       = true;
-    size_t  ActualLength = CFE_SB_GetTotalMsgLength(Msg);
+    bool              result       = true;
+    CFE_MSG_Size_t    ActualLength = 0;
+    CFE_MSG_FcnCode_t FcnCode      = 0;
+    CFE_SB_MsgId_t    MsgId        = CFE_SB_INVALID_MSG_ID;
+
+    CFE_MSG_GetSize(MsgPtr, &ActualLength);
 
     /*
     ** Verify the command packet length
     */
     if (ExpectedLength != ActualLength)
     {
-        CFE_SB_MsgId_t MessageID = CFE_SB_GetMsgId(Msg);
-        uint16 CommandCode = CFE_SB_GetCmdCode(Msg);
+        CFE_MSG_GetMsgId(MsgPtr, &MsgId);
+        CFE_MSG_GetFcnCode(MsgPtr, &FcnCode);
 
         CFE_EVS_SendEvent(CFE_TIME_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
-                "Invalid cmd length: ID = 0x%X, CC = %d, Exp Len = %d, Len = %d",
-                (unsigned int)CFE_SB_MsgIdToValue(MessageID), 
-                (int)CommandCode, (int)ExpectedLength, (int)ActualLength);
+                          "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
+                          (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode,
+                          (unsigned int)ActualLength, (unsigned int)ExpectedLength);
         result = false;
         ++CFE_TIME_TaskData.CommandErrorCounter;
     }
@@ -459,40 +463,41 @@ bool CFE_TIME_VerifyCmdLength(CFE_SB_MsgPtr_t Msg, size_t ExpectedLength)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-void CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr)
+void CFE_TIME_TaskPipe(CFE_MSG_Message_t *MsgPtr)
 {
-    CFE_SB_MsgId_t MessageID;
-    uint16 CommandCode;
+    CFE_SB_MsgId_t    MessageID = CFE_SB_INVALID_MSG_ID;
+    CFE_MSG_FcnCode_t CommandCode = 0;
 
-    MessageID = CFE_SB_GetMsgId(MessagePtr);
+    CFE_MSG_GetMsgId(MsgPtr, &MessageID);
+
     switch (CFE_SB_MsgIdToValue(MessageID))
     {
         /*
         ** Housekeeping telemetry request...
         */
         case CFE_TIME_SEND_HK_MID:
-            CFE_TIME_HousekeepingCmd((CFE_SB_CmdHdr_t *)MessagePtr);
+            CFE_TIME_HousekeepingCmd((CFE_SB_CmdHdr_t *)MsgPtr);
             break;
 
         /*
         ** Time at the tone "signal"...
         */
         case CFE_TIME_TONE_CMD_MID:
-            CFE_TIME_ToneSignalCmd((CFE_SB_CmdHdr_t *)MessagePtr);
+            CFE_TIME_ToneSignalCmd((CFE_SB_CmdHdr_t *)MsgPtr);
             break;
 
         /*
         ** Time at the tone "data"...
         */
         case CFE_TIME_DATA_CMD_MID:
-            CFE_TIME_ToneDataCmd((CFE_TIME_ToneDataCmd_t *)MessagePtr);
+            CFE_TIME_ToneDataCmd((CFE_TIME_ToneDataCmd_t *)MsgPtr);
             break;
 
         /*
         ** Run time state machine at 1Hz...
         */
         case CFE_TIME_1HZ_CMD_MID:
-            CFE_TIME_OneHzCmd((CFE_SB_CmdHdr_t *)MessagePtr);
+            CFE_TIME_OneHzCmd((CFE_SB_CmdHdr_t *)MsgPtr);
             break;
 
         /*
@@ -500,7 +505,7 @@ void CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr)
         */
         #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
         case CFE_TIME_SEND_CMD_MID:
-            CFE_TIME_ToneSendCmd((CFE_SB_CmdHdr_t *)MessagePtr);
+            CFE_TIME_ToneSendCmd((CFE_SB_CmdHdr_t *)MsgPtr);
             break;
         #endif
 
@@ -509,48 +514,48 @@ void CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr)
         */
         case CFE_TIME_CMD_MID:
 
-            CommandCode = CFE_SB_GetCmdCode(MessagePtr);
+            CFE_MSG_GetFcnCode(MsgPtr, &CommandCode);
             switch (CommandCode)
             {
                 case CFE_TIME_NOOP_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_Noop_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_Noop_t)))
                     {
-                        CFE_TIME_NoopCmd((CFE_TIME_Noop_t *)MessagePtr);
+                        CFE_TIME_NoopCmd((CFE_TIME_Noop_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_RESET_COUNTERS_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_ResetCounters_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_ResetCounters_t)))
                     {
-                        CFE_TIME_ResetCountersCmd((CFE_TIME_ResetCounters_t *)MessagePtr);
+                        CFE_TIME_ResetCountersCmd((CFE_TIME_ResetCounters_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SEND_DIAGNOSTIC_TLM_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SendDiagnosticTlm_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SendDiagnosticTlm_t)))
                     {
-                        CFE_TIME_SendDiagnosticTlm((CFE_TIME_SendDiagnosticTlm_t *)MessagePtr);
+                        CFE_TIME_SendDiagnosticTlm((CFE_TIME_SendDiagnosticTlm_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_STATE_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SetState_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SetState_t)))
                     {
-                        CFE_TIME_SetStateCmd((CFE_TIME_SetState_t *)MessagePtr);
+                        CFE_TIME_SetStateCmd((CFE_TIME_SetState_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_SOURCE_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SetSource_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SetSource_t)))
                     {
-                        CFE_TIME_SetSourceCmd((CFE_TIME_SetSource_t *)MessagePtr);
+                        CFE_TIME_SetSourceCmd((CFE_TIME_SetSource_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_SIGNAL_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SetSignal_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SetSignal_t)))
                     {
-                        CFE_TIME_SetSignalCmd((CFE_TIME_SetSignal_t *)MessagePtr);
+                        CFE_TIME_SetSignalCmd((CFE_TIME_SetSignal_t *)MsgPtr);
                     }
                     break;
 
@@ -558,16 +563,16 @@ void CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr)
                 ** Time Clients process "tone delay" commands...
                 */
                 case CFE_TIME_ADD_DELAY_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_AddDelay_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_AddDelay_t)))
                     {
-                        CFE_TIME_AddDelayCmd((CFE_TIME_AddDelay_t *)MessagePtr);
+                        CFE_TIME_AddDelayCmd((CFE_TIME_AddDelay_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SUB_DELAY_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SubDelay_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SubDelay_t)))
                     {
-                        CFE_TIME_SubDelayCmd((CFE_TIME_SubDelay_t *)MessagePtr);
+                        CFE_TIME_SubDelayCmd((CFE_TIME_SubDelay_t *)MsgPtr);
                     }
                     break;
 
@@ -575,58 +580,58 @@ void CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr)
                 ** Time Servers process "set time" commands...
                 */
                 case CFE_TIME_SET_TIME_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SetTime_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SetTime_t)))
                     {
-                        CFE_TIME_SetTimeCmd((CFE_TIME_SetTime_t *)MessagePtr);
+                        CFE_TIME_SetTimeCmd((CFE_TIME_SetTime_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_MET_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SetMET_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SetMET_t)))
                     {
-                        CFE_TIME_SetMETCmd((CFE_TIME_SetMET_t *)MessagePtr);
+                        CFE_TIME_SetMETCmd((CFE_TIME_SetMET_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_STCF_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SetSTCF_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SetSTCF_t)))
                     {
-                        CFE_TIME_SetSTCFCmd((CFE_TIME_SetSTCF_t *)MessagePtr);
+                        CFE_TIME_SetSTCFCmd((CFE_TIME_SetSTCF_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SET_LEAP_SECONDS_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SetLeapSeconds_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SetLeapSeconds_t)))
                     {
-                        CFE_TIME_SetLeapSecondsCmd((CFE_TIME_SetLeapSeconds_t *)MessagePtr);
+                        CFE_TIME_SetLeapSecondsCmd((CFE_TIME_SetLeapSeconds_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_ADD_ADJUST_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_AddAdjust_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_AddAdjust_t)))
                     {
-                        CFE_TIME_AddAdjustCmd((CFE_TIME_AddAdjust_t *)MessagePtr);
+                        CFE_TIME_AddAdjustCmd((CFE_TIME_AddAdjust_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SUB_ADJUST_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_SubAdjust_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_SubAdjust_t)))
                     {
-                        CFE_TIME_SubAdjustCmd((CFE_TIME_SubAdjust_t *)MessagePtr);
+                        CFE_TIME_SubAdjustCmd((CFE_TIME_SubAdjust_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_ADD_1HZ_ADJUSTMENT_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_Add1HZAdjustment_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_Add1HZAdjustment_t)))
                     {
-                        CFE_TIME_Add1HZAdjustmentCmd((CFE_TIME_Add1HZAdjustment_t *)MessagePtr);
+                        CFE_TIME_Add1HZAdjustmentCmd((CFE_TIME_Add1HZAdjustment_t *)MsgPtr);
                     }
                     break;
 
                 case CFE_TIME_SUB_1HZ_ADJUSTMENT_CC:
-                    if (CFE_TIME_VerifyCmdLength(MessagePtr, sizeof(CFE_TIME_Sub1HZAdjustment_t)))
+                    if (CFE_TIME_VerifyCmdLength(MsgPtr, sizeof(CFE_TIME_Sub1HZAdjustment_t)))
                     {
-                        CFE_TIME_Sub1HZAdjustmentCmd((CFE_TIME_Sub1HZAdjustment_t *)MessagePtr);
+                        CFE_TIME_Sub1HZAdjustmentCmd((CFE_TIME_Sub1HZAdjustment_t *)MsgPtr);
                     }
                     break;
 
@@ -687,8 +692,8 @@ int32 CFE_TIME_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
     /*
     ** Send housekeeping telemetry packet...
     */
-    CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &CFE_TIME_TaskData.HkPacket);
-    CFE_SB_SendMsg((CFE_SB_Msg_t *) &CFE_TIME_TaskData.HkPacket);
+    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.HkPacket);
+    CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.HkPacket);
 
     /*
     ** Note: we only increment the command execution counter when
@@ -883,8 +888,8 @@ int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticTlm_t *data)
     /*
     ** Send housekeeping telemetry packet...
     */
-    CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &CFE_TIME_TaskData.DiagPacket);
-    CFE_SB_SendMsg((CFE_SB_Msg_t *) &CFE_TIME_TaskData.DiagPacket);
+    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.DiagPacket);
+    CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.DiagPacket);
 
     CFE_EVS_SendEvent(CFE_TIME_DIAG_EID, CFE_EVS_EventType_DEBUG,
                      "Request diagnostics command");

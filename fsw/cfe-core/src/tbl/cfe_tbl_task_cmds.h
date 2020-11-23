@@ -72,7 +72,7 @@ typedef enum
 */
 typedef struct {
     CFE_SB_MsgId_t           MsgId;           /**< \brief Acceptable Message ID */
-    uint32                   CmdCode;         /**< \brief Acceptable Command Code (if necessary) */
+    CFE_MSG_FcnCode_t        CmdCode;         /**< \brief Acceptable Command Code (if necessary) */
     size_t                   ExpectedLength;  /**< \brief Expected Message Length (in bytes) including message header */
     CFE_TBL_MsgProcFuncPtr_t MsgProcFuncPtr;  /**< \brief Pointer to function to handle message  */
     CFE_TBL_MsgType_t        MsgTypes;        /**< \brief Message Type (i.e. - with/without Cmd Code)   */

@@ -116,10 +116,9 @@ int32 CFE_SB_EarlyInit (void) {
     CFE_SBR_Init();
 
     /* Initialize the SB Statistics Pkt */
-    CFE_SB_InitMsg(&CFE_SB.StatTlmMsg,
-                   CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
-                   sizeof(CFE_SB.StatTlmMsg),
-                   true);    
+    CFE_MSG_Init(&CFE_SB.StatTlmMsg.Hdr.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
+                 sizeof(CFE_SB.StatTlmMsg));
 
     CFE_SB.ZeroCopyTail = NULL;
 

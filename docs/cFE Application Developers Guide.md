@@ -1216,7 +1216,7 @@ FILE: xx_app.c
 void XX_AppMain(void)
 {
     uint32 RunStatus = CFE_ES_RunStatus_APP_RUN;
-    CFE_SB_MsgPtr_t MsgPtr;
+    CFE_MSG_Message_t *MsgPtr;
     int32  Result = CFE_SUCCESS;
 
     /* Register application */
@@ -1319,18 +1319,18 @@ SB Messages by allocating sufficient memory, calling the SB API to
 initialize the contents of the SB Message and then storing any
 appropriate data into the structure.
 
-The Software Bus API hides the details of the message structure,
-providing routines such as CFE_SB_GetMsgTime and CFE_SB_SetMsgTime
+The Message API hides the details of the message structure,
+providing routines such as CFE_MSG_GetMsgTime and CFE_MSG_SetMsgTime
 in order to get and set a message time. The current version of the cFE
 supports only CCSDS, however, the implementation of the message
 structure can be changed without affecting cFS Applications.
 
-In the CCSDS implementation of the Software Bus, the upper 3 most
-significant bits of the 16 bit Message ID Number **shall be zero
-(b'000').** The Software Bus ignores the upper 3 most significant bits
-defined by CCSDS as the Version Number. A non-zero value in the Version
-Number (3 bits) could result in duplicate Message IDs being defined. For
-example, x01FF and x81FF are the same Message ID to the Software Bus.
+See the implementation documentation for specific formats,
+fields, and bit values.  The message ID (MsgId) is an abstract
+concept that is implementation depended, used for routing messages
+on the Software Bus.  Depending on the implementation, different
+ranges and values are supported, and the values effect the message
+header differently.
 
 ##### 6.1.2 Pipes
 
@@ -1646,10 +1646,9 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    int32 Status;
 
    ...
-   Status = CFE_SB_InitMsg(&SAMPLE_AppData.HkPacket,   /* Address of SB Message Data Buffer */
-                            SAMPLE_HK_TLM_MID,         /* SB Message ID associated with Data */
-                            sizeof(SAMPLE_HkPacket_t), /* Size of Buffer */
-                            CFE_SB_CLEAR_DATA);        /* Buffer should be cleared by cFE */
+   Status = CFE_MSG_Init(&SAMPLE_AppData.HkPacket,    /* Address of SB Message Data Buffer */
+                          SAMPLE_HK_TLM_MID,          /* SB Message ID associated with Data */
+                          sizeof(SAMPLE_HkPacket_t)); /* Size of Buffer */
    ...
 }
 ```
@@ -1660,7 +1659,7 @@ the SB Message was to be a command message, it would have been important
 for the Developer to have used the CFE_SB_CMD_HDR_SIZE macro
 instead.
 
-The CFE_SB_InitMsg API call formats the SB Message Header
+The CFE_MSG_Init API call formats the Message Header
 appropriately with the given SB Message ID, size and, in this case,
 clears the data portion of the SB Message (CFE_SB_CLEAR_DATA).
 Another option for the fourth parameter is CFE_SB_NO_CLEAR which
@@ -1706,74 +1705,80 @@ It is important to note that some SB API calls assume the presence of a
 particular header type and will not work properly if the other header type
 is present instead.  The following section provides more detail.  
 
-##### 6.5.2 Modifying Software Bus Message Header Information
+##### 6.5.2 Setting Message Header Information
 
-Before sending an SB Message to the SB, the Application can update the
-SB Message Header. The following table summarizes the functions that
-can be used to modify SB Message Header fields.  Note that some of these
+Before sending a Message to the SB, the Application can set fields in the
+Message Header. The following table summarizes the functions that
+can be used to modify Message Header fields.  Note that some of these
 functions are only applicable to a specific header type.  Additional
 information on modifying specific header types is provided in the following
 subsections.
 
-| **SB Message Header Field** | **SB API for Modifying the Header Field** | **Applicability**   |
-| ---------------------------:| -----------------------------------------:| -------------------:|
-| Message ID                  | CFE_SB_SetMsgId                           | Command & Telemetry |
-| Total Message Length        | CFE_SB_SetTotalMsgLength                  | Command & Telemetry |
-| User Data Message Length    | CFE_SB_SetUserDataLength                  | Command & Telemetry |
-| Command Code                | CFE_SB_SetCmdCode                         | Command Only        |
-| Checksum                    | CFE_SB_GenerateChecksum                   | Command Only        |
-| Time                        | CFE_SB_TimeStampMsg                       | Telemetry Only      |
-| Time                        | CFE_SB_SetMsgTime                         | Telemetry Only      |
+| **SB Message Header Field** | **API for Modifying the Header Field** | **Applicability**   |
+| ---------------------------:| --------------------------------------:| -------------------:|
+| Message ID                  | CFE_MSG_SetMsgId                       | Command & Telemetry |
+| Total Message Length        | CFE_MSG_SetSize                        | Command & Telemetry |
+| Command Code                | CFE_MSG_SetFcnCode                     | Command Only        |
+| Checksum                    | CFE_MSG_GenerateChecksum               | Command Only        |
+| Time                        | CFE_SB_TimeStampMsg                    | Telemetry Only      |
+| Time                        | CFE_MSG_SetMsgTime                     | Telemetry Only      |
 
-Applications shall always use these functions to manipulate the SB
-Message Header. The structure of the SB Message Header may change from
+Applications shall always use these functions to manipulate the
+Message Header. The structure of the Message Header may change from
 one deployment to the next. By using these functions, Applications are
-guaranteed to work regardless of the structure of the SB Message Header.
+guaranteed to work regardless of the structure of the Message Header.
 
-##### 6.5.2.1 Modifying SB Command Message Header Information
+Although CFE_SB_SetUserDataLength APIs is available,
+it is based on assumptions about the defintion of "User Data" and is
+really just a best guess since the packet structure is dependent on implementation.
+The preference is to use CFE_MSG_SetSize and actual packet structure
+information when available.
+
+##### 6.5.2.1 Modifying Command Message Header Information
 The most common update for command messages is to set the command code.  
-This is done through the CFE_SB_SetCmdCode() API call.  This code is used
+This is done through the CFE_MSG_SetFcnCode() API call.  This code is used
 to distinguish between multiple commands that share a Message ID.  It is
 common practice for an application to have a single "CMD_MID" to capture
 all commands and then to differentiate those commands using a command code.
 
-##### 6.5.2.2 Modifying SB Telemetry Message Header Information
+##### 6.5.2.2 Modifying Telemetry Message Header Information
 The most common update for telemetry messages is to put the current time in
-the SB Message. This is accomplished with one of two SB API functions. The
+the Message. This is accomplished with one of two API functions. The
 most commonly used function would be CFE_SB_TimeStampMsg(). This API would
 insert the current time, in the mission defined format with the mission
-defined epoch, into the SB Message Header. The other SB API that can modify
-the SB Message Header time is CFE_SB_SetMsgTime().  This API call sets the
-time in the SB Message Header to the time specified during the call. This is
-useful when the Application wishes to time tag a series of SB Messages with
+defined epoch, into the Message Header. The other API that can modify
+the Message Header time is CFE_MSG_SetMsgTime().  This API call sets the
+time in the Message Header to the time specified during the call. This is
+useful when the Application wishes to time tag a series of Messages with
 the same time.
 
-##### 6.5.3 Reading Software Bus Message Header Information
+##### 6.5.3 Reading Message Header Information
 
-There are several SB APIs available for extracting the SB Message Header
+There are several APIs available for extracting the Message Header
 Fields. These APIs shall always be used by Applications to ensure the
 Applications are portable to future missions. The following table
-identifies the fields of the SB Message Header and the appropriate API
+identifies the fields of the Message Header and the appropriate API
 for extracting that field from the header:
 
-| **SB Message Header Field** | **SB API for Reading the Header Field** | **Applicability**   |
-|:----------------------------|:----------------------------------------|:--------------------|
-| Message ID                  | CFE_SB_GetMsgId                         | Command & Telemetry |
-| Message Time                | CFE_SB_GetMsgTime                       | Telemetry Only      |
-| Total Message Length        | CFE_SB_GetTotalMsgLength                | Command & Telemetry |
-| User Data Message Length    | CFE_SB_GetUserDataLength                | Command & Telemetry |
-| Command Code                | CFE_SB_GetCmdCode                       | Command Only        |
-| Checksum                    | CFE_SB_GetChecksum                      | Command Only        |
+| **SB Message Header Field** | **API for Reading the Header Field** | **Applicability**   |
+|:----------------------------|:-------------------------------------|:--------------------|
+| Message ID                  | CFE_MSG_GetMsgId                     | Command & Telemetry |
+| Message Time                | CFE_MSG_GetTime                      | Imp. Dependent      |
+| Total Message Length        | CFE_MSG_GetSize                      | Command & Telemetry |
+| Command Code                | CFE_MSG_GetFcnCode                   | Command Only        |
 
-In addition to the function for reading the checksum field, there is
-another API that automatically calculates the checksum for the packet
+There are other APIs based on selected implementation. The full list is
+available in the user's guide.
+
+There is another API that automatically calculates the checksum for the packet
 and compares it to the checksum in the header. The API is called
-CFE_SB_ValidateChecksum() and it simply returns a success or failure
+CFE_MSG_ValidateChecksum() and it simply returns a success or failure
 indication.
 
-If the Application's data structure definitions don't include the header
-information, then the CFE_SB_GetUserData API could be used to obtain
-the start address of the SB Message data.
+Although CFE_SB_GetUserDataLength and CFE_SB_GetUserData APIs are available,
+they are based on assumptions about the defintion of "User Data" and are
+really just a best guess since the packet structure is dependent on implementation.
+The preference is to use the actual packet structure when available.
 
 #### 6.6 Sending Software Bus Messages
 
@@ -1799,8 +1804,8 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    /*
    ** Send housekeeping SB Message after time tagging it with current time
    */
-   CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkPacket);
-   CFE_SB_SendMsg((CFE_SB_Msg_t *) &SAMPLE_AppData.HkPacket);
+   CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &SAMPLE_AppData.HkPacket);
+   CFE_SB_SendMsg((CFE_MSG_Message_t *) &SAMPLE_AppData.HkPacket);
    ...
 }
 ```
@@ -1816,8 +1821,8 @@ FILE: sample_app.h
 typedef struct
 {
   ...
-  CFE_SB_MsgPtr_t       MsgPtr;
-  CFE_SB_PipeId_t       CmdPipe;
+  CFE_MSG_Message_t *MsgPtr;
+  CFE_SB_PipeId_t    CmdPipe;
   ...
 } SAMPLE_AppData_t;
 ```
@@ -1945,10 +1950,9 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    ** Get a SB Message block of memory and initialize it
    */
    SAMPLE_AppData.BigPktPtr = (SAMPLE_BigPkt_t *)CFE_SB_ZeroCopyGetPtr(SAMPLE_BIGPKT_MSGLEN);
-   CFE_SB_InitMsg((CFE_SB_Msg_t *) SAMPLE_AppData.BigPktPtr,
-                                   SAMPLE_BIG_TLM_MID,
-                                   SAMPLE_BIGPKT_MSGLEN,
-                                   CFE_SB_CLEAR_DATA);
+   CFE_MSG_Init((CFE_MSG_Message_t *) SAMPLE_AppData.BigPktPtr,
+                                      SAMPLE_BIG_TLM_MID,
+                                      SAMPLE_BIGPKT_MSGLEN);
 
    /*
    ** ...Fill Packet with Data...
@@ -1957,8 +1961,8 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    /*
    ** Send SB Message after time tagging it with current time
    */
-   CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) SAMPLE_AppData.BigPktPtr);
-   CFE_SB_ZeroCopySend((CFE_SB_Msg_t *) SAMPLE_AppData.BigPktPtr);
+   CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) SAMPLE_AppData.BigPktPtr);
+   CFE_SB_ZeroCopySend((CFE_MSG_Message_t *) SAMPLE_AppData.BigPktPtr);
    /* SAMPLE_AppData.BigPktPtr is no longer a valid pointer */
    ...
 }

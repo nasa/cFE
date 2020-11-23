@@ -762,8 +762,8 @@ typedef struct CFE_TBL_HousekeepingTlm_Payload
 
 typedef struct CFE_TBL_HousekeepingTlm
 {
-    uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE];       /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_TBL_HousekeepingTlm_Payload_t  Payload;
+    CFE_SB_TlmHdr_t                   TlmHeader;       /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_TBL_HousekeepingTlm_Payload_t Payload;
 } CFE_TBL_HousekeepingTlm_t;
 
 
@@ -810,8 +810,8 @@ typedef struct CFE_TBL_TblRegPacket_Payload
 
 typedef struct CFE_TBL_TableRegistryTlm
 {
-    uint8                           TlmHeader[CFE_SB_TLM_HDR_SIZE];       /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_TBL_TblRegPacket_Payload_t  Payload;
+    CFE_SB_TlmHdr_t                TlmHeader;       /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_TBL_TblRegPacket_Payload_t Payload;
 } CFE_TBL_TableRegistryTlm_t;
 
 
