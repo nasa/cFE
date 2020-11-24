@@ -563,8 +563,7 @@ CFE_Status_t  CFE_SB_SendMsg(CFE_MSG_Message_t *MsgPtr);
 **            sequence counter in a telemetry message.
 **
 ** \param[in]  MsgPtr       A pointer to the message to be sent.  This must point
-**                          to the first byte of the message header
-**                          (#CFE_MSG_Message_t).
+**                          to the first byte of the message header.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
