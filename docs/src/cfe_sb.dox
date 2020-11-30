@@ -166,7 +166,7 @@
   buffer descriptor (CFE_SB_BufferD_t) and one for the size of the packet. Both buffers
   are returned to the pool when the message has been received by all recipients. More
   precisely, if there is one recipient for a message, the message buffers will be released
-  on the following call to cFE_SB_RcvMsg for the pipe that received the message.
+  on the following call to CFE_SB_ReceiveBuffer for the pipe that received the buffer.
 
   Also when subscriptions are received through the subscribe API's, the software bus
   allocates a subscription block (CFE_SB_DestinationD_t) from the pool. The subscription
@@ -292,20 +292,21 @@
 
   The sequence counter for command messages is not altered by the software bus.
 
-  For telemetry messages sent with the #CFE_SB_SendMsg API, the software bus populates the packet sequence
-  header field for all messages. The first time a telemetry message is sent with a new Message ID,
-  the sequence counter field in the header is set to a value of one. For subsequent
-  sends of a message, the sequence counter is incremented by one regardless of the number of
-  destinations for the packet. After a rollover condition the sequence counter will be a
-  value of zero for one instance. The sequence counter is incremented in the #CFE_SB_SendMsg
-  API after all the checks have passed prior to the actual sending of the message. This
-  includes the parameter checks and the memory allocation check.
-  Note: The count is incremented regardless of whether there are any subscribers.
+  For a telemetry message, the behavior is controlled via input parameters or API selection
+  when sending the command.  When enabled, the software bus will populate the packet sequence
+  counter using an internal counter that gets intialized upon the first subscription to the
+  message (first message will have a packet sequence counter value of 1).  From that point on
+  each send request will increment the counter by one, regardless of the number of destinations
+  or if there is an active subscription.
 
-  For telemetry messages sent with the #CFE_SB_PassMsg API the sequence counter is not incremented.
-  This method of message delivery is recommended for situations
-  where the sender did not generate the packet, such as a network interface application
-  passing a packet from a remote system to the local software bus.
+  After a rollover condition the sequence counter will be a value of zero for one instance.
+  The sequence counter is incremented after all the checks have passed prior to the actual
+  sending of the message. This includes the parameter checks and the memory allocation check.
+
+  When disabled, the original message will not be altered.  This method of message delivery
+  is recommended for situations where the sender did not generate the packet,
+  such as a network interface application passing a packet from a remote system to the local
+  software bus.
 
   Next: \ref cfesbugmsgpipeerr <BR>
   Prev: \ref cfesbugrouting <BR>
@@ -369,15 +370,14 @@
 
   There is one case in which events are filtered by the software bus instead of event services.
   This occurs when the software bus needs to suppress events so that a fatal recursive event
-  condition does not transpire. Because the #CFE_SB_SendMsg API is a library function that
-  calls #CFE_EVS_SendEvent, and #CFE_EVS_SendEvent is a library function that calls #CFE_SB_SendMsg,
+  condition does not transpire. Because error cases encountered when sending a message generate
+  an event, and events cause a message to be sent
   a calling sequence could cause a stack overflow if the recursion is not properly terminated.
   The cFE software bus detects this condition and properly terminates the recursion. This is
   done by using a set of flags (one flag per event in the Send API) which determine whether
-  an API has relinquished its stack. If the #CFE_SB_SendMsg needs to send an event that may
-  cause recursion, the flag is set and the event is sent. #CFE_EVS_SendEvent then calls #CFE_SB_SendMsg
-  in the same thread. If the second call to #CFE_SB_SendMsg needs to send that same event again,
-  it finds that the flag is set and the #CFE_EVS_SendEvent call is bypassed, terminating the
+  an API has relinquished its stack. If the software bus needs to send an event that may
+  cause recursion, the flag is set and the event is sent. If sending the event would cause
+  the same event again, the event call will be bypassed, terminating the
   recursion. The result is that the user will see only one event instead of the many events
   that would normally occur without the protection. The heritage software bus did not have
   this condition because it stored events in the software bus event log and another thread
@@ -508,31 +508,29 @@
            How many copies of the message are performed in a typical message delivery?
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
            There is a single copy of the message performed during a typical delivery.
-           During the #CFE_SB_SendMsg API, the software bus copies the message from the
-           callers memory space to the software bus memory space. The #CFE_SB_RcvMsg API
-           gives the user a pointer to the message in the software bus memory space. This
+           When transmitting a message, the software bus copies the message from the
+           callers memory space into a buffer in the software bus memory space.
+           The #CFE_SB_ReceiveBuffer API gives the user back a pointer to the buffer. This
            is equivalent to the copy mode send and pointer mode receive in the heritage
            software bus used on WMAP, ST5, SDO etc.
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           When does the software bus free the message buffer during a typical message
-           delivery process? Or how long is the message, and the pointer to the message
-           in the #CFE_SB_RcvMsg valid?
+           When does the software bus free the buffer during a typical message
+           delivery process? Or how long is the message, and the pointer to the buffer
+           in the #CFE_SB_ReceiveBuffer valid?
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           After receiving a message by calling #CFE_SB_RcvMsg, the message received stays
-           in the software bus memory until the next call to #CFE_SB_RcvMsg with the same
-           Pipe Id. This means that the message pointer given by the software bus to the
-           caller of #CFE_SB_RcvMsg is valid until the next call to #CFE_SB_RcvMsg with the
-           same pipe id. If the caller needs the message longer than the next call to
-           #CFE_SB_RcvMsg, the caller must copy the message to its memory space.
+           After receiving a buffer by calling #CFE_SB_ReceiveBuffer, the buffer received is valid
+           until the next call to #CFE_SB_ReceiveBuffer with the same Pipe Id.
+           If the caller needs the message longer than the next call to
+           #CFE_SB_ReceiveBuffer, the caller must copy the message to its memory space.
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           The first parameter in the #CFE_SB_RcvMsg API is a pointer to a pointer which
+           The first parameter in the #CFE_SB_ReceiveBuffer API is a pointer to a pointer which
            can get confusing. How can I be sure that the correct address is given for this
            parameter.
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           Typically a caller declares a ptr of type CFE_MSG_Message_t (i.e. CFE_MSG_Message_t *Ptr)
+           Typically a caller declares a ptr of type CFE_SB_Buffer_t (i.e. CFE_SB_Buffer_t *Ptr)
            then gives the address of that pointer (&Ptr) as this parameter. After a successful
-           call to #CFE_SB_RcvMsg, Ptr will point to the first byte of the software bus message
-           header. This should be used as a read-only pointer. In systems with an MMU, writes
+           call to #CFE_SB_ReceiveBuffer, Ptr will point to the first byte of the software bus
+           buffer. This should be used as a read-only pointer. In systems with an MMU, writes
            to this pointer may cause a memory protection fault.
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
            Why am I not seeing expected Message Limit error events or Pipe Overflow events?
@@ -569,7 +567,7 @@
            will ensure seamless integration when the software bus is expanded to support
            inter-processor communication.
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           Can I confirm my software bus message was delivered?
+           Can I confirm my software bus buffer was delivered?
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
            There is no built in mechanism for confirming delivery (it could span systems).
            This could be accomplished by generating a response message from the receiver.

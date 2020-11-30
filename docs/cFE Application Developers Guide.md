@@ -1080,21 +1080,17 @@ void SAMPLE_TaskMain(void)
         /*
         ** Wait for the next Software Bus message
         */
-        Status = CFE_SB_RcvMsg( &SAMPLE_TaskData.MsgPtr,
-                                SAMPLE_TaskData.CmdPipe,
-                                CFE_SB_PEND_FOREVER );
+        Status = CFE_SB_ReceiveBuffer(&SBBufPtr, SAMPLE_TaskData.CmdPipe, CFE_SB_PEND_FOREVER);
 
         if (Status == CFE_SUCCESS)
         {
             /*
             ** Process Software Bus message
             */
-            SAMPLE_TaskPipe(CFE_TBL_TaskData.MsgPtr);
+            SAMPLE_TaskPipe(SBBufPtr);
 
             /* Update Critical Data Store */
-  	        CFE_ES_CopyToCDS(SAMPLE_TaskData.MyCDSHandle,
-                             &SAMPLE_MyCDSDataType_t);
-
+            CFE_ES_CopyToCDS(SAMPLE_TaskData.MyCDSHandle, &SAMPLE_MyCDSDataType_t);
         }
     }
     CFE_EVS_SendEvent(CFE_TBL_EXIT_ERR_EID, CFE_EVS_ERROR,
@@ -1216,7 +1212,7 @@ FILE: xx_app.c
 void XX_AppMain(void)
 {
     uint32 RunStatus = CFE_ES_RunStatus_APP_RUN;
-    CFE_MSG_Message_t *MsgPtr;
+    CFE_SB_Buffer_t *SBBufPtr;
     int32  Result = CFE_SUCCESS;
 
     /* Register application */
@@ -1250,7 +1246,7 @@ void XX_AppMain(void)
         CFE_ES_PerfLogExit(XX_APPMAIN_PERF_ID);
 
         /* Wait for the next Software Bus message */
-        Result = CFE_SB_RcvMsg(&MsgPtr, XX_GlobalData.CmdPipe, CFE_SB_PEND_FOREVER);
+        Result = CFE_SB_ReceiveBuffer(&SBBufPtr, XX_GlobalData.CmdPipe, CFE_SB_PEND_FOREVER);
 
         /* Performance Log (start time counter) */
         CFE_ES_PerfLogEntry(XX_APPMAIN_PERF_ID);
@@ -1258,7 +1254,7 @@ void XX_AppMain(void)
         if (Result == CFE_SUCCESS)
         {
             /* Process Software Bus message */
-            XX_ProcessPkt(MsgPtr);
+            XX_ProcessPkt(SBBufPtr);
         }
         else
         {
@@ -1612,7 +1608,7 @@ FILE: sample_app.h
 */
 typedef struct
 {
-  uint8          TlmHeader[CFE_SB_TLM_HDR_SIZE];
+  CFE_MSG_TelemetryHeader_t TlmHeader;
 
   /*
   ** Task command interface counters...
@@ -1646,17 +1642,17 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    int32 Status;
 
    ...
-   Status = CFE_MSG_Init(&SAMPLE_AppData.HkPacket,    /* Address of SB Message Data Buffer */
-                          SAMPLE_HK_TLM_MID,          /* SB Message ID associated with Data */
-                          sizeof(SAMPLE_HkPacket_t)); /* Size of Buffer */
+   Status = CFE_MSG_Init(&SAMPLE_AppData.HkPacket.TlmHeader.Msg, /* Address of SB Message Data Buffer */
+                          SAMPLE_HK_TLM_MID,                     /* SB Message ID associated with Data */
+                          sizeof(SAMPLE_AppData.HkPacket));      /* Size of Buffer */
    ...
 }
 ```
 
 In this example, the Developer has allocated space for the SB Message
-header in their structure using the CFE_SB_TLM_HDR_SIZE macro. If
+header in their structure using the CFE_MSG_TelemetryHeader_t type. If
 the SB Message was to be a command message, it would have been important
-for the Developer to have used the CFE_SB_CMD_HDR_SIZE macro
+for the Developer to have used the CFE_MSG_CommandHeader_t macro
 instead.
 
 The CFE_MSG_Init API call formats the Message Header
@@ -1671,38 +1667,44 @@ of the Application's interface. This makes it much simpler to port the
 Application to another mission where SB Message IDs may need to be
 renumbered.
 
-##### 6.5.1 Software Bus Message Header Types
+##### 6.5.1 Message Header Types
 
-The SB support two main types of headers: command headers and telemetry
-headers.  In the CCSDS implementation of the SB, the command and telemetry
+The Message module supports two main types of headers: command headers and telemetry
+headers.  In the CCSDS implementation, the command and telemetry
 headers share the same CCSDS primary header structure but have different
 secondary header structures. The secondary header structures are
-shown below.  Note that all SB messages must have a secondary header.
+shown below.  Note that all messages must have a secondary header, a message
+containing just a CFE_MSG_Message_t is invalid per the CCSDS standard.
 
 ```
-typedef struct {
+typedef struct
+{
 
-   uint16  Command;      /* command secondary header */
-      /*  bits  shift   ------------ description ---------------- */
-      /* 0x00FF    0  : checksum, calculated by ground system     */
-      /* 0x7F00    8  : command function code                     */
-      /* 0x8000   15  : reserved, set to 0                        */
+    uint8 FunctionCode; /**< \brief Command Function Code */
+                        /* bits shift ---------description-------- */
+                        /* 0x7F  0    Command function code        */
+                        /* 0x80  7    Reserved                     */
 
-} CCSDS_CmdSecHdr_t;
+    uint8 Checksum; /**< \brief Command checksum  (all bits, 0xFF)      */
 
-typedef struct {
+} CFE_MSG_CommandSecondaryHeader_t;
 
-   uint8  Time[CCSDS_TIME_SIZE];
+/**
+ * \brief cFS telemetry secondary header
+ */
+typedef struct
+{
 
-} CCSDS_TlmSecHdr_t;
+    uint8 Time[6]; /**< \brief Time, big endian: 4 byte seconds, 2 byte subseconds */
 
+} CFE_MSG_TelemetrySecondaryHeader_t;
 ```
 
-The sizes of command and telemetry message headers are defined by  
-CFE_SB_CMD_HDR_SIZE and CFE_SB_TLM_HDR_SIZE respectively.  
+The sizes of command and telemetry message headers can be calculated using
+sizeof(CFE_MSG_CommandHeader_t) and sizeof(CFE_MSG_TelemetryHeader_t) respectively.
 
-It is important to note that some SB API calls assume the presence of a
-particular header type and will not work properly if the other header type
+It is important to note that some API calls require the presence of a
+particular header type and will return an error if the other header type
 is present instead.  The following section provides more detail.  
 
 ##### 6.5.2 Setting Message Header Information
@@ -1714,14 +1716,14 @@ functions are only applicable to a specific header type.  Additional
 information on modifying specific header types is provided in the following
 subsections.
 
-| **SB Message Header Field** | **API for Modifying the Header Field** | **Applicability**   |
-| ---------------------------:| --------------------------------------:| -------------------:|
-| Message ID                  | CFE_MSG_SetMsgId                       | Command & Telemetry |
-| Total Message Length        | CFE_MSG_SetSize                        | Command & Telemetry |
-| Command Code                | CFE_MSG_SetFcnCode                     | Command Only        |
-| Checksum                    | CFE_MSG_GenerateChecksum               | Command Only        |
-| Time                        | CFE_SB_TimeStampMsg                    | Telemetry Only      |
-| Time                        | CFE_MSG_SetMsgTime                     | Telemetry Only      |
+| **SB Message Header Field** | **API for Modifying the Header Field** |
+| ---------------------------:| --------------------------------------:|
+| Message ID                  | CFE_MSG_SetMsgId                       |
+| Total Message Length        | CFE_MSG_SetSize                        |
+| Command Code                | CFE_MSG_SetFcnCode                     |
+| Checksum                    | CFE_MSG_GenerateChecksum               |
+| Time                        | CFE_SB_TimeStampMsg                    |
+| Time                        | CFE_MSG_SetMsgTime                     |
 
 Applications shall always use these functions to manipulate the
 Message Header. The structure of the Message Header may change from
@@ -1760,12 +1762,12 @@ Applications are portable to future missions. The following table
 identifies the fields of the Message Header and the appropriate API
 for extracting that field from the header:
 
-| **SB Message Header Field** | **API for Reading the Header Field** | **Applicability**   |
-|:----------------------------|:-------------------------------------|:--------------------|
-| Message ID                  | CFE_MSG_GetMsgId                     | Command & Telemetry |
-| Message Time                | CFE_MSG_GetTime                      | Imp. Dependent      |
-| Total Message Length        | CFE_MSG_GetSize                      | Command & Telemetry |
-| Command Code                | CFE_MSG_GetFcnCode                   | Command Only        |
+| **SB Message Header Field** | **API for Reading the Header Field** |
+|:----------------------------|:-------------------------------------|
+| Message ID                  | CFE_MSG_GetMsgId                     |
+| Message Time                | CFE_MSG_GetTime                      |
+| Total Message Length        | CFE_MSG_GetSize                      |
+| Command Code                | CFE_MSG_GetFcnCode                   |
 
 There are other APIs based on selected implementation. The full list is
 available in the user's guide.
@@ -1783,9 +1785,8 @@ The preference is to use the actual packet structure when available.
 #### 6.6 Sending Software Bus Messages
 
 After an SB message has been created (see Section 6.5) and its contents
-have been set to the appropriate values, the application can call
-CFE_SB_SendMsg() to send the message on the SB. An example of this is
-shown below:
+have been set to the appropriate values, the application can then
+send the message on the SB. An example of this is shown below:
 
 ```
 FILE: sample_app.c
@@ -1795,23 +1796,23 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 ...
 {
    ...
-   /*
-   ** Get command execution counters and put them into housekeeping SB Message
-   */
-   SAMPLE_AppData.HkPacket.CmdCounter = SAMPLE_AppData.CmdCounter;
-   SAMPLE_AppData.HkPacket.ErrCounter = SAMPLE_AppData.ErrCounter;
+    /*
+    ** Get command execution counters...
+    */
+    SAMPLE_APP_Data.HkTlm.Payload.CommandErrorCounter = SAMPLE_APP_Data.ErrCounter;
+    SAMPLE_APP_Data.HkTlm.Payload.CommandCounter      = SAMPLE_APP_Data.CmdCounter;
 
-   /*
-   ** Send housekeeping SB Message after time tagging it with current time
-   */
-   CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &SAMPLE_AppData.HkPacket);
-   CFE_SB_SendMsg((CFE_MSG_Message_t *) &SAMPLE_AppData.HkPacket);
+    /*
+    ** Send housekeeping telemetry packet...
+    */
+    CFE_SB_TimeStampMsg(&SAMPLE_APP_Data.HkTlm.TlmHeader.Msg);
+    CFE_SB_TransmitMsg(&SAMPLE_APP_Data.HkTlm.TlmHeader.Msg, true);
    ...
 }
 ```
 #### 6.7 Receiving Software Bus Messages
 
-To receive a SB Message, an application calls CFE_SB_RcvMsg.  Since most
+To receive a SB Message, an application calls CFE_SB_ReceiveBuffer.  Since most
 applications are message-driven, this typically occurs in an application's
 main execution loop.  An example of this is shown below.
 
@@ -1821,7 +1822,6 @@ FILE: sample_app.h
 typedef struct
 {
   ...
-  CFE_MSG_Message_t *MsgPtr;
   CFE_SB_PipeId_t    CmdPipe;
   ...
 } SAMPLE_AppData_t;
@@ -1831,12 +1831,14 @@ FILE: sample_app.c
 
 {
    ...
+   CFE_SB_Buffer_t *SBBufPtr;
+   ...
    while (TRUE)
    {
        /*
        ** Wait for the next Software Bus message...
        */
-        SB_Status = CFE_SB_RcvMsg(&SAMPLE_AppData.MsgPtr,
+        SB_Status = CFE_SB_ReceiveBuffer(&SBBufPtr,
                                    SAMPLE_AppData.CmdPipe,
                                    CFE_SB_PEND_FOREVER);
 
@@ -1845,7 +1847,7 @@ FILE: sample_app.c
            /*
            ** Process Software Bus message...
            */
-           SAMPLE_AppPipe(SAMPLE_AppData.MsgPtr);
+           SAMPLE_AppPipe(SBBufPtr);
        }
    }
 }
@@ -1853,7 +1855,7 @@ FILE: sample_app.c
 
 In the above example, the Application will pend on the
 SAMPLE_AppData.CmdPipe until an SB Message arrives. A pointer to the next SB
-Message in the Pipe will be returned in SAMPLE_AppData.MsgPtr.
+message in the Pipe will be returned in SBBufPtr.
 
 Alternatively, the Application could have chosen to pend with a timeout (by
 providing a numerical argument in place of CFE_SB_PEND_FOREVER) or to quickly
@@ -1862,7 +1864,7 @@ CFE_SB_PEND_FOREVER).
 
 If a SB Message fails to arrive within the specified timeout period, the
 cFE will return the CFE_SB_TIME_OUT status code. If the Pipe does not have
-any data present when the CFE_SB_RcvMsg API is called, the cFE will return
+any data present when the CFE_SB_ReceiveBuffer API is called, the cFE will return
 a CFE_SB_NO_MESSAGE status code.
 
 After a message is received, the SB Message Header accessor functions (as
@@ -1870,35 +1872,32 @@ described in Section 6.5.3) should be used to identify the message so that
 the application can react to it appropriately.  
 
 
-#### 6.8 Improving Message Transfer Performance for Large SB Messages
+#### 6.8 Improving Message Transfer Performance for Large Messages
 
 Occasionally, there is a need for large quantities of data to be passed
 between Applications that are on the same processor (e.g.- Science data
 analysis and/or compression algorithms along with the science data
-acquisition Application). The drawback to using the standard
-communication protocol described above is that SB Messages are copied
-from the sending Application data space into the SB data space. If the
-copy is too time consuming, the Developer can choose to implement a
+acquisition Application). The drawback to using CFE_SB_TransmitMsg
+is that the message is copied into a SB Buffer.  If the
+copy is too time consuming, the Developer can choose to utilize the
 "Zero Copy" protocol.
 
-The first step in implementing the "Zero Copy" protocol, is to acquire a
-data space that can be shared between the two Applications. This is
-accomplished with the CFE_SB_ZeroCopyGetPtr API call. The
-CFE_SB_ZeroCopyGetPtr function returns a pointer to an area of memory
-that can contain the desired SB Message.
+The application can request a buffer from SB utilizing
+CFE_SB_ZeroCopyGetPtr, then write the message data directly to the
+buffer that can be sent directly (without a copy) by SB.
 
-Once an Application has formatted and filled the SB Message with the
-appropriate data, the Application calls the CFE_SB_ZeroCopySend API.
+Once an Application has formatted and filled the SB buffer with the
+appropriate data, transmit the buffer using CFE_SB_TransmitBuffer.
 The SB then identifies the Application(s) that have subscribed to this
-data and places a pointer to the SB Message Buffer in their Pipe(s).
-**The pointer to the SB Message is no longer valid once the Application
-calls the CFE_SB_ZeroCopySend API.** Applications should not
-assume the SB Message Buffer pointer is accessible once the SB Message
+data and places a pointer to the SB Buffer in their Pipe(s).
+**The pointer to the SB Buffer is no longer valid once the Application
+calls the CFE_SB_TransmitBuffer API.** Applications should not
+assume the SB Buffer pointer is accessible once the buffer
 has been sent.
 
 If an Application has called the CFE_SB_ZeroCopyGetPtr API call and
 then later determines that it is not going to send the SB Message, it
-shall free the allocated SB Message space by calling the
+shall free the allocated buffer by calling the
 CFE_SB_ZeroCopyReleasePtr API.
 
 An example of the "Zero Copy" protocol is shown below:
@@ -1920,7 +1919,7 @@ FILE: sample_app.h
 */
 typedef struct
 {
-  uint8          TlmHeader[CFE_SB_TLM_HDR_SIZE];
+  CFE_MSG_CommandHeader_t TlmHeader;
 
   /*
   ** Task command interface counters...
@@ -1929,14 +1928,17 @@ typedef struct
 
 } SAMPLE_BigPkt_t;
 
-/* Define Msg Length for SAMPLE’s Big Pkt */
-#define SAMPLE_BIGPKT_MSGLEN      sizeof(SAMPLE_BigPkt_t)
+typedef union
+{
+  CFE_SB_Buffer_t SBBuf;
+  SAMPLE_BigPkt_t Pkt;
+} SAMPLE_BigPkt_Buffer_t;
+
 ...
 typedef struct
 {
   ...
-  ...
-  SAMPLE_BigPkt_t  *BigPktPtr; /* Declare instance of Big Packet */
+  SAMPLE_BigPkt_Buffer_t  *BigPktBuf; /* Declare instance of Big Packet */
   ...
 } SAMPLE_AppData_t;
 
@@ -1949,10 +1951,10 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    /*
    ** Get a SB Message block of memory and initialize it
    */
-   SAMPLE_AppData.BigPktPtr = (SAMPLE_BigPkt_t *)CFE_SB_ZeroCopyGetPtr(SAMPLE_BIGPKT_MSGLEN);
-   CFE_MSG_Init((CFE_MSG_Message_t *) SAMPLE_AppData.BigPktPtr,
-                                      SAMPLE_BIG_TLM_MID,
-                                      SAMPLE_BIGPKT_MSGLEN);
+   SAMPLE_AppData.BigPktBuf = (SAMPLE_BigPkt_Buffer_t *)CFE_SB_ZeroCopyGetPtr(sizeof(SAMPLE_BigPkt_t),
+                              &BufferHandle);
+   CFE_MSG_Init(SAMPLE_AppData.BigPktBuf->Pkt.TlmHeader.Msg, SAMPLE_BIG_TLM_MID,
+                sizeof(SAMPLE_AppData.BigPktBuf->Pkt);
 
    /*
    ** ...Fill Packet with Data...
@@ -1961,9 +1963,9 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    /*
    ** Send SB Message after time tagging it with current time
    */
-   CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) SAMPLE_AppData.BigPktPtr);
-   CFE_SB_ZeroCopySend((CFE_MSG_Message_t *) SAMPLE_AppData.BigPktPtr);
-   /* SAMPLE_AppData.BigPktPtr is no longer a valid pointer */
+   CFE_SB_TimeStampMsg(&SAMPLE_AppData.BigPktBuf->Pkt.TlmHeader.Msg);
+   CFE_SB_TransmitBuffer(SAMPLE_AppData.BigPktBuf, BufferHandle, true);
+   /* SAMPLE_AppData.BigPktBuf is no longer a valid pointer */
    ...
 }
 ```
