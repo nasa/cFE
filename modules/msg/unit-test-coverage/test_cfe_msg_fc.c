@@ -41,11 +41,11 @@
 
 void Test_MSG_FcnCode(void)
 {
-    CFE_SB_CmdHdr_t    cmd;
-    CFE_MSG_Message_t *msgptr  = (CFE_MSG_Message_t *)&cmd;
-    CFE_MSG_FcnCode_t  input[] = {0, TEST_FCNCODE_MAX / 2, TEST_FCNCODE_MAX};
-    CFE_MSG_FcnCode_t  actual  = TEST_FCNCODE_MAX;
-    int                i;
+    CFE_MSG_CommandHeader_t cmd;
+    CFE_MSG_Message_t      *msgptr  = &cmd.Msg;
+    CFE_MSG_FcnCode_t       input[] = {0, TEST_FCNCODE_MAX / 2, TEST_FCNCODE_MAX};
+    CFE_MSG_FcnCode_t       actual  = TEST_FCNCODE_MAX;
+    int                     i;
 
     UtPrintf("Bad parameter tests, Null pointers, invalid (max valid + 1, max)");
     memset(&cmd, 0, sizeof(cmd));
