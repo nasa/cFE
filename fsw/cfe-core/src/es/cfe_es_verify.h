@@ -145,7 +145,7 @@
 #endif
 
 /* 
-** Syslog mode 
+** SysLog mode
 */
 #if CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE  <  0
     #error CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE cannot be less than 0!

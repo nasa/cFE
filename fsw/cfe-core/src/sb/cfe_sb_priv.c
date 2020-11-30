@@ -608,7 +608,7 @@ int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId)
         prev = (CFE_SB_ZeroCopyD_t *) (zcd->Prev);
         if( CFE_ES_ResourceID_Equal(zcd->AppID, AppId) )
         {
-            CFE_SB_ZeroCopyReleasePtr((CFE_MSG_Message_t *) zcd->Buffer, (CFE_SB_ZeroCopyHandle_t) zcd);
+            CFE_SB_ZeroCopyReleasePtr((CFE_SB_Buffer_t *) zcd->Buffer, (CFE_SB_ZeroCopyHandle_t) zcd);
         }
         zcd = prev;
     }

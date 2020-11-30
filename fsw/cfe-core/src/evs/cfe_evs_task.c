@@ -53,7 +53,7 @@ CFE_EVS_GlobalData_t CFE_EVS_GlobalData;
 /*
 ** Local function prototypes.
 */
-void  CFE_EVS_ProcessGroundCommand(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId);
+void  CFE_EVS_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr, CFE_SB_MsgId_t MsgId);
 bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
 
 /* Function Definitions */
@@ -86,7 +86,7 @@ int32 CFE_EVS_EarlyInit ( void )
    memset(&CFE_EVS_GlobalData, 0, sizeof(CFE_EVS_GlobalData_t));
 
    /* Initialize housekeeping packet */
-   CFE_MSG_Init(&CFE_EVS_GlobalData.EVS_TlmPkt.TlmHeader.BaseMsg, CFE_SB_ValueToMsgId(CFE_EVS_HK_TLM_MID),
+   CFE_MSG_Init(&CFE_EVS_GlobalData.EVS_TlmPkt.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_EVS_HK_TLM_MID),
            sizeof(CFE_EVS_GlobalData.EVS_TlmPkt));
   
    /* Elements stored in the hk packet that have non-zero default values */
@@ -213,7 +213,7 @@ int32 CFE_EVS_CleanUpApp(CFE_ES_ResourceID_t AppID)
 void CFE_EVS_TaskMain(void)
 {
     int32              Status;
-    CFE_MSG_Message_t *MsgPtr; /* Pointer to SB message */
+    CFE_SB_Buffer_t   *SBBufPtr;
 
     CFE_ES_PerfLogEntry(CFE_MISSION_EVS_MAIN_PERF_ID);    
    
@@ -244,7 +244,7 @@ void CFE_EVS_TaskMain(void)
         CFE_ES_PerfLogExit(CFE_MISSION_EVS_MAIN_PERF_ID);
 
         /* Pend on receipt of packet */
-        Status = CFE_SB_RcvMsg(&MsgPtr,
+        Status = CFE_SB_ReceiveBuffer(&SBBufPtr,
                                CFE_EVS_GlobalData.EVS_CommandPipe, 
                                CFE_SB_PEND_FOREVER);
 
@@ -253,14 +253,14 @@ void CFE_EVS_TaskMain(void)
         if (Status == CFE_SUCCESS)
         {
             /* Process cmd pipe msg */
-            CFE_EVS_ProcessCommandPacket(MsgPtr);
+            CFE_EVS_ProcessCommandPacket(SBBufPtr);
         }else{            
             CFE_ES_WriteToSysLog("EVS:Error reading cmd pipe,RC=0x%08X\n",(unsigned int)Status);
         }/* end if */
     
     }/* end while */
 
-    /* while loop exits only if CFE_SB_RcvMsg returns error */
+    /* while loop exits only if CFE_SB_ReceiveBuffer returns error */
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
 
 } /* end CFE_EVS_TaskMain */
@@ -352,23 +352,23 @@ int32 CFE_EVS_TaskInit ( void )
 ** Assumptions and Notes:
 **
 */
-void CFE_EVS_ProcessCommandPacket(CFE_MSG_Message_t *MsgPtr)
+void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_SB_MsgId_t    MessageID = CFE_SB_INVALID_MSG_ID;
 
-    CFE_MSG_GetMsgId(MsgPtr, &MessageID);
+    CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
 
     /* Process all SB messages */
     switch (CFE_SB_MsgIdToValue(MessageID))
     {
         case CFE_EVS_CMD_MID:
             /* EVS task specific command */
-            CFE_EVS_ProcessGroundCommand(MsgPtr, MessageID);
+            CFE_EVS_ProcessGroundCommand(SBBufPtr, MessageID);
             break;
 
         case CFE_EVS_SEND_HK_MID:
             /* Housekeeping request */
-            CFE_EVS_ReportHousekeepingCmd((CFE_SB_CmdHdr_t*)MsgPtr);
+            CFE_EVS_ReportHousekeepingCmd((CFE_MSG_CommandHeader_t *)SBBufPtr);
             break;
 
         default:
@@ -396,182 +396,182 @@ void CFE_EVS_ProcessCommandPacket(CFE_MSG_Message_t *MsgPtr)
 ** Assumptions and Notes:
 **
 */
-void CFE_EVS_ProcessGroundCommand(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId)
+void CFE_EVS_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr, CFE_SB_MsgId_t MsgId)
 {
    /* status will get reset if it passes length check */
    int32             Status = CFE_STATUS_WRONG_MSG_LENGTH;
    CFE_MSG_FcnCode_t FcnCode = 0;
 
-   CFE_MSG_GetFcnCode(MsgPtr, &FcnCode);
+   CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);
 
    /* Process "known" EVS task ground commands */
    switch (FcnCode)
    {
       case CFE_EVS_NOOP_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_Noop_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_NoopCmd_t)))
          {
-            Status = CFE_EVS_NoopCmd((CFE_EVS_Noop_t*)MsgPtr);
+            Status = CFE_EVS_NoopCmd((CFE_EVS_NoopCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_RESET_COUNTERS_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_ResetCounters_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_ResetCountersCmd_t)))
          {
-            Status = CFE_EVS_ResetCountersCmd((CFE_EVS_ResetCounters_t*)MsgPtr);
+            Status = CFE_EVS_ResetCountersCmd((CFE_EVS_ResetCountersCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_ENABLE_EVENT_TYPE_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_EnableEventType_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_EnableEventTypeCmd_t)))
          {
-             Status = CFE_EVS_EnableEventTypeCmd((CFE_EVS_EnableEventType_t*)MsgPtr);
+             Status = CFE_EVS_EnableEventTypeCmd((CFE_EVS_EnableEventTypeCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_DISABLE_EVENT_TYPE_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_DisableEventType_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_DisableEventTypeCmd_t)))
          {
-             Status = CFE_EVS_DisableEventTypeCmd((CFE_EVS_DisableEventType_t*)MsgPtr);
+             Status = CFE_EVS_DisableEventTypeCmd((CFE_EVS_DisableEventTypeCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_SET_EVENT_FORMAT_MODE_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_SetEventFormatMode_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_SetEventFormatModeCmd_t)))
          {
-             Status = CFE_EVS_SetEventFormatModeCmd((CFE_EVS_SetEventFormatMode_t*)MsgPtr);
+             Status = CFE_EVS_SetEventFormatModeCmd((CFE_EVS_SetEventFormatModeCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_ENABLE_APP_EVENT_TYPE_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_EnableAppEventType_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_EnableAppEventTypeCmd_t)))
          {
-             Status = CFE_EVS_EnableAppEventTypeCmd((CFE_EVS_EnableAppEventType_t*)MsgPtr);
+             Status = CFE_EVS_EnableAppEventTypeCmd((CFE_EVS_EnableAppEventTypeCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_DISABLE_APP_EVENT_TYPE_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_DisableAppEventType_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_DisableAppEventTypeCmd_t)))
          {
-             Status = CFE_EVS_DisableAppEventTypeCmd((CFE_EVS_DisableAppEventType_t*)MsgPtr);
+             Status = CFE_EVS_DisableAppEventTypeCmd((CFE_EVS_DisableAppEventTypeCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_ENABLE_APP_EVENTS_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_EnableAppEvents_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_EnableAppEventsCmd_t)))
          {
-             Status = CFE_EVS_EnableAppEventsCmd((CFE_EVS_EnableAppEvents_t*)MsgPtr);
+             Status = CFE_EVS_EnableAppEventsCmd((CFE_EVS_EnableAppEventsCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_DISABLE_APP_EVENTS_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_DisableAppEvents_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_DisableAppEventsCmd_t)))
          {
-             Status = CFE_EVS_DisableAppEventsCmd((CFE_EVS_DisableAppEvents_t*)MsgPtr);
+             Status = CFE_EVS_DisableAppEventsCmd((CFE_EVS_DisableAppEventsCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_RESET_APP_COUNTER_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_ResetAppCounter_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_ResetAppCounterCmd_t)))
          {
-             Status = CFE_EVS_ResetAppCounterCmd((CFE_EVS_ResetAppCounter_t*)MsgPtr);
+             Status = CFE_EVS_ResetAppCounterCmd((CFE_EVS_ResetAppCounterCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_SET_FILTER_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_SetFilter_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_SetFilterCmd_t)))
          {
-             Status = CFE_EVS_SetFilterCmd((CFE_EVS_SetFilter_t*)MsgPtr);
+             Status = CFE_EVS_SetFilterCmd((CFE_EVS_SetFilterCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_ENABLE_PORTS_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_EnablePorts_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_EnablePortsCmd_t)))
          {
-             Status = CFE_EVS_EnablePortsCmd((CFE_EVS_EnablePorts_t*)MsgPtr);
+             Status = CFE_EVS_EnablePortsCmd((CFE_EVS_EnablePortsCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_DISABLE_PORTS_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_DisablePorts_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_DisablePortsCmd_t)))
          {
-             Status = CFE_EVS_DisablePortsCmd((CFE_EVS_DisablePorts_t*)MsgPtr);
+             Status = CFE_EVS_DisablePortsCmd((CFE_EVS_DisablePortsCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_RESET_FILTER_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_ResetFilter_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_ResetFilterCmd_t)))
          {
-             Status = CFE_EVS_ResetFilterCmd((CFE_EVS_ResetFilter_t*)MsgPtr);
+             Status = CFE_EVS_ResetFilterCmd((CFE_EVS_ResetFilterCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_RESET_ALL_FILTERS_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_ResetAllFilters_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_ResetAllFiltersCmd_t)))
          {
-             Status = CFE_EVS_ResetAllFiltersCmd((CFE_EVS_ResetAllFilters_t*)MsgPtr);
+             Status = CFE_EVS_ResetAllFiltersCmd((CFE_EVS_ResetAllFiltersCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_ADD_EVENT_FILTER_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_AddEventFilter_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_AddEventFilterCmd_t)))
          {
-             Status = CFE_EVS_AddEventFilterCmd((CFE_EVS_AddEventFilter_t*)MsgPtr);
+             Status = CFE_EVS_AddEventFilterCmd((CFE_EVS_AddEventFilterCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_DELETE_EVENT_FILTER_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_DeleteEventFilter_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_DeleteEventFilterCmd_t)))
          {
-             Status = CFE_EVS_DeleteEventFilterCmd((CFE_EVS_DeleteEventFilter_t*)MsgPtr);
+             Status = CFE_EVS_DeleteEventFilterCmd((CFE_EVS_DeleteEventFilterCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_WRITE_APP_DATA_FILE_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_WriteAppDataFile_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_WriteAppDataFileCmd_t)))
          {
-             Status = CFE_EVS_WriteAppDataFileCmd((CFE_EVS_WriteAppDataFile_t*)MsgPtr);
+             Status = CFE_EVS_WriteAppDataFileCmd((CFE_EVS_WriteAppDataFileCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_SET_LOG_MODE_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_SetLogMode_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_SetLogModeCmd_t)))
          {
-             Status = CFE_EVS_SetLogModeCmd((CFE_EVS_SetLogMode_t*)MsgPtr);
+             Status = CFE_EVS_SetLogModeCmd((CFE_EVS_SetLogModeCmd_t*)SBBufPtr);
          }
          break;
 
       case CFE_EVS_CLEAR_LOG_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_ClearLog_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_ClearLogCmd_t)))
          {
-             Status = CFE_EVS_ClearLogCmd((CFE_EVS_ClearLog_t *)MsgPtr);
+             Status = CFE_EVS_ClearLogCmd((CFE_EVS_ClearLogCmd_t *)SBBufPtr);
          }
          break;
 
       case CFE_EVS_WRITE_LOG_DATA_FILE_CC:
 
-         if (CFE_EVS_VerifyCmdLength(MsgPtr, sizeof(CFE_EVS_WriteLogDataFile_t)))
+         if (CFE_EVS_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_EVS_WriteLogDataFileCmd_t)))
          {
-             Status = CFE_EVS_WriteLogDataFileCmd((CFE_EVS_WriteLogDataFile_t*)MsgPtr);
+             Status = CFE_EVS_WriteLogDataFileCmd((CFE_EVS_WriteLogDataFileCmd_t*)SBBufPtr);
          }
          break;
 
@@ -649,7 +649,7 @@ bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_NoopCmd(const CFE_EVS_Noop_t *data)
+int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 {
    EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION,"No-op command. %s",
                  CFE_VERSION_STRING);
@@ -666,7 +666,7 @@ int32 CFE_EVS_NoopCmd(const CFE_EVS_Noop_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLog_t *data)
+int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data)
 {
     int32 Status;
 
@@ -694,7 +694,7 @@ int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLog_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_ReportHousekeepingCmd (const CFE_SB_CmdHdr_t *data)
+int32 CFE_EVS_ReportHousekeepingCmd (const CFE_MSG_CommandHeader_t *data)
 {
    uint32 i, j;
    EVS_AppData_t *AppDataPtr;
@@ -732,9 +732,9 @@ int32 CFE_EVS_ReportHousekeepingCmd (const CFE_SB_CmdHdr_t *data)
        AppTlmDataPtr->AppMessageSentCounter = 0;
    }
 
-   CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_EVS_GlobalData.EVS_TlmPkt);
+   CFE_SB_TimeStampMsg(&CFE_EVS_GlobalData.EVS_TlmPkt.TlmHeader.Msg);
 
-   CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_EVS_GlobalData.EVS_TlmPkt);
+   CFE_SB_TransmitMsg(&CFE_EVS_GlobalData.EVS_TlmPkt.TlmHeader.Msg, true);
 
    return CFE_STATUS_NO_COUNTER_INCREMENT;
 } /* End of CFE_EVS_ReportHousekeepingCmd() */
@@ -751,7 +751,7 @@ int32 CFE_EVS_ReportHousekeepingCmd (const CFE_SB_CmdHdr_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCounters_t *data)
+int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data)
 {
     /* Status of commands processed by EVS task */
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.CommandCounter  = 0;
@@ -781,7 +781,7 @@ int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCounters_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilter_t *data)
+int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
 {
    const CFE_EVS_AppNameEventIDMaskCmd_Payload_t *CmdPtr = &data->Payload;
    EVS_BinFilter_t    *FilterPtr;
@@ -858,7 +858,7 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilter_t *data)
 ** Shifting is done so the value not masked off is placed in the ones spot:
 ** necessary for comparing with true.
 */
-int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePorts_t *data)
+int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
     int32 ReturnCode;
@@ -914,7 +914,7 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePorts_t *data)
 ** Shifting is done so the value not masked off is placed in the ones spot:
 ** necessary for comparing with true.
 */
-int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePorts_t *data)
+int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
     int32 ReturnCode;
@@ -972,7 +972,7 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePorts_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventType_t *data)
+int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
 {
    uint32      i;
    const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1023,7 +1023,7 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventType_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventType_t *data)
+int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
 {
    uint32   i;
    const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1075,7 +1075,7 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventType_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatMode_t *data)
+int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data)
 {
    const CFE_EVS_SetEventFormatMode_Payload_t *CmdPtr = &data->Payload;
    int32 Status;
@@ -1113,7 +1113,7 @@ int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatMode_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventType_t *data)
+int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
 {
    const CFE_EVS_AppNameBitMaskCmd_Payload_t *CmdPtr = &data->Payload;
    EVS_AppData_t *AppDataPtr;
@@ -1188,7 +1188,7 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventType_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventType_t *data)
+int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *data)
 {
    EVS_AppData_t *AppDataPtr;
    const CFE_EVS_AppNameBitMaskCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1262,7 +1262,7 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventType_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEvents_t *data)
+int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
 {
    EVS_AppData_t *AppDataPtr;
    const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1321,7 +1321,7 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEvents_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEvents_t *data)
+int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
 {
    EVS_AppData_t *AppDataPtr;
    const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1381,7 +1381,7 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEvents_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounter_t *data)
+int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
 {
    EVS_AppData_t *AppDataPtr;
    const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1441,7 +1441,7 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounter_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilter_t *data)
+int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
 {
    const CFE_EVS_AppNameEventIDCmd_Payload_t *CmdPtr = &data->Payload;
    EVS_BinFilter_t     *FilterPtr;
@@ -1515,7 +1515,7 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilter_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFilters_t *data)
+int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
 {
    EVS_AppData_t            *AppDataPtr;
    const CFE_EVS_AppNameCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1578,7 +1578,7 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFilters_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilter_t *data)
+int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
 {
    const CFE_EVS_AppNameEventIDMaskCmd_Payload_t *CmdPtr = &data->Payload;
    EVS_BinFilter_t     *FilterPtr;
@@ -1671,7 +1671,7 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilter_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilter_t *data)
+int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
 {
    const CFE_EVS_AppNameEventIDCmd_Payload_t *CmdPtr = &data->Payload;
    EVS_BinFilter_t     *FilterPtr;
@@ -1749,7 +1749,7 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilter_t *data)
 ** Assumptions and Notes:
 **
 */
-int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFile_t *data)
+int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
 {
    int32                             Result;
    osal_id_t                         FileHandle;

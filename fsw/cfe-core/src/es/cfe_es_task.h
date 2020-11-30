@@ -89,8 +89,6 @@ typedef struct
     char            DataFileName[OS_MAX_PATH_LEN];
 } CFE_ES_BackgroundLogDumpGlobal_t;
 
-
-
 /*
 ** Type definition (ES task global data)
 */
@@ -103,24 +101,23 @@ typedef struct
   uint8                 CommandErrorCounter;
 
   /*
-  ** ES Task housekeeping telemetry packet
+  ** ES Task housekeeping telemetry
   */
-  CFE_ES_HousekeepingTlm_t     HkPacket;
+  CFE_ES_HousekeepingTlm_t HkPacket;
 
   /*
-  ** Single application telemetry packet
+  ** Single application telemetry
   */
-  CFE_ES_OneAppTlm_t    OneAppPacket;
+  CFE_ES_OneAppTlm_t OneAppPacket;
 
   /*
-  ** Single application telemetry packet
+  ** Memory statistics telemetry
   */
   CFE_ES_MemStatsTlm_t MemStatsPacket;
 
   /*
   ** ES Task operational data (not reported in housekeeping)
   */
-  CFE_MSG_Message_t *MsgPtr;
   CFE_SB_PipeId_t    CmdPipe;
 
   /*
@@ -160,7 +157,7 @@ extern CFE_ES_TaskData_t CFE_ES_TaskData;
 */
 void  CFE_ES_TaskMain(void);
 int32 CFE_ES_TaskInit(void);
-void  CFE_ES_TaskPipe(CFE_MSG_Message_t *MsgPtr);
+void  CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
 
 
 /*
@@ -174,31 +171,31 @@ void  CFE_ES_BackgroundCleanup(void);
 /*
 ** ES Task message dispatch functions
 */
-int32 CFE_ES_HousekeepingCmd(const CFE_SB_CmdHdr_t *data);
-int32 CFE_ES_NoopCmd(const CFE_ES_Noop_t *Cmd);
-int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCounters_t *data);
-int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data);
-int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data);
-int32 CFE_ES_StopAppCmd(const CFE_ES_StopApp_t *data);
-int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartApp_t *data);
-int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadApp_t *data);
-int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data);
-int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data);
-int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data);
-int32 CFE_ES_ClearSyslogCmd(const CFE_ES_ClearSyslog_t *data);
-int32 CFE_ES_OverWriteSyslogCmd(const CFE_ES_OverWriteSyslog_t *data);
-int32 CFE_ES_WriteSyslogCmd(const CFE_ES_WriteSyslog_t *data);
-int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLog_t *data);
-int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLog_t *data);
-int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCount_t *data);
-int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCount_t *data);
-int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDS_t *data);
-int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfData_t *data);
-int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfData_t *data);
-int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMask_t *data);
-int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMask_t *data);
-int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStats_t *data);
-int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data);
+int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data);
+int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd);
+int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data);
+int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data);
+int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data);
+int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data);
+int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data);
+int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data);
+int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data);
+int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data);
+int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data);
+int32 CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data);
+int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data);
+int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data);
+int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data);
+int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data);
+int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data);
+int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data);
+int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data);
+int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data);
+int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data);
+int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data);
+int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data);
+int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data);
+int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data);
 
 /*
 ** Message Handler Helper Functions

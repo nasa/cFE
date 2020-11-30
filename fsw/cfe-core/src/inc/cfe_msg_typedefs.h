@@ -43,7 +43,7 @@
 /*
  * Types
  */
-typedef uint32 CFE_MSG_Size_t;          /**< \brief Message size (CCSDS needs uint32 for max size) */
+typedef size_t CFE_MSG_Size_t;          /**< \brief Message size (CCSDS needs uint32 for max size) */
 typedef uint32 CFE_MSG_Checksum_t;      /**< \brief Message checksum (Oversized to avoid redefine) */
 typedef uint16 CFE_MSG_FcnCode_t;       /**< \brief Message function code */
 typedef uint16 CFE_MSG_HeaderVersion_t; /**< \brief Message header version */

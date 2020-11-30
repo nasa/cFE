@@ -158,7 +158,7 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void)
 /* CFE_ES_StartPerfDataCmd() --                                                  */
 /*                                                                               */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfData_t *data)
+int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
 {
     const CFE_ES_StartPerfCmd_Payload_t *CmdPtr = &data->Payload;
     CFE_ES_PerfDumpGlobal_t *PerfDumpState = &CFE_ES_TaskData.BackgroundPerfDumpState;
@@ -214,7 +214,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfData_t *data)
 /* CFE_ES_StopPerfDataCmd() --                                                   */
 /*                                                                               */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfData_t *data)
+int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
 {
     const CFE_ES_StopPerfCmd_Payload_t *CmdPtr = &data->Payload;
     CFE_ES_PerfDumpGlobal_t *PerfDumpState = &CFE_ES_TaskData.BackgroundPerfDumpState;
@@ -496,7 +496,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 /* CFE_ES_SetPerfFilterMaskCmd() --                                              */
 /*                                                                               */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMask_t *data)
+int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 {
     const CFE_ES_SetPerfFilterMaskCmd_Payload_t *cmd = &data->Payload;
 
@@ -526,7 +526,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMask_t *data)
 /* CFE_ES_SetPerfTriggerMaskCmd() --                                             */
 /*                                                                               */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMask_t *data)
+int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
 {
     const CFE_ES_SetPerfTrigMaskCmd_Payload_t *cmd = &data->Payload;
 

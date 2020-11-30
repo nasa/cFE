@@ -142,14 +142,14 @@ int32 CFE_TBL_EarlyInit (void)
     /*
     ** Initialize housekeeping packet (clear user data area)...
     */
-    CFE_MSG_Init(&CFE_TBL_TaskData.HkPacket.TlmHeader.BaseMsg,
+    CFE_MSG_Init(&CFE_TBL_TaskData.HkPacket.TlmHeader.Msg,
                  CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
                  sizeof(CFE_TBL_TaskData.HkPacket));
 
     /*
     ** Initialize table registry report packet (clear user data area)...
     */
-    CFE_MSG_Init(&CFE_TBL_TaskData.TblRegPacket.TlmHeader.BaseMsg,
+    CFE_MSG_Init(&CFE_TBL_TaskData.TblRegPacket.TlmHeader.Msg,
                  CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
                  sizeof(CFE_TBL_TaskData.TblRegPacket));
 
@@ -1511,18 +1511,18 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
         /*
         ** Initialize notification message packet (clear user data area)...
         */
-        CFE_MSG_Init((CFE_MSG_Message_t *)&CFE_TBL_TaskData.NotifyMsg,
+        CFE_MSG_Init(&CFE_TBL_TaskData.NotifyMsg.CmdHeader.Msg,
                      RegRecPtr->NotificationMsgId,
-                     sizeof(CFE_TBL_NotifyCmd_t));
+                     sizeof(CFE_TBL_TaskData.NotifyMsg));
         
         /* Set the command code */
-        CFE_MSG_SetFcnCode((CFE_MSG_Message_t *) &CFE_TBL_TaskData.NotifyMsg, RegRecPtr->NotificationCC);
+        CFE_MSG_SetFcnCode(&CFE_TBL_TaskData.NotifyMsg.CmdHeader.Msg, RegRecPtr->NotificationCC);
         
         /* Set the command parameter */
         CFE_TBL_TaskData.NotifyMsg.Payload.Parameter = RegRecPtr->NotificationParam;
     
-        CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_TBL_TaskData.NotifyMsg);
-        Status = CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TBL_TaskData.NotifyMsg);
+        CFE_SB_TimeStampMsg(&CFE_TBL_TaskData.NotifyMsg.CmdHeader.Msg);
+        Status = CFE_SB_TransmitMsg(&CFE_TBL_TaskData.NotifyMsg.CmdHeader.Msg, false);
     
         if (Status != CFE_SUCCESS)
         {

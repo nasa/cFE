@@ -365,7 +365,7 @@
 **  This event message is generated when failure occurs while attempting to send the
 **  Housekeeping Message over the Software Bus.
 **
-**  The \c Status field of the event message contains the error code returned by #CFE_SB_SendMsg. 
+**  The \c Status field of the event message contains the error code.
 **/
 #define CFE_TBL_FAIL_HK_SEND_ERR_EID           56  
 
@@ -838,7 +838,7 @@
 **
 **  The \c MsgId is the message ID of the table management notification message that was attempted to be sent,
 **  the \c CC is the command code, the \c Param is the application specified command parameter and the \c Status
-**  is the error code returned by the #CFE_SB_SendMsg API call. 
+**  is the error code returned.
 **/
 #define CFE_TBL_FAIL_NOTIFY_SEND_ERR_EID       89
 /** \} */

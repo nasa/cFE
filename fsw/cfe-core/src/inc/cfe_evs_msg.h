@@ -56,7 +56,7 @@
 **  \cfecmdmnemonic \EVS_NOOP
 **
 **  \par Command Structure
-**       #CFE_TBL_NoArgsCmd_t
+**       #CFE_EVS_NoopCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -90,7 +90,7 @@
 **  \cfecmdmnemonic \EVS_RESETCTRS
 **
 **  \par Command Structure
-**       #CFE_TBL_NoArgsCmd_t
+**       #CFE_EVS_ResetCountersCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -128,7 +128,7 @@
 **  \cfecmdmnemonic \EVS_ENAEVENTTYPE
 **
 **  \par Command Structure
-**       #CFE_EVS_BitMaskCmd_t
+**       #CFE_EVS_EnableEventTypeCmd_t
 **        The following bit positions apply to structure member named 'BitMask'.
 **            Bit 0 - Debug
 **            Bit 1 - Informational
@@ -177,7 +177,7 @@
 **  \cfecmdmnemonic \EVS_DISEVENTTYPE
 **
 **  \par Command Structure
-**       #CFE_EVS_BitMaskCmd_t
+**       #CFE_EVS_DisableEventTypeCmd_t
 **        The following bit positions apply to structure member named 'BitMask'.
 **            Bit 0 - Debug
 **            Bit 1 - Informational
@@ -235,7 +235,7 @@
 **  \cfecmdmnemonic \EVS_SETEVTFMT
 **
 **  \par Command Structure
-**       #CFE_EVS_SetLogMode_t
+**       #CFE_EVS_SetEventFormatModeCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -278,7 +278,7 @@
 **  \cfecmdmnemonic \EVS_ENAAPPEVTTYPE
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameBitMaskCmd_t
+**       #CFE_EVS_EnableAppEventTypeCmd_t
 **        The following bit positions apply to structure member named 'BitMask'.
 **            Bit 0 - Debug
 **            Bit 1 - Informational
@@ -330,7 +330,7 @@
 **  \cfecmdmnemonic \EVS_DISAPPEVTTYPE
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameBitMaskCmd_t
+**       #CFE_EVS_DisableAppEventTypeCmd_t
 **        The following bit positions apply to structure member named 'BitMask'.
 **            Bit 0 - Debug
 **            Bit 1 - Informational
@@ -379,7 +379,7 @@
 **  \cfecmdmnemonic \EVS_ENAAPPEVGEN
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameCmd_t
+**       #CFE_EVS_EnableAppEventsCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -420,7 +420,7 @@
 **  \cfecmdmnemonic \EVS_DISAPPEVGEN
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameCmd_t
+**       #CFE_EVS_DisableAppEventsCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -461,7 +461,7 @@
 **  \cfecmdmnemonic \EVS_RSTAPPCTRS
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameCmd_t
+**       #CFE_EVS_ResetAppCounterCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -500,7 +500,7 @@
 **  \cfecmdmnemonic \EVS_SETBINFLTRMASK
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameEventIDMaskCmd_t
+**       #CFE_EVS_SetFilterCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -539,7 +539,7 @@
 **  \cfecmdmnemonic \EVS_ENAPORT
 **
 **  \par Command Structure
-**       #CFE_EVS_BitMaskCmd_t
+**       #CFE_EVS_EnablePortsCmd_t
 **        The following bit positions apply to structure member named 'BitMask'.
 **            Bit 0 - Port 1
 **            Bit 1 - Port 2
@@ -579,7 +579,7 @@
 **  \cfecmdmnemonic \EVS_DISPORT
 **
 **  \par Command Structure
-**       #CFE_EVS_BitMaskCmd_t
+**       #CFE_EVS_DisablePortsCmd_t
 **        The following bit positions apply to structure member named 'BitMask'.
 **            Bit 0 - Port 1
 **            Bit 1 - Port 2
@@ -621,7 +621,7 @@
 **  \cfecmdmnemonic \EVS_RSTBINFLTRCTR
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameEventIDCmd_t
+**       #CFE_EVS_ResetFilterCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -657,7 +657,7 @@
 **  \cfecmdmnemonic \EVS_RSTALLFLTRS
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameCmd_t
+**       #CFE_EVS_ResetAllFiltersCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -693,7 +693,7 @@
 **  \cfecmdmnemonic \EVS_ADDEVTFLTR
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameEventIDMaskCmd_t
+**       #CFE_EVS_AddEventFilterCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -729,7 +729,7 @@
 **  \cfecmdmnemonic \EVS_DELEVTFLTR
 **
 **  \par Command Structure
-**       #CFE_EVS_AppNameEventIDCmd_t
+**       #CFE_EVS_DeleteEventFilterCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -765,7 +765,7 @@
 **  \cfecmdmnemonic \EVS_WRITEAPPDATA2FILE
 **
 **  \par Command Structure
-**       #CFE_EVS_WriteAppDataFile_t
+**       #CFE_EVS_WriteAppDataFileCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -800,7 +800,7 @@
 **  \cfecmdmnemonic \EVS_WRITELOG2FILE
 **
 **  \par Command Structure
-**       #CFE_EVS_WriteLogDataFile_t
+**       #CFE_EVS_WriteLogDataFileCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -833,7 +833,7 @@
 **  \cfecmdmnemonic \EVS_SETLOGMODE
 **
 **  \par Command Structure
-**       #CFE_EVS_SetLogMode_t
+**       #CFE_EVS_SetLogModeCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -869,7 +869,7 @@
 **  \cfecmdmnemonic \EVS_CLRLOG
 **
 **  \par Command Structure
-**       #CFE_TBL_NoArgsCmd_t
+**       #CFE_EVS_ClearLogCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -919,7 +919,7 @@
 ** \brief Command with no additional arguments
 **/
 typedef struct CFE_EVS_NoArgsCmd {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
+    CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 } CFE_EVS_NoArgsCmd_t;
 
 /*
@@ -927,28 +927,31 @@ typedef struct CFE_EVS_NoArgsCmd {
  * Create a unique type for each one so the prototypes will follow the naming pattern,
  * allowing each command to evolve independently.
  */
-typedef CFE_EVS_NoArgsCmd_t CFE_EVS_Noop_t;
-typedef CFE_EVS_NoArgsCmd_t CFE_EVS_ResetCounters_t;
-typedef CFE_EVS_NoArgsCmd_t CFE_EVS_ClearLog_t;
+typedef CFE_EVS_NoArgsCmd_t CFE_EVS_NoopCmd_t;
+typedef CFE_EVS_NoArgsCmd_t CFE_EVS_ResetCountersCmd_t;
+typedef CFE_EVS_NoArgsCmd_t CFE_EVS_ClearLogCmd_t;
 
 /**
-** \brief Write Event Log to File Command
+** \brief Write Event Log to File Command Payload
 **
 ** For command details, see #CFE_EVS_WRITE_LOG_DATA_FILE_CC
 **
 **/
 typedef struct CFE_EVS_LogFileCmd_Payload {
-    char LogFilename[CFE_MISSION_MAX_PATH_LEN];      /**< \brief Filename where log data is to be written */
+    char LogFilename[CFE_MISSION_MAX_PATH_LEN]; /**< \brief Filename where log data is to be written */
 } CFE_EVS_LogFileCmd_Payload_t;
 
-typedef struct CFE_EVS_WriteLogDataFile {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_EVS_LogFileCmd_Payload_t Payload;
-} CFE_EVS_WriteLogDataFile_t;
+/**
+ * \brief Write Event Log to File Command
+ */
+typedef struct CFE_EVS_WriteLogDataFileCmd {
+    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+    CFE_EVS_LogFileCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_EVS_WriteLogDataFileCmd_t;
 
 
 /**
-** \brief Write Event Services Application Information to File Command
+** \brief Write Event Services Application Information to File Command Payload
 **
 ** For command details, see #CFE_EVS_WRITE_APP_DATA_FILE_CC
 **
@@ -957,31 +960,37 @@ typedef struct CFE_EVS_AppDataCmd_Payload {
    char AppDataFilename[CFE_MISSION_MAX_PATH_LEN];  /**< \brief Filename where applicaton data is to be written */
 } CFE_EVS_AppDataCmd_Payload_t;
 
-typedef struct CFE_EVS_WriteAppDataFile {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_EVS_AppDataCmd_Payload_t Payload;
-} CFE_EVS_WriteAppDataFile_t;
+/**
+ * \brief Write Event Services Application Information to File Command
+ */
+typedef struct CFE_EVS_WriteAppDataFileCmd {
+    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+    CFE_EVS_AppDataCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_EVS_WriteAppDataFileCmd_t;
 
 /**
-** \brief Set Event Format Mode or Set Log Mode Commands
+** \brief Set Log Mode Command Payload
 **
-** For command details, see #CFE_EVS_SET_EVENT_FORMAT_MODE_CC and/or #CFE_EVS_SET_LOG_MODE_CC
+** For command details, see #CFE_EVS_SET_LOG_MODE_CC
 **
 **/
 typedef struct CFE_EVS_SetLogMode_Payload {
     CFE_EVS_LogMode_Enum_t   LogMode;                           /**< \brief Mode to use in the command*/
-   uint8                     Spare;                             /**< \brief Pad to even byte*/
+    uint8                    Spare;                             /**< \brief Pad to even byte*/
 } CFE_EVS_SetLogMode_Payload_t;
 
-typedef struct CFE_EVS_SetLogMode {
-   uint8                     CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_EVS_SetLogMode_Payload_t Payload;
-} CFE_EVS_SetLogMode_t;
+/**
+ * \brief Set Log Mode Command
+ */
+typedef struct CFE_EVS_SetLogModeCmd {
+    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+    CFE_EVS_SetLogMode_Payload_t Payload;   /**< \brief Command payload */
+} CFE_EVS_SetLogModeCmd_t;
 
 /**
-** \brief Set Event Format Mode or Set Log Mode Commands
+** \brief Set Event Format Mode Command Payload
 **
-** For command details, see #CFE_EVS_SET_EVENT_FORMAT_MODE_CC and/or #CFE_EVS_SET_LOG_MODE_CC
+** For command details, see #CFE_EVS_SET_EVENT_FORMAT_MODE_CC
 **
 **/
 typedef struct CFE_EVS_SetEventFormatCode_Payload {
@@ -989,13 +998,16 @@ typedef struct CFE_EVS_SetEventFormatCode_Payload {
    uint8                     Spare;                             /**< \brief Pad to even byte*/
 } CFE_EVS_SetEventFormatMode_Payload_t;
 
-typedef struct CFE_EVS_SetEventFormatMode {
-   uint8                     CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_EVS_SetEventFormatMode_Payload_t Payload;
-} CFE_EVS_SetEventFormatMode_t;
+/**
+ * \brief Set Event Format Mode Command
+ */
+typedef struct CFE_EVS_SetEventFormatModeCmd {
+    CFE_MSG_CommandHeader_t              CmdHeader; /**< \brief Command header */
+    CFE_EVS_SetEventFormatMode_Payload_t Payload;   /**< \brief Command payload */
+} CFE_EVS_SetEventFormatModeCmd_t;
 
 /**
-** \brief Enable/Disable Events or Ports Commands
+** \brief Generic Bitmask Command Payload
 **
 ** For command details, see #CFE_EVS_ENABLE_EVENT_TYPE_CC, #CFE_EVS_DISABLE_EVENT_TYPE_CC,
 **                          #CFE_EVS_ENABLE_PORTS_CC and/or #CFE_EVS_DISABLE_PORTS_CC
@@ -1006,9 +1018,12 @@ typedef struct CFE_EVS_BitMaskCmd_Payload {
    uint8                     Spare;                             /**< \brief Pad to even byte*/
 } CFE_EVS_BitMaskCmd_Payload_t;
 
+/**
+ * \brief Generic Bitmask Command
+ */
 typedef struct CFE_EVS_BitMaskCmd {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_EVS_BitMaskCmd_Payload_t Payload;
+    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+    CFE_EVS_BitMaskCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_EVS_BitMaskCmd_t;
 
 /*
@@ -1016,13 +1031,13 @@ typedef struct CFE_EVS_BitMaskCmd {
  * Create a unique type for each one so the prototypes will follow the naming pattern,
  * allowing each command to evolve independently.
  */
-typedef CFE_EVS_BitMaskCmd_t CFE_EVS_EnablePorts_t;
-typedef CFE_EVS_BitMaskCmd_t CFE_EVS_DisablePorts_t;
-typedef CFE_EVS_BitMaskCmd_t CFE_EVS_EnableEventType_t;
-typedef CFE_EVS_BitMaskCmd_t CFE_EVS_DisableEventType_t;
+typedef CFE_EVS_BitMaskCmd_t CFE_EVS_EnablePortsCmd_t;
+typedef CFE_EVS_BitMaskCmd_t CFE_EVS_DisablePortsCmd_t;
+typedef CFE_EVS_BitMaskCmd_t CFE_EVS_EnableEventTypeCmd_t;
+typedef CFE_EVS_BitMaskCmd_t CFE_EVS_DisableEventTypeCmd_t;
 
 /**
-** \brief Enable/Disable Application Events or Reset One or All Filter Counters
+** \brief Generic App Name Command Payload
 **
 ** For command details, see #CFE_EVS_ENABLE_APP_EVENTS_CC, #CFE_EVS_DISABLE_APP_EVENTS_CC,
 **                          #CFE_EVS_RESET_APP_COUNTER_CC and/or #CFE_EVS_RESET_ALL_FILTERS_CC
@@ -1032,9 +1047,12 @@ typedef struct CFE_EVS_AppNameCmd_Payload {
    char                     AppName[CFE_MISSION_MAX_API_LEN];          /**< \brief Application name to use in the command*/
 } CFE_EVS_AppNameCmd_Payload_t;
 
+/**
+ * \brief Generic App Name Command
+ */
 typedef struct CFE_EVS_AppNameCmd {
-   uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_EVS_AppNameCmd_Payload_t Payload;
+    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+    CFE_EVS_AppNameCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_EVS_AppNameCmd_t;
 
 /*
@@ -1042,15 +1060,15 @@ typedef struct CFE_EVS_AppNameCmd {
  * Create a unique type for each one so the prototypes will follow the naming pattern,
  * allowing each command to evolve independently.
  */
-typedef CFE_EVS_AppNameCmd_t CFE_EVS_EnableAppEvents_t;
-typedef CFE_EVS_AppNameCmd_t CFE_EVS_DisableAppEvents_t;
-typedef CFE_EVS_AppNameCmd_t CFE_EVS_ResetAppCounter_t;
-typedef CFE_EVS_AppNameCmd_t CFE_EVS_ResetAllFilters_t;
+typedef CFE_EVS_AppNameCmd_t CFE_EVS_EnableAppEventsCmd_t;
+typedef CFE_EVS_AppNameCmd_t CFE_EVS_DisableAppEventsCmd_t;
+typedef CFE_EVS_AppNameCmd_t CFE_EVS_ResetAppCounterCmd_t;
+typedef CFE_EVS_AppNameCmd_t CFE_EVS_ResetAllFiltersCmd_t;
 
 /**
-** \brief Reset an Event Filter for an Application
+** \brief Generic App Name and Event ID Command Payload
 **
-** For command details, see #CFE_EVS_RESET_FILTER_CC
+** For command details, see #CFE_EVS_RESET_FILTER_CC and #CFE_EVS_DELETE_EVENT_FILTER_CC
 **
 **/
 typedef struct CFE_EVS_AppNameEventIDCmd_Payload {
@@ -1058,9 +1076,12 @@ typedef struct CFE_EVS_AppNameEventIDCmd_Payload {
    uint16                    EventID;                           /**< \brief Event ID  to use in the command*/
 } CFE_EVS_AppNameEventIDCmd_Payload_t;
 
+/**
+ * \brief Generic App Name and Event ID Command
+ */
 typedef struct CFE_EVS_AppNameEventIDCmd {
-   uint8                                CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_EVS_AppNameEventIDCmd_Payload_t  Payload;
+    CFE_MSG_CommandHeader_t              CmdHeader; /**< \brief Command header */
+    CFE_EVS_AppNameEventIDCmd_Payload_t  Payload;   /**< \brief Command payload */
 } CFE_EVS_AppNameEventIDCmd_t;
 
 /*
@@ -1068,11 +1089,11 @@ typedef struct CFE_EVS_AppNameEventIDCmd {
  * Create a unique type for each one so the prototypes will follow the naming pattern,
  * allowing each command to evolve independently.
  */
-typedef CFE_EVS_AppNameEventIDCmd_t CFE_EVS_ResetFilter_t;
-typedef CFE_EVS_AppNameEventIDCmd_t CFE_EVS_DeleteEventFilter_t;
+typedef CFE_EVS_AppNameEventIDCmd_t CFE_EVS_ResetFilterCmd_t;
+typedef CFE_EVS_AppNameEventIDCmd_t CFE_EVS_DeleteEventFilterCmd_t;
 
 /**
-** \brief Enable/Disable an Event Type for an Application
+** \brief Generic App Name and Bitmask Command Payload
 **
 ** For command details, see #CFE_EVS_ENABLE_APP_EVENT_TYPE_CC and/or #CFE_EVS_DISABLE_APP_EVENT_TYPE_CC
 **
@@ -1083,9 +1104,12 @@ typedef struct CFE_EVS_AppNameBitMaskCmd_Payload {
    uint8                     Spare;                             /**< \brief Pad to even byte*/
 } CFE_EVS_AppNameBitMaskCmd_Payload_t;
 
+/**
+ * \brief Generic App Name and Bitmask Command
+ */
 typedef struct CFE_EVS_AppNameBitMaskCmd {
-   uint8                     CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_EVS_AppNameBitMaskCmd_Payload_t Payload;
+    CFE_MSG_CommandHeader_t             CmdHeader; /**< \brief Command header */
+    CFE_EVS_AppNameBitMaskCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_EVS_AppNameBitMaskCmd_t;
 
 /*
@@ -1093,11 +1117,11 @@ typedef struct CFE_EVS_AppNameBitMaskCmd {
  * Create a unique type for each one so the prototypes will follow the naming pattern,
  * allowing each command to evolve independently.
  */
-typedef CFE_EVS_AppNameBitMaskCmd_t CFE_EVS_EnableAppEventType_t;
-typedef CFE_EVS_AppNameBitMaskCmd_t CFE_EVS_DisableAppEventType_t;
+typedef CFE_EVS_AppNameBitMaskCmd_t CFE_EVS_EnableAppEventTypeCmd_t;
+typedef CFE_EVS_AppNameBitMaskCmd_t CFE_EVS_DisableAppEventTypeCmd_t;
 
 /**
-** \brief Set, Add or Delete an Event Filter for an Application
+** \brief Generic App Name, Event ID, Mask Command Payload
 **
 ** For command details, see #CFE_EVS_SET_FILTER_CC, #CFE_EVS_ADD_EVENT_FILTER_CC 
 **                      and/or #CFE_EVS_DELETE_EVENT_FILTER_CC
@@ -1109,9 +1133,12 @@ typedef struct CFE_EVS_AppNameEventIDMaskCmd_Payload {
    uint16                    Mask;                              /**< \brief Mask to use in the command */
 } CFE_EVS_AppNameEventIDMaskCmd_Payload_t;
 
+/**
+ * \brief Generic App Name, Event ID, Mask Command
+ */
 typedef struct CFE_EVS_AppNameEventIDMaskCmd {
-   uint8                                    CmdHeader[CFE_SB_CMD_HDR_SIZE];
-   CFE_EVS_AppNameEventIDMaskCmd_Payload_t  Payload;
+    CFE_MSG_CommandHeader_t                 CmdHeader; /**< \brief Command header */
+    CFE_EVS_AppNameEventIDMaskCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_EVS_AppNameEventIDMaskCmd_t;
 
 /*
@@ -1119,8 +1146,8 @@ typedef struct CFE_EVS_AppNameEventIDMaskCmd {
  * Create a unique type for each one so the prototypes will follow the naming pattern,
  * allowing each command to evolve independently.
  */
-typedef CFE_EVS_AppNameEventIDMaskCmd_t CFE_EVS_AddEventFilter_t;
-typedef CFE_EVS_AppNameEventIDMaskCmd_t CFE_EVS_SetFilter_t;
+typedef CFE_EVS_AppNameEventIDMaskCmd_t CFE_EVS_AddEventFilterCmd_t;
+typedef CFE_EVS_AppNameEventIDMaskCmd_t CFE_EVS_SetFilterCmd_t;
 
 /*************************************************************************/
 /**********************************/
@@ -1181,8 +1208,8 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload {
 } CFE_EVS_HousekeepingTlm_Payload_t;
 
 typedef struct CFE_EVS_HousekeepingTlm {
-   CFE_SB_TlmHdr_t                   TlmHeader;
-   CFE_EVS_HousekeepingTlm_Payload_t Payload;
+   CFE_MSG_TelemetryHeader_t         TlmHeader; /**< \brief Telemetry header */
+   CFE_EVS_HousekeepingTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 } CFE_EVS_HousekeepingTlm_t;
 
 /** Telemetry packet structures */
@@ -1224,14 +1251,14 @@ typedef struct CFE_EVS_ShortEventTlm_Payload {
 } CFE_EVS_ShortEventTlm_Payload_t;
 
 typedef struct CFE_EVS_LongEventTlm {
-   CFE_SB_TlmHdr_t                TlmHeader;
-   CFE_EVS_LongEventTlm_Payload_t Payload;
+   CFE_MSG_TelemetryHeader_t      TlmHeader; /**< \brief Telemetry header */
+   CFE_EVS_LongEventTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 
 } CFE_EVS_LongEventTlm_t;
 
 typedef struct CFE_EVS_ShortEventTlm {
-   CFE_SB_TlmHdr_t                 TlmHeader;
-   CFE_EVS_ShortEventTlm_Payload_t Payload;
+   CFE_MSG_TelemetryHeader_t       TlmHeader; /**< \brief Telemetry header */
+   CFE_EVS_ShortEventTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 
 } CFE_EVS_ShortEventTlm_t;
 

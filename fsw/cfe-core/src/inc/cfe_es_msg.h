@@ -39,8 +39,6 @@
 ** Includes
 */
 #include "cfe_es_extern_typedefs.h"
-
-/* The CFE_SB_CMD_HDR_SIZE and CFE_SB_TLM_HDR_SIZE are defined by cfe_sb.h */
 #include "cfe_sb.h"
 
 /*
@@ -58,7 +56,7 @@
 **  \cfecmdmnemonic \ES_NOOP
 **
 **  \par Command Structure
-**       #CFE_ES_NoArgsCmd_t
+**       #CFE_ES_NoopCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -94,7 +92,7 @@
 **  \cfecmdmnemonic \ES_RESETCTRS
 **
 **  \par Command Structure
-**       #CFE_ES_NoArgsCmd_t
+**       #CFE_ES_ResetCountersCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -138,7 +136,7 @@
 **  \cfecmdmnemonic \ES_RESET
 **
 **  \par Command Structure
-**       #CFE_ES_RestartCmd_Payload_t
+**       #CFE_ES_RestartCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command (as a Processor Reset)  
@@ -182,7 +180,7 @@
 **  \cfecmdmnemonic \ES_STARTAPP
 **
 **  \par Command Structure
-**       #CFE_ES_StartApp_t
+**       #CFE_ES_StartAppCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -232,7 +230,7 @@
 **  \cfecmdmnemonic \ES_STOPAPP
 **
 **  \par Command Structure
-**       #CFE_ES_AppNameCmd_t
+**       #CFE_ES_StopAppCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -279,7 +277,7 @@
 **  \cfecmdmnemonic \ES_RESTARTAPP
 **
 **  \par Command Structure
-**       #CFE_ES_AppNameCmd_t
+**       #CFE_ES_RestartAppCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -325,7 +323,7 @@
 **  \cfecmdmnemonic \ES_RELOADAPP
 **
 **  \par Command Structure
-**       #CFE_ES_ReloadApp_t
+**       #CFE_ES_ReloadAppCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -367,7 +365,7 @@
 **  \cfecmdmnemonic \ES_QUERYAPP
 **
 **  \par Command Structure
-**       #CFE_ES_AppNameCmd_t
+**       #CFE_ES_QueryOneCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -405,7 +403,7 @@
 **  \cfecmdmnemonic \ES_WRITEAPPINFO2FILE
 **
 **  \par Command Structure
-**       #CFE_ES_FileNameCmd_t
+**       #CFE_ES_QueryAllCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -446,7 +444,7 @@
 **  \cfecmdmnemonic \ES_CLEARSYSLOG
 **
 **  \par Command Structure
-**       #CFE_ES_NoArgsCmd_t
+**       #CFE_ES_ClearSysLogCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -485,7 +483,7 @@
 **  \cfecmdmnemonic \ES_WRITESYSLOG2FILE
 **
 **  \par Command Structure
-**       #CFE_ES_FileNameCmd_t
+**       #CFE_ES_WriteSysLogCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -528,7 +526,7 @@
 **  \cfecmdmnemonic \ES_CLEARERLOG
 **
 **  \par Command Structure
-**       #CFE_ES_NoArgsCmd_t
+**       #CFE_ES_ClearERLogCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -565,7 +563,7 @@
 **  \cfecmdmnemonic \ES_WRITEERLOG2FILE
 **
 **  \par Command Structure
-**       #CFE_ES_FileNameCmd_t
+**       #CFE_ES_WriteERLogCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -606,7 +604,7 @@
 **  \cfecmdmnemonic \ES_STARTLADATA
 **
 **  \par Command Structure
-**       #CFE_ES_StartPerfData_t
+**       #CFE_ES_StartPerfDataCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -652,7 +650,7 @@
 **  \cfecmdmnemonic \ES_STOPLADATA
 **
 **  \par Command Structure
-**       #CFE_ES_StopPerfData_t
+**       #CFE_ES_StopPerfDataCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -695,7 +693,7 @@
 **  \cfecmdmnemonic \ES_LAFILTERMASK
 **
 **  \par Command Structure
-**       #CFE_ES_SetPerfFilterMask_t
+**       #CFE_ES_SetPerfFilterMaskCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -733,7 +731,7 @@
 **  \cfecmdmnemonic \ES_LATRIGGERMASK
 **
 **  \par Command Structure
-**       #CFE_ES_SetPerfTriggerMask_t
+**       #CFE_ES_SetPerfTriggerMaskCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -773,7 +771,7 @@
 **  \cfecmdmnemonic \ES_OVERWRITESYSLOGMODE
 **
 **  \par Command Structure
-**       #CFE_ES_OverWriteSyslog_t
+**       #CFE_ES_OverWriteSysLogCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -815,7 +813,7 @@
 **  \cfecmdmnemonic \ES_RESETPRCNT
 **
 **  \par Command Structure
-**       #CFE_ES_NoArgsCmd_t
+**       #CFE_ES_ResetPRCountCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -853,7 +851,7 @@
 **  \cfecmdmnemonic \ES_SETMAXPRCNT
 **
 **  \par Command Structure
-**       #CFE_ES_SetMaxPRCount_t
+**       #CFE_ES_SetMaxPRCountCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -894,7 +892,7 @@
 **  \cfecmdmnemonic \ES_DELETECDS
 **
 **  \par Command Structure
-**       #CFE_ES_DeleteCDS_t
+**       #CFE_ES_DeleteCDSCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -937,7 +935,7 @@
 **  \cfecmdmnemonic \ES_TLMPOOLSTATS
 **
 **  \par Command Structure
-**       #CFE_ES_SendMemPoolStats_t
+**       #CFE_ES_SendMemPoolStatsCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -979,7 +977,7 @@
 **  \cfecmdmnemonic \ES_DUMPCDSREG
 **
 **  \par Command Structure
-**       #CFE_ES_DumpCDSRegistry_t
+**       #CFE_ES_DumpCDSRegistryCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -1020,7 +1018,7 @@
 **  \cfecmdmnemonic \ES_WRITETASKINFO2FILE
 **
 **  \par Command Structure
-**       #CFE_ES_FileNameCmd_t
+**       #CFE_ES_QueryAllTasksCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -1072,8 +1070,7 @@
 */
 typedef struct CFE_ES_NoArgsCmd
 {
-  uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];     /**< \brief cFE Software Bus Command Message Header */
-
+    CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 } CFE_ES_NoArgsCmd_t;
 
 /*
@@ -1083,14 +1080,14 @@ typedef struct CFE_ES_NoArgsCmd
  * allows them to change independently in the future without changing the prototype
  * of the handler function.
  */
-typedef CFE_ES_NoArgsCmd_t      CFE_ES_Noop_t;
-typedef CFE_ES_NoArgsCmd_t      CFE_ES_ResetCounters_t;
-typedef CFE_ES_NoArgsCmd_t      CFE_ES_ClearSyslog_t;
-typedef CFE_ES_NoArgsCmd_t      CFE_ES_ClearERLog_t;
-typedef CFE_ES_NoArgsCmd_t      CFE_ES_ResetPRCount_t;
+typedef CFE_ES_NoArgsCmd_t CFE_ES_NoopCmd_t;
+typedef CFE_ES_NoArgsCmd_t CFE_ES_ResetCountersCmd_t;
+typedef CFE_ES_NoArgsCmd_t CFE_ES_ClearSysLogCmd_t;
+typedef CFE_ES_NoArgsCmd_t CFE_ES_ClearERLogCmd_t;
+typedef CFE_ES_NoArgsCmd_t CFE_ES_ResetPRCountCmd_t;
 
 /**
-** \brief Restart cFE Command
+** \brief Restart cFE Command Payload
 **
 ** For command details, see #CFE_ES_RESTART_CC
 **
@@ -1101,15 +1098,17 @@ typedef struct CFE_ES_RestartCmd_Payload
                                                                 or #CFE_PSP_RST_TYPE_POWERON=Power-On Reset        */
 } CFE_ES_RestartCmd_Payload_t;
 
-typedef struct CFE_ES_Restart
+/**
+ * \brief Restart cFE Command
+ */
+typedef struct CFE_ES_RestartCmd
 {
-    uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_RestartCmd_Payload_t Payload;
-} CFE_ES_Restart_t;
-
+    CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
+    CFE_ES_RestartCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_RestartCmd_t;
 
 /**
-** \brief Payload format for commands which accept a single file name
+** \brief Generic file name command payload
 **
 ** This format is shared by several executive services commands.
 ** For command details, see #CFE_ES_QUERY_ALL_CC, #CFE_ES_QUERY_ALL_TASKS_CC,
@@ -1122,23 +1121,26 @@ typedef struct CFE_ES_FileNameCmd_Payload
                                                                 filename of file in which Application data is to be dumped */
 } CFE_ES_FileNameCmd_Payload_t;
 
+/**
+ * \brief Generic file name command
+ */
 typedef struct CFE_ES_FileNameCmd
 {
-    uint8                        CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_FileNameCmd_Payload_t Payload;
+    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+    CFE_ES_FileNameCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_ES_FileNameCmd_t;
 
 /*
  * Unique typedefs for each of the commands that utilize the FileNameCmd 
  * packet format
  */
-typedef CFE_ES_FileNameCmd_t CFE_ES_QueryAll_t;
-typedef CFE_ES_FileNameCmd_t CFE_ES_QueryAllTasks_t;
-typedef CFE_ES_FileNameCmd_t CFE_ES_WriteSyslog_t;
-typedef CFE_ES_FileNameCmd_t CFE_ES_WriteERLog_t;
+typedef CFE_ES_FileNameCmd_t CFE_ES_QueryAllCmd_t;
+typedef CFE_ES_FileNameCmd_t CFE_ES_QueryAllTasksCmd_t;
+typedef CFE_ES_FileNameCmd_t CFE_ES_WriteSysLogCmd_t;
+typedef CFE_ES_FileNameCmd_t CFE_ES_WriteERLogCmd_t;
 
 /**
-** \brief Overwrite/Discard System Log Configuration Command
+** \brief Overwrite/Discard System Log Configuration Command Payload
 **
 ** For command details, see #CFE_ES_OVER_WRITE_SYSLOG_CC
 **
@@ -1150,14 +1152,17 @@ typedef struct CFE_ES_OverWriteSysLogCmd_Payload
 
 } CFE_ES_OverWriteSysLogCmd_Payload_t;
 
-typedef struct CFE_ES_OverWriteSyslog
+/**
+ * \brief Overwrite/Discard System Log Configuration Command Payload
+ */
+typedef struct CFE_ES_OverWriteSysLogCmd
 {
-    uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_OverWriteSysLogCmd_Payload_t Payload;
-} CFE_ES_OverWriteSyslog_t;
+    CFE_MSG_CommandHeader_t             CmdHeader; /**< \brief Command header */
+    CFE_ES_OverWriteSysLogCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_OverWriteSysLogCmd_t;
 
 /**
-** \brief Start Application Command
+** \brief Start Application Command Payload
 **
 ** For command details, see #CFE_ES_START_APP_CC
 **
@@ -1179,14 +1184,17 @@ typedef struct CFE_ES_StartAppCmd_Payload
 
 } CFE_ES_StartAppCmd_Payload_t;
 
+/**
+ * \brief Start Application Command
+ */
 typedef struct CFE_ES_StartApp
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_StartAppCmd_Payload_t    Payload;
-} CFE_ES_StartApp_t;
+    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+    CFE_ES_StartAppCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_StartAppCmd_t;
 
 /**
-** \brief Command Structure for Commands requiring just an Application Name
+** \brief Generic application name command payload
 **
 ** For command details, see #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_QUERY_ONE_CC
 **
@@ -1196,10 +1204,13 @@ typedef struct CFE_ES_AppNameCmd_Payload
   char                  Application[CFE_MISSION_MAX_API_LEN];    /**< \brief ASCII text string containing Application Name */
 } CFE_ES_AppNameCmd_Payload_t;
 
+/**
+ * \brief Generic application name command
+ */
 typedef struct CFE_ES_AppNameCmd
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_AppNameCmd_Payload_t Payload;
+    CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
+    CFE_ES_AppNameCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_ES_AppNameCmd_t;
 
 /*
@@ -1207,12 +1218,12 @@ typedef struct CFE_ES_AppNameCmd
  * Create a separate typedef for each one so they can all evolve independently
  * without affecting the prototype.
  */
-typedef CFE_ES_AppNameCmd_t CFE_ES_StopApp_t;
-typedef CFE_ES_AppNameCmd_t CFE_ES_RestartApp_t;
-typedef CFE_ES_AppNameCmd_t CFE_ES_QueryOne_t;
+typedef CFE_ES_AppNameCmd_t CFE_ES_StopAppCmd_t;
+typedef CFE_ES_AppNameCmd_t CFE_ES_RestartAppCmd_t;
+typedef CFE_ES_AppNameCmd_t CFE_ES_QueryOneCmd_t;
 
 /**
-** \brief Reload Application Command
+** \brief Reload Application Command Payload
 **
 ** For command details, see #CFE_ES_RELOAD_APP_CC
 **
@@ -1224,14 +1235,17 @@ typedef struct CFE_ES_AppReloadCmd_Payload
                                                                     executable image */
 } CFE_ES_AppReloadCmd_Payload_t;
 
-typedef struct CFE_ES_ReloadApp
+/**
+ * \brief Reload Application Command
+ */
+typedef struct CFE_ES_ReloadAppCmd
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_AppReloadCmd_Payload_t   Payload;
-} CFE_ES_ReloadApp_t;
+    CFE_MSG_CommandHeader_t       CmdHeader; /**< \brief Command header */
+    CFE_ES_AppReloadCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_ReloadAppCmd_t;
 
 /**
-** \brief Set Maximum Processor Reset Count Command
+** \brief Set Maximum Processor Reset Count Command Payload
 **
 ** For command details, see #CFE_ES_SET_MAX_PR_COUNT_CC
 **
@@ -1242,14 +1256,17 @@ typedef struct CFE_ES_SetMaxPRCountCmd_Payload
                                                                     an automatic Power-On Reset is performed */
 } CFE_ES_SetMaxPRCountCmd_Payload_t;
 
-typedef struct CFE_ES_SetMaxPRCount
+/**
+ * \brief Set Maximum Processor Reset Count Command
+ */
+typedef struct CFE_ES_SetMaxPRCountCmd
 {
-    uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_SetMaxPRCountCmd_Payload_t   Payload;
-} CFE_ES_SetMaxPRCount_t;
+    CFE_MSG_CommandHeader_t           CmdHeader; /**< \brief Command header */
+    CFE_ES_SetMaxPRCountCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_SetMaxPRCountCmd_t;
 
 /**
-** \brief Delete Critical Data Store Command
+** \brief Delete Critical Data Store Command Payload
 **
 ** For command details, see #CFE_ES_DELETE_CDS_CC
 **
@@ -1260,14 +1277,17 @@ typedef struct CFE_ES_DeleteCDSCmd_Payload
 
 } CFE_ES_DeleteCDSCmd_Payload_t;
 
-typedef struct CFE_ES_DeleteCDS
+/**
+ * \brief Delete Critical Data Store Command
+ */
+typedef struct CFE_ES_DeleteCDSCmd
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_DeleteCDSCmd_Payload_t   Payload;
-} CFE_ES_DeleteCDS_t;
+    CFE_MSG_CommandHeader_t       CmdHeader; /**< \brief Command header */
+    CFE_ES_DeleteCDSCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_DeleteCDSCmd_t;
 
 /**
-** \brief Start Performance Analyzer Command
+** \brief Start Performance Analyzer Command Payload
 **
 ** For command details, see #CFE_ES_START_PERF_DATA_CC
 **
@@ -1277,14 +1297,17 @@ typedef struct CFE_ES_StartPerfCmd_Payload
   uint32                TriggerMode;                    /**< \brief Desired trigger position (Start, Center, End) */
 } CFE_ES_StartPerfCmd_Payload_t;
 
-typedef struct CFE_ES_StartPerfData
+/**
+ * \brief Start Performance Analyzer Command
+ */
+typedef struct CFE_ES_StartPerfDataCmd
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_StartPerfCmd_Payload_t   Payload;
-} CFE_ES_StartPerfData_t;
+    CFE_MSG_CommandHeader_t       CmdHeader; /**< \brief Command header */
+    CFE_ES_StartPerfCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_StartPerfDataCmd_t;
 
 /**
-** \brief Stop Performance Analyzer Command
+** \brief Stop Performance Analyzer Command Payload
 **
 ** For command details, see #CFE_ES_STOP_PERF_DATA_CC
 **
@@ -1295,15 +1318,18 @@ typedef struct CFE_ES_StopPerfCmd_Payload
                                                                     of file Performance Analyzer data is to be written */
 } CFE_ES_StopPerfCmd_Payload_t;
 
-typedef struct CFE_ES_StopPerfData
+/**
+ * \brief Stop Performance Analyzer Command
+ */
+typedef struct CFE_ES_StopPerfDataCmd
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_StopPerfCmd_Payload_t    Payload;
-} CFE_ES_StopPerfData_t;
+    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+    CFE_ES_StopPerfCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_StopPerfDataCmd_t;
 
 
 /**
-** \brief Set Performance Analyzer Filter Mask Command
+** \brief Set Performance Analyzer Filter Mask Command Payload
 **
 ** For command details, see #CFE_ES_SET_PERF_FILTER_MASK_CC
 **
@@ -1315,14 +1341,17 @@ typedef struct CFE_ES_SetPerfFilterMaskCmd_Payload
 
 } CFE_ES_SetPerfFilterMaskCmd_Payload_t;
 
-typedef struct CFE_ES_SetPerfFilterMask
+/**
+ * \brief Set Performance Analyzer Filter Mask Command
+ */
+typedef struct CFE_ES_SetPerfFilterMaskCmd
 {
-    uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_SetPerfFilterMaskCmd_Payload_t Payload;
-} CFE_ES_SetPerfFilterMask_t;
+    CFE_MSG_CommandHeader_t               CmdHeader; /**< \brief Command header */
+    CFE_ES_SetPerfFilterMaskCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_SetPerfFilterMaskCmd_t;
 
 /**
-** \brief Set Performance Analyzer Trigger Mask Command
+** \brief Set Performance Analyzer Trigger Mask Command Payload
 **
 ** For command details, see #CFE_ES_SET_PERF_TRIGGER_MASK_CC
 **
@@ -1334,14 +1363,17 @@ typedef struct CFE_ES_SetPerfTrigMaskCmd_Payload
 
 } CFE_ES_SetPerfTrigMaskCmd_Payload_t;
 
-typedef struct CFE_ES_SetPerfTriggerMask
+/**
+ * \brief Set Performance Analyzer Trigger Mask Command
+ */
+typedef struct CFE_ES_SetPerfTriggerMaskCmd
 {
-    uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_SetPerfTrigMaskCmd_Payload_t Payload;
-} CFE_ES_SetPerfTriggerMask_t;
+    CFE_MSG_CommandHeader_t             CmdHeader; /**< \brief Command header */
+    CFE_ES_SetPerfTrigMaskCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_SetPerfTriggerMaskCmd_t;
 
 /**
-** \brief Telemeter Memory Pool Statistics Command
+** \brief Send Memory Pool Statistics Command Payload
 **
 ** For command details, see #CFE_ES_SEND_MEM_POOL_STATS_CC
 **
@@ -1353,14 +1385,17 @@ typedef struct CFE_ES_SendMemPoolStatsCmd_Payload
 
 } CFE_ES_SendMemPoolStatsCmd_Payload_t;
 
-typedef struct CFE_ES_SendMemPoolStats
+/**
+ * \brief Send Memory Pool Statistics Command
+ */
+typedef struct CFE_ES_SendMemPoolStatsCmd
 {
-    uint8                               CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_SendMemPoolStatsCmd_Payload_t    Payload;
-} CFE_ES_SendMemPoolStats_t;
+    CFE_MSG_CommandHeader_t              CmdHeader; /**< \brief Command header */
+    CFE_ES_SendMemPoolStatsCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_SendMemPoolStatsCmd_t;
 
 /**
-** \brief Dump CDS Registry Command
+** \brief Dump CDS Registry Command Payload
 **
 ** For command details, see #CFE_ES_DUMP_CDS_REGISTRY_CC
 **
@@ -1371,12 +1406,14 @@ typedef struct CFE_ES_DumpCDSRegistryCmd_Payload
                                                                     of file CDS Registry is to be written */
 } CFE_ES_DumpCDSRegistryCmd_Payload_t;
 
-typedef struct CFE_ES_DumpCDSRegistry
+/**
+ * \brief Dump CDS Registry Command
+ */
+typedef struct CFE_ES_DumpCDSRegistryCmd
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE];    /**< \brief cFE Software Bus Command Message Header */
-    CFE_ES_DumpCDSRegistryCmd_Payload_t  Payload;
-
-} CFE_ES_DumpCDSRegistry_t;
+    CFE_MSG_CommandHeader_t             CmdHeader; /**< \brief Command header */
+    CFE_ES_DumpCDSRegistryCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_ES_DumpCDSRegistryCmd_t;
 
 /*************************************************************************/
 
@@ -1529,8 +1566,8 @@ typedef struct CFE_ES_OneAppTlm_Payload
 
 typedef struct CFE_ES_OneAppTlm
 {
-    CFE_SB_TlmHdr_t             TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_ES_OneAppTlm_Payload_t  Payload;
+    CFE_MSG_TelemetryHeader_t  TlmHeader; /**< \brief Telemetry header */
+    CFE_ES_OneAppTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 } CFE_ES_OneAppTlm_t;
 
 /** 
@@ -1545,8 +1582,8 @@ typedef struct CFE_ES_PoolStatsTlm_Payload
 
 typedef struct CFE_ES_MemStatsTlm
 {
-    CFE_SB_TlmHdr_t                 TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_ES_PoolStatsTlm_Payload_t   Payload;
+    CFE_MSG_TelemetryHeader_t     TlmHeader; /**< \brief Telemetry header */
+    CFE_ES_PoolStatsTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 } CFE_ES_MemStatsTlm_t;
 
 /*************************************************************************/
@@ -1642,8 +1679,8 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
 
 typedef struct CFE_ES_HousekeepingTlm
 {
-    CFE_SB_TlmHdr_t                  TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_ES_HousekeepingTlm_Payload_t Payload;
+    CFE_MSG_TelemetryHeader_t        TlmHeader; /**< \brief Telemetry header */
+    CFE_ES_HousekeepingTlm_Payload_t Payload;   /**< \brief Telemetry payload */
   
 } CFE_ES_HousekeepingTlm_t;
 

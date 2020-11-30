@@ -54,7 +54,7 @@
 **  \cfecmdmnemonic \SB_NOOP
 **
 **  \par Command Structure
-**       #CFE_SB_CmdHdr_t
+**       #CFE_SB_NoopCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -88,7 +88,7 @@
 **  \cfecmdmnemonic \SB_RESETCTRS
 **
 **  \par Command Structure
-**       #CFE_SB_CmdHdr_t
+**       #CFE_SB_ResetCountersCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -125,7 +125,7 @@
 **  \cfecmdmnemonic \SB_DUMPSTATS
 **
 **  \par Command Structure
-**       #CFE_SB_CmdHdr_t
+**       #CFE_SB_SendSbStatsCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -164,7 +164,7 @@
 **  \cfecmdmnemonic \SB_WRITEROUTING2FILE
 **
 **  \par Command Structure
-**       #CFE_SB_WriteFileInfoCmd_t
+**       #CFE_SB_SendRoutingInfoCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -205,7 +205,7 @@
 **  \cfecmdmnemonic \SB_ENAROUTE
 **
 **  \par Command Structure
-**       #CFE_SB_RouteCmd_t
+**       #CFE_SB_EnableRouteCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -243,7 +243,7 @@
 **  \cfecmdmnemonic \SB_DISROUTE
 **
 **  \par Command Structure
-**       #CFE_SB_RouteCmd_t
+**       #CFE_SB_DisableRouteCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -291,7 +291,7 @@
 **  \cfecmdmnemonic \SB_WRITEPIPE2FILE
 **
 **  \par Command Structure
-**       #CFE_SB_WriteFileInfoCmd_t
+**       #CFE_SB_SendPipeInfoCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -336,7 +336,7 @@
 **  \cfecmdmnemonic \SB_WRITEMAP2FILE
 **
 **  \par Command Structure
-**       #CFE_SB_WriteFileInfoCmd_t
+**       #CFE_SB_SendMapInfoCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -380,7 +380,7 @@
 **  \cfecmdmnemonic \SB_ENASUBRPTG
 **
 **  \par Command Structure
-**       #CFE_SB_CmdHdr_t
+**       #CFE_SB_EnableSubReportingCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command will result in the sending
@@ -413,7 +413,7 @@
 **  \cfecmdmnemonic \SB_DISSUBRPTG
 **
 **  \par Command Structure
-**       #CFE_SB_CmdHdr_t
+**       #CFE_SB_DisableSubReportingCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command will result in the suppression
@@ -445,7 +445,7 @@
 **  \cfecmdmnemonic \SB_SENDPREVSUBS
 **
 **  \par Command Structure
-**       #CFE_SB_CmdHdr_t
+**       #CFE_SB_SendPrevSubsCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command will result in a series
@@ -472,19 +472,19 @@
  * SB Messages which have no payload are each
  * given unique typedefs to follow the command handler convention
  *
- * For the SB application these is mapped to the CFE_SB_CmdHdr_t type,
+ * For the SB application these is mapped to the CFE_MSG_CommandHeader_t type,
  * as they contain only a primary + command header.
  */
-typedef CFE_SB_CmdHdr_t  CFE_SB_Noop_t;
-typedef CFE_SB_CmdHdr_t  CFE_SB_ResetCounters_t;
-typedef CFE_SB_CmdHdr_t  CFE_SB_EnableSubReporting_t;
-typedef CFE_SB_CmdHdr_t  CFE_SB_DisableSubReporting_t;
-typedef CFE_SB_CmdHdr_t  CFE_SB_SendSbStats_t;
-typedef CFE_SB_CmdHdr_t  CFE_SB_SendPrevSubs_t;
+typedef CFE_MSG_CommandHeader_t CFE_SB_NoopCmd_t;
+typedef CFE_MSG_CommandHeader_t CFE_SB_ResetCountersCmd_t;
+typedef CFE_MSG_CommandHeader_t CFE_SB_EnableSubReportingCmd_t;
+typedef CFE_MSG_CommandHeader_t CFE_SB_DisableSubReportingCmd_t;
+typedef CFE_MSG_CommandHeader_t CFE_SB_SendSbStatsCmd_t;
+typedef CFE_MSG_CommandHeader_t CFE_SB_SendPrevSubsCmd_t;
 
 
 /**
-**  \brief Write File Info Commands
+**  \brief Write File Info Command Payload
 **
 **  This structure contains a generic definition used by three SB commands,
 **  'Write Routing Info to File' #CFE_SB_SEND_ROUTING_INFO_CC,
@@ -495,20 +495,23 @@ typedef struct CFE_SB_WriteFileInfoCmd_Payload {
    char Filename[CFE_MISSION_MAX_PATH_LEN];/**< \brief Path and Filename of data to be loaded */
 } CFE_SB_WriteFileInfoCmd_Payload_t;
 
+/**
+ * \brief Write File Info Command
+ */
 typedef struct CFE_SB_WriteFileInfoCmd {
-    CFE_SB_CmdHdr_t                     Hdr;/**< \brief cFE Software Bus Command Message Header #CFE_SB_CmdHdr_t */
-    CFE_SB_WriteFileInfoCmd_Payload_t   Payload;
+    CFE_MSG_CommandHeader_t           Hdr;     /**< \brief Command header */
+    CFE_SB_WriteFileInfoCmd_Payload_t Payload; /**< \brief Command payload */
 }CFE_SB_WriteFileInfoCmd_t;
 
 /*
  * Create a unique typedef for each of the commands that share this format.
  */
-typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendRoutingInfo_t;
-typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendPipeInfo_t;
-typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendMapInfo_t;
+typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendRoutingInfoCmd_t;
+typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendPipeInfoCmd_t;
+typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendMapInfoCmd_t;
 
 /**
-**  \brief Enable/Disable Route Commands
+**  \brief Enable/Disable Route Command Payload
 **
 **  This structure contains a definition used by two SB commands,
 **  'Enable Route' #CFE_SB_ENABLE_ROUTE_CC and 'Disable Route' #CFE_SB_DISABLE_ROUTE_CC.
@@ -522,16 +525,19 @@ typedef struct CFE_SB_RouteCmd_Payload {
    uint8                Spare;/**<\brief Spare byte to make command even number of bytes */
 } CFE_SB_RouteCmd_Payload_t;
 
+/**
+ * \brief Enable/Disable Route Command
+ */
 typedef struct CFE_SB_RouteCmd {
-    CFE_SB_CmdHdr_t             Hdr;/**< \brief cFE Software Bus Command Message Header #CFE_SB_CmdHdr_t */
-    CFE_SB_RouteCmd_Payload_t  Payload;
+    CFE_MSG_CommandHeader_t   Hdr;     /**< \brief Command header */
+    CFE_SB_RouteCmd_Payload_t Payload; /**< \brief Command payload */
 } CFE_SB_RouteCmd_t;
 
 /*
  * Create a unique typedef for each of the commands that share this format.
  */
-typedef CFE_SB_RouteCmd_t CFE_SB_EnableRoute_t;
-typedef CFE_SB_RouteCmd_t CFE_SB_DisableRoute_t;
+typedef CFE_SB_RouteCmd_t CFE_SB_EnableRouteCmd_t;
+typedef CFE_SB_RouteCmd_t CFE_SB_DisableRouteCmd_t;
 
 /****************************
 **  SB Telemetry Formats   **
@@ -584,8 +590,8 @@ typedef struct CFE_SB_HousekeepingTlm_Payload {
 } CFE_SB_HousekeepingTlm_Payload_t;
 
 typedef struct CFE_SB_HousekeepingTlm {
-    CFE_SB_TlmHdr_t         Hdr;/**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_SB_HousekeepingTlm_Payload_t  Payload;
+    CFE_MSG_TelemetryHeader_t        Hdr;     /**< \brief Telemetry header */
+    CFE_SB_HousekeepingTlm_Payload_t Payload; /**< \brief Telemetry payload */
 } CFE_SB_HousekeepingTlm_t;
 
 
@@ -612,7 +618,7 @@ typedef struct CFE_SB_PipeDepthStats {
 /**
 ** \cfesbtlm SB Statistics Telemetry Packet
 **
-** SB Statistics packet sent (via CFE_SB_SendMsg) in response to #CFE_SB_SEND_SB_STATS_CC
+** SB Statistics packet sent in response to #CFE_SB_SEND_SB_STATS_CC
 */
 typedef struct CFE_SB_StatsTlm_Payload {
 
@@ -657,8 +663,8 @@ typedef struct CFE_SB_StatsTlm_Payload {
 } CFE_SB_StatsTlm_Payload_t;
 
 typedef struct CFE_SB_StatsTlm {
-    CFE_SB_TlmHdr_t             Hdr;/**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_SB_StatsTlm_Payload_t    Payload;
+    CFE_MSG_TelemetryHeader_t Hdr;     /**< \brief Telemetry header */
+    CFE_SB_StatsTlm_Payload_t Payload; /**< \brief Telemetry payload */
 } CFE_SB_StatsTlm_t;
 
 
@@ -708,8 +714,8 @@ typedef struct CFE_SB_SingleSubscriptionTlm_Payload {
 } CFE_SB_SingleSubscriptionTlm_Payload_t;
 
 typedef struct CFE_SB_SingleSubscriptionTlm {
-    CFE_SB_TlmHdr_t             Hdr;/**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_SB_SingleSubscriptionTlm_Payload_t Payload;
+    CFE_MSG_TelemetryHeader_t              Hdr;     /**< \brief Telemetry header */
+    CFE_SB_SingleSubscriptionTlm_Payload_t Payload; /**< \brief Telemetry payload */
 } CFE_SB_SingleSubscriptionTlm_t;
 
 
@@ -748,8 +754,8 @@ typedef struct CFE_SB_AllSubscriptionsTlm_Payload {
 } CFE_SB_AllSubscriptionsTlm_Payload_t;
 
 typedef struct CFE_SB_AllSubscriptionsTlm {
-    CFE_SB_TlmHdr_t             Hdr;/**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_SB_AllSubscriptionsTlm_Payload_t Payload;
+    CFE_MSG_TelemetryHeader_t            Hdr;     /**< \brief Telemetry header */
+    CFE_SB_AllSubscriptionsTlm_Payload_t Payload; /**< \brief Telemetry payload */
 } CFE_SB_AllSubscriptionsTlm_t;
 
 
