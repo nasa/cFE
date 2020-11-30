@@ -280,7 +280,7 @@ void UT_ReportFailures(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_MSG_Message_t*), CFE_MSG_Message_t *MsgPtr, uint32 MsgSize,
+void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t*), CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
         UT_TaskPipeDispatchId_t DispatchId);
 
 /*****************************************************************************/

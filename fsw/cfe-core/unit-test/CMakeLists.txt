@@ -71,7 +71,7 @@ foreach(MODULE ${CFE_CORE_MODULES})
         ${UT_COVERAGE_LINK_FLAGS}
         ut_cfe-core_support
         ut_cfe-core_stubs
-        sbr  # TODO remove this
+        sbr  # Will be removed when sbr stubs are implemented
         ut_assert)
 
   add_test(${UT_TARGET_NAME}_UT ${UT_TARGET_NAME}_UT)

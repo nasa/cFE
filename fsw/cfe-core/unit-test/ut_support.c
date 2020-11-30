@@ -151,7 +151,7 @@ void UT_InitData(void)
     UT_SetCDSSize(UT_LastCDSSize);
 
     /*
-     * Set up for the CFE_SB_RcvMsg() call.
+     * Set up for the CFE_SB_ReceiveBuffer() call.
      *
      * The existing test cases assume that this will return success once,
      * followed by a timeout response followed by a different error.
@@ -159,11 +159,11 @@ void UT_InitData(void)
      * Specific test cases may provide an actual message buffer to return for
      * the first call, or they may override this default behavior entirely.
      *
-     * The default behavior of the CFE_SB_RcvMsg stub is to return success with a zero-ed out
+     * The default behavior of the CFE_SB_ReceiveBuffer stub is to return success with a zero-ed out
      * buffer returned to the caller.
      */
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_RcvMsg), 2, CFE_SB_TIME_OUT);
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_RcvMsg), 3, -1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_ReceiveBuffer), 2, CFE_SB_TIME_OUT);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_ReceiveBuffer), 3, -1);
 
     /*
      * Set up CFE_ES_GetAppName() and friends
@@ -215,9 +215,18 @@ void UT_Report(const char *file, uint32 line, bool test, const char *fun_name,
 ** This first sets up the various stubs according to the test case,
 ** then invokes the pipe function.
 */
-void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_MSG_Message_t *), CFE_MSG_Message_t *MsgPtr, uint32 MsgSize,
+void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t *), CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
         UT_TaskPipeDispatchId_t DispatchId)
 {
+    union
+    {
+        CFE_SB_Buffer_t Buf;
+        uint8           Bytes[CFE_MISSION_SB_MAX_SB_MSG_SIZE];
+    } SBBuf;
+
+    /* Copy message into aligned SB buffer */
+    memcpy(SBBuf.Bytes, MsgPtr, MsgSize);
+
     /* Set up for the typical task pipe related calls */
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &DispatchId.MsgId, sizeof(DispatchId.MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
@@ -233,7 +242,7 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_MSG_Message_t *), CFE_MSG_Message_
     /*
      * Finally, call the actual task pipe requested.
      */
-    TaskPipeFunc(MsgPtr);
+    TaskPipeFunc(&SBBuf.Buf);
 }
 
 int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
