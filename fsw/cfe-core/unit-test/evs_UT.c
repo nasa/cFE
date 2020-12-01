@@ -465,7 +465,7 @@ void Test_Init(void)
 
     /* Test task initialization where getting the application ID fails */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppID), -1);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppID), -1);
     CFE_EVS_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[10]),
@@ -516,7 +516,7 @@ void Test_IllegalAppID(void)
 
     /* Set test up with illegal application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
     /* Test registering an event using an illegal application ID */
     UT_Report(__FILE__, __LINE__,
@@ -526,7 +526,7 @@ void Test_IllegalAppID(void)
 
     /* Test unregistering an event using an illegal application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_Unregister() == CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_Unregister",
@@ -534,7 +534,7 @@ void Test_IllegalAppID(void)
 
     /* Test sending an event using an illegal application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_SendEvent(0, 0, "NULL") == CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_SendEvent",
@@ -542,7 +542,7 @@ void Test_IllegalAppID(void)
 
     /* Test sending an event using an illegal application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
               EVS_SendEvent(0, 0, "NULL") == CFE_SUCCESS,
               "EVS_SendEvent",
@@ -550,7 +550,7 @@ void Test_IllegalAppID(void)
 
     /* Test sending a timed event using an illegal application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_SendTimedEvent(time,
                                      0,
@@ -561,7 +561,7 @@ void Test_IllegalAppID(void)
 
     /* Test sending an event with app ID using an illegal application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_SendEventWithAppID(0,
                                          0,
@@ -572,7 +572,7 @@ void Test_IllegalAppID(void)
 
     /* Test resetting a filter using an illegal application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_ResetFilter(0) == CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_ResetFilter",
@@ -580,7 +580,7 @@ void Test_IllegalAppID(void)
 
     /* Test resetting all filters using an illegal application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_ResetAllFilters() == CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_ResetAllFilters",
@@ -588,7 +588,7 @@ void Test_IllegalAppID(void)
 
     /* Test application cleanup using an illegal application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED) ==
                   CFE_EVS_APP_ILLEGAL_APP_ID,
@@ -716,7 +716,7 @@ void Test_FilterRegistration(void)
 
     /* Test filter unregistration with failed ES_putPool */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_PutPoolBuf), -1);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_PutPoolBuf), -1);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, -1);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_Unregister() < 0, "CFE_EVS_Unregister",
@@ -1376,7 +1376,7 @@ void Test_Logging(void)
     /* Test writing a log entry with a create failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) != CFE_SUCCESS,
               "CFE_EVS_WriteLogDataFileCmd",
@@ -1394,7 +1394,7 @@ void Test_Logging(void)
     /* Test writing a log entry with a write failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
-    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
     CFE_EVS_GlobalData.EVS_LogPtr->LogCount = CFE_PLATFORM_EVS_LOG_MAX;
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) != CFE_SUCCESS,
@@ -1472,7 +1472,7 @@ void Test_WriteApp(void)
     UT_InitData();
     strncpy((char *) CmdBuf.AppDataCmd.Payload.AppDataFilename, "ut_cfe_evs",
             sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename));
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
                UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC,
                &UT_EVS_EventBuf);
@@ -1483,8 +1483,8 @@ void Test_WriteApp(void)
 
     /* Test writing application data with a write/close failure */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_close), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_close), OS_ERROR);
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
                UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC,
                &UT_EVS_EventBuf);
@@ -1509,7 +1509,7 @@ void Test_WriteApp(void)
     UT_InitData();
     strncpy((char *) CmdBuf.AppDataCmd.Payload.AppDataFilename, "AppDataFileName",
             sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename));
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
                UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC,
                &UT_EVS_EventBuf);
@@ -1561,7 +1561,7 @@ void Test_BadAppCmd(void)
             sizeof(appcmdcmd.Payload.AppName));
 
     /* Test disabling application event types with an unknown application ID */
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appbitcmd, sizeof(appbitcmd),
                UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENT_TYPE_CC,
                &UT_EVS_EventBuf);
@@ -1572,7 +1572,7 @@ void Test_BadAppCmd(void)
 
     /* Test enabling application event types with an unknown application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appbitcmd, sizeof(appbitcmd),
                UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
                &UT_EVS_EventBuf);
@@ -1583,7 +1583,7 @@ void Test_BadAppCmd(void)
 
     /* Test disabling application events with an unknown application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appnamecmd, sizeof(appnamecmd),
                UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENTS_CC,
                &UT_EVS_EventBuf);
@@ -1594,7 +1594,7 @@ void Test_BadAppCmd(void)
 
     /* Test enabling application events with an unknown application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appnamecmd, sizeof(appnamecmd),
                UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENTS_CC,
                &UT_EVS_EventBuf);
@@ -1607,7 +1607,7 @@ void Test_BadAppCmd(void)
      * application ID
      */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appnamecmd, sizeof(appnamecmd),
                UT_TPID_CFE_EVS_CMD_RESET_APP_COUNTER_CC,
                &UT_EVS_EventBuf);
@@ -1618,7 +1618,7 @@ void Test_BadAppCmd(void)
 
     /* Test modifying event filters with an unknown application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appmaskcmd, sizeof(appmaskcmd),
                UT_TPID_CFE_EVS_CMD_ADD_EVENT_FILTER_CC,
                &UT_EVS_EventBuf);
@@ -1630,7 +1630,7 @@ void Test_BadAppCmd(void)
 
     /* Test deleting event filters with an unknown application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appcmdcmd, sizeof(appcmdcmd),
                UT_TPID_CFE_EVS_CMD_DELETE_EVENT_FILTER_CC,
                &UT_EVS_EventBuf);
@@ -1642,7 +1642,7 @@ void Test_BadAppCmd(void)
 
     /* Test setting the event filter mask with an unknown application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appmaskcmd, sizeof(appmaskcmd),
                UT_TPID_CFE_EVS_CMD_SET_FILTER_CC,
                &UT_EVS_EventBuf);
@@ -1654,7 +1654,7 @@ void Test_BadAppCmd(void)
 
     /* Test resetting the filter with an unknown application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appcmdcmd, sizeof(appcmdcmd),
                UT_TPID_CFE_EVS_CMD_RESET_FILTER_CC,
                &UT_EVS_EventBuf);
@@ -1665,7 +1665,7 @@ void Test_BadAppCmd(void)
 
     /* Test resetting all filters with an unknown application ID */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
     UT_EVS_DoDispatchCheckEvents(&appnamecmd, sizeof(appnamecmd),
                UT_TPID_CFE_EVS_CMD_RESET_ALL_FILTERS_CC,
                &UT_EVS_EventBuf);

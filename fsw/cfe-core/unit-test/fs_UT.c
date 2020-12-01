@@ -95,7 +95,7 @@ void Test_CFE_FS_ReadHeader(void)
 
     /* Test reading the header with a lseek failure */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_lseek), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_lseek), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_ReadHeader(&Hdr, FileDes) == OS_ERROR,
               "CFE_FS_ReadHeader",
@@ -104,7 +104,7 @@ void Test_CFE_FS_ReadHeader(void)
     /* Test successfully reading the header */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_SUCCESS);
-    UT_SetForceFail(UT_KEY(OS_read), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_read), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_ReadHeader(&Hdr, FileDes) != sizeof(CFE_FS_Header_t),
               "CFE_FS_ReadHeader",
@@ -123,7 +123,7 @@ void Test_CFE_FS_WriteHeader(void)
 
     /* Test writing the header with a lseek failure */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_lseek), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_lseek), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_WriteHeader(FileDes, &Hdr) == OS_ERROR,
               "CFE_FS_WriteHeader",
@@ -151,7 +151,7 @@ void Test_CFE_FS_SetTimestamp(void)
 
     /* Test setting the time stamp with a lseek failure */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_lseek), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_lseek), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_SetTimestamp(FileDes, NewTimestamp) == OS_ERROR,
               "CFE_FS_SetTimestamp",
@@ -159,7 +159,7 @@ void Test_CFE_FS_SetTimestamp(void)
 
     /* Test setting the time stamp with a seconds write failure */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_write), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_SetTimestamp(FileDes, NewTimestamp) != OS_SUCCESS,
               "CFE_FS_SetTimestamp",
@@ -313,7 +313,7 @@ void Test_CFE_FS_Private(void)
 
     /* Test FS initialization with a mutex creation failure */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_MutSemCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_MutSemCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_FS_EarlyInit() == -1,
               "CFE_FS_EarlyInit",

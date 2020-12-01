@@ -566,7 +566,7 @@ void Test_SB_Cmds_RoutingInfoCreateFail(void)
     CFE_SB.CmdPipePktPtr = (CFE_MSG_Message_t *) &WriteFileCmd;
 
     /* Make function CFE_SB_SendRtgInfo return CFE_SB_FILE_IO_ERR */
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
 
     CFE_SB_ProcessCmdPipePkt();
 
@@ -686,7 +686,7 @@ void Test_SB_Cmds_PipeInfoSpec(void)
 */
 void Test_SB_Cmds_PipeInfoCreateFail(void)
 {
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     ASSERT_EQ(CFE_SB_SendPipeInfo("PipeTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(1);
@@ -821,7 +821,7 @@ void Test_SB_Cmds_MapInfoSpec(void)
 */
 void Test_SB_Cmds_MapInfoCreateFail(void)
 {
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     ASSERT_EQ(CFE_SB_SendMapInfo("MapTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(1);
