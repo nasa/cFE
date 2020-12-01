@@ -568,6 +568,7 @@ int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_Res
 
         TaskRecPtr->AppId = RefAppId;
         strncpy(TaskRecPtr->TaskName, StartParams->BasicInfo.Name, sizeof(TaskRecPtr->TaskName)-1);
+        TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName)-1] = 0;
         CFE_ES_TaskRecordSetUsed(TaskRecPtr, TaskId);
 
         /*
