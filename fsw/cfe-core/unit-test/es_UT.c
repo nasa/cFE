@@ -2963,7 +2963,7 @@ void TestTask(void)
               "CFE_ES_StartAppCmd",
               "Invalid exception action");
 
-    /* Test app create with a bad stack size */
+    /* Test app create with a default stack size */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy((char *) CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
@@ -2978,9 +2978,9 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
     UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_START_STACK_ERR_EID),
+              UT_EventIsInHistory(CFE_ES_START_INF_EID),
               "CFE_ES_StartAppCmd",
-              "Stack size too small");
+              "Default Stack Size");
 
     /* Test app create with a bad priority */
     ES_ResetUnitTest();

@@ -862,6 +862,7 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data)
     int32                 FilenameLen;
     int32                 AppEntryLen;
     int32                 AppNameLen;
+    size_t                AppStackSize;
     char                  LocalFile[OS_MAX_PATH_LEN];
     char                  LocalEntryPt[OS_MAX_API_NAME];
     char                  LocalAppName[OS_MAX_API_NAME];
@@ -898,13 +899,6 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data)
         CFE_EVS_SendEvent(CFE_ES_START_NULL_APP_NAME_ERR_EID, CFE_EVS_EventType_ERROR,
                 "CFE_ES_StartAppCmd: App Name is NULL.");
     }
-    else if (cmd->StackSize < CFE_PLATFORM_ES_DEFAULT_STACK_SIZE)
-    {
-        CFE_ES_TaskData.CommandErrorCounter++;
-        CFE_EVS_SendEvent(CFE_ES_START_STACK_ERR_EID, CFE_EVS_EventType_ERROR,
-                "CFE_ES_StartAppCmd: Stack size is less than system Minimum: %d.",
-                CFE_PLATFORM_ES_DEFAULT_STACK_SIZE);
-    }
     else if (cmd->Priority > OS_MAX_PRIORITY)
     {
         CFE_ES_TaskData.CommandErrorCounter++;
@@ -922,15 +916,25 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data)
     }
     else
     {
+       /* If stack size was provided, use it, otherwise use default. */
+       if (cmd->StackSize == 0)
+       {
+           AppStackSize = CFE_PLATFORM_ES_DEFAULT_STACK_SIZE;
+       }
+       else
+       {
+           AppStackSize = cmd->StackSize;
+       }
+
        /*
        ** Invoke application loader/startup function.
        */
        Result = CFE_ES_AppCreate(&AppID, LocalFile,
                    LocalEntryPt,
                    LocalAppName,
-                   (uint32) cmd->Priority,
-                   (uint32) cmd->StackSize,
-                   (uint32) cmd->ExceptionAction);
+                   cmd->Priority,
+                   AppStackSize,
+                   cmd->ExceptionAction);
 
         /*
         ** Send appropriate event message
