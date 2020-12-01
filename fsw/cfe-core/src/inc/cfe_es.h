@@ -115,8 +115,22 @@
 #define CFE_ES_CDS_BAD_HANDLE  CFE_ES_RESOURCEID_UNDEFINED
 /** \} */
 
-#define CFE_ES_NO_MUTEX                 0 /**< \brief Indicates that the memory pool selection will not use a semaphore */
-#define CFE_ES_USE_MUTEX                1 /**< \brief Indicates that the memory pool selection will use a semaphore */
+#define CFE_ES_NO_MUTEX   false  /**< \brief Indicates that the memory pool selection will not use a semaphore */
+#define CFE_ES_USE_MUTEX  true   /**< \brief Indicates that the memory pool selection will use a semaphore */
+
+/** \name Task Stack Constants */
+/** \{ */
+
+/**
+ * \brief Indicates that the stack for the child task should be dynamically allocated.
+ *
+ * This value may be supplied as the Stack Pointer argument to CFE_ES_ChildTaskCreate()
+ * to indicate that the stack should be dynamically allocated.
+ */
+#define CFE_ES_TASK_STACK_ALLOCATE  NULL /* aka OS_TASK_STACK_ALLOCATE in proposed OSAL change */
+/** \} */
+
+
 
 
 /*****************************************************************************/
@@ -129,6 +143,13 @@
 */
 typedef void (*CFE_ES_ChildTaskMainFuncPtr_t)(void); /**< \brief Required Prototype of Child Task Main Functions */
 typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(CFE_ES_ResourceID_t LibId); /**< \brief Required Prototype of Library Initialization Functions */
+
+/**
+ * @brief Type for the stack pointer of tasks.
+ *
+ * This type is used in the CFE ES task API.
+ */
+typedef void* CFE_ES_StackPointer_t; /* aka osal_stackptr_t in proposed OSAL change */
 
 /**
  * \brief Pool Alignement
@@ -782,7 +803,7 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_ResourceID_t *LibIdPtr, const char *Li
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppInfo
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, uint32 BufferLength);
+CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, size_t BufferLength);
 
 /*****************************************************************************/
 /**
@@ -812,7 +833,7 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, uint32 
 ** \sa #CFE_ES_GetLibIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, uint32 BufferLength);
+CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, size_t BufferLength);
 
 /*****************************************************************************/
 /**
@@ -984,6 +1005,8 @@ CFE_Status_t  CFE_ES_RegisterChildTask(void);
 **
 ** \param[in]   StackPtr      A pointer to the location where the child task's stack pointer should start.   
 **                            NOTE: Not all underlying operating systems support this parameter.
+**                            The CFE_ES_TASK_STACK_ALLOCATE constant may be passed to indicate that the
+**                            stack should be dynamically allocated.
 **
 ** \param[in]   StackSize     The number of bytes to allocate for the new task's stack.
 **
@@ -1003,9 +1026,9 @@ CFE_Status_t  CFE_ES_RegisterChildTask(void);
 CFE_Status_t  CFE_ES_CreateChildTask(CFE_ES_ResourceID_t             *TaskIdPtr,
                                      const char                      *TaskName,
                                      CFE_ES_ChildTaskMainFuncPtr_t    FunctionPtr,
-                                     uint32                          *StackPtr,
-                                     uint32                           StackSize,
-                                     uint32                           Priority,
+                                     CFE_ES_StackPointer_t            StackPtr,
+                                     size_t                           StackSize,
+                                     CFE_ES_TaskPriority_Atom_t       Priority,
                                      uint32                           Flags);
 
 /*****************************************************************************/
@@ -1061,7 +1084,7 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_ResourceID_t *TaskIdPtr, const char *
 ** \sa #CFE_ES_GetTaskIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, uint32 BufferLength);
+CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, size_t BufferLength);
 
 /*****************************************************************************/
 /**
@@ -1161,7 +1184,7 @@ CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1,2)
 ** \return The result of the CRC calculation on the specified memory block, or error code \ref CFEReturnCodes
 **
 ******************************************************************************/
-uint32 CFE_ES_CalculateCRC(const void *DataPtr, uint32 DataLength, uint32 InputCRC, uint32 TypeCRC);
+uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, uint32 TypeCRC);
 
 /*****************************************************************************/
 /**
@@ -1218,7 +1241,7 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t BlockSize, const char *Name);
+CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, size_t BlockSize, const char *Name);
 
 /*****************************************************************************/
 /**
@@ -1273,7 +1296,7 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_ResourceID_t *BlockIdPtr, const c
 ** \sa #CFE_ES_GetCDSBlockIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_ResourceID_t BlockId, uint32 BufferLength);
+CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_ResourceID_t BlockId, size_t BufferLength);
 
 
 /*****************************************************************************/
@@ -1362,7 +1385,7 @@ CFE_Status_t CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Han
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, CFE_ES_MemOffset_t Size);
+CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size);
 
 /*****************************************************************************/
 /**
@@ -1391,7 +1414,7 @@ CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, C
 ** \sa #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, CFE_ES_MemOffset_t Size);
+CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size);
 
 /*****************************************************************************/
 /**
@@ -1431,10 +1454,10 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, CFE_ES
 ******************************************************************************/
 CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t        *PoolID,
                                  uint8                     *MemPtr,
-                                 CFE_ES_MemOffset_t         Size,
+                                 size_t                     Size,
                                  uint16                     NumBlockSizes,
-                                 const CFE_ES_MemOffset_t  *BlockSizes,
-                                 uint16                     UseMutex );
+                                 const size_t              *BlockSizes,
+                                 bool                       UseMutex );
 
 
 /*****************************************************************************/
@@ -1485,7 +1508,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_GetPoolBufInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t PoolID, CFE_ES_MemOffset_t Size);
+int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size);
 
 /*****************************************************************************/
 /**
@@ -1792,7 +1815,7 @@ CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_ResourceID_t *CounterIdPtr, con
 ** \sa #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t CounterId, uint32 BufferLength);
+CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t CounterId, size_t BufferLength);
 
 /**@}*/
 

@@ -202,6 +202,26 @@ typedef struct
 
 static UT_EVS_EventCapture_t UT_EVS_EventBuf;
 
+/* MSG Init hook data */
+typedef struct
+{
+    CFE_MSG_Message_t *MsgPtr;
+    CFE_SB_MsgId_t     MsgId;
+    CFE_MSG_Size_t     Size;
+} UT_EVS_MSGInitData_t;
+
+/* Message init hook to stora last MsgId passed in */
+static int32 UT_EVS_MSGInitHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
+{
+    UT_EVS_MSGInitData_t *msgdataptr = UserObj;
+
+    msgdataptr->MsgPtr = UT_Hook_GetArgValueByName(Context, "MsgPtr", CFE_MSG_Message_t *);
+    msgdataptr->MsgId = UT_Hook_GetArgValueByName(Context, "MsgId", CFE_SB_MsgId_t);
+    msgdataptr->Size = UT_Hook_GetArgValueByName(Context, "Size", CFE_MSG_Size_t);
+
+    return StubRetcode;
+}
+
 static void UT_EVS_DoDispatchCheckEvents_Impl(void *MsgPtr, uint32 MsgSize, 
         UT_TaskPipeDispatchId_t DispatchId, const UT_SoftwareBusSnapshot_Entry_t *SnapshotCfg,
         UT_EVS_EventCapture_t *EventCapture)
@@ -212,7 +232,7 @@ static void UT_EVS_DoDispatchCheckEvents_Impl(void *MsgPtr, uint32 MsgSize,
     SnapshotData.SnapshotBuffer = &EventCapture->EventID;
 
     UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &SnapshotData);
-    UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, (CFE_SB_MsgPtr_t)MsgPtr, MsgSize, DispatchId);
+    UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, (CFE_MSG_Message_t *)MsgPtr, MsgSize, DispatchId);
     EventCapture->Count += SnapshotData.Count;
 
     /* be sure to clear the hook function since the SnapshotData is going out of scope */
@@ -279,6 +299,7 @@ void Test_Init(void)
 {
     CFE_EVS_BitMaskCmd_t        bitmaskcmd;
     CFE_EVS_AppNameBitMaskCmd_t appbitcmd;
+    CFE_SB_MsgId_t              msgid = CFE_SB_INVALID_MSG_ID;
 
     UtPrintf("Begin Test Init");
 
@@ -299,14 +320,15 @@ void Test_Init(void)
     /* Test TaskMain with a command pipe read failure due to an
      * invalid command packet
      */
+    UtPrintf("CFE_EVS_TaskMain - Test error reading command pipe, unrecognized msgid");
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_GetMsgId), 1, 0);
+
+    /* Set unexpected message ID */
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &msgid, sizeof(msgid), false);
+
     UT_EVS_DoGenericCheckEvents(CFE_EVS_TaskMain, &UT_EVS_EventBuf);
-    UT_Report(__FILE__, __LINE__,
-              UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[8]) &&
-              UT_EVS_EventBuf.EventID == CFE_EVS_ERR_MSGID_EID,
-              "CFE_EVS_TaskMain",
-              "Error reading command pipe");
+    ASSERT_TRUE(UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[8]));
+    ASSERT_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ERR_MSGID_EID);
 
     /* Test TaskMain with a register application failure */
     UT_InitData();
@@ -907,6 +929,8 @@ void Test_Format(void)
     };
     EVS_AppData_t       *AppDataPtr;
     CFE_ES_ResourceID_t AppID;
+    UT_EVS_MSGInitData_t MsgData;
+    CFE_MSG_Message_t *MsgSend;
 
     /* Get a local ref to the "current" AppData table entry */
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
@@ -954,24 +978,20 @@ void Test_Format(void)
               "CFE_EVS_SetEventFormatModeCmd",
               "Set event format mode command: short format");
 
-    /* Test event short format mode command was successful */
-    /*
-     * Send a test event and verify that the Long format event was NOT generated.
-     */
+    UtPrintf("Test for short event sent when configured to do so ");
     UT_InitData();
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &ShortFmtSnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_MSG_Init), UT_EVS_MSGInitHook, &MsgData);
+    UT_SetDataBuffer(UT_KEY(CFE_SB_SendMsg), &MsgSend, sizeof(MsgSend), false);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Short format check 1");
-    UT_Report(__FILE__, __LINE__,
-              ShortFmtSnapshotData.Count == 1,
-              "CFE_EVS_SetEventFormatModeCmd",
-              "Short event format mode verification - short message sent");
 
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LongFmtSnapshotData);
-    CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Short format check 2");
-    UT_Report(__FILE__, __LINE__,
-              LongFmtSnapshotData.Count == 0,
-              "CFE_EVS_SetEventFormatModeCmd",
-              "Short event format mode verification - long message not sent");
+    /* Note implementation initializes both short and long message */
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 2);
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_SB_SendMsg)), 1);
+    ASSERT_TRUE(CFE_SB_MsgId_Equal(MsgData.MsgId, ShortFmtSnapshotData.MsgId));
+    ASSERT_TRUE(!CFE_SB_MsgId_Equal(MsgData.MsgId, LongFmtSnapshotData.MsgId));
+
+    /* Confirm the right message was sent */
+    ASSERT_TRUE(MsgSend == MsgData.MsgPtr);
 
     /* Test set event format mode command using a valid command to set long
      * format, reports implicitly via event
@@ -2644,7 +2664,7 @@ void Test_Misc(void)
 {
     union
     {
-        CFE_SB_Msg_t msg;
+        CFE_MSG_Message_t msg;
         CFE_EVS_NoArgsCmd_t cmd;
         CFE_EVS_SetLogMode_t  modecmd;
         CFE_EVS_WriteLogDataFile_t writelogdatacmd;
@@ -2689,8 +2709,6 @@ void Test_Misc(void)
 
     /* Test housekeeping report with log enabled */
     UT_InitData();
-    CFE_SB_InitMsg((CFE_SB_Msg_t *) &CFE_EVS_GlobalData.EVS_TlmPkt, HK_SnapshotData.MsgId,
-            sizeof(CFE_EVS_GlobalData.EVS_TlmPkt), false);
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = true;
     HK_SnapshotData.Count = 0;
     UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
@@ -2717,8 +2735,6 @@ void Test_Misc(void)
 
     /* Test housekeeping report with log disabled */
     UT_InitData();
-    CFE_SB_InitMsg((CFE_SB_Msg_t *) &CFE_EVS_GlobalData.EVS_TlmPkt, HK_SnapshotData.MsgId,
-            sizeof(CFE_EVS_GlobalData.EVS_TlmPkt), false);
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = false;
     HK_SnapshotData.Count = 0;
     UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);

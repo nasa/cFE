@@ -42,6 +42,18 @@
 
 #define ES_UT_CDS_BLOCK_SIZE        16
 
+/*
+ * A size which meets the minimum CDS size
+ * requirements for the implementation, but
+ * not much larger.
+ */
+#define ES_UT_CDS_SMALL_TEST_SIZE   (56 * 1024)
+
+/*
+ * A size which has room for actual allocations
+ */
+#define ES_UT_CDS_LARGE_TEST_SIZE   (128 * 1024)
+
 extern CFE_ES_PerfData_t     *Perf;
 extern CFE_ES_Global_t       CFE_ES_Global;
 extern CFE_ES_TaskData_t     CFE_ES_TaskData;
@@ -261,7 +273,7 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
     CFE_ES_AppRecord_t *LocalAppPtr;
     CFE_ES_TaskRecord_t *LocalTaskPtr;
 
-    OS_TaskCreate(&UtOsalId, "UT", NULL, NULL, 0, 0, 0);
+    OS_TaskCreate(&UtOsalId, "UT", NULL, OSAL_TASK_STACK_ALLOCATE, 0, 0, 0);
     UtTaskId = CFE_ES_ResourceID_FromOSAL(UtOsalId);
     UtAppId = CFE_ES_Global.LastAppId;
     CFE_ES_Global.LastAppId = CFE_ES_ResourceID_FromInteger(
@@ -302,6 +314,9 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
     if (AppType == CFE_ES_AppType_EXTERNAL)
     {
         ++CFE_ES_Global.RegisteredExternalApps;
+
+        OS_ModuleLoad(&UtOsalId, NULL, NULL, 0);
+        LocalAppPtr->ModuleInfo.ModuleId = UtOsalId;
     }
     ++CFE_ES_Global.RegisteredTasks;
 }
@@ -320,7 +335,7 @@ void ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *Tas
 
     UtAppId = CFE_ES_AppRecordGetID(ParentApp);
 
-    OS_TaskCreate(&UtOsalId, "C", NULL, NULL, 0, 0, 0);
+    OS_TaskCreate(&UtOsalId, "C", NULL, OSAL_TASK_STACK_ALLOCATE, 0, 0, 0);
     UtTaskId = CFE_ES_ResourceID_FromOSAL(UtOsalId);
 
     LocalTaskPtr = CFE_ES_LocateTaskRecordByID(UtTaskId);
@@ -373,20 +388,20 @@ void ES_UT_SetupSingleLibId(const char *LibName, CFE_ES_LibRecord_t **OutLibRec)
     ++CFE_ES_Global.RegisteredLibs;
 }
 
-int32 ES_UT_PoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+int32 ES_UT_PoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
         CFE_ES_GenPoolBD_t **BdPtr)
 {
     *BdPtr = (CFE_ES_GenPoolBD_t*)((void*)&UT_MemPoolDirectBuffer.Data[Offset]);
     return CFE_SUCCESS;
 }
 
-int32 ES_UT_PoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+int32 ES_UT_PoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
         const CFE_ES_GenPoolBD_t *BdPtr)
 {
     return CFE_SUCCESS;
 }
 
-int32 ES_UT_PoolIndirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+int32 ES_UT_PoolIndirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
         CFE_ES_GenPoolBD_t **BdPtr)
 {
     memcpy(&UT_MemPoolIndirectBuffer.BD, &UT_MemPoolIndirectBuffer.Data[Offset], sizeof(CFE_ES_GenPoolBD_t));
@@ -394,14 +409,14 @@ int32 ES_UT_PoolIndirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemO
     return CFE_SUCCESS;
 }
 
-int32 ES_UT_PoolIndirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+int32 ES_UT_PoolIndirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
         const CFE_ES_GenPoolBD_t *BdPtr)
 {
     memcpy(&UT_MemPoolIndirectBuffer.Data[Offset], BdPtr, sizeof(CFE_ES_GenPoolBD_t));
     return CFE_SUCCESS;
 }
 
-int32 ES_UT_CDSPoolRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+int32 ES_UT_CDSPoolRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
         CFE_ES_GenPoolBD_t **BdPtr)
 {
     static CFE_ES_GenPoolBD_t BdBuf;
@@ -410,7 +425,7 @@ int32 ES_UT_CDSPoolRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset
     return CFE_PSP_ReadFromCDS(&BdBuf, Offset, sizeof(BdBuf));
 }
 
-int32 ES_UT_CDSPoolCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+int32 ES_UT_CDSPoolCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
         const CFE_ES_GenPoolBD_t *BdPtr)
 {
     return CFE_PSP_WriteToCDS(BdPtr, Offset, sizeof(*BdPtr));
@@ -468,13 +483,13 @@ void ES_UT_SetupCDSGlobal(uint32 CDS_Size)
 }
 
 
-void ES_UT_SetupSingleCDSRegistry(const char *CDSName, CFE_ES_MemOffset_t BlockSize, bool IsTable,
+void ES_UT_SetupSingleCDSRegistry(const char *CDSName, size_t BlockSize, bool IsTable,
         CFE_ES_CDS_RegRec_t **OutRegRec)
 {
     CFE_ES_CDS_RegRec_t *LocalRegRecPtr;
     CFE_ES_ResourceID_t UtCDSID;
     CFE_ES_GenPoolBD_t LocalBD;
-    uint32 UT_CDS_BufferSize;
+    size_t UT_CDS_BufferSize;
 
 
     /* first time this is done, set up the global */
@@ -554,7 +569,7 @@ int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode,
      */
     if (CallCount == 0)
     {
-        OS_TaskCreate(&ObjList[0], NULL, NULL, NULL, 0, 0, 0);
+        OS_TaskCreate(&ObjList[0], NULL, NULL, OSAL_TASK_STACK_ALLOCATE, 0, 0, 0);
         OS_QueueCreate(&ObjList[1], NULL, 0, 0, 0);
         OS_MutSemCreate(&ObjList[2], NULL, 0);
         OS_BinSemCreate(&ObjList[3], NULL, 0, 0);
@@ -1494,7 +1509,6 @@ void TestApps(void)
     UtAppRecPtr->StartParams.Priority = 255;
     UtAppRecPtr->StartParams.StackSize = 8192;
     UtAppRecPtr->StartParams.ExceptionAction = 0;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_EXIT;
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -1511,7 +1525,6 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1527,7 +1540,6 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_DELETE;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1543,7 +1555,6 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RESTART;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1574,7 +1585,6 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RELOAD;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
@@ -1614,7 +1624,6 @@ void TestApps(void)
     UtAppRecPtr->StartParams.Priority = 255;
     UtAppRecPtr->StartParams.StackSize = 8192;
     UtAppRecPtr->StartParams.ExceptionAction = 0;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_ERROR;
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -1632,7 +1641,6 @@ void TestApps(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_ERROR;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1655,7 +1663,6 @@ void TestApps(void)
     UtAppRecPtr->StartParams.ExceptionAction = 0;
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_DELETE;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1678,7 +1685,6 @@ void TestApps(void)
     UtAppRecPtr->StartParams.ExceptionAction = 0;
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RESTART;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1701,7 +1707,6 @@ void TestApps(void)
     UtAppRecPtr->StartParams.ExceptionAction = 0;
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RELOAD;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1726,7 +1731,6 @@ void TestApps(void)
     UtAppRecPtr->StartParams.ExceptionAction = 0;
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_EXCEPTION;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(Id);
     UT_Report(__FILE__, __LINE__,
@@ -1809,7 +1813,6 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     ES_UT_SetupForOSCleanup();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemDelete), 1, OS_ERROR);
@@ -1824,7 +1827,6 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleUnload), 1, OS_ERROR);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
@@ -1837,7 +1839,6 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
@@ -2009,12 +2010,10 @@ void TestApps(void)
     ES_ResetUnitTest();
     /* Setup an entry which will be deleted */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     /* Setup a second entry which will NOT be deleted */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
     ES_UT_SetupMemPoolId(&UtPoolRecPtr);
     UtPoolRecPtr->OwnerAppID = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     /* Associate a child task with the app to be deleted */
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -2037,7 +2036,6 @@ void TestApps(void)
     ES_ResetUnitTest();
     /* Setup an entry which will be deleted */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     ES_UT_SetupMemPoolId(&UtPoolRecPtr);
     UtPoolRecPtr->OwnerAppID = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UtPoolRecPtr->PoolID = CFE_ES_ResourceID_FromInteger(99999);    /* Mismatch */
@@ -2058,10 +2056,8 @@ void TestApps(void)
 
     /* Setup an entry which will be deleted */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     /* Setup a second entry which will NOT be deleted */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
     /* Associate a child task with the app to be deleted */
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
 
@@ -2116,9 +2112,6 @@ void TestApps(void)
 
     /* Setup an entry which will be deleted */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
-
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, "UT",
-                  "ut-module", 0);
     Id = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_CleanUpApp(Id) == CFE_SUCCESS &&
@@ -2385,19 +2378,19 @@ void TestGenericPool(void)
 {
     CFE_ES_GenPoolRecord_t Pool1;
     CFE_ES_GenPoolRecord_t Pool2;
-    CFE_ES_MemOffset_t     Offset1;
-    CFE_ES_MemOffset_t     Offset2;
-    CFE_ES_MemOffset_t     Offset3;
-    CFE_ES_MemOffset_t     Offset4;
-    CFE_ES_MemOffset_t     OffsetEnd;
-    CFE_ES_MemOffset_t     BlockSize;
+    size_t                 Offset1;
+    size_t                 Offset2;
+    size_t                 Offset3;
+    size_t                 Offset4;
+    size_t                 OffsetEnd;
+    size_t                 BlockSize;
     CFE_ES_MemOffset_t     FreeSize;
     CFE_ES_MemOffset_t     TotalSize;
     uint16                 NumBlocks;
     uint32                 CountBuf;
     uint32                 ErrBuf;
     CFE_ES_BlockStats_t    BlockStats;
-    static const CFE_ES_MemOffset_t  UT_POOL_BLOCK_SIZES[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
+    static const size_t  UT_POOL_BLOCK_SIZES[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
     {
             /*
              * These are intentionally in a mixed order
@@ -2631,7 +2624,7 @@ void TestTask(void)
     osal_id_t                   UT_ContextTask;
     union
     {
-        CFE_SB_Msg_t             Msg;
+        CFE_MSG_Message_t        Msg;
         CFE_ES_NoArgsCmd_t       NoArgsCmd;
         CFE_ES_Restart_t         RestartCmd;
         CFE_ES_StartApp_t        StartAppCmd;
@@ -2653,6 +2646,7 @@ void TestTask(void)
     CFE_ES_TaskRecord_t         *UtTaskRecPtr;
     CFE_ES_CDS_RegRec_t         *UtCDSRegRecPtr;
     CFE_ES_MemPoolRecord_t      *UtPoolRecPtr;
+    CFE_SB_MsgId_t               MsgId = CFE_SB_INVALID_MSG_ID;
 
     UtPrintf("Begin Test Task");
 
@@ -2668,6 +2662,9 @@ void TestTask(void)
     ES_ResetUnitTest();
     /* this is needed so CFE_ES_GetAppId works */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
+
+    /* Set up buffer for first cycle, pipe failure is on 2nd */
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     CFE_ES_TaskMain();
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]),
@@ -2871,7 +2868,7 @@ void TestTask(void)
     memset(CmdBuf.StartAppCmd.Payload.Application, 'x', 
             sizeof(CmdBuf.StartAppCmd.Payload.Application));
     CmdBuf.StartAppCmd.Payload.Priority = 160;
-    CmdBuf.StartAppCmd.Payload.StackSize = 8192;
+    CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(8192);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
@@ -2900,7 +2897,7 @@ void TestTask(void)
     strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
             sizeof(CmdBuf.StartAppCmd.Payload.Application));
     CmdBuf.StartAppCmd.Payload.Priority = 160;
-    CmdBuf.StartAppCmd.Payload.StackSize = 12096;
+    CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
@@ -2919,7 +2916,7 @@ void TestTask(void)
     strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
             sizeof(CmdBuf.StartAppCmd.Payload.Application));
     CmdBuf.StartAppCmd.Payload.Priority = 160;
-    CmdBuf.StartAppCmd.Payload.StackSize = 12096;
+    CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
@@ -2938,7 +2935,7 @@ void TestTask(void)
     strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "",
             sizeof(CmdBuf.StartAppCmd.Payload.Application));
     CmdBuf.StartAppCmd.Payload.Priority = 160;
-    CmdBuf.StartAppCmd.Payload.StackSize = 12096;
+    CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
@@ -2957,7 +2954,7 @@ void TestTask(void)
     strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
             sizeof(CmdBuf.StartAppCmd.Payload.Application));
     CmdBuf.StartAppCmd.Payload.Priority = 160;
-    CmdBuf.StartAppCmd.Payload.StackSize = 12096;
+    CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = 255;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
@@ -2976,7 +2973,7 @@ void TestTask(void)
     strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
             sizeof(CmdBuf.StartAppCmd.Payload.Application));
     CmdBuf.StartAppCmd.Payload.Priority = 160;
-    CmdBuf.StartAppCmd.Payload.StackSize = 0;
+    CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(0);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
@@ -2995,7 +2992,7 @@ void TestTask(void)
     strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
             sizeof(CmdBuf.StartAppCmd.Payload.Application));
     CmdBuf.StartAppCmd.Payload.Priority = 1000;
-    CmdBuf.StartAppCmd.Payload.StackSize = 12096;
+    CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
@@ -3753,7 +3750,7 @@ void TestTask(void)
             sizeof(CmdBuf.StartAppCmd.Payload.Application));
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_PROC_RESTART;
     CmdBuf.StartAppCmd.Payload.Priority = 160;
-    CmdBuf.StartAppCmd.Payload.StackSize =  CFE_PLATFORM_ES_DEFAULT_STACK_SIZE;
+    CmdBuf.StartAppCmd.Payload.StackSize =  CFE_ES_MEMOFFSET_C(CFE_PLATFORM_ES_DEFAULT_STACK_SIZE);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CFE_ES_StartApp_t),
             UT_TPID_CFE_ES_CMD_START_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3968,7 +3965,7 @@ void TestPerf(void)
 {
     union
     {
-        CFE_SB_Msg_t                Msg;
+        CFE_MSG_Message_t           Msg;
         CFE_ES_StartPerfData_t      PerfStartCmd;
         CFE_ES_StopPerfData_t       PerfStopCmd;
         CFE_ES_SetPerfFilterMask_t  PerfSetFilterMaskCmd;
@@ -5390,7 +5387,7 @@ void TestGenericCounterAPI(void)
 
 void TestCDS()
 {
-    uint32 CdsSize;
+    size_t CdsSize;
     uint8 *CdsPtr;
     char CDSName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN + 4];
     CFE_ES_CDSHandle_t CDSHandle;
@@ -5470,7 +5467,7 @@ void TestCDS()
     /* Test CDS registering with a write CDS failure */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
-    ES_UT_SetupCDSGlobal(50000);
+    ES_UT_SetupCDSGlobal(ES_UT_CDS_SMALL_TEST_SIZE);
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RegisterCDS(&CDSHandle,
@@ -5482,7 +5479,7 @@ void TestCDS()
     /* Test successful CDS registering */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
-    ES_UT_SetupCDSGlobal(50000);
+    ES_UT_SetupCDSGlobal(ES_UT_CDS_SMALL_TEST_SIZE);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_RegisterCDS(&CDSHandle, 4, "Name") == CFE_SUCCESS,
               "CFE_ES_RegisterCDS",
@@ -5525,7 +5522,7 @@ void TestCDS()
     /* Test CDS registering with all the CDS registries taken */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
-    ES_UT_SetupCDSGlobal(50000);
+    ES_UT_SetupCDSGlobal(ES_UT_CDS_SMALL_TEST_SIZE);
 
     /* Set all the CDS registries to 'taken' */
     UtCDSRegRecPtr = CFE_ES_Global.CDSVars.Registry;
@@ -5579,7 +5576,7 @@ void TestCDS()
     /* Test CDS registering using a name longer than the maximum allowed */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
-    ES_UT_SetupCDSGlobal(50000);
+    ES_UT_SetupCDSGlobal(ES_UT_CDS_SMALL_TEST_SIZE);
 
     for (i = 0; i < CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + 1; i++)
     {
@@ -5748,7 +5745,7 @@ void TestCDS()
      * To prepare for the rebuild tests, set up a clean area in PSP mem,
      * and make a registry entry.
      */
-    ES_UT_SetupCDSGlobal(50000);
+    ES_UT_SetupCDSGlobal(ES_UT_CDS_SMALL_TEST_SIZE);
     ES_UT_SetupSingleCDSRegistry("UT", 8, false, &UtCDSRegRecPtr);
     UtAssert_NONZERO(UtCDSRegRecPtr->BlockOffset);
     UtAssert_NONZERO(UtCDSRegRecPtr->BlockSize);
@@ -5807,7 +5804,7 @@ void TestCDS()
     /*
      * To prepare for the rebuild tests, set up a clean area in PSP mem
      */
-    ES_UT_SetupCDSGlobal(128 * 1024);
+    ES_UT_SetupCDSGlobal(ES_UT_CDS_LARGE_TEST_SIZE);
 
     /* Test CDS initialization where rebuilding the CDS is successful */
     ES_ResetUnitTest();
@@ -5871,9 +5868,9 @@ void TestCDSMempool(void)
     CFE_ES_CDS_RegRec_t   *UtCdsRegRecPtr;
     int                    Data;
     CFE_ES_ResourceID_t    BlockHandle;
-    CFE_ES_CDS_Offset_t    SavedSize;
-    CFE_ES_CDS_Offset_t    SavedOffset;
-    uint8 *CdsPtr;
+    size_t                 SavedSize;
+    size_t                 SavedOffset;
+    uint8                 *CdsPtr;
 
     UtPrintf("Begin Test CDS memory pool");
 
@@ -5898,7 +5895,7 @@ void TestCDSMempool(void)
      * a freed block in the pool.  Then attempt to rebuild.
      */
     ES_ResetUnitTest();
-    ES_UT_SetupCDSGlobal(50000);
+    ES_UT_SetupCDSGlobal(ES_UT_CDS_SMALL_TEST_SIZE);
     SavedSize = CFE_ES_Global.CDSVars.TotalSize;
     SavedOffset = CFE_ES_Global.CDSVars.Pool.TailPosition;
     ES_UT_SetupSingleCDSRegistry("UT", sizeof(Data) + sizeof(CFE_ES_CDS_BlockHeader_t),
@@ -5939,7 +5936,7 @@ void TestCDSMempool(void)
 
     /* Test CDS block access */
     ES_ResetUnitTest();
-    ES_UT_SetupCDSGlobal(50000);
+    ES_UT_SetupCDSGlobal(ES_UT_CDS_SMALL_TEST_SIZE);
     ES_UT_SetupSingleCDSRegistry("UT", sizeof(Data) + sizeof(CFE_ES_CDS_BlockHeader_t),
             false, &UtCdsRegRecPtr);
     BlockHandle = CFE_ES_CDSBlockRecordGetID(UtCdsRegRecPtr);
@@ -6045,7 +6042,7 @@ void TestESMempool(void)
     uint32                *addressp2 = NULL; /* Pool 2 buffer address */
     CFE_ES_MemPoolRecord_t   *PoolPtr;
     CFE_ES_MemPoolStats_t Stats;
-    CFE_ES_MemOffset_t    BlockSizes[CFE_PLATFORM_ES_POOL_MAX_BUCKETS+2];
+    size_t                BlockSizes[CFE_PLATFORM_ES_POOL_MAX_BUCKETS+2];
     CFE_ES_GenPoolBD_t    *BdPtr;
     uint32                i;
 
@@ -6264,17 +6261,6 @@ void TestESMempool(void)
                                   CFE_ES_USE_MUTEX) == CFE_SUCCESS,
               "CFE_ES_PoolCreateEx",
               "Use default block sizes when none are given");
-
-    /* Test initializing a pre-allocated pool using an invalid mutex option */
-    UT_Report(__FILE__, __LINE__,
-              CFE_ES_PoolCreateEx(&PoolID1,
-                                  Buffer1,
-                                  sizeof(Buffer1),
-                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS - 2,
-                                  BlockSizes,
-                                  2) == CFE_ES_BAD_ARGUMENT,
-              "CFE_ES_PoolCreateEx",
-              "Invalid mutex option");
 
     /*
      * Test creating a memory pool after the limit reached (no slots)

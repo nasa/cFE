@@ -303,7 +303,7 @@ extern int32 CFE_TIME_CleanUpApp(CFE_ES_ResourceID_t AppId);
 ** \return See return codes for #CFE_ES_RegisterCDS
 **
 ******************************************************************************/
-int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, CFE_ES_CDS_Offset_t UserBlockSize, const char *Name, bool CriticalTbl);
+int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name, bool CriticalTbl);
 
 /*****************************************************************************/
 /**

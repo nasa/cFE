@@ -977,8 +977,8 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
 
 typedef struct CFE_TIME_HousekeepingTlm
 {
-  uint8                         TlmHeader[CFE_SB_TLM_HDR_SIZE];
-  CFE_TIME_HousekeepingTlm_Payload_t   Payload;
+  CFE_SB_TlmHdr_t                    TlmHeader;
+  CFE_TIME_HousekeepingTlm_Payload_t Payload;
 } CFE_TIME_HousekeepingTlm_t;
 
 
@@ -1135,7 +1135,7 @@ typedef struct CFE_TIME_DiagnosticTlm_Payload
 
 typedef struct CFE_TIME_DiagnosticTlm
 {
-  uint8                 		TlmHeader[CFE_SB_TLM_HDR_SIZE];
+  CFE_SB_TlmHdr_t                  TlmHeader;
   CFE_TIME_DiagnosticTlm_Payload_t Payload;
 } CFE_TIME_DiagnosticTlm_t;
 

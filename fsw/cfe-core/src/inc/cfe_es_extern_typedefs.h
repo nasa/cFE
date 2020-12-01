@@ -364,10 +364,20 @@ typedef CFE_ES_ResourceID_t CFE_ES_MemHandle_t;
 typedef CFE_ES_ResourceID_t CFE_ES_CDSHandle_t;
 
 /**
- * @brief Type used for memory sizes and offsets
+ * @brief Type used for task priority in CFE ES as
+ * including the commands/telemetry messages.
+ *
+ * @note the valid range is only 0-255 (same as OSAL) but
+ * a wider type is used for backward compatibility
+ * in binary formats of messages.
+ */
+typedef uint16  CFE_ES_TaskPriority_Atom_t;
+
+/**
+ * @brief Type used for memory sizes and offsets in commands and telemetry
  *
  * For backward compatibility with existing CFE code this should be uint32,
- * but pools and other data structures will be limited to 4GB in size as a result.
+ * but all telemetry information will be limited to 4GB in size as a result.
  *
  * On 64-bit platforms this can be a 64-bit value which will allow larger
  * memory objects, but this will break compatibility with existing control
@@ -375,11 +385,17 @@ typedef CFE_ES_ResourceID_t CFE_ES_CDSHandle_t;
  *
  * In either case this must be an unsigned type.
  */
-typedef uint32 CFE_ES_MemOffset_t;
+typedef uint32  CFE_ES_MemOffset_t;
+
+/*
+ * A converter macro to use when initializing an CFE_ES_MemOffset_t
+ * from an integer value of a different type.
+ */
+#define CFE_ES_MEMOFFSET_C(x) ((CFE_ES_MemOffset_t)(x))
 
 
 /**
- * @brief Type used for memory addresses
+ * @brief Type used for memory addresses in command and telemetry messages
  *
  * For backward compatibility with existing CFE code this should be uint32,
  * but if running on a 64-bit platform, addresses in telemetry will be
@@ -396,26 +412,18 @@ typedef uint32 CFE_ES_MemOffset_t;
  * converts to the native "cpuaddr" type provided by OSAL.  This macro
  * provides independence between the message representation and local
  * representation of a memory address.
- *
- * @sa #CFE_SB_SET_MEMADDR, #CFE_SB_GET_MEMADDR
  */
 typedef uint32 CFE_ES_MemAddress_t;
 
-/**
- * @brief Type used for CDS sizes and offsets.
+/*
+ * A converter macro to use when initializing an CFE_ES_MemAddress_t
+ * from a pointer value of a different type.
  *
- * This must match the type used in the PSP CDS API, e.g.:
- * CFE_PSP_GetCDSSize()
- * CFE_PSP_WriteToCDS()
- * CFE_PSP_ReadFromCDS()
- *
- * It is defined separately from the CFE_ES_MemOffset_t as the type used in
- * the PSP CDS access API may be different than the ES Pool API.
- *
- * In either case this must be an unsigned type.
+ * @note on a 64 bit platform, this macro will truncate the address such
+ * that it will fit into a 32-bit telemetry field.  Obviously, the resulting
+ * value is no longer usable as a memory address after this.
  */
-typedef uint32 CFE_ES_CDS_Offset_t;
-
+#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x) & 0xFFFFFFFF))
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 

@@ -1169,13 +1169,13 @@ typedef struct CFE_ES_StartAppCmd_Payload
   char                  AppFileName[CFE_MISSION_MAX_PATH_LEN];    /**< \brief Full path and filename of Application's 
                                                                      executable image */
 
-  uint32                StackSize;                       /**< \brief Desired stack size for the new application */
+  CFE_ES_MemOffset_t            StackSize;                       /**< \brief Desired stack size for the new application */
 
-  uint16                ExceptionAction;                 /**< \brief #CFE_ES_ExceptionAction_RESTART_APP=On exception, 
+  CFE_ES_ExceptionAction_Enum_t ExceptionAction;                 /**< \brief #CFE_ES_ExceptionAction_RESTART_APP=On exception,
                                                                      restart Application,
                                                                      #CFE_ES_ExceptionAction_PROC_RESTART=On exception,
                                                                      perform a Processor Reset */
-  uint16                Priority;                        /**< \brief The new Applications runtime priority. */
+  CFE_ES_TaskPriority_Atom_t    Priority;                        /**< \brief The new Applications runtime priority. */
 
 } CFE_ES_StartAppCmd_Payload_t;
 
@@ -1424,10 +1424,10 @@ typedef struct CFE_ES_AppInfo
                                                     \brief The BSS Size of the Application */
    CFE_ES_MemAddress_t StartAddress;           /**< \cfetlmmnemonic \ES_STARTADDR
                                                     \brief The Start Address of the Application */
-   uint16   ExceptionAction;                   /**< \cfetlmmnemonic \ES_EXCEPTNACTN
+   CFE_ES_ExceptionAction_Enum_t ExceptionAction;   /**< \cfetlmmnemonic \ES_EXCEPTNACTN
                                                     \brief What should occur if Application has an exception
                                                     (Restart Application OR Restart Processor) */
-   uint16   Priority;                          /**< \cfetlmmnemonic \ES_PRIORITY
+   CFE_ES_TaskPriority_Atom_t   Priority;        /**< \cfetlmmnemonic \ES_PRIORITY
                                                     \brief The Priority of the Application */
    CFE_ES_ResourceID_t   MainTaskId;           /**< \cfetlmmnemonic \ES_MAINTASKID
                                                     \brief The Application's Main Task ID */
@@ -1475,7 +1475,7 @@ typedef struct CFE_ES_TaskInfo
 typedef struct CFE_ES_CDSRegDumpRec
 {
     CFE_ES_CDSHandle_t    Handle;          /**< \brief Handle of CDS */
-    CFE_ES_CDS_Offset_t   Size;            /**< \brief Size, in bytes, of the CDS memory block */
+    CFE_ES_MemOffset_t    Size;            /**< \brief Size, in bytes, of the CDS memory block */
     bool                  Table;           /**< \brief Flag that indicates whether CDS contains a Critical Table */
     char                  Name[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN]; /**< \brief Processor Unique Name of CDS */
     uint8                 ByteAlignSpare[3]; /**< \brief Spare bytes to ensure structure size is multiple of 4 bytes */
@@ -1531,7 +1531,7 @@ typedef struct CFE_ES_OneAppTlm_Payload
 
 typedef struct CFE_ES_OneAppTlm
 {
-    uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_SB_TlmHdr_t             TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_OneAppTlm_Payload_t  Payload;
 } CFE_ES_OneAppTlm_t;
 
@@ -1547,7 +1547,7 @@ typedef struct CFE_ES_PoolStatsTlm_Payload
 
 typedef struct CFE_ES_MemStatsTlm
 {
-    uint8                           TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_SB_TlmHdr_t                 TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
     CFE_ES_PoolStatsTlm_Payload_t   Payload;
 } CFE_ES_MemStatsTlm_t;
 
@@ -1582,9 +1582,9 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
   uint8                 OSALMissionRevision;/**< \cfetlmmnemonic \ES_OSMISSIONREV 
                                                  \brief OS Abstraction Layer MissionRevision Number */
 
-  uint32                SysLogBytesUsed; /**< \cfetlmmnemonic \ES_SYSLOGBYTEUSED 
+  CFE_ES_MemOffset_t    SysLogBytesUsed; /**< \cfetlmmnemonic \ES_SYSLOGBYTEUSED
                                               \brief Total number of bytes used in system log */
-  uint32                SysLogSize;      /**< \cfetlmmnemonic \ES_SYSLOGSIZE 
+  CFE_ES_MemOffset_t    SysLogSize;      /**< \cfetlmmnemonic \ES_SYSLOGSIZE
                                               \brief Total size of the system log */
   uint32                SysLogEntries;   /**< \cfetlmmnemonic \ES_SYSLOGENTRIES 
                                               \brief Number of entries in the system log */
@@ -1634,18 +1634,18 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
                                               \brief Number of Entries Put Into the Performance Analyzer Log */
   uint32                PerfDataToWrite; /**< \cfetlmmnemonic \ES_PERFDATA2WRITE 
                                               \brief Number of Performance Analyzer Log Entries Left to be Written to Log Dump File */
-  uint32                HeapBytesFree;     /**< \cfetlmmnemonic \ES_HEAPBYTESFREE
+  CFE_ES_MemOffset_t    HeapBytesFree;     /**< \cfetlmmnemonic \ES_HEAPBYTESFREE
                                               \brief Number of free bytes remaining in the OS heap */
-  uint32                HeapBlocksFree;    /**< \cfetlmmnemonic \ES_HEAPBLKSFREE
+  CFE_ES_MemOffset_t    HeapBlocksFree;    /**< \cfetlmmnemonic \ES_HEAPBLKSFREE
                                               \brief Number of free blocks remaining in the OS heap */
-  uint32                HeapMaxBlockSize;  /**< \cfetlmmnemonic \ES_HEAPMAXBLK
+  CFE_ES_MemOffset_t    HeapMaxBlockSize;  /**< \cfetlmmnemonic \ES_HEAPMAXBLK
                                               \brief Number of bytes in the largest free block */
 } CFE_ES_HousekeepingTlm_Payload_t;
 
 typedef struct CFE_ES_HousekeepingTlm
 {
-    uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE]; /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_ES_HousekeepingTlm_Payload_t   Payload;
+    CFE_SB_TlmHdr_t                  TlmHeader; /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_ES_HousekeepingTlm_Payload_t Payload;
   
 } CFE_ES_HousekeepingTlm_t;
 

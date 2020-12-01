@@ -194,7 +194,7 @@ int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, CFE_ES_ResourceID_t CallerID
       AppDataPtr->UnregAppID = CallerID;
 
       /* Get the name of the "not registered" app */
-      CFE_ES_GetAppName(AppName, CallerID, OS_MAX_API_NAME);
+      CFE_ES_GetAppName(AppName, CallerID, sizeof(AppName));
 
       /* Send the "not registered" event */
       EVS_SendEvent(CFE_EVS_ERR_UNREGISTERED_EVS_APP, CFE_EVS_EventType_ERROR,
@@ -300,7 +300,7 @@ bool EVS_IsFiltered (EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType
             /* Is it time to lock this filter? */
             if (FilterPtr->Count == CFE_EVS_MAX_FILTER_COUNT)
             {
-               CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), OS_MAX_API_NAME);
+               CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppName));
 
                EVS_SendEvent(CFE_EVS_FILTER_MAX_EID, CFE_EVS_EventType_INFORMATION,
                   "Max filter count reached, AppName = %s, EventID = 0x%08x: Filter locked until reset",
@@ -404,8 +404,8 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     int                      ExpandedLength;
 
     /* Initialize EVS event packets */
-    CFE_SB_InitMsg(&LongEventTlm, CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
-                   sizeof(LongEventTlm), true);
+    CFE_MSG_Init(&LongEventTlm.TlmHeader.BaseMsg, CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
+                 sizeof(LongEventTlm));
     LongEventTlm.Payload.PacketID.EventID   = EventID;
     LongEventTlm.Payload.PacketID.EventType = EventType;
 
@@ -428,7 +428,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     LongEventTlm.Payload.PacketID.ProcessorID  = CFE_PSP_GetProcessorId();
 
     /* Set the packet timestamp */
-    CFE_SB_SetMsgTime((CFE_SB_Msg_t *) &LongEventTlm, *TimeStamp);
+    CFE_MSG_SetMsgTime((CFE_MSG_Message_t *) &LongEventTlm, *TimeStamp);
 
     /* Write event to the event log */
     EVS_AddLog(&LongEventTlm);
@@ -439,7 +439,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode == CFE_EVS_MsgFormat_LONG)
     {
         /* Send long event via SoftwareBus */
-        CFE_SB_SendMsg((CFE_SB_Msg_t *) &LongEventTlm);
+        CFE_SB_SendMsg((CFE_MSG_Message_t *) &LongEventTlm);
     }
     else if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode == CFE_EVS_MsgFormat_SHORT)
     {
@@ -449,11 +449,11 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
          *
          * This goes out on a separate message ID.
          */
-        CFE_SB_InitMsg(&ShortEventTlm, CFE_SB_ValueToMsgId(CFE_EVS_SHORT_EVENT_MSG_MID),
-                       sizeof(ShortEventTlm), true);
-        CFE_SB_SetMsgTime((CFE_SB_Msg_t *) &ShortEventTlm, *TimeStamp);
+        CFE_MSG_Init(&ShortEventTlm.TlmHeader.BaseMsg, CFE_SB_ValueToMsgId(CFE_EVS_SHORT_EVENT_MSG_MID),
+                     sizeof(ShortEventTlm));
+        CFE_MSG_SetMsgTime((CFE_MSG_Message_t *) &ShortEventTlm, *TimeStamp);
         ShortEventTlm.Payload.PacketID = LongEventTlm.Payload.PacketID;
-        CFE_SB_SendMsg((CFE_SB_Msg_t *) &ShortEventTlm);
+        CFE_SB_SendMsg((CFE_MSG_Message_t *) &ShortEventTlm);
     }
 
     /* Increment message send counters (prevent rollover) */

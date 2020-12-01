@@ -762,8 +762,8 @@ typedef struct CFE_TBL_HousekeepingTlm_Payload
 
 typedef struct CFE_TBL_HousekeepingTlm
 {
-    uint8                       TlmHeader[CFE_SB_TLM_HDR_SIZE];       /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_TBL_HousekeepingTlm_Payload_t  Payload;
+    CFE_SB_TlmHdr_t                   TlmHeader;       /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_TBL_HousekeepingTlm_Payload_t Payload;
 } CFE_TBL_HousekeepingTlm_t;
 
 
@@ -772,15 +772,15 @@ typedef struct CFE_TBL_HousekeepingTlm
 **/
 typedef struct CFE_TBL_TblRegPacket_Payload
 {
-    uint32                      Size;                           /**< \cfetlmmnemonic \TBL_SIZE 
+    CFE_ES_MemOffset_t          Size;                           /**< \cfetlmmnemonic \TBL_SIZE
                                                                      \brief Size, in bytes, of Table */
     uint32                      Crc;                            /**< \cfetlmmnemonic \TBL_CRC 
                                                                      \brief Most recently calculated CRC of Table */
-    cpuaddr                     ActiveBufferAddr;               /**< \cfetlmmnemonic \TBL_ACTBUFADD
+    CFE_ES_MemAddress_t         ActiveBufferAddr;               /**< \cfetlmmnemonic \TBL_ACTBUFADD
                                                                      \brief Address of Active Buffer */
-    cpuaddr                     InactiveBufferAddr;             /**< \cfetlmmnemonic \TBL_IACTBUFADD
+    CFE_ES_MemAddress_t         InactiveBufferAddr;             /**< \cfetlmmnemonic \TBL_IACTBUFADD
                                                                      \brief Address of Inactive Buffer */
-    cpuaddr                     ValidationFuncPtr;              /**< \cfetlmmnemonic \TBL_VALFUNCPTR
+    CFE_ES_MemAddress_t         ValidationFuncPtr;              /**< \cfetlmmnemonic \TBL_VALFUNCPTR
                                                                      \brief Ptr to Owner App's function that validates tbl contents */
     CFE_TIME_SysTime_t          TimeOfLastUpdate;               /**< \cfetlmmnemonic \TBL_TIMELASTUPD 
                                                                      \brief Time when Table was last updated */
@@ -810,8 +810,8 @@ typedef struct CFE_TBL_TblRegPacket_Payload
 
 typedef struct CFE_TBL_TableRegistryTlm
 {
-    uint8                           TlmHeader[CFE_SB_TLM_HDR_SIZE];       /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_TBL_TblRegPacket_Payload_t  Payload;
+    CFE_SB_TlmHdr_t                TlmHeader;       /**< \brief cFE Software Bus Telemetry Message Header */
+    CFE_TBL_TblRegPacket_Payload_t Payload;
 } CFE_TBL_TableRegistryTlm_t;
 
 

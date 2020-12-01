@@ -69,15 +69,14 @@
 ** \return #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 **                     
 ******************************************************************************/
-int32 CFE_ES_CreateCDSPool(CFE_ES_CDS_Offset_t CDSPoolSize, CFE_ES_CDS_Offset_t StartOffset);
+int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset);
 
-
-int32 CFE_ES_RebuildCDSPool(CFE_ES_CDS_Offset_t CDSPoolSize, CFE_ES_CDS_Offset_t StartOffset);
+int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset);
 
 int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite);
 
 int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle);
 
-uint32 CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport);
+size_t CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport);
 
 #endif  /* _cfe_es_cds_mempool_ */

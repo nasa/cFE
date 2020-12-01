@@ -142,7 +142,7 @@ typedef struct
      * (ignored if the handler does not use command codes,
      * set to zero in this case).
      */
-    uint16 CommandCode;
+    CFE_MSG_FcnCode_t CommandCode;
 
 } UT_TaskPipeDispatchId_t;
 
@@ -279,11 +279,8 @@ void UT_ReportFailures(void);
 **
 ** \returns
 **        This function does not return a value.
-**
-** \sa #CFE_SB_SetMsgId, #CFE_SB_SetCmdCode, #CFE_SB_SendMsg
-**
 ******************************************************************************/
-void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_MsgPtr_t), CFE_SB_MsgPtr_t Msg, uint32 MsgSize,
+void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_MSG_Message_t*), CFE_MSG_Message_t *MsgPtr, uint32 MsgSize,
         UT_TaskPipeDispatchId_t DispatchId);
 
 /*****************************************************************************/
@@ -572,7 +569,7 @@ uint16 UT_GetNumEventsSent(void);
 **        This function does not return a value.
 **
 ******************************************************************************/
-void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, uint32 size);
+void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size);
 
 /*****************************************************************************/
 /**
