@@ -970,6 +970,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
    CFE_ES_AppRecord_t *AppRecPtr;
    CFE_ES_TaskRecord_t *TaskRecPtr;
    int32              Status;
+   osal_id_t          ModuleId;
    uint32             i;
 
    if ( AppInfo == NULL )
@@ -979,6 +980,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
    }
 
    memset(AppInfo, 0, sizeof(*AppInfo));
+   ModuleId = OS_OBJECT_ID_UNDEFINED;
 
    AppRecPtr = CFE_ES_LocateAppRecordByID(AppId);
 
@@ -1006,6 +1008,8 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
        AppInfo->ExceptionAction = AppRecPtr->StartParams.ExceptionAction;
        AppInfo->Priority = AppRecPtr->StartParams.Priority;
        AppInfo->MainTaskId = AppRecPtr->MainTaskId;
+
+       ModuleId = AppRecPtr->ModuleInfo.ModuleId;
 
        /*
        ** Calculate the number of child tasks
@@ -1044,7 +1048,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
    */
    if (Status == CFE_SUCCESS)
    {
-       CFE_ES_CopyModuleAddressInfo(AppInfo->ModuleId, AppInfo);
+       CFE_ES_CopyModuleAddressInfo(ModuleId, AppInfo);
    }
 
    return Status;
@@ -1057,12 +1061,16 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
 {
     int32              Status;
     CFE_ES_LibRecord_t *LibRecPtr;
+    osal_id_t          ModuleId;
 
     if ( LibInfo == NULL )
     {
        CFE_ES_WriteToSysLog("CFE_ES_GetLibInfo: Invalid Parameter ( Null Pointer )\n");
        return CFE_ES_ERR_BUFFER;
     }
+
+    memset(LibInfo, 0, sizeof(*LibInfo));
+    ModuleId = OS_OBJECT_ID_UNDEFINED;
 
     LibRecPtr = CFE_ES_LocateLibRecordByID(LibId);
 
@@ -1086,6 +1094,8 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
         CFE_ES_CopyModuleBasicInfo(&LibRecPtr->BasicInfo, LibInfo);
         CFE_ES_CopyModuleStatusInfo(&LibRecPtr->ModuleInfo, LibInfo);
 
+        ModuleId = LibRecPtr->ModuleInfo.ModuleId;
+
         Status = CFE_SUCCESS;
     }
 
@@ -1096,7 +1106,7 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
      */
     if (Status == CFE_SUCCESS)
     {
-        CFE_ES_CopyModuleAddressInfo(LibInfo->ModuleId, LibInfo);
+        CFE_ES_CopyModuleAddressInfo(ModuleId, LibInfo);
     }
 
     return Status;

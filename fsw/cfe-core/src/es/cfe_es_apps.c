@@ -1766,7 +1766,6 @@ void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_
 */
 void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
-    AppInfoPtr->ModuleId = StatusPtr->ModuleId;
     AppInfoPtr->StartAddress = CFE_ES_MEMADDRESS_C(StatusPtr->EntryAddress);
 }
 
