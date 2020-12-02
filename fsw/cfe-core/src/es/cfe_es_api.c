@@ -848,7 +848,7 @@ int32 CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr)
 /*
 ** Function: CFE_ES_GetAppName - See API and header file for details
 */
-int32 CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, uint32 BufferLength)
+int32 CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, size_t BufferLength)
 {
    int32 Result;
    CFE_ES_AppRecord_t *AppRecPtr;
@@ -890,7 +890,7 @@ int32 CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, uint32 BufferL
 /*
 ** Function: CFE_ES_GetLibName - See API and header file for details
 */
-int32 CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, uint32 BufferLength)
+int32 CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, size_t BufferLength)
 {
    int32 Result;
    CFE_ES_LibRecord_t *LibRecPtr;
@@ -932,7 +932,7 @@ int32 CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, uint32 BufferL
 /*
 ** Function: CFE_ES_GetTaskName - See API and header file for details
 */
-int32 CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, uint32 BufferLength)
+int32 CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, size_t BufferLength)
 {
    int32 Result;
    osal_id_t OsalId;
@@ -970,6 +970,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
    CFE_ES_AppRecord_t *AppRecPtr;
    CFE_ES_TaskRecord_t *TaskRecPtr;
    int32              Status;
+   osal_id_t          ModuleId;
    uint32             i;
 
    if ( AppInfo == NULL )
@@ -979,6 +980,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
    }
 
    memset(AppInfo, 0, sizeof(*AppInfo));
+   ModuleId = OS_OBJECT_ID_UNDEFINED;
 
    AppRecPtr = CFE_ES_LocateAppRecordByID(AppId);
 
@@ -1006,6 +1008,8 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
        AppInfo->ExceptionAction = AppRecPtr->StartParams.ExceptionAction;
        AppInfo->Priority = AppRecPtr->StartParams.Priority;
        AppInfo->MainTaskId = AppRecPtr->MainTaskId;
+
+       ModuleId = AppRecPtr->ModuleInfo.ModuleId;
 
        /*
        ** Calculate the number of child tasks
@@ -1044,7 +1048,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
    */
    if (Status == CFE_SUCCESS)
    {
-       CFE_ES_CopyModuleAddressInfo(AppInfo->ModuleId, AppInfo);
+       CFE_ES_CopyModuleAddressInfo(ModuleId, AppInfo);
    }
 
    return Status;
@@ -1057,12 +1061,16 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
 {
     int32              Status;
     CFE_ES_LibRecord_t *LibRecPtr;
+    osal_id_t          ModuleId;
 
     if ( LibInfo == NULL )
     {
        CFE_ES_WriteToSysLog("CFE_ES_GetLibInfo: Invalid Parameter ( Null Pointer )\n");
        return CFE_ES_ERR_BUFFER;
     }
+
+    memset(LibInfo, 0, sizeof(*LibInfo));
+    ModuleId = OS_OBJECT_ID_UNDEFINED;
 
     LibRecPtr = CFE_ES_LocateLibRecordByID(LibId);
 
@@ -1086,6 +1094,8 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
         CFE_ES_CopyModuleBasicInfo(&LibRecPtr->BasicInfo, LibInfo);
         CFE_ES_CopyModuleStatusInfo(&LibRecPtr->ModuleInfo, LibInfo);
 
+        ModuleId = LibRecPtr->ModuleInfo.ModuleId;
+
         Status = CFE_SUCCESS;
     }
 
@@ -1096,7 +1106,7 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
      */
     if (Status == CFE_SUCCESS)
     {
-        CFE_ES_CopyModuleAddressInfo(LibInfo->ModuleId, LibInfo);
+        CFE_ES_CopyModuleAddressInfo(ModuleId, LibInfo);
     }
 
     return Status;
@@ -1217,9 +1227,9 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_ResourceID_t TaskId
 int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
                         const char   *TaskName,
                         CFE_ES_ChildTaskMainFuncPtr_t   FunctionPtr,
-                        uint32 *StackPtr,
-                        uint32  StackSize,
-                        uint32  Priority,
+                        CFE_ES_StackPointer_t StackPtr,
+                        size_t  StackSize,
+                        CFE_ES_TaskPriority_Atom_t  Priority,
                         uint32  Flags)
 {
 
@@ -1283,14 +1293,6 @@ int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
          ParentTaskId = AppRecPtr->MainTaskId;
          if ( CFE_ES_ResourceID_Equal(TaskId, ParentTaskId) )
          {
-            /*
-            ** Truncate the priority if needed
-            */
-            if ( Priority >  255  )
-            {
-                Priority = 255;
-            }
-
             /*
             ** Step 2: Create the new task using the OS API call
             */
@@ -1614,7 +1616,7 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 /*
 ** Function: CFE_ES_CalculateCRC - See API and header file for details
 */
-uint32 CFE_ES_CalculateCRC(const void *DataPtr, uint32 DataLength, uint32 InputCRC, uint32 TypeCRC)
+uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, uint32 TypeCRC)
 {
     uint32  i;
     int16  Index;
@@ -1701,7 +1703,7 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, uint32 DataLength, uint32 InputC
 ** Purpose:  Allocate a data block for a Critical Data Store.
 **
 */
-int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, CFE_ES_CDS_Offset_t BlockSize, const char *Name)
+int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, const char *Name)
 {
     int32   Status;
     size_t  NameLen;
@@ -1763,7 +1765,7 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, CFE_ES_CDS_Offset_t B
     if (Status < 0)
     {
         /* Translate AppID of caller into App Name */
-        CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+        CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
         CFE_EVS_SendEventWithAppID(CFE_ES_CDS_REGISTER_ERR_EID,
                                    CFE_EVS_EventType_ERROR,
@@ -1821,7 +1823,7 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_ResourceID_t *BlockIdPtr, const c
  * Purpose: Obtain CDS Block Name from ID
  * See full API description in header file
  */
-CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_ResourceID_t BlockId, uint32 BufferLength)
+CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_ResourceID_t BlockId, size_t BufferLength)
 {
     CFE_Status_t Status;
     CFE_ES_CDS_RegRec_t *RegRecPtr;
@@ -2072,7 +2074,7 @@ int32 CFE_ES_GetGenCounterIDByName(CFE_ES_ResourceID_t *CounterIdPtr, const char
  * Purpose: Obtain Counter Name from ID
  * See full API description in header file
  */
-CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t CounterId, uint32 BufferLength)
+CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t CounterId, size_t BufferLength)
 {
     CFE_ES_GenCounterRecord_t *CountRecPtr;
     CFE_Status_t Status;
@@ -2137,6 +2139,7 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_ResourceID_t LibId, uint32 *Idx)
 int32 CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx)
 {
     osal_id_t OsalID;
+    osal_index_t OsalIndex;
 
     if (!CFE_ES_ResourceID_IsDefined(TaskID))
     {
@@ -2144,10 +2147,12 @@ int32 CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx)
     }
 
     OsalID = CFE_ES_ResourceID_ToOSAL(TaskID);
-    if (OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_TASK, OsalID, Idx) != OS_SUCCESS)
+    if (OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_TASK, OsalID, &OsalIndex) != OS_SUCCESS)
     {
         return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
+
+    *Idx = OsalIndex;
 
     return CFE_SUCCESS;
 }

@@ -62,7 +62,7 @@
 */
 #define CFE_TIME_TASK_TONE_NAME  "TIME_TONE_TASK"
 #define CFE_TIME_TASK_1HZ_NAME   "TIME_1HZ_TASK"
-#define CFE_TIME_TASK_STACK_PTR  0
+#define CFE_TIME_TASK_STACK_PTR  CFE_ES_TASK_STACK_ALLOCATE
 #define CFE_TIME_TASK_FLAGS      0
 
 /*
@@ -183,8 +183,8 @@ typedef struct
   /*
   ** Task operational data (not reported in housekeeping)...
   */
-  CFE_SB_MsgPtr_t       MsgPtr;
-  CFE_SB_PipeId_t       CmdPipe;
+  CFE_MSG_Message_t *MsgPtr;
+  CFE_SB_PipeId_t    CmdPipe;
 
   /*
   ** Task initialization data (not reported in housekeeping)...
@@ -349,7 +349,7 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void);
 ** Function prototypes (Time Services utilities data)...
 */
 int32 CFE_TIME_TaskInit (void);
-void  CFE_TIME_TaskPipe(CFE_SB_MsgPtr_t MessagePtr);
+void  CFE_TIME_TaskPipe(CFE_MSG_Message_t *MsgPtr);
 void CFE_TIME_InitData(void);
 void CFE_TIME_QueryResetVars(void);
 void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference);

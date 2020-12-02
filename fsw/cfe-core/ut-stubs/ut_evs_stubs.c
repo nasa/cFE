@@ -288,7 +288,7 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_EVS_CleanUpApp(uint32 AppId)
+int32 CFE_EVS_CleanUpApp(CFE_ES_ResourceID_t AppId)
 {
     int32 status;
 

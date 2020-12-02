@@ -140,7 +140,7 @@ extern CFE_EVS_GlobalData_t   CFE_EVS_GlobalData;
 * Functions used within this module and by the unit test
 */
 extern int32 CFE_EVS_TaskInit (void);
-extern void  CFE_EVS_ProcessCommandPacket ( CFE_SB_MsgPtr_t EVS_MsgPtr );
+extern void  CFE_EVS_ProcessCommandPacket(CFE_MSG_Message_t *MsgPtr);
 
 /*
  * EVS Message Handler Functions

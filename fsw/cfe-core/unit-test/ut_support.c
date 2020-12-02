@@ -215,29 +215,31 @@ void UT_Report(const char *file, uint32 line, bool test, const char *fun_name,
 ** This first sets up the various stubs according to the test case,
 ** then invokes the pipe function.
 */
-void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_MsgPtr_t), CFE_SB_MsgPtr_t Msg, uint32 MsgSize,
+void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_MSG_Message_t *), CFE_MSG_Message_t *MsgPtr, uint32 MsgSize,
         UT_TaskPipeDispatchId_t DispatchId)
 {
-    /*
-     * set the fields within the buffer itself.
-     * a lot of the CFE code requires this as it uses
-     * macros (not stubs) to read this info direct from
-     * the buffer.
-     */
-    CFE_SB_SetTotalMsgLength(Msg, MsgSize);
-    CFE_SB_SetMsgId(Msg, DispatchId.MsgId);
-    CFE_SB_SetCmdCode(Msg, DispatchId.CommandCode);
+    /* Set up for the typical task pipe related calls */
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &DispatchId.MsgId, sizeof(DispatchId.MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &DispatchId.CommandCode, sizeof(DispatchId.CommandCode), false);
+
+    /* If 0 size passed in, set buffers for calls in the command length failure reporting */
+    if (MsgSize == 0)
+    {
+        UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &DispatchId.MsgId, sizeof(DispatchId.MsgId), false);
+        UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &DispatchId.CommandCode, sizeof(DispatchId.CommandCode), false);
+    }
 
     /*
      * Finally, call the actual task pipe requested.
      */
-    TaskPipeFunc(Msg);
+    TaskPipeFunc(MsgPtr);
 }
 
 int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
     UT_SoftwareBusSnapshot_Entry_t *Snapshot = UserObj;
-    const CFE_SB_Msg_t *MsgPtr;
+    const CFE_MSG_Message_t *MsgPtr;
 
     if (Context->ArgCount > 0)
     {
@@ -248,8 +250,7 @@ int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCo
         MsgPtr = NULL;
     }
 
-    if (MsgPtr != NULL && Snapshot != NULL &&
-            CFE_SB_MsgId_Equal(Snapshot->MsgId, CFE_SB_GetMsgId((CFE_SB_MsgPtr_t)MsgPtr)))
+    if (MsgPtr != NULL && Snapshot != NULL)
     {
         ++Snapshot->Count;
         if (Snapshot->SnapshotSize > 0 && Snapshot->SnapshotBuffer != NULL)
@@ -281,7 +282,7 @@ void UT_SetStatusBSPResetArea(int32 status, uint32 Signature, uint32 ClockSignal
     UT_CFE_ES_ResetData.ResetData.TimeResetVars.ClockSignal = ClockSignal;
     if (status != 0)
     {
-        UT_SetForceFail(UT_KEY(CFE_PSP_GetResetArea), status);
+        UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_GetResetArea), status);
     }
     else
     {
@@ -310,7 +311,7 @@ void UT_SetReadHeader(void *Hdr, int NumBytes)
 */
 void UT_SetDummyFuncRtn(int Return)
 {
-    UT_SetForceFail(UT_KEY(dummy_function), Return);
+    UT_SetDefaultReturnValue(UT_KEY(dummy_function), Return);
 }
 
 /*
@@ -382,8 +383,8 @@ void UT_ClearEventHistory(void)
 static bool UT_CheckEventHistoryFromFunc(UT_EntryKey_t Func, uint16 EventIDToSearchFor)
 {
     bool Result = false;
-    uint32 Position;
-    uint32 MaxSize;
+    size_t Position;
+    size_t MaxSize;
     uint16 *EvBuf;
 
     UT_GetDataBuffer(Func, (void**)&EvBuf, &MaxSize, &Position);
@@ -421,8 +422,8 @@ bool UT_EventIsInHistory(uint16 EventIDToSearchFor)
 uint16 UT_GetNumEventsSent(void)
 {
     uint16 Total = 0;
-    uint32 Position;
-    uint32 MaxSize;
+    size_t Position;
+    size_t MaxSize;
     void *EvBuf;
 
     UT_GetDataBuffer(UT_KEY(CFE_EVS_SendEvent), &EvBuf, &MaxSize, &Position);
@@ -438,11 +439,11 @@ uint16 UT_GetNumEventsSent(void)
 /*
 ** Display the contents of a packet
 */
-void UT_DisplayPkt(CFE_SB_MsgPtr_t ptr, uint32 size)
+void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size)
 {
-    uint8 *BytePtr = (uint8 *) ptr;
-    uint32 i;
-    uint32 BufSize = UT_MAX_MESSAGE_LENGTH;
+    uint8 *BytePtr = MsgPtr->Byte;
+    size_t i;
+    size_t BufSize = UT_MAX_MESSAGE_LENGTH;
     char DisplayMsg[UT_MAX_MESSAGE_LENGTH];
     char *msgPtr = DisplayMsg;
 

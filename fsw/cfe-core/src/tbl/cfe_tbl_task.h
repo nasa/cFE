@@ -185,7 +185,7 @@ typedef struct
 typedef struct 
 {
     CFE_ES_ResourceID_t         OwnerAppId;         /**< \brief Application ID of App that Registered Table */
-    uint32                      Size;               /**< \brief Size, in bytes, of Table */
+    size_t                      Size;               /**< \brief Size, in bytes, of Table */
     CFE_SB_MsgId_t              NotificationMsgId;  /**< \brief Message ID of an associated management notification message */
     uint32                      NotificationParam;  /**< \brief Parameter of an associated management notification message */
     CFE_TBL_LoadBuff_t          Buffers[2];         /**< \brief Active and Inactive Buffer Pointers */
@@ -197,7 +197,7 @@ typedef struct
     int32                       ValidateInactiveIndex;  /**< \brief Index to Validation Request on Inactive Table Result data */
     int32                       DumpControlIndex;       /**< \brief Index to Dump Control Block */
     CFE_ES_CDSHandle_t          CDSHandle;          /**< \brief Handle to Critical Data Store for Critical Tables */
-    uint16                      NotificationCC;     /**< \brief Command Code of an associated management notification message */
+    CFE_MSG_FcnCode_t           NotificationCC;     /**< \brief Command Code of an associated management notification message */
     bool                        CriticalTable;      /**< \brief Flag indicating whether table is a Critical Table */
     bool                        TableLoadedOnce;    /**< \brief Flag indicating whether table has been loaded once or not */
     bool                        LoadPending;        /**< \brief Flag indicating an inactive buffer is ready to be copied */
@@ -238,7 +238,7 @@ typedef struct
 typedef struct 
 {
     CFE_TBL_DumpState_t       State;          /**< \brief Current state of this block of data */
-    uint32                    Size;           /**< \brief Number of bytes to be dumped */
+    size_t                    Size;           /**< \brief Number of bytes to be dumped */
     CFE_TBL_LoadBuff_t       *DumpBufferPtr;  /**< \brief Address where dumped data is to be stored temporarily */
     CFE_TBL_RegistryRec_t    *RegRecPtr;      /**< \brief Ptr to dumped table's registry record */
     char                      TableName[CFE_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table being Dumped */
@@ -253,7 +253,7 @@ typedef struct
 */
 typedef struct 
 {
-    uint32                      Size;               /**< \brief Size, in bytes, of Table */
+    CFE_ES_MemOffset_t          Size;               /**< \brief Size, in bytes, of Table */
     CFE_TIME_SysTime_t          TimeOfLastUpdate;   /**< \brief Time when Table was last updated */
     uint32                      NumUsers;           /**< \brief Number of applications that are sharing the table */
     int32                       LoadInProgress;     /**< \brief Flag identifies inactive buffer and whether load in progress */
@@ -308,7 +308,7 @@ typedef struct
   /*
   ** Task operational data (not reported in housekeeping)...
   */
-  CFE_SB_Msg_t          *MsgPtr;                          /**< \brief Pointer to most recently received command message */
+  CFE_MSG_Message_t     *MsgPtr;                          /**< \brief Pointer to most recently received command message */
   CFE_SB_PipeId_t        CmdPipe;                         /**< \brief Table Task command pipe ID as obtained from Software Bus */
 
   /*
@@ -404,7 +404,7 @@ int32 CFE_TBL_TaskInit(void);
 **
 ** 
 ******************************************************************************/
-void  CFE_TBL_TaskPipe(CFE_SB_Msg_t *MessagePtr);
+void  CFE_TBL_TaskPipe(CFE_MSG_Message_t *MessagePtr);
 
 /*****************************************************************************/
 /**

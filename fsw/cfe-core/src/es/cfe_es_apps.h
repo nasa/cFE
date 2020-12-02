@@ -117,8 +117,8 @@ typedef struct
     /*
      * Extra information the pertains to applications only, not libraries.
      */
-    cpusize                         StackSize;
-    uint16                          Priority;
+    size_t                          StackSize;
+    CFE_ES_TaskPriority_Atom_t      Priority;
     CFE_ES_ExceptionAction_Enum_t   ExceptionAction;
 
 } CFE_ES_AppStartParams_t;
@@ -227,9 +227,9 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
                        const char   *FileName,
                        const char   *EntryPointName,
                        const char   *AppName,
-                       uint32  Priority,
-                       uint32  StackSize,
-                       uint32  ExceptionAction);
+                       CFE_ES_TaskPriority_Atom_t    Priority,
+                       size_t                        StackSize,
+                       CFE_ES_ExceptionAction_Enum_t ExceptionAction);
 /*
 ** Internal function to load a a new cFE shared Library
 */

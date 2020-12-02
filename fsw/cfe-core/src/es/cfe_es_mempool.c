@@ -61,7 +61,7 @@
 ** Type Definitions
 */
 
-const CFE_ES_MemOffset_t CFE_ES_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
+const size_t CFE_ES_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
 {
     CFE_PLATFORM_ES_MAX_BLOCK_SIZE,
     CFE_PLATFORM_ES_MEM_BLOCK_SIZE_16,
@@ -87,7 +87,7 @@ const CFE_ES_MemOffset_t CFE_ES_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS]
 ** Functions
 */
 
-int32 CFE_ES_MemPoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+int32 CFE_ES_MemPoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
         CFE_ES_GenPoolBD_t **BdPtr)
 {
     cpuaddr DataAddress;
@@ -99,7 +99,7 @@ int32 CFE_ES_MemPoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_Me
     return CFE_SUCCESS;
 }
 
-int32 CFE_ES_MemPoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t Offset,
+int32 CFE_ES_MemPoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
         const CFE_ES_GenPoolBD_t *BdPtr)
 {
     return CFE_SUCCESS;
@@ -136,7 +136,7 @@ CFE_ES_MemPoolRecord_t* CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID
 */
 int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t  *PoolID,
                              uint8               *MemPtr,
-                             CFE_ES_MemOffset_t   Size )
+                             size_t               Size )
 {
     return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
                                &CFE_ES_MemPoolDefSize[0],CFE_ES_NO_MUTEX);
@@ -147,7 +147,7 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t  *PoolID,
 */
 int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t  *PoolID,
                         uint8               *MemPtr,
-                        CFE_ES_MemOffset_t   Size )
+                        size_t               Size )
 {
     return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
                                &CFE_ES_MemPoolDefSize[0],CFE_ES_USE_MUTEX);
@@ -156,16 +156,16 @@ int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t  *PoolID,
 
 int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
                           uint8                    *MemPtr,
-                          CFE_ES_MemOffset_t        Size,
+                          size_t                    Size,
                           uint16                    NumBlockSizes,
-                          const CFE_ES_MemOffset_t *BlockSizes,
-                          uint16                    UseMutex )
+                          const size_t             *BlockSizes,
+                          bool                      UseMutex )
 {
     int32 Status;
     CFE_ES_MemHandle_t PendingID;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    CFE_ES_MemOffset_t Alignment;
-    CFE_ES_MemOffset_t MinimumSize;
+    size_t Alignment;
+    size_t MinimumSize;
     char     MutexName[OS_MAX_API_NAME];
 
     /* Sanity Check inputs */
@@ -179,13 +179,6 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
     {
        CFE_ES_WriteToSysLog("CFE_ES:poolCreate Num Block Sizes (%d) greater than max (%d)\n",
                             (int)NumBlockSizes, CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
-       return(CFE_ES_BAD_ARGUMENT);
-    }
-
-    if ((UseMutex != CFE_ES_USE_MUTEX) && (UseMutex != CFE_ES_NO_MUTEX))
-    {
-       CFE_ES_WriteToSysLog("CFE_ES:poolCreate Invalid Mutex Usage Option (%d), must be %d or %d\n",
-                            UseMutex, CFE_ES_NO_MUTEX, CFE_ES_USE_MUTEX);
        return(CFE_ES_BAD_ARGUMENT);
     }
 
@@ -399,12 +392,12 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
 */
 int32 CFE_ES_GetPoolBuf(uint32               **BufPtr,
                         CFE_ES_MemHandle_t   Handle,
-                        CFE_ES_MemOffset_t   Size )
+                        size_t               Size )
 {
     int32 Status;
     CFE_ES_MemHandle_t  AppId;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    CFE_ES_MemOffset_t   DataOffset;
+    size_t   DataOffset;
 
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(Handle);
 
@@ -466,8 +459,8 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t   Handle,
 {
     int32 Status;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    CFE_ES_MemOffset_t   DataOffset;
-    CFE_ES_MemOffset_t   DataSize;
+    size_t   DataOffset;
+    size_t   DataSize;
 
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(Handle);
 
@@ -519,8 +512,8 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
                         uint32             * BufPtr)
 {
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    CFE_ES_MemOffset_t   DataSize;
-    CFE_ES_MemOffset_t   DataOffset;
+    size_t   DataSize;
+    size_t   DataOffset;
     int32 Status;
 
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(Handle);

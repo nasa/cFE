@@ -302,6 +302,7 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
     return destptr;
 }
 
+#ifndef CFE_OMIT_DEPRECATED_6_8
 /******************************************************************************
 **  Function:  CFE_SB_SetMsgSeqCnt()
 **
@@ -316,12 +317,12 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
 **  Return:
 **    None
 */
-void CFE_SB_SetMsgSeqCnt(CFE_SB_MsgPtr_t MsgPtr,uint32 Count){
+void CFE_SB_SetMsgSeqCnt(CFE_MSG_Message_t *MsgPtr,uint32 Count){
 
     CFE_MSG_SetSequenceCount(MsgPtr, Count);
 
 }/* end CFE_SB_SetMsgSeqCnt */
-
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /******************************************************************************
 **  Function:  CFE_SB_ValidateMsgId()
@@ -607,7 +608,7 @@ int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId)
         prev = (CFE_SB_ZeroCopyD_t *) (zcd->Prev);
         if( CFE_ES_ResourceID_Equal(zcd->AppID, AppId) )
         {
-            CFE_SB_ZeroCopyReleasePtr((CFE_SB_Msg_t *) zcd->Buffer, (CFE_SB_ZeroCopyHandle_t) zcd);
+            CFE_SB_ZeroCopyReleasePtr((CFE_MSG_Message_t *) zcd->Buffer, (CFE_SB_ZeroCopyHandle_t) zcd);
         }
         zcd = prev;
     }

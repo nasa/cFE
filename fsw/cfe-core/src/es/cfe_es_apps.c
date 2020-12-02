@@ -267,9 +267,9 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
    const char   *AppName;
    const char   *EntryPoint;
    const char   *EntryType;
-   unsigned int Priority;
-   unsigned int StackSize;
-   unsigned int ExceptionAction;
+   unsigned long PriorityIn;
+   unsigned long StackSizeIn;
+   unsigned long ExceptionActionIn;
    CFE_ES_ResourceID_t ApplicationId;
    int32  CreateStatus = CFE_ES_ERR_APP_CREATE;
 
@@ -298,10 +298,13 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
     *
     * This permissive parsing should not be relied upon, as it may become more strict again in
     * future CFE revisions.
+    *
+    * Also note that this uses "unsigned long" as that is the defined output type of strtoul().
+    * It will be converted to the correct type later.
     */
-   Priority = strtoul(TokenList[4], NULL, 0);
-   StackSize = strtoul(TokenList[5], NULL, 0);
-   ExceptionAction = strtoul(TokenList[7], NULL, 0);
+   PriorityIn = strtoul(TokenList[4], NULL, 0);
+   StackSizeIn = strtoul(TokenList[5], NULL, 0);
+   ExceptionActionIn = strtoul(TokenList[7], NULL, 0);
 
    if(strcmp(EntryType,"CFE_APP")==0)
    {
@@ -314,14 +317,27 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
       ** 1 ( Processor reset ). If it's non-zero, assume it means
       ** reset CPU.
       */
-      if ( ExceptionAction > CFE_ES_ExceptionAction_RESTART_APP )
-          ExceptionAction = CFE_ES_ExceptionAction_PROC_RESTART;
+      if ( ExceptionActionIn > CFE_ES_ExceptionAction_RESTART_APP )
+      {
+          ExceptionActionIn = CFE_ES_ExceptionAction_PROC_RESTART;
+      }
+
+      /*
+       * Task priority cannot be bigger than OS_MAX_TASK_PRIORITY
+       */
+      if ( PriorityIn > OS_MAX_TASK_PRIORITY )
+      {
+          PriorityIn = OS_MAX_TASK_PRIORITY;
+      }
+
       /*
       ** Now create the application
       */
       CreateStatus = CFE_ES_AppCreate(&ApplicationId, FileName,
-                               EntryPoint, AppName, (uint32) Priority,
-                               (uint32) StackSize, (uint32) ExceptionAction );
+                               EntryPoint, AppName,
+                               PriorityIn,
+                               StackSizeIn,
+                               ExceptionActionIn);
    }
    else if(strcmp(EntryType,"CFE_LIB")==0)
    {
@@ -522,7 +538,7 @@ int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_Res
     StatusCode = OS_TaskCreate(&OsalTaskId,   /* task id */
             StartParams->BasicInfo.Name,      /* task name */
             CFE_ES_AppEntryPoint,             /* task function pointer */
-            NULL,                             /* stack pointer (allocate) */
+            OSAL_TASK_STACK_ALLOCATE,         /* stack pointer (allocate) */
             StartParams->StackSize,           /* stack size */
             StartParams->Priority,            /* task priority */
             OS_FP_ENABLED);                   /* task options */
@@ -552,6 +568,7 @@ int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_Res
 
         TaskRecPtr->AppId = RefAppId;
         strncpy(TaskRecPtr->TaskName, StartParams->BasicInfo.Name, sizeof(TaskRecPtr->TaskName)-1);
+        TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName)-1] = 0;
         CFE_ES_TaskRecordSetUsed(TaskRecPtr, TaskId);
 
         /*
@@ -589,9 +606,9 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
                        const char   *FileName,
                        const char   *EntryPointName,
                        const char   *AppName,
-                       uint32  Priority,
-                       uint32  StackSize,
-                       uint32  ExceptionAction)
+                       CFE_ES_TaskPriority_Atom_t  Priority,
+                       size_t  StackSize,
+                       CFE_ES_ExceptionAction_Enum_t  ExceptionAction)
 {
    CFE_Status_t Status;
    CFE_ES_ResourceID_t MainTaskId;
@@ -1556,7 +1573,7 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
 {
     CFE_ES_CleanupState_t   *CleanState;
     int32                   Status;
-    uint32                  ObjType;
+    osal_objtype_t          ObjType;
     bool                    ObjIsValid;
 
     CleanState = (CFE_ES_CleanupState_t *)arg;
@@ -1749,8 +1766,7 @@ void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_
 */
 void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
-    AppInfoPtr->ModuleId = StatusPtr->ModuleId;
-    CFE_SB_SET_MEMADDR(AppInfoPtr->StartAddress, StatusPtr->EntryAddress);
+    AppInfoPtr->StartAddress = CFE_ES_MEMADDRESS_C(StatusPtr->EntryAddress);
 }
 
 /*
@@ -1781,12 +1797,16 @@ void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoP
         memset(&ModuleInfo, 0, sizeof(ModuleInfo));
     }
 
-    CFE_SB_SET_MEMADDR(AppInfoPtr->CodeAddress, ModuleInfo.addr.code_address);
-    CFE_SB_SET_MEMADDR(AppInfoPtr->CodeSize, ModuleInfo.addr.code_size);
-    CFE_SB_SET_MEMADDR(AppInfoPtr->DataAddress, ModuleInfo.addr.data_address);
-    CFE_SB_SET_MEMADDR(AppInfoPtr->DataSize, ModuleInfo.addr.data_size);
-    CFE_SB_SET_MEMADDR(AppInfoPtr->BSSAddress, ModuleInfo.addr.bss_address);
-    CFE_SB_SET_MEMADDR(AppInfoPtr->BSSSize, ModuleInfo.addr.bss_size);
+    /*
+     * Convert the internal size and address to the telemetry format.
+     * (The telemetry format may be a different bitwidth than the native processor)
+     */
+    AppInfoPtr->CodeAddress = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.code_address);
+    AppInfoPtr->CodeSize = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.code_size);
+    AppInfoPtr->DataAddress = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.data_address);
+    AppInfoPtr->DataSize = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.data_size);
+    AppInfoPtr->BSSAddress = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.bss_address);
+    AppInfoPtr->BSSSize = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.bss_size);
 }
 
 

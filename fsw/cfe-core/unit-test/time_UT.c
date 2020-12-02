@@ -227,10 +227,16 @@ void UtTest_Setup(void)
 */
 void Test_Main(void)
 {
+    CFE_SB_MsgId_t MsgId = CFE_SB_INVALID_MSG_ID;
+
     UtPrintf("Begin Test Main");
 
     /* Test successful run through (a pipe read error is expected) */
     UT_InitData();
+
+    /* Set up buffer for first cycle, pipe failure is on 2nd */
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+
     CFE_TIME_TaskMain();
     UT_Report(__FILE__, __LINE__,
               UT_SyslogIsInHistory(TIME_SYSLOG_MSGS[1]),
@@ -277,7 +283,7 @@ void Test_Init(void)
     ExpRtn++;
     CFE_TIME_EarlyInit();
     UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(CFE_SB_InitMsg)) == ExpRtn,
+              UT_GetStubCount(UT_KEY(CFE_MSG_Init)) == ExpRtn,
               "CFE_TIME_EarlyInit",
               "Successful");
 
@@ -470,7 +476,7 @@ void Test_Init(void)
 
     /* Test response to a failure to get the ID by name */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_TimeBaseGetIdByName), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TimeBaseGetIdByName), OS_ERROR);
     CFE_TIME_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 0,
@@ -482,7 +488,7 @@ void Test_Init(void)
      * error.  This allows the overall system to continue without the 1Hz
      */
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_TimerAdd), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TimerAdd), OS_ERROR);
     CFE_TIME_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 1 &&
@@ -491,7 +497,7 @@ void Test_Init(void)
               "1Hz OS_TimerAdd failure");
 
     UT_InitData();
-    UT_SetForceFail(UT_KEY(OS_TimerSet), OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TimerSet), OS_ERROR);
     CFE_TIME_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 1 && UT_SyslogIsInHistory((TIME_SYSLOG_MSGS[4])),
@@ -1734,7 +1740,7 @@ void Test_PipeCmds(void)
 {
     union
     {
-        CFE_SB_Msg_t message;
+        CFE_MSG_Message_t message;
         CFE_SB_CmdHdr_t cmd;
         CFE_TIME_ToneDataCmd_t tonedatacmd;
         CFE_TIME_Noop_t noopcmd;
@@ -1770,8 +1776,6 @@ void Test_PipeCmds(void)
 
     /* Test sending the housekeeping telemetry request command */
     UT_InitData();
-    CFE_SB_InitMsg((CFE_SB_Msg_t *) &CFE_TIME_TaskData.HkPacket, LocalSnapshotData.MsgId,
-            sizeof(CFE_TIME_TaskData.HkPacket), false);
     UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd),
             UT_TPID_CFE_TIME_SEND_HK);
@@ -2348,7 +2352,7 @@ void Test_PipeCmds(void)
 
     /* Test response to sending a command with a bad length */
     UT_InitData();
-    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), 
+    UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, 
             UT_TPID_CFE_TIME_CMD_SET_LEAP_SECONDS_CC);
     UT_Report(__FILE__, __LINE__,
               UT_EventIsInHistory(CFE_TIME_LEN_ERR_EID),

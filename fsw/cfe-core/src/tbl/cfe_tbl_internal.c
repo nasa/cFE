@@ -142,21 +142,21 @@ int32 CFE_TBL_EarlyInit (void)
     /*
     ** Initialize housekeeping packet (clear user data area)...
     */
-    CFE_SB_InitMsg(&CFE_TBL_TaskData.HkPacket,
-                    CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
-                    sizeof(CFE_TBL_TaskData.HkPacket), true);
+    CFE_MSG_Init(&CFE_TBL_TaskData.HkPacket.TlmHeader.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
+                 sizeof(CFE_TBL_TaskData.HkPacket));
 
     /*
     ** Initialize table registry report packet (clear user data area)...
     */
-    CFE_SB_InitMsg(&CFE_TBL_TaskData.TblRegPacket,
-                    CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
-                    sizeof(CFE_TBL_TaskData.TblRegPacket), true);
+    CFE_MSG_Init(&CFE_TBL_TaskData.TblRegPacket.TlmHeader.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
+                 sizeof(CFE_TBL_TaskData.TblRegPacket));
 
     /* Initialize memory partition and allocate shared table buffers. */
     Status = CFE_ES_PoolCreate(&CFE_TBL_TaskData.Buf.PoolHdl,
                                 CFE_TBL_TaskData.Buf.Partition.Data,
-                                CFE_PLATFORM_TBL_BUF_MEMORY_BYTES);        
+                                sizeof(CFE_TBL_TaskData.Buf.Partition));
 
     if(Status < 0)
     {
@@ -682,7 +682,7 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_Resour
 {
     char AppName[OS_MAX_API_NAME];
 
-    CFE_ES_GetAppName(AppName, ThisAppId, OS_MAX_API_NAME);
+    CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
     /* Ensure that AppName is null terminated */
     AppName[OS_MAX_API_NAME-1] = '\0';
@@ -1511,18 +1511,18 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
         /*
         ** Initialize notification message packet (clear user data area)...
         */
-        CFE_SB_InitMsg(&CFE_TBL_TaskData.NotifyMsg,
-                        RegRecPtr->NotificationMsgId,
-                        sizeof(CFE_TBL_NotifyCmd_t), true);
+        CFE_MSG_Init((CFE_MSG_Message_t *)&CFE_TBL_TaskData.NotifyMsg,
+                     RegRecPtr->NotificationMsgId,
+                     sizeof(CFE_TBL_NotifyCmd_t));
         
         /* Set the command code */
-        CFE_SB_SetCmdCode((CFE_SB_MsgPtr_t) &CFE_TBL_TaskData.NotifyMsg, RegRecPtr->NotificationCC);
+        CFE_MSG_SetFcnCode((CFE_MSG_Message_t *) &CFE_TBL_TaskData.NotifyMsg, RegRecPtr->NotificationCC);
         
         /* Set the command parameter */
         CFE_TBL_TaskData.NotifyMsg.Payload.Parameter = RegRecPtr->NotificationParam;
     
-        CFE_SB_TimeStampMsg((CFE_SB_Msg_t *) &CFE_TBL_TaskData.NotifyMsg);
-        Status = CFE_SB_SendMsg((CFE_SB_Msg_t *) &CFE_TBL_TaskData.NotifyMsg);
+        CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_TBL_TaskData.NotifyMsg);
+        Status = CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TBL_TaskData.NotifyMsg);
     
         if (Status != CFE_SUCCESS)
         {

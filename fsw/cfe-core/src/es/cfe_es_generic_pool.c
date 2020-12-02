@@ -60,7 +60,7 @@
 **   Local Helper function to find the appropriate bucket given a requested block size
 **---------------------------------------------------------------------------------------
 */
-uint16 CFE_ES_GenPoolFindBucket(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t ReqSize)
+uint16 CFE_ES_GenPoolFindBucket(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t ReqSize)
 {
     uint16 Index;
 
@@ -110,12 +110,12 @@ CFE_ES_GenPoolBucket_t *CFE_ES_GenPoolGetBucketState(CFE_ES_GenPoolRecord_t *Poo
 **---------------------------------------------------------------------------------------
 */
 int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId,
-        CFE_ES_MemOffset_t NewSize, CFE_ES_MemOffset_t *BlockOffsetPtr)
+        size_t NewSize, size_t *BlockOffsetPtr)
 {
     CFE_ES_GenPoolBucket_t *BucketPtr;
-    CFE_ES_MemOffset_t   DescOffset;
-    CFE_ES_MemOffset_t   BlockOffset;
-    CFE_ES_MemOffset_t   NextOffset;
+    size_t   DescOffset;
+    size_t   BlockOffset;
+    size_t   NextOffset;
     CFE_ES_GenPoolBD_t *BdPtr;
     uint16 RecycleBucketId;
     int32 Status;
@@ -174,12 +174,12 @@ int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 
 **---------------------------------------------------------------------------------------
 */
 int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId,
-        CFE_ES_MemOffset_t NewSize, CFE_ES_MemOffset_t *BlockOffsetPtr)
+        size_t NewSize, size_t *BlockOffsetPtr)
 {
     CFE_ES_GenPoolBucket_t *BucketPtr;
-    CFE_ES_MemOffset_t   DescOffset;
-    CFE_ES_MemOffset_t   BlockOffset;
-    CFE_ES_MemOffset_t   NextTailPosition;
+    size_t   DescOffset;
+    size_t   BlockOffset;
+    size_t   NextTailPosition;
     CFE_ES_GenPoolBD_t *BdPtr;
     int32 Status;
 
@@ -253,11 +253,11 @@ int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 B
 */
 int32 CFE_ES_GenPoolInitialize(
         CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        CFE_ES_MemOffset_t   StartOffset,
-        CFE_ES_MemOffset_t   PoolSize,
-        CFE_ES_MemOffset_t   AlignSize,
+        size_t   StartOffset,
+        size_t   PoolSize,
+        size_t   AlignSize,
         uint16               NumBlockSizes,
-        const CFE_ES_MemOffset_t  *BlockSizeList,
+        const size_t  *BlockSizeList,
         CFE_ES_PoolRetrieve_Func_t RetrieveFunc,
         CFE_ES_PoolCommit_Func_t   CommitFunc)
 {
@@ -350,12 +350,12 @@ int32 CFE_ES_GenPoolInitialize(
 **   ES Internal API - See Prototype for full API description
 **---------------------------------------------------------------------------------------
 */
-CFE_ES_MemOffset_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes,
-        const CFE_ES_MemOffset_t *BlockSizeList,
+size_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes,
+        const size_t *BlockSizeList,
         uint32 NumBlocks)
 {
     uint16 BucketId;
-    CFE_ES_MemOffset_t MinBlockSize;
+    size_t MinBlockSize;
 
     MinBlockSize = 0;
 
@@ -386,8 +386,8 @@ CFE_ES_MemOffset_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes,
 **---------------------------------------------------------------------------------------
 */
 int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        CFE_ES_MemOffset_t   *BlockOffsetPtr,
-        CFE_ES_MemOffset_t    ReqSize )
+        size_t   *BlockOffsetPtr,
+        size_t    ReqSize )
 {
     int32 Status;
     uint16 BucketId;
@@ -421,10 +421,10 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr,
 **---------------------------------------------------------------------------------------
 */
 int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        CFE_ES_MemOffset_t *BlockSizePtr,
-        CFE_ES_MemOffset_t  BlockOffset)
+        size_t *BlockSizePtr,
+        size_t  BlockOffset)
 {
-    CFE_ES_MemOffset_t   DescOffset;
+    size_t   DescOffset;
     CFE_ES_GenPoolBucket_t *BucketPtr;
     CFE_ES_GenPoolBD_t *BdPtr;
     int32 Status;
@@ -470,10 +470,10 @@ int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr,
 **---------------------------------------------------------------------------------------
 */
 int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        CFE_ES_MemOffset_t *BlockSizePtr,
-        CFE_ES_MemOffset_t  BlockOffset)
+        size_t *BlockSizePtr,
+        size_t  BlockOffset)
 {
-    CFE_ES_MemOffset_t   DescOffset;
+    size_t   DescOffset;
     CFE_ES_GenPoolBucket_t *BucketPtr;
     CFE_ES_GenPoolBD_t *BdPtr;
     int32 Status;
@@ -530,8 +530,8 @@ int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr,
 int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr)
 {
     int32 Status;
-    CFE_ES_MemOffset_t DescOffset;
-    CFE_ES_MemOffset_t BlockOffset;
+    size_t DescOffset;
+    size_t BlockOffset;
     CFE_ES_GenPoolBucket_t *BucketPtr;
     CFE_ES_GenPoolBD_t *BdPtr;
     uint16 BucketId;
@@ -660,11 +660,11 @@ void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr,
 {
     if (TotalSizeBuf != NULL)
     {
-        *TotalSizeBuf = PoolRecPtr->PoolTotalSize;
+        *TotalSizeBuf = CFE_ES_MEMOFFSET_C(PoolRecPtr->PoolTotalSize);
     }
     if (FreeSizeBuf != NULL)
     {
-        *FreeSizeBuf = PoolRecPtr->PoolMaxOffset - PoolRecPtr->TailPosition;
+        *FreeSizeBuf = CFE_ES_MEMOFFSET_C(PoolRecPtr->PoolMaxOffset - PoolRecPtr->TailPosition);
     }
 }
 
@@ -718,7 +718,7 @@ void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 Buc
     if (BlockStatsBuf != NULL)
     {
         BlockStatsBuf->NumCreated = BucketPtr->AllocationCount;
-        BlockStatsBuf->BlockSize = BucketPtr->BlockSize;
+        BlockStatsBuf->BlockSize = CFE_ES_MEMOFFSET_C(BucketPtr->BlockSize);
         BlockStatsBuf->NumFree = BucketPtr->ReleaseCount - BucketPtr->RecycleCount;
     }
 }

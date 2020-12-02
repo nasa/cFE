@@ -58,7 +58,7 @@
 
 
 
-const CFE_ES_MemOffset_t CFE_ES_CDSMemPoolDefSize[CFE_ES_CDS_NUM_BLOCK_SIZES] =
+const size_t CFE_ES_CDSMemPoolDefSize[CFE_ES_CDS_NUM_BLOCK_SIZES] =
 {
     CFE_PLATFORM_ES_CDS_MAX_BLOCK_SIZE,
     CFE_PLATFORM_ES_CDS_MEM_BLOCK_SIZE_16,
@@ -90,19 +90,14 @@ const CFE_ES_MemOffset_t CFE_ES_CDSMemPoolDefSize[CFE_ES_CDS_NUM_BLOCK_SIZES] =
 ** This is a bridge between the generic pool implementation and the CDS cache.
 */
 int32 CFE_ES_CDS_PoolRetrieve(CFE_ES_GenPoolRecord_t *GenPoolRecPtr,
-        CFE_ES_MemOffset_t Offset,
+        size_t Offset,
         CFE_ES_GenPoolBD_t **BdPtr)
 {
     CFE_ES_CDS_Instance_t *CDS = (CFE_ES_CDS_Instance_t *)GenPoolRecPtr;
-    CFE_ES_CDS_Offset_t CDSOffset;
-    CFE_ES_CDS_Offset_t CDSSize;
 
-    /* Type conversions */
-    CDSOffset = Offset;
-    CDSSize = sizeof(CFE_ES_GenPoolBD_t);
     *BdPtr = &CDS->Cache.Data.Desc;
 
-    return CFE_ES_CDS_CacheFetch(&CDS->Cache, CDSOffset, CDSSize);
+    return CFE_ES_CDS_CacheFetch(&CDS->Cache, Offset, sizeof(CFE_ES_GenPoolBD_t));
 }
 
 /*
@@ -111,13 +106,12 @@ int32 CFE_ES_CDS_PoolRetrieve(CFE_ES_GenPoolRecord_t *GenPoolRecPtr,
 ** This is a bridge between the generic pool implementation and the CDS cache.
 */
 int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr,
-        CFE_ES_MemOffset_t Offset,
+        size_t Offset,
         const CFE_ES_GenPoolBD_t *BdPtr)
 {
     CFE_ES_CDS_Instance_t *CDS = (CFE_ES_CDS_Instance_t *)GenPoolRecPtr;
 
-    CFE_ES_CDS_CachePreload(&CDS->Cache, BdPtr, Offset,
-            sizeof(CFE_ES_GenPoolBD_t));
+    CFE_ES_CDS_CachePreload(&CDS->Cache, BdPtr, Offset, sizeof(CFE_ES_GenPoolBD_t));
 
     return CFE_ES_CDS_CacheFlush(&CDS->Cache);
 }
@@ -131,12 +125,12 @@ int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr,
 **  where it is not possible to have contention writing into the syslog.
 **  Therefore the use of CFE_ES_SysLogWrite_Unsync() is acceptable
 */
-int32 CFE_ES_CreateCDSPool(CFE_ES_CDS_Offset_t  CDSPoolSize, CFE_ES_CDS_Offset_t  StartOffset)
+int32 CFE_ES_CreateCDSPool(size_t  CDSPoolSize, size_t  StartOffset)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32 Status;
-    CFE_ES_MemOffset_t  SizeCheck;
-    CFE_ES_MemOffset_t  ActualSize;
+    size_t  SizeCheck;
+    size_t  ActualSize;
 
     SizeCheck = CFE_ES_GenPoolCalcMinSize(CFE_ES_CDS_NUM_BLOCK_SIZES, CFE_ES_CDSMemPoolDefSize, 1);
     ActualSize = CDSPoolSize;
@@ -173,7 +167,7 @@ int32 CFE_ES_CreateCDSPool(CFE_ES_CDS_Offset_t  CDSPoolSize, CFE_ES_CDS_Offset_t
 **  where it is not possible to have contention writing into the syslog.
 **  Therefore the use of CFE_ES_SysLogWrite_Unsync() is acceptable
 */
-int32 CFE_ES_RebuildCDSPool(CFE_ES_CDS_Offset_t CDSPoolSize, CFE_ES_CDS_Offset_t StartOffset)
+int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32 Status;
@@ -212,9 +206,9 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     char  LogMessage[CFE_ES_MAX_SYSLOG_MSG_SIZE];
     int32 Status;
-    CFE_ES_MemOffset_t       BlockSize;
-    CFE_ES_CDS_Offset_t      UserDataSize;
-    CFE_ES_CDS_Offset_t      UserDataOffset;
+    size_t                   BlockSize;
+    size_t                   UserDataSize;
+    size_t                   UserDataOffset;
     CFE_ES_CDS_RegRec_t     *CDSRegRecPtr;
 
     /* Ensure the the log message is an empty string in case it is never written to */
@@ -311,9 +305,9 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
     char   LogMessage[CFE_ES_MAX_SYSLOG_MSG_SIZE];
     int32 Status;
     uint32 CrcOfCDSData;
-    CFE_ES_MemOffset_t       BlockSize;
-    CFE_ES_CDS_Offset_t      UserDataSize;
-    CFE_ES_CDS_Offset_t      UserDataOffset;
+    size_t                   BlockSize;
+    size_t                   UserDataSize;
+    size_t                   UserDataOffset;
     CFE_ES_CDS_RegRec_t     *CDSRegRecPtr;
 
     /* Validate the handle before doing anything */
@@ -352,7 +346,7 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
 
                 /* Read the header */
                 Status = CFE_ES_CDS_CacheFetch(&CDS->Cache, CDSRegRecPtr->BlockOffset,
-                        (CFE_ES_CDS_Offset_t){sizeof(CFE_ES_CDS_BlockHeader_t)} );
+                        sizeof(CFE_ES_CDS_BlockHeader_t));
 
                 if (Status == CFE_SUCCESS)
                 {
@@ -400,10 +394,14 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
 ** Purpose:
 **
 */
-uint32 CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport)
+size_t CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport)
 {
-    return CFE_ES_GenPoolCalcMinSize(CFE_ES_CDS_NUM_BLOCK_SIZES,
+    size_t ReqSize;
+
+    ReqSize = CFE_ES_GenPoolCalcMinSize(CFE_ES_CDS_NUM_BLOCK_SIZES,
             CFE_ES_CDSMemPoolDefSize,
             MaxNumBlocksToSupport);
+
+    return ReqSize;
 }
 

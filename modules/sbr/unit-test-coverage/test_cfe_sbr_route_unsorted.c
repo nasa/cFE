@@ -60,7 +60,7 @@ void Test_SBR_Route_Unsort_General(void)
      * Note from here on msgids must be in the valid range since validation is forced true
      * and if the underlying map implentation is direct it needs to be a valid array index
      */
-    UT_SetForceFail(UT_KEY(CFE_SB_IsValidMsgId), true);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
 
     UtPrintf("Callback test with no routes");
     count = 0;
@@ -137,7 +137,7 @@ void Test_SBR_Route_Unsort_GetSet(void)
      * Note from here on msgids must be in the valid range since validation is forced true
      * and if the underlying map implentation is direct it needs to be a valid array index
      */
-    UT_SetForceFail(UT_KEY(CFE_SB_IsValidMsgId), true);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
 
     UtPrintf("Initialize map and route");
     CFE_SBR_Init();

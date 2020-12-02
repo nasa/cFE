@@ -146,30 +146,31 @@
     </UL>
     <LI> \ref CFEAPISBSetMessage
     <UL>
-      <LI> #CFE_SB_InitMsg - \copybrief CFE_SB_InitMsg
-      <LI> #CFE_SB_SetMsgId - \copybrief CFE_SB_SetMsgId
+      <LI> #CFE_MSG_Init - \copybrief CFE_MSG_Init
+      <LI> #CFE_MSG_SetMsgId - \copybrief CFE_MSG_SetMsgId
       <LI> #CFE_SB_SetUserDataLength - \copybrief CFE_SB_SetUserDataLength
-      <LI> #CFE_SB_SetTotalMsgLength - \copybrief CFE_SB_SetTotalMsgLength
-      <LI> #CFE_SB_SetMsgTime - \copybrief CFE_SB_SetMsgTime
+      <LI> #CFE_MSG_SetSize - \copybrief CFE_MSG_SetSize
+      <LI> #CFE_MSG_SetMsgTime - \copybrief CFE_MSG_SetMsgTime
       <LI> #CFE_SB_TimeStampMsg - \copybrief CFE_SB_TimeStampMsg
-      <LI> #CFE_SB_SetCmdCode - \copybrief CFE_SB_SetCmdCode
+      <LI> #CFE_MSG_SetFcnCode - \copybrief CFE_MSG_SetFcnCode
+      <LI> #CFE_MSG_SetSequenceCount - \copybrief CFE_MSG_SetSequenceCount
       <LI> #CFE_SB_MessageStringSet - \copybrief CFE_SB_MessageStringSet
     </UL>
     <LI> \ref CFEAPIGetMessage
     <UL>
       <LI> #CFE_SB_GetUserData - \copybrief CFE_SB_GetUserData
-      <LI> #CFE_SB_GetMsgId - \copybrief CFE_SB_GetMsgId
+      <LI> #CFE_MSG_GetMsgId - \copybrief CFE_MSG_GetMsgId
       <LI> #CFE_SB_GetUserDataLength - \copybrief CFE_SB_GetUserDataLength
-      <LI> #CFE_SB_GetTotalMsgLength - \copybrief CFE_SB_GetTotalMsgLength
-      <LI> #CFE_SB_GetMsgTime - \copybrief CFE_SB_GetMsgTime
-      <LI> #CFE_SB_GetCmdCode - \copybrief CFE_SB_GetCmdCode
+      <LI> #CFE_MSG_GetSize - \copybrief CFE_MSG_GetSize
+      <LI> #CFE_MSG_GetMsgTime - \copybrief CFE_MSG_GetMsgTime
+      <LI> #CFE_MSG_GetFcnCode - \copybrief CFE_MSG_GetFcnCode
+      <LI> #CFE_MSG_GetTypeFromMsgId - \copybrief CFE_MSG_GetTypeFromMsgId
       <LI> #CFE_SB_MessageStringGet - \copybrief CFE_SB_MessageStringGet
     </UL>
     <LI> \ref CFEAPISBChecksum
     <UL>
-      <LI> #CFE_SB_GenerateChecksum - \copybrief CFE_SB_GenerateChecksum
-      <LI> #CFE_SB_GetChecksum - \copybrief CFE_SB_GetChecksum
-      <LI> #CFE_SB_ValidateChecksum - \copybrief CFE_SB_ValidateChecksum
+      <LI> #CFE_MSG_GenerateChecksum - \copybrief CFE_MSG_GenerateChecksum
+      <LI> #CFE_MSG_ValidateChecksum - \copybrief CFE_MSG_ValidateChecksum
     </UL>
     <LI> \ref CFEAPISBMessageID
     <UL>

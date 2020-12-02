@@ -1181,7 +1181,7 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload {
 } CFE_EVS_HousekeepingTlm_Payload_t;
 
 typedef struct CFE_EVS_HousekeepingTlm {
-   uint8                    TlmHeader[CFE_SB_TLM_HDR_SIZE];
+   CFE_SB_TlmHdr_t                   TlmHeader;
    CFE_EVS_HousekeepingTlm_Payload_t Payload;
 } CFE_EVS_HousekeepingTlm_t;
 
@@ -1224,13 +1224,13 @@ typedef struct CFE_EVS_ShortEventTlm_Payload {
 } CFE_EVS_ShortEventTlm_Payload_t;
 
 typedef struct CFE_EVS_LongEventTlm {
-   uint8                    TlmHeader[CFE_SB_TLM_HDR_SIZE];
+   CFE_SB_TlmHdr_t                TlmHeader;
    CFE_EVS_LongEventTlm_Payload_t Payload;
 
 } CFE_EVS_LongEventTlm_t;
 
 typedef struct CFE_EVS_ShortEventTlm {
-   uint8                    TlmHeader[CFE_SB_TLM_HDR_SIZE];
+   CFE_SB_TlmHdr_t                 TlmHeader;
    CFE_EVS_ShortEventTlm_Payload_t Payload;
 
 } CFE_EVS_ShortEventTlm_t;

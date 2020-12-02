@@ -47,7 +47,7 @@
 **  External Declarations
 */
 
-const CFE_ES_MemOffset_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
+const size_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
 {
     CFE_PLATFORM_SB_MAX_BLOCK_SIZE,
     CFE_PLATFORM_SB_MEM_BLOCK_SIZE_16,
@@ -116,10 +116,9 @@ int32 CFE_SB_EarlyInit (void) {
     CFE_SBR_Init();
 
     /* Initialize the SB Statistics Pkt */
-    CFE_SB_InitMsg(&CFE_SB.StatTlmMsg,
-                   CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
-                   sizeof(CFE_SB.StatTlmMsg),
-                   true);    
+    CFE_MSG_Init(&CFE_SB.StatTlmMsg.Hdr.BaseMsg,
+                 CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
+                 sizeof(CFE_SB.StatTlmMsg));
 
     CFE_SB.ZeroCopyTail = NULL;
 

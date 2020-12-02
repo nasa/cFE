@@ -45,6 +45,7 @@
 #include "common_types.h"  /* Basic Data Types */
 #include "cfe_time.h"
 #include "osconfig.h"
+#include "cfe_msg_typedefs.h"
 
 /******************* Macro Definitions ***********************/
 
@@ -116,7 +117,7 @@ typedef enum CFE_TBL_SrcEnum
 /** \brief Table Info */
 typedef struct CFE_TBL_Info
 {
-    uint32                Size;                             /**< \brief Size, in bytes, of Table */
+    size_t                Size;                             /**< \brief Size, in bytes, of Table */
     uint32                NumUsers;                         /**< \brief Number of Apps with access to the table */
     uint32                FileCreateTimeSecs;               /**< \brief File creation time from last file loaded into table */
     uint32                FileCreateTimeSubSecs;            /**< \brief File creation time from last file loaded into table */
@@ -265,7 +266,7 @@ typedef struct CFE_TBL_Info
 **/
 CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr,                  /* Returned Handle */
                           const char   *Name,                              /* Application specific name  */
-                          uint32  Size,                                    /* Size, in bytes, of table   */
+                          size_t  Size,                                    /* Size, in bytes, of table   */
                           uint16  TblOptionFlags,                          /* Tbl Options Settings     */
                           CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr); /* Ptr to func that validates tbl */
 
@@ -812,7 +813,7 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName);
 ** \sa #CFE_TBL_Register
 **
 ******************************************************************************/
-CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, uint16 CommandCode, uint32 Parameter);
+CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode, uint32 Parameter);
 /**@}*/
 
 #endif  /* _cfe_tbl_ */
