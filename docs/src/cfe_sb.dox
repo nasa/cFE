@@ -292,8 +292,8 @@
 
   The sequence counter for command messages is not altered by the software bus.
 
-  For a telemetry message, the behavior is controlled via input parameters or API selection
-  when sending the command.  When enabled, the software bus will populate the packet sequence
+  For a telemetry message, the behavior is controlled via API input parameters when sending.
+  When enabled, the software bus will populate the packet sequence
   counter using an internal counter that gets intialized upon the first subscription to the
   message (first message will have a packet sequence counter value of 1).  From that point on
   each send request will increment the counter by one, regardless of the number of destinations
@@ -507,12 +507,18 @@
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
            How many copies of the message are performed in a typical message delivery?
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           There is a single copy of the message performed during a typical delivery.
-           When transmitting a message, the software bus copies the message from the
-           callers memory space into a buffer in the software bus memory space.
-           The #CFE_SB_ReceiveBuffer API gives the user back a pointer to the buffer. This
-           is equivalent to the copy mode send and pointer mode receive in the heritage
-           software bus used on WMAP, ST5, SDO etc.
+           There is a single copy of the message performed when sending a message
+           (from the callers memory space) using CFE_SB_TransmitMsg. 
+           When transmitting the message, the software bus copies the message from the
+           callers memory space into a buffer in the software bus memory space. There
+           is also the option to request a buffer from SB, write directly to the buffer
+           and send via CFE_SB_TransmitBuffer.  This is equivalent to the previous zero
+           copy implementation.
+           The #CFE_SB_ReceiveBuffer API gives the user back a pointer to the buffer. When
+           working with the buffers, the additional complexity to be aware of is the
+           buffer is only available to the app from the request to send (on the sending side),
+           or from the receive until the next receive on the same pipe on the receiving side.
+           If the data is required outside that scope, the app needs a local copy.
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
            When does the software bus free the buffer during a typical message
            delivery process? Or how long is the message, and the pointer to the buffer
