@@ -10,6 +10,17 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev204
+
+- Backward compatible API change. Replace many uses of generic uint16 and uint32 with a more purpose-specific type. Replace all sizes with size_t across the API.
+- Rename `UT_SetForceFail` to `UT_SetDefaultReturnValue` since some functions that retain more than 1 value are not necessarily failing
+- Deprecates many SB Elements and replaces them with the new MSG module. See https://github.com/nasa/cFE/issues/777 for list.
+-  App and Lib info telemetry structures no longer contain the `ModuleId` value from OSAL.
+- Add an extra write of a null char after `strncpy` which squelches a warning and appease compiler warning logic.
+- Uses `CFE_PLATFORM_ES_DEFAULT_STACK_SIZE` as a default instead of a minimum. Affects the Start App command; if stack size is specified as zero, then the default stack size value from platform config is used. Otherwise the value in the command will be passed through and used as-is.
+- Changes the type of the AppID parameter on "Cleanup" routines from `uint32` to `CFE_ES_ResourceID_t`.
+- See <https://github.com/nasa/cFE/pull/1027>
+
 ### Development Build: 6.8.0-rc1+dev179
 
 - Adds macros for more compact calls to `CFE_EVS_SendEvent`, making the type be part of the function name.
