@@ -3321,7 +3321,6 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UT_SetForceFail(UT_KEY(OS_OpenCreate), OS_ERROR);
     strncpy((char *) CmdBuf.WriteSysLogCmd.Payload.FileName, "",
             sizeof(CmdBuf.WriteSysLogCmd.Payload.FileName));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteSysLogCmd),
