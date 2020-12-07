@@ -369,25 +369,53 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 **
 **-------------------------------------------------------------------------------------
 */
-int32 CFE_ES_LoadModule(const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
+int32 CFE_ES_LoadModule(CFE_ES_ResourceID_t ResourceId, const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
 {
     osal_id_t ModuleId;
     cpuaddr StartAddr;
     int32 ReturnCode;
     int32 StatusCode;
+    uint32 LoadFlags;
 
+    LoadFlags = 0;
     StartAddr = 0;
     ReturnCode = CFE_SUCCESS;
 
     if (LoadParams->FileName[0] != 0)
     {
+        switch(CFE_ES_ResourceID_GetBase(ResourceId))
+        {
+        case CFE_ES_APPID_BASE:
+            /* 
+             * Apps should not typically have symbols exposed to other apps.
+             * 
+             * Keeping symbols local/private may help ensure this module is unloadable
+             * in the future, depending on underlying OS/loader implementation.
+             */
+            LoadFlags |= OS_MODULE_FLAG_LOCAL_SYMBOLS;
+            break;
+        case CFE_ES_LIBID_BASE:
+            /* 
+             * Libraries need to have their symbols exposed to other apps.
+             * 
+             * Note on some OS/loader implementations this may make it so the module
+             * cannot be unloaded, if there is no way to ensure that symbols
+             * are not being referenced.  CFE does not currently support unloading
+             * of libraries for this reason, among others.
+             */
+            LoadFlags |= OS_MODULE_FLAG_GLOBAL_SYMBOLS;
+            break;
+        default:
+            break;
+        }
+
         /*
-         ** Load the module via OSAL.
+         * Load the module via OSAL.
          */
         StatusCode = OS_ModuleLoad ( &ModuleId,
                 LoadParams->Name,
                 LoadParams->FileName,
-                OS_MODULE_FLAG_GLOBAL_SYMBOLS );
+                LoadFlags );
 
         if (StatusCode != OS_SUCCESS)
         {
@@ -403,11 +431,11 @@ int32 CFE_ES_LoadModule(const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_Modu
     }
 
     /*
-     ** If the Load was OK, then lookup the address of the entry point
+     * If the Load was OK, then lookup the address of the entry point
      */
     if (ReturnCode == CFE_SUCCESS && LoadParams->EntryPoint[0] != 0)
     {
-        StatusCode = OS_SymbolLookup(&StartAddr, LoadParams->EntryPoint);
+        StatusCode = OS_ModuleSymbolLookup(ModuleId, &StartAddr, LoadParams->EntryPoint);
         if (StatusCode != OS_SUCCESS)
         {
             CFE_ES_WriteToSysLog("ES Startup: Could not find symbol:%s. EC = 0x%08X\n",
@@ -717,7 +745,7 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
    /*
     * Load the module based on StartParams configured above.
     */
-   Status = CFE_ES_LoadModule(&AppRecPtr->StartParams.BasicInfo, &AppRecPtr->ModuleInfo);
+   Status = CFE_ES_LoadModule(PendingAppId, &AppRecPtr->StartParams.BasicInfo, &AppRecPtr->ModuleInfo);
 
    /*
     * If the Load was OK, then complete the initialization
@@ -883,7 +911,7 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
    /*
     * Load the module based on StartParams configured above.
     */
-   Status = CFE_ES_LoadModule(&LibSlotPtr->BasicInfo, &LibSlotPtr->ModuleInfo);
+   Status = CFE_ES_LoadModule(PendingLibId, &LibSlotPtr->BasicInfo, &LibSlotPtr->ModuleInfo);
    if (Status == CFE_SUCCESS)
    {
       FunctionPointer = (CFE_ES_LibraryEntryFuncPtr_t)LibSlotPtr->ModuleInfo.EntryAddress;
