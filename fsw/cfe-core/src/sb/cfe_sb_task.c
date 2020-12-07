@@ -144,7 +144,7 @@ void CFE_SB_TaskMain(void)
 int32 CFE_SB_AppInit(void){
 
     uint32 CfgFileEventsToFilter = 0;    
-    uint32 *TmpPtr = NULL;
+    CFE_ES_MemPoolBuf_t TmpPtr;
     int32  Status;
     
     Status = CFE_ES_RegisterApp();
@@ -278,7 +278,7 @@ int32 CFE_SB_AppInit(void){
      
     /* Ensure a ground commanded reset does not get blocked if SB mem pool  */
     /* becomes fully configured (DCR6772) */
-    Status = CFE_ES_GetPoolBuf((uint32 **)&TmpPtr, CFE_SB.Mem.PoolHdl,
+    Status = CFE_ES_GetPoolBuf(&TmpPtr, CFE_SB.Mem.PoolHdl,
                                         sizeof(CFE_ES_Restart_t));
 
     if(Status < 0){
@@ -288,7 +288,7 @@ int32 CFE_SB_AppInit(void){
 
     /* Return mem block used on previous call,the actual memory is not needed.*/
     /* The SB mem pool is now configured with a block size for the reset cmd. */
-    Status = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, (uint32 *)TmpPtr);
+    Status = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, TmpPtr);
 
     if(Status < 0){
       CFE_ES_WriteToSysLog("SB:Init error, PutPool Failed:RC=0x%08X\n",(unsigned int)Status);

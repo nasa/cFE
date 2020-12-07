@@ -6038,8 +6038,8 @@ void TestESMempool(void)
     CFE_ES_MemHandle_t    PoolID2;      /* Poo1 2 handle, with mutex */
     uint8                 Buffer1[1024];
     uint8                 Buffer2[1024];
-    uint32                *addressp1 = NULL; /* Pool 1 buffer address */
-    uint32                *addressp2 = NULL; /* Pool 2 buffer address */
+    CFE_ES_MemPoolBuf_t   addressp1 = CFE_ES_MEMPOOLBUF_C(0); /* Pool 1 buffer address */
+    CFE_ES_MemPoolBuf_t   addressp2 = CFE_ES_MEMPOOLBUF_C(0); /* Pool 2 buffer address */
     CFE_ES_MemPoolRecord_t   *PoolPtr;
     CFE_ES_MemPoolStats_t Stats;
     size_t                BlockSizes[CFE_PLATFORM_ES_POOL_MAX_BUCKETS+2];
@@ -6085,12 +6085,12 @@ void TestESMempool(void)
 
     /* Test successfully allocating a pool buffer */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf((uint32 **) &addressp1, PoolID1, 256) > 0,
+              CFE_ES_GetPoolBuf(&addressp1, PoolID1, 256) > 0,
               "CFE_ES_GetPoolBuf",
               "Allocate pool buffer [1]; successful");
 
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf((uint32 **) &addressp2, PoolID2, 256) > 0,
+              CFE_ES_GetPoolBuf(&addressp2, PoolID2, 256) > 0,
               "CFE_ES_GetPoolBuf",
               "Allocate pool buffer [2]; successful");
 
@@ -6195,7 +6195,7 @@ void TestESMempool(void)
     /* Test returning a pool buffer using an invalid memory block */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_PutPoolBuf(PoolID2,
-                      addressp2 - 10) == CFE_ES_BUFFER_NOT_IN_POOL,
+                      CFE_ES_MEMPOOLBUF_C((cpuaddr)addressp2 - 40)) == CFE_ES_BUFFER_NOT_IN_POOL,
               "CFE_ES_PutPoolBuf",
               "Invalid memory block");
 
@@ -6361,12 +6361,12 @@ void TestESMempool(void)
      * subsequent tests
      */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf((uint32 **) &addressp1, PoolID1, 256) > 0,
+              CFE_ES_GetPoolBuf(&addressp1, PoolID1, 256) > 0,
               "CFE_ES_GetPoolBuf",
               "Allocate pool buffer [3]; successful");
 
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf((uint32 **) &addressp2, PoolID2, 256) > 0,
+              CFE_ES_GetPoolBuf(&addressp2, PoolID2, 256) > 0,
               "CFE_ES_GetPoolBuf",
               "Allocate pool buffer [3]; successful");
 
@@ -6481,12 +6481,12 @@ void TestESMempool(void)
      * subsequent tests
      */
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf((uint32 **) &addressp1, PoolID1, 256) > 0,
+              CFE_ES_GetPoolBuf(&addressp1, PoolID1, 256) > 0,
               "CFE_ES_GetPoolBuf",
               "Allocate pool buffer [3]; successful");
 
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetPoolBuf((uint32 **) &addressp2, PoolID2, 256) > 0,
+              CFE_ES_GetPoolBuf(&addressp2, PoolID2, 256) > 0,
               "CFE_ES_GetPoolBuf",
               "Allocate pool buffer [3]; successful");
 
@@ -6602,7 +6602,7 @@ void TestESMempool(void)
     /* Test getting the size of a pool buffer that is not in the pool */
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetPoolBufInfo(PoolID1,
-                                    (uint32 *) addressp1 + 100) ==
+                                    CFE_ES_MEMPOOLBUF_C((cpuaddr)addressp1 + 400)) ==
                                         CFE_ES_BUFFER_NOT_IN_POOL,
               "CFE_ES_GetPoolBufInfo",
               "Invalid pool buffer");

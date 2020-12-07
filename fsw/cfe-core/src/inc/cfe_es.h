@@ -175,6 +175,34 @@ typedef union CFE_ES_PoolAlign
  */
 #define CFE_ES_STATIC_POOL_TYPE(size)    union { CFE_ES_PoolAlign_t Align; uint8 Data[size]; }
 
+/**
+ * @brief Pointer type used for memory pool API
+ *
+ * This is used in the Get/Put API calls to refer to a pool buffer.
+ *
+ * This pointer is expected to be type cast to the real object
+ * type after getting a new buffer.  Using void* allows this
+ * type conversion to occur easily.
+ *
+ * @note Older versions of CFE implemented the API using a uint32*,
+ * which required explicit type casting everywhere it was called.
+ * Although the API type is now void* to make usage easier, the
+ * pool buffers are aligned to machine requirements - typically 64 bits.
+ */
+typedef void* CFE_ES_MemPoolBuf_t;
+
+/**
+ * @brief Conversion macro to create buffer pointer from another type
+ *
+ * In cases where the actual buffer pointer is computed, this macro
+ * aids in converting the computed address (typically an OSAL "cpuaddr"
+ * type) into a buffer pointer.
+ *
+ * @note Any address calculation needs to take machine alignment
+ * requirements into account.
+ */
+#define CFE_ES_MEMPOOLBUF_C(x) ((CFE_ES_MemPoolBuf_t)(x))
+
 /*****************************************************************************/
 /*
 ** Exported Functions
@@ -1508,7 +1536,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_GetPoolBufInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size);
+int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size);
 
 /*****************************************************************************/
 /**
@@ -1532,7 +1560,7 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size)
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_PutPoolBuf
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr);
+CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr);
 
 /*****************************************************************************/
 /**
@@ -1554,7 +1582,7 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr);
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats, #CFE_ES_GetPoolBufInfo
 **
 ******************************************************************************/
-int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr);
+int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr);
 
 /*****************************************************************************/
 /**

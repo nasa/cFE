@@ -390,7 +390,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
 ** Purpose:
 **   CFE_ES_GetPoolBuf allocates a block from the memory pool.
 */
-int32 CFE_ES_GetPoolBuf(uint32               **BufPtr,
+int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr,
                         CFE_ES_MemHandle_t   Handle,
                         size_t               Size )
 {
@@ -444,9 +444,8 @@ int32 CFE_ES_GetPoolBuf(uint32               **BufPtr,
     }
 
 
-    /* Compute the actual buffer address.
-     * It is returned as uint32* for historical reasons. */
-    *BufPtr = (uint32*)(PoolRecPtr->BaseAddr + DataOffset);
+    /* Compute the actual buffer address. */
+    *BufPtr = CFE_ES_MEMPOOLBUF_C(PoolRecPtr->BaseAddr + DataOffset);
 
     return (int32)Size;
 }
@@ -455,7 +454,7 @@ int32 CFE_ES_GetPoolBuf(uint32               **BufPtr,
 ** CFE_ES_GetPoolBufInfo gets the size of the specified block (if it exists).
 */
 int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t   Handle,
-                            uint32             * BufPtr)
+                            CFE_ES_MemPoolBuf_t  BufPtr)
 {
     int32 Status;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
@@ -509,7 +508,7 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t   Handle,
 ** CFE_ES_putPoolBuf returns a block back to the memory pool.
 */
 int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
-                        uint32             * BufPtr)
+                        CFE_ES_MemPoolBuf_t  BufPtr)
 {
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
     size_t   DataSize;

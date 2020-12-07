@@ -1597,7 +1597,7 @@ CFE_MSG_Message_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
     CFE_SB_LockSharedData(__func__,__LINE__);
 
     /* Allocate a new zero copy descriptor from the SB memory pool.*/
-    stat1 = CFE_ES_GetPoolBuf((uint32 **)&zcd, CFE_SB.Mem.PoolHdl,  sizeof(CFE_SB_ZeroCopyD_t));
+    stat1 = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&zcd, CFE_SB.Mem.PoolHdl,  sizeof(CFE_SB_ZeroCopyD_t));
     if(stat1 < 0){
         CFE_SB_UnlockSharedData(__func__,__LINE__);
         return NULL;
@@ -1611,10 +1611,10 @@ CFE_MSG_Message_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
     }/* end if */
 
     /* Allocate a new buffer (from the SB memory pool) to hold the message  */
-    stat1 = CFE_ES_GetPoolBuf((uint32 **)&bd, CFE_SB.Mem.PoolHdl, MsgSize + sizeof(CFE_SB_BufferD_t));
+    stat1 = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&bd, CFE_SB.Mem.PoolHdl, MsgSize + sizeof(CFE_SB_BufferD_t));
     if((stat1 < 0)||(bd==NULL)){
         /*deallocate the first buffer if the second buffer creation fails*/
-        stat1 = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, (uint32 *)zcd);
+        stat1 = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, zcd);
         if(stat1 > 0){
             CFE_SB.StatTlmMsg.Payload.MemInUse-=stat1;
         }
@@ -1680,7 +1680,7 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_MSG_Message_t      *Ptr2Release,
 {
     int32    Status;
     int32    Stat2;
-    cpuaddr  Addr = (cpuaddr)Ptr2Release;
+    CFE_ES_MemPoolBuf_t BufAddr;
 
     Status = CFE_SB_ZeroCopyReleaseDesc(Ptr2Release, BufferHandle);
 
@@ -1688,8 +1688,8 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_MSG_Message_t      *Ptr2Release,
 
     if(Status == CFE_SUCCESS){
         /* give the buffer back to the buffer pool */
-        Stat2 = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl,
-                                  (uint32 *) (Addr - sizeof(CFE_SB_BufferD_t)));
+        BufAddr = CFE_ES_MEMPOOLBUF_C((cpuaddr)Ptr2Release - sizeof(CFE_SB_BufferD_t));
+        Stat2 = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, BufAddr);
         if(Stat2 > 0){
              /* Substract the size of the actual buffer from the Memory in use ctr */
             CFE_SB.StatTlmMsg.Payload.MemInUse-=Stat2;
@@ -1735,7 +1735,7 @@ int32 CFE_SB_ZeroCopyReleaseDesc(CFE_MSG_Message_t      *Ptr2Release,
 
     CFE_SB_LockSharedData(__func__,__LINE__);
 
-    Stat = CFE_ES_GetPoolBufInfo(CFE_SB.Mem.PoolHdl, (uint32 *)zcd);
+    Stat = CFE_ES_GetPoolBufInfo(CFE_SB.Mem.PoolHdl, zcd);
 
     if((Ptr2Release == NULL) || (Stat < 0) || (zcd->Buffer != (void *)Ptr2Release)){
         CFE_SB_UnlockSharedData(__func__,__LINE__);
@@ -1754,7 +1754,7 @@ int32 CFE_SB_ZeroCopyReleaseDesc(CFE_MSG_Message_t      *Ptr2Release,
     }
 
     /* give the descriptor back to the buffer pool */
-    Stat = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, (uint32 *)zcd);
+    Stat = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, zcd);
     if(Stat > 0){
         /* Substract the size of the actual buffer from the Memory in use ctr */
         CFE_SB.StatTlmMsg.Payload.MemInUse-=Stat;
