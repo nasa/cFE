@@ -70,12 +70,6 @@
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa UT_InitData, #UT_SetSizeofESResetArea, #UT_SetRtnCode
-** \sa #CFE_EVS_EarlyInit, #UT_Report, #CFE_EVS_TaskMain
-** \sa #UT_SetStatusBSPResetArea, #UT_SetAppID, #UT_SendMsg
-** \sa #UT_SetSBTotalMsgLen
-**
 ******************************************************************************/
 void Test_Init(void);
 
@@ -91,12 +85,6 @@ void Test_Init(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_SetAppID, #UT_Report, #CFE_EVS_Register
-** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendTimedEvent, #CFE_EVS_SendEventWithAppID
-** \sa #CFE_EVS_ResetFilter, #CFE_EVS_ResetAllFilters, #CFE_EVS_CleanUpApp
-** \sa #CFE_EVS_EnableAppEventTypesCmd, #CFE_EVS_DisablePortsCmd
-**
 ******************************************************************************/
 void Test_IllegalAppID(void);
 
@@ -112,12 +100,6 @@ void Test_IllegalAppID(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #CFE_EVS_Unregister, #UT_Report
-** \sa #CFE_EVS_SendEvent, #CFE_EVS_ResetFilter, #CFE_EVS_ResetAllFilters
-** \sa #CFE_EVS_SendEventWithAppID, #CFE_EVS_SendTimedEvent
-** \sa #CFE_EVS_CleanUpApp, #CFE_EVS_Register
-**
 ******************************************************************************/
 void Test_UnregisteredApp(void);
 
@@ -133,11 +115,6 @@ void Test_UnregisteredApp(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_Report, #CFE_EVS_Register
-** \sa #UT_SetPutPoolFail, #UT_SetRtnCode, #CFE_EVS_Unregister
-** \sa #CFE_EVS_SendEvent, #CFE_ES_GetAppID
-**
 ******************************************************************************/
 void Test_FilterRegistration(void);
 
@@ -153,10 +130,6 @@ void Test_FilterRegistration(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_Report, #CFE_EVS_Register
-** \sa #CFE_EVS_ResetFilter, #CFE_EVS_ResetAllFilters
-**
 ******************************************************************************/
 void Test_FilterReset(void);
 
@@ -174,12 +147,6 @@ void Test_FilterReset(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_SetSBTotalMsgLen, #UT_SendMsg, #UT_Report
-** \sa #CFE_EVS_SendEvent, #UT_SetRtnCode, #CFE_EVS_SendTimedEvent
-** \sa #CFE_EVS_SendEventWithAppID, #CFE_EVS_EnableAppEventTypesCmd
-** \sa #CFE_EVS_SetEventFormatModeCmd
-**
 ******************************************************************************/
 void Test_Format(void);
 
@@ -195,11 +162,6 @@ void Test_Format(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_SetRtnCode, #UT_SetSBTotalMsgLen
-** \sa #UT_SendMsg, #UT_Report, #CFE_EVS_SendEvent, #CFE_EVS_EnablePortsCmd
-** \sa #CFE_EVS_DisablePortsCmd
-**
 ******************************************************************************/
 void Test_Ports(void);
 
@@ -215,13 +177,6 @@ void Test_Ports(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_SetSBTotalMsgLen, #UT_SendMsg
-** \sa #UT_Report, #UT_SetSizeofESResetArea, #UT_SetRtnCode
-** \sa #CFE_PSP_GetResetArea, #CFE_EVS_SendEvent, #UT_SetOSFail
-** \sa #CFE_EVS_SetLogModeCmd, #CFE_EVS_WriteLogDataFileCmd, #EVS_ClearLog
-** \sa #CFE_EVS_ProcessGroundCommand
-**
 ******************************************************************************/
 void Test_Logging(void);
 
@@ -237,11 +192,6 @@ void Test_Logging(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_SetSBTotalMsgLen, #UT_SendMsg
-** \sa #UT_Report, #UT_SetOSFail, #CFE_EVS_EnableAppEventTypesCmd
-** \sa #CFE_EVS_ResetCountersCmd, #CFE_EVS_WriteAppDataFileCmd
-**
 ******************************************************************************/
 void Test_WriteApp(void);
 
@@ -259,15 +209,6 @@ void Test_WriteApp(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_SetSBTotalMsgLen, #UT_SendMsg
-** \sa #UT_Report, #CFE_EVS_DisableAppEventTypesCmd
-** \sa #CFE_EVS_EnableAppEventTypesCmd, #CFE_EVS_EnableAppEventsCmd
-** \sa #CFE_EVS_DisableAppEventsCmd, #CFE_EVS_ResetAppEventCounterCmd
-** \sa #CFE_EVS_AddEventFilterCmd, #CFE_EVS_DeleteEventFilterCmd
-** \sa #CFE_EVS_SetFilterMaskCmd, #CFE_EVS_ResetFilterCmd
-** \sa #CFE_EVS_ResetAllFiltersCmd, #CFE_EVS_DisableAppEventTypesCmd
-**
 ******************************************************************************/
 void Test_BadAppCmd(void);
 
@@ -283,13 +224,6 @@ void Test_BadAppCmd(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_SetSBTotalMsgLen, #UT_SendMsg
-** \sa #CFE_EVS_SendEvent, #UT_Report, #CFE_EVS_DisableAppEventTypesCmd
-** \sa #CFE_EVS_EnableAppEventTypesCmd, #CFE_EVS_DisableAppEventsCmd
-** \sa #CFE_EVS_EnableAppEventsCmd, #CFE_EVS_DisableEventTypesCmd
-** \sa #CFE_EVS_EnableEventTypesCmd, #CFE_EVS_ResetAppEventCounterCmd
-**
 ******************************************************************************/
 void Test_EventCmd(void);
 
@@ -305,13 +239,6 @@ void Test_EventCmd(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_SetSBTotalMsgLen, #UT_SendMsg
-** \sa #UT_Report, #CFE_EVS_Register, #CFE_EVS_EnableAppEventTypesCmd
-** \sa #CFE_EVS_DeleteEventFilterCmd, #CFE_EVS_SetFilterMaskCmd
-** \sa #CFE_EVS_ResetFilterCmd, #CFE_EVS_ResetAllFiltersCmd
-** \sa #CFE_EVS_AddEventFilterCmd
-**
 ******************************************************************************/
 void Test_FilterCmd(void);
 
@@ -329,10 +256,6 @@ void Test_FilterCmd(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_SetSBTotalMsgLen, #UT_SendMsg
-** \sa #UT_Report, #CFE_EVS_ProcessGroundCommand, #CFE_EVS_VerifyCmdLength
-**
 ******************************************************************************/
 void Test_InvalidCmd(void);
 
@@ -348,12 +271,6 @@ void Test_InvalidCmd(void);
 **
 ** \returns
 **        This function does not return a value.  
-**
-** \sa #UT_InitData, #UT_Report, #EVS_GetApplicationInfo
-** \sa #UT_SetSBTotalMsgLen, #UT_SendMsg, #CFE_EVS_CleanUpApp
-** \sa #CFE_EVS_Register, #CFE_EVS_WriteLogDataFileCmd, #CFE_EVS_SetLogModeCmd
-** \sa #CFE_EVS_ReportHousekeepingCmd
-**
 ******************************************************************************/
 void Test_Misc(void);
 

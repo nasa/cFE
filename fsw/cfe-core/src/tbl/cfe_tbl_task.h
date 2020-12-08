@@ -308,7 +308,6 @@ typedef struct
   /*
   ** Task operational data (not reported in housekeeping)...
   */
-  CFE_MSG_Message_t     *MsgPtr;                          /**< \brief Pointer to most recently received command message */
   CFE_SB_PipeId_t        CmdPipe;                         /**< \brief Table Task command pipe ID as obtained from Software Bus */
 
   /*
@@ -404,7 +403,7 @@ int32 CFE_TBL_TaskInit(void);
 **
 ** 
 ******************************************************************************/
-void  CFE_TBL_TaskPipe(CFE_MSG_Message_t *MessagePtr);
+void  CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
 
 /*****************************************************************************/
 /**

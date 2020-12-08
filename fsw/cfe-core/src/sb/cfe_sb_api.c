@@ -293,7 +293,7 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
     int32                       Stat;
     CFE_ES_ResourceID_t         Owner;
     CFE_ES_ResourceID_t         TskId;
-    CFE_MSG_Message_t          *PipeMsgPtr;
+    CFE_SB_Buffer_t            *BufPtr;
     char                        FullName[(OS_MAX_API_NAME * 2)];
     CFE_SB_RemovePipeCallback_t Args;
 
@@ -346,7 +346,7 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
     /* this step will free the memory used to store the message */
     do{
       CFE_SB_UnlockSharedData(__func__,__LINE__);
-      Stat = CFE_SB_RcvMsg(&PipeMsgPtr,PipeId,CFE_SB_POLL);
+      Stat = CFE_SB_ReceiveBuffer(&BufPtr,PipeId,CFE_SB_POLL);
       CFE_SB_LockSharedData(__func__,__LINE__);
     }while(Stat == CFE_SUCCESS);
 
@@ -876,7 +876,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
       CFE_SB.SubRprtMsg.Payload.Qos.Reliability = Quality.Reliability;
       CFE_SB.SubRprtMsg.Payload.SubType = CFE_SB_SUBSCRIPTION;
       CFE_SB_UnlockSharedData(__func__,__LINE__);
-      Stat = CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.SubRprtMsg);
+      Stat = CFE_SB_TransmitMsg(&CFE_SB.SubRprtMsg.Hdr.Msg, true);
       CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
             "Sending Subscription Report Msg=0x%x,Pipe=%d,Stat=0x%x",
             (unsigned int)CFE_SB_MsgIdToValue(MsgId),
@@ -1100,19 +1100,85 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
 }/* end CFE_SB_UnsubscribeFull */
 
 /*
+ * Function CFE_SB_TransmitMsg - See API and header file for details
+ */
+int32  CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount)
+{
+    int32               Status;
+    CFE_MSG_Size_t      Size = 0;
+    CFE_SB_MsgId_t      MsgId = CFE_SB_INVALID_MSG_ID;
+    CFE_ES_ResourceID_t TskId;
+    char                FullName[(OS_MAX_API_NAME * 2)];
+    CFE_SB_BufferD_t   *BufDscPtr;
+    CFE_SBR_RouteId_t   RouteId;
+    CFE_MSG_Type_t      MsgType;
+
+    /* Get task id for events and Sender Info*/
+    CFE_ES_GetTaskID(&TskId);
+
+    Status = CFE_SB_TransmitMsgValidate(MsgPtr, &MsgId, &Size, &RouteId);
+
+    /* Copy into buffer and send if route exists */
+    if (Status == CFE_SUCCESS && CFE_SBR_IsValidRouteId(RouteId))
+    {
+        /* Get buffer */
+        BufDscPtr = CFE_SB_GetBufferFromPool(MsgId, Size);
+        if (BufDscPtr == NULL)
+        {
+            /* Determine if event can be sent without causing recursive event problem */
+            if(CFE_SB_RequestToSendEvent(TskId,CFE_SB_GET_BUF_ERR_EID_BIT) == CFE_SB_GRANTED)
+            {
+                CFE_EVS_SendEventWithAppID(CFE_SB_GET_BUF_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+                  "Send Err:Request for Buffer Failed. MsgId 0x%x,app %s,size %d",
+                  (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                  CFE_SB_GetAppTskName(TskId,FullName),(int)Size);
+
+                /* clear the bit so the task may send this event again */
+                CFE_SB_FinishSendEvent(TskId,CFE_SB_GET_BUF_ERR_EID_BIT);
+            }
+
+            Status = CFE_SB_BUF_ALOC_ERR;
+        }
+        else
+        {
+            /* For Tlm packets, increment the seq count if requested */
+            CFE_MSG_GetType(MsgPtr, &MsgType);
+            if((MsgType == CFE_MSG_Type_Tlm) && IncrementSequenceCount)
+            {
+                CFE_SBR_IncrementSequenceCounter(RouteId);
+                CFE_MSG_SetSequenceCount(MsgPtr, CFE_SBR_GetSequenceCounter(RouteId));
+            }
+
+            /* Copy data into buffer and transmit */
+            memcpy(BufDscPtr->Buffer, MsgPtr, Size);
+            Status = CFE_SB_TransmitBufferFull(BufDscPtr, RouteId, MsgId);
+        }
+    }
+
+    if (Status != CFE_SUCCESS)
+    {
+       /* Increment error counter (inside lock) if not success */
+        CFE_SB_LockSharedData(__func__, __LINE__);
+        CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter++;
+        CFE_SB_UnlockSharedData(__func__, __LINE__);
+    }
+
+    return Status;
+}
+
+#ifndef CFE_OMIT_DEPRECATED_6_8
+/*
  * Function: CFE_SB_SendMsg - See API and header file for details
  */
 int32  CFE_SB_SendMsg(CFE_MSG_Message_t *MsgPtr)
 {
-    int32   Status = 0;
+    int32  Status = 0;
 
-    Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_INCREMENT_TLM,CFE_SB_SEND_ONECOPY);
+    Status = CFE_SB_TransmitMsg(MsgPtr, true);
 
     return Status;
 
 }/* end CFE_SB_SendMsg */
-
-
 
 /*
  * Function: CFE_SB_PassMsg - See API and header file for details
@@ -1121,60 +1187,115 @@ int32  CFE_SB_PassMsg(CFE_MSG_Message_t *MsgPtr)
 {
     int32   Status = 0;
 
-    Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_DO_NOT_INCREMENT,CFE_SB_SEND_ONECOPY);
+    Status = CFE_SB_TransmitMsg(MsgPtr, false);
 
     return Status;
 
 }/* end CFE_SB_PassMsg */
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
-
-
-/******************************************************************************
-** Name:    CFE_SB_SendMsgFull
-**
-** Purpose: API used to send a message on the software bus.
-**
-** Assumptions, External Events, and Notes:
-**
-**          Note: This function increments and tracks the source sequence
-**                counter for all telemetry messages.
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgPtr
-**          TlmCntIncrements
-**          CopyMode
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
-int32  CFE_SB_SendMsgFull(CFE_MSG_Message_t *MsgPtr,
-                          uint32             TlmCntIncrements,
-                          uint32             CopyMode)
+/*****************************************************************************/
+/**
+ * \brief Internal routine to validate a transmit message before sending
+ *
+ * \param[in]  MsgPtr     Pointer to the message to validate
+ * \param[out] MsgIdPtr   Message Id of message
+ * \param[out] SizePtr    Size of message
+ * \param[out] RouteIdPtr Route ID of the message (invalid if none)
+ */
+int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr,
+                                 CFE_SB_MsgId_t    *MsgIdPtr,
+                                 CFE_MSG_Size_t    *SizePtr,
+                                 CFE_SBR_RouteId_t *RouteIdPtr)
 {
-    CFE_SB_MsgId_t          MsgId = CFE_SB_INVALID_MSG_ID;
-    int32                   Status;
-    CFE_SB_DestinationD_t   *DestPtr = NULL;
-    CFE_SB_PipeD_t          *PipeDscPtr;
-    CFE_SBR_RouteId_t       RouteId;
-    CFE_SB_BufferD_t        *BufDscPtr;
-    CFE_MSG_Size_t          TotalMsgSize = 0;
+    CFE_ES_ResourceID_t     TskId;
+    char                    FullName[(OS_MAX_API_NAME * 2)];
+
+    /* get task id for events and Sender Info*/
+    CFE_ES_GetTaskID(&TskId);
+
+    /* check input parameter */
+    if(MsgPtr == NULL)
+    {
+        CFE_EVS_SendEventWithAppID(CFE_SB_SEND_BAD_ARG_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+            "Send Err:Bad input argument,Arg 0x%lx,App %s",
+            (unsigned long)MsgPtr,CFE_SB_GetAppTskName(TskId,FullName));
+        return CFE_SB_BAD_ARGUMENT;
+    }/* end if */
+
+    CFE_MSG_GetMsgId(MsgPtr, MsgIdPtr);
+
+    /* validate the msgid in the message */
+    if(!CFE_SB_IsValidMsgId(*MsgIdPtr))
+    {
+        CFE_EVS_SendEventWithAppID(CFE_SB_SEND_INV_MSGID_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+            "Send Err:Invalid MsgId(0x%x)in msg,App %s",
+            (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
+            CFE_SB_GetAppTskName(TskId,FullName));
+        return CFE_SB_BAD_ARGUMENT;
+    }/* end if */
+
+    CFE_MSG_GetSize(MsgPtr, SizePtr);
+
+    /* Verify the size of the pkt is < or = the mission defined max */
+    if(*SizePtr > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
+    {
+        CFE_EVS_SendEventWithAppID(CFE_SB_MSG_TOO_BIG_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
+            "Send Err:Msg Too Big MsgId=0x%x,app=%s,size=%d,MaxSz=%d",
+            (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
+            CFE_SB_GetAppTskName(TskId,FullName),(int)*SizePtr,CFE_MISSION_SB_MAX_SB_MSG_SIZE);
+        return CFE_SB_MSG_TOO_BIG;
+    }/* end if */
+
+    /* Get the routing id */
+    *RouteIdPtr = CFE_SBR_GetRouteId(*MsgIdPtr);
+
+    /* if there have been no subscriptions for this pkt, */
+    /* increment the dropped pkt cnt, send event and return success */
+    if(!CFE_SBR_IsValidRouteId(*RouteIdPtr)){
+
+        CFE_SB.HKTlmMsg.Payload.NoSubscribersCounter++;
+
+        /* Determine if event can be sent without causing recursive event problem */
+        if(CFE_SB_RequestToSendEvent(TskId,CFE_SB_SEND_NO_SUBS_EID_BIT) == CFE_SB_GRANTED){
+
+           CFE_EVS_SendEventWithAppID(CFE_SB_SEND_NO_SUBS_EID,CFE_EVS_EventType_INFORMATION,CFE_SB.AppId,
+              "No subscribers for MsgId 0x%x,sender %s",
+              (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
+              CFE_SB_GetAppTskName(TskId,FullName));
+
+           /* clear the bit so the task may send this event again */
+           CFE_SB_FinishSendEvent(TskId,CFE_SB_SEND_NO_SUBS_EID_BIT);
+        }/* end if */
+
+    }/* end if */
+
+    return CFE_SUCCESS;
+}
+
+/*****************************************************************************/
+/**
+ * \brief Internal routine implements full send logic
+ *
+ * \param[in] BufDscPtr Pointer to the buffer description from the memory pool,
+ *                      released prior to return
+ * \param[in] RouteId   Route to send to
+ * \param[in] MsgId     Message Id that is being sent
+ */
+int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
+                                 CFE_SBR_RouteId_t RouteId,
+                                 CFE_SB_MsgId_t    MsgId)
+{
     CFE_ES_ResourceID_t     AppId;
     CFE_ES_ResourceID_t     TskId;
-    uint32                  i;
-    char                    FullName[(OS_MAX_API_NAME * 2)];
-    CFE_SB_EventBuf_t       SBSndErr;
+    CFE_SB_DestinationD_t   *DestPtr;
+    CFE_SB_PipeD_t          *PipeDscPtr;
+    CFE_SB_EventBuf_t       SBSndErr = {0};
     char                    PipeName[OS_MAX_API_NAME] = {'\0'};
     CFE_SB_PipeDepthStats_t *StatObj;
-    CFE_MSG_Type_t          MsgType = CFE_MSG_Type_Invalid;
-
-    SBSndErr.EvtsToSnd = 0;
+    int32                   Status;
+    uint32                  i;
+    char                    FullName[(OS_MAX_API_NAME * 2)];
 
     /* get app id for loopback testing */
     CFE_ES_GetAppID(&AppId);
@@ -1182,129 +1303,8 @@ int32  CFE_SB_SendMsgFull(CFE_MSG_Message_t *MsgPtr,
     /* get task id for events and Sender Info*/
     CFE_ES_GetTaskID(&TskId);
 
-    /* check input parameter */
-    if(MsgPtr == NULL){
-        CFE_SB_LockSharedData(__func__,__LINE__);
-        CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter++;
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
-        CFE_EVS_SendEventWithAppID(CFE_SB_SEND_BAD_ARG_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
-            "Send Err:Bad input argument,Arg 0x%lx,App %s",
-            (unsigned long)MsgPtr,CFE_SB_GetAppTskName(TskId,FullName));
-        return CFE_SB_BAD_ARGUMENT;
-    }/* end if */
-
-    CFE_MSG_GetMsgId(MsgPtr, &MsgId);
-
-    /* validate the msgid in the message */
-    if(!CFE_SB_IsValidMsgId(MsgId))
-    {
-        CFE_SB_LockSharedData(__func__,__LINE__);
-        CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter++;
-        if (CopyMode == CFE_SB_SEND_ZEROCOPY)
-        {
-            BufDscPtr = CFE_SB_GetBufferFromCaller(MsgId, MsgPtr);
-            CFE_SB_DecrBufUseCnt(BufDscPtr);
-        }
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
-        CFE_EVS_SendEventWithAppID(CFE_SB_SEND_INV_MSGID_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
-            "Send Err:Invalid MsgId(0x%x)in msg,App %s",
-            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-            CFE_SB_GetAppTskName(TskId,FullName));
-        return CFE_SB_BAD_ARGUMENT;
-    }/* end if */
-
-    CFE_MSG_GetSize(MsgPtr, &TotalMsgSize);
-
-    /* Verify the size of the pkt is < or = the mission defined max */
-    if(TotalMsgSize > CFE_MISSION_SB_MAX_SB_MSG_SIZE){
-        CFE_SB_LockSharedData(__func__,__LINE__);
-        CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter++;
-        if (CopyMode == CFE_SB_SEND_ZEROCOPY)
-        {
-            BufDscPtr = CFE_SB_GetBufferFromCaller(MsgId, MsgPtr);
-            CFE_SB_DecrBufUseCnt(BufDscPtr);
-        }
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
-        CFE_EVS_SendEventWithAppID(CFE_SB_MSG_TOO_BIG_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
-            "Send Err:Msg Too Big MsgId=0x%x,app=%s,size=%d,MaxSz=%d",
-            (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-            CFE_SB_GetAppTskName(TskId,FullName),(int)TotalMsgSize,CFE_MISSION_SB_MAX_SB_MSG_SIZE);
-        return CFE_SB_MSG_TOO_BIG;
-    }/* end if */
-
-    /* take semaphore to prevent a task switch during this call */
+    /* take semaphore to prevent a task switch during processing */
     CFE_SB_LockSharedData(__func__,__LINE__);
-
-    /* Get the routing pointer */
-    RouteId = CFE_SBR_GetRouteId(MsgId);
-
-    /* if there have been no subscriptions for this pkt, */
-    /* increment the dropped pkt cnt, send event and return success */
-    if(!CFE_SBR_IsValidRouteId(RouteId)){
-
-        CFE_SB.HKTlmMsg.Payload.NoSubscribersCounter++;
-
-        if (CopyMode == CFE_SB_SEND_ZEROCOPY){
-            BufDscPtr = CFE_SB_GetBufferFromCaller(MsgId, MsgPtr);
-            CFE_SB_DecrBufUseCnt(BufDscPtr);
-        }
-
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
-
-        /* Determine if event can be sent without causing recursive event problem */
-        if(CFE_SB_RequestToSendEvent(TskId,CFE_SB_SEND_NO_SUBS_EID_BIT) == CFE_SB_GRANTED){
-
-           CFE_EVS_SendEventWithAppID(CFE_SB_SEND_NO_SUBS_EID,CFE_EVS_EventType_INFORMATION,CFE_SB.AppId,
-              "No subscribers for MsgId 0x%x,sender %s",
-              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-              CFE_SB_GetAppTskName(TskId,FullName));
-
-           /* clear the bit so the task may send this event again */
-           CFE_SB_FinishSendEvent(TskId,CFE_SB_SEND_NO_SUBS_EID_BIT);
-        }/* end if */
-
-        return CFE_SUCCESS;
-    }/* end if */
-
-    /* Allocate a new buffer. */
-    if (CopyMode == CFE_SB_SEND_ZEROCOPY){
-        BufDscPtr = CFE_SB_GetBufferFromCaller(MsgId, MsgPtr);
-    }
-    else{
-        BufDscPtr = CFE_SB_GetBufferFromPool(MsgId, TotalMsgSize);
-    }
-    if (BufDscPtr == NULL){
-        CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter++;
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
-
-        /* Determine if event can be sent without causing recursive event problem */
-        if(CFE_SB_RequestToSendEvent(TskId,CFE_SB_GET_BUF_ERR_EID_BIT) == CFE_SB_GRANTED){
-
-            CFE_EVS_SendEventWithAppID(CFE_SB_GET_BUF_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
-              "Send Err:Request for Buffer Failed. MsgId 0x%x,app %s,size %d",
-              (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-              CFE_SB_GetAppTskName(TskId,FullName),(int)TotalMsgSize);
-
-            /* clear the bit so the task may send this event again */
-            CFE_SB_FinishSendEvent(TskId,CFE_SB_GET_BUF_ERR_EID_BIT);
-        }/* end if */
-
-        return CFE_SB_BUF_ALOC_ERR;
-    }/* end if */
-
-    /* Copy the packet into the SB memory space */
-    if (CopyMode != CFE_SB_SEND_ZEROCOPY){
-        /* Copy the packet into the SB memory space */
-        memcpy( BufDscPtr->Buffer, MsgPtr, TotalMsgSize );
-    }
-
-    /* For Tlm packets, increment the seq count if requested */
-    CFE_MSG_GetType(MsgPtr, &MsgType);
-    if((MsgType == CFE_MSG_Type_Tlm) &&
-       (TlmCntIncrements==CFE_SB_INCREMENT_TLM)){
-        CFE_SBR_IncrementSequenceCounter(RouteId);
-        CFE_MSG_SetSequenceCount((CFE_MSG_Message_t *)BufDscPtr->Buffer, CFE_SBR_GetSequenceCounter(RouteId));
-    }/* end if */
 
     /* Send the packet to all destinations  */
     for(DestPtr = CFE_SBR_GetDestListHeadPtr(RouteId); DestPtr != NULL; DestPtr = DestPtr->Next)
@@ -1453,16 +1453,23 @@ int32  CFE_SB_SendMsgFull(CFE_MSG_Message_t *MsgPtr,
 
     return CFE_SUCCESS;
 
-}/* end CFE_SB_SendMsgFull */
+}
 
-
+#if CFE_OMIT_DEPRECATED_6_8
+int32 CFE_SB_RcvMsg(CFE_SB_Buffer_t **BufPtr,
+                    CFE_SB_PipeId_t   PipeId,
+                    int32             TimeOut)
+{
+    return CFE_SB_ReceiveBuffer(BufPtr, PipeId, TimeOut);
+}
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /*
- * Function: CFE_SB_RcvMsg - See API and header file for details
+ * Function: CFE_SB_ReceiveBuffer - See API and header file for details
  */
-int32  CFE_SB_RcvMsg(CFE_MSG_Message_t **BufPtr,
-                     CFE_SB_PipeId_t     PipeId,
-                     int32               TimeOut)
+int32  CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr,
+                            CFE_SB_PipeId_t   PipeId,
+                            int32             TimeOut)
 {
     int32                  Status;
     CFE_SB_BufferD_t       *Message;
@@ -1532,12 +1539,12 @@ int32  CFE_SB_RcvMsg(CFE_MSG_Message_t **BufPtr,
         /*
         ** Load the pipe tables 'CurrentBuff' with the buffer descriptor
         ** ptr corresponding to the message just read. This is done so that
-        ** the buffer can be released on the next RcvMsg call for this pipe.
+        ** the buffer can be released on the next receive call for this pipe.
         */
         PipeDscPtr->CurrentBuff = Message;
 
         /* Set the Receivers pointer to the address of the actual message */
-        *BufPtr = (CFE_MSG_Message_t*) Message->Buffer;
+        *BufPtr = (CFE_SB_Buffer_t *) Message->Buffer;
 
         /* get pointer to destination to be used in decrementing msg limit cnt*/
         RouteId = CFE_SBR_GetRouteId(PipeDscPtr->CurrentBuff->MsgId);
@@ -1579,14 +1586,14 @@ int32  CFE_SB_RcvMsg(CFE_MSG_Message_t **BufPtr,
     */
     return Status;
 
-}/* end CFE_SB_RcvMsg */
+}
 
 
 /*
  * Function: CFE_SB_ZeroCopyGetPtr - See API and header file for details
  */
-CFE_MSG_Message_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
-                                         CFE_SB_ZeroCopyHandle_t *BufferHandle)
+CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
+                                       CFE_SB_ZeroCopyHandle_t *BufferHandle)
 {
    int32                stat1;
    CFE_ES_ResourceID_t  AppId;
@@ -1667,7 +1674,7 @@ CFE_MSG_Message_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
     bd->Size      = MsgSize;
     bd->Buffer    = (void *)address;
 
-    return (CFE_MSG_Message_t *)address;
+    return (CFE_SB_Buffer_t *)address;
 
 }/* CFE_SB_ZeroCopyGetPtr */
 
@@ -1675,7 +1682,7 @@ CFE_MSG_Message_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
 /*
  * Function: CFE_SB_ZeroCopyReleasePtr - See API and header file for details
  */
-int32 CFE_SB_ZeroCopyReleasePtr(CFE_MSG_Message_t      *Ptr2Release,
+int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t        *Ptr2Release,
                                 CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
     int32    Status;
@@ -1727,7 +1734,7 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_MSG_Message_t      *Ptr2Release,
 **          Status
 **
 ******************************************************************************/
-int32 CFE_SB_ZeroCopyReleaseDesc(CFE_MSG_Message_t      *Ptr2Release,
+int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Buffer_t        *Ptr2Release,
                                  CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
     int32    Stat;
@@ -1766,20 +1773,75 @@ int32 CFE_SB_ZeroCopyReleaseDesc(CFE_MSG_Message_t      *Ptr2Release,
 
 }/* end CFE_SB_ZeroCopyReleaseDesc */
 
+/*
+ * Function CFE_SB_TransmitBuffer - See API and header file for details
+ */
+int32 CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr,
+                            CFE_SB_ZeroCopyHandle_t ZeroCopyHandle,
+                            bool IncrementSequenceCount)
+{
+    int32              Status;
+    CFE_MSG_Size_t     Size = 0;
+    CFE_SB_MsgId_t     MsgId = CFE_SB_INVALID_MSG_ID;
+    CFE_SB_BufferD_t  *BufDscPtr;
+    CFE_SBR_RouteId_t  RouteId;
+    CFE_MSG_Type_t     MsgType;
 
+    /* Release zero copy handle */
+    Status = CFE_SB_ZeroCopyReleaseDesc(BufPtr, ZeroCopyHandle);
+
+    if (Status == CFE_SUCCESS)
+    {
+        Status = CFE_SB_TransmitMsgValidate(&BufPtr->Msg, &MsgId, &Size, &RouteId);
+
+        /* Send if route exists */
+        if (Status == CFE_SUCCESS)
+        {
+            /* Get buffer descriptor pointer */
+            BufDscPtr = CFE_SB_GetBufferFromCaller(MsgId, BufPtr);
+
+            if(CFE_SBR_IsValidRouteId(RouteId))
+            {
+                /* For Tlm packets, increment the seq count if requested */
+                CFE_MSG_GetType(&BufPtr->Msg, &MsgType);
+                if((MsgType == CFE_MSG_Type_Tlm) && IncrementSequenceCount)
+                {
+                    CFE_SBR_IncrementSequenceCounter(RouteId);
+                    CFE_MSG_SetSequenceCount(&BufPtr->Msg, CFE_SBR_GetSequenceCounter(RouteId));
+                }
+
+                Status = CFE_SB_TransmitBufferFull(BufDscPtr, RouteId, MsgId);
+            }
+            else
+            {
+                /* Decrement use count if transmit buffer full not called */
+                CFE_SB_LockSharedData(__func__, __LINE__);
+                CFE_SB_DecrBufUseCnt(BufDscPtr);
+                CFE_SB_UnlockSharedData(__func__, __LINE__);
+            }
+        }
+        else
+        {
+            /* Increment send error counter for validation failure */
+            CFE_SB_LockSharedData(__func__, __LINE__);
+            CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter++;
+            CFE_SB_UnlockSharedData(__func__, __LINE__);
+        }
+    }
+
+    return Status;
+}
+
+#ifndef CFE_OMIT_DEPRECATED_6_8
 /*
  * Function: CFE_SB_ZeroCopySend - See API and header file for details
  */
-int32 CFE_SB_ZeroCopySend(CFE_MSG_Message_t      *MsgPtr,
+int32 CFE_SB_ZeroCopySend(CFE_SB_Buffer_t        *BufPtr,
                           CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
-    int32   Status = 0;
+    int32  Status = 0;
 
-    Status = CFE_SB_ZeroCopyReleaseDesc(MsgPtr, BufferHandle);
-
-    if(Status == CFE_SUCCESS){
-        Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_INCREMENT_TLM,CFE_SB_SEND_ZEROCOPY);
-    }
+    Status = CFE_SB_TransmitBuffer(BufPtr, BufferHandle, true);
 
     return Status;
 
@@ -1789,21 +1851,17 @@ int32 CFE_SB_ZeroCopySend(CFE_MSG_Message_t      *MsgPtr,
 /*
  * Function: CFE_SB_ZeroCopyPass - See API and header file for details
  */
-int32 CFE_SB_ZeroCopyPass(CFE_MSG_Message_t      *MsgPtr,
+int32 CFE_SB_ZeroCopyPass(CFE_SB_Buffer_t        *BufPtr,
                           CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
-    int32   Status = 0;
+    int32  Status = 0;
 
-    Status = CFE_SB_ZeroCopyReleaseDesc(MsgPtr, BufferHandle);
-
-    if(Status == CFE_SUCCESS){
-        Status = CFE_SB_SendMsgFull(MsgPtr,CFE_SB_DO_NOT_INCREMENT,CFE_SB_SEND_ZEROCOPY);
-    }
+    Status = CFE_SB_TransmitBuffer(BufPtr, BufferHandle, false);
 
     return Status;
 
 }/* end CFE_SB_ZeroCopyPass */
-
+#endif
 
 /******************************************************************************
 **  Function:  CFE_SB_ReadQueue()

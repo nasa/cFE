@@ -455,8 +455,8 @@ void Test_CFE_TBL_SearchCmdHndlrTbl(void)
 */
 void Test_CFE_TBL_DeleteCDSCmd(void)
 {
-    int                 j, k;
-    CFE_TBL_DeleteCDS_t DelCDSCmd;
+    int                    j, k;
+    CFE_TBL_DeleteCDSCmd_t DelCDSCmd;
 
     UtPrintf("Begin Test Delete CDS Command");
 
@@ -544,7 +544,7 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
 */
 void Test_CFE_TBL_TlmRegCmd(void)
 {
-    CFE_TBL_SendRegistry_t TlmRegCmd;
+    CFE_TBL_SendRegistryCmd_t TlmRegCmd;
 
     UtPrintf("Begin Test Telemetry Registry Command");
 
@@ -579,8 +579,8 @@ void Test_CFE_TBL_TlmRegCmd(void)
 */
 void Test_CFE_TBL_AbortLoadCmd(void)
 {
-    int load = (int) CFE_TBL_TaskData.Registry[0].LoadInProgress;
-    CFE_TBL_AbortLoad_t  AbortLdCmd;
+    int                    load = (int) CFE_TBL_TaskData.Registry[0].LoadInProgress;
+    CFE_TBL_AbortLoadCmd_t AbortLdCmd;
 
     UtPrintf("Begin Test Abort Load Command");
 
@@ -652,7 +652,7 @@ void Test_CFE_TBL_ActivateCmd(void)
 {
     int                   load = (int) CFE_TBL_TaskData.Registry[0].LoadInProgress;
     uint8                 dump = CFE_TBL_TaskData.Registry[0].DumpOnly;
-    CFE_TBL_Activate_t    ActivateCmd;
+    CFE_TBL_ActivateCmd_t ActivateCmd;
 
     UtPrintf("Begin Test Activate Command");
 
@@ -715,7 +715,7 @@ void Test_CFE_TBL_ActivateCmd(void)
      * progress, and a notification message should be sent
      */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SendMsg), 1, CFE_SB_INTERNAL_ERR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SB_INTERNAL_ERR);
     CFE_TBL_TaskData.Registry[0].NotifyByMsg = true;
     CFE_TBL_TaskData.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     UT_Report(__FILE__, __LINE__,
@@ -831,7 +831,7 @@ void Test_CFE_TBL_ValidateCmd(void)
     int                       i;
     uint8                     Buff;
     uint8                     *BuffPtr = &Buff;
-    CFE_TBL_Validate_t        ValidateCmd;
+    CFE_TBL_ValidateCmd_t     ValidateCmd;
     CFE_TBL_CallbackFuncPtr_t ValFuncPtr = (CFE_TBL_CallbackFuncPtr_t)
                                              ((unsigned long )
                                                &UT_InitializeTableRegistryNames);
@@ -937,7 +937,7 @@ void Test_CFE_TBL_ValidateCmd(void)
      * notification message should be sent
      */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SendMsg), 1, CFE_SB_INTERNAL_ERR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SB_INTERNAL_ERR);
     CFE_TBL_TaskData.Registry[0].NotifyByMsg = true;
     CFE_TBL_TaskData.Registry[0].DoubleBuffered = false;
     CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[0].LoadInProgress].BufferPtr = BuffPtr;
@@ -1135,9 +1135,9 @@ void Test_CFE_TBL_GetHkData(void)
 */
 void Test_CFE_TBL_DumpRegCmd(void)
 {
-    int                  q;
-    CFE_TBL_DumpRegistry_t DumpRegCmd;
-    CFE_ES_ResourceID_t AppID;
+    int                       q;
+    CFE_TBL_DumpRegistryCmd_t DumpRegCmd;
+    CFE_ES_ResourceID_t       AppID;
 
     /* Get the AppID being used for UT */
     CFE_ES_GetAppID(&AppID);
@@ -1228,11 +1228,11 @@ void Test_CFE_TBL_DumpRegCmd(void)
 */
 void Test_CFE_TBL_DumpCmd(void)
 {
-    int                i, k, u;
-    uint8              Buff;
+    int                 i, k, u;
+    uint8               Buff;
     uint8              *BuffPtr = &Buff;
-    CFE_TBL_LoadBuff_t Load = {0};
-    CFE_TBL_Dump_t     DumpCmd;
+    CFE_TBL_LoadBuff_t  Load = {0};
+    CFE_TBL_DumpCmd_t   DumpCmd;
     CFE_ES_ResourceID_t AppID;
 
     CFE_ES_GetAppID(&AppID);
@@ -1277,7 +1277,7 @@ void Test_CFE_TBL_DumpCmd(void)
     CFE_TBL_TaskData.Registry[2].DoubleBuffered = false;
     CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[2].LoadInProgress] = Load;
     CFE_TBL_TaskData.Registry[2].NotifyByMsg = true;
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SendMsg), 1, CFE_SB_INTERNAL_ERR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SB_INTERNAL_ERR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpCmd(&DumpCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -1406,11 +1406,11 @@ void Test_CFE_TBL_DumpCmd(void)
 */
 void Test_CFE_TBL_LoadCmd(void)
 {
-    int                i, j;
-    CFE_TBL_File_Hdr_t TblFileHeader;
-    CFE_FS_Header_t    StdFileHeader;
-    CFE_TBL_LoadBuff_t BufferPtr = CFE_TBL_TaskData.LoadBuffs[0];
-    CFE_TBL_Load_t     LoadCmd;
+    int                 i, j;
+    CFE_TBL_File_Hdr_t  TblFileHeader;
+    CFE_FS_Header_t     StdFileHeader;
+    CFE_TBL_LoadBuff_t  BufferPtr = CFE_TBL_TaskData.LoadBuffs[0];
+    CFE_TBL_LoadCmd_t   LoadCmd;
     CFE_ES_ResourceID_t AppID;
 
     CFE_ES_GetAppID(&AppID);
@@ -1686,7 +1686,7 @@ void Test_CFE_TBL_HousekeepingCmd(void)
         CFE_TBL_TaskData.DumpControlBlocks[i].State = CFE_TBL_DUMP_PENDING;
     }
 
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SendMsg), 1, CFE_SUCCESS - 1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, CFE_SUCCESS - 1);
     CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND + 1;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_HousekeepingCmd(NULL) == CFE_TBL_DONT_INC_CTR,

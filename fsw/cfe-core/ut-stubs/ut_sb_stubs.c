@@ -282,7 +282,6 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
 
     if (status >= 0)
     {
-        /* TODO: add GetPipeName */
         if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_GetPipeIdByName), (uint8*)PipeIdPtr, sizeof(*PipeIdPtr)) == sizeof(*PipeIdPtr))
         {
             status = CFE_SUCCESS;
@@ -403,7 +402,6 @@ void CFE_SB_InitMsg(void           *MsgPtr,
         UT_Stub_CopyToLocal(UT_KEY(CFE_SB_InitMsg), (uint8*)MsgPtr, Length);
     }
 }
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /*****************************************************************************/
 /**
@@ -418,10 +416,10 @@ void CFE_SB_InitMsg(void           *MsgPtr,
 **        None
 **
 ** \returns
-**        Returns CFE_SUCCESS on the first call, then -1 on the second.
+**        Returns CFE_SUCCESS or overridden unit test value
 **
 ******************************************************************************/
-int32 CFE_SB_RcvMsg(CFE_MSG_Message_t **BufPtr,
+int32 CFE_SB_RcvMsg(CFE_SB_Buffer_t **BufPtr,
                     CFE_SB_PipeId_t PipeId,
                     int32 TimeOut)
 {
@@ -430,27 +428,124 @@ int32 CFE_SB_RcvMsg(CFE_MSG_Message_t **BufPtr,
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_RcvMsg), TimeOut);
 
     int32 status;
-    static union
-    {
-        CFE_MSG_Message_t Msg;
-        uint8 Ext[CFE_MISSION_SB_MAX_SB_MSG_SIZE];
-    } Buffer;
-
 
     status = UT_DEFAULT_IMPL(CFE_SB_RcvMsg);
 
     if (status >= 0)
     {
-        if (UT_Stub_CopyToLocal(UT_KEY(CFE_SB_RcvMsg), (uint8*)BufPtr, sizeof(*BufPtr)) < sizeof(*BufPtr))
-        {
-            memset(&Buffer, 0, sizeof(Buffer));
-            *BufPtr = &Buffer.Msg;
-        }
+        UT_Stub_CopyToLocal(UT_KEY(CFE_SB_RcvMsg), (uint8*)BufPtr, sizeof(*BufPtr));
     }
 
     return status;
 }
 
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
+
+/*****************************************************************************/
+/**
+** \brief CFE_SB_ReceiveBuffer stub function
+**
+** \par Description
+**        This function is used to mimic the response of the cFE SB function
+**        CFE_SB_ReceiveBuffer.  By default it will return the TIMEOUT error response,
+**        unless the test setup sequence has indicated otherwise.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        Returns CFE_SUCCESS or overridden unit test value
+**
+******************************************************************************/
+int32 CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr,
+                           CFE_SB_PipeId_t PipeId,
+                           int32 TimeOut)
+{
+    UT_Stub_RegisterContext(UT_KEY(CFE_SB_ReceiveBuffer), BufPtr);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ReceiveBuffer), PipeId);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ReceiveBuffer), TimeOut);
+
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_SB_ReceiveBuffer);
+
+    if (status >= 0)
+    {
+        UT_Stub_CopyToLocal(UT_KEY(CFE_SB_ReceiveBuffer), (uint8*)BufPtr, sizeof(*BufPtr));
+    }
+
+    return status;
+}
+
+/*****************************************************************************/
+/**
+** \brief CFE_SB_TransmitMsg stub function
+**
+** \par Description
+**        This function is implements the stub version of the real implementation.
+**        Adds the message pointer value to the test buffer if status is
+**        positive
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        Returns CFE_SUCCESS or overridden unit test value
+**
+******************************************************************************/
+int32 CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount)
+{
+    UT_Stub_RegisterContext(UT_KEY(CFE_SB_TransmitMsg), MsgPtr);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_TransmitMsg), IncrementSequenceCount);
+
+    int32            status = CFE_SUCCESS;
+
+    status = UT_DEFAULT_IMPL(CFE_SB_TransmitMsg);
+
+    if (status >= 0)
+    {
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_TransmitMsg), &MsgPtr, sizeof(MsgPtr));
+    }
+
+    return status;
+}
+
+/*****************************************************************************/
+/**
+** \brief CFE_SB_TransmitBuffer stub function
+**
+** \par Description
+**        This function is implements the stub version of the real implementation.
+**        Adds the buffer pointer value to the test buffer if status is
+**        positive
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        Returns CFE_SUCCESS or overridden unit test value
+**
+******************************************************************************/
+int32 CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t ZeroCopyHandle,
+                            bool IncrementSequenceCount)
+{
+    UT_Stub_RegisterContext(UT_KEY(CFE_SB_TransmitBuffer), BufPtr);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_TransmitBuffer), ZeroCopyHandle);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_TransmitBuffer), IncrementSequenceCount);
+
+    int32            status = CFE_SUCCESS;
+
+    status = UT_DEFAULT_IMPL(CFE_SB_TransmitBuffer);
+
+    if (status >= 0)
+    {
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_SB_TransmitBuffer), &BufPtr, sizeof(BufPtr));
+    }
+
+    return status;
+}
+
+#ifndef CFE_OMIT_DEPRECATED_6_8
 /*****************************************************************************/
 /**
 ** \brief CFE_SB_SendMsg stub function
@@ -496,8 +591,6 @@ int32 CFE_SB_SendMsg(CFE_MSG_Message_t *MsgPtr)
 
     return status;
 }
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
 
 /*****************************************************************************/
 /**
@@ -940,11 +1033,11 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
         BytePtr = (uint8 *)MsgPtr;
         if ((MsgPtr->Byte[0] & 0x10) != 0)
         {
-            HdrSize = CFE_SB_CMD_HDR_SIZE;
+            HdrSize = sizeof(CFE_MSG_CommandHeader_t);
         }
         else
         {
-            HdrSize = CFE_SB_TLM_HDR_SIZE;
+            HdrSize = sizeof(CFE_MSG_TelemetryHeader_t);
         }
 
         Result = (BytePtr + HdrSize);
@@ -1082,27 +1175,28 @@ int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
     return status;
 }
 
-CFE_MSG_Message_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize, CFE_SB_ZeroCopyHandle_t *BufferHandle)
+CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize, CFE_SB_ZeroCopyHandle_t *BufferHandle)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ZeroCopyGetPtr), MsgSize);
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopyGetPtr), BufferHandle);
 
     int32 status;
-    CFE_MSG_Message_t *MsgPtr;
+    CFE_SB_Buffer_t *SBBufPtr = NULL;
 
-    MsgPtr = NULL;
     status = UT_DEFAULT_IMPL(CFE_SB_ZeroCopyGetPtr);
+
     if (status == CFE_SUCCESS)
     {
-        UT_Stub_CopyToLocal(UT_KEY(CFE_SB_ZeroCopyGetPtr), &MsgPtr, sizeof(MsgPtr));
+        UT_Stub_CopyToLocal(UT_KEY(CFE_SB_ZeroCopyGetPtr), &SBBufPtr, sizeof(SBBufPtr));
     }
 
-    return MsgPtr;
+    return SBBufPtr;
 }
 
-int32 CFE_SB_ZeroCopyPass(CFE_MSG_Message_t *MsgPtr, CFE_SB_ZeroCopyHandle_t BufferHandle)
+#ifndef CFE_OMIT_DEPRECATED_6_8
+int32 CFE_SB_ZeroCopyPass(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
-    UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopyPass), MsgPtr);
+    UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopyPass), BufPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ZeroCopyPass), BufferHandle);
 
     int32 status;
@@ -1111,8 +1205,9 @@ int32 CFE_SB_ZeroCopyPass(CFE_MSG_Message_t *MsgPtr, CFE_SB_ZeroCopyHandle_t Buf
 
     return status;
 }
+#endif
 
-int32 CFE_SB_ZeroCopyReleasePtr(CFE_MSG_Message_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle)
+int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopyReleasePtr), Ptr2Release);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ZeroCopyReleasePtr), BufferHandle);
@@ -1124,9 +1219,10 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_MSG_Message_t *Ptr2Release, CFE_SB_ZeroCopyH
     return status;
 }
 
-int32 CFE_SB_ZeroCopySend(CFE_MSG_Message_t *MsgPtr, CFE_SB_ZeroCopyHandle_t BufferHandle)
+#ifndef CFE_OMIT_DEPRECATED_6_8
+int32 CFE_SB_ZeroCopySend(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t BufferHandle)
 {
-    UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopySend), MsgPtr);
+    UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopySend), BufPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ZeroCopySend), BufferHandle);
 
     int32 status;
@@ -1135,4 +1231,4 @@ int32 CFE_SB_ZeroCopySend(CFE_MSG_Message_t *MsgPtr, CFE_SB_ZeroCopyHandle_t Buf
 
     return status;
 }
-
+#endif

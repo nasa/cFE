@@ -404,7 +404,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     int                      ExpandedLength;
 
     /* Initialize EVS event packets */
-    CFE_MSG_Init(&LongEventTlm.TlmHeader.BaseMsg, CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
+    CFE_MSG_Init(&LongEventTlm.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
                  sizeof(LongEventTlm));
     LongEventTlm.Payload.PacketID.EventID   = EventID;
     LongEventTlm.Payload.PacketID.EventType = EventType;
@@ -428,7 +428,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     LongEventTlm.Payload.PacketID.ProcessorID  = CFE_PSP_GetProcessorId();
 
     /* Set the packet timestamp */
-    CFE_MSG_SetMsgTime((CFE_MSG_Message_t *) &LongEventTlm, *TimeStamp);
+    CFE_MSG_SetMsgTime(&LongEventTlm.TlmHeader.Msg, *TimeStamp);
 
     /* Write event to the event log */
     EVS_AddLog(&LongEventTlm);
@@ -439,7 +439,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode == CFE_EVS_MsgFormat_LONG)
     {
         /* Send long event via SoftwareBus */
-        CFE_SB_SendMsg((CFE_MSG_Message_t *) &LongEventTlm);
+        CFE_SB_TransmitMsg(&LongEventTlm.TlmHeader.Msg, true);
     }
     else if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode == CFE_EVS_MsgFormat_SHORT)
     {
@@ -449,11 +449,11 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
          *
          * This goes out on a separate message ID.
          */
-        CFE_MSG_Init(&ShortEventTlm.TlmHeader.BaseMsg, CFE_SB_ValueToMsgId(CFE_EVS_SHORT_EVENT_MSG_MID),
+        CFE_MSG_Init(&ShortEventTlm.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_EVS_SHORT_EVENT_MSG_MID),
                      sizeof(ShortEventTlm));
-        CFE_MSG_SetMsgTime((CFE_MSG_Message_t *) &ShortEventTlm, *TimeStamp);
+        CFE_MSG_SetMsgTime(&ShortEventTlm.TlmHeader.Msg, *TimeStamp);
         ShortEventTlm.Payload.PacketID = LongEventTlm.Payload.PacketID;
-        CFE_SB_SendMsg((CFE_MSG_Message_t *) &ShortEventTlm);
+        CFE_SB_TransmitMsg(&ShortEventTlm.TlmHeader.Msg, true);
     }
 
     /* Increment message send counters (prevent rollover) */

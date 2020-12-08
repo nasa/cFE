@@ -133,16 +133,14 @@
     </UL>
     <LI> \ref CFEAPISBMessage
     <UL>
-      <LI> #CFE_SB_SendMsg - \copybrief CFE_SB_SendMsg
-      <LI> #CFE_SB_PassMsg - \copybrief CFE_SB_PassMsg
-      <LI> #CFE_SB_RcvMsg - \copybrief CFE_SB_RcvMsg
+      <LI> #CFE_SB_TransmitMsg - \copybrief CFE_SB_TransmitMsg
+      <LI> #CFE_SB_ReceiveBuffer - \copybrief CFE_SB_ReceiveBuffer
     </UL>
     <LI> \ref CFEAPISBZeroCopy
     <UL>
       <LI> #CFE_SB_ZeroCopyGetPtr - \copybrief CFE_SB_ZeroCopyGetPtr
       <LI> #CFE_SB_ZeroCopyReleasePtr - \copybrief CFE_SB_ZeroCopyReleasePtr
-      <LI> #CFE_SB_ZeroCopySend - \copybrief CFE_SB_ZeroCopySend
-      <LI> #CFE_SB_ZeroCopyPass - \copybrief CFE_SB_ZeroCopyPass
+      <LI> #CFE_SB_TransmitBuffer - \copybrief CFE_SB_TransmitBuffer
     </UL>
     <LI> \ref CFEAPISBSetMessage
     <UL>

@@ -361,7 +361,7 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_SendMsg API receives an
+**  This error event message is issued when a transmit API receives an
 **  invalid (possibly NULL) ptr as an argument.
 **/
 #define CFE_SB_SEND_BAD_ARG_EID         13
@@ -373,7 +373,7 @@
 **
 **  \par Cause:
 **
-**  This info event message is issued when the #CFE_SB_SendMsg API is called and there
+**  This info event message is issued when a transmit API is called and there
 **  are no subscribers (therefore no destinations) for the message to be sent. Each
 **  time the SB detects this situation, the corresponding SB telemetry point is
 **  incremented..
@@ -391,7 +391,7 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_SendMsg API is called and the
+**  This error event message is issued when a transmit API is called and the
 **  packet length field in the message header implies that the message size exceeds
 **  the max size defined by mission cfg param #CFE_MISSION_SB_MAX_SB_MSG_SIZE. The request to
 **  send the message is denied, there is no partial packet sent.
@@ -405,7 +405,7 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_SendMsg API fails to receive
+**  This error event message is issued when a transmit API fails to receive
 **  the necessary buffer memory from the ES memory pool. This could be an indication
 **  that the cfg param #CFE_PLATFORM_SB_BUF_MEMORY_BYTES is set too low. To check this, send SB
 **  cmd to dump the SB statistics pkt and view the buffer memory parameters.
@@ -419,7 +419,7 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_SendMsg API cannot route the
+**  This error event message is issued when a transmit API cannot route the
 **  MsgId (displayed in event) to the pipe (displayed in the event) because the pipe
 **  currently contains the maximum number of messages of this type (MsgId). This is
 **  typically an indication that the receiver is not reading its pipe fast enough, or
@@ -439,7 +439,7 @@
 **  \par Cause:
 **
 **  This error event message is issued when an invalid paramter is passed into the
-**  #CFE_SB_RcvMsg API. Two possibile problems would be the first parameter (*BufPtr)
+**  #CFE_SB_ReceiveBuffer API. Two possibile problems would be the first parameter (*BufPtr)
 **  being NULL or the third paramter (TimeOut) being less than -1.
 **/
 #define CFE_SB_RCV_BAD_ARG_EID          18
@@ -452,7 +452,7 @@
 **  \par Cause:
 **
 **  This error event message is issued when an invalid PipeId is passed into the
-**  #CFE_SB_RcvMsg API. The SB Pipe Table shows all valid PipeIds and may be viewed
+**  #CFE_SB_ReceiveBuffer API. The SB Pipe Table shows all valid PipeIds and may be viewed
 **  for verification.
 **/
 #define CFE_SB_BAD_PIPEID_EID           19
@@ -479,7 +479,7 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_SendMsg API is called and
+**  This error event message is issued when a transmit API is called and
 **  the SB discovers that the message to send has a msg id that is invalid. It may be
 **  due to a msg id  that is greater than cfg parameter #CFE_PLATFORM_SB_HIGHEST_VALID_MSGID
 **/
@@ -519,7 +519,7 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_SendMsg API is called and
+**  This error event message is issued when a transmit API is called and
 **  encounters an error when attempting to write the msg to the destination pipe
 **  (which is an underlying queue). This could indicate that the owner of the pipe is
 **  not readings its messages fast enough or at all. It may also mean that the
@@ -535,7 +535,7 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_SendMsg API is called and
+**  This error event message is issued when a transmit API is called and
 **  encounters an error when attempting to write the msg to the destination pipe
 **  (which is an underlying queue). More precisely, the OS API #OS_QueuePut has
 **  returned an unexpected error. The return code is displayed in the event. For
@@ -551,7 +551,7 @@
 **
 **  \par Cause:
 **
-**  This error event message is issued when the #CFE_SB_SendMsg API is called and
+**  This error event message is issued when a transmit API is called and
 **  encounters an error when attempting to read the msg from the destination pipe
 **  (which is an underlying queue). More precisely, the OS API #OS_QueueGet has
 **  returned an unexpected error. The return code is displayed in the event. For

@@ -231,12 +231,12 @@ static void UT_EVS_DoDispatchCheckEvents_Impl(void *MsgPtr, uint32 MsgSize,
     EventCapture->EventID = 0xFFFF;
     SnapshotData.SnapshotBuffer = &EventCapture->EventID;
 
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &SnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &SnapshotData);
     UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, (CFE_MSG_Message_t *)MsgPtr, MsgSize, DispatchId);
     EventCapture->Count += SnapshotData.Count;
 
     /* be sure to clear the hook function since the SnapshotData is going out of scope */
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), NULL, NULL);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), NULL, NULL);
 }
 
 static void UT_EVS_DoDispatchCheckEvents(void *MsgPtr, uint32 MsgSize,
@@ -258,12 +258,12 @@ static void UT_EVS_DoGenericCheckEvents(void (*Func)(void), UT_EVS_EventCapture_
     EventCapture->EventID = -1;
     SnapshotData.SnapshotBuffer = &EventCapture->EventID;
 
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &SnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &SnapshotData);
     Func();
     EventCapture->Count += SnapshotData.Count;
 
     /* be sure to clear the hook function since the SnapshotData is going out of scope */
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), NULL, NULL);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), NULL, NULL);
 }
 
 /*
@@ -910,7 +910,7 @@ void Test_Format(void)
     int16 EventID[2];
 
     CFE_TIME_SysTime_t          time = {0, 0};
-    CFE_EVS_SetEventFormatMode_t    modecmd;
+    CFE_EVS_SetEventFormatModeCmd_t    modecmd;
     CFE_EVS_AppNameBitMaskCmd_t     appbitcmd;
     CFE_EVS_PacketID_t           CapturedMsg;
     UT_SoftwareBusSnapshot_Entry_t LongFmtSnapshotData =
@@ -981,12 +981,12 @@ void Test_Format(void)
     UtPrintf("Test for short event sent when configured to do so ");
     UT_InitData();
     UT_SetHookFunction(UT_KEY(CFE_MSG_Init), UT_EVS_MSGInitHook, &MsgData);
-    UT_SetDataBuffer(UT_KEY(CFE_SB_SendMsg), &MsgSend, sizeof(MsgSend), false);
+    UT_SetDataBuffer(UT_KEY(CFE_SB_TransmitMsg), &MsgSend, sizeof(MsgSend), false);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Short format check 1");
 
     /* Note implementation initializes both short and long message */
     ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 2);
-    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_SB_SendMsg)), 1);
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 1);
     ASSERT_TRUE(CFE_SB_MsgId_Equal(MsgData.MsgId, ShortFmtSnapshotData.MsgId));
     ASSERT_TRUE(!CFE_SB_MsgId_Equal(MsgData.MsgId, LongFmtSnapshotData.MsgId));
 
@@ -1011,7 +1011,7 @@ void Test_Format(void)
      */
     UT_InitData();
     memset(&CapturedMsg, 0xFF, sizeof(CapturedMsg));
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LongFmtSnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LongFmtSnapshotData);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Long format check (SendEvent)");
     EventID[0] = CapturedMsg.EventID;
     memset(&CapturedMsg, 0xFF, sizeof(CapturedMsg));
@@ -1098,7 +1098,7 @@ void Test_Ports(void)
 
     /* Test that ports are enabled by sending a message */
     UT_InitData();
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Test ports message");
     UT_Report(__FILE__, __LINE__,
               LocalSnapshotData.Count == 1 &&
@@ -1216,9 +1216,9 @@ void Test_Logging(void)
     char                 tmpString[100];
     union
     {
-        CFE_EVS_NoArgsCmd_t         cmd;
-        CFE_EVS_SetLogMode_t        modecmd;
-        CFE_EVS_WriteLogDataFile_t  logfilecmd;
+        CFE_EVS_NoArgsCmd_t           cmd;
+        CFE_EVS_SetLogModeCmd_t       modecmd;
+        CFE_EVS_WriteLogDataFileCmd_t logfilecmd;
     } CmdBuf;
     cpuaddr              TempAddr;
     CFE_ES_ResetData_t   *CFE_EVS_ResetDataPtr;
@@ -1432,9 +1432,9 @@ void Test_WriteApp(void)
 {
     union
     {
-        CFE_EVS_NoArgsCmd_t         cmd;
-        CFE_EVS_WriteAppDataFile_t  AppDataCmd;
-        CFE_EVS_AppNameBitMaskCmd_t appbitcmd;
+        CFE_EVS_NoArgsCmd_t            cmd;
+        CFE_EVS_WriteAppDataFileCmd_t  AppDataCmd;
+        CFE_EVS_AppNameBitMaskCmd_t    appbitcmd;
     } CmdBuf;
 
     UtPrintf("Begin Test Write App");
@@ -1964,7 +1964,7 @@ void Test_EventCmd(void)
                &UT_EVS_EventBuf);
 
     LocalSnapshotData.Count = 0;
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_DEBUG, "FAIL : Debug message disabled");
     EventCount[0] = LocalSnapshotData.Count;
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "FAIL : Info message disabled");
@@ -1986,7 +1986,7 @@ void Test_EventCmd(void)
     UT_EVS_DoDispatchCheckEvents(&appbitcmd, sizeof(appbitcmd),
                UT_TPID_CFE_EVS_CMD_ENABLE_APP_EVENT_TYPE_CC,
                &UT_EVS_EventBuf);
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_DEBUG, "Debug message enabled");
     EventCount[0] = LocalSnapshotData.Count;
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Info message enabled");
@@ -2666,8 +2666,8 @@ void Test_Misc(void)
     {
         CFE_MSG_Message_t msg;
         CFE_EVS_NoArgsCmd_t cmd;
-        CFE_EVS_SetLogMode_t  modecmd;
-        CFE_EVS_WriteLogDataFile_t writelogdatacmd;
+        CFE_EVS_SetLogModeCmd_t  modecmd;
+        CFE_EVS_WriteLogDataFileCmd_t writelogdatacmd;
     } PktBuf;
 
     CFE_ES_ResourceID_t AppID;
@@ -2711,7 +2711,7 @@ void Test_Misc(void)
     UT_InitData();
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = true;
     HK_SnapshotData.Count = 0;
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
     UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, &PktBuf.msg, sizeof(PktBuf.cmd),
             UT_TPID_CFE_EVS_SEND_HK);
     UT_Report(__FILE__, __LINE__,
@@ -2737,7 +2737,7 @@ void Test_Misc(void)
     UT_InitData();
     CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = false;
     HK_SnapshotData.Count = 0;
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
     UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, &PktBuf.msg, sizeof(PktBuf.cmd),
             UT_TPID_CFE_EVS_SEND_HK);
     UT_Report(__FILE__, __LINE__,

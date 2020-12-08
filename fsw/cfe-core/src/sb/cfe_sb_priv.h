@@ -194,7 +194,6 @@ typedef struct
     CFE_SB_HousekeepingTlm_t       HKTlmMsg;
     CFE_SB_StatsTlm_t              StatTlmMsg;
     CFE_SB_PipeId_t                CmdPipe;
-    CFE_MSG_Message_t             *CmdPipePktPtr;
     CFE_SB_MemParams_t             Mem;
     CFE_SB_AllSubscriptionsTlm_t   PrevSubMsg;
     CFE_SB_SingleSubscriptionTlm_t SubRprtMsg;
@@ -245,7 +244,7 @@ int32  CFE_SB_WriteQueue(CFE_SB_PipeD_t *pd,uint32 TskId,
                          const CFE_SB_BufferD_t *bd,CFE_SB_MsgId_t MsgId );
 uint8  CFE_SB_GetPipeIdx(CFE_SB_PipeId_t PipeId);
 int32  CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
-void   CFE_SB_ProcessCmdPipePkt(void);
+void   CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr);
 void   CFE_SB_ResetCounters(void);
 void   CFE_SB_SetMsgSeqCnt(CFE_MSG_Message_t *MsgPtr,uint32 Count);
 char   *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId, char* FullName);
@@ -266,11 +265,17 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
 
 int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
                               uint8 Scope, CFE_ES_ResourceID_t AppId);
-int32  CFE_SB_SendMsgFull(CFE_MSG_Message_t *MsgPtr, uint32 TlmCntIncrements, uint32 CopyMode);
+int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
+                                 CFE_SBR_RouteId_t RouteId,
+                                 CFE_SB_MsgId_t    MsgId);
+int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr,
+                                 CFE_SB_MsgId_t    *MsgIdPtr,
+                                 CFE_MSG_Size_t    *SizePtr,
+                                 CFE_SBR_RouteId_t *RouteIdPtr);
 int32 CFE_SB_SendRtgInfo(const char *Filename);
 int32 CFE_SB_SendPipeInfo(const char *Filename);
 int32 CFE_SB_SendMapInfo(const char *Filename);
-int32 CFE_SB_ZeroCopyReleaseDesc(CFE_MSG_Message_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
+int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId);
 int32 CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
@@ -335,27 +340,26 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
 
 /*****************************************************************************/
 /**
-** \brief Get the size of a software bus message header.
+** \brief Get the size of a message header.
 **
 ** \par Description
-**          This routine returns the number of bytes in a software bus message header.
-**          This can be used for sizing buffers that need to store SB messages.  SB
-**          message header formats can be different for each deployment of the cFE.
-**          So, applications should use this function and avoid hard coding their buffer
-**          sizes.
+**          This routine is a best guess of the message header size based off type
+**          information and the local message implementation.
+**          If a different header implementation was used to generate the message
+**          the returned size may not be correct.  Critical functionality should
+**          use the real message structure or otherwise confirm header implementation
+**          matches expectations prior to using this API.
 **
 ** \par Assumptions, External Events, and Notes:
-**          - For statically defined messages, a function call will not work.  The
-**            macros #CFE_SB_CMD_HDR_SIZE and #CFE_SB_TLM_HDR_SIZE are available for use
-**            in static message buffer sizing or structure definitions.
+**          - Utilize CFE_MSG_CommandHeader_t and CFE_MSG_TelemetryHeader_t for
+**            defining message structures.
 **
 ** \param[in]  *MsgPtr The message ID to calculate header size for.  The size of the message
 **                     header may depend on the MsgId in some implementations.  For example,
 **                     if SB messages are implemented as CCSDS packets, the size of the header
 **                     is different for command vs. telemetry packets.
 **
-** \returns The number of bytes in the software bus message header for
-**          messages with the given \c MsgId.
+** \returns Estimated number of bytes in the message header for the given message
 **/
 size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr);
 
@@ -363,18 +367,18 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr);
 /*
  * Software Bus Message Handler Function prototypes
  */
-int32 CFE_SB_NoopCmd(const CFE_SB_Noop_t *data);
-int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCounters_t *data);
-int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReporting_t *data);
-int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReporting_t *data);
-int32 CFE_SB_SendHKTlmCmd(const CFE_SB_CmdHdr_t *data);
-int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRoute_t *data);
-int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRoute_t *data);
-int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStats_t *data);
-int32 CFE_SB_SendRoutingInfoCmd(const CFE_SB_SendRoutingInfo_t *data);
-int32 CFE_SB_SendPipeInfoCmd(const CFE_SB_SendPipeInfo_t *data);
-int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfo_t *data);
-int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubs_t *data);
+int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data);
+int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data);
+int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data);
+int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data);
+int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data);
+int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data);
+int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data);
+int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data);
+int32 CFE_SB_SendRoutingInfoCmd(const CFE_SB_SendRoutingInfoCmd_t *data);
+int32 CFE_SB_SendPipeInfoCmd(const CFE_SB_SendPipeInfoCmd_t *data);
+int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfoCmd_t *data);
+int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
 
 
 /*

@@ -33,7 +33,7 @@
 **
 **     Some functions have EXTERNAL SYNC REQUIREMENTS
 **
-**     Syslog functions marked with "Unsync" in their name are designated
+**     SysLog functions marked with "Unsync" in their name are designated
 **     as functions which are _not_ safe to be called concurrently by multiple
 **     threads, and also do _not_ implement any locking or protection.  These
 **     functions expect the caller to perform all thread synchronization before

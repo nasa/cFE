@@ -717,7 +717,7 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Time Out
  *
- *  In #CFE_SB_RcvMsg, this return value indicates that a packet has not 
+ *  In #CFE_SB_ReceiveBuffer, this return value indicates that a packet has not
  *  been received in the time given in the "timeout" parameter.
  *
  */
@@ -727,7 +727,7 @@ typedef int32 CFE_Status_t;
 /**
  * @brief No Message
  *
- *  When "Polling" a pipe for a message in #CFE_SB_RcvMsg, this return 
+ *  When "Polling" a pipe for a message in #CFE_SB_ReceiveBuffer, this return
  *  value indicates that there was not a message on the pipe.
  *
  */
@@ -796,9 +796,8 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Buffer Allocation Error
  *
- *  This error code will be returned from #CFE_SB_SendMsg when the memory 
- *  in the SB message buffer pool has been depleted. The amount of memory  
- *  in the pool is dictated by the configuration parameter 
+ *  Returned when the memory in the SB message buffer pool has been depleted.
+ *  The amount of memory in the pool is dictated by the configuration parameter
  *  #CFE_PLATFORM_SB_BUF_MEMORY_BYTES specified in the cfe_platform_cfg.h file. Also 
  *  the memory statistics, including current utilization figures and high 
  *  water marks for the SB Buffer memory pool can be monitored by sending 

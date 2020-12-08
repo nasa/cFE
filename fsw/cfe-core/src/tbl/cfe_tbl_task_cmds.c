@@ -53,7 +53,7 @@
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
+int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 {
     int32                     Status;
     uint32                    i;
@@ -69,8 +69,8 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
     /*
     ** Send housekeeping telemetry packet
     */
-    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_TBL_TaskData.HkPacket);
-    Status = CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TBL_TaskData.HkPacket);
+    CFE_SB_TimeStampMsg(&CFE_TBL_TaskData.HkPacket.TlmHeader.Msg);
+    Status = CFE_SB_TransmitMsg(&CFE_TBL_TaskData.HkPacket.TlmHeader.Msg, true);
 
     if (Status != CFE_SUCCESS)
     {
@@ -88,8 +88,8 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
         /*
         ** Send Table Registry Info Packet
         */
-        CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_TBL_TaskData.TblRegPacket);
-        CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TBL_TaskData.TblRegPacket);
+        CFE_SB_TimeStampMsg(&CFE_TBL_TaskData.TblRegPacket.TlmHeader.Msg);
+        CFE_SB_TransmitMsg(&CFE_TBL_TaskData.TblRegPacket.TlmHeader.Msg, true);
 
         /* Once the data has been sent, clear the index so that we don't send it again and again */
         CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
@@ -325,7 +325,7 @@ void CFE_TBL_GetTblRegData(void)
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_NoopCmd(const CFE_TBL_Noop_t *data)
+int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
 {
     /* Acknowledge receipt of NOOP with Event Message */
     CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op command. %s", CFE_VERSION_STRING);
@@ -342,7 +342,7 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_Noop_t *data)
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCounters_t *data)
+int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
 {
     CFE_TBL_TaskData.CommandCounter = 0;
     CFE_TBL_TaskData.CommandErrorCounter = 0;
@@ -367,7 +367,7 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCounters_t *data)
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data)
+int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t        ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
     const CFE_TBL_LoadCmd_Payload_t    *CmdPtr = &data->Payload;
@@ -572,7 +572,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data)
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_DumpCmd(const CFE_TBL_Dump_t *data)
+int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t        ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
     int16                       RegIndex;
@@ -865,7 +865,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_ValidateCmd(const CFE_TBL_Validate_t *data)
+int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t         ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
     int16                        RegIndex;
@@ -1023,7 +1023,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_Validate_t *data)
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_ActivateCmd(const CFE_TBL_Activate_t *data)
+int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t         ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
     int16                        RegIndex;
@@ -1115,7 +1115,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_Activate_t *data)
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
+int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t        ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
     bool                        FileExistedPrev = false;
@@ -1301,7 +1301,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data)
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistry_t *data)
+int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t         ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
     int16                        RegIndex;
@@ -1348,7 +1348,7 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistry_t *data)
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDS_t *data)
+int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t         ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
     const CFE_TBL_DelCDSCmd_Payload_t   *CmdPtr = &data->Payload;
@@ -1446,7 +1446,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDS_t *data)
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
 ********************************************************************/
 
-int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoad_t *data)
+int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t         ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
     int16                        RegIndex;
