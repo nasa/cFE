@@ -50,7 +50,6 @@
 #include "cfe.h"
 #include "common_types.h"
 #include "osapi.h"
-#include "osapi-os-loader.h"
 #include "cfe_version.h"
 #include "cfe_es.h"
 #include "cfe_es_cds.h"
