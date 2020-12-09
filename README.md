@@ -10,6 +10,17 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev218
+
+- Adds `CFE_SB_TransmitMsg`, `CFE_SB_TransmitBuffer`, `CFE_SB_ReceiveBuffer`
+  - Main change is to utilize `CFE_SB_Buffer_t` and `CFE_MSG_Message_t` in a consistent manner to facilitate alignment
+  - Deprecates multiple `CFE_SB_*` items
+  - Redefines `CFE_MSG_Size_t` as `size_t` to minimize duplicated work and facilitate transition to `size_t`
+- Use a generic void* as the interface type for the pool buffer pointers. This reduces the need for local type casting in the apps and makes it generally easier to use.
+- Remove  reference to CEXP in RTEMS 4.11 i686 toolchain. Add an RTEMS 5.1 i686 toolchain file.
+- See <https://github.com/nasa/cFE/pull/1045>
+
+
 ### Development Build: 6.8.0-rc1+dev204
 
 - Backward compatible API change. Replace many uses of generic uint16 and uint32 with a more purpose-specific type. Replace all sizes with size_t across the API.
