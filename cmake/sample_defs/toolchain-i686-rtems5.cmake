@@ -12,7 +12,7 @@
 # Basic cross system configuration
 set(CMAKE_SYSTEM_NAME       RTEMS)
 set(CMAKE_SYSTEM_PROCESSOR  i386)
-set(CMAKE_SYSTEM_VERSION    4.11)
+set(CMAKE_SYSTEM_VERSION    5)
 
 # The TOOLS and BSP are allowed to be installed in different locations.
 # If the README was followed they will both be installed under $HOME
@@ -32,6 +32,7 @@ set(TARGETPREFIX                "${CMAKE_SYSTEM_PROCESSOR}-rtems${CMAKE_SYSTEM_V
 set(RTEMS_BSP_C_FLAGS           "-march=i686 -mtune=i686 -fno-common")
 set(RTEMS_BSP_CXX_FLAGS         ${RTEMS_BSP_C_FLAGS})
 
+
 SET(CMAKE_C_COMPILER            "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}gcc")
 SET(CMAKE_CXX_COMPILER          "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}g++")
 SET(CMAKE_LINKER                "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}ld")
@@ -44,6 +45,10 @@ SET(CMAKE_OBJCOPY               "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}objcop
 
 # Exception handling is very iffy.  These two options disable eh_frame creation.
 set(CMAKE_C_COMPILE_OPTIONS_PIC -fno-exceptions -fno-asynchronous-unwind-tables)
+
+# Link libraries needed for an RTEMS 5.x executable
+#  This was handled by the bsp_specs file in 4.11
+set(LINK_LIBRARIES              "-lrtemsdefaultconfig -lrtemsbsp -lrtemscpu")
 
 # search for programs in the build host directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM   NEVER)
@@ -59,6 +64,9 @@ SET(CMAKE_PREFIX_PATH                   /)
 SET(CFE_SYSTEM_PSPNAME                  pc-rtems)
 SET(OSAL_SYSTEM_BSPTYPE                 pc-rtems)
 SET(OSAL_SYSTEM_OSTYPE                  rtems)
+
+# This is for RTEMS 5 specific ifdefs needed by the OSAL
+ADD_DEFINITIONS(-D_RTEMS_5_)
 
 # Info regarding the RELOCADDR:
 #+--------------------------------------------------------------------------+
