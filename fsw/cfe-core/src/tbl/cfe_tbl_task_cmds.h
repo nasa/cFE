@@ -126,7 +126,7 @@ extern void CFE_TBL_GetTblRegData(void);
 **
 ** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
 ******************************************************************************/
-int32 CFE_TBL_HousekeepingCmd(const CFE_SB_CmdHdr_t *data);
+int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data);
 
 /*****************************************************************************/
 /**
@@ -143,7 +143,7 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_SB_CmdHdr_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
-int32 CFE_TBL_NoopCmd(const CFE_TBL_Noop_t *data);
+int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data);
 
 /*****************************************************************************/
 /**
@@ -159,7 +159,7 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_Noop_t *data);
 **
 ** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
 ******************************************************************************/
-int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCounters_t *data);
+int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data);
 
 /*****************************************************************************/
 /**
@@ -177,7 +177,7 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCounters_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
-int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data);
+int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data);
 
 /*****************************************************************************/
 /**
@@ -195,7 +195,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_Load_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
-int32 CFE_TBL_DumpCmd(const CFE_TBL_Dump_t *data);
+int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data);
 
 /*****************************************************************************/
 /**
@@ -214,7 +214,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_Dump_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
-int32 CFE_TBL_ValidateCmd(const CFE_TBL_Validate_t *data);
+int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data);
 
 /*****************************************************************************/
 /**
@@ -232,7 +232,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_Validate_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
-int32 CFE_TBL_ActivateCmd(const CFE_TBL_Activate_t *data);
+int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data);
 
 /*****************************************************************************/
 /**
@@ -249,7 +249,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_Activate_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
-int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data);
+int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data);
 
 /*****************************************************************************/
 /**
@@ -267,7 +267,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistry_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
-int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistry_t *data);
+int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data);
 
 /*****************************************************************************/
 /**
@@ -284,7 +284,7 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistry_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
-int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDS_t *data);
+int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data);
 
 /*****************************************************************************/
 /**
@@ -301,7 +301,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDS_t *data);
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
 ******************************************************************************/
-int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoad_t *data);
+int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data);
 
 
 /*****************************************************************************/

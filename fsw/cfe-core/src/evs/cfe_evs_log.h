@@ -55,7 +55,7 @@
 
 void    EVS_AddLog ( CFE_EVS_LongEventTlm_t *EVS_PktPtr );
 void    EVS_ClearLog ( void );
-int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFile_t *data);
-int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogMode_t *data);
+int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data);
+int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data);
 
 #endif  /* _cfe_evs_log_ */

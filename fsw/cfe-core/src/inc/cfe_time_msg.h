@@ -58,7 +58,7 @@
 **  \cfecmdmnemonic \TIME_NOOP
 **
 **  \par Command Structure
-**       #CFE_TIME_NoArgsCmd_t
+**       #CFE_TIME_NoopCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -102,7 +102,7 @@
 **  \cfecmdmnemonic \TIME_RESETCTRS
 **
 **  \par Command Structure
-**       #CFE_TIME_NoArgsCmd_t
+**       #CFE_TIME_ResetCountersCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -135,7 +135,7 @@
 **  \cfecmdmnemonic \TIME_REQUESTDIAG
 **
 **  \par Command Structure
-**       #CFE_TIME_NoArgsCmd_t
+**       #CFE_TIME_SendDiagnosticCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -182,7 +182,7 @@
 **  \cfecmdmnemonic \TIME_SETSOURCE
 **
 **  \par Command Structure
-**       #CFE_TIME_SetSource_t
+**       #CFE_TIME_SetSourceCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -233,7 +233,7 @@
 **  \cfecmdmnemonic \TIME_SETSTATE
 **
 **  \par Command Structure
-**       #CFE_TIME_SetState_t
+**       #CFE_TIME_SetStateCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -276,7 +276,7 @@
 **  \cfecmdmnemonic \TIME_ADDCLOCKLAT
 **
 **  \par Command Structure
-**       #CFE_TIME_TimeCmd_t
+**       #CFE_TIME_AddDelayCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -314,7 +314,7 @@
 **  \cfecmdmnemonic \TIME_SUBCLOCKLAT
 **
 **  \par Command Structure
-**       #CFE_TIME_TimeCmd_t
+**       #CFE_TIME_SubDelayCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -359,7 +359,7 @@
 **  \cfecmdmnemonic \TIME_SETCLOCK
 **
 **  \par Command Structure
-**       #CFE_TIME_TimeCmd_t
+**       #CFE_TIME_SetTimeCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -399,7 +399,7 @@
 **  \cfecmdmnemonic \TIME_SETCLOCKMET
 **
 **  \par Command Structure
-**       #CFE_TIME_TimeCmd_t
+**       #CFE_TIME_SetMETCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -436,7 +436,7 @@
 **  \cfecmdmnemonic \TIME_SETCLOCKSTCF
 **
 **  \par Command Structure
-**       #CFE_TIME_TimeCmd_t
+**       #CFE_TIME_SetSTCFCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -473,7 +473,7 @@
 **  \cfecmdmnemonic \TIME_SETCLOCKLEAP
 **
 **  \par Command Structure
-**       #CFE_TIME_TimeCmd_t
+**       #CFE_TIME_SetLeapSecondsCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -506,7 +506,7 @@
 **  \cfecmdmnemonic \TIME_ADDSTCFADJ
 **
 **  \par Command Structure
-**       #CFE_TIME_TimeCmd_t
+**       #CFE_TIME_AddAdjustCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -540,7 +540,7 @@
 **  \cfecmdmnemonic \TIME_SUBSTCFADJ
 **
 **  \par Command Structure
-**       #CFE_TIME_TimeCmd_t
+**       #CFE_TIME_SubAdjustCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -587,7 +587,7 @@
 **  \cfecmdmnemonic \TIME_ADD1HZSTCF
 **
 **  \par Command Structure
-**       #CFE_TIME_Add1HZAdjustment_t
+**       #CFE_TIME_Add1HZAdjustmentCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -633,7 +633,7 @@
 **  \cfecmdmnemonic \TIME_SUB1HZSTCF
 **
 **  \par Command Structure
-**       #CFE_TIME_Sub1HZAdjustment_t
+**       #CFE_TIME_Sub1HZAdjustmentCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -675,7 +675,7 @@
 **  \cfecmdmnemonic \TIME_SETSIGNAL
 **
 **  \par Command Structure
-**       #CFE_TIME_SetSignal_t
+**       #CFE_TIME_SetSignalCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -723,12 +723,12 @@
 
 /*************************************************************************/
 
-/*
-** Type definition (generic "no arguments" command)...
-*/
+/**
+ * \brief Generic no argument command
+ */
 typedef struct CFE_TIME_NoArgsCmd
 {
-  uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];
+  CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 
 } CFE_TIME_NoArgsCmd_t;
 
@@ -737,28 +737,33 @@ typedef struct CFE_TIME_NoArgsCmd
  * This follows the convention for command handler prototypes and allows
  * each one to independently evolve as necessary.
  */
-typedef CFE_TIME_NoArgsCmd_t CFE_TIME_Noop_t;
-typedef CFE_TIME_NoArgsCmd_t CFE_TIME_ResetCounters_t;
-typedef CFE_TIME_NoArgsCmd_t CFE_TIME_SendDiagnosticTlm_t;
+typedef CFE_TIME_NoArgsCmd_t CFE_TIME_NoopCmd_t;
+typedef CFE_TIME_NoArgsCmd_t CFE_TIME_ResetCountersCmd_t;
+typedef CFE_TIME_NoArgsCmd_t CFE_TIME_SendDiagnosticCmd_t;
+typedef CFE_TIME_NoArgsCmd_t CFE_TIME_1HzCmd_t;
+typedef CFE_TIME_NoArgsCmd_t CFE_TIME_ToneSignalCmd_t;
+typedef CFE_TIME_NoArgsCmd_t CFE_TIME_FakeToneCmd_t;
 
-/*
-** Type definition (leap seconds command)...
-*/
+/**
+ * \brief Set leap seconds command payload
+ */
 typedef struct CFE_TIME_LeapsCmd_Payload
 {
     int16                 LeapSeconds;
 } CFE_TIME_LeapsCmd_Payload_t;
 
-typedef struct CFE_TIME_SetLeapSeconds
+/**
+ * \brief Set leap seconds command
+ */
+typedef struct CFE_TIME_SetLeapSecondsCmd
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_LeapsCmd_Payload_t   Payload;
-} CFE_TIME_SetLeapSeconds_t;
+    CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
+    CFE_TIME_LeapsCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TIME_SetLeapSecondsCmd_t;
 
-
-/*
-** Type definition (clock state command)...
-*/
+/**
+ * \brief Set clock state command payload
+ */
 typedef struct CFE_TIME_StateCmd_Payload
 {
     int16                 ClockState;                    /**< \brief #CFE_TIME_ClockState_INVALID=Spacecraft time has not been accurately set,
@@ -767,16 +772,19 @@ typedef struct CFE_TIME_StateCmd_Payload
                                                          /**< Selects the current clock state */
 } CFE_TIME_StateCmd_Payload_t;
 
+/**
+ * \brief Set clock state command
+ */
 typedef struct CFE_TIME_SetStateCmd
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_StateCmd_Payload_t   Payload;
-} CFE_TIME_SetState_t;
+  CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
+  CFE_TIME_StateCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TIME_SetStateCmd_t;
 
 
-/*
-** Type definition (time data source command)...
-*/
+/**
+ * \brief Set time data source command payload
+ */
 typedef struct CFE_TIME_SourceCmd_Payload
 {
     int16                 TimeSource;                    /**< \brief #CFE_TIME_SourceSelect_INTERNAL=Internal Source,
@@ -784,16 +792,18 @@ typedef struct CFE_TIME_SourceCmd_Payload
                                                          /**< Selects either the "Internal" and "External" clock source */
 } CFE_TIME_SourceCmd_Payload_t;
 
-typedef struct CFE_TIME_SetSource
+/**
+ * \brief Set time data source command
+ */
+typedef struct CFE_TIME_SetSourceCmd
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_SourceCmd_Payload_t  Payload;
-} CFE_TIME_SetSource_t;
+  CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+  CFE_TIME_SourceCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TIME_SetSourceCmd_t;
 
-
-/*
-** Type definition (tone signal source command)...
-*/
+/**
+ * \brief Set tone signal source command payload
+ */
 typedef struct CFE_TIME_SignalCmd_Payload
 {
     int16                 ToneSource;                    /**< \brief #CFE_TIME_ToneSignalSelect_PRIMARY=Primary Source,
@@ -801,27 +811,32 @@ typedef struct CFE_TIME_SignalCmd_Payload
                                                          /**< Selects either the "Primary" or "Redundant" tone signal source */
 } CFE_TIME_SignalCmd_Payload_t;
 
-typedef struct CFE_TIME_SetSignal
+/**
+ * \brief Set tone signal source command
+ */
+typedef struct CFE_TIME_SetSignalCmd
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_SignalCmd_Payload_t  Payload;
+  CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
+  CFE_TIME_SignalCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TIME_SetSignalCmd_t;
 
-} CFE_TIME_SetSignal_t;
 
-
-/*
-** Type definition (generic "time argument" command)...
-*/
+/**
+ * \brief Generic seconds, microseconds command payload
+ */
 typedef struct CFE_TIME_TimeCmd_Payload
 {
     uint32                Seconds;
     uint32                MicroSeconds;
 } CFE_TIME_TimeCmd_Payload_t;
 
+/**
+ * \brief Generic seconds, microseconds argument command
+ */
 typedef struct CFE_TIME_TimeCmd
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_TimeCmd_Payload_t    Payload;
+  CFE_MSG_CommandHeader_t    CmdHeader; /**< \brief Command header */
+  CFE_TIME_TimeCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_TIME_TimeCmd_t;
 
 /*
@@ -829,18 +844,18 @@ typedef struct CFE_TIME_TimeCmd
  * This follows the convention for command handler prototypes and allows
  * each one to independently evolve as necessary.
  */
-typedef CFE_TIME_TimeCmd_t CFE_TIME_AddDelay_t;
-typedef CFE_TIME_TimeCmd_t CFE_TIME_SubDelay_t;
-typedef CFE_TIME_TimeCmd_t CFE_TIME_SetMET_t;
-typedef CFE_TIME_TimeCmd_t CFE_TIME_SetSTCF_t;
-typedef CFE_TIME_TimeCmd_t CFE_TIME_AddAdjust_t;
-typedef CFE_TIME_TimeCmd_t CFE_TIME_SubAdjust_t;
-typedef CFE_TIME_TimeCmd_t CFE_TIME_SetTime_t;
+typedef CFE_TIME_TimeCmd_t CFE_TIME_AddDelayCmd_t;
+typedef CFE_TIME_TimeCmd_t CFE_TIME_SubDelayCmd_t;
+typedef CFE_TIME_TimeCmd_t CFE_TIME_SetMETCmd_t;
+typedef CFE_TIME_TimeCmd_t CFE_TIME_SetSTCFCmd_t;
+typedef CFE_TIME_TimeCmd_t CFE_TIME_AddAdjustCmd_t;
+typedef CFE_TIME_TimeCmd_t CFE_TIME_SubAdjustCmd_t;
+typedef CFE_TIME_TimeCmd_t CFE_TIME_SetTimeCmd_t;
 
 
-/*
-** Type definition (1Hz STCF adjustment "time argument" command)...
-*/
+/**
+ * \brief Generic seconds, subseconds command payload
+ */
 typedef struct CFE_TIME_OneHzAdjustmentCmd_Payload
 {
     uint32                Seconds;
@@ -848,11 +863,13 @@ typedef struct CFE_TIME_OneHzAdjustmentCmd_Payload
 
 } CFE_TIME_OneHzAdjustmentCmd_Payload_t;
 
+/**
+ * \brief Generic seconds, subseconds adjustment command
+ */
 typedef struct CFE_TIME_OneHzAdjustmentCmd
 {
-  uint8                         CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_OneHzAdjustmentCmd_Payload_t  Payload;
-
+  CFE_MSG_CommandHeader_t               CmdHeader; /**< \brief Command header */
+  CFE_TIME_OneHzAdjustmentCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_TIME_OneHzAdjustmentCmd_t;
 
 /*
@@ -860,42 +877,12 @@ typedef struct CFE_TIME_OneHzAdjustmentCmd
  * This follows the convention for command handler prototypes and allows
  * each one to independently evolve as necessary.
  */
-typedef CFE_TIME_OneHzAdjustmentCmd_t CFE_TIME_Add1HZAdjustment_t;
-typedef CFE_TIME_OneHzAdjustmentCmd_t CFE_TIME_Sub1HZAdjustment_t;
+typedef CFE_TIME_OneHzAdjustmentCmd_t CFE_TIME_Add1HZAdjustmentCmd_t;
+typedef CFE_TIME_OneHzAdjustmentCmd_t CFE_TIME_Sub1HZAdjustmentCmd_t;
 
-/*
-** Type definition (local 1Hz wake-up command)...
-*/
-typedef struct CFE_TIME_1HzCmd
-{
-  uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];
-
-} CFE_TIME_1HzCmd_t;
-
-
-/*
-** Type definition (time at the tone signal command)...
-*/
-typedef struct CFE_TIME_ToneSignalCmd
-{
-  CFE_SB_CmdHdr_t         CmdHeader;
-
-} CFE_TIME_ToneSignalCmd_t;
-
-
-/*
-** Type definition ("fake" time at the tone signal command)...
-*/
-typedef struct CFE_TIME_FakeToneCmd
-{
-    CFE_SB_CmdHdr_t       CmdHeader;
-
-} CFE_TIME_FakeToneCmd_t;
-
-
-/*
-** Type definition (time at the tone data command)...
-*/
+/**
+ * \brief Time at tone data command payload
+ */
 typedef struct CFE_TIME_ToneDataCmd_Payload
 {
     CFE_TIME_SysTime_t    AtToneMET;    /**< \brief MET at time of tone */
@@ -904,10 +891,13 @@ typedef struct CFE_TIME_ToneDataCmd_Payload
     int16                 AtToneState;  /**< \brief Clock state at time of tone */
 } CFE_TIME_ToneDataCmd_Payload_t;
 
+/**
+ * \brief Time at tone data command
+ */
 typedef struct CFE_TIME_ToneDataCmd
 {
-  uint8                             CmdHeader[CFE_SB_CMD_HDR_SIZE];
-  CFE_TIME_ToneDataCmd_Payload_t    Payload;
+  CFE_MSG_CommandHeader_t        CmdHeader; /**< \brief Command header */
+  CFE_TIME_ToneDataCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_TIME_ToneDataCmd_t;
 
 
@@ -977,8 +967,8 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
 
 typedef struct CFE_TIME_HousekeepingTlm
 {
-  CFE_SB_TlmHdr_t                    TlmHeader;
-  CFE_TIME_HousekeepingTlm_Payload_t Payload;
+  CFE_MSG_TelemetryHeader_t          TlmHeader; /**< \brief Telemetry header */
+  CFE_TIME_HousekeepingTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 } CFE_TIME_HousekeepingTlm_t;
 
 
@@ -1135,8 +1125,8 @@ typedef struct CFE_TIME_DiagnosticTlm_Payload
 
 typedef struct CFE_TIME_DiagnosticTlm
 {
-  CFE_SB_TlmHdr_t                  TlmHeader;
-  CFE_TIME_DiagnosticTlm_Payload_t Payload;
+  CFE_MSG_TelemetryHeader_t        TlmHeader; /**< \brief Telemetry header */
+  CFE_TIME_DiagnosticTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 } CFE_TIME_DiagnosticTlm_t;
 
 

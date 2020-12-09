@@ -35,7 +35,7 @@
 CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
 {
 
-    uint32             PktLen  = 0;
+    CFE_MSG_Size_t     PktLen  = 0;
     const uint8 *      BytePtr = MsgPtr->Byte;
     CFE_MSG_Checksum_t chksum  = 0xFF;
 

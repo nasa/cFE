@@ -79,9 +79,9 @@ CFE_ES_TaskData_t CFE_ES_TaskData;
 
 void CFE_ES_TaskMain(void)
 {
-    int32   Status;
-    uint32  AppRunStatus = CFE_ES_RunStatus_APP_RUN;
-
+    int32            Status;
+    uint32           AppRunStatus = CFE_ES_RunStatus_APP_RUN;
+    CFE_SB_Buffer_t *SBBufPtr;
 
     /*
     ** Performance Time Stamp Entry
@@ -136,9 +136,7 @@ void CFE_ES_TaskMain(void)
         /*
         ** Wait for the next Software Bus message.
         */
-        Status = CFE_SB_RcvMsg(&CFE_ES_TaskData.MsgPtr,
-                                  CFE_ES_TaskData.CmdPipe,
-                                  CFE_SB_PEND_FOREVER);
+        Status = CFE_SB_ReceiveBuffer(&SBBufPtr, CFE_ES_TaskData.CmdPipe, CFE_SB_PEND_FOREVER);
 
         /*
         ** Performance Time Stamp Entry
@@ -148,9 +146,9 @@ void CFE_ES_TaskMain(void)
         if (Status == CFE_SUCCESS)
         {
            /*
-           ** Process Software Bus message.
+           ** Process message.
            */
-           CFE_ES_TaskPipe(CFE_ES_TaskData.MsgPtr);
+           CFE_ES_TaskPipe(SBBufPtr);
 
            /*
             * Wake up the background task, which includes the
@@ -252,21 +250,21 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Initialize housekeeping packet (clear user data area)
     */
-    CFE_MSG_Init(&CFE_ES_TaskData.HkPacket.TlmHeader.BaseMsg,
+    CFE_MSG_Init(&CFE_ES_TaskData.HkPacket.TlmHeader.Msg,
                  CFE_SB_ValueToMsgId(CFE_ES_HK_TLM_MID),
                  sizeof(CFE_ES_TaskData.HkPacket));
 
     /*
     ** Initialize single application telemetry packet
     */
-    CFE_MSG_Init(&CFE_ES_TaskData.OneAppPacket.TlmHeader.BaseMsg,
+    CFE_MSG_Init(&CFE_ES_TaskData.OneAppPacket.TlmHeader.Msg,
                  CFE_SB_ValueToMsgId(CFE_ES_APP_TLM_MID),
                  sizeof(CFE_ES_TaskData.OneAppPacket));
 
     /*
     ** Initialize memory pool statistics telemetry packet
     */
-    CFE_MSG_Init(&CFE_ES_TaskData.MemStatsPacket.TlmHeader.BaseMsg,
+    CFE_MSG_Init(&CFE_ES_TaskData.MemStatsPacket.TlmHeader.Msg,
                  CFE_SB_ValueToMsgId(CFE_ES_MEMSTATS_TLM_MID),
                  sizeof(CFE_ES_TaskData.MemStatsPacket));
 
@@ -434,19 +432,19 @@ int32 CFE_ES_TaskInit(void)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-void CFE_ES_TaskPipe(CFE_MSG_Message_t *MsgPtr)
+void CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_SB_MsgId_t    MessageID   = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t CommandCode = 0;
 
-    CFE_MSG_GetMsgId(MsgPtr, &MessageID);
+    CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
     switch (CFE_SB_MsgIdToValue(MessageID))
     {
         /*
         ** Housekeeping telemetry request
         */
         case CFE_ES_SEND_HK_MID:
-            CFE_ES_HousekeepingCmd((CFE_SB_CmdHdr_t*)MsgPtr);
+            CFE_ES_HousekeepingCmd((CFE_MSG_CommandHeader_t *)SBBufPtr);
             break;
 
         /*
@@ -454,174 +452,174 @@ void CFE_ES_TaskPipe(CFE_MSG_Message_t *MsgPtr)
         */
         case CFE_ES_CMD_MID:
 
-            CFE_MSG_GetFcnCode(MsgPtr, &CommandCode);
+            CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &CommandCode);
             switch (CommandCode)
             {
                 case CFE_ES_NOOP_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_Noop_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_NoopCmd_t)))
                     {
-                        CFE_ES_NoopCmd((CFE_ES_Noop_t*)MsgPtr);
+                        CFE_ES_NoopCmd((CFE_ES_NoopCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_RESET_COUNTERS_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_ResetCounters_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_ResetCountersCmd_t)))
                     {
-                        CFE_ES_ResetCountersCmd((CFE_ES_ResetCounters_t*)MsgPtr);
+                        CFE_ES_ResetCountersCmd((CFE_ES_ResetCountersCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_RESTART_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_Restart_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_RestartCmd_t)))
                     {
-                        CFE_ES_RestartCmd((CFE_ES_Restart_t*)MsgPtr);
+                        CFE_ES_RestartCmd((CFE_ES_RestartCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_START_APP_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_StartApp_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_StartAppCmd_t)))
                     {
-                        CFE_ES_StartAppCmd((CFE_ES_StartApp_t*)MsgPtr);
+                        CFE_ES_StartAppCmd((CFE_ES_StartAppCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_STOP_APP_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_StopApp_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_StopAppCmd_t)))
                     {
-                        CFE_ES_StopAppCmd((CFE_ES_StopApp_t*)MsgPtr);
+                        CFE_ES_StopAppCmd((CFE_ES_StopAppCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_RESTART_APP_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_RestartApp_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_RestartAppCmd_t)))
                     {
-                        CFE_ES_RestartAppCmd((CFE_ES_RestartApp_t*)MsgPtr);
+                        CFE_ES_RestartAppCmd((CFE_ES_RestartAppCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_RELOAD_APP_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_ReloadApp_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_ReloadAppCmd_t)))
                     {
-                        CFE_ES_ReloadAppCmd((CFE_ES_ReloadApp_t*)MsgPtr);
+                        CFE_ES_ReloadAppCmd((CFE_ES_ReloadAppCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_QUERY_ONE_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_QueryOne_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_QueryOneCmd_t)))
                     {
-                        CFE_ES_QueryOneCmd((CFE_ES_QueryOne_t*)MsgPtr);
+                        CFE_ES_QueryOneCmd((CFE_ES_QueryOneCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_QUERY_ALL_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_QueryAll_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_QueryAllCmd_t)))
                     {
-                        CFE_ES_QueryAllCmd((CFE_ES_QueryAll_t*)MsgPtr);
+                        CFE_ES_QueryAllCmd((CFE_ES_QueryAllCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_QUERY_ALL_TASKS_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_QueryAllTasks_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_QueryAllTasksCmd_t)))
                     {
-                        CFE_ES_QueryAllTasksCmd((CFE_ES_QueryAllTasks_t*)MsgPtr);
+                        CFE_ES_QueryAllTasksCmd((CFE_ES_QueryAllTasksCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_CLEAR_SYSLOG_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_ClearSyslog_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_ClearSysLogCmd_t)))
                     {
-                        CFE_ES_ClearSyslogCmd((CFE_ES_ClearSyslog_t*)MsgPtr);
+                        CFE_ES_ClearSysLogCmd((CFE_ES_ClearSysLogCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_WRITE_SYSLOG_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_WriteSyslog_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_WriteSysLogCmd_t)))
                     {
-                        CFE_ES_WriteSyslogCmd((CFE_ES_WriteSyslog_t*)MsgPtr);
+                        CFE_ES_WriteSysLogCmd((CFE_ES_WriteSysLogCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_OVER_WRITE_SYSLOG_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_OverWriteSyslog_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_OverWriteSysLogCmd_t)))
                     {
-                        CFE_ES_OverWriteSyslogCmd((CFE_ES_OverWriteSyslog_t*)MsgPtr);
+                        CFE_ES_OverWriteSysLogCmd((CFE_ES_OverWriteSysLogCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_CLEAR_ER_LOG_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_ClearERLog_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_ClearERLogCmd_t)))
                     {
-                        CFE_ES_ClearERLogCmd((CFE_ES_ClearERLog_t*)MsgPtr);
+                        CFE_ES_ClearERLogCmd((CFE_ES_ClearERLogCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_WRITE_ER_LOG_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_WriteERLog_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_WriteERLogCmd_t)))
                     {
-                        CFE_ES_WriteERLogCmd((CFE_ES_WriteERLog_t*)MsgPtr);
+                        CFE_ES_WriteERLogCmd((CFE_ES_WriteERLogCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_START_PERF_DATA_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_StartPerfData_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_StartPerfDataCmd_t)))
                     {
-                        CFE_ES_StartPerfDataCmd((CFE_ES_StartPerfData_t*)MsgPtr);
+                        CFE_ES_StartPerfDataCmd((CFE_ES_StartPerfDataCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_STOP_PERF_DATA_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_StopPerfData_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_StopPerfDataCmd_t)))
                     {
-                        CFE_ES_StopPerfDataCmd((CFE_ES_StopPerfData_t*)MsgPtr);
+                        CFE_ES_StopPerfDataCmd((CFE_ES_StopPerfDataCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_SET_PERF_FILTER_MASK_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_SetPerfFilterMask_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_SetPerfFilterMaskCmd_t)))
                     {
-                        CFE_ES_SetPerfFilterMaskCmd((CFE_ES_SetPerfFilterMask_t*)MsgPtr);
+                        CFE_ES_SetPerfFilterMaskCmd((CFE_ES_SetPerfFilterMaskCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_SET_PERF_TRIGGER_MASK_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_SetPerfTriggerMask_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_SetPerfTriggerMaskCmd_t)))
                     {
-                        CFE_ES_SetPerfTriggerMaskCmd((CFE_ES_SetPerfTriggerMask_t*)MsgPtr);
+                        CFE_ES_SetPerfTriggerMaskCmd((CFE_ES_SetPerfTriggerMaskCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_RESET_PR_COUNT_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_ResetPRCount_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_ResetPRCountCmd_t)))
                     {
-                        CFE_ES_ResetPRCountCmd((CFE_ES_ResetPRCount_t*)MsgPtr);
+                        CFE_ES_ResetPRCountCmd((CFE_ES_ResetPRCountCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_SET_MAX_PR_COUNT_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_SetMaxPRCount_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_SetMaxPRCountCmd_t)))
                     {
-                        CFE_ES_SetMaxPRCountCmd((CFE_ES_SetMaxPRCount_t*)MsgPtr);
+                        CFE_ES_SetMaxPRCountCmd((CFE_ES_SetMaxPRCountCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_DELETE_CDS_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_DeleteCDS_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_DeleteCDSCmd_t)))
                     {
-                        CFE_ES_DeleteCDSCmd((CFE_ES_DeleteCDS_t*)MsgPtr);
+                        CFE_ES_DeleteCDSCmd((CFE_ES_DeleteCDSCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_SEND_MEM_POOL_STATS_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_SendMemPoolStats_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_SendMemPoolStatsCmd_t)))
                     {
-                        CFE_ES_SendMemPoolStatsCmd((CFE_ES_SendMemPoolStats_t*)MsgPtr);
+                        CFE_ES_SendMemPoolStatsCmd((CFE_ES_SendMemPoolStatsCmd_t*)SBBufPtr);
                     }
                     break;
 
                 case CFE_ES_DUMP_CDS_REGISTRY_CC:
-                    if (CFE_ES_VerifyCmdLength(MsgPtr, sizeof(CFE_ES_DumpCDSRegistry_t)))
+                    if (CFE_ES_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_ES_DumpCDSRegistryCmd_t)))
                     {
-                        CFE_ES_DumpCDSRegistryCmd((CFE_ES_DumpCDSRegistry_t*)MsgPtr);
+                        CFE_ES_DumpCDSRegistryCmd((CFE_ES_DumpCDSRegistryCmd_t*)SBBufPtr);
                     }
                     break;
 
@@ -652,7 +650,7 @@ void CFE_ES_TaskPipe(CFE_MSG_Message_t *MsgPtr)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
+int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 {
     OS_heap_prop_t HeapProp;
     int32          stat;
@@ -746,8 +744,8 @@ int32 CFE_ES_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
     /*
     ** Send housekeeping telemetry packet.
     */
-    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_ES_TaskData.HkPacket);
-    CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_ES_TaskData.HkPacket);
+    CFE_SB_TimeStampMsg(&CFE_ES_TaskData.HkPacket.TlmHeader.Msg);
+    CFE_SB_TransmitMsg(&CFE_ES_TaskData.HkPacket.TlmHeader.Msg, true);
 
     /*
     ** This command does not affect the command execution counter.
@@ -763,7 +761,7 @@ int32 CFE_ES_HousekeepingCmd(const CFE_SB_CmdHdr_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_NoopCmd(const CFE_ES_Noop_t *Cmd)
+int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
 {
     /*
     ** Advertise the build and version information with the no-op command
@@ -804,7 +802,7 @@ int32 CFE_ES_NoopCmd(const CFE_ES_Noop_t *Cmd)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCounters_t *data)
+int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data)
 {
     CFE_ES_TaskData.CommandCounter = 0;
     CFE_ES_TaskData.CommandErrorCounter = 0;
@@ -825,7 +823,7 @@ int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCounters_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data)
+int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data)
 {
     const CFE_ES_RestartCmd_Payload_t *cmd = &data->Payload;
 
@@ -854,7 +852,7 @@ int32 CFE_ES_RestartCmd(const CFE_ES_Restart_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data)
+int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
 {
     const CFE_ES_StartAppCmd_Payload_t *cmd = &data->Payload;
     CFE_ES_ResourceID_t   AppID;
@@ -966,7 +964,7 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartApp_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_StopAppCmd(const CFE_ES_StopApp_t *data)
+int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
@@ -1020,7 +1018,7 @@ int32 CFE_ES_StopAppCmd(const CFE_ES_StopApp_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartApp_t *data)
+int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
@@ -1070,7 +1068,7 @@ int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartApp_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadApp_t *data)
+int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
 {
     const CFE_ES_AppReloadCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
@@ -1124,7 +1122,7 @@ int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadApp_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data)
+int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
@@ -1154,8 +1152,8 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data)
         /*
         ** Send application status telemetry packet.
         */
-        CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_ES_TaskData.OneAppPacket);
-        Result = CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_ES_TaskData.OneAppPacket);
+        CFE_SB_TimeStampMsg(&CFE_ES_TaskData.OneAppPacket.TlmHeader.Msg);
+        Result = CFE_SB_TransmitMsg(&CFE_ES_TaskData.OneAppPacket.TlmHeader.Msg, true);
         if ( Result == CFE_SUCCESS )
         {
             CFE_ES_TaskData.CommandCounter++;
@@ -1187,7 +1185,7 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOne_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
+int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
 {
     CFE_FS_Header_t       FileHeader;
     osal_id_t             FileDescriptor;
@@ -1346,7 +1344,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAll_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
+int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
 {
     CFE_FS_Header_t            FileHeader;
     osal_id_t                  FileDescriptor;
@@ -1488,11 +1486,11 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasks_t *data)
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
-/* CFE_ES_ClearSyslogCmd() -- Clear executive services system log  */
+/* CFE_ES_ClearSysLogCmd() -- Clear executive services system log  */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_ClearSyslogCmd(const CFE_ES_ClearSyslog_t *data)
+int32 CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data)
 {
     /*
     ** Clear syslog index and memory area
@@ -1510,15 +1508,15 @@ int32 CFE_ES_ClearSyslogCmd(const CFE_ES_ClearSyslog_t *data)
             "Cleared Executive Services log data");
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_ClearSyslogCmd() */
+} /* End of CFE_ES_ClearSysLogCmd() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
-/* CFE_ES_OverWriteSyslogCmd() -- set syslog mode                  */
+/* CFE_ES_OverWriteSysLogCmd() -- set syslog mode                  */
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_OverWriteSyslogCmd(const CFE_ES_OverWriteSyslog_t *data)
+int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data)
 {
     int32 Status;
     const CFE_ES_OverWriteSysLogCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1543,16 +1541,16 @@ int32 CFE_ES_OverWriteSyslogCmd(const CFE_ES_OverWriteSyslog_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End CFE_ES_OverWriteSyslogCmd() */
+} /* End CFE_ES_OverWriteSysLogCmd() */
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                       */
-/* CFE_ES_WriteSyslogCmd() -- Process Cmd to write ES System Log to file */
+/* CFE_ES_WriteSysLogCmd() -- Process Cmd to write ES System Log to file */
 /*                                                                       */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_WriteSyslogCmd(const CFE_ES_WriteSyslog_t *data)
+int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     int32                     Stat;
@@ -1573,7 +1571,7 @@ int32 CFE_ES_WriteSyslogCmd(const CFE_ES_WriteSyslog_t *data)
     }/* end if */
 
     return CFE_SUCCESS;
-}/* end CFE_ES_WriteSyslogCmd */
+}/* end CFE_ES_WriteSysLogCmd */
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -1582,7 +1580,7 @@ int32 CFE_ES_WriteSyslogCmd(const CFE_ES_WriteSyslog_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLog_t *data)
+int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
 {
     /*
     ** Clear ER log data buffer
@@ -1617,7 +1615,7 @@ int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLog_t *data)
 /*                           log to a file.                        */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLog_t *data)
+int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
 
@@ -1688,7 +1686,7 @@ bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCount_t *data)
+int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data)
 {
     /*
     ** Reset the processor reset count
@@ -1712,7 +1710,7 @@ int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCount_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCount_t *data)
+int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data)
 {
     const CFE_ES_SetMaxPRCountCmd_Payload_t *cmd = &data->Payload;
 
@@ -1738,7 +1736,7 @@ int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCount_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDS_t *data)
+int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data)
 {
     int32   Status;
     const CFE_ES_DeleteCDSCmd_Payload_t *cmd = &data->Payload;
@@ -1799,7 +1797,7 @@ int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDS_t *data)
 /*                                                                   */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStats_t *data)
+int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
 {
     const CFE_ES_SendMemPoolStatsCmd_Payload_t *Cmd;
     CFE_ES_MemHandle_t        MemHandle;
@@ -1822,8 +1820,8 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStats_t *data)
         /*
         ** Send memory statistics telemetry packet.
         */
-        CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_ES_TaskData.MemStatsPacket);
-        CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_ES_TaskData.MemStatsPacket);
+        CFE_SB_TimeStampMsg(&CFE_ES_TaskData.MemStatsPacket.TlmHeader.Msg);
+        CFE_SB_TransmitMsg(&CFE_ES_TaskData.MemStatsPacket.TlmHeader.Msg, true);
 
         CFE_ES_TaskData.CommandCounter++;
         CFE_EVS_SendEvent(CFE_ES_TLM_POOL_STATS_INFO_EID, CFE_EVS_EventType_DEBUG,
@@ -1847,7 +1845,7 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStats_t *data)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistry_t *data)
+int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
 {
     CFE_FS_Header_t               StdFileHeader;
     osal_id_t                     FileDescriptor;

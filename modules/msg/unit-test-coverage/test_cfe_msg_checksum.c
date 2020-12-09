@@ -36,9 +36,9 @@
 
 void Test_MSG_Checksum(void)
 {
-    CFE_SB_CmdHdr_t    cmd;
-    CFE_MSG_Message_t *msgptr = (CFE_MSG_Message_t *)&cmd;
-    bool               actual;
+    CFE_MSG_CommandHeader_t cmd;
+    CFE_MSG_Message_t      *msgptr = &cmd.Msg;
+    bool                    actual;
 
     UtPrintf("Bad parameter tests, Null pointers");
     memset(&cmd, 0, sizeof(cmd));

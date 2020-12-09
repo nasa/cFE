@@ -72,7 +72,8 @@ typedef struct
 */
 void CFE_SB_TaskMain(void)
 {
-    int32  Status;
+    int32            Status;
+    CFE_SB_Buffer_t *SBBufPtr;
 
     CFE_ES_PerfLogEntry(CFE_MISSION_SB_MAIN_PERF_ID);
 
@@ -103,7 +104,7 @@ void CFE_SB_TaskMain(void)
         CFE_ES_PerfLogExit(CFE_MISSION_SB_MAIN_PERF_ID);
 
         /* Pend on receipt of packet */
-        Status = CFE_SB_RcvMsg(&CFE_SB.CmdPipePktPtr,
+        Status = CFE_SB_ReceiveBuffer(&SBBufPtr,
                                 CFE_SB.CmdPipe,
                                 CFE_SB_PEND_FOREVER);
 
@@ -112,14 +113,14 @@ void CFE_SB_TaskMain(void)
         if(Status == CFE_SUCCESS)
         {
             /* Process cmd pipe msg */
-            CFE_SB_ProcessCmdPipePkt();
+            CFE_SB_ProcessCmdPipePkt(SBBufPtr);
         }else{
             CFE_ES_WriteToSysLog("SB:Error reading cmd pipe,RC=0x%08X\n",(unsigned int)Status);
         }/* end if */
 
     }/* end while */
 
-    /* while loop exits only if CFE_SB_RcvMsg returns error */
+    /* while loop exits only if CFE_SB_ReceiveBuffer returns error */
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
 
 }/* end CFE_SB_TaskMain */
@@ -144,7 +145,7 @@ void CFE_SB_TaskMain(void)
 int32 CFE_SB_AppInit(void){
 
     uint32 CfgFileEventsToFilter = 0;    
-    uint32 *TmpPtr = NULL;
+    CFE_ES_MemPoolBuf_t TmpPtr;
     int32  Status;
     
     Status = CFE_ES_RegisterApp();
@@ -224,15 +225,15 @@ int32 CFE_SB_AppInit(void){
     
     CFE_ES_WriteToSysLog("SB:Registered %d events for filtering\n",(int)CfgFileEventsToFilter);
 
-    CFE_MSG_Init(&CFE_SB.HKTlmMsg.Hdr.BaseMsg,
+    CFE_MSG_Init(&CFE_SB.HKTlmMsg.Hdr.Msg,
                  CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID),
                  sizeof(CFE_SB.HKTlmMsg));
 
-    CFE_MSG_Init(&CFE_SB.PrevSubMsg.Hdr.BaseMsg,
+    CFE_MSG_Init(&CFE_SB.PrevSubMsg.Hdr.Msg,
                  CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID),
                  sizeof(CFE_SB.PrevSubMsg));
 
-    CFE_MSG_Init(&CFE_SB.SubRprtMsg.Hdr.BaseMsg,
+    CFE_MSG_Init(&CFE_SB.SubRprtMsg.Hdr.Msg,
                  CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID),
                  sizeof(CFE_SB.SubRprtMsg));
 
@@ -278,8 +279,8 @@ int32 CFE_SB_AppInit(void){
      
     /* Ensure a ground commanded reset does not get blocked if SB mem pool  */
     /* becomes fully configured (DCR6772) */
-    Status = CFE_ES_GetPoolBuf((uint32 **)&TmpPtr, CFE_SB.Mem.PoolHdl,
-                                        sizeof(CFE_ES_Restart_t));
+    Status = CFE_ES_GetPoolBuf(&TmpPtr, CFE_SB.Mem.PoolHdl,
+                                        sizeof(CFE_ES_RestartCmd_t));
 
     if(Status < 0){
       CFE_ES_WriteToSysLog("SB:Init error, GetPool Failed:RC=0x%08X\n",(unsigned int)Status);
@@ -288,7 +289,7 @@ int32 CFE_SB_AppInit(void){
 
     /* Return mem block used on previous call,the actual memory is not needed.*/
     /* The SB mem pool is now configured with a block size for the reset cmd. */
-    Status = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, (uint32 *)TmpPtr);
+    Status = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, TmpPtr);
 
     if(Status < 0){
       CFE_ES_WriteToSysLog("SB:Init error, PutPool Failed:RC=0x%08X\n",(unsigned int)Status);
@@ -358,46 +359,47 @@ bool CFE_SB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 **    Function to control actions when an SB command is received.
 **
 **  Arguments:
-**    none
+**    Software bus buffer pointer
 **
 **  Return:
 **    none
 */
-void CFE_SB_ProcessCmdPipePkt(void) {
+void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
+{
    CFE_SB_MsgId_t MessageID = CFE_SB_INVALID_MSG_ID;
    CFE_MSG_FcnCode_t FcnCode = 0;
 
-   CFE_MSG_GetMsgId(CFE_SB.CmdPipePktPtr, &MessageID);
+   CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
 
    switch(CFE_SB_MsgIdToValue(MessageID)){
 
       case CFE_SB_SEND_HK_MID:
          /* Note: Command counter not incremented for this command */
-         CFE_SB_SendHKTlmCmd((CFE_SB_CmdHdr_t *)CFE_SB.CmdPipePktPtr);
+         CFE_SB_SendHKTlmCmd((CFE_MSG_CommandHeader_t *)SBBufPtr);
          break;
 
       case CFE_SB_SUB_RPT_CTRL_MID:
          /* Note: Command counter not incremented for this command */
-         CFE_MSG_GetFcnCode(CFE_SB.CmdPipePktPtr, &FcnCode);
+         CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);
          switch (FcnCode) {
             case CFE_SB_SEND_PREV_SUBS_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_SendPrevSubs_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendPrevSubsCmd_t)))
                 {
-                    CFE_SB_SendPrevSubsCmd((CFE_SB_SendPrevSubs_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_SendPrevSubsCmd((CFE_SB_SendPrevSubsCmd_t *)SBBufPtr);
                 }
                 break;
 
             case CFE_SB_ENABLE_SUB_REPORTING_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_EnableSubReporting_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_EnableSubReportingCmd_t)))
                 {
-                    CFE_SB_EnableSubReportingCmd((CFE_SB_EnableSubReporting_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_EnableSubReportingCmd((CFE_SB_EnableSubReportingCmd_t *)SBBufPtr);
                 }
                 break;
 
             case CFE_SB_DISABLE_SUB_REPORTING_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_DisableSubReporting_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_DisableSubReportingCmd_t)))
                 {
-                    CFE_SB_DisableSubReportingCmd((CFE_SB_DisableSubReporting_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_DisableSubReportingCmd((CFE_SB_DisableSubReportingCmd_t *)SBBufPtr);
                 }
                 break;
 
@@ -410,62 +412,62 @@ void CFE_SB_ProcessCmdPipePkt(void) {
          break;
 
       case CFE_SB_CMD_MID:
-         CFE_MSG_GetFcnCode(CFE_SB.CmdPipePktPtr, &FcnCode);
+         CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);
          switch (FcnCode) {
             case CFE_SB_NOOP_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_Noop_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_NoopCmd_t)))
                 {
-                    CFE_SB_NoopCmd((CFE_SB_Noop_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_NoopCmd((CFE_SB_NoopCmd_t *)SBBufPtr);
                 }
                 break;
 
             case CFE_SB_RESET_COUNTERS_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_ResetCounters_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_ResetCountersCmd_t)))
                 {
                     /* Note: Command counter not incremented for this command */
-                    CFE_SB_ResetCountersCmd((CFE_SB_ResetCounters_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_ResetCountersCmd((CFE_SB_ResetCountersCmd_t *)SBBufPtr);
                 }
                 break;
 
             case CFE_SB_SEND_SB_STATS_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_SendSbStats_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendSbStatsCmd_t)))
                 {
-                    CFE_SB_SendStatsCmd((CFE_SB_SendSbStats_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_SendStatsCmd((CFE_SB_SendSbStatsCmd_t *)SBBufPtr);
                 }
                 break;
 
             case CFE_SB_SEND_ROUTING_INFO_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_SendRoutingInfo_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendRoutingInfoCmd_t)))
                 {
-                    CFE_SB_SendRoutingInfoCmd((CFE_SB_SendRoutingInfo_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_SendRoutingInfoCmd((CFE_SB_SendRoutingInfoCmd_t *)SBBufPtr);
                 }
                 break;
 
             case CFE_SB_ENABLE_ROUTE_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_EnableRoute_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_EnableRouteCmd_t)))
                 {
-                    CFE_SB_EnableRouteCmd((CFE_SB_EnableRoute_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_EnableRouteCmd((CFE_SB_EnableRouteCmd_t *)SBBufPtr);
                 }
                 break;
 
             case CFE_SB_DISABLE_ROUTE_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_DisableRoute_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_DisableRouteCmd_t)))
                 {
-                    CFE_SB_DisableRouteCmd((CFE_SB_DisableRoute_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_DisableRouteCmd((CFE_SB_DisableRouteCmd_t *)SBBufPtr);
                 }
                 break;
 
             case CFE_SB_SEND_PIPE_INFO_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_SendPipeInfo_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendPipeInfoCmd_t)))
                 {
-                    CFE_SB_SendPipeInfoCmd((CFE_SB_SendPipeInfo_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_SendPipeInfoCmd((CFE_SB_SendPipeInfoCmd_t *)SBBufPtr);
                 }
                 break;
 
             case CFE_SB_SEND_MAP_INFO_CC:
-                if (CFE_SB_VerifyCmdLength(CFE_SB.CmdPipePktPtr, sizeof(CFE_SB_SendMapInfo_t)))
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendMapInfoCmd_t)))
                 {
-                    CFE_SB_SendMapInfoCmd((CFE_SB_SendMapInfo_t *)CFE_SB.CmdPipePktPtr);
+                    CFE_SB_SendMapInfoCmd((CFE_SB_SendMapInfoCmd_t *)SBBufPtr);
                 }
                 break;
 
@@ -497,7 +499,7 @@ void CFE_SB_ProcessCmdPipePkt(void) {
 **    Handler function the SB command
 **
 */
-int32 CFE_SB_NoopCmd(const CFE_SB_Noop_t *data)
+int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 {
     CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID,CFE_EVS_EventType_INFORMATION,
             "No-op Cmd Rcvd. %s", CFE_VERSION_STRING);
@@ -513,7 +515,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_Noop_t *data)
 **    Handler function the SB command
 **
 */
-int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCounters_t *data)
+int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
 {
     CFE_EVS_SendEvent(CFE_SB_CMD1_RCVD_EID,CFE_EVS_EventType_DEBUG,
             "Reset Counters Cmd Rcvd");
@@ -530,7 +532,7 @@ int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCounters_t *data)
 **    Handler function the SB command
 **
 */
-int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReporting_t *data)
+int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data)
 {
     CFE_SB_SetSubscriptionReporting(CFE_SB_ENABLE);
     return CFE_SUCCESS;
@@ -543,7 +545,7 @@ int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReporting_t *data)
 **    Handler function the SB command
 **
 */
-int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReporting_t *data)
+int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
 {
     CFE_SB_SetSubscriptionReporting(CFE_SB_DISABLE);
     return CFE_SUCCESS;
@@ -565,13 +567,13 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReporting_t *data)
 **  Return:
 **    none
 */
-int32 CFE_SB_SendHKTlmCmd(const CFE_SB_CmdHdr_t *data)
+int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
 {
     CFE_SB.HKTlmMsg.Payload.MemInUse        = CFE_SB.StatTlmMsg.Payload.MemInUse;
     CFE_SB.HKTlmMsg.Payload.UnmarkedMem     = CFE_PLATFORM_SB_BUF_MEMORY_BYTES - CFE_SB.StatTlmMsg.Payload.PeakMemInUse;
     
-    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_SB.HKTlmMsg);
-    CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.HKTlmMsg);
+    CFE_SB_TimeStampMsg(&CFE_SB.HKTlmMsg.Hdr.Msg);
+    CFE_SB_TransmitMsg(&CFE_SB.HKTlmMsg.Hdr.Msg, true);
 
     return CFE_SUCCESS;
 }/* end CFE_SB_SendHKTlmCmd */
@@ -622,7 +624,7 @@ void CFE_SB_ResetCounters(void){
 **  Return:
 **    None
 */
-int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRoute_t *data)
+int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t          MsgId;
     CFE_SB_PipeId_t         PipeId;
@@ -687,7 +689,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRoute_t *data)
 **  Return:
 **    None
 */
-int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRoute_t *data)
+int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t          MsgId;
     CFE_SB_PipeId_t         PipeId;
@@ -749,11 +751,11 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRoute_t *data)
 **  Return:
 **    None
 */
-int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStats_t *data)
+int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
 {
 
-    CFE_SB_TimeStampMsg((CFE_MSG_Message_t *) &CFE_SB.StatTlmMsg);
-    CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.StatTlmMsg);
+    CFE_SB_TimeStampMsg(&CFE_SB.StatTlmMsg.Hdr.Msg);
+    CFE_SB_TransmitMsg(&CFE_SB.StatTlmMsg.Hdr.Msg, true);
 
     CFE_EVS_SendEvent(CFE_SB_SND_STATS_EID,CFE_EVS_EventType_DEBUG,
                       "Software Bus Statistics packet sent");
@@ -776,7 +778,7 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStats_t *data)
 **  Return:
 **    None
 */
-int32 CFE_SB_SendRoutingInfoCmd(const CFE_SB_SendRoutingInfo_t *data)
+int32 CFE_SB_SendRoutingInfoCmd(const CFE_SB_SendRoutingInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *ptr;
     char LocalFilename[OS_MAX_PATH_LEN];
@@ -806,7 +808,7 @@ int32 CFE_SB_SendRoutingInfoCmd(const CFE_SB_SendRoutingInfo_t *data)
 **  Return:
 **    None
 */
-int32 CFE_SB_SendPipeInfoCmd(const CFE_SB_SendPipeInfo_t *data)
+int32 CFE_SB_SendPipeInfoCmd(const CFE_SB_SendPipeInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *ptr;
     char LocalFilename[OS_MAX_PATH_LEN];
@@ -836,7 +838,7 @@ int32 CFE_SB_SendPipeInfoCmd(const CFE_SB_SendPipeInfo_t *data)
 **  Return:
 **    None
 */
-int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfo_t *data)
+int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *ptr;
     char LocalFilename[OS_MAX_PATH_LEN];
@@ -1160,7 +1162,7 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
             if(CFE_SB.PrevSubMsg.Payload.Entries >= CFE_SB_SUB_ENTRIES_PER_PKT)
             {
                 CFE_SB_UnlockSharedData(__func__,__LINE__);
-                status = CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.PrevSubMsg);
+                status = CFE_SB_TransmitMsg(&CFE_SB.PrevSubMsg.Hdr.Msg, true);
                 CFE_EVS_SendEvent(CFE_SB_FULL_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
                                   "Full Sub Pkt %d Sent,Entries=%d,Stat=0x%x\n",
                                   (int)CFE_SB.PrevSubMsg.Payload.PktSegment,
@@ -1199,7 +1201,7 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 **  Return:
 **    None
 */
-int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubs_t *data)
+int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
 {
     int32 status;
 
@@ -1218,7 +1220,7 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubs_t *data)
     /* if pkt has any number of entries, send it as a partial pkt */
     if(CFE_SB.PrevSubMsg.Payload.Entries > 0)
     {
-        status = CFE_SB_SendMsg((CFE_MSG_Message_t *)&CFE_SB.PrevSubMsg);
+        status = CFE_SB_TransmitMsg(&CFE_SB.PrevSubMsg.Hdr.Msg, true);
         CFE_EVS_SendEvent(CFE_SB_PART_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
                           "Partial Sub Pkt %d Sent,Entries=%d,Stat=0x%x",
                           (int)CFE_SB.PrevSubMsg.Payload.PktSegment, (int)CFE_SB.PrevSubMsg.Payload.Entries,

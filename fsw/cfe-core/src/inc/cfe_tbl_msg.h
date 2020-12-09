@@ -58,7 +58,7 @@
 **  \cfecmdmnemonic \TBL_NOOP
 **
 **  \par Command Structure
-**       #CFE_TBL_NoArgsCmd_t
+**       #CFE_TBL_NoopCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -95,7 +95,7 @@
 **  \cfecmdmnemonic \TBL_RESETCTRS
 **
 **  \par Command Structure
-**       #CFE_TBL_NoArgsCmd_t
+**       #CFE_TBL_ResetCountersCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -130,7 +130,7 @@
 **  \cfecmdmnemonic \TBL_LOAD
 **
 **  \par Command Structure
-**       #CFE_TBL_Load_t
+**       #CFE_TBL_LoadCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with 
@@ -184,7 +184,7 @@
 **  \cfecmdmnemonic \TBL_DUMP
 **
 **  \par Command Structure
-**       #CFE_TBL_Dump_t
+**       #CFE_TBL_DumpCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -230,7 +230,7 @@
 **  \cfecmdmnemonic \TBL_VALIDATE
 **
 **  \par Command Structure
-**       #CFE_TBL_Validate_t
+**       #CFE_TBL_ValidateCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the following 
@@ -286,7 +286,7 @@
 **  \cfecmdmnemonic \TBL_ACTIVATE
 **
 **  \par Command Structure
-**       #CFE_TBL_Activate_t
+**       #CFE_TBL_ActivateCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -326,7 +326,7 @@
 **  \cfecmdmnemonic \TBL_WRITEREG2FILE
 **
 **  \par Command Structure
-**       #CFE_TBL_DumpRegistry_t
+**       #CFE_TBL_DumpRegistryCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -366,7 +366,7 @@
 **  \cfecmdmnemonic \TBL_TLMREG
 **
 **  \par Command Structure
-**       #CFE_TBL_DumpRegistry_t
+**       #CFE_TBL_SendRegistryCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -405,7 +405,7 @@
 **  \cfecmdmnemonic \TBL_DELETECDS
 **
 **  \par Command Structure
-**       #CFE_TBL_DeleteCDS_t
+**       #CFE_TBL_DeleteCDSCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -448,7 +448,7 @@
 **  \cfecmdmnemonic \TBL_LOADABORT
 **
 **  \par Command Structure
-**       #CFE_TBL_AbortLoad_t
+**       #CFE_TBL_AbortLoadCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the 
@@ -492,8 +492,7 @@
 */
 typedef struct CFE_TBL_NoArgsCmd
 {
-    uint8                 CmdHeader[CFE_SB_CMD_HDR_SIZE];   /**< \brief cFE Software Bus Command Message Header */
-
+    CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
 } CFE_TBL_NoArgsCmd_t;
 
 /*
@@ -501,30 +500,31 @@ typedef struct CFE_TBL_NoArgsCmd
  * Allows each command to evolve independently, while following the command
  * handler prototype convention
  */
-typedef CFE_TBL_NoArgsCmd_t CFE_TBL_Noop_t;
-typedef CFE_TBL_NoArgsCmd_t CFE_TBL_ResetCounters_t;
+typedef CFE_TBL_NoArgsCmd_t CFE_TBL_NoopCmd_t;
+typedef CFE_TBL_NoArgsCmd_t CFE_TBL_ResetCountersCmd_t;
 
 /**
-** \brief Load Table Command
+** \brief Load Table Command Payload
 **
 ** For command details, see #CFE_TBL_LOAD_CC
 **
 **/
 typedef struct CFE_TBL_LoadCmd_Payload
 {
-    char                  LoadFilename[CFE_MISSION_MAX_PATH_LEN];  /**< \brief Filename (and path) of data to be loaded */
-                                                          /**< ASCII Character string containing full path 
-                                                               filename for file to be loaded */
+    char LoadFilename[CFE_MISSION_MAX_PATH_LEN];  /**< \brief Filename (and path) of data to be loaded */
 } CFE_TBL_LoadCmd_Payload_t;
 
-typedef struct CFE_TBL_Load
+/**
+ * \brief Load Table Command
+ */
+typedef struct CFE_TBL_LoadCmd
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
-    CFE_TBL_LoadCmd_Payload_t   Payload;
-} CFE_TBL_Load_t;
+    CFE_MSG_CommandHeader_t   CmdHeader; /**< \brief Command header */
+    CFE_TBL_LoadCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TBL_LoadCmd_t;
 
 /**
-** \brief Dump Table Command
+** \brief Dump Table Command Payload
 **
 ** For command details, see #CFE_TBL_DUMP_CC
 */
@@ -544,14 +544,17 @@ typedef struct CFE_TBL_DumpCmd_Payload
                                                                      where data is to be dumped */
 } CFE_TBL_DumpCmd_Payload_t;
 
+/**
+ * /brief Dump Table Command
+ */
 typedef struct CFE_TBL_DumpCmd
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
-    CFE_TBL_DumpCmd_Payload_t   Payload;
-} CFE_TBL_Dump_t;
+    CFE_MSG_CommandHeader_t   CmdHeader; /**< \brief Command header */
+    CFE_TBL_DumpCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TBL_DumpCmd_t;
 
 /**
-** \brief Validate Table Command
+** \brief Validate Table Command Payload
 **
 ** For command details, see #CFE_TBL_VALIDATE_CC
 */
@@ -568,14 +571,17 @@ typedef struct CFE_TBL_ValidateCmd_Payload
                                                                       identifier of table to be validated */
 } CFE_TBL_ValidateCmd_Payload_t;
 
-typedef struct CFE_TBL_Validate
+/**
+ * \brief Validate Table Command
+ */
+typedef struct CFE_TBL_ValidateCmd
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
-    CFE_TBL_ValidateCmd_Payload_t   Payload;
-} CFE_TBL_Validate_t;
+    CFE_MSG_CommandHeader_t       CmdHeader; /**< \brief Command header */
+    CFE_TBL_ValidateCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TBL_ValidateCmd_t;
 
 /**
-** \brief Activate Table Command
+** \brief Activate Table Command Payload
 **
 ** For command details, see #CFE_TBL_ACTIVATE_CC
 */
@@ -586,14 +592,17 @@ typedef struct CFE_TBL_ActivateCmd_Payload
                                                                       identifier of table to be activated */
 } CFE_TBL_ActivateCmd_Payload_t;
 
-typedef struct CFE_TBL_Activate
+/**
+ * \brief Activate Table Command
+ */
+typedef struct CFE_TBL_ActivateCmd
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
-    CFE_TBL_ActivateCmd_Payload_t   Payload;
-} CFE_TBL_Activate_t;
+    CFE_MSG_CommandHeader_t       CmdHeader; /**< \brief Command header */
+    CFE_TBL_ActivateCmd_Payload_t Payload;   /**< \brief Command paylod */
+} CFE_TBL_ActivateCmd_t;
 
 /**
-** \brief Dump Registry Command
+** \brief Dump Registry Command Payload
 **
 ** For command details, see #CFE_TBL_DUMP_REGISTRY_CC
 */
@@ -605,14 +614,17 @@ typedef struct CFE_TBL_DumpRegistryCmd_Payload
                                                                      where registry is to be dumped */
 } CFE_TBL_DumpRegistryCmd_Payload_t;
 
-typedef struct CFE_TBL_DumpRegistry
+/**
+ * \brief Dump Registry Command
+ */
+typedef struct CFE_TBL_DumpRegistryCmd
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
-    CFE_TBL_DumpRegistryCmd_Payload_t    Payload;
-} CFE_TBL_DumpRegistry_t;
+    CFE_MSG_CommandHeader_t           CmdHeader; /**< \brief Command header */
+    CFE_TBL_DumpRegistryCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TBL_DumpRegistryCmd_t;
 
 /**
-** \brief Telemeter Table Registry Entry Command
+** \brief Send Table Registry Command Payload
 **
 ** For command details, see #CFE_TBL_SEND_REGISTRY_CC
 */
@@ -625,14 +637,17 @@ typedef struct CFE_TBL_SendRegistryCmd_Payload
                                                                       to be telemetered via #CFE_TBL_TableRegistryTlm_t */
 } CFE_TBL_SendRegistryCmd_Payload_t;
 
-typedef struct CFE_TBL_SendRegistry
+/**
+ * \brief Send Table Registry Command
+ */
+typedef struct CFE_TBL_SendRegistryCmd
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
-    CFE_TBL_SendRegistryCmd_Payload_t Payload;
-} CFE_TBL_SendRegistry_t;
+    CFE_MSG_CommandHeader_t           CmdHeader; /**< \brief Command header */
+    CFE_TBL_SendRegistryCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TBL_SendRegistryCmd_t;
 
 /**
-** \brief Delete Critical Table CDS Command
+** \brief Delete Critical Table CDS Command Payload
 **
 ** For command details, see #CFE_TBL_DELETE_CDS_CC
 */
@@ -645,14 +660,17 @@ typedef struct CFE_TBL_DelCDSCmd_Payload
                                                                       CDS is to be deleted */
 } CFE_TBL_DelCDSCmd_Payload_t;
 
-typedef struct CFE_TBL_DeleteCDS
+/**
+ * \brief Delete Critical Table CDS Command
+ */
+typedef struct CFE_TBL_DeleteCDSCmd
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
-    CFE_TBL_DelCDSCmd_Payload_t Payload;
-} CFE_TBL_DeleteCDS_t;
+    CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
+    CFE_TBL_DelCDSCmd_Payload_t Payload;   /**< \brief Command payload */
+} CFE_TBL_DeleteCDSCmd_t;
 
 /**
-** \brief Abort Load Command
+** \brief Abort Load Command Payload
 **
 ** For command details, see #CFE_TBL_ABORT_LOAD_CC
 */
@@ -663,11 +681,14 @@ typedef struct CFE_TBL_AbortLoadCmd_Payload
                                                                       identifier of a table whose load is to be aborted */
 } CFE_TBL_AbortLoadCmd_Payload_t;
 
-typedef struct CFE_TBL_AbortLoad
+/**
+ * \brief Abort Load Command
+ */
+typedef struct CFE_TBL_AbortLoadCmd
 {
-    uint8                           CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
-    CFE_TBL_AbortLoadCmd_Payload_t    Payload;
-} CFE_TBL_AbortLoad_t;
+    CFE_MSG_CommandHeader_t        CmdHeader; /**< \brief Command header */
+    CFE_TBL_AbortLoadCmd_Payload_t Payload;   /**< \brief Command paylod */
+} CFE_TBL_AbortLoadCmd_t;
 
 
 /*************************************************************************/
@@ -675,7 +696,7 @@ typedef struct CFE_TBL_AbortLoad
 /* Generated Command Message Data Formats */
 /******************************************/
 /**
-** \brief Table Management Notification Message
+** \brief Table Management Notification Command Payload
 **
 ** \par Description
 **      Whenever an application that owns a table calls the #CFE_TBL_NotifyByMessage API
@@ -688,10 +709,13 @@ typedef struct CFE_TBL_NotifyCmd_Payload
     uint32                Parameter;                             /**< \brief Application specified command parameter */
 } CFE_TBL_NotifyCmd_Payload_t;
 
+/**
+ * /brief Table Management Notification Command
+ */
 typedef struct CFE_TBL_NotifyCmd
 {
-    uint8                       CmdHeader[CFE_SB_CMD_HDR_SIZE]; /**< \brief cFE Software Bus Command Message Header */
-    CFE_TBL_NotifyCmd_Payload_t Payload;
+    CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
+    CFE_TBL_NotifyCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_TBL_NotifyCmd_t;
 
 /*************************************************************************/
@@ -762,8 +786,8 @@ typedef struct CFE_TBL_HousekeepingTlm_Payload
 
 typedef struct CFE_TBL_HousekeepingTlm
 {
-    CFE_SB_TlmHdr_t                   TlmHeader;       /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_TBL_HousekeepingTlm_Payload_t Payload;
+    CFE_MSG_TelemetryHeader_t         TlmHeader; /**< \brief Telemetry header */
+    CFE_TBL_HousekeepingTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 } CFE_TBL_HousekeepingTlm_t;
 
 
@@ -810,8 +834,8 @@ typedef struct CFE_TBL_TblRegPacket_Payload
 
 typedef struct CFE_TBL_TableRegistryTlm
 {
-    CFE_SB_TlmHdr_t                TlmHeader;       /**< \brief cFE Software Bus Telemetry Message Header */
-    CFE_TBL_TblRegPacket_Payload_t Payload;
+    CFE_MSG_TelemetryHeader_t      TlmHeader; /**< \brief Telemetry header */
+    CFE_TBL_TblRegPacket_Payload_t Payload;   /**< \brief Telemetry payload */
 } CFE_TBL_TableRegistryTlm_t;
 
 

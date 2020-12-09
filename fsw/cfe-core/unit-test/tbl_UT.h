@@ -74,7 +74,7 @@ typedef struct
 
 /*****************************************************************************/
 /**
-** \brief Initialize the registry
+** \brief Initialize the registry names
 **
 ** \par Description
 **        Fill the whole table registry with known table names in order to
@@ -86,22 +86,12 @@ typedef struct
 **
 ** \returns
 **        This function does not return a value.
-**
 ******************************************************************************/
 void UT_InitializeTableRegistryNames(void);
 
 /*****************************************************************************/
 /**
 ** \brief Initialize table registry values
-**
-** \par Description
-**        This function serves as a pass-through for messages coming from the
-**        CFE_SB_SendMsg() stub function.  By using a common pass-through
-**        function name, the stub can be generic for all of the tests for the
-**        various services (i.e., EVS, TBL, etc.).
-**
-** \par Assumptions, External Events, and Notes:
-**        None
 **
 ** \returns
 **        This function does not return a value.

@@ -36,11 +36,11 @@
 
 void Test_MSG_Time(void)
 {
-    CFE_SB_TlmHdr_t    tlm;
-    CFE_MSG_Message_t *msgptr  = (CFE_MSG_Message_t *)&tlm;
-    CFE_TIME_SysTime_t input[] = {{0, 0}, {0x12345678, 0xABCDEF12}, {0xFFFFFFFF, 0xFFFFFFFF}};
-    CFE_TIME_SysTime_t actual  = {0xFFFFFFFF, 0xFFFFFFFF};
-    int                i;
+    CFE_MSG_TelemetryHeader_t tlm;
+    CFE_MSG_Message_t        *msgptr  = &tlm.Msg;
+    CFE_TIME_SysTime_t        input[] = {{0, 0}, {0x12345678, 0xABCDEF12}, {0xFFFFFFFF, 0xFFFFFFFF}};
+    CFE_TIME_SysTime_t        actual  = {0xFFFFFFFF, 0xFFFFFFFF};
+    int                       i;
 
     UtPrintf("Bad parameter tests, Null pointers, no secondary header");
     memset(&tlm, 0, sizeof(tlm));

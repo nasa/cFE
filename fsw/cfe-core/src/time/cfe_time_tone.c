@@ -165,7 +165,7 @@ void CFE_TIME_ToneSend(void)
     /*
     ** Send "time at the tone" command data packet...
     */
-    CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.ToneDataCmd);
+    CFE_SB_TransmitMsg(&CFE_TIME_TaskData.ToneDataCmd.CmdHeader.Msg, false);
 
     /*
     ** Count of "time at the tone" commands sent with internal data...
@@ -305,7 +305,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
             /*
             ** Send "time at the tone" command data packet...
             */
-            CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.ToneDataCmd);
+            CFE_SB_TransmitMsg(&CFE_TIME_TaskData.ToneDataCmd.CmdHeader.Msg, false);
 
             /*
             ** Count of "time at the tone" commands sent with external data...
@@ -459,7 +459,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
             /*
             ** Send "time at the tone" command data packet...
             */
-            CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.ToneDataCmd);
+            CFE_SB_TransmitMsg(&CFE_TIME_TaskData.ToneDataCmd.CmdHeader.Msg, false);
 
             /*
             ** Count of "time at the tone" commands sent with external data...
@@ -612,7 +612,7 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
             /*
             ** Send "time at the tone" command data packet...
             */
-            CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.ToneDataCmd);
+            CFE_SB_TransmitMsg(&CFE_TIME_TaskData.ToneDataCmd.CmdHeader.Msg, false);
 
             /*
             ** Count of "time at the tone" commands sent with external data...
@@ -1217,7 +1217,7 @@ void CFE_TIME_Tone1HzTask(void)
             /*
             ** Send tone signal command packet...
             */
-            CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.ToneSignalCmd);
+            CFE_SB_TransmitMsg(&CFE_TIME_TaskData.ToneSignalCmd.CmdHeader.Msg, false);
 
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
             /*
@@ -1225,7 +1225,7 @@ void CFE_TIME_Tone1HzTask(void)
             ** to send the tone to other time clients.
             ** (this is done by scheduler in non-fake mode)
             */
-            CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.ToneSendCmd);
+            CFE_SB_TransmitMsg(&CFE_TIME_TaskData.ToneSendCmd.CmdHeader.Msg, false);
 #endif
 
             /*
@@ -1434,7 +1434,7 @@ void CFE_TIME_Local1HzTask(void)
             ** This used to be optional in previous CFE versions, but it is now required
             ** as TIME subscribes to this itself to do state machine tasks.
             */
-            CFE_SB_SendMsg((CFE_MSG_Message_t *) &CFE_TIME_TaskData.Local1HzCmd);
+            CFE_SB_TransmitMsg(&CFE_TIME_TaskData.Local1HzCmd.CmdHeader.Msg, false);
 
             CFE_TIME_TaskData.LocalTaskCounter++;
         }

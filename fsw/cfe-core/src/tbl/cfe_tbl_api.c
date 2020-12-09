@@ -255,7 +255,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                     RegRecPtr->UserDefAddr = false;
                 
                     /* Allocate the memory buffer(s) for the table and inactive table, if necessary */
-                    Status = CFE_ES_GetPoolBuf((uint32 **)&RegRecPtr->Buffers[0].BufferPtr,
+                    Status = CFE_ES_GetPoolBuf(&RegRecPtr->Buffers[0].BufferPtr,
                                                CFE_TBL_TaskData.Buf.PoolHdl,                                           
                                                Size);
                     if(Status < 0)
@@ -281,7 +281,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                     ((Status & CFE_SEVERITY_BITMASK) != CFE_SEVERITY_ERROR))
                 {
                     /* Allocate memory for the dedicated secondary buffer */
-                    Status = CFE_ES_GetPoolBuf((uint32 **)&RegRecPtr->Buffers[1].BufferPtr,
+                    Status = CFE_ES_GetPoolBuf(&RegRecPtr->Buffers[1].BufferPtr,
                                                CFE_TBL_TaskData.Buf.PoolHdl,                                           
                                                Size);
                     if(Status < 0)

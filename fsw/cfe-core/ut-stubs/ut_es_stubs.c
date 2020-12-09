@@ -451,7 +451,7 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 **        value (0xffffffff if Size exceeds maximum value allowed).
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size)
+int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_ES_GetPoolBuf), BufPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetPoolBuf), PoolID);
@@ -504,7 +504,7 @@ int32 CFE_ES_GetPoolBuf(uint32 **BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size)
 
         if (PositionEnd <= PoolSize)
         {
-            *BufPtr = (uint32 *)BufAddrStart;
+            *BufPtr = CFE_ES_MEMPOOLBUF_C(BufAddrStart);
             memset((void*)BufAddrStart, 0x55, Size);
 
             /*
@@ -690,10 +690,10 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
 **        Returns either a user-defined status flag, 16, or -1.
 **
 ******************************************************************************/
-int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr)
+int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_PutPoolBuf), PoolID);
-    UT_Stub_RegisterContext(UT_KEY(CFE_ES_PutPoolBuf), BufPtr);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_PutPoolBuf), BufPtr);
 
     int32   status;
 
@@ -722,10 +722,10 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr)
 **        Returns either a user-defined status flag or 16.
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, uint32 *BufPtr)
+int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetPoolBufInfo), PoolID);
-    UT_Stub_RegisterContext(UT_KEY(CFE_ES_GetPoolBufInfo), BufPtr);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_GetPoolBufInfo), BufPtr);
 
     int32   status;
 

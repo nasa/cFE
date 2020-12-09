@@ -183,7 +183,6 @@ typedef struct
   /*
   ** Task operational data (not reported in housekeeping)...
   */
-  CFE_MSG_Message_t *MsgPtr;
   CFE_SB_PipeId_t    CmdPipe;
 
   /*
@@ -277,7 +276,7 @@ typedef struct
   /*
   ** Local 1Hz wake-up command packet (not related to time at tone)...
   */
-  CFE_SB_CmdHdr_t Local1HzCmd;
+  CFE_TIME_1HzCmd_t Local1HzCmd;
 
   /*
   ** Time at the tone command packets (sent by time servers)...
@@ -294,7 +293,7 @@ typedef struct
    * "tone signal" message above.
    */
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
-  CFE_SB_CmdHdr_t  ToneSendCmd;
+  CFE_TIME_FakeToneCmd_t ToneSendCmd;
 #endif
 
   /*
@@ -349,7 +348,7 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void);
 ** Function prototypes (Time Services utilities data)...
 */
 int32 CFE_TIME_TaskInit (void);
-void  CFE_TIME_TaskPipe(CFE_MSG_Message_t *MsgPtr);
+void  CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
 void CFE_TIME_InitData(void);
 void CFE_TIME_QueryResetVars(void);
 void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference);

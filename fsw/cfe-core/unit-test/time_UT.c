@@ -1741,24 +1741,24 @@ void Test_PipeCmds(void)
     union
     {
         CFE_MSG_Message_t message;
-        CFE_SB_CmdHdr_t cmd;
+        CFE_MSG_CommandHeader_t cmd;
         CFE_TIME_ToneDataCmd_t tonedatacmd;
-        CFE_TIME_Noop_t noopcmd;
-        CFE_TIME_ResetCounters_t resetcountercmd;
-        CFE_TIME_SendDiagnosticTlm_t diagtlmcmd;
-        CFE_TIME_SetState_t statecmd;
-        CFE_TIME_SetSource_t sourcecmd;
-        CFE_TIME_SetSignal_t signalcmd;
-        CFE_TIME_AddDelay_t adddelaycmd;
-        CFE_TIME_SubDelay_t subdelaycmd;
-        CFE_TIME_SetTime_t settimecmd;
-        CFE_TIME_SetMET_t setmetcmd;
-        CFE_TIME_SetSTCF_t setstcfcmd;
-        CFE_TIME_SetLeapSeconds_t leapscmd;
-        CFE_TIME_AddAdjust_t addadjcmd;
-        CFE_TIME_SubAdjust_t subadjcmd;
-        CFE_TIME_Add1HZAdjustment_t add1hzadjcmd;
-        CFE_TIME_Sub1HZAdjustment_t sub1hzadjcmd;
+        CFE_TIME_NoopCmd_t noopcmd;
+        CFE_TIME_ResetCountersCmd_t resetcountercmd;
+        CFE_TIME_SendDiagnosticCmd_t diagtlmcmd;
+        CFE_TIME_SetStateCmd_t statecmd;
+        CFE_TIME_SetSourceCmd_t sourcecmd;
+        CFE_TIME_SetSignalCmd_t signalcmd;
+        CFE_TIME_AddDelayCmd_t adddelaycmd;
+        CFE_TIME_SubDelayCmd_t subdelaycmd;
+        CFE_TIME_SetTimeCmd_t settimecmd;
+        CFE_TIME_SetMETCmd_t setmetcmd;
+        CFE_TIME_SetSTCFCmd_t setstcfcmd;
+        CFE_TIME_SetLeapSecondsCmd_t leapscmd;
+        CFE_TIME_AddAdjustCmd_t addadjcmd;
+        CFE_TIME_SubAdjustCmd_t subadjcmd;
+        CFE_TIME_Add1HZAdjustmentCmd_t add1hzadjcmd;
+        CFE_TIME_Sub1HZAdjustmentCmd_t sub1hzadjcmd;
     } CmdBuf;
 
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData =
@@ -1776,7 +1776,7 @@ void Test_PipeCmds(void)
 
     /* Test sending the housekeeping telemetry request command */
     UT_InitData();
-    UT_SetHookFunction(UT_KEY(CFE_SB_SendMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
+    UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd),
             UT_TPID_CFE_TIME_SEND_HK);
     UT_Report(__FILE__, __LINE__,

@@ -304,7 +304,7 @@
   the startup script. 
 
   The format of the Start Application command, is defined in the 
-  structure #CFE_ES_StartApp_t. The members of the structure 
+  structure #CFE_ES_StartAppCmd_t. The members of the structure
   include, application name, entry point, filename, stack size, 
   load address, exception action and priority.
 
