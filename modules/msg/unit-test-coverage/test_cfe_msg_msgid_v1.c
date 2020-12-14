@@ -60,7 +60,7 @@ void Test_MSG_MsgId(void)
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 0xFFFF);
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, 0), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&msg, sizeof(msg));
+    UT_DisplayPkt(&msg, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 0);
     ASSERT_EQ(Test_MSG_NotF(&msg), MSG_HDRVER_FLAG | MSG_APID_FLAG | MSG_TYPE_FLAG | MSG_HASSEC_FLAG);
@@ -70,7 +70,7 @@ void Test_MSG_MsgId(void)
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), 0);
     ASSERT_EQ(CFE_MSG_SetMsgId(&msg, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&msg, sizeof(msg));
+    UT_DisplayPkt(&msg, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid), CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
     ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_APID_FLAG | MSG_TYPE_FLAG | MSG_HASSEC_FLAG);

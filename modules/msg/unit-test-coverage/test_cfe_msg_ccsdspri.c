@@ -71,7 +71,7 @@ void Test_MSG_Size(void)
         ASSERT_EQ(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, 0xFFFF + TEST_MSG_SIZE_OFFSET);
         ASSERT_EQ(CFE_MSG_SetSize(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == 0xFFFF + TEST_MSG_SIZE_OFFSET)
@@ -91,7 +91,7 @@ void Test_MSG_Size(void)
         ASSERT_EQ(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, TEST_MSG_SIZE_OFFSET);
         ASSERT_EQ(CFE_MSG_SetSize(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == TEST_MSG_SIZE_OFFSET)
@@ -131,7 +131,7 @@ void Test_MSG_Type(void)
         ASSERT_EQ(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, CFE_MSG_Type_Cmd);
         ASSERT_EQ(CFE_MSG_SetType(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_Type_Cmd)
@@ -151,7 +151,7 @@ void Test_MSG_Type(void)
         ASSERT_EQ(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, CFE_MSG_Type_Tlm);
         ASSERT_EQ(CFE_MSG_SetType(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_Type_Tlm)
@@ -191,7 +191,7 @@ void Test_MSG_HeaderVersion(void)
         ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, TEST_CCSDSVER_MAX);
         ASSERT_EQ(CFE_MSG_SetHeaderVersion(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == TEST_CCSDSVER_MAX)
@@ -211,7 +211,7 @@ void Test_MSG_HeaderVersion(void)
         ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, 0);
         ASSERT_EQ(CFE_MSG_SetHeaderVersion(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == 0)
@@ -244,13 +244,13 @@ void Test_MSG_HasSecondaryHeader(void)
     ASSERT_EQ(actual, true);
 
     ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(&msg, true), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&msg, sizeof(msg));
+    UT_DisplayPkt(&msg, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, true);
     ASSERT_EQ(Test_MSG_NotF(&msg), 0);
 
     ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(&msg, false), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&msg, sizeof(msg));
+    UT_DisplayPkt(&msg, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, false);
     ASSERT_EQ(Test_MSG_NotF(&msg), MSG_HASSEC_FLAG);
@@ -261,13 +261,13 @@ void Test_MSG_HasSecondaryHeader(void)
     ASSERT_EQ(actual, false);
 
     ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(&msg, false), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&msg, sizeof(msg));
+    UT_DisplayPkt(&msg, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, false);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
     ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(&msg, true), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&msg, sizeof(msg));
+    UT_DisplayPkt(&msg, sizeof(msg));
     ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, true);
     ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_HASSEC_FLAG);
@@ -299,7 +299,7 @@ void Test_MSG_ApId(void)
         ASSERT_EQ(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, TEST_APID_MAX);
         ASSERT_EQ(CFE_MSG_SetApId(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == TEST_APID_MAX)
@@ -319,7 +319,7 @@ void Test_MSG_ApId(void)
         ASSERT_EQ(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, 0);
         ASSERT_EQ(CFE_MSG_SetApId(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == 0)
@@ -360,7 +360,7 @@ void Test_MSG_SegmentationFlag(void)
         ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, CFE_MSG_SegFlag_Unsegmented);
         ASSERT_EQ(CFE_MSG_SetSegmentationFlag(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_SegFlag_Unsegmented)
@@ -380,7 +380,7 @@ void Test_MSG_SegmentationFlag(void)
         ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, CFE_MSG_SegFlag_Continue);
         ASSERT_EQ(CFE_MSG_SetSegmentationFlag(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_SegFlag_Continue)
@@ -420,7 +420,7 @@ void Test_MSG_SequenceCount(void)
         ASSERT_EQ(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, TEST_SEQUENCE_MAX);
         ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == TEST_SEQUENCE_MAX)
@@ -440,7 +440,7 @@ void Test_MSG_SequenceCount(void)
         ASSERT_EQ(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, 0);
         ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == 0)

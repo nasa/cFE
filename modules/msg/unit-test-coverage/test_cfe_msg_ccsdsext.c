@@ -72,7 +72,7 @@ void Test_MSG_Init_Ext(void)
     memset(&msg, 0xFF, sizeof(msg));
     msgidval_exp = 0;
     ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg)), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&msg, 0);
+    UT_DisplayPkt(&msg, 0);
 
     /* Default EDS version check */
     ASSERT_EQ(CFE_MSG_GetEDSVersion(&msg, &edsver), CFE_SUCCESS);
@@ -104,7 +104,7 @@ void Test_MSG_Init_Ext(void)
     memset(&msg, 0, sizeof(msg));
     msgidval_exp = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
     ASSERT_EQ(CFE_MSG_Init(&msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(msg)), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&msg, 0);
+    UT_DisplayPkt(&msg, 0);
 
     /* Default EDS version check */
     ASSERT_EQ(CFE_MSG_GetEDSVersion(&msg, &edsver), CFE_SUCCESS);
@@ -160,7 +160,7 @@ void Test_MSG_EDSVersion(void)
         ASSERT_EQ(CFE_MSG_GetEDSVersion(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, TEST_EDSVER_MAX);
         ASSERT_EQ(CFE_MSG_SetEDSVersion(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetEDSVersion(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == TEST_EDSVER_MAX)
@@ -180,7 +180,7 @@ void Test_MSG_EDSVersion(void)
         ASSERT_EQ(CFE_MSG_GetEDSVersion(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, 0);
         ASSERT_EQ(CFE_MSG_SetEDSVersion(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetEDSVersion(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == 0)
@@ -220,7 +220,7 @@ void Test_MSG_Endian(void)
         ASSERT_EQ(CFE_MSG_GetEndian(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, CFE_MSG_Endian_Little);
         ASSERT_EQ(CFE_MSG_SetEndian(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetEndian(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_Endian_Little)
@@ -240,7 +240,7 @@ void Test_MSG_Endian(void)
         ASSERT_EQ(CFE_MSG_GetEndian(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, CFE_MSG_Endian_Big);
         ASSERT_EQ(CFE_MSG_SetEndian(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetEndian(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_Endian_Big)
@@ -280,7 +280,7 @@ void Test_MSG_PlaybackFlag(void)
         ASSERT_EQ(CFE_MSG_GetPlaybackFlag(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, CFE_MSG_PlayFlag_Playback);
         ASSERT_EQ(CFE_MSG_SetPlaybackFlag(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetPlaybackFlag(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_PlayFlag_Playback)
@@ -300,7 +300,7 @@ void Test_MSG_PlaybackFlag(void)
         ASSERT_EQ(CFE_MSG_GetPlaybackFlag(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, CFE_MSG_PlayFlag_Original);
         ASSERT_EQ(CFE_MSG_SetPlaybackFlag(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetPlaybackFlag(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == CFE_MSG_PlayFlag_Original)
@@ -340,7 +340,7 @@ void Test_MSG_Subsystem(void)
         ASSERT_EQ(CFE_MSG_GetSubsystem(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, TEST_SUBSYS_MAX);
         ASSERT_EQ(CFE_MSG_SetSubsystem(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSubsystem(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == TEST_SUBSYS_MAX)
@@ -360,7 +360,7 @@ void Test_MSG_Subsystem(void)
         ASSERT_EQ(CFE_MSG_GetSubsystem(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, 0);
         ASSERT_EQ(CFE_MSG_SetSubsystem(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSubsystem(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == 0)
@@ -397,7 +397,7 @@ void Test_MSG_System(void)
         ASSERT_EQ(CFE_MSG_GetSystem(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, TEST_SYSTEM_MAX);
         ASSERT_EQ(CFE_MSG_SetSystem(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSystem(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == TEST_SYSTEM_MAX)
@@ -417,7 +417,7 @@ void Test_MSG_System(void)
         ASSERT_EQ(CFE_MSG_GetSystem(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, 0);
         ASSERT_EQ(CFE_MSG_SetSystem(&msg, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(&msg, sizeof(msg));
+        UT_DisplayPkt(&msg, sizeof(msg));
         ASSERT_EQ(CFE_MSG_GetSystem(&msg, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual, input[i]);
         if (input[i] == 0)
