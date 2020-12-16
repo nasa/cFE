@@ -52,6 +52,8 @@
 #include "cfe_evs.h"
 #include "cfe_psp.h"
 
+#include <signal.h>
+
 
 /*
 ** Typedefs
@@ -104,7 +106,7 @@ typedef struct
    /*
    ** Startup Sync
    */
-   uint32  SystemState;
+   volatile sig_atomic_t SystemState;
 
    /*
    ** ES Task Table
