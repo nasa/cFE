@@ -10,6 +10,14 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev228
+
+- Remove use of `osapi-os-loader.h` from ES UT.
+- Use volatile `sig_atomic_t` for system state to avoid race issue if uint32 isn't atomic on a system
+- Set the flags parameter on the OS_ModuleLoad() properly to allow an app to be properly unloaded, which in turn allows the reload command to work as expected. Fixes problem where unload comand resulted in continuous restarting of the same app code.
+- Replaced `Test_MSG_PrintMsg` with `UT_DisplayPkt`. Also removed unused `Test_MSG_Sum`.
+- See <https://github.com/nasa/cFE/pull/1047>
+
 ### Development Build: 6.8.0-rc1+dev218
 
 - Adds `CFE_SB_TransmitMsg`, `CFE_SB_TransmitBuffer`, `CFE_SB_ReceiveBuffer`
