@@ -73,7 +73,7 @@ void Test_MSG_Time(void)
         ASSERT_EQ(actual.Seconds, 0xFFFFFFFF);
         ASSERT_EQ(actual.Subseconds, 0xFFFF0000);
         ASSERT_EQ(CFE_MSG_SetMsgTime(msgptr, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(msgptr, sizeof(tlm));
+        UT_DisplayPkt(msgptr, sizeof(tlm));
         ASSERT_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual.Seconds, input[i].Seconds);
         ASSERT_EQ(actual.Subseconds, input[i].Subseconds & 0xFFFF0000);
@@ -89,7 +89,7 @@ void Test_MSG_Time(void)
         ASSERT_EQ(actual.Seconds, 0);
         ASSERT_EQ(actual.Subseconds, 0);
         ASSERT_EQ(CFE_MSG_SetMsgTime(msgptr, input[i]), CFE_SUCCESS);
-        Test_MSG_PrintMsg(msgptr, sizeof(tlm));
+        UT_DisplayPkt(msgptr, sizeof(tlm));
         ASSERT_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_SUCCESS);
         ASSERT_EQ(actual.Seconds, input[i].Seconds);
         ASSERT_EQ(actual.Subseconds, input[i].Subseconds & 0xFFFF0000);

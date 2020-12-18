@@ -70,7 +70,7 @@ void Test_MSG_Checksum(void)
     ASSERT_EQ(CFE_MSG_ValidateChecksum(msgptr, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, false);
     ASSERT_EQ(CFE_MSG_GenerateChecksum(msgptr), CFE_SUCCESS);
-    Test_MSG_PrintMsg(msgptr, sizeof(cmd));
+    UT_DisplayPkt(msgptr, sizeof(cmd));
     ASSERT_EQ(CFE_MSG_ValidateChecksum(msgptr, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, true);
     ASSERT_EQ(Test_MSG_NotF(msgptr), MSG_LENGTH_FLAG);
@@ -83,7 +83,7 @@ void Test_MSG_Checksum(void)
     ASSERT_EQ(CFE_MSG_ValidateChecksum(msgptr, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, false);
     ASSERT_EQ(CFE_MSG_GenerateChecksum(msgptr), CFE_SUCCESS);
-    Test_MSG_PrintMsg(msgptr, sizeof(cmd));
+    UT_DisplayPkt(msgptr, sizeof(cmd));
     ASSERT_EQ(CFE_MSG_ValidateChecksum(msgptr, &actual), CFE_SUCCESS);
     ASSERT_EQ(actual, true);
     ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_LENGTH_FLAG | MSG_HASSEC_FLAG | MSG_TYPE_FLAG);
