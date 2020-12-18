@@ -1117,12 +1117,9 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
 */
 int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ES_ResourceID_t ResourceId)
 {
-    uint32 ResourceType;
     int32 Status;
 
-    ResourceType = CFE_ES_ResourceID_ToInteger(ResourceId);
-    ResourceType -= ResourceType & CFE_ES_RESOURCEID_MAX;
-    switch(ResourceType)
+    switch(CFE_ES_ResourceID_GetBase(ResourceId))
     {
     case CFE_ES_APPID_BASE:
         Status = CFE_ES_GetAppInfo(ModuleInfo, ResourceId);
