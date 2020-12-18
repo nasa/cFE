@@ -1389,7 +1389,7 @@ void TestApps(void)
      * cannot be found
      */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
+    UT_SetDeferredRetcode(UT_KEY(OS_ModuleSymbolLookup), 1, -1);
     Return = CFE_ES_AppCreate(&Id,
                               "ut/filename.x",
                               "EntryPoint",
@@ -1405,7 +1405,7 @@ void TestApps(void)
      * cannot be found and module unload fails
      */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
+    UT_SetDeferredRetcode(UT_KEY(OS_ModuleSymbolLookup), 1, -1);
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleUnload), 1, -1);
     Return = CFE_ES_AppCreate(&Id,
                               "ut/filename.x",
@@ -2272,7 +2272,7 @@ void TestLibs(void)
      * entry point symbol cannot be found
      */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_SymbolLookup), 1, -1);
+    UT_SetDeferredRetcode(UT_KEY(OS_ModuleSymbolLookup), 1, -1);
     Return = CFE_ES_LoadLibrary(&Id,
                                 "/cf/apps/tst_lib.bundle",
                                 "TST_LIB_Init",

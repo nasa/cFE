@@ -55,12 +55,34 @@
 #define CFE_ES_RESOURCEID_MAX   ((1 << CFE_ES_RESOURCEID_SHIFT)-1)
 #define CFE_ES_RESOURCEID_MARK  (0x02000000)
 
+/** 
+ * @defgroup CFEESResourceIDBase ES Resource ID base values 
+ * @{
+ */
 #define CFE_ES_APPID_BASE       (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+1) << CFE_ES_RESOURCEID_SHIFT))
 #define CFE_ES_LIBID_BASE       (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+2) << CFE_ES_RESOURCEID_SHIFT))
 #define CFE_ES_COUNTID_BASE     (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+3) << CFE_ES_RESOURCEID_SHIFT))
 #define CFE_ES_POOLID_BASE      (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+4) << CFE_ES_RESOURCEID_SHIFT))
 #define CFE_ES_CDSBLOCKID_BASE  (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+5) << CFE_ES_RESOURCEID_SHIFT))
+/** @} */
 
+/**
+ * @brief Get the Base value (type/category) from a resource ID value
+ *
+ * This masks out the ID serial number to obtain the base value, which is different
+ * for each resource type.
+ * 
+ * @note The value is NOT shifted or otherwise adjusted.  It should match one of the
+ * defined base values in @ref CFEESResourceIDBase.
+ *
+ * @param[in]   ResourceId   the resource ID to decode
+ * @returns     The base value associated with that ID
+ */
+static inline uint32 CFE_ES_ResourceID_GetBase(CFE_ES_ResourceID_t ResourceId)
+{
+    uint32 ResourceType = CFE_ES_ResourceID_ToInteger(ResourceId);
+    return (ResourceType - (ResourceType & CFE_ES_RESOURCEID_MAX));
+}
 
 /**
  * @brief Locate the next resource ID which does not map to an in-use table entry

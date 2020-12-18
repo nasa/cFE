@@ -65,7 +65,7 @@ void Test_MSG_Init(void)
     msgidval_exp = 0;
 
     ASSERT_EQ(CFE_MSG_Init(&cmd.Msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(cmd)), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&cmd.Msg, 0);
+    UT_DisplayPkt(&cmd.Msg, 0);
     ASSERT_EQ(CFE_MSG_GetMsgId(&cmd.Msg, &msgid_act), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
     ASSERT_EQ(CFE_MSG_GetSize(&cmd.Msg, &size), CFE_SUCCESS);
@@ -100,7 +100,7 @@ void Test_MSG_Init(void)
     msgidval_exp = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
 
     ASSERT_EQ(CFE_MSG_Init(&cmd.Msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(cmd)), CFE_SUCCESS);
-    Test_MSG_PrintMsg(&cmd.Msg, 0);
+    UT_DisplayPkt(&cmd.Msg, 0);
     ASSERT_EQ(CFE_MSG_GetMsgId(&cmd.Msg, &msgid_act), CFE_SUCCESS);
     ASSERT_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
     ASSERT_EQ(CFE_MSG_GetSize(&cmd.Msg, &size), CFE_SUCCESS);

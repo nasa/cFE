@@ -198,7 +198,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
 ** This only loads the code and looks up relevent runtime information.
 ** It does not start any tasks.
 */
-int32 CFE_ES_LoadModule(const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
+int32 CFE_ES_LoadModule(CFE_ES_ResourceID_t ResourceId, const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
 
 /*
 ** Internal function to determine the entry point of an app.

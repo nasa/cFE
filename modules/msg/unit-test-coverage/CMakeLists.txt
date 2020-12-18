@@ -15,7 +15,6 @@ target_include_directories(ut_${DEP}_objs PRIVATE
 
 set (ut_${DEP}_tests
     msg_UT.c
-    test_msg_utils.c
     test_msg_not.c
     test_msg_pri_not.c
     test_cfe_msg_init.c

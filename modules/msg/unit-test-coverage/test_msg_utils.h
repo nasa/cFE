@@ -36,10 +36,4 @@
 /* Subtest macro */
 #define MSG_UT_ADD_SUBTEST(Func) UT_AddSubTest(Func, NULL, NULL, __func__, #Func)
 
-/* Prints the message, 0 length uses length from message */
-void Test_MSG_PrintMsg(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t Size);
-
-/* Sums the message for checking, generically check the entire message */
-unsigned long long int Test_MSG_Sum(const CFE_MSG_Message_t *MsgPtr);
-
 #endif /* test_msg_utils_ */
