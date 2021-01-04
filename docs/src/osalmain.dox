@@ -6,27 +6,37 @@
     <UL>
        <LI> \subpage osalIntro
     </UL>
-    <LI> Core OS Module
+    <LI> Core
     <UL>
       <LI> \ref OSReturnCodes
       <LI> \ref OSObjectTypes
-      <LI> \ref OSSemaphoreStates
       <LI> APIs
       <UL>
         <LI> \ref OSAPICore
         <LI> \ref OSAPIObjUtil
         <LI> \ref OSAPITask
         <LI> \ref OSAPIMsgQueue
-        <LI> \ref OSAPISem
-        <LI> \ref OSAPITime
         <LI> \ref OSAPIHeap
         <LI> \ref OSAPIError
         <LI> \ref OSAPISelect
         <LI> \ref OSAPIPrintf
+        <LI> \ref OSAPIBsp
+        <LI> \ref OSAPIClock
+        <LI> \ref OSAPIShell
       </UL>
-      <LI> \subpage osapi-os-core.h "Core OS Module Reference"
+      <LI> \subpage osapi-common.h "Common Reference"
+      <LI> \subpage osapi-error.h "Return Code Reference"
+      <LI> \subpage osapi-idmap.h "Id Map Reference"
+      <LI> \subpage osapi-clock.h "Clock Reference"
+      <LI> \subpage osapi-task.h "Task Reference"
+      <LI> \subpage osapi-queue.h "Message Queue Reference"
+      <LI> \subpage osapi-heap.h "Heap Reference"
+      <LI> \subpage osapi-select.h "Select Reference"
+      <LI> \subpage osapi-printf.h "Printf Reference"
+      <LI> \subpage osapi-bsp.h "BSP Reference"
+      <LI> \subpage osapi-shell.h "Shell Reference"
     </UL>
-    <LI> OS File System
+    <LI> File System
     <UL>
       <LI> \subpage osalfsovr
       <LI> \subpage osalfsfd
@@ -37,9 +47,10 @@
         <LI> \ref OSAPIFile
         <LI> \ref OSAPIDir
         <LI> \ref OSAPIFileSys
-        <LI> \ref OSAPIShell
       </UL>
-      <LI> \subpage osapi-os-filesys.h "File System Module Reference"
+      <LI> \subpage osapi-filesys.h "File System Reference"
+      <LI> \subpage osapi-file.h "File Reference"
+      <LI> \subpage osapi-dir.h "Directory Reference"
     </UL>
     <LI> Object File Loader
     <UL>
@@ -47,25 +58,42 @@
       <UL>
         <LI> \ref OSAPILoader
       </UL>
-      <LI> \subpage osapi-os-loader.h "File Loader Module Reference"
+      <LI> \subpage osapi-module.h "File Loader Reference"
     </UL>
-    <LI> Network Module
+    <LI> Network
     <UL>
       <LI> APIs
       <UL>
+        <LI> \ref OSALAPINetwork
         <LI> \ref OSAPISocketAddr
         <LI> \ref OSALAPISocket
       </UL>
-      <LI> \subpage osapi-os-net.h "Network Module Reference"
+      <LI> \subpage osapi-network.h "Network Reference"
+      <LI> \subpage osapi-sockets.h "Socket Reference"
     </UL>
     <LI> Timer
     <UL>
       <LI> \subpage osaltimerover
       <LI> APIs
       <UL>
+        <LI> \ref OSAPITimebase
         <LI> \ref OSAPITimer
       </UL>
-      <LI> \subpage osapi-os-timer.h "Timer Module Reference"
+      <LI> \subpage osapi-timer.h "Timer Reference"
+      <LI> \subpage osapi-timebase.h "Time Base Reference"
+    </UL>
+    <LI> Semaphore and Mutex
+    <UL>
+      <LI> \ref OSSemaphoreStates
+      <LI> APIs
+      <UL>
+        <LI> \ref OSAPIBinSem
+        <LI> \ref OSAPICountSem
+        <LI> \ref OSAPIMutex
+      </UL>
+      <LI> \subpage osapi-binsem.h "Binary Semaphore Reference"
+      <LI> \subpage osapi-countsem.h "Counting Semaphore Reference"
+      <LI> \subpage osapi-mutex.h "Mutex Reference"
     </UL>
   </UL>
 **/
