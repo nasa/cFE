@@ -373,8 +373,7 @@ void UT_SetBSP_Time(uint32 seconds, uint32 microsecs)
 {
     OS_time_t BSP_Time;
 
-    BSP_Time.seconds = seconds;
-    BSP_Time.microsecs = microsecs;
+    BSP_Time = OS_TimeAssembleFromNanoseconds(seconds, microsecs * 1000);
 
     UT_SetDataBuffer(UT_KEY(CFE_PSP_GetTime), &BSP_Time, sizeof(BSP_Time), true);
 }
