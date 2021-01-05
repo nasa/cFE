@@ -152,14 +152,6 @@ typedef CFE_MSG_TelemetryHeader_t CFE_SB_TlmHdr_t;
 #define CFE_SB_TLM_HDR_SIZE     (sizeof(CFE_MSG_TelemetryHeader_t))/**< \brief Size of telemetry header */
 #endif /* CFE_OMIT_DEPRECATED_6_8 */
 
-/** \brief  CFE_SB_TimeOut_t to primitive type definition
-**
-** Internally used by SB in the #CFE_SB_ReceiveBuffer API. Translated from the
-** input parmater named TimeOut which specifies the maximum time in
-** milliseconds that the caller wants to wait for a message.
-*/
-typedef uint32 CFE_SB_TimeOut_t;
-
 /** \brief  CFE_SB_PipeId_t to primitive type definition
 **
 ** Software Bus pipe identifier used in many SB APIs

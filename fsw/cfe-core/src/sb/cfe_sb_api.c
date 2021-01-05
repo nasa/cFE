@@ -1891,7 +1891,7 @@ int32 CFE_SB_ZeroCopyPass(CFE_SB_Buffer_t        *BufPtr,
 
 int32  CFE_SB_ReadQueue (CFE_SB_PipeD_t         *PipeDscPtr,
                          CFE_ES_ResourceID_t    TskId,
-                         CFE_SB_TimeOut_t       Time_Out,
+                         uint32                 Time_Out,
                          CFE_SB_BufferD_t       **Message)
 {
     int32              Status,TimeOut;
