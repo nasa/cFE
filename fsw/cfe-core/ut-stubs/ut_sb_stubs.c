@@ -447,8 +447,7 @@ int32 CFE_SB_RcvMsg(CFE_SB_Buffer_t **BufPtr,
 **
 ** \par Description
 **        This function is used to mimic the response of the cFE SB function
-**        CFE_SB_ReceiveBuffer.  By default it will return the TIMEOUT error response,
-**        unless the test setup sequence has indicated otherwise.
+**        CFE_SB_ReceiveBuffer.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
