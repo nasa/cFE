@@ -82,6 +82,7 @@ typedef struct
 
     CFE_MSG_Message_t                  Msg; /**< \brief Base message */
     CFE_MSG_TelemetrySecondaryHeader_t Sec; /**< \brief Secondary header */
+    uint8                              Spare[4]; /**< \brief Padding to end on 64 bit boundary */
 
 } CFE_MSG_TelemetryHeader_t;
 
