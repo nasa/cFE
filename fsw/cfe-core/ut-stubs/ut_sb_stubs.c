@@ -201,9 +201,9 @@ int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 **
 ** \par Description
 **        This function is used to mimic the response of the cFE SB function
-**        CFE_SB_GetPipeName.  The user must set the value of UT_pipename prior
-**        to this function being called.  The function uses UT_pipename for the
-**        retrieved pipe name and returns CFE_SUCCESS.
+**        CFE_SB_GetPipeName. The user should set the data buffer using UT_SetDataBuffer
+**        prior to this function being called. Otherwise, the dummy "UT" name will
+**        be copied to PipeNameBuf.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None

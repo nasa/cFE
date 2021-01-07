@@ -10,6 +10,13 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev236
+
+- Resolved doxygen warnings for osalguide and updated header file references
+- Corrects the documentation for the CFE_SB_GetPipeName() unit test stub function.
+- Adds a new github actions workflow file to run cppcheck
+- See <https://github.com/nasa/cFE/pull/1066>
+
 ### Development Build: 6.8.0-rc1+dev228
 
 - Remove use of `osapi-os-loader.h` from ES UT.
