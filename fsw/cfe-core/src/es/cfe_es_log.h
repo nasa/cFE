@@ -105,6 +105,7 @@
             CFE_ES_LockSharedData(__func__, __LINE__);      \
             CFE_ES_SysLogAppend_Unsync(LogString);          \
             CFE_ES_UnlockSharedData(__func__, __LINE__);    \
+            OS_printf("%s", LogString);                     \
         }
 
 
