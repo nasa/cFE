@@ -646,7 +646,7 @@ CFE_Status_t  CFE_SB_PassMsg(CFE_MSG_Message_t *MsgPtr);
 **/
 CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut);
 
-#if CFE_OMIT_DEPRECATED_6_8
+#ifndef CFE_OMIT_DEPRECATED_6_8
 /**
  * \brief DEPRECATED: receive buffer
  * \deprecated use CFE_SB_ReceiveBuffer

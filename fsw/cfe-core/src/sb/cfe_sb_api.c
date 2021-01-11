@@ -1455,7 +1455,7 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
 
 }
 
-#if CFE_OMIT_DEPRECATED_6_8
+#ifndef CFE_OMIT_DEPRECATED_6_8
 int32 CFE_SB_RcvMsg(CFE_SB_Buffer_t **BufPtr,
                     CFE_SB_PipeId_t   PipeId,
                     int32             TimeOut)
