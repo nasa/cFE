@@ -155,8 +155,6 @@ void UtTest_Setup(void)
 */
 void SB_ResetUnitTest(void)
 {
-    /* If any sockets were left open then report and close them */
-    UT_CheckForOpenSockets();
     UT_InitData();
     CFE_SB_EarlyInit();
 } /* end SB_ResetUnitTest */
