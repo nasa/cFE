@@ -2807,7 +2807,7 @@ void Test_CFE_TBL_Load(void)
     RtnCode = CFE_TBL_Load(App1TblHandle2,
                            CFE_TBL_SRC_FILE,
                            "TblSrcFileName.dat");
-    EventsCorrect = (UT_EventIsInHistory(CFE_SUCCESS) == true &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_TBLNAME_MISMATCH_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == CFE_TBL_ERR_FILE_FOR_WRONG_TABLE && EventsCorrect,
@@ -2846,7 +2846,7 @@ void Test_CFE_TBL_Load(void)
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_SUCCESS) == true &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_VALIDATION_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
               RtnCode == -1 && EventsCorrect,
@@ -2859,7 +2859,7 @@ void Test_CFE_TBL_Load(void)
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, 1);
     RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, &TestTable1);
-    EventsCorrect = (UT_EventIsInHistory(CFE_SUCCESS) == true &&
+    EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_VAL_ERR_EID) == true &&
                      UT_GetNumEventsSent() == 2);
     UT_Report(__FILE__, __LINE__,
               RtnCode == -1 && EventsCorrect,
