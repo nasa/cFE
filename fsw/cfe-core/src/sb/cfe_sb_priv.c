@@ -85,6 +85,7 @@
 #include "cfe_error.h"
 #include "cfe_es.h"
 #include "cfe_msg_api.h"
+#include "cfe_msgids.h"
 #include <string.h>
 
 /******************************************************************************
@@ -97,88 +98,43 @@
 **  Return:
 **    None
 */
-int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId){
+int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId)
+{
+    uint32 i;
+    uint32 DelCount;
+    CFE_SB_PipeD_t *PipeDscPtr;
+    CFE_SB_PipeId_t DelList[CFE_PLATFORM_SB_MAX_PIPES];
 
-  uint32 i;
+    PipeDscPtr = CFE_SB.PipeTbl;
+    DelCount = 0;
 
-  /* loop through the pipe table looking for pipes owned by AppId */
-  for(i=0;i<CFE_PLATFORM_SB_MAX_PIPES;i++){
-    if((CFE_SB.PipeTbl[i].InUse == CFE_SB_IN_USE)&&
-       CFE_ES_ResourceID_Equal(CFE_SB.PipeTbl[i].AppId, AppId))
+    CFE_SB_LockSharedData(__func__,__LINE__);
+
+    /* loop through the pipe table looking for pipes owned by AppId */
+    for (i = 0; i < CFE_PLATFORM_SB_MAX_PIPES; ++i)
     {
-      CFE_SB_DeletePipeWithAppId(CFE_SB.PipeTbl[i].PipeId,AppId);
-    }/* end if */
-  }/* end for */
+        if (CFE_SB_PipeDescIsUsed(PipeDscPtr) &&
+            CFE_ES_ResourceID_Equal(PipeDscPtr->AppId, AppId))
+        {
+            DelList[DelCount] = CFE_SB_PipeDescGetID(PipeDscPtr);
+            ++DelCount;
+        }
+        ++PipeDscPtr;
+    }
 
-  /* Release any zero copy buffers */
-  CFE_SB_ZeroCopyReleaseAppId(AppId);
+    CFE_SB_UnlockSharedData(__func__,__LINE__);
 
-  return CFE_SUCCESS;
+    for (i = 0; i < DelCount; ++i)
+    {
+        CFE_SB_DeletePipeWithAppId(DelList[i],AppId);
+    }
+
+    /* Release any zero copy buffers */
+    CFE_SB_ZeroCopyReleaseAppId(AppId);
+
+    return CFE_SUCCESS;
 
 }/* end CFE_SB_CleanUpApp */
-
-
-/******************************************************************************
-**  Function:  CFE_SB_GetAvailPipeIdx()
-**
-**  Purpose:
-**    SB internal function to get the next available Pipe descriptor. Typically
-**    called when a pipe is being created.
-**
-**  Arguments:
-**    None
-**
-**  Return:
-**    Returns the index of an empty pipe descriptor (which is also the PipeId)
-**    or CFE_SB_INVALID_PIPE if there are no pipe descriptors available.
-*/
-CFE_SB_PipeId_t CFE_SB_GetAvailPipeIdx(void){
-
-    uint8 i;
-
-    /* search for next available pipe entry */
-    for(i=0;i<CFE_PLATFORM_SB_MAX_PIPES;i++){
-
-        if(CFE_SB.PipeTbl[i].InUse == CFE_SB_NOT_IN_USE){
-            return i;
-        }/* end if */
-
-    }/* end for */
-
-    return CFE_SB_INVALID_PIPE;
-
-}/* end CFE_SB_GetAvailPipeIdx */
-
-
-/******************************************************************************
-**  Function:  CFE_SB_GetPipeIdx()
-**
-**  Purpose:
-**    SB internal function to get the pipe table index for the given pipe id.
-**
-**  Arguments:
-**    PipeId
-**
-**  Return:
-**    Returns the pipe table index of the given pipe id or CFE_SB_INVALID_PIPE if
-*     there was not an entry for the given pipe id.
-*/
-uint8 CFE_SB_GetPipeIdx(CFE_SB_PipeId_t PipeId){
-
-    uint8  i;
-
-    /* search the pipe table for the for the given pipe id */
-    for(i=0;i<CFE_PLATFORM_SB_MAX_PIPES;i++){
-
-        if((CFE_SB.PipeTbl[i].PipeId == PipeId)&&(CFE_SB.PipeTbl[i].InUse == 1)){
-            return i;
-        }/* end if */
-
-    }/* end for */
-
-    return CFE_SB_INVALID_PIPE;
-
-}/* end CFE_SB_GetPipeIdx */
 
 
 /******************************************************************************
@@ -251,36 +207,6 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber){
 
 
 /******************************************************************************
-**  Function:  CFE_SB_GetPipePtr()
-**
-**  Purpose:
-**    SB internal function to get a pointer to the pipe descriptor associated
-**    with the given pipe id.
-**
-**  Arguments:
-**    PipeId
-**
-**  Return:
-**    Pointer to the descriptor for the pipe.  If the pipe ID is not valid,
-**    a NULL pointer is returned.
-*/
-
-CFE_SB_PipeD_t *CFE_SB_GetPipePtr(CFE_SB_PipeId_t PipeId) {
-
-   /*
-   ** Verify that the pipeId is in the valid range and being used.
-   ** If so, return the pointer to the pipe descriptor.
-   */
-
-    if(CFE_SB_ValidatePipeId(PipeId) != CFE_SUCCESS){
-        return NULL;
-    }else{
-        return &CFE_SB.PipeTbl[PipeId];
-    }/* end if */
-
-}/* end CFE_SB_GetPipePtr */
-
-/******************************************************************************
  * SB private function to get destination pointer - see description in header
  */
 CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeId_t PipeId)
@@ -292,7 +218,7 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
     /* Check all destinations */
     while(destptr != NULL)
     {
-        if(destptr->PipeId == PipeId)
+        if( CFE_ES_ResourceID_Equal(destptr->PipeId, PipeId) )
         {
             break;
         }
@@ -348,31 +274,39 @@ int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId){
 
 }/* end CFE_SB_ValidateMsgId */
 
+/*********************************************************************/
+/*
+ * CFE_SB_LocatePipeDescByID
+ *
+ * For complete API information, see prototype in header
+ */
+CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
+{
+    CFE_SB_PipeD_t *PipeDscPtr;
+    uint32 Idx;
 
-/******************************************************************************
-**  Function:  CFE_SB_ValidatePipeId()
-**
-**  Purpose:
-**    This function checks that the pipe id does not have an index larger than the
-**    array and that the pipe is in use.
-**
-**  Arguments:
-**
-**  Return:
-**    None
-*/
-int32 CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId){
-
-    if((PipeId >= CFE_PLATFORM_SB_MAX_PIPES)||
-       (CFE_SB.PipeTbl[PipeId].InUse == CFE_SB_NOT_IN_USE))
+    if (CFE_SB_PipeId_ToIndex(PipeId, &Idx) == CFE_SUCCESS)
     {
-        return CFE_SB_FAILED;
-    }else{
-        return CFE_SUCCESS;
-    }/* end if */
+        PipeDscPtr = &CFE_SB.PipeTbl[Idx];
+    }
+    else
+    {
+        PipeDscPtr = NULL;
+    }
 
-}/* end CFE_SB_ValidatePipeId */
+    return PipeDscPtr;
+}
 
+/*********************************************************************/
+/*
+ * CFE_SB_CheckPipeDescSlotUsed
+ *
+ * Checks if a table slot is used or not (helper for allocating IDs)
+ */
+bool CFE_SB_CheckPipeDescSlotUsed(CFE_SB_PipeId_t CheckId)
+{
+    return CFE_SB_PipeDescIsUsed(CFE_SB_LocatePipeDescByID(CheckId));
+}
 
 /******************************************************************************
 **  Function:  CFE_SB_GetAppTskName()
@@ -618,4 +552,3 @@ int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId)
 }/* end CFE_SB_ZeroCopyReleasePtr */
 
 /*****************************************************************************/
-

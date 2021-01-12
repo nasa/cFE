@@ -2442,23 +2442,6 @@ void Test_PutDestBlk_ErrLogic(void);
 
 /*****************************************************************************/
 /**
-** \brief Test internal function to get the pipe table index for the given pipe
-**        ID
-**
-** \par Description
-**        This function tests the internal function to get the pipe table index
-**        for the given pipe ID when the ID is not in use.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_CFE_SB_GetPipeIdx(void);
-
-/*****************************************************************************/
-/**
 ** \brief Test functions that involve a buffer in the SB buffer pool
 **
 ** \par Description
