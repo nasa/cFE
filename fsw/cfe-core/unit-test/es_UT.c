@@ -711,6 +711,7 @@ void TestStartupErrorPaths(void)
     ES_UT_SetAppStateHook_t StateHook;
     uint32 PanicStatus;
     uint32 ResetType;
+    OS_statvfs_t StatBuf;
     CFE_ES_TaskRecord_t *TaskRecPtr;
     CFE_ES_AppRecord_t *AppRecPtr;
 
@@ -886,6 +887,11 @@ void TestStartupErrorPaths(void)
               "CFE_ES_InitializeFileSystems",
               "Power on reset; error creating volatile (RAM) volume");
 
+    /* prepare the StatBuf to reflect a RAM disk that is 99% full */
+    StatBuf.block_size = 1024;
+    StatBuf.total_blocks = CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS;
+    StatBuf.blocks_free = CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS / 100;
+
     /* Test initialization of the file systems specifying a processor reset
      * following a failure to reformat the RAM volume
      */
@@ -893,6 +899,7 @@ void TestStartupErrorPaths(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_initfs), OS_ERROR);
     UT_SetDefaultReturnValue(UT_KEY(OS_mount), OS_ERROR);
     UT_SetDefaultReturnValue(UT_KEY(OS_mkfs), OS_ERROR);
+    UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -909,6 +916,7 @@ void TestStartupErrorPaths(void)
      */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_GetVolatileDiskMem), CFE_PSP_ERROR);
+    UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -916,24 +924,12 @@ void TestStartupErrorPaths(void)
               "CFE_ES_InitializeFileSystems",
               "Processor reset; cannot get memory for volatile disk");
 
-    /* Test initialization of the file systems where the number of free blocks
-     * reported is greater than the number of RAM disk sectors
-     */
-    ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(OS_mount), OS_ERROR);
-    UT_SetDeferredRetcode(UT_KEY(OS_fsBlocksFree), 1, CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS + 1);
-    CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
-    UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]) &&
-                UT_GetStubCount(UT_KEY(OS_printf)) == 2,
-              "CFE_ES_InitializeFileSystems",
-              "Processor reset; truncate free block count");
-
     /* Test initialization of the file systems specifying a processor reset
      * following a failure to remove the RAM volume
      */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(OS_rmfs), OS_ERROR);
+    UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -947,6 +943,7 @@ void TestStartupErrorPaths(void)
      */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_unmount), 1, -1);
+    UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -968,6 +965,7 @@ void TestStartupErrorPaths(void)
      */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(OS_mount), OS_ERROR);
+    UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
@@ -981,7 +979,7 @@ void TestStartupErrorPaths(void)
      * number of blocks that are free on the volume
      */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_fsBlocksFree), 1, -1);
+    UT_SetDeferredRetcode(UT_KEY(OS_FileSysStatVolume), 1, -1);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_DETERMINE_BLOCKS]) &&
@@ -1106,6 +1104,7 @@ void TestStartupErrorPaths(void)
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(OS_initfs), OS_ERROR);
     UT_SetDefaultReturnValue(UT_KEY(OS_mount), OS_ERROR);
+    UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
