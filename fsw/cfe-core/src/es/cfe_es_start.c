@@ -759,7 +759,7 @@ void  CFE_ES_CreateObjects(void)
             */
             CFE_ES_LockSharedData(__func__,__LINE__);
 
-            PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+            PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS, CFE_ES_CheckAppIdSlotUsed);
             AppRecPtr = CFE_ES_LocateAppRecordByID(PendingAppId);
             if (AppRecPtr != NULL)
             {

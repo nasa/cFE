@@ -1877,9 +1877,11 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
     return CFE_ES_CDSBlockRead(RestoreToMemory, Handle);
 } /* End of CFE_ES_RestoreFromCDS() */
 
-/* end of file */
-
-
+/*
+** Function: CFE_ES_RegisterGenCounter
+**
+** Purpose:  Allocates a generic counter resource and assigns ID
+*/
 int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *CounterName)
 {
    CFE_ES_GenCounterRecord_t *CountRecPtr;
@@ -1912,7 +1914,7 @@ int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *C
    else
    {
        /* scan for a free slot */
-       PendingCounterId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastCounterId, CFE_PLATFORM_ES_MAX_GEN_COUNTERS);
+       PendingCounterId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastCounterId, CFE_PLATFORM_ES_MAX_GEN_COUNTERS, CFE_ES_CheckCounterIdSlotUsed);
        CountRecPtr = CFE_ES_LocateCounterRecordByID(PendingCounterId);
 
        if (CountRecPtr == NULL)
@@ -2108,7 +2110,7 @@ CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t Cou
  */
 int32 CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex_Internal(
+    return CFE_ES_ResourceID_ToIndex(
             CFE_ES_ResourceID_ToInteger(AppID) - CFE_ES_APPID_BASE,
             CFE_PLATFORM_ES_MAX_APPLICATIONS,
             Idx);
@@ -2120,7 +2122,7 @@ int32 CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx)
  */
 int32 CFE_ES_LibID_ToIndex(CFE_ES_ResourceID_t LibId, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex_Internal(
+    return CFE_ES_ResourceID_ToIndex(
             CFE_ES_ResourceID_ToInteger(LibId) - CFE_ES_LIBID_BASE,
             CFE_PLATFORM_ES_MAX_LIBRARIES,
             Idx);
@@ -2160,7 +2162,7 @@ int32 CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx)
  */
 int32 CFE_ES_CounterID_ToIndex(CFE_ES_ResourceID_t CounterId, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex_Internal(
+    return CFE_ES_ResourceID_ToIndex(
             CFE_ES_ResourceID_ToInteger(CounterId) - CFE_ES_COUNTID_BASE,
             CFE_PLATFORM_ES_MAX_GEN_COUNTERS,
             Idx);

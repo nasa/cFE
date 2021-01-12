@@ -34,72 +34,9 @@
 /*
 ** Include Files
 */
+#include "cfe_resourceid.h"
+#include "private/cfe_resourceid_internal.h"
 #include "cfe_es_global.h"
-
-/*
-** Defines
-*/
-
-/*
- * Limits/definitions related to CFE_ES_ResourceID_t values.
- *
- * Defining based on OSAL ID values makes this object a superset of
- * the OSAL ID type, such that OSAL IDs can be represented as ES resource IDs
- * and not conflict with/alias each other.
- *
- * NOTE: This reflects a bit if "inside knowledge" about how OSAL IDs are
- * constructed.  The overlap between OSAL IDs and ES IDs may not always be
- * consistent, and they can diverge in a future version.
- */
-#define CFE_ES_RESOURCEID_SHIFT OS_OBJECT_TYPE_SHIFT
-#define CFE_ES_RESOURCEID_MAX   ((1 << CFE_ES_RESOURCEID_SHIFT)-1)
-#define CFE_ES_RESOURCEID_MARK  (0x02000000)
-
-/** 
- * @defgroup CFEESResourceIDBase ES Resource ID base values 
- * @{
- */
-#define CFE_ES_APPID_BASE       (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+1) << CFE_ES_RESOURCEID_SHIFT))
-#define CFE_ES_LIBID_BASE       (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+2) << CFE_ES_RESOURCEID_SHIFT))
-#define CFE_ES_COUNTID_BASE     (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+3) << CFE_ES_RESOURCEID_SHIFT))
-#define CFE_ES_POOLID_BASE      (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+4) << CFE_ES_RESOURCEID_SHIFT))
-#define CFE_ES_CDSBLOCKID_BASE  (CFE_ES_RESOURCEID_MARK | ((OS_OBJECT_TYPE_USER+5) << CFE_ES_RESOURCEID_SHIFT))
-/** @} */
-
-/**
- * @brief Get the Base value (type/category) from a resource ID value
- *
- * This masks out the ID serial number to obtain the base value, which is different
- * for each resource type.
- * 
- * @note The value is NOT shifted or otherwise adjusted.  It should match one of the
- * defined base values in @ref CFEESResourceIDBase.
- *
- * @param[in]   ResourceId   the resource ID to decode
- * @returns     The base value associated with that ID
- */
-static inline uint32 CFE_ES_ResourceID_GetBase(CFE_ES_ResourceID_t ResourceId)
-{
-    uint32 ResourceType = CFE_ES_ResourceID_ToInteger(ResourceId);
-    return (ResourceType - (ResourceType & CFE_ES_RESOURCEID_MAX));
-}
-
-/**
- * @brief Locate the next resource ID which does not map to an in-use table entry
- *
- * This begins searching from StartId which should be the most recently issued ID
- * for the resource category.  This will then search for the next ID which does
- * _not_ map to a table entry that is in use.  That is, it does not alias any
- * valid ID when converted to an array index.
- *
- * returns an undefined ID value if no open slots are available
- *
- * @param[in]   StartId   the last issued ID for the resource category (app, lib, etc).
- * @returns     Next ID value which does not map to a valid entry
- * @retval      #CFE_ES_RESOURCEID_UNDEFINED if no open slots.
- *
- */
-CFE_ES_ResourceID_t CFE_ES_FindNextAvailableId(CFE_ES_ResourceID_t StartId, uint32 TableSize);
 
 
 /**
@@ -550,56 +487,6 @@ extern CFE_ES_AppRecord_t* CFE_ES_GetAppRecordByContext(void);
  */
 extern CFE_ES_TaskRecord_t* CFE_ES_GetTaskRecordByContext(void);
 
-/**
- * @brief Convert an ES Task ID to an OSAL task ID
- *
- * Task IDs created via CFE ES are also OSAL task IDs, but technically
- * do refer to a different scope and therefore have a different type
- * to represent them.
- *
- * This function facilitates converting between the types.
- *
- * @note Currently the numeric values are the same and can be interchanged
- * for backward compatibility, however they may diverge in a future version.
- * New code should not assume equivalence between OSAL and ES task IDs.
- *
- * @sa CFE_ES_ResourceID_FromOSAL
- *
- * @param[in] id    The ES task ID
- * @returns         The OSAL task ID
- */
-osal_id_t CFE_ES_ResourceID_ToOSAL(CFE_ES_ResourceID_t id);
-
-/**
- * @brief Convert an ES Task ID to an OSAL task ID
- *
- * Task IDs created via CFE ES are also OSAL task IDs, but technically
- * do refer to a different scope and therefore have a different type
- * to represent them.
- *
- * This function facilitates converting between the types.
- *
- * @note Currently the numeric values are the same and can be interchanged
- * for backward compatibility, however they may diverge in a future version.
- * New code should not assume equivalence between OSAL and ES task IDs.
- *
- * @sa CFE_ES_ResourceID_ToOSAL
- *
- * @param[in] id    The OSAL task ID
- * @returns         The ES task ID
- */
-CFE_ES_ResourceID_t CFE_ES_ResourceID_FromOSAL(osal_id_t id);
-
-/**
- * @brief Internal routine to aid in converting an ES resource ID to an array index
-
- * @param[in]  Serial    The resource serial number (type info masked out)
- * @param[in]  TableSize The size of the internal table (MAX value)
- * @param[out] Idx       The output index
- * @returns Status code, CFE_SUCCESS if successful.
- */
-int32 CFE_ES_ResourceID_ToIndex_Internal(uint32 Serial, uint32 TableSize, uint32 *Idx);
-
 /*
  * Internal functions to perform name based resource lookups
  *
@@ -610,6 +497,11 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name);
 CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name);
 CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByName(const char *Name);
 CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name);
+
+/* Availability check functions used in conjunction with CFE_ES_FindNextAvailableId() */
+bool CFE_ES_CheckAppIdSlotUsed(CFE_ES_ResourceID_t CheckId);
+bool CFE_ES_CheckLibIdSlotUsed(CFE_ES_ResourceID_t CheckId);
+bool CFE_ES_CheckCounterIdSlotUsed(CFE_ES_ResourceID_t CheckId);
 
 
 #endif  /* CFE_ES_RESOURCE_H */
