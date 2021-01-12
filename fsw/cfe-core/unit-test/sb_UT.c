@@ -221,7 +221,8 @@ void Test_SB_AppInit_EVSSendEvtFail(void)
      * path with different app/task names is followed on at least one event.
      */
     memset(&TestTaskInfo, 0, sizeof(TestTaskInfo));
-    strncpy((char*)TestTaskInfo.TaskName, "test", sizeof(TestTaskInfo.TaskName)-1);
+    strncpy(TestTaskInfo.TaskName, "test", sizeof(TestTaskInfo.TaskName)-1);
+    TestTaskInfo.TaskName[sizeof(TestTaskInfo.TaskName)-1] = '\0';
     UT_SetDataBuffer(UT_KEY(CFE_ES_GetTaskInfo), &TestTaskInfo, sizeof(TestTaskInfo), false);
 
     /* There are three events prior to init, pipe created (1) and subscription
@@ -508,7 +509,7 @@ void Test_SB_Cmds_RoutingInfoDef(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy((char *)SendRoutingInfo.Cmd.Payload.Filename, "", sizeof(SendRoutingInfo.Cmd.Payload.Filename));
+    SendRoutingInfo.Cmd.Payload.Filename[0] = '\0';
 
     /* Make some routing info by calling CFE_SB_AppInit */
     SETUP(CFE_SB_AppInit());
@@ -546,8 +547,9 @@ void Test_SB_Cmds_RoutingInfoSpec(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy((char *)SendRoutingInfo.Cmd.Payload.Filename, "RoutingTstFile",
-            sizeof(SendRoutingInfo.Cmd.Payload.Filename));
+    strncpy(SendRoutingInfo.Cmd.Payload.Filename, "RoutingTstFile",
+            sizeof(SendRoutingInfo.Cmd.Payload.Filename) - 1);
+    SendRoutingInfo.Cmd.Payload.Filename[sizeof(SendRoutingInfo.Cmd.Payload.Filename) - 1] = '\0';
 
     CFE_SB_ProcessCmdPipePkt(&SendRoutingInfo.SBBuf);
 
@@ -574,8 +576,9 @@ void Test_SB_Cmds_RoutingInfoCreateFail(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy((char *)SendRoutingInfo.Cmd.Payload.Filename, "RoutingTstFile",
-            sizeof(SendRoutingInfo.Cmd.Payload.Filename));
+    strncpy(SendRoutingInfo.Cmd.Payload.Filename, "RoutingTstFile",
+            sizeof(SendRoutingInfo.Cmd.Payload.Filename) - 1);
+    SendRoutingInfo.Cmd.Payload.Filename[sizeof(SendRoutingInfo.Cmd.Payload.Filename) - 1] = '\0';
 
     /* Make function CFE_SB_SendRtgInfo return CFE_SB_FILE_IO_ERR */
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
@@ -651,7 +654,7 @@ void Test_SB_Cmds_PipeInfoDef(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy((char *)SendPipeInfo.Cmd.Payload.Filename, "", sizeof(SendPipeInfo.Cmd.Payload.Filename));
+    SendPipeInfo.Cmd.Payload.Filename[0] = '\0';
 
     /* Create some pipe info */
     SETUP(CFE_SB_CreatePipe(&PipeId1, PipeDepth, "TestPipe1"));
@@ -688,8 +691,10 @@ void Test_SB_Cmds_PipeInfoSpec(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy((char *)SendPipeInfo.Cmd.Payload.Filename, "PipeTstFile",
-            sizeof(SendPipeInfo.Cmd.Payload.Filename));
+    strncpy(SendPipeInfo.Cmd.Payload.Filename, "PipeTstFile",
+            sizeof(SendPipeInfo.Cmd.Payload.Filename) - 1);
+    SendPipeInfo.Cmd.Payload.Filename[sizeof(SendPipeInfo.Cmd.Payload.Filename) - 1] = '\0';
+
     CFE_SB_ProcessCmdPipePkt(&SendPipeInfo.SBBuf);
 
     EVTCNT(1);
@@ -783,7 +788,7 @@ void Test_SB_Cmds_MapInfoDef(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy((char *)SendMapInfo.Cmd.Payload.Filename, "", sizeof(SendMapInfo.Cmd.Payload.Filename));
+    SendMapInfo.Cmd.Payload.Filename[0] = '\0';
 
     /* Create some map info */
     SETUP(CFE_SB_CreatePipe(&PipeId1, PipeDepth, "TestPipe1"));
@@ -830,8 +835,9 @@ void Test_SB_Cmds_MapInfoSpec(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy((char *)SendMapInfo.Cmd.Payload.Filename, "MapTstFile",
-            sizeof(SendMapInfo.Cmd.Payload.Filename));
+    strncpy(SendMapInfo.Cmd.Payload.Filename, "MapTstFile",
+            sizeof(SendMapInfo.Cmd.Payload.Filename) - 1);
+    SendMapInfo.Cmd.Payload.Filename[sizeof(SendMapInfo.Cmd.Payload.Filename) - 1] = '\0';
 
     CFE_SB_ProcessCmdPipePkt(&SendMapInfo.SBBuf);
 

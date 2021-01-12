@@ -247,8 +247,8 @@ void Test_CFE_FS_ExtractFileNameFromPath(void)
      * missing the path
      */
     UT_InitData();
-    strncpy(Original, "/cf/appslibrary.gz", OS_MAX_PATH_LEN);
-    Original[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy(Original, "/cf/appslibrary.gz", sizeof(Original) - 1);
+    Original[sizeof(Original) - 1] = '\0';
     UT_Report(__FILE__, __LINE__,
               CFE_FS_ExtractFilenameFromPath("name", FileName) ==
                   CFE_FS_INVALID_PATH,
