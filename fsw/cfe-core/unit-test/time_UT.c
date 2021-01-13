@@ -1056,6 +1056,14 @@ void Test_ConvertTime(void)
               "CFE_TIME_MET2SCTime",
               testDesc);
 
+    /* NOTE: Microseconds <-> Subseconds conversion routines are implemented
+     * as part of OS_time_t in OSAL, and are coverage tested there.  CFE time
+     * conversions are now just wrappers of these OSAL routines.  
+
+     * This should only sanity-check basic values to get coverage of the CFE
+     * wrappers.  Testing of value corner cases / rounding should be limited to
+     * OSAL coverage test. */
+
     /* Test subseconds to microseconds conversion; zero subsecond value */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
@@ -1063,30 +1071,12 @@ void Test_ConvertTime(void)
               "CFE_TIME_Sub2MicroSecs",
               "Convert 0 subsecond value");
 
-    /* Test subseconds to microseconds conversion; positive microsecond
-     * adjust
-     */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Sub2MicroSecs(0xffff) == 16,
-              "CFE_TIME_Sub2MicroSecs",
-              "+1 microsecond adjustment");
-
-    /* Test subseconds to microseconds conversion; no microsecond adjust */
+    /* Test subseconds to microseconds conversion; half second */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
               CFE_TIME_Sub2MicroSecs(0x80000000) == 500000,
               "CFE_TIME_Sub2MicroSecs",
               "No microsecond adjustment");
-
-    /* Test subseconds to microseconds conversion; negative microsecond
-     * adjust
-     */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Sub2MicroSecs(0x80002000) == 500001,
-              "CFE_TIME_Sub2MicroSecs",
-              "-1 microsecond adjustment");
 
     /* Test subseconds to microseconds conversion; subseconds exceeds
      * microseconds limit
@@ -1103,31 +1093,6 @@ void Test_ConvertTime(void)
               CFE_TIME_Micro2SubSecs(0) == 0,
               "CFE_TIME_Micro2SubSecs",
               "Convert 0 microseconds to 0 subseconds");
-
-    /* Test microseconds to subseconds conversion; no subsecond adjust */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Micro2SubSecs(0xffff) == 281468928,
-              "CFE_TIME_Micro2SubSecs",
-              "Microseconds below maximum value (no subsecond adjustment)");
-
-    /* Test microseconds to subseconds conversion; microseconds below
-     * maximum limit
-     */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Micro2SubSecs(999998) == 0xffffe000,
-              "CFE_TIME_Micro2SubSecs",
-              "Microseconds below maximum value (subsecond adjustment)");
-
-    /* Test microseconds to subseconds conversion; microseconds equals
-     * maximum limit
-     */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Micro2SubSecs(999999) == 0xfffff000,
-              "CFE_TIME_Micro2SubSecs",
-              "Microseconds equals maximum value (subsecond adjustment)");
 
     /* Test microseconds to subseconds conversion; microseconds exceeds
      * maximum limit

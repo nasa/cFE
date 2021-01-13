@@ -1455,7 +1455,7 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
 
 }
 
-#if CFE_OMIT_DEPRECATED_6_8
+#ifndef CFE_OMIT_DEPRECATED_6_8
 int32 CFE_SB_RcvMsg(CFE_SB_Buffer_t **BufPtr,
                     CFE_SB_PipeId_t   PipeId,
                     int32             TimeOut)
@@ -1891,7 +1891,7 @@ int32 CFE_SB_ZeroCopyPass(CFE_SB_Buffer_t        *BufPtr,
 
 int32  CFE_SB_ReadQueue (CFE_SB_PipeD_t         *PipeDscPtr,
                          CFE_ES_ResourceID_t    TskId,
-                         CFE_SB_TimeOut_t       Time_Out,
+                         uint32                 Time_Out,
                          CFE_SB_BufferD_t       **Message)
 {
     int32              Status,TimeOut;

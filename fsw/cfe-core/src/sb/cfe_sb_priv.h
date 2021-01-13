@@ -239,7 +239,7 @@ void   CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber);
 void   CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
 void   CFE_SB_ReleaseBuffer (CFE_SB_BufferD_t *bd, CFE_SB_DestinationD_t *dest);
 int32  CFE_SB_ReadQueue(CFE_SB_PipeD_t *PipeDscPtr,CFE_ES_ResourceID_t TskId,
-                        CFE_SB_TimeOut_t Time_Out,CFE_SB_BufferD_t **Message );
+                        uint32 Time_Out,CFE_SB_BufferD_t **Message );
 int32  CFE_SB_WriteQueue(CFE_SB_PipeD_t *pd,uint32 TskId,
                          const CFE_SB_BufferD_t *bd,CFE_SB_MsgId_t MsgId );
 uint8  CFE_SB_GetPipeIdx(CFE_SB_PipeId_t PipeId);

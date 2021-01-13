@@ -494,11 +494,11 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
 */
 void CFE_ES_InitializeFileSystems(uint32 StartType)
 {
-   int32   RetStatus;
-   cpuaddr RamDiskMemoryAddress;
-   uint32  RamDiskMemorySize;
-   int32   BlocksFree;
-   int32   PercentFree;
+   int32        RetStatus;
+   cpuaddr      RamDiskMemoryAddress;
+   uint32       RamDiskMemorySize;
+   int32        PercentFree;
+   OS_statvfs_t StatBuf;
  
    /* 
    ** Get the memory area for the RAM disk 
@@ -601,25 +601,13 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
       /*
       ** See how many blocks are free in the RAM disk
       */
-      BlocksFree = OS_fsBlocksFree(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);   
-      if ( BlocksFree >= 0 )
+      RetStatus = OS_FileSysStatVolume(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING, &StatBuf);
+      if ( RetStatus == OS_SUCCESS && StatBuf.total_blocks > 0 )
       {
-         /*
-         ** Need a sanity check for the desktop systems.
-         ** Because the desktop ports map the volatile disk to the host 
-         ** hard disk, it will report more free blocks than the defined number
-         ** of sectors ( blocks ). Therefore it must be truncated.
-         */
-         if ( BlocksFree > CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS )
-         {
-             BlocksFree = CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS - 1;
-         }
-         
          /*
          ** Determine if the disk is too full 
          */
-         BlocksFree = BlocksFree * 100;
-         PercentFree = BlocksFree / CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS;
+         PercentFree = (StatBuf.blocks_free * 100) / StatBuf.total_blocks;
          CFE_ES_WriteToSysLog("Volatile Disk has %d Percent free space.\n",(int)PercentFree);
 
          if ( PercentFree < CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED )
@@ -721,7 +709,7 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
       else  /* could not determine free blocks */
       {         
          /* Log error message -- note that BlocksFree returns the error code in this case */
-         CFE_ES_WriteToSysLog("ES Startup: Error Determining Blocks Free on Volume. EC = 0x%08X\n",(unsigned int)BlocksFree);
+         CFE_ES_WriteToSysLog("ES Startup: Error Determining Blocks Free on Volume. EC = 0x%08X\n",(unsigned int)RetStatus);
 
          /*
          ** Delay to allow the message to be read
@@ -983,4 +971,3 @@ int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds)
 
     return Status;
 }
-
