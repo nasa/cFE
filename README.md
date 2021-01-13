@@ -10,6 +10,15 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev248
+
+- Replace `OS_FileSysStatVolume()` with`OS_fsBlocksFree()` which will be deprecated. This call reports the number of total blocks, not just the free blocks, making the check more accurate and removing the need for a workaround for desktop machines.
+- Instead of accessing `OS_time_t` values directly, use the OSAL-provided conversion and access methods. This provides independence and abstraction from the specific `OS_time_t` definition and allows OSAL to transition to a 64 bit value.
+- Removes the spurious `CFE_SB_TimeOut_t` typedef from `cfe_sb.h`. May affect any apps that inappropriately rely on the private typedef.
+- Removes unused `network_includes.h`. Not used by the framework anywhere,  apps should use OSAL Socket APIs instead.   
+- Fixes deprecation directive typos
+- See <https://github.com/nasa/cFE/pull/1088>
+
 ### Development Build: 6.8.0-rc1+dev236
 
 - Resolved doxygen warnings for osalguide and updated header file references
