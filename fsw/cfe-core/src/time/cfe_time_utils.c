@@ -91,8 +91,8 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void)
     /*
     ** Convert time to cFE format (seconds : 1/2^32 subseconds)...
     */
-    LatchTime.Seconds = LocalTime.seconds;
-    LatchTime.Subseconds = CFE_TIME_Micro2SubSecs(LocalTime.microsecs);
+    LatchTime.Seconds = OS_TimeGetTotalSeconds(LocalTime);
+    LatchTime.Subseconds = OS_TimeGetSubsecondsPart(LocalTime);
 
     return(LatchTime);
 

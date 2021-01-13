@@ -136,24 +136,11 @@ void CFE_ES_BackgroundTask(void)
     {
         /*
          * compute the elapsed time (difference) between last
-         * execution and now, in microseconds.
-         *
-         * Note this calculation is done as a uint32 which will overflow
-         * after about 35 minutes, but the max delays ensure that this
-         * executes at least every few seconds, so that should never happen.
+         * execution and now, in milliseconds.
          */
         CFE_PSP_GetTime(&CurrTime);
-        ElapsedTime = 1000000 * (CurrTime.seconds - LastTime.seconds);
-        ElapsedTime += CurrTime.microsecs;
-        ElapsedTime -= LastTime.microsecs;
+        ElapsedTime = OS_TimeGetTotalMilliseconds(OS_TimeSubtract(CurrTime, LastTime));
         LastTime = CurrTime;
-
-        /*
-         * convert to milliseconds.
-         * we do not really need high precision
-         * for background task timings
-         */
-        ElapsedTime /= 1000;
 
         NextDelay = CFE_ES_BACKGROUND_MAX_IDLE_DELAY;   /* default; will be adjusted based on active jobs */
         JobPtr = CFE_ES_BACKGROUND_JOB_TABLE;
