@@ -707,12 +707,16 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
            AppRecPtr->Type = CFE_ES_AppType_EXTERNAL;
            strncpy(AppRecPtr->StartParams.BasicInfo.Name, AppName,
                    sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1);
+           AppRecPtr->StartParams.BasicInfo.Name[sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1] = '\0';
            strncpy(AppRecPtr->StartParams.BasicInfo.FileName, FileName,
                    sizeof(AppRecPtr->StartParams.BasicInfo.FileName)-1);
+           AppRecPtr->StartParams.BasicInfo.FileName[sizeof(AppRecPtr->StartParams.BasicInfo.FileName)-1] = '\0';
            if (EntryPointName != NULL && strcmp(EntryPointName, "NULL") != 0)
            {
                strncpy(AppRecPtr->StartParams.BasicInfo.EntryPoint, EntryPointName,
                        sizeof(AppRecPtr->StartParams.BasicInfo.EntryPoint)-1);
+               AppRecPtr->StartParams.BasicInfo.EntryPoint[
+                       sizeof(AppRecPtr->StartParams.BasicInfo.EntryPoint)-1] = '\0';
            }
 
            AppRecPtr->StartParams.StackSize = StackSize;
@@ -883,12 +887,15 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
             */
            strncpy(LibSlotPtr->BasicInfo.Name, LibName,
                    sizeof(LibSlotPtr->BasicInfo.Name)-1);
+           LibSlotPtr->BasicInfo.Name[sizeof(LibSlotPtr->BasicInfo.Name)-1] = '\0';
            strncpy(LibSlotPtr->BasicInfo.FileName, FileName,
                    sizeof(LibSlotPtr->BasicInfo.FileName)-1);
+           LibSlotPtr->BasicInfo.FileName[sizeof(LibSlotPtr->BasicInfo.FileName)-1] = '\0';
            if (EntryPointName != NULL && strcmp(EntryPointName, "NULL") != 0)
            {
               strncpy(LibSlotPtr->BasicInfo.EntryPoint, EntryPointName,
                       sizeof(LibSlotPtr->BasicInfo.EntryPoint)-1);
+              LibSlotPtr->BasicInfo.EntryPoint[sizeof(LibSlotPtr->BasicInfo.EntryPoint)-1] = '\0';
            }
 
            CFE_ES_LibRecordSetUsed(LibSlotPtr, CFE_ES_RESOURCEID_RESERVED);

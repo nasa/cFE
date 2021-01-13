@@ -1002,8 +1002,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
         return CFE_TBL_ERR_FILE_TOO_LARGE;
     }
 
-    memset(WorkingBufferPtr->DataSource, 0, OS_MAX_PATH_LEN);
-    strncpy(WorkingBufferPtr->DataSource, Filename, OS_MAX_PATH_LEN);
+    memset(WorkingBufferPtr->DataSource, 0, sizeof(WorkingBufferPtr->DataSource));
+    strncpy(WorkingBufferPtr->DataSource, Filename, sizeof(WorkingBufferPtr->DataSource) - 1);
 
     /* Save file creation time for later storage into Registry */
     WorkingBufferPtr->FileCreateTimeSecs = StdFileHeader.TimeSeconds;
@@ -1054,7 +1054,8 @@ int32 CFE_TBL_UpdateInternal( CFE_TBL_Handle_t TblHandle,
             /* However, we need to copy it into active registry area */
             strncpy(RegRecPtr->LastFileLoaded,
                     RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].DataSource,
-                    OS_MAX_PATH_LEN);
+                    sizeof(RegRecPtr->LastFileLoaded) - 1);
+            RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = '\0';
 
             CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
             
@@ -1470,7 +1471,8 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
             /* Save information related to the source of the data stored in the table in Critical Table Registry */
             CritRegRecPtr->FileCreateTimeSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
             CritRegRecPtr->FileCreateTimeSubSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
-            strncpy(CritRegRecPtr->LastFileLoaded, RegRecPtr->LastFileLoaded, OS_MAX_PATH_LEN);
+            strncpy(CritRegRecPtr->LastFileLoaded, RegRecPtr->LastFileLoaded, sizeof(CritRegRecPtr->LastFileLoaded) - 1);
+            CritRegRecPtr->LastFileLoaded[sizeof(CritRegRecPtr->LastFileLoaded) - 1] = '\0';
             CritRegRecPtr->TimeOfLastUpdate = RegRecPtr->TimeOfLastUpdate;
             CritRegRecPtr->TableLoadedOnce = RegRecPtr->TableLoadedOnce;
             

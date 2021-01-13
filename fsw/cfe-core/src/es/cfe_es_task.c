@@ -217,15 +217,6 @@ int32 CFE_ES_TaskInit(void)
     CFE_ES_TaskData.CommandErrorCounter = 0;
 
     /*
-    ** Initialize task configuration data
-    */
-    strcpy(CFE_ES_TaskData.PipeName, "ES_CMD_PIPE");
-    CFE_ES_TaskData.PipeDepth = 12;
-
-    CFE_ES_TaskData.LimitHK   = 2;
-    CFE_ES_TaskData.LimitCmd  = 4;
-
-    /*
     ** Initialize systemlog to default Power On or Processor Reset mode
     */
     if (CFE_ES_GetResetType(NULL) == CFE_PSP_RST_TYPE_POWERON)                                                                   
@@ -271,7 +262,7 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Create Software Bus message pipe
     */
-    Status = CFE_SB_CreatePipe(&CFE_ES_TaskData.CmdPipe, CFE_ES_TaskData.PipeDepth, CFE_ES_TaskData.PipeName);
+    Status = CFE_SB_CreatePipe(&CFE_ES_TaskData.CmdPipe, CFE_ES_PIPE_DEPTH, CFE_ES_PIPE_NAME);
     if ( Status != CFE_SUCCESS )
     {
         CFE_ES_WriteToSysLog("ES:Cannot Create SB Pipe, RC = 0x%08X\n", (unsigned int)Status);
@@ -282,7 +273,7 @@ int32 CFE_ES_TaskInit(void)
     ** Subscribe to Housekeeping request commands
     */
     Status = CFE_SB_SubscribeEx(CFE_SB_ValueToMsgId(CFE_ES_SEND_HK_MID), CFE_ES_TaskData.CmdPipe,
-                                CFE_SB_Default_Qos, CFE_ES_TaskData.LimitHK);
+                                CFE_SB_Default_Qos, CFE_ES_LIMIT_HK);
     if ( Status != CFE_SUCCESS )
     {
         CFE_ES_WriteToSysLog("ES:Cannot Subscribe to HK packet, RC = 0x%08X\n", (unsigned int)Status);
@@ -293,7 +284,7 @@ int32 CFE_ES_TaskInit(void)
     ** Subscribe to ES task ground command packets
     */
     Status = CFE_SB_SubscribeEx(CFE_SB_ValueToMsgId(CFE_ES_CMD_MID), CFE_ES_TaskData.CmdPipe,
-                                CFE_SB_Default_Qos, CFE_ES_TaskData.LimitCmd);
+                                CFE_SB_Default_Qos, CFE_ES_LIMIT_CMD);
     if ( Status != CFE_SUCCESS )
     {
         CFE_ES_WriteToSysLog("ES:Cannot Subscribe to ES ground commands, RC = 0x%08X\n", (unsigned int)Status);
