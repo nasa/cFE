@@ -1685,15 +1685,15 @@ void Test_CreatePipe_MaxPipes(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_ResourceID_ToIndex), 1+CFE_PLATFORM_SB_MAX_PIPES, -1);
     for (i = 0; i < (CFE_PLATFORM_SB_MAX_PIPES + 1); i++)
     {
-        snprintf(PipeName, OS_MAX_API_NAME, "TestPipe%ld", (long) i);
+        snprintf(PipeName, sizeof(PipeName), "TestPipe%ld", (long) i);
 
         if (i < CFE_PLATFORM_SB_MAX_PIPES)
         {
-        	SETUP(CFE_SB_CreatePipe(&PipeIdReturned[i], PipeDepth, &PipeName[0]));
+            SETUP(CFE_SB_CreatePipe(&PipeIdReturned[i], PipeDepth, PipeName));
         }
         else
         {
-        	ASSERT_EQ(CFE_SB_CreatePipe(&PipeIdReturned[i], PipeDepth, &PipeName[0]), CFE_SB_MAX_PIPES_MET);
+            ASSERT_EQ(CFE_SB_CreatePipe(&PipeIdReturned[i], PipeDepth, PipeName), CFE_SB_MAX_PIPES_MET);
         }
     }
 
@@ -1913,7 +1913,7 @@ void Test_GetPipeName_InvalidId(void)
     SETUP(CFE_SB_CreatePipe(&PipeId, 4, "TestPipe"));
 
     UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERROR);
-    ASSERT_EQ(CFE_SB_GetPipeName(PipeName, OS_MAX_API_NAME, PipeId), CFE_SB_BAD_ARGUMENT);
+    ASSERT_EQ(CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId), CFE_SB_BAD_ARGUMENT);
 
     EVTSENT(CFE_SB_GETPIPENAME_ID_ERR_EID);
 
@@ -1940,7 +1940,7 @@ void Test_GetPipeName(void)
         &queue_info, sizeof(queue_info),
         false);
 
-    ASSERT(CFE_SB_GetPipeName(PipeName, OS_MAX_API_NAME, PipeId));
+    ASSERT(CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId));
 
     EVTSENT(CFE_SB_GETPIPENAME_EID);
 
@@ -2279,8 +2279,8 @@ void Test_Subscribe_MaxDestCount(void)
     /* Create pipes */
     for (i = 0; i < CFE_PLATFORM_SB_MAX_DEST_PER_PKT + 1; i++)
     {
-        snprintf(PipeName, OS_MAX_API_NAME, "TestPipe%ld", (long) i);
-        SETUP(CFE_SB_CreatePipe(&PipeId[i], PipeDepth, &PipeName[0]));
+        snprintf(PipeName, sizeof(PipeName), "TestPipe%ld", (long) i);
+        SETUP(CFE_SB_CreatePipe(&PipeId[i], PipeDepth, PipeName));
     }
 
     /* Do subscriptions */

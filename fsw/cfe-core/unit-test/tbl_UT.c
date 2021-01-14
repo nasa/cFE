@@ -3933,33 +3933,29 @@ void Test_CFE_TBL_TblMod(void)
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
 
     /* Perform load with extra long filename */
-    for (Index = 0; Index < OS_MAX_PATH_LEN - 1; Index++)
+    for (Index = 0; Index < sizeof(MyFilename) - 1; Index++)
     {
         MyFilename[Index] = 'a';
     }
+    MyFilename[sizeof(MyFilename) - 1] = '\0';
 
-    MyFilename[(OS_MAX_PATH_LEN - 1)] = '\0';
-    RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, MyFilename);
-    EventsCorrect = (UT_GetNumEventsSent() == 1 &&
-                     UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) ==
-                         true);
+    ASSERT(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, MyFilename));
+    ASSERT_EQ(UT_GetNumEventsSent(), 1);
+    ASSERT_TRUE(UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID));
 
     /* Notify Table Services that the table has been modified */
-    RtnCode = CFE_TBL_Modified(App1TblHandle1);
-    RtnCode2 = CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table2");
-    UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_SUCCESS &&
-              RtnCode2 == CFE_SUCCESS &&
-              EventsCorrect &&
-              TblInfo1.TimeOfLastUpdate.Seconds ==
-                  TblInfo1.TimeOfLastUpdate.Subseconds &&
-              strncmp(TblInfo1.LastFileLoaded,
-                      MyFilename, OS_MAX_PATH_LEN - 4) == 0 &&
-              strncmp(&TblInfo1.LastFileLoaded[OS_MAX_PATH_LEN - 4],
-                      "(*)", 3) == 0,
-              "CFE_TBL_Modified",
-              "Add TBL API for notifying table services that table has "
-                "been updated by application");
+    ASSERT(CFE_TBL_Modified(App1TblHandle1));
+    ASSERT(CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table2"));
+    ASSERT_EQ(TblInfo1.TimeOfLastUpdate.Seconds, TblInfo1.TimeOfLastUpdate.Subseconds);
+
+    /*
+     * LastFileLoaded (limited by mission) can be bigger than MyFilename (limited by osal),
+     * need to adjust length of check to account for difference and modified marking
+     */
+    UtAssert_StrnCmp(TblInfo1.LastFileLoaded, MyFilename, sizeof(MyFilename) - 4, "%s == %s, %ld",
+                     TblInfo1.LastFileLoaded, MyFilename, (long)sizeof(MyFilename) - 4);
+    UtAssert_StrCmp(&TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4], "(*)", "%s == (*)",
+                    &TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4]);
 
     /* Test response to an invalid handle */
     RtnCode = CFE_TBL_Modified(CFE_TBL_BAD_TABLE_HANDLE);
@@ -3979,7 +3975,8 @@ void Test_CFE_TBL_Internal(void)
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
-    char                       Filename[OS_MAX_PATH_LEN + 10];
+    char                       FilenameLong[OS_MAX_PATH_LEN + 10];
+    char                       Filename[OS_MAX_PATH_LEN];
     int32                      i;
     CFE_FS_Header_t            StdFileHeader;
     CFE_TBL_File_Hdr_t         TblFileHeader;
@@ -4042,13 +4039,13 @@ void Test_CFE_TBL_Internal(void)
     /* Test CFE_TBL_LoadFromFile response to a file name that is too long */
     UT_InitData();
 
-    for (i = 0; i < OS_MAX_PATH_LEN + 9; i++)
+    for (i = 0; i < sizeof(FilenameLong) - 1; i++)
     {
-        Filename[i] = 'a';
+        FilenameLong[i] = 'a';
     }
+    FilenameLong[i] = '\0'; /* Null terminate file name string */
 
-    Filename[i] = '\0'; /* Null terminate file name string */
-    RtnCode = CFE_TBL_LoadFromFile("UT", WorkingBufferPtr, RegRecPtr, Filename);
+    RtnCode = CFE_TBL_LoadFromFile("UT", WorkingBufferPtr, RegRecPtr, FilenameLong);
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_FILENAME_LONG_ERR_EID) == true &&
         UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
@@ -4060,7 +4057,8 @@ void Test_CFE_TBL_Internal(void)
      * (according to the header)
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy(Filename, FilenameLong, sizeof(Filename) - 1);
+    Filename[sizeof(Filename) - 1] = '\0';
     strncpy(StdFileHeader.Description, "FS header description",
             sizeof(StdFileHeader.Description) - 1);
     StdFileHeader.Description[sizeof(StdFileHeader.Description) - 1] = '\0';
@@ -4085,7 +4083,6 @@ void Test_CFE_TBL_Internal(void)
      * (too much content)
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
@@ -4108,7 +4105,6 @@ void Test_CFE_TBL_Internal(void)
      * incomplete
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
@@ -4132,7 +4128,6 @@ void Test_CFE_TBL_Internal(void)
      * wrong table
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.NotUT_Table2",
@@ -4153,7 +4148,6 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_LoadFromFile response to an OS open error */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
@@ -4174,7 +4168,6 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_LoadFromFile response to a file too short warning */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
@@ -4196,7 +4189,6 @@ void Test_CFE_TBL_Internal(void)
      * file header
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
@@ -4223,7 +4215,6 @@ void Test_CFE_TBL_Internal(void)
      * standard header
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID - 1;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
@@ -4251,7 +4242,6 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_ReadHeaders response to a wrong cFE file subtype */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG - 1;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
@@ -4275,7 +4265,6 @@ void Test_CFE_TBL_Internal(void)
      * table header
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
@@ -4874,7 +4863,6 @@ void Test_CFE_TBL_Internal(void)
 #if (CFE_PLATFORM_TBL_VALID_SCID_COUNT > 0)
     /* Test CFE_TBL_ReadHeaders response to an invalid spacecraft ID */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     StdFileHeader.SpacecraftID = -1;
@@ -4914,7 +4902,6 @@ void Test_CFE_TBL_Internal(void)
 #if (CFE_PLATFORM_TBL_VALID_PRID_COUNT > 0)
     /* Test CFE_TBL_ReadHeaders response to an invalid processor ID */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;

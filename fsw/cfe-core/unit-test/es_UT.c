@@ -2195,7 +2195,7 @@ void TestLibs(void)
               "Load shared library bad argument (NULL library name)");
 
     /* Test Load library returning an error on a too long library name */
-    memset(&LongLibraryName[0], 'a', sizeof(LongLibraryName)-1);
+    memset(LongLibraryName, 'a', sizeof(LongLibraryName)-1);
     LongLibraryName[sizeof(LongLibraryName)-1] = '\0';
     Return = CFE_ES_LoadLibrary(&Id,
                                 "filename",
@@ -4710,7 +4710,7 @@ void TestAPI(void)
     ES_ResetUnitTest();
     AppId = ES_UT_MakeAppIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppName(AppName, AppId, 32) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
+              CFE_ES_GetAppName(AppName, AppId, sizeof(AppName)) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetAppName",
               "Get application name by ID; bad application ID");
 
@@ -4721,7 +4721,7 @@ void TestAPI(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppName(AppName,
                                 AppId,
-                                32) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
+                                sizeof(AppName)) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetAppName",
               "Get application name by ID; ID out of range");
 
@@ -4730,7 +4730,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppName(AppName, AppId, 32) == CFE_SUCCESS,
+              CFE_ES_GetAppName(AppName, AppId, sizeof(AppName)) == CFE_SUCCESS,
               "CFE_ES_GetAppName",
               "Get application name by ID successful");
 
