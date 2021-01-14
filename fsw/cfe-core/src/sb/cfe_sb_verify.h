@@ -154,14 +154,6 @@
     #error CFE_PLATFORM_SB_MEM_BLOCK_SIZE_16 must be less than CFE_PLATFORM_SB_MAX_BLOCK_SIZE
 #endif
 
-#if CFE_PLATFORM_SB_DEFAULT_REPORT_SENDER < 0
-    #error CFE_PLATFORM_SB_DEFAULT_REPORT_SENDER cannot be less than 0!
-#endif
-
-#if CFE_PLATFORM_SB_DEFAULT_REPORT_SENDER > 1
-    #error CFE_PLATFORM_SB_DEFAULT_REPORT_SENDER cannot be greater than 1!
-#endif
-
 #if CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT < 4
     #error CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT cannot be less than 4!
 #endif
