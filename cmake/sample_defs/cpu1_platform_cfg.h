@@ -152,27 +152,25 @@
 **  \cfesbcfg Highest Valid Message Id
 **
 **  \par Description:
-**       The value of this constant dictates the size of the SB message map. The SB
-**       message map is a lookup table that provides the routing table index for
-**       fast access into the routing table. The default setting of 0x1FFF was chosen
-**       to save memory. This reduces the message map from 128Kbytes to 16Kbytes.
-**       See CFE_FSW_DCR 504 for more details.
-**     
-**       If this value is different in a distributed architecture some platforms may not
-**       be able to subscribe to messages generated on other platforms since the message id
-**       would exceed the mapping table's highest index. Care would have to be taken to ensure the 
-**       constrained platform did not subscribe to message Ids that exceed 
-**       CFE_PLATFORM_SB_HIGHEST_VALID_MSGID 
+**       The value of this constant dictates the range of valid message ID's, from 0
+**       to CFE_PLATFORM_SB_HIGHEST_VALID_MSGID (inclusive).
 **
-**       The recommended case to to have this value the same across all mission platforms
+**       Altough this can be defined differently across platforms, each platform can
+**       only publish/subscribe to message ids within their allowable range. Typically
+**       this value is set the same across all mission platforms to avoid this complexity.
 **
 **  \par Limits
-**       This parameter has a lower limit of 1 and an upper limit of 0xFFFF. Note
-**       for current implementations, V2/Extended headers assign 0xFFFFFFFF as the invalid
-**       message ID value, and default headers assigns 0xFFFF as the invalid value.  This
-**       means for default headers, 0xFFFF is invalid even if you set the value
-**       below to it's maximum of 0xFFFF.
-**       The allocated message table is this size + 1 (could change based on implementaiton).
+**       CFE_SB_INVALID_MSG is set to the maxumum representable number of type CFE_SB_MsgId_t.
+**       CFE_PLATFORM_SB_HIGHEST_VALID_MSGID lower limit is 1, up to CFE_SB_INVALID_MSG_ID - 1.
+**
+**       When using the direct message map implementation for software bus routing, this
+**       value is used to size the map where a value of 0x1FFF results in a 16 KBytes map
+**       and 0xFFFF is 128 KBytes.
+**
+**       When using the hash implementation for software bus routing, a multiple of the
+**       CFE_PLATFORM_SB_MAX_MSG_IDS is used to size the message map.  In that case
+**       the range selected here does not impact message map memory use, so it's
+**       resonable to use up to the full range supported by the message ID implementation.
 */
 #define CFE_PLATFORM_SB_HIGHEST_VALID_MSGID      0x1FFF
 
