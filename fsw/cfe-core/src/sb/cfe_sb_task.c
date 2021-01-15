@@ -1141,7 +1141,8 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
     uint32 EntryCount = 0;
     CFE_FS_Header_t FileHdr;
     CFE_SB_PipeD_t *PipeDscPtr;
-    CFE_SB_PipeD_t entry;   /* NOTE: Should be separate/dedicated type */
+    CFE_SB_PipeInfoEntry_t FileEntry;
+    osal_id_t SysQueueId;
 
     Status = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
 
@@ -1172,14 +1173,38 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
     {
         if (CFE_SB_PipeDescIsUsed(PipeDscPtr))
         {
-            memcpy(&entry, PipeDscPtr, sizeof(CFE_SB_PipeD_t));
+            /*
+             * Ensure any old data in the struct has been cleared
+             */
+            memset(&FileEntry, 0, sizeof(FileEntry));
+
+            /*
+             * Take a "snapshot" of the PipeDsc state while locked 
+             */
+            FileEntry.PipeId = CFE_SB_PipeDescGetID(PipeDscPtr);            
+            FileEntry.AppId = PipeDscPtr->AppId;
+            FileEntry.MaxQueueDepth = PipeDscPtr->QueueDepth;
+            FileEntry.CurrentQueueDepth = PipeDscPtr->CurrentDepth;
+            FileEntry.PeakQueueDepth = PipeDscPtr->PeakDepth;
+            FileEntry.SendErrors = PipeDscPtr->SendErrors;
+            FileEntry.Opts = PipeDscPtr->Opts;
+            SysQueueId = PipeDscPtr->SysQueueId;
 
             CFE_SB_UnlockSharedData(__FILE__,__LINE__); 
 
-            Status = OS_write (fd, &entry, sizeof(CFE_SB_PipeD_t));
-            if (Status != sizeof(CFE_SB_PipeD_t))
+            /*
+             * Gather data from other subsystems while unlocked.
+             * This might fail if the pipe is deleted simultaneously while this runs, but in
+             * the unlikely event that happens, the name data will simply be blank as the ID(s)
+             * will not validate.
+             */
+            OS_GetResourceName(SysQueueId, FileEntry.PipeName, sizeof(FileEntry.PipeName));
+            CFE_ES_GetAppName(FileEntry.AppName, FileEntry.AppId, sizeof(FileEntry.AppName));
+
+            Status = OS_write (fd, &FileEntry, sizeof(FileEntry));
+            if (Status != sizeof(FileEntry))
             {
-                CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_SB_PipeD_t),Status);
+                CFE_SB_FileWriteByteCntErr(Filename,sizeof(FileEntry),Status);
                 OS_close(fd);
                 return CFE_SB_FILE_IO_ERR;
             }/* end if */
