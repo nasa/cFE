@@ -91,7 +91,7 @@ CFE_SB_BufferD_t * CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, size_t Size) {
     bd->MsgId     = MsgId;
     bd->UseCount  = 1;
     bd->Size      = Size;
-    bd->Buffer    = (void *)address;
+    bd->Buffer    = (CFE_SB_Buffer_t *)address;
 
     return bd;
 
@@ -156,6 +156,32 @@ int32 CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd){
 }/* end CFE_SB_ReturnBufferToPool */
 
 
+/******************************************************************************
+**  Function:   CFE_SB_IncrBufUseCnt()
+**
+**  Purpose:
+**    This function will increment the UseCount of a particular buffer.
+**
+**  Note:
+**    UseCount is a variable in the CFE_SB_BufferD_t and is used only to
+**    determine when a buffer may be returned to the memory pool.
+**
+**  Arguments:
+**    bd : Pointer to the buffer descriptor.
+**
+**  Return:
+**    CFE_SUCCESS for normal operation.
+*/
+void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd)
+{
+    /* range check the UseCount variable */
+    if(bd->UseCount < 0x7FFF)
+    {
+        ++bd->UseCount;
+    }
+
+}/* end CFE_SB_DecrBufUseCnt */
+
 
 /******************************************************************************
 **  Function:   CFE_SB_DecrBufUseCnt()
@@ -175,20 +201,18 @@ int32 CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd){
 **  Return:
 **    CFE_SUCCESS for normal operation.
 */
-int32 CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd){
-
+void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
+{
     /* range check the UseCount variable */
-    if(bd->UseCount > 0){
+    if(bd->UseCount > 0)
+    {
+        --bd->UseCount;
 
-        bd->UseCount--;
-
-        if (bd->UseCount == 0) {
+        if (bd->UseCount == 0) 
+        {
            CFE_SB_ReturnBufferToPool(bd);
-        }/* end if */
-
+        }
     }
-
-    return CFE_SUCCESS;
 
 }/* end CFE_SB_DecrBufUseCnt */
 

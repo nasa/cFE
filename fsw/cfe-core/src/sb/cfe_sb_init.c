@@ -87,6 +87,9 @@ int32 CFE_SB_EarlyInit (void) {
 
     int32 Stat;
 
+    /* ensure entire CFE_SB global data structure is purged first */
+    memset(&CFE_SB, 0, sizeof(CFE_SB));
+
     CFE_SB_Default_Qos.Priority    = CFE_SB_QOS_LOW_PRIORITY;
     CFE_SB_Default_Qos.Reliability = CFE_SB_QOS_LOW_RELIABILITY;
 
@@ -178,16 +181,9 @@ int32  CFE_SB_InitBuffers(void) {
 **  Return:
 **    none
 */
-void CFE_SB_InitPipeTbl(void){
-
-    uint8  i;
-
-    for(i=0;i<CFE_PLATFORM_SB_MAX_PIPES;i++){
-        CFE_SB.PipeTbl[i].InUse         = CFE_SB_NOT_IN_USE;
-        CFE_SB.PipeTbl[i].SysQueueId    = CFE_SB_UNUSED_QUEUE;
-        CFE_SB.PipeTbl[i].PipeId        = CFE_SB_INVALID_PIPE;
-        CFE_SB.PipeTbl[i].CurrentBuff   = NULL;
-    }/* end for */
+void CFE_SB_InitPipeTbl(void)
+{
+    CFE_SB.LastPipeId = CFE_ES_ResourceID_FromInteger(CFE_SB_PIPEID_BASE);
 
 }/* end CFE_SB_InitPipeTbl */
 

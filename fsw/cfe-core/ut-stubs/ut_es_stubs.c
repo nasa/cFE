@@ -1320,3 +1320,49 @@ int32 CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx)
 
     return return_code;
 }
+
+CFE_ES_ResourceID_t CFE_ES_FindNextAvailableId(CFE_ES_ResourceID_t StartId, uint32 TableSize, bool (*CheckFunc)(CFE_ES_ResourceID_t))
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_FindNextAvailableId), StartId);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_FindNextAvailableId), TableSize);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_FindNextAvailableId), CheckFunc);
+
+    int32 return_code;
+
+    /* Using "1" by default here produces a sequential result when called multiple times */
+    return_code = UT_DEFAULT_IMPL_RC(CFE_ES_FindNextAvailableId, 1);
+
+    if (return_code < 0)
+    {
+        return CFE_ES_RESOURCEID_UNDEFINED;
+    }
+
+    /*
+     * The test case may set the return code to indicate the offset from the start ID 
+     */
+    return CFE_ES_ResourceID_FromInteger(CFE_ES_ResourceID_ToInteger(StartId) + return_code);
+}
+
+int32 CFE_ES_ResourceID_ToIndex(uint32 Serial, uint32 TableSize, uint32 *Idx)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_ResourceID_ToIndex), Serial);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_ResourceID_ToIndex), TableSize);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ES_ResourceID_ToIndex), Idx);
+
+    int32 return_code;
+
+    return_code = UT_DEFAULT_IMPL(CFE_ES_ResourceID_ToIndex);
+
+    if (return_code < 0)
+    {
+        /* fill with a very bad value that should cause a problem if used */
+        *Idx = 0xDEADBEEF;
+    }
+    else if (UT_Stub_CopyToLocal(UT_KEY(CFE_ES_ResourceID_ToIndex), Idx, sizeof(*Idx)) < sizeof(*Idx))
+    {
+        /* fill with default value if unspecified by test case */
+        *Idx = Serial % TableSize;
+    }
+
+    return return_code;
+}
