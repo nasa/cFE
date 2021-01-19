@@ -1035,19 +1035,6 @@
 #define CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE      1
 
 /**
-**  \cfeescfg Define Max Number of Performance IDs
-**
-**  \par Description:
-**       Defines the maximum number of perf ids allowed.
-**
-**
-**  \par Limits
-**       This number must always be divisible by 32. There is a lower limit of 32 and
-**       an upper limit of 512 on this configuration paramater.
-*/
-#define CFE_PLATFORM_ES_PERF_MAX_IDS                  128
-
-/**
 **  \cfeescfg Define Max Size of Performance Data Buffer
 **
 **  \par Description:
