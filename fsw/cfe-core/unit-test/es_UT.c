@@ -882,8 +882,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_POWERON);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CREATE_VOLATILE]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]) && 
-              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Power on reset; error creating volatile (RAM) volume");
 
@@ -906,8 +905,7 @@ void TestStartupErrorPaths(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CREATE_VOLATILE]) && 
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INIT_VOLATILE]) &&
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REFORMAT_VOLATILE]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 7,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REFORMAT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error reformatting volatile (RAM) volume");
 
@@ -919,8 +917,7 @@ void TestStartupErrorPaths(void)
     UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 3,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; cannot get memory for volatile disk");
 
@@ -933,8 +930,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
-               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOVE_VOLATILE]) && 
-               UT_GetStubCount(UT_KEY(OS_printf)) == 3,
+               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOVE_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error removing volatile (RAM) volume");
 
@@ -947,8 +943,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_UNMOUNT_VOLATILE]) && 
-              UT_GetStubCount(UT_KEY(OS_printf)) == 3,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_UNMOUNT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error unmounting volatile (RAM) volume");
 
@@ -956,7 +951,7 @@ void TestStartupErrorPaths(void)
     ES_ResetUnitTest();
     CFE_ES_InitializeFileSystems(4564564);
     UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 0,
+              UT_GetStubCount(UT_KEY(CFE_PSP_Panic)) == 0,
               "CFE_ES_InitializeFileSystems",
               "Initialize file systems; successful");
 
@@ -970,8 +965,7 @@ void TestStartupErrorPaths(void)
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]) && 
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOUNT_VOLATILE]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 4,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOUNT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error remounting volatile (RAM) volume");
 
@@ -982,8 +976,7 @@ void TestStartupErrorPaths(void)
     UT_SetDeferredRetcode(UT_KEY(OS_FileSysStatVolume), 1, -1);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_DETERMINE_BLOCKS]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_DETERMINE_BLOCKS]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error determining blocks free on volume");
 
@@ -1002,8 +995,7 @@ void TestStartupErrorPaths(void)
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_CreateObjects();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_RECORD_USED]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 13,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_RECORD_USED]),
               "CFE_ES_CreateObjects",
               "Record used error");
 
@@ -1026,8 +1018,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_CreateObjects();
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_RECORD_USED]) && 
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_EARLYINIT]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 14,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_EARLYINIT]),
               "CFE_ES_CreateObjects",
               "Error returned when calling function");
 
@@ -1040,8 +1031,7 @@ void TestStartupErrorPaths(void)
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_CreateObjects();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_APP_CREATE]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 18,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_APP_CREATE]),
               "CFE_ES_CreateObjects",
               "Error creating core application");
 
@@ -1059,10 +1049,6 @@ void TestStartupErrorPaths(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]) == 5,
               "CFE_ES_CreateObjects",
               "No free application slots available, message");
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 18,
-              "CFE_ES_CreateObjects",
-              "No free application slots available, printf count");
 
     /* Test reading the object table with a NULL function pointer */
     ES_ResetUnitTest();
@@ -1083,10 +1069,6 @@ void TestStartupErrorPaths(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FUNCTION_POINTER]),
               "CFE_ES_CreateObjects",
               "Bad function pointer message");
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 19,
-              "CFE_ES_CreateObjects",
-              "Bad function pointer, printf count");
 
     /* Test response to an invalid startup type */
     ES_ResetUnitTest();
@@ -1110,8 +1092,7 @@ void TestStartupErrorPaths(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INIT_VOLATILE]) && 
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOUNT_VOLATILE]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 6,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOUNT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error initializing and mounting volatile "
                 "(RAM) volume");
@@ -1194,7 +1175,6 @@ void TestApps(void)
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]));
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
-    UtAssert_UINT32_EQ(UT_GetStubCount(UT_KEY(OS_printf)), 5);
 
     /* Create a valid startup script for subsequent tests */
     strncpy(StartupScript,
@@ -1214,8 +1194,7 @@ void TestApps(void)
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_READ]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]) && 
-              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]),
               "CFE_ES_StartApplications",
               "Error reading startup file");
 
@@ -1227,8 +1206,7 @@ void TestApps(void)
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]),
               "CFE_ES_StartApplications",
               "End of file reached");
 
@@ -1238,8 +1216,7 @@ void TestApps(void)
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_OPEN_ES_APP_STARTUP]) &&
-                 UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_OPEN_ES_APP_STARTUP]),
               "CFE_ES_StartApplications",
               "Can't open ES application startup file");
 
@@ -1250,7 +1227,6 @@ void TestApps(void)
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
-    UtAssert_UINT32_EQ(UT_GetStubCount(UT_KEY(OS_printf)), 5);
 
     /* Test parsing the startup script with an unknown entry type */
     ES_ResetUnitTest();
@@ -2672,10 +2648,6 @@ void TestTask(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]),
               "CFE_ES_TaskMain",
               "Command pipe error, UT_OSP_COMMAND_PIPE message");
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
-              "CFE_ES_TaskMain",
-              "Command pipe error, printf count");
 
     /* Test task main process loop with an initialization failure */
     ES_ResetUnitTest();
@@ -2689,10 +2661,6 @@ void TestTask(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REGISTER_APP]),
               "CFE_ES_TaskMain",
               "Task initialization fail, UT_OSP_REGISTER_APP message");
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
-              "CFE_ES_TaskMain",
-              "Task initialization fail, printf count");
 
     /* Test task main process loop with bad checksum information */
     ES_ResetUnitTest();
@@ -4485,8 +4453,7 @@ void TestAPI(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_ResetCFE(ResetType) == CFE_ES_NOT_IMPLEMENTED &&
                   UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_MAX_PROC_RESETS]) &&
-                  UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_PROC_RESET_COMMANDED]) && 
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+                  UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_PROC_RESET_COMMANDED]),
               "CFE_ES_ResetCFE",
               "Processor reset");
 
@@ -4506,8 +4473,7 @@ void TestAPI(void)
     ResetType = CFE_PSP_RST_TYPE_POWERON;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_ResetCFE(ResetType) == CFE_ES_NOT_IMPLEMENTED &&
-                  UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_COMMANDED]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_COMMANDED]),
               "CFE_ES_ResetCFE",
               "Power on reset");
 
@@ -4560,8 +4526,7 @@ void TestAPI(void)
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_INIT]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_MAX_PROC_RESETS]) && 
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 3,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_MAX_PROC_RESETS]),
               "CFE_ES_ExitApp",
               "Application initialization error");
 
@@ -4570,8 +4535,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_RUNTIME]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_RUNTIME]),
               "CFE_ES_ExitApp",
               "Application runtime error");
 
@@ -4584,8 +4548,7 @@ void TestAPI(void)
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     CFE_ES_ExitApp(1000);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EXIT]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EXIT]),
               "CFE_ES_ExitApp",
               "Application exit error");
     UtAssert_True(UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_ERROR,
@@ -4979,8 +4942,7 @@ void TestAPI(void)
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_CALL_APP_MAIN]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_CALL_APP_MAIN]),
               "CFE_ES_ExitChildTask",
               "Cannot call from a cFE application main task");
 
@@ -4988,8 +4950,7 @@ void TestAPI(void)
     ES_ResetUnitTest();
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_TASKEXIT_BAD_CONTEXT]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_TASKEXIT_BAD_CONTEXT]),
               "CFE_ES_ExitChildTask",
               "Invalid context");
 
@@ -5070,7 +5031,7 @@ void TestAPI(void)
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, -1);
     CFE_ES_LockSharedData(__func__, 12345);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MUTEX_TAKE]) && UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MUTEX_TAKE]),
               "CFE_ES_LockSharedData",
               "Mutex take error");
 
@@ -5080,7 +5041,7 @@ void TestAPI(void)
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 1, -1);
     CFE_ES_UnlockSharedData(__func__, 98765);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MUTEX_GIVE]) && UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MUTEX_GIVE]),
               "CFE_ES_UnlockSharedData",
               "Mutex release error");
 
@@ -6733,8 +6694,10 @@ void TestBackground(void)
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_TaskRegister), 1, -1);
     CFE_ES_BackgroundTask();
-    /* this has no return value, but this can ensure that a syslog/printf was generated */
-    UtAssert_True(UT_GetStubCount(UT_KEY(OS_printf)) == 1, "CFE_ES_BackgroundTask - CFE_ES_RegisterChildTask failure");
+    UT_Report(__FILE__, __LINE__,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_REGISTER]),
+              "CFE_ES_BackgroundTask",
+              "Failed to register error");
 
     /*
      * When testing the background task loop, it is normally an infinite loop,
@@ -6750,8 +6713,10 @@ void TestBackground(void)
     CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemTimedWait), 3, -4);
     CFE_ES_BackgroundTask();
-    /* this has no return value, but this can ensure that a syslog/printf was generated */
-    UtAssert_True(UT_GetStubCount(UT_KEY(OS_printf)) == 1, "CFE_ES_BackgroundTask - Nominal");
+    UT_Report(__FILE__, __LINE__,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_TAKE]),
+              "CFE_ES_BackgroundTask",
+              "Failed to take background sem");
     /* The number of jobs running should be 1 (perf log dump) */
     UtAssert_True(CFE_ES_Global.BackgroundTask.NumJobsRunning == 1,
             "CFE_ES_BackgroundTask - Nominal, CFE_ES_Global.BackgroundTask.NumJobsRunning (%u) == 1",
