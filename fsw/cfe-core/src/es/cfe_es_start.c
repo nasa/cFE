@@ -182,10 +182,10 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
    /*
    ** Initialize the Last Id
    */
-   CFE_ES_Global.LastAppId = CFE_ES_ResourceID_FromInteger(CFE_ES_APPID_BASE);
-   CFE_ES_Global.LastLibId = CFE_ES_ResourceID_FromInteger(CFE_ES_LIBID_BASE);
-   CFE_ES_Global.LastCounterId = CFE_ES_ResourceID_FromInteger(CFE_ES_COUNTID_BASE);
-   CFE_ES_Global.LastMemPoolId = CFE_ES_ResourceID_FromInteger(CFE_ES_POOLID_BASE);
+   CFE_ES_Global.LastAppId = CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE);
+   CFE_ES_Global.LastLibId = CFE_ResourceId_FromInteger(CFE_ES_LIBID_BASE);
+   CFE_ES_Global.LastCounterId = CFE_ResourceId_FromInteger(CFE_ES_COUNTID_BASE);
+   CFE_ES_Global.LastMemPoolId = CFE_ResourceId_FromInteger(CFE_ES_POOLID_BASE);
 
    /*
    ** Indicate that the CFE core is now starting up / going multi-threaded
@@ -742,8 +742,8 @@ void  CFE_ES_CreateObjects(void)
     int32     ReturnCode;
     uint16    i;
     CFE_ES_AppRecord_t *AppRecPtr;
-    CFE_ES_ResourceID_t PendingAppId;
-    CFE_ES_ResourceID_t PendingTaskId;
+    CFE_ResourceId_t PendingAppId;
+    CFE_ES_TaskId_t PendingTaskId;
 
     CFE_ES_WriteToSysLog("ES Startup: Starting Object Creation calls.\n");
 
@@ -759,8 +759,8 @@ void  CFE_ES_CreateObjects(void)
             */
             CFE_ES_LockSharedData(__func__,__LINE__);
 
-            PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS, CFE_ES_CheckAppIdSlotUsed);
-            AppRecPtr = CFE_ES_LocateAppRecordByID(PendingAppId);
+            PendingAppId = CFE_ResourceId_FindNext(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS, CFE_ES_CheckAppIdSlotUsed);
+            AppRecPtr = CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(PendingAppId));
             if (AppRecPtr != NULL)
             {
                 /*
@@ -783,7 +783,7 @@ void  CFE_ES_CreateObjects(void)
                 AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
                 AppRecPtr->ControlReq.AppTimerMsec = 0;
 
-                CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_ES_RESOURCEID_RESERVED);
+                CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_RESOURCEID_RESERVED);
                 CFE_ES_Global.LastAppId = PendingAppId;
             }
 
@@ -798,7 +798,7 @@ void  CFE_ES_CreateObjects(void)
                 ** Start the core app main task
                 ** (core apps are already in memory - no loading needed)
                 */
-                ReturnCode = CFE_ES_StartAppTask(&AppRecPtr->StartParams, PendingAppId, &PendingTaskId);
+                ReturnCode = CFE_ES_StartAppTask(&AppRecPtr->StartParams, CFE_ES_APPID_C(PendingAppId), &PendingTaskId);
 
                 /*
                  * Finalize data in the app table entry, which must be done under lock.

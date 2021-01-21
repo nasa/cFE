@@ -41,7 +41,7 @@
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
-#define CFE_TBL_NOT_OWNED               CFE_ES_RESOURCEID_UNDEFINED
+#define CFE_TBL_NOT_OWNED               CFE_ES_APPID_UNDEFINED
 #define CFE_TBL_NOT_FOUND               (-1)
 #define CFE_TBL_END_OF_LIST             (CFE_TBL_Handle_t)0xFFFF
 
@@ -93,7 +93,7 @@ int32   CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
 **                     
 ******************************************************************************/
-int32   CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_ResourceID_t *AppIdPtr);
+int32   CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppIdPtr);
 
 /*****************************************************************************/
 /**
@@ -116,7 +116,7 @@ int32   CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_ResourceID_t *
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
 **                     
 ******************************************************************************/
-int32   CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_ResourceID_t ThisAppId);
+int32   CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
 
 
 /*****************************************************************************/
@@ -167,7 +167,7 @@ int32   CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_UNREGISTERED        \copydoc CFE_TBL_ERR_UNREGISTERED
 **                
 ******************************************************************************/
-int32   CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_ES_ResourceID_t ThisAppId);
+int32   CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
 
 
 /*****************************************************************************/
@@ -262,7 +262,7 @@ CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void);
 **
 **                      
 ******************************************************************************/
-void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_ResourceID_t ThisAppId);
+void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_t ThisAppId);
 
 
 /*****************************************************************************/

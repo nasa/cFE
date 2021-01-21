@@ -129,13 +129,13 @@ typedef struct
 */
 typedef struct
 {
-   CFE_ES_ResourceID_t        AppId;                 /* The actual AppID of this entry, or undefined */
+   CFE_ES_AppId_t             AppId;                 /* The actual AppID of this entry, or undefined */
    CFE_ES_AppState_Enum_t     AppState;              /* Is the app running, or stopped, or waiting? */
    CFE_ES_AppType_Enum_t      Type;                  /* The type of App: CORE or EXTERNAL */
    CFE_ES_AppStartParams_t    StartParams;           /* The start parameters for an App */
    CFE_ES_ModuleLoadStatus_t  ModuleInfo;            /* Runtime module information */
    CFE_ES_ControlReq_t        ControlReq;            /* The Control Request Record for External cFE Apps */
-   CFE_ES_ResourceID_t        MainTaskId;            /* The Application's Main Task ID */
+   CFE_ES_TaskId_t            MainTaskId;            /* The Application's Main Task ID */
 
 } CFE_ES_AppRecord_t;
 
@@ -146,8 +146,8 @@ typedef struct
 */
 typedef struct
 {
-   CFE_ES_ResourceID_t     TaskId;            /* The actual TaskID of this entry, or undefined */
-   CFE_ES_ResourceID_t     AppId;             /* The parent Application's App ID */
+   CFE_ES_TaskId_t         TaskId;            /* The actual TaskID of this entry, or undefined */
+   CFE_ES_AppId_t          AppId;             /* The parent Application's App ID */
    uint32    ExecutionCounter;                /* The execution counter for the Child task */
    char      TaskName[OS_MAX_API_NAME];       /* Task Name */
 
@@ -160,7 +160,7 @@ typedef struct
 */
 typedef struct
 {
-   CFE_ES_ResourceID_t        LibId;          /* The actual LibID of this entry, or undefined */
+   CFE_ES_LibId_t             LibId;          /* The actual LibID of this entry, or undefined */
    CFE_ES_ModuleLoadParams_t  BasicInfo;      /* Basic (static) information about the module */
    CFE_ES_ModuleLoadStatus_t  ModuleInfo;     /* Runtime information about the module */
 } CFE_ES_LibRecord_t;
@@ -198,7 +198,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
 ** This only loads the code and looks up relevent runtime information.
 ** It does not start any tasks.
 */
-int32 CFE_ES_LoadModule(CFE_ES_ResourceID_t ResourceId, const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
+int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
 
 /*
 ** Internal function to determine the entry point of an app.
@@ -217,13 +217,13 @@ void CFE_ES_AppEntryPoint(void);
 /*
 ** Internal function to start the main task of an app.
 */
-int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_ResourceID_t RefAppId, CFE_ES_ResourceID_t *TaskIdPtr);
+int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_AppId_t RefAppId, CFE_ES_TaskId_t *TaskIdPtr);
 
 /*
 ** Internal function to create/start a new cFE app
 ** based on the parameters passed in
 */
-int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
+int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr,
                        const char   *FileName,
                        const char   *EntryPointName,
                        const char   *AppName,
@@ -233,7 +233,7 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
 /*
 ** Internal function to load a a new cFE shared Library
 */
-int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t *LibraryIdPtr,
+int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr,
                        const char   *FileName,
                        const char   *EntryPointName,
                        const char   *LibName);
@@ -267,17 +267,17 @@ bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg);
 /*
 ** Perform the requested control action for an application
 */
-void CFE_ES_ProcessControlRequest(CFE_ES_ResourceID_t AppId);
+void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId);
 
 /*
 ** Clean up all app resources and delete it
 */
-int32 CFE_ES_CleanUpApp(CFE_ES_ResourceID_t AppId);
+int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId);
 
 /*
 ** Clean up all Task resources and detete the task
 */
-int32 CFE_ES_CleanupTaskResources(CFE_ES_ResourceID_t TaskId);
+int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId);
 
 
 /*

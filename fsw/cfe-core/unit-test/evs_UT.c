@@ -566,7 +566,7 @@ void Test_IllegalAppID(void)
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_SendEventWithAppID(0,
                                          0,
-                                         CFE_ES_RESOURCEID_UNDEFINED,
+                                         CFE_ES_APPID_UNDEFINED,
                                          "NULL") == CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_SendEventWithAppID",
               "Illegal app ID");
@@ -591,7 +591,7 @@ void Test_IllegalAppID(void)
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED) ==
+              CFE_EVS_CleanUpApp(CFE_ES_APPID_UNDEFINED) ==
                   CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_CleanUpApp",
               "Illegal app ID");
@@ -605,7 +605,7 @@ void Test_UnregisteredApp(void)
 {
     CFE_TIME_SysTime_t time = {0, 0};
     EVS_AppData_t       *AppDataPtr;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t      AppID;
 
     /* Get a local ref to the "current" AppData table entry */
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
@@ -688,7 +688,7 @@ void Test_FilterRegistration(void)
     CFE_EVS_BinFilter_t filter[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS + 1];
     EVS_BinFilter_t     *FilterPtr = NULL;
     EVS_AppData_t       *AppDataPtr;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t      AppID;
     CFE_TIME_SysTime_t  time = {0, 0};
 
     /* Get a local ref to the "current" AppData table entry */
@@ -929,7 +929,7 @@ void Test_Format(void)
             .SnapshotSize = sizeof(CapturedMsg)
     };
     EVS_AppData_t       *AppDataPtr;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t       AppID;
     UT_EVS_MSGInitData_t MsgData;
     CFE_MSG_Message_t *MsgSend;
 
@@ -2692,7 +2692,7 @@ void Test_Misc(void)
         CFE_EVS_WriteLogDataFileCmd_t writelogdatacmd;
     } PktBuf;
 
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t      AppID;
     EVS_AppData_t       *AppDataPtr;
     int                i;
     char               msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + 2];
@@ -2744,7 +2744,7 @@ void Test_Misc(void)
     /* Test successful application cleanup */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED) == CFE_SUCCESS,
+              CFE_EVS_CleanUpApp(CFE_ES_APPID_UNDEFINED) == CFE_SUCCESS,
               "CFE_EVS_CleanUpApp",
               "Application cleanup - successful");
 

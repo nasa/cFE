@@ -168,7 +168,7 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
 /*
 ** Function: CFE_ES_RestartApp - See API and header file for details
 */
-int32 CFE_ES_RestartApp(CFE_ES_ResourceID_t AppID)
+int32 CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
 {
     int32 ReturnCode = CFE_SUCCESS;
     CFE_ES_AppRecord_t *AppRecPtr;
@@ -208,7 +208,7 @@ int32 CFE_ES_RestartApp(CFE_ES_ResourceID_t AppID)
        ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
 
        CFE_ES_WriteToSysLog("CFE_ES_RestartApp: Invalid Application ID received, AppID = %lu\n",
-                            CFE_ES_ResourceID_ToInteger(AppID));
+                            CFE_RESOURCEID_TO_ULONG(AppID));
 
     } /* end if */
 
@@ -219,7 +219,7 @@ int32 CFE_ES_RestartApp(CFE_ES_ResourceID_t AppID)
 /*
 ** Function: CFE_ES_ReloadApp - See API and header file for details
 */
-int32 CFE_ES_ReloadApp(CFE_ES_ResourceID_t AppID, const char *AppFileName)
+int32 CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
 {
     int32 ReturnCode = CFE_SUCCESS;
     os_fstat_t FileStatus;
@@ -278,7 +278,7 @@ int32 CFE_ES_ReloadApp(CFE_ES_ResourceID_t AppID, const char *AppFileName)
 /*
 ** Function: CFE_ES_DeleteApp - See API and header file for details
 */
-int32 CFE_ES_DeleteApp(CFE_ES_ResourceID_t AppID)
+int32 CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
 {
     int32 ReturnCode = CFE_SUCCESS;
     CFE_ES_AppRecord_t *AppRecPtr = CFE_ES_LocateAppRecordByID(AppID);
@@ -691,7 +691,7 @@ int32 CFE_ES_RegisterApp(void)
 /*
 ** Function: CFE_ES_GetAppIDByName - See API and header file for details
 */
-int32 CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *AppName)
+int32 CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
     int32 Result;
@@ -711,7 +711,7 @@ int32 CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *AppName)
          * in case the does not check the return code.
          */
         Result = CFE_ES_ERR_NAME_NOT_FOUND;
-        *AppIdPtr = CFE_ES_RESOURCEID_UNDEFINED;
+        *AppIdPtr = CFE_ES_APPID_UNDEFINED;
     }
     else
     {
@@ -728,7 +728,7 @@ int32 CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *AppName)
 /*
 ** Function: CFE_ES_GetLibIDByName - See API and header file for details
 */
-int32 CFE_ES_GetLibIDByName(CFE_ES_ResourceID_t *LibIdPtr, const char *LibName)
+int32 CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName)
 {
     CFE_ES_LibRecord_t *LibRecPtr;
     int32 Result;
@@ -748,7 +748,7 @@ int32 CFE_ES_GetLibIDByName(CFE_ES_ResourceID_t *LibIdPtr, const char *LibName)
          * in case the does not check the return code.
          */
         Result = CFE_ES_ERR_NAME_NOT_FOUND;
-        *LibIdPtr = CFE_ES_RESOURCEID_UNDEFINED;
+        *LibIdPtr = CFE_ES_LIBID_UNDEFINED;
     }
     else
     {
@@ -764,7 +764,7 @@ int32 CFE_ES_GetLibIDByName(CFE_ES_ResourceID_t *LibIdPtr, const char *LibName)
 /*
 ** Function: CFE_ES_GetTaskIDByName - See API and header file for details
 */
-CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_ResourceID_t *TaskIdPtr, const char *TaskName)
+CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName)
 {
     osal_id_t OsalId;
     int32 Status;
@@ -780,12 +780,12 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_ResourceID_t *TaskIdPtr, const char *
     if (Status == OS_SUCCESS)
     {
         Result = CFE_SUCCESS;
-        *TaskIdPtr = CFE_ES_ResourceID_FromOSAL(OsalId);
+        *TaskIdPtr = CFE_ES_TaskId_FromOSAL(OsalId);
     }
     else
     {
         Result = CFE_ES_ERR_NAME_NOT_FOUND;
-        *TaskIdPtr = CFE_ES_RESOURCEID_UNDEFINED;
+        *TaskIdPtr = CFE_ES_TASKID_UNDEFINED;
     }
 
     return(Result);
@@ -795,7 +795,7 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_ResourceID_t *TaskIdPtr, const char *
 /*
 ** Function: CFE_ES_GetAppID  - See API and header file for details
 */
-int32 CFE_ES_GetAppID(CFE_ES_ResourceID_t *AppIdPtr)
+int32 CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
 {
    CFE_ES_AppRecord_t *AppRecPtr;
    int32 Result;
@@ -811,7 +811,7 @@ int32 CFE_ES_GetAppID(CFE_ES_ResourceID_t *AppIdPtr)
    }
    else
    {
-       *AppIdPtr = CFE_ES_RESOURCEID_UNDEFINED;
+       *AppIdPtr = CFE_ES_APPID_UNDEFINED;
        Result = CFE_ES_ERR_RESOURCEID_NOT_VALID;
    }
 
@@ -824,7 +824,7 @@ int32 CFE_ES_GetAppID(CFE_ES_ResourceID_t *AppIdPtr)
 /*
 ** Function: CFE_ES_GetTaskID  - See API and header file for details
 */
-int32 CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr)
+int32 CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr)
 {
     int32 Result;
     CFE_ES_TaskRecord_t *TaskRecPtr;
@@ -833,7 +833,7 @@ int32 CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr)
     TaskRecPtr = CFE_ES_GetTaskRecordByContext();
     if (TaskRecPtr == NULL)
     {
-        *TaskIdPtr = CFE_ES_RESOURCEID_UNDEFINED;
+        *TaskIdPtr = CFE_ES_TASKID_UNDEFINED;
         Result = CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
     else
@@ -848,7 +848,7 @@ int32 CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr)
 /*
 ** Function: CFE_ES_GetAppName - See API and header file for details
 */
-int32 CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, size_t BufferLength)
+int32 CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t BufferLength)
 {
    int32 Result;
    CFE_ES_AppRecord_t *AppRecPtr;
@@ -890,7 +890,7 @@ int32 CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, size_t BufferL
 /*
 ** Function: CFE_ES_GetLibName - See API and header file for details
 */
-int32 CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, size_t BufferLength)
+int32 CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t BufferLength)
 {
    int32 Result;
    CFE_ES_LibRecord_t *LibRecPtr;
@@ -932,7 +932,7 @@ int32 CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, size_t BufferL
 /*
 ** Function: CFE_ES_GetTaskName - See API and header file for details
 */
-int32 CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, size_t BufferLength)
+int32 CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t BufferLength)
 {
    int32 Result;
    osal_id_t OsalId;
@@ -942,15 +942,15 @@ int32 CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, size_t Buff
        return CFE_ES_BAD_ARGUMENT;
    }
 
-   if (!CFE_ES_ResourceID_IsDefined(TaskId))
+   if (!CFE_RESOURCEID_TEST_DEFINED(TaskId))
    {
        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
    }
 
    /*
-    * Query OSAL to get the task ID
+    * Query OSAL to get the task name
     */
-   OsalId = CFE_ES_ResourceID_ToOSAL(TaskId);
+   OsalId = CFE_ES_TaskId_ToOSAL(TaskId);
    Result = OS_GetResourceName(OsalId, TaskName, BufferLength);
 
    if (Result != OS_SUCCESS)
@@ -965,7 +965,7 @@ int32 CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, size_t Buff
 /*
 ** Function: CFE_ES_GetAppInfo - See API and header file for details
 */
-int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
+int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
 {
    CFE_ES_AppRecord_t *AppRecPtr;
    CFE_ES_TaskRecord_t *TaskRecPtr;
@@ -992,13 +992,13 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
         * Log a message if called with an invalid ID.
         */
        CFE_ES_WriteToSysLog("CFE_ES_GetAppInfo: App ID not active: %lu\n",
-               CFE_ES_ResourceID_ToInteger(AppId));
+               CFE_RESOURCEID_TO_ULONG(AppId));
 
        Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
    }
    else
    {
-       AppInfo->AppId = AppId;
+       AppInfo->ResourceId = CFE_RESOURCEID_UNWRAP(AppId); /* make into a generic resource ID */
        AppInfo->Type = AppRecPtr->Type;
 
        CFE_ES_CopyModuleBasicInfo(&AppRecPtr->StartParams.BasicInfo, AppInfo);
@@ -1019,9 +1019,9 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
        for (i=0; i<OS_MAX_TASKS; i++ )
        {
           if ( CFE_ES_TaskRecordIsUsed(TaskRecPtr) &&
-                  CFE_ES_ResourceID_Equal(TaskRecPtr->AppId, AppId))
+                  CFE_RESOURCEID_TEST_EQUAL(TaskRecPtr->AppId, AppId))
           {
-              if (CFE_ES_ResourceID_Equal(CFE_ES_TaskRecordGetID(TaskRecPtr), AppInfo->MainTaskId))
+              if (CFE_RESOURCEID_TEST_EQUAL(CFE_ES_TaskRecordGetID(TaskRecPtr), AppInfo->MainTaskId))
               {
                   /* This is the main task - capture its name and execution count */
                   AppInfo->ExecutionCounter = TaskRecPtr->ExecutionCounter;
@@ -1057,7 +1057,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId)
 /*
 ** Function: CFE_ES_GetLibInfo - See API and header file for details
 */
-int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
+int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId)
 {
     int32              Status;
     CFE_ES_LibRecord_t *LibRecPtr;
@@ -1082,13 +1082,13 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
          * Log a message if called with an invalid ID.
          */
         CFE_ES_SysLogWrite_Unsync("CFE_ES_GetLibInfo: Lib ID not active: %lu\n",
-                CFE_ES_ResourceID_ToInteger(LibId));
+                CFE_RESOURCEID_TO_ULONG(LibId));
 
         Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
     else
     {
-        LibInfo->AppId = CFE_ES_LibRecordGetID(LibRecPtr);;
+        LibInfo->ResourceId = CFE_RESOURCEID_UNWRAP(LibId); /* make into generic ID */
         LibInfo->Type = CFE_ES_AppType_LIBRARY;
 
         CFE_ES_CopyModuleBasicInfo(&LibRecPtr->BasicInfo, LibInfo);
@@ -1115,24 +1115,24 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId)
 /*
 ** Function: CFE_ES_GetModuleInfo - See API and header file for details
 */
-int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ES_ResourceID_t ResourceId)
+int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t ResourceId)
 {
     int32 Status;
 
-    switch(CFE_ES_ResourceID_GetBase(ResourceId))
+    switch(CFE_ResourceId_GetBase(ResourceId))
     {
     case CFE_ES_APPID_BASE:
-        Status = CFE_ES_GetAppInfo(ModuleInfo, ResourceId);
+        Status = CFE_ES_GetAppInfo(ModuleInfo, CFE_ES_APPID_C(ResourceId));
         break;
     case CFE_ES_LIBID_BASE:
-        Status = CFE_ES_GetLibInfo(ModuleInfo, ResourceId);
+        Status = CFE_ES_GetLibInfo(ModuleInfo, CFE_ES_LIBID_C(ResourceId));
         break;
     default:
         /*
          * Log a message if called with an invalid ID.
          */
         CFE_ES_WriteToSysLog("CFE_ES_GetModuleInfo: Resource ID not valid: %lu\n",
-                CFE_ES_ResourceID_ToInteger(ResourceId));
+                CFE_ResourceId_ToInteger(ResourceId));
         Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
         break;
 
@@ -1145,7 +1145,7 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ES_ResourceID_t Res
 /*
 ** Function: CFE_ES_GetTaskInfo - See API and header file for details
 */
-int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_ResourceID_t TaskId)
+int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
     CFE_ES_AppRecord_t *AppRecPtr;
@@ -1168,7 +1168,7 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_ResourceID_t TaskId
         /* task ID is bad */
         Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
         CFE_ES_SysLogWrite_Unsync("CFE_ES_GetTaskInfo: Task ID Not Active: %lu\n",
-                CFE_ES_ResourceID_ToInteger(TaskId));
+                CFE_RESOURCEID_TO_ULONG(TaskId));
     }
     else
     {
@@ -1221,7 +1221,7 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_ResourceID_t TaskId
 /*
 ** Function: CFE_ES_CreateChildTask - See API and header file for details
 */
-int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
+int32 CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr,
                         const char   *TaskName,
                         CFE_ES_ChildTaskMainFuncPtr_t   FunctionPtr,
                         CFE_ES_StackPointer_t StackPtr,
@@ -1234,9 +1234,8 @@ int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
    CFE_ES_AppRecord_t *AppRecPtr;
    CFE_ES_TaskRecord_t *TaskRecPtr;
    int32          ReturnCode;
-   CFE_ES_ResourceID_t  TaskId;
-   CFE_ES_ResourceID_t  ChildTaskId;
-   CFE_ES_ResourceID_t  ParentTaskId;
+   CFE_ES_TaskId_t  SelfTaskId;
+   CFE_ES_TaskId_t  LocalChildTaskId;
    osal_id_t      OsalId;
 
    /*
@@ -1286,9 +1285,8 @@ int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
          ** TaskID must be the same as the Parent Task ID.
          */
          OsalId = OS_TaskGetId();
-         TaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
-         ParentTaskId = AppRecPtr->MainTaskId;
-         if ( CFE_ES_ResourceID_Equal(TaskId, ParentTaskId) )
+         SelfTaskId = CFE_ES_TaskId_FromOSAL(OsalId);
+         if ( CFE_RESOURCEID_TEST_EQUAL(SelfTaskId, AppRecPtr->MainTaskId) )
          {
             /*
             ** Step 2: Create the new task using the OS API call
@@ -1301,16 +1299,16 @@ int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
             */
             if ( Result == OS_SUCCESS )
             {
-               ChildTaskId = CFE_ES_ResourceID_FromOSAL(OsalId);
-               TaskRecPtr = CFE_ES_LocateTaskRecordByID(ChildTaskId);
+               LocalChildTaskId = CFE_ES_TaskId_FromOSAL(OsalId);
+               TaskRecPtr = CFE_ES_LocateTaskRecordByID(LocalChildTaskId);
 
-               CFE_ES_TaskRecordSetUsed(TaskRecPtr, ChildTaskId);
+               CFE_ES_TaskRecordSetUsed(TaskRecPtr, CFE_RESOURCEID_UNWRAP(LocalChildTaskId));
                TaskRecPtr->AppId = CFE_ES_AppRecordGetID(AppRecPtr);
                strncpy(TaskRecPtr->TaskName,TaskName,sizeof(TaskRecPtr->TaskName) - 1);
                TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName) - 1] = '\0';
                CFE_ES_Global.RegisteredTasks++;
 
-               *TaskIdPtr = ChildTaskId;
+               *TaskIdPtr = CFE_ES_TaskRecordGetID(TaskRecPtr);
                ReturnCode = CFE_SUCCESS;
             }
             else
@@ -1382,7 +1380,7 @@ int32 CFE_ES_RegisterChildTask(void)
 void CFE_ES_IncrementTaskCounter(void)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    CFE_ES_ResourceID_t TaskID;
+    CFE_ES_TaskId_t TaskID;
 
     /*
      * Note this locates a task record but intentionally does _not_
@@ -1395,7 +1393,7 @@ void CFE_ES_IncrementTaskCounter(void)
      * Because the global data is not locked, only minimal validation
      * is performed.
      */
-    TaskID = CFE_ES_ResourceID_FromOSAL(OS_TaskGetId());
+    TaskID = CFE_ES_TaskId_FromOSAL(OS_TaskGetId());
     TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskID);
     if (TaskRecPtr != NULL)
     {
@@ -1409,7 +1407,7 @@ void CFE_ES_IncrementTaskCounter(void)
 /*
 ** Function: CFE_ES_DeleteChildTask - See API and header file for details
 */
-int32 CFE_ES_DeleteChildTask(CFE_ES_ResourceID_t TaskId)
+int32 CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
     CFE_ES_AppRecord_t *AppRecPtr;
@@ -1442,7 +1440,7 @@ int32 CFE_ES_DeleteChildTask(CFE_ES_ResourceID_t TaskId)
           {
              if ( CFE_ES_AppRecordIsUsed(AppRecPtr) )
              {
-                if ( CFE_ES_ResourceID_Equal(AppRecPtr->MainTaskId, TaskId) )
+                if ( CFE_RESOURCEID_TEST_EQUAL(AppRecPtr->MainTaskId, TaskId) )
                 {
                    /*
                    ** Error, the task Id is an App Main Task ID
@@ -1459,7 +1457,7 @@ int32 CFE_ES_DeleteChildTask(CFE_ES_ResourceID_t TaskId)
              /*
              ** Can delete the Task
              */
-             OsalId = CFE_ES_ResourceID_ToOSAL(TaskId);
+             OsalId = CFE_ES_TaskId_ToOSAL(TaskId);
              OSReturnCode = OS_TaskDelete(OsalId);
              if ( OSReturnCode == OS_SUCCESS )
              {
@@ -1473,13 +1471,13 @@ int32 CFE_ES_DeleteChildTask(CFE_ES_ResourceID_t TaskId)
                 ** Report the task delete
                 */
                 CFE_ES_SysLogWrite_Unsync("CFE_ES_DeleteChildTask Task %lu Deleted\n",
-                        CFE_ES_ResourceID_ToInteger(TaskId));
+                        CFE_RESOURCEID_TO_ULONG(TaskId));
                 ReturnCode = CFE_SUCCESS;
              }
              else
              {
                 CFE_ES_SysLogWrite_Unsync("CFE_ES_DeleteChildTask Error: Error Calling OS_TaskDelete: Task %lu, RC = 0x%08X\n",
-                        CFE_ES_ResourceID_ToInteger(TaskId), (unsigned int)OSReturnCode);
+                        CFE_RESOURCEID_TO_ULONG(TaskId), (unsigned int)OSReturnCode);
                 ReturnCode = CFE_ES_ERR_CHILD_TASK_DELETE;
              }
           }
@@ -1489,7 +1487,7 @@ int32 CFE_ES_DeleteChildTask(CFE_ES_ResourceID_t TaskId)
              ** Error: The task is a cFE Application Main task
              */
              CFE_ES_SysLogWrite_Unsync("CFE_ES_DeleteChildTask Error: Task %lu is a cFE Main Task.\n",
-                     CFE_ES_ResourceID_ToInteger(TaskId));
+                     CFE_RESOURCEID_TO_ULONG(TaskId));
              ReturnCode = CFE_ES_ERR_CHILD_TASK_DELETE_MAIN_TASK;
           } /* end if TaskMain == false */
        }
@@ -1499,7 +1497,7 @@ int32 CFE_ES_DeleteChildTask(CFE_ES_ResourceID_t TaskId)
           ** Task ID is not in use, so it is invalid
           */
           CFE_ES_SysLogWrite_Unsync("CFE_ES_DeleteChildTask Error: Task ID is not active: %lu\n",
-                  CFE_ES_ResourceID_ToInteger(TaskId));
+                  CFE_RESOURCEID_TO_ULONG(TaskId));
           ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
 
        } /* end if */
@@ -1513,7 +1511,7 @@ int32 CFE_ES_DeleteChildTask(CFE_ES_ResourceID_t TaskId)
        ** Task ID is invalid ( too large )
        */
        CFE_ES_WriteToSysLog("CFE_ES_DeleteChildTask Error: Invalid Task ID: %lu\n",
-               CFE_ES_ResourceID_ToInteger(TaskId));
+               CFE_RESOURCEID_TO_ULONG(TaskId));
        ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
 
     }
@@ -1568,7 +1566,7 @@ void CFE_ES_ExitChildTask(void)
       else
       {
          CFE_ES_SysLogWrite_Unsync("CFE_ES_ExitChildTask Error: Cannot Call from a cFE App Main Task. ID = %lu\n",
-                 CFE_ES_ResourceID_ToInteger(CFE_ES_TaskRecordGetID(TaskRecPtr)));
+                 CFE_RESOURCEID_TO_ULONG(CFE_ES_TaskRecordGetID(TaskRecPtr)));
       }
    }
    else
@@ -1704,13 +1702,13 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, con
 {
     int32   Status;
     size_t  NameLen;
-    CFE_ES_ResourceID_t  ThisAppId;
+    CFE_ES_AppId_t  ThisAppId;
 
     char    AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
     char    CDSName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN] = {""};
 
     /* Initialize output to safe value, in case this fails */
-    *CDSHandlePtr = CFE_ES_RESOURCEID_UNDEFINED;
+    *CDSHandlePtr = CFE_ES_CDS_BAD_HANDLE;
 
     /* Check to make sure calling application is legit */
     Status = CFE_ES_GetAppID(&ThisAppId);
@@ -1780,7 +1778,7 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, con
  * Purpose: Obtain CDS Block ID from name
  * See full API description in header file
  */
-CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_ResourceID_t *BlockIdPtr, const char *BlockName)
+CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_CDSHandle_t *BlockIdPtr, const char *BlockName)
 {
     CFE_Status_t Status;
     CFE_ES_CDS_RegRec_t *RegRecPtr;
@@ -1805,7 +1803,7 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_ResourceID_t *BlockIdPtr, const c
     }
     else
     {
-        *BlockIdPtr = CFE_ES_RESOURCEID_UNDEFINED;
+        *BlockIdPtr = CFE_ES_CDS_BAD_HANDLE;
         Status = CFE_ES_ERR_NAME_NOT_FOUND;
     }
 
@@ -1820,7 +1818,7 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_ResourceID_t *BlockIdPtr, const c
  * Purpose: Obtain CDS Block Name from ID
  * See full API description in header file
  */
-CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_ResourceID_t BlockId, size_t BufferLength)
+CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId, size_t BufferLength)
 {
     CFE_Status_t Status;
     CFE_ES_CDS_RegRec_t *RegRecPtr;
@@ -1882,10 +1880,10 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 **
 ** Purpose:  Allocates a generic counter resource and assigns ID
 */
-int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *CounterName)
+int32 CFE_ES_RegisterGenCounter(CFE_ES_CounterId_t *CounterIdPtr, const char *CounterName)
 {
    CFE_ES_GenCounterRecord_t *CountRecPtr;
-   CFE_ES_ResourceID_t PendingCounterId;
+   CFE_ResourceId_t PendingResourceId;
    int32 Status;
 
    if (CounterName == NULL || CounterIdPtr == NULL)
@@ -1909,13 +1907,13 @@ int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *C
    {
        CFE_ES_SysLogWrite_Unsync("ES Startup: Duplicate Counter name '%s'\n", CounterName);
        Status = CFE_ES_ERR_DUPLICATE_NAME;
-       PendingCounterId = CFE_ES_RESOURCEID_UNDEFINED;
+       PendingResourceId = CFE_RESOURCEID_UNDEFINED;
    }
    else
    {
        /* scan for a free slot */
-       PendingCounterId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastCounterId, CFE_PLATFORM_ES_MAX_GEN_COUNTERS, CFE_ES_CheckCounterIdSlotUsed);
-       CountRecPtr = CFE_ES_LocateCounterRecordByID(PendingCounterId);
+       PendingResourceId = CFE_ResourceId_FindNext(CFE_ES_Global.LastCounterId, CFE_PLATFORM_ES_MAX_GEN_COUNTERS, CFE_ES_CheckCounterIdSlotUsed);
+       CountRecPtr = CFE_ES_LocateCounterRecordByID(CFE_ES_COUNTERID_C(PendingResourceId));
 
        if (CountRecPtr == NULL)
        {
@@ -1928,15 +1926,15 @@ int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *C
                    sizeof(CountRecPtr->CounterName) - 1);
            CountRecPtr->CounterName[sizeof(CountRecPtr->CounterName) - 1] = '\0';
            CountRecPtr->Counter = 0;
-           CFE_ES_CounterRecordSetUsed(CountRecPtr, PendingCounterId);
-           CFE_ES_Global.LastCounterId = PendingCounterId;
+           CFE_ES_CounterRecordSetUsed(CountRecPtr, PendingResourceId);
+           CFE_ES_Global.LastCounterId = PendingResourceId;
            Status = CFE_SUCCESS;
        }
    }
 
    CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-   *CounterIdPtr = PendingCounterId;
+   *CounterIdPtr = CFE_ES_COUNTERID_C(PendingResourceId);
    return Status;
 
 }
@@ -1947,7 +1945,7 @@ int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *C
 ** Purpose:  Delete a Generic Counter.
 **
 */
-int32 CFE_ES_DeleteGenCounter(CFE_ES_ResourceID_t CounterId)
+int32 CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId)
 {
    CFE_ES_GenCounterRecord_t *CountRecPtr;
    int32 Status = CFE_ES_BAD_ARGUMENT;
@@ -1975,7 +1973,7 @@ int32 CFE_ES_DeleteGenCounter(CFE_ES_ResourceID_t CounterId)
 ** Purpose:  Increment a Generic Counter.
 **
 */
-int32 CFE_ES_IncrementGenCounter(CFE_ES_ResourceID_t CounterId)
+int32 CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
    CFE_ES_GenCounterRecord_t *CountRecPtr;
@@ -1996,7 +1994,7 @@ int32 CFE_ES_IncrementGenCounter(CFE_ES_ResourceID_t CounterId)
 ** Purpose:  Sets a Generic Counter's count.
 **
 */
-int32 CFE_ES_SetGenCount(CFE_ES_ResourceID_t CounterId, uint32 Count)
+int32 CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
    CFE_ES_GenCounterRecord_t *CountRecPtr;
@@ -2016,7 +2014,7 @@ int32 CFE_ES_SetGenCount(CFE_ES_ResourceID_t CounterId, uint32 Count)
 ** Purpose:  Gets the value of a Generic Counter.
 **
 */
-int32 CFE_ES_GetGenCount(CFE_ES_ResourceID_t CounterId, uint32 *Count)
+int32 CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count)
 {
    int32 Status = CFE_ES_BAD_ARGUMENT;
    CFE_ES_GenCounterRecord_t *CountRecPtr;
@@ -2031,7 +2029,7 @@ int32 CFE_ES_GetGenCount(CFE_ES_ResourceID_t CounterId, uint32 *Count)
    return Status;
 } /* End of CFE_ES_GetGenCount() */
 
-int32 CFE_ES_GetGenCounterIDByName(CFE_ES_ResourceID_t *CounterIdPtr, const char *CounterName)
+int32 CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, const char *CounterName)
 {
    CFE_ES_GenCounterRecord_t *CounterRecPtr;
    int32 Result;
@@ -2054,7 +2052,7 @@ int32 CFE_ES_GetGenCounterIDByName(CFE_ES_ResourceID_t *CounterIdPtr, const char
         * in case the does not check the return code.
         */
        Result = CFE_ES_ERR_NAME_NOT_FOUND;
-       *CounterIdPtr = CFE_ES_RESOURCEID_UNDEFINED;
+       *CounterIdPtr = CFE_ES_COUNTERID_UNDEFINED;
    }
    else
    {
@@ -2074,7 +2072,7 @@ int32 CFE_ES_GetGenCounterIDByName(CFE_ES_ResourceID_t *CounterIdPtr, const char
  * Purpose: Obtain Counter Name from ID
  * See full API description in header file
  */
-CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t CounterId, size_t BufferLength)
+CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_CounterId_t CounterId, size_t BufferLength)
 {
     CFE_ES_GenCounterRecord_t *CountRecPtr;
     CFE_Status_t Status;
@@ -2109,10 +2107,10 @@ CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t Cou
  * A conversion function to obtain an index value correlating to an AppID
  * This is a zero based value that can be used for indexing into a table.
  */
-int32 CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx)
+int32 CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex(
-            CFE_ES_ResourceID_ToInteger(AppID) - CFE_ES_APPID_BASE,
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(AppID), 
+            CFE_ES_APPID_BASE,
             CFE_PLATFORM_ES_MAX_APPLICATIONS,
             Idx);
 }
@@ -2121,10 +2119,10 @@ int32 CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx)
  * A conversion function to obtain an index value correlating to a LibID
  * This is a zero based value that can be used for indexing into a table.
  */
-int32 CFE_ES_LibID_ToIndex(CFE_ES_ResourceID_t LibId, uint32 *Idx)
+int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex(
-            CFE_ES_ResourceID_ToInteger(LibId) - CFE_ES_LIBID_BASE,
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(LibId), 
+            CFE_ES_LIBID_BASE,
             CFE_PLATFORM_ES_MAX_LIBRARIES,
             Idx);
 }
@@ -2136,17 +2134,17 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_ResourceID_t LibId, uint32 *Idx)
  * Task IDs come from OSAL, so this is currently a wrapper around the OSAL converter.
  * This is an alias for consistency with the ES AppID paradigm.
  */
-int32 CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx)
+int32 CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
 {
     osal_id_t OsalID;
     osal_index_t OsalIndex;
 
-    if (!CFE_ES_ResourceID_IsDefined(TaskID))
+    if (!CFE_RESOURCEID_TEST_DEFINED(TaskID))
     {
         return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
-    OsalID = CFE_ES_ResourceID_ToOSAL(TaskID);
+    OsalID = CFE_ES_TaskId_ToOSAL(TaskID);
     if (OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_TASK, OsalID, &OsalIndex) != OS_SUCCESS)
     {
         return CFE_ES_ERR_RESOURCEID_NOT_VALID;
@@ -2161,11 +2159,11 @@ int32 CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx)
  * A conversion function to obtain an index value correlating to a CounterID
  * This is a zero based value that can be used for indexing into a table.
  */
-int32 CFE_ES_CounterID_ToIndex(CFE_ES_ResourceID_t CounterId, uint32 *Idx)
+int32 CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterId, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex(
-            CFE_ES_ResourceID_ToInteger(CounterId) - CFE_ES_COUNTID_BASE,
-            CFE_PLATFORM_ES_MAX_GEN_COUNTERS,
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(CounterId), 
+            CFE_ES_COUNTID_BASE,
+            CFE_PLATFORM_ES_MAX_GEN_COUNTERS, 
             Idx);
 }
 

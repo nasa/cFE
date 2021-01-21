@@ -108,8 +108,8 @@ int32 CFE_ES_MemPoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offs
 
 int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex(
-            CFE_ES_ResourceID_ToInteger(PoolID) - CFE_ES_POOLID_BASE,
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(PoolID),
+            CFE_ES_POOLID_BASE,
             CFE_PLATFORM_ES_MAX_MEMORY_POOLS,
             Idx);
 }
@@ -121,9 +121,9 @@ int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx)
  * a given table slot is available.  Must be called while locked.
  *---------------------------------------------------------------------------------------
  */
-bool CFE_ES_CheckMemPoolSlotUsed(CFE_ES_ResourceID_t CheckId)
+bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_MemPoolRecordIsUsed(CFE_ES_LocateMemPoolRecordByID(CheckId));
+    return CFE_ES_MemPoolRecordIsUsed(CFE_ES_LocateMemPoolRecordByID(CFE_ES_MEMHANDLE_C(CheckId)));
 }
 
 CFE_ES_MemPoolRecord_t* CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID)
@@ -174,7 +174,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
                           bool                      UseMutex )
 {
     int32 Status;
-    CFE_ES_MemHandle_t PendingID;
+    CFE_ResourceId_t PendingID;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
     size_t Alignment;
     size_t MinimumSize;
@@ -223,8 +223,8 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
     CFE_ES_LockSharedData(__func__,__LINE__);
 
     /* scan for a free slot */
-    PendingID = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastMemPoolId, CFE_PLATFORM_ES_MAX_MEMORY_POOLS, CFE_ES_CheckMemPoolSlotUsed);
-    PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(PendingID);
+    PendingID = CFE_ResourceId_FindNext(CFE_ES_Global.LastMemPoolId, CFE_PLATFORM_ES_MAX_MEMORY_POOLS, CFE_ES_CheckMemPoolSlotUsed);
+    PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(CFE_ES_MEMHANDLE_C(PendingID));
 
     if (PoolRecPtr == NULL)
     {
@@ -235,7 +235,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
     {
         /* Fully clear the entry, just in case of stale data */
         memset(PoolRecPtr, 0, sizeof(*PoolRecPtr));
-        CFE_ES_MemPoolRecordSetUsed(PoolRecPtr, CFE_ES_RESOURCEID_RESERVED);
+        CFE_ES_MemPoolRecordSetUsed(PoolRecPtr, CFE_RESOURCEID_RESERVED);
         CFE_ES_Global.LastMemPoolId = PendingID;
         Status = CFE_SUCCESS;
     }
@@ -289,7 +289,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
        ** This is needed only because OS_MutSemCreate requires
        ** a unique name for each semaphore created.
        */
-       snprintf(MutexName, OS_MAX_API_NAME, "Pool%08lX", CFE_ES_ResourceID_ToInteger(PendingID));
+       snprintf(MutexName, OS_MAX_API_NAME, "Pool%08lX", CFE_ResourceId_ToInteger(PendingID));
 
        /* create a mutex to protect this memory pool */
        Status = OS_MutSemCreate(&PoolRecPtr->MutexId, MutexName, 0);
@@ -322,7 +322,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
         /*
          * Store the actual/correct pool ID in the record.
          */
-        CFE_ES_MemPoolRecordSetUsed(PoolRecPtr,PendingID);
+        CFE_ES_MemPoolRecordSetUsed(PoolRecPtr, PendingID);
     }
     else
     {
@@ -330,7 +330,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
          * Free the entry that was reserved earlier
          */
         CFE_ES_MemPoolRecordSetFree(PoolRecPtr);
-        PendingID = CFE_ES_RESOURCEID_UNDEFINED;
+        PendingID = CFE_RESOURCEID_UNDEFINED;
 
         if (Status == CFE_ES_POOL_BOUNDS_ERROR)
         {
@@ -341,8 +341,9 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
 
     /*
      * Export pool ID to caller as handle
+     * 
      */
-    *PoolID = PendingID;
+    *PoolID = CFE_ES_MEMHANDLE_C(PendingID);
 
     return(Status);
 }
@@ -407,7 +408,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr,
                         size_t               Size )
 {
     int32 Status;
-    CFE_ES_MemHandle_t  AppId;
+    CFE_ES_AppId_t  AppId;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
     size_t   DataOffset;
 
@@ -418,8 +419,8 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr,
     {
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("CFE_ES:getPoolBuf err:Bad handle(0x%08lX) AppId=%lu\n",
-                CFE_ES_ResourceID_ToInteger(Handle),
-                CFE_ES_ResourceID_ToInteger(AppId));
+                CFE_RESOURCEID_TO_ULONG(Handle),
+                CFE_RESOURCEID_TO_ULONG(AppId));
         return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 
@@ -533,7 +534,7 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
         CFE_ES_WriteToSysLog("CFE_ES:putPoolBuf err:Invalid Memory Handle (0x%08lX).\n",
-                CFE_ES_ResourceID_ToInteger(Handle));
+                CFE_RESOURCEID_TO_ULONG(Handle));
 
         return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
@@ -600,7 +601,7 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
 int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
                              CFE_ES_MemHandle_t  Handle)
 {
-    CFE_ES_MemHandle_t  AppId;
+    CFE_ES_AppId_t  AppId;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
     uint16 NumBuckets;
     uint16 Idx;
@@ -612,7 +613,7 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
     {
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("CFE_ES:getMemPoolStats err:Bad handle(0x%08lX) AppId=%lu\n",
-                CFE_ES_ResourceID_ToInteger(Handle), CFE_ES_ResourceID_ToInteger(AppId));
+                CFE_RESOURCEID_TO_ULONG(Handle), CFE_RESOURCEID_TO_ULONG(AppId));
         return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 

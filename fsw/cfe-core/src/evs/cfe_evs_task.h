@@ -88,8 +88,8 @@ typedef struct
 
 typedef struct
 {
-    CFE_ES_ResourceID_t AppID;
-    CFE_ES_ResourceID_t UnregAppID;
+    CFE_ES_AppId_t AppID;
+    CFE_ES_AppId_t UnregAppID;
 
     EVS_BinFilter_t    BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS];  /* Array of binary filters */
 
@@ -124,7 +124,7 @@ typedef struct
    CFE_EVS_HousekeepingTlm_t    EVS_TlmPkt;
    CFE_SB_PipeId_t     EVS_CommandPipe;
    osal_id_t           EVS_SharedDataMutexID;
-   CFE_ES_ResourceID_t EVS_AppID;
+   CFE_ES_AppId_t EVS_AppID;
 
 } CFE_EVS_GlobalData_t;
 

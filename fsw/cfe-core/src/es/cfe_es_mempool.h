@@ -64,7 +64,7 @@ typedef struct
      * an ES app, but in that case the resource cannot be cleaned up if the
      * app exits unexpectedly.
      */
-    CFE_ES_ResourceID_t OwnerAppID;
+    CFE_ES_AppId_t OwnerAppID;
 
     /**
      * Optional Mutex for serializing get/put operations
@@ -121,7 +121,7 @@ CFE_ES_MemPoolRecord_t* CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID
  */
 static inline bool CFE_ES_MemPoolRecordIsUsed(const CFE_ES_MemPoolRecord_t *PoolRecPtr)
 {
-    return CFE_ES_ResourceID_IsDefined(PoolRecPtr->PoolID);
+    return CFE_RESOURCEID_TEST_DEFINED(PoolRecPtr->PoolID);
 }
 
 /**
@@ -146,9 +146,9 @@ static inline CFE_ES_MemHandle_t CFE_ES_MemPoolRecordGetID(const CFE_ES_MemPoolR
  * @param[in]   PoolRecPtr   pointer to Pool table entry
  * @param[in]   PoolID       the Pool ID of this entry
  */
-static inline void CFE_ES_MemPoolRecordSetUsed(CFE_ES_MemPoolRecord_t *PoolRecPtr, CFE_ES_MemHandle_t PoolID)
+static inline void CFE_ES_MemPoolRecordSetUsed(CFE_ES_MemPoolRecord_t *PoolRecPtr, CFE_ResourceId_t PendingId)
 {
-    PoolRecPtr->PoolID = PoolID;
+    PoolRecPtr->PoolID = CFE_ES_MEMHANDLE_C(PendingId);
 }
 
 /**
@@ -161,7 +161,7 @@ static inline void CFE_ES_MemPoolRecordSetUsed(CFE_ES_MemPoolRecord_t *PoolRecPt
  */
 static inline void CFE_ES_MemPoolRecordSetFree(CFE_ES_MemPoolRecord_t *PoolRecPtr)
 {
-    PoolRecPtr->PoolID = CFE_ES_RESOURCEID_UNDEFINED;
+    PoolRecPtr->PoolID = CFE_ES_MEMHANDLE_UNDEFINED;
 }
 
 /**
@@ -179,7 +179,7 @@ static inline void CFE_ES_MemPoolRecordSetFree(CFE_ES_MemPoolRecord_t *PoolRecPt
  */
 static inline bool CFE_ES_MemPoolRecordIsMatch(const CFE_ES_MemPoolRecord_t *PoolRecPtr, CFE_ES_MemHandle_t PoolID)
 {
-    return (PoolRecPtr != NULL && CFE_ES_ResourceID_Equal(PoolRecPtr->PoolID, PoolID));
+    return (PoolRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(PoolRecPtr->PoolID, PoolID));
 }
 
 /**
@@ -187,7 +187,7 @@ static inline bool CFE_ES_MemPoolRecordIsMatch(const CFE_ES_MemPoolRecord_t *Poo
  *
  * Checks if a table slot is available for a potential new ID
  * This is a helper function intended to be used with 
- * CFE_ES_FindNextAvailableID() for allocating new IDs
+ * CFE_ResourceId_FindNext() for allocating new IDs
  * 
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
@@ -195,7 +195,7 @@ static inline bool CFE_ES_MemPoolRecordIsMatch(const CFE_ES_MemPoolRecord_t *Poo
  * @param[in]   CheckId       pending/candidate Pool ID to check
  * @returns true if the table slot for the ID is occupied, false if available
  */
-bool CFE_ES_CheckMemPoolSlotUsed(CFE_ES_ResourceID_t CheckId);
+bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId);
 
 
 #endif  /* _CFE_ES_MEMPOOL_H_ */

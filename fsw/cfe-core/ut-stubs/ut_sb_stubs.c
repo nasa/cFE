@@ -866,7 +866,7 @@ size_t CFE_SB_GetTotalMsgLength(const CFE_MSG_Message_t *MsgPtr)
 **        This function does not return a value.
 **
 ******************************************************************************/
-int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId)
+int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     int32 status;
 

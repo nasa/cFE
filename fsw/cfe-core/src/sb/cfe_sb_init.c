@@ -40,6 +40,7 @@
 #include "cfe_psp.h"
 #include "cfe_error.h"
 #include "cfe_sb_events.h"
+#include "private/cfe_core_resourceid_basevalues.h"
 
 #include <string.h>
 
@@ -180,7 +181,7 @@ int32  CFE_SB_InitBuffers(void) {
 */
 void CFE_SB_InitPipeTbl(void)
 {
-    CFE_SB.LastPipeId = CFE_ES_ResourceID_FromInteger(CFE_SB_PIPEID_BASE);
+    CFE_SB.LastPipeId = CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE);
 
 }/* end CFE_SB_InitPipeTbl */
 

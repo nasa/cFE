@@ -672,19 +672,19 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
             CFE_EVS_SendEvent(CFE_SB_ENBL_RTE1_EID,CFE_EVS_EventType_ERROR,
                 "Enbl Route Cmd:Route does not exist.Msg 0x%x,Pipe %lu",
                 (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+                CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_ENBL_RTE3_EID:
             CFE_EVS_SendEvent(CFE_SB_ENBL_RTE3_EID,CFE_EVS_EventType_ERROR,
                       "Enbl Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
                       (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                      CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+                      CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_ENBL_RTE2_EID:
             CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID,CFE_EVS_EventType_DEBUG,
                       "Enabling Route,Msg 0x%x,Pipe %lu",
                       (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                      CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+                      CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
     }
 
@@ -755,19 +755,19 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
             CFE_EVS_SendEvent(CFE_SB_DSBL_RTE1_EID,CFE_EVS_EventType_ERROR,
                 "Disable Route Cmd:Route does not exist,Msg 0x%x,Pipe %lu",
                 (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+                CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_DSBL_RTE3_EID:
             CFE_EVS_SendEvent(CFE_SB_DSBL_RTE3_EID,CFE_EVS_EventType_ERROR,
                    "Disable Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
                    (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                   CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+                   CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_DSBL_RTE2_EID:
             CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID,CFE_EVS_EventType_DEBUG,
                       "Route Disabled,Msg 0x%x,Pipe %lu",
                       (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                      CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+                      CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
     }
 
@@ -1052,7 +1052,7 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
         CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
                 "Sending Subscription Report Msg=0x%x,Pipe=%lu,Stat=0x%x",
                 (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                CFE_ES_ResourceID_ToInteger(PipeId),(unsigned int)Status);
+                CFE_RESOURCEID_TO_ULONG(PipeId),(unsigned int)Status);
     }
 
     return Status;

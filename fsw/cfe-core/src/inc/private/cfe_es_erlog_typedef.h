@@ -93,7 +93,7 @@ typedef struct
 typedef struct
 {
     CFE_ES_ERLog_BaseInfo_t BaseInfo;       /**< Core Log Data */
-    CFE_ES_ResourceID_t     AppID;          /* The application ID */
+    CFE_ES_AppId_t          AppID;          /* The application ID */
     uint32                  PspContextId;   /**< Reference to context information stored in PSP */
 } CFE_ES_ERLog_MetaData_t;
 

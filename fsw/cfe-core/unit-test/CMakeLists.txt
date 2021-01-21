@@ -84,5 +84,3 @@ endforeach(MODULE ${CFE_CORE_MODULES})
 # As these are just arbitrary data, they only have to be present - they do not need to be updated 
 execute_process(COMMAND gzip -c ${CMAKE_CURRENT_SOURCE_DIR}/fs_UT.c OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/fs_test.gz)
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/fs_test.nongz "This is an ordinary file\n")
-
-

@@ -98,7 +98,7 @@
 **  Return:
 **    None
 */
-int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId)
+int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     uint32 i;
     uint32 DelCount;
@@ -114,7 +114,7 @@ int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId)
     for (i = 0; i < CFE_PLATFORM_SB_MAX_PIPES; ++i)
     {
         if (CFE_SB_PipeDescIsUsed(PipeDscPtr) &&
-            CFE_ES_ResourceID_Equal(PipeDscPtr->AppId, AppId))
+            CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
         {
             DelList[DelCount] = CFE_SB_PipeDescGetID(PipeDscPtr);
             ++DelCount;
@@ -154,7 +154,7 @@ int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId)
 void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber){
 
     int32   Status;
-    CFE_ES_ResourceID_t AppId;
+    CFE_ES_AppId_t AppId;
 
     Status = OS_MutSemTake(CFE_SB.SharedDataMutexId);
     if (Status != OS_SUCCESS) {
@@ -162,7 +162,7 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber){
         CFE_ES_GetAppID(&AppId);
 
         CFE_ES_WriteToSysLog("SB SharedData Mutex Take Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n",
-                (unsigned int)Status,CFE_ES_ResourceID_ToInteger(AppId),FuncName,(int)LineNumber);
+                (unsigned int)Status,CFE_RESOURCEID_TO_ULONG(AppId),FuncName,(int)LineNumber);
 
     }/* end if */
 
@@ -189,7 +189,7 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber){
 void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber){
 
    int32   Status;
-   CFE_ES_ResourceID_t AppId;
+   CFE_ES_AppId_t AppId;
 
     Status = OS_MutSemGive(CFE_SB.SharedDataMutexId);
     if (Status != OS_SUCCESS) {
@@ -197,7 +197,7 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber){
         CFE_ES_GetAppID(&AppId);
 
         CFE_ES_WriteToSysLog("SB SharedData Mutex Give Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n",
-                (unsigned int)Status,CFE_ES_ResourceID_ToInteger(AppId),FuncName,(int)LineNumber);
+                (unsigned int)Status,CFE_RESOURCEID_TO_ULONG(AppId),FuncName,(int)LineNumber);
 
     }/* end if */
 
@@ -218,7 +218,7 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
     /* Check all destinations */
     while(destptr != NULL)
     {
-        if( CFE_ES_ResourceID_Equal(destptr->PipeId, PipeId) )
+        if( CFE_RESOURCEID_TEST_EQUAL(destptr->PipeId, PipeId) )
         {
             break;
         }
@@ -303,9 +303,9 @@ CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
  *
  * Checks if a table slot is used or not (helper for allocating IDs)
  */
-bool CFE_SB_CheckPipeDescSlotUsed(CFE_SB_PipeId_t CheckId)
+bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_SB_PipeDescIsUsed(CFE_SB_LocatePipeDescByID(CheckId));
+    return CFE_SB_PipeDescIsUsed(CFE_SB_LocatePipeDescByID(CFE_SB_PIPEID_C(CheckId)));
 }
 
 /******************************************************************************
@@ -324,7 +324,7 @@ bool CFE_SB_CheckPipeDescSlotUsed(CFE_SB_PipeId_t CheckId)
 **  Note: With taskId, Parent App name and Child Task name can be queried from ES
 **
 */
-char *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId,char *FullName){
+char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId,char *FullName){
 
     CFE_ES_TaskInfo_t  TaskInfo;
     CFE_ES_TaskInfo_t  *ptr = &TaskInfo;
@@ -374,7 +374,7 @@ char *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId,char *FullName){
 **    If the bit is set this function will return CFE_SB_DENIED.
 **    If bit is not set, this function set the bit and return CFE_SB_GRANTED.
 */
-uint32 CFE_SB_RequestToSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit){
+uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit){
 
     uint32 Indx;
 
@@ -411,7 +411,7 @@ uint32 CFE_SB_RequestToSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit){
 **    If the bit is set this function will return CFE_SB_DENIED.
 **    If bit is not set, this function set the bit and return CFE_SB_GRANTED.
 */
-void CFE_SB_FinishSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit){
+void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit){
 
     uint32 Indx;
 
@@ -533,14 +533,14 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
 **          Status
 **
 ******************************************************************************/
-int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId)
+int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)
 {
     CFE_SB_ZeroCopyD_t *prev = NULL;
     CFE_SB_ZeroCopyD_t *zcd = (CFE_SB_ZeroCopyD_t *) (CFE_SB.ZeroCopyTail);
 
     while(zcd != NULL){
         prev = (CFE_SB_ZeroCopyD_t *) (zcd->Prev);
-        if( CFE_ES_ResourceID_Equal(zcd->AppID, AppId) )
+        if( CFE_RESOURCEID_TEST_EQUAL(zcd->AppID, AppId) )
         {
             CFE_SB_ZeroCopyReleasePtr((CFE_SB_Buffer_t *) zcd->Buffer, (CFE_SB_ZeroCopyHandle_t) zcd);
         }

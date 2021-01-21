@@ -1426,11 +1426,15 @@ typedef struct CFE_ES_DumpCDSRegistryCmd
  *
  * Structure that is used to provide information about an app.
  * It is primarily used for the QueryOne and QueryAll Commands.
+ * 
+ * While this structure is primarily intended for Application info,
+ * it can also represent Library information where only a subset of
+ * the information applies.  
  */
 typedef struct CFE_ES_AppInfo
 {
-   CFE_ES_ResourceID_t   AppId;                /**< \cfetlmmnemonic \ES_APP_ID
-                                                    \brief Application ID for this Application */
+   CFE_ResourceId_t   ResourceId;                /**< \cfetlmmnemonic \ES_APP_ID
+                                                    \brief Application or Library ID for this resource */
    uint32   Type;                              /**< \cfetlmmnemonic \ES_APPTYPE
                                                     \brief The type of App: CORE or EXTERNAL */
 
@@ -1464,7 +1468,7 @@ typedef struct CFE_ES_AppInfo
                                                     (Restart Application OR Restart Processor) */
    CFE_ES_TaskPriority_Atom_t   Priority;        /**< \cfetlmmnemonic \ES_PRIORITY
                                                     \brief The Priority of the Application */
-   CFE_ES_ResourceID_t   MainTaskId;           /**< \cfetlmmnemonic \ES_MAINTASKID
+   CFE_ES_TaskId_t   MainTaskId;               /**< \cfetlmmnemonic \ES_MAINTASKID
                                                     \brief The Application's Main Task ID */
    uint32   ExecutionCounter;                  /**< \cfetlmmnemonic \ES_MAINTASKEXECNT
                                                     \brief The Application's Main Task Execution Counter */
@@ -1488,10 +1492,10 @@ typedef struct CFE_ES_AppInfo
  */
 typedef struct CFE_ES_TaskInfo
 {
-   CFE_ES_ResourceID_t TaskId;                            /**< \brief Task Id */
+   CFE_ES_TaskId_t     TaskId;                            /**< \brief Task Id */
    uint32              ExecutionCounter;                  /**< \brief Task Execution Counter */
    char                TaskName[CFE_MISSION_MAX_API_LEN]; /**< \brief Task Name */
-   CFE_ES_ResourceID_t AppId;                             /**< \brief Parent Application ID */
+   CFE_ES_AppId_t      AppId;                             /**< \brief Parent Application ID */
    char                AppName[CFE_MISSION_MAX_API_LEN];  /**< \brief Parent Application Name */
 } CFE_ES_TaskInfo_t;
 

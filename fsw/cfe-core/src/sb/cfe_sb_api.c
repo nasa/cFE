@@ -68,6 +68,7 @@
 #include "cfe_psp.h"
 #include "cfe_error.h"
 #include <string.h>
+#include "private/cfe_core_resourceid_basevalues.h"
 
 /* 
  * Macro to reflect size of PipeDepthStats Telemetry array - 
@@ -88,8 +89,8 @@ typedef struct
  */
 CFE_Status_t CFE_SB_PipeId_ToIndex(CFE_SB_PipeId_t PipeID, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex(
-            CFE_ES_ResourceID_ToInteger(PipeID) - CFE_SB_PIPEID_BASE,
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(PipeID),
+            CFE_SB_PIPEID_BASE,
             CFE_PLATFORM_SB_MAX_PIPES,
             Idx);
 }
@@ -99,12 +100,12 @@ CFE_Status_t CFE_SB_PipeId_ToIndex(CFE_SB_PipeId_t PipeID, uint32 *Idx)
  */
 int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *PipeName)
 {
-    CFE_ES_ResourceID_t  AppId;
-    CFE_ES_ResourceID_t  TskId;
+    CFE_ES_AppId_t  AppId;
+    CFE_ES_TaskId_t  TskId;
     osal_id_t       SysQueueId;
     int32           Status;
     CFE_SB_PipeD_t  *PipeDscPtr;
-    CFE_SB_PipeId_t PendingPipeId;
+    CFE_ResourceId_t PendingPipeId;
     uint16          PendingEventId;
     char            FullName[(OS_MAX_API_NAME * 2)];
 
@@ -137,8 +138,8 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
         CFE_SB_LockSharedData(__func__,__LINE__);
 
         /* get first available entry in pipe table */
-        PendingPipeId = CFE_ES_FindNextAvailableId(CFE_SB.LastPipeId, CFE_PLATFORM_SB_MAX_PIPES, CFE_SB_CheckPipeDescSlotUsed);
-        PipeDscPtr = CFE_SB_LocatePipeDescByID(PendingPipeId);
+        PendingPipeId = CFE_ResourceId_FindNext(CFE_SB.LastPipeId, CFE_PLATFORM_SB_MAX_PIPES, CFE_SB_CheckPipeDescSlotUsed);
+        PipeDscPtr = CFE_SB_LocatePipeDescByID(CFE_SB_PIPEID_C(PendingPipeId));
 
         /* if pipe table is full, send event and return error */
         if(PipeDscPtr == NULL)
@@ -151,7 +152,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
             /* Fully clear the entry, just in case of stale data */
             memset(PipeDscPtr, 0, sizeof(*PipeDscPtr));
 
-            CFE_SB_PipeDescSetUsed(PipeDscPtr, CFE_ES_RESOURCEID_RESERVED);
+            CFE_SB_PipeDescSetUsed(PipeDscPtr, CFE_RESOURCEID_RESERVED);
             CFE_SB.LastPipeId = PendingPipeId;
         }
 
@@ -217,7 +218,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
             CFE_SB_PipeDescSetFree(PipeDscPtr);
             PipeDscPtr = NULL;
         }
-        PendingPipeId = CFE_ES_RESOURCEID_UNDEFINED;
+        PendingPipeId = CFE_RESOURCEID_UNDEFINED;
 
         /*
          * If there is a relevant error counter, increment it now
@@ -242,11 +243,11 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
         /* send debug event */
         CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_ADDED_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
             "Pipe Created:name %s,id %d,app %s",
-            PipeName, (int)CFE_ES_ResourceID_ToInteger(PendingPipeId),
+            PipeName, (int)CFE_ResourceId_ToInteger(PendingPipeId),
             CFE_SB_GetAppTskName(TskId,FullName));
 
         /* give the pipe handle to the caller */
-        *PipeIdPtr = PendingPipeId;
+        *PipeIdPtr = CFE_SB_PIPEID_C(PendingPipeId);
     }
     else
     {
@@ -291,7 +292,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
  */
 int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 {
-    CFE_ES_ResourceID_t CallerId;
+    CFE_ES_AppId_t CallerId;
     int32   Status = 0;
 
     /* get the callers Application Id */
@@ -317,7 +318,7 @@ int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 **  Return:
 **    CFE_SUCCESS or cFE Error Code
 */
-int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_ResourceID_t AppId)
+int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
     int32   Status = 0;
 
@@ -360,11 +361,11 @@ void CFE_SB_RemovePipeFromRoute(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 **  Return:
 **    CFE_SUCCESS or cFE Error Code
 */
-int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
+int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_AppId_t AppId)
 {
     CFE_SB_PipeD_t             *PipeDscPtr;
     int32                       Status;
-    CFE_ES_ResourceID_t         TskId;
+    CFE_ES_TaskId_t             TskId;
     CFE_SB_BufferD_t           *BufDscPtr;
     osal_id_t                   SysQueueId;
     char                        FullName[(OS_MAX_API_NAME * 2)];
@@ -388,7 +389,7 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
         Status = CFE_SB_BAD_ARGUMENT;
     }
     /* check that the given AppId is the owner of the pipe */
-    else if (!CFE_ES_ResourceID_Equal(AppId, PipeDscPtr->AppId))
+    else if (!CFE_RESOURCEID_TEST_EQUAL(AppId, PipeDscPtr->AppId))
     {
         PendingEventID = CFE_SB_DEL_PIPE_ERR2_EID;
         Status = CFE_SB_BAD_ARGUMENT;
@@ -417,7 +418,7 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
          * from trying to use this Pipe Desc slot, and also should prevents
          * any task from re-subscribing to this pipe.
          */
-        CFE_SB_PipeDescSetUsed(PipeDscPtr, CFE_ES_RESOURCEID_RESERVED);
+        CFE_SB_PipeDescSetUsed(PipeDscPtr, CFE_RESOURCEID_RESERVED);
     }
 
     CFE_SB_UnlockSharedData(__func__,__LINE__);
@@ -475,7 +476,7 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
         CFE_ES_GetAppName(FullName, AppId, sizeof(FullName));
 
         CFE_EVS_SendEventWithAppID(CFE_SB_PIPE_DELETED_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
-            "Pipe Deleted:id %d,owner %s",(int)CFE_ES_ResourceID_ToInteger(PipeId), FullName);
+            "Pipe Deleted:id %d,owner %s",(int)CFE_RESOURCEID_TO_ULONG(PipeId), FullName);
     }
     else 
     {
@@ -488,12 +489,12 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
             case CFE_SB_DEL_PIPE_ERR1_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_DEL_PIPE_ERR1_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                     "Pipe Delete Error:Bad Argument,PipedId %ld,Requestor %s",
-                    CFE_ES_ResourceID_ToInteger(PipeId),FullName);
+                    CFE_RESOURCEID_TO_ULONG(PipeId),FullName);
                 break;
             case CFE_SB_DEL_PIPE_ERR2_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_DEL_PIPE_ERR2_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                     "Pipe Delete Error:Caller(%s) is not the owner of pipe %ld", 
-                    FullName, CFE_ES_ResourceID_ToInteger(PipeId));
+                    FullName, CFE_RESOURCEID_TO_ULONG(PipeId));
                 break;
         }
     }
@@ -509,8 +510,8 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId)
 int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
 {
     CFE_SB_PipeD_t             *PipeDscPtr;
-    CFE_ES_ResourceID_t        AppID;
-    CFE_ES_ResourceID_t        TskId;
+    CFE_ES_AppId_t             AppID;
+    CFE_ES_TaskId_t            TskId;
     uint16                     PendingEventID;
     int32         Status;
     char          FullName[(OS_MAX_API_NAME * 2)];
@@ -535,7 +536,7 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
         Status = CFE_SB_BAD_ARGUMENT;
     }
     /* check that the caller AppId is the owner of the pipe */
-    else if( !CFE_ES_ResourceID_Equal(AppID, PipeDscPtr->AppId) )
+    else if( !CFE_RESOURCEID_TEST_EQUAL(AppID, PipeDscPtr->AppId) )
     {
         PendingEventID = CFE_SB_SETPIPEOPTS_OWNER_ERR_EID;
         Status = CFE_SB_BAD_ARGUMENT;
@@ -560,7 +561,7 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
         CFE_ES_GetAppName(FullName, AppID, sizeof(FullName));
 
         CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
-            "Pipe opts set:id %lu,owner %s, opts=0x%02x",CFE_ES_ResourceID_ToInteger(PipeId), FullName, (unsigned int)Opts);
+            "Pipe opts set:id %lu,owner %s, opts=0x%02x",CFE_RESOURCEID_TO_ULONG(PipeId), FullName, (unsigned int)Opts);
     }
     else
     {
@@ -572,12 +573,12 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
             case CFE_SB_SETPIPEOPTS_ID_ERR_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_ID_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                     "Pipe Opts Error:Bad Argument,PipedId %lu,Requestor %s",
-                    CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+                    CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
                 break;
             case CFE_SB_SETPIPEOPTS_OWNER_ERR_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_SETPIPEOPTS_OWNER_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                     "Pipe Opts Set Error: Caller(%s) is not the owner of pipe %lu",
-                    CFE_SB_GetAppTskName(TskId,FullName),CFE_ES_ResourceID_ToInteger(PipeId));
+                    CFE_SB_GetAppTskName(TskId,FullName),CFE_RESOURCEID_TO_ULONG(PipeId));
                 break;
         }
     }
@@ -591,7 +592,7 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
 int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 {
     int32   Status;
-    CFE_ES_ResourceID_t        TskId;
+    CFE_ES_TaskId_t        TskId;
     char          FullName[(OS_MAX_API_NAME * 2)];
     uint16                     PendingEventID;
     CFE_SB_PipeD_t             *PipeDscPtr;
@@ -631,7 +632,7 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
     if (Status == CFE_SUCCESS)
     {
         CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
-              "Pipe opts get:id %lu, opts=0x%02x",CFE_ES_ResourceID_ToInteger(PipeId), (unsigned int)*OptsPtr);
+              "Pipe opts get:id %lu, opts=0x%02x",CFE_RESOURCEID_TO_ULONG(PipeId), (unsigned int)*OptsPtr);
     }
     else
     {
@@ -648,7 +649,7 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
             case CFE_SB_GETPIPEOPTS_ID_ERR_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEOPTS_ID_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB.AppId,
                 "Pipe Opts Error:Bad Argument,PipedId %lu,Requestor %s",
-                CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+                CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
                 break;
         }
     }
@@ -662,7 +663,7 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId)
 {
     int32               Status;
-    CFE_ES_ResourceID_t TskId;
+    CFE_ES_TaskId_t     TskId;
     char                FullName[(OS_MAX_API_NAME * 2)];
     uint16              PendingEventID;
     CFE_SB_PipeD_t      *PipeDscPtr;
@@ -718,7 +719,7 @@ int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t
         CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_EID,
                 CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
                 "GetPipeName name=%s id=%lu",
-                PipeNameBuf, CFE_ES_ResourceID_ToInteger(PipeId));
+                PipeNameBuf, CFE_RESOURCEID_TO_ULONG(PipeId));
     }
     else
     {
@@ -734,7 +735,7 @@ int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t
             case CFE_SB_GETPIPENAME_ID_ERR_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPENAME_ID_ERR_EID, CFE_EVS_EventType_ERROR,
                     CFE_SB.AppId, "Pipe Id Error:Bad Argument,Id=%lu,Requestor %s",
-                    CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+                    CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
                 break;
         }
 
@@ -754,7 +755,7 @@ int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t
 int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
 {
     int32         Status;
-    CFE_ES_ResourceID_t        TskId;
+    CFE_ES_TaskId_t        TskId;
     uint32  Idx;
     char          FullName[(OS_MAX_API_NAME * 2)];
     uint16                     PendingEventID;
@@ -825,7 +826,7 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
         CFE_EVS_SendEventWithAppID(CFE_SB_GETPIPEIDBYNAME_EID,
             CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
             "PipeIdByName name=%s id=%lu",
-            PipeName, CFE_ES_ResourceID_ToInteger(*PipeIdPtr));
+            PipeName, CFE_RESOURCEID_TO_ULONG(*PipeIdPtr));
     }
     else
     {
@@ -934,8 +935,8 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
     CFE_SBR_RouteId_t RouteId;
     CFE_SB_PipeD_t             *PipeDscPtr;
     int32  Status;
-    CFE_ES_ResourceID_t  TskId;
-    CFE_ES_ResourceID_t  AppId;
+    CFE_ES_TaskId_t  TskId;
+    CFE_ES_AppId_t   AppId;
     CFE_SB_DestinationD_t *DestPtr;
     uint32 DestCount;
     char   FullName[(OS_MAX_API_NAME * 2)];
@@ -964,7 +965,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
         PendingEventID = CFE_SB_SUB_INV_PIPE_EID;
         Status = CFE_SB_BAD_ARGUMENT;
     }
-    else if (!CFE_ES_ResourceID_Equal(PipeDscPtr->AppId, AppId))
+    else if (!CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
     {
         PendingEventID = CFE_SB_SUB_INV_CALLER_EID;
         Status = CFE_SB_BAD_ARGUMENT;
@@ -1015,7 +1016,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
             ++DestCount;
 
             /* Check if duplicate (status stays as CFE_SUCCESS) */
-            if (CFE_ES_ResourceID_Equal(DestPtr->PipeId, PipeId))
+            if (CFE_RESOURCEID_TEST_EQUAL(DestPtr->PipeId, PipeId))
             {
                 PendingEventID = CFE_SB_DUP_SUBSCRIP_EID;
                 break;
@@ -1099,7 +1100,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
         case CFE_SB_SUB_INV_CALLER_EID:
             CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_CALLER_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "Subscribe Err:Caller(%s) is not the owner of pipe %lu,Msg=0x%x",
-                CFE_SB_GetAppTskName(TskId,FullName),CFE_ES_ResourceID_ToInteger(PipeId),
+                CFE_SB_GetAppTskName(TskId,FullName),CFE_RESOURCEID_TO_ULONG(PipeId),
                 (unsigned int)CFE_SB_MsgIdToValue(MsgId));
             break;
 
@@ -1107,7 +1108,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
             CFE_EVS_SendEventWithAppID(CFE_SB_SUB_INV_PIPE_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "Subscribe Err:Invalid Pipe Id,Msg=0x%x,PipeId=%lu,App %s",
                 (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                CFE_ES_ResourceID_ToInteger(PipeId), CFE_SB_GetAppTskName(TskId,FullName));
+                CFE_RESOURCEID_TO_ULONG(PipeId), CFE_SB_GetAppTskName(TskId,FullName));
             break;
 
         case CFE_SB_DEST_BLK_ERR_EID:
@@ -1134,7 +1135,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
             CFE_EVS_SendEventWithAppID(CFE_SB_SUB_ARG_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                 "Subscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
                 (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName),Scope);
+                CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName),Scope);
             break;
         }
     }
@@ -1144,7 +1145,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
         CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RCVD_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
             "Subscription Rcvd:MsgId 0x%x on %s(%lu),app %s",
             (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-            PipeName,CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+            PipeName,CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
     }
 
     if (Status == CFE_SUCCESS && Scope == CFE_SB_GLOBAL)
@@ -1169,7 +1170,7 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
  */
 int32 CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
-    CFE_ES_ResourceID_t CallerId;
+    CFE_ES_AppId_t CallerId;
     int32   Status = 0;
 
     /* get the callers Application Id */
@@ -1187,7 +1188,7 @@ int32 CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
  */
 int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
-    CFE_ES_ResourceID_t CallerId;
+    CFE_ES_AppId_t CallerId;
     int32   Status = 0;
 
     /* get the callers Application Id */
@@ -1224,7 +1225,7 @@ int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 ******************************************************************************/
 int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId,
                               CFE_SB_PipeId_t PipeId,
-                              CFE_ES_ResourceID_t AppId)
+                              CFE_ES_AppId_t AppId)
 {
     int32   Status = 0;
 
@@ -1264,11 +1265,11 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId,
 **
 ******************************************************************************/
 int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
-                             uint8 Scope,CFE_ES_ResourceID_t AppId)
+                             uint8 Scope,CFE_ES_AppId_t AppId)
 {
     int32 Status;
     CFE_SBR_RouteId_t RouteId;
-    CFE_ES_ResourceID_t        TskId;
+    CFE_ES_TaskId_t        TskId;
     CFE_SB_DestinationD_t   *DestPtr;
     char    FullName[(OS_MAX_API_NAME * 2)];
     char    PipeName[OS_MAX_API_NAME];
@@ -1293,7 +1294,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
         Status = CFE_SB_BAD_ARGUMENT;
     }
     /* if given 'AppId' is not the owner of the pipe, send error event and return */
-    else if (!CFE_ES_ResourceID_Equal(PipeDscPtr->AppId, AppId))
+    else if (!CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
     {
         PendingEventID = CFE_SB_UNSUB_INV_CALLER_EID;
         Status = CFE_SB_BAD_ARGUMENT;
@@ -1350,13 +1351,13 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
                 CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_INV_PIPE_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                         "Unsubscribe Err:Invalid Pipe Id Msg=0x%x,Pipe=%lu,app=%s",
                         (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                        CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+                        CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
                 break;
 
             case CFE_SB_UNSUB_INV_CALLER_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_INV_CALLER_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                         "Unsubscribe Err:Caller(%s) is not the owner of pipe %lu,Msg=0x%x",
-                        CFE_SB_GetAppTskName(TskId,FullName),CFE_ES_ResourceID_ToInteger(PipeId),
+                        CFE_SB_GetAppTskName(TskId,FullName),CFE_RESOURCEID_TO_ULONG(PipeId),
                         (unsigned int)CFE_SB_MsgIdToValue(MsgId));
                 break;
 
@@ -1364,7 +1365,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
                 CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_ARG_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                     "UnSubscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
                     (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                    CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName),(int)Scope);
+                    CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName),(int)Scope);
                 break;
         }
     }
@@ -1374,7 +1375,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId,CFE_SB_PipeId_t PipeId,
         CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_REMOVED_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
             "Subscription Removed:Msg 0x%x on pipe %lu,app %s",
             (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-            CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+            CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
     }
 
     return Status;
@@ -1388,7 +1389,7 @@ int32  CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount
     int32               Status;
     CFE_MSG_Size_t      Size = 0;
     CFE_SB_MsgId_t      MsgId = CFE_SB_INVALID_MSG_ID;
-    CFE_ES_ResourceID_t TskId;
+    CFE_ES_TaskId_t     TskId;
     char                FullName[(OS_MAX_API_NAME * 2)];
     CFE_SB_BufferD_t   *BufDscPtr;
     CFE_SBR_RouteId_t   RouteId;
@@ -1502,7 +1503,7 @@ int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr,
                                  CFE_MSG_Size_t    *SizePtr,
                                  CFE_SBR_RouteId_t *RouteIdPtr)
 {
-    CFE_ES_ResourceID_t     TskId;
+    CFE_ES_TaskId_t         TskId;
     char                    FullName[(OS_MAX_API_NAME * 2)];
     uint16                  PendingEventID;
     int32                   Status;
@@ -1620,8 +1621,8 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
                                  CFE_SBR_RouteId_t RouteId,
                                  CFE_SB_MsgId_t    MsgId)
 {
-    CFE_ES_ResourceID_t     AppId;
-    CFE_ES_ResourceID_t     TskId;
+    CFE_ES_AppId_t          AppId;
+    CFE_ES_TaskId_t         TskId;
     CFE_SB_DestinationD_t   *DestPtr;
     CFE_SB_PipeD_t          *PipeDscPtr;
     CFE_SB_EventBuf_t       SBSndErr;
@@ -1660,7 +1661,7 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
         }
 
         if((PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE) != 0 &&
-                    CFE_ES_ResourceID_Equal(PipeDscPtr->AppId, AppId))
+                    CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
         {
             continue;
         }/* end if */
@@ -1825,7 +1826,7 @@ int32  CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr,
     CFE_SB_PipeD_t         *PipeDscPtr;
     CFE_SB_DestinationD_t  *DestPtr;
     CFE_SBR_RouteId_t      RouteId;
-    CFE_ES_ResourceID_t    TskId;
+    CFE_ES_TaskId_t        TskId;
     uint16                 PendingEventID;
     osal_id_t              SysQueueId;
     int32                  SysTimeout;
@@ -2043,17 +2044,17 @@ int32  CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr,
             case CFE_SB_Q_RD_ERR_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_Q_RD_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                     "Pipe Read Err,pipe %lu,app %s,stat 0x%x",
-                    CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName),(unsigned int)RcvStatus);
+                    CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName),(unsigned int)RcvStatus);
                 break;
             case CFE_SB_RCV_BAD_ARG_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_RCV_BAD_ARG_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                     "Rcv Err:Bad Input Arg:BufPtr 0x%lx,pipe %lu,t/o %d,app %s",
-                    (unsigned long)BufPtr,CFE_ES_ResourceID_ToInteger(PipeId),(int)TimeOut,CFE_SB_GetAppTskName(TskId,FullName));
+                    (unsigned long)BufPtr,CFE_RESOURCEID_TO_ULONG(PipeId),(int)TimeOut,CFE_SB_GetAppTskName(TskId,FullName));
                 break;
             case CFE_SB_BAD_PIPEID_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_BAD_PIPEID_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                     "Rcv Err:PipeId %lu does not exist,app %s",
-                    CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+                    CFE_RESOURCEID_TO_ULONG(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
                 break;
         }
     }
@@ -2075,7 +2076,7 @@ CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
                                        CFE_SB_ZeroCopyHandle_t *BufferHandle)
 {
    int32                stat1;
-   CFE_ES_ResourceID_t  AppId;
+   CFE_ES_AppId_t       AppId;
    cpuaddr              address = 0;
    CFE_SB_ZeroCopyD_t  *zcd = NULL;
    CFE_SB_BufferD_t    *bd = NULL;

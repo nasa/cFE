@@ -43,92 +43,37 @@
 
 /*********************************************************************/
 /*
- * CFE_ES_ResourceID_ToIndex
- *
+ * Function: CFE_ES_TaskId_ToOSAL
+ * 
  * For complete API information, see prototype in header
  */
-int32 CFE_ES_ResourceID_ToIndex(uint32 Serial, uint32 TableSize, uint32 *Idx)
+osal_id_t CFE_ES_TaskId_ToOSAL(CFE_ES_TaskId_t id)
 {
-    if (Idx == NULL)
-    {
-        return CFE_ES_ERR_BUFFER;
-    }
+    osal_id_t Result;
+    unsigned long Val;
 
-    if (Serial > CFE_ES_RESOURCEID_MAX)
-    {
-        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
-    }
+    Val = CFE_ResourceId_ToInteger(CFE_RESOURCEID_UNWRAP(id));
+    Result = OS_ObjectIdFromInteger(Val ^ CFE_RESOURCEID_MARK);
 
-    *Idx = Serial % TableSize;
-    return CFE_SUCCESS;
+    return Result;
 }
 
 
 /*********************************************************************/
 /*
- * CFE_ES_ResourceID_ToOSAL
- *
+ * Function: CFE_TaskId_FromOSAL
+ * 
  * For complete API information, see prototype in header
  */
-osal_id_t CFE_ES_ResourceID_ToOSAL(CFE_ES_ResourceID_t id)
+CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id)
 {
-    unsigned long val = CFE_ES_ResourceID_ToInteger(id);
-    return OS_ObjectIdFromInteger(val);
-}
+    CFE_ResourceId_t Result;
+    unsigned long Val;
 
-/*********************************************************************/
-/*
- * CFE_ES_ResourceID_FromOSAL
- *
- * For complete API information, see prototype in header
- */
-CFE_ES_ResourceID_t CFE_ES_ResourceID_FromOSAL(osal_id_t id)
-{
-    unsigned long val = OS_ObjectIdToInteger(id);
-    return CFE_ES_ResourceID_FromInteger(val);
-}
+    Val =  OS_ObjectIdToInteger(id);
+    Result = CFE_ResourceId_FromInteger(Val ^ CFE_RESOURCEID_MARK);
 
-/*********************************************************************/
-/*
- * CFE_ES_FindNextAvailableId
- *
- * For complete API information, see prototype in header
- */
-CFE_ES_ResourceID_t CFE_ES_FindNextAvailableId(CFE_ES_ResourceID_t StartId, uint32 TableSize, bool (*CheckFunc)(CFE_ES_ResourceID_t))
-{
-    uint32 Serial;
-    uint32 Count;
-    uint32 ResourceType;
-    CFE_ES_ResourceID_t CheckId;
-    bool IsTaken;
-
-    ResourceType = CFE_ES_ResourceID_ToInteger(StartId);
-    Serial = ResourceType & CFE_ES_RESOURCEID_MAX;
-    ResourceType -= Serial;
-    Count = TableSize;
-    IsTaken = true;
-
-    do
-    {
-        if (Count == 0)
-        {
-            CheckId = CFE_ES_RESOURCEID_UNDEFINED;
-            break;
-        }
-
-        --Count;
-        ++Serial;
-        if (Serial >= CFE_ES_RESOURCEID_MAX)
-        {
-            Serial %= TableSize;
-        }
-        CheckId = CFE_ES_ResourceID_FromInteger(ResourceType + Serial);
-
-        IsTaken = CheckFunc(CheckId);
-    }
-    while (IsTaken);
-
-    return CheckId;
+    return CFE_ES_TASKID_C(Result);
 }
 
 /*********************************************************************/
@@ -249,7 +194,7 @@ CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name)
  *
  * For complete API information, see prototype in header
  */
-CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_ResourceID_t AppID)
+CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
     uint32 Idx;
@@ -272,7 +217,7 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_ResourceID_t AppID)
  *
  * For complete API information, see prototype in header
  */
-CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(CFE_ES_ResourceID_t LibID)
+CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID)
 {
     CFE_ES_LibRecord_t *LibRecPtr;
     uint32 Idx;
@@ -295,7 +240,7 @@ CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(CFE_ES_ResourceID_t LibID)
  *
  * For complete API information, see prototype in header
  */
-CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_ResourceID_t TaskID)
+CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
     uint32 Idx;
@@ -318,7 +263,7 @@ CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_ResourceID_t TaskID)
  *
  * For complete API information, see prototype in header
  */
-CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(CFE_ES_ResourceID_t CounterID)
+CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t CounterID)
 {
     CFE_ES_GenCounterRecord_t *CounterRecPtr;
     uint32 Idx;
@@ -347,12 +292,12 @@ CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(CFE_ES_ResourceID_t Co
 CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    CFE_ES_ResourceID_t TaskID;
+    CFE_ES_TaskId_t TaskID;
 
     /*
     ** Use the OS task ID to get the ES task record
     */
-    TaskID = CFE_ES_ResourceID_FromOSAL(OS_TaskGetId());
+    TaskID = CFE_ES_TaskId_FromOSAL(OS_TaskGetId());
     TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskID);
 
     /*
@@ -418,9 +363,9 @@ CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
  * a given ID is available.  Must be called while locked.
  * ---------------------------------------------------------------------------------------
  */
-bool CFE_ES_CheckCounterIdSlotUsed(CFE_ES_ResourceID_t CheckId)
+bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_CounterRecordIsUsed(CFE_ES_LocateCounterRecordByID(CheckId));
+    return CFE_ES_CounterRecordIsUsed(CFE_ES_LocateCounterRecordByID(CFE_ES_COUNTERID_C(CheckId)));
 }
 
 /*
@@ -431,9 +376,9 @@ bool CFE_ES_CheckCounterIdSlotUsed(CFE_ES_ResourceID_t CheckId)
  * a given ID is available.  Must be called while locked.
  *---------------------------------------------------------------------------------------
  */
-bool CFE_ES_CheckAppIdSlotUsed(CFE_ES_ResourceID_t CheckId)
+bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_AppRecordIsUsed(CFE_ES_LocateAppRecordByID(CheckId));
+    return CFE_ES_AppRecordIsUsed(CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(CheckId)));
 }
 
 /*
@@ -444,9 +389,9 @@ bool CFE_ES_CheckAppIdSlotUsed(CFE_ES_ResourceID_t CheckId)
  * a given ID is available.  Must be called while locked.
  * ---------------------------------------------------------------------------------------
  */
-bool CFE_ES_CheckLibIdSlotUsed(CFE_ES_ResourceID_t CheckId)
+bool CFE_ES_CheckLibIdSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_LibRecordIsUsed(CFE_ES_LocateLibRecordByID(CheckId));
+    return CFE_ES_LibRecordIsUsed(CFE_ES_LocateLibRecordByID(CFE_ES_LIBID_C(CheckId)));
 }
 
 

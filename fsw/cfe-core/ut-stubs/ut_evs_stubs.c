@@ -241,7 +241,7 @@ int32 CFE_EVS_Register(void *Filters,
 ******************************************************************************/
 int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
                                  uint16 EventType,
-                                 CFE_ES_ResourceID_t AppID,
+                                 CFE_ES_AppId_t AppID,
                                  const char *Spec,
                                  ...)
 {
@@ -288,7 +288,7 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_EVS_CleanUpApp(CFE_ES_ResourceID_t AppId)
+int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     int32 status;
 

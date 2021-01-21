@@ -633,7 +633,7 @@ typedef struct CFE_SB_PipeDepthStats {
 typedef struct CFE_SB_PipeInfoEntry
 {
     CFE_SB_PipeId_t     PipeId;                            /**< The runtime ID of the pipe */
-    CFE_ES_ResourceID_t AppId;                             /**< The runtime ID of the application that owns the pipe */
+    CFE_ES_AppId_t      AppId;                             /**< The runtime ID of the application that owns the pipe */
     char                PipeName[CFE_MISSION_MAX_API_LEN]; /**< The Name of the pipe */
     char                AppName[CFE_MISSION_MAX_API_LEN];  /**< The Name of the application that owns the pipe */
     uint16              MaxQueueDepth;                     /**< The allocated depth of the pipe (max capacity) */

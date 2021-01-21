@@ -232,7 +232,7 @@ void CFE_ES_BackgroundCleanup(void)
     CFE_ES_DeleteChildTask(CFE_ES_Global.BackgroundTask.TaskID);
     OS_BinSemDelete(CFE_ES_Global.BackgroundTask.WorkSem);
 
-    CFE_ES_Global.BackgroundTask.TaskID = CFE_ES_RESOURCEID_UNDEFINED;
+    CFE_ES_Global.BackgroundTask.TaskID = CFE_ES_TASKID_UNDEFINED;
     CFE_ES_Global.BackgroundTask.WorkSem = OS_OBJECT_ID_UNDEFINED;
 }
 

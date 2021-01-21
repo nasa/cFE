@@ -39,6 +39,7 @@
 ** Includes
 */
 #include "tbl_UT.h"
+#include "private/cfe_core_resourceid_basevalues.h"
 
 /*
 ** External global variables
@@ -55,10 +56,10 @@ CFE_TBL_Handle_t App2TblHandle1;
 CFE_TBL_Handle_t App2TblHandle2;
 CFE_TBL_Handle_t ArrayOfHandles[2];
 
-static const CFE_ES_ResourceID_t UT_TBL_APPID_1 =  { 0x02010001 };
-static const CFE_ES_ResourceID_t UT_TBL_APPID_2 =  { 0x02010002 };
-static const CFE_ES_ResourceID_t UT_TBL_APPID_3 =  { 0x02010003 };
-static const CFE_ES_ResourceID_t UT_TBL_APPID_10 = { 0x0201000A };
+#define UT_TBL_APPID_1   CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE + 1))
+#define UT_TBL_APPID_2   CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE + 2))
+#define UT_TBL_APPID_3   CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE + 3))
+#define UT_TBL_APPID_10  CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE + 10))
 
 void *Tbl1Ptr = NULL;
 void *Tbl2Ptr = NULL;
@@ -1048,7 +1049,7 @@ void Test_CFE_TBL_GetHkData(void)
     int32 NumLoadPendingIndex = CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1;
     int32 FreeSharedBuffIndex = CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS - 1;
     int32 ValTableIndex = CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS - 1;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t AppID;
 
     /* Get the AppID being used for UT */
     CFE_ES_GetAppID(&AppID);
@@ -1143,7 +1144,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
 {
     int                       q;
     CFE_TBL_DumpRegistryCmd_t DumpRegCmd;
-    CFE_ES_ResourceID_t       AppID;
+    CFE_ES_AppId_t            AppID;
 
     /* Get the AppID being used for UT */
     CFE_ES_GetAppID(&AppID);
@@ -1239,7 +1240,7 @@ void Test_CFE_TBL_DumpCmd(void)
     uint8              *BuffPtr = &Buff;
     CFE_TBL_LoadBuff_t  Load = {0};
     CFE_TBL_DumpCmd_t   DumpCmd;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t      AppID;
 
     CFE_ES_GetAppID(&AppID);
 
@@ -1419,7 +1420,7 @@ void Test_CFE_TBL_LoadCmd(void)
     CFE_FS_Header_t     StdFileHeader;
     CFE_TBL_LoadBuff_t  BufferPtr = CFE_TBL_TaskData.LoadBuffs[0];
     CFE_TBL_LoadCmd_t   LoadCmd;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t      AppID;
 
     CFE_ES_GetAppID(&AppID);
 
@@ -2254,7 +2255,7 @@ void Test_CFE_TBL_Register(void)
     /* a. Perform test */
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
     {
-        CFE_TBL_TaskData.CritReg[i].CDSHandle = CFE_ES_RESOURCEID_UNDEFINED;
+        CFE_TBL_TaskData.CritReg[i].CDSHandle = CFE_ES_CDS_BAD_HANDLE;
     }
 
     RtnCode = CFE_TBL_Register(&TblHandle1, "UT_Table1",
@@ -3161,7 +3162,7 @@ void Test_CFE_TBL_GetAddresses(void)
      * allowed to see
      */
     UT_InitData();
-    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
+    UT_SetAppID(CFE_ES_APPID_UNDEFINED);
     RtnCode = CFE_TBL_GetAddresses(ArrayOfPtrsToTblPtrs, 2, ArrayOfHandles);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3208,7 +3209,7 @@ void Test_CFE_TBL_Validate(void)
      * not allowed to see
      */
     UT_InitData();
-    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
+    UT_SetAppID(CFE_ES_APPID_UNDEFINED);
     RtnCode = CFE_TBL_Validate(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3702,7 +3703,7 @@ void Test_CFE_TBL_Update(void)
     /* Test processing an update on an application with a bad ID
      */
     UT_InitData();
-    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
+    UT_SetAppID(CFE_ES_APPID_UNDEFINED);
     RtnCode = CFE_TBL_Update(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
@@ -3725,7 +3726,7 @@ void Test_CFE_TBL_GetStatus(void)
      * application is not allowed to see
      */
     UT_InitData();
-    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
+    UT_SetAppID(CFE_ES_APPID_UNDEFINED);
     RtnCode = CFE_TBL_GetStatus(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -3738,7 +3739,7 @@ void Test_CFE_TBL_GetStatus(void)
      * application is not allowed to see
      */
     UT_InitData();
-    UT_SetAppID(CFE_ES_RESOURCEID_UNDEFINED);
+    UT_SetAppID(CFE_ES_APPID_UNDEFINED);
     RtnCode = CFE_TBL_DumpToBuffer(App1TblHandle1);
     EventsCorrect = (UT_GetNumEventsSent() == 0);
     UT_Report(__FILE__, __LINE__,
@@ -4640,9 +4641,9 @@ void Test_CFE_TBL_Internal(void)
 
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
     {
-        if ( CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.CritReg[i].CDSHandle, RegRecPtr->CDSHandle) )
+        if ( CFE_RESOURCEID_TEST_EQUAL(CFE_TBL_TaskData.CritReg[i].CDSHandle, RegRecPtr->CDSHandle) )
         {
-            CFE_TBL_TaskData.CritReg[i].CDSHandle = CFE_ES_RESOURCEID_RESERVED;
+            CFE_TBL_TaskData.CritReg[i].CDSHandle = CFE_ES_CDSHANDLE_C(CFE_RESOURCEID_RESERVED);
         }
     }
 
@@ -4690,7 +4691,7 @@ void Test_CFE_TBL_Internal(void)
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.DumpControlBlocks[3].State ==
                   CFE_TBL_DUMP_FREE &&
-              CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED) &&
+              CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED) &&
               CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken ==
                   false &&
               RegRecPtr->LoadInProgress == CFE_TBL_NO_LOAD_IN_PROGRESS,
@@ -4855,7 +4856,7 @@ void Test_CFE_TBL_Internal(void)
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_TaskData.DumpControlBlocks[3].State ==
             CFE_TBL_DUMP_PENDING &&
-              CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED),
+              CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED),
               "CFE_TBL_CleanUpApp",
               "Execute clean up - no dumped tables to delete, application "
                   "doesn't own table");

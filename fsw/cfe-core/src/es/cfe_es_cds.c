@@ -76,7 +76,7 @@ int32 CFE_ES_CDS_EarlyInit(void)
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
-    CDS->LastCDSBlockId = CFE_ES_ResourceID_FromInteger(CFE_ES_CDSBLOCKID_BASE);
+    CDS->LastCDSBlockId = CFE_ResourceId_FromInteger(CFE_ES_CDSBLOCKID_BASE); 
 
     /* Get CDS size from PSP.  Note that the PSP interface
      * uses "uint32" for size here. */
@@ -161,24 +161,24 @@ int32 CFE_ES_CDS_EarlyInit(void)
  * NOTE: For complete prolog information, see 'cfe_es_cds.h'
  */
 /*******************************************************************/
-int32 CFE_ES_CDSBlockID_ToIndex(CFE_ES_ResourceID_t BlockID, uint32 *Idx)
+int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex(
-            CFE_ES_ResourceID_ToInteger(BlockID) - CFE_ES_CDSBLOCKID_BASE,
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(BlockID), 
+            CFE_ES_CDSBLOCKID_BASE, 
             CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES,
             Idx);
 }
 
 /*---------------------------------------------------------------------------------------
- * Function: CFE_ES_CheckCDSBlockIdSlotUsed
+ * Function: CFE_ES_CheckCDSHandleSlotUsed
  * 
  * Purpose: Helper function, Aids in allocating a new ID by checking if 
  * a given ID is available.  Must be called while locked.
  *---------------------------------------------------------------------------------------
  */
-bool CFE_ES_CheckCDSBlockIdSlotUsed(CFE_ES_ResourceID_t CheckId)
+bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_CDSBlockRecordIsUsed(CFE_ES_LocateCDSBlockRecordByID(CheckId));
+    return CFE_ES_CDSBlockRecordIsUsed(CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHANDLE_C(CheckId)));
 }
 
 /*******************************************************************/
@@ -188,13 +188,13 @@ bool CFE_ES_CheckCDSBlockIdSlotUsed(CFE_ES_ResourceID_t CheckId)
  * NOTE: For complete prolog information, see 'cfe_es_cds.h'
  */
 /*******************************************************************/
-CFE_ES_CDS_RegRec_t* CFE_ES_LocateCDSBlockRecordByID(CFE_ES_ResourceID_t BlockID)
+CFE_ES_CDS_RegRec_t* CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     CFE_ES_CDS_RegRec_t *CDSRegRecPtr;
     uint32 Idx;
 
-    if (CFE_ES_CDSBlockID_ToIndex(BlockID, &Idx) == CFE_SUCCESS)
+    if (CFE_ES_CDSHandle_ToIndex(BlockID, &Idx) == CFE_SUCCESS)
     {
         CDSRegRecPtr = &CDS->Registry[Idx];
     }
@@ -327,7 +327,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
     size_t BlockOffset;
     size_t OldBlockSize;
     size_t NewBlockSize;
-    CFE_ES_ResourceID_t PendingBlockId;
+    CFE_ResourceId_t PendingBlockId;
     bool IsNewEntry;
     bool IsNewOffset;
 
@@ -354,13 +354,13 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
     {
         /* in CDS a duplicate name is not necessarily an error, we
          * may reuse/resize the existing entry */
-        PendingBlockId = CFE_ES_CDSBlockRecordGetID(RegRecPtr);
+        PendingBlockId = CFE_RESOURCEID_UNWRAP(CFE_ES_CDSBlockRecordGetID(RegRecPtr));
     }
     else
     {
         /* scan for a free slot */
-        PendingBlockId = CFE_ES_FindNextAvailableId(CDS->LastCDSBlockId, CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES, CFE_ES_CheckCDSBlockIdSlotUsed);
-        RegRecPtr = CFE_ES_LocateCDSBlockRecordByID(PendingBlockId);
+        PendingBlockId = CFE_ResourceId_FindNext(CDS->LastCDSBlockId, CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES, CFE_ES_CheckCDSHandleSlotUsed);
+        RegRecPtr = CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHANDLE_C(PendingBlockId));
 
         if (RegRecPtr != NULL)
         {
@@ -373,7 +373,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
         else
         {
             Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
-            PendingBlockId = CFE_ES_RESOURCEID_UNDEFINED;
+            PendingBlockId = CFE_RESOURCEID_UNDEFINED;
         }
     }
 
@@ -466,7 +466,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
         Status = CFE_ES_CDS_ALREADY_EXISTS;
     }
 
-    *HandlePtr = PendingBlockId;
+    *HandlePtr = CFE_ES_CDSHANDLE_C(PendingBlockId);
 
     return (Status);
 
@@ -677,7 +677,7 @@ int32 CFE_ES_UpdateCDSRegistry(void)
 ** NOTE: For complete prolog information, see 'cfe_es_cds.h'
 ********************************************************************/
 
-void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceID_t ThisAppId)
+void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t ThisAppId)
 {
     char AppName[OS_MAX_API_NAME];
 
@@ -854,7 +854,7 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
     int32                Status;
     CFE_ES_CDS_RegRec_t *RegRecPtr;
     char                 OwnerName[OS_MAX_API_NAME];
-    CFE_ES_ResourceID_t  AppId;
+    CFE_ES_AppId_t       AppId;
     uint32               i;
     char                 LogMessage[CFE_ES_MAX_SYSLOG_MSG_SIZE];
     size_t               OldBlockSize;
