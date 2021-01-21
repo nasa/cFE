@@ -50,10 +50,6 @@
     #error CFE_PLATFORM_SB_MAX_DEST_PER_PKT cannot be less than 1!
 #endif
 
-#if CFE_PLATFORM_SB_MAX_PIPE_DEPTH < 1
-    #error CFE_PLATFORM_SB_MAX_PIPE_DEPTH cannot be less than 1!
-#endif
-
 #if CFE_PLATFORM_SB_HIGHEST_VALID_MSGID < 1
   #error CFE_PLATFORM_SB_HIGHEST_VALID_MSGID cannot be less than 1!
 #endif

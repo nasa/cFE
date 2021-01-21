@@ -126,7 +126,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
     CFE_ES_GetTaskID(&TskId);
 
     /* check input parameters */
-    if((PipeIdPtr == NULL) || (Depth > CFE_PLATFORM_SB_MAX_PIPE_DEPTH) || (Depth == 0))
+    if((PipeIdPtr == NULL) || (Depth > OS_QUEUE_MAX_DEPTH) || (Depth == 0))
     {
         PendingEventId = CFE_SB_CR_PIPE_BAD_ARG_EID;
         Status = CFE_SB_BAD_ARGUMENT;
@@ -255,7 +255,7 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
             case CFE_SB_CR_PIPE_BAD_ARG_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_BAD_ARG_EID,CFE_EVS_EventType_ERROR,CFE_SB.AppId,
                     "CreatePipeErr:Bad Input Arg:app=%s,ptr=0x%lx,depth=%d,maxdepth=%d",
-                    CFE_SB_GetAppTskName(TskId,FullName),(unsigned long)PipeIdPtr,(int)Depth,CFE_PLATFORM_SB_MAX_PIPE_DEPTH);
+                    CFE_SB_GetAppTskName(TskId,FullName),(unsigned long)PipeIdPtr,(int)Depth,OS_QUEUE_MAX_DEPTH);
                 break;
 
             case CFE_SB_MAX_PIPES_MET_EID:
