@@ -5,11 +5,11 @@
 # This file indicates the architecture and configuration of the
 # target boards that will run core flight software.
 #
-# The following variables are defined per board, where <x> is the
-# CPU number starting with 1:
+# The following variables are defined per board, where <cpuname>
+# is a specific name within MISSION_CPUNAMES list:
 #
-#  <cpuname>_NAME : the user-friendly name of the cpu.  Should be simple
-#       word with no punctuation.  This MUST be specified.
+#  MISSION_CPUNAMES : list of user-friendly cpu names.  Should be simple
+#       words with no punctuation.  This MUST be specified.
 #  <cpuname>_APPLIST : list of applications to build and install on the CPU.
 #       These are built as dynamically-loaded applications and installed
 #       as files in the non-volatile storage of the target, and loaded
