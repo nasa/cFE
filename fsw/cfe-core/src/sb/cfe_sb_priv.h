@@ -186,7 +186,6 @@ typedef struct
 {
     osal_id_t                      SharedDataMutexId;
     uint32                         SubscriptionReporting;
-    uint32                         SenderReporting;
     CFE_ES_ResourceID_t            AppId;
     uint32                         StopRecurseFlags[OS_MAX_TASKS];
     void                          *ZeroCopyTail;

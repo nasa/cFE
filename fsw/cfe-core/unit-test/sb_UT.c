@@ -3946,7 +3946,6 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     MsgId = SB_UT_CMD_MID;
     Size = sizeof(TlmPkt);
     Type = CFE_MSG_Type_Cmd;
-    CFE_SB.SenderReporting = 0;
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
 
     /* Will fail because of deferred CFE_ES_GetPoolBuf failure return */

@@ -305,21 +305,6 @@
 #define CFE_PLATFORM_SB_MAX_BLOCK_SIZE             (CFE_MISSION_SB_MAX_SB_MSG_SIZE + 40)
 
 /**
-**  \cfesbcfg Define Default Sender Information Storage Mode
-**
-**  \par Description:
-**       Defines the default mode for the storing of sender information when sending
-**       a software bus message. If set to 1, the sender information will be stored.
-**       If set to 0, the sender information will not be stored.
-**
-**  \par Limits
-**       There is a lower limit of 0 and an upper limit of 1 on this configuration
-**       paramater.
-*/
-#define CFE_PLATFORM_SB_DEFAULT_REPORT_SENDER      1
-
-
-/**
 **  \cfetimecfg Time Server or Time Client Selection
 **
 **  \par Description:

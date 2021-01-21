@@ -99,9 +99,6 @@ int32 CFE_SB_EarlyInit (void) {
     /* Initialize the state of susbcription reporting */
     CFE_SB.SubscriptionReporting = CFE_SB_DISABLE;
 
-    /* Initialize the state of sender reporting */
-    CFE_SB.SenderReporting = CFE_PLATFORM_SB_DEFAULT_REPORT_SENDER;
-
      /* Initialize memory partition. */
     Stat = CFE_SB_InitBuffers();
     if(Stat != CFE_SUCCESS){
