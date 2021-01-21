@@ -2693,7 +2693,7 @@ void Test_Misc(void)
             UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC,
             &UT_EVS_EventBuf);
     UT_Report(__FILE__, __LINE__,
-              UT_EVS_EventBuf.EventID ==  0xFFFF,
+              (UT_EVS_EventBuf.EventID == 0xFFFF) || (UT_EVS_EventBuf.EventID == CFE_EVS_WRLOG_EID),
               "CFE_EVS_WriteLogDataFileCmd",
               "Write log data - successful");
 
@@ -2703,7 +2703,7 @@ void Test_Misc(void)
             UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC,
             &UT_EVS_EventBuf);
     UT_Report(__FILE__, __LINE__,
-              UT_EVS_EventBuf.EventID ==  0xFFFF,
+              (UT_EVS_EventBuf.EventID == 0xFFFF) || (UT_EVS_EventBuf.EventID == CFE_EVS_LOGMODE_EID),
               "CFE_EVS_SetLogModeCmd",
               "Set logging mode - successful");
 
