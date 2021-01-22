@@ -139,20 +139,6 @@ int32 CFE_TBL_EarlyInit (void)
       return Status;
     }/* end if */
     
-    /*
-    ** Initialize housekeeping packet (clear user data area)...
-    */
-    CFE_MSG_Init(&CFE_TBL_TaskData.HkPacket.TlmHeader.Msg,
-                 CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
-                 sizeof(CFE_TBL_TaskData.HkPacket));
-
-    /*
-    ** Initialize table registry report packet (clear user data area)...
-    */
-    CFE_MSG_Init(&CFE_TBL_TaskData.TblRegPacket.TlmHeader.Msg,
-                 CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
-                 sizeof(CFE_TBL_TaskData.TblRegPacket));
-
     /* Initialize memory partition and allocate shared table buffers. */
     Status = CFE_ES_PoolCreate(&CFE_TBL_TaskData.Buf.PoolHdl,
                                 CFE_TBL_TaskData.Buf.Partition.Data,
@@ -1510,12 +1496,8 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
     /* First, determine if a message should be sent */
     if (RegRecPtr->NotifyByMsg)
     {
-        /*
-        ** Initialize notification message packet (clear user data area)...
-        */
-        CFE_MSG_Init(&CFE_TBL_TaskData.NotifyMsg.CmdHeader.Msg,
-                     RegRecPtr->NotificationMsgId,
-                     sizeof(CFE_TBL_TaskData.NotifyMsg));
+        /* Set the message ID */
+        CFE_MSG_SetMsgId(&CFE_TBL_TaskData.NotifyMsg.CmdHeader.Msg, RegRecPtr->NotificationMsgId);
         
         /* Set the command code */
         CFE_MSG_SetFcnCode(&CFE_TBL_TaskData.NotifyMsg.CmdHeader.Msg, RegRecPtr->NotificationCC);
