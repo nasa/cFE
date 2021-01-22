@@ -1142,6 +1142,14 @@ void TestStartupErrorPaths(void)
                                         CFE_ES_AppState_LATE_INIT,
               "CFE_ES_WaitForSystemState",
               "Min System State is CFE_ES_SystemState_APPS_INIT");
+
+    /* Test success */
+    ES_ResetUnitTest();
+    /* This prep is necessary so GetAppId works */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppType_CORE, NULL, &AppRecPtr, NULL);
+    CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
+    ASSERT(CFE_ES_WaitForSystemState(CFE_ES_SystemState_CORE_READY, 0));
+
 }
 
 void TestApps(void)
