@@ -295,7 +295,7 @@ void UT_SetStatusBSPResetArea(int32 status, uint32 Signature, uint32 ClockSignal
     }
     else
     {
-        UT_ClearForceFail(UT_KEY(CFE_PSP_GetResetArea));
+        UT_ClearDefaultReturnValue(UT_KEY(CFE_PSP_GetResetArea));
     }
 }
 
