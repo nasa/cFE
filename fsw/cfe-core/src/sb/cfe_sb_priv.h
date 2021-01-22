@@ -264,9 +264,9 @@ int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr,
                                  CFE_SB_MsgId_t    *MsgIdPtr,
                                  CFE_MSG_Size_t    *SizePtr,
                                  CFE_SBR_RouteId_t *RouteIdPtr);
-int32 CFE_SB_SendRtgInfo(const char *Filename);
-int32 CFE_SB_SendPipeInfo(const char *Filename);
-int32 CFE_SB_SendMapInfo(const char *Filename);
+int32 CFE_SB_WriteRtgInfo(const char *Filename);
+int32 CFE_SB_WritePipeInfo(const char *Filename);
+int32 CFE_SB_WriteMapInfo(const char *Filename);
 int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId);
 void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
@@ -369,9 +369,9 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data);
 int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data);
 int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data);
 int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data);
-int32 CFE_SB_SendRoutingInfoCmd(const CFE_SB_SendRoutingInfoCmd_t *data);
-int32 CFE_SB_SendPipeInfoCmd(const CFE_SB_SendPipeInfoCmd_t *data);
-int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfoCmd_t *data);
+int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data);
+int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data);
+int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data);
 int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
 
 

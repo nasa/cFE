@@ -167,7 +167,7 @@ enum CFE_FS_SubType
     *
     *
     * Software Bus Pipe Data Dump File which is generated in response to a
-    * \link #CFE_SB_SEND_PIPE_INFO_CC \SB_WRITEPIPE2FILE \endlink
+    * \link #CFE_SB_WRITE_PIPE_INFO_CC \SB_WRITEPIPE2FILE \endlink
     * command.
     *
     */
@@ -178,7 +178,7 @@ enum CFE_FS_SubType
     *
     *
     * Software Bus Message Routing Data Dump File which is generated in response to a
-    * \link #CFE_SB_SEND_ROUTING_INFO_CC \SB_WRITEROUTING2FILE \endlink
+    * \link #CFE_SB_WRITE_ROUTING_INFO_CC \SB_WRITEROUTING2FILE \endlink
     * command.
     *
     */
@@ -189,7 +189,7 @@ enum CFE_FS_SubType
     *
     *
     * Software Bus Message Mapping Data Dump File which is generated in response to a
-    * \link #CFE_SB_SEND_MAP_INFO_CC \SB_WRITEMAP2FILE \endlink
+    * \link #CFE_SB_WRITE_MAP_INFO_CC \SB_WRITEMAP2FILE \endlink
     * command.
     *
     */

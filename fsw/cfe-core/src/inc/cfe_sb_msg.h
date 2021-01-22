@@ -164,7 +164,7 @@
 **  \cfecmdmnemonic \SB_WRITEROUTING2FILE
 **
 **  \par Command Structure
-**       #CFE_SB_SendRoutingInfoCmd_t
+**       #CFE_SB_WriteRoutingInfoCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -188,10 +188,8 @@
 **       This command is not inherently dangerous.  It will create a new
 **       file in the file system and could, if performed repeatedly without
 **       sufficient file management by the operator, fill the file system.
-**
-**  \sa #CFE_SB_SEND_PIPE_INFO_CC, #CFE_SB_SEND_MAP_INFO_CC, #CFE_SB_WriteFileInfoCmd_t
 */
-#define CFE_SB_SEND_ROUTING_INFO_CC     3
+#define CFE_SB_WRITE_ROUTING_INFO_CC     3
 
 /** \cfesbcmd Enable Software Bus Route
 **
@@ -211,7 +209,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will increment
-**       - View routing information #CFE_SB_SEND_ROUTING_INFO_CC to verify
+**       - View routing information #CFE_SB_WRITE_ROUTING_INFO_CC to verify
 **         enable/disable state change
 **       - The #CFE_SB_ENBL_RTE2_EID debug event message will be generated. All
 **         debug events are filtered by default.
@@ -228,8 +226,6 @@
 **
 **  \par Criticality
 **       This command is not inherently dangerous.
-**
-**  \sa #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_DISABLE_ROUTE_CC, #CFE_SB_RouteCmd_t
 */
 #define CFE_SB_ENABLE_ROUTE_CC          4
 
@@ -249,7 +245,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will increment
-**       - View routing information #CFE_SB_SEND_ROUTING_INFO_CC to verify
+**       - View routing information #CFE_SB_WRITE_ROUTING_INFO_CC to verify
 **         enable/disable state change
 **       - The #CFE_SB_DSBL_RTE2_EID debug event message will be generated. All
 **         debug events are filtered by default.
@@ -271,8 +267,6 @@
 **       with #CFE_SB_CMD_MID and the SB_Cmd_Pipe would inhibit any ground
 **       commanding to the software bus until the processor was reset. There
 **       are similar problems that may occur when using this command.
-**
-**  \sa #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_ENABLE_ROUTE_CC, #CFE_SB_RouteCmd_t
 */
 #define CFE_SB_DISABLE_ROUTE_CC         5
 
@@ -291,7 +285,7 @@
 **  \cfecmdmnemonic \SB_WRITEPIPE2FILE
 **
 **  \par Command Structure
-**       #CFE_SB_SendPipeInfoCmd_t
+**       #CFE_SB_WritePipeInfoCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -315,10 +309,8 @@
 **       This command is not inherently dangerous.  It will create a new
 **       file in the file system and could, if performed repeatedly without
 **       sufficient file management by the operator, fill the file system.
-**
-**  \sa #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_SEND_MAP_INFO_CC
 */
-#define CFE_SB_SEND_PIPE_INFO_CC        7
+#define CFE_SB_WRITE_PIPE_INFO_CC        7
 
 /** \cfesbcmd Write Map Info to a File
 **
@@ -336,7 +328,7 @@
 **  \cfecmdmnemonic \SB_WRITEMAP2FILE
 **
 **  \par Command Structure
-**       #CFE_SB_SendMapInfoCmd_t
+**       #CFE_SB_WriteMapInfoCmd_t
 **
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
@@ -360,10 +352,8 @@
 **       This command is not inherently dangerous.  It will create a new
 **       file in the file system and could, if performed repeatedly without
 **       sufficient file management by the operator, fill the file system.
-**
-**  \sa #CFE_SB_SEND_ROUTING_INFO_CC, #CFE_SB_SEND_PIPE_INFO_CC
 */
-#define CFE_SB_SEND_MAP_INFO_CC         8
+#define CFE_SB_WRITE_MAP_INFO_CC         8
 
 /** \cfesbcmd Enable Subscription Reporting Command
 **
@@ -486,10 +476,7 @@ typedef CFE_MSG_CommandHeader_t CFE_SB_SendPrevSubsCmd_t;
 /**
 **  \brief Write File Info Command Payload
 **
-**  This structure contains a generic definition used by three SB commands,
-**  'Write Routing Info to File' #CFE_SB_SEND_ROUTING_INFO_CC,
-**  'Write Pipe Info to File' #CFE_SB_SEND_PIPE_INFO_CC and
-**  'Write Map Info to File' #CFE_SB_SEND_MAP_INFO_CC.
+**  This structure contains a generic definition used by SB commands that write to a file
 */
 typedef struct CFE_SB_WriteFileInfoCmd_Payload {
    char Filename[CFE_MISSION_MAX_PATH_LEN];/**< \brief Path and Filename of data to be loaded */
@@ -506,9 +493,9 @@ typedef struct CFE_SB_WriteFileInfoCmd {
 /*
  * Create a unique typedef for each of the commands that share this format.
  */
-typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendRoutingInfoCmd_t;
-typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendPipeInfoCmd_t;
-typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_SendMapInfoCmd_t;
+typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_WriteRoutingInfoCmd_t;
+typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_WritePipeInfoCmd_t;
+typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_WriteMapInfoCmd_t;
 
 /**
 **  \brief Enable/Disable Route Command Payload
@@ -701,7 +688,7 @@ typedef struct CFE_SB_StatsTlm {
 /**
 ** \brief SB Routing File Entry
 **
-** Structure of one element of the routing information in response to #CFE_SB_SEND_ROUTING_INFO_CC
+** Structure of one element of the routing information in response to #CFE_SB_WRITE_ROUTING_INFO_CC
 */
 typedef struct CFE_SB_RoutingFileEntry {
     CFE_SB_MsgId_t      MsgId;/**< \brief Message Id portion of the route */
@@ -716,7 +703,7 @@ typedef struct CFE_SB_RoutingFileEntry {
 /**
 ** \brief SB Map File Entry
 **
-** Structure of one element of the map information in response to #CFE_SB_SEND_MAP_INFO_CC
+** Structure of one element of the map information in response to #CFE_SB_WRITE_MAP_INFO_CC
 */
 typedef struct CFE_SB_MsgMapFileEntry {
     CFE_SB_MsgId_t        MsgId;/**< \brief Message Id which has been subscribed to */

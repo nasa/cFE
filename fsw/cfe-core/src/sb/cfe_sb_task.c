@@ -432,10 +432,10 @@ void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
                 }
                 break;
 
-            case CFE_SB_SEND_ROUTING_INFO_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendRoutingInfoCmd_t)))
+            case CFE_SB_WRITE_ROUTING_INFO_CC:
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WriteRoutingInfoCmd_t)))
                 {
-                    CFE_SB_SendRoutingInfoCmd((CFE_SB_SendRoutingInfoCmd_t *)SBBufPtr);
+                    CFE_SB_WriteRoutingInfoCmd((CFE_SB_WriteRoutingInfoCmd_t *)SBBufPtr);
                 }
                 break;
 
@@ -453,17 +453,17 @@ void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
                 }
                 break;
 
-            case CFE_SB_SEND_PIPE_INFO_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendPipeInfoCmd_t)))
+            case CFE_SB_WRITE_PIPE_INFO_CC:
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WritePipeInfoCmd_t)))
                 {
-                    CFE_SB_SendPipeInfoCmd((CFE_SB_SendPipeInfoCmd_t *)SBBufPtr);
+                    CFE_SB_WritePipeInfoCmd((CFE_SB_WritePipeInfoCmd_t *)SBBufPtr);
                 }
                 break;
 
-            case CFE_SB_SEND_MAP_INFO_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendMapInfoCmd_t)))
+            case CFE_SB_WRITE_MAP_INFO_CC:
+                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WriteMapInfoCmd_t)))
                 {
-                    CFE_SB_SendMapInfoCmd((CFE_SB_SendMapInfoCmd_t *)SBBufPtr);
+                    CFE_SB_WriteMapInfoCmd((CFE_SB_WriteMapInfoCmd_t *)SBBufPtr);
                 }
                 break;
 
@@ -842,94 +842,70 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
 
 
 /******************************************************************************
-**  Function:  CFE_SB_SendRoutingInfoCmd()
-**
-**  Purpose:
-**    SB internal function to handle processing of 'Send Routing Info' Cmd
-**
-**  Arguments:
-**    None
-**
-**  Return:
-**    None
-*/
-int32 CFE_SB_SendRoutingInfoCmd(const CFE_SB_SendRoutingInfoCmd_t *data)
+ * \brief SB internal function to handle processing of 'Write Routing Info' Cmd
+ *
+ * \param[in] data Pointer to command structure
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
 {
-    const CFE_SB_WriteFileInfoCmd_Payload_t *ptr;
     char LocalFilename[OS_MAX_PATH_LEN];
     int32 Stat;
 
-    ptr = &data->Payload;
+    CFE_SB_MessageStringGet(LocalFilename, data->Payload.Filename, CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME,
+            sizeof(LocalFilename), sizeof(data->Payload.Filename));
 
-    CFE_SB_MessageStringGet(LocalFilename, ptr->Filename, CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME,
-            sizeof(LocalFilename), sizeof(ptr->Filename));
-
-    Stat = CFE_SB_SendRtgInfo(LocalFilename);
+    Stat = CFE_SB_WriteRtgInfo(LocalFilename);
     CFE_SB_IncrCmdCtr(Stat);
 
     return CFE_SUCCESS;
-}/* end CFE_SB_SendRoutingInfoCmd */
+}
 
 
 /******************************************************************************
-**  Function:  CFE_SB_SendPipeInfoCmd()
-**
-**  Purpose:
-**    SB internal function to handle processing of 'Send Pipe Info' Cmd
-**
-**  Arguments:
-**    None
-**
-**  Return:
-**    None
-*/
-int32 CFE_SB_SendPipeInfoCmd(const CFE_SB_SendPipeInfoCmd_t *data)
+ * \brief SB internal function to handle processing of 'Write Pipe Info' Cmd
+ *
+ * \param[in] data Pointer to command structure
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
 {
-    const CFE_SB_WriteFileInfoCmd_Payload_t *ptr;
     char LocalFilename[OS_MAX_PATH_LEN];
     int32 Stat;
 
-    ptr = &data->Payload;
+    CFE_SB_MessageStringGet(LocalFilename, data->Payload.Filename, CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME,
+            sizeof(LocalFilename), sizeof(data->Payload.Filename));
 
-    CFE_SB_MessageStringGet(LocalFilename, ptr->Filename, CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME,
-            sizeof(LocalFilename), sizeof(ptr->Filename));
-
-    Stat = CFE_SB_SendPipeInfo(LocalFilename);
+    Stat = CFE_SB_WritePipeInfo(LocalFilename);
     CFE_SB_IncrCmdCtr(Stat);
 
     return CFE_SUCCESS;
-}/* end CFE_SB_SendPipeInfoCmd */
+}
 
 
 /******************************************************************************
-**  Function:  CFE_SB_SendMapInfoCmd()
-**
-**  Purpose:
-**    SB internal function to handle processing of 'Send Map Info' Cmd
-**
-**  Arguments:
-**    None
-**
-**  Return:
-**    None
-*/
-int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfoCmd_t *data)
+ * \brief SB internal function to handle processing of 'Write Map Info' Cmd
+ *
+ * \param[in] data Pointer to command structure
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
 {
-    const CFE_SB_WriteFileInfoCmd_Payload_t *ptr;
     char LocalFilename[OS_MAX_PATH_LEN];
     int32 Stat;
 
-    ptr = &data->Payload;
+    CFE_SB_MessageStringGet(LocalFilename, data->Payload.Filename, CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME,
+            sizeof(LocalFilename), sizeof(data->Payload.Filename));
 
-    CFE_SB_MessageStringGet(LocalFilename, ptr->Filename, CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME,
-            sizeof(LocalFilename), sizeof(ptr->Filename));
-
-    Stat = CFE_SB_SendMapInfo(LocalFilename);
+    Stat = CFE_SB_WriteMapInfo(LocalFilename);
 
     CFE_SB_IncrCmdCtr(Stat);
 
     return CFE_SUCCESS;
-}/* end CFE_SB_SendMapInfoCmd */
+}
 
 /******************************************************************************
  * Local callback helper for writing routing info to a file
@@ -1060,18 +1036,15 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
 
 
 /******************************************************************************
-**  Function:  CFE_SB_SendRoutingInfo()
-**
-**  Purpose:
-**    SB internal function to write the routing information to a file
-**
-**  Arguments:
-**    Pointer to a filename
-**
-**  Return:
-**    CFE_SB_FILE_IO_ERR for file I/O errors or CFE_SUCCESS
-*/
-int32 CFE_SB_SendRtgInfo(const char *Filename)
+ * \brief SB internal function to write the routing information to a file
+ *
+ * \param[in] Filename Pointer the file name to write
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ * \retval #CFE_SUCCESS        \copybrief CFE_SUCCESS
+ * \retval #CFE_SB_FILE_IO_ERR \copybrief CFE_SB_FILE_IO_ERR
+ */
+int32 CFE_SB_WriteRtgInfo(const char *Filename)
 {
     CFE_SB_FileWriteCallback_t  args = {0};
     int32                       Status;
@@ -1117,22 +1090,19 @@ int32 CFE_SB_SendRtgInfo(const char *Filename)
         return CFE_SUCCESS;
     }
 
-}/* end CFE_SB_SendRtgInfo */
+}
 
 
 /******************************************************************************
-**  Function:  CFE_SB_SendPipeInfo()
-**
-**  Purpose:
-**    SB internal function to write the Pipe table to a file
-**
-**  Arguments:
-**    Pointer to a filename
-**
-**  Return:
-**    CFE_SB_FILE_IO_ERR for file I/O errors or CFE_SUCCESS
-*/
-int32 CFE_SB_SendPipeInfo(const char *Filename)
+ * \brief SB internal function to write the Pipe table to a file
+ *
+ * \param[in] Filename Pointer the file name to write
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ * \retval #CFE_SUCCESS        \copybrief CFE_SUCCESS
+ * \retval #CFE_SB_FILE_IO_ERR \copybrief CFE_SB_FILE_IO_ERR
+ */
+int32 CFE_SB_WritePipeInfo(const char *Filename)
 {
     uint16 i;
     osal_id_t  fd;
@@ -1230,8 +1200,7 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
 
     return CFE_SUCCESS;
 
-}/* end CFE_SB_SendPipeInfo */
-
+}
 
 /******************************************************************************
  * Local callback helper for writing map info to a file
@@ -1266,18 +1235,15 @@ void CFE_SB_WriteMapToFile(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 }
 
 /******************************************************************************
-**  Function:  CFE_SB_SendMapInfo()
-**
-**  Purpose:
-**    SB internal function to write the Message Map to a file
-**
-**  Arguments:
-**    Pointer to a filename
-**
-**  Return:
-**    CFE_SB_FILE_IO_ERR for file I/O errors or CFE_SUCCESS
-*/
-int32 CFE_SB_SendMapInfo(const char *Filename)
+ * \brief SB internal function to write the Message Map to a file
+ *
+ * \param[in] Filename Pointer the file name to write
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ * \retval #CFE_SUCCESS        \copybrief CFE_SUCCESS
+ * \retval #CFE_SB_FILE_IO_ERR \copybrief CFE_SB_FILE_IO_ERR
+ */
+int32 CFE_SB_WriteMapInfo(const char *Filename)
 {
     CFE_SB_FileWriteCallback_t args = {0};
     int32                      Status;

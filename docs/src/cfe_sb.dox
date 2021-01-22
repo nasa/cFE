@@ -104,7 +104,7 @@
   The Pipe IDs are specific to a particular processor (that is, the same ID number
   may refer to a different pipe on each processor).  The pipe information for all
   pipes that have been created, may be requested at anytime by sending the
-  \link #CFE_SB_SEND_PIPE_INFO_CC 'Send Pipe Info' SB command \endlink. The software
+  \link #CFE_SB_WRITE_PIPE_INFO_CC 'Write Pipe Info' SB command \endlink. The software
   bus also provides a set of figures regarding capacity, current utilization and high
   water marks relevant to pipes. This information may be requested by sending the
   command to \link #CFE_SB_SEND_SB_STATS_CC dump the SB statistics packet \endlink.
