@@ -239,17 +239,6 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t *LibraryIdPtr,
                        const char   *LibName);
 
 /*
-** Get Application List
-*/
-int32 CFE_ES_AppGetList(uint32 AppIdArray[], uint32 ArraySize);
-
-/*
-** Dump All application properties to a file
-**  Note: Do we want to specify a file here?
-*/
-int32 CFE_ES_AppDumpAllInfo(void);
-
-/*
 ** Scan the Application Table for actions to take
 */
 bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg);
