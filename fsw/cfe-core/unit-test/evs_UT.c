@@ -1091,8 +1091,7 @@ void Test_Ports(void)
                UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
                &UT_EVS_EventBuf);
     UT_Report(__FILE__, __LINE__,
-              UT_EVS_EventBuf.EventID ==  CFE_EVS_ENAPORT_EID &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 4,
+              UT_EVS_EventBuf.EventID ==  CFE_EVS_ENAPORT_EID,
               "CFE_EVS_EnablePortsCmd",
               "Enable ports command received with port bit mask = 0x0f");
 
@@ -1101,8 +1100,7 @@ void Test_Ports(void)
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Test ports message");
     UT_Report(__FILE__, __LINE__,
-              LocalSnapshotData.Count == 1 &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 4,
+              LocalSnapshotData.Count == 1,
               "CFE_EVS_EnablePortsCmd",
               "Test ports output");
 

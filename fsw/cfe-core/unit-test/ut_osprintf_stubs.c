@@ -162,5 +162,7 @@ const char *UT_OSP_MESSAGES[] =
         [UT_OSP_RECORD_USED] = "ES Startup: Error: ES_TaskTable slot for ID %lx in use at task creation!\n",
         /* CFE_ES_ExitChildTask called from invalid task context */
         [UT_OSP_TASKEXIT_BAD_CONTEXT] = "CFE_ES_ExitChildTask called from invalid task context\n",
+        [UT_OSP_BACKGROUND_REGISTER] = "CFE_ES: Background Task Failed to register: %08lx\n",
+        [UT_OSP_BACKGROUND_TAKE] = "CFE_ES: Failed to take background sem: %08lx\n",
 };
 
