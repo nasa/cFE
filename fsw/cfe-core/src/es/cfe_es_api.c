@@ -871,7 +871,7 @@ int32 CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, size_t BufferL
     */
    if (CFE_ES_AppRecordIsMatch(AppRecPtr, AppId))
    {
-       strncpy(AppName, CFE_ES_AppRecordGetName(AppRecPtr), BufferLength);
+       strncpy(AppName, CFE_ES_AppRecordGetName(AppRecPtr), BufferLength - 1);
        AppName[BufferLength - 1] = '\0';
        Result = CFE_SUCCESS;
    }
@@ -1306,8 +1306,8 @@ int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
 
                CFE_ES_TaskRecordSetUsed(TaskRecPtr, ChildTaskId);
                TaskRecPtr->AppId = CFE_ES_AppRecordGetID(AppRecPtr);
-               strncpy((char *)TaskRecPtr->TaskName,TaskName,OS_MAX_API_NAME);
-               TaskRecPtr->TaskName[OS_MAX_API_NAME - 1] = '\0';
+               strncpy(TaskRecPtr->TaskName,TaskName,sizeof(TaskRecPtr->TaskName) - 1);
+               TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName) - 1] = '\0';
                CFE_ES_Global.RegisteredTasks++;
 
                *TaskIdPtr = ChildTaskId;
@@ -1737,8 +1737,8 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, con
 
            /* Perform a buffer overrun safe copy of name for debug log message */
 
-           strncpy(CDSName, Name, CFE_MISSION_ES_CDS_MAX_NAME_LENGTH);
-           CDSName[CFE_MISSION_ES_CDS_MAX_NAME_LENGTH-1] = '\0';
+           strncpy(CDSName, Name, sizeof(CDSName) - 1);
+           CDSName[sizeof(CDSName) - 1] = '\0';
            CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS Name (%s) is too long\n", CDSName);
         }
         else
@@ -1925,7 +1925,8 @@ int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *C
        else
        {
            strncpy(CountRecPtr->CounterName,CounterName,
-                   sizeof(CountRecPtr->CounterName));
+                   sizeof(CountRecPtr->CounterName) - 1);
+           CountRecPtr->CounterName[sizeof(CountRecPtr->CounterName) - 1] = '\0';
            CountRecPtr->Counter = 0;
            CFE_ES_CounterRecordSetUsed(CountRecPtr, PendingCounterId);
            CFE_ES_Global.LastCounterId = PendingCounterId;

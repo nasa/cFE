@@ -47,6 +47,11 @@
 
 /*************************************************************************/
 
+#define CFE_ES_PIPE_NAME  "ES_CMD_PIPE"
+#define CFE_ES_PIPE_DEPTH 12
+#define CFE_ES_LIMIT_HK   2
+#define CFE_ES_LIMIT_CMD  4
+
 /*
 ** ES File descriptions
 */
@@ -123,9 +128,6 @@ typedef struct
   /*
   ** ES Task initialization data (not reported in housekeeping)
   */
-  char                  PipeName[OS_MAX_API_NAME];
-  uint16                PipeDepth;
-
   uint8                 LimitHK;
   uint8                 LimitCmd;
 

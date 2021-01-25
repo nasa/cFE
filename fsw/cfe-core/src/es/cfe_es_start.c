@@ -769,6 +769,7 @@ void  CFE_ES_CreateObjects(void)
                 AppRecPtr->Type = CFE_ES_AppType_CORE;
                 strncpy(AppRecPtr->StartParams.BasicInfo.Name, CFE_ES_ObjectTable[i].ObjectName,
                         sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1);
+                AppRecPtr->StartParams.BasicInfo.Name[sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1] = '\0';
 
                 /* FileName and EntryPoint is not valid for core apps */
                 AppRecPtr->StartParams.StackSize = CFE_ES_ObjectTable[i].ObjectSize;

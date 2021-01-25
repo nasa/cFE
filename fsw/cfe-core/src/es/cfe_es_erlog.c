@@ -139,7 +139,8 @@ int32 CFE_ES_WriteToERLogWithContext( CFE_ES_LogEntryType_Enum_t EntryType,   ui
    /*
    ** Copy the Description string to the log.
    */
-   strncpy(EntryPtr->BaseInfo.Description, Description, sizeof(EntryPtr->BaseInfo.Description));
+   strncpy(EntryPtr->BaseInfo.Description, Description, sizeof(EntryPtr->BaseInfo.Description) - 1);
+   EntryPtr->BaseInfo.Description[sizeof(EntryPtr->BaseInfo.Description) - 1] = '\0';
 
    /*
     * Store the context info (if any)

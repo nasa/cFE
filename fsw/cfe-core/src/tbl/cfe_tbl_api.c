@@ -81,8 +81,8 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
             Status = CFE_TBL_ERR_INVALID_NAME;
 
             /* Perform a buffer overrun safe copy of name for debug log message */
-            strncpy(TblName, Name, CFE_MISSION_TBL_MAX_NAME_LENGTH);
-            TblName[CFE_MISSION_TBL_MAX_NAME_LENGTH-1] = '\0';
+            strncpy(TblName, Name, sizeof(TblName) - 1);
+            TblName[sizeof(TblName) - 1] = '\0';
             CFE_ES_WriteToSysLog("CFE_TBL:Register-Table Name (%s) is bad length (%d)",TblName,(int)NameLen);
         }
         else
@@ -314,7 +314,8 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                     RegRecPtr->ValidationFuncPtr = TblValidationFuncPtr;
 
                     /* Save Table Name in Registry */
-                    strncpy(RegRecPtr->Name, TblName, CFE_TBL_MAX_FULL_NAME_LEN);
+                    strncpy(RegRecPtr->Name, TblName, sizeof(RegRecPtr->Name) - 1);
+                    RegRecPtr->Name[sizeof(RegRecPtr->Name) - 1] = '\0';
 
                     /* Set the "Dump Only" flag to value based upon selected option */
                     if ((TblOptionFlags & CFE_TBL_OPT_LD_DMP_MSK) == CFE_TBL_OPT_DUMP_ONLY)
@@ -398,10 +399,14 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                             
                                 if ((CritRegRecPtr != NULL) && (CritRegRecPtr->TableLoadedOnce))
                                 {
-                                    strncpy(WorkingBufferPtr->DataSource, CritRegRecPtr->LastFileLoaded, OS_MAX_PATH_LEN);
+                                    strncpy(WorkingBufferPtr->DataSource, CritRegRecPtr->LastFileLoaded,
+                                            sizeof(WorkingBufferPtr->DataSource) - 1);
+                                    WorkingBufferPtr->DataSource[sizeof(WorkingBufferPtr->DataSource) - 1] = '\0';
                                     WorkingBufferPtr->FileCreateTimeSecs = CritRegRecPtr->FileCreateTimeSecs;
                                     WorkingBufferPtr->FileCreateTimeSubSecs = CritRegRecPtr->FileCreateTimeSubSecs;
-                                    strncpy(RegRecPtr->LastFileLoaded, CritRegRecPtr->LastFileLoaded, OS_MAX_PATH_LEN);
+                                    strncpy(RegRecPtr->LastFileLoaded, CritRegRecPtr->LastFileLoaded,
+                                            sizeof(RegRecPtr->LastFileLoaded) - 1);
+                                    RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = '\0';
                                     RegRecPtr->TimeOfLastUpdate.Seconds = CritRegRecPtr->TimeOfLastUpdate.Seconds;
                                     RegRecPtr->TimeOfLastUpdate.Subseconds = CritRegRecPtr->TimeOfLastUpdate.Subseconds;
                                     RegRecPtr->TableLoadedOnce = CritRegRecPtr->TableLoadedOnce;
@@ -441,7 +446,8 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                             if (CritRegRecPtr != NULL)
                             {
                                 CritRegRecPtr->CDSHandle = RegRecPtr->CDSHandle;
-                                strncpy(CritRegRecPtr->Name, TblName, CFE_TBL_MAX_FULL_NAME_LEN);
+                                strncpy(CritRegRecPtr->Name, TblName, sizeof(CritRegRecPtr->Name) - 1);
+                                CritRegRecPtr->Name[sizeof(CritRegRecPtr->Name) - 1] = '\0';
                                 CritRegRecPtr->FileCreateTimeSecs = 0;
                                 CritRegRecPtr->FileCreateTimeSubSecs = 0;
                                 CritRegRecPtr->LastFileLoaded[0] = '\0';
@@ -874,7 +880,8 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
         /* On initial loads, make sure registry is given file/address of data source */
         strncpy(RegRecPtr->LastFileLoaded,
                 WorkingBufferPtr->DataSource,
-                OS_MAX_PATH_LEN);
+                sizeof(RegRecPtr->LastFileLoaded) - 1);
+        RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded) - 1] = '\0';
 
         CFE_TBL_NotifyTblUsersOfUpdate(RegRecPtr);
                 
@@ -1494,7 +1501,7 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
         
         /* Keep a record of change for the ground operators reference */
         RegRecPtr->TimeOfLastUpdate = CFE_TIME_GetTime();
-        RegRecPtr->LastFileLoaded[OS_MAX_PATH_LEN-1] = '\0';
+        RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded)-1] = '\0';
         
         /* Update CRC on contents of table */
         RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc = 
@@ -1504,13 +1511,13 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
                                 CFE_MISSION_ES_DEFAULT_CRC);
 
         FilenameLen = strlen(RegRecPtr->LastFileLoaded);
-        if (FilenameLen < (OS_MAX_PATH_LEN-4))
+        if (FilenameLen < (sizeof(RegRecPtr->LastFileLoaded)-4))
         {
             strncpy(&RegRecPtr->LastFileLoaded[FilenameLen], "(*)", 4);
         }
         else
         {
-            strncpy(&RegRecPtr->LastFileLoaded[(OS_MAX_PATH_LEN-4)], "(*)", 4);
+            strncpy(&RegRecPtr->LastFileLoaded[sizeof(RegRecPtr->LastFileLoaded)-4], "(*)", 4);
         }
 
         AccessIterator = RegRecPtr->HeadOfAccessList;

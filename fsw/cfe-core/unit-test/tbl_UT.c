@@ -463,7 +463,8 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
     /* Test successfully finding the table name in the table registry */
     UT_InitData();
     strncpy(DelCDSCmd.Payload.TableName, "0",
-            sizeof(DelCDSCmd.Payload.TableName));
+            sizeof(DelCDSCmd.Payload.TableName) - 1);
+    DelCDSCmd.Payload.TableName[sizeof(DelCDSCmd.Payload.TableName) - 1] = '\0';
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DeleteCDSCmd(&DelCDSCmd) ==
                                        CFE_TBL_INC_ERR_CTR,
@@ -481,7 +482,8 @@ void Test_CFE_TBL_DeleteCDSCmd(void)
     }
 
     strncpy(DelCDSCmd.Payload.TableName, "-1", 
-        sizeof(DelCDSCmd.Payload.TableName));
+        sizeof(DelCDSCmd.Payload.TableName) - 1);
+    DelCDSCmd.Payload.TableName[sizeof(DelCDSCmd.Payload.TableName) - 1] = '\0';
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DeleteCDSCmd(&DelCDSCmd) ==
                                        CFE_TBL_INC_ERR_CTR,
@@ -554,8 +556,9 @@ void Test_CFE_TBL_TlmRegCmd(void)
     /* Registry[0].Name used because it is confirmed to be a registered
      * table name
      */
-    strncpy((char *)TlmRegCmd.Payload.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(TlmRegCmd.Payload.TableName));
+    strncpy(TlmRegCmd.Payload.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(TlmRegCmd.Payload.TableName) - 1);
+    TlmRegCmd.Payload.TableName[sizeof(TlmRegCmd.Payload.TableName) - 1] = '\0';
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_SendRegistryCmd(&TlmRegCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -590,8 +593,9 @@ void Test_CFE_TBL_AbortLoadCmd(void)
     /* Entering the if statement with a table name that has to be in
      * the registry
      */
-    strncpy((char *)AbortLdCmd.Payload.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(AbortLdCmd.Payload.TableName));
+    strncpy(AbortLdCmd.Payload.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(AbortLdCmd.Payload.TableName) - 1);
+    AbortLdCmd.Payload.TableName[sizeof(AbortLdCmd.Payload.TableName) - 1] = '\0';
     CFE_TBL_TaskData.Registry[0].LoadInProgress = 1;
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_AbortLoadCmd(&AbortLdCmd) ==
@@ -658,7 +662,8 @@ void Test_CFE_TBL_ActivateCmd(void)
 
     /* Enter the if statement with a table name that is in the registry */
     strncpy(ActivateCmd.Payload.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(ActivateCmd.Payload.TableName));
+            sizeof(ActivateCmd.Payload.TableName) - 1);
+    ActivateCmd.Payload.TableName[sizeof(ActivateCmd.Payload.TableName) - 1] = '\0';
 
     /* Test when table name exists, but attempts to activate a dump-only
      * table
@@ -852,8 +857,9 @@ void Test_CFE_TBL_ValidateCmd(void)
      * have been requested
      */
     UT_InitData();
-    strncpy((char *)ValidateCmd.Payload.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(ValidateCmd.Payload.TableName));
+    strncpy(ValidateCmd.Payload.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(ValidateCmd.Payload.TableName) - 1);
+    ValidateCmd.Payload.TableName[sizeof(ValidateCmd.Payload.TableName) - 1] = '\0';
     ValidateCmd.Payload.ActiveTableFlag = CFE_TBL_BufferSelect_ACTIVE;
     CFE_TBL_TaskData.Registry[0].
       Buffers[CFE_TBL_TaskData.Registry[0].ActiveBufferIndex].
@@ -1152,8 +1158,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
 
     /* Test with an error creating the dump file */
     UT_InitData();
-    strncpy((char *)DumpRegCmd.Payload.DumpFilename, "",
-            sizeof(DumpRegCmd.Payload.DumpFilename));
+    DumpRegCmd.Payload.DumpFilename[0] = '\0';
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
@@ -1215,7 +1220,8 @@ void Test_CFE_TBL_DumpRegCmd(void)
 
     /* Test using the default dump file name */
     UT_InitData();
-    strcpy(DumpRegCmd.Payload.DumpFilename, "X");
+    strncpy(DumpRegCmd.Payload.DumpFilename, "X", sizeof(DumpRegCmd.Payload.DumpFilename) - 1);
+    DumpRegCmd.Payload.DumpFilename[sizeof(DumpRegCmd.Payload.DumpFilename) - 1] = '\0';
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -1257,11 +1263,12 @@ void Test_CFE_TBL_DumpCmd(void)
      */
     UT_InitData();
     strncpy(CFE_TBL_TaskData.Registry[2].Name, "DumpCmdTest",
-            CFE_TBL_MAX_FULL_NAME_LEN);
-    CFE_TBL_TaskData.Registry[2].Name[CFE_TBL_MAX_FULL_NAME_LEN - 1] = '\0';
+            sizeof(CFE_TBL_TaskData.Registry[2].Name) - 1);
+    CFE_TBL_TaskData.Registry[2].Name[sizeof(CFE_TBL_TaskData.Registry[2].Name) - 1] = '\0';
     CFE_TBL_TaskData.Registry[2].OwnerAppId = AppID;
     strncpy(DumpCmd.Payload.TableName, CFE_TBL_TaskData.Registry[2].Name,
-            sizeof(DumpCmd.Payload.TableName));
+            sizeof(DumpCmd.Payload.TableName) - 1);
+    DumpCmd.Payload.TableName[sizeof(DumpCmd.Payload.TableName) - 1] = '\0';
     DumpCmd.Payload.ActiveTableFlag = CFE_TBL_BufferSelect_ACTIVE;
     CFE_TBL_TaskData.Registry[2].Buffers[CFE_TBL_TaskData.Registry[2].ActiveBufferIndex].BufferPtr = BuffPtr;
 
@@ -1357,7 +1364,8 @@ void Test_CFE_TBL_DumpCmd(void)
     CFE_TBL_TaskData.LoadBuffs[CFE_TBL_TaskData.Registry[2].LoadInProgress].BufferPtr = BuffPtr;
     CFE_TBL_TaskData.Registry[2].DumpOnly = false;
     strncpy(DumpCmd.Payload.DumpFilename, CFE_TBL_TaskData.Registry[2].LastFileLoaded,
-            sizeof(DumpCmd.Payload.DumpFilename));
+            sizeof(DumpCmd.Payload.DumpFilename) - 1);
+    DumpCmd.Payload.DumpFilename[sizeof(DumpCmd.Payload.DumpFilename) - 1] = '\0';
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_DumpCmd(&DumpCmd) ==
                 CFE_TBL_INC_CMD_CTR,
@@ -1422,8 +1430,9 @@ void Test_CFE_TBL_LoadCmd(void)
 
     /* Test response to inability to open file */
     UT_InitData();
-    strncpy((char *)LoadCmd.Payload.LoadFilename, "LoadFileName",
-            sizeof(LoadCmd.Payload.LoadFilename));
+    strncpy(LoadCmd.Payload.LoadFilename, "LoadFileName",
+            sizeof(LoadCmd.Payload.LoadFilename) - 1);
+    LoadCmd.Payload.LoadFilename[sizeof(LoadCmd.Payload.LoadFilename) - 1] = '\0';
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_LoadCmd(&LoadCmd) ==
@@ -1440,10 +1449,11 @@ void Test_CFE_TBL_LoadCmd(void)
         CFE_TBL_TaskData.Registry[i].LoadPending = false;
     }
 
-    strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     strncpy(StdFileHeader.Description, "FS header description",
-            sizeof(StdFileHeader.Description));
+            sizeof(StdFileHeader.Description) - 1);
     StdFileHeader.Description[sizeof(StdFileHeader.Description) - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
@@ -1510,8 +1520,9 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(CFE_TBL_File_Hdr_t));
 
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
-    strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_Report(__FILE__, __LINE__,
@@ -1529,8 +1540,9 @@ void Test_CFE_TBL_LoadCmd(void)
         CFE_TBL_ByteSwapUint32(&TblFileHeader.NumBytes);
     }
 
-    strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_SetDeferredRetcode(UT_KEY(OS_read), 2, 0);
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
@@ -1552,8 +1564,9 @@ void Test_CFE_TBL_LoadCmd(void)
         CFE_TBL_TaskData.LoadBuffs[j].Taken = true;
     }
 
-    strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_Report(__FILE__, __LINE__,
@@ -1567,8 +1580,9 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(CFE_TBL_File_Hdr_t));
 
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t) - 1;
-    strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_Report(__FILE__, __LINE__,
@@ -1581,8 +1595,9 @@ void Test_CFE_TBL_LoadCmd(void)
     UT_InitData();
     UT_TBL_SetupHeader(&TblFileHeader, 0, 0);
 
-    strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_Report(__FILE__, __LINE__,
@@ -1600,8 +1615,9 @@ void Test_CFE_TBL_LoadCmd(void)
     CFE_TBL_TaskData.Registry[0].TableLoadedOnce = false;
 
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t);
-    strncpy((char *)TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_Report(__FILE__, __LINE__,
@@ -1621,7 +1637,8 @@ void Test_CFE_TBL_LoadCmd(void)
 
     CFE_TBL_TaskData.Registry[0].Size = sizeof(CFE_TBL_File_Hdr_t);
     strncpy(TblFileHeader.TableName, CFE_TBL_TaskData.Registry[0].Name,
-            sizeof(TblFileHeader.TableName));
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_Report(__FILE__, __LINE__,
@@ -1634,7 +1651,8 @@ void Test_CFE_TBL_LoadCmd(void)
     /* Test response to inability to read the file header */
     UT_InitData();
     strncpy(LoadCmd.Payload.LoadFilename, "LoadFileName",
-            sizeof(LoadCmd.Payload.LoadFilename));
+            sizeof(LoadCmd.Payload.LoadFilename) - 1);
+    LoadCmd.Payload.LoadFilename[sizeof(LoadCmd.Payload.LoadFilename) - 1] = '\0';
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     UT_Report(__FILE__, __LINE__,
               CFE_TBL_LoadCmd(&LoadCmd) ==
@@ -1665,8 +1683,8 @@ void Test_CFE_TBL_HousekeepingCmd(void)
      */
     UT_InitData();
     strncpy(CFE_TBL_TaskData.DumpControlBlocks[0].TableName,
-           "housekeepingtest", CFE_TBL_MAX_FULL_NAME_LEN);
-    CFE_TBL_TaskData.DumpControlBlocks[0].TableName[CFE_TBL_MAX_FULL_NAME_LEN - 1] = '\0';
+           "housekeepingtest", sizeof(CFE_TBL_TaskData.DumpControlBlocks[0].TableName) - 1);
+    CFE_TBL_TaskData.DumpControlBlocks[0].TableName[sizeof(CFE_TBL_TaskData.DumpControlBlocks[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.DumpControlBlocks[0].Size = 10;
     LoadInProg = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
     RegRecPtr.LoadInProgress = LoadInProg;
@@ -1676,8 +1694,8 @@ void Test_CFE_TBL_HousekeepingCmd(void)
     DumpBuffPtr->BufferPtr = BuffPtr;
     DumpBuffPtr->FileCreateTimeSecs = Secs;
     DumpBuffPtr->FileCreateTimeSubSecs = SubSecs;
-    strncpy(DumpBuffPtr->DataSource, "hkSource", OS_MAX_PATH_LEN);
-    DumpBuffPtr->DataSource[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy(DumpBuffPtr->DataSource, "hkSource", sizeof(DumpBuffPtr->DataSource) - 1);
+    DumpBuffPtr->DataSource[sizeof(DumpBuffPtr->DataSource) - 1] = '\0';
     CFE_TBL_TaskData.DumpControlBlocks[0].DumpBufferPtr = DumpBuffPtr;
     CFE_TBL_TaskData.DumpControlBlocks[0].State = CFE_TBL_DUMP_PERFORMED;
 
@@ -2521,11 +2539,13 @@ void Test_CFE_TBL_Share(void)
     /* Test successful first load of a table */
     UT_InitData();
     strncpy(StdFileHeader.Description, "FS header description",
-            sizeof(StdFileHeader.Description));
+            sizeof(StdFileHeader.Description) - 1);
+    StdFileHeader.Description[sizeof(StdFileHeader.Description) - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table4",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table4",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
 
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
@@ -2703,11 +2723,13 @@ void Test_CFE_TBL_Load(void)
     /* Test attempt to perform partial INITIAL load */
     UT_InitData();
     strncpy(StdFileHeader.Description,"Test description",
-            sizeof(StdFileHeader.Description));
+            sizeof(StdFileHeader.Description) - 1);
+    StdFileHeader.Description[sizeof(StdFileHeader.Description) - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 1, sizeof(UT_Table1_t)-1);
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -2749,11 +2771,13 @@ void Test_CFE_TBL_Load(void)
      */
     UT_InitData();
     strncpy(StdFileHeader.Description,"Test description",
-            sizeof(StdFileHeader.Description));
+            sizeof(StdFileHeader.Description) - 1);
+    StdFileHeader.Description[sizeof(StdFileHeader.Description) - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.NotUT_Table1",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.NotUT_Table1",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -2790,11 +2814,13 @@ void Test_CFE_TBL_Load(void)
      */
     UT_InitData();
     strncpy(StdFileHeader.Description,"Test description",
-            sizeof(StdFileHeader.Description));
+            sizeof(StdFileHeader.Description) - 1);
+    StdFileHeader.Description[sizeof(StdFileHeader.Description) - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.NotUT_Table1",
-            sizeof(TblFileHeader.TableName));
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -3257,7 +3283,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 0;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table1", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
@@ -3283,7 +3310,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 0;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table1", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
@@ -3309,7 +3337,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 1;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table1", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
@@ -3335,7 +3364,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 0;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table1", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
@@ -3361,7 +3391,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 0;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table1", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
@@ -3387,7 +3418,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 1;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table1", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table1", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
@@ -3504,7 +3536,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 0;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table2", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
@@ -3530,7 +3563,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 1;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table2", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = false;
     RegRecPtr->ValidateInactiveIndex = 0;
@@ -3556,7 +3590,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 0;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table2", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
@@ -3582,7 +3617,8 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_TaskData.ValidationResults[0].State = CFE_TBL_VALIDATION_PENDING;
     CFE_TBL_TaskData.ValidationResults[0].Result = 1;
     strncpy(CFE_TBL_TaskData.ValidationResults[0].TableName,
-            "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN);
+            "ut_cfe_tbl.UT_Table2", sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1);
+    CFE_TBL_TaskData.ValidationResults[0].TableName[sizeof(CFE_TBL_TaskData.ValidationResults[0].TableName) - 1] = '\0';
     CFE_TBL_TaskData.ValidationResults[0].CrcOfTable = 0;
     CFE_TBL_TaskData.ValidationResults[0].ActiveBuffer = true;
     RegRecPtr->ValidateActiveIndex = 0;
@@ -3609,14 +3645,13 @@ void Test_CFE_TBL_Manage(void)
      * later
      */
     CFE_TBL_TaskData.DumpControlBlocks[0].DumpBufferPtr = WorkingBufferPtr;
-    strncpy(CFE_TBL_TaskData.DumpControlBlocks[0].
-                     DumpBufferPtr->DataSource,
-                   "MyDumpFilename", OS_MAX_PATH_LEN-1);
-    CFE_TBL_TaskData.DumpControlBlocks[0].
-                         DumpBufferPtr->DataSource[OS_MAX_PATH_LEN-1] = 0;
-    strncpy(CFE_TBL_TaskData.DumpControlBlocks[0].TableName,
-                   "ut_cfe_tbl.UT_Table2", CFE_TBL_MAX_FULL_NAME_LEN-1);
-    CFE_TBL_TaskData.DumpControlBlocks[0].TableName[CFE_TBL_MAX_FULL_NAME_LEN-1] = 0;
+    strncpy(CFE_TBL_TaskData.DumpControlBlocks[0].DumpBufferPtr->DataSource,
+            "MyDumpFilename", sizeof(CFE_TBL_TaskData.DumpControlBlocks[0].DumpBufferPtr->DataSource) - 1);
+    CFE_TBL_TaskData.DumpControlBlocks[0].DumpBufferPtr->DataSource[
+            sizeof(CFE_TBL_TaskData.DumpControlBlocks[0].DumpBufferPtr->DataSource) - 1] = 0;
+    strncpy(CFE_TBL_TaskData.DumpControlBlocks[0].TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(CFE_TBL_TaskData.DumpControlBlocks[0].TableName) - 1);
+    CFE_TBL_TaskData.DumpControlBlocks[0].TableName[sizeof(CFE_TBL_TaskData.DumpControlBlocks[0].TableName) - 1] = 0;
     CFE_TBL_TaskData.DumpControlBlocks[0].Size = RegRecPtr->Size;
     RegRecPtr->DumpControlIndex = 0;
     RtnCode = CFE_TBL_Manage(App1TblHandle2);
@@ -3794,13 +3829,15 @@ void Test_CFE_TBL_TblMod(void)
 
     /* Configure for successful file read to initialize table */
     strncpy(FileHeader.Description, "FS header description",
-            sizeof(FileHeader.Description));
+            sizeof(FileHeader.Description) - 1);
+    FileHeader.Description[sizeof(FileHeader.Description) - 1] = '\0';
     FileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     FileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     FileHeader.TimeSeconds = 1704;
     FileHeader.TimeSubSeconds = 104;
-    strncpy((char *)File.TblHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(File.TblHeader.TableName));
+    strncpy(File.TblHeader.TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(File.TblHeader.TableName) - 1);
+    File.TblHeader.TableName[sizeof(File.TblHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&File.TblHeader, 0, sizeof(UT_Table1_t));
 
     if (UT_Endianess == UT_LITTLE_ENDIAN)
@@ -3878,13 +3915,15 @@ void Test_CFE_TBL_TblMod(void)
 
     /* Configure for successful file read to initialize table */
     strncpy(FileHeader.Description, "FS header description",
-            sizeof(FileHeader.Description));
+            sizeof(FileHeader.Description) - 1);
+    FileHeader.Description[sizeof(FileHeader.Description) - 1] = '\0';
     FileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     FileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     FileHeader.TimeSeconds = 1704;
     FileHeader.TimeSubSeconds = 104;
-    strncpy((char *)File.TblHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(File.TblHeader.TableName));
+    strncpy(File.TblHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(File.TblHeader.TableName) - 1);
+    File.TblHeader.TableName[sizeof(File.TblHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&File.TblHeader, 0, sizeof(UT_Table1_t));
 
     File.TblData.TblElement1 = 0x04030201;
@@ -3894,33 +3933,29 @@ void Test_CFE_TBL_TblMod(void)
     UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
 
     /* Perform load with extra long filename */
-    for (Index = 0; Index < OS_MAX_PATH_LEN - 1; Index++)
+    for (Index = 0; Index < sizeof(MyFilename) - 1; Index++)
     {
         MyFilename[Index] = 'a';
     }
+    MyFilename[sizeof(MyFilename) - 1] = '\0';
 
-    MyFilename[(OS_MAX_PATH_LEN - 1)] = '\0';
-    RtnCode = CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, MyFilename);
-    EventsCorrect = (UT_GetNumEventsSent() == 1 &&
-                     UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID) ==
-                         true);
+    ASSERT(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, MyFilename));
+    ASSERT_EQ(UT_GetNumEventsSent(), 1);
+    ASSERT_TRUE(UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID));
 
     /* Notify Table Services that the table has been modified */
-    RtnCode = CFE_TBL_Modified(App1TblHandle1);
-    RtnCode2 = CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table2");
-    UT_Report(__FILE__, __LINE__,
-              RtnCode == CFE_SUCCESS &&
-              RtnCode2 == CFE_SUCCESS &&
-              EventsCorrect &&
-              TblInfo1.TimeOfLastUpdate.Seconds ==
-                  TblInfo1.TimeOfLastUpdate.Subseconds &&
-              strncmp(TblInfo1.LastFileLoaded,
-                      MyFilename, OS_MAX_PATH_LEN - 4) == 0 &&
-              strncmp(&TblInfo1.LastFileLoaded[OS_MAX_PATH_LEN - 4],
-                      "(*)", 3) == 0,
-              "CFE_TBL_Modified",
-              "Add TBL API for notifying table services that table has "
-                "been updated by application");
+    ASSERT(CFE_TBL_Modified(App1TblHandle1));
+    ASSERT(CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table2"));
+    ASSERT_EQ(TblInfo1.TimeOfLastUpdate.Seconds, TblInfo1.TimeOfLastUpdate.Subseconds);
+
+    /*
+     * LastFileLoaded (limited by mission) can be bigger than MyFilename (limited by osal),
+     * need to adjust length of check to account for difference and modified marking
+     */
+    UtAssert_StrnCmp(TblInfo1.LastFileLoaded, MyFilename, sizeof(MyFilename) - 4, "%s == %s, %ld",
+                     TblInfo1.LastFileLoaded, MyFilename, (long)sizeof(MyFilename) - 4);
+    UtAssert_StrCmp(&TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4], "(*)", "%s == (*)",
+                    &TblInfo1.LastFileLoaded[sizeof(MyFilename) - 4]);
 
     /* Test response to an invalid handle */
     RtnCode = CFE_TBL_Modified(CFE_TBL_BAD_TABLE_HANDLE);
@@ -3940,7 +3975,8 @@ void Test_CFE_TBL_Internal(void)
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
-    char                       Filename[OS_MAX_PATH_LEN + 10];
+    char                       FilenameLong[OS_MAX_PATH_LEN + 10];
+    char                       Filename[OS_MAX_PATH_LEN];
     int32                      i;
     CFE_FS_Header_t            StdFileHeader;
     CFE_TBL_File_Hdr_t         TblFileHeader;
@@ -3973,8 +4009,8 @@ void Test_CFE_TBL_Internal(void)
     AccessDescPtr = &CFE_TBL_TaskData.Handles[App1TblHandle2];
     RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
     strncpy(RegRecPtr->Name, "ut_cfe_tbl.UT_Table3",
-            CFE_TBL_MAX_FULL_NAME_LEN);
-    RegRecPtr->Name[CFE_TBL_MAX_FULL_NAME_LEN - 1] = '\0';
+            sizeof(RegRecPtr->Name) - 1);
+    RegRecPtr->Name[sizeof(RegRecPtr->Name) - 1] = '\0';
     RegRecPtr->TableLoadedOnce = false;
     RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
     RtnCode = CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, true);
@@ -4003,13 +4039,13 @@ void Test_CFE_TBL_Internal(void)
     /* Test CFE_TBL_LoadFromFile response to a file name that is too long */
     UT_InitData();
 
-    for (i = 0; i < OS_MAX_PATH_LEN + 9; i++)
+    for (i = 0; i < sizeof(FilenameLong) - 1; i++)
     {
-        Filename[i] = 'a';
+        FilenameLong[i] = 'a';
     }
+    FilenameLong[i] = '\0'; /* Null terminate file name string */
 
-    Filename[i] = '\0'; /* Null terminate file name string */
-    RtnCode = CFE_TBL_LoadFromFile("UT", WorkingBufferPtr, RegRecPtr, Filename);
+    RtnCode = CFE_TBL_LoadFromFile("UT", WorkingBufferPtr, RegRecPtr, FilenameLong);
     EventsCorrect = (UT_EventIsInHistory(CFE_TBL_LOAD_FILENAME_LONG_ERR_EID) == true &&
         UT_GetNumEventsSent() == 1);
     UT_Report(__FILE__, __LINE__,
@@ -4021,14 +4057,16 @@ void Test_CFE_TBL_Internal(void)
      * (according to the header)
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
+    strncpy(Filename, FilenameLong, sizeof(Filename) - 1);
+    Filename[sizeof(Filename) - 1] = '\0';
     strncpy(StdFileHeader.Description, "FS header description",
-            sizeof(StdFileHeader.Description));
-    StdFileHeader.Description[CFE_FS_HDR_DESC_MAX_LEN - 1] = '\0';
+            sizeof(StdFileHeader.Description) - 1);
+    StdFileHeader.Description[sizeof(StdFileHeader.Description) - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 1, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4045,11 +4083,11 @@ void Test_CFE_TBL_Internal(void)
      * (too much content)
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4067,13 +4105,13 @@ void Test_CFE_TBL_Internal(void)
      * incomplete
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
-//
+
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
     UT_SetDeferredRetcode(UT_KEY(OS_read), 2, sizeof(UT_Table1_t) - 1);
@@ -4090,11 +4128,11 @@ void Test_CFE_TBL_Internal(void)
      * wrong table
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.NotUT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.NotUT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4110,11 +4148,11 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_LoadFromFile response to an OS open error */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4130,11 +4168,11 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_LoadFromFile response to a file too short warning */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t)-1);
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4151,16 +4189,16 @@ void Test_CFE_TBL_Internal(void)
      * file header
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t)-1);
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    strncpy(Filename, "MyTestInputFilename", sizeof(Filename));
+    strncpy(Filename, "MyTestInputFilename", sizeof(Filename) - 1);
     Filename[sizeof(Filename) - 1] = '\0';
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_ReadHeader), 1, sizeof(CFE_FS_Header_t) - 1);
     RtnCode = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader,
@@ -4177,11 +4215,11 @@ void Test_CFE_TBL_Internal(void)
      * standard header
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID - 1;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     TblFileHeader.NumBytes = sizeof(UT_Table1_t) - 1;
     TblFileHeader.Offset = 0;
 
@@ -4204,11 +4242,11 @@ void Test_CFE_TBL_Internal(void)
 
     /* Test CFE_TBL_ReadHeaders response to a wrong cFE file subtype */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG - 1;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t)-1);
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4227,11 +4265,11 @@ void Test_CFE_TBL_Internal(void)
      * table header
      */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t)-1);
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4370,8 +4408,9 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4391,8 +4430,9 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4412,8 +4452,9 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4433,8 +4474,9 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4457,8 +4499,9 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4497,8 +4540,9 @@ void Test_CFE_TBL_Internal(void)
     UT_ClearEventHistory();
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4538,8 +4582,9 @@ void Test_CFE_TBL_Internal(void)
     UT_ClearEventHistory();
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4581,8 +4626,9 @@ void Test_CFE_TBL_Internal(void)
     UT_ClearEventHistory();
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4655,8 +4701,9 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
-    strncpy((char *)TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
-            sizeof(TblFileHeader.TableName));
+    strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table2",
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     UT_TBL_SetupHeader(&TblFileHeader, 0, sizeof(UT_Table1_t));
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
@@ -4816,13 +4863,13 @@ void Test_CFE_TBL_Internal(void)
 #if (CFE_PLATFORM_TBL_VALID_SCID_COUNT > 0)
     /* Test CFE_TBL_ReadHeaders response to an invalid spacecraft ID */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     StdFileHeader.SpacecraftID = -1;
     StdFileHeader.ProcessorID = CFE_PLATFORM_TBL_VALID_PRID_1;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     TblFileHeader.NumBytes = sizeof(UT_Table1_t) - 1;
     TblFileHeader.Offset = 0;
 
@@ -4834,7 +4881,7 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    strncpy(Filename, "MyTestInputFilename", sizeof(Filename));
+    strncpy(Filename, "MyTestInputFilename", sizeof(Filename) - 1);
     Filename[sizeof(Filename) - 1] = '\0';
     RtnCode = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader,
                                   &TblFileHeader, Filename);
@@ -4855,13 +4902,13 @@ void Test_CFE_TBL_Internal(void)
 #if (CFE_PLATFORM_TBL_VALID_PRID_COUNT > 0)
     /* Test CFE_TBL_ReadHeaders response to an invalid processor ID */
     UT_InitData();
-    Filename[OS_MAX_PATH_LEN - 1] = '\0';
     StdFileHeader.ContentType = CFE_FS_FILE_CONTENT_ID;
     StdFileHeader.SubType = CFE_FS_SubType_TBL_IMG;
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
     StdFileHeader.ProcessorID = -1;
     strncpy(TblFileHeader.TableName, "ut_cfe_tbl.UT_Table1",
-            sizeof(TblFileHeader.TableName));
+            sizeof(TblFileHeader.TableName) - 1);
+    TblFileHeader.TableName[sizeof(TblFileHeader.TableName) - 1] = '\0';
     TblFileHeader.NumBytes = sizeof(UT_Table1_t) - 1;
     TblFileHeader.Offset = 0;
 
@@ -4873,7 +4920,7 @@ void Test_CFE_TBL_Internal(void)
 
     UT_SetReadBuffer(&TblFileHeader, sizeof(TblFileHeader));
     UT_SetReadHeader(&StdFileHeader, sizeof(StdFileHeader));
-    strncpy(Filename, "MyTestInputFilename", sizeof(Filename));
+    strncpy(Filename, "MyTestInputFilename", sizeof(Filename) - 1);
     Filename[sizeof(Filename) - 1] = '\0';
     RtnCode = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader,
                                   &TblFileHeader, Filename);

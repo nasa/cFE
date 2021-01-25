@@ -346,10 +346,10 @@ char *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId,char *FullName){
     }else{
 
       /* AppName and TskName buffers and strncpy are needed to limit string sizes */
-      strncpy(AppName,(char *)ptr->AppName,OS_MAX_API_NAME-1);
-      AppName[OS_MAX_API_NAME-1] = '\0';
-      strncpy(TskName,(char *)ptr->TaskName,OS_MAX_API_NAME-1);
-      TskName[OS_MAX_API_NAME-1] = '\0';
+      strncpy(AppName,(char *)ptr->AppName,sizeof(AppName)-1);
+      AppName[sizeof(AppName)-1] = '\0';
+      strncpy(TskName,(char *)ptr->TaskName,sizeof(TskName)-1);
+      TskName[sizeof(TskName)-1] = '\0';
 
       sprintf(FullName,"%s.%s",AppName,TskName);
 

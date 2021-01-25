@@ -265,9 +265,7 @@ int32 CFE_TIME_TaskInit(void)
     }/* end if */
 
 
-    Status = CFE_SB_CreatePipe(&CFE_TIME_TaskData.CmdPipe,
-                                CFE_TIME_TaskData.PipeDepth,
-                                CFE_TIME_TaskData.PipeName);
+    Status = CFE_SB_CreatePipe(&CFE_TIME_TaskData.CmdPipe, CFE_TIME_TASK_PIPE_DEPTH, CFE_TIME_TASK_PIPE_NAME);
     if(Status != CFE_SUCCESS)
     {
       CFE_ES_WriteToSysLog("TIME:Error creating cmd pipe:RC=0x%08X\n",(unsigned int)Status);

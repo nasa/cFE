@@ -313,8 +313,6 @@ typedef struct
   /*
   ** Task initialization data (not reported in housekeeping)...
   */
-  char                   PipeName[16];                    /**< \brief Contains name of Table Task command pipe */
-  uint16                 PipeDepth;                       /**< \brief Contains depth of Table Task command pipe */
   CFE_ES_ResourceID_t    TableTaskAppId;                  /**< \brief Contains Table Task Application ID as assigned by OS AL */
 
   int16                  HkTlmTblRegIndex;                /**< \brief Index of table registry entry to be telemetered with Housekeeping */
