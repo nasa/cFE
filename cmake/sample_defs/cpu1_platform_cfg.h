@@ -1799,21 +1799,6 @@
 #define CFE_PLATFORM_TBL_VALID_PRID_3            0
 #define CFE_PLATFORM_TBL_VALID_PRID_4            0
 
-/** \cfeescfg Mission specific version number for cFE
-**
-**  \par Description:
-**       The cFE version number consists of four parts:
-**       major version number, minor version number, revision
-**       number and mission specific revision number. The mission
-**       specific revision number is defined here and the other
-**       parts are defined in "cfe_version.h".
-**
-**  \par Limits:
-**       Must be defined as a numeric value that is greater than
-**       or equal to zero.
-*/
-#define CFE_MISSION_REV                  0
-
 /** \cfeescfg Poll timer for startup sync delay
 **
 **  \par Description:
