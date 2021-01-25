@@ -445,12 +445,10 @@
   Quality of Service (QOS) for off-board routing and is of the type #CFE_SB_Qos_t. This structure
   has two members named priority and reliability. The Quality parameter is currently unused by
   the software bus. It is a placeholder to be used with the future software bus capability of
-  inter-processor communication. Although currently the software bus does not read the Quality
-  values, it would be best to set this parameter to the value defined as #CFE_SB_Default_Qos.
-  This value is set internally by the software bus with values of zero for priority and
-  reliability. The values of zero will correspond to low priority and low reliability. Setting
-  the QOS value to the #CFE_SB_Default_Qos will ensure seamless integration when the software
-  bus is expanded to support inter-processor communication.
+  inter-processor communication. Although currently the software bus does not implement quality
+  of service.
+
+  A default quality of services is provided via the #CFE_SB_DEFAULT_QOS macro.
 
   Next: \ref cfesbugknwnprob <BR>
   Prev: \ref cfesbugroutcntrl <BR>
@@ -569,9 +567,8 @@
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
            The QOS parameter is currently unused by the software bus. It is a placeholder to be
            used with the future software bus capability of inter-processor communication. Setting
-           the QOS value to the SB defined #CFE_SB_Default_Qos (QOS.Priority=0,QOS.Reliability=0)
-           will ensure seamless integration when the software bus is expanded to support
-           inter-processor communication.
+           the QOS as #CFE_SB_DEFAULT_QOS will ensure seamless integration when the software bus
+           is expanded to support inter-processor communication.
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
            Can I confirm my software bus buffer was delivered?
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">

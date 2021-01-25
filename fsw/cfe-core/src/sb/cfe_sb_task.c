@@ -46,7 +46,6 @@
 
 /*  Task Globals */
 cfe_sb_t                CFE_SB;
-CFE_SB_Qos_t            CFE_SB_Default_Qos;
 
 /* Local structure for file writing callbacks */
 typedef struct

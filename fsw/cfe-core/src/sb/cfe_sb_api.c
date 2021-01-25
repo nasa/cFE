@@ -878,7 +878,7 @@ int32 CFE_SB_SubscribeLocal(CFE_SB_MsgId_t   MsgId,
                             CFE_SB_PipeId_t  PipeId,
                             uint16           MsgLim)
 {
-    return CFE_SB_SubscribeFull(MsgId,PipeId,CFE_SB_Default_Qos,MsgLim,
+    return CFE_SB_SubscribeFull(MsgId,PipeId,CFE_SB_DEFAULT_QOS,MsgLim,
                                 (uint8)CFE_SB_LOCAL);
 
 }/* end CFE_SB_SubscribeLocal */
@@ -889,7 +889,7 @@ int32 CFE_SB_SubscribeLocal(CFE_SB_MsgId_t   MsgId,
 int32 CFE_SB_Subscribe(CFE_SB_MsgId_t   MsgId,
                        CFE_SB_PipeId_t  PipeId)
 {
-    return CFE_SB_SubscribeFull(MsgId,PipeId,CFE_SB_Default_Qos,
+    return CFE_SB_SubscribeFull(MsgId,PipeId,CFE_SB_DEFAULT_QOS,
                                (uint16)CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT,
                                (uint8)CFE_SB_GLOBAL);
 
