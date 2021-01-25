@@ -59,7 +59,6 @@
 #define CFE_EVS_FREE_SLOT               (-1)
 #define CFE_EVS_NO_MASK                 0
 #define CFE_EVS_PIPE_DEPTH              32
-#define CFE_EVS_MSG_LIMIT               4
 #define CFE_EVS_MAX_EVENT_SEND_COUNT    65535
 #define CFE_EVS_MAX_FILTER_COUNT        65535
 #define CFE_EVS_PIPE_NAME               "EVS_CMD_PIPE"
