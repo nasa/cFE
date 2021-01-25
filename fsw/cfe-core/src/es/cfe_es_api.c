@@ -171,6 +171,7 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
 int32 CFE_ES_RestartApp(CFE_ES_ResourceID_t AppID)
 {
     int32 ReturnCode = CFE_SUCCESS;
+    os_fstat_t FileStatus;
     CFE_ES_AppRecord_t *AppRecPtr;
 
     AppRecPtr = CFE_ES_LocateAppRecordByID(AppID);
@@ -196,9 +197,22 @@ int32 CFE_ES_RestartApp(CFE_ES_ResourceID_t AppID)
        }
        else
        {
-          CFE_ES_SysLogWrite_Unsync("CFE_ES_RestartApp: Restart Application %s Initiated\n",
-                  CFE_ES_AppRecordGetName(AppRecPtr));
-          AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RESTART;
+           /*
+           ** Check to see if the file exists
+           */
+           if (OS_stat(AppRecPtr->StartParams.BasicInfo.FileName, &FileStatus) == OS_SUCCESS)
+           {
+               CFE_ES_SysLogWrite_Unsync("CFE_ES_RestartApp: Restart Application %s Initiated\n",
+                                         CFE_ES_AppRecordGetName(AppRecPtr));
+               AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RESTART;
+           }
+           else
+           {
+               CFE_ES_SysLogWrite_Unsync ("CFE_ES_RestartApp: Cannot Restart Application %s, File %s does not exist.\n",
+                       CFE_ES_AppRecordGetName(AppRecPtr), AppRecPtr->StartParams.BasicInfo.FileName);
+               ReturnCode = CFE_ES_FILE_IO_ERR;
+           }
+
        }
 
        CFE_ES_UnlockSharedData(__func__,__LINE__);
