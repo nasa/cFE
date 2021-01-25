@@ -37,7 +37,7 @@
 #include "cfe_es_erlog_typedef.h"      /* Required for CFE_ES_ERLog_t definition */
 #include "cfe_es_perfdata_typedef.h"   /* Required for CFE_ES_PerfData_t definition */
 #include "cfe_evs_log_typedef.h"       /* Required for CFE_EVS_Log_t definition */
-#include "cfe_platform_cfg.h"          /* CFE_PLATFORM_EVS_LOG_ON, CFE_PLATFORM_ES_ER_LOG_ENTRIES, CFE_PLATFORM_ES_SYSTEM_LOG_SIZE */
+#include "cfe_platform_cfg.h"          /* CFE_PLATFORM_ES_ER_LOG_ENTRIES, CFE_PLATFORM_ES_SYSTEM_LOG_SIZE */
 
 /*
 ** Reset Variables type
@@ -93,12 +93,10 @@ typedef struct
    */
    CFE_TIME_ResetVars_t TimeResetVars;
 
-#ifdef CFE_PLATFORM_EVS_LOG_ON
    /*
    ** EVS Log and associated variables. This needs to be preserved on a processor reset.
    */
    CFE_EVS_Log_t              EVS_Log;
-#endif
 
 } CFE_ES_ResetData_t;
 

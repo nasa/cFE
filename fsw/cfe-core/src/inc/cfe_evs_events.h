@@ -541,12 +541,10 @@
 **  \par Cause:
 **
 **  This event message is generated upon receipt of a "Set Log Mode"
-**  command when the use of the Event Log has been disabled.  To enable
-**  the Event Log, the cFE code must be compiled for the target with
-**  the \b CFE_PLATFORM_EVS_LOG_ON macro defined.  The EVS task must also succeed
-**  during task initialization in acquiring a pointer to the cFE reset
-**  area and in the creation of a serializing semaphore to control
-**  access to the Event Log.
+**  command when the use of the Event Log has been disabled. The EVS task
+**  must succeed during task initialization in acquiring a pointer to
+**  the cFE reset area and in the creation of a serializing semaphore to
+**  control access to the Event Log.
 **/
 #define CFE_EVS_NO_LOGSET_EID             34
 
@@ -558,12 +556,10 @@
 **  \par Cause:
 **
 **  This event message is generated upon receipt of a "Clear Log"
-**  command when the use of the Event Log has been disabled.  To enable
-**  the Event Log, the cFE code must be compiled for the target with
-**  the \b CFE_PLATFORM_EVS_LOG_ON macro defined.  The EVS task must also succeed
-**  during task initialization in acquiring a pointer to the cFE reset
-**  area and in the creation of a serializing semaphore to control
-**  access to the Event Log.
+**  command when the use of the Event Log has been disabled. The EVS task
+**  must succeed during task initialization in acquiring a pointer to
+**  the cFE reset area and in the creation of a serializing semaphore to
+**  control access to the Event Log.
 **/
 #define CFE_EVS_NO_LOGCLR_EID             35
 
@@ -575,12 +571,10 @@
 **  \par Cause:
 **
 **  This event message is generated upon receipt of a "Write Log"
-**  command when the use of the Event Log has been disabled.  To enable
-**  the Event Log, the cFE code must be compiled for the target with
-**  the \b CFE_PLATFORM_EVS_LOG_ON macro defined.  The EVS task must also succeed
-**  during task initialization in acquiring a pointer to the cFE reset
-**  area and in the creation of a serializing semaphore to control
-**  access to the Event Log.
+**  command when the use of the Event Log has been disabled. The EVS task
+**  must succeed during task initialization in acquiring a pointer to
+**  the cFE reset area and in the creation of a serializing semaphore to
+**  control access to the Event Log.
 **/
 #define CFE_EVS_NO_LOGWR_EID              36
 

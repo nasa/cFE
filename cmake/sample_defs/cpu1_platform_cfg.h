@@ -1456,20 +1456,6 @@
 
 
 /**
-**  \cfeevscfg Enable or Disable EVS Local Event Log
-**
-**  \par Description:
-**       The CFE_PLATFORM_EVS_LOG_ON configuration parameter must be defined to enable EVS
-**       event logging. In order to disable the local event log this definition needs
-**       to be commented out.
-**
-**  \par Limits
-**       Not Applicable
-*/
-#define CFE_PLATFORM_EVS_LOG_ON
-
-
-/**
 **  \cfeevscfg Default Event Log Filename
 **
 **  \par Description:
