@@ -327,12 +327,12 @@ typedef struct
   */
   CFE_TIME_SynchCallbackRegEntry_t SynchCallback[CFE_PLATFORM_ES_MAX_APPLICATIONS];
 
-} CFE_TIME_TaskData_t;
+} CFE_TIME_Global_t;
 
 /*
 ** Time task global data (from "cfe_time_task.c")...
 */
-extern CFE_TIME_TaskData_t CFE_TIME_TaskData;
+extern CFE_TIME_Global_t CFE_TIME_Global;
 
 
 /*************************************************************************/
@@ -424,7 +424,7 @@ volatile CFE_TIME_ReferenceState_t *CFE_TIME_StartReferenceUpdate(void);
  */
 static inline void CFE_TIME_FinishReferenceUpdate(volatile CFE_TIME_ReferenceState_t *NextState)
 {
-    CFE_TIME_TaskData.LastVersionCounter = NextState->StateVersion;
+    CFE_TIME_Global.LastVersionCounter = NextState->StateVersion;
 }
 
 /*
@@ -434,8 +434,8 @@ static inline void CFE_TIME_FinishReferenceUpdate(volatile CFE_TIME_ReferenceSta
  */
 static inline volatile CFE_TIME_ReferenceState_t *CFE_TIME_GetReferenceState(void)
 {
-    return &CFE_TIME_TaskData.ReferenceState
-            [CFE_TIME_TaskData.LastVersionCounter & CFE_TIME_REFERENCE_BUF_MASK];
+    return &CFE_TIME_Global.ReferenceState
+            [CFE_TIME_Global.LastVersionCounter & CFE_TIME_REFERENCE_BUF_MASK];
 }
 
 /*

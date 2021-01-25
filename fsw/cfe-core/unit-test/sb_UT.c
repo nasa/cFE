@@ -234,7 +234,7 @@ void Test_SB_AppInit_EVSSendEvtFail(void)
 
     EVTCNT(4);
 
-    TEARDOWN(CFE_SB_DeletePipe(CFE_SB.CmdPipe));
+    TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_AppInit_EVSSendEvtFail */
 
@@ -267,7 +267,7 @@ void Test_SB_AppInit_Sub1Fail(void)
 
     EVTSENT(CFE_SB_DEST_BLK_ERR_EID);
 
-    TEARDOWN(CFE_SB_DeletePipe(CFE_SB.CmdPipe));
+    TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_AppInit_Sub1Fail */
 
@@ -283,7 +283,7 @@ void Test_SB_AppInit_Sub2Fail(void)
 
     EVTSENT(CFE_SB_DEST_BLK_ERR_EID);
 
-    TEARDOWN(CFE_SB_DeletePipe(CFE_SB.CmdPipe));
+    TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_AppInit_Sub2Fail */
 
@@ -300,7 +300,7 @@ void Test_SB_AppInit_GetPoolFail(void)
 
     EVTCNT(4);
 
-    TEARDOWN(CFE_SB_DeletePipe(CFE_SB.CmdPipe));
+    TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_AppInit_GetPoolFail */
 
@@ -317,7 +317,7 @@ void Test_SB_AppInit_PutPoolFail(void)
 
     EVTCNT(4);
 
-    TEARDOWN(CFE_SB_DeletePipe(CFE_SB.CmdPipe));
+    TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_AppInit_PutPoolFail */
 
@@ -344,7 +344,7 @@ void Test_SB_Main_RcvErr(void)
 
     EVTSENT(CFE_SB_Q_RD_ERR_EID);
 
-    TEARDOWN(CFE_SB_DeletePipe(CFE_SB.CmdPipe));
+    TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_Main_RcvErr */
 
@@ -358,7 +358,7 @@ void Test_SB_Main_InitErr(void)
 
     EVTCNT(4);
 
-    TEARDOWN(CFE_SB_DeletePipe(CFE_SB.CmdPipe));
+    TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_Main_InitErr */
 
@@ -471,7 +471,7 @@ void Test_SB_Cmds_Stats(void)
 
     /* For internal TransmitMsg call */
     MsgId = CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID);
-    Size = sizeof(CFE_SB.StatTlmMsg);
+    Size = sizeof(CFE_SB_Global.StatTlmMsg);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
@@ -526,7 +526,7 @@ void Test_SB_Cmds_RoutingInfoDef(void)
 
     EVTSENT(CFE_SB_SND_RTG_EID);
 
-    TEARDOWN(CFE_SB_DeletePipe(CFE_SB.CmdPipe));
+    TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_Cmds_RoutingInfoDef */
 
@@ -629,7 +629,7 @@ void Test_SB_Cmds_RoutingInfoWriteFail(void)
 
     EVTSENT(CFE_SB_FILEWRITE_ERR_EID);
 
-    TEARDOWN(CFE_SB_DeletePipe(CFE_SB.CmdPipe));
+    TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_Cmds_RoutingInfoWriteFail */
 
@@ -1274,7 +1274,7 @@ void Test_SB_Cmds_SendHK(void)
 
     /* For internal TransmitMsg call */
     MsgIdCmd = CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID);
-    Size = sizeof(CFE_SB.HKTlmMsg);
+    Size = sizeof(CFE_SB_Global.HKTlmMsg);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgIdCmd, sizeof(MsgIdCmd), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
@@ -1338,7 +1338,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
 
     /* For 3 internal TransmitMsg calls */
     MsgIdCmd = CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID);
-    Size = sizeof(CFE_SB.PrevSubMsg);
+    Size = sizeof(CFE_SB_Global.PrevSubMsg);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgIdCmd, sizeof(MsgIdCmd), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgIdCmd, sizeof(MsgIdCmd), false);
@@ -1380,7 +1380,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
 
     /* For 3 internal TransmitMsg calls */
     MsgIdCmd = CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID);
-    Size = sizeof(CFE_SB.PrevSubMsg);
+    Size = sizeof(CFE_SB_Global.PrevSubMsg);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgIdCmd, sizeof(MsgIdCmd), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgIdCmd, sizeof(MsgIdCmd), false);
@@ -2001,8 +2001,8 @@ void Test_GetPipeIdByName(void)
 
     UT_SetDataBuffer(
         UT_KEY(OS_QueueGetIdByName),
-        &(CFE_SB.PipeTbl[0].SysQueueId),
-        sizeof(CFE_SB.PipeTbl[0].SysQueueId),
+        &(CFE_SB_Global.PipeTbl[0].SysQueueId),
+        sizeof(CFE_SB_Global.PipeTbl[0].SysQueueId),
         false);
 
     ASSERT(CFE_SB_GetPipeIdByName(&PipeIdOut, "TestPipe1"));
@@ -2377,7 +2377,7 @@ void Test_Subscribe_SendPrevSubs(void)
 
     /* For internal TransmitMsg call */
     MsgIdCmd = CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID);
-    Size = sizeof(CFE_SB.PrevSubMsg);
+    Size = sizeof(CFE_SB_Global.PrevSubMsg);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgIdCmd, sizeof(MsgIdCmd), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
@@ -2439,7 +2439,7 @@ void Test_Subscribe_SubscriptionReporting(void)
     SETUP(CFE_SB_Unsubscribe(MsgId, PipeId));
 
     /* Subscribe to message: LOCAL */
-    ASSERT(CFE_SB_SubscribeFull(MsgId, PipeId, Quality, CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, CFE_SB_LOCAL));
+    ASSERT(CFE_SB_SubscribeFull(MsgId, PipeId, Quality, CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, CFE_SB_MSG_LOCAL));
 
     EVTCNT(6);
 
@@ -2569,7 +2569,7 @@ void Test_Unsubscribe_InvalParam(void)
     ASSERT(CFE_ES_GetAppID(&CallerId));
 
     /* Perform test using a bad scope value */
-    ASSERT_EQ(CFE_SB_UnsubscribeFull(SB_UT_FIRST_VALID_MID, TestPipe, CFE_SB_LOCAL + 1, CallerId), CFE_SB_BAD_ARGUMENT);
+    ASSERT_EQ(CFE_SB_UnsubscribeFull(SB_UT_FIRST_VALID_MID, TestPipe, CFE_SB_MSG_LOCAL + 1, CallerId), CFE_SB_BAD_ARGUMENT);
 
     /* Perform test using an invalid pipe ID for branch path coverage.
      * This situation cannot happen in normal circumstances since the
@@ -3124,19 +3124,19 @@ void Test_TransmitMsg_ZeroCopyGetPtr(void)
     /* Increase the peak memory and buffers in use above the expected values in
      * order to exercise branch paths
      */
-    CFE_SB.StatTlmMsg.Payload.MemInUse = 0;
-    CFE_SB.StatTlmMsg.Payload.PeakMemInUse = sizeof(CFE_SB_ZeroCopyD_t) + MsgSize +
+    CFE_SB_Global.StatTlmMsg.Payload.MemInUse = 0;
+    CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = sizeof(CFE_SB_ZeroCopyD_t) + MsgSize +
                                               sizeof(CFE_SB_BufferD_t) + 1;
-    CFE_SB.StatTlmMsg.Payload.PeakSBBuffersInUse =
-      CFE_SB.StatTlmMsg.Payload.SBBuffersInUse + 2;
+    CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse =
+      CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse + 2;
     ASSERT_TRUE((cpuaddr) CFE_SB_ZeroCopyGetPtr(MsgSize, &ZeroCpyBufHndl) != (cpuaddr) NULL);
 
-    ASSERT_EQ(CFE_SB.StatTlmMsg.Payload.PeakMemInUse, sizeof(CFE_SB_ZeroCopyD_t) + MsgSize +
+    ASSERT_EQ(CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse, sizeof(CFE_SB_ZeroCopyD_t) + MsgSize +
         sizeof(CFE_SB_BufferD_t) + 1);
-    ASSERT_EQ(CFE_SB.StatTlmMsg.Payload.MemInUse, sizeof(CFE_SB_ZeroCopyD_t) + MsgSize +
+    ASSERT_EQ(CFE_SB_Global.StatTlmMsg.Payload.MemInUse, sizeof(CFE_SB_ZeroCopyD_t) + MsgSize +
         sizeof(CFE_SB_BufferD_t));
 
-    ASSERT_EQ(CFE_SB.StatTlmMsg.Payload.PeakSBBuffersInUse, CFE_SB.StatTlmMsg.Payload.SBBuffersInUse + 1);
+    ASSERT_EQ(CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse, CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse + 1);
 
     EVTCNT(0);
 
@@ -3581,10 +3581,10 @@ void Test_CleanupApp_API(void)
     CFE_SB_ZeroCopyGetPtr(PipeDepth, &ZeroCpyBufHndl);
 
     /* Set second application ID to provide complete branch path coverage */
-    CFE_SB.PipeTbl[1].PipeId = SB_UT_PIPEID_1;
-    CFE_SB.PipeTbl[1].AppId = AppID;
+    CFE_SB_Global.PipeTbl[1].PipeId = SB_UT_PIPEID_1;
+    CFE_SB_Global.PipeTbl[1].AppId = AppID;
 
-    ASSERT_TRUE(CFE_SB.ZeroCopyTail != NULL);
+    ASSERT_TRUE(CFE_SB_Global.ZeroCopyTail != NULL);
 
     /* Attempt with a bad application ID first in order to get full branch path
      * coverage in CFE_SB_ZeroCopyReleaseAppId
@@ -3594,7 +3594,7 @@ void Test_CleanupApp_API(void)
     /* Attempt again with a valid application ID */
     CFE_SB_CleanUpApp(AppID);
 
-    ASSERT_TRUE(CFE_SB.ZeroCopyTail == NULL);
+    ASSERT_TRUE(CFE_SB_Global.ZeroCopyTail == NULL);
 
     EVTCNT(2);
 
@@ -3858,7 +3858,7 @@ void Test_ReqToSendEvent_ErrLogic(void)
      * the specified task
      */
     CFE_ES_GetTaskID(&TaskId);
-    CFE_SB.StopRecurseFlags[0] = 0x0000;
+    CFE_SB_Global.StopRecurseFlags[0] = 0x0000;
     ASSERT_EQ(CFE_SB_RequestToSendEvent(TaskId, Bit), CFE_SB_GRANTED);
 
     /* Call the function a second time; the result should indicate that the
@@ -3891,18 +3891,18 @@ void Test_CFE_SB_Buffers(void)
 
     CFE_SB_BufferD_t *bd;
 
-    CFE_SB.StatTlmMsg.Payload.MemInUse = 0;
-    CFE_SB.StatTlmMsg.Payload.PeakMemInUse = sizeof(CFE_SB_BufferD_t) * 4;
+    CFE_SB_Global.StatTlmMsg.Payload.MemInUse = 0;
+    CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = sizeof(CFE_SB_BufferD_t) * 4;
     bd = CFE_SB_GetBufferFromPool(SB_UT_FIRST_VALID_MID, 0);
 
-    ASSERT_EQ(CFE_SB.StatTlmMsg.Payload.PeakMemInUse, sizeof(CFE_SB_BufferD_t) * 4);
+    ASSERT_EQ(CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse, sizeof(CFE_SB_BufferD_t) * 4);
 
     EVTCNT(0);
 
-    ExpRtn = CFE_SB.StatTlmMsg.Payload.SBBuffersInUse;
+    ExpRtn = CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse;
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, -1);
     CFE_SB_ReturnBufferToPool(bd);
-    ASSERT_EQ(CFE_SB.StatTlmMsg.Payload.SBBuffersInUse, ExpRtn);
+    ASSERT_EQ(CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse, ExpRtn);
 
     EVTCNT(0);
 
@@ -3913,10 +3913,10 @@ void Test_CFE_SB_Buffers(void)
     EVTCNT(0);
 
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, -1);
-    CFE_SB.StatTlmMsg.Payload.MemInUse = 0;
+    CFE_SB_Global.StatTlmMsg.Payload.MemInUse = 0;
     CFE_SB_PutDestinationBlk((CFE_SB_DestinationD_t *) bd);
 
-    ASSERT_EQ(CFE_SB.StatTlmMsg.Payload.MemInUse, 0);
+    ASSERT_EQ(CFE_SB_Global.StatTlmMsg.Payload.MemInUse, 0);
 
     EVTCNT(0);
 
@@ -3975,7 +3975,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
 
     /* For internal send message call */
     MsgId = CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID);
-    Size = sizeof(CFE_SB.HKTlmMsg);
+    Size = sizeof(CFE_SB_Global.HKTlmMsg);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
@@ -3984,21 +3984,21 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
 
     /* Repress sending the no subscriptions event and process request */
-    CFE_SB.HKTlmMsg.Payload.NoSubscribersCounter = 0;
-    CFE_SB.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_NO_SUBS_EID_BIT);
+    CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter = 0;
+    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_NO_SUBS_EID_BIT);
     CFE_SB_ProcessCmdPipePkt(&Housekeeping.SBBuf);
 
     /* The no subs event should not be in history but count should increment */
     ASSERT_TRUE(!UT_EventIsInHistory(CFE_SB_SEND_NO_SUBS_EID));
-    ASSERT_EQ(CFE_SB.HKTlmMsg.Payload.NoSubscribersCounter, 1);
+    ASSERT_EQ(CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter, 1);
 
     /* Repress get buffer error */
-    CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
-    CFE_SB.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_GET_BUF_ERR_EID_BIT);
+    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
+    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_GET_BUF_ERR_EID_BIT);
 
     /* For internal send message call */
     MsgId = CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID);
-    Size = sizeof(CFE_SB.HKTlmMsg);
+    Size = sizeof(CFE_SB_Global.HKTlmMsg);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
@@ -4008,13 +4008,13 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
     CFE_SB_ProcessCmdPipePkt(&Housekeeping.SBBuf);
-    ASSERT_EQ(CFE_SB.HKTlmMsg.Payload.MsgSendErrorCounter, 0);
+    ASSERT_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 0);
 
     ASSERT_TRUE(!UT_EventIsInHistory(CFE_SB_GET_BUF_ERR_EID));
 
     EVTCNT(0);
 
-    CFE_SB.StopRecurseFlags[1] = 0;
+    CFE_SB_Global.StopRecurseFlags[1] = 0;
 
     /* Create a message ID with the command bit set and disable reporting */
     MsgId = SB_UT_CMD_MID;
@@ -4063,9 +4063,9 @@ void Test_SB_TransmitMsgPaths_LimitErr(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_SB.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSGID_LIM_ERR_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSGID_LIM_ERR_EID_BIT);
     ASSERT(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
-    CFE_SB.StopRecurseFlags[1] = 0;
+    CFE_SB_Global.StopRecurseFlags[1] = 0;
 
     ASSERT_TRUE(!UT_EventIsInHistory(CFE_SB_MSGID_LIM_ERR_EID));
 
@@ -4101,9 +4101,9 @@ void Test_SB_TransmitMsgPaths_FullErr(void)
 
     /* Tell the QueuePut stub to return OS_QUEUE_FULL on its next call */
     UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_QUEUE_FULL);
-    CFE_SB.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_FULL_ERR_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_FULL_ERR_EID_BIT);
     ASSERT(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
-    CFE_SB.StopRecurseFlags[1] = 0;
+    CFE_SB_Global.StopRecurseFlags[1] = 0;
 
     ASSERT_TRUE(!UT_EventIsInHistory(CFE_SB_Q_FULL_ERR_EID_BIT));
 
@@ -4131,9 +4131,9 @@ void Test_SB_TransmitMsgPaths_WriteErr(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_SB.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_WR_ERR_EID_BIT);
+    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_WR_ERR_EID_BIT);
     ASSERT(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
-    CFE_SB.StopRecurseFlags[1] = 0;
+    CFE_SB_Global.StopRecurseFlags[1] = 0;
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);

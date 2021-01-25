@@ -50,7 +50,7 @@
 */
 
 /******************************************************************************
-**  Typedef: CFE_FS_t 
+**  Typedef: CFE_FS_Global_t
 **
 **  Purpose:
 **     This structure contains the FS global variables.
@@ -59,7 +59,7 @@ typedef struct
 {
     osal_id_t              SharedDataMutexId;
 
-} CFE_FS_t;
+} CFE_FS_Global_t;
 
 /*
 ** FS Function Prototypes

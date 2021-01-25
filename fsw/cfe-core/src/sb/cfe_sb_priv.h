@@ -60,8 +60,8 @@
 #define CFE_SB_INACTIVE                 0
 #define CFE_SB_ACTIVE                   1
 
-#define CFE_SB_GLOBAL                   0
-#define CFE_SB_LOCAL                    1
+#define CFE_SB_MSG_GLOBAL               0
+#define CFE_SB_MSG_LOCAL                1
 
 #define CFE_SB_SEND_ZEROCOPY            0
 #define CFE_SB_SEND_ONECOPY             1
@@ -175,7 +175,7 @@ typedef struct {
 
 
 /******************************************************************************
-**  Typedef:  cfe_sb_t
+**  Typedef:  CFE_SB_Global_t
 **
 **  Purpose:
 **     This structure contains the SB global variables.
@@ -195,7 +195,8 @@ typedef struct
     CFE_SB_AllSubscriptionsTlm_t   PrevSubMsg;
     CFE_EVS_BinFilter_t            EventFilters[CFE_SB_MAX_CFG_FILE_EVENTS_TO_FILTER];
     CFE_SB_PipeId_t                LastPipeId;
-} cfe_sb_t;
+    CFE_SB_Qos_t                   Default_Qos;
+} CFE_SB_Global_t;
 
 
 /******************************************************************************
@@ -477,7 +478,7 @@ bool CFE_SB_CheckPipeDescSlotUsed(CFE_SB_PipeId_t CheckId);
  * External variables private to the software bus module
  */
 
-extern cfe_sb_t CFE_SB;
+extern CFE_SB_Global_t CFE_SB_Global;
 
 #endif /* _cfe_sb_priv_ */
 /*****************************************************************************/

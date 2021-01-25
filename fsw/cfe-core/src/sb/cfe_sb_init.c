@@ -87,20 +87,20 @@ int32 CFE_SB_EarlyInit (void) {
 
     int32 Stat;
 
-    /* ensure entire CFE_SB global data structure is purged first */
-    memset(&CFE_SB, 0, sizeof(CFE_SB));
+    /* Clear task global */
+    memset(&CFE_SB_Global, 0, sizeof(CFE_SB_Global));
 
     CFE_SB_Default_Qos.Priority    = CFE_SB_QOS_LOW_PRIORITY;
     CFE_SB_Default_Qos.Reliability = CFE_SB_QOS_LOW_RELIABILITY;
 
-    Stat = OS_MutSemCreate(&CFE_SB.SharedDataMutexId, "CFE_SB_DataMutex", 0);
+    Stat = OS_MutSemCreate(&CFE_SB_Global.SharedDataMutexId, "CFE_SB_DataMutex", 0);
     if(Stat != OS_SUCCESS){
       CFE_ES_WriteToSysLog("SB shared data mutex creation failed! RC=0x%08x\n",(unsigned int)Stat);
       return Stat;
     }/* end if */
     
     /* Initialize the state of susbcription reporting */
-    CFE_SB.SubscriptionReporting = CFE_SB_DISABLE;
+    CFE_SB_Global.SubscriptionReporting = CFE_SB_DISABLE;
 
      /* Initialize memory partition. */
     Stat = CFE_SB_InitBuffers();
@@ -116,11 +116,11 @@ int32 CFE_SB_EarlyInit (void) {
     CFE_SBR_Init();
 
     /* Initialize the SB Statistics Pkt */
-    CFE_MSG_Init(&CFE_SB.StatTlmMsg.Hdr.Msg,
+    CFE_MSG_Init(&CFE_SB_Global.StatTlmMsg.Hdr.Msg,
                  CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
-                 sizeof(CFE_SB.StatTlmMsg));
+                 sizeof(CFE_SB_Global.StatTlmMsg));
 
-    CFE_SB.ZeroCopyTail = NULL;
+    CFE_SB_Global.ZeroCopyTail = NULL;
 
     return Stat;
 
@@ -146,8 +146,8 @@ int32  CFE_SB_InitBuffers(void) {
 
     int32 Stat = 0;
 
-    Stat = CFE_ES_PoolCreateEx(&CFE_SB.Mem.PoolHdl, 
-                                CFE_SB.Mem.Partition.Data,
+    Stat = CFE_ES_PoolCreateEx(&CFE_SB_Global.Mem.PoolHdl, 
+                                CFE_SB_Global.Mem.Partition.Data,
                                 CFE_PLATFORM_SB_BUF_MEMORY_BYTES, 
                                 CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
                                 &CFE_SB_MemPoolDefSize[0],
@@ -155,7 +155,7 @@ int32  CFE_SB_InitBuffers(void) {
     
     if(Stat != CFE_SUCCESS){
         CFE_ES_WriteToSysLog("PoolCreate failed for SB Buffers, gave adr 0x%lx,size %d,stat=0x%x\n",
-              (unsigned long)CFE_SB.Mem.Partition.Data,CFE_PLATFORM_SB_BUF_MEMORY_BYTES,(unsigned int)Stat);
+              (unsigned long)CFE_SB_Global.Mem.Partition.Data,CFE_PLATFORM_SB_BUF_MEMORY_BYTES,(unsigned int)Stat);
         return Stat;
     }
     
@@ -180,7 +180,7 @@ int32  CFE_SB_InitBuffers(void) {
 */
 void CFE_SB_InitPipeTbl(void)
 {
-    CFE_SB.LastPipeId = CFE_ES_ResourceID_FromInteger(CFE_SB_PIPEID_BASE);
+    CFE_SB_Global.LastPipeId = CFE_ES_ResourceID_FromInteger(CFE_SB_PIPEID_BASE);
 
 }/* end CFE_SB_InitPipeTbl */
 

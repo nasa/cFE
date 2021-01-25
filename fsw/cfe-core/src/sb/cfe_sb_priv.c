@@ -105,7 +105,7 @@ int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId)
     CFE_SB_PipeD_t *PipeDscPtr;
     CFE_SB_PipeId_t DelList[CFE_PLATFORM_SB_MAX_PIPES];
 
-    PipeDscPtr = CFE_SB.PipeTbl;
+    PipeDscPtr = CFE_SB_Global.PipeTbl;
     DelCount = 0;
 
     CFE_SB_LockSharedData(__func__,__LINE__);
@@ -156,7 +156,7 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber){
     int32   Status;
     CFE_ES_ResourceID_t AppId;
 
-    Status = OS_MutSemTake(CFE_SB.SharedDataMutexId);
+    Status = OS_MutSemTake(CFE_SB_Global.SharedDataMutexId);
     if (Status != OS_SUCCESS) {
 
         CFE_ES_GetAppID(&AppId);
@@ -191,7 +191,7 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber){
    int32   Status;
    CFE_ES_ResourceID_t AppId;
 
-    Status = OS_MutSemGive(CFE_SB.SharedDataMutexId);
+    Status = OS_MutSemGive(CFE_SB_Global.SharedDataMutexId);
     if (Status != OS_SUCCESS) {
 
         CFE_ES_GetAppID(&AppId);
@@ -287,7 +287,7 @@ CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
 
     if (CFE_SB_PipeId_ToIndex(PipeId, &Idx) == CFE_SUCCESS)
     {
-        PipeDscPtr = &CFE_SB.PipeTbl[Idx];
+        PipeDscPtr = &CFE_SB_Global.PipeTbl[Idx];
     }
     else
     {
@@ -384,14 +384,14 @@ uint32 CFE_SB_RequestToSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit){
     }
 
     /* if bit is set... */
-    if(CFE_TST(CFE_SB.StopRecurseFlags[Indx],Bit))
+    if(CFE_TST(CFE_SB_Global.StopRecurseFlags[Indx],Bit))
     {
 
       return CFE_SB_DENIED;
 
     }else{
 
-      CFE_SET(CFE_SB.StopRecurseFlags[Indx],Bit);
+      CFE_SET(CFE_SB_Global.StopRecurseFlags[Indx],Bit);
       return CFE_SB_GRANTED;
 
     }/* end if */
@@ -421,7 +421,7 @@ void CFE_SB_FinishSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit){
     }
 
     /* clear the bit so the task may send this event again */
-    CFE_CLR(CFE_SB.StopRecurseFlags[Indx],Bit);
+    CFE_CLR(CFE_SB_Global.StopRecurseFlags[Indx],Bit);
 }/* end CFE_SB_RequestToSendEvent */
 
 /******************************************************************************
@@ -466,7 +466,7 @@ void CFE_SB_RemoveDest(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr
 {
     CFE_SB_RemoveDestNode(RouteId, DestPtr);
     CFE_SB_PutDestinationBlk(DestPtr);
-    CFE_SB.StatTlmMsg.Payload.SubscriptionsInUse--;
+    CFE_SB_Global.StatTlmMsg.Payload.SubscriptionsInUse--;
 }
 
 /******************************************************************************
@@ -536,7 +536,7 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId)
 {
     CFE_SB_ZeroCopyD_t *prev = NULL;
-    CFE_SB_ZeroCopyD_t *zcd = (CFE_SB_ZeroCopyD_t *) (CFE_SB.ZeroCopyTail);
+    CFE_SB_ZeroCopyD_t *zcd = (CFE_SB_ZeroCopyD_t *) (CFE_SB_Global.ZeroCopyTail);
 
     while(zcd != NULL){
         prev = (CFE_SB_ZeroCopyD_t *) (zcd->Prev);

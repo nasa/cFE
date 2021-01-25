@@ -126,12 +126,12 @@ typedef struct
    osal_id_t           EVS_SharedDataMutexID;
    CFE_ES_ResourceID_t EVS_AppID;
 
-} CFE_EVS_GlobalData_t;
+} CFE_EVS_Global_t;
 
 /*
  *  Global variable specific to EVS module
  */
-extern CFE_EVS_GlobalData_t   CFE_EVS_GlobalData;
+extern CFE_EVS_Global_t   CFE_EVS_Global;
 
 
 /*****************************  Function Prototypes   **********************************/

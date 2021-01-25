@@ -47,7 +47,7 @@
 /*
 ** Table task global data
 */
-CFE_TBL_TaskData_t    CFE_TBL_TaskData;
+CFE_TBL_Global_t    CFE_TBL_Global;
 
 /*
  * Macros to assist in building the CFE_TBL_CmdHandlerTbl -
@@ -124,7 +124,7 @@ void CFE_TBL_TaskMain(void)
 
         /* Pend on receipt of packet */
         Status = CFE_SB_ReceiveBuffer( &SBBufPtr,
-                                CFE_TBL_TaskData.CmdPipe,
+                                CFE_TBL_Global.CmdPipe,
                                 CFE_SB_PEND_FOREVER);
 
         CFE_ES_PerfLogEntry(CFE_MISSION_TBL_MAIN_PERF_ID);
@@ -181,7 +181,7 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Create Software Bus message pipe
     */
-    Status = CFE_SB_CreatePipe(&CFE_TBL_TaskData.CmdPipe, CFE_TBL_TASK_PIPE_DEPTH, CFE_TBL_TASK_PIPE_NAME);
+    Status = CFE_SB_CreatePipe(&CFE_TBL_Global.CmdPipe, CFE_TBL_TASK_PIPE_DEPTH, CFE_TBL_TASK_PIPE_NAME);
     if(Status != CFE_SUCCESS)
     {
       CFE_ES_WriteToSysLog("TBL:Error creating cmd pipe:RC=0x%08X\n",(unsigned int)Status);
@@ -191,7 +191,7 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Subscribe to Housekeeping request commands
     */
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TBL_SEND_HK_MID), CFE_TBL_TaskData.CmdPipe);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TBL_SEND_HK_MID), CFE_TBL_Global.CmdPipe);
 
     if(Status != CFE_SUCCESS)
     {
@@ -202,7 +202,7 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Subscribe to Table task ground command packets
     */
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TBL_CMD_MID), CFE_TBL_TaskData.CmdPipe);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TBL_CMD_MID), CFE_TBL_Global.CmdPipe);
 
     if(Status != CFE_SUCCESS)
     {
@@ -230,23 +230,18 @@ int32 CFE_TBL_TaskInit(void)
 
 void CFE_TBL_InitData(void)
 {
-    /* Initialize Counters */
-    CFE_TBL_TaskData.CommandCounter = 0;
-    CFE_TBL_TaskData.CommandErrorCounter = 0;
-    CFE_TBL_TaskData.SuccessValCounter = 0;
-    CFE_TBL_TaskData.FailedValCounter = 0;
 
     /* Get the assigned Application ID for the Table Services Task */
-    CFE_ES_GetAppID(&CFE_TBL_TaskData.TableTaskAppId);
+    CFE_ES_GetAppID(&CFE_TBL_Global.TableTaskAppId);
 
     /* Initialize Packet Headers */
-    CFE_MSG_Init(&CFE_TBL_TaskData.HkPacket.TlmHeader.Msg,
+    CFE_MSG_Init(&CFE_TBL_Global.HkPacket.TlmHeader.Msg,
                  CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
-                 sizeof(CFE_TBL_TaskData.HkPacket));
+                 sizeof(CFE_TBL_Global.HkPacket));
 
-    CFE_MSG_Init(&CFE_TBL_TaskData.TblRegPacket.TlmHeader.Msg,
+    CFE_MSG_Init(&CFE_TBL_Global.TblRegPacket.TlmHeader.Msg,
                  CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
-                 sizeof(CFE_TBL_TaskData.TblRegPacket));
+                 sizeof(CFE_TBL_Global.TblRegPacket));
 
 } /* End of CFE_TBL_InitData() */
 
@@ -291,11 +286,11 @@ void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
         {
             if (CmdStatus == CFE_TBL_INC_CMD_CTR)
             {
-                CFE_TBL_TaskData.CommandCounter++;
+                CFE_TBL_Global.CommandCounter++;
             }
             else if (CmdStatus == CFE_TBL_INC_ERR_CTR)
             {
-                CFE_TBL_TaskData.CommandErrorCounter++;
+                CFE_TBL_Global.CommandErrorCounter++;
             }
         }
     }
@@ -311,7 +306,7 @@ void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
                               (unsigned int)CommandCode);
 
             /* Update the command error counter */
-            CFE_TBL_TaskData.CommandErrorCounter++;
+            CFE_TBL_Global.CommandErrorCounter++;
         }
         else  /* CmdIndx == CFE_TBL_BAD_MSG_ID */
         {

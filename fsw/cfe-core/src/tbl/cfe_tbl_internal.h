@@ -582,7 +582,7 @@ extern void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
 /*
 ** Globals specific to the TBL module
 */
-extern CFE_TBL_TaskData_t CFE_TBL_TaskData;
+extern CFE_TBL_Global_t CFE_TBL_Global;
 
 
 

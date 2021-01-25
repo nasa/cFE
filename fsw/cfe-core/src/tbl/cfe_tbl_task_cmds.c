@@ -69,8 +69,8 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     /*
     ** Send housekeeping telemetry packet
     */
-    CFE_SB_TimeStampMsg(&CFE_TBL_TaskData.HkPacket.TlmHeader.Msg);
-    Status = CFE_SB_TransmitMsg(&CFE_TBL_TaskData.HkPacket.TlmHeader.Msg, true);
+    CFE_SB_TimeStampMsg(&CFE_TBL_Global.HkPacket.TlmHeader.Msg);
+    Status = CFE_SB_TransmitMsg(&CFE_TBL_Global.HkPacket.TlmHeader.Msg, true);
 
     if (Status != CFE_SUCCESS)
     {
@@ -81,26 +81,26 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     }
 
     /* If a table's registry entry has been requested for telemetry, then pack it and send it */
-    if (CFE_TBL_TaskData.HkTlmTblRegIndex != CFE_TBL_NOT_FOUND)
+    if (CFE_TBL_Global.HkTlmTblRegIndex != CFE_TBL_NOT_FOUND)
     {
         CFE_TBL_GetTblRegData();
 
         /*
         ** Send Table Registry Info Packet
         */
-        CFE_SB_TimeStampMsg(&CFE_TBL_TaskData.TblRegPacket.TlmHeader.Msg);
-        CFE_SB_TransmitMsg(&CFE_TBL_TaskData.TblRegPacket.TlmHeader.Msg, true);
+        CFE_SB_TimeStampMsg(&CFE_TBL_Global.TblRegPacket.TlmHeader.Msg);
+        CFE_SB_TransmitMsg(&CFE_TBL_Global.TblRegPacket.TlmHeader.Msg, true);
 
         /* Once the data has been sent, clear the index so that we don't send it again and again */
-        CFE_TBL_TaskData.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
+        CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;
     }
     
     /* Check to see if there are any dump-only table dumps pending */
     for (i=0; i < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        if (CFE_TBL_TaskData.DumpControlBlocks[i].State == CFE_TBL_DUMP_PERFORMED)
+        if (CFE_TBL_Global.DumpControlBlocks[i].State == CFE_TBL_DUMP_PERFORMED)
         {
-        	DumpCtrlPtr = &CFE_TBL_TaskData.DumpControlBlocks[i];
+		DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[i];
             Status = CFE_TBL_DumpToFile(DumpCtrlPtr->DumpBufferPtr->DataSource,
                                         DumpCtrlPtr->TableName,
                                         DumpCtrlPtr->DumpBufferPtr->BufferPtr,
@@ -135,7 +135,7 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
             }       
                         
             /* Free the shared working buffer */
-            CFE_TBL_TaskData.LoadBuffs[DumpCtrlPtr->RegRecPtr->LoadInProgress].Taken = false;
+            CFE_TBL_Global.LoadBuffs[DumpCtrlPtr->RegRecPtr->LoadInProgress].Taken = false;
             DumpCtrlPtr->RegRecPtr->LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
             
             /* Free the Dump Control Block for later use */
@@ -162,35 +162,35 @@ void CFE_TBL_GetHkData(void)
     CFE_TBL_ValidationResult_t *ValPtr = NULL;
 
     /* Copy command counter data */
-    CFE_TBL_TaskData.HkPacket.Payload.CommandCounter = CFE_TBL_TaskData.CommandCounter;
-    CFE_TBL_TaskData.HkPacket.Payload.CommandErrorCounter = CFE_TBL_TaskData.CommandErrorCounter;
-    CFE_TBL_TaskData.HkPacket.Payload.FailedValCounter = CFE_TBL_TaskData.FailedValCounter;
-    CFE_TBL_TaskData.HkPacket.Payload.NumLoadPending = 0;
-    CFE_TBL_TaskData.HkPacket.Payload.MemPoolHandle = CFE_TBL_TaskData.Buf.PoolHdl;
+    CFE_TBL_Global.HkPacket.Payload.CommandCounter = CFE_TBL_Global.CommandCounter;
+    CFE_TBL_Global.HkPacket.Payload.CommandErrorCounter = CFE_TBL_Global.CommandErrorCounter;
+    CFE_TBL_Global.HkPacket.Payload.FailedValCounter = CFE_TBL_Global.FailedValCounter;
+    CFE_TBL_Global.HkPacket.Payload.NumLoadPending = 0;
+    CFE_TBL_Global.HkPacket.Payload.MemPoolHandle = CFE_TBL_Global.Buf.PoolHdl;
 
     /* Determine the number of tables currently registered and Number of Load Pending Tables */
     Count = 0;
     for (i=0; i<CFE_PLATFORM_TBL_MAX_NUM_TABLES; i++)
     {
-        if (!CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED))
+        if (!CFE_ES_ResourceID_Equal(CFE_TBL_Global.Registry[i].OwnerAppId, CFE_TBL_NOT_OWNED))
         {
             Count++;
 
-            if (CFE_TBL_TaskData.Registry[i].LoadPending)
+            if (CFE_TBL_Global.Registry[i].LoadPending)
             {
-                CFE_TBL_TaskData.HkPacket.Payload.NumLoadPending++;
+                CFE_TBL_Global.HkPacket.Payload.NumLoadPending++;
             }
         }
     }
-    CFE_TBL_TaskData.HkPacket.Payload.NumTables = Count;
+    CFE_TBL_Global.HkPacket.Payload.NumTables = Count;
 
     /* Determine the number of free shared buffers */
-    CFE_TBL_TaskData.HkPacket.Payload.NumFreeSharedBufs = CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS;
+    CFE_TBL_Global.HkPacket.Payload.NumFreeSharedBufs = CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS;
     for (i=0; i<CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS; i++)
     {
-        if (CFE_TBL_TaskData.LoadBuffs[i].Taken)
+        if (CFE_TBL_Global.LoadBuffs[i].Taken)
         {
-            CFE_TBL_TaskData.HkPacket.Payload.NumFreeSharedBufs--;
+            CFE_TBL_Global.HkPacket.Payload.NumFreeSharedBufs--;
         }
     }
 
@@ -198,9 +198,9 @@ void CFE_TBL_GetHkData(void)
     i=0;
     while ((i < CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS) && (ValPtr == NULL))
     {
-        if (CFE_TBL_TaskData.ValidationResults[i].State == CFE_TBL_VALIDATION_PERFORMED)
+        if (CFE_TBL_Global.ValidationResults[i].State == CFE_TBL_VALIDATION_PERFORMED)
         {
-            ValPtr = &CFE_TBL_TaskData.ValidationResults[i];
+            ValPtr = &CFE_TBL_Global.ValidationResults[i];
         }
         else
         {
@@ -210,23 +210,23 @@ void CFE_TBL_GetHkData(void)
 
     if (ValPtr != NULL)
     {
-        CFE_TBL_TaskData.HkPacket.Payload.LastValCrc = ValPtr->CrcOfTable;
-        CFE_TBL_TaskData.HkPacket.Payload.LastValStatus = ValPtr->Result;
-        CFE_TBL_TaskData.HkPacket.Payload.ActiveBuffer = ValPtr->ActiveBuffer;
+        CFE_TBL_Global.HkPacket.Payload.LastValCrc = ValPtr->CrcOfTable;
+        CFE_TBL_Global.HkPacket.Payload.LastValStatus = ValPtr->Result;
+        CFE_TBL_Global.HkPacket.Payload.ActiveBuffer = ValPtr->ActiveBuffer;
 
         /* Keep track of the number of failed and successful validations */
         if (ValPtr->Result == CFE_SUCCESS)
         {
-            CFE_TBL_TaskData.SuccessValCounter++;
+            CFE_TBL_Global.SuccessValCounter++;
         }
         else
         {
-            CFE_TBL_TaskData.FailedValCounter++;
+            CFE_TBL_Global.FailedValCounter++;
         }
 
-        CFE_SB_MessageStringSet(CFE_TBL_TaskData.HkPacket.Payload.LastValTableName, ValPtr->TableName,
-                  sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastValTableName), sizeof(ValPtr->TableName));
-        CFE_TBL_TaskData.ValidationCounter++;
+        CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastValTableName, ValPtr->TableName,
+                  sizeof(CFE_TBL_Global.HkPacket.Payload.LastValTableName), sizeof(ValPtr->TableName));
+        CFE_TBL_Global.ValidationCounter++;
 
         /* Free the Validation Response Block for next time */
         ValPtr->Result = 0;
@@ -236,27 +236,27 @@ void CFE_TBL_GetHkData(void)
         ValPtr->State = CFE_TBL_VALIDATION_FREE;
     }
 
-    CFE_TBL_TaskData.HkPacket.Payload.ValidationCounter  = CFE_TBL_TaskData.ValidationCounter;
-    CFE_TBL_TaskData.HkPacket.Payload.SuccessValCounter  = CFE_TBL_TaskData.SuccessValCounter;
-    CFE_TBL_TaskData.HkPacket.Payload.FailedValCounter   = CFE_TBL_TaskData.FailedValCounter;
-    CFE_TBL_TaskData.HkPacket.Payload.NumValRequests = CFE_TBL_TaskData.NumValRequests;
+    CFE_TBL_Global.HkPacket.Payload.ValidationCounter  = CFE_TBL_Global.ValidationCounter;
+    CFE_TBL_Global.HkPacket.Payload.SuccessValCounter  = CFE_TBL_Global.SuccessValCounter;
+    CFE_TBL_Global.HkPacket.Payload.FailedValCounter   = CFE_TBL_Global.FailedValCounter;
+    CFE_TBL_Global.HkPacket.Payload.NumValRequests = CFE_TBL_Global.NumValRequests;
     
     /* Validate the index of the last table updated before using it */
-    if ((CFE_TBL_TaskData.LastTblUpdated >= 0) && 
-        (CFE_TBL_TaskData.LastTblUpdated < CFE_PLATFORM_TBL_MAX_NUM_TABLES))
+    if ((CFE_TBL_Global.LastTblUpdated >= 0) &&
+        (CFE_TBL_Global.LastTblUpdated < CFE_PLATFORM_TBL_MAX_NUM_TABLES))
     {
         /* Check to make sure the Registry Entry is still valid */
-        if (!CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.LastTblUpdated].OwnerAppId, CFE_TBL_NOT_OWNED))
+        if (!CFE_ES_ResourceID_Equal(CFE_TBL_Global.Registry[CFE_TBL_Global.LastTblUpdated].OwnerAppId, CFE_TBL_NOT_OWNED))
         {
             /* Get the time at the last table update */
-            CFE_TBL_TaskData.HkPacket.Payload.LastUpdateTime =
-              CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.LastTblUpdated].TimeOfLastUpdate;
+            CFE_TBL_Global.HkPacket.Payload.LastUpdateTime =
+              CFE_TBL_Global.Registry[CFE_TBL_Global.LastTblUpdated].TimeOfLastUpdate;
 
             /* Get the table name used for the last table update */
-            CFE_SB_MessageStringSet(CFE_TBL_TaskData.HkPacket.Payload.LastUpdatedTable,
-                    CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.LastTblUpdated].Name,
-                    sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastUpdatedTable),
-                    sizeof(CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.LastTblUpdated].Name));
+            CFE_SB_MessageStringSet(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable,
+                    CFE_TBL_Global.Registry[CFE_TBL_Global.LastTblUpdated].Name,
+                    sizeof(CFE_TBL_Global.HkPacket.Payload.LastUpdatedTable),
+                    sizeof(CFE_TBL_Global.Registry[CFE_TBL_Global.LastTblUpdated].Name));
         }      
     }
 } /* End of CFE_TBL_GetHkData() */
@@ -272,16 +272,16 @@ void CFE_TBL_GetTblRegData(void)
 {
     CFE_TBL_RegistryRec_t      *RegRecPtr;
 
-    RegRecPtr = &CFE_TBL_TaskData.Registry[CFE_TBL_TaskData.HkTlmTblRegIndex];
+    RegRecPtr = &CFE_TBL_Global.Registry[CFE_TBL_Global.HkTlmTblRegIndex];
 
-    CFE_TBL_TaskData.TblRegPacket.Payload.Size = CFE_ES_MEMOFFSET_C(RegRecPtr->Size);
-    CFE_TBL_TaskData.TblRegPacket.Payload.ActiveBufferAddr =
+    CFE_TBL_Global.TblRegPacket.Payload.Size = CFE_ES_MEMOFFSET_C(RegRecPtr->Size);
+    CFE_TBL_Global.TblRegPacket.Payload.ActiveBufferAddr =
             CFE_ES_MEMADDRESS_C(RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].BufferPtr);
 
     if (RegRecPtr->DoubleBuffered)
     {
         /* For a double buffered table, the inactive is the other allocated buffer */
-        CFE_TBL_TaskData.TblRegPacket.Payload.InactiveBufferAddr =
+        CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr =
                 CFE_ES_MEMADDRESS_C(RegRecPtr->Buffers[(1U-RegRecPtr->ActiveBufferIndex)].BufferPtr);
     }
     else
@@ -289,32 +289,32 @@ void CFE_TBL_GetTblRegData(void)
         /* Check to see if an inactive buffer has currently been allocated to the single buffered table */
         if (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
         {
-            CFE_TBL_TaskData.TblRegPacket.Payload.InactiveBufferAddr =
-                            CFE_ES_MEMADDRESS_C(CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr);
+            CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr =
+                            CFE_ES_MEMADDRESS_C(CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr);
         }
         else
         {
-           CFE_TBL_TaskData.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
+           CFE_TBL_Global.TblRegPacket.Payload.InactiveBufferAddr = CFE_ES_MEMADDRESS_C(0);
         }
     }
 
-    CFE_TBL_TaskData.TblRegPacket.Payload.ValidationFuncPtr = CFE_ES_MEMADDRESS_C(RegRecPtr->ValidationFuncPtr);
-    CFE_TBL_TaskData.TblRegPacket.Payload.TimeOfLastUpdate = RegRecPtr->TimeOfLastUpdate;
-    CFE_TBL_TaskData.TblRegPacket.Payload.TableLoadedOnce = RegRecPtr->TableLoadedOnce;
-    CFE_TBL_TaskData.TblRegPacket.Payload.LoadPending = RegRecPtr->LoadPending;
-    CFE_TBL_TaskData.TblRegPacket.Payload.DumpOnly = RegRecPtr->DumpOnly;
-    CFE_TBL_TaskData.TblRegPacket.Payload.DoubleBuffered = RegRecPtr->DoubleBuffered;
-    CFE_TBL_TaskData.TblRegPacket.Payload.FileCreateTimeSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
-    CFE_TBL_TaskData.TblRegPacket.Payload.FileCreateTimeSubSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
-    CFE_TBL_TaskData.TblRegPacket.Payload.Crc = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
-    CFE_TBL_TaskData.TblRegPacket.Payload.Critical = RegRecPtr->CriticalTable;
+    CFE_TBL_Global.TblRegPacket.Payload.ValidationFuncPtr = CFE_ES_MEMADDRESS_C(RegRecPtr->ValidationFuncPtr);
+    CFE_TBL_Global.TblRegPacket.Payload.TimeOfLastUpdate = RegRecPtr->TimeOfLastUpdate;
+    CFE_TBL_Global.TblRegPacket.Payload.TableLoadedOnce = RegRecPtr->TableLoadedOnce;
+    CFE_TBL_Global.TblRegPacket.Payload.LoadPending = RegRecPtr->LoadPending;
+    CFE_TBL_Global.TblRegPacket.Payload.DumpOnly = RegRecPtr->DumpOnly;
+    CFE_TBL_Global.TblRegPacket.Payload.DoubleBuffered = RegRecPtr->DoubleBuffered;
+    CFE_TBL_Global.TblRegPacket.Payload.FileCreateTimeSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
+    CFE_TBL_Global.TblRegPacket.Payload.FileCreateTimeSubSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
+    CFE_TBL_Global.TblRegPacket.Payload.Crc = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
+    CFE_TBL_Global.TblRegPacket.Payload.Critical = RegRecPtr->CriticalTable;
 
-    CFE_SB_MessageStringSet(CFE_TBL_TaskData.TblRegPacket.Payload.Name, RegRecPtr->Name,
-            sizeof(CFE_TBL_TaskData.TblRegPacket.Payload.Name), sizeof(RegRecPtr->Name));
-    CFE_SB_MessageStringSet(CFE_TBL_TaskData.TblRegPacket.Payload.LastFileLoaded, RegRecPtr->LastFileLoaded,
-            sizeof(CFE_TBL_TaskData.TblRegPacket.Payload.LastFileLoaded), sizeof(RegRecPtr->LastFileLoaded));
-    CFE_ES_GetAppName(CFE_TBL_TaskData.TblRegPacket.Payload.OwnerAppName, RegRecPtr->OwnerAppId,
-            sizeof(CFE_TBL_TaskData.TblRegPacket.Payload.OwnerAppName));
+    CFE_SB_MessageStringSet(CFE_TBL_Global.TblRegPacket.Payload.Name, RegRecPtr->Name,
+            sizeof(CFE_TBL_Global.TblRegPacket.Payload.Name), sizeof(RegRecPtr->Name));
+    CFE_SB_MessageStringSet(CFE_TBL_Global.TblRegPacket.Payload.LastFileLoaded, RegRecPtr->LastFileLoaded,
+            sizeof(CFE_TBL_Global.TblRegPacket.Payload.LastFileLoaded), sizeof(RegRecPtr->LastFileLoaded));
+    CFE_ES_GetAppName(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName, RegRecPtr->OwnerAppId,
+            sizeof(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName));
 } /* End of CFE_TBL_GetTblRegData() */
 
 
@@ -344,12 +344,12 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
 
 int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
 {
-    CFE_TBL_TaskData.CommandCounter = 0;
-    CFE_TBL_TaskData.CommandErrorCounter = 0;
-    CFE_TBL_TaskData.SuccessValCounter = 0;
-    CFE_TBL_TaskData.FailedValCounter = 0;
-    CFE_TBL_TaskData.NumValRequests = 0;
-    CFE_TBL_TaskData.ValidationCounter = 0;
+    CFE_TBL_Global.CommandCounter = 0;
+    CFE_TBL_Global.CommandErrorCounter = 0;
+    CFE_TBL_Global.SuccessValCounter = 0;
+    CFE_TBL_Global.FailedValCounter = 0;
+    CFE_TBL_Global.NumValRequests = 0;
+    CFE_TBL_Global.ValidationCounter = 0;
 
     CFE_EVS_SendEvent(CFE_TBL_RESET_INF_EID,
                       CFE_EVS_EventType_DEBUG,
@@ -406,7 +406,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
             else
             {
                 /* Translate the registry index into a record pointer */
-                RegRecPtr = &CFE_TBL_TaskData.Registry[Status];
+                RegRecPtr = &CFE_TBL_Global.Registry[Status];
 
                 if (RegRecPtr->DumpOnly)
                 {
@@ -483,14 +483,14 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                                     WorkingBufferPtr->Validated = (RegRecPtr->ValidationFuncPtr == NULL);
                             
                                     /* Save file information statistics for housekeeping telemetry */
-                                    strncpy(CFE_TBL_TaskData.HkPacket.Payload.LastFileLoaded, LoadFilename,
-                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileLoaded) - 1);
-                                    CFE_TBL_TaskData.HkPacket.Payload.LastFileLoaded[
-                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileLoaded) - 1] = '\0';
-                                    strncpy(CFE_TBL_TaskData.HkPacket.Payload.LastTableLoaded, TblFileHeader.TableName,
-                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastTableLoaded) - 1);
-                                    CFE_TBL_TaskData.HkPacket.Payload.LastTableLoaded[
-                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastTableLoaded) - 1] = '\0';
+                                    strncpy(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded, LoadFilename,
+                                            sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded) - 1);
+                                    CFE_TBL_Global.HkPacket.Payload.LastFileLoaded[
+                                            sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileLoaded) - 1] = '\0';
+                                    strncpy(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded, TblFileHeader.TableName,
+                                            sizeof(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded) - 1);
+                                    CFE_TBL_Global.HkPacket.Payload.LastTableLoaded[
+                                            sizeof(CFE_TBL_Global.HkPacket.Payload.LastTableLoaded) - 1] = '\0';
 
                                     /* Increment successful command completion counter */
                                     ReturnCode = CFE_TBL_INC_CMD_CTR;
@@ -603,7 +603,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     if (RegIndex != CFE_TBL_NOT_FOUND)
     {
         /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndex];
+        RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
 
         /* Determine what data is to be dumped */
         if (CmdPtr->ActiveTableFlag == CFE_TBL_BufferSelect_ACTIVE)
@@ -623,7 +623,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
                 /* Unless this is a table whose address was defined by the owning Application.              */
                 if ((RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS) && (!RegRecPtr->UserDefAddr))
                 {
-                    DumpDataAddr = CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr;
+                    DumpDataAddr = CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr;
                 }
                 else
                 {
@@ -658,7 +658,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
                     /* Find a free Dump Control Block */
                     DumpIndex = 0;
                     while ((DumpIndex < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS) &&
-                           (CFE_TBL_TaskData.DumpControlBlocks[DumpIndex].State != CFE_TBL_DUMP_FREE))
+                           (CFE_TBL_Global.DumpControlBlocks[DumpIndex].State != CFE_TBL_DUMP_FREE))
                     {
                         DumpIndex++;
                     }
@@ -670,7 +670,7 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
                         
                         if (Status == CFE_SUCCESS)
                         {
-                            DumpCtrlPtr = &CFE_TBL_TaskData.DumpControlBlocks[DumpIndex];
+                            DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[DumpIndex];
                             DumpCtrlPtr->State = CFE_TBL_DUMP_PENDING;
                             DumpCtrlPtr->RegRecPtr = RegRecPtr;
                         
@@ -817,9 +817,9 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile( const char *DumpFilename, const char *T
                     }
 
                     /* Save file information statistics for housekeeping telemetry */
-                    strncpy(CFE_TBL_TaskData.HkPacket.Payload.LastFileDumped, DumpFilename,
-                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileDumped)-1);
-                    CFE_TBL_TaskData.HkPacket.Payload.LastFileDumped[sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileDumped)-1] = 0;
+                    strncpy(CFE_TBL_Global.HkPacket.Payload.LastFileDumped, DumpFilename,
+                            sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileDumped)-1);
+                    CFE_TBL_Global.HkPacket.Payload.LastFileDumped[sizeof(CFE_TBL_Global.HkPacket.Payload.LastFileDumped)-1] = 0;
 
                     /* Increment Successful Command Counter */
                     ReturnCode = CFE_TBL_INC_CMD_CTR;
@@ -890,7 +890,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
     if (RegIndex != CFE_TBL_NOT_FOUND)
     {
         /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndex];
+        RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
 
         /* Determine what data is to be validated */
         if (CmdPtr->ActiveTableFlag == CFE_TBL_BufferSelect_ACTIVE)
@@ -909,7 +909,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
                 /* For single buffered tables, the index to the inactive buffer is kept in 'LoadInProgress' */
                 if (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
                 {
-                    ValidationDataPtr = CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr;
+                    ValidationDataPtr = CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr;
                 }
                 else
                 {
@@ -935,7 +935,7 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
             /* Find a free Validation Response Block */
             ValIndex = 0;
             while ((ValIndex < CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS) &&
-                   (CFE_TBL_TaskData.ValidationResults[ValIndex].State != CFE_TBL_VALIDATION_FREE))
+                   (CFE_TBL_Global.ValidationResults[ValIndex].State != CFE_TBL_VALIDATION_FREE))
             {
                 ValIndex++;
             }
@@ -943,9 +943,9 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
             if (ValIndex < CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS)
             {
                 /* Allocate this Validation Response Block */
-                CFE_TBL_TaskData.ValidationResults[ValIndex].State = CFE_TBL_VALIDATION_PENDING;
-                CFE_TBL_TaskData.ValidationResults[ValIndex].Result = 0;
-                memcpy(CFE_TBL_TaskData.ValidationResults[ValIndex].TableName,
+                CFE_TBL_Global.ValidationResults[ValIndex].State = CFE_TBL_VALIDATION_PENDING;
+                CFE_TBL_Global.ValidationResults[ValIndex].Result = 0;
+                memcpy(CFE_TBL_Global.ValidationResults[ValIndex].TableName,
                           TableName, CFE_TBL_MAX_FULL_NAME_LEN);
 
                 /* Compute the CRC on the specified table buffer */
@@ -954,8 +954,8 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
                                                  0,
                                                  CFE_MISSION_ES_DEFAULT_CRC);
 
-                CFE_TBL_TaskData.ValidationResults[ValIndex].CrcOfTable = CrcOfTable;
-                CFE_TBL_TaskData.ValidationResults[ValIndex].ActiveBuffer = (CmdPtr->ActiveTableFlag != 0);
+                CFE_TBL_Global.ValidationResults[ValIndex].CrcOfTable = CrcOfTable;
+                CFE_TBL_Global.ValidationResults[ValIndex].ActiveBuffer = (CmdPtr->ActiveTableFlag != 0);
 
                 /* If owner has a validation function, then notify the  */
                 /* table owner that there is data to be validated       */
@@ -981,14 +981,14 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
                     }
 
                     /* Maintain statistic on number of validation requests given to applications */
-                    CFE_TBL_TaskData.NumValRequests++;
+                    CFE_TBL_Global.NumValRequests++;
                 }
                 else
                 {
                     /* If there isn't a validation function pointer, then the process is complete  */
                     /* By setting this value, we are letting the Housekeeping process recognize it */
                     /* as data to be sent to the ground in telemetry.                              */
-                    CFE_TBL_TaskData.ValidationResults[ValIndex].State = CFE_TBL_VALIDATION_PERFORMED;
+                    CFE_TBL_Global.ValidationResults[ValIndex].State = CFE_TBL_VALIDATION_PERFORMED;
                     
                     CFE_EVS_SendEvent(CFE_TBL_ASSUMED_VALID_INF_EID,
                                       CFE_EVS_EventType_INFORMATION,
@@ -1046,7 +1046,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
     if (RegIndex != CFE_TBL_NOT_FOUND)
     {
         /* Obtain a pointer to registry information about specified table */
-        RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndex];
+        RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
         
         if (RegRecPtr->DumpOnly)
         {
@@ -1064,12 +1064,12 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
             }
             else
             {
-                ValidationStatus = CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Validated;
+                ValidationStatus = CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Validated;
             }
             
             if (ValidationStatus == true)
             {
-                CFE_TBL_TaskData.Registry[RegIndex].LoadPending = true;
+                CFE_TBL_Global.Registry[RegIndex].LoadPending = true;
                 
                 /* If application requested notification by message, then do so */
                 if (CFE_TBL_SendNotificationMsg(RegRecPtr) == CFE_SUCCESS)
@@ -1169,7 +1169,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
             while ((RegIndex < CFE_PLATFORM_TBL_MAX_NUM_TABLES) && (Status == sizeof(CFE_TBL_RegDumpRec_t)))
             {
                 /* Make a pointer to simplify code look and to remove redundant indexing into registry */
-                RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndex];
+                RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
 
                 /* Check to see if the Registry entry is empty */
                 if (!CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED) ||
@@ -1220,7 +1220,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
                     while (HandleIterator != CFE_TBL_END_OF_LIST)
                     {
                         DumpRecord.NumUsers++;
-                        HandleIterator = CFE_TBL_TaskData.Handles[HandleIterator].NextLink;
+                        HandleIterator = CFE_TBL_Global.Handles[HandleIterator].NextLink;
                     }
 
                     /* Determine the name of the owning application */
@@ -1322,7 +1322,7 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
     if (RegIndex != CFE_TBL_NOT_FOUND)
     {
         /* Change the index used to identify what data is to be telemetered */
-        CFE_TBL_TaskData.HkTlmTblRegIndex = RegIndex;
+        CFE_TBL_Global.HkTlmTblRegIndex = RegIndex;
 
         CFE_EVS_SendEvent(CFE_TBL_TLM_REG_CMD_INF_EID,
                           CFE_EVS_EventType_DEBUG,
@@ -1376,9 +1376,9 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
         /* Find table in the Critical Table Registry */
         for (i=0; i<CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
         {
-            if (strncmp(CFE_TBL_TaskData.CritReg[i].Name, TableName, CFE_TBL_MAX_FULL_NAME_LEN) == 0)
+            if (strncmp(CFE_TBL_Global.CritReg[i].Name, TableName, CFE_TBL_MAX_FULL_NAME_LEN) == 0)
             {
-                CritRegRecPtr = &CFE_TBL_TaskData.CritReg[i];
+                CritRegRecPtr = &CFE_TBL_Global.CritReg[i];
                 break;
             }
         }
@@ -1468,7 +1468,7 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
     if (RegIndex != CFE_TBL_NOT_FOUND)
     {
         /* Make a pointer to simplify code look and to remove redundant indexing into registry */
-        RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndex];
+        RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
 
         /* Check to make sure a load was in progress before trying to abort it */
         /* NOTE: LoadInProgress contains index of buffer when dumping a dump-only table */
@@ -1514,7 +1514,7 @@ void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr)
     if (!RegRecPtr->DoubleBuffered)
     {
         /* For single buffered tables, freeing shared buffer entails resetting flag */
-        CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
+        CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
     }
 
     /* For double buffered tables, freeing buffer is simple */

@@ -336,7 +336,7 @@ typedef struct
   CFE_TBL_ValidationResult_t  ValidationResults[CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS]; /**< \brief Array of Table Validation Requests */
   CFE_TBL_DumpControl_t       DumpControlBlocks[CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS]; /**< \brief Array of Dump-Only Dump Control Blocks */
 
-} CFE_TBL_TaskData_t;
+} CFE_TBL_Global_t;
 
 
 /*************************************************************************/

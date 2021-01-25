@@ -63,22 +63,22 @@ CFE_SB_BufferD_t * CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, size_t Size) {
    CFE_SB_BufferD_t    *bd = NULL;
 
     /* Allocate a new buffer descriptor from the SB memory pool.*/
-    stat1 = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&bd, CFE_SB.Mem.PoolHdl,  Size + sizeof(CFE_SB_BufferD_t));
+    stat1 = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&bd, CFE_SB_Global.Mem.PoolHdl,  Size + sizeof(CFE_SB_BufferD_t));
     if(stat1 < 0){
         return NULL;
     }
 
     /* increment the number of buffers in use and adjust the high water mark if needed */
-    CFE_SB.StatTlmMsg.Payload.SBBuffersInUse++;
-    if(CFE_SB.StatTlmMsg.Payload.SBBuffersInUse > CFE_SB.StatTlmMsg.Payload.PeakSBBuffersInUse){
-        CFE_SB.StatTlmMsg.Payload.PeakSBBuffersInUse = CFE_SB.StatTlmMsg.Payload.SBBuffersInUse;
+    CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse++;
+    if(CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse){
+        CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse = CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse;
     }/* end if */
 
     /* Add the size of the actual buffer to the memory-in-use ctr and */
     /* adjust the high water mark if needed */
-    CFE_SB.StatTlmMsg.Payload.MemInUse+=stat1;
-    if(CFE_SB.StatTlmMsg.Payload.MemInUse > CFE_SB.StatTlmMsg.Payload.PeakMemInUse){
-        CFE_SB.StatTlmMsg.Payload.PeakMemInUse = CFE_SB.StatTlmMsg.Payload.MemInUse;
+    CFE_SB_Global.StatTlmMsg.Payload.MemInUse+=stat1;
+    if(CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse){
+        CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
     }/* end if */
 
     /* first set ptr to actual msg buffer the same as ptr to descriptor */
@@ -144,11 +144,11 @@ int32 CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd){
     int32    Stat;
 
     /* give the buf descriptor back to the buf descriptor pool */
-    Stat = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, bd);
+    Stat = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, bd);
     if(Stat > 0){
-        CFE_SB.StatTlmMsg.Payload.SBBuffersInUse--;
+        CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse--;
         /* Substract the size of a buffer descriptor from the Memory in use ctr */
-        CFE_SB.StatTlmMsg.Payload.MemInUse-=Stat;
+        CFE_SB_Global.StatTlmMsg.Payload.MemInUse-=Stat;
     }/* end if */
 
     return CFE_SUCCESS;
@@ -236,16 +236,16 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
     CFE_SB_DestinationD_t *Dest = NULL;
 
     /* Allocate a new destination descriptor from the SB memory pool.*/
-    Stat = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&Dest, CFE_SB.Mem.PoolHdl,  sizeof(CFE_SB_DestinationD_t));
+    Stat = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&Dest, CFE_SB_Global.Mem.PoolHdl,  sizeof(CFE_SB_DestinationD_t));
     if(Stat < 0){
         return NULL;
     }
 
     /* Add the size of a destination descriptor to the memory-in-use ctr and */
     /* adjust the high water mark if needed */
-    CFE_SB.StatTlmMsg.Payload.MemInUse+=Stat;
-    if(CFE_SB.StatTlmMsg.Payload.MemInUse > CFE_SB.StatTlmMsg.Payload.PeakMemInUse){
-       CFE_SB.StatTlmMsg.Payload.PeakMemInUse = CFE_SB.StatTlmMsg.Payload.MemInUse;
+    CFE_SB_Global.StatTlmMsg.Payload.MemInUse+=Stat;
+    if(CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse){
+       CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
     }/* end if */
 
     return Dest;
@@ -274,10 +274,10 @@ int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)
     }/* end if */
 
     /* give the destination block back to the SB memory pool */
-    Stat = CFE_ES_PutPoolBuf(CFE_SB.Mem.PoolHdl, Dest);
+    Stat = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, Dest);
     if(Stat > 0){
         /* Substract the size of the destination block from the Memory in use ctr */
-        CFE_SB.StatTlmMsg.Payload.MemInUse-=Stat;
+        CFE_SB_Global.StatTlmMsg.Payload.MemInUse-=Stat;
     }/* end if */
 
     return CFE_SUCCESS;
