@@ -996,12 +996,8 @@
 **/
 #define CFE_ES_PERF_FILTMSKCMD_EID  63
 
-/** \brief  <tt> 'Error:Performance Filter Mask Index value  
-** greater than CFE_ES_PERF_32BIT_WORDS_IN_MASK (which is a whole number derived from 
-** CFE_PLATFORM_ES_PERF_MAX_IDS / 32)' </tt>
-**  \event <tt> 'Error:Performance Filter Mask Index value  
-** greater than CFE_ES_PERF_32BIT_WORDS_IN_MASK (which is a whole number derived from 
-** CFE_PLATFORM_ES_PERF_MAX_IDS / 32)' </tt>
+/** \brief  <tt> 'Performance Filter Mask Cmd Error,Index(%u)out of range(%u)' </tt>
+**  \event <tt> 'Performance Filter Mask Cmd Error,Index(%u)out of range(%u)' </tt>
 **
 **  \par Type: ERROR
 **
@@ -1027,12 +1023,8 @@
 **/
 #define CFE_ES_PERF_TRIGMSKCMD_EID 65
 
-/** \brief  <tt> 'Error: Performance Trigger Mask Index value  
-** greater than CFE_ES_PERF_32BIT_WORDS_IN_MASK (which is a whole number derived from 
-** CFE_PLATFORM_ES_PERF_MAX_IDS / 32)' </tt>
-**  \event <tt> 'Error: Performance Trigger Mask Index value  
-** greater than CFE_ES_PERF_32BIT_WORDS_IN_MASK (which is a whole number derived from 
-** CFE_PLATFORM_ES_PERF_MAX_IDS / 32)' </tt>
+/** \brief  <tt> 'Performance Trigger Mask Cmd Error,Index(%u)out of range(%u)' </tt>
+**  \event <tt> 'Performance Trigger Mask Cmd Error,Index(%u)out of range(%u)' </tt>
 **
 **  \par Type: ERROR
 **

@@ -26,7 +26,7 @@
 ** Design Notes:
 **   Each performance id is used to identify something that needs to be
 **   measured.  Performance ids are limited to the range of 0 to
-**   CFE_PLATFORM_ES_PERF_MAX_IDS - 1.  Any performance ids outside of this range
+**   CFE_MISSION_ES_PERF_MAX_IDS - 1.  Any performance ids outside of this range
 **   will be ignored and will be flagged as an error.  Note that
 **   performance ids 0-31 are reserved for the cFE Core.
 **

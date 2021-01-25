@@ -4164,7 +4164,7 @@ void TestPerf(void)
     Perf->MetaData.TriggerCount = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE +1;
     Perf->MetaData.InvalidMarkerReported = false;
     Perf->MetaData.DataEnd = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE +1 ;
-    CFE_ES_PerfLogAdd(CFE_PLATFORM_ES_PERF_MAX_IDS, 0);
+    CFE_ES_PerfLogAdd(CFE_MISSION_ES_PERF_MAX_IDS, 0);
     UT_Report(__FILE__, __LINE__,
               Perf->MetaData.InvalidMarkerReported == true,
               "CFE_ES_PerfLogAdd",
@@ -4218,7 +4218,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     Perf->MetaData.State = CFE_ES_PERF_TRIGGERED;
     Perf->MetaData.InvalidMarkerReported = 2;
-    CFE_ES_PerfLogAdd(CFE_PLATFORM_ES_PERF_MAX_IDS + 1, 0);
+    CFE_ES_PerfLogAdd(CFE_MISSION_ES_PERF_MAX_IDS + 1, 0);
     UT_Report(__FILE__, __LINE__,
               Perf->MetaData.InvalidMarkerReported == 2,
               "CFE_ES_PerfLogAdd",
