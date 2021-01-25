@@ -43,6 +43,7 @@
 #include "cfe_mission_cfg.h"
 #include "ccsds.h"
 #include "cfe_time.h"
+#include "cfe_resourceid.h"
 
 
 /*
@@ -122,6 +123,13 @@
 #define CFE_CLR(i,x) ((i) &= ~CFE_BIT(x))     /**< \brief Clears bit x of i */
 #define CFE_TST(i,x) (((i) & CFE_BIT(x)) != 0)/**< \brief true(non zero) if bit x of i is set */
 
+/** 
+ * \brief  A CFE_SB_PipeId_t value which is always invalid
+ * 
+ * This may be used as a safe initializer for CFE_SB_PipeId_t values
+ */
+#define CFE_SB_INVALID_PIPE  CFE_ES_RESOURCEID_UNDEFINED
+
 /*
 ** Pipe option bit fields.
 */
@@ -156,7 +164,7 @@ typedef CFE_MSG_TelemetryHeader_t CFE_SB_TlmHdr_t;
 **
 ** Software Bus pipe identifier used in many SB APIs
 */
-typedef uint8  CFE_SB_PipeId_t;
+typedef CFE_ES_ResourceID_t  CFE_SB_PipeId_t;
 
 #ifndef CFE_OMIT_DEPRECATED_6_8
 /** \brief  Pointer to an SB Message */
@@ -255,6 +263,32 @@ CFE_Status_t  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const 
 ** \sa #CFE_SB_CreatePipe #CFE_SB_GetPipeOpts #CFE_SB_SetPipeOpts #CFE_SB_GetPipeIdByName
 **/
 CFE_Status_t  CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId);
+
+/**
+ * @brief Obtain an index value correlating to an SB Pipe ID
+ *
+ * This calculates a zero based integer value that may be used for indexing
+ * into a local resource table/array.
+ *
+ * Index values are only guaranteed to be unique for resources of the same
+ * type.  For instance, the indices corresponding to two [valid] application
+ * IDs will never overlap, but the index of a pipe ID and an app ID
+ * may be the same.  Furthermore, indices may be reused if a resource is
+ * deleted and re-created.
+ *
+ * @note There is no inverse of this function - indices cannot be converted
+ * back to the original PipeID value.  The caller should retain the original ID
+ * for future use.
+ *
+ * @param[in]   PipeID  Pipe ID to convert
+ * @param[out]  Idx    Buffer where the calculated index will be stored
+ *
+ * @return Execution status, see @ref CFEReturnCodes
+ * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
+ * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+ */
+CFE_Status_t CFE_SB_PipeId_ToIndex(CFE_SB_PipeId_t PipeID, uint32 *Idx);
+
 
 /*****************************************************************************/
 /**

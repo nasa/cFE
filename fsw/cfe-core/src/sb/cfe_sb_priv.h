@@ -43,13 +43,13 @@
 #include "cfe_time.h"
 #include "cfe_es.h"
 #include "private/cfe_sbr.h"
+#include "private/cfe_resourceid_internal.h"
 
 /*
 ** Macro Definitions
 */
 
 #define CFE_SB_UNUSED_QUEUE             OS_OBJECT_ID_UNDEFINED
-#define CFE_SB_INVALID_PIPE             0xFF
 #define CFE_SB_NO_DESTINATION           0xFF
 #define CFE_SB_FAILED                   1
 #define SB_DONT_CARE                    0
@@ -117,7 +117,7 @@ typedef struct {
      CFE_SB_MsgId_t    MsgId;
      uint16            UseCount;
      size_t            Size;
-     void              *Buffer;
+     CFE_SB_Buffer_t  *Buffer;
 } CFE_SB_BufferD_t;
 
 /******************************************************************************
@@ -148,18 +148,16 @@ typedef struct {
 */
 
 typedef struct {
-     uint8              InUse;
-     CFE_SB_PipeId_t    PipeId;
-     char               AppName[OS_MAX_API_NAME];
-     uint8              Opts;
-     uint8              Spare;
+     CFE_SB_PipeId_t     PipeId;
+     uint8               Opts;
+     uint8               Spare;
      CFE_ES_ResourceID_t AppId;
-     osal_id_t          SysQueueId;
-     uint32             LastSender;
-     uint16             QueueDepth;
-     uint16             SendErrors;
-     CFE_SB_BufferD_t  *CurrentBuff;
-     CFE_SB_BufferD_t  *ToTrashBuff;
+     osal_id_t           SysQueueId;
+     uint16              QueueDepth;
+     uint16              SendErrors;
+     uint16              CurrentDepth;
+     uint16              PeakDepth;
+     CFE_SB_BufferD_t   *LastBuffer;
 } CFE_SB_PipeD_t;
 
 /******************************************************************************
@@ -195,8 +193,8 @@ typedef struct
     CFE_SB_PipeId_t                CmdPipe;
     CFE_SB_MemParams_t             Mem;
     CFE_SB_AllSubscriptionsTlm_t   PrevSubMsg;
-    CFE_SB_SingleSubscriptionTlm_t SubRprtMsg;
     CFE_EVS_BinFilter_t            EventFilters[CFE_SB_MAX_CFG_FILE_EVENTS_TO_FILTER];
+    CFE_SB_PipeId_t                LastPipeId;
 } cfe_sb_t;
 
 
@@ -237,11 +235,8 @@ void   CFE_SB_ResetCounts(void);
 void   CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber);
 void   CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
 void   CFE_SB_ReleaseBuffer (CFE_SB_BufferD_t *bd, CFE_SB_DestinationD_t *dest);
-int32  CFE_SB_ReadQueue(CFE_SB_PipeD_t *PipeDscPtr,CFE_ES_ResourceID_t TskId,
-                        uint32 Time_Out,CFE_SB_BufferD_t **Message );
 int32  CFE_SB_WriteQueue(CFE_SB_PipeD_t *pd,uint32 TskId,
                          const CFE_SB_BufferD_t *bd,CFE_SB_MsgId_t MsgId );
-uint8  CFE_SB_GetPipeIdx(CFE_SB_PipeId_t PipeId);
 int32  CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
 void   CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr);
 void   CFE_SB_ResetCounters(void);
@@ -249,8 +244,6 @@ void   CFE_SB_SetMsgSeqCnt(CFE_MSG_Message_t *MsgPtr,uint32 Count);
 char   *CFE_SB_GetAppTskName(CFE_ES_ResourceID_t TaskId, char* FullName);
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, size_t Size);
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromCaller(CFE_SB_MsgId_t MsgId, void *Address);
-CFE_SB_PipeD_t   *CFE_SB_GetPipePtr(CFE_SB_PipeId_t PipeId);
-CFE_SB_PipeId_t  CFE_SB_GetAvailPipeIdx(void);
 int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId);
 int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_ResourceID_t AppId);
 int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
@@ -276,12 +269,14 @@ int32 CFE_SB_SendPipeInfo(const char *Filename);
 int32 CFE_SB_SendMapInfo(const char *Filename);
 int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_ResourceID_t         AppId);
-int32 CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
+void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
+void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
 int32 CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId);
 void CFE_SB_IncrCmdCtr(int32 status);
 void CFE_SB_FileWriteByteCntErr(const char *Filename,uint32 Requested,uint32 Actual);
 void CFE_SB_SetSubscriptionReporting(uint32 state);
+int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality);
 uint32 CFE_SB_RequestToSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit);
 void CFE_SB_FinishSendEvent(CFE_ES_ResourceID_t TaskId, uint32 Bit);
 CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void);
@@ -378,6 +373,104 @@ int32 CFE_SB_SendRoutingInfoCmd(const CFE_SB_SendRoutingInfoCmd_t *data);
 int32 CFE_SB_SendPipeInfoCmd(const CFE_SB_SendPipeInfoCmd_t *data);
 int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfoCmd_t *data);
 int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
+
+
+
+/**
+ * @brief Locate the Pipe table entry correlating with a given Pipe ID.
+ *
+ * This only returns a pointer to the table entry and does _not_
+ * otherwise check/validate the entry.
+ *
+ * @param[in]   PipeId   the Pipe ID to locate
+ * @return pointer to Pipe Table entry for the given Pipe ID
+ */
+extern CFE_SB_PipeD_t* CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId);
+
+
+
+/**
+ * @brief Check if an Pipe descriptor is in use or free/empty
+ *
+ * This routine checks if the Pipe table entry is in use or if it is free
+ *
+ * As this dereferences fields within the descriptor, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   PipeDscPtr   pointer to Pipe table entry
+ * @returns true if the entry is in use/configured, or false if it is free/empty
+ */
+static inline bool CFE_SB_PipeDescIsUsed(const CFE_SB_PipeD_t *PipeDscPtr)
+{
+    return CFE_ES_ResourceID_IsDefined(PipeDscPtr->PipeId);
+}
+
+/**
+ * @brief Get the ID value from an Pipe table entry
+ *
+ * This routine converts the table entry back to an abstract ID.
+ *
+ * @param[in]   PipeDscPtr   pointer to Pipe table entry
+ * @returns PipeID of entry
+ */
+static inline CFE_SB_PipeId_t CFE_SB_PipeDescGetID(const CFE_SB_PipeD_t *PipeDscPtr)
+{
+    return PipeDscPtr->PipeId;
+}
+
+/**
+ * @brief Marks an Pipe table entry as used (not free)
+ *
+ * This sets the internal field(s) within this entry, and marks
+ * it as being associated with the given Pipe ID.
+ *
+ * As this dereferences fields within the descriptor, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   PipeDscPtr   pointer to Pipe table entry
+ * @param[in]   PipeID       the Pipe ID of this entry
+ */
+static inline void CFE_SB_PipeDescSetUsed(CFE_SB_PipeD_t *PipeDscPtr, CFE_SB_PipeId_t PipeID)
+{
+    PipeDscPtr->PipeId = PipeID;
+}
+
+/**
+ * @brief Set an Pipe descriptor table entry free (not used)
+ *
+ * This clears the internal field(s) within this entry, and allows the
+ * memory to be re-used in the future.
+ *
+ * As this dereferences fields within the descriptor, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   PipeDscPtr   pointer to Pipe table entry
+ */
+static inline void CFE_SB_PipeDescSetFree(CFE_SB_PipeD_t *PipeDscPtr)
+{
+    PipeDscPtr->PipeId = CFE_SB_INVALID_PIPE;
+}
+
+/**
+ * @brief Check if an Pipe descriptor is a match for the given PipeID
+ *
+ * This routine confirms that the previously-located descriptor is valid
+ * and matches the expected Pipe ID.
+ *
+ * As this dereferences fields within the descriptor, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   PipeDscPtr   pointer to Pipe table entry
+ * @param[in]   PipeID       expected Pipe ID
+ * @returns true if the entry matches the given Pipe ID
+ */
+static inline bool CFE_SB_PipeDescIsMatch(const CFE_SB_PipeD_t *PipeDscPtr, CFE_SB_PipeId_t PipeID)
+{
+    return (PipeDscPtr != NULL && CFE_ES_ResourceID_Equal(PipeDscPtr->PipeId, PipeID));
+}
+
+/* Availability check functions used in conjunction with CFE_ES_FindNextAvailableId() */
+bool CFE_SB_CheckPipeDescSlotUsed(CFE_SB_PipeId_t CheckId);
 
 
 /*

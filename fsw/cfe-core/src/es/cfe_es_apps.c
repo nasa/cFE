@@ -688,7 +688,7 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
    else
    {
        /* scan for a free slot */
-       PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+       PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS, CFE_ES_CheckAppIdSlotUsed);
        AppRecPtr = CFE_ES_LocateAppRecordByID(PendingAppId);
 
        if (AppRecPtr == NULL)
@@ -795,6 +795,7 @@ int32 CFE_ES_AppCreate(CFE_ES_ResourceID_t *ApplicationIdPtr,
    return Status;
 
 } /* End Function */
+
 /*
 **---------------------------------------------------------------------------------------
 ** Name: CFE_ES_LoadLibrary
@@ -864,7 +865,7 @@ int32 CFE_ES_LoadLibrary(CFE_ES_ResourceID_t       *LibraryIdPtr,
    else
    {
        /* scan for a free slot */
-       PendingLibId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastLibId, CFE_PLATFORM_ES_MAX_LIBRARIES);
+       PendingLibId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastLibId, CFE_PLATFORM_ES_MAX_LIBRARIES, CFE_ES_CheckLibIdSlotUsed);
        LibSlotPtr = CFE_ES_LocateLibRecordByID(PendingLibId);
 
        if (LibSlotPtr == NULL)

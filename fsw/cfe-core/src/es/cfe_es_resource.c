@@ -43,11 +43,11 @@
 
 /*********************************************************************/
 /*
- * CFE_ES_ResourceID_ToIndex_Internal
+ * CFE_ES_ResourceID_ToIndex
  *
  * For complete API information, see prototype in header
  */
-int32 CFE_ES_ResourceID_ToIndex_Internal(uint32 Serial, uint32 TableSize, uint32 *Idx)
+int32 CFE_ES_ResourceID_ToIndex(uint32 Serial, uint32 TableSize, uint32 *Idx)
 {
     if (Idx == NULL)
     {
@@ -94,7 +94,7 @@ CFE_ES_ResourceID_t CFE_ES_ResourceID_FromOSAL(osal_id_t id)
  *
  * For complete API information, see prototype in header
  */
-CFE_ES_ResourceID_t CFE_ES_FindNextAvailableId(CFE_ES_ResourceID_t StartId, uint32 TableSize)
+CFE_ES_ResourceID_t CFE_ES_FindNextAvailableId(CFE_ES_ResourceID_t StartId, uint32 TableSize, bool (*CheckFunc)(CFE_ES_ResourceID_t))
 {
     uint32 Serial;
     uint32 Count;
@@ -124,27 +124,7 @@ CFE_ES_ResourceID_t CFE_ES_FindNextAvailableId(CFE_ES_ResourceID_t StartId, uint
         }
         CheckId = CFE_ES_ResourceID_FromInteger(ResourceType + Serial);
 
-        switch (ResourceType)
-        {
-        case CFE_ES_APPID_BASE:
-            IsTaken = CFE_ES_AppRecordIsUsed(CFE_ES_LocateAppRecordByID(CheckId));
-            break;
-        case CFE_ES_LIBID_BASE:
-            IsTaken = CFE_ES_LibRecordIsUsed(CFE_ES_LocateLibRecordByID(CheckId));
-            break;
-        case CFE_ES_COUNTID_BASE:
-            IsTaken = CFE_ES_CounterRecordIsUsed(CFE_ES_LocateCounterRecordByID(CheckId));
-            break;
-        case CFE_ES_POOLID_BASE:
-            IsTaken = CFE_ES_MemPoolRecordIsUsed(CFE_ES_LocateMemPoolRecordByID(CheckId));
-            break;
-        case CFE_ES_CDSBLOCKID_BASE:
-            IsTaken = CFE_ES_CDSBlockRecordIsUsed(CFE_ES_LocateCDSBlockRecordByID(CheckId));
-            break;
-        default:
-            /* do nothing, should never happen */
-            break;
-        }
+        IsTaken = CheckFunc(CheckId);
     }
     while (IsTaken);
 
@@ -428,6 +408,45 @@ CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
     }
 
     return AppRecPtr;
+}
+
+/*
+ * ---------------------------------------------------------------------------------------
+ * Function: CFE_ES_CheckCounterIdSlotUsed
+ * 
+ * Purpose: Helper function, Aids in allocating a new ID by checking if 
+ * a given ID is available.  Must be called while locked.
+ * ---------------------------------------------------------------------------------------
+ */
+bool CFE_ES_CheckCounterIdSlotUsed(CFE_ES_ResourceID_t CheckId)
+{
+    return CFE_ES_CounterRecordIsUsed(CFE_ES_LocateCounterRecordByID(CheckId));
+}
+
+/*
+ *---------------------------------------------------------------------------------------
+ * Function: CFE_ES_CheckAppIdSlotUsed
+ * 
+ * Purpose: Helper function, Aids in allocating a new ID by checking if 
+ * a given ID is available.  Must be called while locked.
+ *---------------------------------------------------------------------------------------
+ */
+bool CFE_ES_CheckAppIdSlotUsed(CFE_ES_ResourceID_t CheckId)
+{
+    return CFE_ES_AppRecordIsUsed(CFE_ES_LocateAppRecordByID(CheckId));
+}
+
+/*
+ * ---------------------------------------------------------------------------------------
+ * Function: CFE_ES_CheckLibIdSlotUsed
+ * 
+ * Purpose: Helper function, Aids in allocating a new ID by checking if 
+ * a given ID is available.  Must be called while locked.
+ * ---------------------------------------------------------------------------------------
+ */
+bool CFE_ES_CheckLibIdSlotUsed(CFE_ES_ResourceID_t CheckId)
+{
+    return CFE_ES_LibRecordIsUsed(CFE_ES_LocateLibRecordByID(CheckId));
 }
 
 

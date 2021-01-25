@@ -289,7 +289,7 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
         else
         {
             status = CFE_SB_BAD_ARGUMENT;
-            *PipeIdPtr = 0;
+            *PipeIdPtr = CFE_SB_INVALID_PIPE;
         }
     }
 

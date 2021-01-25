@@ -2139,6 +2139,12 @@ void TestApps(void)
 
 }
 
+static bool ES_UT_CheckIdSlotUsed(CFE_ES_ResourceID_t Id)
+{
+    return UT_DEFAULT_IMPL(ES_UT_CheckIdSlotUsed) != 0;
+}
+
+
 void TestResourceID(void)
 {
     /*
@@ -2151,15 +2157,17 @@ void TestResourceID(void)
 
     /* Call CFE_ES_FindNextAvailableId() using an invalid resource type */
     ES_ResetUnitTest();
-    Id = CFE_ES_FindNextAvailableId(CFE_ES_RESOURCEID_UNDEFINED, 5);
+    UT_SetDefaultReturnValue(UT_KEY(ES_UT_CheckIdSlotUsed), 1);
+    Id = CFE_ES_FindNextAvailableId(CFE_ES_RESOURCEID_UNDEFINED, 5, ES_UT_CheckIdSlotUsed);
     UtAssert_True(!CFE_ES_ResourceID_IsDefined(Id), "CFE_ES_FindNextAvailableId() on undefined resource type");
 
     /* Verify that CFE_ES_FindNextAvailableId() does not repeat until CFE_ES_RESOURCEID_MAX is reached */
+    UT_SetDefaultReturnValue(UT_KEY(ES_UT_CheckIdSlotUsed), 0);
     LastId = CFE_ES_Global.LastAppId;
     Count = CFE_ES_RESOURCEID_MAX-1;
     while (Count > 0)
     {
-        Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+        Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS, ES_UT_CheckIdSlotUsed);
         if (CFE_ES_ResourceID_ToInteger(Id) - CFE_ES_ResourceID_ToInteger(LastId) != 1)
         {
             /* Numbers should be incrementing by 1 each time, never decreasing */
@@ -2172,7 +2180,7 @@ void TestResourceID(void)
     UtAssert_True(Count == 0, "CFE_ES_FindNextAvailableId() allocate all resource ID space");
 
     /* Now verify that CFE_ES_FindNextAvailableId() recycles the first item again */
-    Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS, ES_UT_CheckIdSlotUsed);
     UtAssert_True(CFE_ES_ResourceID_IsDefined(Id), "CFE_ES_FindNextAvailableId() after wrap");
     UtAssert_True(CFE_ES_ResourceID_ToInteger(Id) < (CFE_ES_APPID_BASE + CFE_PLATFORM_ES_MAX_APPLICATIONS), "CFE_ES_FindNextAvailableId() wrap ID");
 }
