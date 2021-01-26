@@ -416,6 +416,21 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 
     int32   status;
     va_list va;
+    char    str[128];
+    char   *newline;
+
+    va_start(va,SpecStringPtr);
+    vsnprintf(str, sizeof(str), SpecStringPtr, va);
+
+    /* Replace newline since UtDebug already adds one */
+    newline = strchr(str, '\n');
+    if (newline != NULL)
+    {
+        *newline = '\0';
+    }
+
+    UtDebug("CFE_ES_WriteToSysLog: %s", str);
+    va_end(va);
 
     va_start(va,SpecStringPtr);
     status = UT_DEFAULT_IMPL_VARARGS(CFE_ES_WriteToSysLog, va);
