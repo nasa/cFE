@@ -201,7 +201,7 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_EVS_Register(void *Filters,
+int32 CFE_EVS_Register(const void *Filters,
                        uint16 NumFilteredEvents,
                        uint16 FilterScheme)
 {
