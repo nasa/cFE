@@ -98,18 +98,11 @@ CFE_ES_ObjectTable_t  CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE] =
    },
    {
            .ObjectType = CFE_ES_NULL_ENTRY },
-#ifndef EXCLUDE_CFE_TBL
    {
            .ObjectType = CFE_ES_FUNCTION_CALL,
            .ObjectName = "CFE_TBL_EarlyInit",
            .FuncPtrUnion.FunctionPtr = CFE_TBL_EarlyInit
    },
-
-#else
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-#endif
    {
            .ObjectType = CFE_ES_NULL_ENTRY
    },
@@ -173,7 +166,6 @@ CFE_ES_ObjectTable_t  CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE] =
    {
            .ObjectType = CFE_ES_NULL_ENTRY
    },
-#ifndef EXCLUDE_CFE_TBL
    {
            .ObjectType = CFE_ES_CORE_TASK,
            .ObjectName = "CFE_TBL",
@@ -181,11 +173,6 @@ CFE_ES_ObjectTable_t  CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE] =
            .ObjectPriority = CFE_PLATFORM_TBL_START_TASK_PRIORITY,
            .ObjectSize = CFE_PLATFORM_TBL_START_TASK_STACK_SIZE
    },
-#else
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-#endif
 
    /*
    ** Spare entries
