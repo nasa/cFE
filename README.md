@@ -10,6 +10,40 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev288
+
+- Documentation: Add Security.md with instructions to report vulnerability
+- Documentation: Update cpuname/MISSION_CPUNAMES documentation
+- Fixes `UT_CheckEventHistoryFromFunc()` helper routine to read the correct number of IDs so it checks the correct number of events. Also correct bad event checks in TBL UT.
+- Adds `OS_printf` to `CFE_ES_SYSLOG_APPEND` so it matches `CFE_ES_WriteToSysLog`
+- Removes unused `SenderReporting` and `CFE_PLATFORM_SB_DEFAULT_REPORT_SENDER`
+- Tests pass when debug events are enabled via `CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG` in platform config.
+- Removes references to `UT_CheckForOpenSockets` which is no longer applicable since the UT framework resets the state for each unit test.
+- Rename `UT_ClearForceFail` as `UT_ClearDefaultValue` given change in https://github.com/nasa/osal/issues/724
+- Adds checks that ensure `CFE_SB_GetUserData` works with all payload data types.
+- Adds header padding to 64-bit so that `CFE_SB_GetUserData` will work for message structures with elements up to 64 bit
+- For primary-only header config: telemetry header required to 64 bit boundary (affects all receivers)
+- For primary and extended header config: command header required padding to 64 bit boundary (affects all senders)
+- Refactor `CFE_TIME_RegisterSynchCallback` to only have one return point and eliminates "possible uninitialized variable" static analysis warning
+- None of these changes are expected to cause problematic.
+- Addresses message delivery issues due to inconsistent locking by reworking cFE-SB API implementation. Ensures all events are generated and counters are incremented consistently by avoiding early returns in functions and using the `PendingEventID` register to record what event ID should be sent per the current operation.
+- Employs the `CFE_ES_ResourceID_t` type and related patterns for managing the SB Pipe IDs.
+- Will break code which directly accessed these items without going through the lookup function.
+- **`CFE_SB_PipeId_t` type is no longer usable as a direct array index**, increased in size from 8 to 32 bits, and is now consistent with all other ID types in both behavior and size.
+- **The "pipe stats" structure in the Pipe TLM is also changed**. This structure contained a `CFE_SB_PipeId_t` value, hence why it had to be updated because the type is now bigger. The spare bytes are also moved to the end of the struct.
+- Removes `OS_printf` checks of stub calls in unit tests and checks for specific format string in history instead to confirm the right path was taken.
+- Removes `CFE_MISSION_REV` from platform config.
+- Removes the rest of the references and uses of `CFE_PLATFORM_ES_PERF_MAX_IDS` in favor of `CFE_MISSION_ES_PERF_MAX_IDS`
+- Remove uses of strncpy and other minor hardcoded references
+- Cleanup unit tests to reflect size changes in `CFE_MISSION_MAX_API_LEN` and `CFE_MISSION_MAX_PATH_LEN`.
+- Moved ES pipe name and lengths to defines
+- Removed PipeName and PipeDepth variables from app global
+- Removed unnecessary (char *) casts
+- Simplified `&stingname[0]` to `stringname` where observed
+- Enables projects that have OSs with different limits to maintain a standard cmd/tlm and have unit tests pass.
+- Make `CFE_ES_WriteToSysLog` stub unit test more informative by adding `UtDebug` output
+- See <https://github.com/nasa/cFE/pull/1109>
+
 ### Development Build: 6.8.0-rc1+dev248
 
 - Replace `OS_FileSysStatVolume()` with`OS_fsBlocksFree()` which will be deprecated. This call reports the number of total blocks, not just the free blocks, making the check more accurate and removing the need for a workaround for desktop machines.
