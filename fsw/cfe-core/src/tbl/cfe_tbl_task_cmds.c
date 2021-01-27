@@ -484,9 +484,13 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                             
                                     /* Save file information statistics for housekeeping telemetry */
                                     strncpy(CFE_TBL_TaskData.HkPacket.Payload.LastFileLoaded, LoadFilename,
-                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileLoaded));
+                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileLoaded) - 1);
+                                    CFE_TBL_TaskData.HkPacket.Payload.LastFileLoaded[
+                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastFileLoaded) - 1] = '\0';
                                     strncpy(CFE_TBL_TaskData.HkPacket.Payload.LastTableLoaded, TblFileHeader.TableName,
-                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastTableLoaded));
+                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastTableLoaded) - 1);
+                                    CFE_TBL_TaskData.HkPacket.Payload.LastTableLoaded[
+                                            sizeof(CFE_TBL_TaskData.HkPacket.Payload.LastTableLoaded) - 1] = '\0';
 
                                     /* Increment successful command completion counter */
                                     ReturnCode = CFE_TBL_INC_CMD_CTR;

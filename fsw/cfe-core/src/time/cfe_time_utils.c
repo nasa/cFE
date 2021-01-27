@@ -256,9 +256,6 @@ void CFE_TIME_InitData(void)
     /*
     ** Initialize task configuration data...
     */
-    strcpy(CFE_TIME_TaskData.PipeName, CFE_TIME_TASK_PIPE_NAME);
-    CFE_TIME_TaskData.PipeDepth = CFE_TIME_TASK_PIPE_DEPTH;
-    
     memset((void*)CFE_TIME_TaskData.ReferenceState, 0, sizeof(CFE_TIME_TaskData.ReferenceState));
     for (i = 0; i < CFE_TIME_REFERENCE_BUF_DEPTH; ++i)
     {

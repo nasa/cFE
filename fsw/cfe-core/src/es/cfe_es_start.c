@@ -759,7 +759,7 @@ void  CFE_ES_CreateObjects(void)
             */
             CFE_ES_LockSharedData(__func__,__LINE__);
 
-            PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+            PendingAppId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastAppId, CFE_PLATFORM_ES_MAX_APPLICATIONS, CFE_ES_CheckAppIdSlotUsed);
             AppRecPtr = CFE_ES_LocateAppRecordByID(PendingAppId);
             if (AppRecPtr != NULL)
             {
@@ -769,6 +769,7 @@ void  CFE_ES_CreateObjects(void)
                 AppRecPtr->Type = CFE_ES_AppType_CORE;
                 strncpy(AppRecPtr->StartParams.BasicInfo.Name, CFE_ES_ObjectTable[i].ObjectName,
                         sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1);
+                AppRecPtr->StartParams.BasicInfo.Name[sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1] = '\0';
 
                 /* FileName and EntryPoint is not valid for core apps */
                 AppRecPtr->StartParams.StackSize = CFE_ES_ObjectTable[i].ObjectSize;

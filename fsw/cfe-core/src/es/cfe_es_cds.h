@@ -391,6 +391,20 @@ static inline size_t CFE_ES_CDSBlockRecordGetUserSize(const CFE_ES_CDS_RegRec_t 
     return (CDSBlockRecPtr->BlockSize - sizeof(CFE_ES_CDS_BlockHeader_t));
 }
 
+/**
+ * @brief Check if a CDS Block ID table slot is used
+ *
+ * Checks if a table slot is available for a potential new ID
+ * This is a helper function intended to be used with 
+ * CFE_ES_FindNextAvailableID() for allocating new IDs
+ * 
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CheckId       pending/candidate Block ID to check
+ * @returns true if the table slot for the ID is occupied, false if available
+ */
+bool CFE_ES_CheckCDSBlockIdSlotUsed(CFE_ES_ResourceID_t CheckId);
 
 /*****************************************************************************/
 /**

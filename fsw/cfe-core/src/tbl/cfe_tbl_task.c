@@ -181,9 +181,7 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Create Software Bus message pipe
     */
-    Status = CFE_SB_CreatePipe(&CFE_TBL_TaskData.CmdPipe,
-                                CFE_TBL_TaskData.PipeDepth,
-                                CFE_TBL_TaskData.PipeName);
+    Status = CFE_SB_CreatePipe(&CFE_TBL_TaskData.CmdPipe, CFE_TBL_TASK_PIPE_DEPTH, CFE_TBL_TASK_PIPE_NAME);
     if(Status != CFE_SUCCESS)
     {
       CFE_ES_WriteToSysLog("TBL:Error creating cmd pipe:RC=0x%08X\n",(unsigned int)Status);
@@ -240,10 +238,6 @@ void CFE_TBL_InitData(void)
 
     /* Get the assigned Application ID for the Table Services Task */
     CFE_ES_GetAppID(&CFE_TBL_TaskData.TableTaskAppId);
-
-    /* Initialize Command Pipe Parameters */
-    CFE_TBL_TaskData.PipeDepth = CFE_TBL_TASK_PIPE_DEPTH;
-    strncpy(CFE_TBL_TaskData.PipeName, CFE_TBL_TASK_PIPE_NAME, 16);
 
     /* Initialize Packet Headers */
     CFE_MSG_Init(&CFE_TBL_TaskData.HkPacket.TlmHeader.Msg,

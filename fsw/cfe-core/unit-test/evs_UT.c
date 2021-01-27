@@ -303,8 +303,9 @@ void Test_Init(void)
 
     UtPrintf("Begin Test Init");
 
-    strncpy((char *) appbitcmd.Payload.AppName, "ut_cfe_evs",
-            sizeof(appbitcmd.Payload.AppName));
+    strncpy(appbitcmd.Payload.AppName, "ut_cfe_evs",
+            sizeof(appbitcmd.Payload.AppName) - 1);
+    appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
 
     /* Test successful early initialization of the cFE EVS */
     UT_InitData();
@@ -941,8 +942,9 @@ void Test_Format(void)
 
     /* Enable DEBUG message output */
     UT_InitData();
-    strncpy((char *) appbitcmd.Payload.AppName, "ut_cfe_evs",
-            sizeof(appbitcmd.Payload.AppName));
+    strncpy(appbitcmd.Payload.AppName, "ut_cfe_evs",
+            sizeof(appbitcmd.Payload.AppName) - 1);
+    appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
     modecmd.Payload.MsgFormat = CFE_EVS_MsgFormat_LONG;
     appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT |
                         CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
@@ -1091,8 +1093,7 @@ void Test_Ports(void)
                UT_TPID_CFE_EVS_CMD_ENABLE_PORTS_CC,
                &UT_EVS_EventBuf);
     UT_Report(__FILE__, __LINE__,
-              UT_EVS_EventBuf.EventID ==  CFE_EVS_ENAPORT_EID &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 4,
+              UT_EVS_EventBuf.EventID ==  CFE_EVS_ENAPORT_EID,
               "CFE_EVS_EnablePortsCmd",
               "Enable ports command received with port bit mask = 0x0f");
 
@@ -1101,8 +1102,7 @@ void Test_Ports(void)
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Test ports message");
     UT_Report(__FILE__, __LINE__,
-              LocalSnapshotData.Count == 1 &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 4,
+              LocalSnapshotData.Count == 1,
               "CFE_EVS_EnablePortsCmd",
               "Test ports output");
 
@@ -1406,8 +1406,9 @@ void Test_Logging(void)
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
-    strncpy((char *) CmdBuf.logfilecmd.Payload.LogFilename, "LogFile",
-            sizeof(CmdBuf.logfilecmd.Payload.LogFilename));
+    strncpy(CmdBuf.logfilecmd.Payload.LogFilename, "LogFile",
+            sizeof(CmdBuf.logfilecmd.Payload.LogFilename) - 1);
+    CmdBuf.logfilecmd.Payload.LogFilename[sizeof(CmdBuf.logfilecmd.Payload.LogFilename) - 1] = '\0';
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) == CFE_SUCCESS,
               "CFE_EVS_WriteLogDataFileCmd",
@@ -1444,8 +1445,9 @@ void Test_WriteApp(void)
     /* Enable DEBUG message output */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.appbitcmd.Payload.AppName, "ut_cfe_evs",
-            sizeof(CmdBuf.appbitcmd.Payload.AppName));
+    strncpy(CmdBuf.appbitcmd.Payload.AppName, "ut_cfe_evs",
+            sizeof(CmdBuf.appbitcmd.Payload.AppName) - 1);
+    CmdBuf.appbitcmd.Payload.AppName[sizeof(CmdBuf.appbitcmd.Payload.AppName) - 1] = '\0';
     CmdBuf.appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT |
                         CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.appbitcmd, sizeof(CmdBuf.appbitcmd),
@@ -1470,8 +1472,9 @@ void Test_WriteApp(void)
      * file name
      */
     UT_InitData();
-    strncpy((char *) CmdBuf.AppDataCmd.Payload.AppDataFilename, "ut_cfe_evs",
-            sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename));
+    strncpy(CmdBuf.AppDataCmd.Payload.AppDataFilename, "ut_cfe_evs",
+            sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename) - 1);
+    CmdBuf.AppDataCmd.Payload.AppDataFilename[sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename) - 1] = '\0';
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
                UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC,
@@ -1507,8 +1510,9 @@ void Test_WriteApp(void)
      * file name
      */
     UT_InitData();
-    strncpy((char *) CmdBuf.AppDataCmd.Payload.AppDataFilename, "AppDataFileName",
-            sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename));
+    strncpy(CmdBuf.AppDataCmd.Payload.AppDataFilename, "AppDataFileName",
+            sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename) - 1);
+    CmdBuf.AppDataCmd.Payload.AppDataFilename[sizeof(CmdBuf.AppDataCmd.Payload.AppDataFilename) - 1] = '\0';
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
                UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC,
@@ -1551,14 +1555,18 @@ void Test_BadAppCmd(void)
     appmaskcmd.Payload.EventID = 0;
     appcmdcmd.Payload.EventID = 0;
 
-    strncpy((char *) appbitcmd.Payload.AppName, "unknown_name",
-            sizeof(appbitcmd.Payload.AppName));
-    strncpy((char *) appnamecmd.Payload.AppName, "unknown_name",
-            sizeof(appnamecmd.Payload.AppName));
-    strncpy((char *) appmaskcmd.Payload.AppName, "unknown_name",
-            sizeof(appmaskcmd.Payload.AppName));
-    strncpy((char *) appcmdcmd.Payload.AppName, "unknown_name",
-            sizeof(appcmdcmd.Payload.AppName));
+    strncpy(appbitcmd.Payload.AppName, "unknown_name",
+            sizeof(appbitcmd.Payload.AppName) - 1);
+    appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
+    strncpy(appnamecmd.Payload.AppName, "unknown_name",
+            sizeof(appnamecmd.Payload.AppName) - 1);
+    appnamecmd.Payload.AppName[sizeof(appnamecmd.Payload.AppName) - 1] = '\0';
+    strncpy(appmaskcmd.Payload.AppName, "unknown_name",
+            sizeof(appmaskcmd.Payload.AppName) - 1);
+    appmaskcmd.Payload.AppName[sizeof(appmaskcmd.Payload.AppName) - 1] = '\0';
+    strncpy(appcmdcmd.Payload.AppName, "unknown_name",
+            sizeof(appcmdcmd.Payload.AppName) - 1);
+    appcmdcmd.Payload.AppName[sizeof(appcmdcmd.Payload.AppName) - 1] = '\0';
 
     /* Test disabling application event types with an unknown application ID */
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_GetAppIDByName), CFE_ES_ERR_NAME_NOT_FOUND);
@@ -1676,14 +1684,18 @@ void Test_BadAppCmd(void)
 
     /* Test disabling application event types with an illegal application ID */
     UT_InitData();
-    strncpy((char *) appbitcmd.Payload.AppName, "illegal_id",
-            sizeof(appbitcmd.Payload.AppName));
-    strncpy((char *) appnamecmd.Payload.AppName, "illegal_id",
-            sizeof(appnamecmd.Payload.AppName));
-    strncpy((char *) appmaskcmd.Payload.AppName, "illegal_id",
-            sizeof(appmaskcmd.Payload.AppName));
-    strncpy((char *) appcmdcmd.Payload.AppName, "illegal_id",
-            sizeof(appcmdcmd.Payload.AppName));
+    strncpy(appbitcmd.Payload.AppName, "illegal_id",
+            sizeof(appbitcmd.Payload.AppName) - 1);
+    appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
+    strncpy(appnamecmd.Payload.AppName, "illegal_id",
+            sizeof(appnamecmd.Payload.AppName) - 1);
+    appnamecmd.Payload.AppName[sizeof(appnamecmd.Payload.AppName) - 1] = '\0';
+    strncpy(appmaskcmd.Payload.AppName, "illegal_id",
+            sizeof(appmaskcmd.Payload.AppName) - 1);
+    appmaskcmd.Payload.AppName[sizeof(appmaskcmd.Payload.AppName) - 1] = '\0';
+    strncpy(appcmdcmd.Payload.AppName, "illegal_id",
+            sizeof(appcmdcmd.Payload.AppName) - 1);
+    appcmdcmd.Payload.AppName[sizeof(appcmdcmd.Payload.AppName) - 1] = '\0';
 
     /*
      * Generate an illegal AppID error when looking up the UT appID (first call),
@@ -1807,14 +1819,18 @@ void Test_BadAppCmd(void)
     UT_InitData();
     TestAppIndex = 2;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &TestAppIndex, sizeof(TestAppIndex), false);
-    strncpy((char *) appbitcmd.Payload.AppName, "unregistered_app",
-            sizeof(appbitcmd.Payload.AppName));
-    strncpy((char *) appnamecmd.Payload.AppName, "unregistered_app",
-            sizeof(appnamecmd.Payload.AppName));
-    strncpy((char *) appmaskcmd.Payload.AppName, "unregistered_app",
-            sizeof(appmaskcmd.Payload.AppName));
-    strncpy((char *) appcmdcmd.Payload.AppName, "unregistered_app",
-            sizeof(appcmdcmd.Payload.AppName));
+    strncpy(appbitcmd.Payload.AppName, "unregistered_app",
+            sizeof(appbitcmd.Payload.AppName) - 1);
+    appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
+    strncpy(appnamecmd.Payload.AppName, "unregistered_app",
+            sizeof(appnamecmd.Payload.AppName) - 1);
+    appnamecmd.Payload.AppName[sizeof(appnamecmd.Payload.AppName) - 1] = '\0';
+    strncpy(appmaskcmd.Payload.AppName, "unregistered_app",
+            sizeof(appmaskcmd.Payload.AppName) - 1);
+    appmaskcmd.Payload.AppName[sizeof(appmaskcmd.Payload.AppName) - 1] = '\0';
+    strncpy(appcmdcmd.Payload.AppName, "unregistered_app",
+            sizeof(appcmdcmd.Payload.AppName) - 1);
+    appcmdcmd.Payload.AppName[sizeof(appcmdcmd.Payload.AppName) - 1] = '\0';
     UT_EVS_DoDispatchCheckEvents(&appbitcmd, sizeof(appbitcmd),
                UT_TPID_CFE_EVS_CMD_DISABLE_APP_EVENT_TYPE_CC,
                &UT_EVS_EventBuf);
@@ -1951,10 +1967,12 @@ void Test_EventCmd(void)
     UT_InitData();
 
     /* Run the next series of tests with valid, registered application name */
-    strncpy((char *) appbitcmd.Payload.AppName, "ut_cfe_evs",
-            sizeof(appbitcmd.Payload.AppName));
-    strncpy((char *) appnamecmd.Payload.AppName, "ut_cfe_evs",
-            sizeof(appnamecmd.Payload.AppName));
+    strncpy(appbitcmd.Payload.AppName, "ut_cfe_evs",
+            sizeof(appbitcmd.Payload.AppName) - 1);
+    appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
+    strncpy(appnamecmd.Payload.AppName, "ut_cfe_evs",
+            sizeof(appnamecmd.Payload.AppName) - 1);
+    appnamecmd.Payload.AppName[sizeof(appnamecmd.Payload.AppName) - 1] = '\0';
 
     /* Test disabling of all events */
     appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT |
@@ -2197,14 +2215,18 @@ void Test_FilterCmd(void)
     appcmdcmd.Payload.EventID = 0;
 
     /* Run the next series of tests with valid, registered application name */
-    strncpy((char *) appnamecmd.Payload.AppName, "ut_cfe_evs",
-            sizeof(appnamecmd.Payload.AppName));
-    strncpy((char *) appmaskcmd.Payload.AppName, "ut_cfe_evs",
-            sizeof(appmaskcmd.Payload.AppName));
-    strncpy((char *) appcmdcmd.Payload.AppName, "ut_cfe_evs",
-            sizeof(appcmdcmd.Payload.AppName));
-    strncpy((char *) appbitcmd.Payload.AppName, "ut_cfe_evs",
-            sizeof(appbitcmd.Payload.AppName));
+    strncpy(appnamecmd.Payload.AppName, "ut_cfe_evs",
+            sizeof(appnamecmd.Payload.AppName) - 1);
+    appnamecmd.Payload.AppName[sizeof(appnamecmd.Payload.AppName) - 1] = '\0';
+    strncpy(appmaskcmd.Payload.AppName, "ut_cfe_evs",
+            sizeof(appmaskcmd.Payload.AppName) - 1);
+    appmaskcmd.Payload.AppName[sizeof(appmaskcmd.Payload.AppName) - 1] = '\0';
+    strncpy(appcmdcmd.Payload.AppName, "ut_cfe_evs",
+            sizeof(appcmdcmd.Payload.AppName) - 1);
+    appcmdcmd.Payload.AppName[sizeof(appcmdcmd.Payload.AppName) - 1] = '\0';
+    strncpy(appbitcmd.Payload.AppName, "ut_cfe_evs",
+            sizeof(appbitcmd.Payload.AppName) - 1);
+    appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
 
     /* Enable all application event message output */
     appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT |
@@ -2693,7 +2715,7 @@ void Test_Misc(void)
             UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC,
             &UT_EVS_EventBuf);
     UT_Report(__FILE__, __LINE__,
-              UT_EVS_EventBuf.EventID ==  0xFFFF,
+              (UT_EVS_EventBuf.EventID == 0xFFFF) || (UT_EVS_EventBuf.EventID == CFE_EVS_WRLOG_EID),
               "CFE_EVS_WriteLogDataFileCmd",
               "Write log data - successful");
 
@@ -2703,7 +2725,7 @@ void Test_Misc(void)
             UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC,
             &UT_EVS_EventBuf);
     UT_Report(__FILE__, __LINE__,
-              UT_EVS_EventBuf.EventID ==  0xFFFF,
+              (UT_EVS_EventBuf.EventID == 0xFFFF) || (UT_EVS_EventBuf.EventID == CFE_EVS_LOGMODE_EID),
               "CFE_EVS_SetLogModeCmd",
               "Set logging mode - successful");
 

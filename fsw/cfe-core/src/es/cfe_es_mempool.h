@@ -164,12 +164,38 @@ static inline void CFE_ES_MemPoolRecordSetFree(CFE_ES_MemPoolRecord_t *PoolRecPt
     PoolRecPtr->PoolID = CFE_ES_RESOURCEID_UNDEFINED;
 }
 
-
+/**
+ * @brief Check if an Mem Pool record is a match for the given Pool ID
+ *
+ * This routine confirms that the previously-located record is valid
+ * and matches the expected Pool ID.
+ *
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   PoolRecPtr   pointer to Pool table entry
+ * @param[in]   PoolID       expected Pool ID
+ * @returns true if the entry matches the given pool ID
+ */
 static inline bool CFE_ES_MemPoolRecordIsMatch(const CFE_ES_MemPoolRecord_t *PoolRecPtr, CFE_ES_MemHandle_t PoolID)
 {
     return (PoolRecPtr != NULL && CFE_ES_ResourceID_Equal(PoolRecPtr->PoolID, PoolID));
 }
 
+/**
+ * @brief Check if a Pool ID table slot is used
+ *
+ * Checks if a table slot is available for a potential new ID
+ * This is a helper function intended to be used with 
+ * CFE_ES_FindNextAvailableID() for allocating new IDs
+ * 
+ * As this dereferences fields within the record, global data must be
+ * locked prior to invoking this function.
+ *
+ * @param[in]   CheckId       pending/candidate Pool ID to check
+ * @returns true if the table slot for the ID is occupied, false if available
+ */
+bool CFE_ES_CheckMemPoolSlotUsed(CFE_ES_ResourceID_t CheckId);
 
 
 #endif  /* _CFE_ES_MEMPOOL_H_ */

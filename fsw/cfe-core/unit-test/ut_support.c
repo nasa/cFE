@@ -295,7 +295,7 @@ void UT_SetStatusBSPResetArea(int32 status, uint32 Signature, uint32 ClockSignal
     }
     else
     {
-        UT_ClearForceFail(UT_KEY(CFE_PSP_GetResetArea));
+        UT_ClearDefaultReturnValue(UT_KEY(CFE_PSP_GetResetArea));
     }
 }
 
@@ -398,6 +398,7 @@ static bool UT_CheckEventHistoryFromFunc(UT_EntryKey_t Func, uint16 EventIDToSea
     UT_GetDataBuffer(Func, (void**)&EvBuf, &MaxSize, &Position);
     if (EvBuf != NULL && MaxSize > 0)
     {
+        Position /= sizeof(*EvBuf);
         while (Position > 0)
         {
             if (*EvBuf == EventIDToSearchFor)

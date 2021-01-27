@@ -163,10 +163,22 @@ int32 CFE_ES_CDS_EarlyInit(void)
 /*******************************************************************/
 int32 CFE_ES_CDSBlockID_ToIndex(CFE_ES_ResourceID_t BlockID, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex_Internal(
+    return CFE_ES_ResourceID_ToIndex(
             CFE_ES_ResourceID_ToInteger(BlockID) - CFE_ES_CDSBLOCKID_BASE,
             CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES,
             Idx);
+}
+
+/*---------------------------------------------------------------------------------------
+ * Function: CFE_ES_CheckCDSBlockIdSlotUsed
+ * 
+ * Purpose: Helper function, Aids in allocating a new ID by checking if 
+ * a given ID is available.  Must be called while locked.
+ *---------------------------------------------------------------------------------------
+ */
+bool CFE_ES_CheckCDSBlockIdSlotUsed(CFE_ES_ResourceID_t CheckId)
+{
+    return CFE_ES_CDSBlockRecordIsUsed(CFE_ES_LocateCDSBlockRecordByID(CheckId));
 }
 
 /*******************************************************************/
@@ -347,7 +359,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
     else
     {
         /* scan for a free slot */
-        PendingBlockId = CFE_ES_FindNextAvailableId(CDS->LastCDSBlockId, CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES);
+        PendingBlockId = CFE_ES_FindNextAvailableId(CDS->LastCDSBlockId, CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES, CFE_ES_CheckCDSBlockIdSlotUsed);
         RegRecPtr = CFE_ES_LocateCDSBlockRecordByID(PendingBlockId);
 
         if (RegRecPtr != NULL)

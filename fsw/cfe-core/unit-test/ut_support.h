@@ -573,23 +573,6 @@ void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size);
 
 /*****************************************************************************/
 /**
-** \brief Report and close any sockets found open
-**
-** \par Description
-**        Determine if any sockets are open; if so, close them.  If UT_VERBOSE
-**        is defined then output the socket status to the test log file.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-void UT_CheckForOpenSockets(void);
-
-/*****************************************************************************/
-/**
 ** \brief Gets a reference to the CFE ES Reset Data Object
 **
 ** \par Description

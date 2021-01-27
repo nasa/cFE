@@ -690,8 +690,8 @@ void TestInit(void)
             "CFE_APP, /cf/apps/ci.bundle, CI_task_main, CI_APP, 70, 4096, 0x0, 1; "
             "CFE_APP, /cf/apps/sch.bundle, SCH_TaskMain, SCH_APP, 120, 4096, 0x0, 1; "
             "CFE_APP, /cf/apps/to.bundle, TO_task_main, TO_APP, 74, 4096, 0x0, 1; !",
-            MAX_STARTUP_SCRIPT);
-    StartupScript[MAX_STARTUP_SCRIPT - 1] = '\0';
+            sizeof(StartupScript) - 1);
+    StartupScript[sizeof(StartupScript) - 1] = '\0';
     UT_SetReadBuffer(StartupScript, strlen(StartupScript));
 
     /* Go through ES_Main and cover normal paths */
@@ -723,8 +723,8 @@ void TestStartupErrorPaths(void)
             "CFE_APP, /cf/apps/ci.bundle, CI_task_main, CI_APP, 70, 4096, 0x0, 1; "
             "CFE_APP, /cf/apps/sch.bundle, SCH_TaskMain, SCH_APP, 120, 4096, 0x0, 1; "
             "CFE_APP, /cf/apps/to.bundle, TO_task_main, TO_APP, 74, 4096, 0x0, 1; !",
-            MAX_STARTUP_SCRIPT);
-    StartupScript[MAX_STARTUP_SCRIPT - 1] = '\0';
+            sizeof(StartupScript) - 1);
+    StartupScript[sizeof(StartupScript) - 1] = '\0';
 
     /* Perform ES main startup with a mutex creation failure */
     ES_ResetUnitTest();
@@ -882,8 +882,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_POWERON);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CREATE_VOLATILE]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]) && 
-              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Power on reset; error creating volatile (RAM) volume");
 
@@ -906,8 +905,7 @@ void TestStartupErrorPaths(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CREATE_VOLATILE]) && 
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INIT_VOLATILE]) &&
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REFORMAT_VOLATILE]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 7,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REFORMAT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error reformatting volatile (RAM) volume");
 
@@ -919,8 +917,7 @@ void TestStartupErrorPaths(void)
     UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 3,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; cannot get memory for volatile disk");
 
@@ -933,8 +930,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
-               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOVE_VOLATILE]) && 
-               UT_GetStubCount(UT_KEY(OS_printf)) == 3,
+               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOVE_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error removing volatile (RAM) volume");
 
@@ -947,8 +943,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_UNMOUNT_VOLATILE]) && 
-              UT_GetStubCount(UT_KEY(OS_printf)) == 3,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_UNMOUNT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error unmounting volatile (RAM) volume");
 
@@ -956,7 +951,7 @@ void TestStartupErrorPaths(void)
     ES_ResetUnitTest();
     CFE_ES_InitializeFileSystems(4564564);
     UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 0,
+              UT_GetStubCount(UT_KEY(CFE_PSP_Panic)) == 0,
               "CFE_ES_InitializeFileSystems",
               "Initialize file systems; successful");
 
@@ -970,8 +965,7 @@ void TestStartupErrorPaths(void)
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]) && 
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOUNT_VOLATILE]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 4,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOUNT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error remounting volatile (RAM) volume");
 
@@ -982,8 +976,7 @@ void TestStartupErrorPaths(void)
     UT_SetDeferredRetcode(UT_KEY(OS_FileSysStatVolume), 1, -1);
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_DETERMINE_BLOCKS]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_DETERMINE_BLOCKS]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error determining blocks free on volume");
 
@@ -1002,8 +995,7 @@ void TestStartupErrorPaths(void)
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_CreateObjects();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_RECORD_USED]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 13,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_RECORD_USED]),
               "CFE_ES_CreateObjects",
               "Record used error");
 
@@ -1026,8 +1018,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_CreateObjects();
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_RECORD_USED]) && 
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_EARLYINIT]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 14,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_EARLYINIT]),
               "CFE_ES_CreateObjects",
               "Error returned when calling function");
 
@@ -1040,8 +1031,7 @@ void TestStartupErrorPaths(void)
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_CreateObjects();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_APP_CREATE]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 18,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_APP_CREATE]),
               "CFE_ES_CreateObjects",
               "Error creating core application");
 
@@ -1059,10 +1049,6 @@ void TestStartupErrorPaths(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]) == 5,
               "CFE_ES_CreateObjects",
               "No free application slots available, message");
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 18,
-              "CFE_ES_CreateObjects",
-              "No free application slots available, printf count");
 
     /* Test reading the object table with a NULL function pointer */
     ES_ResetUnitTest();
@@ -1083,10 +1069,6 @@ void TestStartupErrorPaths(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FUNCTION_POINTER]),
               "CFE_ES_CreateObjects",
               "Bad function pointer message");
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 19,
-              "CFE_ES_CreateObjects",
-              "Bad function pointer, printf count");
 
     /* Test response to an invalid startup type */
     ES_ResetUnitTest();
@@ -1110,8 +1092,7 @@ void TestStartupErrorPaths(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INSUFF_FREE_SPACE]) &&
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_INIT_VOLATILE]) && 
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOUNT_VOLATILE]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 6,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REMOUNT_VOLATILE]),
               "CFE_ES_InitializeFileSystems",
               "Processor reset; error initializing and mounting volatile "
                 "(RAM) volume");
@@ -1186,15 +1167,14 @@ void TestApps(void)
             "70, 4096, 0x0, 1; CFE_APP, /cf/apps/sch.bundle, SCH_TaskMain, "
             "SCH_APP, 120, 4096, 0x0, 1; CFE_APP, /cf/apps/to.bundle, "
             "TO_task_main, TO_APP, 74, 4096, 0x0, 1; !",
-            MAX_STARTUP_SCRIPT);
-    StartupScript[MAX_STARTUP_SCRIPT - 1] = '\0';
+            sizeof(StartupScript) - 1);
+    StartupScript[sizeof(StartupScript) - 1] = '\0';
     NumBytes = strlen(StartupScript);
     UT_SetReadBuffer(StartupScript, NumBytes);
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]));
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
-    UtAssert_UINT32_EQ(UT_GetStubCount(UT_KEY(OS_printf)), 5);
 
     /* Create a valid startup script for subsequent tests */
     strncpy(StartupScript,
@@ -1202,8 +1182,8 @@ void TestApps(void)
             "CFE_APP, /cf/apps/ci.bundle, CI_task_main, CI_APP, 70, 4096, 0x0, 1; "
             "CFE_APP, /cf/apps/sch.bundle, SCH_TaskMain, SCH_APP, 120, 4096, 0x0, 1; "
             "CFE_APP, /cf/apps/to.bundle, TO_task_main, TO_APP, 74, 4096, 0x0, 1; !",
-            MAX_STARTUP_SCRIPT);
-    StartupScript[MAX_STARTUP_SCRIPT - 1] = '\0';
+            sizeof(StartupScript) - 1);
+    StartupScript[sizeof(StartupScript) - 1] = '\0';
     NumBytes = strlen(StartupScript);
     UT_SetReadBuffer(StartupScript, NumBytes);
 
@@ -1214,8 +1194,7 @@ void TestApps(void)
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_READ]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]) && 
-              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]),
               "CFE_ES_StartApplications",
               "Error reading startup file");
 
@@ -1227,8 +1206,7 @@ void TestApps(void)
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]) &&
-              UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]),
               "CFE_ES_StartApplications",
               "End of file reached");
 
@@ -1238,8 +1216,7 @@ void TestApps(void)
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_OPEN_ES_APP_STARTUP]) &&
-                 UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_OPEN_ES_APP_STARTUP]),
               "CFE_ES_StartApplications",
               "Can't open ES application startup file");
 
@@ -1250,7 +1227,6 @@ void TestApps(void)
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
                              CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
-    UtAssert_UINT32_EQ(UT_GetStubCount(UT_KEY(OS_printf)), 5);
 
     /* Test parsing the startup script with an unknown entry type */
     ES_ResetUnitTest();
@@ -1498,13 +1474,12 @@ void TestApps(void)
     /* Test a successful control action request to exit an application */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/Filename", OS_MAX_PATH_LEN);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.EntryPoint,
-            "NotNULL", OS_MAX_API_NAME);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[OS_MAX_API_NAME - 1] =
-        '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName, 
+            "/ram/Filename", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint,
+            "NotNULL", sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
     UtAppRecPtr->StartParams.Priority = 255;
     UtAppRecPtr->StartParams.StackSize = 8192;
     UtAppRecPtr->StartParams.ExceptionAction = 0;
@@ -1613,13 +1588,12 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", OS_MAX_PATH_LEN);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            OS_MAX_API_NAME);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[OS_MAX_API_NAME - 1] =
-        '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
+            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
+            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
     UtAppRecPtr->StartParams.Priority = 255;
     UtAppRecPtr->StartParams.StackSize = 8192;
     UtAppRecPtr->StartParams.ExceptionAction = 0;
@@ -1650,13 +1624,12 @@ void TestApps(void)
     /* Test a successful control action request to stop an application */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", OS_MAX_PATH_LEN);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            OS_MAX_API_NAME);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[OS_MAX_API_NAME - 1] =
-        '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
+            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
+            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
     UtAppRecPtr->StartParams.Priority = 255;
     UtAppRecPtr->StartParams.StackSize = 8192;
     UtAppRecPtr->StartParams.ExceptionAction = 0;
@@ -1672,13 +1645,12 @@ void TestApps(void)
     /* Test a successful control action request to restart an application */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", OS_MAX_PATH_LEN);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            OS_MAX_API_NAME);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[OS_MAX_API_NAME - 1] =
-        '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
+            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
+            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
     UtAppRecPtr->StartParams.Priority = 255;
     UtAppRecPtr->StartParams.StackSize = 8192;
     UtAppRecPtr->StartParams.ExceptionAction = 0;
@@ -1694,13 +1666,12 @@ void TestApps(void)
     /* Test a successful control action request to reload an application */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", OS_MAX_PATH_LEN);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            OS_MAX_API_NAME);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[OS_MAX_API_NAME - 1] =
-        '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
+            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) -1);
+    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) -1] = '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
+            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
     UtAppRecPtr->StartParams.Priority = 255;
     UtAppRecPtr->StartParams.StackSize = 8192;
     UtAppRecPtr->StartParams.ExceptionAction = 0;
@@ -1718,13 +1689,12 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", OS_MAX_PATH_LEN);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[OS_MAX_PATH_LEN - 1] = '\0';
-    strncpy((char *) UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            OS_MAX_API_NAME);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[OS_MAX_API_NAME - 1] =
-        '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
+            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
+    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
+            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
+    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
     UtAppRecPtr->StartParams.Priority = 255;
     UtAppRecPtr->StartParams.StackSize = 8192;
     UtAppRecPtr->StartParams.ExceptionAction = 0;
@@ -2139,6 +2109,12 @@ void TestApps(void)
 
 }
 
+static bool ES_UT_CheckIdSlotUsed(CFE_ES_ResourceID_t Id)
+{
+    return UT_DEFAULT_IMPL(ES_UT_CheckIdSlotUsed) != 0;
+}
+
+
 void TestResourceID(void)
 {
     /*
@@ -2151,15 +2127,17 @@ void TestResourceID(void)
 
     /* Call CFE_ES_FindNextAvailableId() using an invalid resource type */
     ES_ResetUnitTest();
-    Id = CFE_ES_FindNextAvailableId(CFE_ES_RESOURCEID_UNDEFINED, 5);
+    UT_SetDefaultReturnValue(UT_KEY(ES_UT_CheckIdSlotUsed), 1);
+    Id = CFE_ES_FindNextAvailableId(CFE_ES_RESOURCEID_UNDEFINED, 5, ES_UT_CheckIdSlotUsed);
     UtAssert_True(!CFE_ES_ResourceID_IsDefined(Id), "CFE_ES_FindNextAvailableId() on undefined resource type");
 
     /* Verify that CFE_ES_FindNextAvailableId() does not repeat until CFE_ES_RESOURCEID_MAX is reached */
+    UT_SetDefaultReturnValue(UT_KEY(ES_UT_CheckIdSlotUsed), 0);
     LastId = CFE_ES_Global.LastAppId;
     Count = CFE_ES_RESOURCEID_MAX-1;
     while (Count > 0)
     {
-        Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+        Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS, ES_UT_CheckIdSlotUsed);
         if (CFE_ES_ResourceID_ToInteger(Id) - CFE_ES_ResourceID_ToInteger(LastId) != 1)
         {
             /* Numbers should be incrementing by 1 each time, never decreasing */
@@ -2172,7 +2150,7 @@ void TestResourceID(void)
     UtAssert_True(Count == 0, "CFE_ES_FindNextAvailableId() allocate all resource ID space");
 
     /* Now verify that CFE_ES_FindNextAvailableId() recycles the first item again */
-    Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS);
+    Id = CFE_ES_FindNextAvailableId(LastId, CFE_PLATFORM_ES_MAX_APPLICATIONS, ES_UT_CheckIdSlotUsed);
     UtAssert_True(CFE_ES_ResourceID_IsDefined(Id), "CFE_ES_FindNextAvailableId() after wrap");
     UtAssert_True(CFE_ES_ResourceID_ToInteger(Id) < (CFE_ES_APPID_BASE + CFE_PLATFORM_ES_MAX_APPLICATIONS), "CFE_ES_FindNextAvailableId() wrap ID");
 }
@@ -2217,7 +2195,7 @@ void TestLibs(void)
               "Load shared library bad argument (NULL library name)");
 
     /* Test Load library returning an error on a too long library name */
-    memset(&LongLibraryName[0], 'a', sizeof(LongLibraryName)-1);
+    memset(LongLibraryName, 'a', sizeof(LongLibraryName)-1);
     LongLibraryName[sizeof(LongLibraryName)-1] = '\0';
     Return = CFE_ES_LoadLibrary(&Id,
                                 "filename",
@@ -2672,10 +2650,6 @@ void TestTask(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]),
               "CFE_ES_TaskMain",
               "Command pipe error, UT_OSP_COMMAND_PIPE message");
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
-              "CFE_ES_TaskMain",
-              "Command pipe error, printf count");
 
     /* Test task main process loop with an initialization failure */
     ES_ResetUnitTest();
@@ -2689,10 +2663,6 @@ void TestTask(void)
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REGISTER_APP]),
               "CFE_ES_TaskMain",
               "Task initialization fail, UT_OSP_REGISTER_APP message");
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(OS_printf)) == 2,
-              "CFE_ES_TaskMain",
-              "Task initialization fail, printf count");
 
     /* Test task main process loop with bad checksum information */
     ES_ResetUnitTest();
@@ -2863,12 +2833,15 @@ void TestTask(void)
     /* Test successful app create */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint));
+    strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
+    CmdBuf.StartAppCmd.Payload.AppFileName[sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1);
+    CmdBuf.StartAppCmd.Payload.AppEntryPoint[sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1] = '\0';
     memset(CmdBuf.StartAppCmd.Payload.Application, 'x', 
-            sizeof(CmdBuf.StartAppCmd.Payload.Application));
+            sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1);
+    CmdBuf.StartAppCmd.Payload.Application[sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1] = '\0';
     CmdBuf.StartAppCmd.Payload.Priority = 160;
     CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(8192);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
@@ -2892,12 +2865,15 @@ void TestTask(void)
     /* Test app create with the file name too short */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppFileName, "123",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
-            sizeof(CmdBuf.StartAppCmd.Payload.Application));
+    strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "123",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
+    CmdBuf.StartAppCmd.Payload.AppFileName[sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1);
+    CmdBuf.StartAppCmd.Payload.AppEntryPoint[sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.Application, "appName",
+            sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1);
+    CmdBuf.StartAppCmd.Payload.Application[sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1] = '\0';
     CmdBuf.StartAppCmd.Payload.Priority = 160;
     CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
@@ -2911,12 +2887,13 @@ void TestTask(void)
     /* Test app create with a null application entry point */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppEntryPoint, "",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
-            sizeof(CmdBuf.StartAppCmd.Payload.Application));
+    strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
+    CmdBuf.StartAppCmd.Payload.AppFileName[sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1] = '\0';
+    CmdBuf.StartAppCmd.Payload.AppEntryPoint[0] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.Application, "appName",
+            sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1);
+    CmdBuf.StartAppCmd.Payload.Application[sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1] = '\0';
     CmdBuf.StartAppCmd.Payload.Priority = 160;
     CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
@@ -2930,12 +2907,13 @@ void TestTask(void)
     /* Test app create with a null application name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "",
-            sizeof(CmdBuf.StartAppCmd.Payload.Application));
+    strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
+    CmdBuf.StartAppCmd.Payload.AppFileName[sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1);
+    CmdBuf.StartAppCmd.Payload.AppEntryPoint[sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1] = '\0';
+    CmdBuf.StartAppCmd.Payload.Application[0] = '\0';
     CmdBuf.StartAppCmd.Payload.Priority = 160;
     CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
@@ -2949,12 +2927,15 @@ void TestTask(void)
     /* Test app create with with an invalid exception action */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
-            sizeof(CmdBuf.StartAppCmd.Payload.Application));
+    strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
+    CmdBuf.StartAppCmd.Payload.AppFileName[sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
+           sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1);
+    CmdBuf.StartAppCmd.Payload.AppEntryPoint[sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.Application, "appName",
+            sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1);
+    CmdBuf.StartAppCmd.Payload.Application[sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1] = '\0';
     CmdBuf.StartAppCmd.Payload.Priority = 160;
     CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = 255;
@@ -2968,12 +2949,15 @@ void TestTask(void)
     /* Test app create with a default stack size */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
-            sizeof(CmdBuf.StartAppCmd.Payload.Application));
+    strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
+    CmdBuf.StartAppCmd.Payload.AppFileName[sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
+           sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1);
+    CmdBuf.StartAppCmd.Payload.AppEntryPoint[sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.Application, "appName",
+            sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1);
+    CmdBuf.StartAppCmd.Payload.Application[sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1] = '\0';
     CmdBuf.StartAppCmd.Payload.Priority = 160;
     CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(0);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
@@ -2987,12 +2971,15 @@ void TestTask(void)
     /* Test app create with a bad priority */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
-            sizeof(CmdBuf.StartAppCmd.Payload.Application));
+    strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
+    CmdBuf.StartAppCmd.Payload.AppFileName[sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
+           sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1);
+    CmdBuf.StartAppCmd.Payload.AppEntryPoint[sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.Application, "appName",
+            sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1);
+    CmdBuf.StartAppCmd.Payload.Application[sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1] = '\0';
     CmdBuf.StartAppCmd.Payload.Priority = 1000;
     CmdBuf.StartAppCmd.Payload.StackSize = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
@@ -3006,8 +2993,9 @@ void TestTask(void)
     /* Test successful app stop */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    strncpy((char *) CmdBuf.StopAppCmd.Payload.Application, "CFE_ES",
-            sizeof(CmdBuf.StopAppCmd.Payload.Application));
+    strncpy(CmdBuf.StopAppCmd.Payload.Application, "CFE_ES",
+            sizeof(CmdBuf.StopAppCmd.Payload.Application) - 1);
+    CmdBuf.StopAppCmd.Payload.Application[sizeof(CmdBuf.StopAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.StopAppCmd),
             UT_TPID_CFE_ES_CMD_STOP_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3028,8 +3016,9 @@ void TestTask(void)
     /* Test app stop with a bad app name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.StopAppCmd.Payload.Application, "BAD_APP_NAME",
-            sizeof(CmdBuf.StopAppCmd.Payload.Application));
+    strncpy(CmdBuf.StopAppCmd.Payload.Application, "BAD_APP_NAME",
+            sizeof(CmdBuf.StopAppCmd.Payload.Application) - 1);
+    CmdBuf.StopAppCmd.Payload.Application[sizeof(CmdBuf.StopAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.StopAppCmd),
             UT_TPID_CFE_ES_CMD_STOP_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3041,8 +3030,9 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    strncpy((char *) CmdBuf.RestartAppCmd.Payload.Application, "CFE_ES",
-            sizeof(CmdBuf.RestartAppCmd.Payload.Application));
+    strncpy(CmdBuf.RestartAppCmd.Payload.Application, "CFE_ES",
+            sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1);
+    CmdBuf.RestartAppCmd.Payload.Application[sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.RestartAppCmd),
             UT_TPID_CFE_ES_CMD_RESTART_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3053,8 +3043,9 @@ void TestTask(void)
     /* Test app restart with a bad app name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.RestartAppCmd.Payload.Application, "BAD_APP_NAME",
-            sizeof(CmdBuf.RestartAppCmd.Payload.Application));
+    strncpy(CmdBuf.RestartAppCmd.Payload.Application, "BAD_APP_NAME",
+            sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1);
+    CmdBuf.RestartAppCmd.Payload.Application[sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.RestartAppCmd),
             UT_TPID_CFE_ES_CMD_RESTART_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3066,8 +3057,9 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
-    strncpy((char *) CmdBuf.RestartAppCmd.Payload.Application, "CFE_ES",
-        sizeof(CmdBuf.RestartAppCmd.Payload.Application));
+    strncpy(CmdBuf.RestartAppCmd.Payload.Application, "CFE_ES",
+        sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1);
+    CmdBuf.RestartAppCmd.Payload.Application[sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.RestartAppCmd),
             UT_TPID_CFE_ES_CMD_RESTART_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3079,10 +3071,12 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    strncpy((char *) CmdBuf.ReloadAppCmd.Payload.AppFileName, "New_Name",
-            sizeof(CmdBuf.ReloadAppCmd.Payload.AppFileName));
-    strncpy((char *) CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES",
-            sizeof(CmdBuf.ReloadAppCmd.Payload.Application));
+    strncpy(CmdBuf.ReloadAppCmd.Payload.AppFileName, "New_Name",
+            sizeof(CmdBuf.ReloadAppCmd.Payload.AppFileName) - 1);
+    CmdBuf.ReloadAppCmd.Payload.AppFileName[sizeof(CmdBuf.ReloadAppCmd.Payload.AppFileName) - 1] = '\0';
+    strncpy(CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES",
+            sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1);
+    CmdBuf.ReloadAppCmd.Payload.Application[sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ReloadAppCmd),
             UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3093,8 +3087,9 @@ void TestTask(void)
     /* Test app reload with a bad app name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.ReloadAppCmd.Payload.Application, "BAD_APP_NAME",
-            sizeof(CmdBuf.ReloadAppCmd.Payload.Application));
+    strncpy(CmdBuf.ReloadAppCmd.Payload.Application, "BAD_APP_NAME",
+            sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1);
+    CmdBuf.ReloadAppCmd.Payload.Application[sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ReloadAppCmd),
             UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3106,8 +3101,9 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
-    strncpy((char *) CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES",
-            sizeof(CmdBuf.ReloadAppCmd.Payload.Application));
+    strncpy(CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES",
+            sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1);
+    CmdBuf.ReloadAppCmd.Payload.Application[sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ReloadAppCmd),
             UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3119,8 +3115,9 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
-    strncpy((char *) CmdBuf.QueryOneCmd.Payload.Application, "CFE_ES",
-            sizeof(CmdBuf.QueryOneCmd.Payload.Application));
+    strncpy(CmdBuf.QueryOneCmd.Payload.Application, "CFE_ES",
+            sizeof(CmdBuf.QueryOneCmd.Payload.Application) - 1);
+    CmdBuf.QueryOneCmd.Payload.Application[sizeof(CmdBuf.QueryOneCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryOneCmd),
             UT_TPID_CFE_ES_CMD_QUERY_ONE_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3132,8 +3129,9 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    strncpy((char *) CmdBuf.QueryOneCmd.Payload.Application, "CFE_ES",
-            sizeof(CmdBuf.QueryOneCmd.Payload.Application));
+    strncpy(CmdBuf.QueryOneCmd.Payload.Application, "CFE_ES",
+            sizeof(CmdBuf.QueryOneCmd.Payload.Application) - 1);
+    CmdBuf.QueryOneCmd.Payload.Application[sizeof(CmdBuf.QueryOneCmd.Payload.Application) - 1] = '\0';
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_TransmitMsg), 1, -1);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryOneCmd),
             UT_TPID_CFE_ES_CMD_QUERY_ONE_CC);
@@ -3146,8 +3144,9 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    strncpy((char *) CmdBuf.QueryOneCmd.Payload.Application, "BAD_APP_NAME",
-            sizeof(CmdBuf.QueryOneCmd.Payload.Application));
+    strncpy(CmdBuf.QueryOneCmd.Payload.Application, "BAD_APP_NAME",
+            sizeof(CmdBuf.QueryOneCmd.Payload.Application) - 1);
+    CmdBuf.QueryOneCmd.Payload.Application[sizeof(CmdBuf.QueryOneCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryOneCmd),
             UT_TPID_CFE_ES_CMD_QUERY_ONE_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3159,8 +3158,9 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
-    strncpy((char *) CmdBuf.QueryAllCmd.Payload.FileName, "AllFilename",
-            sizeof(CmdBuf.QueryAllCmd.Payload.FileName));
+    strncpy(CmdBuf.QueryAllCmd.Payload.FileName, "AllFilename",
+            sizeof(CmdBuf.QueryAllCmd.Payload.FileName) - 1);
+    CmdBuf.QueryAllCmd.Payload.FileName[sizeof(CmdBuf.QueryAllCmd.Payload.FileName) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllCmd),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3227,8 +3227,9 @@ void TestTask(void)
     /* Test write of all task data to a file with write header failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.QueryAllTasksCmd.Payload.FileName, "filename",
-            sizeof(CmdBuf.QueryAllTasksCmd.Payload.FileName));
+    strncpy(CmdBuf.QueryAllTasksCmd.Payload.FileName, "filename",
+            sizeof(CmdBuf.QueryAllTasksCmd.Payload.FileName) - 1);
+    CmdBuf.QueryAllTasksCmd.Payload.FileName[sizeof(CmdBuf.QueryAllTasksCmd.Payload.FileName) - 1] = '\0';
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, -1);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllTasksCmd),
             UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
@@ -3295,8 +3296,9 @@ void TestTask(void)
     /* Test successful writing of the system log */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.WriteSysLogCmd.Payload.FileName, "filename",
-            sizeof(CmdBuf.WriteSysLogCmd.Payload.FileName));
+    strncpy(CmdBuf.WriteSysLogCmd.Payload.FileName, "filename",
+            sizeof(CmdBuf.WriteSysLogCmd.Payload.FileName) - 1);
+    CmdBuf.WriteSysLogCmd.Payload.FileName[sizeof(CmdBuf.WriteSysLogCmd.Payload.FileName) - 1] = '\0';
     CFE_ES_TaskData.HkPacket.Payload.SysLogEntries = 123;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteSysLogCmd),
             UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
@@ -3320,8 +3322,7 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    strncpy((char *) CmdBuf.WriteSysLogCmd.Payload.FileName, "",
-            sizeof(CmdBuf.WriteSysLogCmd.Payload.FileName));
+    CmdBuf.WriteSysLogCmd.Payload.FileName[0] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteSysLogCmd),
             UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3337,8 +3338,7 @@ void TestTask(void)
             sizeof(CFE_ES_ResetDataPtr->SystemLog),
             "0000-000-00:00:00.00000 Test Message\n");
     CFE_ES_ResetDataPtr->SystemLogEndIdx = CFE_ES_ResetDataPtr->SystemLogWriteIdx;
-    strncpy((char *) CmdBuf.WriteSysLogCmd.Payload.FileName, "",
-            sizeof(CmdBuf.WriteSysLogCmd.Payload.FileName));
+    CmdBuf.WriteSysLogCmd.Payload.FileName[0] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteSysLogCmd),
             UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3372,7 +3372,8 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy(CmdBuf.WriteERLogCmd.Payload.FileName, "filename",
-            sizeof(CmdBuf.WriteERLogCmd.Payload.FileName));
+            sizeof(CmdBuf.WriteERLogCmd.Payload.FileName) - 1);
+    CmdBuf.WriteERLogCmd.Payload.FileName[sizeof(CmdBuf.WriteERLogCmd.Payload.FileName) - 1] = '\0';
     CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = false;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteERLogCmd),
             UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
@@ -3559,7 +3560,8 @@ void TestTask(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy(CmdBuf.DeleteCDSCmd.Payload.CdsName,
             "CFE_ES.CDS_NAME",
-            sizeof(CmdBuf.DeleteCDSCmd.Payload.CdsName));
+            sizeof(CmdBuf.DeleteCDSCmd.Payload.CdsName) - 1);
+    CmdBuf.DeleteCDSCmd.Payload.CdsName[sizeof(CmdBuf.DeleteCDSCmd.Payload.CdsName) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.DeleteCDSCmd),
             UT_TPID_CFE_ES_CMD_DELETE_CDS_CC);
     UT_Report(__FILE__, __LINE__,
@@ -3742,12 +3744,15 @@ void TestTask(void)
      */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
-            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint));
-    strncpy((char *) CmdBuf.StartAppCmd.Payload.Application, "appName",
-            sizeof(CmdBuf.StartAppCmd.Payload.Application));
+    strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "filename",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
+    CmdBuf.StartAppCmd.Payload.AppFileName[sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.AppEntryPoint, "entrypoint",
+            sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1);
+    CmdBuf.StartAppCmd.Payload.AppEntryPoint[sizeof(CmdBuf.StartAppCmd.Payload.AppEntryPoint) - 1] = '\0';
+    strncpy(CmdBuf.StartAppCmd.Payload.Application, "appName",
+            sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1);
+    CmdBuf.StartAppCmd.Payload.Application[sizeof(CmdBuf.StartAppCmd.Payload.Application) - 1] = '\0';
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_PROC_RESTART;
     CmdBuf.StartAppCmd.Payload.Priority = 160;
     CmdBuf.StartAppCmd.Payload.StackSize =  CFE_ES_MEMOFFSET_C(CFE_PLATFORM_ES_DEFAULT_STACK_SIZE);
@@ -3952,7 +3957,8 @@ void TestTask(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     ES_UT_SetupSingleCDSRegistry("CFE_ES.CDS_NAME", ES_UT_CDS_BLOCK_SIZE, false, NULL);
     strncpy(CmdBuf.DumpCDSRegistryCmd.Payload.DumpFilename, "DumpFile",
-            sizeof(CmdBuf.DumpCDSRegistryCmd.Payload.DumpFilename));
+            sizeof(CmdBuf.DumpCDSRegistryCmd.Payload.DumpFilename) - 1);
+    CmdBuf.DumpCDSRegistryCmd.Payload.DumpFilename[sizeof(CmdBuf.DumpCDSRegistryCmd.Payload.DumpFilename) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.DumpCDSRegistryCmd),
             UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     UT_Report(__FILE__, __LINE__,
@@ -4099,7 +4105,8 @@ void TestPerf(void)
     memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0,
             sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
     strncpy(CmdBuf.PerfStopCmd.Payload.DataFileName, "filename",
-        sizeof(CmdBuf.PerfStopCmd.Payload.DataFileName));
+        sizeof(CmdBuf.PerfStopCmd.Payload.DataFileName) - 1);
+    CmdBuf.PerfStopCmd.Payload.DataFileName[sizeof(CmdBuf.PerfStopCmd.Payload.DataFileName) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd),
             UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
     UT_Report(__FILE__, __LINE__,
@@ -4188,7 +4195,7 @@ void TestPerf(void)
     Perf->MetaData.TriggerCount = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE +1;
     Perf->MetaData.InvalidMarkerReported = false;
     Perf->MetaData.DataEnd = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE +1 ;
-    CFE_ES_PerfLogAdd(CFE_PLATFORM_ES_PERF_MAX_IDS, 0);
+    CFE_ES_PerfLogAdd(CFE_MISSION_ES_PERF_MAX_IDS, 0);
     UT_Report(__FILE__, __LINE__,
               Perf->MetaData.InvalidMarkerReported == true,
               "CFE_ES_PerfLogAdd",
@@ -4242,7 +4249,7 @@ void TestPerf(void)
     ES_ResetUnitTest();
     Perf->MetaData.State = CFE_ES_PERF_TRIGGERED;
     Perf->MetaData.InvalidMarkerReported = 2;
-    CFE_ES_PerfLogAdd(CFE_PLATFORM_ES_PERF_MAX_IDS + 1, 0);
+    CFE_ES_PerfLogAdd(CFE_MISSION_ES_PERF_MAX_IDS + 1, 0);
     UT_Report(__FILE__, __LINE__,
               Perf->MetaData.InvalidMarkerReported == 2,
               "CFE_ES_PerfLogAdd",
@@ -4485,8 +4492,7 @@ void TestAPI(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_ResetCFE(ResetType) == CFE_ES_NOT_IMPLEMENTED &&
                   UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_MAX_PROC_RESETS]) &&
-                  UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_PROC_RESET_COMMANDED]) && 
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+                  UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_PROC_RESET_COMMANDED]),
               "CFE_ES_ResetCFE",
               "Processor reset");
 
@@ -4506,8 +4512,7 @@ void TestAPI(void)
     ResetType = CFE_PSP_RST_TYPE_POWERON;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_ResetCFE(ResetType) == CFE_ES_NOT_IMPLEMENTED &&
-                  UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_COMMANDED]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_COMMANDED]),
               "CFE_ES_ResetCFE",
               "Power on reset");
 
@@ -4560,8 +4565,7 @@ void TestAPI(void)
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_INIT]) &&
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_MAX_PROC_RESETS]) && 
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 3,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_MAX_PROC_RESETS]),
               "CFE_ES_ExitApp",
               "Application initialization error");
 
@@ -4570,8 +4574,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_RUNTIME]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_RUNTIME]),
               "CFE_ES_ExitApp",
               "Application runtime error");
 
@@ -4584,8 +4587,7 @@ void TestAPI(void)
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     CFE_ES_ExitApp(1000);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EXIT]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 2,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EXIT]),
               "CFE_ES_ExitApp",
               "Application exit error");
     UtAssert_True(UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_ERROR,
@@ -4708,7 +4710,7 @@ void TestAPI(void)
     ES_ResetUnitTest();
     AppId = ES_UT_MakeAppIdForIndex(99999);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppName(AppName, AppId, 32) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
+              CFE_ES_GetAppName(AppName, AppId, sizeof(AppName)) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetAppName",
               "Get application name by ID; bad application ID");
 
@@ -4719,7 +4721,7 @@ void TestAPI(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_GetAppName(AppName,
                                 AppId,
-                                32) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
+                                sizeof(AppName)) == CFE_ES_ERR_RESOURCEID_NOT_VALID,
               "CFE_ES_GetAppName",
               "Get application name by ID; ID out of range");
 
@@ -4728,7 +4730,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_GetAppName(AppName, AppId, 32) == CFE_SUCCESS,
+              CFE_ES_GetAppName(AppName, AppId, sizeof(AppName)) == CFE_SUCCESS,
               "CFE_ES_GetAppName",
               "Get application name by ID successful");
 
@@ -4979,8 +4981,7 @@ void TestAPI(void)
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_CALL_APP_MAIN]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_CALL_APP_MAIN]),
               "CFE_ES_ExitChildTask",
               "Cannot call from a cFE application main task");
 
@@ -4988,8 +4989,7 @@ void TestAPI(void)
     ES_ResetUnitTest();
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_TASKEXIT_BAD_CONTEXT]) &&
-                  UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_TASKEXIT_BAD_CONTEXT]),
               "CFE_ES_ExitChildTask",
               "Invalid context");
 
@@ -5070,7 +5070,7 @@ void TestAPI(void)
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, -1);
     CFE_ES_LockSharedData(__func__, 12345);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MUTEX_TAKE]) && UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MUTEX_TAKE]),
               "CFE_ES_LockSharedData",
               "Mutex take error");
 
@@ -5080,7 +5080,7 @@ void TestAPI(void)
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 1, -1);
     CFE_ES_UnlockSharedData(__func__, 98765);
     UT_Report(__FILE__, __LINE__,
-              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MUTEX_GIVE]) && UT_GetStubCount(UT_KEY(OS_printf)) == 1,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MUTEX_GIVE]),
               "CFE_ES_UnlockSharedData",
               "Mutex release error");
 
@@ -6733,8 +6733,10 @@ void TestBackground(void)
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_TaskRegister), 1, -1);
     CFE_ES_BackgroundTask();
-    /* this has no return value, but this can ensure that a syslog/printf was generated */
-    UtAssert_True(UT_GetStubCount(UT_KEY(OS_printf)) == 1, "CFE_ES_BackgroundTask - CFE_ES_RegisterChildTask failure");
+    UT_Report(__FILE__, __LINE__,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_REGISTER]),
+              "CFE_ES_BackgroundTask",
+              "Failed to register error");
 
     /*
      * When testing the background task loop, it is normally an infinite loop,
@@ -6750,8 +6752,10 @@ void TestBackground(void)
     CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemTimedWait), 3, -4);
     CFE_ES_BackgroundTask();
-    /* this has no return value, but this can ensure that a syslog/printf was generated */
-    UtAssert_True(UT_GetStubCount(UT_KEY(OS_printf)) == 1, "CFE_ES_BackgroundTask - Nominal");
+    UT_Report(__FILE__, __LINE__,
+              UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_TAKE]),
+              "CFE_ES_BackgroundTask",
+              "Failed to take background sem");
     /* The number of jobs running should be 1 (perf log dump) */
     UtAssert_True(CFE_ES_Global.BackgroundTask.NumJobsRunning == 1,
             "CFE_ES_BackgroundTask - Nominal, CFE_ES_Global.BackgroundTask.NumJobsRunning (%u) == 1",

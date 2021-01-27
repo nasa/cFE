@@ -305,21 +305,6 @@
 #define CFE_PLATFORM_SB_MAX_BLOCK_SIZE             (CFE_MISSION_SB_MAX_SB_MSG_SIZE + 40)
 
 /**
-**  \cfesbcfg Define Default Sender Information Storage Mode
-**
-**  \par Description:
-**       Defines the default mode for the storing of sender information when sending
-**       a software bus message. If set to 1, the sender information will be stored.
-**       If set to 0, the sender information will not be stored.
-**
-**  \par Limits
-**       There is a lower limit of 0 and an upper limit of 1 on this configuration
-**       paramater.
-*/
-#define CFE_PLATFORM_SB_DEFAULT_REPORT_SENDER      1
-
-
-/**
 **  \cfetimecfg Time Server or Time Client Selection
 **
 **  \par Description:
@@ -1033,19 +1018,6 @@
 **       paramater.
 */
 #define CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE      1
-
-/**
-**  \cfeescfg Define Max Number of Performance IDs
-**
-**  \par Description:
-**       Defines the maximum number of perf ids allowed.
-**
-**
-**  \par Limits
-**       This number must always be divisible by 32. There is a lower limit of 32 and
-**       an upper limit of 512 on this configuration paramater.
-*/
-#define CFE_PLATFORM_ES_PERF_MAX_IDS                  128
 
 /**
 **  \cfeescfg Define Max Size of Performance Data Buffer
@@ -1813,21 +1785,6 @@
 #define CFE_PLATFORM_TBL_VALID_PRID_2            (CFE_PLATFORM_TBL_U32FROM4CHARS('a', 'b', 'c', 'd'))
 #define CFE_PLATFORM_TBL_VALID_PRID_3            0
 #define CFE_PLATFORM_TBL_VALID_PRID_4            0
-
-/** \cfeescfg Mission specific version number for cFE
-**
-**  \par Description:
-**       The cFE version number consists of four parts:
-**       major version number, minor version number, revision
-**       number and mission specific revision number. The mission
-**       specific revision number is defined here and the other
-**       parts are defined in "cfe_version.h".
-**
-**  \par Limits:
-**       Must be defined as a numeric value that is greater than
-**       or equal to zero.
-*/
-#define CFE_MISSION_REV                  0
 
 /** \cfeescfg Poll timer for startup sync delay
 **

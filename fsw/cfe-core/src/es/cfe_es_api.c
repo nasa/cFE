@@ -871,7 +871,7 @@ int32 CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, size_t BufferL
     */
    if (CFE_ES_AppRecordIsMatch(AppRecPtr, AppId))
    {
-       strncpy(AppName, CFE_ES_AppRecordGetName(AppRecPtr), BufferLength);
+       strncpy(AppName, CFE_ES_AppRecordGetName(AppRecPtr), BufferLength - 1);
        AppName[BufferLength - 1] = '\0';
        Result = CFE_SUCCESS;
    }
@@ -1306,8 +1306,8 @@ int32 CFE_ES_CreateChildTask(CFE_ES_ResourceID_t *TaskIdPtr,
 
                CFE_ES_TaskRecordSetUsed(TaskRecPtr, ChildTaskId);
                TaskRecPtr->AppId = CFE_ES_AppRecordGetID(AppRecPtr);
-               strncpy((char *)TaskRecPtr->TaskName,TaskName,OS_MAX_API_NAME);
-               TaskRecPtr->TaskName[OS_MAX_API_NAME - 1] = '\0';
+               strncpy(TaskRecPtr->TaskName,TaskName,sizeof(TaskRecPtr->TaskName) - 1);
+               TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName) - 1] = '\0';
                CFE_ES_Global.RegisteredTasks++;
 
                *TaskIdPtr = ChildTaskId;
@@ -1737,8 +1737,8 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, con
 
            /* Perform a buffer overrun safe copy of name for debug log message */
 
-           strncpy(CDSName, Name, CFE_MISSION_ES_CDS_MAX_NAME_LENGTH);
-           CDSName[CFE_MISSION_ES_CDS_MAX_NAME_LENGTH-1] = '\0';
+           strncpy(CDSName, Name, sizeof(CDSName) - 1);
+           CDSName[sizeof(CDSName) - 1] = '\0';
            CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS Name (%s) is too long\n", CDSName);
         }
         else
@@ -1877,9 +1877,11 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
     return CFE_ES_CDSBlockRead(RestoreToMemory, Handle);
 } /* End of CFE_ES_RestoreFromCDS() */
 
-/* end of file */
-
-
+/*
+** Function: CFE_ES_RegisterGenCounter
+**
+** Purpose:  Allocates a generic counter resource and assigns ID
+*/
 int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *CounterName)
 {
    CFE_ES_GenCounterRecord_t *CountRecPtr;
@@ -1912,7 +1914,7 @@ int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *C
    else
    {
        /* scan for a free slot */
-       PendingCounterId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastCounterId, CFE_PLATFORM_ES_MAX_GEN_COUNTERS);
+       PendingCounterId = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastCounterId, CFE_PLATFORM_ES_MAX_GEN_COUNTERS, CFE_ES_CheckCounterIdSlotUsed);
        CountRecPtr = CFE_ES_LocateCounterRecordByID(PendingCounterId);
 
        if (CountRecPtr == NULL)
@@ -1923,7 +1925,8 @@ int32 CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *C
        else
        {
            strncpy(CountRecPtr->CounterName,CounterName,
-                   sizeof(CountRecPtr->CounterName));
+                   sizeof(CountRecPtr->CounterName) - 1);
+           CountRecPtr->CounterName[sizeof(CountRecPtr->CounterName) - 1] = '\0';
            CountRecPtr->Counter = 0;
            CFE_ES_CounterRecordSetUsed(CountRecPtr, PendingCounterId);
            CFE_ES_Global.LastCounterId = PendingCounterId;
@@ -2108,7 +2111,7 @@ CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t Cou
  */
 int32 CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex_Internal(
+    return CFE_ES_ResourceID_ToIndex(
             CFE_ES_ResourceID_ToInteger(AppID) - CFE_ES_APPID_BASE,
             CFE_PLATFORM_ES_MAX_APPLICATIONS,
             Idx);
@@ -2120,7 +2123,7 @@ int32 CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx)
  */
 int32 CFE_ES_LibID_ToIndex(CFE_ES_ResourceID_t LibId, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex_Internal(
+    return CFE_ES_ResourceID_ToIndex(
             CFE_ES_ResourceID_ToInteger(LibId) - CFE_ES_LIBID_BASE,
             CFE_PLATFORM_ES_MAX_LIBRARIES,
             Idx);
@@ -2160,7 +2163,7 @@ int32 CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx)
  */
 int32 CFE_ES_CounterID_ToIndex(CFE_ES_ResourceID_t CounterId, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex_Internal(
+    return CFE_ES_ResourceID_ToIndex(
             CFE_ES_ResourceID_ToInteger(CounterId) - CFE_ES_COUNTID_BASE,
             CFE_PLATFORM_ES_MAX_GEN_COUNTERS,
             Idx);

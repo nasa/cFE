@@ -96,6 +96,8 @@
 #define UT_OSP_STARTUP_SYNC_FAIL_2        67
 #define UT_OSP_MODULE_UNLOAD_FAILED       68
 #define UT_OSP_TASKEXIT_BAD_CONTEXT       69
+#define UT_OSP_BACKGROUND_REGISTER        70
+#define UT_OSP_BACKGROUND_TAKE            71
 
 #endif
 

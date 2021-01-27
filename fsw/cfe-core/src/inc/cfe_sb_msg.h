@@ -604,16 +604,46 @@ typedef struct CFE_SB_PipeDepthStats {
 
     CFE_SB_PipeId_t     PipeId;/**< \cfetlmmnemonic \SB_PDPIPEID
                                     \brief Pipe Id associated with the stats below */
-    uint8               Spare;/**< \cfetlmmnemonic \SB_PDSPARE
-                                   \brief Spare byte to ensure alignment */
     uint16              Depth;/**< \cfetlmmnemonic \SB_PDDEPTH
                                    \brief Number of messages the pipe can hold */
     uint16              InUse;/**< \cfetlmmnemonic \SB_PDINUSE
                                    \brief Number of messages currently on the pipe */
     uint16              PeakInUse;/**< \cfetlmmnemonic \SB_PDPKINUSE
                                        \brief Peak number of messages that have been on the pipe */
+    uint16              Spare;/**< \cfetlmmnemonic \SB_PDSPARE
+                                   \brief Spare word to ensure alignment */
 
 }CFE_SB_PipeDepthStats_t;
+
+/**
+** \brief SB Pipe Information File Entry
+**
+** This statistics structure is output as part of the CFE SB
+** "Send Pipe Info" command (CFE_SB_SEND_PIPE_INFO_CC).
+** 
+** Previous versions of CFE simply wrote the internal CFE_SB_PipeD_t object
+** to the file, but this also contains information such as pointers which are
+** not relevant outside the running CFE process.  
+**
+** By defining the pipe info structure separately, it also provides some
+** independence, such that the internal CFE_SB_PipeD_t definition
+** can evolve without changing the binary format of the information
+** file.
+*/
+typedef struct CFE_SB_PipeInfoEntry
+{
+    CFE_SB_PipeId_t     PipeId;                            /**< The runtime ID of the pipe */
+    CFE_ES_ResourceID_t AppId;                             /**< The runtime ID of the application that owns the pipe */
+    char                PipeName[CFE_MISSION_MAX_API_LEN]; /**< The Name of the pipe */
+    char                AppName[CFE_MISSION_MAX_API_LEN];  /**< The Name of the application that owns the pipe */
+    uint16              MaxQueueDepth;                     /**< The allocated depth of the pipe (max capacity) */
+    uint16              CurrentQueueDepth;                 /**< The current depth of the pipe */
+    uint16              PeakQueueDepth;                    /**< The peak depth of the pipe (high watermark) */
+    uint16              SendErrors;                        /**< Number of errors when writing to this pipe */
+    uint8               Opts;                              /**< Pipe options set (bitmask) */
+    uint8               Spare[3];                          /**< Padding to make this structure a multiple of 4 bytes */
+
+} CFE_SB_PipeInfoEntry_t;
 
 /**
 ** \cfesbtlm SB Statistics Telemetry Packet

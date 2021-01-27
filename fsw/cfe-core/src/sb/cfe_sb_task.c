@@ -233,10 +233,6 @@ int32 CFE_SB_AppInit(void){
                  CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID),
                  sizeof(CFE_SB.PrevSubMsg));
 
-    CFE_MSG_Init(&CFE_SB.SubRprtMsg.Hdr.Msg,
-                 CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID),
-                 sizeof(CFE_SB.SubRprtMsg));
-
     /* Populate the fixed fields in the HK Tlm Msg */
     CFE_SB.HKTlmMsg.Payload.MemPoolHandle = CFE_SB.Mem.PoolHdl;
     
@@ -569,9 +565,13 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
 */
 int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
 {
+    CFE_SB_LockSharedData(__FILE__, __LINE__);
+
     CFE_SB.HKTlmMsg.Payload.MemInUse        = CFE_SB.StatTlmMsg.Payload.MemInUse;
     CFE_SB.HKTlmMsg.Payload.UnmarkedMem     = CFE_PLATFORM_SB_BUF_MEMORY_BYTES - CFE_SB.StatTlmMsg.Payload.PeakMemInUse;
-    
+
+    CFE_SB_UnlockSharedData(__FILE__, __LINE__);
+
     CFE_SB_TimeStampMsg(&CFE_SB.HKTlmMsg.Hdr.Msg);
     CFE_SB_TransmitMsg(&CFE_SB.HKTlmMsg.Hdr.Msg, true);
 
@@ -627,49 +627,66 @@ void CFE_SB_ResetCounters(void){
 int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t          MsgId;
-    CFE_SB_PipeId_t         PipeId;
+    CFE_SB_PipeD_t          *PipeDscPtr;
     CFE_SB_DestinationD_t   *DestPtr;
     const CFE_SB_RouteCmd_Payload_t      *CmdPtr;
+    uint16 PendingEventID;
 
+    PendingEventID = 0;
     CmdPtr = &data->Payload;
 
     MsgId  = CmdPtr->MsgId;
-    PipeId = CmdPtr->Pipe;
+
+    CFE_SB_LockSharedData(__func__,__LINE__);
 
     /* check cmd parameters */
+    PipeDscPtr = CFE_SB_LocatePipeDescByID(CmdPtr->Pipe);
     if(!CFE_SB_IsValidMsgId(MsgId) ||
-       (CFE_SB_ValidatePipeId(PipeId) != CFE_SUCCESS))
+       !CFE_SB_PipeDescIsMatch(PipeDscPtr,CmdPtr->Pipe))
     {
-        CFE_EVS_SendEvent(CFE_SB_ENBL_RTE3_EID,CFE_EVS_EventType_ERROR,
-                      "Enbl Route Cmd:Invalid Param.Msg 0x%x,Pipe %d",
-                      (unsigned int)CFE_SB_MsgIdToValue(MsgId),(int)PipeId);
+        PendingEventID = CFE_SB_ENBL_RTE3_EID;
         CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
-        /*
-         * returning "success" here as there is no other recourse;
-         * the full extent of the error recovery has been done
-         */
-       return CFE_SUCCESS;
-    }/* end if */
+    }
+    else
+    {
+        DestPtr = CFE_SB_GetDestPtr(CFE_SBR_GetRouteId(MsgId), CmdPtr->Pipe);
+        if(DestPtr == NULL)
+        {
+            PendingEventID = CFE_SB_ENBL_RTE1_EID;
+            CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
+        }
+        else
+        {
+            DestPtr->Active = CFE_SB_ACTIVE;
+            PendingEventID = CFE_SB_ENBL_RTE2_EID;
+            CFE_SB.HKTlmMsg.Payload.CommandCounter++;
+        }
 
-    DestPtr = CFE_SB_GetDestPtr(CFE_SBR_GetRouteId(MsgId), PipeId);
-    if(DestPtr == NULL){
-        CFE_EVS_SendEvent(CFE_SB_ENBL_RTE1_EID,CFE_EVS_EventType_ERROR,
-                "Enbl Route Cmd:Route does not exist.Msg 0x%x,Pipe %d",
-                (unsigned int)CFE_SB_MsgIdToValue(MsgId),(int)PipeId);
-        CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
-        /*
-         * returning "success" here as there is no other recourse;
-         * the full extent of the error recovery has been done
-         */
-       return CFE_SUCCESS;
-    }/* end if */
+    }/* end if */    
 
-    DestPtr->Active = CFE_SB_ACTIVE;
-    CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID,CFE_EVS_EventType_DEBUG,
-                      "Enabling Route,Msg 0x%x,Pipe %d",
-                      (unsigned int)CFE_SB_MsgIdToValue(MsgId),(int)PipeId);
+    CFE_SB_UnlockSharedData(__func__,__LINE__);
 
-    CFE_SB.HKTlmMsg.Payload.CommandCounter++;
+    switch(PendingEventID)
+    {
+        case CFE_SB_ENBL_RTE1_EID:
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE1_EID,CFE_EVS_EventType_ERROR,
+                "Enbl Route Cmd:Route does not exist.Msg 0x%x,Pipe %lu",
+                (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+            break;
+        case CFE_SB_ENBL_RTE3_EID:
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE3_EID,CFE_EVS_EventType_ERROR,
+                      "Enbl Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
+                      (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                      CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+            break;
+        case CFE_SB_ENBL_RTE2_EID:
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID,CFE_EVS_EventType_DEBUG,
+                      "Enabling Route,Msg 0x%x,Pipe %lu",
+                      (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                      CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+            break;
+    }
 
     return CFE_SUCCESS;
 }/* end CFE_SB_EnableRouteCmd */
@@ -692,48 +709,67 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t          MsgId;
-    CFE_SB_PipeId_t         PipeId;
+    CFE_SB_PipeD_t          *PipeDscPtr;
     CFE_SB_DestinationD_t   *DestPtr;
     const CFE_SB_RouteCmd_Payload_t      *CmdPtr;
+    uint16 PendingEventID;
 
+    PendingEventID = 0;
     CmdPtr = &data->Payload;
 
     MsgId  = CmdPtr->MsgId;
-    PipeId = CmdPtr->Pipe;
+
+    CFE_SB_LockSharedData(__func__,__LINE__);
 
     /* check cmd parameters */
+    PipeDscPtr = CFE_SB_LocatePipeDescByID(CmdPtr->Pipe);
     if(!CFE_SB_IsValidMsgId(MsgId) ||
-       (CFE_SB_ValidatePipeId(PipeId) != CFE_SUCCESS)){
-        CFE_EVS_SendEvent(CFE_SB_DSBL_RTE3_EID,CFE_EVS_EventType_ERROR,
-                   "Disable Route Cmd:Invalid Param.Msg 0x%x,Pipe %d",
-                   (unsigned int)CFE_SB_MsgIdToValue(MsgId),(int)PipeId);
+       !CFE_SB_PipeDescIsMatch(PipeDscPtr,CmdPtr->Pipe))
+    {
+        PendingEventID = CFE_SB_DSBL_RTE3_EID;
         CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
-        /*
-         * returning "success" here as there is no other recourse;
-         * the full extent of the error recovery has been done
-         */
-       return CFE_SUCCESS;
-    }/* end if */
+    }
+    else
+    {
+        DestPtr = CFE_SB_GetDestPtr(CFE_SBR_GetRouteId(MsgId), CmdPtr->Pipe);
+        if(DestPtr == NULL)
+        {
+            PendingEventID = CFE_SB_DSBL_RTE1_EID;
+            CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
+        }
+        else
+        {
+            DestPtr->Active = CFE_SB_INACTIVE;
+            PendingEventID = CFE_SB_DSBL_RTE2_EID;
+            CFE_SB.HKTlmMsg.Payload.CommandCounter++;
+        }
 
-    DestPtr = CFE_SB_GetDestPtr(CFE_SBR_GetRouteId(MsgId), PipeId);
-    if(DestPtr == NULL){
-        CFE_EVS_SendEvent(CFE_SB_DSBL_RTE1_EID,CFE_EVS_EventType_ERROR,
-            "Disable Route Cmd:Route does not exist,Msg 0x%x,Pipe %d",
-            (unsigned int)CFE_SB_MsgIdToValue(MsgId),(int)PipeId);
-        CFE_SB.HKTlmMsg.Payload.CommandErrorCounter++;
-        /*
-         * returning "success" here as there is no other recourse;
-         * the full extent of the error recovery has been done
-         */
-       return CFE_SUCCESS;
-    }/* end if */
+    }/* end if */    
 
-    DestPtr->Active = CFE_SB_INACTIVE;
+    CFE_SB_UnlockSharedData(__func__,__LINE__);
 
-    CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID,CFE_EVS_EventType_DEBUG,
-                      "Route Disabled,Msg 0x%x,Pipe %d",
-                      (unsigned int)CFE_SB_MsgIdToValue(MsgId),(int)PipeId);
-    CFE_SB.HKTlmMsg.Payload.CommandCounter++;
+
+    switch(PendingEventID)
+    {
+        case CFE_SB_DSBL_RTE1_EID:
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE1_EID,CFE_EVS_EventType_ERROR,
+                "Disable Route Cmd:Route does not exist,Msg 0x%x,Pipe %lu",
+                (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+            break;
+        case CFE_SB_DSBL_RTE3_EID:
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE3_EID,CFE_EVS_EventType_ERROR,
+                   "Disable Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
+                   (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                   CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+            break;
+        case CFE_SB_DSBL_RTE2_EID:
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID,CFE_EVS_EventType_DEBUG,
+                      "Route Disabled,Msg 0x%x,Pipe %lu",
+                      (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                      CFE_ES_ResourceID_ToInteger(CmdPtr->Pipe));
+            break;
+    }
 
     return CFE_SUCCESS;
 }/* end CFE_SB_DisableRouteCmd */
@@ -753,6 +789,45 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
 */
 int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
 {
+    uint32 PipeDscCount;
+    uint32 PipeStatCount;
+    CFE_SB_PipeD_t *PipeDscPtr;
+    CFE_SB_PipeDepthStats_t *PipeStatPtr;
+
+    CFE_SB_LockSharedData(__FILE__, __LINE__);
+
+    /* Collect data on pipes */
+    PipeDscCount = CFE_PLATFORM_SB_MAX_PIPES;
+    PipeStatCount = CFE_MISSION_SB_MAX_PIPES;
+    PipeDscPtr = CFE_SB.PipeTbl;
+    PipeStatPtr = CFE_SB.StatTlmMsg.Payload.PipeDepthStats;
+
+    while (PipeDscCount > 0 && PipeStatCount > 0)
+    {
+        if (CFE_SB_PipeDescIsUsed(PipeDscPtr))
+        {
+            PipeStatPtr->PipeId = PipeDscPtr->PipeId;
+            PipeStatPtr->InUse = PipeDscPtr->CurrentDepth;
+            PipeStatPtr->PeakInUse = PipeDscPtr->PeakDepth;
+            PipeStatPtr->Depth = PipeDscPtr->QueueDepth;
+
+            ++PipeStatPtr;
+            --PipeStatCount;
+        }
+
+        --PipeDscCount;
+        ++PipeDscPtr;
+    }
+
+    CFE_SB_UnlockSharedData(__FILE__, __LINE__);
+
+    while (PipeStatCount > 0)
+    {
+        memset(PipeStatPtr, 0, sizeof(*PipeStatPtr));
+
+        ++PipeStatPtr;
+        --PipeStatCount;
+    }
 
     CFE_SB_TimeStampMsg(&CFE_SB.StatTlmMsg.Hdr.Msg);
     CFE_SB_TransmitMsg(&CFE_SB.StatTlmMsg.Hdr.Msg, true);
@@ -861,56 +936,128 @@ int32 CFE_SB_SendMapInfoCmd(const CFE_SB_SendMapInfoCmd_t *data)
  */
 void CFE_SB_WriteRouteToFile(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
+    struct RouteInfo
+    {
+        CFE_SB_PipeId_t PipeId;
+        uint8           Active;
+        uint16          DestCnt;
+    };
+
     CFE_SB_FileWriteCallback_t *args;
     CFE_SB_DestinationD_t      *destptr;
     CFE_SB_PipeD_t             *pipedptr;
     int32                       status;
     CFE_SB_RoutingFileEntry_t   entry;
+    struct RouteInfo RouteInfo[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
+    struct RouteInfo *RouteInfoPtr;
+    uint32 NumDest;
 
     /* Cast arguments for local use */
     args = (CFE_SB_FileWriteCallback_t *)ArgPtr;
 
+    NumDest = 0;
+
+    /* Data must be locked to snapshot the route info */
+    CFE_SB_LockSharedData(__FILE__, __LINE__);
+
     destptr = CFE_SBR_GetDestListHeadPtr(RouteId);
+    entry.MsgId = CFE_SBR_GetMsgId(RouteId);
+    RouteInfoPtr = RouteInfo;
 
-    while((destptr != NULL) && (args->Status != CFE_SB_FILE_IO_ERR))
+    while((destptr != NULL) && NumDest < CFE_PLATFORM_SB_MAX_DEST_PER_PKT)
     {
-
-        pipedptr = CFE_SB_GetPipePtr(destptr->PipeId);
+        pipedptr = CFE_SB_LocatePipeDescByID(destptr->PipeId);
 
         /* If invalid id, continue on to next entry */
-        if (pipedptr != NULL)
+        if (CFE_SB_PipeDescIsMatch(pipedptr,destptr->PipeId))
         {
-
-            entry.MsgId     = CFE_SBR_GetMsgId(RouteId);
-            entry.PipeId    = destptr->PipeId;
-            entry.State     = destptr->Active;
-            entry.MsgCnt    = destptr->DestCnt;
-
-            entry.AppName[0] = 0;
-            /*
-             * NOTE: as long as CFE_ES_GetAppName() returns success, then it
-             * guarantees null termination of the output.  Return code is not
-             * checked here (bad) but in case of error it does not seem to touch
-             * the buffer, therefore the initialization above will protect for now
-             */
-            CFE_ES_GetAppName(entry.AppName, pipedptr->AppId, sizeof(entry.AppName));
-            CFE_SB_GetPipeName(entry.PipeName, sizeof(entry.PipeName), entry.PipeId);
-
-            status = OS_write (args->Fd, &entry, sizeof(CFE_SB_RoutingFileEntry_t));
-            if(status != sizeof(CFE_SB_RoutingFileEntry_t))
-            {
-                CFE_SB_FileWriteByteCntErr(args->Filename, sizeof(CFE_SB_RoutingFileEntry_t), status);
-                OS_close(args->Fd);
-                args->Status = CFE_SB_FILE_IO_ERR;
-            }
-
-            args->FileSize += status;
-            args->EntryCount++;
+            RouteInfoPtr->PipeId = destptr->PipeId;
+            RouteInfoPtr->Active = destptr->Active;
+            RouteInfoPtr->DestCnt = destptr->DestCnt;
+            ++RouteInfoPtr;
+            ++NumDest;
         }
 
         destptr = destptr->Next;
     }
+
+    CFE_SB_UnlockSharedData(__FILE__, __LINE__);
+
+    RouteInfoPtr = RouteInfo;
+    while (NumDest > 0)
+    {
+        entry.PipeId    = RouteInfoPtr->PipeId;
+        entry.State     = RouteInfoPtr->Active;
+        entry.MsgCnt    = RouteInfoPtr->DestCnt;
+
+        entry.AppName[0] = 0;
+
+        /*
+         * NOTE: as long as CFE_ES_GetAppName() returns success, then it
+         * guarantees null termination of the output.  Return code is not
+         * checked here (bad) but in case of error it does not seem to touch
+         * the buffer, therefore the initialization above will protect for now
+         */
+        CFE_ES_GetAppName(entry.AppName, pipedptr->AppId, sizeof(entry.AppName));
+        CFE_SB_GetPipeName(entry.PipeName, sizeof(entry.PipeName), entry.PipeId);
+
+        status = OS_write (args->Fd, &entry, sizeof(CFE_SB_RoutingFileEntry_t));
+        if(status != sizeof(CFE_SB_RoutingFileEntry_t))
+        {
+            CFE_SB_FileWriteByteCntErr(args->Filename, sizeof(CFE_SB_RoutingFileEntry_t), status);
+            OS_close(args->Fd);
+            args->Status = CFE_SB_FILE_IO_ERR;
+        }
+
+        args->FileSize += status;
+        args->EntryCount++;
+
+        ++RouteInfoPtr;
+        --NumDest;
+    }
 }
+
+/******************************************************************************
+**  Function:  CFE_SB_SendSubscriptionReport()
+**
+**  Purpose:
+**    SB internal function to generate the "ONESUB_TLM" message after a subscription.
+**    No-op when subscription reporting is disabled.
+**
+**  Arguments:
+**    Payload of notification message - MsgId, PipeId, QOS
+**
+**  Return:
+**    CFE_SUCCESS or error code
+*/
+int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality)
+{
+    CFE_SB_SingleSubscriptionTlm_t SubRptMsg;
+    int32  Status;
+
+    Status = CFE_SUCCESS;
+
+    if (CFE_SB.SubscriptionReporting == CFE_SB_ENABLE)
+    {
+        CFE_MSG_Init(&SubRptMsg.Hdr.Msg,
+                    CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID),
+                    sizeof(SubRptMsg));
+
+        SubRptMsg.Payload.MsgId = MsgId;
+        SubRptMsg.Payload.Pipe = PipeId;
+        SubRptMsg.Payload.Qos = Quality;
+        SubRptMsg.Payload.SubType = CFE_SB_SUBSCRIPTION;
+
+        Status = CFE_SB_TransmitMsg(&SubRptMsg.Hdr.Msg, true);
+        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
+                "Sending Subscription Report Msg=0x%x,Pipe=%lu,Stat=0x%x",
+                (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                CFE_ES_ResourceID_ToInteger(PipeId),(unsigned int)Status);
+    }
+
+    return Status;
+}
+
 
 /******************************************************************************
 **  Function:  CFE_SB_SendRoutingInfo()
@@ -993,6 +1140,9 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
     uint32 FileSize = 0;
     uint32 EntryCount = 0;
     CFE_FS_Header_t FileHdr;
+    CFE_SB_PipeD_t *PipeDscPtr;
+    CFE_SB_PipeInfoEntry_t FileEntry;
+    osal_id_t SysQueueId;
 
     Status = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
 
@@ -1015,14 +1165,46 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
 
     FileSize = Status;
 
-    /* loop through the pipe table */
-    for(i=0;i<CFE_PLATFORM_SB_MAX_PIPES;i++){
+    /* loop through the pipe table */   
+    CFE_SB_LockSharedData(__FILE__,__LINE__); 
+    PipeDscPtr = CFE_SB.PipeTbl;
 
-        if(CFE_SB.PipeTbl[i].InUse==CFE_SB_IN_USE){
+    for (i=0;i<CFE_PLATFORM_SB_MAX_PIPES;i++)
+    {
+        if (CFE_SB_PipeDescIsUsed(PipeDscPtr))
+        {
+            /*
+             * Ensure any old data in the struct has been cleared
+             */
+            memset(&FileEntry, 0, sizeof(FileEntry));
 
-            Status = OS_write (fd, &(CFE_SB.PipeTbl[i]), sizeof(CFE_SB_PipeD_t));
-            if(Status != sizeof(CFE_SB_PipeD_t)){
-                CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_SB_PipeD_t),Status);
+            /*
+             * Take a "snapshot" of the PipeDsc state while locked 
+             */
+            FileEntry.PipeId = CFE_SB_PipeDescGetID(PipeDscPtr);            
+            FileEntry.AppId = PipeDscPtr->AppId;
+            FileEntry.MaxQueueDepth = PipeDscPtr->QueueDepth;
+            FileEntry.CurrentQueueDepth = PipeDscPtr->CurrentDepth;
+            FileEntry.PeakQueueDepth = PipeDscPtr->PeakDepth;
+            FileEntry.SendErrors = PipeDscPtr->SendErrors;
+            FileEntry.Opts = PipeDscPtr->Opts;
+            SysQueueId = PipeDscPtr->SysQueueId;
+
+            CFE_SB_UnlockSharedData(__FILE__,__LINE__); 
+
+            /*
+             * Gather data from other subsystems while unlocked.
+             * This might fail if the pipe is deleted simultaneously while this runs, but in
+             * the unlikely event that happens, the name data will simply be blank as the ID(s)
+             * will not validate.
+             */
+            OS_GetResourceName(SysQueueId, FileEntry.PipeName, sizeof(FileEntry.PipeName));
+            CFE_ES_GetAppName(FileEntry.AppName, FileEntry.AppId, sizeof(FileEntry.AppName));
+
+            Status = OS_write (fd, &FileEntry, sizeof(FileEntry));
+            if (Status != sizeof(FileEntry))
+            {
+                CFE_SB_FileWriteByteCntErr(Filename,sizeof(FileEntry),Status);
                 OS_close(fd);
                 return CFE_SB_FILE_IO_ERR;
             }/* end if */
@@ -1030,9 +1212,15 @@ int32 CFE_SB_SendPipeInfo(const char *Filename)
             FileSize += Status;
             EntryCount ++;
 
+            CFE_SB_LockSharedData(__FILE__,__LINE__); 
+
         }/* end if */
 
+        ++PipeDscPtr;
+
     }/* end for */
+
+    CFE_SB_UnlockSharedData(__FILE__,__LINE__); 
 
     OS_close(fd);
 
@@ -1059,8 +1247,10 @@ void CFE_SB_WriteMapToFile(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 
     if(args->Status != CFE_SB_FILE_IO_ERR)
     {
+        CFE_SB_LockSharedData(__FILE__,__LINE__); 
         entry.MsgId = CFE_SBR_GetMsgId(RouteId);
         entry.Index = CFE_SBR_RouteIdToValue(RouteId);
+        CFE_SB_UnlockSharedData(__FILE__,__LINE__); 
 
         status = OS_write (args->Fd, &entry, sizeof(CFE_SB_MsgMapFileEntry_t));
         if(status != sizeof(CFE_SB_MsgMapFileEntry_t))
@@ -1295,8 +1485,3 @@ void CFE_SB_SetSubscriptionReporting(uint32 state){
     CFE_SB.SubscriptionReporting = state;
 
 }/* end CFE_SB_SetSubscriptionReporting */
-
-
-
-
-

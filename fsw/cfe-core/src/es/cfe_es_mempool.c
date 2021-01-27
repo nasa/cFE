@@ -108,10 +108,22 @@ int32 CFE_ES_MemPoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offs
 
 int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx)
 {
-    return CFE_ES_ResourceID_ToIndex_Internal(
+    return CFE_ES_ResourceID_ToIndex(
             CFE_ES_ResourceID_ToInteger(PoolID) - CFE_ES_POOLID_BASE,
             CFE_PLATFORM_ES_MAX_MEMORY_POOLS,
             Idx);
+}
+
+/*---------------------------------------------------------------------------------------
+ * Function: CFE_ES_CheckMemPoolSlotUsed
+ * 
+ * Purpose: Helper function, Aids in allocating a new ID by checking if 
+ * a given table slot is available.  Must be called while locked.
+ *---------------------------------------------------------------------------------------
+ */
+bool CFE_ES_CheckMemPoolSlotUsed(CFE_ES_ResourceID_t CheckId)
+{
+    return CFE_ES_MemPoolRecordIsUsed(CFE_ES_LocateMemPoolRecordByID(CheckId));
 }
 
 CFE_ES_MemPoolRecord_t* CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID)
@@ -211,7 +223,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
     CFE_ES_LockSharedData(__func__,__LINE__);
 
     /* scan for a free slot */
-    PendingID = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastMemPoolId, CFE_PLATFORM_ES_MAX_MEMORY_POOLS);
+    PendingID = CFE_ES_FindNextAvailableId(CFE_ES_Global.LastMemPoolId, CFE_PLATFORM_ES_MAX_MEMORY_POOLS, CFE_ES_CheckMemPoolSlotUsed);
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(PendingID);
 
     if (PoolRecPtr == NULL)

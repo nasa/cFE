@@ -188,9 +188,6 @@ typedef struct
   /*
   ** Task initialization data (not reported in housekeeping)...
   */
-  char                  PipeName[16];
-  uint16                PipeDepth;
-
   int16                 ClockSource;
   int16                 ClockSignal;
   int16                 ServerFlyState;
