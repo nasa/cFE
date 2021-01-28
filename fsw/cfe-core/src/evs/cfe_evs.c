@@ -154,6 +154,10 @@ int32 CFE_EVS_SendEvent (uint16 EventID, uint16 EventType, const char *Spec, ...
    va_list            Ptr;
    EVS_AppData_t     *AppDataPtr;
 
+   if(Spec == NULL){
+      return CFE_EVS_INVALID_PARAMETER;
+   }
+
    /* Query and verify the caller's AppID */
    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
    if (Status == CFE_SUCCESS)
@@ -190,6 +194,10 @@ int32 CFE_EVS_SendEventWithAppID (uint16 EventID, uint16 EventType, CFE_ES_AppId
    va_list            Ptr;
    EVS_AppData_t     *AppDataPtr;
 
+   if(Spec == NULL){
+      return CFE_EVS_INVALID_PARAMETER;
+   }
+
    AppDataPtr = EVS_GetAppDataByID (AppID);
    if (AppDataPtr == NULL)
    {
@@ -224,6 +232,10 @@ int32 CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time, uint16 EventID, uint16 Ev
    CFE_ES_AppId_t     AppID;
    va_list            Ptr;
    EVS_AppData_t     *AppDataPtr;
+
+   if(Spec == NULL){
+      return CFE_EVS_INVALID_PARAMETER;
+   }
 
    /* Query and verify the caller's AppID */
    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);

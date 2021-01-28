@@ -66,6 +66,11 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
     char                        TblName[CFE_TBL_MAX_FULL_NAME_LEN] = {""};
     CFE_TBL_Handle_t            AccessIndex;
 
+    if (TblHandlePtr == NULL || Name == NULL)
+    {
+        return CFE_TBL_BAD_ARGUMENT;
+    }
+
     /* Check to make sure calling application is legit */
     Status = CFE_ES_GetAppID(&ThisAppId);
 
@@ -522,6 +527,11 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
     char    AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
 
+    if (TblHandlePtr == NULL || TblName == NULL)
+    {
+        return CFE_TBL_BAD_ARGUMENT;
+    }
+    
     /* Get a valid Application ID for calling App */
     Status = CFE_ES_GetAppID(&ThisAppId);
 
@@ -691,6 +701,11 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
     CFE_TBL_RegistryRec_t      *RegRecPtr;
     char                        AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
     bool                        FirstTime = false;
+
+    if (SrcDataPtr == NULL)
+    {
+        return CFE_TBL_BAD_ARGUMENT;
+    }
 
     /* Verify access rights and get a valid Application ID for calling App */
     Status = CFE_TBL_ValidateAccess(TblHandle, &ThisAppId);
@@ -1000,6 +1015,11 @@ int32 CFE_TBL_GetAddress( void **TblPtr,
     int32   Status;
     CFE_ES_AppId_t  ThisAppId;
 
+    if (TblPtr == NULL)
+    {
+        return CFE_TBL_BAD_ARGUMENT;
+    }
+
     /* Assume failure at returning the table address */
     *TblPtr = NULL;
 
@@ -1065,6 +1085,11 @@ int32 CFE_TBL_GetAddresses( void **TblPtrs[],
     uint16  i;
     int32   Status;
     CFE_ES_AppId_t   ThisAppId;
+
+     if (TblPtrs == NULL)
+    {
+        return CFE_TBL_BAD_ARGUMENT;
+    }
 
     /* Assume failure at returning the table addresses */
     for (i=0; i<NumTables; i++)
@@ -1387,6 +1412,10 @@ int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName )
     int32                    NumAccessDescriptors = 0;
     CFE_TBL_RegistryRec_t   *RegRecPtr;
     CFE_TBL_Handle_t         HandleIterator;
+
+    if(TblInfoPtr == NULL || TblName == NULL){
+        return CFE_TBL_BAD_ARGUMENT;
+    }
 
     RegIndx = CFE_TBL_FindTableInRegistry(TblName);
 

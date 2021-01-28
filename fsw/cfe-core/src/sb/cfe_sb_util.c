@@ -39,6 +39,7 @@
 #include "osapi.h"
 #include "cfe_error.h"
 #include "cfe_msg_api.h"
+#include "cfe_es.h"
 
 #include <string.h>
 
@@ -75,6 +76,11 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
     bool           hassechdr = false;
     CFE_MSG_Type_t type = CFE_MSG_Type_Invalid;
 
+    if (MsgPtr == NULL)
+    {
+        return CFE_SB_BAD_ARGUMENT;
+    }
+
     CFE_MSG_GetHasSecondaryHeader(MsgPtr, &hassechdr);
     CFE_MSG_GetType(MsgPtr, &type);
 
@@ -106,6 +112,11 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
     uint8           *BytePtr;
     size_t          HdrSize;
 
+    if(MsgPtr == NULL){
+        CFE_ES_WriteToSysLog("CFE_SB:GetUserData-Failed invalid arguments\n");
+        return 0;
+    }
+
     BytePtr = (uint8 *)MsgPtr;
     HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
 
@@ -120,6 +131,11 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
 {
     CFE_MSG_Size_t TotalMsgSize;
     size_t HdrSize;
+
+    if (MsgPtr == NULL)
+    {
+        return CFE_SB_BAD_ARGUMENT;
+    }
 
     CFE_MSG_GetSize(MsgPtr, &TotalMsgSize);
     HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
@@ -136,11 +152,16 @@ void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
     CFE_MSG_Size_t TotalMsgSize;
     size_t HdrSize;
 
-    HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
-    TotalMsgSize = HdrSize + DataLength;
+    if(MsgPtr == NULL){
+        CFE_ES_WriteToSysLog("CFE_SB:SetUserDataLength-Failed invalid arguments\n");
+    }
+    else
+    {
+        HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
+        TotalMsgSize = HdrSize + DataLength;
     
-    CFE_MSG_SetSize(MsgPtr, TotalMsgSize);
-
+        CFE_MSG_SetSize(MsgPtr, TotalMsgSize);
+    }
 }/* end CFE_SB_SetUserDataLength */
 
 #ifndef CFE_OMIT_DEPRECATED_6_8
@@ -288,7 +309,7 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
      * Cannot terminate the string, since there is no place for the NUL
      * In this case, do nothing
      */
-    if (DestMaxSize == 0)
+    if (DestMaxSize == 0 || DestStringPtr == NULL )
     {
         Result = CFE_SB_BAD_ARGUMENT;
     }
@@ -335,28 +356,35 @@ int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, 
 {
     int32 Result;
 
-    Result = 0;
-
-    while (SourceMaxSize > 0 && *SourceStringPtr != 0 && DestMaxSize > 0)
+    if (SourceStringPtr == NULL || DestStringPtr == NULL )
     {
-        *DestStringPtr = *SourceStringPtr;
-        ++DestStringPtr;
-        ++SourceStringPtr;
-        ++Result;
-        --DestMaxSize;
-        --SourceMaxSize;
+        Result = CFE_SB_BAD_ARGUMENT;
     }
-
-    /*
-     * Pad the remaining space with NUL chars,
-     * but this should NOT be included in the final size
-     */
-    while (DestMaxSize > 0)
+    else
     {
-        /* Put the NUL in the last character */
-        *DestStringPtr = 0;
-        ++DestStringPtr;
-        --DestMaxSize;
+        Result = 0;
+
+        while (SourceMaxSize > 0 && *SourceStringPtr != 0 && DestMaxSize > 0)
+        {
+            *DestStringPtr = *SourceStringPtr;
+            ++DestStringPtr;
+            ++SourceStringPtr;
+            ++Result;
+            --DestMaxSize;
+            --SourceMaxSize;
+        }
+
+        /*
+        * Pad the remaining space with NUL chars,
+        * but this should NOT be included in the final size
+        */
+        while (DestMaxSize > 0)
+        {
+            /* Put the NUL in the last character */
+            *DestStringPtr = 0;
+            ++DestStringPtr;
+            --DestMaxSize;
+        }
     }
 
     return Result;

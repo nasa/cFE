@@ -50,6 +50,11 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 {
     int32   Result;
     int32   EndianCheck = 0x01020304;
+
+    if (Hdr == NULL)
+    {
+        return CFE_FS_BAD_ARGUMENT;
+    }
     
     /*
     ** Ensure that we are at the start of the file...
@@ -81,9 +86,16 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 */
 void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 SubType)
 {
-   memset(Hdr, 0, sizeof(CFE_FS_Header_t));
-   strncpy((char *)Hdr->Description, Description, sizeof(Hdr->Description) - 1);
-   Hdr->SubType = SubType;
+   if(Hdr == NULL || Description == NULL)
+   {
+        CFE_ES_WriteToSysLog("CFE_FS:InitHeader-Failed invalid arguments\n");
+   }
+   else
+   {
+        memset(Hdr, 0, sizeof(CFE_FS_Header_t));
+        strncpy((char *)Hdr->Description, Description, sizeof(Hdr->Description) - 1);
+        Hdr->SubType = SubType;
+   }
 }
 
 /*
@@ -95,6 +107,11 @@ int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
     int32   Result;
     int32   EndianCheck = 0x01020304;
     CFE_ES_AppId_t AppID;
+
+    if (Hdr == NULL)
+	{
+		return CFE_FS_BAD_ARGUMENT;
+	}
 
     /*
     ** Ensure that we are at the start of the file...

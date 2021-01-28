@@ -1590,6 +1590,11 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
     int32         ReturnCode;
     va_list       ArgPtr;
 
+    if (SpecStringPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     va_start(ArgPtr, SpecStringPtr);
     CFE_ES_SysLog_vsnprintf(TmpString, sizeof(TmpString), SpecStringPtr, ArgPtr);
     va_end(ArgPtr);
@@ -1620,6 +1625,11 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
     int16  Crc = 0;
     const uint8 *BufPtr;
     uint8  ByteValue;
+
+    if (DataPtr == NULL || DataLength == 0)
+    {
+        return InputCRC;
+    }
 
     static const uint16 CrcTable[256]=
     {
@@ -1715,46 +1725,60 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, con
     /* Check to make sure calling application is legit */
     Status = CFE_ES_GetAppID(&ThisAppId);
 
-    if ( Status != CFE_SUCCESS )  /* Application ID was invalid */
+    if ( Status != CFE_SUCCESS || CDSHandlePtr == NULL || Name == NULL)  /* Application ID was invalid */
     {
-         CFE_ES_WriteToSysLog("CFE_CDS:Register-Bad AppId context\n");
-    }
-    else if (!CFE_ES_Global.CDSIsAvailable)
-    {
-        CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS not available\n");
-        Status = CFE_ES_NOT_IMPLEMENTED;
+      CFE_ES_WriteToSysLog("CFE_ES_RegisterCDS:-Failed invalid arguments\n");
+      Status = CFE_ES_BAD_ARGUMENT;
     }
     else
     {
-        /* Assume we can't make a CDS and return a bad handle for now */
-        *CDSHandlePtr = CFE_ES_CDS_BAD_HANDLE;
+        /* Initialize output to safe value, in case this fails */
+        *CDSHandlePtr = CFE_ES_RESOURCEID_UNDEFINED;
 
-        /* Make sure specified CDS name is not too long or too short */
-        NameLen = strlen(Name);
-        if ((NameLen > CFE_MISSION_ES_CDS_MAX_NAME_LENGTH) || (NameLen == 0))
+        /* Check to make sure calling application is legit */
+        Status = CFE_ES_GetAppID(&ThisAppId);
+
+        if ( Status != CFE_SUCCESS )  /* Application ID was invalid */
         {
-           Status = CFE_ES_CDS_INVALID_NAME;
-
-           /* Perform a buffer overrun safe copy of name for debug log message */
-
-           strncpy(CDSName, Name, sizeof(CDSName) - 1);
-           CDSName[sizeof(CDSName) - 1] = '\0';
-           CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS Name (%s) is too long\n", CDSName);
+            CFE_ES_WriteToSysLog("CFE_CDS:Register-Bad AppId context\n");
+        }
+        else if (!CFE_ES_Global.CDSIsAvailable)
+        {
+            CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS not available\n");
+            Status = CFE_ES_NOT_IMPLEMENTED;
         }
         else
         {
-           /* Modify specified name to be processor specific name */
-           /* of the form "AppName.Name"                          */
-           CFE_ES_FormCDSName(CDSName, Name, ThisAppId);
+            /* Assume we can't make a CDS and return a bad handle for now */
+            *CDSHandlePtr = CFE_ES_CDS_BAD_HANDLE;
 
-           /* Create CDS and designate it as NOT being a Critical Table */
-           Status = CFE_ES_RegisterCDSEx(CDSHandlePtr, BlockSize, CDSName, false);
+            /* Make sure specified CDS name is not too long or too short */
+            NameLen = strlen(Name);
+            if ((NameLen > CFE_MISSION_ES_CDS_MAX_NAME_LENGTH) || (NameLen == 0))
+            {
+                Status = CFE_ES_CDS_INVALID_NAME;
 
-           /* If size is unacceptable, log it */
-           if (Status == CFE_ES_CDS_INVALID_SIZE)
-           {
-              CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS %s has invalid size (%lu)\n", Name, (unsigned long)BlockSize);
-           }
+                /* Perform a buffer overrun safe copy of name for debug log message */
+
+                strncpy(CDSName, Name, sizeof(CDSName) - 1);
+                CDSName[sizeof(CDSName) - 1] = '\0';
+                CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS Name (%s) is too long\n", CDSName);
+            }
+            else
+            {
+                /* Modify specified name to be processor specific name */
+                /* of the form "AppName.Name"                          */
+                CFE_ES_FormCDSName(CDSName, Name, ThisAppId);
+
+                /* Create CDS and designate it as NOT being a Critical Table */
+                Status = CFE_ES_RegisterCDSEx(CDSHandlePtr, BlockSize, CDSName, false);
+
+                /* If size is unacceptable, log it */
+                if (Status == CFE_ES_CDS_INVALID_SIZE)
+                {
+                    CFE_ES_WriteToSysLog("CFE_CDS:Register-CDS %s has invalid size (%lu)\n", Name, (unsigned long)BlockSize);
+                }
+            }
         }
     }
 
@@ -1863,6 +1887,11 @@ CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId,
 */
 int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 {
+    if (DataToCopy == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     return CFE_ES_CDSBlockWrite(Handle, DataToCopy);
 } /* End of CFE_ES_CopyToCDS() */
 
@@ -1874,6 +1903,11 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 */
 int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 {
+    if (RestoreToMemory == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+    
     return CFE_ES_CDSBlockRead(RestoreToMemory, Handle);
 } /* End of CFE_ES_RestoreFromCDS() */
 

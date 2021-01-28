@@ -2131,6 +2131,7 @@ CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
 
     if (BufferHandle == NULL)
     {
+        CFE_ES_WriteToSysLog(" CFE_SB:ZeroCopyGetPtr-BufferHandle is NULL\n");
         return NULL;
     }
 
