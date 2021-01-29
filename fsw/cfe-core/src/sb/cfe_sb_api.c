@@ -1142,9 +1142,9 @@ int32  CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
     {
         /* If no other event pending, send a debug event indicating success */
         CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RCVD_EID,CFE_EVS_EventType_DEBUG,CFE_SB.AppId,
-            "Subscription Rcvd:MsgId 0x%x on %s(%lu),app %s",
+            "Subscription Rcvd:MsgId 0x%x on PipeId %lu,app %s",
             (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-            PipeName,CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
+            CFE_ES_ResourceID_ToInteger(PipeId),CFE_SB_GetAppTskName(TskId,FullName));
     }
 
     if (Status == CFE_SUCCESS && Scope == CFE_SB_GLOBAL)
