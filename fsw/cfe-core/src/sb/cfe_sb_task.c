@@ -806,9 +806,11 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
         if (CFE_SB_PipeDescIsUsed(PipeDscPtr))
         {
             PipeStatPtr->PipeId = PipeDscPtr->PipeId;
-            PipeStatPtr->InUse = PipeDscPtr->CurrentDepth;
-            PipeStatPtr->PeakInUse = PipeDscPtr->PeakDepth;
-            PipeStatPtr->Depth = PipeDscPtr->QueueDepth;
+
+            /* Copy depth info */
+            PipeStatPtr->CurrentQueueDepth = PipeDscPtr->CurrentQueueDepth;
+            PipeStatPtr->PeakQueueDepth    = PipeDscPtr->PeakQueueDepth;
+            PipeStatPtr->MaxQueueDepth     = PipeDscPtr->MaxQueueDepth;
 
             ++PipeStatPtr;
             --PipeStatCount;
@@ -839,156 +841,79 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
     return CFE_SUCCESS;
 }/* CFE_SB_SendStatsCmd */
 
-
-/******************************************************************************
- * \brief SB internal function to handle processing of 'Write Routing Info' Cmd
- *
- * \param[in] data Pointer to command structure
- *
- * \return Execution status, see \ref CFEReturnCodes
- */
-int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
-{
-    char LocalFilename[OS_MAX_PATH_LEN];
-    int32 Stat;
-
-    CFE_SB_MessageStringGet(LocalFilename, data->Payload.Filename, CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME,
-            sizeof(LocalFilename), sizeof(data->Payload.Filename));
-
-    Stat = CFE_SB_WriteRtgInfo(LocalFilename);
-    CFE_SB_IncrCmdCtr(Stat);
-
-    return CFE_SUCCESS;
-}
-
-
-/******************************************************************************
- * \brief SB internal function to handle processing of 'Write Pipe Info' Cmd
- *
- * \param[in] data Pointer to command structure
- *
- * \return Execution status, see \ref CFEReturnCodes
- */
-int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
-{
-    char LocalFilename[OS_MAX_PATH_LEN];
-    int32 Stat;
-
-    CFE_SB_MessageStringGet(LocalFilename, data->Payload.Filename, CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME,
-            sizeof(LocalFilename), sizeof(data->Payload.Filename));
-
-    Stat = CFE_SB_WritePipeInfo(LocalFilename);
-    CFE_SB_IncrCmdCtr(Stat);
-
-    return CFE_SUCCESS;
-}
-
-
-/******************************************************************************
- * \brief SB internal function to handle processing of 'Write Map Info' Cmd
- *
- * \param[in] data Pointer to command structure
- *
- * \return Execution status, see \ref CFEReturnCodes
- */
-int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
-{
-    char LocalFilename[OS_MAX_PATH_LEN];
-    int32 Stat;
-
-    CFE_SB_MessageStringGet(LocalFilename, data->Payload.Filename, CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME,
-            sizeof(LocalFilename), sizeof(data->Payload.Filename));
-
-    Stat = CFE_SB_WriteMapInfo(LocalFilename);
-
-    CFE_SB_IncrCmdCtr(Stat);
-
-    return CFE_SUCCESS;
-}
-
 /******************************************************************************
  * Local callback helper for writing routing info to a file
  */
-void CFE_SB_WriteRouteToFile(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
+void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
-    struct RouteInfo
-    {
-        CFE_SB_PipeId_t PipeId;
-        uint8           Active;
-        uint16          DestCnt;
-    };
-
-    CFE_SB_FileWriteCallback_t *args;
-    CFE_SB_DestinationD_t      *destptr;
-    CFE_SB_PipeD_t             *pipedptr;
-    int32                       status;
-    CFE_SB_RoutingFileEntry_t   entry;
-    struct RouteInfo RouteInfo[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
-    struct RouteInfo *RouteInfoPtr;
-    uint32 NumDest;
+    CFE_SB_DestinationD_t      *DestPtr;
+    CFE_SB_PipeD_t             *PipeDscPtr;
+    CFE_SB_MsgId_t              RouteMsgId;
+    CFE_SB_BackgroundRouteInfoBuffer_t *RouteBufferPtr;
+    CFE_SB_RoutingFileEntry_t   *FileEntryPtr;
+    CFE_ES_AppId_t              DestAppId[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
+    uint32 i;
 
     /* Cast arguments for local use */
-    args = (CFE_SB_FileWriteCallback_t *)ArgPtr;
+    RouteBufferPtr = (CFE_SB_BackgroundRouteInfoBuffer_t *)ArgPtr;
 
-    NumDest = 0;
-
+    /* Extract data from runtime info, write into the temporary buffer */
     /* Data must be locked to snapshot the route info */
     CFE_SB_LockSharedData(__FILE__, __LINE__);
 
-    destptr = CFE_SBR_GetDestListHeadPtr(RouteId);
-    entry.MsgId = CFE_SBR_GetMsgId(RouteId);
-    RouteInfoPtr = RouteInfo;
+    RouteMsgId = CFE_SBR_GetMsgId(RouteId);
+    RouteBufferPtr->NumDestinations = 0;
 
-    while((destptr != NULL) && NumDest < CFE_PLATFORM_SB_MAX_DEST_PER_PKT)
+    /* If this is a valid route, get the destinations */
+    if (CFE_SB_IsValidMsgId(RouteMsgId))
     {
-        pipedptr = CFE_SB_LocatePipeDescByID(destptr->PipeId);
+        DestPtr = CFE_SBR_GetDestListHeadPtr(RouteId);
 
-        /* If invalid id, continue on to next entry */
-        if (CFE_SB_PipeDescIsMatch(pipedptr,destptr->PipeId))
+        /* copy relevant data from the destination list into the temp buffer */
+        while(DestPtr != NULL && RouteBufferPtr->NumDestinations < CFE_PLATFORM_SB_MAX_DEST_PER_PKT)
         {
-            RouteInfoPtr->PipeId = destptr->PipeId;
-            RouteInfoPtr->Active = destptr->Active;
-            RouteInfoPtr->DestCnt = destptr->DestCnt;
-            ++RouteInfoPtr;
-            ++NumDest;
-        }
+            PipeDscPtr = CFE_SB_LocatePipeDescByID(DestPtr->PipeId);
 
-        destptr = destptr->Next;
+            /* If invalid id, continue on to next entry */
+            if (CFE_SB_PipeDescIsMatch(PipeDscPtr,DestPtr->PipeId))
+            {
+                FileEntryPtr = &RouteBufferPtr->DestEntries[RouteBufferPtr->NumDestinations];
+
+                /* clear all fields in the temp buffer before re-use */
+                memset(FileEntryPtr, 0, sizeof(*FileEntryPtr));
+
+                FileEntryPtr->PipeId = DestPtr->PipeId;
+                FileEntryPtr->State  = DestPtr->Active;
+                FileEntryPtr->MsgCnt = DestPtr->DestCnt;                
+
+                /* Stash the Pipe Owner AppId - App Name is looked up later (comes from ES) */
+                DestAppId[RouteBufferPtr->NumDestinations] = PipeDscPtr->AppId;
+
+                ++RouteBufferPtr->NumDestinations;
+            }
+
+            DestPtr = DestPtr->Next;
+        }
     }
 
     CFE_SB_UnlockSharedData(__FILE__, __LINE__);
 
-    RouteInfoPtr = RouteInfo;
-    while (NumDest > 0)
+    /* Go through the temp buffer and fill in the remaining info for each dest */
+    FileEntryPtr = RouteBufferPtr->DestEntries;
+    for(i = 0; i < RouteBufferPtr->NumDestinations; ++i)
     {
-        entry.PipeId    = RouteInfoPtr->PipeId;
-        entry.State     = RouteInfoPtr->Active;
-        entry.MsgCnt    = RouteInfoPtr->DestCnt;
-
-        entry.AppName[0] = 0;
+        /* All dest entries refer to the same MsgId (based on the route) */
+        FileEntryPtr->MsgId = RouteMsgId;
 
         /*
-         * NOTE: as long as CFE_ES_GetAppName() returns success, then it
-         * guarantees null termination of the output.  Return code is not
-         * checked here (bad) but in case of error it does not seem to touch
-         * the buffer, therefore the initialization above will protect for now
+         * NOTE: as long as CFE_ES_GetAppName() is given a nonzero-length
+         * output buffer, it guarantees null termination of the output, even
+         * if the AppID is invalid - in which case it returns an empty string.
          */
-        CFE_ES_GetAppName(entry.AppName, pipedptr->AppId, sizeof(entry.AppName));
-        CFE_SB_GetPipeName(entry.PipeName, sizeof(entry.PipeName), entry.PipeId);
+        CFE_ES_GetAppName(FileEntryPtr->AppName, DestAppId[i], sizeof(FileEntryPtr->AppName));
+        CFE_SB_GetPipeName(FileEntryPtr->PipeName, sizeof(FileEntryPtr->PipeName), FileEntryPtr->PipeId);
 
-        status = OS_write (args->Fd, &entry, sizeof(CFE_SB_RoutingFileEntry_t));
-        if(status != sizeof(CFE_SB_RoutingFileEntry_t))
-        {
-            CFE_SB_FileWriteByteCntErr(args->Filename, sizeof(CFE_SB_RoutingFileEntry_t), status);
-            OS_close(args->Fd);
-            args->Status = CFE_SB_FILE_IO_ERR;
-        }
-
-        args->FileSize += status;
-        args->EntryCount++;
-
-        ++RouteInfoPtr;
-        --NumDest;
+        ++FileEntryPtr;
     }
 }
 
@@ -1033,169 +958,257 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
     return Status;
 }
 
+bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
+{
+    CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
+    CFE_SBR_Throttle_t        Throttle;
+
+    /* Cast arguments for local use */
+    BgFilePtr = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
+
+    Throttle.StartIndex = RecordNum;
+    Throttle.MaxLoop = 1;
+    Throttle.NextIndex = 0;
+
+    /* Reset NumDestinations to 0, just in case the CFE_SBR_ForEachRouteId() is a no-op */
+    BgFilePtr->Buffer.RouteInfo.NumDestinations = 0;
+
+    /* Collect info on the next route (limited to one per cycle via throttle) */
+    CFE_SBR_ForEachRouteId(CFE_SB_CollectRouteInfo, &BgFilePtr->Buffer.RouteInfo, &Throttle);
+
+    /* Pass the output of CFE_SB_CollectRouteInfo() back to be written */
+    *Buffer  = &BgFilePtr->Buffer.RouteInfo.DestEntries;
+    *BufSize = sizeof(CFE_SB_RoutingFileEntry_t) * BgFilePtr->Buffer.RouteInfo.NumDestinations;
+
+    /* Check for EOF (last entry) - NextIndex is nonzero if more records left, zero at the end of the route table */
+    return (Throttle.NextIndex == 0);
+}
+
+void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position)
+{
+    CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
+
+    BgFilePtr = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
+
+    /*
+     * Note that this runs in the context of ES background task (file writer background job)
+     * It does NOT run in the context of the CFE_TBL app task.
+     * 
+     * Events should use CFE_EVS_SendEventWithAppID() rather than CFE_EVS_SendEvent()
+     * to get proper association with TBL task.
+     */
+    switch(Event)
+    {
+        case CFE_FS_FileWriteEvent_COMPLETE:
+            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_EID,CFE_EVS_EventType_DEBUG,
+                            CFE_SB_Global.AppId,
+                            "%s written:Size=%d,Entries=%d",
+                            BgFilePtr->FileWrite.FileName, (int)Position, (int)RecordNum);
+            break;        
+
+        case CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR:
+        case CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR:
+            CFE_EVS_SendEventWithAppID(CFE_SB_FILEWRITE_ERR_EID,CFE_EVS_EventType_ERROR,
+                            CFE_SB_Global.AppId,
+                            "File write,byte cnt err,file %s,request=%d,actual=%d",
+                            BgFilePtr->FileWrite.FileName, (int)BlockSize, (int)Status);
+            break;
+
+        case CFE_FS_FileWriteEvent_CREATE_ERROR:
+            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_ERR1_EID, CFE_EVS_EventType_ERROR,
+                            CFE_SB_Global.AppId,
+                            "Error creating file %s, stat=0x%x",
+                            BgFilePtr->FileWrite.FileName, (int)Status);
+            break;
+        
+        default:
+            /* unhandled event - ignore */
+            break;
+    }       
+}
 
 /******************************************************************************
- * \brief SB internal function to write the routing information to a file
+ * \brief SB internal function to handle processing of 'Write Routing Info' Cmd
  *
- * \param[in] Filename Pointer the file name to write
+ * \param[in] data Pointer to command structure
  *
  * \return Execution status, see \ref CFEReturnCodes
- * \retval #CFE_SUCCESS        \copybrief CFE_SUCCESS
- * \retval #CFE_SB_FILE_IO_ERR \copybrief CFE_SB_FILE_IO_ERR
  */
-int32 CFE_SB_WriteRtgInfo(const char *Filename)
+int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
 {
-    CFE_SB_FileWriteCallback_t  args = {0};
+    const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
+    CFE_SB_BackgroundFileStateInfo_t *StatePtr;
     int32                       Status;
-    CFE_FS_Header_t             FileHdr;
 
-    Status = OS_OpenCreate(&args.Fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-    if(Status < OS_SUCCESS)
+    StatePtr = &CFE_SB_Global.BackgroundFile;
+    CmdPtr = &data->Payload;
+
+    /* If a routing info dump was already pending, do not overwrite the current request */
+    if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
     {
-        CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID, CFE_EVS_EventType_ERROR,
-                      "Error creating file %s, stat=0x%x",
-                      Filename, (unsigned int)Status);
-        return CFE_SB_FILE_IO_ERR;
-    }
+        /* Reset the entire state object (just for good measure, ensure no stale data) */
+        memset(StatePtr, 0, sizeof(*StatePtr));
 
-    /* clear out the cfe file header fields, then populate description and subtype */
-    CFE_FS_InitHeader(&FileHdr, "SB Routing Information", CFE_FS_SubType_SB_ROUTEDATA);
+        /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
+        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->Filename, CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME,
+                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename));
 
-    Status = CFE_FS_WriteHeader(args.Fd, &FileHdr);
-    if(Status != sizeof(CFE_FS_Header_t))
-    {
-        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),Status);
-        OS_close(args.Fd);
-        return CFE_SB_FILE_IO_ERR;
-    }
+        /* 
+         * Fill out the remainder of meta data.  
+         * This data is currently the same for every request
+         */
+        StatePtr->FileWrite.FileSubType = CFE_FS_SubType_SB_ROUTEDATA;
+        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), "SB Routing Information");
 
-    /* Initialize the reset of the nonzero callback argument elements */
-    args.FileSize = Status;
-    args.Filename = Filename;
+        StatePtr->FileWrite.GetData = CFE_SB_WriteRouteInfoDataGetter;
+        StatePtr->FileWrite.OnEvent = CFE_SB_BackgroundFileEventHandler;
 
-    /* Write route info to file */
-    CFE_SBR_ForEachRouteId(CFE_SB_WriteRouteToFile, &args, NULL);
-
-    if (args.Status != 0)
-    {
-        return args.Status;
+        Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
     }
     else
     {
-        OS_close(args.Fd);
-        CFE_EVS_SendEvent(CFE_SB_SND_RTG_EID,CFE_EVS_EventType_DEBUG,
-                          "%s written:Size=%d,Entries=%d",
-                          Filename, (int)args.FileSize, (int)args.EntryCount);
-        return CFE_SUCCESS;
+        Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
-
-}
-
-
-/******************************************************************************
- * \brief SB internal function to write the Pipe table to a file
- *
- * \param[in] Filename Pointer the file name to write
- *
- * \return Execution status, see \ref CFEReturnCodes
- * \retval #CFE_SUCCESS        \copybrief CFE_SUCCESS
- * \retval #CFE_SB_FILE_IO_ERR \copybrief CFE_SB_FILE_IO_ERR
- */
-int32 CFE_SB_WritePipeInfo(const char *Filename)
-{
-    uint16 i;
-    osal_id_t  fd;
-    int32  Status;
-    uint32 FileSize = 0;
-    uint32 EntryCount = 0;
-    CFE_FS_Header_t FileHdr;
-    CFE_SB_PipeD_t *PipeDscPtr;
-    CFE_SB_PipeInfoEntry_t FileEntry;
-    osal_id_t SysQueueId;
-
-    Status = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-
-    if(Status < OS_SUCCESS){
-        CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID,CFE_EVS_EventType_ERROR,
-                          "Error creating file %s, stat=0x%x",
-                           Filename,(unsigned int)Status);
-        return CFE_SB_FILE_IO_ERR;
-    }/* end if */
-
-    /* clear out the cfe file header fields, then populate description and subtype */
-    CFE_FS_InitHeader(&FileHdr, "SB Pipe Information", CFE_FS_SubType_SB_PIPEDATA);
     
-    Status = CFE_FS_WriteHeader(fd, &FileHdr);
-    if(Status != sizeof(CFE_FS_Header_t)){
-        CFE_SB_FileWriteByteCntErr(Filename,sizeof(CFE_FS_Header_t),Status);
-        OS_close(fd);
-        return CFE_SB_FILE_IO_ERR;
-    }/* end if */
-
-    FileSize = Status;
-
-    /* loop through the pipe table */   
-    CFE_SB_LockSharedData(__FILE__,__LINE__); 
-    PipeDscPtr = CFE_SB_Global.PipeTbl;
-
-    for (i=0;i<CFE_PLATFORM_SB_MAX_PIPES;i++)
+    if (Status != CFE_SUCCESS)
     {
-        if (CFE_SB_PipeDescIsUsed(PipeDscPtr))
+        /* generate the same event as is generated when unable to create the file (same thing, really) */
+        CFE_SB_BackgroundFileEventHandler(StatePtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
+    }
+    
+    CFE_SB_IncrCmdCtr(Status);
+    
+    return CFE_SUCCESS;
+}/* end CFE_SB_WriteRoutingInfoCmd */
+
+
+bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
+{
+    CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
+    CFE_SB_PipeInfoEntry_t *PipeBufferPtr;
+    CFE_SB_PipeD_t *PipeDscPtr;
+    osal_id_t SysQueueId;
+    bool PipeIsValid;
+
+    BgFilePtr = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
+    PipeDscPtr = NULL;
+    PipeIsValid = false;
+
+    PipeBufferPtr = &BgFilePtr->Buffer.PipeInfo;
+
+    if (RecordNum < CFE_PLATFORM_SB_MAX_PIPES)
+    {
+        PipeDscPtr = &CFE_SB_Global.PipeTbl[RecordNum];
+
+        CFE_SB_LockSharedData(__FILE__,__LINE__); 
+
+        PipeIsValid = CFE_SB_PipeDescIsUsed(PipeDscPtr);
+
+        if (PipeIsValid)
         {
             /*
              * Ensure any old data in the struct has been cleared
              */
-            memset(&FileEntry, 0, sizeof(FileEntry));
+            memset(PipeBufferPtr, 0, sizeof(*PipeBufferPtr));
 
             /*
              * Take a "snapshot" of the PipeDsc state while locked 
              */
-            FileEntry.PipeId = CFE_SB_PipeDescGetID(PipeDscPtr);            
-            FileEntry.AppId = PipeDscPtr->AppId;
-            FileEntry.MaxQueueDepth = PipeDscPtr->QueueDepth;
-            FileEntry.CurrentQueueDepth = PipeDscPtr->CurrentDepth;
-            FileEntry.PeakQueueDepth = PipeDscPtr->PeakDepth;
-            FileEntry.SendErrors = PipeDscPtr->SendErrors;
-            FileEntry.Opts = PipeDscPtr->Opts;
+            PipeBufferPtr->PipeId = CFE_SB_PipeDescGetID(PipeDscPtr);            
+            PipeBufferPtr->AppId  = PipeDscPtr->AppId;
+            PipeBufferPtr->Opts   = PipeDscPtr->Opts;
+
+            /* copy stats info */
+            PipeBufferPtr->SendErrors        = PipeDscPtr->SendErrors;
+            PipeBufferPtr->MaxQueueDepth     = PipeDscPtr->MaxQueueDepth;
+            PipeBufferPtr->CurrentQueueDepth = PipeDscPtr->CurrentQueueDepth;
+            PipeBufferPtr->PeakQueueDepth    = PipeDscPtr->PeakQueueDepth;
+
             SysQueueId = PipeDscPtr->SysQueueId;
+        }
+        else
+        {
+            SysQueueId = OS_OBJECT_ID_UNDEFINED;
+        }
+        
+        CFE_SB_UnlockSharedData(__FILE__,__LINE__);
+    }    
 
-            CFE_SB_UnlockSharedData(__FILE__,__LINE__); 
+    if (PipeIsValid)
+    {
+        /*
+         * Gather data from other subsystems while unlocked.
+         * This might fail if the pipe is deleted simultaneously while this runs, but in
+         * the unlikely event that happens, the name data will simply be blank as the ID(s)
+         * will not validate.
+         */
+        OS_GetResourceName(SysQueueId, PipeBufferPtr->PipeName, sizeof(PipeBufferPtr->PipeName));
+        CFE_ES_GetAppName(PipeBufferPtr->AppName, PipeBufferPtr->AppId, sizeof(PipeBufferPtr->AppName));
 
-            /*
-             * Gather data from other subsystems while unlocked.
-             * This might fail if the pipe is deleted simultaneously while this runs, but in
-             * the unlikely event that happens, the name data will simply be blank as the ID(s)
-             * will not validate.
-             */
-            OS_GetResourceName(SysQueueId, FileEntry.PipeName, sizeof(FileEntry.PipeName));
-            CFE_ES_GetAppName(FileEntry.AppName, FileEntry.AppId, sizeof(FileEntry.AppName));
+        *Buffer = PipeBufferPtr;
+        *BufSize = sizeof(*PipeBufferPtr);
+    }
+    else
+    {
+        *Buffer = NULL;
+        *BufSize = 0;
+    }
+    
+    /* Check for EOF (last entry)  */
+    return (RecordNum >= (CFE_PLATFORM_SB_MAX_PIPES-1));
+}
 
-            Status = OS_write (fd, &FileEntry, sizeof(FileEntry));
-            if (Status != sizeof(FileEntry))
-            {
-                CFE_SB_FileWriteByteCntErr(Filename,sizeof(FileEntry),Status);
-                OS_close(fd);
-                return CFE_SB_FILE_IO_ERR;
-            }/* end if */
 
-            FileSize += Status;
-            EntryCount ++;
+/******************************************************************************
+ * \brief SB internal function to handle processing of 'Write Pipe Info' Cmd
+ *
+ * \param[in] data Pointer to command structure
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
+{
+    const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
+    CFE_SB_BackgroundFileStateInfo_t *StatePtr;
+    int32                       Status;
 
-            CFE_SB_LockSharedData(__FILE__,__LINE__); 
+    StatePtr = &CFE_SB_Global.BackgroundFile;
+    CmdPtr = &data->Payload;
 
-        }/* end if */
+    /* If a pipe info dump was already pending, do not overwrite the current request */
+    if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
+    {
+        /* Reset the entire state object (just for good measure, ensure no stale data) */
+        memset(StatePtr, 0, sizeof(*StatePtr));
 
-        ++PipeDscPtr;
+        /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
+        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->Filename, CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME,
+                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename));
 
-    }/* end for */
+        /* 
+         * Fill out the remainder of meta data.  
+         * This data is currently the same for every request
+         */
+        StatePtr->FileWrite.FileSubType = CFE_FS_SubType_SB_PIPEDATA;
+        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), "SB Pipe Information");
 
-    CFE_SB_UnlockSharedData(__FILE__,__LINE__); 
+        StatePtr->FileWrite.GetData = CFE_SB_WritePipeInfoDataGetter;
+        StatePtr->FileWrite.OnEvent = CFE_SB_BackgroundFileEventHandler;
 
-    OS_close(fd);
+        Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
+    }
+    else
+    {
+        Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
+    }
+    
+    if (Status != CFE_SUCCESS)
+    {
+        /* generate the same event as is generated when unable to create the file (same thing, really) */
+        CFE_SB_BackgroundFileEventHandler(StatePtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
+    }
 
-    CFE_EVS_SendEvent(CFE_SB_SND_RTG_EID,CFE_EVS_EventType_DEBUG,
-                      "%s written:Size=%d,Entries=%d",
-                       Filename,(int)FileSize,(int)EntryCount);
+    CFE_SB_IncrCmdCtr(Status);
 
     return CFE_SUCCESS;
 
@@ -1204,91 +1217,112 @@ int32 CFE_SB_WritePipeInfo(const char *Filename)
 /******************************************************************************
  * Local callback helper for writing map info to a file
  */
-void CFE_SB_WriteMapToFile(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
+void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
-    CFE_SB_FileWriteCallback_t *args;
-    int32                       status;
-    CFE_SB_MsgMapFileEntry_t    entry;
+    CFE_SB_MsgMapFileEntry_t   *BufferPtr;
 
     /* Cast arguments for local use */
-    args = (CFE_SB_FileWriteCallback_t *)ArgPtr;
+    BufferPtr = (CFE_SB_MsgMapFileEntry_t *)ArgPtr;
 
-    if(args->Status != CFE_SB_FILE_IO_ERR)
-    {
-        CFE_SB_LockSharedData(__FILE__,__LINE__); 
-        entry.MsgId = CFE_SBR_GetMsgId(RouteId);
-        entry.Index = CFE_SBR_RouteIdToValue(RouteId);
-        CFE_SB_UnlockSharedData(__FILE__,__LINE__); 
+    /* Extract data from runtime info, write into the temporary buffer */
+    /* Data must be locked to snapshot the route info */
+    CFE_SB_LockSharedData(__FILE__, __LINE__);
 
-        status = OS_write (args->Fd, &entry, sizeof(CFE_SB_MsgMapFileEntry_t));
-        if(status != sizeof(CFE_SB_MsgMapFileEntry_t))
-        {
-            CFE_SB_FileWriteByteCntErr(args->Filename, sizeof(CFE_SB_MsgMapFileEntry_t), status);
-            OS_close(args->Fd);
-            args->Status = CFE_SB_FILE_IO_ERR;
-        }
+    BufferPtr->MsgId = CFE_SBR_GetMsgId(RouteId);
+    BufferPtr->Index = CFE_SBR_RouteIdToValue(RouteId);
 
-        args->FileSize += status;
-        args->EntryCount++;
-    }
+    CFE_SB_UnlockSharedData(__FILE__,__LINE__); 
 }
 
-/******************************************************************************
- * \brief SB internal function to write the Message Map to a file
- *
- * \param[in] Filename Pointer the file name to write
- *
- * \return Execution status, see \ref CFEReturnCodes
- * \retval #CFE_SUCCESS        \copybrief CFE_SUCCESS
- * \retval #CFE_SB_FILE_IO_ERR \copybrief CFE_SB_FILE_IO_ERR
- */
-int32 CFE_SB_WriteMapInfo(const char *Filename)
+
+bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
-    CFE_SB_FileWriteCallback_t args = {0};
-    int32                      Status;
-    CFE_FS_Header_t            FileHdr;
+    CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
+    CFE_SBR_Throttle_t        Throttle;
 
-    Status = OS_OpenCreate(&args.Fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+    /* Cast arguments for local use */
+    BgFilePtr = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
 
-    if (Status < OS_SUCCESS)
+    Throttle.StartIndex = RecordNum;
+    Throttle.MaxLoop = 1;
+    Throttle.NextIndex = 0;
+
+    /* Set the MsgId intially - will be overwritten with real info in CFE_SB_CollectMsgMapInfo */
+    BgFilePtr->Buffer.MsgMapInfo.MsgId = CFE_SB_INVALID_MSG_ID;
+
+    /* Collect info on the next route (limited to one per cycle via throttle) */
+    CFE_SBR_ForEachRouteId(CFE_SB_CollectMsgMapInfo, &BgFilePtr->Buffer.MsgMapInfo, &Throttle);
+
+    /* If Map was valid, pass the output of CFE_SB_CollectMsgMapInfo() back to be written */
+    if (CFE_SB_IsValidMsgId(BgFilePtr->Buffer.MsgMapInfo.MsgId))
     {
-        CFE_EVS_SendEvent(CFE_SB_SND_RTG_ERR1_EID, CFE_EVS_EventType_ERROR,
-                          "Error creating file %s, stat=0x%x",
-                           Filename, (unsigned int)Status);
-        return CFE_SB_FILE_IO_ERR;
-    }
-
-    /* clear out the cfe file header fields, then populate description and subtype */
-    CFE_FS_InitHeader(&FileHdr, "SB Message Map Information", CFE_FS_SubType_SB_MAPDATA);
-
-    Status = CFE_FS_WriteHeader(args.Fd, &FileHdr);
-    if(Status != sizeof(CFE_FS_Header_t))
-    {
-        CFE_SB_FileWriteByteCntErr(Filename, sizeof(CFE_FS_Header_t), Status);
-        OS_close(args.Fd);
-        return CFE_SB_FILE_IO_ERR;
-    }
-
-    /* Initialize the reset of the nonzero callback argument elements */
-    args.FileSize = Status;
-    args.Filename = Filename;
-
-    /* Write route info to file */
-    CFE_SBR_ForEachRouteId(CFE_SB_WriteMapToFile, &args, NULL);
-
-    if (args.Status != 0)
-    {
-        return args.Status;
+        *Buffer  = &BgFilePtr->Buffer.MsgMapInfo;
+        *BufSize = sizeof(CFE_SB_MsgMapFileEntry_t);
     }
     else
     {
-        OS_close(args.Fd);
-        CFE_EVS_SendEvent(CFE_SB_SND_RTG_EID, CFE_EVS_EventType_DEBUG,
-                          "%s written:Size=%d,Entries=%d",
-                          Filename, (int)args.FileSize, (int)args.EntryCount);
-        return CFE_SUCCESS;
+        *Buffer  = NULL;
+        *BufSize = 0;
     }
+
+    /* Check for EOF (last entry) - NextIndex is nonzero if more records left, zero at the end of the route table */
+    return (Throttle.NextIndex == 0);
 }
+
+
+/******************************************************************************
+ * \brief SB internal function to handle processing of 'Write Map Info' Cmd
+ *
+ * \param[in] data Pointer to command structure
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
+{
+    const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
+    CFE_SB_BackgroundFileStateInfo_t *StatePtr;
+    int32                       Status;
+
+    StatePtr = &CFE_SB_Global.BackgroundFile;
+    CmdPtr = &data->Payload;
+
+    /* If a pipe info dump was already pending, do not overwrite the current request */
+    if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
+    {
+        /* Reset the entire state object (just for good measure, ensure no stale data) */
+        memset(StatePtr, 0, sizeof(*StatePtr));
+
+        /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
+        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->Filename, CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME,
+                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename));
+
+        /* 
+         * Fill out the remainder of meta data.  
+         * This data is currently the same for every request
+         */
+        StatePtr->FileWrite.FileSubType = CFE_FS_SubType_SB_MAPDATA;
+        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), "SB Map Information");
+
+        StatePtr->FileWrite.GetData = CFE_SB_WriteMsgMapInfoDataGetter;
+        StatePtr->FileWrite.OnEvent = CFE_SB_BackgroundFileEventHandler;
+
+        Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
+    }
+    else
+    {
+        Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
+    }
+    
+    if (Status != CFE_SUCCESS)
+    {
+        /* generate the same event as is generated when unable to create the file (same thing, really) */
+        CFE_SB_BackgroundFileEventHandler(StatePtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
+    }
+
+    CFE_SB_IncrCmdCtr(Status);
+
+    return CFE_SUCCESS;
+}/* end CFE_SB_WriteMapInfoCmd */
 
 /******************************************************************************
  * Local callback helper for sending route subscriptions
@@ -1409,29 +1443,6 @@ void CFE_SB_IncrCmdCtr(int32 status){
     }/* end if */
 
 }/* end CFE_SB_IncrCmdCtr */
-
-
-
-/******************************************************************************
-**  Function:  CFE_SB_FileWriteByteCntErr()
-**
-**  Purpose:
-**    SB internal function to report a file write error
-**
-**  Arguments:
-**
-**
-**  Return:
-**    None
-*/
-void CFE_SB_FileWriteByteCntErr(const char *Filename,uint32 Requested,uint32 Actual){
-
-    CFE_EVS_SendEvent(CFE_SB_FILEWRITE_ERR_EID,CFE_EVS_EventType_ERROR,
-                      "File write,byte cnt err,file %s,request=%d,actual=%d",
-                       Filename,(int)Requested,(int)Actual);
-
-}/* end CFE_SB_FileWriteByteCntErr() */
-
 
 /******************************************************************************
 **  Function:  CFE_SB_SetSubscriptionReporting()

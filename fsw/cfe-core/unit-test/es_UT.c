@@ -2306,6 +2306,9 @@ void TestLibs(void)
 void TestERLog(void)
 {
     int Return;
+    void *LocalBuffer;
+    size_t LocalBufSize;
+    CFE_ES_BackgroundLogDumpGlobal_t State;
 
     UtPrintf("Begin Test Exception and Reset Log");
 
@@ -2343,6 +2346,51 @@ void TestERLog(void)
             CFE_ES_ResetDataPtr->ERLogIndex == 1,
               "CFE_ES_WriteToERLog",
               "No log entry rollover; no description; no context");
+
+    /* Test ER log background write functions */
+    memset(&State, 0, sizeof(State));
+    LocalBuffer = NULL;
+    LocalBufSize = 0;
+
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_Exception_CopyContext), 1, 128);
+    UtAssert_True(!CFE_ES_BackgroundERLogFileDataGetter(&State, 0, &LocalBuffer, &LocalBufSize),
+        "CFE_ES_BackgroundERLogFileDataGetter at start, with context");
+    UtAssert_UINT32_EQ(State.EntryBuffer.ContextSize, 128);
+    UtAssert_NOT_NULL(LocalBuffer);
+    UtAssert_NONZERO(LocalBufSize);
+
+    memset(&State.EntryBuffer, 0xEE, sizeof(State.EntryBuffer));
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_Exception_CopyContext), 1, -1);
+    UtAssert_True(CFE_ES_BackgroundERLogFileDataGetter(&State, CFE_PLATFORM_ES_ER_LOG_ENTRIES-1, &LocalBuffer, &LocalBufSize),
+        "CFE_ES_BackgroundERLogFileDataGetter at EOF, no context");
+    UtAssert_ZERO(State.EntryBuffer.ContextSize);
+
+    UtAssert_True(CFE_ES_BackgroundERLogFileDataGetter(&State, CFE_PLATFORM_ES_ER_LOG_ENTRIES, &LocalBuffer, &LocalBufSize), 
+        "CFE_ES_BackgroundERLogFileDataGetter beyond EOF");
+    UtAssert_NULL(LocalBuffer);
+    UtAssert_ZERO(LocalBufSize);
+
+
+    /* Test ER log background write event handling */
+    UT_ClearEventHistory();
+    CFE_ES_BackgroundERLogFileEventHandler(&State, CFE_FS_FileWriteEvent_COMPLETE, CFE_SUCCESS, 10, 0, 100);
+    UtAssert_True(UT_EventIsInHistory(CFE_ES_ERLOG2_EID), "COMPLETE: CFE_ES_ERLOG2_EID generated"); 
+
+    UT_ClearEventHistory();
+    CFE_ES_BackgroundERLogFileEventHandler(&State, CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR, -1, 10, 10, 100);
+    UtAssert_True(UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID), "HEADER_WRITE_ERROR: CFE_ES_FILEWRITE_ERR_EID generated"); 
+
+    UT_ClearEventHistory();
+    CFE_ES_BackgroundERLogFileEventHandler(&State, CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, -1, 10, 10, 100);
+    UtAssert_True(UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID), "RECORD_WRITE_ERROR: CFE_ES_FILEWRITE_ERR_EID generated"); 
+
+    UT_ClearEventHistory();
+    CFE_ES_BackgroundERLogFileEventHandler(&State, CFE_FS_FileWriteEvent_CREATE_ERROR, -1, 10, 10, 100);
+    UtAssert_True(UT_EventIsInHistory(CFE_ES_ERLOG2_ERR_EID), "CREATE_ERROR: CFE_ES_ERLOG2_ERR_EID generated"); 
+
+    UT_ClearEventHistory();
+    CFE_ES_BackgroundERLogFileEventHandler(&State, CFE_FS_FileWriteEvent_UNDEFINED, CFE_SUCCESS, 10, 0, 100);
+    UtAssert_True(UT_GetNumEventsSent() == 0, "UNDEFINED: No event generated"); 
 }
 
 
@@ -2592,7 +2640,6 @@ void TestGenericPool(void)
 void TestTask(void)
 {
     uint32                      ResetType;
-    uint32                      UT_ContextData;
     osal_id_t                   UT_ContextTask;
     union
     {
@@ -3430,11 +3477,11 @@ void TestTask(void)
     strncpy(CmdBuf.WriteERLogCmd.Payload.FileName, "filename",
             sizeof(CmdBuf.WriteERLogCmd.Payload.FileName) - 1);
     CmdBuf.WriteERLogCmd.Payload.FileName[sizeof(CmdBuf.WriteERLogCmd.Payload.FileName) - 1] = '\0';
-    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = false;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_BackgroundFileDumpIsPending), false);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteERLogCmd),
             UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
     UT_Report(__FILE__, __LINE__,
-            CFE_ES_TaskData.BackgroundERLogDumpState.IsPending,
+            UT_GetStubCount(UT_KEY(CFE_FS_BackgroundFileDumpRequest)) == 1,
               "CFE_ES_WriteERLogCmd",
               "Write E&R log command; pending");
     UT_Report(__FILE__, __LINE__,
@@ -3442,71 +3489,25 @@ void TestTask(void)
               "CFE_ES_WriteERLogCmd",
               "Write E&R log command; no events");
 
-    /* sending the same command a second time should fail with an event
-     * indicating a file write is already pending. */
+    /* Failure from CFE_FS_BackgroundFileDumpRequest() should send the pending error event ID */
+    UT_ClearEventHistory();
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_BackgroundFileDumpRequest), 1, CFE_STATUS_REQUEST_ALREADY_PENDING);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteERLogCmd),
             UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
     UT_Report(__FILE__, __LINE__,
             UT_EventIsInHistory(CFE_ES_ERLOG_PENDING_ERR_EID),
               "CFE_ES_WriteERLogCmd",
-              "Write E&R log command; already pending event");
+              "Write E&R log command; already pending event (from FS)");
 
-    /* calling the background job when no write pending should immediately return false, no event */
-    ES_ResetUnitTest();
-    memset(&CFE_ES_TaskData.BackgroundERLogDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundERLogDumpState));
+    /* Same event but pending locally */
+    UT_ClearEventHistory();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_BackgroundFileDumpIsPending), true);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteERLogCmd),
+            UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
     UT_Report(__FILE__, __LINE__,
-              !CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState),
-              "CFE_ES_RunERLogDump",
-              "Write E&R log; not pending");
-    UT_Report(__FILE__, __LINE__,
-            !UT_EventIsInHistory(CFE_ES_ERLOG2_EID),
+            UT_EventIsInHistory(CFE_ES_ERLOG_PENDING_ERR_EID),
               "CFE_ES_WriteERLogCmd",
-              "Write E&R log command; no file written event");
-
-    /* nominal condition - still returns false, but generates event */
-    ES_ResetUnitTest();
-    UT_ContextData = 42;
-    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_CopyContext),&UT_ContextData, sizeof(UT_ContextData), false);
-    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
-    CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
-    UT_Report(__FILE__, __LINE__,
-            !CFE_ES_TaskData.BackgroundERLogDumpState.IsPending,
-              "CFE_ES_RunERLogDump",
-              "Write E&R log; nominal, clear flag");
-    UT_Report(__FILE__, __LINE__,
-            UT_EventIsInHistory(CFE_ES_ERLOG2_EID),
-              "CFE_ES_WriteERLogCmd",
-              "Write E&R log command; file written event");
-
-    /* Test writing the E&R log with an OS create failure */
-    ES_ResetUnitTest();
-    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
-    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_ERLOG2_ERR_EID),
-              "CFE_ES_RunERLogDump",
-              "Write E&R log; OS create");
-
-    /* Test writing the E&R log with an OS write failure */
-    ES_ResetUnitTest();
-    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
-    UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
-    CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID),
-              "CFE_ES_RunERLogDump",
-              "Write E&R log; OS write");
-
-    /* Test writing the E&R log with a write header failure */
-    ES_ResetUnitTest();
-    CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, OS_ERROR);
-    CFE_ES_RunERLogDump(0, &CFE_ES_TaskData.BackgroundERLogDumpState);
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID),
-              "CFE_ES_WriteERLogCmd",
-              "Write E&R log; write header");
+              "Write E&R log command; already pending event (local)");
 
     /* Test scan for exceptions in the PSP, should invoke a Processor Reset */
     ES_ResetUnitTest();

@@ -181,126 +181,118 @@ int32 CFE_ES_WriteToERLog( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  Reset
 } /* End of CFE_ES_WriteToERLog() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*  Function:  CFE_ES_RunERLogDump()                                             */
+/*  Function:  CFE_ES_BackgroundERLogFileDataGetter()                            */
 /*                                                                               */
 /*  Purpose:                                                                     */
-/*    Write exception & reset log to a file.                                     */
-/*                                                                               */
-/*    Implemented as an ES background job, but the entire file write is done     */
-/*    in a single invocation, as the file is expected to be relatively small.    */
+/*    Gets a single record from exception & reset log to write to a file.        */
 /*                                                                               */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg)
+bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
-    CFE_ES_BackgroundLogDumpGlobal_t *State = (CFE_ES_BackgroundLogDumpGlobal_t *)Arg;
-    int32               Status;
-    int32               PspStatus;
-    CFE_FS_Header_t     FileHdr;
-    CFE_ES_ERLog_FileEntry_t FileEntry;
+    CFE_ES_BackgroundLogDumpGlobal_t *BgFilePtr;
+    CFE_ES_ERLog_FileEntry_t      *FileBufferPtr;
     CFE_ES_ERLog_MetaData_t *EntryPtr;
-    uint32              FileSize;
-    uint32              i;
-    osal_id_t           fd;
+    int32 PspStatus;
+    
+    BgFilePtr = (CFE_ES_BackgroundLogDumpGlobal_t *)Meta;
+    FileBufferPtr = &BgFilePtr->EntryBuffer;
 
-
-    if (!State->IsPending)
+    if (RecordNum < CFE_PLATFORM_ES_ER_LOG_ENTRIES)
     {
-        return false;
-    }
+        EntryPtr = &CFE_ES_ResetDataPtr->ERLog[RecordNum];
 
-    FileSize = 0;
-    Status = OS_OpenCreate(&fd, State->DataFileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-    if(Status < 0)
-    {
-        CFE_EVS_SendEvent(CFE_ES_ERLOG2_ERR_EID,CFE_EVS_EventType_ERROR,
-                "Error creating file %s, RC = %d",
-                State->DataFileName, (int)Status);
-    }
-    else
-    {
-        CFE_FS_InitHeader(&FileHdr, CFE_ES_ER_LOG_DESC, CFE_FS_SubType_ES_ERLOG);
+        /* First wipe the buffer before re-use */
+        memset(FileBufferPtr, 0, sizeof(*FileBufferPtr));
 
-        /* write the cFE header to the file */
-        Status = CFE_FS_WriteHeader(fd, &FileHdr);
-        if(Status != sizeof(CFE_FS_Header_t))
+        CFE_ES_LockSharedData(__func__,__LINE__);
+
+        /* The basic info comes directly from the ES log */
+        FileBufferPtr->BaseInfo = EntryPtr->BaseInfo;
+
+        /*
+         * The context info, if available, comes from the PSP.
+         * This returns the actual size of the context info, or <0 on error.
+         */
+        PspStatus = CFE_PSP_Exception_CopyContext(EntryPtr->PspContextId, &FileBufferPtr->Context,
+                                                  sizeof(FileBufferPtr->Context));
+        if (PspStatus > 0)
         {
-            CFE_ES_FileWriteByteCntErr(State->DataFileName,sizeof(CFE_FS_Header_t),Status);
+            FileBufferPtr->ContextSize = PspStatus;
         }
         else
         {
-            FileSize += Status;
+            /*
+             * errors here are OK - just means there is no context available.
+             * Record a size of 0 in the log file.
+             */
+            FileBufferPtr->ContextSize = 0;
+        }
 
-            /* write a single ER log entry on each pass */
-            for(i=0;i<CFE_PLATFORM_ES_ER_LOG_ENTRIES;i++)
-            {
-                EntryPtr = &CFE_ES_ResetDataPtr->ERLog[i];
+        CFE_ES_UnlockSharedData(__func__,__LINE__);
 
-                /* The basic info comes directly from the ES log */
-                FileEntry.BaseInfo = EntryPtr->BaseInfo;
+        /*
+         * Export data to caller for actual write
+         */
+        *Buffer = FileBufferPtr;
+        *BufSize = sizeof(*FileBufferPtr);
+    }
+    else
+    {
+        *Buffer = NULL;
+        *BufSize = 0;
+    }
 
-                /*
-                 * The context info, if available, comes from the PSP.
-                 * This returns the actual size of the context info, or <0 on error.
-                 */
-                PspStatus = CFE_PSP_Exception_CopyContext(EntryPtr->PspContextId, &FileEntry.Context, sizeof(FileEntry.Context));
-                if (PspStatus > 0)
-                {
-                    FileEntry.ContextSize = PspStatus;
-                }
-                else
-                {
-                    /*
-                     * errors here are OK - just means there is no context available.
-                     * Record a size of 0 in the log file.
-                     */
-                    FileEntry.ContextSize = 0;
-                }
+    /* Check for EOF (last entry)  */
+    return (RecordNum >= (CFE_PLATFORM_ES_ER_LOG_ENTRIES-1));
+}
 
-                /*
-                 * any unused context space should be cleared.
-                 *
-                 * This is for binary compatibility with historical log files, where a fixed amount
-                 * of space is given per-entry, regardless of the actual size.
-                 */
-                if (FileEntry.ContextSize < sizeof(FileEntry.Context))
-                {
-                    memset(&FileEntry.Context[FileEntry.ContextSize], 0,
-                            sizeof(FileEntry.Context) - FileEntry.ContextSize);
-                }
 
-                /*
-                 * Now write to file
-                 */
-                Status = OS_write(fd,&FileEntry,sizeof(FileEntry));
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*  Function:  CFE_ER_BackgroundERLogFileEventHandler()                          */
+/*                                                                               */
+/*  Purpose:                                                                     */
+/*    Report events during writing exception & reset log to a file.              */
+/*                                                                               */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position)
+{
+    CFE_ES_BackgroundLogDumpGlobal_t *BgFilePtr;
 
-                if(Status != sizeof(FileEntry))
-                {
-                    CFE_ES_FileWriteByteCntErr(State->DataFileName,sizeof(FileEntry),Status);
-                    break;
-                }/* end if */
-
-                FileSize += Status;
-
-            } /* end for */
-
-        } /* end if */
-
-        OS_close(fd);
-
-        CFE_EVS_SendEvent(CFE_ES_ERLOG2_EID, CFE_EVS_EventType_DEBUG,
-                "%s written:Size=%lu",State->DataFileName,(unsigned long)FileSize);
-
-    } /* end if */
+    BgFilePtr = (CFE_ES_BackgroundLogDumpGlobal_t *)Meta;
 
     /*
-     * Always clear the "pending" flag whether successful or not.
-     * If unsuccessful, an operator needs to investigate the error and re-issue command.
+     * Note that this runs in the context of ES background task (file writer background job)
+     * It does NOT run in the context of the CFE_TBL app task.
+     * 
+     * Events should use CFE_EVS_SendEventWithAppID() rather than CFE_EVS_SendEvent()
+     * to get proper association with TBL task.
      */
-    State->IsPending = false;
+    switch(Event)
+    {
+        case CFE_FS_FileWriteEvent_COMPLETE:
+            CFE_EVS_SendEvent(CFE_ES_ERLOG2_EID, CFE_EVS_EventType_DEBUG,
+                    "%s written:Size=%lu",
+                    BgFilePtr->FileWrite.FileName,(unsigned long)Position);
+            break;        
 
-    return false;
-}/* end CFE_ES_RunERLogDump */
+        case CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR:
+        case CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR:
+            CFE_EVS_SendEvent(CFE_ES_FILEWRITE_ERR_EID,CFE_EVS_EventType_ERROR,
+                    "File write,byte cnt err,file %s,request=%u,actual=%u",
+                    BgFilePtr->FileWrite.FileName, (int)BlockSize, (int)Status);
+            break;
 
+        case CFE_FS_FileWriteEvent_CREATE_ERROR:
+            CFE_EVS_SendEvent(CFE_ES_ERLOG2_ERR_EID,CFE_EVS_EventType_ERROR,
+                    "Error creating file %s, RC = %d",
+                    BgFilePtr->FileWrite.FileName, (int)Status);
+            break;
+        
+        default:
+            /* unhandled event - ignore */
+            break;
+    }       
+}
 
 /*
 **---------------------------------------------------------------------------------------

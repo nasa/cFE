@@ -578,6 +578,15 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 ******************************************************************************/
 extern void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
 
+/*
+ * Internal helper functions for Table Registry dump
+ *
+ * These callbacks are used with the FS background write request API
+ * and are implemented per that specification.
+ */
+void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position);
+bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
+
 
 /*
 ** Globals specific to the TBL module

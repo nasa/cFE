@@ -89,9 +89,9 @@ const CFE_ES_BackgroundJobEntry_t CFE_ES_BACKGROUND_JOB_TABLE[] =
                 .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE,
                 .IdlePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE
         },
-        {   /* Check for ER log write requests */
-                .RunFunc = CFE_ES_RunERLogDump,
-                .JobArg = &CFE_ES_TaskData.BackgroundERLogDumpState,
+        {   /* Call FS to handle background file writes */
+                .RunFunc = CFE_FS_RunBackgroundFileDump,
+                .JobArg = NULL,
                 .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE,
                 .IdlePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE
         }

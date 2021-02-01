@@ -1107,6 +1107,26 @@ void CFE_ES_ExitChildTask(void);
 
 /*****************************************************************************/
 /**
+** \brief Wakes up the CFE background task
+**
+** \par Description
+**        Normally the ES background task wakes up at a periodic interval.
+**        Whenever new background work is added, this can be used to wake the task early, 
+**        which may reduce the delay between adding the job and the job getting processed.
+**
+** \par Assumptions, External Events, and Notes:
+**        Note the amount of work that the background task will perform is pro-rated
+**        based on the amount of time elapsed since the last wakeup.  Waking the task
+**        early will not cause the background task to do more work than it otherwise 
+**        would - it just reduces the delay before work starts initially.
+**
+**
+******************************************************************************/
+void  CFE_ES_BackgroundWakeup(void);
+
+
+/*****************************************************************************/
+/**
 ** \brief Write a string to the cFE System Log
 **
 ** \par Description

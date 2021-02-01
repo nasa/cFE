@@ -1612,26 +1612,51 @@ int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
 int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
+    CFE_ES_BackgroundLogDumpGlobal_t  *StatePtr;
+    int32 Status;
 
-    if (CFE_ES_TaskData.BackgroundERLogDumpState.IsPending)
+    StatePtr = &CFE_ES_TaskData.BackgroundERLogDumpState;
+
+    /* check if pending before overwriting fields in the structure */
+    if (CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
     {
-        CFE_EVS_SendEvent(CFE_ES_ERLOG_PENDING_ERR_EID,CFE_EVS_EventType_ERROR,
-                "Error log write to file %s already in progress",
-                CFE_ES_TaskData.BackgroundERLogDumpState.DataFileName);
-
-        /* background dump already running, consider this an error */
-        CFE_ES_TaskData.CommandErrorCounter++;
+        Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
     else
     {
-        CFE_SB_MessageStringGet(CFE_ES_TaskData.BackgroundERLogDumpState.DataFileName, (char *)CmdPtr->FileName,
-                CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE,
-                sizeof(CFE_ES_TaskData.BackgroundERLogDumpState.DataFileName), sizeof(CmdPtr->FileName));
+        /* Reset the entire state object (just for good measure, ensure no stale data) */
+        memset(StatePtr, 0, sizeof(*StatePtr));
 
-        CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
-        CFE_ES_TaskData.CommandCounter++;
-        CFE_ES_BackgroundWakeup();
+        /* 
+         * Fill out the remainder of meta data.  
+         * This data is currently the same for every request
+         */
+        StatePtr->FileWrite.FileSubType = CFE_FS_SubType_ES_ERLOG;
+        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), CFE_ES_ER_LOG_DESC);
+
+        StatePtr->FileWrite.GetData = CFE_ES_BackgroundERLogFileDataGetter;
+        StatePtr->FileWrite.OnEvent = CFE_ES_BackgroundERLogFileEventHandler;
+
+        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->FileName,
+                CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE,
+                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->FileName));
+
+        Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
     }
+
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_EVS_SendEvent(CFE_ES_ERLOG_PENDING_ERR_EID,CFE_EVS_EventType_ERROR,
+                "Error log write to file %s already in progress",
+                StatePtr->FileWrite.FileName);
+
+        /* background dump already running, consider this an error */
+        CFE_ES_TaskData.CommandErrorCounter++;
+    }    
+    else
+    {
+        CFE_ES_TaskData.CommandCounter++;
+    }    
 
     return CFE_SUCCESS;
 }/* end CFE_ES_WriteERLogCmd */

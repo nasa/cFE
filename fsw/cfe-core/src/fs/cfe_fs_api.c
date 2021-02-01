@@ -328,6 +328,251 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
     return(ReturnCode);
 }
 
+/*
+** CFE_FS_RunBackgroundFileDump - See API and header file for details
+*/
+bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
+{
+    CFE_FS_CurrentFileState_t *State;
+    CFE_FS_BackgroundFileDumpEntry_t *Curr;
+    CFE_FS_FileWriteMetaData_t *Meta;
+    int32               Status;
+    CFE_FS_Header_t     FileHdr;
+    void *RecordPtr;
+    size_t RecordSize;
+    bool IsEOF;
+
+    State = &CFE_FS_Global.FileDump.Current;
+    Curr = NULL;
+    IsEOF = false;
+    RecordPtr = NULL;
+    RecordSize = 0;
+
+    State->Credit += (ElapsedTime * CFE_FS_BACKGROUND_CREDIT_PER_SECOND) / 1000;
+    if (State->Credit > CFE_FS_BACKGROUND_MAX_CREDIT)
+    {
+        State->Credit = CFE_FS_BACKGROUND_MAX_CREDIT;
+    }
+
+    /*
+     * Lock shared data.
+     * Not strictly necessary as the "CompleteCount" is only updated
+     * by this task but this helps in case the access isn't atomic.
+     */
+    CFE_FS_LockSharedData(__func__);
+
+    if (CFE_FS_Global.FileDump.CompleteCount != CFE_FS_Global.FileDump.RequestCount)
+    {
+        Curr = &CFE_FS_Global.FileDump.Entries[CFE_FS_Global.FileDump.CompleteCount & (CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1)];
+    }
+
+    CFE_FS_UnlockSharedData(__func__);
+
+    if (Curr == NULL)
+    {
+        return false;
+    }
+
+    Meta = Curr->Meta;
+
+    if (!OS_ObjectIdDefined(State->Fd) && Meta->IsPending)
+    {
+        /* First time processing this entry - open the file */
+        Status = OS_OpenCreate(&State->Fd, Meta->FileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+        if(Status < 0)
+        {
+            State->Fd = OS_OBJECT_ID_UNDEFINED;
+            Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
+        }
+        else
+        {
+            CFE_FS_InitHeader(&FileHdr, Meta->Description, Meta->FileSubType);
+
+            /* write the cFE header to the file */
+            Status = CFE_FS_WriteHeader(State->Fd, &FileHdr);
+            if (Status != sizeof(CFE_FS_Header_t))
+            {
+                OS_close(State->Fd);
+                State->Fd = OS_OBJECT_ID_UNDEFINED;
+                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR, Status, State->RecordNum, sizeof(CFE_FS_Header_t), State->FileSize);
+            }
+            else
+            {
+                State->FileSize = sizeof(CFE_FS_Header_t);
+                State->Credit -= sizeof(CFE_FS_Header_t);
+                State->RecordNum = 0;
+            }
+        }
+    }
+
+    while (OS_ObjectIdDefined(State->Fd) && State->Credit > 0 && !IsEOF)
+    {
+        /*
+         * Getter should return false on EOF (last record), true if more data is still waiting
+         */
+        IsEOF = Meta->GetData(Meta, State->RecordNum, &RecordPtr, &RecordSize);
+
+        /* 
+         * if the getter outputs a record size of 0, this means there is no data for
+         * this entry, but the cycle keeps going (in case of "holes" or unused table entries
+         * in the database).
+         */
+        if (RecordSize > 0)
+        {
+            State->Credit -= RecordSize;
+
+            /*
+            * Now write to file
+            */
+            Status = OS_write(State->Fd,RecordPtr,RecordSize);
+
+            if (Status != RecordSize)
+            {
+                /* end the file early (cannot set "IsEOF" as this would cause the complete event to be generated too) */
+                OS_close(State->Fd);
+                State->Fd = OS_OBJECT_ID_UNDEFINED;
+
+                /* generate write error event */
+                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, Status, State->RecordNum, RecordSize, State->FileSize);
+                break;
+            }
+            else
+            {
+                State->FileSize += RecordSize;
+            }
+        }
+
+        ++State->RecordNum;
+
+    } /* end if */
+
+    /* On normal EOF close the file and generate the complete event */
+    if (IsEOF)
+    {
+        OS_close(State->Fd);
+        State->Fd = OS_OBJECT_ID_UNDEFINED;
+
+        /* generate complete event */
+        Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_COMPLETE, CFE_SUCCESS, State->RecordNum, 0, State->FileSize);
+    }
+
+    /* 
+     * if the file is not open, consider this file complete, and advance the head position.
+     * (done this way so it also catches the case where the file failed to create, not just EOF)
+     */
+    if (!OS_ObjectIdDefined(State->Fd))
+    {
+        CFE_FS_LockSharedData(__func__);
+
+        /* Wipe the entry structure, as it will be reused */
+        memset(Curr, 0, sizeof(*Curr));
+        ++CFE_FS_Global.FileDump.CompleteCount;
+
+        /* Set the "IsPending" flag to false - this indicates that the originator may re-post now */
+        Meta->IsPending = false;
+
+        CFE_FS_UnlockSharedData(__func__);
+
+    } /* end if */
+
+    return !IsEOF;
+}
+
+/*
+** CFE_FS_BackgroundFileDumpRequest - See API and header file for details
+*/
+int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
+{
+    CFE_FS_BackgroundFileDumpEntry_t *Curr;
+    int32 Status;
+    uint32 PendingRequestCount;
+
+    /* Pre-validate inputs */
+    if (Meta == NULL)
+    {
+        return CFE_FS_BAD_ARGUMENT;
+    }
+
+    /* getter and event functions must be set */
+    if (Meta->GetData == NULL || Meta->OnEvent == NULL)
+    {
+        return CFE_FS_BAD_ARGUMENT;
+    }
+
+    /* filename cannot be empty */
+    if (Meta->FileName[0] == 0)
+    {
+        return CFE_FS_INVALID_PATH;
+    }
+
+    /* request must not already be pending */
+    if (Meta->IsPending)
+    {
+        return CFE_STATUS_REQUEST_ALREADY_PENDING;
+    }
+
+
+    CFE_FS_LockSharedData(__func__);
+
+    PendingRequestCount = CFE_FS_Global.FileDump.RequestCount + 1;
+
+    /* Check if queue is full before writing to tail position */
+    if (PendingRequestCount == (CFE_FS_Global.FileDump.CompleteCount + CFE_FS_MAX_BACKGROUND_FILE_WRITES))
+    {
+        Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
+    }
+    else
+    {
+        Curr = &CFE_FS_Global.FileDump.Entries[CFE_FS_Global.FileDump.RequestCount & (CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1)];
+
+        /* 
+         * store the meta object - note this retains the pointer that was submitted 
+         * (caller must not reuse/change this object until request is completed)
+         */
+        Curr->Meta = Meta;
+
+        /* 
+         * The "IsPending" Flag will be set true whenever while this is waiting in the request queue.
+         * It will be set false when the file is done.
+         * 
+         * The requester can check this flag to determine if/when the request is complete
+         */
+        Meta->IsPending = true;
+
+        /* update tail position */
+        CFE_FS_Global.FileDump.RequestCount = PendingRequestCount;
+
+        Status = CFE_SUCCESS;
+    }
+
+    CFE_FS_UnlockSharedData(__func__);
+
+    if (Status == CFE_SUCCESS)
+    {
+        /* 
+         * If successfully added to write queue, then wake the ES background task to get started.
+         * 
+         * This may reduce the overall latency between request and completion (depending on other
+         * background task work).  If this is the only pending job, this should get it started faster.
+         */
+        CFE_ES_BackgroundWakeup();
+    }
+
+    return Status;
+}
+
+/*
+** CFE_FS_ExtractFilenameFromPath - See API and header file for details
+*/
+bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta)
+{
+    if (Meta == NULL)
+    {
+        return false;
+    }
+
+    return Meta->IsPending;
+}
 
 /************************/
 /*  End of File Comment */

@@ -249,9 +249,14 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg);
 bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg);
 
 /*
-** Check if ER log dump request is pending
-*/
-bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg);
+ * Background file write data getter for ER log entry
+ */
+bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
+
+/*
+ * Background file write event handler for ER log entry
+ */
+void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position);
 
 /*
 ** Perform the requested control action for an application

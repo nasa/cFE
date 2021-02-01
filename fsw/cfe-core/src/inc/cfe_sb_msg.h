@@ -591,11 +591,11 @@ typedef struct CFE_SB_PipeDepthStats {
 
     CFE_SB_PipeId_t     PipeId;/**< \cfetlmmnemonic \SB_PDPIPEID
                                     \brief Pipe Id associated with the stats below */
-    uint16              Depth;/**< \cfetlmmnemonic \SB_PDDEPTH
+    uint16              MaxQueueDepth;/**< \cfetlmmnemonic \SB_PDDEPTH
                                    \brief Number of messages the pipe can hold */
-    uint16              InUse;/**< \cfetlmmnemonic \SB_PDINUSE
+    uint16              CurrentQueueDepth;/**< \cfetlmmnemonic \SB_PDINUSE
                                    \brief Number of messages currently on the pipe */
-    uint16              PeakInUse;/**< \cfetlmmnemonic \SB_PDPKINUSE
+    uint16              PeakQueueDepth;/**< \cfetlmmnemonic \SB_PDPKINUSE
                                        \brief Peak number of messages that have been on the pipe */
     uint16              Spare;/**< \cfetlmmnemonic \SB_PDSPARE
                                    \brief Spare word to ensure alignment */

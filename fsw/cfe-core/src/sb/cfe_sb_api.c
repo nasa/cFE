@@ -194,9 +194,9 @@ int32  CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16  Depth, const char *
     if (Status == CFE_SUCCESS)
     {
         /* fill in the pipe table fields */
-        PipeDscPtr->SysQueueId  = SysQueueId;
-        PipeDscPtr->QueueDepth  = Depth;
-        PipeDscPtr->AppId       = AppId;
+        PipeDscPtr->SysQueueId    = SysQueueId;
+        PipeDscPtr->MaxQueueDepth = Depth;
+        PipeDscPtr->AppId         = AppId;
 
         CFE_SB_PipeDescSetUsed(PipeDscPtr, PendingPipeId);
 
@@ -1692,10 +1692,10 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
 
             DestPtr->BuffCount++; /* used for checking MsgId2PipeLimit */
             DestPtr->DestCnt++;   /* used for statistics */
-            ++PipeDscPtr->QueueDepth;
-            if (PipeDscPtr->QueueDepth >= PipeDscPtr->PeakDepth)
+            ++PipeDscPtr->CurrentQueueDepth;
+            if (PipeDscPtr->CurrentQueueDepth >= PipeDscPtr->PeakQueueDepth)
             {
-                PipeDscPtr->PeakDepth = PipeDscPtr->QueueDepth;
+                PipeDscPtr->PeakQueueDepth = PipeDscPtr->CurrentQueueDepth;
             }
 
             Status = CFE_SUCCESS;
@@ -2001,9 +2001,9 @@ int32  CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr,
                 DestPtr->BuffCount--;
             }
 
-            if (PipeDscPtr->CurrentDepth > 0)
+            if (PipeDscPtr->CurrentQueueDepth > 0)
             {
-                --PipeDscPtr->CurrentDepth;
+                --PipeDscPtr->CurrentQueueDepth;
             }
         }
         else

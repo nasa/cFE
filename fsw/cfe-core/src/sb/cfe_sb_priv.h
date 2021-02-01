@@ -149,10 +149,10 @@ typedef struct {
      uint8               Spare;
      CFE_ES_AppId_t      AppId;
      osal_id_t           SysQueueId;
-     uint16              QueueDepth;
      uint16              SendErrors;
-     uint16              CurrentDepth;
-     uint16              PeakDepth;
+     uint16              MaxQueueDepth;
+     uint16              CurrentQueueDepth;
+     uint16              PeakQueueDepth;
      CFE_SB_BufferD_t   *LastBuffer;
 } CFE_SB_PipeD_t;
 
@@ -168,6 +168,43 @@ typedef struct {
    CFE_ES_STATIC_POOL_TYPE(CFE_PLATFORM_SB_BUF_MEMORY_BYTES) Partition;
 
 } CFE_SB_MemParams_t;
+
+/*******************************************************************************/
+/**   
+** \brief SB route info temporary structure
+**
+** This tracks the number of desinations along with destination data for 1 route.
+** Each route may contain zero or more desinations (variable length).
+*/
+typedef struct 
+{
+    uint32                    NumDestinations;
+    CFE_SB_RoutingFileEntry_t DestEntries[CFE_PLATFORM_SB_MAX_DEST_PER_PKT]; /**< Actual data written to file */
+} CFE_SB_BackgroundRouteInfoBuffer_t;
+
+/**
+ * \brief Temporary holding buffer for records being written to a file.
+ *
+ * This is shared/reused between all file types (msg map, route info, pipe info).
+ */
+typedef union
+{
+    CFE_SB_BackgroundRouteInfoBuffer_t RouteInfo;
+    CFE_SB_PipeInfoEntry_t             PipeInfo;
+    CFE_SB_MsgMapFileEntry_t           MsgMapInfo;
+} CFE_SB_BackgroundFileBuffer_t;
+
+/**   
+ * \brief SB Background file write state information
+ *
+ * Must be stored in persistent memory (e.g. global).
+ */
+typedef struct 
+{
+    CFE_FS_FileWriteMetaData_t    FileWrite; /**< FS state data - must be first */
+    CFE_SB_BackgroundFileBuffer_t Buffer;    /**< Temporary holding area for file record */
+} CFE_SB_BackgroundFileStateInfo_t;
+
 
 
 /******************************************************************************
@@ -192,6 +229,8 @@ typedef struct
     CFE_EVS_BinFilter_t            EventFilters[CFE_SB_MAX_CFG_FILE_EVENTS_TO_FILTER];
     CFE_SB_Qos_t                   Default_Qos;
     CFE_ResourceId_t               LastPipeId;
+
+    CFE_SB_BackgroundFileStateInfo_t BackgroundFile;
 } CFE_SB_Global_t;
 
 
@@ -261,9 +300,6 @@ int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr,
                                  CFE_SB_MsgId_t    *MsgIdPtr,
                                  CFE_MSG_Size_t    *SizePtr,
                                  CFE_SBR_RouteId_t *RouteIdPtr);
-int32 CFE_SB_WriteRtgInfo(const char *Filename);
-int32 CFE_SB_WritePipeInfo(const char *Filename);
-int32 CFE_SB_WriteMapInfo(const char *Filename);
 int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t         AppId);
 void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
@@ -271,7 +307,6 @@ void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
 int32 CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId);
 void CFE_SB_IncrCmdCtr(int32 status);
-void CFE_SB_FileWriteByteCntErr(const char *Filename,uint32 Requested,uint32 Actual);
 void CFE_SB_SetSubscriptionReporting(uint32 state);
 int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality);
 uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
@@ -469,6 +504,16 @@ static inline bool CFE_SB_PipeDescIsMatch(const CFE_SB_PipeD_t *PipeDscPtr, CFE_
 /* Availability check functions used in conjunction with CFE_ResourceId_FindNext() */
 bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId);
 
+
+/*
+ * Helper functions for background file write requests (callbacks)
+ */
+void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr);
+bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
+void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr);
+bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
+bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
+void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position);
 
 /*
  * External variables private to the software bus module
