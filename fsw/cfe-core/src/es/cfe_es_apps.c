@@ -1543,22 +1543,6 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
      */
     CFE_ES_LockSharedData(__func__,__LINE__);
 
-#ifdef jphfix
-    /*
-     * This just confirms that the main task ID associated with this app was properly
-     * located and deleted during the previous process.
-     *
-     * If not, display a log message about it - this indicates table corruption or a
-     * bug with the record keeping.
-     */
-    if (NumTasks == 0 || !CFE_RESOURCEID_TEST_EQUAL(TaskList[0], AppRecPtr->MainTaskId))
-    {
-        CFE_ES_SysLogWrite_Unsync("CFE_ES_CleanUpApp: MainTask ID:%lu not found when deleting AppID %lu\n",
-                CFE_RESOURCEID_TO_ULONG(AppRecPtr->MainTaskId), CFE_RESOURCEID_TO_ULONG(AppId));
-        ReturnCode = CFE_ES_APP_CLEANUP_ERR;
-    }
-#endif
-
     /*
      * Free all task records.
      */
