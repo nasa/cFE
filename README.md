@@ -1,4 +1,4 @@
-Travis-CI: [![Build Status](https://travis-ci.com/nasa/cFE.svg)](https://travis-ci.com/nasa/cFE)
+![Static Analysis](https://github.com/nasa/cfe/workflows/Static%20Analysis/badge.svg)
 
 # Core Flight System : Framework : Core Flight Executive
 
