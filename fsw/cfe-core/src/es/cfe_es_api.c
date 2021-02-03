@@ -545,7 +545,7 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
 */
 int32 CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMilliseconds)
 {
-    int32 Status;
+    int32 Status = CFE_SUCCESS;
     CFE_ES_AppRecord_t *AppRecPtr;
     uint32 RequiredAppState;
     uint32 WaitTime;
