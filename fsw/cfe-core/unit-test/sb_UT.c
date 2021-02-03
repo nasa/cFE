@@ -493,28 +493,28 @@ void Test_SB_Cmds_Stats(void)
 } /* end Test_SB_Cmds_Stats */
 
 /*
-** Test send routing information command using the default file name
+** Test write routing information command using the default file name
 */
 void Test_SB_Cmds_RoutingInfoDef(void)
 {
     union
     {
-        CFE_SB_Buffer_t             SBBuf;
-        CFE_SB_SendRoutingInfoCmd_t Cmd;
-    } SendRoutingInfo;
-    CFE_MSG_FcnCode_t FcnCode = CFE_SB_SEND_ROUTING_INFO_CC;
+        CFE_SB_Buffer_t              SBBuf;
+        CFE_SB_WriteRoutingInfoCmd_t Cmd;
+    } WriteRoutingInfo;
+    CFE_MSG_FcnCode_t FcnCode = CFE_SB_WRITE_ROUTING_INFO_CC;
     CFE_SB_MsgId_t    MsgId = CFE_SB_ValueToMsgId(CFE_SB_CMD_MID);
-    CFE_MSG_Size_t    Size = sizeof(SendRoutingInfo.Cmd);
+    CFE_MSG_Size_t    Size = sizeof(WriteRoutingInfo.Cmd);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    SendRoutingInfo.Cmd.Payload.Filename[0] = '\0';
+    WriteRoutingInfo.Cmd.Payload.Filename[0] = '\0';
 
     /* Make some routing info by calling CFE_SB_AppInit */
     SETUP(CFE_SB_AppInit());
 
-    CFE_SB_ProcessCmdPipePkt(&SendRoutingInfo.SBBuf);
+    CFE_SB_ProcessCmdPipePkt(&WriteRoutingInfo.SBBuf);
 
     EVTCNT(9);
 
@@ -531,27 +531,27 @@ void Test_SB_Cmds_RoutingInfoDef(void)
 } /* end Test_SB_Cmds_RoutingInfoDef */
 
 /*
-** Test send routing information command using a specified file name
+** Test write routing information command using a specified file name
 */
 void Test_SB_Cmds_RoutingInfoSpec(void)
 {
     union
     {
-        CFE_SB_Buffer_t             SBBuf;
-        CFE_SB_SendRoutingInfoCmd_t Cmd;
-    } SendRoutingInfo;
-    CFE_MSG_FcnCode_t FcnCode = CFE_SB_SEND_ROUTING_INFO_CC;
+        CFE_SB_Buffer_t              SBBuf;
+        CFE_SB_WriteRoutingInfoCmd_t Cmd;
+    } WriteRoutingInfo;
+    CFE_MSG_FcnCode_t FcnCode = CFE_SB_WRITE_ROUTING_INFO_CC;
     CFE_SB_MsgId_t    MsgId = CFE_SB_ValueToMsgId(CFE_SB_CMD_MID);
-    CFE_MSG_Size_t    Size = sizeof(SendRoutingInfo.Cmd);
+    CFE_MSG_Size_t    Size = sizeof(WriteRoutingInfo.Cmd);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy(SendRoutingInfo.Cmd.Payload.Filename, "RoutingTstFile",
-            sizeof(SendRoutingInfo.Cmd.Payload.Filename) - 1);
-    SendRoutingInfo.Cmd.Payload.Filename[sizeof(SendRoutingInfo.Cmd.Payload.Filename) - 1] = '\0';
+    strncpy(WriteRoutingInfo.Cmd.Payload.Filename, "RoutingTstFile",
+            sizeof(WriteRoutingInfo.Cmd.Payload.Filename) - 1);
+    WriteRoutingInfo.Cmd.Payload.Filename[sizeof(WriteRoutingInfo.Cmd.Payload.Filename) - 1] = '\0';
 
-    CFE_SB_ProcessCmdPipePkt(&SendRoutingInfo.SBBuf);
+    CFE_SB_ProcessCmdPipePkt(&WriteRoutingInfo.SBBuf);
 
     EVTCNT(1);
 
@@ -560,30 +560,30 @@ void Test_SB_Cmds_RoutingInfoSpec(void)
 } /* end Test_SB_Cmds_RoutingInfoSpec */
 
 /*
-**  Test send routing information command with a file creation failure
+**  Test write routing information command with a file creation failure
 */
 void Test_SB_Cmds_RoutingInfoCreateFail(void)
 {
     union
     {
-        CFE_SB_Buffer_t             SBBuf;
-        CFE_SB_SendRoutingInfoCmd_t Cmd;
-    } SendRoutingInfo;
-    CFE_MSG_FcnCode_t FcnCode = CFE_SB_SEND_ROUTING_INFO_CC;
+        CFE_SB_Buffer_t              SBBuf;
+        CFE_SB_WriteRoutingInfoCmd_t Cmd;
+    } WriteRoutingInfo;
+    CFE_MSG_FcnCode_t FcnCode = CFE_SB_WRITE_ROUTING_INFO_CC;
     CFE_SB_MsgId_t    MsgId = CFE_SB_ValueToMsgId(CFE_SB_CMD_MID);
-    CFE_MSG_Size_t    Size = sizeof(SendRoutingInfo.Cmd);
+    CFE_MSG_Size_t    Size = sizeof(WriteRoutingInfo.Cmd);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy(SendRoutingInfo.Cmd.Payload.Filename, "RoutingTstFile",
-            sizeof(SendRoutingInfo.Cmd.Payload.Filename) - 1);
-    SendRoutingInfo.Cmd.Payload.Filename[sizeof(SendRoutingInfo.Cmd.Payload.Filename) - 1] = '\0';
+    strncpy(WriteRoutingInfo.Cmd.Payload.Filename, "RoutingTstFile",
+            sizeof(WriteRoutingInfo.Cmd.Payload.Filename) - 1);
+    WriteRoutingInfo.Cmd.Payload.Filename[sizeof(WriteRoutingInfo.Cmd.Payload.Filename) - 1] = '\0';
 
-    /* Make function CFE_SB_SendRtgInfo return CFE_SB_FILE_IO_ERR */
+    /* Make function CFE_SB_WriteRtgInfo return CFE_SB_FILE_IO_ERR */
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
 
-    CFE_SB_ProcessCmdPipePkt(&SendRoutingInfo.SBBuf);
+    CFE_SB_ProcessCmdPipePkt(&WriteRoutingInfo.SBBuf);
 
     EVTCNT(1);
 
@@ -592,13 +592,13 @@ void Test_SB_Cmds_RoutingInfoCreateFail(void)
 } /* end Test_SB_Cmds_RoutingInfoCreateFail */
 
 /*
-** Test send routing information command with a file header write failure
+** Test write routing information command with a file header write failure
 */
 void Test_SB_Cmds_RoutingInfoHdrFail(void)
 {
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, -1);
 
-    ASSERT_EQ(CFE_SB_SendRtgInfo("RoutingTstFile"), CFE_SB_FILE_IO_ERR);
+    ASSERT_EQ(CFE_SB_WriteRtgInfo("RoutingTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(1);
 
@@ -607,7 +607,7 @@ void Test_SB_Cmds_RoutingInfoHdrFail(void)
 } /* end Test_SB_Cmds_RoutingInfoHdrFail */
 
 /*
-** Test send routing information command with a file write failure on
+** Test write routing information command with a file write failure on
 ** the second write
 */
 void Test_SB_Cmds_RoutingInfoWriteFail(void)
@@ -617,7 +617,7 @@ void Test_SB_Cmds_RoutingInfoWriteFail(void)
 
     UT_SetDeferredRetcode(UT_KEY(OS_write), 2, -1);
 
-    ASSERT_EQ(CFE_SB_SendRtgInfo("RoutingTstFile"), CFE_SB_FILE_IO_ERR);
+    ASSERT_EQ(CFE_SB_WriteRtgInfo("RoutingTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(9);
 
@@ -634,34 +634,34 @@ void Test_SB_Cmds_RoutingInfoWriteFail(void)
 } /* end Test_SB_Cmds_RoutingInfoWriteFail */
 
 /*
-** Test send pipe information command using the default file name
+** Test write pipe information command using the default file name
 */
 void Test_SB_Cmds_PipeInfoDef(void)
 {
     union
     {
-        CFE_SB_Buffer_t          SBBuf;
-        CFE_SB_SendPipeInfoCmd_t Cmd;
-    } SendPipeInfo;
+        CFE_SB_Buffer_t           SBBuf;
+        CFE_SB_WritePipeInfoCmd_t Cmd;
+    } WritePipeInfo;
     CFE_SB_PipeId_t           PipeId1;
     CFE_SB_PipeId_t           PipeId2;
     CFE_SB_PipeId_t           PipeId3;
     uint16                    PipeDepth = 10;
-    CFE_MSG_FcnCode_t         FcnCode = CFE_SB_SEND_PIPE_INFO_CC;
+    CFE_MSG_FcnCode_t         FcnCode = CFE_SB_WRITE_PIPE_INFO_CC;
     CFE_SB_MsgId_t            MsgId = CFE_SB_ValueToMsgId(CFE_SB_CMD_MID);
-    CFE_MSG_Size_t            Size = sizeof(SendPipeInfo.Cmd);
+    CFE_MSG_Size_t            Size = sizeof(WritePipeInfo.Cmd);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    SendPipeInfo.Cmd.Payload.Filename[0] = '\0';
+    WritePipeInfo.Cmd.Payload.Filename[0] = '\0';
 
     /* Create some pipe info */
     SETUP(CFE_SB_CreatePipe(&PipeId1, PipeDepth, "TestPipe1"));
     SETUP(CFE_SB_CreatePipe(&PipeId2, PipeDepth, "TestPipe2"));
     SETUP(CFE_SB_CreatePipe(&PipeId3, PipeDepth, "TestPipe3"));
 
-    CFE_SB_ProcessCmdPipePkt(&SendPipeInfo.SBBuf);
+    CFE_SB_ProcessCmdPipePkt(&WritePipeInfo.SBBuf);
 
     EVTCNT(4);
 
@@ -675,27 +675,27 @@ void Test_SB_Cmds_PipeInfoDef(void)
 } /* end Test_SB_Cmds_PipeInfoDef */
 
 /*
-** Test send pipe information command using a specified file name
+** Test write pipe information command using a specified file name
 */
 void Test_SB_Cmds_PipeInfoSpec(void)
 {
     union
     {
-        CFE_SB_Buffer_t          SBBuf;
-        CFE_SB_SendPipeInfoCmd_t Cmd;
-    } SendPipeInfo;
-    CFE_MSG_FcnCode_t         FcnCode = CFE_SB_SEND_PIPE_INFO_CC;
+        CFE_SB_Buffer_t           SBBuf;
+        CFE_SB_WritePipeInfoCmd_t Cmd;
+    } WritePipeInfo;
+    CFE_MSG_FcnCode_t         FcnCode = CFE_SB_WRITE_PIPE_INFO_CC;
     CFE_SB_MsgId_t            MsgId = CFE_SB_ValueToMsgId(CFE_SB_CMD_MID);
-    CFE_MSG_Size_t            Size = sizeof(SendPipeInfo.Cmd);
+    CFE_MSG_Size_t            Size = sizeof(WritePipeInfo.Cmd);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy(SendPipeInfo.Cmd.Payload.Filename, "PipeTstFile",
-            sizeof(SendPipeInfo.Cmd.Payload.Filename) - 1);
-    SendPipeInfo.Cmd.Payload.Filename[sizeof(SendPipeInfo.Cmd.Payload.Filename) - 1] = '\0';
+    strncpy(WritePipeInfo.Cmd.Payload.Filename, "PipeTstFile",
+            sizeof(WritePipeInfo.Cmd.Payload.Filename) - 1);
+    WritePipeInfo.Cmd.Payload.Filename[sizeof(WritePipeInfo.Cmd.Payload.Filename) - 1] = '\0';
 
-    CFE_SB_ProcessCmdPipePkt(&SendPipeInfo.SBBuf);
+    CFE_SB_ProcessCmdPipePkt(&WritePipeInfo.SBBuf);
 
     EVTCNT(1);
 
@@ -704,12 +704,12 @@ void Test_SB_Cmds_PipeInfoSpec(void)
 } /* end Test_SB_Cmds_PipeInfoSpec */
 
 /*
-** Test send pipe information command with a file creation failure
+** Test write pipe information command with a file creation failure
 */
 void Test_SB_Cmds_PipeInfoCreateFail(void)
 {
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    ASSERT_EQ(CFE_SB_SendPipeInfo("PipeTstFile"), CFE_SB_FILE_IO_ERR);
+    ASSERT_EQ(CFE_SB_WritePipeInfo("PipeTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(1);
 
@@ -718,12 +718,12 @@ void Test_SB_Cmds_PipeInfoCreateFail(void)
 } /* end Test_SB_Cmds_PipeInfoCreateFail */
 
 /*
-** Test send pipe information command with a file header write failure
+** Test write pipe information command with a file header write failure
 */
 void Test_SB_Cmds_PipeInfoHdrFail(void)
 {
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, -1);
-    ASSERT_EQ(CFE_SB_SendPipeInfo("PipeTstFile"), CFE_SB_FILE_IO_ERR);
+    ASSERT_EQ(CFE_SB_WritePipeInfo("PipeTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(1);
 
@@ -732,7 +732,7 @@ void Test_SB_Cmds_PipeInfoHdrFail(void)
 } /* end Test_SB_Cmds_PipeInfoHdrFail */
 
 /*
-** Test send pipe information command with a file write failure on
+** Test write pipe information command with a file write failure on
 ** the second write
 */
 void Test_SB_Cmds_PipeInfoWriteFail(void)
@@ -747,7 +747,7 @@ void Test_SB_Cmds_PipeInfoWriteFail(void)
     SETUP(CFE_SB_CreatePipe(&PipeId3, PipeDepth, "TestPipe3"));
     UT_SetDeferredRetcode(UT_KEY(OS_write), 2, -1);
 
-    ASSERT_EQ(CFE_SB_SendPipeInfo("PipeTstFile"), CFE_SB_FILE_IO_ERR);
+    ASSERT_EQ(CFE_SB_WritePipeInfo("PipeTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(4);
 
@@ -762,15 +762,15 @@ void Test_SB_Cmds_PipeInfoWriteFail(void)
 } /* end Test_SB_Cmds_PipeInfoWriteFail */
 
 /*
-** Test send map information command using the default file name
+** Test write map information command using the default file name
 */
 void Test_SB_Cmds_MapInfoDef(void)
 {
     union
     {
-        CFE_SB_Buffer_t         SBBuf;
-        CFE_SB_SendMapInfoCmd_t Cmd;
-    } SendMapInfo;
+        CFE_SB_Buffer_t          SBBuf;
+        CFE_SB_WriteMapInfoCmd_t Cmd;
+    } WriteMapInfo;
     CFE_SB_PipeId_t           PipeId1;
     CFE_SB_PipeId_t           PipeId2;
     CFE_SB_PipeId_t           PipeId3;
@@ -781,14 +781,14 @@ void Test_SB_Cmds_MapInfoDef(void)
     CFE_SB_MsgId_t            MsgId4 = SB_UT_TLM_MID5;
     CFE_SB_MsgId_t            MsgId5 = SB_UT_TLM_MID6;
     uint16                    PipeDepth = 10;
-    CFE_MSG_FcnCode_t         FcnCode = CFE_SB_SEND_MAP_INFO_CC;
+    CFE_MSG_FcnCode_t         FcnCode = CFE_SB_WRITE_MAP_INFO_CC;
     CFE_SB_MsgId_t            MsgId = CFE_SB_ValueToMsgId(CFE_SB_CMD_MID);
-    CFE_MSG_Size_t            Size = sizeof(SendMapInfo.Cmd);
+    CFE_MSG_Size_t            Size = sizeof(WriteMapInfo.Cmd);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    SendMapInfo.Cmd.Payload.Filename[0] = '\0';
+    WriteMapInfo.Cmd.Payload.Filename[0] = '\0';
 
     /* Create some map info */
     SETUP(CFE_SB_CreatePipe(&PipeId1, PipeDepth, "TestPipe1"));
@@ -802,7 +802,7 @@ void Test_SB_Cmds_MapInfoDef(void)
     SETUP(CFE_SB_Subscribe(MsgId4, PipeId3));
     SETUP(CFE_SB_Subscribe(MsgId5, PipeId2));
 
-    CFE_SB_ProcessCmdPipePkt(&SendMapInfo.SBBuf);
+    CFE_SB_ProcessCmdPipePkt(&WriteMapInfo.SBBuf);
 
     EVTCNT(11);
 
@@ -819,27 +819,27 @@ void Test_SB_Cmds_MapInfoDef(void)
 } /* end Test_SB_Cmds_MapInfoDef */
 
 /*
-** Test send map information command using a specified file name
+** Test write map information command using a specified file name
 */
 void Test_SB_Cmds_MapInfoSpec(void)
 {
     union
     {
-        CFE_SB_Buffer_t         SBBuf;
-        CFE_SB_SendMapInfoCmd_t Cmd;
-    } SendMapInfo;
-    CFE_MSG_FcnCode_t         FcnCode = CFE_SB_SEND_MAP_INFO_CC;
+        CFE_SB_Buffer_t          SBBuf;
+        CFE_SB_WriteMapInfoCmd_t Cmd;
+    } WriteMapInfo;
+    CFE_MSG_FcnCode_t         FcnCode = CFE_SB_WRITE_MAP_INFO_CC;
     CFE_SB_MsgId_t            MsgId = CFE_SB_ValueToMsgId(CFE_SB_CMD_MID);
-    CFE_MSG_Size_t            Size = sizeof(SendMapInfo.Cmd);
+    CFE_MSG_Size_t            Size = sizeof(WriteMapInfo.Cmd);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    strncpy(SendMapInfo.Cmd.Payload.Filename, "MapTstFile",
-            sizeof(SendMapInfo.Cmd.Payload.Filename) - 1);
-    SendMapInfo.Cmd.Payload.Filename[sizeof(SendMapInfo.Cmd.Payload.Filename) - 1] = '\0';
+    strncpy(WriteMapInfo.Cmd.Payload.Filename, "MapTstFile",
+            sizeof(WriteMapInfo.Cmd.Payload.Filename) - 1);
+    WriteMapInfo.Cmd.Payload.Filename[sizeof(WriteMapInfo.Cmd.Payload.Filename) - 1] = '\0';
 
-    CFE_SB_ProcessCmdPipePkt(&SendMapInfo.SBBuf);
+    CFE_SB_ProcessCmdPipePkt(&WriteMapInfo.SBBuf);
 
     EVTCNT(1);
 
@@ -848,12 +848,12 @@ void Test_SB_Cmds_MapInfoSpec(void)
 } /* end Test_SB_Cmds_MapInfoSpec */
 
 /*
-** Test send map information command with a file creation failure
+** Test write map information command with a file creation failure
 */
 void Test_SB_Cmds_MapInfoCreateFail(void)
 {
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    ASSERT_EQ(CFE_SB_SendMapInfo("MapTstFile"), CFE_SB_FILE_IO_ERR);
+    ASSERT_EQ(CFE_SB_WriteMapInfo("MapTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(1);
 
@@ -862,12 +862,12 @@ void Test_SB_Cmds_MapInfoCreateFail(void)
 } /* end Test_SB_Cmds_MapInfoCreateFail */
 
 /*
-** Test send map information command with a file header write failure
+** Test write map information command with a file header write failure
 */
 void Test_SB_Cmds_MapInfoHdrFail(void)
 {
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, -1);
-    ASSERT_EQ(CFE_SB_SendMapInfo("MapTstFile"), CFE_SB_FILE_IO_ERR);
+    ASSERT_EQ(CFE_SB_WriteMapInfo("MapTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(1);
 
@@ -876,7 +876,7 @@ void Test_SB_Cmds_MapInfoHdrFail(void)
 } /* end Test_SB_Cmds_MapInfoHdrFail */
 
 /*
-** Test send map information command with a file write failure on
+** Test write map information command with a file write failure on
 ** the second write
 */
 void Test_SB_Cmds_MapInfoWriteFail(void)
@@ -905,7 +905,7 @@ void Test_SB_Cmds_MapInfoWriteFail(void)
     SETUP(CFE_SB_Subscribe(MsgId5, PipeId2));
     UT_SetDeferredRetcode(UT_KEY(OS_write), 2, -1);
 
-    ASSERT_EQ(CFE_SB_SendMapInfo("MapTstFile"), CFE_SB_FILE_IO_ERR);
+    ASSERT_EQ(CFE_SB_WriteMapInfo("MapTstFile"), CFE_SB_FILE_IO_ERR);
 
     EVTCNT(11);
 
