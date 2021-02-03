@@ -178,39 +178,28 @@ CFE_MSG_SequenceCount_t CFE_SBR_GetSequenceCounter(CFE_SBR_RouteId_t RouteId)
 }
 
 /******************************************************************************
- * Local helper function for throttling foreach routines
- *
- * Updates StartIdxPtr, EndIdxPtr and ThrottlePtr.NextIndex.  Note EndIdxPtr
- * must be set to maximum prior to calling.
- */
-void CFE_SBR_Throttle(uint32 *StartIdxPtr, uint32 *EndIdxPtr, CFE_SBR_Throttle_t *ThrottlePtr)
-{
-    if (ThrottlePtr != NULL)
-    {
-        *StartIdxPtr = ThrottlePtr->StartIndex;
-
-        /* Return next index of zero if full range is processed */
-        ThrottlePtr->NextIndex = 0;
-
-        if ((*StartIdxPtr + ThrottlePtr->MaxLoop) < *EndIdxPtr)
-        {
-            *EndIdxPtr             = *StartIdxPtr + ThrottlePtr->MaxLoop;
-            ThrottlePtr->NextIndex = *EndIdxPtr;
-        }
-    }
-}
-
-/******************************************************************************
  *  Interface function - see API for description
  */
 void CFE_SBR_ForEachRouteId(CFE_SBR_CallbackPtr_t CallbackPtr, void *ArgPtr, CFE_SBR_Throttle_t *ThrottlePtr)
 {
     CFE_SB_RouteId_Atom_t routeidx;
-    CFE_SB_MsgId_Atom_t   startidx = 0;
-    CFE_SB_MsgId_Atom_t   endidx   = CFE_SBR_RDATA.RouteIdxTop;
+    CFE_SB_RouteId_Atom_t startidx = 0;
+    CFE_SB_RouteId_Atom_t endidx   = CFE_SBR_RDATA.RouteIdxTop;
 
     /* Update throttle settings if needed */
-    CFE_SBR_Throttle(&startidx, &endidx, ThrottlePtr);
+    if (ThrottlePtr != NULL)
+    {
+        startidx = ThrottlePtr->StartIndex;
+
+        /* Return next index of zero if full range is processed */
+        ThrottlePtr->NextIndex = 0;
+
+        if ((startidx + ThrottlePtr->MaxLoop) < endidx)
+        {
+            endidx                 = startidx + ThrottlePtr->MaxLoop;
+            ThrottlePtr->NextIndex = endidx;
+        }
+    }
 
     for (routeidx = startidx; routeidx < endidx; routeidx++)
     {
