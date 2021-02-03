@@ -400,7 +400,6 @@ void Test_SB_Cmds(void)
     SB_UT_ADD_SUBTEST(Test_SB_Cmds_SubRptOn);
     SB_UT_ADD_SUBTEST(Test_SB_Cmds_SubRptOff);
     SB_UT_ADD_SUBTEST(Test_SB_Cmds_CmdUnexpCmdCode);
-    SB_UT_ADD_SUBTEST(Test_SB_Cmds_SubRptUnexpCmdCode);
     SB_UT_ADD_SUBTEST(Test_SB_Cmds_BadCmdLength);
     SB_UT_ADD_SUBTEST(Test_SB_Cmds_UnexpMsgId);
 } /* end Test_SB_Cmds */
@@ -1482,28 +1481,6 @@ void Test_SB_Cmds_CmdUnexpCmdCode(void)
     /* Use a command code known to be invalid */
     CFE_SB_ProcessCmdPipePkt((CFE_SB_Buffer_t *)NULL);
     EVTCNT(1);
-    EVTSENT(CFE_SB_BAD_CMD_CODE_EID);
-
-} /* end Test_SB_Cmds_UnexpCmdCode */
-
-/*
-** Test command handler response to an invalid command code
-*/
-void Test_SB_Cmds_SubRptUnexpCmdCode(void)
-{
-    CFE_MSG_FcnCode_t FcnCode = 99;
-    CFE_SB_MsgId_t    MsgIdCmd = CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID);
-
-    /* Second GetFcnCode is for reporting */
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgIdCmd, sizeof(MsgIdCmd), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
-
-    /* Use a command code known to be invalid */
-    CFE_SB_ProcessCmdPipePkt((CFE_SB_Buffer_t *)NULL);
-
-    EVTCNT(1);
-
     EVTSENT(CFE_SB_BAD_CMD_CODE_EID);
 
 } /* end Test_SB_Cmds_UnexpCmdCode */

@@ -1090,22 +1090,6 @@ void Test_SB_Cmds_CmdUnexpCmdCode(void);
 
 /*****************************************************************************/
 /**
-** \brief Test command handler response to an invalid command code
-**
-** \par Description
-**        This function tests the command handler response to an invalid
-**        command code in the CFE_SB_SUB_RPT_CTRL_MID handler
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_SB_Cmds_SubRptUnexpCmdCode(void);
-
-/*****************************************************************************/
-/**
 ** \brief Test command handler response to a bad message length
 **
 ** \par Description
