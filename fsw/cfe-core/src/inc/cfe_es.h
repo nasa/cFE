@@ -359,10 +359,23 @@ CFE_Status_t  CFE_ES_ResetCFE(uint32 ResetType);
 ** \brief Restart a single cFE Application
 **
 ** \par Description
-**        This API causes a cFE Application to be stopped and restarted.
+**        This API causes a cFE Application to be unloaded and restarted
+**        from the same file name as the last start.
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**        The filename is checked for existance prior to load.  A missing file
+**        will be reported and the reload operation will be aborted prior
+**        to unloading the app.
+**
+**        Goes through the standard CFE_ES_CleanUpApp which unloads,
+**        then attempts a load using the original file name.
+**
+**        In the event that an application cannot be reloaded due to a
+**        missing file or any other load issue, the application may no longer be
+**        restarted or reloaded when given a valid load file (the app has been
+**        deleted and no longer exists).  To recover, the application
+**        may be started by loading the application via the ES_STARTAPP
+**        command (#CFE_ES_START_APP_CC).
 **
 ** \param[in]  AppID       Identifies the application to be reset.
 **
@@ -382,11 +395,17 @@ CFE_Status_t CFE_ES_RestartApp(CFE_ES_ResourceID_t AppID);
 **        the specified file.
 **
 ** \par Assumptions, External Events, and Notes:
-**        The specified application will be deleted before it is reloaded from the
-**        specified file.  In the event that an application cannot be reloaded due to
+**        The filename is checked for existance prior to load.  A missing file
+**        will be reported and the reload operation will be aborted prior
+**        to unloading the app.
+**
+**        Goes through the standard CFE_ES_CleanUpApp which unloads,
+**        then attempts a load using the specified file name.
+**
+**        In the event that an application cannot be reloaded due to
 **        a corrupt file, the application may no longer be reloaded when given a valid
 **        load file (it has been deleted and no longer exists).  To recover, the
-**        application may be restarted by loading the application via the ES_STARTAPP
+**        application may be started by loading the application via the ES_STARTAPP
 **        command (#CFE_ES_START_APP_CC).
 **
 ** \param[in]  AppID       Identifies the application to be reset.

@@ -267,12 +267,15 @@
 */
 #define CFE_ES_STOP_APP_CC             5
 
-/** \cfeescmd Stops and Restarts an Application
+/** \cfeescmd Stops, Unloads, Loads using the previous File name, and Restarts an Application
 **
 **  \par Description
-**       This command halts and restarts the specified Application.
-**       This command does \b NOT reload the application from the onboard
-**       filesystem.
+**       This command halts and removes the specified Application
+**       from the system.  Then it immediately loads the Application from
+**       the same filename last used to start.  This command is
+**       especially useful for restarting a Command Ingest Application
+**       since once it has been stopped, no further commands can come in
+**       to restart it.
 **
 **  \cfecmdmnemonic \ES_RESTARTAPP
 **
@@ -291,6 +294,7 @@
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
 **       - The command packet length is incorrect
+**       - The original file is missing
 **       - The specified application name is not recognized as an active application
 **       - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
 **
@@ -310,7 +314,7 @@
 */
 #define CFE_ES_RESTART_APP_CC          6
 
-/** \cfeescmd Stops, Unloads, Loads from a File and Restarts an Application
+/** \cfeescmd Stops, Unloads, Loads from the command specfied File and Restarts an Application
 **
 **  \par Description
 **       This command halts and removes the specified Application
@@ -337,6 +341,7 @@
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
 **       - The command packet length is incorrect
+**       - The reload file is missing
 **       - The specified application name is not recognized as an active application
 **       - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
 **
