@@ -394,7 +394,7 @@ void Test_CFE_TBL_InitData(void)
     /* This function has only one possible path with no return code */
     UT_InitData();
     CFE_TBL_InitData();
-    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 2);
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 3);
 }
 
 /*

@@ -248,6 +248,11 @@ void CFE_TBL_InitData(void)
                  CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
                  sizeof(CFE_TBL_TaskData.TblRegPacket));
 
+    /* Message ID is set when sent, so OK as 0 here */
+    CFE_MSG_Init(&CFE_TBL_TaskData.NotifyMsg.CmdHeader.Msg,
+                 CFE_SB_ValueToMsgId(0),
+                 sizeof(CFE_TBL_TaskData.NotifyMsg));
+
 } /* End of CFE_TBL_InitData() */
 
 
