@@ -707,21 +707,21 @@ void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(voi
 
 void UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TSF, FileName, LineNum, "%s - Setup - %s returned %ld",
+    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TSF, FileName, LineNum, "%s - Setup - %s returned 0x%lx",
             TestName, FnName, (long int)FnRet);
 }
 
 void UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UtAssert_GetContext(), FileName, LineNum, "%s - %s returned %ld, expected CFE_SUCCESS",
+    UtAssertEx(FnRet == CFE_SUCCESS, UtAssert_GetContext(), FileName, LineNum, "%s - %s returned 0x%lx, expected CFE_SUCCESS",
             TestName, FnName, (long int)FnRet);
 }
 
 void UT_ASSERT_EQ_impl(const char *FileName, int LineNum,
     const char *FnName, int32 FnRet, const char *ExpName, int32 Exp)
 {
-    UtAssertEx(FnRet == Exp, UtAssert_GetContext(), FileName, LineNum, "%s - value %ld, expected %s[%ld]",
-        FnName, (long)FnRet, ExpName, (long)Exp);
+    UtAssertEx(FnRet == Exp, UtAssert_GetContext(), FileName, LineNum, "%s - value %ld 0x%lx, expected %s[%ld 0x%lx]",
+        FnName, (long)FnRet, (long)FnRet, ExpName, (long)Exp, (long)Exp);
 }
 
 void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
@@ -747,7 +747,7 @@ void UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, co
 
 void UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TTF, FileName, LineNum, "%s - Teardown failed (%s returned %ld)",
+    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TTF, FileName, LineNum, "%s - Teardown failed (%s returned 0x%lx)",
             TestName, FnName, (long int)FnRet);
 }
 
