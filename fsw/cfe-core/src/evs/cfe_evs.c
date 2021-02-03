@@ -50,7 +50,7 @@
 /*
 ** Function: CFE_EVS_Register - See API and header file for details
 */
-int32 CFE_EVS_Register (void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
+int32 CFE_EVS_Register (const void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
 {
    uint16 FilterLimit;
    uint16 i;
@@ -89,6 +89,8 @@ int32 CFE_EVS_Register (void *Filters, uint16 NumEventFilters, uint16 FilterSche
          else
          {
             FilterLimit = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
+            CFE_ES_WriteToSysLog("CFE_EVS_Register: Filter limit truncated to %d\n",
+                                 (int)FilterLimit);
          }
 
          if (Filters != NULL)

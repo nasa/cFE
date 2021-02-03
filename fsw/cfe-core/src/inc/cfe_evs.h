@@ -149,7 +149,7 @@ typedef struct CFE_EVS_BinFilter {
 ** \sa #CFE_EVS_Unregister
 **
 **/
-CFE_Status_t CFE_EVS_Register (void              *Filters,           /* Pointer to an array of filters */
+CFE_Status_t CFE_EVS_Register (const void              *Filters,           /* Pointer to an array of filters */
                         uint16               NumFilteredEvents,  /* How many elements in the array? */
                         uint16               FilterScheme);      /* Filtering Algorithm to be implemented */
 
