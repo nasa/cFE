@@ -62,7 +62,7 @@ endfunction(initialize_globals)
 function(add_psp_module MOD_NAME MOD_SRC_FILES)
 
   # Include the PSP shared directory so it can get to cfe_psp_module.h
-  include_directories(${MISSION_SOURCE_DIR}/psp/fsw/shared)
+  include_directories(${MISSION_SOURCE_DIR}/psp/fsw/shared/inc)
   add_definitions(-D_CFE_PSP_MODULE_)
   
   # Create the module
