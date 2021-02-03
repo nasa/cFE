@@ -154,16 +154,12 @@ void UT_InitData(void)
      * Set up for the CFE_SB_ReceiveBuffer() call.
      *
      * The existing test cases assume that this will return success once,
-     * followed by a timeout response followed by a different error.
+     * followed by a timeout response.
      *
      * Specific test cases may provide an actual message buffer to return for
      * the first call, or they may override this default behavior entirely.
-     *
-     * The default behavior of the CFE_SB_ReceiveBuffer stub is to return success with a zero-ed out
-     * buffer returned to the caller.
      */
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_ReceiveBuffer), 2, CFE_SB_TIME_OUT);
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_ReceiveBuffer), 3, -1);
 
     /*
      * Set up CFE_ES_GetAppName() and friends
