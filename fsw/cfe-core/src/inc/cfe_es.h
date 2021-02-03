@@ -140,10 +140,17 @@
 */
 
 /*
-** Child Task Main Function Prototype
+** Entry Function Prototypes
 */
-typedef void (*CFE_ES_ChildTaskMainFuncPtr_t)(void); /**< \brief Required Prototype of Child Task Main Functions */
+typedef void (*CFE_ES_TaskEntryFuncPtr_t)(void); /**< \brief Required Prototype of Task Main Functions */
 typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(CFE_ES_LibId_t LibId); /**< \brief Required Prototype of Library Initialization Functions */
+
+/**
+ * \brief Compatible typedef for ES child task entry point.
+ * 
+ * All ES task functions (main + child) use the same entry point type.
+ */
+typedef CFE_ES_TaskEntryFuncPtr_t CFE_ES_ChildTaskMainFuncPtr_t;
 
 /**
  * @brief Type for the stack pointer of tasks.

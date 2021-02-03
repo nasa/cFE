@@ -1015,15 +1015,15 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
        AppInfo->ResourceId = CFE_RESOURCEID_UNWRAP(AppId); /* make into a generic resource ID */
        AppInfo->Type = AppRecPtr->Type;
 
-       CFE_ES_CopyModuleBasicInfo(&AppRecPtr->StartParams.BasicInfo, AppInfo);
-       CFE_ES_CopyModuleStatusInfo(&AppRecPtr->ModuleInfo, AppInfo);
+       strncpy(AppInfo->Name, CFE_ES_AppRecordGetName(AppRecPtr), sizeof(AppInfo->Name)-1);
 
-       AppInfo->StackSize = AppRecPtr->StartParams.StackSize;
+       CFE_ES_CopyModuleBasicInfo(&AppRecPtr->StartParams.BasicInfo, AppInfo);
+       CFE_ES_CopyModuleStatusInfo(&AppRecPtr->LoadStatus, AppInfo);
+
        AppInfo->ExceptionAction = AppRecPtr->StartParams.ExceptionAction;
-       AppInfo->Priority = AppRecPtr->StartParams.Priority;
        AppInfo->MainTaskId = AppRecPtr->MainTaskId;
 
-       ModuleId = AppRecPtr->ModuleInfo.ModuleId;
+       ModuleId = AppRecPtr->LoadStatus.ModuleId;
 
        /*
        ** Calculate the number of child tasks
@@ -1042,6 +1042,10 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
                   strncpy(AppInfo->MainTaskName, TaskRecPtr->TaskName,
                           sizeof(AppInfo->MainTaskName) - 1);
                   AppInfo->MainTaskName[sizeof(AppInfo->MainTaskName) - 1] = '\0';
+
+                  AppInfo->StackSize = TaskRecPtr->StartParams.StackSize;
+                  AppInfo->Priority = TaskRecPtr->StartParams.Priority;
+
               }
               else
               {
@@ -1105,10 +1109,12 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId)
         LibInfo->ResourceId = CFE_RESOURCEID_UNWRAP(LibId); /* make into generic ID */
         LibInfo->Type = CFE_ES_AppType_LIBRARY;
 
-        CFE_ES_CopyModuleBasicInfo(&LibRecPtr->BasicInfo, LibInfo);
-        CFE_ES_CopyModuleStatusInfo(&LibRecPtr->ModuleInfo, LibInfo);
+       strncpy(LibInfo->Name, CFE_ES_LibRecordGetName(LibRecPtr), sizeof(LibInfo->Name)-1);
 
-        ModuleId = LibRecPtr->ModuleInfo.ModuleId;
+        CFE_ES_CopyModuleBasicInfo(&LibRecPtr->LoadParams, LibInfo);
+        CFE_ES_CopyModuleStatusInfo(&LibRecPtr->LoadStatus, LibInfo);
+
+        ModuleId = LibRecPtr->LoadStatus.ModuleId;
 
         Status = CFE_SUCCESS;
     }
@@ -1243,108 +1249,90 @@ int32 CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr,
                         CFE_ES_TaskPriority_Atom_t  Priority,
                         uint32  Flags)
 {
+    int32                    ReturnCode;
+    CFE_ES_AppRecord_t *     AppRecPtr;
+    CFE_ES_AppId_t           ParentAppId;
+    CFE_ES_TaskId_t          SelfTaskId;
+    CFE_ES_TaskStartParams_t Params;
 
-   int32          Result;
-   CFE_ES_AppRecord_t *AppRecPtr;
-   CFE_ES_TaskRecord_t *TaskRecPtr;
-   int32          ReturnCode;
-   CFE_ES_TaskId_t  SelfTaskId;
-   CFE_ES_TaskId_t  LocalChildTaskId;
-   osal_id_t      OsalId;
+    ParentAppId = CFE_ES_APPID_UNDEFINED;
 
-   /*
-   ** Validate some of the arguments
-   */
-   if ( TaskIdPtr == NULL )
-   {
-      if (TaskName == NULL)
-      {
-          CFE_ES_WriteToSysLog("CFE_ES_CreateChildTask: Task Id and Name Pointer Parameters are NULL.\n");
-          ReturnCode = CFE_ES_BAD_ARGUMENT;
-      }
-      else
-      {
-          CFE_ES_WriteToSysLog("CFE_ES_CreateChildTask: Task Id Pointer Parameter is NULL for Task '%s'.\n",TaskName);
-          ReturnCode = CFE_ES_BAD_ARGUMENT;
-      }
-   }
-   else if ( TaskName == NULL )
-   {
-      CFE_ES_WriteToSysLog("CFE_ES_CreateChildTask: TaskName Parameter is NULL\n");
-      ReturnCode = CFE_ES_BAD_ARGUMENT;
-   }
-   else if ( FunctionPtr == NULL )
-   {
-      CFE_ES_WriteToSysLog("CFE_ES_CreateChildTask: Function Pointer Parameter is NULL for Task '%s'\n",TaskName);
-      ReturnCode = CFE_ES_BAD_ARGUMENT;
-   }
-   else
-   {
+    memset(&Params, 0, sizeof(Params));
+    Params.Priority  = Priority;
+    Params.StackSize = StackSize;
 
-      CFE_ES_LockSharedData(__func__,__LINE__);
+    /*
+    ** Validate some of the arguments
+    */
+    if (TaskIdPtr == NULL)
+    {
+        if (TaskName == NULL)
+        {
+            CFE_ES_WriteToSysLog("CFE_ES_CreateChildTask: Task Id and Name Pointer Parameters are NULL.\n");
+            ReturnCode = CFE_ES_BAD_ARGUMENT;
+        }
+        else
+        {
+            CFE_ES_WriteToSysLog("CFE_ES_CreateChildTask: Task Id Pointer Parameter is NULL for Task '%s'.\n",
+                                 TaskName);
+            ReturnCode = CFE_ES_BAD_ARGUMENT;
+        }
+    }
+    else if (TaskName == NULL)
+    {
+        CFE_ES_WriteToSysLog("CFE_ES_CreateChildTask: TaskName Parameter is NULL\n");
+        ReturnCode = CFE_ES_BAD_ARGUMENT;
+    }
+    else if (FunctionPtr == NULL)
+    {
+        CFE_ES_WriteToSysLog("CFE_ES_CreateChildTask: Function Pointer Parameter is NULL for Task '%s'\n", TaskName);
+        ReturnCode = CFE_ES_BAD_ARGUMENT;
+    }
+    else
+    {
+        /*
+        ** First, Make sure the Calling Task is a cFE Main task.
+        ** TaskID must be the same as the Parent Task ID.
+        */
+        SelfTaskId = CFE_ES_TaskId_FromOSAL(OS_TaskGetId());
 
-      /*
-      ** Get the App Record of the calling Application
-      */
-      AppRecPtr = CFE_ES_GetAppRecordByContext();
-      if (AppRecPtr == NULL)
-      {
-          CFE_ES_SysLogWrite_Unsync("CFE_ES_CreateChildTask: Invalid calling context when creating Task '%s'\n",TaskName);
-          ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-      }
-      else  /* else AppId is valid */
-      {
-         /*
-         ** First, Make sure the Calling Task is a cFE Main task.
-         ** TaskID must be the same as the Parent Task ID.
-         */
-         OsalId = OS_TaskGetId();
-         SelfTaskId = CFE_ES_TaskId_FromOSAL(OsalId);
-         if ( CFE_RESOURCEID_TEST_EQUAL(SelfTaskId, AppRecPtr->MainTaskId) )
-         {
-            /*
-            ** Step 2: Create the new task using the OS API call
-            */
-            Result = OS_TaskCreate(&OsalId, TaskName, FunctionPtr, StackPtr,
-                                StackSize, Priority, OS_FP_ENABLED );
+        CFE_ES_LockSharedData(__func__, __LINE__);
 
-            /*
-            ** Step 3: Record the task information in the task table
-            */
-            if ( Result == OS_SUCCESS )
-            {
-               LocalChildTaskId = CFE_ES_TaskId_FromOSAL(OsalId);
-               TaskRecPtr = CFE_ES_LocateTaskRecordByID(LocalChildTaskId);
-
-               CFE_ES_TaskRecordSetUsed(TaskRecPtr, CFE_RESOURCEID_UNWRAP(LocalChildTaskId));
-               TaskRecPtr->AppId = CFE_ES_AppRecordGetID(AppRecPtr);
-               strncpy(TaskRecPtr->TaskName,TaskName,sizeof(TaskRecPtr->TaskName) - 1);
-               TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName) - 1] = '\0';
-               CFE_ES_Global.RegisteredTasks++;
-
-               *TaskIdPtr = CFE_ES_TaskRecordGetID(TaskRecPtr);
-               ReturnCode = CFE_SUCCESS;
-            }
-            else
-            {
-               CFE_ES_SysLogWrite_Unsync("CFE_ES_CreateChildTask: Error calling OS_TaskCreate for Task '%s' RC = 0x%08X\n",TaskName,(unsigned int)Result);
-               ReturnCode = CFE_ES_ERR_CHILD_TASK_CREATE;
-            }
-         }
-         else
-         {
-            CFE_ES_SysLogWrite_Unsync("CFE_ES_CreateChildTask: Error: Cannot call from a Child Task (for Task '%s').\n",TaskName);
+        /*
+        ** Get the App Record of the calling Application
+        */
+        AppRecPtr = CFE_ES_GetAppRecordByContext();
+        if (AppRecPtr == NULL)
+        {
+            CFE_ES_SysLogWrite_Unsync("CFE_ES_CreateChildTask: Invalid calling context when creating Task '%s'\n",
+                                      TaskName);
+            ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        }
+        else if (!CFE_RESOURCEID_TEST_EQUAL(SelfTaskId, AppRecPtr->MainTaskId))
+        {
+            CFE_ES_SysLogWrite_Unsync("CFE_ES_CreateChildTask: Error: Cannot call from a Child Task (for Task '%s').\n",
+                                      TaskName);
             ReturnCode = CFE_ES_ERR_CHILD_TASK_CREATE;
+        }
+        else
+        {
+            ParentAppId = CFE_ES_AppRecordGetID(AppRecPtr);
+            ReturnCode  = CFE_SUCCESS;
+        } /* end If AppID is valid */
 
-         } /* end if Calling task is a main task */
+        CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-      }/* end If AppID is valid */
+    } /* end if parameter checking */
 
-      CFE_ES_UnlockSharedData(__func__,__LINE__);
+    /*
+    ** Step 2: Create the new task if the parameter validation succeeded
+    */
+    if (ReturnCode == CFE_SUCCESS)
+    {
+        ReturnCode = CFE_ES_StartAppTask(TaskIdPtr, TaskName, FunctionPtr, &Params, ParentAppId);
+    }
 
-   } /* end if parameter checking */
-
-   return(ReturnCode);
+    return (ReturnCode);
 
 } /* End of CFE_ES_CreateChildTask() */
 
