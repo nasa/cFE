@@ -1608,20 +1608,17 @@ void Test_CreatePipe_NullPtr(void)
 */
 void Test_CreatePipe_ValPipeDepth(void)
 {
-    CFE_SB_PipeId_t PipeIdReturned[3];
+    CFE_SB_PipeId_t PipeIdReturned[2];
 
-    ASSERT(CFE_SB_CreatePipe(&PipeIdReturned[0], 99, "TestPipe99"));
-    ASSERT(CFE_SB_CreatePipe(&PipeIdReturned[1], 255, "TestPipe255"));
-    ASSERT(CFE_SB_CreatePipe(&PipeIdReturned[2],
-             CFE_PLATFORM_SB_MAX_PIPE_DEPTH, "TestPipeMaxDepth"));
+    ASSERT(CFE_SB_CreatePipe(&PipeIdReturned[0], 1, "TestPipeMin"));
+    ASSERT(CFE_SB_CreatePipe(&PipeIdReturned[1], OS_QUEUE_MAX_DEPTH, "TestPipeMax"));
 
-    EVTCNT(3);
+    EVTCNT(2);
 
     EVTSENT(CFE_SB_PIPE_ADDED_EID);
 
     TEARDOWN(CFE_SB_DeletePipe(PipeIdReturned[0]));
     TEARDOWN(CFE_SB_DeletePipe(PipeIdReturned[1]));
-    TEARDOWN(CFE_SB_DeletePipe(PipeIdReturned[2]));
 
 } /* end Test_CreatePipe_ValPipeDepth */
 
@@ -1636,7 +1633,7 @@ void Test_CreatePipe_InvalPipeDepth(void)
     ASSERT_EQ(CFE_SB_CreatePipe(&PipeIdReturned[0], 0, "TestPipe1"), CFE_SB_BAD_ARGUMENT);
     UT_SetDeferredRetcode(UT_KEY(OS_QueueCreate), 1, OS_SUCCESS);
     ASSERT_EQ(CFE_SB_CreatePipe(&PipeIdReturned[1],
-             CFE_PLATFORM_SB_MAX_PIPE_DEPTH + 1, "TestPipeMaxDepPlus1"), CFE_SB_BAD_ARGUMENT);
+             OS_QUEUE_MAX_DEPTH + 1, "TestPipeMaxDepPlus1"), CFE_SB_BAD_ARGUMENT);
     UT_SetDeferredRetcode(UT_KEY(OS_QueueCreate), 1, OS_SUCCESS);
     ASSERT_EQ(CFE_SB_CreatePipe(&PipeIdReturned[2], 0xffff, "TestPipeffff"), CFE_SB_BAD_ARGUMENT);
 

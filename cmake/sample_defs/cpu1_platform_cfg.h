@@ -130,24 +130,6 @@
 */
 #define CFE_PLATFORM_SB_BUF_MEMORY_BYTES         524288
 
-
-/**
-**  \cfesbcfg Maximum depth allowed when creating an SB pipe
-**
-**  \par Description:
-**       The value of this constant dictates the maximum pipe depth that an
-**       application may request. The pipe depth is given as a paramter in the
-**       #CFE_SB_CreatePipe API.
-**
-**  \par Limits
-**       This parameter has a lower limit of 1.  There are no restrictions on the
-**       upper limit however, the maximum pipe depth is system dependent and should
-**       be verified.  Pipe Depth values that are checked against this configuration
-**       are defined by a 16 bit data word.
-*/
-#define CFE_PLATFORM_SB_MAX_PIPE_DEPTH           256
-
-
 /**
 **  \cfesbcfg Highest Valid Message Id
 **
