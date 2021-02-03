@@ -3048,6 +3048,21 @@ void TestTask(void)
               "CFE_ES_RestartAppCmd",
               "Restart application initiated");
 
+    /* Test app restart with failed file check */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDefaultReturnValue(UT_KEY(OS_stat), OS_ERROR);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
+    strncpy(CmdBuf.RestartAppCmd.Payload.Application, "CFE_ES",
+            sizeof(CmdBuf.RestartAppCmd.Payload.Application));
+    CmdBuf.RestartAppCmd.Payload.Application[sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1] = '\0';
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.RestartAppCmd),
+            UT_TPID_CFE_ES_CMD_RESTART_APP_CC);
+    UT_Report(__FILE__, __LINE__,
+              UT_EventIsInHistory(CFE_ES_RESTART_APP_ERR1_EID),
+              "CFE_ES_RestartAppCmd",
+              "Restart application failed");
+
     /* Test app restart with a bad app name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
@@ -3061,12 +3076,26 @@ void TestTask(void)
               "CFE_ES_RestartAppCmd",
               "Restart application bad name");
 
-    /* Test failed app restart */
+    /* Test failed app restart, core app */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     strncpy(CmdBuf.RestartAppCmd.Payload.Application, "CFE_ES",
         sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1);
+    CmdBuf.RestartAppCmd.Payload.Application[sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1] = '\0';
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.RestartAppCmd),
+            UT_TPID_CFE_ES_CMD_RESTART_APP_CC);
+    UT_Report(__FILE__, __LINE__,
+              UT_EventIsInHistory(CFE_ES_RESTART_APP_ERR1_EID),
+              "CFE_ES_RestartAppCmd",
+              "Restart application failed");
+
+    /* Test failed app restart, not running */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
+    strncpy(CmdBuf.RestartAppCmd.Payload.Application, "CFE_ES",
+        sizeof(CmdBuf.RestartAppCmd.Payload.Application));
     CmdBuf.RestartAppCmd.Payload.Application[sizeof(CmdBuf.RestartAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.RestartAppCmd),
             UT_TPID_CFE_ES_CMD_RESTART_APP_CC);
@@ -3092,6 +3121,24 @@ void TestTask(void)
               "CFE_ES_ReloadAppCmd",
               "Reload application initiated");
 
+    /* Test app reload with missing file */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDefaultReturnValue(UT_KEY(OS_stat), OS_ERROR);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
+    strncpy(CmdBuf.ReloadAppCmd.Payload.AppFileName, "New_Name",
+            sizeof(CmdBuf.ReloadAppCmd.Payload.AppFileName));
+    CmdBuf.ReloadAppCmd.Payload.AppFileName[sizeof(CmdBuf.ReloadAppCmd.Payload.AppFileName) - 1] = '\0';
+    strncpy(CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES",
+            sizeof(CmdBuf.ReloadAppCmd.Payload.Application));
+    CmdBuf.ReloadAppCmd.Payload.Application[sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1] = '\0';
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ReloadAppCmd),
+            UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
+    UT_Report(__FILE__, __LINE__,
+              UT_EventIsInHistory(CFE_ES_RELOAD_APP_ERR1_EID),
+              "CFE_ES_ReloadAppCmd",
+              "Reload application failed");
+
     /* Test app reload with a bad app name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
@@ -3105,12 +3152,26 @@ void TestTask(void)
               "CFE_ES_ReloadAppCmd",
               "Reload application bad name");
 
-    /* Test failed app reload */
+    /* Test failed app reload, core app */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     strncpy(CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES",
-            sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1);
+            sizeof(CmdBuf.ReloadAppCmd.Payload.Application));
+    CmdBuf.ReloadAppCmd.Payload.Application[sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1] = '\0';
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ReloadAppCmd),
+            UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
+    UT_Report(__FILE__, __LINE__,
+              UT_EventIsInHistory(CFE_ES_RELOAD_APP_ERR1_EID),
+              "CFE_ES_ReloadAppCmd",
+              "Reload application failed");
+
+    /* Test failed app reload, not RUNNING */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_WAITING, "CFE_ES", NULL, NULL);
+    strncpy(CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES",
+            sizeof(CmdBuf.ReloadAppCmd.Payload.Application));
     CmdBuf.ReloadAppCmd.Payload.Application[sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ReloadAppCmd),
             UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
