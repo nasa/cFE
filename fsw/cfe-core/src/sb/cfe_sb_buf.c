@@ -39,6 +39,55 @@
 #include "cfe_es.h"
 #include "cfe_error.h"
 
+/*
+ * The actual message content of a SB Buffer Descriptor is the
+ * offset of the content member.  This will be auto-aligned by 
+ * the compiler according to the requirements of the machine.
+ */
+#define CFE_SB_BUFFERD_CONTENT_OFFSET   (offsetof(CFE_SB_BufferD_t,Content))
+
+
+/******************************************************************************
+ *
+ * Helper function to reset/clear the links on a list node (make empty)
+ */
+void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link)
+{
+    /* A singleton node/empty list points to itself */
+    Link->Prev = Link;
+    Link->Next = Link;
+}
+
+/******************************************************************************
+ *
+ * Helper function to remove a node from a tracking list
+ */
+void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node)
+{
+    /* Remove from list */
+    Node->Prev->Next = Node->Next;
+    Node->Next->Prev = Node->Prev;
+
+    /* The node is now a singleton */
+    CFE_SB_TrackingListReset(Node);
+}
+
+/******************************************************************************
+ *
+ * Helper function to add a node to a tracking list
+ */
+void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node)
+{
+    /* Connect this node to the list at "prev" position (tail) */
+    Node->Prev = List->Prev;
+    Node->Next = List;
+
+    /* Connect list nodes to this node */
+    Node->Prev->Next = Node;
+    Node->Next->Prev = Node;
+}
+
+
 /******************************************************************************
 **  Function:   CFE_SB_GetBufferFromPool()
 **
@@ -48,82 +97,60 @@
 **    by the SB to dynamically allocate memory to hold the message and a buffer
 **    descriptor associated with the message during the sending of a message.
 **
+**  Note:
+**    This must only be invoked while holding the SB global lock
+**
 **  Arguments:
-**    msgId        : Message ID
-**    size         : Size of the buffer in bytes.
+**    MaxMsgSize         : Size of the buffer content area in bytes.
 **
 **  Return:
 **    Pointer to the buffer descriptor for the new buffer, or NULL if the buffer
 **    could not be allocated.
 */
 
-CFE_SB_BufferD_t * CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, size_t Size) {
-   int32                stat1;
-   uint8               *address = NULL;
-   CFE_SB_BufferD_t    *bd = NULL;
+CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
+{
+    int32             stat1;
+    size_t            AllocSize;
+    CFE_SB_BufferD_t *bd = NULL;
+
+    /* The allocation needs to include enough space for the descriptor object */
+    AllocSize = MaxMsgSize + CFE_SB_BUFFERD_CONTENT_OFFSET;
 
     /* Allocate a new buffer descriptor from the SB memory pool.*/
-    stat1 = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&bd, CFE_SB_Global.Mem.PoolHdl,  Size + sizeof(CFE_SB_BufferD_t));
-    if(stat1 < 0){
+    stat1 = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t *)&bd, CFE_SB_Global.Mem.PoolHdl, AllocSize);
+    if (stat1 < 0)
+    {
         return NULL;
     }
 
     /* increment the number of buffers in use and adjust the high water mark if needed */
     CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse++;
-    if(CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse){
+    if (CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse)
+    {
         CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse = CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse;
-    }/* end if */
+    } /* end if */
 
     /* Add the size of the actual buffer to the memory-in-use ctr and */
     /* adjust the high water mark if needed */
-    CFE_SB_Global.StatTlmMsg.Payload.MemInUse+=stat1;
-    if(CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse){
+    CFE_SB_Global.StatTlmMsg.Payload.MemInUse += AllocSize;
+    if (CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse)
+    {
         CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
-    }/* end if */
-
-    /* first set ptr to actual msg buffer the same as ptr to descriptor */
-    address = (uint8 *)bd;
-
-    /* increment actual msg buffer ptr beyond the descriptor */
-    address += sizeof(CFE_SB_BufferD_t);
+    } /* end if */
 
     /* Initialize the buffer descriptor structure. */
-    bd->MsgId     = MsgId;
-    bd->UseCount  = 1;
-    bd->Size      = Size;
-    bd->Buffer    = (CFE_SB_Buffer_t *)address;
+    memset(bd, 0, CFE_SB_BUFFERD_CONTENT_OFFSET);
+
+    bd->MsgId          = CFE_SB_INVALID_MSG_ID;
+    bd->UseCount       = 1;
+    bd->AllocatedSize  = AllocSize;
+
+    CFE_SB_TrackingListReset(&bd->Link);
 
     return bd;
 
-}/* CFE_SB_GetBufferFromPool */
-
-
-/******************************************************************************
-**  Function:   CFE_SB_GetBufferFromCaller()
-**
-**  Purpose:
-**    Request a buffer from the SB buffer pool to use as a buffer descriptor
-**    for and already created SB buffer.
-**
-**  Arguments:
-**    msgId        : Message ID
-**    Address      : Address of the buffer
-**
-**  Return:
-**    Pointer to the buffer descriptor for the suplied buffer, or NULL if the
-**    descriptor could not be allocated.
-*/
-
-CFE_SB_BufferD_t * CFE_SB_GetBufferFromCaller(CFE_SB_MsgId_t MsgId,
-                                              void *Address) {
-   CFE_SB_BufferD_t    *bd = (CFE_SB_BufferD_t *)((cpuaddr)Address - sizeof(CFE_SB_BufferD_t));
-
-    /* Initialize the MsgId in the buffer descriptor (the rest has already been initialized in this case). */
-    bd->MsgId     = MsgId;
-
-    return bd;
-
-}/* CFE_SB_GetBufferFromCaller */
+} /* CFE_SB_GetBufferFromPool */
 
 
 /******************************************************************************
@@ -134,24 +161,25 @@ CFE_SB_BufferD_t * CFE_SB_GetBufferFromCaller(CFE_SB_MsgId_t MsgId,
 **    One block is the memory used to store the actual message, the other block
 **    was used to store the buffer descriptor for the message.
 **
+**  Note:
+**    This must only be invoked while holding the SB global lock
+**
 **  Arguments:
 **    bd     : Pointer to the buffer descriptor.
 **
 **  Return:
-**    SB status
+**    None
 */
-int32 CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd){
-    int32    Stat;
+void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
+{
+    /* Remove from any tracking list (no effect if not in a list) */
+    CFE_SB_TrackingListRemove(&bd->Link);
 
-    /* give the buf descriptor back to the buf descriptor pool */
-    Stat = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, bd);
-    if(Stat > 0){
-        CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse--;
-        /* Substract the size of a buffer descriptor from the Memory in use ctr */
-        CFE_SB_Global.StatTlmMsg.Payload.MemInUse-=Stat;
-    }/* end if */
+    --CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse;
+    CFE_SB_Global.StatTlmMsg.Payload.MemInUse -= bd->AllocatedSize;
 
-    return CFE_SUCCESS;
+    /* finally give the buf descriptor back to the buf descriptor pool */
+    CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, bd);
 
 }/* end CFE_SB_ReturnBufferToPool */
 
@@ -165,6 +193,8 @@ int32 CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd){
 **  Note:
 **    UseCount is a variable in the CFE_SB_BufferD_t and is used only to
 **    determine when a buffer may be returned to the memory pool.
+**
+**    This must only be invoked while holding the SB global lock
 **
 **  Arguments:
 **    bd : Pointer to the buffer descriptor.
@@ -195,6 +225,8 @@ void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd)
 **    UseCount is a variable in the CFE_SB_BufferD_t and is used only to
 **    determine when a buffer may be returned to the memory pool.
 **
+**    This must only be invoked while holding the SB global lock
+**
 **  Arguments:
 **    bd : Pointer to the buffer descriptor.
 **
@@ -223,6 +255,9 @@ void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
 **
 **  Purpose:
 **    This function gets a destination descriptor from the SB memory pool.
+**
+**  Note:
+**    This must only be invoked while holding the SB global lock
 **
 **  Arguments:
 **    None
@@ -258,6 +293,9 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
 **
 **  Purpose:
 **    This function returns a destination descriptor to the SB memory pool.
+**
+**  Note:
+**    This must only be invoked while holding the SB global lock
 **
 **  Arguments:
 **    None

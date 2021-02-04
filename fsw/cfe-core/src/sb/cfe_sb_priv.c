@@ -535,20 +535,49 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
 ******************************************************************************/
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)
 {
-    CFE_SB_ZeroCopyD_t *prev = NULL;
-    CFE_SB_ZeroCopyD_t *zcd = (CFE_SB_ZeroCopyD_t *) (CFE_SB_Global.ZeroCopyTail);
+    CFE_SB_BufferLink_t *NextLink;
 
-    while(zcd != NULL){
-        prev = (CFE_SB_ZeroCopyD_t *) (zcd->Prev);
-        if( CFE_RESOURCEID_TEST_EQUAL(zcd->AppID, AppId) )
+    /* Using a union type permits promotion of CFE_SB_BufferLink_t* to CFE_SB_BufferD_t*
+     * without violating aliasing rules or alignment rules.  Note that the first element
+     * of CFE_SB_BufferD_t is a CFE_SB_BufferLink_t, which makes this possible. */
+    union LocalBufDesc
+    {
+        CFE_SB_BufferLink_t As_Link;
+        CFE_SB_BufferD_t    As_Dsc;
+    } *BufPtr;
+
+    /*
+     * First go through the "ZeroCopy" tracking list and find all nodes
+     * with a matching AppID.  This needs to be done while locked to
+     * prevent other tasks from changing the list at the same time.
+     */
+    if (CFE_RESOURCEID_TEST_DEFINED(AppId))
+    {
+        CFE_SB_LockSharedData(__func__, __LINE__);
+
+        /* Get start of list */
+        NextLink = CFE_SB_TrackingListGetNext(&CFE_SB_Global.ZeroCopyList);
+        while(!CFE_SB_TrackingListIsEnd(&CFE_SB_Global.ZeroCopyList, NextLink))
         {
-            CFE_SB_ZeroCopyReleasePtr((CFE_SB_Buffer_t *) zcd->Buffer, (CFE_SB_ZeroCopyHandle_t) zcd);
+            /* Get buffer descriptor pointer */
+            BufPtr = (union LocalBufDesc*)NextLink;
+
+            /* Read the next link now in case this node gets moved */
+            NextLink = CFE_SB_TrackingListGetNext(NextLink);
+
+            /* Check if it is a zero-copy buffer owned by this app */
+            if (CFE_RESOURCEID_TEST_EQUAL(BufPtr->As_Dsc.AppId, AppId))
+            {
+                /* If so, decrement the use count as the app has now gone away */
+                CFE_SB_DecrBufUseCnt(&BufPtr->As_Dsc);
+            }
         }
-        zcd = prev;
+
+        CFE_SB_UnlockSharedData(__func__, __LINE__);
     }
 
     return CFE_SUCCESS;
 
-}/* end CFE_SB_ZeroCopyReleasePtr */
+}/* end CFE_SB_ZeroCopyReleaseAppId */
 
 /*****************************************************************************/

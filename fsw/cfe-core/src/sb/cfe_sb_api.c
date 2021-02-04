@@ -1393,7 +1393,6 @@ int32  CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount
     char                FullName[(OS_MAX_API_NAME * 2)];
     CFE_SB_BufferD_t   *BufDscPtr;
     CFE_SBR_RouteId_t   RouteId;
-    CFE_MSG_Type_t      MsgType;
     uint16              PendingEventID;
 
     PendingEventID = 0;
@@ -1401,44 +1400,66 @@ int32  CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount
 
     Status = CFE_SB_TransmitMsgValidate(MsgPtr, &MsgId, &Size, &RouteId);
 
+    CFE_SB_LockSharedData(__func__, __LINE__);
+
     if (Status == CFE_SUCCESS && CFE_SBR_IsValidRouteId(RouteId))
     {
-        CFE_SB_LockSharedData(__func__, __LINE__);
-
-        /* Get buffer */
-        BufDscPtr = CFE_SB_GetBufferFromPool(MsgId, Size);
+        /* Get buffer - note this pre-initializes the returned buffer with 
+         * a use count of 1, which refers to this task as it fills the buffer. */
+        BufDscPtr = CFE_SB_GetBufferFromPool(Size);
         if (BufDscPtr == NULL)
         {
             PendingEventID = CFE_SB_GET_BUF_ERR_EID;
             Status = CFE_SB_BUF_ALOC_ERR;
         }
-        else
-        {
-            /* For Tlm packets, increment the seq count if requested */
-            CFE_MSG_GetType(MsgPtr, &MsgType);
-            if((MsgType == CFE_MSG_Type_Tlm) && IncrementSequenceCount)
-            {
-                CFE_SBR_IncrementSequenceCounter(RouteId);
-                CFE_MSG_SetSequenceCount(MsgPtr, CFE_SBR_GetSequenceCounter(RouteId));
-            }
-        }
-
-        CFE_SB_UnlockSharedData(__func__, __LINE__);
     }
 
-    if (Status == CFE_SUCCESS && BufDscPtr != NULL)
-    {
-        /* Copy data into buffer and transmit */
-        memcpy(BufDscPtr->Buffer, MsgPtr, Size);
-        Status = CFE_SB_TransmitBufferFull(BufDscPtr, RouteId, MsgId);
-    }
-
+    /*
+     * Increment the MsgSendErrorCounter only if there was a real error,
+     * such as a validation issue or failure to allocate a buffer.
+     *
+     * (This should NOT be done if simply no route)
+     */
     if (Status != CFE_SUCCESS)
     {
-        /* Increment error counter (inside lock) if not success */
-        CFE_SB_LockSharedData(__func__, __LINE__);
         CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter++;
-        CFE_SB_UnlockSharedData(__func__, __LINE__);
+    }
+
+    CFE_SB_UnlockSharedData(__func__, __LINE__);
+
+    /*
+     * If a buffer was obtained above, then copy the content into it
+     * and broadcast it to all subscribers in the route.
+     * 
+     * Note - if there is no route / no subscribers, the "Status" will
+     * be CFE_SUCCESS because CFE_SB_TransmitMsgValidate() succeeded, 
+     * but there will be no buffer because CFE_SBR_IsValidRouteId() returned 
+     * false.  
+     * 
+     * But if the desciptor is non-null it means the message is valid and 
+     * there is a route to send it to.
+     */
+    if (BufDscPtr != NULL)
+    {
+        /* Copy actual message content into buffer and set its metadata */
+        memcpy(&BufDscPtr->Content, MsgPtr, Size);
+        BufDscPtr->MsgId = MsgId;
+        BufDscPtr->ContentSize = Size;
+        BufDscPtr->AutoSequence = IncrementSequenceCount;
+        CFE_MSG_GetType(MsgPtr, &BufDscPtr->ContentType);
+
+        /* 
+         * This routine will use best-effort to send to all subscribers,
+         * increment the buffer use count for every successful delivery,
+         * and send an event/increment counter for any unsucessful delivery.
+         */
+        CFE_SB_BroadcastBufferToRoute(BufDscPtr, RouteId);
+
+        /* 
+         * The broadcast function consumes the buffer, so it should not be 
+         * accessed in this function anymore 
+         */
+        BufDscPtr = NULL; 
     }
 
     if (PendingEventID == CFE_SB_GET_BUF_ERR_EID)
@@ -1615,11 +1636,8 @@ int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr,
  * \param[in] BufDscPtr Pointer to the buffer description from the memory pool,
  *                      released prior to return
  * \param[in] RouteId   Route to send to
- * \param[in] MsgId     Message Id that is being sent
  */
-int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
-                                 CFE_SBR_RouteId_t RouteId,
-                                 CFE_SB_MsgId_t    MsgId)
+void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_t RouteId)
 {
     CFE_ES_AppId_t          AppId;
     CFE_ES_TaskId_t         TskId;
@@ -1631,7 +1649,6 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
     char                    FullName[(OS_MAX_API_NAME * 2)];
     char                    PipeName[OS_MAX_API_NAME];
 
-    Status = CFE_SUCCESS;
     SBSndErr.EvtsToSnd = 0;
 
     /* get app id for loopback testing */
@@ -1643,66 +1660,75 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
     /* take semaphore to prevent a task switch during processing */
     CFE_SB_LockSharedData(__func__,__LINE__);
 
-    /* Send the packet to all destinations  */
-    for(DestPtr = CFE_SBR_GetDestListHeadPtr(RouteId); DestPtr != NULL; DestPtr = DestPtr->Next)
+    /* For an invalid route / no subsribers this whole logic can be skipped */
+    if (CFE_SBR_IsValidRouteId(RouteId))
     {
-        if (DestPtr->Active == CFE_SB_ACTIVE)    /* destination is active */
+        /* Set the seq count if requested (while locked) before actually sending */
+        /* For some reason this is only done for TLM types (historical, TBD) */
+        if (BufDscPtr->AutoSequence && BufDscPtr->ContentType == CFE_MSG_Type_Tlm)
         {
-            PipeDscPtr = CFE_SB_LocatePipeDescByID(DestPtr->PipeId);
-        }
-        else
-        {   
-            PipeDscPtr = NULL;
-        }
+            CFE_SBR_IncrementSequenceCounter(RouteId);
 
-        if (!CFE_SB_PipeDescIsMatch(PipeDscPtr, DestPtr->PipeId))
-        {
-            continue;
+            /* Write the sequence into the message header itself (overwrites whatever was there) */
+            CFE_MSG_SetSequenceCount(&BufDscPtr->Content.Msg, CFE_SBR_GetSequenceCounter(RouteId));
         }
 
-        if((PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE) != 0 &&
-                    CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
+        /* Send the packet to all destinations  */
+        for (DestPtr = CFE_SBR_GetDestListHeadPtr(RouteId); DestPtr != NULL; DestPtr = DestPtr->Next)
         {
-            continue;
-        }/* end if */
-
-        /* if Msg limit exceeded, log event, increment counter */
-        /* and go to next destination */
-        if(DestPtr->BuffCount >= DestPtr->MsgId2PipeLim)
-        {
-            SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId  = DestPtr->PipeId;
-            SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId = CFE_SB_MSGID_LIM_ERR_EID;
-            SBSndErr.EvtsToSnd++;
-            CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter++;
-            PipeDscPtr->SendErrors++;
-
-            continue;
-        }/* end if */
-
-        /*
-        ** Write the buffer descriptor to the queue of the pipe.  If the write
-        ** failed, log info and increment the pipe's error counter.
-        */
-        Status = OS_QueuePut(PipeDscPtr->SysQueueId, (void *)&BufDscPtr, sizeof(CFE_SB_BufferD_t *), 0);
-
-        if (Status == OS_SUCCESS)
-        {
-            /* The queue now holds a ref to the buffer, so increment its ref count. */
-            CFE_SB_IncrBufUseCnt(BufDscPtr);
-
-            DestPtr->BuffCount++; /* used for checking MsgId2PipeLimit */
-            DestPtr->DestCnt++;   /* used for statistics */
-            ++PipeDscPtr->CurrentQueueDepth;
-            if (PipeDscPtr->CurrentQueueDepth >= PipeDscPtr->PeakQueueDepth)
+            if (DestPtr->Active == CFE_SB_ACTIVE) /* destination is active */
             {
-                PipeDscPtr->PeakQueueDepth = PipeDscPtr->CurrentQueueDepth;
+                PipeDscPtr = CFE_SB_LocatePipeDescByID(DestPtr->PipeId);
+            }
+            else
+            {
+                PipeDscPtr = NULL;
             }
 
-            Status = CFE_SUCCESS;
-        }
-        else 
-        {
-            if (Status == OS_QUEUE_FULL)
+            if (!CFE_SB_PipeDescIsMatch(PipeDscPtr, DestPtr->PipeId))
+            {
+                continue;
+            }
+
+            if ((PipeDscPtr->Opts & CFE_SB_PIPEOPTS_IGNOREMINE) != 0 &&
+                CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
+            {
+                continue;
+            } /* end if */
+
+            /* if Msg limit exceeded, log event, increment counter */
+            /* and go to next destination */
+            if (DestPtr->BuffCount >= DestPtr->MsgId2PipeLim)
+            {
+                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId  = DestPtr->PipeId;
+                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId = CFE_SB_MSGID_LIM_ERR_EID;
+                SBSndErr.EvtsToSnd++;
+                CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter++;
+                PipeDscPtr->SendErrors++;
+
+                continue;
+            } /* end if */
+
+            /*
+            ** Write the buffer descriptor to the queue of the pipe.  If the write
+            ** failed, log info and increment the pipe's error counter.
+            */
+            Status = OS_QueuePut(PipeDscPtr->SysQueueId, &BufDscPtr, sizeof(BufDscPtr), 0);
+
+            if (Status == OS_SUCCESS)
+            {
+                /* The queue now holds a ref to the buffer, so increment its ref count. */
+                CFE_SB_IncrBufUseCnt(BufDscPtr);
+
+                DestPtr->BuffCount++; /* used for checking MsgId2PipeLimit */
+                DestPtr->DestCnt++;   /* used for statistics */
+                ++PipeDscPtr->CurrentQueueDepth;
+                if (PipeDscPtr->CurrentQueueDepth >= PipeDscPtr->PeakQueueDepth)
+                {
+                    PipeDscPtr->PeakQueueDepth = PipeDscPtr->CurrentQueueDepth;
+                }
+            }
+            else if (Status == OS_QUEUE_FULL)
             {
                 SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId  = DestPtr->PipeId;
                 SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId = CFE_SB_Q_FULL_ERR_EID;
@@ -1719,12 +1745,35 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
                 SBSndErr.EvtsToSnd++;
                 CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter++;
                 PipeDscPtr->SendErrors++;
-            }/*end if */
+            } /*end if */
 
-            Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-        }
-    } /* end loop over destinations */
-    
+        } /* end loop over destinations */
+    }
+
+    /* 
+     * If any specific delivery issues occured, also increment the 
+     * general error count before releasing the lock.
+     */
+    if (SBSndErr.EvtsToSnd > 0)    
+    {
+        CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter++;
+    }
+
+    /*
+     * Remove this from whatever list it was in
+     * 
+     * If it was a singleton/new buffer this has no effect.
+     * If it was a zero-copy buffer this removes it from the ZeroCopyList.
+     */
+    CFE_SB_TrackingListRemove(&BufDscPtr->Link);
+
+    /* clear the AppID field in case it was a zero copy buffer,
+     * as it is no longer owned by that app after broadcasting */
+    BufDscPtr->AppId = CFE_ES_APPID_UNDEFINED;
+
+    /* track the buffer as an in-transit message */
+    CFE_SB_TrackingListAdd(&CFE_SB_Global.InTransitList, &BufDscPtr->Link);
+
     /*
     ** Decrement the buffer UseCount and free buffer if cnt=0. This decrement is done
     ** because the use cnt is initialized to 1 in CFE_SB_GetBufferFromPool.
@@ -1753,7 +1802,7 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
 
               CFE_EVS_SendEventWithAppID(CFE_SB_MSGID_LIM_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB_Global.AppId,
                 "Msg Limit Err,MsgId 0x%x,pipe %s,sender %s",
-                (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                (unsigned int)CFE_SB_MsgIdToValue(BufDscPtr->MsgId),
                 PipeName, CFE_SB_GetAppTskName(TskId,FullName));
 
               /* clear the bit so the task may send this event again */
@@ -1772,7 +1821,7 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
 
               CFE_EVS_SendEventWithAppID(CFE_SB_Q_FULL_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB_Global.AppId,
                   "Pipe Overflow,MsgId 0x%x,pipe %s,sender %s",
-                  (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                  (unsigned int)CFE_SB_MsgIdToValue(BufDscPtr->MsgId),
                   PipeName, CFE_SB_GetAppTskName(TskId,FullName));
 
                /* clear the bit so the task may send this event again */
@@ -1788,7 +1837,7 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
 
               CFE_EVS_SendEventWithAppID(CFE_SB_Q_WR_ERR_EID,CFE_EVS_EventType_ERROR,CFE_SB_Global.AppId,
                 "Pipe Write Err,MsgId 0x%x,pipe %s,sender %s,stat 0x%x",
-                (unsigned int)CFE_SB_MsgIdToValue(MsgId),
+                (unsigned int)CFE_SB_MsgIdToValue(BufDscPtr->MsgId),
                 PipeName, CFE_SB_GetAppTskName(TskId,FullName),
                 (unsigned int)SBSndErr.EvtBuf[i].ErrStat);
 
@@ -1798,9 +1847,6 @@ int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
 
         }/* end if */
     }
-
-    return CFE_SUCCESS;
-
 }
 
 #ifndef CFE_OMIT_DEPRECATED_6_8
@@ -1984,7 +2030,7 @@ int32  CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr,
              * Also set the Receivers pointer to the address of the actual message 
              * (currently this is "borrowing" the ref above, not its own ref)
              */
-            *BufPtr = BufDscPtr->Buffer;
+            *BufPtr = &BufDscPtr->Content;
 
             /* get pointer to destination to be used in decrementing msg limit cnt*/
             RouteId = CFE_SBR_GetRouteId(BufDscPtr->MsgId);
@@ -2075,113 +2121,107 @@ int32  CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr,
 CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
                                        CFE_SB_ZeroCopyHandle_t *BufferHandle)
 {
-   int32                stat1;
-   CFE_ES_AppId_t       AppId;
-   cpuaddr              address = 0;
-   CFE_SB_ZeroCopyD_t  *zcd = NULL;
-   CFE_SB_BufferD_t    *bd = NULL;
+   CFE_ES_AppId_t AppId;
+   CFE_SB_BufferD_t *BufDscPtr;
+   CFE_SB_Buffer_t *BufPtr;
 
-    CFE_SB_LockSharedData(__func__,__LINE__);
+    AppId = CFE_ES_APPID_UNDEFINED;
+    BufDscPtr = NULL;
+    BufPtr = NULL;
 
-    /* Allocate a new zero copy descriptor from the SB memory pool.*/
-    stat1 = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&zcd, CFE_SB_Global.Mem.PoolHdl,  sizeof(CFE_SB_ZeroCopyD_t));
-    if(stat1 < 0){
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
+    if (BufferHandle == NULL)
+    {
         return NULL;
     }
-
-    /* Add the size of a zero copy descriptor to the memory-in-use ctr and */
-    /* adjust the high water mark if needed */
-    CFE_SB_Global.StatTlmMsg.Payload.MemInUse+=stat1;
-    if(CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse){
-       CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
-    }/* end if */
-
-    /* Allocate a new buffer (from the SB memory pool) to hold the message  */
-    stat1 = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&bd, CFE_SB_Global.Mem.PoolHdl, MsgSize + sizeof(CFE_SB_BufferD_t));
-    if((stat1 < 0)||(bd==NULL)){
-        /*deallocate the first buffer if the second buffer creation fails*/
-        stat1 = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, zcd);
-        if(stat1 > 0){
-            CFE_SB_Global.StatTlmMsg.Payload.MemInUse-=stat1;
-        }
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
-        return NULL;
-    }
-
-    /* Increment the number of buffers in use by one even though two buffers */
-    /* were allocated. SBBuffersInUse increments on a per-message basis */
-    CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse++;
-    if(CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse){
-        CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse = CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse;
-    }/* end if */
-
-    /* Add the size of the actual buffer to the memory-in-use ctr and */
-    /* adjust the high water mark if needed */
-    CFE_SB_Global.StatTlmMsg.Payload.MemInUse+=stat1;
-    if(CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse){
-       CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
-    }/* end if */
-
-    /* first set ptr to actual msg buffer the same as ptr to descriptor */
-    address = (cpuaddr)bd;
-
-    /* increment actual msg buffer ptr beyond the descriptor */
-    address += sizeof(CFE_SB_BufferD_t);
-
-    /* Initialize the zero copy descriptor structure. */
-    zcd->Size      = MsgSize;
-    zcd->Buffer    = (void *)address;
-    zcd->Next      = NULL;
-
-    /* Add this Zero Copy Descriptor to the end of the chain */
-    if(CFE_SB_Global.ZeroCopyTail != NULL){
-        ((CFE_SB_ZeroCopyD_t *) CFE_SB_Global.ZeroCopyTail)->Next = (void *)zcd;
-    }
-    zcd->Prev = CFE_SB_Global.ZeroCopyTail;
-    CFE_SB_Global.ZeroCopyTail = (void *)zcd;
-
-    CFE_SB_UnlockSharedData(__func__,__LINE__);
 
     /* get callers AppId */
-    CFE_ES_GetAppID(&AppId);
-    zcd->AppID     = AppId;
+    if (CFE_ES_GetAppID(&AppId) == CFE_SUCCESS)
+    {
+        CFE_SB_LockSharedData(__func__,__LINE__);
 
-    (*BufferHandle) = (CFE_SB_ZeroCopyHandle_t) zcd;
+        /*
+        * All this needs to do is get a descriptor from the pool,
+        * and associate that descriptor with this app ID, so it
+        * can be freed if this app is deleted before it uses it.
+        */
+        BufDscPtr = CFE_SB_GetBufferFromPool(MsgSize);
 
-    /* Initialize the buffer descriptor structure. */
-    bd->UseCount  = 1;
-    bd->Size      = MsgSize;
-    bd->Buffer    = (CFE_SB_Buffer_t *)address;
+        if (BufDscPtr != NULL)
+        {
+            /* Track the buffer as a zero-copy assigned to this app ID */
+            BufDscPtr->AppId = AppId;
+            BufPtr = &BufDscPtr->Content;
+            CFE_SB_TrackingListAdd(&CFE_SB_Global.ZeroCopyList, &BufDscPtr->Link);
+        }
 
-    return (CFE_SB_Buffer_t *)address;
+        CFE_SB_UnlockSharedData(__func__,__LINE__);
+    }
+
+    if (BufPtr != NULL)
+    {
+        /* 
+         * If a buffer was obtained, wipe it now.
+         * (This ensures the buffer is fully cleared at least once, 
+         * no stale data from a prior use of the same memory)
+         */
+        memset(BufPtr, 0, MsgSize);
+    }
+
+    /* Export both items (descriptor + msg buffer) to caller */
+    BufferHandle->BufDscPtr = BufDscPtr;
+    return BufPtr;
 
 }/* CFE_SB_ZeroCopyGetPtr */
 
+/*
+ * Helper functions to do sanity checks on the Zero Copy handle + Buffer combo.
+ * 
+ * Note in a future CFE version the API can be simplified -
+ * only one of these pointers is strictly needed, since they
+ * should refer to the same buffer descriptor object.
+ */
+int32 CFE_SB_ZeroCopyHandleValidate(CFE_SB_Buffer_t        *BufPtr,
+                                    CFE_SB_ZeroCopyHandle_t ZeroCopyHandle)
+{
+    /*
+     * Sanity Check that the pointers are not NULL
+     */
+    if (BufPtr == NULL || ZeroCopyHandle.BufDscPtr == NULL)
+    {
+        return CFE_SB_BAD_ARGUMENT;
+    }
+
+    /*
+     * Check that the descriptor is actually a "zero copy" type,
+     * and that it refers to same actual message buffer.
+     */
+    if (!CFE_RESOURCEID_TEST_DEFINED(ZeroCopyHandle.BufDscPtr->AppId) || 
+        (&ZeroCopyHandle.BufDscPtr->Content != BufPtr))
+    {
+        return CFE_SB_BUFFER_INVALID;
+    }
+
+    /* Basic sanity check passed */
+    return CFE_SUCCESS;
+}
 
 /*
  * Function: CFE_SB_ZeroCopyReleasePtr - See API and header file for details
  */
 int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t        *Ptr2Release,
-                                CFE_SB_ZeroCopyHandle_t BufferHandle)
+                                CFE_SB_ZeroCopyHandle_t ZeroCopyHandle)
 {
-    int32    Status;
-    int32    Stat2;
-    CFE_ES_MemPoolBuf_t BufAddr;
+    int32 Status;
 
-    Status = CFE_SB_ZeroCopyReleaseDesc(Ptr2Release, BufferHandle);
+    Status = CFE_SB_ZeroCopyHandleValidate(Ptr2Release, ZeroCopyHandle);
 
     CFE_SB_LockSharedData(__func__,__LINE__);
 
-    if(Status == CFE_SUCCESS){
-        /* give the buffer back to the buffer pool */
-        BufAddr = CFE_ES_MEMPOOLBUF_C((cpuaddr)Ptr2Release - sizeof(CFE_SB_BufferD_t));
-        Stat2 = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, BufAddr);
-        if(Stat2 > 0){
-             /* Substract the size of the actual buffer from the Memory in use ctr */
-            CFE_SB_Global.StatTlmMsg.Payload.MemInUse-=Stat2;
-            CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse--;
-        }/* end if */
+    if (Status == CFE_SUCCESS)
+    {
+        /* Clear the ownership app ID and decrement use count (may also free) */
+        ZeroCopyHandle.BufDscPtr->AppId = CFE_ES_APPID_UNDEFINED;
+        CFE_SB_DecrBufUseCnt(ZeroCopyHandle.BufDscPtr);
     }
 
     CFE_SB_UnlockSharedData(__func__,__LINE__);
@@ -2189,69 +2229,6 @@ int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t        *Ptr2Release,
     return Status;
 
 }/* end CFE_SB_ZeroCopyReleasePtr */
-
-
-/******************************************************************************
-** Name:    CFE_SB_ZeroCopyReleaseDesc
-**
-** Purpose: API used for releasing a zero copy descriptor (for zero copy mode
-**          only).
-**
-** Assumptions, External Events, and Notes:
-**          None
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          Ptr2Release
-**          BufferHandle
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
-int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Buffer_t        *Ptr2Release,
-                                 CFE_SB_ZeroCopyHandle_t BufferHandle)
-{
-    int32    Stat;
-    CFE_SB_ZeroCopyD_t *zcd = (CFE_SB_ZeroCopyD_t *) BufferHandle;
-
-    CFE_SB_LockSharedData(__func__,__LINE__);
-
-    Stat = CFE_ES_GetPoolBufInfo(CFE_SB_Global.Mem.PoolHdl, zcd);
-
-    if((Ptr2Release == NULL) || (Stat < 0) || (zcd->Buffer != (void *)Ptr2Release)){
-        CFE_SB_UnlockSharedData(__func__,__LINE__);
-        return CFE_SB_BUFFER_INVALID;
-    }
-
-    /* delink the descriptor */
-    if(zcd->Prev != NULL){
-        ((CFE_SB_ZeroCopyD_t *) (zcd->Prev))->Next = zcd->Next;
-    }
-    if(zcd->Next != NULL){
-        ((CFE_SB_ZeroCopyD_t *) (zcd->Next))->Prev = zcd->Prev;
-    }
-    if(CFE_SB_Global.ZeroCopyTail == (void *)zcd){
-        CFE_SB_Global.ZeroCopyTail = zcd->Prev;
-    }
-
-    /* give the descriptor back to the buffer pool */
-    Stat = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, zcd);
-    if(Stat > 0){
-        /* Substract the size of the actual buffer from the Memory in use ctr */
-        CFE_SB_Global.StatTlmMsg.Payload.MemInUse-=Stat;
-    }/* end if */
-
-    CFE_SB_UnlockSharedData(__func__,__LINE__);
-
-    return CFE_SUCCESS;
-
-}/* end CFE_SB_ZeroCopyReleaseDesc */
 
 /*
  * Function CFE_SB_TransmitBuffer - See API and header file for details
@@ -2261,52 +2238,51 @@ int32 CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr,
                             bool IncrementSequenceCount)
 {
     int32              Status;
-    CFE_MSG_Size_t     Size = 0;
-    CFE_SB_MsgId_t     MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_SB_BufferD_t  *BufDscPtr;
     CFE_SBR_RouteId_t  RouteId;
-    CFE_MSG_Type_t     MsgType;
 
-    /* Release zero copy handle */
-    Status = CFE_SB_ZeroCopyReleaseDesc(BufPtr, ZeroCopyHandle);
+    Status = CFE_SB_ZeroCopyHandleValidate(BufPtr, ZeroCopyHandle);
 
     if (Status == CFE_SUCCESS)
     {
-        Status = CFE_SB_TransmitMsgValidate(&BufPtr->Msg, &MsgId, &Size, &RouteId);
+        /* Get actual buffer descriptor pointer from zero copy handle */
+        BufDscPtr = ZeroCopyHandle.BufDscPtr;
 
-        /* Send if route exists */
+        /* Validate the content and get the MsgId, store it in the descriptor */
+        Status = CFE_SB_TransmitMsgValidate(&BufPtr->Msg, &BufDscPtr->MsgId, &BufDscPtr->ContentSize, &RouteId);
+
+        /* 
+         * Broadcast the message if validation succeeded.
+         * 
+         * Note that for the case of no subscribers, the validation returns CFE_SUCCESS
+         * but the actual route ID may be invalid.  This is OK and considered normal-
+         * the validation will increment the NoSubscribers count, but we should NOT
+         * increment the MsgSendErrorCounter here - it is not really a sending error to 
+         * have no subscribers.  CFE_SB_BroadcastBufferToRoute() will not send to
+         * anything if the route is not valid (benign).
+         */
         if (Status == CFE_SUCCESS)
         {
-            /* Get buffer descriptor pointer */
-            BufDscPtr = CFE_SB_GetBufferFromCaller(MsgId, BufPtr);
+            BufDscPtr->AutoSequence = IncrementSequenceCount;
+            CFE_MSG_GetType(&BufPtr->Msg, &BufDscPtr->ContentType);
 
-            if(CFE_SBR_IsValidRouteId(RouteId))
-            {
-                /* For Tlm packets, increment the seq count if requested */
-                CFE_MSG_GetType(&BufPtr->Msg, &MsgType);
-                if((MsgType == CFE_MSG_Type_Tlm) && IncrementSequenceCount)
-                {
-                    CFE_SBR_IncrementSequenceCounter(RouteId);
-                    CFE_MSG_SetSequenceCount(&BufPtr->Msg, CFE_SBR_GetSequenceCounter(RouteId));
-                }
+            /* Now broadcast the message, which consumes the buffer */
+            CFE_SB_BroadcastBufferToRoute(BufDscPtr, RouteId);
 
-                Status = CFE_SB_TransmitBufferFull(BufDscPtr, RouteId, MsgId);
-            }
-            else
-            {
-                /* Decrement use count if transmit buffer full not called */
-                CFE_SB_LockSharedData(__func__, __LINE__);
-                CFE_SB_DecrBufUseCnt(BufDscPtr);
-                CFE_SB_UnlockSharedData(__func__, __LINE__);
-            }
+            /*
+             * IMPORTANT - the descriptor might be freed at any time after this,
+             * so the descriptor should not be accessed again after this point.
+             */
+            BufDscPtr = NULL;
         }
-        else
-        {
-            /* Increment send error counter for validation failure */
-            CFE_SB_LockSharedData(__func__, __LINE__);
-            CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter++;
-            CFE_SB_UnlockSharedData(__func__, __LINE__);
-        }
+    }
+
+    if (Status != CFE_SUCCESS)
+    {
+        /* Increment send error counter for validation failure */
+        CFE_SB_LockSharedData(__func__, __LINE__);
+        CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter++;
+        CFE_SB_UnlockSharedData(__func__, __LINE__);
     }
 
     return Status;

@@ -1938,6 +1938,21 @@ void Test_TransmitBuffer_IncrementSeqCnt(void);
 
 /*****************************************************************************/
 /**
+** \brief Test the zero-copy handle validation performed by CFE_SB_ZeroCopyHandleValidate()
+**
+** \par Description
+**        Exercises the validation checks within this function
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_TransmitMsg_ZeroCopyHandleValidate(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test successfully sending a message in zero copy mode (telemetry
 **        source sequence count is unchanged)
 **
@@ -1987,10 +2002,10 @@ void Test_TransmitMsg_DisabledDestination(void);
 
 /*****************************************************************************/
 /**
-** \brief Test successful CFE_SB_TransmitBufferFull
+** \brief Test CFE_SB_BroadcastBufferToRoute
 **
 ** \par Description
-**        This function tests successfully sending a message with the metadata.
+**        This function tests broadcasting a message buffer with the metadata.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -1998,7 +2013,7 @@ void Test_TransmitMsg_DisabledDestination(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitBufferFull(void);
+void Test_BroadcastBufferToRoute(void);
 
 /*****************************************************************************/
 /**

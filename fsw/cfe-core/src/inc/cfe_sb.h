@@ -177,7 +177,10 @@ typedef uint8 *CFE_SB_MsgPayloadPtr_t;
 **
 ** Software Zero Copy handle used in many SB APIs
 */
-typedef cpuaddr CFE_SB_ZeroCopyHandle_t;
+typedef struct
+{
+    struct CFE_SB_BufferD* BufDscPtr;    /* abstract descriptor reference (internal use) */
+} CFE_SB_ZeroCopyHandle_t;
 
 /** \brief Quality Of Service Type Definition
 **
@@ -739,14 +742,14 @@ CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t  MsgSize,
 **                          pointer returned by a call to #CFE_SB_ZeroCopyGetPtr,
 **                          but never used in a call to #CFE_SB_TransmitBuffer.
 **
-** \param[in]  BufferHandle  This must be the handle supplied with the pointer
-**                           when #CFE_SB_ZeroCopyGetPtr was called.
+** \param[in]  ZeroCopyHandle  This must be the handle supplied with the pointer
+**                             when #CFE_SB_ZeroCopyGetPtr was called.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
 ** \retval #CFE_SB_BUFFER_INVALID \copybrief CFE_SB_BUFFER_INVALID
 **/
-CFE_Status_t CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
+CFE_Status_t CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t ZeroCopyHandle);
 
 /*****************************************************************************/
 /**
@@ -762,14 +765,19 @@ CFE_Status_t CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_Zero
 **          performance in high-rate, high-volume software bus traffic.
 **
 ** \par Assumptions, External Events, and Notes:
-**          -# The pointer returned by #CFE_SB_ZeroCopyGetPtr is only good for
-**             one call to #CFE_SB_TransmitBuffer.
-**          -# Callers must not use the same SB message buffer for multiple sends.
+**          -# A handle returned by #CFE_SB_ZeroCopyGetPtr is "consumed" by 
+**             a _successful_ call to #CFE_SB_TransmitBuffer.  
+**          -# If this function returns CFE_SUCCESS, this indicates the zero copy handle is 
+**             now owned by software bus, and is no longer owned by the calling application,
+**             and should not be re-used.
+**          -# Howver if this function fails (returns any error status) it does not change
+**             the state of the buffer at all, meaning the calling application still owns it.
+**             (a failure means the buffer is left in the same state it was before the call).
 **          -# Applications should be written as if #CFE_SB_ZeroCopyGetPtr is
-**             equivalent to a \c malloc() and #CFE_SB_TransmitBuffer is equivalent
-**             to a \c free().
+**             equivalent to a \c malloc() and a successful call to #CFE_SB_TransmitBuffer 
+**             is equivalent to a \c free().
 **          -# Applications must not de-reference the message pointer (for reading
-**             or writing) after the call to #CFE_SB_TransmitBuffer.
+**             or writing) after a successful call to #CFE_SB_TransmitBuffer.
 **          -# This function will increment and apply the internally tracked
 **             sequence counter if set to do so.
 **
