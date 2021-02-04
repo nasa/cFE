@@ -2734,7 +2734,7 @@ void TestTask(void)
 
     /* Test task main process loop with a HK packet subscribe failure */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SubscribeEx), 1, -3);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 1, -3);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == -3,
               "CFE_ES_TaskInit",
@@ -2742,7 +2742,7 @@ void TestTask(void)
 
     /* Test task main process loop with a ground command subscribe failure */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SubscribeEx), 2, -4);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 2, -4);
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == -4,
               "CFE_ES_TaskInit",

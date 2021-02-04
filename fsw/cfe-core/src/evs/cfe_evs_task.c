@@ -308,16 +308,14 @@ int32 CFE_EVS_TaskInit ( void )
    }
       
    /* Subscribe to command and telemetry requests coming in on the command pipe */
-   Status = CFE_SB_SubscribeEx(CFE_SB_ValueToMsgId(CFE_EVS_CMD_MID), CFE_EVS_GlobalData.EVS_CommandPipe,
-                               CFE_SB_Default_Qos, CFE_EVS_MSG_LIMIT);
+   Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_EVS_CMD_MID), CFE_EVS_GlobalData.EVS_CommandPipe);
    if (Status != CFE_SUCCESS)
    {
       CFE_ES_WriteToSysLog("EVS:Subscribing to Cmds Failed:RC=0x%08X\n",(unsigned int)Status);
       return Status;
    }
   
-   Status = CFE_SB_SubscribeEx(CFE_SB_ValueToMsgId(CFE_EVS_SEND_HK_MID), CFE_EVS_GlobalData.EVS_CommandPipe,
-                               CFE_SB_Default_Qos, CFE_EVS_MSG_LIMIT);
+   Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_EVS_SEND_HK_MID), CFE_EVS_GlobalData.EVS_CommandPipe);
    if (Status != CFE_SUCCESS)
    {
       CFE_ES_WriteToSysLog("EVS:Subscribing to HK Request Failed:RC=0x%08X\n",(unsigned int)Status);

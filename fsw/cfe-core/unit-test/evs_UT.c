@@ -448,7 +448,7 @@ void Test_Init(void)
 
     /* Test task initialization where command subscription fails */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SubscribeEx), 1, -1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 1, -1);
     CFE_EVS_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[13]),
@@ -457,7 +457,7 @@ void Test_Init(void)
 
     /* Test task initialization where HK request subscription fails */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SubscribeEx), 2, -1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 2, -1);
     CFE_EVS_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[14]),
