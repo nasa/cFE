@@ -74,14 +74,10 @@ bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
 int32 CFE_EVS_EarlyInit ( void )
 {
 
-#ifdef CFE_PLATFORM_EVS_LOG_ON
-
    int32                Status;
    uint32               resetAreaSize = 0;
    cpuaddr              resetAreaAddr;
    CFE_ES_ResetData_t  *CFE_EVS_ResetDataPtr = (CFE_ES_ResetData_t *) NULL;
-
-#endif
 
    memset(&CFE_EVS_GlobalData, 0, sizeof(CFE_EVS_GlobalData_t));
 
@@ -94,8 +90,6 @@ int32 CFE_EVS_EarlyInit ( void )
    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort = CFE_PLATFORM_EVS_PORT_DEFAULT;
    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogFullFlag = false;
    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogMode = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
-
-#ifdef CFE_PLATFORM_EVS_LOG_ON
 
    /* Get a pointer to the CFE reset area from the BSP */
    Status = CFE_PSP_GetResetArea(&resetAreaAddr, &resetAreaSize);
@@ -162,8 +156,6 @@ int32 CFE_EVS_EarlyInit ( void )
          }
       }
    }
-
-#endif
 
    return(CFE_SUCCESS);
 
