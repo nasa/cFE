@@ -22,43 +22,9 @@
     <LI> \subpage cfetblugregistry <BR>
     <LI> \subpage cfetblugtelemetry <BR>
     <LI> \subpage cfetblugprocreset <BR>
-    <LI> \subpage cfetblugdecouple <BR>
     <LI> \subpage cfetblugfaq <BR> 
   </UL>
 
-**/
-
-/**
-  \page cfetblugdecouple How To Remove cFE Table Services
-
-  It is possible to build the CFE without including Table Services.  This is only applicable if
-  the mission does not intend to use any CFS applications that require CFE type table services, or
-  if the mission intends to provide custom table services. If CFE Table Services are removed, the
-  CFE makefile will no longer try to make the Table Services application and the link makefile will
-  no longer include the Table Services object module in the CFE-CORE. Even if excluded from the build,
-  the Table Services source and header files will remain in the CFE source tree.
-
-  If EXCLUDE_CFE_TBL is defined (typically in the applicable *_platform_config.h file) Executive
-  services will not load or shut down table services. Note this option does not effect the build
-  and link of table services.
-
-  To remove table services from the build completely, remove "tbl" from the CFE_CORE_MODULES
-  in the cfe/fsw/cfe-core CMakeLists.txt directory (note this option also needs EXCLUDE_CFE_TBL defined
-  or executive services will try to load it).
-
-  Removing Table Services reduces the size of the CFE-CORE load file and also reduces the amount
-  of RAM memory required to load the cFE. Each development environment will have unique savings.
-  The numbers from an example default linux build are as follows:
-
-      Size of core cFE binary load file with Table Services:          963K
-      Size of core cFE binary load file w/o building Table services:  871K
-
-      RAM used after loading cFE with Table Services:        153K
-      RAM used after loading cFE w/o loading Table Services: 144M 
-
-  Next: \ref cfetblugfaq <BR>
-  Prev: \ref cfetblugprocreset <BR>
-  Up To: \ref cfetblovr
 **/
 
 /**
@@ -344,7 +310,7 @@
   contents of the table are automatically loaded into the table and the Application is notified that the
   table does not require additional initialization.
     
-  Next: \ref cfetblugdecouple <BR>
+  Next: \ref cfetblugfaq <BR>
   Prev: \ref cfetblugtelemetry <BR>
   Up To: \ref cfetblovr
 **/
@@ -441,7 +407,7 @@
 
     </TABLE>
     
-  Prev: \ref cfetblugdecouple <BR>
+  Prev: \ref cfetblugprocreset <BR>
   Up To: \ref cfetblovr
 **/
 
