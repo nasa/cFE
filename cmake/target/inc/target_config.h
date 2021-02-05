@@ -106,7 +106,17 @@ typedef const struct
    uint32 RamDiskTotalSectors;    /***< RAM disk number of sectors */
 
    /**
-    * Default value for start up file
+    * Default value for nonvolatile file system mount point
+    */
+   const char *NonvolMountPoint;
+
+   /**
+    * Default value for volatile file system mount point
+    */
+   const char *RamdiskMountPoint;
+   
+   /**
+    * File name of startup script
     */
    const char *NonvolStartupFile;
 

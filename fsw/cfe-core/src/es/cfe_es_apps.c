@@ -76,7 +76,8 @@
 */
 void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
 {
-   char ES_AppLoadBuffer[ES_START_BUFF_SIZE];  /* A buffer of for a line in a file */
+   char        ES_AppLoadBuffer[ES_START_BUFF_SIZE];  /* A buffer of for a line in a file */
+   char        ScriptFileName[OS_MAX_PATH_LEN];
    const char *TokenList[CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE];
    uint32      NumTokens;
    uint32      BuffLen;                            /* Length of the current buffer */
@@ -93,14 +94,20 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
    if ( ResetType == CFE_PSP_RST_TYPE_PROCESSOR )
    {
       /*
-      ** Open the file in the volatile disk.
+      ** First Attempt to parse as file in the volatile disk (temp area).
       */
-      Status = OS_OpenCreate(&AppFile, CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+      Status = CFE_FS_ParseInputFileName(ScriptFileName, CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE, 
+        sizeof(ScriptFileName), CFE_FS_FileCategory_TEMP);
+      
+      if (Status == CFE_SUCCESS)
+      {
+        Status = OS_OpenCreate(&AppFile, ScriptFileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+      }
 
       if ( Status >= 0 )
       {
          CFE_ES_WriteToSysLog ("ES Startup: Opened ES App Startup file: %s\n",
-                                CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE);
+                                ScriptFileName);
          FileOpened = true;
       }
       else
@@ -120,11 +127,17 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
       /*
       ** Try to Open the file passed in to the cFE start.
       */
-      Status = OS_OpenCreate(&AppFile, StartFilePath, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+      Status = CFE_FS_ParseInputFileName(ScriptFileName, StartFilePath, 
+        sizeof(ScriptFileName), CFE_FS_FileCategory_SCRIPT);
+
+      if (Status == CFE_SUCCESS)
+      {
+          Status = OS_OpenCreate(&AppFile, ScriptFileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+      }
 
       if ( Status >= 0 )
       {
-         CFE_ES_WriteToSysLog ("ES Startup: Opened ES App Startup file: %s\n",StartFilePath);
+         CFE_ES_WriteToSysLog ("ES Startup: Opened ES App Startup file: %s\n",ScriptFileName);
          FileOpened = true;
       }
       else
@@ -271,7 +284,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
         CFE_ES_AppId_t AppId;
         CFE_ES_LibId_t LibId;
     } IdBuf;
-    int32                   CreateStatus = CFE_ES_ERR_APP_CREATE;
+    int32                   Status;
     CFE_ES_AppStartParams_t ParamBuf;
 
     /*
@@ -280,7 +293,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
     if (NumTokens < 8)
     {
         CFE_ES_WriteToSysLog("ES Startup: Invalid ES Startup file entry: %u\n", (unsigned int)NumTokens);
-        return (CreateStatus);
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     /* Get pointers to specific tokens that are simple strings used as-is */
@@ -292,7 +305,14 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
      * Both Libraries and Apps use File Name (1) and Symbol Name (2) fields so copy those now
      */
     memset(&ParamBuf, 0, sizeof(ParamBuf));
-    strncpy(ParamBuf.BasicInfo.FileName, TokenList[1], sizeof(ParamBuf.BasicInfo.FileName) - 1);
+    Status = CFE_FS_ParseInputFileName(ParamBuf.BasicInfo.FileName, TokenList[1], 
+            sizeof(ParamBuf.BasicInfo.FileName), CFE_FS_FileCategory_DYNAMIC_MODULE);
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("ES Startup: Invalid ES Startup script file name: %s\n", TokenList[1]);
+        return Status;
+    }
+
     strncpy(ParamBuf.BasicInfo.InitSymbolName, TokenList[2], sizeof(ParamBuf.BasicInfo.InitSymbolName) - 1);
 
     if (strcmp(EntryType, "CFE_APP") == 0)
@@ -338,7 +358,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
         /*
         ** Now create the application
         */
-        CreateStatus = CFE_ES_AppCreate(&IdBuf.AppId, ModuleName, &ParamBuf);
+        Status = CFE_ES_AppCreate(&IdBuf.AppId, ModuleName, &ParamBuf);
     }
     else if (strcmp(EntryType, "CFE_LIB") == 0)
     {
@@ -347,14 +367,15 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
         /*
         ** Now load the library
         */
-        CreateStatus = CFE_ES_LoadLibrary(&IdBuf.LibId, ModuleName, &ParamBuf.BasicInfo);
+        Status = CFE_ES_LoadLibrary(&IdBuf.LibId, ModuleName, &ParamBuf.BasicInfo);
     }
     else
     {
         CFE_ES_WriteToSysLog("ES Startup: Unexpected EntryType %s in startup file.\n", EntryType);
+        Status = CFE_ES_ERR_APP_CREATE;
     }
 
-    return (CreateStatus);
+    return (Status);
 }
 
 /*
