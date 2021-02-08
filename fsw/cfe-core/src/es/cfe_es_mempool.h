@@ -144,7 +144,7 @@ static inline CFE_ES_MemHandle_t CFE_ES_MemPoolRecordGetID(const CFE_ES_MemPoolR
  * it as being associated with the given Pool ID.
  *
  * @param[in]   PoolRecPtr   pointer to Pool table entry
- * @param[in]   PoolID       the Pool ID of this entry
+ * @param[in]   PendingId    the Pool ID of this entry
  */
 static inline void CFE_ES_MemPoolRecordSetUsed(CFE_ES_MemPoolRecord_t *PoolRecPtr, CFE_ResourceId_t PendingId)
 {

@@ -122,7 +122,7 @@ static inline CFE_ES_AppId_t CFE_ES_AppRecordGetID(const CFE_ES_AppRecord_t *App
  * locked prior to invoking this function.
  *
  * @param[in]   AppRecPtr   pointer to app table entry
- * @param[in]   AppID       the app ID of this entry
+ * @param[in]   PendingId   the app ID of this entry
  */
 static inline void CFE_ES_AppRecordSetUsed(CFE_ES_AppRecord_t *AppRecPtr, CFE_ResourceId_t PendingId)
 {
@@ -218,7 +218,7 @@ static inline CFE_ES_LibId_t CFE_ES_LibRecordGetID(const CFE_ES_LibRecord_t *Lib
  * it as being associated with the given Lib ID.
  *
  * @param[in]   LibRecPtr   pointer to Lib table entry
- * @param[in]   LibID       the Lib ID of this entry
+ * @param[in]   PendingId   the Lib ID of this entry
  */
 static inline void CFE_ES_LibRecordSetUsed(CFE_ES_LibRecord_t *LibRecPtr, CFE_ResourceId_t PendingId)
 {
@@ -313,7 +313,7 @@ static inline bool CFE_ES_TaskRecordIsUsed(const CFE_ES_TaskRecord_t *TaskRecPtr
  * locked prior to invoking this function.
  *
  * @param[in]   TaskRecPtr   pointer to Task table entry
- * @param[in]   TaskID       the Task ID of this entry
+ * @param[in]   PendingId    the Task ID of this entry
  */
 static inline void CFE_ES_TaskRecordSetUsed(CFE_ES_TaskRecord_t *TaskRecPtr, CFE_ResourceId_t PendingId)
 {
@@ -408,7 +408,7 @@ static inline CFE_ES_CounterId_t CFE_ES_CounterRecordGetID(const CFE_ES_GenCount
  * locked prior to invoking this function.
  *
  * @param[in]   CounterRecPtr   pointer to Counter table entry
- * @param[in]   CounterID       the Counter ID of this entry
+ * @param[in]   PendingId       the Counter ID of this entry
  */
 static inline void CFE_ES_CounterRecordSetUsed(CFE_ES_GenCounterRecord_t *CounterRecPtr, CFE_ResourceId_t PendingId)
 {

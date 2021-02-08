@@ -36,6 +36,11 @@
 */
 #include "cfe_resourceid_basevalue.h"
 
+/** @defgroup CFEESResourceIDBase cFE Resource ID base values
+ * @{
+ */
+
+
 /*
  * Assign unique offsets per resource types used in CFE core apps.
  * 
@@ -85,5 +90,8 @@ enum
     /* SB managed resources */
     CFE_SB_PIPEID_BASE     = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_SB_PIPEID_RESOURCE_BASE_OFFSET)
 };
+
+/** @} */
+
 
 #endif  /* CFE_CORE_RESOURCEID_BASEVALUES_H */

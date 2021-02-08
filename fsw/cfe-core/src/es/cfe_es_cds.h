@@ -333,7 +333,7 @@ static inline CFE_ES_CDSHandle_t CFE_ES_CDSBlockRecordGetID(const CFE_ES_CDS_Reg
  * it as being associated with the given Pool ID.
  *
  * @param[in]   CDSBlockRecPtr   pointer to Pool table entry
- * @param[in]   BlockID       the Pool ID of this entry
+ * @param[in]   PendingId        the Pool ID of this entry
  */
 static inline void CFE_ES_CDSBlockRecordSetUsed(CFE_ES_CDS_RegRec_t *CDSBlockRecPtr, CFE_ResourceId_t PendingId)
 {
@@ -509,7 +509,7 @@ int32 CFE_ES_UpdateCDSRegistry(void);
 ** \par Assumptions, External Events, and Notes:
 **        Note: AppName portion will be truncated to OS_MAX_API_NAME.
 **
-** \param[in, out]  FullCDSName pointer to character buffer of #CFE_ES_CDS_MAX_FULL_NAME_LEN size
+** \param[in, out]  FullCDSName pointer to character buffer of #CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN size
 **                         that will be filled with the processor specific CDS Name. *FullCDSName is the processor specific CDS Name of the form "AppName.CDSName".
 ** 
 ** \param[in]  CDSName pointer to character string containing the Application's local name for

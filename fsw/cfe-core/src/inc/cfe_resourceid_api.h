@@ -175,10 +175,10 @@ static inline bool CFE_ResourceId_Equal(CFE_ResourceId_t id1, CFE_ResourceId_t i
 /**
  * @brief Check if a resource ID value is defined
  *
- * The constant #CFE_ES_RESOURCEID_UNDEFINED represents an undefined ID value,
+ * The constant #CFE_RESOURCEID_UNDEFINED represents an undefined ID value,
  * such that the expression:
  *
- *      CFE_ResourceId_IsDefined(CFE_ES_RESOURCEID_UNDEFINED)
+ *      CFE_ResourceId_IsDefined(CFE_RESOURCEID_UNDEFINED)
  *
  * Always returns false.
  *
@@ -237,7 +237,7 @@ extern uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
  * @param[in]   TableSize the maximum size of the target table
  * @param[in]   CheckFunc a function to check if the given ID is available
  * @returns     Next ID value which does not map to a valid entry
- * @retval      #CFE_ES_RESOURCEID_UNDEFINED if no open slots.
+ * @retval      #CFE_RESOURCEID_UNDEFINED if no open slots.
  *
  */
 extern CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize, bool (*CheckFunc)(CFE_ResourceId_t) );

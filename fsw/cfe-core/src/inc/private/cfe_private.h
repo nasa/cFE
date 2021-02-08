@@ -327,7 +327,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
 ** \return #CFE_ES_CDS_OWNER_ACTIVE_ERR     \copydoc CFE_ES_CDS_OWNER_ACTIVE_ERR
 ** \return #CFE_ES_ERR_NAME_NOT_FOUND       \copydoc CFE_ES_ERR_NAME_NOT_FOUND
 ** \return Any of the return values from #CFE_ES_UpdateCDSRegistry
-** \return Any of the return values from #CFE_ES_PutCDSBlock
+** \return Any of the return values from #CFE_ES_GenPoolPutBlock
 **
 ******************************************************************************/
 int32  CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices);
