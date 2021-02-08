@@ -101,11 +101,11 @@ extern  void CFE_TBL_GetHkData(void);
 **
 ** \par Description
 **        Extracts the Table Registry information for the table specified by the
-**        #CFE_TBL_TaskData_t::HkTlmTblRegIndex variable.  It then formats the
+**        #CFE_TBL_Global_t::HkTlmTblRegIndex variable.  It then formats the
 **        Registry contents into a format appropriate for downlink.
 **
 ** \par Assumptions, External Events, and Notes:
-**        #CFE_TBL_TaskData_t::HkTlmTblRegIndex is assumed to be a valid index into
+**        #CFE_TBL_Global_t::HkTlmTblRegIndex is assumed to be a valid index into
 **           the Table Registry.
 **
 ** 

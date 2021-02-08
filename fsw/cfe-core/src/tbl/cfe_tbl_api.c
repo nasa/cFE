@@ -165,7 +165,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
         if (RegIndx != CFE_TBL_NOT_FOUND)
         {
             /* Get pointer to Registry Record Entry to speed up processing */
-            RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndx];
+            RegRecPtr = &CFE_TBL_Global.Registry[RegIndx];
 
             /* If this app previously owned the table, then allow them to re-register */
             if ( CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, ThisAppId) )
@@ -192,15 +192,15 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                     AccessIndex = RegRecPtr->HeadOfAccessList;
                     while ((AccessIndex != CFE_TBL_END_OF_LIST) && (*TblHandlePtr == CFE_TBL_BAD_TABLE_HANDLE))
                     {
-                        if ((CFE_TBL_TaskData.Handles[AccessIndex].UsedFlag == true) &&
-                            CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Handles[AccessIndex].AppId, ThisAppId) &&
-                            (CFE_TBL_TaskData.Handles[AccessIndex].RegIndex == RegIndx))
+                        if ((CFE_TBL_Global.Handles[AccessIndex].UsedFlag == true) &&
+                            CFE_ES_ResourceID_Equal(CFE_TBL_Global.Handles[AccessIndex].AppId, ThisAppId) &&
+                            (CFE_TBL_Global.Handles[AccessIndex].RegIndex == RegIndx))
                         {
                             *TblHandlePtr = AccessIndex;
                         }
                         else
                         {
-                            AccessIndex = CFE_TBL_TaskData.Handles[AccessIndex].NextLink;
+                            AccessIndex = CFE_TBL_Global.Handles[AccessIndex].NextLink;
                         }
                     }
                 }
@@ -245,7 +245,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
             if ((Status & CFE_SEVERITY_BITMASK) != CFE_SEVERITY_ERROR)
             {
                 /* Get pointer to Registry Record Entry to speed up processing */
-                RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndx];
+                RegRecPtr = &CFE_TBL_Global.Registry[RegIndx];
             
                 /* Initialize Registry Record to default settings */
                 CFE_TBL_InitRegistryRecord(RegRecPtr);
@@ -256,12 +256,12 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                 
                     /* Allocate the memory buffer(s) for the table and inactive table, if necessary */
                     Status = CFE_ES_GetPoolBuf(&RegRecPtr->Buffers[0].BufferPtr,
-                                               CFE_TBL_TaskData.Buf.PoolHdl,                                           
+                                               CFE_TBL_Global.Buf.PoolHdl,
                                                Size);
                     if(Status < 0)
                     {
                         CFE_ES_WriteToSysLog("CFE_TBL:Register-1st Buf Alloc GetPool fail Stat=0x%08X MemPoolHndl=0x%08lX\n",
-                                (unsigned int)Status, CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.Buf.PoolHdl));
+                                (unsigned int)Status, CFE_ES_ResourceID_ToInteger(CFE_TBL_Global.Buf.PoolHdl));
                     }
                     else
                     {
@@ -282,12 +282,12 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                 {
                     /* Allocate memory for the dedicated secondary buffer */
                     Status = CFE_ES_GetPoolBuf(&RegRecPtr->Buffers[1].BufferPtr,
-                                               CFE_TBL_TaskData.Buf.PoolHdl,                                           
+                                               CFE_TBL_Global.Buf.PoolHdl,
                                                Size);
                     if(Status < 0)
                     {
                         CFE_ES_WriteToSysLog("CFE_TBL:Register-2nd Buf Alloc GetPool fail Stat=0x%08X MemPoolHndl=0x%08lX\n",
-                                (unsigned int)Status, CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.Buf.PoolHdl));
+                                (unsigned int)Status, CFE_ES_ResourceID_ToInteger(CFE_TBL_Global.Buf.PoolHdl));
                     }
                     else
                     {
@@ -328,7 +328,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                     }
 
                     /* Initialize the Table Access Descriptor */
-                    AccessDescPtr = &CFE_TBL_TaskData.Handles[*TblHandlePtr];
+                    AccessDescPtr = &CFE_TBL_Global.Handles[*TblHandlePtr];
 
                     AccessDescPtr->AppId = ThisAppId;
                     AccessDescPtr->LockFlag = false;
@@ -455,7 +455,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
                                 CritRegRecPtr->TimeOfLastUpdate.Subseconds = 0;
                                 CritRegRecPtr->TableLoadedOnce = false;
                             
-                                CFE_ES_CopyToCDS(CFE_TBL_TaskData.CritRegHandle, CFE_TBL_TaskData.CritReg);
+                                CFE_ES_CopyToCDS(CFE_TBL_Global.CritRegHandle, CFE_TBL_Global.CritReg);
                             }
                             else
                             {
@@ -500,7 +500,7 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
 
         CFE_EVS_SendEventWithAppID(CFE_TBL_REGISTER_ERR_EID,
                                    CFE_EVS_EventType_ERROR,
-                                   CFE_TBL_TaskData.TableTaskAppId,
+                                   CFE_TBL_Global.TableTaskAppId,
                                    "%s Failed to Register '%s', Status=0x%08X",
                                    AppName, TblName, (unsigned int)Status);
     }
@@ -537,7 +537,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
         if (RegIndx != CFE_TBL_NOT_FOUND)
         {
             /* Get pointer to Registry Record Entry to speed up processing */
-            RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndx];
+            RegRecPtr = &CFE_TBL_Global.Registry[RegIndx];
 
             /* Search Access Descriptor Array for free Descriptor */
             *TblHandlePtr = CFE_TBL_FindFreeHandle();
@@ -551,7 +551,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
             else
             {
                 /* Initialize the Table Access Descriptor */
-                AccessDescPtr = &CFE_TBL_TaskData.Handles[*TblHandlePtr];
+                AccessDescPtr = &CFE_TBL_Global.Handles[*TblHandlePtr];
 
                 AccessDescPtr->AppId = ThisAppId;
                 AccessDescPtr->LockFlag = false;
@@ -570,7 +570,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
                 AccessDescPtr->NextLink = RegRecPtr->HeadOfAccessList;
 
                 /* Make sure the old head of the list now sees this as the head */
-                CFE_TBL_TaskData.Handles[RegRecPtr->HeadOfAccessList].PrevLink = *TblHandlePtr;
+                CFE_TBL_Global.Handles[RegRecPtr->HeadOfAccessList].PrevLink = *TblHandlePtr;
 
                 /* Make sure the Registry Record see this as the head of the list */
                 RegRecPtr->HeadOfAccessList = *TblHandlePtr;
@@ -599,7 +599,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
 
         CFE_EVS_SendEventWithAppID(CFE_TBL_SHARE_ERR_EID,
                                    CFE_EVS_EventType_ERROR,
-                                   CFE_TBL_TaskData.TableTaskAppId,
+                                   CFE_TBL_Global.TableTaskAppId,
                                    "%s Failed to Share '%s', Status=0x%08X",
                                    AppName, TblName, (unsigned int)Status);
     }
@@ -625,10 +625,10 @@ int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle )
     if (Status == CFE_SUCCESS)
     {
         /* Get a pointer to the relevant Access Descriptor */
-        AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
+        AccessDescPtr = &CFE_TBL_Global.Handles[TblHandle];
 
         /* Get a pointer to the relevant entry in the registry */
-        RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
+        RegRecPtr = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
 
         /* Verify that the application unregistering the table owns the table */
         if (CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, ThisAppId))
@@ -663,7 +663,7 @@ int32 CFE_TBL_Unregister ( CFE_TBL_Handle_t TblHandle )
 
         CFE_EVS_SendEventWithAppID(CFE_TBL_UNREGISTER_ERR_EID,
                                    CFE_EVS_EventType_ERROR,
-                                   CFE_TBL_TaskData.TableTaskAppId,
+                                   CFE_TBL_Global.TableTaskAppId,
                                    "%s Failed to Unregister '?', Status=0x%08X",
                                    AppName, (unsigned int)Status);
     }
@@ -698,14 +698,14 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEventWithAppID(CFE_TBL_HANDLE_ACCESS_ERR_EID, CFE_EVS_EventType_ERROR,
-            CFE_TBL_TaskData.TableTaskAppId,
+            CFE_TBL_Global.TableTaskAppId,
             "%s: No access to Tbl Handle=%d", AppName, (int)TblHandle);
 
         return Status;
     }
 
-    AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
-    RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
+    AccessDescPtr = &CFE_TBL_Global.Handles[TblHandle];
+    RegRecPtr = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
 
     /* Translate AppID of caller into App Name */
     CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
@@ -719,7 +719,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
         if ((!RegRecPtr->UserDefAddr) ||(RegRecPtr->TableLoadedOnce))
         {
             CFE_EVS_SendEventWithAppID(CFE_TBL_LOADING_A_DUMP_ONLY_ERR_EID,
-                CFE_EVS_EventType_ERROR, CFE_TBL_TaskData.TableTaskAppId,
+                CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
                 "%s: Attempted to load Dump Only Tbl '%s'", AppName, RegRecPtr->Name);
 
             return CFE_TBL_ERR_DUMP_ONLY;
@@ -737,7 +737,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
 
         CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID,
                                    CFE_EVS_EventType_DEBUG,
-                                   CFE_TBL_TaskData.TableTaskAppId,
+                                   CFE_TBL_Global.TableTaskAppId,
                                    "Successfully loaded '%s' from '%s'",
                                    RegRecPtr->Name,
                                    RegRecPtr->Buffers[0].DataSource);
@@ -749,7 +749,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
     if (RegRecPtr->LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
     {
         CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_IN_PROGRESS_ERR_EID, CFE_EVS_EventType_ERROR,
-            CFE_TBL_TaskData.TableTaskAppId,
+            CFE_TBL_Global.TableTaskAppId,
             "%s: Load already in progress for '%s'", AppName, RegRecPtr->Name);
 
         return CFE_TBL_ERR_LOAD_IN_PROGRESS;
@@ -761,7 +761,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
     if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEventWithAppID(CFE_TBL_NO_WORK_BUFFERS_ERR_EID, CFE_EVS_EventType_ERROR,
-            CFE_TBL_TaskData.TableTaskAppId,
+            CFE_TBL_Global.TableTaskAppId,
             "%s: Failed to get Working Buffer (Stat=%u)", AppName, (unsigned int)Status);
 
         return Status;
@@ -780,7 +780,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
                 /* Uninitialized tables cannot be loaded with partial table loads */
                 /* Partial loads can only occur on previously loaded tables.      */
                 CFE_EVS_SendEventWithAppID(CFE_TBL_PARTIAL_LOAD_ERR_EID, CFE_EVS_EventType_ERROR,
-                    CFE_TBL_TaskData.TableTaskAppId,
+                    CFE_TBL_Global.TableTaskAppId,
                     "%s: Attempted to load from partial Tbl '%s' from '%s' (Stat=%u)",
                     AppName, RegRecPtr->Name, (const char *)SrcDataPtr, (unsigned int)Status);
 
@@ -807,7 +807,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
             break;
         default:
             CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_TYPE_ERR_EID, CFE_EVS_EventType_ERROR,
-                CFE_TBL_TaskData.TableTaskAppId,
+                CFE_TBL_Global.TableTaskAppId,
                 "%s: Attempted to load from illegal source type=%d", AppName, (int)SrcType);
                                                                  
             Status = CFE_TBL_ERR_ILLEGAL_SRC_TYPE;
@@ -821,7 +821,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
         if (Status > CFE_SUCCESS)
         {
             CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_VAL_ERR_EID, CFE_EVS_EventType_ERROR,
-                CFE_TBL_TaskData.TableTaskAppId,
+                CFE_TBL_Global.TableTaskAppId,
                 "%s: Validation func return code invalid (Stat=%u) for '%s'",
                 AppName, (unsigned int)Status, RegRecPtr->Name);
 
@@ -831,7 +831,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
         if (Status < 0)
         {
             CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_ERR_EID, CFE_EVS_EventType_ERROR,
-                CFE_TBL_TaskData.TableTaskAppId,
+                CFE_TBL_Global.TableTaskAppId,
                 "%s: Validation func reports table invalid (Stat=%u) for '%s'",
                 AppName, (unsigned int)Status, RegRecPtr->Name);
 
@@ -847,7 +847,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
         if ((!RegRecPtr->DoubleBuffered) && (RegRecPtr->TableLoadedOnce == true))
         {
             /* For single buffered tables, freeing entails resetting flag */
-            CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
+            CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Taken = false;
         }
 
         /* For double buffered tables, freeing buffer is simple */
@@ -870,7 +870,7 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
         if (Status != CFE_SUCCESS)
         {
             CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID, CFE_EVS_EventType_ERROR,
-                CFE_TBL_TaskData.TableTaskAppId,
+                CFE_TBL_Global.TableTaskAppId,
                 "%s: Failed to update '%s' (Stat=%u)",
                 AppName, RegRecPtr->Name, (unsigned int)Status);
         }
@@ -900,11 +900,11 @@ int32 CFE_TBL_Load( CFE_TBL_Handle_t TblHandle,
         /* to help eliminate a flood of events during a startup         */
         CFE_EVS_SendEventWithAppID(CFE_TBL_LOAD_SUCCESS_INF_EID,
             FirstTime ? CFE_EVS_EventType_DEBUG : CFE_EVS_EventType_INFORMATION,
-            CFE_TBL_TaskData.TableTaskAppId, "Successfully loaded '%s' from '%s'",
+            CFE_TBL_Global.TableTaskAppId, "Successfully loaded '%s' from '%s'",
             RegRecPtr->Name, RegRecPtr->LastFileLoaded);
         
         /* Save the index of the table for housekeeping telemetry */
-        CFE_TBL_TaskData.LastTblUpdated = AccessDescPtr->RegIndex;       
+        CFE_TBL_Global.LastTblUpdated = AccessDescPtr->RegIndex;
     }
 
     return Status;
@@ -928,8 +928,8 @@ int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle )
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
-        AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
-        RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
+        AccessDescPtr = &CFE_TBL_Global.Handles[TblHandle];
+        RegRecPtr = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
 
         Status = CFE_TBL_UpdateInternal(TblHandle, RegRecPtr, AccessDescPtr);
 
@@ -958,7 +958,7 @@ int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle )
         {
             CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID,
                                        CFE_EVS_EventType_ERROR,
-                                       CFE_TBL_TaskData.TableTaskAppId,
+                                       CFE_TBL_Global.TableTaskAppId,
                                        "%s Failed to Update '%s', Status=0x%08X",
                                        AppName, RegRecPtr->Name, (unsigned int)Status);
         }
@@ -966,7 +966,7 @@ int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle )
         {
             CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_ERR_EID,
                                        CFE_EVS_EventType_ERROR,
-                                       CFE_TBL_TaskData.TableTaskAppId,
+                                       CFE_TBL_Global.TableTaskAppId,
                                        "%s Failed to Update '?', Status=0x%08X",
                                        AppName, (unsigned int)Status);
         }
@@ -978,12 +978,12 @@ int32 CFE_TBL_Update( CFE_TBL_Handle_t TblHandle )
         {
             CFE_EVS_SendEventWithAppID(CFE_TBL_UPDATE_SUCCESS_INF_EID,
                                        CFE_EVS_EventType_INFORMATION,
-                                       CFE_TBL_TaskData.TableTaskAppId,
+                                       CFE_TBL_Global.TableTaskAppId,
                                        "%s Successfully Updated '%s'",
                                        AppName, RegRecPtr->Name);
                             
             /* Save the index of the table for housekeeping telemetry */
-            CFE_TBL_TaskData.LastTblUpdated = AccessDescPtr->RegIndex;
+            CFE_TBL_Global.LastTblUpdated = AccessDescPtr->RegIndex;
         }       
     }
 
@@ -1037,7 +1037,7 @@ int32 CFE_TBL_ReleaseAddress( CFE_TBL_Handle_t TblHandle )
     if (Status == CFE_SUCCESS)
     {
         /* Clear the lock flag */
-        CFE_TBL_TaskData.Handles[TblHandle].LockFlag = false;
+        CFE_TBL_Global.Handles[TblHandle].LockFlag = false;
 
         /* Return any pending warning or info status indicators */
         Status = CFE_TBL_GetNextNotification(TblHandle);
@@ -1146,8 +1146,8 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
-        AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
-        RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
+        AccessDescPtr = &CFE_TBL_Global.Handles[TblHandle];
+        RegRecPtr = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
 
         CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
 
@@ -1170,12 +1170,12 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
             {
                 /* Call the Application's Validation function for the appropriate shared buffer */
                 Status = (RegRecPtr->ValidationFuncPtr)
-                          (CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr);
+                          (CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].BufferPtr);
                 
                 /* Allow buffer to be activated after passing validation */
                 if (Status == CFE_SUCCESS)
                 {
-                    CFE_TBL_TaskData.LoadBuffs[RegRecPtr->LoadInProgress].Validated = true;       
+                    CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Validated = true;
                 }
             }
 
@@ -1183,7 +1183,7 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
             {
                 CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_INF_EID,
                                            CFE_EVS_EventType_INFORMATION,
-                                           CFE_TBL_TaskData.TableTaskAppId,
+                                           CFE_TBL_Global.TableTaskAppId,
                                            "%s validation successful for Inactive '%s'",
                                            AppName, RegRecPtr->Name);
             }
@@ -1191,22 +1191,22 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
             {
                 CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_ERR_EID,
                                            CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_TaskData.TableTaskAppId,
+                                           CFE_TBL_Global.TableTaskAppId,
                                            "%s validation failed for Inactive '%s', Status=0x%08X",
                                            AppName, RegRecPtr->Name, (unsigned int)Status);
                 
                 if (Status > CFE_SUCCESS)
                 {
                     CFE_ES_WriteToSysLog("CFE_TBL:Validate-App(%lu) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
-                            CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.TableTaskAppId), (unsigned int)Status, RegRecPtr->Name);
+                            CFE_ES_ResourceID_ToInteger(CFE_TBL_Global.TableTaskAppId), (unsigned int)Status, RegRecPtr->Name);
                 }
             }
 
             /* Save the result of the Validation function for the Table Services Task */
-            CFE_TBL_TaskData.ValidationResults[RegRecPtr->ValidateInactiveIndex].Result = Status;
+            CFE_TBL_Global.ValidationResults[RegRecPtr->ValidateInactiveIndex].Result = Status;
 
             /* Once validation is complete, set flags to indicate response is ready */
-            CFE_TBL_TaskData.ValidationResults[RegRecPtr->ValidateInactiveIndex].State = CFE_TBL_VALIDATION_PERFORMED;
+            CFE_TBL_Global.ValidationResults[RegRecPtr->ValidateInactiveIndex].State = CFE_TBL_VALIDATION_PERFORMED;
             RegRecPtr->ValidateInactiveIndex = CFE_TBL_NO_VALIDATION_PENDING;
 
             /* Since the validation was successfully performed (although maybe not a successful result) */
@@ -1232,7 +1232,7 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
             {
                 CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_INF_EID,
                                            CFE_EVS_EventType_INFORMATION,
-                                           CFE_TBL_TaskData.TableTaskAppId,
+                                           CFE_TBL_Global.TableTaskAppId,
                                            "%s validation successful for Active '%s'",
                                            AppName, RegRecPtr->Name);
             }
@@ -1240,22 +1240,22 @@ int32 CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )
             {
                 CFE_EVS_SendEventWithAppID(CFE_TBL_VALIDATION_ERR_EID,
                                            CFE_EVS_EventType_ERROR,
-                                           CFE_TBL_TaskData.TableTaskAppId,
+                                           CFE_TBL_Global.TableTaskAppId,
                                            "%s validation failed for Active '%s', Status=0x%08X",
                                            AppName, RegRecPtr->Name, (unsigned int)Status);
                 
                 if (Status > CFE_SUCCESS)
                 {
                     CFE_ES_WriteToSysLog("CFE_TBL:Validate-App(%lu) Validation func return code invalid (Stat=0x%08X) for '%s'\n",
-                            CFE_ES_ResourceID_ToInteger(CFE_TBL_TaskData.TableTaskAppId), (unsigned int)Status, RegRecPtr->Name);
+                            CFE_ES_ResourceID_ToInteger(CFE_TBL_Global.TableTaskAppId), (unsigned int)Status, RegRecPtr->Name);
                 }
             }
 
             /* Save the result of the Validation function for the Table Services Task */
-            CFE_TBL_TaskData.ValidationResults[RegRecPtr->ValidateActiveIndex].Result = Status;
+            CFE_TBL_Global.ValidationResults[RegRecPtr->ValidateActiveIndex].Result = Status;
 
             /* Once validation is complete, reset the flags */
-            CFE_TBL_TaskData.ValidationResults[RegRecPtr->ValidateActiveIndex].State = CFE_TBL_VALIDATION_PERFORMED;
+            CFE_TBL_Global.ValidationResults[RegRecPtr->ValidateActiveIndex].State = CFE_TBL_VALIDATION_PERFORMED;
             RegRecPtr->ValidateActiveIndex = CFE_TBL_NO_VALIDATION_PENDING;
 
             /* Since the validation was successfully performed (although maybe not a successful result) */
@@ -1349,8 +1349,8 @@ int32 CFE_TBL_GetStatus( CFE_TBL_Handle_t TblHandle )
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
-        AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
-        RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
+        AccessDescPtr = &CFE_TBL_Global.Handles[TblHandle];
+        RegRecPtr = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
 
         /* Perform validations prior to performing any updates */
         if (RegRecPtr->LoadPending)
@@ -1394,7 +1394,7 @@ int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName )
     if (RegIndx != CFE_TBL_NOT_FOUND)
     {
         /* Get pointer to Registry Record Entry to speed up processing */
-        RegRecPtr = &CFE_TBL_TaskData.Registry[RegIndx];
+        RegRecPtr = &CFE_TBL_Global.Registry[RegIndx];
 
         /* Return table characteristics */        
         TblInfoPtr->Size        = RegRecPtr->Size;
@@ -1417,7 +1417,7 @@ int32 CFE_TBL_GetInfo( CFE_TBL_Info_t *TblInfoPtr, const char *TblName )
         while (HandleIterator != CFE_TBL_END_OF_LIST)
         {
             NumAccessDescriptors++;
-            HandleIterator = CFE_TBL_TaskData.Handles[HandleIterator].NextLink;
+            HandleIterator = CFE_TBL_Global.Handles[HandleIterator].NextLink;
         }
 
         TblInfoPtr->NumUsers = NumAccessDescriptors;
@@ -1447,9 +1447,9 @@ int32 CFE_TBL_DumpToBuffer( CFE_TBL_Handle_t TblHandle )
     Status = CFE_TBL_GetStatus(TblHandle);
     if (Status == CFE_TBL_INFO_DUMP_PENDING)
     {
-        AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
-        RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
-        DumpCtrlPtr = &CFE_TBL_TaskData.DumpControlBlocks[RegRecPtr->DumpControlIndex];
+        AccessDescPtr = &CFE_TBL_Global.Handles[TblHandle];
+        RegRecPtr = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
+        DumpCtrlPtr = &CFE_TBL_Global.DumpControlBlocks[RegRecPtr->DumpControlIndex];
         
         /* Copy the contents of the active buffer to the assigned dump buffer */
         memcpy(DumpCtrlPtr->DumpBufferPtr->BufferPtr, RegRecPtr->Buffers[0].BufferPtr, DumpCtrlPtr->Size);
@@ -1490,8 +1490,8 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
-        AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
-        RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
+        AccessDescPtr = &CFE_TBL_Global.Handles[TblHandle];
+        RegRecPtr = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
         
         /* If the table is a critical table, update the appropriate CDS with the new data */
         if (RegRecPtr->CriticalTable == true)
@@ -1524,12 +1524,12 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
         while (AccessIterator != CFE_TBL_END_OF_LIST)
         {
             /* Only notify *OTHER* applications that the contents have changed */
-            if (!CFE_ES_ResourceID_Equal(CFE_TBL_TaskData.Handles[AccessIterator].AppId, ThisAppId))
+            if (!CFE_ES_ResourceID_Equal(CFE_TBL_Global.Handles[AccessIterator].AppId, ThisAppId))
             {
-                CFE_TBL_TaskData.Handles[AccessIterator].Updated = true;
+                CFE_TBL_Global.Handles[AccessIterator].Updated = true;
             }
 
-            AccessIterator = CFE_TBL_TaskData.Handles[AccessIterator].NextLink;
+            AccessIterator = CFE_TBL_Global.Handles[AccessIterator].NextLink;
         }
     }
     else
@@ -1559,8 +1559,8 @@ int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, 
     if (Status == CFE_SUCCESS)
     {
         /* Get pointers to pertinent records in registry and handles */
-        AccessDescPtr = &CFE_TBL_TaskData.Handles[TblHandle];
-        RegRecPtr = &CFE_TBL_TaskData.Registry[AccessDescPtr->RegIndex];
+        AccessDescPtr = &CFE_TBL_Global.Handles[TblHandle];
+        RegRecPtr = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
         
         /* Verify that the calling application is the table owner */
         if (CFE_ES_ResourceID_Equal(RegRecPtr->OwnerAppId, ThisAppId))
