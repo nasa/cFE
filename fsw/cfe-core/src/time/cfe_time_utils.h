@@ -301,8 +301,8 @@ typedef struct
   /*
   ** Interrupt task ID's...
   */
-  CFE_ES_ResourceID_t   LocalTaskID;
-  CFE_ES_ResourceID_t   ToneTaskID;
+  CFE_ES_TaskId_t       LocalTaskID;
+  CFE_ES_TaskId_t       ToneTaskID;
 
   /*
   ** Maximum difference from expected for external time sources...

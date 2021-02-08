@@ -171,7 +171,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetTime(void)
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_TIME_CleanUpApp(CFE_ES_ResourceID_t AppId)
+int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     int32 status;
 

@@ -40,6 +40,7 @@
 */
 #include "sb_UT.h"
 #include "cfe_msg_api.h"
+#include "private/cfe_core_resourceid_basevalues.h"
 
 /*
  * A method to add an SB "Subtest"
@@ -112,20 +113,32 @@ const CFE_SB_MsgId_t SB_UT_ALTERNATE_INVALID_MID = CFE_SB_MSGID_WRAP_VALUE(CFE_P
 const CFE_SB_MsgId_t SB_UT_BARE_CMD_MID3 = CFE_SB_MSGID_WRAP_VALUE(0x1003);
 const CFE_SB_MsgId_t SB_UT_BARE_TLM_MID3 = CFE_SB_MSGID_WRAP_VALUE(0x0003);
 
-const CFE_SB_PipeId_t SB_UT_PIPEID_0  = { CFE_SB_PIPEID_BASE + 0 };
-const CFE_SB_PipeId_t SB_UT_PIPEID_1  = { CFE_SB_PIPEID_BASE + 1 };
-const CFE_SB_PipeId_t SB_UT_PIPEID_2  = { CFE_SB_PIPEID_BASE + 2 };
-const CFE_SB_PipeId_t SB_UT_PIPEID_3  = { CFE_SB_PIPEID_BASE + 3 };
-const CFE_SB_PipeId_t SB_UT_ALTERNATE_INVALID_PIPEID = { 0xDEADBEEF };
+#define SB_UT_PIPEID_0                  CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + 0))
+#define SB_UT_PIPEID_1                  CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + 1))
+#define SB_UT_PIPEID_2                  CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + 2))
+#define SB_UT_PIPEID_3                  CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + 3))
+#define SB_UT_ALTERNATE_INVALID_PIPEID  CFE_SB_PIPEID_C(CFE_ResourceId_FromInteger(0xDEADBEEF))
+
+/*
+ * Helper function to manufacture a fake pipe ID value that will validate
+ */
+CFE_ResourceId_t UT_SB_MakePipeIdForIndex(uint32 ArrayIdx)
+{
+    return CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE + ArrayIdx);
+}
 
 /*
  * Helper function to "corrupt" a resource ID value in a consistent/predicatble way,
  * which can also be un-done easily.
  */
-CFE_ES_ResourceID_t UT_SB_ResourceID_Modify(CFE_ES_ResourceID_t InitialID, int32 Modifier)
+CFE_ES_AppId_t UT_SB_AppID_Modify(CFE_ES_AppId_t InitialID, int32 Modifier)
 {
-    unsigned long NewValue = CFE_ES_ResourceID_ToInteger(InitialID) + Modifier;
-    return CFE_ES_ResourceID_FromInteger(NewValue);
+    CFE_ES_AppId_t TempValue = InitialID;
+
+    /* Underneath the wrapper(s) the IDs are 32-bit integer values, so it can be cast */
+    *((uint32*)&TempValue) += Modifier;
+
+    return TempValue;
 }
 
 /*
@@ -1656,7 +1669,7 @@ void Test_CreatePipe_MaxPipes(void)
     /* Create maximum number of pipes + 1. Only one 'create pipe' failure
      * expected
      */
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_ResourceID_ToIndex), 1+CFE_PLATFORM_SB_MAX_PIPES, -1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_ToIndex), 1+CFE_PLATFORM_SB_MAX_PIPES, -1);
     for (i = 0; i < (CFE_PLATFORM_SB_MAX_PIPES + 1); i++)
     {
         snprintf(PipeName, sizeof(PipeName), "TestPipe%ld", (long) i);
@@ -1678,6 +1691,15 @@ void Test_CreatePipe_MaxPipes(void)
     {
         TEARDOWN(CFE_SB_DeletePipe(PipeIdReturned[i]));
     }
+
+    /* 
+     * Also validate the CFE_SB_CheckPipeDescSlotUsed() helper function in this test,
+     * as it is used to determine when max pipes has been hit.
+     */
+    CFE_SB_Global.PipeTbl[1].PipeId = CFE_SB_PIPEID_C(UT_SB_MakePipeIdForIndex(1));
+    CFE_SB_Global.PipeTbl[2].PipeId = CFE_SB_INVALID_PIPE;
+    ASSERT_TRUE(CFE_SB_CheckPipeDescSlotUsed(UT_SB_MakePipeIdForIndex(1)));
+    ASSERT_TRUE(!CFE_SB_CheckPipeDescSlotUsed(UT_SB_MakePipeIdForIndex(2)));
 
 } /* end Test_CreatePipe_MaxPipes */
 
@@ -1703,7 +1725,7 @@ void Test_CreatePipe_SamePipeName(void)
     /* Second call to CFE_SB_CreatePipe with same PipeName should fail */
     ASSERT_EQ(CFE_SB_CreatePipe(&PipeId, PipeDepth, PipeName), CFE_SB_PIPE_CR_ERR);
 
-    ASSERT_TRUE(CFE_ES_ResourceID_Equal(PipeId, FirstPipeId));
+    ASSERT_TRUE(CFE_RESOURCEID_TEST_EQUAL(PipeId, FirstPipeId));
 
     EVTCNT(2);
 
@@ -1792,7 +1814,7 @@ void Test_DeletePipe_InvalidPipeOwner(void)
 {
     CFE_SB_PipeId_t PipedId;
     CFE_SB_PipeD_t  *PipeDscPtr;
-    CFE_ES_ResourceID_t  RealOwner;
+    CFE_ES_AppId_t  RealOwner;
     uint16          PipeDepth = 10;
 
     SETUP(CFE_SB_CreatePipe(&PipedId, PipeDepth, "TestPipe"));
@@ -1802,7 +1824,7 @@ void Test_DeletePipe_InvalidPipeOwner(void)
     RealOwner = PipeDscPtr->AppId;
 
     /* Choose a value that is sure not to be owner */
-    PipeDscPtr->AppId = UT_SB_ResourceID_Modify(RealOwner, 1);
+    PipeDscPtr->AppId = UT_SB_AppID_Modify(RealOwner, 1);
     ASSERT_EQ(CFE_SB_DeletePipe(PipedId), CFE_SB_BAD_ARGUMENT);
 
     EVTCNT(2);
@@ -1821,7 +1843,7 @@ void Test_DeletePipe_InvalidPipeOwner(void)
 void Test_DeletePipe_WithAppid(void)
 {
     CFE_SB_PipeId_t PipedId;
-    CFE_ES_ResourceID_t AppId;
+    CFE_ES_AppId_t  AppId;
     uint16          PipeDepth = 10;
 
     SETUP(CFE_SB_CreatePipe(&PipedId, PipeDepth, "TestPipe"));
@@ -2005,14 +2027,14 @@ void Test_SetPipeOpts_NotOwner(void)
 {
     CFE_SB_PipeId_t PipeID;
     CFE_SB_PipeD_t  *PipeDscPtr;
-    CFE_ES_ResourceID_t OrigOwner;
+    CFE_ES_AppId_t  OrigOwner;
 
     SETUP(CFE_SB_CreatePipe(&PipeID, 4, "TestPipe1"));
 
     PipeDscPtr = CFE_SB_LocatePipeDescByID(PipeID);
 
     OrigOwner = PipeDscPtr->AppId;
-    PipeDscPtr->AppId = UT_SB_ResourceID_Modify(OrigOwner, 1);
+    PipeDscPtr->AppId = UT_SB_AppID_Modify(OrigOwner, 1);
 
     ASSERT_EQ(CFE_SB_SetPipeOpts(PipeID, 0), CFE_SB_BAD_ARGUMENT);
 
@@ -2435,7 +2457,7 @@ void Test_Subscribe_InvalidPipeOwner(void)
     CFE_SB_PipeD_t  *PipeDscPtr;
     CFE_SB_MsgId_t  MsgId = SB_UT_TLM_MID;
     uint16          PipeDepth = 10;
-    CFE_ES_ResourceID_t  RealOwner;
+    CFE_ES_AppId_t  RealOwner;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
 
@@ -2444,7 +2466,7 @@ void Test_Subscribe_InvalidPipeOwner(void)
     RealOwner = PipeDscPtr->AppId;
 
     /* Choose a value that is sure not to be owner */
-    PipeDscPtr->AppId = UT_SB_ResourceID_Modify(RealOwner, 1);
+    PipeDscPtr->AppId = UT_SB_AppID_Modify(RealOwner, 1);
     CFE_SB_Subscribe(MsgId, PipeId);
 
     EVTCNT(3);
@@ -2529,7 +2551,7 @@ void Test_Unsubscribe_Local(void)
 void Test_Unsubscribe_InvalParam(void)
 {
     CFE_SB_PipeId_t TestPipe;
-    CFE_ES_ResourceID_t  CallerId;
+    CFE_ES_AppId_t  CallerId;
     CFE_SB_PipeD_t  *PipeDscPtr;
     uint16          PipeDepth = 50;
     CFE_SB_PipeId_t SavedPipeId;
@@ -2625,7 +2647,7 @@ void Test_Unsubscribe_InvalidPipeOwner(void)
     CFE_SB_PipeId_t PipeId;
     CFE_SB_MsgId_t  MsgId = SB_UT_TLM_MID;
     CFE_SB_PipeD_t  *PipeDscPtr;
-    CFE_ES_ResourceID_t RealOwner;
+    CFE_ES_AppId_t  RealOwner;
     uint16          PipeDepth = 10;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
@@ -2637,7 +2659,7 @@ void Test_Unsubscribe_InvalidPipeOwner(void)
     RealOwner = PipeDscPtr->AppId;
 
     /* Choose a value that is sure not be owner */
-    PipeDscPtr->AppId = UT_SB_ResourceID_Modify(RealOwner, 1);
+    PipeDscPtr->AppId = UT_SB_AppID_Modify(RealOwner, 1);
     ASSERT_EQ(CFE_SB_Unsubscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
 
     EVTCNT(3);
@@ -3546,7 +3568,7 @@ void Test_CleanupApp_API(void)
     CFE_SB_PipeId_t         PipeId;
     CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl = 0;
     uint16                  PipeDepth = 50;
-    CFE_ES_ResourceID_t     AppID;
+    CFE_ES_AppId_t          AppID;
 
     CFE_ES_GetAppID(&AppID);
 
@@ -3563,7 +3585,7 @@ void Test_CleanupApp_API(void)
     /* Attempt with a bad application ID first in order to get full branch path
      * coverage in CFE_SB_ZeroCopyReleaseAppId
      */
-    CFE_SB_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED);
+    CFE_SB_CleanUpApp(CFE_ES_APPID_UNDEFINED);
 
     /* Attempt again with a valid application ID */
     CFE_SB_CleanUpApp(AppID);
@@ -3825,7 +3847,7 @@ void Test_OS_MutSem_ErrLogic(void)
 */
 void Test_ReqToSendEvent_ErrLogic(void)
 {
-    CFE_ES_ResourceID_t TaskId;
+    CFE_ES_TaskId_t TaskId;
     uint32 Bit = 5;
 
     /* Clear task bits, then call function, which should set the bit for
@@ -3904,7 +3926,7 @@ void Test_CFE_SB_BadPipeInfo(void)
     CFE_SB_PipeId_t PipeId;
     CFE_SB_PipeD_t  *PipeDscPtr;
     uint16          PipeDepth = 10;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t  AppID;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe1"));
 

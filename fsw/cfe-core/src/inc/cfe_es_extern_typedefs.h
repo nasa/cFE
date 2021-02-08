@@ -32,6 +32,7 @@
 /* Use the local definitions of these types */
 
 #include "common_types.h"
+#include "cfe_resourceid_typedef.h"
 
 /**
  * @brief Label definitions associated with CFE_ES_LogMode_Enum_t
@@ -330,23 +331,33 @@ enum CFE_ES_AppState
 typedef uint32                                           CFE_ES_AppState_Enum_t;
 
 
+/**
+ * @brief A type for Application IDs
+ *
+ * This is the type that is used for any API accepting or returning an App ID
+ */
+typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_AppId_t;
 
 /**
- * @brief A type that provides a common, abstract identifier for
- * all ES managed resources (e.g. apps, tasks, counters, etc).
+ * @brief A type for Task IDs
  *
- * Fundamentally an unsigned integer but users should treat it as
- * opaque, and only go through the ES API for introspection.
- *
- * Simple operations are provided as inline functions, which
- * should alleviate the need to do direct manipulation of the value:
- *
- *  - Check for undefined ID value
- *  - Check for equality of two ID values
- *  - Convert ID to simple integer (typically for printing/logging)
- *  - Convert simple integer to ID (inverse of above)
+ * This is the type that is used for any API accepting or returning a Task ID
  */
-typedef uint32 CFE_ES_ResourceID_t;
+typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_TaskId_t;
+
+/**
+ * @brief A type for Library IDs
+ *
+ * This is the type that is used for any API accepting or returning a Lib ID
+ */
+typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_LibId_t;
+
+/**
+ * @brief A type for Counter IDs
+ *
+ * This is the type that is used for any API accepting or returning an Counter ID
+ */
+typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_CounterId_t;
 
 /**
  * @brief Memory Handle type
@@ -354,14 +365,14 @@ typedef uint32 CFE_ES_ResourceID_t;
  * Data type used to hold Handles of Memory Pools
  * created via CFE_ES_PoolCreate and CFE_ES_PoolCreateNoSem
  */
-typedef CFE_ES_ResourceID_t CFE_ES_MemHandle_t;
+typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_MemHandle_t;
 
 /**
  * @brief CDS Handle type
  *
  * Data type used to hold Handles of Critical Data Stores. See #CFE_ES_RegisterCDS
  */
-typedef CFE_ES_ResourceID_t CFE_ES_CDSHandle_t;
+typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_CDSHandle_t;
 
 /**
  * @brief Type used for task priority in CFE ES as

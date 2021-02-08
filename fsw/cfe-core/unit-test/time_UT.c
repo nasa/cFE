@@ -3240,7 +3240,7 @@ void Test_CleanUpApp(void)
     uint16 Count;
     int32  Status = CFE_SUCCESS;
     uint32 AppIndex;
-    CFE_ES_ResourceID_t TestAppId;
+    CFE_ES_AppId_t TestAppId;
 
     UtPrintf("Begin Test Cleanup App");
 
@@ -3316,7 +3316,7 @@ void Test_CleanUpApp(void)
      * This is effectively a no-op but here for coverage */
     AppIndex = 99999;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    Status = CFE_TIME_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED);
+    Status = CFE_TIME_CleanUpApp(CFE_ES_APPID_UNDEFINED);
     UT_Report(__FILE__, __LINE__,
               Status == CFE_TIME_CALLBACK_NOT_REGISTERED,
               "CFE_TIME_CleanUpApp",

@@ -1077,7 +1077,7 @@ void CFE_TIME_Set1HzAdj(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
 /*                                                                 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-int32 CFE_TIME_CleanUpApp(CFE_ES_ResourceID_t AppId)
+int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     int32 Status;
     uint32 AppIndex;

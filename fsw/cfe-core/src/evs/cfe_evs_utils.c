@@ -64,7 +64,7 @@ void EVS_OutputPort4 (char *Message);
 ** Assumptions and Notes:
 **
 */
-EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_ResourceID_t AppID)
+EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_AppId_t AppID)
 {
    uint32 AppIndex;
    EVS_AppData_t *AppDataPtr;
@@ -83,9 +83,9 @@ EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_ResourceID_t AppID)
 
 } /* End EVS_GetAppDataByID */
 
-int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, CFE_ES_ResourceID_t *AppIDOut)
+int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut)
 {
-   CFE_ES_ResourceID_t AppID;
+   CFE_ES_AppId_t AppID;
    EVS_AppData_t *AppDataPtr;
    int32 Status;
 
@@ -134,7 +134,7 @@ int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, CFE_ES_ResourceID_t *Ap
 int32 EVS_GetApplicationInfo (EVS_AppData_t **AppDataOut, const char *pAppName)
 {
    int32 Status;
-   CFE_ES_ResourceID_t AppID;
+   CFE_ES_AppId_t AppID;
    EVS_AppData_t *AppDataPtr;
 
    Status = CFE_ES_GetAppIDByName(&AppID, pAppName);
@@ -180,12 +180,12 @@ int32 EVS_GetApplicationInfo (EVS_AppData_t **AppDataOut, const char *pAppName)
 ** Assumptions and Notes:
 **
 */
-int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, CFE_ES_ResourceID_t CallerID)
+int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
 {
    char AppName[OS_MAX_API_NAME];
 
    /* Send only one "not registered" event per application */
-   if ( !CFE_ES_ResourceID_Equal(AppDataPtr->UnregAppID, CallerID) )
+   if ( !CFE_RESOURCEID_TEST_EQUAL(AppDataPtr->UnregAppID, CallerID) )
    { 
       /* Increment count of "not registered" applications */
       CFE_EVS_Global.EVS_TlmPkt.Payload.UnregisteredAppCounter++;

@@ -43,7 +43,7 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_perfids.h"
 #include "cfe_error.h"
-#include "cfe_resourceid.h"
+#include "cfe_resourceid_api.h"
 
 /*****************************************************************************/
 
@@ -83,11 +83,37 @@
 #define CFE_ES_APP_RESTART       CFE_PSP_RST_TYPE_MAX       /**< Application only was reset (extend the PSP enumeration here) */
 /** \} */
 
-
-/** \name Critical Data Store Macros */
+/** \name Conversions for ES resource IDs */
 /** \{ */
 
-#define CFE_ES_CDS_BAD_HANDLE  CFE_ES_RESOURCEID_UNDEFINED
+/*
+ * Conversion macros for each ES resource ID subtype
+ *
+ * These accept a generic/non-specific CFE_ResourceId_t value
+ * and convert it to the corresponding resource-specific type.
+ *
+ * These should only be used when with the resource ID constants,
+ * or where the code has confirmed or is determining the generic 
+ * identifier does correspond to a resource of that type.
+ */
+#define CFE_ES_APPID_C(val)             ((CFE_ES_AppId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_TASKID_C(val)            ((CFE_ES_TaskId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_LIBID_C(val)             ((CFE_ES_LibId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_COUNTERID_C(val)         ((CFE_ES_CounterId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_MEMHANDLE_C(val)         ((CFE_ES_MemHandle_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_CDSHANDLE_C(val)         ((CFE_ES_CDSHandle_t)CFE_RESOURCEID_WRAP(val))
+
+/** \} */
+
+/** \name Type-specific initalizers for "undefined" resource IDs */
+/** \{ */
+
+#define CFE_ES_APPID_UNDEFINED      CFE_ES_APPID_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_TASKID_UNDEFINED     CFE_ES_TASKID_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_LIBID_UNDEFINED      CFE_ES_LIBID_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_COUNTERID_UNDEFINED  CFE_ES_COUNTERID_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_MEMHANDLE_UNDEFINED  CFE_ES_MEMHANDLE_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_CDS_BAD_HANDLE       CFE_ES_CDSHANDLE_C(CFE_RESOURCEID_UNDEFINED)
 /** \} */
 
 #define CFE_ES_NO_MUTEX   false  /**< \brief Indicates that the memory pool selection will not use a semaphore */
@@ -117,7 +143,7 @@
 ** Child Task Main Function Prototype
 */
 typedef void (*CFE_ES_ChildTaskMainFuncPtr_t)(void); /**< \brief Required Prototype of Child Task Main Functions */
-typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(CFE_ES_ResourceID_t LibId); /**< \brief Required Prototype of Library Initialization Functions */
+typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(CFE_ES_LibId_t LibId); /**< \brief Required Prototype of Library Initialization Functions */
 
 /**
  * @brief Type for the stack pointer of tasks.
@@ -212,7 +238,7 @@ typedef void* CFE_ES_MemPoolBuf_t;
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
-CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx);
+CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx);
 
 /**
  * @brief Obtain an index value correlating to an ES Library ID
@@ -237,7 +263,7 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_ResourceID_t AppID, uint32 *Idx);
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
-int32 CFE_ES_LibID_ToIndex(CFE_ES_ResourceID_t LibID, uint32 *Idx);
+int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibID, uint32 *Idx);
 
 /**
  * @brief Obtain an index value correlating to an ES Task ID
@@ -262,7 +288,7 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_ResourceID_t LibID, uint32 *Idx);
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
-CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx);
+CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx);
 
 /**
  * @brief Obtain an index value correlating to an ES Counter ID
@@ -287,7 +313,7 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_ResourceID_t TaskID, uint32 *Idx);
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
-CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_ResourceID_t CounterID, uint32 *Idx);
+CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterID, uint32 *Idx);
 
 /** @} */
 
@@ -384,7 +410,7 @@ CFE_Status_t  CFE_ES_ResetCFE(uint32 ResetType);
 ** \sa #CFE_ES_ReloadApp, #CFE_ES_DeleteApp
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_RestartApp(CFE_ES_ResourceID_t AppID);
+CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID);
 
 /*****************************************************************************/
 /**
@@ -417,7 +443,7 @@ CFE_Status_t CFE_ES_RestartApp(CFE_ES_ResourceID_t AppID);
 ** \sa #CFE_ES_RestartApp, #CFE_ES_DeleteApp, #CFE_ES_START_APP_CC
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_ReloadApp(CFE_ES_ResourceID_t AppID, const char *AppFileName);
+CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName);
 
 /*****************************************************************************/
 /**
@@ -436,7 +462,7 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_ResourceID_t AppID, const char *AppFileName
 ** \sa #CFE_ES_RestartApp, #CFE_ES_ReloadApp
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_DeleteApp(CFE_ES_ResourceID_t AppID);
+CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID);
 /**@}*/
 
 /** @defgroup CFEAPIESAppBehavior cFE Application Behavior APIs
@@ -646,7 +672,7 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr);
 ** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName, #CFE_ES_GetTaskInfo
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetAppID(CFE_ES_ResourceID_t *AppIdPtr);
+CFE_Status_t CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr);
 
 /*****************************************************************************/
 /**
@@ -669,7 +695,7 @@ CFE_Status_t CFE_ES_GetAppID(CFE_ES_ResourceID_t *AppIdPtr);
 ** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr);
+CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr);
 
 /*****************************************************************************/
 /**
@@ -694,7 +720,7 @@ CFE_Status_t CFE_ES_GetTaskID(CFE_ES_ResourceID_t *TaskIdPtr);
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppName, #CFE_ES_GetAppInfo
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *AppName);
+CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName);
 
 /*****************************************************************************/
 /**
@@ -719,7 +745,7 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_ResourceID_t *AppIdPtr, const char *Ap
 ** \sa #CFE_ES_GetLibName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_ResourceID_t *LibIdPtr, const char *LibName);
+CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName);
 
 /*****************************************************************************/
 /**
@@ -749,7 +775,7 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_ResourceID_t *LibIdPtr, const char *Li
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppInfo
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, size_t BufferLength);
+CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t BufferLength);
 
 /*****************************************************************************/
 /**
@@ -779,7 +805,7 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_ResourceID_t AppId, size_t 
 ** \sa #CFE_ES_GetLibIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, size_t BufferLength);
+CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t BufferLength);
 
 /*****************************************************************************/
 /**
@@ -806,7 +832,7 @@ CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_ResourceID_t LibId, size_t 
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t AppId);
+CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId);
 
 /*****************************************************************************/
 /**
@@ -835,7 +861,7 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_ResourceID_t Ap
 ** \sa #CFE_ES_GetTaskID, #CFE_ES_GetTaskIDByName, #CFE_ES_GetTaskName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_ResourceID_t TaskId);
+CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId);
 
 /*****************************************************************************/
 /**
@@ -868,7 +894,7 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_ResourceID_t
 ** \sa #CFE_ES_GetLibIDByName, #CFE_ES_GetLibName
 **
 ******************************************************************************/
-int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId);
+int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId);
 
 /*****************************************************************************/
 /**
@@ -902,7 +928,7 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_ResourceID_t LibId);
 ** \sa #CFE_ES_GetLibInfo, #CFE_ES_GetAppInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ES_ResourceID_t ResourceId);
+int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t ResourceId);
 
 /**@}*/
 
@@ -969,7 +995,7 @@ CFE_Status_t  CFE_ES_RegisterChildTask(void);
 ** \sa #CFE_ES_RegisterChildTask, #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
-CFE_Status_t  CFE_ES_CreateChildTask(CFE_ES_ResourceID_t             *TaskIdPtr,
+CFE_Status_t  CFE_ES_CreateChildTask(CFE_ES_TaskId_t                 *TaskIdPtr,
                                      const char                      *TaskName,
                                      CFE_ES_ChildTaskMainFuncPtr_t    FunctionPtr,
                                      CFE_ES_StackPointer_t            StackPtr,
@@ -1000,7 +1026,7 @@ CFE_Status_t  CFE_ES_CreateChildTask(CFE_ES_ResourceID_t             *TaskIdPtr,
 ** \sa #CFE_ES_GetTaskName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_ResourceID_t *TaskIdPtr, const char *TaskName);
+CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName);
 
 /*****************************************************************************/
 /**
@@ -1030,7 +1056,7 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_ResourceID_t *TaskIdPtr, const char *
 ** \sa #CFE_ES_GetTaskIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, size_t BufferLength);
+CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t BufferLength);
 
 /*****************************************************************************/
 /**
@@ -1052,7 +1078,7 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_ResourceID_t TaskId, size
 ** \sa #CFE_ES_RegisterChildTask, #CFE_ES_CreateChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_ResourceID_t TaskId);
+CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId);
 
 /*****************************************************************************/
 /**
@@ -1212,7 +1238,7 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, size_t BlockSize,
 ** \sa #CFE_ES_GetCDSBlockName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_ResourceID_t *BlockIdPtr, const char *BlockName);
+CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_CDSHandle_t *BlockIdPtr, const char *BlockName);
 
 /*****************************************************************************/
 /**
@@ -1242,7 +1268,7 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_ResourceID_t *BlockIdPtr, const c
 ** \sa #CFE_ES_GetCDSBlockIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_ResourceID_t BlockId, size_t BufferLength);
+CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId, size_t BufferLength);
 
 
 /*****************************************************************************/
@@ -1619,7 +1645,7 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit);
 ** \sa #CFE_ES_IncrementGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const char *CounterName);
+CFE_Status_t CFE_ES_RegisterGenCounter(CFE_ES_CounterId_t *CounterIdPtr, const char *CounterName);
 
 /*****************************************************************************/
 /**
@@ -1640,7 +1666,7 @@ CFE_Status_t CFE_ES_RegisterGenCounter(CFE_ES_ResourceID_t *CounterIdPtr, const 
 ** \sa #CFE_ES_IncrementGenCounter, #CFE_ES_RegisterGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_DeleteGenCounter(CFE_ES_ResourceID_t CounterId);
+CFE_Status_t CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId);
 
 /*****************************************************************************/
 /**
@@ -1661,7 +1687,7 @@ CFE_Status_t CFE_ES_DeleteGenCounter(CFE_ES_ResourceID_t CounterId);
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_ResourceID_t CounterId);
+CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId);
 
 /*****************************************************************************/
 /**
@@ -1684,7 +1710,7 @@ CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_ResourceID_t CounterId);
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_IncrementGenCounter, #CFE_ES_GetGenCount, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_SetGenCount(CFE_ES_ResourceID_t CounterId, uint32 Count);
+CFE_Status_t CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count);
 
 /*****************************************************************************/
 /**
@@ -1707,7 +1733,7 @@ CFE_Status_t CFE_ES_SetGenCount(CFE_ES_ResourceID_t CounterId, uint32 Count);
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_IncrementGenCounter, #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetGenCount(CFE_ES_ResourceID_t CounterId, uint32 *Count);
+CFE_Status_t CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count);
 
 
 /*****************************************************************************/
@@ -1731,7 +1757,7 @@ CFE_Status_t CFE_ES_GetGenCount(CFE_ES_ResourceID_t CounterId, uint32 *Count);
 ** \sa #CFE_ES_GetGenCounterName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_ResourceID_t *CounterIdPtr, const char *CounterName);
+CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, const char *CounterName);
 
 /*****************************************************************************/
 /**
@@ -1761,7 +1787,7 @@ CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_ResourceID_t *CounterIdPtr, con
 ** \sa #CFE_ES_GetGenCounterIDByName
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_ResourceID_t CounterId, size_t BufferLength);
+CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_CounterId_t CounterId, size_t BufferLength);
 
 /**@}*/
 

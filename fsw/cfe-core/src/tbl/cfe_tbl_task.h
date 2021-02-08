@@ -165,7 +165,7 @@ typedef struct
 */
 typedef struct 
 {
-    CFE_ES_ResourceID_t   AppId;            /**< \brief Application ID to verify access */
+    CFE_ES_AppId_t        AppId;            /**< \brief Application ID to verify access */
     int16                 RegIndex;         /**< \brief Index into Table Registry (a.k.a. - Global Table #) */
     CFE_TBL_Handle_t      PrevLink;         /**< \brief Index of previous access descriptor in linked list */
     CFE_TBL_Handle_t      NextLink;         /**< \brief Index of next access descriptor in linked list */
@@ -184,7 +184,7 @@ typedef struct
 */
 typedef struct 
 {
-    CFE_ES_ResourceID_t         OwnerAppId;         /**< \brief Application ID of App that Registered Table */
+    CFE_ES_AppId_t              OwnerAppId;         /**< \brief Application ID of App that Registered Table */
     size_t                      Size;               /**< \brief Size, in bytes, of Table */
     CFE_SB_MsgId_t              NotificationMsgId;  /**< \brief Message ID of an associated management notification message */
     uint32                      NotificationParam;  /**< \brief Parameter of an associated management notification message */
@@ -313,7 +313,7 @@ typedef struct
   /*
   ** Task initialization data (not reported in housekeeping)...
   */
-  CFE_ES_ResourceID_t    TableTaskAppId;                  /**< \brief Contains Table Task Application ID as assigned by OS AL */
+  CFE_ES_AppId_t         TableTaskAppId;                  /**< \brief Contains Table Task Application ID as assigned by OS AL */
 
   int16                  HkTlmTblRegIndex;                /**< \brief Index of table registry entry to be telemetered with Housekeeping */
   uint16                 ValidationCounter;

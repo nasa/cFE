@@ -43,7 +43,6 @@
 #include "cfe_mission_cfg.h"
 #include "ccsds.h"
 #include "cfe_time.h"
-#include "cfe_resourceid.h"
 
 
 /*
@@ -124,11 +123,17 @@
 #define CFE_TST(i,x) (((i) & CFE_BIT(x)) != 0)/**< \brief true(non zero) if bit x of i is set */
 
 /** 
+ * \brief Cast/Convert a generic CFE_ResourceId_t to a CFE_SB_PipeId_t
+ */ 
+#define CFE_SB_PIPEID_C(val)             ((CFE_SB_PipeId_t)CFE_RESOURCEID_WRAP(val))
+
+
+/** 
  * \brief  A CFE_SB_PipeId_t value which is always invalid
  * 
  * This may be used as a safe initializer for CFE_SB_PipeId_t values
  */
-#define CFE_SB_INVALID_PIPE  CFE_ES_RESOURCEID_UNDEFINED
+#define CFE_SB_INVALID_PIPE  CFE_SB_PIPEID_C(CFE_RESOURCEID_UNDEFINED)
 
 /*
 ** Pipe option bit fields.
@@ -159,12 +164,6 @@ typedef CFE_MSG_TelemetryHeader_t CFE_SB_TlmHdr_t;
 #define CFE_SB_CMD_HDR_SIZE     (sizeof(CFE_MSG_CommandHeader_t))/**< \brief Size of command header */
 #define CFE_SB_TLM_HDR_SIZE     (sizeof(CFE_MSG_TelemetryHeader_t))/**< \brief Size of telemetry header */
 #endif /* CFE_OMIT_DEPRECATED_6_8 */
-
-/** \brief  CFE_SB_PipeId_t to primitive type definition
-**
-** Software Bus pipe identifier used in many SB APIs
-*/
-typedef CFE_ES_ResourceID_t  CFE_SB_PipeId_t;
 
 #ifndef CFE_OMIT_DEPRECATED_6_8
 /** \brief  Pointer to an SB Message */

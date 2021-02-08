@@ -317,7 +317,7 @@ int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCo
 **        This function does not return a value.
 **
 ******************************************************************************/
-void UT_SetAppID(CFE_ES_ResourceID_t AppID_in);
+void UT_SetAppID(CFE_ES_AppId_t AppID_in);
 
 /*****************************************************************************/
 /**
