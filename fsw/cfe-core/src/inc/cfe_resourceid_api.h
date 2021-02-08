@@ -203,8 +203,7 @@ static inline bool CFE_ResourceId_IsDefined(CFE_ResourceId_t id)
  * This masks out the ID serial number to obtain the base value, which is different
  * for each resource type.
  * 
- * @note The value is NOT shifted or otherwise adjusted.  It should match one of the
- * defined base values in @ref CFEESResourceIDBase.
+ * @note The value is NOT shifted or otherwise adjusted.
  *
  * @param[in]   ResourceId   the resource ID to decode
  * @returns     The base value associated with that ID
