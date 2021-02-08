@@ -3008,7 +3008,7 @@ void Test_TransmitMsg_MsgLimitExceeded(void)
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "MsgLimTestPipe"));
 
     /* Set maximum allowed messages on the pipe at one time to 1 */
-    CFE_SB_SubscribeEx(MsgId, PipeId, CFE_SB_Default_Qos, 1);
+    CFE_SB_SubscribeEx(MsgId, PipeId, CFE_SB_DEFAULT_QOS, 1);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
@@ -3904,7 +3904,6 @@ void Test_CFE_SB_BadPipeInfo(void)
     CFE_SB_PipeId_t PipeId;
     CFE_SB_PipeD_t  *PipeDscPtr;
     uint16          PipeDepth = 10;
-    CFE_SB_Qos_t    CFE_SB_Default_Qos;
     CFE_ES_ResourceID_t AppID;
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe1"));
@@ -3920,7 +3919,7 @@ void Test_CFE_SB_BadPipeInfo(void)
     /* Reset the pipe ID and delete the pipe */
     PipeDscPtr->PipeId = PipeId;
 
-    ASSERT_EQ(CFE_SB_SubscribeFull(SB_UT_FIRST_VALID_MID , PipeId, CFE_SB_Default_Qos,
+    ASSERT_EQ(CFE_SB_SubscribeFull(SB_UT_FIRST_VALID_MID , PipeId, CFE_SB_DEFAULT_QOS,
                                   CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, 2), CFE_SB_BAD_ARGUMENT);
 
     EVTCNT(4);
@@ -4024,7 +4023,7 @@ void Test_SB_TransmitMsgPaths_LimitErr(void)
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "MsgLimTestPipe"));
 
     /* Set maximum allowed messages on the pipe at one time to 1 */
-    SETUP(CFE_SB_SubscribeEx(MsgId, PipeId, CFE_SB_Default_Qos, 1));
+    SETUP(CFE_SB_SubscribeEx(MsgId, PipeId, CFE_SB_DEFAULT_QOS, 1));
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);

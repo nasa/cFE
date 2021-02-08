@@ -190,8 +190,10 @@ typedef  struct {
     uint8 Reliability;/**< \brief  Specify high(1) or low(0) message transfer reliability for off-board routing, currently unused */
 }CFE_SB_Qos_t;
 
-extern CFE_SB_Qos_t CFE_SB_Default_Qos;/**< \brief  Defines a default priority and reliabilty for off-board routing */
-
+#define CFE_SB_DEFAULT_QOS ((CFE_SB_Qos_t) {0}) /**< \brief Default Qos macro */
+#ifndef CFE_OMIT_DEPRECATED_6_8
+#define CFE_SB_Default_Qos CFE_SB_DEFAULT_QOS   /**< \deprecated use CFE_SB_DEFAULT_QOS */
+#endif
 
 /****************** Function Prototypes **********************/
 
@@ -397,7 +399,7 @@ CFE_Status_t  CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *Pip
 **                          should be sent to.
 **
 ** \param[in]  Quality      The requested Quality of Service (QoS) required of
-**                          the messages. Most callers will use #CFE_SB_Default_Qos
+**                          the messages. Most callers will use #CFE_SB_DEFAULT_QOS
 **                          for this parameter.
 **
 ** \param[in]  MsgLim       The maximum number of messages with this Message ID to
@@ -421,7 +423,7 @@ CFE_Status_t  CFE_SB_SubscribeEx(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, C
 ** \par Description
 **          This routine adds the specified pipe to the destination list for
 **          the specified message ID.  This is the same as #CFE_SB_SubscribeEx
-**          with the Quality field set to #CFE_SB_Default_Qos and MsgLim set
+**          with the Quality field set to #CFE_SB_DEFAULT_QOS and MsgLim set
 **          to #CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT (4).
 **
 ** \par Assumptions, External Events, and Notes:
@@ -456,7 +458,7 @@ CFE_Status_t CFE_SB_Subscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 ** \par Description
 **          This routine adds the specified pipe to the destination list for
 **          the specified message ID.  This is similar to #CFE_SB_SubscribeEx
-**          with the Quality field set to #CFE_SB_Default_Qos and MsgLim set
+**          with the Quality field set to #CFE_SB_DEFAULT_QOS and MsgLim set
 **          to #CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, but will not report the subscription.
 **          Subscription Reporting is enabled for interprocessor communication
 **          by way of the Software Bus Network (SBN) Application.

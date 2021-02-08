@@ -90,9 +90,6 @@ int32 CFE_SB_EarlyInit (void) {
     /* ensure entire CFE_SB global data structure is purged first */
     memset(&CFE_SB, 0, sizeof(CFE_SB));
 
-    CFE_SB_Default_Qos.Priority    = CFE_SB_QOS_LOW_PRIORITY;
-    CFE_SB_Default_Qos.Reliability = CFE_SB_QOS_LOW_RELIABILITY;
-
     Stat = OS_MutSemCreate(&CFE_SB.SharedDataMutexId, "CFE_SB_DataMutex", 0);
     if(Stat != OS_SUCCESS){
       CFE_ES_WriteToSysLog("SB shared data mutex creation failed! RC=0x%08x\n",(unsigned int)Stat);
