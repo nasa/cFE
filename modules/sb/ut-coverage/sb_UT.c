@@ -529,6 +529,15 @@ void Test_SB_Cmds_RoutingInfoDef(void)
 
     EVTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
+    /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    CFE_SB_ProcessCmdPipePkt(&WriteRoutingInfo.SBBuf);
+
+    EVTSENT(CFE_SB_SND_RTG_ERR1_EID);
+
     TEARDOWN(CFE_SB_DeletePipe(CFE_SB_Global.CmdPipe));
 
 } /* end Test_SB_Cmds_RoutingInfoDef */
@@ -643,6 +652,14 @@ void Test_SB_Cmds_PipeInfoDef(void)
     EVTCNT(3);
 
     EVTSENT(CFE_SB_PIPE_ADDED_EID);
+
+    /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    CFE_SB_ProcessCmdPipePkt(&WritePipeInfo.SBBuf);
+    EVTSENT(CFE_SB_SND_RTG_ERR1_EID);
 
     TEARDOWN(CFE_SB_DeletePipe(PipeId1));
     TEARDOWN(CFE_SB_DeletePipe(PipeId2));
@@ -846,6 +863,14 @@ void Test_SB_Cmds_MapInfoDef(void)
     EVTSENT(CFE_SB_PIPE_ADDED_EID);
 
     EVTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
+
+    /* Also test with a bad file name - should generate CFE_SB_SND_RTG_ERR1_EID */
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &FcnCode, sizeof(FcnCode), false);
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    CFE_SB_ProcessCmdPipePkt(&WriteMapInfo.SBBuf);
+    EVTSENT(CFE_SB_SND_RTG_ERR1_EID);
 
     TEARDOWN(CFE_SB_DeletePipe(PipeId1));
     TEARDOWN(CFE_SB_DeletePipe(PipeId2));
