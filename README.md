@@ -10,6 +10,34 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev348
+
+- Corrects reference to PSP header file location. Build now succesfully completes the build succeeds again when using `add_psp_module()` in custom CMakeLists file.
+- Replace "send" with "write" in names for commands that write files. For example, `CFE_SB_**SEND**_ROUTING_INFO_CC` is now `CFE_SB_**WRITE**_ROUTING_INFO_CC`. Updates function names, command code names and comments.
+- Removes incorrectly implemented deferred return code of `-1` for `CFE_SB_ReceiveBuffer` from software bus setup in `UT_InitData`.
+- Implements more informative **assert messages** by making `SETUP, TEARDOWN, ASSERT` print `0x%lx` while `ASSERT_EQ` now prints both `%lf` and `0x%lx` format for the inputs
+- Updates continuous-integration badges in `ReadMe.md`. The badges now reflect the success status of different runs.
+- Remove `Test_SB_Cmds_SubRptUnexpCmdCode` which was a duplicate of `Test_SB_Cmds_CmdUnexpCmdCode` and did not implement any new tests.
+- Initializes status in `CFE_ES_WaitForSystemState` and adds missing success test case so the function doesn't return an uninitialized `Status`.
+- Removes the `HkPacket` and `TblRegPacket` message initializations from `CFE_TBL_EarlyInit` since they are initialized in `CFE_TBL_InitData`. Moves the `NotifyMsg` message initialization to `CFE_TBL_InitData` and sets the message ID each time it's sent from `CFE_TBL_SendNotificationMsg`. Possibly results in small performance improvement since the message isn't initialized every call.
+- Removes unimplemented `CFE_ES_AppGetList` and `CFE_ES_AppDumpAllInfo` prototypes.
+- Adds a 15-minute timeout to continuous integration workflows to prevent excess resource utilization.
+- Makes debug subscription events only print the Pipe ID, not a name, in the debug events.
+- Updates the documentation and verification for `CFE_PLATFORM_SB_HIGHEST_VALID_MSGID` to allows the full range of values.
+- Clarifies the difference between "restart" and "reload" in API/cmd and user's guide documentation for `CFE_ES_RESTART_APP_CC`.
+- Switches throttle indexes to use `CFE_SB_RouteId_Atom_t` and combines helper function given that msgid was removed due to being a resource hog. Resolves static analysis warning.
+- `CFE_ES_RestartApp` now checks for file existence as part of command processing and does not remove the app if the file doesn't exist (just avoids one error case). it also rejects the command and increments command error counter if file is missing.
+- Removes `CFE_PLATFORM_SB_MAX_PIPE_DEPTH` in favor of `OS_QUEUE_MAX_DEPTH`. This depth parameter in command is now checked prior to attempting OSAL call.
+- Filters pointer now `const` in API and reports truncation when registering filters with `CFE_EVS_Register`.
+- Removes the ability to disable the log by not defining `CFE_PLATFORM_EVS_LOG_ON` so users are no longer able to disable log completely. For minimum memory use define `CFE_PLATFORM_EVS_LOG_MAX = 1`. Note: This could remove control based on LogEnabled, panic on reset area fail and limp along if "sem create" fails.
+- Removes the remnants of the table service exclusion logic and documentation: `EXCLUDE_CFE_TBL` no longer available, even if defined, table services will still start.
+- Set ES and EVS pipe message limit to defaults as opposed to the custom, unjustified, `CFE_SB_SubscribeEx`. This change might queue additional HK messages, but SCH loads after ES anyways.
+- Replaces `CFE_SB_Default_Qos` with `CFE_SB_DEFAULT_QOS` macro that avoids global variable exposure. Removes SB-internal defines that are not implemented nor used.
+- Explicity `memset` the task data to zero at the start of EarlyInit. Standardize the global typdef/variable names.
+- Moves all functions, macros, types, and other definitions related to resource IDs and generic resource management into a separate module, like `CFE MSG`, `SBR`, etc. This allows a mission to elect "strict" implementations of these objects, where every ID type is unique, and assigning between them or `uint32` results in a compiler error. **API now has separate types for each resource type (Apps, Tasks, Libs, Counters, etc).** The user can elect at the mission level whether this is a simple typedef (all uint32, all interchangeable) or a wrapper type (separate/strict type, cannot be interchanged). The former is backward compatible but the latter is not - must use proper types.
+- Adds Code QL analysis to continuous integration workflow.
+- See <https://github.com/nasa/cFE/pull/1150>
+
 ### Development Build: 6.8.0-rc1+dev290
 
 - Documentation: Add Security.md with instructions to report vulnerability
