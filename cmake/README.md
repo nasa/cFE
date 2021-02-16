@@ -4,50 +4,21 @@ HOW TO BUILD USING CMAKE SCRIPTS
 
 This README file only covers the very basics of how to build a CFS mission
 using the CMake build scripts.  For a more in-depth guide and specific
-examples, see Appendix A of the cFS Deployment Guide.
+examples, see [OpenSatKit](https://github.com/OpenSatKit/OpenSatKit)
+and [CFS-101](https://github.com/nasa/CFS-101)
 
-Special Notes for the CFE 6.5.0 Open Source Release
+Quick Start+
 ---------------------------------------------------
 
-Quick instructions for doing a CMake based build:
+The cFS Bundle documents quick set-up, build, and run:
 
-* Get into the directory containing psp, cfe, tools, and apps.
+* [Setup](https://github.com/nasa/cFS#setup)
 
-* Get a proper copy of OSAL per instructions in osal/readme.txt
+* [Build and Run](https://github.com/nasa/cFS#build-and-run)
 
-* Delete any existing "build" tree (or rename it away).
+* [Send commands and Receive Telemetry](https://github.com/nasa/cFS#send-commands-receive-telemetry)
 
-* Copy the sample CMake configuration into the top:
-
-	cp cfe/cmake/Makefile.sample Makefile
-	cp -r cfe/cmake/sample\_defs sample\_defs
-
-The files in "sample\_defs" will need to be adjusted to meet the
-needs of your mission, but the sample values provided are sufficient
-for an initial build.
-
-* optional step: ask CMake to generate Makefiles, then stop:
-
-	make prep
-
-   This step is optional as it will automatically be done by
-   subsequent steps. It may be usful
-
-* optional step: compile programs for the target, then stop:
-
-	make
-
-   This prepares all objects for the target, but but will not copy
-   them into place in the final installation location. This step is
-   optional as it will automatically be done by the next step.
-
-* normal "all in one" command: build and prepare for deployment:
-
-	make install
-
-   Running this command at the top level of the tree will do all the
-   necessary steps to constuct the installation images as
-   subtrees found in:
+* After install, the following directories will be populated:
 
    * ``build/exe/host`` contains programs to be deployed to the ground
      station (or ground-station like machine).
@@ -66,7 +37,6 @@ compile source code using these libraries.
 
 * gcc, make, libc-dev, etc. - Standard prerequisites for any build environment.
 * cmake - The build system uses this.  Any recent version should work.
-* libexpat (XML parser) - Any recent version should work.
 * git - Required if you want to access the official CFS distribution directly
 from the CFS community source repositories.
 

@@ -1370,8 +1370,7 @@
 **       CFE_PLATFORM_ES_MAX_BLOCK_SIZE must be larger than CFE_MISSION_SB_MAX_SB_MSG_SIZE and both
 **       CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE and CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE.  Note that if Table
 **       Services have been removed from the CFE, the table size limits are still
-**       enforced although the table size definitions may be reduced.  Refer to the CFS
-**       Deployment Guide for information about removing CFE Table Services from the CFE.
+**       enforced although the table size definitions may be reduced.
 */
 #define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01              8
 #define CFE_PLATFORM_ES_MEM_BLOCK_SIZE_02             16
