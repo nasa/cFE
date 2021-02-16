@@ -178,8 +178,7 @@
   \ref cfeesugsyslogsrv. The \ref cfeesugsyslogsrv 
   may also contain positive acknowledge messages regarding the startup script processing.
 
-  Refer to the CFS Deployment Guide for more 
-  information regarding the startup script. The startup script delivered with the 
+  The startup script delivered with the 
   cFE (<tt>cfe_es_startup.scr</tt>) also has some detailed information about the fields 
   and the settings.
     
@@ -299,9 +298,7 @@
   startup script contains a list of applications and library 
   routines to load and start immediately after the cFE finishes 
   its startup sequence. The parameters in the command, match the 
-  elements of an entry in the startup script. See the cFE Deployment 
-  Guide for more information about starting applications by way of 
-  the startup script. 
+  elements of an entry in the startup script.
 
   The format of the Start Application command, is defined in the 
   structure #CFE_ES_StartAppCmd_t. The members of the structure
