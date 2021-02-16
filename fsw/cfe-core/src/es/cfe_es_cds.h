@@ -115,7 +115,7 @@ typedef struct
      * which has a CRC, and therefore the actual user data size is
      * less than this.
      */
-    CFE_ES_ResourceID_t       BlockID;      /**< Abstract ID associated with this CDS block */
+    CFE_ES_CDSHandle_t        BlockID;      /**< Abstract ID associated with this CDS block */
     size_t                    BlockOffset;  /**< Start offset of the block in CDS memory */
     size_t                    BlockSize;    /**< Size, in bytes, of the CDS memory block */
     char                      Name[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
@@ -173,7 +173,7 @@ typedef struct
     osal_id_t            GenMutex;                           /**< \brief Mutex that controls access to CDS and registry */
     size_t               TotalSize;                          /**< \brief Total size of the CDS as reported by BSP */
     size_t               DataSize;                           /**< \brief Size of actual user data pool */
-    CFE_ES_ResourceID_t  LastCDSBlockId;                     /**< \brief Last issued CDS block ID */
+    CFE_ResourceId_t     LastCDSBlockId;                     /**< \brief Last issued CDS block ID */
     CFE_ES_CDS_RegRec_t  Registry[CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES];  /**< \brief CDS Registry (Local Copy) */
 } CFE_ES_CDS_Instance_t;
 
@@ -280,7 +280,7 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
  * @returns    #CFE_SUCCESS if conversion successful. @copydoc CFE_SUCCESS
  *             #CFE_ES_ERR_RESOURCEID_NOT_VALID if block ID is outside valid range
  */
-int32 CFE_ES_CDSBlockID_ToIndex(CFE_ES_ResourceID_t BlockID, uint32 *Idx);
+int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx);
 
 /**
  * @brief Get a registry record within the CDS, given a block ID/handle
@@ -295,7 +295,7 @@ int32 CFE_ES_CDSBlockID_ToIndex(CFE_ES_ResourceID_t BlockID, uint32 *Idx);
  * @param[in] BlockID the ID/handle of the CDS block to retrieve
  * @returns   Pointer to registry record, or NULL if ID/handle invalid.
  */
-CFE_ES_CDS_RegRec_t* CFE_ES_LocateCDSBlockRecordByID(CFE_ES_ResourceID_t BlockID);
+CFE_ES_CDS_RegRec_t* CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID);
 
 /**
  * @brief Check if a Memory Pool record is in use or free/empty
@@ -310,7 +310,7 @@ CFE_ES_CDS_RegRec_t* CFE_ES_LocateCDSBlockRecordByID(CFE_ES_ResourceID_t BlockID
  */
 static inline bool CFE_ES_CDSBlockRecordIsUsed(const CFE_ES_CDS_RegRec_t *CDSBlockRecPtr)
 {
-    return CFE_ES_ResourceID_IsDefined(CDSBlockRecPtr->BlockID);
+    return CFE_RESOURCEID_TEST_DEFINED(CDSBlockRecPtr->BlockID);
 }
 
 /**
@@ -321,7 +321,7 @@ static inline bool CFE_ES_CDSBlockRecordIsUsed(const CFE_ES_CDS_RegRec_t *CDSBlo
  * @param[in]   CDSBlockRecPtr   pointer to Pool table entry
  * @returns BlockID of entry
  */
-static inline CFE_ES_ResourceID_t CFE_ES_CDSBlockRecordGetID(const CFE_ES_CDS_RegRec_t *CDSBlockRecPtr)
+static inline CFE_ES_CDSHandle_t CFE_ES_CDSBlockRecordGetID(const CFE_ES_CDS_RegRec_t *CDSBlockRecPtr)
 {
     return (CDSBlockRecPtr->BlockID);
 }
@@ -333,11 +333,11 @@ static inline CFE_ES_ResourceID_t CFE_ES_CDSBlockRecordGetID(const CFE_ES_CDS_Re
  * it as being associated with the given Pool ID.
  *
  * @param[in]   CDSBlockRecPtr   pointer to Pool table entry
- * @param[in]   BlockID       the Pool ID of this entry
+ * @param[in]   PendingId        the Pool ID of this entry
  */
-static inline void CFE_ES_CDSBlockRecordSetUsed(CFE_ES_CDS_RegRec_t *CDSBlockRecPtr, CFE_ES_ResourceID_t BlockID)
+static inline void CFE_ES_CDSBlockRecordSetUsed(CFE_ES_CDS_RegRec_t *CDSBlockRecPtr, CFE_ResourceId_t PendingId)
 {
-    CDSBlockRecPtr->BlockID = BlockID;
+    CDSBlockRecPtr->BlockID = CFE_ES_CDSHANDLE_C(PendingId);
 }
 
 /**
@@ -350,7 +350,7 @@ static inline void CFE_ES_CDSBlockRecordSetUsed(CFE_ES_CDS_RegRec_t *CDSBlockRec
  */
 static inline void CFE_ES_CDSBlockRecordSetFree(CFE_ES_CDS_RegRec_t *CDSBlockRecPtr)
 {
-    CDSBlockRecPtr->BlockID = CFE_ES_RESOURCEID_UNDEFINED;
+    CDSBlockRecPtr->BlockID = CFE_ES_CDS_BAD_HANDLE;
 }
 
 /**
@@ -366,9 +366,9 @@ static inline void CFE_ES_CDSBlockRecordSetFree(CFE_ES_CDS_RegRec_t *CDSBlockRec
  * @param[in]   BlockID          expected block ID
  * @returns true if the entry matches the given block ID
  */
-static inline bool CFE_ES_CDSBlockRecordIsMatch(const CFE_ES_CDS_RegRec_t *CDSBlockRecPtr, CFE_ES_ResourceID_t BlockID)
+static inline bool CFE_ES_CDSBlockRecordIsMatch(const CFE_ES_CDS_RegRec_t *CDSBlockRecPtr, CFE_ES_CDSHandle_t BlockID)
 {
-    return (CDSBlockRecPtr != NULL && CFE_ES_ResourceID_Equal(CDSBlockRecPtr->BlockID, BlockID));
+    return (CDSBlockRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(CDSBlockRecPtr->BlockID, BlockID));
 }
 
 /**
@@ -396,7 +396,7 @@ static inline size_t CFE_ES_CDSBlockRecordGetUserSize(const CFE_ES_CDS_RegRec_t 
  *
  * Checks if a table slot is available for a potential new ID
  * This is a helper function intended to be used with 
- * CFE_ES_FindNextAvailableID() for allocating new IDs
+ * CFE_ResourceId_FindNext() for allocating new IDs
  * 
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
@@ -404,7 +404,7 @@ static inline size_t CFE_ES_CDSBlockRecordGetUserSize(const CFE_ES_CDS_RegRec_t 
  * @param[in]   CheckId       pending/candidate Block ID to check
  * @returns true if the table slot for the ID is occupied, false if available
  */
-bool CFE_ES_CheckCDSBlockIdSlotUsed(CFE_ES_ResourceID_t CheckId);
+bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId);
 
 /*****************************************************************************/
 /**
@@ -509,7 +509,7 @@ int32 CFE_ES_UpdateCDSRegistry(void);
 ** \par Assumptions, External Events, and Notes:
 **        Note: AppName portion will be truncated to OS_MAX_API_NAME.
 **
-** \param[in, out]  FullCDSName pointer to character buffer of #CFE_ES_CDS_MAX_FULL_NAME_LEN size
+** \param[in, out]  FullCDSName pointer to character buffer of #CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN size
 **                         that will be filled with the processor specific CDS Name. *FullCDSName is the processor specific CDS Name of the form "AppName.CDSName".
 ** 
 ** \param[in]  CDSName pointer to character string containing the Application's local name for
@@ -519,7 +519,7 @@ int32 CFE_ES_UpdateCDSRegistry(void);
 **
 **
 ******************************************************************************/
-void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_ResourceID_t ThisAppId);
+void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t ThisAppId);
 
 /*****************************************************************************/
 /**

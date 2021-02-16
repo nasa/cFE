@@ -200,42 +200,42 @@ uint16 CFE_TIME_GetClockInfo(void)
     /*
     ** Clock source set to "internal"...
     */
-    if (CFE_TIME_TaskData.ClockSource == CFE_TIME_SourceSelect_INTERNAL)
+    if (CFE_TIME_Global.ClockSource == CFE_TIME_SourceSelect_INTERNAL)
     {
         StateFlags |= CFE_TIME_FLAG_SRCINT;
     }
     /*
     ** Clock signal set to "primary"...
     */
-    if (CFE_TIME_TaskData.ClockSignal == CFE_TIME_ToneSignalSelect_PRIMARY)
+    if (CFE_TIME_Global.ClockSignal == CFE_TIME_ToneSignalSelect_PRIMARY)
     {
         StateFlags |= CFE_TIME_FLAG_SIGPRI;
     }
     /*
     ** Time Server is in FLYWHEEL mode...
     */
-    if (CFE_TIME_TaskData.ServerFlyState == CFE_TIME_FlywheelState_IS_FLY)
+    if (CFE_TIME_Global.ServerFlyState == CFE_TIME_FlywheelState_IS_FLY)
     {
         StateFlags |= CFE_TIME_FLAG_SRVFLY;
     }
     /*
     ** This instance of Time Services commanded into FLYWHEEL...
     */
-    if (CFE_TIME_TaskData.Forced2Fly)
+    if (CFE_TIME_Global.Forced2Fly)
     {
         StateFlags |= CFE_TIME_FLAG_CMDFLY;
     }
     /*
     ** One time STCF adjustment direction...
     */
-    if (CFE_TIME_TaskData.OneTimeDirection == CFE_TIME_AdjustDirection_ADD)
+    if (CFE_TIME_Global.OneTimeDirection == CFE_TIME_AdjustDirection_ADD)
     {
         StateFlags |= CFE_TIME_FLAG_ADDADJ;
     }
     /*
     ** 1 Hz STCF adjustment direction...
     */
-    if (CFE_TIME_TaskData.OneHzDirection == CFE_TIME_AdjustDirection_ADD)
+    if (CFE_TIME_Global.OneHzDirection == CFE_TIME_AdjustDirection_ADD)
     {
         StateFlags |= CFE_TIME_FLAG_ADD1HZ;
     }
@@ -256,7 +256,7 @@ uint16 CFE_TIME_GetClockInfo(void)
     /* 
     ** The tone is good 
     */
-    if (CFE_TIME_TaskData.IsToneGood == true)
+    if (CFE_TIME_Global.IsToneGood == true)
     {
         StateFlags |= CFE_TIME_FLAG_GDTONE;
     }   
@@ -690,7 +690,7 @@ void CFE_TIME_ExternalTone(void)
 int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)   
 {
     int32  Status;
-    CFE_ES_ResourceID_t AppId;
+    CFE_ES_AppId_t AppId;
     uint32 AppIndex;
 
     Status = CFE_ES_GetAppID(&AppId);
@@ -701,14 +701,14 @@ int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPt
         if (Status == CFE_SUCCESS)
         {
 
-            if (AppIndex >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
-                CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr != NULL)
+            if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])) ||
+                CFE_TIME_Global.SynchCallback[AppIndex].Ptr != NULL)
             {
                 Status = CFE_TIME_TOO_MANY_SYNCH_CALLBACKS;
             }
             else
             {
-                CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr = CallbackFuncPtr;
+                CFE_TIME_Global.SynchCallback[AppIndex].Ptr = CallbackFuncPtr;
             }
         }
     }
@@ -723,7 +723,7 @@ int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPt
 int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)   
 {
     int32  Status;
-    CFE_ES_ResourceID_t AppId;
+    CFE_ES_AppId_t AppId;
     uint32 AppIndex;
 
     Status = CFE_ES_GetAppID(&AppId);
@@ -737,14 +737,14 @@ int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFunc
         return Status;
     }
 
-    if (AppIndex >= (sizeof(CFE_TIME_TaskData.SynchCallback) / sizeof(CFE_TIME_TaskData.SynchCallback[0])) ||
-            CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr != CallbackFuncPtr)
+    if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])) ||
+            CFE_TIME_Global.SynchCallback[AppIndex].Ptr != CallbackFuncPtr)
     {
         Status = CFE_TIME_CALLBACK_NOT_REGISTERED;
     }
     else
     {
-        CFE_TIME_TaskData.SynchCallback[AppIndex].Ptr = NULL;
+        CFE_TIME_Global.SynchCallback[AppIndex].Ptr = NULL;
     }
     
     return Status;

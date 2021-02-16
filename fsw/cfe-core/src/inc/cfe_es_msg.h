@@ -267,12 +267,15 @@
 */
 #define CFE_ES_STOP_APP_CC             5
 
-/** \cfeescmd Stops and Restarts an Application
+/** \cfeescmd Stops, Unloads, Loads using the previous File name, and Restarts an Application
 **
 **  \par Description
-**       This command halts and restarts the specified Application.
-**       This command does \b NOT reload the application from the onboard
-**       filesystem.
+**       This command halts and removes the specified Application
+**       from the system.  Then it immediately loads the Application from
+**       the same filename last used to start.  This command is
+**       especially useful for restarting a Command Ingest Application
+**       since once it has been stopped, no further commands can come in
+**       to restart it.
 **
 **  \cfecmdmnemonic \ES_RESTARTAPP
 **
@@ -291,6 +294,7 @@
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
 **       - The command packet length is incorrect
+**       - The original file is missing
 **       - The specified application name is not recognized as an active application
 **       - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
 **
@@ -310,7 +314,7 @@
 */
 #define CFE_ES_RESTART_APP_CC          6
 
-/** \cfeescmd Stops, Unloads, Loads from a File and Restarts an Application
+/** \cfeescmd Stops, Unloads, Loads from the command specfied File and Restarts an Application
 **
 **  \par Description
 **       This command halts and removes the specified Application
@@ -337,6 +341,7 @@
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
 **       - The command packet length is incorrect
+**       - The reload file is missing
 **       - The specified application name is not recognized as an active application
 **       - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
 **
@@ -1426,11 +1431,15 @@ typedef struct CFE_ES_DumpCDSRegistryCmd
  *
  * Structure that is used to provide information about an app.
  * It is primarily used for the QueryOne and QueryAll Commands.
+ * 
+ * While this structure is primarily intended for Application info,
+ * it can also represent Library information where only a subset of
+ * the information applies.  
  */
 typedef struct CFE_ES_AppInfo
 {
-   CFE_ES_ResourceID_t   AppId;                /**< \cfetlmmnemonic \ES_APP_ID
-                                                    \brief Application ID for this Application */
+   CFE_ResourceId_t   ResourceId;              /**< \cfetlmmnemonic \ES_APP_ID
+                                                    \brief Application or Library ID for this resource */
    uint32   Type;                              /**< \cfetlmmnemonic \ES_APPTYPE
                                                     \brief The type of App: CORE or EXTERNAL */
 
@@ -1464,7 +1473,7 @@ typedef struct CFE_ES_AppInfo
                                                     (Restart Application OR Restart Processor) */
    CFE_ES_TaskPriority_Atom_t   Priority;        /**< \cfetlmmnemonic \ES_PRIORITY
                                                     \brief The Priority of the Application */
-   CFE_ES_ResourceID_t   MainTaskId;           /**< \cfetlmmnemonic \ES_MAINTASKID
+   CFE_ES_TaskId_t   MainTaskId;               /**< \cfetlmmnemonic \ES_MAINTASKID
                                                     \brief The Application's Main Task ID */
    uint32   ExecutionCounter;                  /**< \cfetlmmnemonic \ES_MAINTASKEXECNT
                                                     \brief The Application's Main Task Execution Counter */
@@ -1488,10 +1497,10 @@ typedef struct CFE_ES_AppInfo
  */
 typedef struct CFE_ES_TaskInfo
 {
-   CFE_ES_ResourceID_t TaskId;                            /**< \brief Task Id */
+   CFE_ES_TaskId_t     TaskId;                            /**< \brief Task Id */
    uint32              ExecutionCounter;                  /**< \brief Task Execution Counter */
    char                TaskName[CFE_MISSION_MAX_API_LEN]; /**< \brief Task Name */
-   CFE_ES_ResourceID_t AppId;                             /**< \brief Parent Application ID */
+   CFE_ES_AppId_t      AppId;                             /**< \brief Parent Application ID */
    char                AppName[CFE_MISSION_MAX_API_LEN];  /**< \brief Parent Application Name */
 } CFE_ES_TaskInfo_t;
 

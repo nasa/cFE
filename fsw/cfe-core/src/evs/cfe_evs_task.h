@@ -59,7 +59,6 @@
 #define CFE_EVS_FREE_SLOT               (-1)
 #define CFE_EVS_NO_MASK                 0
 #define CFE_EVS_PIPE_DEPTH              32
-#define CFE_EVS_MSG_LIMIT               4
 #define CFE_EVS_MAX_EVENT_SEND_COUNT    65535
 #define CFE_EVS_MAX_FILTER_COUNT        65535
 #define CFE_EVS_PIPE_NAME               "EVS_CMD_PIPE"
@@ -88,8 +87,8 @@ typedef struct
 
 typedef struct
 {
-    CFE_ES_ResourceID_t AppID;
-    CFE_ES_ResourceID_t UnregAppID;
+    CFE_ES_AppId_t AppID;
+    CFE_ES_AppId_t UnregAppID;
 
     EVS_BinFilter_t    BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS];  /* Array of binary filters */
 
@@ -124,14 +123,14 @@ typedef struct
    CFE_EVS_HousekeepingTlm_t    EVS_TlmPkt;
    CFE_SB_PipeId_t     EVS_CommandPipe;
    osal_id_t           EVS_SharedDataMutexID;
-   CFE_ES_ResourceID_t EVS_AppID;
+   CFE_ES_AppId_t      EVS_AppID;
 
-} CFE_EVS_GlobalData_t;
+} CFE_EVS_Global_t;
 
 /*
  *  Global variable specific to EVS module
  */
-extern CFE_EVS_GlobalData_t   CFE_EVS_GlobalData;
+extern CFE_EVS_Global_t   CFE_EVS_Global;
 
 
 /*****************************  Function Prototypes   **********************************/

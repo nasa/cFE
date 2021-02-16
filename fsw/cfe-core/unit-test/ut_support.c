@@ -43,7 +43,7 @@ uint8  UT_Endianess;
 
 static char    UT_appname[80];
 static char    UT_subsys[5];
-static CFE_ES_ResourceID_t  UT_AppID;
+static CFE_ES_AppId_t  UT_AppID;
 static uint32  UT_LastCDSSize = 0;
 
 typedef union
@@ -154,16 +154,12 @@ void UT_InitData(void)
      * Set up for the CFE_SB_ReceiveBuffer() call.
      *
      * The existing test cases assume that this will return success once,
-     * followed by a timeout response followed by a different error.
+     * followed by a timeout response.
      *
      * Specific test cases may provide an actual message buffer to return for
      * the first call, or they may override this default behavior entirely.
-     *
-     * The default behavior of the CFE_SB_ReceiveBuffer stub is to return success with a zero-ed out
-     * buffer returned to the caller.
      */
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_ReceiveBuffer), 2, CFE_SB_TIME_OUT);
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_ReceiveBuffer), 3, -1);
 
     /*
      * Set up CFE_ES_GetAppName() and friends
@@ -275,7 +271,7 @@ int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCo
 /*
 ** Set the application ID returned by unit test stubs
 */
-void UT_SetAppID(CFE_ES_ResourceID_t AppID_in)
+void UT_SetAppID(CFE_ES_AppId_t AppID_in)
 {
     UT_AppID = AppID_in;
     UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppID), (uint8*)&UT_AppID, sizeof(UT_AppID), false);
@@ -711,21 +707,21 @@ void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(voi
 
 void UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TSF, FileName, LineNum, "%s - Setup - %s returned %ld",
+    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TSF, FileName, LineNum, "%s - Setup - %s returned 0x%lx",
             TestName, FnName, (long int)FnRet);
 }
 
 void UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UtAssert_GetContext(), FileName, LineNum, "%s - %s returned %ld, expected CFE_SUCCESS",
+    UtAssertEx(FnRet == CFE_SUCCESS, UtAssert_GetContext(), FileName, LineNum, "%s - %s returned 0x%lx, expected CFE_SUCCESS",
             TestName, FnName, (long int)FnRet);
 }
 
 void UT_ASSERT_EQ_impl(const char *FileName, int LineNum,
     const char *FnName, int32 FnRet, const char *ExpName, int32 Exp)
 {
-    UtAssertEx(FnRet == Exp, UtAssert_GetContext(), FileName, LineNum, "%s - value %ld, expected %s[%ld]",
-        FnName, (long)FnRet, ExpName, (long)Exp);
+    UtAssertEx(FnRet == Exp, UtAssert_GetContext(), FileName, LineNum, "%s - value %ld 0x%lx, expected %s[%ld 0x%lx]",
+        FnName, (long)FnRet, (long)FnRet, ExpName, (long)Exp, (long)Exp);
 }
 
 void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
@@ -751,7 +747,7 @@ void UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, co
 
 void UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TTF, FileName, LineNum, "%s - Teardown failed (%s returned %ld)",
+    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TTF, FileName, LineNum, "%s - Teardown failed (%s returned 0x%lx)",
             TestName, FnName, (long int)FnRet);
 }
 

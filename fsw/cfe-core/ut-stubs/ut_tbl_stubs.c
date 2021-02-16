@@ -91,7 +91,7 @@ void CFE_TBL_TaskMain(void)
 **        Returns CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_TBL_CleanUpApp(CFE_ES_ResourceID_t AppId)
+int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     int32 status;
 

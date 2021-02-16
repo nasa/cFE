@@ -64,7 +64,7 @@ void EVS_OutputPort4 (char *Message);
 ** Assumptions and Notes:
 **
 */
-EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_ResourceID_t AppID)
+EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_AppId_t AppID)
 {
    uint32 AppIndex;
    EVS_AppData_t *AppDataPtr;
@@ -72,7 +72,7 @@ EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_ResourceID_t AppID)
    if (CFE_ES_AppID_ToIndex(AppID, &AppIndex) == CFE_SUCCESS &&
            AppIndex < CFE_PLATFORM_ES_MAX_APPLICATIONS)
    {
-       AppDataPtr = &CFE_EVS_GlobalData.AppData[AppIndex];
+       AppDataPtr = &CFE_EVS_Global.AppData[AppIndex];
    }
    else
    {
@@ -83,9 +83,9 @@ EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_ResourceID_t AppID)
 
 } /* End EVS_GetAppDataByID */
 
-int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, CFE_ES_ResourceID_t *AppIDOut)
+int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut)
 {
-   CFE_ES_ResourceID_t AppID;
+   CFE_ES_AppId_t AppID;
    EVS_AppData_t *AppDataPtr;
    int32 Status;
 
@@ -134,7 +134,7 @@ int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, CFE_ES_ResourceID_t *Ap
 int32 EVS_GetApplicationInfo (EVS_AppData_t **AppDataOut, const char *pAppName)
 {
    int32 Status;
-   CFE_ES_ResourceID_t AppID;
+   CFE_ES_AppId_t AppID;
    EVS_AppData_t *AppDataPtr;
 
    Status = CFE_ES_GetAppIDByName(&AppID, pAppName);
@@ -180,15 +180,15 @@ int32 EVS_GetApplicationInfo (EVS_AppData_t **AppDataOut, const char *pAppName)
 ** Assumptions and Notes:
 **
 */
-int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, CFE_ES_ResourceID_t CallerID)
+int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
 {
    char AppName[OS_MAX_API_NAME];
 
    /* Send only one "not registered" event per application */
-   if ( !CFE_ES_ResourceID_Equal(AppDataPtr->UnregAppID, CallerID) )
+   if ( !CFE_RESOURCEID_TEST_EQUAL(AppDataPtr->UnregAppID, CallerID) )
    { 
       /* Increment count of "not registered" applications */
-      CFE_EVS_GlobalData.EVS_TlmPkt.Payload.UnregisteredAppCounter++;
+      CFE_EVS_Global.EVS_TlmPkt.Payload.UnregisteredAppCounter++;
 
       /* Indicate that "not registered" event has been sent for this app */
       AppDataPtr->UnregAppID = CallerID;
@@ -418,7 +418,7 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     {
        /* Mark character before zero terminator to indicate truncation */
        LongEventTlm.Payload.Message[sizeof(LongEventTlm.Payload.Message) - 2] = CFE_EVS_MSG_TRUNCATED;
-       CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageTruncCounter++;
+       CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter++;
     }
 
     /* Obtain task and system information */
@@ -436,12 +436,12 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     /* Send event via selected ports */
     EVS_SendViaPorts(&LongEventTlm);
 
-    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode == CFE_EVS_MsgFormat_LONG)
+    if (CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode == CFE_EVS_MsgFormat_LONG)
     {
         /* Send long event via SoftwareBus */
         CFE_SB_TransmitMsg(&LongEventTlm.TlmHeader.Msg, true);
     }
-    else if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode == CFE_EVS_MsgFormat_SHORT)
+    else if (CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode == CFE_EVS_MsgFormat_SHORT)
     {
         /*
          * Initialize the short format event message from data that was already
@@ -457,9 +457,9 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     }
 
     /* Increment message send counters (prevent rollover) */
-    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageSendCounter < CFE_EVS_MAX_EVENT_SEND_COUNT)
+    if (CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter < CFE_EVS_MAX_EVENT_SEND_COUNT)
     {
-       CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageSendCounter++;
+       CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter++;
     }
 
     if (AppDataPtr->EventCount < CFE_EVS_MAX_EVENT_SEND_COUNT)
@@ -484,7 +484,7 @@ void EVS_SendViaPorts (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
    char PortMessage[CFE_EVS_MAX_PORT_MSG_LENGTH];
 
-   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT1_BIT) >> 0) == true)
+   if (((CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT1_BIT) >> 0) == true)
    {
       /* Copy event message to string format */
       snprintf(PortMessage, CFE_EVS_MAX_PORT_MSG_LENGTH, "EVS Port1 %u/%u/%s %u: %s", (unsigned int) EVS_PktPtr->Payload.PacketID.SpacecraftID,
@@ -496,7 +496,7 @@ void EVS_SendViaPorts (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
       EVS_OutputPort1(PortMessage);
    }
 
-   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT2_BIT) >> 1) == true)
+   if (((CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT2_BIT) >> 1) == true)
    {
       /* Copy event message to string format */
       snprintf(PortMessage, CFE_EVS_MAX_PORT_MSG_LENGTH, "EVS Port2 %u/%u/%s %u: %s", (unsigned int) EVS_PktPtr->Payload.PacketID.SpacecraftID,
@@ -508,7 +508,7 @@ void EVS_SendViaPorts (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
       EVS_OutputPort2(PortMessage);
    }
 
-   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT3_BIT) >> 2) == true)
+   if (((CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT3_BIT) >> 2) == true)
    {
       /* Copy event message to string format */
       snprintf(PortMessage, CFE_EVS_MAX_PORT_MSG_LENGTH, "EVS Port3 %u/%u/%s %u: %s", (unsigned int) EVS_PktPtr->Payload.PacketID.SpacecraftID,
@@ -520,7 +520,7 @@ void EVS_SendViaPorts (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
       EVS_OutputPort3(PortMessage);
    }
 
-   if (((CFE_EVS_GlobalData.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT4_BIT) >> 3) == true)
+   if (((CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort & CFE_EVS_PORT4_BIT) >> 3) == true)
    {
       /* Copy event message to string format */
       snprintf(PortMessage, CFE_EVS_MAX_PORT_MSG_LENGTH, "EVS Port4 %u/%u/%s %u: %s", (unsigned int) EVS_PktPtr->Payload.PacketID.SpacecraftID,
@@ -629,10 +629,10 @@ int32 EVS_SendEvent (uint16 EventID, uint16 EventType, const char *Spec, ... )
     * Must check that EVS_AppID is valid, which can happen if this is called
     * by some other thread before CFE_EVS_TaskInit() runs
     */
-   AppDataPtr = EVS_GetAppDataByID(CFE_EVS_GlobalData.EVS_AppID);
+   AppDataPtr = EVS_GetAppDataByID(CFE_EVS_Global.EVS_AppID);
 
    /* Unlikely, but possible that an EVS event filter was added by command */
-   if ( EVS_AppDataIsMatch(AppDataPtr, CFE_EVS_GlobalData.EVS_AppID) &&
+   if ( EVS_AppDataIsMatch(AppDataPtr, CFE_EVS_Global.EVS_AppID) &&
            EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
    {
       /* Get current spacecraft time */

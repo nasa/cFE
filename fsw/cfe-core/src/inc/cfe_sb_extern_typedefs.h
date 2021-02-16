@@ -33,6 +33,7 @@
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"
+#include "cfe_resourceid_typedef.h"
 
 /**
  * @brief Label definitions associated with CFE_SB_QosPriority_Enum_t
@@ -110,6 +111,14 @@ typedef uint32 CFE_SB_MsgId_Atom_t;
  * to avoid message IDs getting mixed between other integer values.
  */
 typedef CFE_SB_MsgId_Atom_t CFE_SB_MsgId_t;
+
+/** \brief  CFE_SB_PipeId_t to primitive type definition
+ *
+ * Software Bus pipe identifier used in many SB APIs, as well as SB Telemetry messages
+ * and data files.
+ */
+typedef CFE_RESOURCEID_BASE_TYPE CFE_SB_PipeId_t;
+
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 

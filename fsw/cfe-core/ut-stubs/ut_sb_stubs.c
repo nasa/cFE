@@ -47,16 +47,6 @@ typedef struct
 
 } CFE_SB_StubMsg_MetaData_t;
 
-
-/*
-** Global variables
-**
-** NOTE: CFE_SB_Default_Qos is an oddball in that it is directly referenced by the code
-** in other applications.  Therefore the UT stub has to instantiate this in order to get
-** any dependent code to link.
-*/
-CFE_SB_Qos_t CFE_SB_Default_Qos;
-
 static CFE_SB_StubMsg_MetaData_t* CFE_SB_StubMsg_GetMetaData(const CFE_MSG_Message_t *MsgPtr)
 {
     CFE_SB_StubMsg_MetaData_t* MetaPtr;
@@ -866,7 +856,7 @@ size_t CFE_SB_GetTotalMsgLength(const CFE_MSG_Message_t *MsgPtr)
 **        This function does not return a value.
 **
 ******************************************************************************/
-int32 CFE_SB_CleanUpApp(CFE_ES_ResourceID_t AppId)
+int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     int32 status;
 

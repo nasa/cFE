@@ -366,6 +366,6 @@ int32 CFE_ES_WriteToERLog( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  Reset
  * \param PspContextId Identifier of extended context info stored in the PSP (if available)
  */
 int32 CFE_ES_WriteToERLogWithContext( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  ResetType, uint32 ResetSubtype,
-                           const char  *Description, CFE_ES_ResourceID_t AppId, uint32 PspContextId);
+                           const char  *Description, CFE_ES_AppId_t AppId, uint32 PspContextId);
 
 #endif  /* _cfe_es_log_ */

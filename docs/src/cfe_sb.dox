@@ -104,7 +104,7 @@
   The Pipe IDs are specific to a particular processor (that is, the same ID number
   may refer to a different pipe on each processor).  The pipe information for all
   pipes that have been created, may be requested at anytime by sending the
-  \link #CFE_SB_SEND_PIPE_INFO_CC 'Send Pipe Info' SB command \endlink. The software
+  \link #CFE_SB_WRITE_PIPE_INFO_CC 'Write Pipe Info' SB command \endlink. The software
   bus also provides a set of figures regarding capacity, current utilization and high
   water marks relevant to pipes. This information may be requested by sending the
   command to \link #CFE_SB_SEND_SB_STATS_CC dump the SB statistics packet \endlink.
@@ -445,12 +445,10 @@
   Quality of Service (QOS) for off-board routing and is of the type #CFE_SB_Qos_t. This structure
   has two members named priority and reliability. The Quality parameter is currently unused by
   the software bus. It is a placeholder to be used with the future software bus capability of
-  inter-processor communication. Although currently the software bus does not read the Quality
-  values, it would be best to set this parameter to the value defined as #CFE_SB_Default_Qos.
-  This value is set internally by the software bus with values of zero for priority and
-  reliability. The values of zero will correspond to low priority and low reliability. Setting
-  the QOS value to the #CFE_SB_Default_Qos will ensure seamless integration when the software
-  bus is expanded to support inter-processor communication.
+  inter-processor communication. Although currently the software bus does not implement quality
+  of service.
+
+  A default quality of services is provided via the #CFE_SB_DEFAULT_QOS macro.
 
   Next: \ref cfesbugknwnprob <BR>
   Prev: \ref cfesbugroutcntrl <BR>
@@ -569,9 +567,8 @@
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
            The QOS parameter is currently unused by the software bus. It is a placeholder to be
            used with the future software bus capability of inter-processor communication. Setting
-           the QOS value to the SB defined #CFE_SB_Default_Qos (QOS.Priority=0,QOS.Reliability=0)
-           will ensure seamless integration when the software bus is expanded to support
-           inter-processor communication.
+           the QOS as #CFE_SB_DEFAULT_QOS will ensure seamless integration when the software bus
+           is expanded to support inter-processor communication.
         <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
            Can I confirm my software bus buffer was delivered?
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">

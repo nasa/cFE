@@ -16,6 +16,7 @@ set(MISSION_CORE_MODULES
     "psp"
     "msg"
     "sbr"
+    "resourceid"
 )
 
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built

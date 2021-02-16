@@ -366,9 +366,16 @@
 /**
   \page cfeesugapprestart Restarting an Application
 
-  The  #CFE_ES_RESTART_APP_CC command is used to restart an application. 
-  This command stops and restarts an application using the parameters 
-  defined when the application was originally started, either through 
+  The #CFE_ES_RESTART_APP_CC command is used to restart an application
+  using the same file name as the last start.
+
+  This command checks for file existence, the application is running,
+  and the application is not a core app.  If valid, the application restart
+  is requested.
+
+  When requested, ES stops the application, unloads the object file, loads the object file
+  using the previous file name, and restarts an application using the parameters
+  defined when the application was previously started, either through
   the startup script or by way of the #CFE_ES_START_APP_CC command. 
     
   Next: \ref cfeesugappreload <BR>
@@ -379,12 +386,11 @@
 /**
   \page cfeesugappreload Reloading an Application
 
-  The  #CFE_ES_RELOAD_APP_CC command is used to reload an application. 
-  This command stops the application, unloads the object file, loads 
-  the new object file specified in the command and starts the application 
-  again using the parameters defined when the application was originally 
-  started, either through the startup script or by way of the 
-  #CFE_ES_START_APP_CC command. 
+  The #CFE_ES_RELOAD_APP_CC command is used to reload an application
+  using a new file name.
+
+  This command performes
+  the same actions as #CFE_ES_RESTART_APP_CC only using the new file.
     
   Next: \ref cfeesugapplist <BR>
   Prev: \ref cfeesugapprestart <BR>

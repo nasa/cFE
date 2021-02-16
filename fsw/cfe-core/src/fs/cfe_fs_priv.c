@@ -45,7 +45,7 @@
 ** Global data
 ** 
 */
-CFE_FS_t CFE_FS;
+CFE_FS_Global_t CFE_FS_Global;
 
 /******************************************************************************
 **  Function:  CFE_FS_EarlyInit()
@@ -65,7 +65,9 @@ int32 CFE_FS_EarlyInit (void)
 {
     int32 Stat;
 
-    Stat = OS_MutSemCreate(&CFE_FS.SharedDataMutexId, "CFE_FS_SharedMutex", 0);
+    memset(&CFE_FS_Global, 0, sizeof(CFE_FS_Global));
+
+    Stat = OS_MutSemCreate(&CFE_FS_Global.SharedDataMutexId, "CFE_FS_SharedMutex", 0);
     if( Stat != OS_SUCCESS )
     {
       CFE_ES_WriteToSysLog("FS Shared Data Mutex creation failed! RC=0x%08x\n",(unsigned int)Stat);
@@ -92,15 +94,15 @@ int32 CFE_FS_EarlyInit (void)
 void CFE_FS_LockSharedData(const char *FunctionName)
 {
     int32   Status;
-    CFE_ES_ResourceID_t  AppId;
+    CFE_ES_AppId_t  AppId;
 
-    Status = OS_MutSemTake(CFE_FS.SharedDataMutexId);
+    Status = OS_MutSemTake(CFE_FS_Global.SharedDataMutexId);
     if (Status != OS_SUCCESS) 
     {
         CFE_ES_GetAppID(&AppId);
 
         CFE_ES_WriteToSysLog("FS SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n",
-                (unsigned int)Status,CFE_ES_ResourceID_ToInteger(AppId),FunctionName);
+                (unsigned int)Status,CFE_RESOURCEID_TO_ULONG(AppId),FunctionName);
 
     }/* end if */
 
@@ -124,14 +126,14 @@ void CFE_FS_LockSharedData(const char *FunctionName)
 void CFE_FS_UnlockSharedData(const char *FunctionName)
 {
    int32   Status;
-   CFE_ES_ResourceID_t  AppId;
+   CFE_ES_AppId_t  AppId;
 
-   Status = OS_MutSemGive(CFE_FS.SharedDataMutexId);
+   Status = OS_MutSemGive(CFE_FS_Global.SharedDataMutexId);
    if (Status != OS_SUCCESS) 
    {
        CFE_ES_GetAppID(&AppId);
        CFE_ES_WriteToSysLog("FS SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n",
-               (unsigned int)Status,CFE_ES_ResourceID_ToInteger(AppId),FunctionName);
+               (unsigned int)Status,CFE_RESOURCEID_TO_ULONG(AppId),FunctionName);
 
    }/* end if */
    return;

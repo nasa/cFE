@@ -63,7 +63,7 @@
 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 int32 CFE_ES_WriteToERLogWithContext( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  ResetType, uint32 ResetSubtype,
-                           const char  *Description, CFE_ES_ResourceID_t AppId, uint32 PspContextId)
+                           const char  *Description, CFE_ES_AppId_t AppId, uint32 PspContextId)
 {
    uint32 LogIdx;
    CFE_ES_ERLog_MetaData_t *EntryPtr;
@@ -176,7 +176,7 @@ int32 CFE_ES_WriteToERLog( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  Reset
 {
     /* passing 0xFFFFFFFF as the appid avoids confusion with actual appid 0 */
     return CFE_ES_WriteToERLogWithContext(EntryType, ResetType, ResetSubtype,
-                               Description, CFE_ES_RESOURCEID_UNDEFINED, CFE_ES_ERLOG_NO_CONTEXT);
+                               Description, CFE_ES_APPID_UNDEFINED, CFE_ES_ERLOG_NO_CONTEXT);
     
 } /* End of CFE_ES_WriteToERLog() */
 
@@ -359,7 +359,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
      */
     if (OS_ObjectIdDefined(ExceptionTaskID))
     {
-        Status = CFE_ES_GetTaskInfo( &EsTaskInfo, CFE_ES_ResourceID_FromOSAL(ExceptionTaskID) );
+        Status = CFE_ES_GetTaskInfo( &EsTaskInfo, CFE_ES_TaskId_FromOSAL(ExceptionTaskID) );
 
         /*
          * The App ID was found, now see if the ExceptionAction is set for a reset

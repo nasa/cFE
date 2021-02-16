@@ -54,51 +54,51 @@
 void EVS_AddLog (CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
 
-   if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == true)
+   if (CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled == true)
    {   
       /* Serialize access to event log control variables */
-      OS_MutSemTake(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
+      OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
 
-      if ((CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag == true) &&
-          (CFE_EVS_GlobalData.EVS_LogPtr->LogMode == CFE_EVS_LogMode_DISCARD))
+      if ((CFE_EVS_Global.EVS_LogPtr->LogFullFlag == true) &&
+          (CFE_EVS_Global.EVS_LogPtr->LogMode == CFE_EVS_LogMode_DISCARD))
       {
          /* If log is full and in discard mode, just count the event */
-         CFE_EVS_GlobalData.EVS_LogPtr->LogOverflowCounter++;
+         CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter++;
       }
       else
       {
-         if (CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag == true)
+         if (CFE_EVS_Global.EVS_LogPtr->LogFullFlag == true)
          {
             /* If log is full and in wrap mode, count it and store it */
-            CFE_EVS_GlobalData.EVS_LogPtr->LogOverflowCounter++;
+            CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter++;
          }
 
          /* Copy the event data to the next available entry in the log */
-         memcpy(&CFE_EVS_GlobalData.EVS_LogPtr->LogEntry[CFE_EVS_GlobalData.EVS_LogPtr->Next],
+         memcpy(&CFE_EVS_Global.EVS_LogPtr->LogEntry[CFE_EVS_Global.EVS_LogPtr->Next],
                         EVS_PktPtr, sizeof(*EVS_PktPtr));
 
-         CFE_EVS_GlobalData.EVS_LogPtr->Next++;
+         CFE_EVS_Global.EVS_LogPtr->Next++;
 
-         if (CFE_EVS_GlobalData.EVS_LogPtr->Next >= CFE_PLATFORM_EVS_LOG_MAX)
+         if (CFE_EVS_Global.EVS_LogPtr->Next >= CFE_PLATFORM_EVS_LOG_MAX)
          {
             /* This is important, even if we are in discard mode */
-            CFE_EVS_GlobalData.EVS_LogPtr->Next = 0;
+            CFE_EVS_Global.EVS_LogPtr->Next = 0;
          }
 
          /* Log count cannot exceed the number of entries in the log */
-         if (CFE_EVS_GlobalData.EVS_LogPtr->LogCount < CFE_PLATFORM_EVS_LOG_MAX)
+         if (CFE_EVS_Global.EVS_LogPtr->LogCount < CFE_PLATFORM_EVS_LOG_MAX)
          {
-            CFE_EVS_GlobalData.EVS_LogPtr->LogCount++;
+            CFE_EVS_Global.EVS_LogPtr->LogCount++;
 
-            if (CFE_EVS_GlobalData.EVS_LogPtr->LogCount == CFE_PLATFORM_EVS_LOG_MAX)
+            if (CFE_EVS_Global.EVS_LogPtr->LogCount == CFE_PLATFORM_EVS_LOG_MAX)
             {
                /* The full flag and log count are somewhat redundant */
-               CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag = true;
+               CFE_EVS_Global.EVS_LogPtr->LogFullFlag = true;
             }
          }
       }
     
-      OS_MutSemGive(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
+      OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
    }
 
    return;
@@ -120,18 +120,18 @@ void EVS_ClearLog ( void )
 {
 
    /* Serialize access to event log control variables */
-   OS_MutSemTake(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
+   OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
 
    /* Clears everything but LogMode (overwrite vs discard) */
-   CFE_EVS_GlobalData.EVS_LogPtr->Next = 0;
-   CFE_EVS_GlobalData.EVS_LogPtr->LogCount = 0;
-   CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag = false;
-   CFE_EVS_GlobalData.EVS_LogPtr->LogOverflowCounter = 0;
+   CFE_EVS_Global.EVS_LogPtr->Next = 0;
+   CFE_EVS_Global.EVS_LogPtr->LogCount = 0;
+   CFE_EVS_Global.EVS_LogPtr->LogFullFlag = false;
+   CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter = 0;
 
-   memset(CFE_EVS_GlobalData.EVS_LogPtr->LogEntry, 0,
-                  sizeof(CFE_EVS_GlobalData.EVS_LogPtr->LogEntry));
+   memset(CFE_EVS_Global.EVS_LogPtr->LogEntry, 0,
+                  sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry));
 
-   OS_MutSemGive(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
+   OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 
    return;
 
@@ -159,7 +159,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
     CFE_FS_Header_t LogFileHdr;
     char            LogFilename[OS_MAX_PATH_LEN];
 
-    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == false)
+    if (CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled == false)
     {
         EVS_SendEvent(CFE_EVS_NO_LOGWR_EID, CFE_EVS_EventType_ERROR,
                 "Write Log Command: Event Log is Disabled");
@@ -195,13 +195,13 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
             if (BytesWritten == sizeof(LogFileHdr))
             {
                 /* Serialize access to event log control variables */
-                OS_MutSemTake(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
+                OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
 
                 /* Is the log full? -- Doesn't matter if wrap mode is enabled */
-                if (CFE_EVS_GlobalData.EVS_LogPtr->LogCount == CFE_PLATFORM_EVS_LOG_MAX)
+                if (CFE_EVS_Global.EVS_LogPtr->LogCount == CFE_PLATFORM_EVS_LOG_MAX)
                 {
                     /* Start with log entry that will be overwritten next (oldest) */
-                    LogIndex = CFE_EVS_GlobalData.EVS_LogPtr->Next;
+                    LogIndex = CFE_EVS_Global.EVS_LogPtr->Next;
                 }
                 else
                 {
@@ -210,13 +210,13 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
                 }
 
                 /* Write all the "in-use" event log entries to the file */
-                for (i = 0; i < CFE_EVS_GlobalData.EVS_LogPtr->LogCount; i++)
+                for (i = 0; i < CFE_EVS_Global.EVS_LogPtr->LogCount; i++)
                 {
                     BytesWritten = OS_write(LogFileHandle,
-                            &CFE_EVS_GlobalData.EVS_LogPtr->LogEntry[LogIndex],
-                            sizeof(CFE_EVS_GlobalData.EVS_LogPtr->LogEntry[LogIndex]));
+                            &CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex],
+                            sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex]));
 
-                    if (BytesWritten == sizeof(CFE_EVS_GlobalData.EVS_LogPtr->LogEntry[LogIndex]))
+                    if (BytesWritten == sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex]))
                     {
                         LogIndex++;
 
@@ -231,14 +231,14 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
                     }
                 }
 
-                OS_MutSemGive(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
+                OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 
                 /* Process command handler success result */
-                if (i == CFE_EVS_GlobalData.EVS_LogPtr->LogCount)
+                if (i == CFE_EVS_Global.EVS_LogPtr->LogCount)
                 {
                     EVS_SendEvent(CFE_EVS_WRLOG_EID, CFE_EVS_EventType_DEBUG,
                             "Write Log File Command: %d event log entries written to %s",
-                            (int)CFE_EVS_GlobalData.EVS_LogPtr->LogCount, LogFilename);
+                            (int)CFE_EVS_Global.EVS_LogPtr->LogCount, LogFilename);
                     Result = CFE_SUCCESS;
                 }
                 else
@@ -274,14 +274,14 @@ int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data)
     const CFE_EVS_SetLogMode_Payload_t *CmdPtr = &data->Payload;
     int32 Status;
 
-    if (CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled == true)
+    if (CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled == true)
     {
         if ((CmdPtr->LogMode == CFE_EVS_LogMode_OVERWRITE) || (CmdPtr->LogMode == CFE_EVS_LogMode_DISCARD))
         {
             /* Serialize access to event log control variables */
-            OS_MutSemTake(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
-            CFE_EVS_GlobalData.EVS_LogPtr->LogMode = CmdPtr->LogMode;
-            OS_MutSemGive(CFE_EVS_GlobalData.EVS_SharedDataMutexID);
+            OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
+            CFE_EVS_Global.EVS_LogPtr->LogMode = CmdPtr->LogMode;
+            OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 
             EVS_SendEvent(CFE_EVS_LOGMODE_EID, CFE_EVS_EventType_DEBUG,
                     "Set Log Mode Command: Log Mode = %d", (int)CmdPtr->LogMode);

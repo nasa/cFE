@@ -70,7 +70,7 @@
 **
 **  This error event message is issued when the #CFE_SB_CreatePipe API receives a bad
 **  argument. In this case, a bad argument is defined by the following:
-**  A NULL PipeIdPtr, PipeDepth = 0 and PipeDepth > cfg param #CFE_PLATFORM_SB_MAX_PIPE_DEPTH
+**  A NULL PipeIdPtr, PipeDepth = 0 and PipeDepth > maximum pipe depth
 **/
 #define CFE_SB_CR_PIPE_BAD_ARG_EID      2
 

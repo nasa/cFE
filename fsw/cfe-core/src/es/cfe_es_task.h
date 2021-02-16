@@ -128,9 +128,6 @@ typedef struct
   /*
   ** ES Task initialization data (not reported in housekeeping)
   */
-  uint8                 LimitHK;
-  uint8                 LimitCmd;
-
   CFE_ES_BackgroundLogDumpGlobal_t  BackgroundERLogDumpState;
 
   /*

@@ -365,10 +365,10 @@ void Test_Init(void)
     /* Test early initialization, clearing the event log (log mode path) */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, -1);
-    CFE_EVS_GlobalData.EVS_LogPtr->LogMode = CFE_EVS_LogMode_OVERWRITE +
+    CFE_EVS_Global.EVS_LogPtr->LogMode = CFE_EVS_LogMode_OVERWRITE +
                                              CFE_EVS_LogMode_DISCARD + 1;
-    CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag = false;
-    CFE_EVS_GlobalData.EVS_LogPtr->Next = CFE_PLATFORM_EVS_LOG_MAX - 1;
+    CFE_EVS_Global.EVS_LogPtr->LogFullFlag = false;
+    CFE_EVS_Global.EVS_LogPtr->Next = CFE_PLATFORM_EVS_LOG_MAX - 1;
     CFE_EVS_EarlyInit();
     UT_Report(__FILE__, __LINE__,
               UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[5]),
@@ -378,9 +378,9 @@ void Test_Init(void)
     /* Test early initialization, clearing the event log (log full path) */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, -1);
-    CFE_EVS_GlobalData.EVS_LogPtr->LogMode = CFE_EVS_LogMode_DISCARD;
-    CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag = 2;
-    CFE_EVS_GlobalData.EVS_LogPtr->Next = CFE_PLATFORM_EVS_LOG_MAX - 1;
+    CFE_EVS_Global.EVS_LogPtr->LogMode = CFE_EVS_LogMode_DISCARD;
+    CFE_EVS_Global.EVS_LogPtr->LogFullFlag = 2;
+    CFE_EVS_Global.EVS_LogPtr->Next = CFE_PLATFORM_EVS_LOG_MAX - 1;
     CFE_EVS_EarlyInit();
     UT_Report(__FILE__, __LINE__,
               UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[5]),
@@ -390,9 +390,9 @@ void Test_Init(void)
     /* Test early initialization, clearing the event log (next log path) */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, -1);
-    CFE_EVS_GlobalData.EVS_LogPtr->LogMode = CFE_EVS_LogMode_OVERWRITE;
-    CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag = true;
-    CFE_EVS_GlobalData.EVS_LogPtr->Next = CFE_PLATFORM_EVS_LOG_MAX;
+    CFE_EVS_Global.EVS_LogPtr->LogMode = CFE_EVS_LogMode_OVERWRITE;
+    CFE_EVS_Global.EVS_LogPtr->LogFullFlag = true;
+    CFE_EVS_Global.EVS_LogPtr->Next = CFE_PLATFORM_EVS_LOG_MAX;
     CFE_EVS_EarlyInit();
     UT_Report(__FILE__, __LINE__,
               UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[5]),
@@ -448,7 +448,7 @@ void Test_Init(void)
 
     /* Test task initialization where command subscription fails */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SubscribeEx), 1, -1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 1, -1);
     CFE_EVS_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[13]),
@@ -457,7 +457,7 @@ void Test_Init(void)
 
     /* Test task initialization where HK request subscription fails */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_SB_SubscribeEx), 2, -1);
+    UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), 2, -1);
     CFE_EVS_TaskInit();
     UT_Report(__FILE__, __LINE__,
               UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[14]),
@@ -566,7 +566,7 @@ void Test_IllegalAppID(void)
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_SendEventWithAppID(0,
                                          0,
-                                         CFE_ES_RESOURCEID_UNDEFINED,
+                                         CFE_ES_APPID_UNDEFINED,
                                          "NULL") == CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_SendEventWithAppID",
               "Illegal app ID");
@@ -591,7 +591,7 @@ void Test_IllegalAppID(void)
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED) ==
+              CFE_EVS_CleanUpApp(CFE_ES_APPID_UNDEFINED) ==
                   CFE_EVS_APP_ILLEGAL_APP_ID,
               "CFE_EVS_CleanUpApp",
               "Illegal app ID");
@@ -605,7 +605,7 @@ void Test_UnregisteredApp(void)
 {
     CFE_TIME_SysTime_t time = {0, 0};
     EVS_AppData_t       *AppDataPtr;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t      AppID;
 
     /* Get a local ref to the "current" AppData table entry */
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
@@ -688,7 +688,7 @@ void Test_FilterRegistration(void)
     CFE_EVS_BinFilter_t filter[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS + 1];
     EVS_BinFilter_t     *FilterPtr = NULL;
     EVS_AppData_t       *AppDataPtr;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t      AppID;
     CFE_TIME_SysTime_t  time = {0, 0};
 
     /* Get a local ref to the "current" AppData table entry */
@@ -696,8 +696,8 @@ void Test_FilterRegistration(void)
 
     UtPrintf("Begin Test Filter Registration");
 
-    CFE_EVS_GlobalData.EVS_AppID = AppID;
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
+    CFE_EVS_Global.EVS_AppID = AppID;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     /* Test filter registration using an invalid filter option */
     UT_InitData();
@@ -929,7 +929,7 @@ void Test_Format(void)
             .SnapshotSize = sizeof(CapturedMsg)
     };
     EVS_AppData_t       *AppDataPtr;
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t       AppID;
     UT_EVS_MSGInitData_t MsgData;
     CFE_MSG_Message_t *MsgSend;
 
@@ -938,7 +938,7 @@ void Test_Format(void)
 
     UtPrintf("Begin Test Format");
 
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     /* Enable DEBUG message output */
     UT_InitData();
@@ -1083,7 +1083,7 @@ void Test_Ports(void)
 
     UtPrintf("Begin Test Ports");
 
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     /* Test enabling all ports; reports implicitly via port output */
     UT_InitData();
@@ -1225,11 +1225,11 @@ void Test_Logging(void)
 
     UtPrintf("Begin Test Logging");
 
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     /* Test setting the logging mode with logging disabled */
     UT_InitData();
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = false;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = false;
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.modecmd.Payload.LogMode = 0xff;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.modecmd, sizeof(CmdBuf.modecmd),
@@ -1241,13 +1241,13 @@ void Test_Logging(void)
               "Set log mode command: event log disabled");
 
     /* Re-enable logging and set conditions to allow complete code coverage */
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = true;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     UT_SetSizeofESResetArea(sizeof(CFE_ES_ResetData_t));
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, CFE_PSP_RST_TYPE_POWERON);
     CFE_PSP_GetResetArea(&TempAddr, &resetAreaSize);
     CFE_EVS_ResetDataPtr = (CFE_ES_ResetData_t *)TempAddr;
-    CFE_EVS_GlobalData.EVS_LogPtr = &CFE_EVS_ResetDataPtr->EVS_Log;
+    CFE_EVS_Global.EVS_LogPtr = &CFE_EVS_ResetDataPtr->EVS_Log;
 
     /* Test setting the logging mode using an invalid mode */
     UT_InitData();
@@ -1285,8 +1285,8 @@ void Test_Logging(void)
 
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Log overfill event discard");
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag == true &&
-              CFE_EVS_GlobalData.EVS_LogPtr->LogMode == CFE_EVS_LogMode_DISCARD,
+              CFE_EVS_Global.EVS_LogPtr->LogFullFlag == true &&
+              CFE_EVS_Global.EVS_LogPtr->LogMode == CFE_EVS_LogMode_DISCARD,
               "CFE_EVS_SendEvent",
               "Log overfill event (discard mode)");
 
@@ -1298,14 +1298,14 @@ void Test_Logging(void)
                &UT_EVS_EventBuf);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Log overfill event overwrite");
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag == true &&
-              CFE_EVS_GlobalData.EVS_LogPtr->LogMode == CFE_EVS_LogMode_OVERWRITE,
+              CFE_EVS_Global.EVS_LogPtr->LogFullFlag == true &&
+              CFE_EVS_Global.EVS_LogPtr->LogMode == CFE_EVS_LogMode_OVERWRITE,
               "CFE_EVS_SetLogModeCmd",
               "Log overfill event (overwrite mode)");
 
     /* Test writing to the log while it is disabled */
     UT_InitData();
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = false;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = false;
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.logfilecmd, sizeof(CmdBuf.logfilecmd),
                UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC,
@@ -1337,12 +1337,12 @@ void Test_Logging(void)
 
     /* Clear log for next test */
     UT_InitData();
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = true;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.cmd, sizeof(CmdBuf.cmd),
                UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC,
                &UT_EVS_EventBuf);
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_GlobalData.EVS_LogPtr->LogFullFlag == false,
+              CFE_EVS_Global.EVS_LogPtr->LogFullFlag == false,
               "EVS_ClearLog",
               "Clear log");
 
@@ -1354,7 +1354,7 @@ void Test_Logging(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, CFE_PSP_RST_TYPE_POWERON);
     CFE_PSP_GetResetArea(&TempAddr, &resetAreaSize);
     CFE_EVS_ResetDataPtr = (CFE_ES_ResetData_t *)TempAddr;
-    CFE_EVS_GlobalData.EVS_LogPtr = &CFE_EVS_ResetDataPtr->EVS_Log;
+    CFE_EVS_Global.EVS_LogPtr = &CFE_EVS_ResetDataPtr->EVS_Log;
     CmdBuf.modecmd.Payload.LogMode = CFE_EVS_LogMode_OVERWRITE;
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_SetLogModeCmd(&CmdBuf.modecmd) == CFE_SUCCESS,
@@ -1385,7 +1385,7 @@ void Test_Logging(void)
     /* Test successfully writing all log entries */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
-    CFE_EVS_GlobalData.EVS_LogPtr->LogCount = CFE_PLATFORM_EVS_LOG_MAX;
+    CFE_EVS_Global.EVS_LogPtr->LogCount = CFE_PLATFORM_EVS_LOG_MAX;
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) == CFE_SUCCESS,
               "CFE_EVS_WriteLogDataFileCmd",
@@ -1395,7 +1395,7 @@ void Test_Logging(void)
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
-    CFE_EVS_GlobalData.EVS_LogPtr->LogCount = CFE_PLATFORM_EVS_LOG_MAX;
+    CFE_EVS_Global.EVS_LogPtr->LogCount = CFE_PLATFORM_EVS_LOG_MAX;
     UT_Report(__FILE__, __LINE__,
               CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) != CFE_SUCCESS,
               "CFE_EVS_WriteLogDataFileCmd",
@@ -1440,7 +1440,7 @@ void Test_WriteApp(void)
 
     UtPrintf("Begin Test Write App");
 
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     /* Enable DEBUG message output */
     UT_InitData();
@@ -1545,7 +1545,7 @@ void Test_BadAppCmd(void)
 
     UtPrintf("Begin Test Bad App Command");
 
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     UT_InitData();
 
@@ -1962,7 +1962,7 @@ void Test_EventCmd(void)
 
     UtPrintf("Begin Test Event Command");
 
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     UT_InitData();
 
@@ -2205,7 +2205,7 @@ void Test_FilterCmd(void)
 
     UtPrintf("Begin Test Filter Command");
 
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     UT_InitData();
 
@@ -2649,7 +2649,7 @@ void Test_InvalidCmd(void)
 
     /* Test invalid command length with write log data command */
     UT_InitData();
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = true;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, 
                UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC,
                &UT_EVS_EventBuf);
@@ -2692,7 +2692,7 @@ void Test_Misc(void)
         CFE_EVS_WriteLogDataFileCmd_t writelogdatacmd;
     } PktBuf;
 
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t      AppID;
     EVS_AppData_t       *AppDataPtr;
     int                i;
     char               msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + 2];
@@ -2706,8 +2706,8 @@ void Test_Misc(void)
     UtPrintf("Begin Test Miscellaneous");
 
     memset(&PktBuf, 0, sizeof(PktBuf));
-    CFE_EVS_GlobalData.EVS_AppID = AppID;
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
+    CFE_EVS_Global.EVS_AppID = AppID;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     /* Test successful log data file write */
     UT_InitData();
@@ -2731,7 +2731,7 @@ void Test_Misc(void)
 
     /* Test housekeeping report with log enabled */
     UT_InitData();
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = true;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     HK_SnapshotData.Count = 0;
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
     UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, &PktBuf.msg, sizeof(PktBuf.cmd),
@@ -2744,7 +2744,7 @@ void Test_Misc(void)
     /* Test successful application cleanup */
     UT_InitData();
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_CleanUpApp(CFE_ES_RESOURCEID_UNDEFINED) == CFE_SUCCESS,
+              CFE_EVS_CleanUpApp(CFE_ES_APPID_UNDEFINED) == CFE_SUCCESS,
               "CFE_EVS_CleanUpApp",
               "Application cleanup - successful");
 
@@ -2757,7 +2757,7 @@ void Test_Misc(void)
 
     /* Test housekeeping report with log disabled */
     UT_InitData();
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.LogEnabled = false;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = false;
     HK_SnapshotData.Count = 0;
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &HK_SnapshotData);
     UT_CallTaskPipe(CFE_EVS_ProcessCommandPacket, &PktBuf.msg, sizeof(PktBuf.cmd),
@@ -2771,12 +2771,12 @@ void Test_Misc(void)
      * at their maximum allowed values
      */
     UT_InitData();
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageSendCounter =
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter =
         CFE_EVS_MAX_EVENT_SEND_COUNT;
     AppDataPtr->EventCount = CFE_EVS_MAX_EVENT_SEND_COUNT;
     EVS_SendEvent(0, 0, "Max Event Count");
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageSendCounter ==
+              CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter ==
                   CFE_EVS_MAX_EVENT_SEND_COUNT &&
               AppDataPtr->EventCount ==
                   CFE_EVS_MAX_EVENT_SEND_COUNT,
@@ -2794,14 +2794,14 @@ void Test_Misc(void)
     }
 
     msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH] = '\0';
-    CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageTruncCounter = 0;
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter = 0;
     EVS_AppDataSetUsed(AppDataPtr, AppID);
     AppDataPtr->ActiveFlag = true;
     AppDataPtr->EventTypesActiveFlag |=
         CFE_EVS_INFORMATION_BIT;
     EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, msg);
     UT_Report(__FILE__, __LINE__,
-              CFE_EVS_GlobalData.EVS_TlmPkt.Payload.MessageTruncCounter == 1,
+              CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter == 1,
               "EVS_SendEvent",
               "Maximum message length exceeded");
 }

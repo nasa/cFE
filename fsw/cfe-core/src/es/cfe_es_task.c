@@ -272,8 +272,7 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Subscribe to Housekeeping request commands
     */
-    Status = CFE_SB_SubscribeEx(CFE_SB_ValueToMsgId(CFE_ES_SEND_HK_MID), CFE_ES_TaskData.CmdPipe,
-                                CFE_SB_Default_Qos, CFE_ES_LIMIT_HK);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_ES_SEND_HK_MID), CFE_ES_TaskData.CmdPipe);
     if ( Status != CFE_SUCCESS )
     {
         CFE_ES_WriteToSysLog("ES:Cannot Subscribe to HK packet, RC = 0x%08X\n", (unsigned int)Status);
@@ -283,8 +282,7 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Subscribe to ES task ground command packets
     */
-    Status = CFE_SB_SubscribeEx(CFE_SB_ValueToMsgId(CFE_ES_CMD_MID), CFE_ES_TaskData.CmdPipe,
-                                CFE_SB_Default_Qos, CFE_ES_LIMIT_CMD);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_ES_CMD_MID), CFE_ES_TaskData.CmdPipe);
     if ( Status != CFE_SUCCESS )
     {
         CFE_ES_WriteToSysLog("ES:Cannot Subscribe to ES ground commands, RC = 0x%08X\n", (unsigned int)Status);
@@ -846,7 +844,7 @@ int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data)
 int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
 {
     const CFE_ES_StartAppCmd_Payload_t *cmd = &data->Payload;
-    CFE_ES_ResourceID_t   AppID;
+    CFE_ES_AppId_t        AppID;
     int32                 Result;
     int32                 FilenameLen;
     int32                 AppEntryLen;
@@ -933,7 +931,7 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
             CFE_ES_TaskData.CommandCounter++;
             CFE_EVS_SendEvent(CFE_ES_START_INF_EID, CFE_EVS_EventType_INFORMATION,
                     "Started %s from %s, AppID = %lu",
-                    LocalAppName, LocalFile, CFE_ES_ResourceID_ToInteger(AppID));
+                    LocalAppName, LocalFile, CFE_RESOURCEID_TO_ULONG(AppID));
         }
         else
         {
@@ -959,7 +957,7 @@ int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t AppID;
     int32 Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL,
@@ -1013,7 +1011,7 @@ int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
-    CFE_ES_ResourceID_t AppID;
+    CFE_ES_AppId_t AppID;
     int32 Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL,
@@ -1064,7 +1062,7 @@ int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
     const CFE_ES_AppReloadCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
     char LocalFileName[OS_MAX_PATH_LEN];
-    CFE_ES_ResourceID_t  AppID;
+    CFE_ES_AppId_t  AppID;
     int32   Result;
 
     CFE_SB_MessageStringGet(LocalFileName, (char *)cmd->AppFileName, NULL,
@@ -1117,22 +1115,27 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
     char LocalApp[OS_MAX_API_NAME];
-    CFE_ES_ResourceID_t ResourceID;
+    union
+    {
+        CFE_ES_AppId_t   AppId;
+        CFE_ES_LibId_t   LibId;
+        CFE_ResourceId_t ResourceID;
+    } IdBuf;
     int32 Result;
 
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL,
             sizeof(LocalApp), sizeof(cmd->Application));
 
-    Result = CFE_ES_GetAppIDByName(&ResourceID, LocalApp);
+    Result = CFE_ES_GetAppIDByName(&IdBuf.AppId, LocalApp);
     if (Result == CFE_ES_ERR_NAME_NOT_FOUND)
     {
         /* Also check for a matching library name */
-        Result = CFE_ES_GetLibIDByName(&ResourceID, LocalApp);
+        Result = CFE_ES_GetLibIDByName(&IdBuf.LibId, LocalApp);
     }
 
     if (Result == CFE_SUCCESS)
     {
-        Result = CFE_ES_GetModuleInfo(&(CFE_ES_TaskData.OneAppPacket.Payload.AppInfo), ResourceID);
+        Result = CFE_ES_GetModuleInfo(&(CFE_ES_TaskData.OneAppPacket.Payload.AppInfo), IdBuf.ResourceID);
     }
 
     /*
@@ -1187,7 +1190,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     CFE_ES_AppInfo_t      AppInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                  QueryAllFilename[OS_MAX_PATH_LEN];
-    CFE_ES_ResourceID_t   ResourceList[CFE_ES_QUERY_ALL_MAX_ENTRIES];
+    CFE_ResourceId_t      ResourceList[CFE_ES_QUERY_ALL_MAX_ENTRIES];
     uint32                NumResources;
     CFE_ES_AppRecord_t    *AppRecPtr;
     CFE_ES_LibRecord_t    *LibRecPtr;
@@ -1212,7 +1215,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     {
         if (CFE_ES_AppRecordIsUsed(AppRecPtr))
         {
-            ResourceList[NumResources] = CFE_ES_AppRecordGetID(AppRecPtr);
+            ResourceList[NumResources] = CFE_RESOURCEID_UNWRAP(CFE_ES_AppRecordGetID(AppRecPtr));
             ++NumResources;
         }
         ++AppRecPtr;
@@ -1223,7 +1226,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     {
         if (CFE_ES_LibRecordIsUsed(LibRecPtr))
         {
-            ResourceList[NumResources] = CFE_ES_LibRecordGetID(LibRecPtr);
+            ResourceList[NumResources] = CFE_RESOURCEID_UNWRAP(CFE_ES_LibRecordGetID(LibRecPtr));
             ++NumResources;
         }
         ++LibRecPtr;
@@ -1346,7 +1349,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
     CFE_ES_TaskInfo_t          TaskInfo;
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
     char                       QueryAllFilename[OS_MAX_PATH_LEN];
-    CFE_ES_ResourceID_t        TaskList[OS_MAX_TASKS];
+    CFE_ES_TaskId_t            TaskList[OS_MAX_TASKS];
     uint32                     NumTasks;
     CFE_ES_TaskRecord_t        *TaskRecPtr;
 
@@ -1817,14 +1820,14 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
         CFE_ES_TaskData.CommandCounter++;
         CFE_EVS_SendEvent(CFE_ES_TLM_POOL_STATS_INFO_EID, CFE_EVS_EventType_DEBUG,
                 "Successfully telemetered memory pool stats for 0x%08lX",
-                CFE_ES_ResourceID_ToInteger(Cmd->PoolHandle));
+                CFE_RESOURCEID_TO_ULONG(Cmd->PoolHandle));
     }
     else
     {
         CFE_ES_TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_INVALID_POOL_HANDLE_ERR_EID, CFE_EVS_EventType_ERROR,
                 "Cannot telemeter memory pool stats. Illegal Handle (0x%08lX)",
-                CFE_ES_ResourceID_ToInteger(Cmd->PoolHandle));
+                CFE_RESOURCEID_TO_ULONG(Cmd->PoolHandle));
     }
 
     return CFE_SUCCESS;
