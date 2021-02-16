@@ -121,30 +121,6 @@
 #endif
 
 /* 
-** The size of a command to the OS that lies under the cFE 
-*/
-#if CFE_PLATFORM_ES_MAX_SHELL_CMD  <  64
-    #error CFE_PLATFORM_ES_MAX_SHELL_CMD cannot be less than 64!
-#endif
-
-/* 
-** The size of a command to the OS that lies under the cFE must avoid overflow 
-*/
-#if CFE_PLATFORM_ES_MAX_SHELL_CMD  >  OS_MAX_CMD_LEN
-    #error CFE_PLATFORM_ES_MAX_SHELL_CMD cannot be greater than OS_MAX_CMD_LEN!
-#endif
-
-/* 
-** The size of the chunks to break the output of the shell command into 
- * to send down in telemetry 
-*/
-#if CFE_PLATFORM_ES_MAX_SHELL_PKT  <  32
-    #error CFE_PLATFORM_ES_MAX_SHELL_PKT cannot be less than 32!
-#elif CFE_PLATFORM_ES_MAX_SHELL_PKT  >  CFE_MISSION_SB_MAX_SB_MSG_SIZE
-    #error CFE_PLATFORM_ES_MAX_SHELL_PKT cannot be greater than CFE_MISSION_SB_MAX_SB_MSG_SIZE!
-#endif
-
-/* 
 ** SysLog mode
 */
 #if CFE_PLATFORM_ES_DEFAULT_SYSLOG_MODE  <  0
@@ -352,12 +328,6 @@
 #endif
 #if ((CFE_MISSION_MAX_FILE_LEN % 4) != 0)
     #error CFE_MISSION_MAX_FILE_LEN must be a multiple of 4
-#endif
-#if ((CFE_MISSION_ES_MAX_SHELL_CMD % 4) != 0)
-    #error CFE_MISSION_ES_MAX_SHELL_CMD must be a multiple of 4
-#endif
-#if ((CFE_MISSION_ES_MAX_SHELL_PKT % 4) != 0)
-    #error CFE_MISSION_ES_MAX_SHELL_PKT must be a multiple of 4
 #endif
 #if ((CFE_MISSION_ES_CDS_MAX_NAME_LENGTH % 4) != 0)
     #error CFE_MISSION_ES_CDS_MAX_NAME_LENGTH must be a multiple of 4

@@ -831,69 +831,6 @@
 #define CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE  "/ram/cfe_es_startup.scr"
 
 /**
-**  \cfeescfg Default Shell Filename
-**
-**  \par Description:
-**       The value of this constant defines the filename used to store the shell
-**       output after a shell command is received by ES. This file contains the
-**       entire shell output. The fsw also sends the shell output in series of fixed
-**       size telemetry packets. This filename is used only when no filename
-**       is specified in the shell command.
-**
-**  \par Limits
-**       The length of each string, including the NULL terminator cannot exceed the
-**       #OS_MAX_PATH_LEN value.
-*/
-#define CFE_PLATFORM_ES_DEFAULT_SHELL_FILENAME  "/ram/ShellCmd.out"
-
-
-/**
-**  \cfeescfg Define Max Shell Command Size
-**
-**  \par Description:
-**       Defines the maximum size in characters of the shell command.
-**
-**  \par Limits
-**       There is a lower limit of 64 and an upper limit of #OS_MAX_CMD_LEN. Units are
-**       characters.
-*/
-#define CFE_PLATFORM_ES_MAX_SHELL_CMD  64
-
-
-/**
-**  \cfeescfg Define Shell Command Telemetry Pkt Segment Size
-**
-**  \par Description:
-**       Defines the size of the shell command tlm packet segments.The shell command
-**       output size is dependant on the shell command itself. If the shell output
-**       size is greater than the size of the packet defined here, the fsw will
-**       generate a series of tlm packets (of the size defined here) that can be
-**       reconstructed by the ground system.
-**
-**  \par Limits
-**       There is a lower limit of 32 and an upper limit of #CFE_MISSION_SB_MAX_SB_MSG_SIZE.
-*/
-#define CFE_PLATFORM_ES_MAX_SHELL_PKT    64
-
-/**
-**  \cfeescfg Define OS Task Delay Value for ES Shell Command
-**
-**  \par Description:
-**       This parameter defines the length of time (in milliseconds) ES will 
-**       delay when sending shell command packets over the software bus to not 
-**       flood the pipe on large messages.
-** 
-**       Note: The milliseconds passed into OS_TaskDelay are converted into the 
-**       units the underlying OS uses to measure time passing.  Many platforms 
-**       limit the precision of this value however, a delay may not be
-**       needed at all in which the value may be set to zero.
-**
-**  \par Limits
-**       Not Applicable
-*/
-#define CFE_PLATFORM_ES_SHELL_OS_DELAY_MILLISEC   200
-
-/**
 **  \cfeescfg Default Application Information Filename
 **
 **  \par Description:
