@@ -44,6 +44,7 @@
 #include "cfe_es_events.h"
 #include "cfe_es_msg.h"
 #include "cfe_es_perf.h"
+#include "private/cfe_es_erlog_typedef.h"
 
 /*************************************************************************/
 
@@ -90,8 +91,8 @@
  */
 typedef struct
 {
-    volatile bool   IsPending;
-    char            DataFileName[OS_MAX_PATH_LEN];
+    CFE_FS_FileWriteMetaData_t    FileWrite;   /**< FS state data - must be first */
+    CFE_ES_ERLog_FileEntry_t      EntryBuffer; /**< Temp holding area for record to write */
 } CFE_ES_BackgroundLogDumpGlobal_t;
 
 /*
@@ -164,7 +165,6 @@ void  CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
  */
 int32 CFE_ES_BackgroundInit(void);
 void  CFE_ES_BackgroundTask(void);
-void  CFE_ES_BackgroundWakeup(void);
 void  CFE_ES_BackgroundCleanup(void);
 
 /*

@@ -1114,6 +1114,189 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 
 /*******************************************************************
 **
+** CFE_TBL_DumpRegistryGetter() -- Helper function for dumping table registry
+**
+********************************************************************/
+
+bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
+{
+    CFE_TBL_RegDumpStateInfo_t *StatePtr = (CFE_TBL_RegDumpStateInfo_t *)Meta;
+    CFE_TBL_RegistryRec_t      *RegRecPtr;
+    CFE_TBL_Handle_t            HandleIterator;
+    CFE_ES_AppId_t              OwnerAppId;
+    bool                        IsValidEntry;
+
+    IsValidEntry = false;
+    OwnerAppId = CFE_ES_APPID_UNDEFINED;
+
+    if (RecordNum < CFE_PLATFORM_TBL_MAX_NUM_TABLES)
+    {
+        /* Make a pointer to simplify code look and to remove redundant indexing into registry */
+        RegRecPtr = &CFE_TBL_Global.Registry[RecordNum];
+
+        /* should lock registry while copying out data to ensure its in consistent state */
+        CFE_TBL_LockRegistry();
+
+        /* Check to see if the Registry entry is empty */
+        if (!CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED) ||
+            (RegRecPtr->HeadOfAccessList != CFE_TBL_END_OF_LIST))
+        {
+            IsValidEntry = true;
+            OwnerAppId = RegRecPtr->OwnerAppId;
+
+            /* Fill Registry Dump Record with relevant information */
+            StatePtr->DumpRecord.Size             = CFE_ES_MEMOFFSET_C(RegRecPtr->Size);
+            StatePtr->DumpRecord.TimeOfLastUpdate = RegRecPtr->TimeOfLastUpdate;
+            StatePtr->DumpRecord.LoadInProgress   = RegRecPtr->LoadInProgress;
+            StatePtr->DumpRecord.ValidationFunc   = (RegRecPtr->ValidationFuncPtr != NULL);
+            StatePtr->DumpRecord.TableLoadedOnce  = RegRecPtr->TableLoadedOnce;
+            StatePtr->DumpRecord.LoadPending      = RegRecPtr->LoadPending;
+            StatePtr->DumpRecord.DumpOnly         = RegRecPtr->DumpOnly;
+            StatePtr->DumpRecord.DoubleBuffered        = RegRecPtr->DoubleBuffered;
+            StatePtr->DumpRecord.FileCreateTimeSecs    = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
+            StatePtr->DumpRecord.FileCreateTimeSubSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
+            StatePtr->DumpRecord.Crc              = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
+            StatePtr->DumpRecord.CriticalTable    = RegRecPtr->CriticalTable;
+
+            /* Convert LoadInProgress flag into more meaningful information */
+            /* When a load is in progress, identify which buffer is being used as the inactive buffer */
+            if (StatePtr->DumpRecord.LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
+            {
+                if (StatePtr->DumpRecord.DoubleBuffered)
+                {
+                    /* For double buffered tables, the value of LoadInProgress, when a load is actually in progress, */
+                    /* should identify either buffer #0 or buffer #1.  Convert these to enumerated value for ground  */
+                    /* display.  LoadInProgress = -2 means Buffer #1, LoadInProgress = -3 means Buffer #0.           */
+                    StatePtr->DumpRecord.LoadInProgress = StatePtr->DumpRecord.LoadInProgress - 3;
+                }
+                /* For single buffered tables, the value of LoadInProgress, when a load is actually in progress,     */
+                /* indicates which shared buffer is allocated for the inactive buffer.  Since the number of inactive */
+                /* buffers is a platform configuration parameter, then 0 on up merely identifies the buffer number.  */
+                /* No translation is necessary for single buffered tables.                                           */
+            }
+            
+            strncpy(StatePtr->DumpRecord.Name, RegRecPtr->Name, sizeof(StatePtr->DumpRecord.Name)-1);
+            StatePtr->DumpRecord.Name[sizeof(StatePtr->DumpRecord.Name)-1] = 0;
+            
+            strncpy(StatePtr->DumpRecord.LastFileLoaded, RegRecPtr->LastFileLoaded, sizeof(StatePtr->DumpRecord.LastFileLoaded)-1);
+            StatePtr->DumpRecord.LastFileLoaded[sizeof(StatePtr->DumpRecord.LastFileLoaded)-1] = 0;
+
+            /* Walk the access descriptor list to determine the number of users */
+            StatePtr->DumpRecord.NumUsers = 0;
+            HandleIterator = RegRecPtr->HeadOfAccessList;
+            while (HandleIterator != CFE_TBL_END_OF_LIST)
+            {
+                StatePtr->DumpRecord.NumUsers++;
+                HandleIterator = CFE_TBL_Global.Handles[HandleIterator].NextLink;
+            }
+        }
+
+        /* Unlock now - remainder of data gathering uses ES */
+        CFE_TBL_UnlockRegistry();
+    }
+
+    /*
+     * If table record had data, then export now.
+     * Need to also get the App name from ES to complete the record.
+     */
+    if (IsValidEntry)
+    {
+        /* Determine the name of the owning application */
+        if (!CFE_RESOURCEID_TEST_EQUAL(OwnerAppId, CFE_TBL_NOT_OWNED))
+        {
+            CFE_ES_GetAppName(StatePtr->DumpRecord.OwnerAppName, OwnerAppId, sizeof(StatePtr->DumpRecord.OwnerAppName));
+        }
+        else
+        {
+            strncpy(StatePtr->DumpRecord.OwnerAppName, "--UNOWNED--", sizeof(StatePtr->DumpRecord.OwnerAppName)-1);
+            StatePtr->DumpRecord.OwnerAppName[sizeof(StatePtr->DumpRecord.OwnerAppName)-1] = 0;
+        }
+
+        /* export data to caller */
+        *Buffer = &StatePtr->DumpRecord;
+        *BufSize = sizeof(StatePtr->DumpRecord);
+    }
+    else
+    {
+        /* No data to write for this record */
+        *BufSize = 0;
+        *Buffer = NULL;
+    }
+
+    /* Check for EOF (last entry) */
+    return (RecordNum >= (CFE_PLATFORM_TBL_MAX_NUM_TABLES-1));
+}
+
+/*******************************************************************
+**
+** CFE_TBL_DumpRegistryEventHandler() -- Helper function for dumping table registry
+**
+********************************************************************/
+
+void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position)
+{
+    CFE_TBL_RegDumpStateInfo_t *StatePtr = (CFE_TBL_RegDumpStateInfo_t *)Meta;
+
+    /*
+     * Note that this runs in the context of ES background task (file writer background job)
+     * It does NOT run in the context of the CFE_TBL app task.
+     * 
+     * Events should use CFE_EVS_SendEventWithAppID() rather than CFE_EVS_SendEvent()
+     * to get proper association with TBL task.
+     */
+    switch(Event)
+    {
+        case CFE_FS_FileWriteEvent_COMPLETE:
+            if (StatePtr->FileExisted)
+            {
+                CFE_EVS_SendEventWithAppID(CFE_TBL_OVERWRITE_REG_DUMP_INF_EID,
+                                    CFE_EVS_EventType_DEBUG,
+                                    CFE_TBL_Global.TableTaskAppId,
+                                    "Successfully overwrote '%s' with Table Registry:Size=%d,Entries=%d",
+                                    StatePtr->FileWrite.FileName, (int)Position, (int)RecordNum);
+            }
+            else
+            {
+                CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_REG_DUMP_INF_EID,
+                                    CFE_EVS_EventType_DEBUG,
+                                    CFE_TBL_Global.TableTaskAppId,
+                                    "Successfully dumped Table Registry to '%s':Size=%d,Entries=%d",
+                                    StatePtr->FileWrite.FileName, (int)Position, (int)RecordNum);
+            }
+            break;
+        
+        case CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR:
+            CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_TBL_REG_ERR_EID,
+                                CFE_EVS_EventType_ERROR,
+                                CFE_TBL_Global.TableTaskAppId,
+                                "Error writing Registry to '%s', Status=0x%08X",
+                                StatePtr->FileWrite.FileName, (unsigned int)Status);
+            break;
+
+        case CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR:
+            CFE_EVS_SendEventWithAppID(CFE_TBL_WRITE_CFE_HDR_ERR_EID,
+                              CFE_EVS_EventType_ERROR,
+                              CFE_TBL_Global.TableTaskAppId,
+                              "Error writing cFE File Header to '%s', Status=0x%08X",
+                              StatePtr->FileWrite.FileName, (unsigned int)Status);        
+            break;
+
+        case CFE_FS_FileWriteEvent_CREATE_ERROR:
+            CFE_EVS_SendEventWithAppID(CFE_TBL_CREATING_DUMP_FILE_ERR_EID,
+                            CFE_EVS_EventType_ERROR,
+                            CFE_TBL_Global.TableTaskAppId,
+                            "Error creating dump file '%s', Status=0x%08X",
+                            StatePtr->FileWrite.FileName, (unsigned int)Status);        
+            break;
+        
+        default:
+            /* unhandled event - ignore */
+            break;
+    }       
+}
+
+/*******************************************************************
+**
 ** CFE_TBL_DumpRegistryCmd() -- Process Dump Table Registry to file Command Message
 **
 ** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
@@ -1122,175 +1305,46 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t        ReturnCode = CFE_TBL_INC_ERR_CTR;        /* Assume failure */
-    bool                        FileExistedPrev = false;
-    CFE_FS_Header_t             StdFileHeader;
-    osal_id_t                   FileDescriptor;
     int32                       Status;
-    int16                       RegIndex=0;
     const CFE_TBL_DumpRegistryCmd_Payload_t *CmdPtr = &data->Payload;
-    char                        DumpFilename[OS_MAX_PATH_LEN];
-    CFE_TBL_RegistryRec_t      *RegRecPtr;
-    CFE_TBL_Handle_t            HandleIterator;
-    CFE_TBL_RegDumpRec_t        DumpRecord;
-    int32                       FileSize=0;
-    int32                       NumEntries=0;
+    os_fstat_t                  FileStat;
 
-    /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
-    CFE_SB_MessageStringGet(DumpFilename, (char *)CmdPtr->DumpFilename, CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE,
-            sizeof(DumpFilename), sizeof(CmdPtr->DumpFilename));
+    CFE_TBL_RegDumpStateInfo_t *StatePtr;
 
-    /* Check to see if the dump file already exists */
-    Status = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+    StatePtr = &CFE_TBL_Global.RegDumpState;
 
-    if (Status >= 0)
+    /* If a reg dump was already pending, do not overwrite the current request */
+    if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
     {
-        FileExistedPrev = true;
-        OS_close(FileDescriptor);
-    }
+        /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
+        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->DumpFilename, CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE,
+                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->DumpFilename));
 
-    /* Create a new dump file, overwriting anything that may have existed previously */
-    Status = OS_OpenCreate(&FileDescriptor, DumpFilename,
-            OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+        /* 
+         * Fill out the remainder of meta data.  
+         * This data is currently the same for every request
+         */
+        StatePtr->FileWrite.FileSubType = CFE_FS_SubType_TBL_REG;
+        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), "Table Registry");
 
-    if (Status >= OS_SUCCESS)
-    {
-        /* Initialize the standard cFE File Header for the Dump File */
-        CFE_FS_InitHeader(&StdFileHeader, "Table Registry", CFE_FS_SubType_TBL_REG);
+        StatePtr->FileWrite.GetData = CFE_TBL_DumpRegistryGetter;
+        StatePtr->FileWrite.OnEvent = CFE_TBL_DumpRegistryEventHandler;
 
-        /* Output the Standard cFE File Header to the Dump File */
-        Status = CFE_FS_WriteHeader(FileDescriptor, &StdFileHeader);
-        
-        /* Maintain statistics of amount of data written to file */
-        FileSize += Status;
+        /*
+         * Before submitting the background request, use OS_stat() to check if the file exists already.
+         * 
+         * This is because TBL services issued a different event ID in some cases if
+         * it is overwriting a file vs. creating a new file.
+         */
+        StatePtr->FileExisted = (OS_stat(StatePtr->FileWrite.FileName, &FileStat) == OS_SUCCESS);
 
-        if (Status == sizeof(CFE_FS_Header_t))
+        Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
+
+        if (Status == CFE_SUCCESS)
         {
-            Status = sizeof(CFE_TBL_RegDumpRec_t);
-            while ((RegIndex < CFE_PLATFORM_TBL_MAX_NUM_TABLES) && (Status == sizeof(CFE_TBL_RegDumpRec_t)))
-            {
-                /* Make a pointer to simplify code look and to remove redundant indexing into registry */
-                RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
-
-                /* Check to see if the Registry entry is empty */
-                if (!CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED) ||
-                    (RegRecPtr->HeadOfAccessList != CFE_TBL_END_OF_LIST))
-                {
-                    /* Fill Registry Dump Record with relevant information */
-                    DumpRecord.Size             = CFE_ES_MEMOFFSET_C(RegRecPtr->Size);
-                    DumpRecord.TimeOfLastUpdate = RegRecPtr->TimeOfLastUpdate;
-                    DumpRecord.LoadInProgress   = RegRecPtr->LoadInProgress;
-                    DumpRecord.ValidationFunc   = (RegRecPtr->ValidationFuncPtr != NULL);
-                    DumpRecord.TableLoadedOnce  = RegRecPtr->TableLoadedOnce;
-                    DumpRecord.LoadPending      = RegRecPtr->LoadPending;
-                    DumpRecord.DumpOnly         = RegRecPtr->DumpOnly;
-                    DumpRecord.DoubleBuffered      = RegRecPtr->DoubleBuffered;
-                    DumpRecord.FileCreateTimeSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSecs;
-                    DumpRecord.FileCreateTimeSubSecs = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].FileCreateTimeSubSecs;
-                    DumpRecord.Crc              = RegRecPtr->Buffers[RegRecPtr->ActiveBufferIndex].Crc;
-                    DumpRecord.CriticalTable    = RegRecPtr->CriticalTable;
-
-                    /* Convert LoadInProgress flag into more meaningful information */
-                    /* When a load is in progress, identify which buffer is being used as the inactive buffer */
-                    if (DumpRecord.LoadInProgress != CFE_TBL_NO_LOAD_IN_PROGRESS)
-                    {
-                        if (DumpRecord.DoubleBuffered)
-                        {
-                            /* For double buffered tables, the value of LoadInProgress, when a load is actually in progress, */
-                            /* should identify either buffer #0 or buffer #1.  Convert these to enumerated value for ground  */
-                            /* display.  LoadInProgress = -2 means Buffer #1, LoadInProgress = -3 means Buffer #0.           */
-                            DumpRecord.LoadInProgress = DumpRecord.LoadInProgress - 3;
-                        }
-                        /* For single buffered tables, the value of LoadInProgress, when a load is actually in progress,     */
-                        /* indicates which shared buffer is allocated for the inactive buffer.  Since the number of inactive */
-                        /* buffers is a platform configuration parameter, then 0 on up merely identifies the buffer number.  */
-                        /* No translation is necessary for single buffered tables.                                           */
-                    }
-                    
-                    /* Zero character arrays to remove garbage text */
-                    memset(DumpRecord.Name, 0, CFE_TBL_MAX_FULL_NAME_LEN);
-                    memset(DumpRecord.LastFileLoaded, 0, OS_MAX_PATH_LEN);
-                    memset(DumpRecord.OwnerAppName, 0, OS_MAX_API_NAME);
-
-                    strncpy(DumpRecord.Name, RegRecPtr->Name, sizeof(DumpRecord.Name)-1);
-                    strncpy(DumpRecord.LastFileLoaded, RegRecPtr->LastFileLoaded, sizeof(DumpRecord.LastFileLoaded)-1);
-
-                    /* Walk the access descriptor list to determine the number of users */
-                    DumpRecord.NumUsers = 0;
-                    HandleIterator = RegRecPtr->HeadOfAccessList;
-                    while (HandleIterator != CFE_TBL_END_OF_LIST)
-                    {
-                        DumpRecord.NumUsers++;
-                        HandleIterator = CFE_TBL_Global.Handles[HandleIterator].NextLink;
-                    }
-
-                    /* Determine the name of the owning application */
-                    if (!CFE_RESOURCEID_TEST_EQUAL(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED))
-                    {
-                        CFE_ES_GetAppName(DumpRecord.OwnerAppName, RegRecPtr->OwnerAppId, sizeof(DumpRecord.OwnerAppName));
-                    }
-                    else
-                    {
-                        strncpy(DumpRecord.OwnerAppName, "--UNOWNED--", sizeof(DumpRecord.OwnerAppName)-1);
-                    }
-
-                    /* Output Registry Dump Record to Registry Dump File */
-                    Status = OS_write(FileDescriptor,
-                                      &DumpRecord,
-                                      sizeof(CFE_TBL_RegDumpRec_t));
-                    
-                    FileSize += Status;
-                    NumEntries++;      
-                }
-
-                /* Look at the next entry in the Registry */
-                RegIndex++;
-            }
-
-            if (Status == sizeof(CFE_TBL_RegDumpRec_t))
-            {
-                if (FileExistedPrev)
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_OVERWRITE_REG_DUMP_INF_EID,
-                                      CFE_EVS_EventType_DEBUG,
-                                      "Successfully overwrote '%s' with Table Registry:Size=%d,Entries=%d",
-                                      DumpFilename, (int)FileSize, (int)NumEntries);
-                }
-                else
-                {
-                    CFE_EVS_SendEvent(CFE_TBL_WRITE_REG_DUMP_INF_EID,
-                                      CFE_EVS_EventType_DEBUG,
-                                      "Successfully dumped Table Registry to '%s':Size=%d,Entries=%d",
-                                      DumpFilename, (int)FileSize, (int)NumEntries);
-                }
-
-                /* Increment Successful Command Counter */
-                ReturnCode = CFE_TBL_INC_CMD_CTR;
-            }
-            else
-            {
-                CFE_EVS_SendEvent(CFE_TBL_WRITE_TBL_REG_ERR_EID,
-                                  CFE_EVS_EventType_ERROR,
-                                  "Error writing Registry to '%s', Status=0x%08X",
-                                  DumpFilename, (unsigned int)Status);
-            }
+            /* Increment the TBL generic command counter (successfully queued for background job) */
+            ReturnCode = CFE_TBL_INC_CMD_CTR;
         }
-        else
-        {
-            CFE_EVS_SendEvent(CFE_TBL_WRITE_CFE_HDR_ERR_EID,
-                              CFE_EVS_EventType_ERROR,
-                              "Error writing cFE File Header to '%s', Status=0x%08X",
-                              DumpFilename, (unsigned int)Status);
-        }
-
-        /* We are done outputting data to the dump file.  Close it. */
-        OS_close(FileDescriptor);
-    }
-    else
-    {
-        CFE_EVS_SendEvent(CFE_TBL_CREATING_DUMP_FILE_ERR_EID,
-                          CFE_EVS_EventType_ERROR,
-                          "Error creating dump file '%s', Status=0x%08X",
-                          DumpFilename, (unsigned int)Status);
     }
 
     return ReturnCode;

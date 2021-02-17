@@ -272,6 +272,19 @@ typedef struct
 } CFE_TBL_RegDumpRec_t;
 
 /*******************************************************************************/
+/**   \brief Table Registry Dump background state information
+**
+**    State info for background table registry dump process and one temporary data record.
+*/
+typedef struct 
+{
+    CFE_FS_FileWriteMetaData_t FileWrite;   /**< FS state data - must be first */
+
+    bool                 FileExisted; /**< Set true if the file already existed at the time of request */
+    CFE_TBL_RegDumpRec_t DumpRecord;  /**< Current record buffer (reused each entry) */
+} CFE_TBL_RegDumpStateInfo_t;
+
+/*******************************************************************************/
 /**   \brief Table Task Global Data
 **
 **     Structure used to ensure Table Task Global Data is maintained as a single
@@ -335,6 +348,11 @@ typedef struct
   CFE_TBL_BufParams_t         Buf;                               /**< \brief Parameters associated with Table Task's Memory Pool */
   CFE_TBL_ValidationResult_t  ValidationResults[CFE_PLATFORM_TBL_MAX_NUM_VALIDATIONS]; /**< \brief Array of Table Validation Requests */
   CFE_TBL_DumpControl_t       DumpControlBlocks[CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS]; /**< \brief Array of Dump-Only Dump Control Blocks */
+
+  /*
+   * Registry dump state info (background job)
+   */
+  CFE_TBL_RegDumpStateInfo_t  RegDumpState;
 
 } CFE_TBL_Global_t;
 

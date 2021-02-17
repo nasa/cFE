@@ -1336,3 +1336,8 @@ int32 CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
 
     return return_code;
 }
+
+void CFE_ES_BackgroundWakeup(void)
+{
+    UT_DEFAULT_IMPL(CFE_ES_BackgroundWakeup);
+}

@@ -304,3 +304,40 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
     return status;
 }
 
+
+bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_RunBackgroundFileDump), ElapsedTime);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_RunBackgroundFileDump), Arg);
+
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_FS_RunBackgroundFileDump);
+
+    return status;
+}
+
+int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_BackgroundFileDumpRequest), Meta);
+
+    int32 status;
+
+    status = UT_DEFAULT_IMPL(CFE_FS_BackgroundFileDumpRequest);
+
+    if (status == CFE_SUCCESS)
+    {
+        /* Snapshot the request, in case the UT test case wants to look */
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_FS_BackgroundFileDumpRequest), Meta, sizeof(*Meta));
+    }
+
+    return status;
+}
+
+bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta)
+{
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_BackgroundFileDumpIsPending), Meta);
+
+    return UT_DEFAULT_IMPL(CFE_FS_BackgroundFileDumpIsPending);
+
+}
