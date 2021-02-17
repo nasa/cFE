@@ -77,6 +77,27 @@ typedef const struct
 } CFE_StaticModuleLoadEntry_t;
 
 /**
+ * A record containing a configuration name
+ * This is a single entry in a list of simple strings.
+ */
+typedef const struct
+{
+    const char *Name;
+} CFE_ConfigName_t;
+
+
+/**
+ * A record containing a configuration key-value pair
+ * The data are simple strings defined at compile time, and
+ * do not change until next build (always const).
+ */
+typedef const struct
+{
+    const char *Key;
+    const void *Value;
+} CFE_ConfigKeyValue_t;
+
+/**
  * Core Flight Executive configuration information.
  */
 typedef const struct
@@ -129,12 +150,30 @@ extern Target_CfeConfigData GLOBAL_CFE_CONFIGDATA;
  */
 typedef const struct
 {
-    const char *MissionVersion; /**< Version string acquired from version control system at build time */
-    const char *CfeVersion;     /**< Version string acquired from version control system at build time */
-    const char *OsalVersion;    /**< Version string acquired from version control system at build time */
+    const char *MissionName;    /**< The Mission Name from confguration */
+
+    /*
+     * Note: the version strings in these fields should reflect the administratively-assigned
+     * "semantic version" identifiers, typically from a "version.h" header file of
+     * some type which is manually updated at various points in the development cycle.
+     *
+     * This is separate/distinct from the source control based revision
+     * information, although it may be similar/related.  All automatically
+     * obtained source revision info is in the "ModuleVersionList" below.
+     */
+    const char *MissionVersion; /**< Version string from mission source tree at build time (currently unused/unset) */
+    const char *CfeVersion;     /**< Version string from CFE source tree at build time */
+    const char *OsalVersion;    /**< Version string from OSAL source tree at build time */
+
     const char *Config;  /**< Configuration used for build */
-    const char *Date;    /**< Date and time of build */
-    const char *User;    /**< User ID and build machine */
+
+    /*
+     * Note: date and user info have been moved into the BuildEnvironment below,
+     * but these members must exist in this structure (for now) for compatibility.
+     * These pointers will be NULL at runtime.
+     */
+    const char *Date;    /**< Not set.  Get value from BuildEnvironment instead. */
+    const char *User;    /**< Not set.  Get value from BuildEnvironment instead. */
 
     /*
      * Default values for CPU ID and CPU Name
@@ -149,6 +188,11 @@ typedef const struct
     Target_CfeConfigData *CfeConfig;   /**< CFE configuration sub-structure */
     Target_PspConfigData *PspConfig;   /**< PSP configuration sub-structure */
     CFE_StaticModuleLoadEntry_t *PspModuleList; /**< List of PSP modules (API structures) statically linked into the core EXE */
+
+    CFE_ConfigKeyValue_t *BuildEnvironment;  /**< Environment details of build system at the last time CFE core was built */
+    CFE_ConfigKeyValue_t *ModuleVersionList; /**< List of module versions at the last time CFE core was built */
+    CFE_ConfigName_t     *CoreModuleList;    /**< List of CFE core support module names that are statically linked */
+    CFE_ConfigName_t     *StaticAppList;     /**< List of additional CFS Applications that are statically linked into this binary */
 
 } Target_ConfigData;
 

@@ -72,6 +72,95 @@ function(initialize_globals)
 
 endfunction(initialize_globals)
 
+##################################################################
+#
+# FUNCTION: generate_build_version_templates
+#
+# Generates file templates for use with configure_file() which is
+# invoked at build time to get the required information.
+#
+# Note that some information may change between generation and build
+# times, hence why only a template can be generated here, the final
+# file content must be generated via a build rule.
+#
+function(generate_build_version_templates)
+
+    # File header for build info template (tag file as auto-generated)
+    string(CONCAT GENERATED_FILE_HEADER
+        "/* This file is auto-generated from CMake build system.  Do not manually edit! */\n"
+        "#include \"target_config.h\"\n"
+        "const CFE_ConfigKeyValue_t @CFE_KEYVALUE_TABLE_NAME@[] = {\n"
+    )
+
+    # File trailer for build info template
+    string(CONCAT GENERATED_FILE_TRAILER
+        "{ NULL, NULL } /* End of list */\n"
+        "};\n"
+        "/* End of file */\n"
+    )
+
+    # These variables are deferred until build time
+    foreach (VAR BUILDDATE BUILDUSER BUILDHOST)
+        list (APPEND GENERATED_FILE_CONTENT "{ \"${VAR}\", \"@${VAR}@\" },")
+    endforeach ()
+    string(REPLACE ";" "\n" GENERATED_FILE_CONTENT "${GENERATED_FILE_CONTENT}")
+
+    # Write a template for build/config information
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cfe_generated_file.h.in ${CMAKE_BINARY_DIR}/cfe_build_env.in)
+
+    # Content for version info - all are deferred until build time
+    set(GENERATED_FILE_CONTENT)
+    foreach(DEP "MISSION" ${MISSION_DEPS})
+        list (APPEND GENERATED_FILE_CONTENT "{ \"${DEP}\", @${DEP}_VERSION@ },")
+    endforeach()
+    string(REPLACE ";" "\n" GENERATED_FILE_CONTENT "${GENERATED_FILE_CONTENT}")
+
+    # Write a template for version information
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cfe_generated_file.h.in ${CMAKE_BINARY_DIR}/cfe_module_version.in)
+
+    # The actual version information (to fill out the template above) is obtained at build time
+    # via a script that is executed as a build target.  If this script exists in the mission defs
+    # directory (user-supplied) then use that.  Otherwise a pre-canned "git" version is included
+    # as a fallback, which should work for source trees assembled via git submodules or subtrees.
+    if (EXISTS "${MISSION_DEFS}/generate_module_version.cmake")
+        set(VERSION_SCRIPT "${MISSION_DEFS}/generate_module_version.cmake")
+    else()
+        set(VERSION_SCRIPT "${CFE_SOURCE_DIR}/cmake/generate_git_module_version.cmake")
+    endif()
+
+    add_custom_target(cfe-module-version
+        COMMAND
+            ${CMAKE_COMMAND} -D BIN=${CMAKE_BINARY_DIR}
+                -P "${VERSION_SCRIPT}"
+        WORKING_DIRECTORY
+            ${CMAKE_SOURCE_DIR}
+        VERBATIM
+    )
+
+    add_custom_target(cfe-build-env
+        COMMAND
+            ${CMAKE_COMMAND} -D BIN=${CMAKE_BINARY_DIR}
+                -P "${CFE_SOURCE_DIR}/cmake/generate_build_env.cmake"
+        WORKING_DIRECTORY
+            ${CMAKE_SOURCE_DIR}
+        VERBATIM
+    )
+
+    # Content for build info - these vars can be evaulated right now, no need to defer
+    set(GENERATED_FILE_HEADER "/* Automatically generated from CMake build system */")
+    string(CONCAT GENERATED_FILE_CONTENT
+        "const char CFE_MISSION_NAME[] = \"${MISSION_NAME}\";\n"
+        "const char CFE_MISSION_CONFIG[] = \"${MISSIONCONFIG}\";\n"
+    )
+    set(GENERATED_FILE_TRAILER "/* End of file */")
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cfe_generated_file.h.in ${CMAKE_BINARY_DIR}/src/cfe_mission_strings.c)
+
+    add_custom_target(mission-version
+        DEPENDS cfe-module-version cfe-build-env
+    )
+
+endfunction(generate_build_version_templates)
+
 
 ##################################################################
 #
@@ -267,17 +356,8 @@ function(prepare)
     endif (NOT "${${VARL}}" STREQUAL "")
   endforeach(VARL ${VARLIST})
   file(WRITE "${CMAKE_BINARY_DIR}/mission_vars.cache" "${MISSION_VARCACHE}")
-  
-  # Generate version information for the executable file.  This is done by executing a small CMAKE
-  # at _build_ time  (not at prep time since it might change between now and then) that collects
-  # the info out of the version control system in use (git is currently assumed). 
-  add_custom_target(mission-version
-    COMMAND 
-        ${CMAKE_COMMAND} -D BIN=${CMAKE_BINARY_DIR}
-                         -P ${CFE_SOURCE_DIR}/cmake/version.cmake
-    WORKING_DIRECTORY 
-      ${CMAKE_SOURCE_DIR}                             
-  )
+
+  generate_build_version_templates()
 
   # Generate the tools for the native (host) arch
   add_subdirectory(${MISSION_SOURCE_DIR}/tools tools)

@@ -1409,24 +1409,30 @@
 #define CFE_ES_TASKINFO_WR_ERR_EID    90
 
 
-/** \brief <tt> 'Mission %s.%s, %s, %s' </tt>
-**  \event <tt> 'Mission %s.%s, %s, %s' </tt>
+/** \brief <tt> 'Version Info: %s, %s' </tt>
+**  \event <tt> 'Version Info: %s, %s' </tt>
 **
 **  \par Type: INFORMATION
 **
 **  \par Cause:
 **
 **  This event message is always automatically issued when the Executive Services
-**  Task completes its Initialization
+**  Task completes its Initialization and as part of the Noop command
 **
-**  The \c Mission field identifies the tagged build identifiers and configuration name.
-**  If available, this will also indicate the revision control identifiers for CFE and OSAL
-**  that this binary was built with.
+**  A separate version info event will be generated for every module which is statically
+**  linked into the CFE core executable (e.g. OSAL, PSP, MSG, SBR, etc).
+**
+**  The version information reported in this event is derived from the source revision
+**  control system at build time, as opposed to manually-assigned semantic version numbers.
+**  It is intendended to uniquely identify the actual source code that is currently running,
+**  to the extent this is possible.
+**
+**  The \c Mission version information also identifies the build configuration name, if available.
 **/
 #define CFE_ES_VERSION_INF_EID    91
 
-/** \brief <tt> 'Build %s %s' </tt>
-**  \event <tt> 'Build %s %s' </tt>
+/** \brief <tt> 'Build %s by %s@%s, config %s' </tt>
+**  \event <tt> 'Build %s by %s@%s, config %s' </tt>
 **
 **  \par Type: INFORMATION
 **
@@ -1438,6 +1444,9 @@
 **  The \c Build field identifies the build date, time, hostname and user identifier of
 **  the build host machine for the current running binary.  The first string is the
 **  build date/time, and the second string is formatted as "user@hostname"
+**
+**  This additionally reports the configuration name that was selected by the user,
+**  which may affect various platform/mission limits.
 **
 **  By default, if not specified/overridden, the default values of these variables will be:
 **    BUILDDATE ==> the output of "date +%Y%m%d%H%M"
