@@ -49,6 +49,8 @@
 /* Global Data */
 CFE_EVS_Global_t CFE_EVS_Global;
 
+/* Defines */
+#define CFE_EVS_PANIC_DELAY 500 /**< \brief Task delay before PSP panic */
 
 /*
 ** Local function prototypes.
@@ -94,9 +96,16 @@ int32 CFE_EVS_EarlyInit ( void )
    /* Get a pointer to the CFE reset area from the BSP */
    Status = CFE_PSP_GetResetArea(&resetAreaAddr, &resetAreaSize);
 
+   /* Panic on error */
    if (Status != CFE_PSP_SUCCESS)
    {
+      /* Can't log evs messages without the reset area */
       CFE_ES_WriteToSysLog("EVS call to CFE_PSP_GetResetArea failed, RC=0x%08x\n", (unsigned int)Status);
+
+      /* Delay to allow message to be read */
+      OS_TaskDelay(CFE_EVS_PANIC_DELAY);
+
+      CFE_PSP_Panic(CFE_PSP_PANIC_MEMORY_ALLOC);
    }
    else if (resetAreaSize < sizeof(CFE_ES_ResetData_t))
    {
@@ -104,8 +113,18 @@ int32 CFE_EVS_EarlyInit ( void )
       Status = CFE_EVS_RESET_AREA_POINTER;
       CFE_ES_WriteToSysLog("Unexpected size from CFE_PSP_GetResetArea: expected = 0x%08lX, actual = 0x%08lX\n",
                             (unsigned long)sizeof(CFE_ES_ResetData_t), (unsigned long)resetAreaSize);
+
+      /* Delay to allow message to be read */
+      OS_TaskDelay(CFE_EVS_PANIC_DELAY);
+
+      CFE_PSP_Panic(CFE_PSP_PANIC_MEMORY_ALLOC);
    }
    else
+   {
+      Status = CFE_SUCCESS;
+   }
+
+   if (Status == CFE_SUCCESS)
    {
       CFE_EVS_ResetDataPtr = (CFE_ES_ResetData_t *)resetAreaAddr;
       /* Save pointer to the EVS portion of the CFE reset area */
@@ -117,47 +136,58 @@ int32 CFE_EVS_EarlyInit ( void )
       if (Status != OS_SUCCESS)
       {
          CFE_ES_WriteToSysLog("EVS call to OS_MutSemCreate failed, RC=0x%08x\n", (unsigned int)Status);
+
+         /* Delay to allow message to be read */
+         OS_TaskDelay(CFE_EVS_PANIC_DELAY);
+
+         CFE_PSP_Panic(CFE_PSP_PANIC_STARTUP_SEM);
       }
       else
       {
-         /* Enable access to the EVS event log */                                                            
-         CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
-
-         /* Clear event log if power-on reset or bad contents */                                                            
-         if (CFE_ES_GetResetType(NULL) == CFE_PSP_RST_TYPE_POWERON)                                                                   
-         {
-            CFE_ES_WriteToSysLog("Event Log cleared following power-on reset\n");
-            EVS_ClearLog();                                                                                         
-            CFE_EVS_Global.EVS_LogPtr->LogMode = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
-         }
-         else if (((CFE_EVS_Global.EVS_LogPtr->LogMode != CFE_EVS_LogMode_OVERWRITE) &&
-                   (CFE_EVS_Global.EVS_LogPtr->LogMode != CFE_EVS_LogMode_DISCARD))  ||
-                  ((CFE_EVS_Global.EVS_LogPtr->LogFullFlag != false)   &&
-                   (CFE_EVS_Global.EVS_LogPtr->LogFullFlag != true))   ||
-                   (CFE_EVS_Global.EVS_LogPtr->Next >= CFE_PLATFORM_EVS_LOG_MAX))
-         {
-            CFE_ES_WriteToSysLog("Event Log cleared, n=%d, c=%d, f=%d, m=%d, o=%d\n",
-                                  (int)CFE_EVS_Global.EVS_LogPtr->Next,
-                                  (int)CFE_EVS_Global.EVS_LogPtr->LogCount,
-                                  (int)CFE_EVS_Global.EVS_LogPtr->LogFullFlag,
-                                  (int)CFE_EVS_Global.EVS_LogPtr->LogMode,
-                                  (int)CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter);
-            EVS_ClearLog();                                                                                         
-            CFE_EVS_Global.EVS_LogPtr->LogMode = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
-         }
-         else
-         {
-            CFE_ES_WriteToSysLog("Event Log restored, n=%d, c=%d, f=%d, m=%d, o=%d\n",
-                                  (int)CFE_EVS_Global.EVS_LogPtr->Next,
-                                  (int)CFE_EVS_Global.EVS_LogPtr->LogCount,
-                                  (int)CFE_EVS_Global.EVS_LogPtr->LogFullFlag,
-                                  (int)CFE_EVS_Global.EVS_LogPtr->LogMode,
-                                  (int)CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter);
-         }
+         Status = CFE_SUCCESS;
       }
    }
 
-   return(CFE_SUCCESS);
+   if (Status == CFE_SUCCESS)
+   {
+
+      /* Report log as enabled */
+      CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
+
+      /* Clear event log if power-on reset or bad contents */
+      if (CFE_ES_GetResetType(NULL) == CFE_PSP_RST_TYPE_POWERON)
+      {
+         CFE_ES_WriteToSysLog("Event Log cleared following power-on reset\n");
+         EVS_ClearLog();
+         CFE_EVS_Global.EVS_LogPtr->LogMode = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
+      }
+      else if (((CFE_EVS_Global.EVS_LogPtr->LogMode != CFE_EVS_LogMode_OVERWRITE) &&
+                (CFE_EVS_Global.EVS_LogPtr->LogMode != CFE_EVS_LogMode_DISCARD))  ||
+               ((CFE_EVS_Global.EVS_LogPtr->LogFullFlag != false)   &&
+                (CFE_EVS_Global.EVS_LogPtr->LogFullFlag != true))   ||
+               (CFE_EVS_Global.EVS_LogPtr->Next >= CFE_PLATFORM_EVS_LOG_MAX))
+      {
+         CFE_ES_WriteToSysLog("Event Log cleared, n=%d, c=%d, f=%d, m=%d, o=%d\n",
+                               (int)CFE_EVS_Global.EVS_LogPtr->Next,
+                               (int)CFE_EVS_Global.EVS_LogPtr->LogCount,
+                               (int)CFE_EVS_Global.EVS_LogPtr->LogFullFlag,
+                               (int)CFE_EVS_Global.EVS_LogPtr->LogMode,
+                               (int)CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter);
+         EVS_ClearLog();
+         CFE_EVS_Global.EVS_LogPtr->LogMode = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
+      }
+      else
+      {
+         CFE_ES_WriteToSysLog("Event Log restored, n=%d, c=%d, f=%d, m=%d, o=%d\n",
+                               (int)CFE_EVS_Global.EVS_LogPtr->Next,
+                               (int)CFE_EVS_Global.EVS_LogPtr->LogCount,
+                               (int)CFE_EVS_Global.EVS_LogPtr->LogFullFlag,
+                               (int)CFE_EVS_Global.EVS_LogPtr->LogMode,
+                               (int)CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter);
+      }
+   }
+
+   return(Status);
 
 } /* End CFE_EVS_EarlyInit */
 
@@ -658,20 +688,8 @@ int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 */
 int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data)
 {
-    int32 Status;
-
-    if (CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled == true)
-    {
-        EVS_ClearLog();
-        Status = CFE_SUCCESS;
-    }
-    else
-    {
-       EVS_SendEvent(CFE_EVS_NO_LOGCLR_EID, CFE_EVS_EventType_ERROR,
-                    "Clear Log Command: Event Log is Disabled");
-       Status = CFE_EVS_FUNCTION_DISABLED;
-    }
-    return Status;
+    EVS_ClearLog();
+    return CFE_SUCCESS;
 }
 
 /*
@@ -690,13 +708,10 @@ int32 CFE_EVS_ReportHousekeepingCmd (const CFE_MSG_CommandHeader_t *data)
    EVS_AppData_t *AppDataPtr;
    CFE_EVS_AppTlmData_t *AppTlmDataPtr;
 
-   if (CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled == true)
-   {   
-      /* Copy hk variables that are maintained in the event log */
-      CFE_EVS_Global.EVS_TlmPkt.Payload.LogFullFlag = CFE_EVS_Global.EVS_LogPtr->LogFullFlag;
-      CFE_EVS_Global.EVS_TlmPkt.Payload.LogMode = CFE_EVS_Global.EVS_LogPtr->LogMode;
-      CFE_EVS_Global.EVS_TlmPkt.Payload.LogOverflowCounter = CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter;
-   }
+   /* Copy hk variables that are maintained in the event log */
+   CFE_EVS_Global.EVS_TlmPkt.Payload.LogFullFlag = CFE_EVS_Global.EVS_LogPtr->LogFullFlag;
+   CFE_EVS_Global.EVS_TlmPkt.Payload.LogMode = CFE_EVS_Global.EVS_LogPtr->LogMode;
+   CFE_EVS_Global.EVS_TlmPkt.Payload.LogOverflowCounter = CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter;
 
    /* Write event state data for registered apps to telemetry packet */
    AppDataPtr = CFE_EVS_Global.AppData;

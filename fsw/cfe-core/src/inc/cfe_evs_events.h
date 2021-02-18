@@ -533,51 +533,6 @@
 **/
 #define CFE_EVS_WRLOG_EID                 33
 
-/** \brief <tt> 'Set Log Mode Command: Event Log is Disabled' </tt>
-**  \event <tt> 'Set Log Mode Command: Event Log is Disabled' </tt> 
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This event message is generated upon receipt of a "Set Log Mode"
-**  command when the use of the Event Log has been disabled. The EVS task
-**  must succeed during task initialization in acquiring a pointer to
-**  the cFE reset area and in the creation of a serializing semaphore to
-**  control access to the Event Log.
-**/
-#define CFE_EVS_NO_LOGSET_EID             34
-
-/** \brief <tt> 'Clear Log Command: Event Log is Disabled' </tt>
-**  \event <tt> 'Clear Log Command: Event Log is Disabled' </tt> 
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This event message is generated upon receipt of a "Clear Log"
-**  command when the use of the Event Log has been disabled. The EVS task
-**  must succeed during task initialization in acquiring a pointer to
-**  the cFE reset area and in the creation of a serializing semaphore to
-**  control access to the Event Log.
-**/
-#define CFE_EVS_NO_LOGCLR_EID             35
-
-/** \brief <tt> 'Write Log Command: Event Log is Disabled' </tt>
-**  \event <tt> 'Write Log Command: Event Log is Disabled' </tt> 
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This event message is generated upon receipt of a "Write Log"
-**  command when the use of the Event Log has been disabled. The EVS task
-**  must succeed during task initialization in acquiring a pointer to
-**  the cFE reset area and in the creation of a serializing semaphore to
-**  control access to the Event Log.
-**/
-#define CFE_EVS_NO_LOGWR_EID              36
-
 /** \brief <tt> 'Add Filter Command:AppName = \%s, EventID = 0x\%08x is already registered for filtering' </tt>
 **  \event <tt> 'Add Filter Command:AppName = \%s, EventID = 0x\%08x is already registered for filtering' </tt> 
 **

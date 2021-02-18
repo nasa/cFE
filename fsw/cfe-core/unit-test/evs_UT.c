@@ -419,6 +419,17 @@ void Test_Init(void)
               "CFE_EVS_EarlyInit",
               "Unexpected size returned by CFE_PSP_GetResetArea");
 
+    /* Repeat sucessful initialization to configure log for later references */
+    UT_InitData();
+    UT_SetSizeofESResetArea(sizeof(CFE_ES_ResetData_t));
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetResetType), 1, CFE_PSP_RST_TYPE_POWERON);
+    CFE_EVS_EarlyInit();
+    UT_Report(__FILE__, __LINE__,
+            UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[4]),
+              "CFE_EVS_EarlyInit",
+              "Early initialization successful");
+
     /* Test task initialization where the application registration fails */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, -1);
@@ -1227,20 +1238,11 @@ void Test_Logging(void)
 
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
-    /* Test setting the logging mode with logging disabled */
+    /* Initialize */
     UT_InitData();
-    CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = false;
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CmdBuf.modecmd.Payload.LogMode = 0xff;
-    UT_EVS_DoDispatchCheckEvents(&CmdBuf.modecmd, sizeof(CmdBuf.modecmd),
-               UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC,
-               &UT_EVS_EventBuf);
-    UT_Report(__FILE__, __LINE__,
-              UT_EVS_EventBuf.EventID ==  CFE_EVS_NO_LOGSET_EID,
-              "CFE_EVS_SetLoggingModeCmd",
-              "Set log mode command: event log disabled");
 
-    /* Re-enable logging and set conditions to allow complete code coverage */
+    /* Enable logging and set conditions to allow complete code coverage */
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     UT_SetSizeofESResetArea(sizeof(CFE_ES_ResetData_t));
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
@@ -1303,30 +1305,9 @@ void Test_Logging(void)
               "CFE_EVS_SetLogModeCmd",
               "Log overfill event (overwrite mode)");
 
-    /* Test writing to the log while it is disabled */
-    UT_InitData();
-    CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = false;
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_EVS_DoDispatchCheckEvents(&CmdBuf.logfilecmd, sizeof(CmdBuf.logfilecmd),
-               UT_TPID_CFE_EVS_CMD_WRITE_LOG_DATA_FILE_CC,
-               &UT_EVS_EventBuf);
-    UT_Report(__FILE__, __LINE__,
-              UT_EVS_EventBuf.EventID ==  CFE_EVS_NO_LOGWR_EID,
-              "CFE_EVS_WriteLogDataFileCmd",
-              "Write log command with event log disabled");
-
-    /* Test clearing the log while it is disabled*/
-    UT_InitData();
-    UT_EVS_DoDispatchCheckEvents(&CmdBuf.cmd, sizeof(CmdBuf.cmd),
-               UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC,
-               &UT_EVS_EventBuf);
-    UT_Report(__FILE__, __LINE__,
-              UT_EVS_EventBuf.EventID ==  CFE_EVS_NO_LOGCLR_EID,
-              "EVS_ClearLog",
-              "Clear log command with event log disabled");
-
     /* Test sending a no op command */
     UT_InitData();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.cmd, sizeof(CmdBuf.cmd),
                UT_TPID_CFE_EVS_CMD_NOOP_CC,
                &UT_EVS_EventBuf);
