@@ -743,7 +743,6 @@ void  CFE_ES_CreateObjects(void)
     uint16    i;
     CFE_ES_AppRecord_t *AppRecPtr;
     CFE_ResourceId_t PendingAppId;
-    CFE_ES_TaskId_t PendingTaskId;
 
     CFE_ES_WriteToSysLog("ES Startup: Starting Object Creation calls.\n");
 
@@ -767,15 +766,15 @@ void  CFE_ES_CreateObjects(void)
                 ** Fill out the parameters in the AppStartParams sub-structure
                 */
                 AppRecPtr->Type = CFE_ES_AppType_CORE;
-                strncpy(AppRecPtr->StartParams.BasicInfo.Name, CFE_ES_ObjectTable[i].ObjectName,
-                        sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1);
-                AppRecPtr->StartParams.BasicInfo.Name[sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1] = '\0';
+                
+                strncpy(AppRecPtr->AppName, CFE_ES_ObjectTable[i].ObjectName,
+                        sizeof(AppRecPtr->AppName)-1);
+                AppRecPtr->AppName[sizeof(AppRecPtr->AppName)-1] = '\0';
 
                 /* FileName and EntryPoint is not valid for core apps */
-                AppRecPtr->StartParams.StackSize = CFE_ES_ObjectTable[i].ObjectSize;
+                AppRecPtr->StartParams.MainTaskInfo.StackSize = CFE_ES_ObjectTable[i].ObjectSize;
+                AppRecPtr->StartParams.MainTaskInfo.Priority = CFE_ES_ObjectTable[i].ObjectPriority;
                 AppRecPtr->StartParams.ExceptionAction = CFE_ES_ExceptionAction_PROC_RESTART;
-                AppRecPtr->StartParams.Priority = CFE_ES_ObjectTable[i].ObjectPriority;
-                AppRecPtr->ModuleInfo.EntryAddress = (cpuaddr)CFE_ES_ObjectTable[i].FuncPtrUnion.VoidPtr;
 
                 /*
                 ** Fill out the Task State info
@@ -798,7 +797,11 @@ void  CFE_ES_CreateObjects(void)
                 ** Start the core app main task
                 ** (core apps are already in memory - no loading needed)
                 */
-                ReturnCode = CFE_ES_StartAppTask(&AppRecPtr->StartParams, CFE_ES_APPID_C(PendingAppId), &PendingTaskId);
+                ReturnCode = CFE_ES_StartAppTask(&AppRecPtr->MainTaskId, 
+                                                 AppRecPtr->AppName, 
+                                                 CFE_ES_ObjectTable[i].FuncPtrUnion.MainTaskPtr, 
+                                                 &AppRecPtr->StartParams.MainTaskInfo, 
+                                                 CFE_ES_APPID_C(PendingAppId));
 
                 /*
                  * Finalize data in the app table entry, which must be done under lock.
@@ -809,7 +812,6 @@ void  CFE_ES_CreateObjects(void)
 
                 if ( ReturnCode == OS_SUCCESS )
                 {
-                    AppRecPtr->MainTaskId = PendingTaskId;
                     CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
 
                     /*

@@ -276,6 +276,51 @@ CFE_ResourceId_t ES_UT_MakeCDSIdForIndex(uint32 ArrayIdx)
 }
 
 /*
+ * A local stub that can serve as the user function for testing ES tasks
+ */
+void ES_UT_TaskFunction(void)
+{
+    UT_DEFAULT_IMPL(ES_UT_TaskFunction);
+}
+
+/*
+ * Helper function to assemble basic bits of info into the "CFE_ES_ModuleLoadParams_t" struct 
+ */
+void ES_UT_SetupModuleLoadParams(CFE_ES_ModuleLoadParams_t *Params, const char *FileName, const char *EntryName)
+{
+    char Empty = 0;
+
+    if (FileName == NULL)
+    {
+        FileName = &Empty;
+    }
+    
+    if (EntryName == NULL)
+    {
+        EntryName = &Empty;
+    }
+
+    strncpy(Params->FileName, FileName, sizeof(Params->FileName));
+    strncpy(Params->InitSymbolName, EntryName, sizeof(Params->InitSymbolName));
+}
+
+/*
+ * Helper function to assemble basic bits of info into the "CFE_ES_AppStartParams_t" struct 
+ */
+void ES_UT_SetupAppStartParams(CFE_ES_AppStartParams_t *Params, const char *FileName, const char *EntryName,
+                               size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority,
+                               CFE_ES_ExceptionAction_Enum_t ExceptionAction)
+{
+    ES_UT_SetupModuleLoadParams(&Params->BasicInfo, FileName, EntryName);
+    Params->MainTaskInfo.StackSize = StackSize;
+    Params->MainTaskInfo.Priority = Priority;
+    Params->ExceptionAction = ExceptionAction;
+}
+
+
+
+
+/*
  * Helper function to setup a single app ID in the given state, along with
  * a main task ID.  A pointer to the App and Task record is output so the
  * record can be modified
@@ -306,11 +351,9 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
 
     if (AppName)
     {
-        strncpy(LocalAppPtr->StartParams.BasicInfo.Name, AppName,
-                sizeof(LocalAppPtr->StartParams.BasicInfo.Name)-1);
-        LocalAppPtr->StartParams.BasicInfo.Name[sizeof(LocalAppPtr->StartParams.BasicInfo.Name)-1] = 0;
-        strncpy(LocalTaskPtr->TaskName, AppName,
-                sizeof(LocalTaskPtr->TaskName)-1);
+        strncpy(LocalAppPtr->AppName, AppName, sizeof(LocalAppPtr->AppName)-1);
+        LocalAppPtr->AppName[sizeof(LocalAppPtr->AppName)-1] = 0;
+        strncpy(LocalTaskPtr->TaskName, AppName, sizeof(LocalTaskPtr->TaskName)-1);
         LocalTaskPtr->TaskName[sizeof(LocalTaskPtr->TaskName)-1] = 0;
     }
 
@@ -332,7 +375,7 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
         ++CFE_ES_Global.RegisteredExternalApps;
 
         OS_ModuleLoad(&UtOsalId, NULL, NULL, 0);
-        LocalAppPtr->ModuleInfo.ModuleId = UtOsalId;
+        LocalAppPtr->LoadStatus.ModuleId = UtOsalId;
     }
     ++CFE_ES_Global.RegisteredTasks;
 }
@@ -391,9 +434,9 @@ void ES_UT_SetupSingleLibId(const char *LibName, CFE_ES_LibRecord_t **OutLibRec)
 
     if (LibName)
     {
-        strncpy(LocalLibPtr->BasicInfo.Name, LibName,
-                sizeof(LocalLibPtr->BasicInfo.Name)-1);
-        LocalLibPtr->BasicInfo.Name[sizeof(LocalLibPtr->BasicInfo.Name)-1] = 0;
+        strncpy(LocalLibPtr->LibName, LibName,
+                sizeof(LocalLibPtr->LibName)-1);
+        LocalLibPtr->LibName[sizeof(LocalLibPtr->LibName)-1] = 0;
     }
 
     if (OutLibRec)
@@ -1168,6 +1211,7 @@ void TestApps(void)
     CFE_ES_AppRecord_t *UtAppRecPtr;
     CFE_ES_MemPoolRecord_t *UtPoolRecPtr;
     char NameBuffer[OS_MAX_API_NAME+5];
+    CFE_ES_AppStartParams_t StartParams;
 
     UtPrintf("Begin Test Apps");
 
@@ -1271,25 +1315,23 @@ void TestApps(void)
     /* Test application loading and creation with a task creation failure */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
-    Return = CFE_ES_AppCreate(&AppId,
+    ES_UT_SetupAppStartParams(&StartParams, 
                               "ut/filename",
                               "EntryPoint",
-                              "AppName",
                               170,
                               4096,
                               1);
+    Return = CFE_ES_AppCreate(&AppId,
+                              "AppName",
+                              &StartParams);
     UtAssert_INT32_EQ(Return, CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_APP_CREATE]));
     
-    /* Test application creation with NULL file name */
+    /* Test application creation with NULL parameters */
     ES_ResetUnitTest();
     Return = CFE_ES_AppCreate(&AppId,
-                              NULL,
-                              "EntryPoint",
                               "AppName",
-                              170,
-                              4096,
-                              1);
+                              NULL);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_AppCreate",
@@ -1298,13 +1340,15 @@ void TestApps(void)
     /* Test application creation with name too long */
     memset(NameBuffer, 'x', sizeof(NameBuffer)-1);
     NameBuffer[sizeof(NameBuffer)-1] = 0;
-    Return = CFE_ES_AppCreate(&AppId,
+    ES_UT_SetupAppStartParams(&StartParams, 
                               "ut/filename.x",
                               "EntryPoint",
-                              NameBuffer,
                               170,
                               4096,
                               1);
+    Return = CFE_ES_AppCreate(&AppId,
+                              NameBuffer,
+                              &StartParams);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_AppCreate",
@@ -1313,26 +1357,30 @@ void TestApps(void)
 
     /* Test successful application loading and creation  */
     ES_ResetUnitTest();
-    Return = CFE_ES_AppCreate(&AppId,
+    ES_UT_SetupAppStartParams(&StartParams, 
                               "ut/filename.x",
                               "EntryPoint",
-                              "AppName",
                               170,
                               8192,
                               1);
+    Return = CFE_ES_AppCreate(&AppId,
+                              "AppName",
+                              &StartParams);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_SUCCESS,
               "CFE_ES_AppCreate",
               "Application load/create; successful");
 
     /* Test application loading of the same name again */
-    Return = CFE_ES_AppCreate(&AppId,
+    ES_UT_SetupAppStartParams(&StartParams, 
                               "ut/filename.x",
                               "EntryPoint",
-                              "AppName",
                               170,
                               8192,
                               1);
+    Return = CFE_ES_AppCreate(&AppId,
+                              "AppName",
+                              &StartParams);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_ES_ERR_DUPLICATE_NAME,
               "CFE_ES_AppCreate",
@@ -1341,26 +1389,30 @@ void TestApps(void)
     /* Test application loading and creation where the file cannot be loaded */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, -1);
-    Return = CFE_ES_AppCreate(&AppId,
+    ES_UT_SetupAppStartParams(&StartParams, 
                               "ut/filename.x",
                               "EntryPoint",
-                              "AppName2",
                               170,
                               8192,
                               1);
+    Return = CFE_ES_AppCreate(&AppId,
+                              "AppName2",
+                              &StartParams);
     UtAssert_INT32_EQ(Return, CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_EXTRACT_FILENAME_UT55]));
 
     /* Test application loading and creation where all app slots are taken */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), OS_ERROR);
-    Return = CFE_ES_AppCreate(&AppId,
+    ES_UT_SetupAppStartParams(&StartParams, 
                               "ut/filename.x",
                               "EntryPoint",
-                              "AppName",
                               170,
                               8192,
                               1);
+    Return = CFE_ES_AppCreate(&AppId,
+                              "AppName",
+                              &StartParams);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_ES_NO_RESOURCE_IDS_AVAILABLE &&
                 UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_NO_FREE_APP_SLOTS]),
@@ -1378,13 +1430,15 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleSymbolLookup), 1, -1);
-    Return = CFE_ES_AppCreate(&AppId,
+    ES_UT_SetupAppStartParams(&StartParams, 
                               "ut/filename.x",
                               "EntryPoint",
-                              "AppName",
                               170,
                               8192,
                               1);
+    Return = CFE_ES_AppCreate(&AppId,
+                              "AppName",
+                              &StartParams);
     UtAssert_INT32_EQ(Return, CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_FIND_SYMBOL]));
 
@@ -1395,13 +1449,15 @@ void TestApps(void)
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleSymbolLookup), 1, -1);
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleUnload), 1, -1);
-    Return = CFE_ES_AppCreate(&AppId,
+    ES_UT_SetupAppStartParams(&StartParams, 
                               "ut/filename.x",
                               "EntryPoint",
-                              "AppName",
                               170,
                               8192,
                               1);
+    Return = CFE_ES_AppCreate(&AppId,
+                              "AppName",
+                              &StartParams);
     UtAssert_INT32_EQ(Return, CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_FIND_SYMBOL]));
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_MODULE_UNLOAD_FAILED]));
@@ -1487,15 +1543,12 @@ void TestApps(void)
     /* Test a successful control action request to exit an application */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName, 
-            "/ram/Filename", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint,
-            "NotNULL", sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
-    UtAppRecPtr->StartParams.Priority = 255;
-    UtAppRecPtr->StartParams.StackSize = 8192;
-    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams,
+            "/ram/Filename",
+            "NotNULL",
+            8192,
+            255,
+            0);
     UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_EXIT;
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -1556,7 +1609,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RESTART;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
+    OS_ModuleLoad(&UtAppRecPtr->LoadStatus.ModuleId, NULL, NULL, 0);
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(AppId);
@@ -1587,7 +1640,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RELOAD;
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
+    OS_ModuleLoad(&UtAppRecPtr->LoadStatus.ModuleId, NULL, NULL, 0);
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_ES_ProcessControlRequest(AppId);
@@ -1601,15 +1654,13 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
-    UtAppRecPtr->StartParams.Priority = 255;
-    UtAppRecPtr->StartParams.StackSize = 8192;
-    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams,
+            "/ram/FileName",
+            "NULL",
+            8192,
+            255,
+            0);
+
     UtAppRecPtr->ControlReq.AppControlRequest =
       CFE_ES_RunStatus_APP_ERROR;
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -1637,15 +1688,12 @@ void TestApps(void)
     /* Test a successful control action request to stop an application */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
-    UtAppRecPtr->StartParams.Priority = 255;
-    UtAppRecPtr->StartParams.StackSize = 8192;
-    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams,
+            "/ram/FileName",
+            "NULL",
+            8192,
+            255,
+            0);
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_DELETE;
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -1658,15 +1706,12 @@ void TestApps(void)
     /* Test a successful control action request to restart an application */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
-    UtAppRecPtr->StartParams.Priority = 255;
-    UtAppRecPtr->StartParams.StackSize = 8192;
-    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams,
+            "/ram/FileName",
+            "NULL",
+            8192,
+            255,
+            0);
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RESTART;
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -1679,15 +1724,12 @@ void TestApps(void)
     /* Test a successful control action request to reload an application */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) -1);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) -1] = '\0';
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
-    UtAppRecPtr->StartParams.Priority = 255;
-    UtAppRecPtr->StartParams.StackSize = 8192;
-    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams,
+            "/ram/FileName",
+            "NULL",
+            8192,
+            255,
+            0);
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_RELOAD;
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -1702,15 +1744,12 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.FileName,
-            "/ram/FileName", sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.FileName[sizeof(UtAppRecPtr->StartParams.BasicInfo.FileName) - 1] = '\0';
-    strncpy(UtAppRecPtr->StartParams.BasicInfo.EntryPoint, "NULL",
-            sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1);
-    UtAppRecPtr->StartParams.BasicInfo.EntryPoint[sizeof(UtAppRecPtr->StartParams.BasicInfo.EntryPoint) - 1] = '\0';
-    UtAppRecPtr->StartParams.Priority = 255;
-    UtAppRecPtr->StartParams.StackSize = 8192;
-    UtAppRecPtr->StartParams.ExceptionAction = 0;
+    ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams,
+            "/ram/FileName",
+            "NULL",
+            8192,
+            255,
+            0);
     UtAppRecPtr->ControlReq.AppControlRequest =
         CFE_ES_RunStatus_SYS_EXCEPTION;
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -1781,7 +1820,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     ES_UT_SetupForOSCleanup();
 
-    OS_ModuleLoad(&UtAppRecPtr->ModuleInfo.ModuleId, NULL, NULL, 0);
+    OS_ModuleLoad(&UtAppRecPtr->LoadStatus.ModuleId, NULL, NULL, 0);
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskDelete), OS_ERROR);
     UT_SetDefaultReturnValue(UT_KEY(OS_close), OS_ERROR);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
@@ -2156,36 +2195,29 @@ void TestResourceID(void)
 void TestLibs(void)
 {
     CFE_ES_LibRecord_t *UtLibRecPtr;
-    char LongLibraryName[sizeof(UtLibRecPtr->BasicInfo.Name)+1];
+    char LongLibraryName[sizeof(UtLibRecPtr->LibName)+1];
     CFE_ES_LibId_t Id;
     int32 Return;
+    CFE_ES_ModuleLoadParams_t LoadParams;
 
     /* Test shared library loading and initialization where the initialization
      * routine returns an error
      */
     ES_ResetUnitTest();
     UT_SetDummyFuncRtn(-444);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "filename",
-                                "EntryPoint",
-                                "LibName");
+    ES_UT_SetupModuleLoadParams(&LoadParams, "filename", "entrypt");
+    Return = CFE_ES_LoadLibrary(&Id, "LibName", &LoadParams);
     UtAssert_INT32_EQ(Return, -444);
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_SHARED_LIBRARY_INIT]));
 
     /* Test Load library returning an error on a null pointer argument */
-    Return = CFE_ES_LoadLibrary(&Id,
-                                NULL,
-                                "EntryPoint",
-                                "LibName");
+    Return = CFE_ES_LoadLibrary(&Id, "LibName", NULL);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_LoadLibrary",
               "Load shared library bad argument (NULL filename)");
 
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "filename",
-                                "EntryPoint",
-                                NULL);
+    Return = CFE_ES_LoadLibrary(&Id, NULL, &LoadParams);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_LoadLibrary",
@@ -2194,10 +2226,7 @@ void TestLibs(void)
     /* Test Load library returning an error on a too long library name */
     memset(LongLibraryName, 'a', sizeof(LongLibraryName)-1);
     LongLibraryName[sizeof(LongLibraryName)-1] = '\0';
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "filename",
-                                "EntryPoint",
-                                &LongLibraryName[0]);
+    Return = CFE_ES_LoadLibrary(&Id, LongLibraryName, &LoadParams);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_LoadLibrary",
@@ -2206,10 +2235,7 @@ void TestLibs(void)
     /* Test successful shared library loading and initialization */
     UT_InitData();
     UT_SetDummyFuncRtn(OS_SUCCESS);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "TST_LIB_Init",
-                                "TST_LIB");
+    Return = CFE_ES_LoadLibrary(&Id, "TST_LIB", &LoadParams);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_SUCCESS,
               "CFE_ES_LoadLibrary",
@@ -2220,10 +2246,7 @@ void TestLibs(void)
     UtAssert_True(CFE_ES_LibRecordIsUsed(UtLibRecPtr), "CFE_ES_LoadLibrary() record used");
 
     /* Try loading same library again, should return the DUPLICATE code */
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "TST_LIB_Init",
-                                "TST_LIB");
+    Return = CFE_ES_LoadLibrary(&Id, "TST_LIB", &LoadParams);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_ES_ERR_DUPLICATE_NAME,
               "CFE_ES_LoadLibrary",
@@ -2236,10 +2259,7 @@ void TestLibs(void)
      */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, -1);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "TST_LIB_Init",
-                                "TST_LIB");
+    Return = CFE_ES_LoadLibrary(&Id, "TST_LIB", &LoadParams);
     UtAssert_INT32_EQ(Return, CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test shared library loading and initialization where the library
@@ -2247,10 +2267,7 @@ void TestLibs(void)
      */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleSymbolLookup), 1, -1);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "TST_LIB_Init",
-                                "TST_LIB");
+    Return = CFE_ES_LoadLibrary(&Id, "TST_LIB", &LoadParams);
     UtAssert_INT32_EQ(Return, CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test shared library loading and initialization where the library
@@ -2259,10 +2276,8 @@ void TestLibs(void)
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(OS_remove), OS_ERROR); /* for coverage of error path */
     UT_SetDefaultReturnValue(UT_KEY(dummy_function), -555);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "/cf/apps/tst_lib.bundle",
-                                "dummy_function",
-                            "TST_LIB");
+    ES_UT_SetupModuleLoadParams(&LoadParams, "filename", "dummy_function");
+    Return = CFE_ES_LoadLibrary(&Id, "TST_LIB", &LoadParams);
     UT_Report(__FILE__, __LINE__,
               Return == -555,
               "CFE_ES_LoadLibrary",
@@ -2273,10 +2288,7 @@ void TestLibs(void)
      */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), OS_ERROR);
-    Return = CFE_ES_LoadLibrary(&Id,
-                                "filename",
-                                "EntryPoint",
-                                "LibName");
+    Return = CFE_ES_LoadLibrary(&Id, "LibName", &LoadParams);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_ES_NO_RESOURCE_IDS_AVAILABLE &&
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_LIBRARY_SLOTS]),
@@ -4871,7 +4883,7 @@ void TestAPI(void)
                                     400,
                                     0);
     UT_Report(__FILE__, __LINE__,
-              Return == CFE_ES_ERR_CHILD_TASK_CREATE,
+              Return == CFE_STATUS_EXTERNAL_RESOURCE_FAIL,
               "CFE_ES_ChildTaskCreate",
               "OS task create failed");
 
@@ -4962,6 +4974,26 @@ void TestAPI(void)
     UT_Report(__FILE__, __LINE__,
               Return == CFE_SUCCESS, "CFE_ES_CreateChildTask",
               "Create child task successful");
+
+    /* Test common entry point */
+    ES_ResetUnitTest();
+
+    /* 
+     * Without no app/task set up the entry point will not be found.
+     * There is no return value to check here, it just will not do anything.
+     */
+    CFE_ES_TaskEntryPoint();
+
+    /* Now set up an app+task */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+
+    /* Test with app/task set up but no entry point defined */
+    CFE_ES_TaskEntryPoint();
+
+    /* Finally set entry point, nominal mode */
+    UtTaskRecPtr->EntryFunc = ES_UT_TaskFunction;
+    CFE_ES_TaskEntryPoint();
+    UtAssert_STUB_COUNT(ES_UT_TaskFunction, 1);
 
     /* Test deleting a child task using a main task's ID */
     ES_ResetUnitTest();

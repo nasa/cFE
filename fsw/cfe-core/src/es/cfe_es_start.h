@@ -62,12 +62,11 @@
 */
 
 typedef int32 (*CFE_ES_EarlyInitFuncPtr_t)(void); /**< \brief Req'd prototype of Early Init Functions */
-typedef void  (*CFE_ES_MainAppFuncPtr_t)(void);   /**< \brief Req'd prototype of Application Main Functions */
 
 typedef union
 {
     CFE_ES_EarlyInitFuncPtr_t     FunctionPtr;
-    CFE_ES_MainAppFuncPtr_t       MainAppPtr;
+    CFE_ES_TaskEntryFuncPtr_t     MainTaskPtr;
     void                         *VoidPtr;
 } CFE_ES_FuncPtrUnion_t;
 
