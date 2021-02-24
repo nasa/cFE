@@ -47,7 +47,6 @@
 **      messages sent. If the pkt length field indicates the message is larger
 **      than this define, SB sends an event and rejects the send.
 **
-**
 **  \par Limits
 **      This parameter has a lower limit of 6 (CCSDS primary header size).  There
 **      are no restrictions on the upper limit however, the maximum message size is
@@ -247,6 +246,7 @@
 **      portion of a Full CDS Name of the following form:
 **      "ApplicationName.CDSName"
 **
+**      This length does not need to include an extra character for NULL termination.
 **
 **  \par Limits
 **       This value should be kept as a multiple of 4, to maintain alignment of
@@ -263,6 +263,8 @@
 **  \par Description:
 **      Indicates the maximum length (in characters) of the formatted text
 **      string portion of an event message
+**
+**      This length does not need to include an extra character for NULL termination.
 **
 **  \par Limits
 **      Not Applicable
@@ -298,6 +300,8 @@
 **      Indicates the maximum length (in characers) of the table name
 **      ('TblName') portion of a Full Table Name of the following
 **      form: "ApplicationName.TblName"
+**
+**      This length does not need to include an extra character for NULL termination.
 **
 **  \par Limits
 **       This value should be kept as a multiple of 4, to maintain alignment of
@@ -531,6 +535,8 @@
 **
 **       This affects only the layout of command/telemetry messages and table definitions;
 **       internal allocation may use the platform-specific OS_MAX_PATH_LEN value.
+**
+**       This length must include an extra character for NULL termination.
 **   
 **  \par Limits
 **       All CPUs within the same SB domain (mission) and ground tools must share the
@@ -557,6 +563,8 @@
 **       This affects only the layout of command/telemetry messages and table definitions;
 **       internal allocation may use the platform-specific OS_MAX_FILE_LEN value.
 **
+**       This length must include an extra character for NULL termination.
+**
 **  \par Limits
 **       All CPUs within the same SB domain (mission) and ground tools must share the
 **       same definition.
@@ -581,6 +589,8 @@
 **
 **       This affects only the layout of command/telemetry messages and table definitions;
 **       internal allocation may use the platform-specific OS_MAX_API_LEN value.
+**
+**       This length must include an extra character for NULL termination.
 **
 **  \par Limits
 **       All CPUs within the same SB domain (mission) must share the same definition
