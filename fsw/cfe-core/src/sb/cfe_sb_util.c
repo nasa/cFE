@@ -160,7 +160,13 @@ void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
         HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
         TotalMsgSize = HdrSize + DataLength;
     
-        CFE_MSG_SetSize(MsgPtr, TotalMsgSize);
+        if(TotalMsgSize <= CFE_MISSION_SB_MAX_SB_MSG_SIZE){
+            CFE_MSG_SetSize(MsgPtr, TotalMsgSize);
+        }
+        else
+        {
+            CFE_ES_WriteToSysLog("CFE_SB:SetUserDataLength-Failed TotalMsgSize too large\n");  
+        }   
     }
 }/* end CFE_SB_SetUserDataLength */
 
