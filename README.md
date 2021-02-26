@@ -10,6 +10,25 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: 6.8.0-rc1+dev365
+
+- Implements a generic FS facility to perform file writes as a background job. Applications wanting to use this need to instantiate a state object (metadata) in global memory and two callback APIs, one to get a data record, another to send events. The following file requests are changed to use this facility:
+  - ES ER Log dump
+  - SB Pipe Info
+  - SB Message Map
+  - SB Route Info
+  - TBL Registry Dump
+- Changes the internal SB member names for consistency and thus fixes propagation of `Depth` and `CurrentDepth` into files:
+  - `MaxQueueDepth` for maximum depth at queue creation time (previously was QueueDepth or Depth depending on context)
+  - `CurrentQueueDepth` for the running count (previously was InUse or CurrentDepth depending on context)
+  - `PeakQueueDepth` for the highest "watermark" (previously was PeakInUse or PeakDepth depending on context)
+- Encapsulates all parameters for apps and tasks into a structure object. Cleans up internal APIs to pass this new object rather than individual parameters. Adds details to the relevant record (i.e. a task record has all relevant task details) which eliminates the need to traverse the app record to find some data.
+- Enables items in `FILELIST` to be in a target name directory as well as symlinks. `arch_build.cmake` now checks a name-based subdirectory under `${MISSION_DEFS}` for files listed in the `FILELIST` for that target. If file is a symlink, the link should be followed so the correct content is installed, not a symlink.
+- Adds documentation on  inclusion presence of null terminators for length parameters.
+- Shortened `CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE` name so it is within the `OSAL_MAX_FILE_NAME` size limit. Will now output task info to default filename if no filename is provided in command.
+- Replaces `UT_Stub_SetForceFail` with `UT_Stub_SetDefaultReturnValue`. No behavior change.
+- See <https://github.com/nasa/cFE/pull/1171>
+
 ### Development Build: 6.8.0-rc1+dev348
 
 - Corrects reference to PSP header file location. Build now succesfully completes the build succeeds again when using `add_psp_module()` in custom CMakeLists file.

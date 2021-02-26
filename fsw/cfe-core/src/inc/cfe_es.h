@@ -140,10 +140,17 @@
 */
 
 /*
-** Child Task Main Function Prototype
+** Entry Function Prototypes
 */
-typedef void (*CFE_ES_ChildTaskMainFuncPtr_t)(void); /**< \brief Required Prototype of Child Task Main Functions */
+typedef void (*CFE_ES_TaskEntryFuncPtr_t)(void); /**< \brief Required Prototype of Task Main Functions */
 typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(CFE_ES_LibId_t LibId); /**< \brief Required Prototype of Library Initialization Functions */
+
+/**
+ * \brief Compatible typedef for ES child task entry point.
+ * 
+ * All ES task functions (main + child) use the same entry point type.
+ */
+typedef CFE_ES_TaskEntryFuncPtr_t CFE_ES_ChildTaskMainFuncPtr_t;
 
 /**
  * @brief Type for the stack pointer of tasks.
@@ -1104,6 +1111,26 @@ void CFE_ES_ExitChildTask(void);
 /** @defgroup CFEAPIESMisc cFE Miscellaneous APIs
  * @{
  */
+
+/*****************************************************************************/
+/**
+** \brief Wakes up the CFE background task
+**
+** \par Description
+**        Normally the ES background task wakes up at a periodic interval.
+**        Whenever new background work is added, this can be used to wake the task early, 
+**        which may reduce the delay between adding the job and the job getting processed.
+**
+** \par Assumptions, External Events, and Notes:
+**        Note the amount of work that the background task will perform is pro-rated
+**        based on the amount of time elapsed since the last wakeup.  Waking the task
+**        early will not cause the background task to do more work than it otherwise 
+**        would - it just reduces the delay before work starts initially.
+**
+**
+******************************************************************************/
+void  CFE_ES_BackgroundWakeup(void);
+
 
 /*****************************************************************************/
 /**

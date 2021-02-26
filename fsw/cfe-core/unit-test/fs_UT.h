@@ -270,4 +270,17 @@ void Test_CFE_FS_Decompress(void);
 ******************************************************************************/
 void Test_CFE_FS_GetUncompressedFile(void);
 
+/*****************************************************************************/
+/**
+** \brief Tests for FS background file dump
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+******************************************************************************/
+void Test_CFE_FS_BackgroundFileDump(void);
+
 #endif /* _es_ut_h_ */

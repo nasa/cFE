@@ -1145,6 +1145,9 @@ void Test_CFE_TBL_DumpRegCmd(void)
     int                       q;
     CFE_TBL_DumpRegistryCmd_t DumpRegCmd;
     CFE_ES_AppId_t            AppID;
+    size_t LocalSize;
+    void *LocalBuf;
+    bool IsEOF;
 
     /* Get the AppID being used for UT */
     CFE_ES_GetAppID(&AppID);
@@ -1157,70 +1160,9 @@ void Test_CFE_TBL_DumpRegCmd(void)
         CFE_TBL_Global.Registry[q].HeadOfAccessList = CFE_TBL_END_OF_LIST;
     }
 
-    /* Test with an error creating the dump file */
+    /* Test command using the default dump file name (nominal path) */
     UT_InitData();
-    DumpRegCmd.Payload.DumpFilename[0] = '\0';
-    UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
-                CFE_TBL_INC_ERR_CTR,
-              "CFE_TBL_DumpRegistryCmd",
-              "Error creating dump file");
-
-    /* Test with an error writing the cFE File header */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 1, sizeof(CFE_FS_Header_t) - 1);
-    UT_Report(__FILE__, __LINE__,
-              CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
-                CFE_TBL_INC_ERR_CTR,
-              "CFE_TBL_DumpRegistryCmd",
-              "Error writing cFE File header");
-
-    /* Test where the table is owned, the file doesn't already exist, and the
-     * table is successfully dumped
-     */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_FS_WriteHeader), 10, sizeof(CFE_FS_Header_t));
-    CFE_TBL_Global.Registry[0].OwnerAppId = AppID;
-    CFE_TBL_Global.Registry[0].HeadOfAccessList = CFE_TBL_END_OF_LIST;
-    CFE_TBL_Global.Registry[1].OwnerAppId = CFE_TBL_NOT_OWNED;
-    CFE_TBL_Global.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
-    CFE_TBL_Global.Registry[0].DoubleBuffered = true;
-    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
-    UT_Report(__FILE__, __LINE__,
-              CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
-                CFE_TBL_INC_CMD_CTR,
-              "CFE_TBL_DumpRegistryCmd",
-              "Table is owned, file didn't exist previously: successfully "
-                "dumped table");
-
-    /* Test where the file did exist previously and the table is successfully
-     * overwritten
-     */
-    UT_InitData();
-    CFE_TBL_Global.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS;
-    UT_Report(__FILE__, __LINE__,
-              CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
-                CFE_TBL_INC_CMD_CTR,
-              "CFE_TBL_DumpRegistryCmd",
-              "File did exist previously: successfully overwritten table");
-
-    /* Test where the table is not owned, the OS write fails, resulting in an
-     * error writing to the registry
-     */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, sizeof(CFE_TBL_RegDumpRec_t) - 1);
-    CFE_TBL_Global.Registry[0].OwnerAppId = CFE_TBL_NOT_OWNED;
-    CFE_TBL_Global.Registry[0].HeadOfAccessList = 2;
-    CFE_TBL_Global.Handles[2].NextLink = CFE_TBL_END_OF_LIST;
-    UT_Report(__FILE__, __LINE__,
-              CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
-                CFE_TBL_INC_ERR_CTR,
-              "CFE_TBL_DumpRegistryCmd",
-              "Table is not owned, OS_write fails: Error writing Registry");
-
-    /* Test using the default dump file name */
-    UT_InitData();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_BackgroundFileDumpIsPending), false);
     strncpy(DumpRegCmd.Payload.DumpFilename, "X", sizeof(DumpRegCmd.Payload.DumpFilename) - 1);
     DumpRegCmd.Payload.DumpFilename[sizeof(DumpRegCmd.Payload.DumpFilename) - 1] = '\0';
     UT_Report(__FILE__, __LINE__,
@@ -1228,6 +1170,112 @@ void Test_CFE_TBL_DumpRegCmd(void)
                 CFE_TBL_INC_CMD_CTR,
               "CFE_TBL_DumpRegistryCmd",
               "Default dump file name");
+
+    /* Test command with the dump file already pending (max requests pending) */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_BackgroundFileDumpIsPending), true);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_BackgroundFileDumpRequest), CFE_STATUS_REQUEST_ALREADY_PENDING);
+    UT_Report(__FILE__, __LINE__,
+              CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
+                CFE_TBL_INC_ERR_CTR,
+              "CFE_TBL_DumpRegistryCmd",
+              "Dump file already pending (FS max requests)");
+    UT_ResetState(UT_KEY(CFE_FS_BackgroundFileDumpRequest));
+
+    /* Test command with the dump file already pending (local) */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_BackgroundFileDumpIsPending), false);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_BackgroundFileDumpRequest), CFE_STATUS_REQUEST_ALREADY_PENDING);
+    UT_Report(__FILE__, __LINE__,
+              CFE_TBL_DumpRegistryCmd(&DumpRegCmd) ==
+                CFE_TBL_INC_ERR_CTR,
+              "CFE_TBL_DumpRegistryCmd",
+              "Dump file already pending (local)");
+
+    /* Check event generators */
+    UT_ClearEventHistory();
+    CFE_TBL_Global.RegDumpState.FileExisted = true;
+    CFE_TBL_DumpRegistryEventHandler(&CFE_TBL_Global.RegDumpState, CFE_FS_FileWriteEvent_COMPLETE, CFE_SUCCESS, 10, 0, 1000);
+    UT_Report(__FILE__, __LINE__,
+              UT_EventIsInHistory(CFE_TBL_OVERWRITE_REG_DUMP_INF_EID),
+              "CFE_TBL_DumpRegistryEventHandler",
+              "Dump file created event (overwrite)");
+
+    UT_ClearEventHistory();
+    CFE_TBL_Global.RegDumpState.FileExisted = false;
+    CFE_TBL_DumpRegistryEventHandler(&CFE_TBL_Global.RegDumpState, CFE_FS_FileWriteEvent_COMPLETE, CFE_SUCCESS, 10, 0, 1000);
+    UT_Report(__FILE__, __LINE__,
+              UT_EventIsInHistory(CFE_TBL_WRITE_REG_DUMP_INF_EID),
+              "CFE_TBL_DumpRegistryEventHandler",
+              "Dump file created event (new)");
+
+    UT_ClearEventHistory();
+    CFE_TBL_DumpRegistryEventHandler(&CFE_TBL_Global.RegDumpState, CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, CFE_SUCCESS, 10, 10, 1000);
+    UT_Report(__FILE__, __LINE__,
+              UT_EventIsInHistory(CFE_TBL_WRITE_TBL_REG_ERR_EID),
+              "CFE_TBL_DumpRegistryEventHandler",
+              "Dump file record write error event");
+
+    UT_ClearEventHistory();
+    CFE_TBL_DumpRegistryEventHandler(&CFE_TBL_Global.RegDumpState, CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR, CFE_SUCCESS, 10, 10, 1000);
+    UT_Report(__FILE__, __LINE__,
+              UT_EventIsInHistory(CFE_TBL_WRITE_CFE_HDR_ERR_EID),
+              "CFE_TBL_DumpRegistryEventHandler",
+              "Dump file header write error event");
+
+    UT_ClearEventHistory();
+    CFE_TBL_DumpRegistryEventHandler(&CFE_TBL_Global.RegDumpState, CFE_FS_FileWriteEvent_CREATE_ERROR, OS_ERROR, 10, 0, 0);
+    UT_Report(__FILE__, __LINE__,
+              UT_EventIsInHistory(CFE_TBL_CREATING_DUMP_FILE_ERR_EID),
+              "CFE_TBL_DumpRegistryEventHandler",
+              "Dump file created error event");
+
+    UT_ClearEventHistory();
+    CFE_TBL_DumpRegistryEventHandler(&CFE_TBL_Global.RegDumpState, CFE_FS_FileWriteEvent_UNDEFINED, OS_ERROR, 0, 0, 0);
+    UT_Report(__FILE__, __LINE__,
+              UT_GetNumEventsSent() == 0,
+              "CFE_TBL_DumpRegistryEventHandler",
+              "Undefined event is ignored");
+
+    /* Test where the table is owned, the file doesn't already exist, and the
+     * table is successfully dumped
+     */
+    UT_InitData();
+    CFE_TBL_Global.Registry[0].OwnerAppId = AppID;
+    CFE_TBL_Global.Registry[0].HeadOfAccessList = CFE_TBL_END_OF_LIST;
+    CFE_TBL_Global.Registry[1].OwnerAppId = CFE_TBL_NOT_OWNED;
+    CFE_TBL_Global.Registry[0].LoadInProgress = CFE_TBL_NO_LOAD_IN_PROGRESS + 1;
+    CFE_TBL_Global.Registry[0].DoubleBuffered = true;
+    LocalBuf = NULL;
+    LocalSize = 0;
+    IsEOF = CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize);
+    UT_Report(__FILE__, __LINE__,
+              !IsEOF,
+              "CFE_TBL_DumpRegistryGetter",
+              "Nominal, first record, not end of file");
+    UtAssert_NOT_NULL(LocalBuf);
+    UtAssert_NONZERO(LocalSize);
+
+    CFE_TBL_Global.Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES-1].OwnerAppId = CFE_TBL_NOT_OWNED;
+    CFE_TBL_Global.Registry[CFE_PLATFORM_TBL_MAX_NUM_TABLES-1].HeadOfAccessList = 2;
+    CFE_TBL_Global.Handles[2].NextLink = CFE_TBL_END_OF_LIST;
+    LocalBuf = NULL;
+    LocalSize = 0;
+    IsEOF = CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, CFE_PLATFORM_TBL_MAX_NUM_TABLES-1, &LocalBuf, &LocalSize);
+    UT_Report(__FILE__, __LINE__,
+              IsEOF,
+              "CFE_TBL_DumpRegistryGetter",
+              "Nominal, last record, multiple accessors, end of file");
+    UtAssert_NOT_NULL(LocalBuf);
+    UtAssert_NONZERO(LocalSize);
+
+    /* Test with record numb beyond EOF (should be ignored, return null) */
+    IsEOF = CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, CFE_PLATFORM_TBL_MAX_NUM_TABLES+1, &LocalBuf, &LocalSize);
+    UT_Report(__FILE__, __LINE__,
+              IsEOF,
+              "CFE_TBL_DumpRegistryGetter",
+              "Past end of file");
+    UtAssert_NULL(LocalBuf);
+    UtAssert_ZERO(LocalSize);
+
 }
 
 /*

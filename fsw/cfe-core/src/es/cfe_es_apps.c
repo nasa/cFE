@@ -263,104 +263,98 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath )
 */
 int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 {
-   const char   *FileName;
-   const char   *AppName;
-   const char   *EntryPoint;
-   const char   *EntryType;
-   unsigned long PriorityIn;
-   unsigned long StackSizeIn;
-   unsigned long ExceptionActionIn;
-   union
-   {
+    const char *  ModuleName;
+    const char *  EntryType;
+    unsigned long ParsedValue;
+    union
+    {
         CFE_ES_AppId_t AppId;
         CFE_ES_LibId_t LibId;
-   } IdBuf; 
-   int32  CreateStatus = CFE_ES_ERR_APP_CREATE;
+    } IdBuf;
+    int32                   CreateStatus = CFE_ES_ERR_APP_CREATE;
+    CFE_ES_AppStartParams_t ParamBuf;
 
-   /*
-   ** Check to see if the correct number of items were parsed
-   */
-   if ( NumTokens < 8 )
-   {
-      CFE_ES_WriteToSysLog("ES Startup: Invalid ES Startup file entry: %u\n",(unsigned int)NumTokens);
-      return (CreateStatus);
-   }
-
-   EntryType = TokenList[0];
-   FileName = TokenList[1];
-   EntryPoint = TokenList[2];
-   AppName = TokenList[3];
-
-   /*
-    * NOTE: In previous CFE versions the sscanf() function was used to convert
-    * these string values into integers.  This approach of using the pre-tokenized strings
-    * and strtoul() is safer but the side effect is that it will also be more "permissive" in
-    * what is accepted vs. rejected by this function.
-    *
-    * For instance if the startup script contains "123xyz", this will be converted to the value
-    * 123 instead of triggering a validation failure as it would have in CFE <= 6.5.0.
-    *
-    * This permissive parsing should not be relied upon, as it may become more strict again in
-    * future CFE revisions.
-    *
-    * Also note that this uses "unsigned long" as that is the defined output type of strtoul().
-    * It will be converted to the correct type later.
+    /*
+    ** Check to see if the correct number of items were parsed
     */
-   PriorityIn = strtoul(TokenList[4], NULL, 0);
-   StackSizeIn = strtoul(TokenList[5], NULL, 0);
-   ExceptionActionIn = strtoul(TokenList[7], NULL, 0);
+    if (NumTokens < 8)
+    {
+        CFE_ES_WriteToSysLog("ES Startup: Invalid ES Startup file entry: %u\n", (unsigned int)NumTokens);
+        return (CreateStatus);
+    }
 
-   if(strcmp(EntryType,"CFE_APP")==0)
-   {
-      CFE_ES_WriteToSysLog("ES Startup: Loading file: %s, APP: %s\n",
-                            FileName, AppName);
+    /* Get pointers to specific tokens that are simple strings used as-is */
+    EntryType = TokenList[0];
+    ModuleName = TokenList[3];
 
-      /*
-      ** Validate Some parameters
-      ** Exception action should be 0 ( Restart App ) or
-      ** 1 ( Processor reset ). If it's non-zero, assume it means
-      ** reset CPU.
-      */
-      if ( ExceptionActionIn > CFE_ES_ExceptionAction_RESTART_APP )
-      {
-          ExceptionActionIn = CFE_ES_ExceptionAction_PROC_RESTART;
-      }
+    /* 
+     * Other tokens will need to be scrubbed/converted. 
+     * Both Libraries and Apps use File Name (1) and Symbol Name (2) fields so copy those now
+     */
+    memset(&ParamBuf, 0, sizeof(ParamBuf));
+    strncpy(ParamBuf.BasicInfo.FileName, TokenList[1], sizeof(ParamBuf.BasicInfo.FileName) - 1);
+    strncpy(ParamBuf.BasicInfo.InitSymbolName, TokenList[2], sizeof(ParamBuf.BasicInfo.InitSymbolName) - 1);
 
-      /*
-       * Task priority cannot be bigger than OS_MAX_TASK_PRIORITY
-       */
-      if ( PriorityIn > OS_MAX_TASK_PRIORITY )
-      {
-          PriorityIn = OS_MAX_TASK_PRIORITY;
-      }
+    if (strcmp(EntryType, "CFE_APP") == 0)
+    {
+        CFE_ES_WriteToSysLog("ES Startup: Loading file: %s, APP: %s\n", ParamBuf.BasicInfo.FileName, ModuleName);
 
-      /*
-      ** Now create the application
-      */
-      CreateStatus = CFE_ES_AppCreate(&IdBuf.AppId, FileName,
-                               EntryPoint, AppName,
-                               PriorityIn,
-                               StackSizeIn,
-                               ExceptionActionIn);
-   }
-   else if(strcmp(EntryType,"CFE_LIB")==0)
-   {
-      CFE_ES_WriteToSysLog("ES Startup: Loading shared library: %s\n",FileName);
+        /*
+         * Priority and Exception action have limited ranges, which is checked here
+         * Task priority cannot be bigger than OS_MAX_TASK_PRIORITY
+         */
+        ParsedValue = strtoul(TokenList[4], NULL, 0);
+        if (ParsedValue > OS_MAX_TASK_PRIORITY)
+        {
+            ParamBuf.MainTaskInfo.Priority = OS_MAX_TASK_PRIORITY;
+        }
+        else
+        {
+            /* convert parsed value to correct type */
+            ParamBuf.MainTaskInfo.Priority = (CFE_ES_TaskPriority_Atom_t)ParsedValue;
+        }
 
-      /*
-      ** Now load the library
-      */
-      CreateStatus = CFE_ES_LoadLibrary(&IdBuf.LibId, FileName,
-                               EntryPoint, AppName);
+        /* No specific upper/lower limit for stack size - will pass value through */
+        ParamBuf.MainTaskInfo.StackSize = strtoul(TokenList[5], NULL, 0);
 
-   }
-   else
-   {
-      CFE_ES_WriteToSysLog("ES Startup: Unexpected EntryType %s in startup file.\n",EntryType);
-   }
 
-   return (CreateStatus);
+        /*
+        ** Validate Some parameters
+        ** Exception action should be 0 ( Restart App ) or
+        ** 1 ( Processor reset ). If it's non-zero, assume it means
+        ** reset CPU.
+        */
+        ParsedValue = strtoul(TokenList[7], NULL, 0);
+        if (ParsedValue > CFE_ES_ExceptionAction_RESTART_APP)
+        {
+            ParamBuf.ExceptionAction = CFE_ES_ExceptionAction_PROC_RESTART;
+        }
+        else
+        {
+            /* convert parsed value to correct type */
+            ParamBuf.ExceptionAction = (CFE_ES_ExceptionAction_Enum_t)ParsedValue;
+        }
 
+        /*
+        ** Now create the application
+        */
+        CreateStatus = CFE_ES_AppCreate(&IdBuf.AppId, ModuleName, &ParamBuf);
+    }
+    else if (strcmp(EntryType, "CFE_LIB") == 0)
+    {
+        CFE_ES_WriteToSysLog("ES Startup: Loading shared library: %s\n", ParamBuf.BasicInfo.FileName);
+
+        /*
+        ** Now load the library
+        */
+        CreateStatus = CFE_ES_LoadLibrary(&IdBuf.LibId, ModuleName, &ParamBuf.BasicInfo);
+    }
+    else
+    {
+        CFE_ES_WriteToSysLog("ES Startup: Unexpected EntryType %s in startup file.\n", EntryType);
+    }
+
+    return (CreateStatus);
 }
 
 /*
@@ -373,21 +367,21 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 **
 **-------------------------------------------------------------------------------------
 */
-int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
+int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName, const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
 {
     osal_id_t ModuleId;
-    cpuaddr StartAddr;
+    cpuaddr InitSymbolAddress;
     int32 ReturnCode;
     int32 StatusCode;
     uint32 LoadFlags;
 
     LoadFlags = 0;
-    StartAddr = 0;
+    InitSymbolAddress = 0;
     ReturnCode = CFE_SUCCESS;
 
     if (LoadParams->FileName[0] != 0)
     {
-        switch(CFE_ResourceId_GetBase(ResourceId))
+        switch(CFE_ResourceId_GetBase(ParentResourceId))
         {
         case CFE_ES_APPID_BASE:
             /* 
@@ -417,7 +411,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadPara
          * Load the module via OSAL.
          */
         StatusCode = OS_ModuleLoad ( &ModuleId,
-                LoadParams->Name,
+                ModuleName,
                 LoadParams->FileName,
                 LoadFlags );
 
@@ -437,13 +431,13 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadPara
     /*
      * If the Load was OK, then lookup the address of the entry point
      */
-    if (ReturnCode == CFE_SUCCESS && LoadParams->EntryPoint[0] != 0)
+    if (ReturnCode == CFE_SUCCESS && LoadParams->InitSymbolName[0] != 0)
     {
-        StatusCode = OS_ModuleSymbolLookup(ModuleId, &StartAddr, LoadParams->EntryPoint);
+        StatusCode = OS_ModuleSymbolLookup(ModuleId, &InitSymbolAddress, LoadParams->InitSymbolName);
         if (StatusCode != OS_SUCCESS)
         {
             CFE_ES_WriteToSysLog("ES Startup: Could not find symbol:%s. EC = 0x%08X\n",
-                    LoadParams->EntryPoint, (unsigned int)StatusCode);
+                    LoadParams->InitSymbolName, (unsigned int)StatusCode);
             ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
     }
@@ -452,7 +446,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadPara
     {
         /* store the data in the app record after successful load+lookup */
         LoadStatus->ModuleId = ModuleId;
-        LoadStatus->EntryAddress = StartAddr;
+        LoadStatus->InitSymbolAddress = InitSymbolAddress;
     }
     else if (OS_ObjectIdDefined(ModuleId))
     {
@@ -462,7 +456,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadPara
         if ( StatusCode != OS_SUCCESS ) /* There's not much we can do except notify */
         {
             CFE_ES_WriteToSysLog("ES Startup: Failed to unload: %s. EC = 0x%08X\n",
-                    LoadParams->Name, (unsigned int)StatusCode);
+                    ModuleName, (unsigned int)StatusCode);
         }
     }
 
@@ -471,7 +465,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadPara
 
 /*
 **-------------------------------------------------------------------------------------
-** Name: CFE_ES_GetAppEntryPoint
+** Name: CFE_ES_GetTaskFunction
 **
 ** Helper function to act as the intermediate entry point of an app
 ** This is to support starting apps before having a fully completed entry in the
@@ -480,9 +474,11 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadPara
 **
 **-------------------------------------------------------------------------------------
 */
-int32 CFE_ES_GetAppEntryPoint(osal_task_entry *FuncPtr)
+int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
 {
-    CFE_ES_AppRecord_t *AppRecPtr;
+    CFE_ES_TaskRecord_t *TaskRecPtr;
+    CFE_ES_AppId_t AppId;
+    CFE_ES_TaskEntryFuncPtr_t EntryFunc;
     int32 ReturnCode;
     int32 Timeout;
 
@@ -491,18 +487,23 @@ int32 CFE_ES_GetAppEntryPoint(osal_task_entry *FuncPtr)
      */
     ReturnCode = CFE_ES_ERR_APP_REGISTER;
     Timeout = CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC;
+    AppId = CFE_ES_APPID_UNDEFINED;
+    EntryFunc = NULL;
 
     while(true)
     {
         OS_TaskDelay(CFE_PLATFORM_ES_STARTUP_SYNC_POLL_MSEC);
 
         CFE_ES_LockSharedData(__func__,__LINE__);
-        AppRecPtr = CFE_ES_GetAppRecordByContext();
-        if (AppRecPtr != NULL)
+        TaskRecPtr = CFE_ES_GetTaskRecordByContext();
+        if (TaskRecPtr != NULL)
         {
-            AppRecPtr->AppState = CFE_ES_AppState_EARLY_INIT;
-            *FuncPtr = (osal_task_entry)AppRecPtr->ModuleInfo.EntryAddress;
-            ReturnCode = CFE_SUCCESS;
+            AppId = TaskRecPtr->AppId;
+            EntryFunc = TaskRecPtr->EntryFunc;
+            if (CFE_RESOURCEID_TEST_DEFINED(AppId) && EntryFunc != 0)
+            {
+                ReturnCode = CFE_SUCCESS;
+            }
         }
         CFE_ES_UnlockSharedData(__func__,__LINE__);
 
@@ -515,12 +516,18 @@ int32 CFE_ES_GetAppEntryPoint(osal_task_entry *FuncPtr)
         Timeout -= CFE_PLATFORM_ES_STARTUP_SYNC_POLL_MSEC;
     }
 
+    /* output function address to caller */
+    if (FuncPtr != NULL)
+    {
+        *FuncPtr = EntryFunc;
+    }
+
     return (ReturnCode);
 }
 
 /*
 **-------------------------------------------------------------------------------------
-** Name: CFE_ES_AppEntryPoint
+** Name: CFE_ES_TaskEntryPoint
 **
 ** Helper function to act as the intermediate entry point of an app
 ** This is to support starting apps before having a fully completed entry in the
@@ -529,11 +536,11 @@ int32 CFE_ES_GetAppEntryPoint(osal_task_entry *FuncPtr)
 **
 **-------------------------------------------------------------------------------------
 */
-void CFE_ES_AppEntryPoint(void)
+void CFE_ES_TaskEntryPoint(void)
 {
-    osal_task_entry RealEntryFunc;
+    CFE_ES_TaskEntryFuncPtr_t RealEntryFunc;
 
-    if (CFE_ES_GetAppEntryPoint(&RealEntryFunc) == CFE_SUCCESS &&
+    if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS &&
             RealEntryFunc != NULL)
     {
         (*RealEntryFunc)();
@@ -556,7 +563,7 @@ void CFE_ES_AppEntryPoint(void)
 **
 **-------------------------------------------------------------------------------------
 */
-int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_AppId_t RefAppId, CFE_ES_TaskId_t *TaskIdPtr)
+int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc, const CFE_ES_TaskStartParams_t* Params, CFE_ES_AppId_t ParentAppId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
     osal_id_t OsalTaskId;
@@ -565,15 +572,15 @@ int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_App
     int32 ReturnCode;
 
     /*
-     ** Create the primary task for the newly loaded task
+     * Create the primary task for the newly loaded task
      */
-    StatusCode = OS_TaskCreate(&OsalTaskId,   /* task id */
-            StartParams->BasicInfo.Name,      /* task name */
-            CFE_ES_AppEntryPoint,             /* task function pointer */
-            OSAL_TASK_STACK_ALLOCATE,         /* stack pointer (allocate) */
-            StartParams->StackSize,           /* stack size */
-            StartParams->Priority,            /* task priority */
-            OS_FP_ENABLED);                   /* task options */
+    StatusCode = OS_TaskCreate(&OsalTaskId,              /* task id */
+                               TaskName,                 /* task name matches app name for main task */
+                               CFE_ES_TaskEntryPoint,    /* task function pointer */
+                               OSAL_TASK_STACK_ALLOCATE, /* stack pointer (allocate) */
+                               Params->StackSize,        /* stack size */
+                               Params->Priority,         /* task priority */
+                               OS_FP_ENABLED);           /* task options */
 
     CFE_ES_LockSharedData(__func__,__LINE__);
 
@@ -598,13 +605,17 @@ int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_App
          */
         memset(TaskRecPtr, 0, sizeof(*TaskRecPtr));
 
-        TaskRecPtr->AppId = RefAppId;
-        strncpy(TaskRecPtr->TaskName, StartParams->BasicInfo.Name, sizeof(TaskRecPtr->TaskName)-1);
+        TaskRecPtr->AppId       = ParentAppId;
+        TaskRecPtr->EntryFunc   = EntryFunc;
+        TaskRecPtr->StartParams = *Params;
+
+        strncpy(TaskRecPtr->TaskName, TaskName, sizeof(TaskRecPtr->TaskName)-1);
         TaskRecPtr->TaskName[sizeof(TaskRecPtr->TaskName)-1] = 0;
+        
         CFE_ES_TaskRecordSetUsed(TaskRecPtr, CFE_RESOURCEID_UNWRAP(LocalTaskId));
 
         /*
-         ** Increment the registered Task count.
+         * Increment the registered Task count.
          */
         CFE_ES_Global.RegisteredTasks++;
         ReturnCode = CFE_SUCCESS;
@@ -613,7 +624,7 @@ int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_App
     else
     {
         CFE_ES_SysLogWrite_Unsync("ES Startup: AppCreate Error: TaskCreate %s Failed. EC = 0x%08X!\n",
-                    StartParams->BasicInfo.Name,(unsigned int)StatusCode);
+                    TaskName,(unsigned int)StatusCode);
         ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         *TaskIdPtr = CFE_ES_TASKID_UNDEFINED;
     }
@@ -634,28 +645,22 @@ int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_App
 **
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr,
-                       const char   *FileName,
-                       const char   *EntryPointName,
-                       const char   *AppName,
-                       CFE_ES_TaskPriority_Atom_t  Priority,
-                       size_t  StackSize,
-                       CFE_ES_ExceptionAction_Enum_t  ExceptionAction)
+int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, const CFE_ES_AppStartParams_t *Params)
 {
    CFE_Status_t        Status;
-   CFE_ES_TaskId_t     MainTaskId;
    CFE_ES_AppRecord_t *AppRecPtr;
    CFE_ResourceId_t    PendingResourceId;
 
    /*
-    * The FileName must not be NULL
+    * The AppName must not be NULL
     */
-   if (FileName == NULL || AppName == NULL)
+   if (AppName == NULL || Params == NULL)
    {
        return CFE_ES_BAD_ARGUMENT;
    }
 
-   if (strlen(AppName) >= OS_MAX_API_NAME)
+   /* Confirm name will fit inside the record */
+   if (memchr(AppName,0,sizeof(AppRecPtr->AppName)) == NULL)
    {
        return CFE_ES_BAD_ARGUMENT;
    }
@@ -705,27 +710,19 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr,
            /* Fully clear the entry, just in case of stale data */
            memset(AppRecPtr, 0, sizeof(*AppRecPtr));
 
+           /* Store the app name from passed-in value */
+           strncpy(AppRecPtr->AppName, AppName, sizeof(AppRecPtr->AppName)-1);
+
+           AppRecPtr->Type = CFE_ES_AppType_EXTERNAL;        
+
            /*
             * Fill out the parameters in the StartParams sub-structure
+            * 
+            * This contains all relevant info, including file name, entry point, 
+            * main task info, etc. which is required to start the app now
+            * or in a future restart/reload request.
             */
-           AppRecPtr->Type = CFE_ES_AppType_EXTERNAL;
-           strncpy(AppRecPtr->StartParams.BasicInfo.Name, AppName,
-                   sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1);
-           AppRecPtr->StartParams.BasicInfo.Name[sizeof(AppRecPtr->StartParams.BasicInfo.Name)-1] = '\0';
-           strncpy(AppRecPtr->StartParams.BasicInfo.FileName, FileName,
-                   sizeof(AppRecPtr->StartParams.BasicInfo.FileName)-1);
-           AppRecPtr->StartParams.BasicInfo.FileName[sizeof(AppRecPtr->StartParams.BasicInfo.FileName)-1] = '\0';
-           if (EntryPointName != NULL && strcmp(EntryPointName, "NULL") != 0)
-           {
-               strncpy(AppRecPtr->StartParams.BasicInfo.EntryPoint, EntryPointName,
-                       sizeof(AppRecPtr->StartParams.BasicInfo.EntryPoint)-1);
-               AppRecPtr->StartParams.BasicInfo.EntryPoint[
-                       sizeof(AppRecPtr->StartParams.BasicInfo.EntryPoint)-1] = '\0';
-           }
-
-           AppRecPtr->StartParams.StackSize = StackSize;
-           AppRecPtr->StartParams.ExceptionAction = ExceptionAction;
-           AppRecPtr->StartParams.Priority = Priority;
+           AppRecPtr->StartParams = *Params;
 
            /*
             * Fill out the Task State info
@@ -753,18 +750,19 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr,
    /*
     * Load the module based on StartParams configured above.
     */
-   Status = CFE_ES_LoadModule(PendingResourceId, &AppRecPtr->StartParams.BasicInfo, &AppRecPtr->ModuleInfo);
+   Status = CFE_ES_LoadModule(PendingResourceId, AppName, &AppRecPtr->StartParams.BasicInfo, &AppRecPtr->LoadStatus);
 
    /*
     * If the Load was OK, then complete the initialization
     */
    if (Status == CFE_SUCCESS)
    {
-       Status = CFE_ES_StartAppTask(&AppRecPtr->StartParams, CFE_ES_APPID_C(PendingResourceId), &MainTaskId);
-   }
-   else
-   {
-       MainTaskId = CFE_ES_TASKID_UNDEFINED;
+       Status = CFE_ES_StartAppTask(&AppRecPtr->MainTaskId, /* Task ID (output) stored in App Record as main task */
+                                    AppName,                /* Main Task name matches app name */
+                                    (CFE_ES_TaskEntryFuncPtr_t)AppRecPtr->LoadStatus
+                                        .InitSymbolAddress,               /* Init Symbol is main task entry point */
+                                    &AppRecPtr->StartParams.MainTaskInfo, /* Main task parameters */
+                                    CFE_ES_APPID_C(PendingResourceId));   /* Parent App ID */
    }
 
    /*
@@ -779,7 +777,6 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr,
         * important - set the ID to its proper value
         * which turns this into a real/valid table entry
         */
-       AppRecPtr->MainTaskId = MainTaskId;
        CFE_ES_AppRecordSetUsed(AppRecPtr, PendingResourceId);
 
        /*
@@ -812,10 +809,7 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr,
 **
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t       *LibraryIdPtr,
-                         const char   *FileName,
-                         const char   *EntryPointName,
-                         const char   *LibName)
+int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, const CFE_ES_ModuleLoadParams_t *Params)
 {
    CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
    CFE_ES_LibRecord_t *         LibSlotPtr;
@@ -823,14 +817,15 @@ int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t       *LibraryIdPtr,
    CFE_ResourceId_t             PendingResourceId;
 
    /*
-    * The FileName must not be NULL
+    * The LibName must not be NULL
     */
-   if (FileName == NULL || LibName == NULL)
+   if (LibName == NULL || Params == NULL)
    {
        return CFE_ES_BAD_ARGUMENT;
    }
 
-   if (strlen(LibName) >= OS_MAX_API_NAME)
+   /* Confirm name will fit inside the record */
+   if (memchr(LibName,0,sizeof(LibSlotPtr->LibName)) == NULL)
    {
        return CFE_ES_BAD_ARGUMENT;
    }
@@ -889,18 +884,10 @@ int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t       *LibraryIdPtr,
            /*
             * Fill out the parameters in the AppStartParams sub-structure
             */
-           strncpy(LibSlotPtr->BasicInfo.Name, LibName,
-                   sizeof(LibSlotPtr->BasicInfo.Name)-1);
-           LibSlotPtr->BasicInfo.Name[sizeof(LibSlotPtr->BasicInfo.Name)-1] = '\0';
-           strncpy(LibSlotPtr->BasicInfo.FileName, FileName,
-                   sizeof(LibSlotPtr->BasicInfo.FileName)-1);
-           LibSlotPtr->BasicInfo.FileName[sizeof(LibSlotPtr->BasicInfo.FileName)-1] = '\0';
-           if (EntryPointName != NULL && strcmp(EntryPointName, "NULL") != 0)
-           {
-              strncpy(LibSlotPtr->BasicInfo.EntryPoint, EntryPointName,
-                      sizeof(LibSlotPtr->BasicInfo.EntryPoint)-1);
-              LibSlotPtr->BasicInfo.EntryPoint[sizeof(LibSlotPtr->BasicInfo.EntryPoint)-1] = '\0';
-           }
+           strncpy(LibSlotPtr->LibName, LibName,
+                   sizeof(LibSlotPtr->LibName)-1);
+           LibSlotPtr->LibName[sizeof(LibSlotPtr->LibName)-1] = '\0';
+           LibSlotPtr->LoadParams = *Params;
 
            CFE_ES_LibRecordSetUsed(LibSlotPtr, CFE_RESOURCEID_RESERVED);
            CFE_ES_Global.LastLibId = PendingResourceId;
@@ -923,10 +910,10 @@ int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t       *LibraryIdPtr,
    /*
     * Load the module based on StartParams configured above.
     */
-   Status = CFE_ES_LoadModule(PendingResourceId, &LibSlotPtr->BasicInfo, &LibSlotPtr->ModuleInfo);
+   Status = CFE_ES_LoadModule(PendingResourceId, LibName, &LibSlotPtr->LoadParams, &LibSlotPtr->LoadStatus);
    if (Status == CFE_SUCCESS)
    {
-      FunctionPointer = (CFE_ES_LibraryEntryFuncPtr_t)LibSlotPtr->ModuleInfo.EntryAddress;
+      FunctionPointer = (CFE_ES_LibraryEntryFuncPtr_t)LibSlotPtr->LoadStatus.InitSymbolAddress;
       if (FunctionPointer != NULL)
       {
          Status = (*FunctionPointer)(CFE_ES_LIBID_C(PendingResourceId));
@@ -1112,7 +1099,8 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
 {
     CFE_ES_AppRecord_t      *AppRecPtr;
     uint32                   PendingControlReq;
-    CFE_ES_AppStartParams_t  OrigStartParams;
+    CFE_ES_AppStartParams_t  RestartParams;
+    char                     OrigAppName[OS_MAX_API_NAME];
     CFE_Status_t             CleanupStatus;
     CFE_Status_t             StartupStatus;
     CFE_ES_AppId_t           NewAppId;
@@ -1129,8 +1117,11 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
     StartupStatus = CFE_SUCCESS;
     PendingControlReq = 0;
     NewAppId = CFE_ES_APPID_UNDEFINED;
+    OrigAppName[0] = 0;
+    memset(&RestartParams, 0, sizeof(RestartParams));
+
     AppRecPtr = CFE_ES_LocateAppRecordByID(AppId);
-    memset(&OrigStartParams, 0, sizeof(OrigStartParams));
+
 
 
     /*
@@ -1144,7 +1135,15 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
     if (CFE_ES_AppRecordIsMatch(AppRecPtr, AppId))
     {
         PendingControlReq = AppRecPtr->ControlReq.AppControlRequest;
-        OrigStartParams = AppRecPtr->StartParams;
+        strncpy(OrigAppName, AppRecPtr->AppName, sizeof(OrigAppName)-1);
+        OrigAppName[sizeof(OrigAppName)-1] = 0;
+
+        /* If a restart was requested, copy the parameters to re-use in new app */
+        if ( PendingControlReq == CFE_ES_RunStatus_SYS_RESTART ||
+                PendingControlReq == CFE_ES_RunStatus_SYS_RELOAD )
+        {
+            RestartParams = AppRecPtr->StartParams;
+        }
     }
 
     CFE_ES_UnlockSharedData(__func__,__LINE__);
@@ -1174,13 +1173,7 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
     if ( PendingControlReq == CFE_ES_RunStatus_SYS_RESTART ||
             PendingControlReq == CFE_ES_RunStatus_SYS_RELOAD )
     {
-        StartupStatus = CFE_ES_AppCreate(&NewAppId,
-                OrigStartParams.BasicInfo.FileName,
-                OrigStartParams.BasicInfo.EntryPoint,
-                OrigStartParams.BasicInfo.Name,
-                OrigStartParams.Priority,
-                OrigStartParams.StackSize,
-                OrigStartParams.ExceptionAction);
+        StartupStatus = CFE_ES_AppCreate(&NewAppId, OrigAppName, &RestartParams);
     }
 
     /*
@@ -1328,7 +1321,7 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
         }
 
         CFE_EVS_SendEvent(EventID, EventType, "%s Application %s %s",
-                ReqName, OrigStartParams.BasicInfo.Name, MessageDetail);
+                ReqName, OrigAppName, MessageDetail);
     }
 
 } /* End Function */
@@ -1379,7 +1372,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
              *
              * (this will be OS_OBJECT_ID_UNDEFINED if it was not loaded dynamically)
              */
-            ModuleId = AppRecPtr->ModuleInfo.ModuleId;
+            ModuleId = AppRecPtr->LoadStatus.ModuleId;
         }
 
         /*
@@ -1765,11 +1758,7 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
 */
 void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
-    strncpy(AppInfoPtr->Name, ParamsPtr->Name,
-            sizeof(AppInfoPtr->Name)-1);
-    AppInfoPtr->Name[sizeof(AppInfoPtr->Name)-1] = '\0';
-
-    strncpy(AppInfoPtr->EntryPoint, ParamsPtr->EntryPoint,
+    strncpy(AppInfoPtr->EntryPoint, ParamsPtr->InitSymbolName,
             sizeof(AppInfoPtr->EntryPoint) - 1);
     AppInfoPtr->EntryPoint[sizeof(AppInfoPtr->EntryPoint) - 1] = '\0';
 
@@ -1790,7 +1779,7 @@ void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_
 */
 void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
-    AppInfoPtr->StartAddress = CFE_ES_MEMADDRESS_C(StatusPtr->EntryAddress);
+    AppInfoPtr->StartAddress = CFE_ES_MEMADDRESS_C(StatusPtr->InitSymbolAddress);
 }
 
 /*

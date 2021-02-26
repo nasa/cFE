@@ -173,7 +173,7 @@ static inline bool CFE_ES_AppRecordIsMatch(const CFE_ES_AppRecord_t *AppRecPtr, 
  */
 static inline const char* CFE_ES_AppRecordGetName(const CFE_ES_AppRecord_t *AppRecPtr)
 {
-    return AppRecPtr->StartParams.BasicInfo.Name;
+    return AppRecPtr->AppName;
 }
 
 
@@ -266,7 +266,7 @@ static inline bool CFE_ES_LibRecordIsMatch(const CFE_ES_LibRecord_t *LibRecPtr, 
  */
 static inline const char* CFE_ES_LibRecordGetName(const CFE_ES_LibRecord_t *LibRecPtr)
 {
-    return LibRecPtr->BasicInfo.Name;
+    return LibRecPtr->LibName;
 }
 
 

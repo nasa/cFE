@@ -849,19 +849,18 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
     int32                 FilenameLen;
     int32                 AppEntryLen;
     int32                 AppNameLen;
-    size_t                AppStackSize;
-    char                  LocalFile[OS_MAX_PATH_LEN];
-    char                  LocalEntryPt[OS_MAX_API_NAME];
     char                  LocalAppName[OS_MAX_API_NAME];
+    CFE_ES_AppStartParams_t StartParams;
+    
 
     /* Create local copies of all input strings and ensure null termination */
-    FilenameLen = CFE_SB_MessageStringGet(LocalFile, (char *)cmd->AppFileName, NULL,
-            sizeof(LocalFile), sizeof(cmd->AppFileName));
+    FilenameLen = CFE_SB_MessageStringGet(StartParams.BasicInfo.FileName, cmd->AppFileName, NULL,
+            sizeof(StartParams.BasicInfo.FileName), sizeof(cmd->AppFileName));
 
-    AppEntryLen = CFE_SB_MessageStringGet(LocalEntryPt, (char *)cmd->AppEntryPoint, NULL,
-            sizeof(LocalEntryPt), sizeof(cmd->AppEntryPoint));
+    AppEntryLen = CFE_SB_MessageStringGet(StartParams.BasicInfo.InitSymbolName, cmd->AppEntryPoint, NULL,
+            sizeof(StartParams.BasicInfo.InitSymbolName), sizeof(cmd->AppEntryPoint));
 
-    AppNameLen = CFE_SB_MessageStringGet(LocalAppName, (char *)cmd->Application, NULL,
+    AppNameLen = CFE_SB_MessageStringGet(LocalAppName, cmd->Application, NULL,
             sizeof(LocalAppName), sizeof(cmd->Application));
 
     /*
@@ -872,19 +871,19 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
         CFE_ES_TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_START_INVALID_FILENAME_ERR_EID, CFE_EVS_EventType_ERROR,
                 "CFE_ES_StartAppCmd: invalid filename: %s",
-                LocalFile);
+                StartParams.BasicInfo.FileName);
     }
     else if (AppEntryLen <= 0)
     {
         CFE_ES_TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_START_INVALID_ENTRY_POINT_ERR_EID, CFE_EVS_EventType_ERROR,
-                "CFE_ES_StartAppCmd: App Entry Point is NULL.");
+                "CFE_ES_StartAppCmd: App Entry Point is empty.");
     }
     else if (AppNameLen <= 0)
     {
         CFE_ES_TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_START_NULL_APP_NAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                "CFE_ES_StartAppCmd: App Name is NULL.");
+                "CFE_ES_StartAppCmd: App Name is empty.");
     }
     else if (cmd->Priority > OS_MAX_PRIORITY)
     {
@@ -906,22 +905,20 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
        /* If stack size was provided, use it, otherwise use default. */
        if (cmd->StackSize == 0)
        {
-           AppStackSize = CFE_PLATFORM_ES_DEFAULT_STACK_SIZE;
+           StartParams.MainTaskInfo.StackSize = CFE_PLATFORM_ES_DEFAULT_STACK_SIZE;
        }
        else
        {
-           AppStackSize = cmd->StackSize;
+           StartParams.MainTaskInfo.StackSize = cmd->StackSize;
        }
+
+       StartParams.MainTaskInfo.Priority = cmd->Priority;
+       StartParams.ExceptionAction = cmd->ExceptionAction;
 
        /*
        ** Invoke application loader/startup function.
        */
-       Result = CFE_ES_AppCreate(&AppID, LocalFile,
-                   LocalEntryPt,
-                   LocalAppName,
-                   cmd->Priority,
-                   AppStackSize,
-                   cmd->ExceptionAction);
+       Result = CFE_ES_AppCreate(&AppID, LocalAppName, &StartParams);
 
         /*
         ** Send appropriate event message
@@ -931,14 +928,14 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
             CFE_ES_TaskData.CommandCounter++;
             CFE_EVS_SendEvent(CFE_ES_START_INF_EID, CFE_EVS_EventType_INFORMATION,
                     "Started %s from %s, AppID = %lu",
-                    LocalAppName, LocalFile, CFE_RESOURCEID_TO_ULONG(AppID));
+                    LocalAppName, StartParams.BasicInfo.FileName, CFE_RESOURCEID_TO_ULONG(AppID));
         }
         else
         {
             CFE_ES_TaskData.CommandErrorCounter++;
             CFE_EVS_SendEvent(CFE_ES_START_ERR_EID, CFE_EVS_EventType_ERROR,
                     "Failed to start %s from %s, RC = 0x%08X",
-                    LocalAppName, LocalFile, (unsigned int)Result);
+                    LocalAppName, StartParams.BasicInfo.FileName, (unsigned int)Result);
         }
 
     } /* End if -- command parameter validation */
@@ -1612,26 +1609,51 @@ int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
 int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
+    CFE_ES_BackgroundLogDumpGlobal_t  *StatePtr;
+    int32 Status;
 
-    if (CFE_ES_TaskData.BackgroundERLogDumpState.IsPending)
+    StatePtr = &CFE_ES_TaskData.BackgroundERLogDumpState;
+
+    /* check if pending before overwriting fields in the structure */
+    if (CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
     {
-        CFE_EVS_SendEvent(CFE_ES_ERLOG_PENDING_ERR_EID,CFE_EVS_EventType_ERROR,
-                "Error log write to file %s already in progress",
-                CFE_ES_TaskData.BackgroundERLogDumpState.DataFileName);
-
-        /* background dump already running, consider this an error */
-        CFE_ES_TaskData.CommandErrorCounter++;
+        Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
     else
     {
-        CFE_SB_MessageStringGet(CFE_ES_TaskData.BackgroundERLogDumpState.DataFileName, (char *)CmdPtr->FileName,
-                CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE,
-                sizeof(CFE_ES_TaskData.BackgroundERLogDumpState.DataFileName), sizeof(CmdPtr->FileName));
+        /* Reset the entire state object (just for good measure, ensure no stale data) */
+        memset(StatePtr, 0, sizeof(*StatePtr));
 
-        CFE_ES_TaskData.BackgroundERLogDumpState.IsPending = true;
-        CFE_ES_TaskData.CommandCounter++;
-        CFE_ES_BackgroundWakeup();
+        /* 
+         * Fill out the remainder of meta data.  
+         * This data is currently the same for every request
+         */
+        StatePtr->FileWrite.FileSubType = CFE_FS_SubType_ES_ERLOG;
+        snprintf(StatePtr->FileWrite.Description, sizeof(StatePtr->FileWrite.Description), CFE_ES_ER_LOG_DESC);
+
+        StatePtr->FileWrite.GetData = CFE_ES_BackgroundERLogFileDataGetter;
+        StatePtr->FileWrite.OnEvent = CFE_ES_BackgroundERLogFileEventHandler;
+
+        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->FileName,
+                CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE,
+                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->FileName));
+
+        Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
     }
+
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_EVS_SendEvent(CFE_ES_ERLOG_PENDING_ERR_EID,CFE_EVS_EventType_ERROR,
+                "Error log write to file %s already in progress",
+                StatePtr->FileWrite.FileName);
+
+        /* background dump already running, consider this an error */
+        CFE_ES_TaskData.CommandErrorCounter++;
+    }    
+    else
+    {
+        CFE_ES_TaskData.CommandCounter++;
+    }    
 
     return CFE_SUCCESS;
 }/* end CFE_ES_WriteERLogCmd */

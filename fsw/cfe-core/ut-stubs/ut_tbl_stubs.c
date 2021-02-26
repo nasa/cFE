@@ -132,7 +132,7 @@ int32 CFE_TBL_GetAddress (void **TblPtr, CFE_TBL_Handle_t TblHandle)
     int32 ForceValue;
     
     status = UT_DEFAULT_IMPL(CFE_TBL_GetAddress);
-    if (status >= 0 && !UT_Stub_CheckForceFail(UT_KEY(CFE_TBL_GetAddress), &ForceValue))
+    if (status >= 0 && !UT_Stub_CheckDefaultReturnValue(UT_KEY(CFE_TBL_GetAddress), &ForceValue))
     {
         UT_Stub_CopyToLocal(UT_KEY(CFE_TBL_GetAddress), (uint8 *)TblPtr, sizeof(void*));
     }

@@ -173,6 +173,15 @@ typedef int32 CFE_Status_t;
 #define CFE_STATUS_EXTERNAL_RESOURCE_FAIL  ((int32)0xc8000005)
 
 /**
+ * @brief Request already pending
+ *
+ *  Commands or requests are already pending or the pending request
+ *  limit has been reached.  No more requests can be made until
+ *  the current request(s) complete.
+ */
+#define CFE_STATUS_REQUEST_ALREADY_PENDING       ((int32)0xc8000006)
+
+/**
  * @brief Not Implemented
  *
  *  Current version does not have the function or the feature

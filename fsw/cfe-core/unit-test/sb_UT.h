@@ -365,7 +365,7 @@ void Test_SB_Cmds_Stats(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send routing information command using the default file name
+** \brief Test send routing information command default/nominal path
 **
 ** \par Description
 **        This function tests the send routing information command using the
@@ -381,7 +381,7 @@ void Test_SB_Cmds_RoutingInfoDef(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send routing information command using a specified file name
+** \brief Test send routing information command with request already pending
 **
 ** \par Description
 **        This function tests the send routing information command using a
@@ -393,15 +393,11 @@ void Test_SB_Cmds_RoutingInfoDef(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_SB_Cmds_RoutingInfoSpec(void);
+void Test_SB_Cmds_RoutingInfoAlreadyPending(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send routing information command with a file creation failure
-**
-** \par Description
-**        This function tests the send routing information command with a file
-**        creation failure.
+** \brief Test routing information data getter
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -409,7 +405,7 @@ void Test_SB_Cmds_RoutingInfoSpec(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_SB_Cmds_RoutingInfoCreateFail(void);
+void Test_SB_Cmds_RoutingInfoDataGetter(void);
 
 /*****************************************************************************/
 /**
@@ -650,41 +646,7 @@ void Test_GetPipeIdByName(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send routing information command with a file header
-**        write failure
-**
-** \par Description
-**        This function tests the send routing information command with a file
-**        header write failure.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_SB_Cmds_RoutingInfoHdrFail(void);
-
-/*****************************************************************************/
-/**
-** \brief Test send routing information command with a file header write
-**        failure on the second write
-**
-** \par Description
-**        This function tests the send routing information command with a file
-**        header write failure on the second write.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_SB_Cmds_RoutingInfoWriteFail(void);
-
-/*****************************************************************************/
-/**
-** \brief Test send pipe information command using the default file name
+** \brief Test send pipe information command default / nominal path
 **
 ** \par Description
 **        This function tests the send pipe information command using the
@@ -700,11 +662,7 @@ void Test_SB_Cmds_PipeInfoDef(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send pipe information command using a specified file name
-**
-** \par Description
-**        This function tests the send pipe information command using a
-**        specified file name.
+** \brief Test send pipe information command when already pending
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -712,15 +670,11 @@ void Test_SB_Cmds_PipeInfoDef(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_SB_Cmds_PipeInfoSpec(void);
+void Test_SB_Cmds_PipeInfoAlreadyPending(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send pipe information command with a file creation failure
-**
-** \par Description
-**        This function tests the send pipe information command with a file
-**        creation failure.
+** \brief Test pipe information data getter
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -728,16 +682,11 @@ void Test_SB_Cmds_PipeInfoSpec(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_SB_Cmds_PipeInfoCreateFail(void);
+void Test_SB_Cmds_PipeInfoDataGetter(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send pipe information command with a file header
-**        write failure
-**
-** \par Description
-**        This function tests the send pipe information command with a file
-**        header write failure.
+** \brief Test background file writer event handler
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -745,28 +694,11 @@ void Test_SB_Cmds_PipeInfoCreateFail(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_SB_Cmds_PipeInfoHdrFail(void);
+void Test_SB_Cmds_BackgroundFileWriteEvents(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send pipe information command with a file write failure on
-**        the second write
-**
-** \par Description
-**        This function tests the send pipe information command with a file
-**        write failure on the second write.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_SB_Cmds_PipeInfoWriteFail(void);
-
-/*****************************************************************************/
-/**
-** \brief Test send map information command using the default file name
+** \brief Test send map information command using the defaults / nominal path
 **
 ** \par Description
 **        This function tests the send map information command using the
@@ -782,7 +714,7 @@ void Test_SB_Cmds_MapInfoDef(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send map information command using a specified file name
+** \brief Test send map information command when already pending
 **
 ** \par Description
 **        This function tests the send map information command using a
@@ -794,15 +726,11 @@ void Test_SB_Cmds_MapInfoDef(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_SB_Cmds_MapInfoSpec(void);
+void Test_SB_Cmds_MapInfoAlreadyPending(void);
 
 /*****************************************************************************/
 /**
-** \brief Test send map information command with a file creation failure
-**
-** \par Description
-**        This function tests the send map information command with a file
-**        creation failure.
+** \brief Test map information data getter function
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -810,40 +738,7 @@ void Test_SB_Cmds_MapInfoSpec(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_SB_Cmds_MapInfoCreateFail(void);
-
-/*****************************************************************************/
-/**
-** \brief Test send map information command with a file header write failure
-**
-** \par Description
-**        This function tests the send map information command with a file
-**        header write failure.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_SB_Cmds_MapInfoHdrFail(void);
-
-/*****************************************************************************/
-/**
-** \brief Test send map information command with a file write failure on
-**        the second write
-**
-** \par Description
-**        This function tests the send map information command with a file
-**        write failure on the second write.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_SB_Cmds_MapInfoWriteFail(void);
+void Test_SB_Cmds_MapInfoDataGetter(void);
 
 /*****************************************************************************/
 /**

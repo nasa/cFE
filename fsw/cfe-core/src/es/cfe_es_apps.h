@@ -77,8 +77,7 @@ typedef struct
 */
 typedef struct
 {
-    char                  Name[OS_MAX_API_NAME];
-    char                  EntryPoint[OS_MAX_API_NAME];
+    char                  InitSymbolName[OS_MAX_API_NAME];
     char                  FileName[OS_MAX_PATH_LEN];
 
 } CFE_ES_ModuleLoadParams_t;
@@ -92,19 +91,31 @@ typedef struct
 */
 typedef struct
 {
-    cpuaddr               EntryAddress;
     osal_id_t             ModuleId;
+    cpuaddr               InitSymbolAddress;
 
 } CFE_ES_ModuleLoadStatus_t;
 
 
+/*
+** CFE_ES_TaskStartParams_t contains basic details about a CFE task
+** 
+** This information needs to be specified when starting a task and is
+** stored as part of the task record for future reference.
+*/
+typedef struct
+{
+    size_t                          StackSize;
+    CFE_ES_TaskPriority_Atom_t      Priority;
+
+} CFE_ES_TaskStartParams_t;
+
 
 /*
-** CFE_ES_AppStartParams_t is a structure of information used when an application is
-**   created in the system.
+** CFE_ES_AppStartParams_t contains basic details about a CFE app.
 **
 ** This is an extension of the CFE_ES_ModuleLoadParams_t which adds information
-** about the task stack size and priority.  It is only used for apps, as libraries
+** about the main task and exception action.  It is only used for apps, as libraries
 ** do not have a task associated.
 */
 typedef struct
@@ -112,16 +123,13 @@ typedef struct
     /*
      * Basic (static) information about the module
      */
-    CFE_ES_ModuleLoadParams_t       BasicInfo;
+    CFE_ES_ModuleLoadParams_t BasicInfo;
 
-    /*
-     * Extra information the pertains to applications only, not libraries.
-     */
-    size_t                          StackSize;
-    CFE_ES_TaskPriority_Atom_t      Priority;
-    CFE_ES_ExceptionAction_Enum_t   ExceptionAction;
+    CFE_ES_TaskStartParams_t      MainTaskInfo;
+    CFE_ES_ExceptionAction_Enum_t ExceptionAction;
 
 } CFE_ES_AppStartParams_t;
+
 
 /*
 ** CFE_ES_AppRecord_t is an internal structure used to keep track of
@@ -129,13 +137,14 @@ typedef struct
 */
 typedef struct
 {
-   CFE_ES_AppId_t             AppId;                 /* The actual AppID of this entry, or undefined */
-   CFE_ES_AppState_Enum_t     AppState;              /* Is the app running, or stopped, or waiting? */
-   CFE_ES_AppType_Enum_t      Type;                  /* The type of App: CORE or EXTERNAL */
-   CFE_ES_AppStartParams_t    StartParams;           /* The start parameters for an App */
-   CFE_ES_ModuleLoadStatus_t  ModuleInfo;            /* Runtime module information */
-   CFE_ES_ControlReq_t        ControlReq;            /* The Control Request Record for External cFE Apps */
-   CFE_ES_TaskId_t            MainTaskId;            /* The Application's Main Task ID */
+    CFE_ES_AppId_t            AppId;                    /* The actual AppID of this entry, or undefined */
+    char                      AppName[OS_MAX_API_NAME]; /* The name of the app */
+    CFE_ES_AppState_Enum_t    AppState;                 /* Is the app running, or stopped, or waiting? */
+    CFE_ES_AppType_Enum_t     Type;                     /* The type of App: CORE or EXTERNAL */
+    CFE_ES_AppStartParams_t   StartParams;              /* The start parameters for an App */
+    CFE_ES_ModuleLoadStatus_t LoadStatus;               /* Runtime module information */
+    CFE_ES_ControlReq_t       ControlReq;               /* The Control Request Record for External cFE Apps */
+    CFE_ES_TaskId_t           MainTaskId;               /* The Application's Main Task ID */
 
 } CFE_ES_AppRecord_t;
 
@@ -146,11 +155,12 @@ typedef struct
 */
 typedef struct
 {
-   CFE_ES_TaskId_t         TaskId;            /* The actual TaskID of this entry, or undefined */
-   CFE_ES_AppId_t          AppId;             /* The parent Application's App ID */
-   uint32    ExecutionCounter;                /* The execution counter for the Child task */
-   char      TaskName[OS_MAX_API_NAME];       /* Task Name */
-
+    CFE_ES_TaskId_t           TaskId;                    /* The actual TaskID of this entry, or undefined */
+    char                      TaskName[OS_MAX_API_NAME]; /* Task Name */
+    CFE_ES_AppId_t            AppId;                     /* The parent Application's App ID */
+    CFE_ES_TaskStartParams_t  StartParams;               /* The start parameters for the task */
+    CFE_ES_TaskEntryFuncPtr_t EntryFunc;                 /* Task entry function */
+    uint32                    ExecutionCounter;          /* The execution counter for the task */
 
 } CFE_ES_TaskRecord_t;
 
@@ -160,9 +170,11 @@ typedef struct
 */
 typedef struct
 {
-   CFE_ES_LibId_t             LibId;          /* The actual LibID of this entry, or undefined */
-   CFE_ES_ModuleLoadParams_t  BasicInfo;      /* Basic (static) information about the module */
-   CFE_ES_ModuleLoadStatus_t  ModuleInfo;     /* Runtime information about the module */
+    CFE_ES_LibId_t            LibId;                    /* The actual LibID of this entry, or undefined */
+    char                      LibName[OS_MAX_API_NAME]; /* Library Name */
+    CFE_ES_ModuleLoadParams_t LoadParams;               /* Basic (static) information about the module */
+    CFE_ES_ModuleLoadStatus_t LoadStatus;               /* Runtime information about the module */
+
 } CFE_ES_LibRecord_t;
 
 /*
@@ -198,7 +210,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
 ** This only loads the code and looks up relevent runtime information.
 ** It does not start any tasks.
 */
-int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
+int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName, const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
 
 /*
 ** Internal function to determine the entry point of an app.
@@ -206,37 +218,29 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ResourceId, const CFE_ES_ModuleLoadPara
 ** then this delays until the app is completely configured and the entry point is
 ** confirmed to be valid.
 */
-int32 CFE_ES_GetAppEntryPoint(osal_task_entry *FuncPtr);
+int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr);
 
 /*
-** Intermediate entry point of an app.  Determines the actual
+** Intermediate entry point of all tasks.  Determines the actual
 ** entry point from the global data structures.
 */
-void CFE_ES_AppEntryPoint(void);
+void CFE_ES_TaskEntryPoint(void);
 
 /*
-** Internal function to start the main task of an app.
+** Internal function to start a task associated with an app.
 */
-int32 CFE_ES_StartAppTask(const CFE_ES_AppStartParams_t* StartParams, CFE_ES_AppId_t RefAppId, CFE_ES_TaskId_t *TaskIdPtr);
+int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc, const CFE_ES_TaskStartParams_t* Params, CFE_ES_AppId_t ParentAppId);
 
 /*
 ** Internal function to create/start a new cFE app
 ** based on the parameters passed in
 */
-int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr,
-                       const char   *FileName,
-                       const char   *EntryPointName,
-                       const char   *AppName,
-                       CFE_ES_TaskPriority_Atom_t    Priority,
-                       size_t                        StackSize,
-                       CFE_ES_ExceptionAction_Enum_t ExceptionAction);
+int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, const CFE_ES_AppStartParams_t *Params);
+
 /*
 ** Internal function to load a a new cFE shared Library
 */
-int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr,
-                       const char   *FileName,
-                       const char   *EntryPointName,
-                       const char   *LibName);
+int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, const CFE_ES_ModuleLoadParams_t *Params);
 
 /*
 ** Scan the Application Table for actions to take
@@ -249,9 +253,14 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg);
 bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg);
 
 /*
-** Check if ER log dump request is pending
-*/
-bool CFE_ES_RunERLogDump(uint32 ElapsedTime, void *Arg);
+ * Background file write data getter for ER log entry
+ */
+bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
+
+/*
+ * Background file write event handler for ER log entry
+ */
+void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position);
 
 /*
 ** Perform the requested control action for an application
