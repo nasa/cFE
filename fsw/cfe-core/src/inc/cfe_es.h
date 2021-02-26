@@ -1149,8 +1149,12 @@ CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1,2)
 **                          a single value.  Nominally, the user should set this value to zero.
 **
 ** \param[in]   TypeCRC     One of the following CRC algorithm selections:
-**                          \arg \c CFE_MISSION_ES_CRC_8 - (Not currently implemented)
-**                          \arg \c CFE_MISSION_ES_CRC_16 - a CRC-16 algorithm
+**                          \arg \c CFE_MISSION_ES_CRC_8 -  (Not currently implemented)
+**                          \arg \c CFE_MISSION_ES_CRC_16 - CRC-16/ARC <BR>
+**                                  Polynomial: 0x8005 <BR>
+**                                  Initialization: 0x0000 <BR>
+**                                  Reflect Input/Output: true <BR>
+**                                  XorOut: 0x0000
 **                          \arg \c CFE_MISSION_ES_CRC_32 - (not currently implemented)
 **
 ** \return The result of the CRC calculation on the specified memory block, or error code \ref CFEReturnCodes
