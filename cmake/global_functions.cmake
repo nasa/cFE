@@ -278,6 +278,8 @@ endfunction(read_targetconfig)
 #
 function(get_current_cflags OUTPUT_LIST)
 
+    message(FATAL_ERROR "BROKEN!")
+    
   # Start by converting the supplied string to a list 
   set(FLAGLIST)
   foreach (FLGSTR ${ARGN})
@@ -285,14 +287,16 @@ function(get_current_cflags OUTPUT_LIST)
     list(APPEND FLAGLIST ${TEMPFLG})
   endforeach (FLGSTR ${ARGN})
   
-  # Append any compile definitions from the directory properties
-  get_directory_property(CURRENT_DEFS COMPILE_DEFINITIONS)
-  foreach(DEF ${CURRENT_DEFS})
+  # Append any compile definitions from the CFE API
+  get_target_property(CURRENT_DEFS cfe_app INTERFACE_COMPILE_DEFINITIONS)
+  message("DEFS=${CURRENT_DEFS}")
+  foreach(DEF $<TARGET_PROPERTY:cfe_app,INTERFACE_COMPILE_DEFINITIONS>)
     list(APPEND FLAGLIST "-D${DEF}")
   endforeach(DEF ${CURRENT_DEFS})
   
-  # Append any include directories from the directory properties
-  get_directory_property(CURRENT_INCDIRS INCLUDE_DIRECTORIES)
+  # Append any include directories from the CFE API
+  get_target_property(CURRENT_INCDIRS cfe_app INTERFACE_INCLUDE_DIRECTORIES)
+  message("INCDIRS=${CURRENT_INCDIRS}")
   foreach(INC ${CURRENT_INCDIRS})
     list(APPEND FLAGLIST "-I${INC}")
   endforeach(INC ${CURRENT_INCDIRS})

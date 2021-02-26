@@ -161,7 +161,6 @@ function(generate_build_version_templates)
 
 endfunction(generate_build_version_templates)
 
-
 ##################################################################
 #
 # FUNCTION: prepare
@@ -249,7 +248,7 @@ function(prepare)
   
   foreach(APP ${MISSION_DEPS})
     # OSAL is handled specially, as only part of it is used
-    if (NOT APP STREQUAL "osal" AND NOT APP STREQUAL "cfe-core")
+    if (NOT APP STREQUAL "osal")
       if (EXISTS "${${APP}_MISSION_DIR}/docs/${APP}.doxyfile.in")
         # If the module provides its own doxyfile, then include it directly
         # This allows for app-specific fine-tuning of the sources, based on its own source tree 
@@ -283,11 +282,19 @@ function(prepare)
     "${CMAKE_BINARY_DIR}/doc/osconfig-example.h")
     
   # The user guide should include the doxygen from the _public_ API files from CFE + OSAL
+  # NOTE: the userguide is built against the headers of the default core apps. Even if
+  # an alternate version of the module is in use, it should adhere to the same interface.
   file(GLOB MISSION_USERGUIDE_HEADERFILES 
-    "${cfe-core_MISSION_DIR}/src/inc/*.h"
+    "${es_MISSION_DIR}/fsw/inc/*.h"
+    "${evs_MISSION_DIR}/fsw/inc/*.h"
+    "${fs_MISSION_DIR}/fsw/inc/*.h"
+    "${sb_MISSION_DIR}/fsw/inc/*.h"
+    "${tbl_MISSION_DIR}/fsw/inc/*.h"
+    "${time_MISSION_DIR}/fsw/inc/*.h"
     "${osal_MISSION_DIR}/src/os/inc/*.h"
+    "${psp_MISSION_DIR}/psp/fsw/inc/*.h"
     "${CMAKE_BINARY_DIR}/doc/osconfig-example.h"
-    "${MISSION_SOURCE_DIR}/psp/fsw/inc/*.h")
+  )
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}") 
 
   # OSAL API GUIDE include PUBLIC API
@@ -312,7 +319,7 @@ function(prepare)
 
   add_custom_target(osalguide 
     doxygen osalguide.doxyfile 
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc") 
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc")
     
   # Pull in any application-specific mission-scope configuration
   # This may include user configuration files such as cfe_mission_cfg.h,
@@ -360,6 +367,18 @@ function(prepare)
   generate_build_version_templates()
 
   # Generate the tools for the native (host) arch
+  # Add all public include dirs for core components to include path for tools
+  include_directories(
+    ${core_api_MISSION_DIR}/fsw/inc
+    #${es_MISSION_DIR}/fsw/inc
+    #${evs_MISSION_DIR}/fsw/inc
+    #${fs_MISSION_DIR}/fsw/inc
+    #${sb_MISSION_DIR}/fsw/inc
+    #${tbl_MISSION_DIR}/fsw/inc
+    #${time_MISSION_DIR}/fsw/inc
+    ${osal_MISSION_DIR}/src/os/inc
+    ${psp_MISSION_DIR}/psp/fsw/inc
+  )
   add_subdirectory(${MISSION_SOURCE_DIR}/tools tools)
 
   # Add a dependency on the table generator tool as this is required for table builds

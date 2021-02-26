@@ -70,12 +70,17 @@ endfunction(initialize_globals)
 #
 function(add_psp_module MOD_NAME MOD_SRC_FILES)
 
-  # Include the PSP shared directory so it can get to cfe_psp_module.h
-  include_directories(${MISSION_SOURCE_DIR}/psp/fsw/shared/inc)
-  add_definitions(-D_CFE_PSP_MODULE_)
-  
   # Create the module
   add_library(${MOD_NAME} STATIC ${MOD_SRC_FILES} ${ARGN})
+  target_link_libraries(${MOD_NAME} PRIVATE psp_module_api)
+  
+  target_compile_definitions(${MOD_NAME} PRIVATE 
+    _CFE_PSP_MODULE_
+  #  $<TARGET_PROPERTY:psp_module_api,INTERFACE_COMPILE_DEFINITIONS>
+  )
+  #target_include_directories(${MOD_NAME} PRIVATE
+  #  $<TARGET_PROPERTY:psp_module_api,INTERFACE_INCLUDE_DIRECTORIES>
+  #)
 
 endfunction(add_psp_module)
 
@@ -98,6 +103,7 @@ function(add_cfe_app APP_NAME APP_SRC_FILES)
     
   # Create the app module
   add_library(${APP_NAME} ${APPTYPE} ${APP_SRC_FILES} ${ARGN})
+  target_link_libraries(${APP_NAME} core_api)
   
   # An "install" step is only needed for dynamic/runtime loaded apps
   if (APP_DYNAMIC_TARGET_LIST)
@@ -149,7 +155,6 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
   # The table source must be compiled using the same "include_directories"
   # as any other target, but it uses the "add_custom_command" so there is
   # no automatic way to do this (at least in the older cmakes)
-  get_current_cflags(TBL_CFLAGS ${CMAKE_C_FLAGS})
 
   # Create the intermediate table objects using the target compiler,
   # then use "elf2cfetbl" to convert to a .tbl file
@@ -189,6 +194,9 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
         message("NOTE: Selected ${TBL_SRC} as source for ${TBLWE}")
       endif()    
     
+      add_library(${TGT}_${TBLWE}-obj OBJECT ${TBL_SRC})
+      target_link_libraries(${TGT}_${TBLWE}-obj PRIVATE core_api)
+
       # IMPORTANT: This rule assumes that the output filename of elf2cfetbl matches
       # the input file name but with a different extension (.o -> .tbl)
       # The actual output filename is embedded in the source file (.c), however
@@ -197,9 +205,8 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
       # current content of a dependency (rightfully so).
       add_custom_command(
         OUTPUT "${TABLE_DESTDIR}/${TBLWE}.tbl"
-        COMMAND ${CMAKE_C_COMPILER} ${TBL_CFLAGS} -c -o ${TBLWE}.o ${TBL_SRC}
-        COMMAND ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TBLWE}.o
-        DEPENDS ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TBL_SRC}
+        COMMAND ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl $<TARGET_OBJECTS:${TGT}_${TBLWE}-obj>
+        DEPENDS ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TGT}_${TBLWE}-obj
         WORKING_DIRECTORY ${TABLE_DESTDIR}
       )
       # Create the install targets for all the tables
@@ -308,7 +315,7 @@ function(add_cfe_coverage_test MODULE_NAME UNIT_NAME TESTCASE_SRC UT_SRCS)
     # as well as the UT assert framework    
     target_link_libraries(${RUNNER_TARGET}
         ${UT_COVERAGE_LINK_FLAGS}
-        ut_cfe-core_stubs
+        ut_core_api_stubs
         ut_assert
     )
     
@@ -442,6 +449,38 @@ function(cfs_app_do_install APP_NAME)
 
 endfunction(cfs_app_do_install)
 
+##################################################################
+#
+# FUNCTION: cfs_app_check_intf
+#
+# Adds a special target that checks the structure of header files
+# in the public interface for this module.  A synthetic .c source file
+# is created which has a "#include" of each individual header, which
+# then compiled as part of the validation.  The intent is to confirm
+# that each header is valid in a standalone fashion and have no 
+# implicit prerequisites.
+#
+function(cfs_app_check_intf MODULE_NAME)
+    set(${MODULE_NAME}_hdrcheck_SOURCES)
+    foreach(HDR ${ARGN})
+        configure_file(${CFE_SOURCE_DIR}/cmake/check_header.c.in ${CMAKE_CURRENT_BINARY_DIR}/src/check_${HDR}.c)
+        list(APPEND ${MODULE_NAME}_hdrcheck_SOURCES ${CMAKE_CURRENT_BINARY_DIR}/src/check_${HDR}.c)
+    endforeach(HDR ${ARGN})
+    add_library(${MODULE_NAME}_headercheck OBJECT ${${MODULE_NAME}_hdrcheck_SOURCES})
+
+    # This causes the check to compile with the same set of defines and include dirs as specified
+    # in the "INTERFACE" properties of the actual module
+    target_link_libraries(${MODULE_NAME}_headercheck PRIVATE
+        core_api
+        ${DEP}
+    )
+
+    # Build this as part of the synthetic "check-headers" target
+    add_dependencies(check-headers ${MODULE_NAME}_headercheck)
+endfunction(cfs_app_check_intf)
+
+
+
 
 ##################################################################
 #
@@ -538,32 +577,16 @@ function(process_arch SYSVAR)
   include_directories(${MISSION_BINARY_DIR}/inc)
   include_directories(${CMAKE_BINARY_DIR}/inc)
 
+  # Add a custom target for "headercheck" - this is a special target confirms that 
+  # checks the sanity of headers within the public interface of modules
+  add_custom_target(check-headers)
+
   # Configure OSAL target first, as it also determines important compiler flags
   add_subdirectory("${osal_MISSION_DIR}" osal)
   
   # The OSAL displays its selected OS, so it is logical to display the selected PSP
   # This can help with debugging if things go wrong.
   message(STATUS "PSP Selection: ${CFE_SYSTEM_PSPNAME}")
-
-  # Add all widely-used public headers to the include path chain
-  include_directories(${MISSION_SOURCE_DIR}/osal/src/os/inc)
-  include_directories(${MISSION_SOURCE_DIR}/psp/fsw/inc)  
-  include_directories(${MISSION_SOURCE_DIR}/cfe/fsw/cfe-core/src/inc)
-  include_directories(${MISSION_SOURCE_DIR}/cfe/cmake/target/inc)
-    
-  # propagate any OSAL interface compile definitions and include directories to this build
-  # This is set as a directory property here at the top level so it will apply to all code.
-  # This includes MODULE libraries that do not directly/statically link with OSAL but still
-  # should be compiled with these flags.
-  get_target_property(OSAL_COMPILE_DEFINITIONS osal INTERFACE_COMPILE_DEFINITIONS)
-  get_target_property(OSAL_INCLUDE_DIRECTORIES osal INTERFACE_INCLUDE_DIRECTORIES)
-
-  if (OSAL_COMPILE_DEFINITIONS)
-    set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "${OSAL_COMPILE_DEFINITIONS}")
-  endif (OSAL_COMPILE_DEFINITIONS)
-  if (OSAL_INCLUDE_DIRECTORIES)
-    include_directories(${OSAL_INCLUDE_DIRECTORIES})
-  endif (OSAL_INCLUDE_DIRECTORIES)
 
   # Append the PSP and OSAL selections to the Doxyfile so it will be included
   # in the generated documentation automatically.

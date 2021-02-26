@@ -7,12 +7,14 @@
 project(CFE_RESOURCEID C)
 
 # Module library
-set(resourceid_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/cfe_resourceid_api.c)
+set(resourceid_SOURCES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/fsw/src/cfe_resourceid_api.c
+)
 add_library(resourceid STATIC ${resourceid_SOURCES})
 
-target_include_directories(resourceid PUBLIC inc)
+target_link_libraries(resourceid PRIVATE core_private)
 
 # Add unit test coverage subdirectory
 if(ENABLE_UNIT_TESTS)
-    add_subdirectory(unit-test-coverage)
+    add_subdirectory(ut-coverage)
 endif(ENABLE_UNIT_TESTS)
