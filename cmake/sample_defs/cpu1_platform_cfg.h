@@ -901,7 +901,7 @@
 **       The length of each string, including the NULL terminator cannot exceed the
 **       #OS_MAX_PATH_LEN value.
 */
-#define CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE   "/ram/cfe_es_task_info.log"
+#define CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE   "/ram/cfe_es_taskinfo.log"
 
 /**
 **  \cfeescfg Default System Log Filename
