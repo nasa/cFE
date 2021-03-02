@@ -1285,7 +1285,16 @@ typedef int32 CFE_Status_t;
 **  Error code indicating that the TBL file could not be
 **  opened by the OS.
 */
-#define CFE_TBL_ERR_ACCESS ((CFE_Status_t)0xcc00002c)
+#define CFE_TBL_ERR_ACCESS              ((CFE_Status_t)0xcc00002c)
+
+/**
+ * @brief Bad Argument
+ *
+ *  A parameter given by a caller to a Table API did not pass 
+ *  validation checks.
+ *
+ */
+#define CFE_TBL_BAD_ARGUMENT            ((CFE_Status_t)0xcc00002d)
 
 /**
  * @brief Not Implemented
@@ -1360,6 +1369,15 @@ typedef int32 CFE_Status_t;
  *
  */
 #define CFE_TIME_CALLBACK_NOT_REGISTERED ((CFE_Status_t)0xce000004)
+
+/**
+ * @brief Bad Argument
+ *
+ *  A parameter given by a caller to a TIME Services API did not pass 
+ *  validation checks.
+ *
+ */
+#define CFE_TIME_BAD_ARGUMENT            ((CFE_Status_t)0xce000005)
 /**@}*/
 
 /* Compatibility for error names which have been updated */

@@ -2128,9 +2128,15 @@ CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize,
     AppId = CFE_ES_APPID_UNDEFINED;
     BufDscPtr = NULL;
     BufPtr = NULL;
+    if(MsgSize > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
+    {
+        CFE_ES_WriteToSysLog(" CFE_SB:ZeroCopyGetPtr-Failed, MsgSize is too large\n");
+        return NULL;
+    }
 
     if (BufferHandle == NULL)
     {
+        CFE_ES_WriteToSysLog(" CFE_SB:ZeroCopyGetPtr-BufferHandle is NULL\n");
         return NULL;
     }
 
