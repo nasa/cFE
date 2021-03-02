@@ -757,7 +757,7 @@ void TestInit(void)
     UT_SetDummyFuncRtn(OS_SUCCESS);
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
     CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, CFE_PSP_RST_SUBTYPE_POWER_CYCLE, 1,
-                CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+                "ut_startup");
     UT_Report(__FILE__, __LINE__,
               UT_GetStubCount(UT_KEY(CFE_PSP_Panic)) == 0,
               "CFE_ES_Main",
@@ -790,8 +790,7 @@ void TestStartupErrorPaths(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_MutSemCreate), OS_ERROR);
     UT_SetReadBuffer(StartupScript, strlen(StartupScript));
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Panic), &PanicStatus, sizeof(PanicStatus), false);
-    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
-                CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1, "ut_startup");
     UT_Report(__FILE__, __LINE__,
               PanicStatus == CFE_PSP_PANIC_STARTUP_SEM &&
               UT_GetStubCount(UT_KEY(CFE_PSP_Panic)) == 1,
@@ -803,8 +802,7 @@ void TestStartupErrorPaths(void)
     UT_SetDummyFuncRtn(OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
-    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
-                (char *) CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1, "ut_startup");
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_OPEN_ES_APP_STARTUP]),
               "CFE_ES_Main",
@@ -816,8 +814,7 @@ void TestStartupErrorPaths(void)
     StateHook.AppType = CFE_ES_AppType_CORE;    /* by only setting core apps, it will appear as if external apps did not start */
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, &StateHook);
     UT_SetReadBuffer(StartupScript, strlen(StartupScript));
-    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1,
-                (char *) CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1, "ut_startup");
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_SYNC_FAIL_1]),
               "CFE_ES_Main",
@@ -1228,8 +1225,7 @@ void TestApps(void)
     StartupScript[sizeof(StartupScript) - 1] = '\0';
     NumBytes = strlen(StartupScript);
     UT_SetReadBuffer(StartupScript, NumBytes);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]));
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
 
@@ -1247,8 +1243,7 @@ void TestApps(void)
     /* Test starting an application with an error reading the startup file */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_read), 1, -1);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_STARTUP_READ]) &&
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]),
@@ -1260,8 +1255,7 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_read), 1, 0);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]),
               "CFE_ES_StartApplications",
@@ -1270,8 +1264,7 @@ void TestApps(void)
     /* Test starting an application with an open failure */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
     UT_Report(__FILE__, __LINE__,
               UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_CANNOT_OPEN_ES_APP_STARTUP]),
               "CFE_ES_StartApplications",
@@ -1281,8 +1274,7 @@ void TestApps(void)
     ES_ResetUnitTest();
     UT_SetReadBuffer(StartupScript, NumBytes);
     UT_SetHookFunction(UT_KEY(OS_TaskCreate), ES_UT_SetAppStateHook, NULL);
-    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR,
-                             CFE_PLATFORM_ES_NONVOL_STARTUP_FILE);
+    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
 
     /* Test parsing the startup script with an unknown entry type */
@@ -1303,14 +1295,21 @@ void TestApps(void)
                 CFE_ES_ParseFileEntry(TokenList, 8) == CFE_ES_ERR_APP_CREATE,
                 "CFE_ES_ParseFileEntry",
                 "Unknown entry type");
+
+        /* Test parsing the startup script with an invalid file name */
+        UT_SetDefaultReturnValue(UT_KEY(CFE_FS_ParseInputFileName), CFE_FS_INVALID_PATH);
+        UT_Report(__FILE__, __LINE__,
+                CFE_ES_ParseFileEntry(TokenList, 8) == CFE_FS_INVALID_PATH,
+                "CFE_ES_ParseFileEntry",
+                "Invalid file name");
     }
 
-    /* Test parsing the startup script with an invalid file entry */
+    /* Test parsing the startup script with an invalid argument passed in */
     ES_ResetUnitTest();
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ParseFileEntry(NULL, 0) == CFE_ES_ERR_APP_CREATE,
+              CFE_ES_ParseFileEntry(NULL, 0) == CFE_ES_BAD_ARGUMENT,
               "CFE_ES_ParseFileEntry",
-              "Invalid file entry");
+              "Invalid argument");
 
     /* Test application loading and creation with a task creation failure */
     ES_ResetUnitTest();

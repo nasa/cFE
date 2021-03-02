@@ -36,6 +36,35 @@
 #ifndef _cfe_platform_cfg_
 #define _cfe_platform_cfg_
 
+
+/**
+**  \cfeescfg Default virtual path for persistent storage
+**
+**  \par Description:
+**       This configures the default location in the virtual file system
+**       for persistent/non-volatile storage.  Files such as the startup 
+**       script, app/library dynamic modules, and configuration tables are 
+**       expected to be stored in this directory.
+**
+*/
+#define CFE_PLATFORM_ES_NONVOL_DISK_MOUNT_STRING  "/cf"
+
+/**
+**  \cfeescfg Default virtual path for volatile storage
+**
+**  \par Description:
+**      The #CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING parameter is used to set the cFE mount path
+**      for the CFE RAM disk. This is a parameter for missions that do not want to
+**      use the default value of "/ram", or for missions that need to have a different
+**      value for different CPUs or Spacecraft.
+**      Note that the vxWorks OSAL cannot currently handle names that have more than one
+**      path separator in it. The names "/ram", "/ramdisk", "/disk123" will all work, but
+**      "/disks/ram" will not.
+**      Multiple separators can be used with the posix or RTEMS ports.
+**
+*/
+#define CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING     "/ram"
+
 /**
 **  \cfesbcfg Maximum Number of Unique Message IDs SB Routing Table can hold
 **
@@ -680,23 +709,6 @@
 **       off.
 */
 #define CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED 30
-
-
-/**
-**  \cfeescfg RAM Disk Mount string
-**
-**  \par Description:
-**      The #CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING parameter is used to set the cFE mount path
-**      for the CFE RAM disk. This is a parameter for missions that do not want to
-**      use the default value of "/ram", or for missions that need to have a different
-**      value for different CPUs or Spacecraft.
-**      Note that the vxWorks OSAL cannot currently handle names that have more than one
-**      path separator in it. The names "/ram", "/ramdisk", "/disk123" will all work, but
-**      "/disks/ram" will not.
-**      Multiple separators can be used with the posix or RTEMS ports.
-**
-*/
-#define CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING "/ram"
 
 
 /**

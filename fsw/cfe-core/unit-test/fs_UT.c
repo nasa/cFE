@@ -40,6 +40,8 @@
 */
 #include "fs_UT.h"
 
+#include "target_config.h"
+
 const char *FS_SYSLOG_MSGS[] =
 {
         NULL,
@@ -79,8 +81,10 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_FS_ReadHeader);
     UT_ADD_TEST(Test_CFE_FS_WriteHeader);
     UT_ADD_TEST(Test_CFE_FS_SetTimestamp);
+    UT_ADD_TEST(Test_CFE_FS_DefaultFileStrings);
     UT_ADD_TEST(Test_CFE_FS_ByteSwapCFEHeader);
     UT_ADD_TEST(Test_CFE_FS_ByteSwapUint32);
+    UT_ADD_TEST(Test_CFE_FS_ParseInputFileNameEx);
     UT_ADD_TEST(Test_CFE_FS_ExtractFileNameFromPath);
     UT_ADD_TEST(Test_CFE_FS_Private);
 
@@ -249,6 +253,223 @@ void Test_CFE_FS_ByteSwapUint32(void)
     UT_Report(__FILE__, __LINE__,
               test == 0x44332211, "CFE_FS_ByteSwapUint32",
               "Byte swap - successful");
+}
+
+/*
+** Test CFE_FS_ParseInputFileNameEx function
+*/
+void Test_CFE_FS_ParseInputFileNameEx(void)
+{
+    /*
+     * Test case for:
+     * int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
+     *          const char *DefaultPath, const char *DefaultExtension)
+     */
+
+    const char TEST_INPUT_FULLY_QUALIFIED[] = "/path/to/file.log";
+    const char TEST_INPUT_NO_PATH[]         = "file.log";
+    const char TEST_INPUT_NO_EXTENSION[]    = "/path/to/file";
+    const char TEST_INPUT_BASENAME[]        = "file";
+    const char TEST_XTRA_SEPARATOR_PATH[]   = "//xtra//sep///file.log";
+    const char TEST_NO_SEPARATOR[]          = "nosep";
+    const char TEST_DEFAULT_INPUT[]         = "/dpath_in/dfile_in.dext_in";
+    const char TEST_DEFAULT_PATH[]          = "/dflpath";
+    const char TEST_DEFAULT_EXTENSION[]     = ".dflext";
+
+    char OutBuffer[64];
+
+    /* nominal with fully-qualified input */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_FULLY_QUALIFIED, sizeof(OutBuffer),
+                                                  sizeof(TEST_INPUT_FULLY_QUALIFIED), TEST_DEFAULT_INPUT,
+                                                  TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, TEST_INPUT_FULLY_QUALIFIED, "Fully-qualified pass thru -> %s", OutBuffer);
+
+    /* Same but as a default input, rather than in the buffer */
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, NULL, sizeof(OutBuffer), 0, TEST_DEFAULT_INPUT,
+                                                  TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, TEST_DEFAULT_INPUT, "Fully-qualified pass thru -> %s", OutBuffer);
+
+    /* nominal with no path input */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_NO_PATH, sizeof(OutBuffer),
+                                                  sizeof(TEST_INPUT_NO_PATH), TEST_DEFAULT_INPUT, TEST_DEFAULT_PATH,
+                                                  TEST_DEFAULT_EXTENSION),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, "/dflpath/file.log", "No Path input -> %s", OutBuffer);
+
+    /* nominal with no path input - should remove duplicate path separators */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_XTRA_SEPARATOR_PATH, sizeof(OutBuffer),
+                                                  sizeof(TEST_XTRA_SEPARATOR_PATH), TEST_DEFAULT_INPUT,
+                                                  TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, "/xtra/sep/file.log", "No Path input, extra separators -> %s", OutBuffer);
+
+    /* nominal with no extension input */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_NO_EXTENSION, sizeof(OutBuffer),
+                                                  sizeof(TEST_INPUT_NO_EXTENSION), TEST_DEFAULT_INPUT,
+                                                  TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, "/path/to/file.dflext", "No Extension input -> %s", OutBuffer);
+
+    /* nominal with no extension input, no separator (should be added) */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_NO_EXTENSION, sizeof(OutBuffer),
+                                                  sizeof(TEST_INPUT_NO_EXTENSION), TEST_DEFAULT_INPUT,
+                                                  TEST_DEFAULT_PATH, TEST_NO_SEPARATOR),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, "/path/to/file.nosep", "No Extension input, no separator -> %s", OutBuffer);
+
+    /* nominal with neither path nor extension input */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_BASENAME, sizeof(OutBuffer),
+                                                  sizeof(TEST_INPUT_BASENAME), TEST_DEFAULT_INPUT, TEST_DEFAULT_PATH,
+                                                  TEST_DEFAULT_EXTENSION),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, "/dflpath/file.dflext", "No Path nor Extension input -> %s", OutBuffer);
+
+    /* Bad arguments for buffer pointer/size */
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(NULL, TEST_INPUT_BASENAME, sizeof(OutBuffer),
+                                                  sizeof(TEST_INPUT_BASENAME), NULL, NULL, NULL),
+                      CFE_FS_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(
+        CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_BASENAME, 0, sizeof(TEST_INPUT_BASENAME), NULL, NULL, NULL),
+        CFE_FS_BAD_ARGUMENT);
+
+    /* Bad arguments for input */
+    UtAssert_INT32_EQ(
+        CFE_FS_ParseInputFileNameEx(OutBuffer, NULL, sizeof(OutBuffer), 0, NULL, NULL, TEST_DEFAULT_EXTENSION),
+        CFE_FS_INVALID_PATH);
+
+    /* Cases where the file name itself is actually an empty string */
+    UtAssert_INT32_EQ(
+        CFE_FS_ParseInputFileNameEx(OutBuffer, "", sizeof(OutBuffer), 10, NULL, NULL, TEST_DEFAULT_EXTENSION),
+        CFE_FS_INVALID_PATH);
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, "/path/", sizeof(OutBuffer), 10, NULL, TEST_DEFAULT_PATH,
+                                                  TEST_DEFAULT_EXTENSION),
+                      CFE_FS_INVALID_PATH);
+
+    /* if the default path/extension is null it is just ignored, not an error. */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_BASENAME, sizeof(OutBuffer),
+                                                  sizeof(TEST_INPUT_BASENAME), NULL, NULL, TEST_DEFAULT_EXTENSION),
+                      CFE_SUCCESS);
+    /* If no path this still adds a leading /  */
+    UtAssert_StrCmp(OutBuffer, "/file.dflext", "No Path nor default -> %s", OutBuffer);
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_BASENAME, sizeof(OutBuffer),
+                                                  sizeof(TEST_INPUT_BASENAME), NULL, TEST_DEFAULT_PATH, NULL),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, "/dflpath/file", "No Extension nor default -> %s", OutBuffer);
+
+    /* test corner case for termination where result fits exactly, including NUL (should work) */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_NO_PATH, 18, sizeof(TEST_INPUT_NO_PATH), NULL,
+                                                  TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, "/dflpath/file.log", "Exact Length input -> %s", OutBuffer);
+    UtAssert_INT32_EQ(OutBuffer[18], 0x7F); /* Confirm character after buffer was not touched */
+
+    /* test corner case for termination where result itself fits but cannot fit NUL char (should be error) */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_NO_PATH, 17, sizeof(TEST_INPUT_NO_PATH), NULL,
+                                                  TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION),
+                      CFE_FS_FNAME_TOO_LONG);
+    UtAssert_INT32_EQ(OutBuffer[17], 0x7F); /* Confirm character after buffer was not touched */
+
+    /* test corner case for termination where result can ONLY fit NUL char (result should be terminated) */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_NO_PATH, 1, sizeof(TEST_INPUT_NO_PATH), NULL,
+                                                  TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION),
+                      CFE_FS_FNAME_TOO_LONG);
+    UtAssert_INT32_EQ(OutBuffer[0], 0);
+    UtAssert_INT32_EQ(OutBuffer[1], 0x7F);
+
+    /* test case for where input is not terminated */
+    /* only the specified number of chars should be used from input */
+    memset(OutBuffer, 0x7F, sizeof(OutBuffer));
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, "abcdefgh", sizeof(OutBuffer), 4, NULL, TEST_DEFAULT_PATH,
+                                                  TEST_DEFAULT_EXTENSION),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, "/dflpath/abcd.dflext", "Non terminated input -> %s", OutBuffer);
+
+
+    /* For coverage, also invoke the simplified CFE_FS_ParseInputFileName() */
+    /* no more error paths here, as all real logic is in CFE_FS_ParseInputFileNameEx() */
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileName(OutBuffer, TEST_INPUT_NO_EXTENSION, sizeof(OutBuffer), CFE_FS_FileCategory_TEXT_LOG),
+                      CFE_SUCCESS);
+    UtAssert_StrCmp(OutBuffer, "/path/to/file.log", "Simplified API -> %s", OutBuffer);
+}
+
+/*
+** Test FS API that gets defaults for file system info
+*/
+void Test_CFE_FS_DefaultFileStrings(void)
+{
+    /*
+     * Test case for:
+     * const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
+     * const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory)
+     * 
+     * Note that some of these depend on platform-specific and/or user-configurable 
+     * items, so the exact string outputs can vary.  In general this just confirms
+     * that the returned pointer address, not the actual string content.
+     */
+
+    const char *Result;
+
+    Result = CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_UNKNOWN);
+    UtAssert_NULL(Result);
+
+    Result = CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_DYNAMIC_MODULE);
+    UtAssert_True(Result == GLOBAL_CONFIGDATA.Default_ModuleExtension, "Result (%lx) matches config (%lx)", 
+        (unsigned long)Result, (unsigned long)GLOBAL_CONFIGDATA.Default_ModuleExtension);
+
+    Result = CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP);
+    UtAssert_NOT_NULL(Result);
+
+    Result = CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_TEXT_LOG);
+    UtAssert_NOT_NULL(Result);
+
+    Result = CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_SCRIPT);
+    UtAssert_NOT_NULL(Result);
+
+    Result = CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_TEMP);
+    UtAssert_NOT_NULL(Result);
+
+    Result = CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_MAX);
+    UtAssert_NULL(Result);
+
+    Result = CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_UNKNOWN);
+    UtAssert_NULL(Result);
+
+    Result = CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_DYNAMIC_MODULE);
+    UtAssert_True(Result == GLOBAL_CFE_CONFIGDATA.NonvolMountPoint, "Result (%lx) matches config (%lx)", 
+        (unsigned long)Result, (unsigned long)GLOBAL_CFE_CONFIGDATA.NonvolMountPoint);
+
+    Result = CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP);
+    UtAssert_True(Result == GLOBAL_CFE_CONFIGDATA.RamdiskMountPoint, "Result (%lx) matches config (%lx)", 
+        (unsigned long)Result, (unsigned long)GLOBAL_CFE_CONFIGDATA.RamdiskMountPoint);
+
+    Result = CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_TEXT_LOG);
+    UtAssert_True(Result == GLOBAL_CFE_CONFIGDATA.RamdiskMountPoint, "Result (%lx) matches config (%lx)", 
+        (unsigned long)Result, (unsigned long)GLOBAL_CFE_CONFIGDATA.RamdiskMountPoint);
+
+    Result = CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_SCRIPT);
+    UtAssert_True(Result == GLOBAL_CFE_CONFIGDATA.NonvolMountPoint, "Result (%lx) matches config (%lx)", 
+        (unsigned long)Result, (unsigned long)GLOBAL_CFE_CONFIGDATA.NonvolMountPoint);
+
+    Result = CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_TEMP);
+    UtAssert_True(Result == GLOBAL_CFE_CONFIGDATA.RamdiskMountPoint, "Result (%lx) matches config (%lx)", 
+        (unsigned long)Result, (unsigned long)GLOBAL_CFE_CONFIGDATA.RamdiskMountPoint);
+
+    Result = CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_MAX);
+    UtAssert_NULL(Result);
+
+
 }
 
 /*
