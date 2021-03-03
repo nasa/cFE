@@ -264,15 +264,6 @@ typedef int32 CFE_Status_t;
 #define CFE_EVS_INVALID_PARAMETER ((CFE_Status_t)0xc2000008)
 
 /**
- * @brief Function Disabled
- *
- *  EVS command sent that requires a feature currently turned off
- *  This is to differentiate between "NOT_IMPLEMENTED" where the
- *  feature IS implemented but it is disabled at runtime.
- */
-#define CFE_EVS_FUNCTION_DISABLED ((CFE_Status_t)0xc2000009)
-
-/**
  * @brief Not Implemented
  *
  *  Current version of cFE does not have the function or the feature
