@@ -31,12 +31,6 @@
  */
 #include "private/cfe_sbr.h"
 
-/*
- * Macro Definitions
- */
-
-/** \brief Invalid route id */
-#define CFE_SBR_INVALID_ROUTE_ID ((CFE_SBR_RouteId_t) {.RouteId = 0})
 
 /******************************************************************************
  * Function prototypes

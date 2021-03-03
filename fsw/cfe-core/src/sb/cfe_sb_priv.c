@@ -536,15 +536,7 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)
 {
     CFE_SB_BufferLink_t *NextLink;
-
-    /* Using a union type permits promotion of CFE_SB_BufferLink_t* to CFE_SB_BufferD_t*
-     * without violating aliasing rules or alignment rules.  Note that the first element
-     * of CFE_SB_BufferD_t is a CFE_SB_BufferLink_t, which makes this possible. */
-    union LocalBufDesc
-    {
-        CFE_SB_BufferLink_t As_Link;
-        CFE_SB_BufferD_t    As_Dsc;
-    } *BufPtr;
+    CFE_SB_BufferD_t    *DscPtr;
 
     /*
      * First go through the "ZeroCopy" tracking list and find all nodes
@@ -560,16 +552,18 @@ int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)
         while(!CFE_SB_TrackingListIsEnd(&CFE_SB_Global.ZeroCopyList, NextLink))
         {
             /* Get buffer descriptor pointer */
-            BufPtr = (union LocalBufDesc*)NextLink;
+            /* NOTE: casting via void* here rather than CFE_SB_BufferD_t* avoids a false
+             * alignment warning on platforms with strict alignment requirements */
+            DscPtr = (void *)NextLink;
 
             /* Read the next link now in case this node gets moved */
             NextLink = CFE_SB_TrackingListGetNext(NextLink);
 
             /* Check if it is a zero-copy buffer owned by this app */
-            if (CFE_RESOURCEID_TEST_EQUAL(BufPtr->As_Dsc.AppId, AppId))
+            if (CFE_RESOURCEID_TEST_EQUAL(DscPtr->AppId, AppId))
             {
                 /* If so, decrement the use count as the app has now gone away */
-                CFE_SB_DecrBufUseCnt(&BufPtr->As_Dsc);
+                CFE_SB_DecrBufUseCnt(DscPtr);
             }
         }
 

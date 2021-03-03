@@ -1397,6 +1397,7 @@ int32  CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount
 
     PendingEventID = 0;
     BufDscPtr = NULL;
+    RouteId = CFE_SBR_INVALID_ROUTE_ID;
 
     Status = CFE_SB_TransmitMsgValidate(MsgPtr, &MsgId, &Size, &RouteId);
 
@@ -1886,6 +1887,7 @@ int32  CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr,
     BufDscPtr = NULL;
     DestPtr = NULL;
     BufDscSize = 0;
+    RcvStatus = OS_SUCCESS;
     
     /*
      * Check input args and see if any are bad, which require
