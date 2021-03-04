@@ -98,6 +98,17 @@
 ** Type Definitions
 */
 
+
+/**
+ * \brief Basic linked list structure allowing all buffer descriptors to be tracked.
+ */
+typedef struct CFE_SB_BufferLink
+{
+    struct CFE_SB_BufferLink *Next;
+    struct CFE_SB_BufferLink *Prev;
+
+} CFE_SB_BufferLink_t;
+
 /******************************************************************************
 **  Typedef:  CFE_SB_BufferD_t
 **
@@ -108,32 +119,45 @@
 **     Note: Changing the size of this structure may require the memory pool
 **     block sizes to change.
 */
+typedef struct CFE_SB_BufferD
+{
+    CFE_SB_BufferLink_t Link; /**< Links for inclusion in the tracking lists */
 
-typedef struct {
-     CFE_SB_MsgId_t    MsgId;
-     uint16            UseCount;
-     size_t            Size;
-     CFE_SB_Buffer_t  *Buffer;
+    /**
+     * Actual MsgId of the content, cached here to avoid repeat 
+     * calls into CFE_MSG API during traversal/delivery of the message.
+     * 
+     * MsgId is set for buffers which contain actual data in transit.  AppId is unset
+     * while in transit, as it may be sent to multiple apps.
+     * 
+     * During zero copy buffer initial allocation, the MsgId is not known at this time
+     * and should be set to the invalid msg ID.
+     */
+    CFE_SB_MsgId_t MsgId; 
+
+    /**
+     * Current owner of the buffer, if owned by a single app.
+     * 
+     * This is used to track "zero copy" buffer allocations - this will be set to 
+     * the AppID that initally allocated it, before it is used to transmit a message.
+     * 
+     * When the message is in transit, it may be queued to multiple applictions,
+     * so this is unset.
+     */
+    CFE_ES_AppId_t AppId;
+
+    size_t         AllocatedSize;  /**< Total size of this descriptor (including descriptor itself) */
+    size_t         ContentSize;    /**< Actual size of message content currently stored in the buffer */
+    CFE_MSG_Type_t ContentType;    /**< Type of message content currently stored in the buffer */
+
+    bool AutoSequence; /**< If message should get its sequence number assigned from the route */
+
+    uint16 UseCount; /**< Number of active references to this buffer in the system */
+
+    CFE_SB_Buffer_t Content; /* Variably sized content field, Keep last */
+
 } CFE_SB_BufferD_t;
 
-/******************************************************************************
-**  Typedef:  CFE_SB_ZeroCopyD_t
-**
-**  Purpose:
-**     This structure defines a ZERO COPY BUFFER DESCRIPTOR used to specify
-**     the buffer provided to a requestor.
-**
-**     Note: Changing the size of this structure may require the memory pool
-**     block sizes to change.
-*/
-
-typedef struct {
-     CFE_ES_AppId_t      AppID;
-     size_t              Size;
-     void              *Buffer;
-     void              *Next;
-     void              *Prev;
-} CFE_SB_ZeroCopyD_t;
 
 /******************************************************************************
 **  Typedef:  CFE_SB_PipeD_t
@@ -219,7 +243,6 @@ typedef struct
     uint32                         SubscriptionReporting;
     CFE_ES_AppId_t                 AppId;
     uint32                         StopRecurseFlags[OS_MAX_TASKS];
-    void                          *ZeroCopyTail;
     CFE_SB_PipeD_t                 PipeTbl[CFE_PLATFORM_SB_MAX_PIPES];
     CFE_SB_HousekeepingTlm_t       HKTlmMsg;
     CFE_SB_StatsTlm_t              StatTlmMsg;
@@ -231,6 +254,13 @@ typedef struct
     CFE_ResourceId_t               LastPipeId;
 
     CFE_SB_BackgroundFileStateInfo_t BackgroundFile;
+
+    /* A list of buffers currently in-transit, owned by SB */
+    CFE_SB_BufferLink_t            InTransitList;
+
+    /* A list of buffers currently issued to apps for zero-copy */
+    CFE_SB_BufferLink_t            ZeroCopyList;
+
 } CFE_SB_Global_t;
 
 
@@ -273,13 +303,10 @@ void   CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
 void   CFE_SB_ReleaseBuffer (CFE_SB_BufferD_t *bd, CFE_SB_DestinationD_t *dest);
 int32  CFE_SB_WriteQueue(CFE_SB_PipeD_t *pd,uint32 TskId,
                          const CFE_SB_BufferD_t *bd,CFE_SB_MsgId_t MsgId );
-int32  CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
 void   CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr);
 void   CFE_SB_ResetCounters(void);
 void   CFE_SB_SetMsgSeqCnt(CFE_MSG_Message_t *MsgPtr,uint32 Count);
 char   *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char* FullName);
-CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(CFE_SB_MsgId_t MsgId, size_t Size);
-CFE_SB_BufferD_t *CFE_SB_GetBufferFromCaller(CFE_SB_MsgId_t MsgId, void *Address);
 int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId,CFE_ES_AppId_t AppId);
 int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_AppId_t AppId);
 int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
@@ -293,14 +320,10 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
 
 int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
                               uint8 Scope, CFE_ES_AppId_t AppId);
-int32  CFE_SB_TransmitBufferFull(CFE_SB_BufferD_t *BufDscPtr,
-                                 CFE_SBR_RouteId_t RouteId,
-                                 CFE_SB_MsgId_t    MsgId);
 int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr,
                                  CFE_SB_MsgId_t    *MsgIdPtr,
                                  CFE_MSG_Size_t    *SizePtr,
                                  CFE_SBR_RouteId_t *RouteIdPtr);
-int32 CFE_SB_ZeroCopyReleaseDesc(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle);
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t         AppId);
 void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
 void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
@@ -313,6 +336,110 @@ uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
 void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
 CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void);
 int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest);
+
+/**
+ * \brief For SB buffer tracking, get first/next position in a list
+ */
+static inline CFE_SB_BufferLink_t *CFE_SB_TrackingListGetNext(CFE_SB_BufferLink_t *Node)
+{
+    return Node->Next;
+}
+
+/**
+ * \brief For SB buffer tracking, checks if this current position represents the end of the list
+ */
+static inline bool CFE_SB_TrackingListIsEnd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node)
+{
+    /* Normally list nodes should never have NULL, buf if they do, do not follow it */
+    return (Node == NULL || Node == List);
+}
+
+/**
+ * \brief For SB buffer tracking, reset link state to default
+ * 
+ * This turns the node into a singleton/lone object (not in a list)
+ * or resets the head link to be empty.
+ */
+void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link);
+
+/**
+ * \brief For SB buffer tracking, removes a node from a tracking list
+ * 
+ * Extracts a single node from whatever list it is in.  After this the
+ * node becomes a singleton owned by the caller.  It may be put into
+ * another list or freed.
+ */
+void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node);
+
+/**
+ * \brief For SB buffer tracking, adds a node to a tracking list
+ * 
+ * Extracts a single node from the list its in.  After this the
+ * node becomes a singleton owned by the caller.  It must put it
+ * in another list or free it.
+ */
+void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node);
+
+
+/**
+ * \brief Allocates a new buffer descriptor from the SB memory pool.
+ * 
+ * \param[in] MaxMsgSize Maximum message content size that the buffer must be capable of holding
+ * \returns Pointer to buffer descriptor, or NULL on failure.
+ */
+CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize);
+
+/**
+ * \brief Returns a buffer to SB memory pool
+ *
+ * \param[in] Pointer to descriptor to return
+ */
+void   CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
+
+/**
+ * \brief Broadcast a SB buffer descriptor to all destinations in route
+ * 
+ * Internal routine that implements the logic of transmitting a message buffer
+ * to all destinations subscribed in the SB route.
+ * 
+ * As this function will broadcast the message to any number of destinations (0-many), 
+ * and some may be successful and some may fail, the status cannot be expressed 
+ * in any single error code, so this does not return any status.
+ * 
+ * Instead, this routine handles all potential outcomes on its own, and does
+ * not expect the caller to handle any delivery issues.  Also note that the general
+ * design pattern of the software bus is a "send and forget" model where the sender does
+ * not know (or care) what entities are subscribed to the data being generated.
+ * 
+ *  - For any undeliverable destination (limit, OSAL error, etc), a proper event is generated.
+ *  - For any successful queueing, the buffer use count is incremented
+ * 
+ * The caller is expected to hold a reference (use count) of the buffer prior to invoking
+ * this routine, representing itself, which is then consumed by this routine.
+ * 
+ * \note  _This call will "consume" the buffer by decrementing the buffer use count_ after 
+ *        broadcasting the message to all subscribed pipes.
+ * 
+ * The caller should not access the buffer again after calling this function, as it may
+ * be deallocated at any time.  If the caller wishes to continue accessing the buffer,
+ * it should explicitly increment the use count before calling this, which will prevent
+ * deallocation.
+ * 
+ * \param[in] BufDscPtr Pointer to the buffer descriptor to broadcast
+ * \param[in] RouteId   Route to send to
+ */
+void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_t RouteId);
+
+/**
+ * \brief Perform basic sanity check on the Zero Copy handle
+ *
+ * \param[in] BufPtr pointer to the content buffer
+ * \param[in] ZeroCopyHandle Zero copy handle to check
+ *
+ * \returns CFE_SUCCESS if validation passed, or error code.
+ */
+int32 CFE_SB_ZeroCopyHandleValidate(CFE_SB_Buffer_t        *BufPtr,
+                                    CFE_SB_ZeroCopyHandle_t ZeroCopyHandle);
 
 /**
  * \brief Add a destination node

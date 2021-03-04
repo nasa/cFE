@@ -41,7 +41,6 @@
     <LI> \subpage cfeesugcdssrv <BR>
     <LI> \subpage cfeesugmempoolsrv <BR>
     <LI> \subpage cfeesugsyslogsrv <BR>
-    <LI> \subpage cfeesugshellsrv <BR>
     <LI> \subpage cfeesugversion <BR>
     <LI> \subpage cfeesugfaq <BR>
   </UL>
@@ -799,19 +798,8 @@
   A count of the number of entries in the log is present in the ES housekeeping
   telemetry.
 
-  Next: \ref cfeesugshellsrv <BR>
-  Prev: \ref cfeesugmempoolsrv <BR>
-  Up To: \ref cfeesovr
-**/
-
-/**
-  \page cfeesugshellsrv OS Shell
-
-  NOTE: This cfe functionality is targeted for deprecation in favor of
-  optionally including this capability via an application.
-    
   Next: \ref cfeesugversion <BR>
-  Prev: \ref cfeesugsyslogsrv <BR>
+  Prev: \ref cfeesugmempoolsrv <BR>
   Up To: \ref cfeesovr
 **/
 
@@ -821,7 +809,7 @@
   Version information is reported at startup, and upon receipt of a No-op command
     
   Next: \ref cfeesugfaq <BR>
-  Prev: \ref cfeesugshellsrv <BR>
+  Prev: \ref cfeesugsyslogsrv <BR>
   Up To: \ref cfeesovr
 **/
 
@@ -830,7 +818,7 @@
 
 
     
-  Prev: \ref cfeesugshellsrv <BR>
+  Prev: \ref cfeesugversion <BR>
   Up To: \ref cfeesovr
 **/
 

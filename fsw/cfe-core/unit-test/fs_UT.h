@@ -125,6 +125,22 @@ void Test_CFE_FS_WriteHeader(void);
 
 /*****************************************************************************/
 /**
+** \brief Test FS API default file strings
+**
+** \par Description
+**        This function tests the FS API that gets filesystem info strings
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+******************************************************************************/
+void Test_CFE_FS_DefaultFileStrings(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test FS API set time stamp function
 **
 ** \par Description
@@ -195,6 +211,24 @@ void Test_CFE_FS_ByteSwapUint32(void);
 **
 ******************************************************************************/
 void Test_CFE_FS_IsGzFile(void);
+
+/*****************************************************************************/
+/**
+** \brief Test FS API parse input file name function
+**
+** \par Description
+**        This function tests the parse input file name function.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+**
+** \sa #UT_InitData, #UT_Report, #CFE_FS_ParseInputFileName
+**
+******************************************************************************/
+void Test_CFE_FS_ParseInputFileNameEx(void);
 
 /*****************************************************************************/
 /**

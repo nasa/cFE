@@ -411,6 +411,11 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr,
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
     size_t   DataOffset;
 
+    if (BufPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(Handle);
 
     /* basic sanity check */
@@ -473,6 +478,11 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t   Handle,
     size_t   DataOffset;
     size_t   DataSize;
 
+    if (BufPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(Handle);
 
     /* basic sanity check */
@@ -526,6 +536,11 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
     size_t   DataSize;
     size_t   DataOffset;
     int32 Status;
+
+    if (BufPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
 
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(Handle);
 
@@ -604,6 +619,11 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
     uint16 NumBuckets;
     uint16 Idx;
+
+    if (BufPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
 
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(Handle);
 

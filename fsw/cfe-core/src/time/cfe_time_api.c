@@ -547,6 +547,12 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 
     bool StillCountingYears = true;
 
+    if (PrintBuffer == NULL)
+    {
+        CFE_ES_WriteToSysLog("CFE_TIME:Print-Failed invalid arguments\n");
+        return;
+    }
+
     /*
     ** Convert the cFE time (offset from epoch) into calendar time...
     */
@@ -693,6 +699,11 @@ int32  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPt
     CFE_ES_AppId_t AppId;
     uint32 AppIndex;
 
+    if (CallbackFuncPtr == NULL)
+    {
+        return CFE_TIME_BAD_ARGUMENT;
+    }
+
     Status = CFE_ES_GetAppID(&AppId);
     if (Status == CFE_SUCCESS)
     {
@@ -725,6 +736,11 @@ int32  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFunc
     int32  Status;
     CFE_ES_AppId_t AppId;
     uint32 AppIndex;
+
+    if (CallbackFuncPtr == NULL)
+    {
+        return CFE_TIME_BAD_ARGUMENT;
+    }
 
     Status = CFE_ES_GetAppID(&AppId);
     if (Status == CFE_SUCCESS)

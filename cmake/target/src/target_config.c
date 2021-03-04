@@ -72,9 +72,10 @@ Target_CfeConfigData GLOBAL_CFE_CONFIGDATA =
       .SystemNotify = CFE_ES_ProcessAsyncEvent,
 
       /*
-       * Default values for Startup file.
-       * This is a suggested value, but the PSP may provide a different file
+       * Default values for various file paths
        */
+      .NonvolMountPoint = CFE_PLATFORM_ES_NONVOL_DISK_MOUNT_STRING,
+      .RamdiskMountPoint = CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING,
       .NonvolStartupFile = CFE_PLATFORM_ES_NONVOL_STARTUP_FILE,
 
       /*

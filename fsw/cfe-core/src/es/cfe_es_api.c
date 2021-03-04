@@ -1590,6 +1590,11 @@ int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
     int32         ReturnCode;
     va_list       ArgPtr;
 
+    if (SpecStringPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     va_start(ArgPtr, SpecStringPtr);
     CFE_ES_SysLog_vsnprintf(TmpString, sizeof(TmpString), SpecStringPtr, ArgPtr);
     va_end(ArgPtr);
@@ -1659,6 +1664,11 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
 
     };
 
+    if (DataPtr == NULL || DataLength == 0)
+    {
+        return InputCRC;
+    }
+
     switch(TypeCRC)
     {
       case CFE_MISSION_ES_CRC_32:
@@ -1709,11 +1719,16 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, con
     char    AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
     char    CDSName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN] = {""};
 
-    /* Initialize output to safe value, in case this fails */
-    *CDSHandlePtr = CFE_ES_CDS_BAD_HANDLE;
-
     /* Check to make sure calling application is legit */
     Status = CFE_ES_GetAppID(&ThisAppId);
+
+    if (CDSHandlePtr == NULL || Name == NULL){
+        CFE_ES_WriteToSysLog("CFE_ES_RegisterCDS:-Failed invalid arguments\n");
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
+    /* Initialize output to safe value, in case this fails */
+    *CDSHandlePtr = CFE_ES_CDS_BAD_HANDLE;
 
     if ( Status != CFE_SUCCESS )  /* Application ID was invalid */
     {
@@ -1726,9 +1741,6 @@ int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, con
     }
     else
     {
-        /* Assume we can't make a CDS and return a bad handle for now */
-        *CDSHandlePtr = CFE_ES_CDS_BAD_HANDLE;
-
         /* Make sure specified CDS name is not too long or too short */
         NameLen = strlen(Name);
         if ((NameLen > CFE_MISSION_ES_CDS_MAX_NAME_LENGTH) || (NameLen == 0))
@@ -1863,6 +1875,11 @@ CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId,
 */
 int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 {
+    if (DataToCopy == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     return CFE_ES_CDSBlockWrite(Handle, DataToCopy);
 } /* End of CFE_ES_CopyToCDS() */
 
@@ -1874,6 +1891,11 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 */
 int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 {
+    if (RestoreToMemory == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+    
     return CFE_ES_CDSBlockRead(RestoreToMemory, Handle);
 } /* End of CFE_ES_RestoreFromCDS() */
 

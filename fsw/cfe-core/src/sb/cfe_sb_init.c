@@ -118,8 +118,6 @@ int32 CFE_SB_EarlyInit (void) {
                  CFE_SB_ValueToMsgId(CFE_SB_STATS_TLM_MID),
                  sizeof(CFE_SB_Global.StatTlmMsg));
 
-    CFE_SB_Global.ZeroCopyTail = NULL;
-
     return Stat;
 
 }/* end CFE_SB_EarlyInit */
@@ -156,6 +154,12 @@ int32  CFE_SB_InitBuffers(void) {
               (unsigned long)CFE_SB_Global.Mem.Partition.Data,CFE_PLATFORM_SB_BUF_MEMORY_BYTES,(unsigned int)Stat);
         return Stat;
     }
+
+    /* 
+     * Initialize the buffer tracking lists to be empty
+     */
+    CFE_SB_TrackingListReset(&CFE_SB_Global.InTransitList);
+    CFE_SB_TrackingListReset(&CFE_SB_Global.ZeroCopyList);
     
     return CFE_SUCCESS;
     
