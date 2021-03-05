@@ -79,8 +79,8 @@ foreach(CFSSYM ${${TGTNAME}_STATIC_SYMLIST})
     string(REPLACE "," ";" CFSSYM "${CFSSYM}")
     list(GET CFSSYM 0 SYM_NAME)
     list(GET CFSSYM 1 SYM_MODULE)
-    list(APPEND GENERATED_EXTERNS "extern void ${SYM_NAME} (void);\n")
-    list(APPEND GENERATED_KEYVALS "{ .Name = \"${SYM_NAME}\", .Address = &{SYM_NAME}, .Module = \"${SYM_MODULE}\" },")
+    list(APPEND GENERATED_EXTERNS "extern void ${SYM_NAME} (void)\;\n")
+    list(APPEND GENERATED_KEYVALS "{ .Name = \"${SYM_NAME}\", .Address = &${SYM_NAME}, .Module = \"${SYM_MODULE}\" },")
 endforeach(CFSSYM ${${TGTNAME}_STATIC_SYMLIST})
 
 string(CONCAT GENERATED_FILE_HEADER
