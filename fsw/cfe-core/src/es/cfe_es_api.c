@@ -1208,9 +1208,11 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId)
         TaskInfo->TaskId = CFE_ES_TaskRecordGetID(TaskRecPtr);
 
         /*
-        ** Get the Execution counter for the task
+        ** Get the other stats for the task
         */
         TaskInfo->ExecutionCounter =  TaskRecPtr->ExecutionCounter;
+        TaskInfo->StackSize = TaskRecPtr->StartParams.StackSize;
+        TaskInfo->Priority = TaskRecPtr->StartParams.Priority;
 
         /*
         ** Get the Application Details

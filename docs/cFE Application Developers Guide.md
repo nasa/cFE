@@ -1436,8 +1436,8 @@ SAMPLE_AppData_t;  SAMPLE_AppData;
 In this example, the Developer has created a Pipe, called "SAMPLE_PIPE_1"
 with a depth of 10. The Pipe name shall be at least one character and no
 more than OS_MAX_API_NAME characters long. Developers should prefix their Pipe
-names with the Application's abbreviated name. Although the Pipe names will
-not collide with other Application Pipe names in the cFE, the
+names with the Application's abbreviated name, because Pipe names will
+collide with other Application Pipe names in the cFE. Also the
 Developer/Operator could become confused if every Application named
 their Pipe(s) "MY_PIPE". It should be noted, however, that all Pipes
 for a single Application must have unique names.

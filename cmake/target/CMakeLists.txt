@@ -21,30 +21,108 @@ if (NOT DEFINED ${TGTNAME}_PROCESSORID)
   message(FATAL_ERROR "${TGTNAME}_PROCESSORID must be defined to link a final exe")
 endif (NOT DEFINED ${TGTNAME}_PROCESSORID)
 
-# Create a file for the statically-linked module list for this target
-# do this for both PSP and CFS static modules
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc.tmp" 
-    "/* Automatically generated based on target config */\n")
-foreach(PSPMOD ${${TGTNAME}_PSP_MODULELIST})
-  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc.tmp" "LOAD_PSP_MODULE(${PSPMOD})\n")
-endforeach(PSPMOD ${${TGTNAME}_PSP_MODULELIST})
-execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-    "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc.tmp" 
-    "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc")
-file (REMOVE "${CMAKE_CURRENT_BINARY_DIR}/psp_module_list.inc.tmp")
+string(CONCAT GENERATED_FILE_HEADER
+    "/* This file is auto-generated from CMake build system.  Do not manually edit! */\n"
+    "#include \"target_config.h\"\n"
+)
 
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp" 
-    "/* Automatically generated based on target config */\n")
+string(CONCAT GENERATED_FILE_TRAILER
+    "/* End of file */\n"
+)
+
+# Generate a list of PSP modules along with a pointer to its API structure/entry point
+set(GENERATED_EXTERNS)
+set(GENERATED_KEYVALS)
+foreach(PSPMOD ${${TGTNAME}_PSP_MODULELIST})
+    list(APPEND GENERATED_EXTERNS "extern char CFE_PSP_${PSPMOD}_API;\n")
+    list(APPEND GENERATED_KEYVALS "{ .Name = \"${PSPMOD}\", .Api = &CFE_PSP_${PSPMOD}_API },\n")
+endforeach(PSPMOD ${${TGTNAME}_PSP_MODULELIST})
+
+string(CONCAT GENERATED_FILE_CONTENT
+    ${GENERATED_EXTERNS}
+    "const CFE_StaticModuleLoadEntry_t CFE_PSP_MODULE_LIST[] = {\n"
+    ${GENERATED_KEYVALS}
+    "{ NULL } /* End of list */\n"
+    "};\n"
+)
+
+configure_file(${CFE_SOURCE_DIR}/cmake/cfe_generated_file.h.in ${CMAKE_CURRENT_BINARY_DIR}/cfe_psp_module_list.c)
+
+# Generate lists of modules that will be statically linked into this CFE core target
+set(GENERATED_ENTRIES_CORE_MODULES)
+foreach(DEP ${MISSION_CORE_MODULES})
+    list(APPEND GENERATED_ENTRIES_CORE_MODULES "{ \"${DEP}\" },\n")
+endforeach()
+
+set(GENERATED_ENTRIES_STATIC_APPS)
+foreach(DEP ${${TGTNAME}_STATIC_APPLIST})
+    list(APPEND GENERATED_ENTRIES_STATIC_APPS "{ \"${DEP}\" },\n")
+endforeach()
+
+string(CONCAT GENERATED_FILE_CONTENT
+    "CFE_ConfigName_t CFE_CORE_MODULE_LIST[] = {\n"
+    ${GENERATED_ENTRIES_CORE_MODULES}
+    "{ NULL } /* End of list */\n"
+    "};\n"
+    "CFE_ConfigName_t CFE_STATIC_APP_LIST[] = {\n"
+    ${GENERATED_ENTRIES_STATIC_APPS}
+    "{ NULL } /* End of list */\n"
+    "};\n"
+)
+
+configure_file(${CFE_SOURCE_DIR}/cmake/cfe_generated_file.h.in ${CMAKE_CURRENT_BINARY_DIR}/cfe_static_module_list.c)
+
+# Generate a list of symbol names that must be known at runtime without OS loader support
+set(GENERATED_EXTERNS)
+set(GENERATED_KEYVALS)
 foreach(CFSSYM ${${TGTNAME}_STATIC_SYMLIST})
-  file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp" "STATIC_CFS_SYMBOL(${CFSSYM})\n")
+    string(REPLACE "," ";" CFSSYM "${CFSSYM}")
+    list(GET CFSSYM 0 SYM_NAME)
+    list(GET CFSSYM 1 SYM_MODULE)
+    list(APPEND GENERATED_EXTERNS "extern void ${SYM_NAME} (void);\n")
+    list(APPEND GENERATED_KEYVALS "{ .Name = \"${SYM_NAME}\", .Address = &{SYM_NAME}, .Module = \"${SYM_MODULE}\" },")
 endforeach(CFSSYM ${${TGTNAME}_STATIC_SYMLIST})
-execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-    "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp" 
-    "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc")
-file (REMOVE "${CMAKE_CURRENT_BINARY_DIR}/cfs_static_symbol_list.inc.tmp")
+
+string(CONCAT GENERATED_FILE_HEADER
+    "/* This file is auto-generated from CMake build system.  Do not manually edit! */\n"
+    "#include \"osapi-module.h\"\n"
+)
+
+string(CONCAT GENERATED_FILE_CONTENT
+    ${GENERATED_EXTERNS}
+    "OS_static_symbol_record_t OS_STATIC_SYMBOL_TABLE[] = {\n"
+    ${GENERATED_KEYVALS}
+    "{ NULL } /* End of list */\n"
+    "};\n"
+)
+
+configure_file(${CFE_SOURCE_DIR}/cmake/cfe_generated_file.h.in ${CMAKE_CURRENT_BINARY_DIR}/cfe_static_symbol_list.c)
+
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cfe_build_env_table.c
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${MISSION_BINARY_DIR}/src/cfe_build_env_table.c
+        ${CMAKE_CURRENT_BINARY_DIR}/cfe_build_env_table.c
+    DEPENDS
+        ${MISSION_BINARY_DIR}/src/cfe_build_env_table.c
+)
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cfe_module_version_table.c
+    COMMAND ${CMAKE_COMMAND} -E copy
+        ${MISSION_BINARY_DIR}/src/cfe_module_version_table.c
+        ${CMAKE_CURRENT_BINARY_DIR}/cfe_module_version_table.c
+    DEPENDS
+        ${MISSION_BINARY_DIR}/src/cfe_module_version_table.c
+)
 
 # Target for the final executable
-add_executable(core-${TGTNAME} src/target_config.c)
+add_executable(core-${TGTNAME}
+    ${MISSION_BINARY_DIR}/src/cfe_mission_strings.c
+    ${CMAKE_CURRENT_BINARY_DIR}/cfe_module_version_table.c
+    ${CMAKE_CURRENT_BINARY_DIR}/cfe_build_env_table.c
+    ${CMAKE_CURRENT_BINARY_DIR}/cfe_psp_module_list.c
+    ${CMAKE_CURRENT_BINARY_DIR}/cfe_static_symbol_list.c
+    ${CMAKE_CURRENT_BINARY_DIR}/cfe_static_module_list.c
+    src/target_config.c
+)
 
 target_compile_definitions(core-${TGTNAME} PRIVATE 
     CFE_DEFAULT_MODULE_EXTENSION="${CMAKE_SHARED_MODULE_SUFFIX}"
@@ -54,8 +132,7 @@ target_compile_definitions(core-${TGTNAME} PRIVATE
     CFE_CPU_ID_VALUE=${${TGTNAME}_PROCESSORID}
 )
 
-target_include_directories(core-${TGTNAME} PRIVATE 
-    "${CMAKE_CURRENT_BINARY_DIR}"
+target_include_directories(core-${TGTNAME} PRIVATE
     "${CMAKE_BINARY_DIR}/${CFE_CORE_TARGET}/inc"
 )
 

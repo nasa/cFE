@@ -1497,11 +1497,14 @@ typedef struct CFE_ES_AppInfo
  */
 typedef struct CFE_ES_TaskInfo
 {
-   CFE_ES_TaskId_t     TaskId;                            /**< \brief Task Id */
-   uint32              ExecutionCounter;                  /**< \brief Task Execution Counter */
-   char                TaskName[CFE_MISSION_MAX_API_LEN]; /**< \brief Task Name */
-   CFE_ES_AppId_t      AppId;                             /**< \brief Parent Application ID */
-   char                AppName[CFE_MISSION_MAX_API_LEN];  /**< \brief Parent Application Name */
+    CFE_ES_TaskId_t            TaskId;                            /**< \brief Task Id */
+    uint32                     ExecutionCounter;                  /**< \brief Task Execution Counter */
+    char                       TaskName[CFE_MISSION_MAX_API_LEN]; /**< \brief Task Name */
+    CFE_ES_AppId_t             AppId;                             /**< \brief Parent Application ID */
+    char                       AppName[CFE_MISSION_MAX_API_LEN];  /**< \brief Parent Application Name */
+    CFE_ES_MemOffset_t         StackSize;                         /**< Size of task stack */
+    CFE_ES_TaskPriority_Atom_t Priority;                          /**< Priority of task */
+    uint8                      Spare[2];                          /**< Spare bytes for alignment */
 } CFE_ES_TaskInfo_t;
 
 /**

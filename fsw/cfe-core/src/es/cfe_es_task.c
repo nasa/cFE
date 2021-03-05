@@ -184,6 +184,161 @@ void CFE_ES_TaskMain(void)
 
 } /* End of CFE_ES_TaskMain() */
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*                                                                 */
+/* CFE_ES_FindConfigKeyValue() -- Find value for given config key  */
+/*                                                                 */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+const char *CFE_ES_FindConfigKeyValue(const CFE_ConfigKeyValue_t *ConfigList, const char *KeyName)
+{
+    const char *ValuePtr;
+
+    ValuePtr = NULL;
+    if (KeyName != NULL && ConfigList != NULL)
+    {
+        while (ConfigList->Key != NULL)
+        {
+            if (strcmp(KeyName, ConfigList->Key) == 0)
+            {
+                ValuePtr = ConfigList->Value;
+                break;
+            }
+
+            ++ConfigList;
+        }
+    }
+
+    return ValuePtr;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*                                                                     */
+/* CFE_ES_GenerateSingleVersionEvent() -- Send CFE_ES_VERSION_INF_EID  */
+/*                                                                     */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+int32 CFE_ES_GenerateSingleVersionEvent(const char *ModuleType, const char *ModuleName)
+{
+    int32   Status;
+    const char *VersionString;
+
+    /* The mission version which should appear in the version list under the mission name */
+    VersionString = CFE_ES_FindConfigKeyValue(GLOBAL_CONFIGDATA.ModuleVersionList, ModuleName);
+
+    /* If NULL that means the source code was either uncontrolled or there was no way to determine its version */
+    if (VersionString == NULL)
+    {
+        VersionString = "[unknown]";
+    }
+
+    /*
+     * Advertise the mission version information
+     */
+    Status = CFE_EVS_SendEvent(CFE_ES_VERSION_INF_EID, CFE_EVS_EventType_INFORMATION,
+            "Version Info: %s %s, version %s",
+            ModuleType, ModuleName, VersionString);
+
+    return Status;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*                                                                 */
+/* CFE_ES_GenerateVersionEvents() -- Send CFE_ES_VERSION_INF_EID's */
+/*                                                                 */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+void CFE_ES_GenerateVersionEvents(void)
+{
+    int32   Status;
+    CFE_ConfigName_t *ModuleNamePtr;
+    CFE_StaticModuleLoadEntry_t *StaticModulePtr;
+
+    /*
+     * Advertise the mission version information
+     */
+    Status = CFE_ES_GenerateSingleVersionEvent("Mission", GLOBAL_CONFIGDATA.MissionName);
+    if ( Status != CFE_SUCCESS )
+    {
+       CFE_ES_WriteToSysLog("ES:Error sending mission version event:RC=0x%08X\n", (unsigned int)Status);
+    }
+
+    /*
+     * Also Advertise the version information for all statically-linked core modules.
+     * Send a separate CFE_ES_VERSION_INF_EID for every component.
+     */
+    ModuleNamePtr = GLOBAL_CONFIGDATA.CoreModuleList;
+    if (ModuleNamePtr != NULL)
+    {
+        while (Status == CFE_SUCCESS && ModuleNamePtr->Name != NULL)
+        {
+            Status = CFE_ES_GenerateSingleVersionEvent("Core Module", ModuleNamePtr->Name);
+            if ( Status != CFE_SUCCESS )
+            {
+                CFE_ES_WriteToSysLog("ES:Error sending core module version event:RC=0x%08X\n", (unsigned int)Status);
+            }
+            ++ModuleNamePtr;
+        }
+    }
+
+    /* 
+     * Advertise PSP module versions 
+     */
+    StaticModulePtr = GLOBAL_CONFIGDATA.PspModuleList;
+    if (StaticModulePtr != NULL)
+    {
+        while (Status == CFE_SUCCESS && StaticModulePtr->Name != NULL)
+        {
+            Status = CFE_ES_GenerateSingleVersionEvent("PSP Module", StaticModulePtr->Name);
+            if ( Status != CFE_SUCCESS )
+            {
+                CFE_ES_WriteToSysLog("ES:Error sending PSP module version event:RC=0x%08X\n", (unsigned int)Status);
+            }
+            ++StaticModulePtr;
+        }
+    }
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*                                                                 */
+/* CFE_ES_GenerateBuildInfoEvents() -- Send CFE_ES_BUILD_INF_EID   */
+/*                                                                 */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
+void CFE_ES_GenerateBuildInfoEvents(void)
+{
+    int32 Status;
+    const char *BuildDate;
+    const char *BuildUser;
+    const char *BuildHost;
+
+    BuildDate = CFE_ES_FindConfigKeyValue(GLOBAL_CONFIGDATA.BuildEnvironment, "BUILDDATE");
+    BuildUser = CFE_ES_FindConfigKeyValue(GLOBAL_CONFIGDATA.BuildEnvironment, "BUILDUSER");
+    BuildHost = CFE_ES_FindConfigKeyValue(GLOBAL_CONFIGDATA.BuildEnvironment, "BUILDHOST");
+
+    /* Ensure all strings are set to something non-NULL */
+    if (BuildDate == NULL)
+    {
+        BuildDate = "[unknown]";
+    }
+
+    if (BuildUser == NULL)
+    {
+        BuildUser = "[unknown]";
+    }
+
+    if (BuildHost == NULL)
+    {
+        BuildHost = "[unknown]";
+    }
+
+    Status = CFE_EVS_SendEvent(CFE_ES_BUILD_INF_EID, CFE_EVS_EventType_INFORMATION,
+          "Build %s by %s@%s, config %s", BuildDate, BuildUser, BuildHost, GLOBAL_CONFIGDATA.Config);
+    if ( Status != CFE_SUCCESS )
+    {
+        CFE_ES_WriteToSysLog("ES:Error sending build info event:RC=0x%08X\n", (unsigned int)Status);
+    }
+}
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
@@ -196,9 +351,6 @@ int32 CFE_ES_TaskInit(void)
     int32   Status;
     uint32  SizeofCfeSegment;
     cpuaddr CfeSegmentAddr;
-    char    EventBuffer[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
-    char    VersionBuffer[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH];
-    uint32  Remaining;
 
     /*
     ** Register the Application
@@ -329,74 +481,21 @@ int32 CFE_ES_TaskInit(void)
         return(Status);
     }
 
-#ifdef CFE_PSP_VERSION 
-
-    Status = CFE_EVS_SendEvent(CFE_ES_INITSTATS_INF_EID, CFE_EVS_EventType_INFORMATION, 
-                                "%s%s. cFE chksm %d",
-                                CFS_VERSIONS, CFE_PSP_VERSION, (int)CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum);
-
-#else  /* if CFE_PSP_VERSION not defined use integer version macros*/
-    Status = CFE_EVS_SendEvent(CFE_ES_INITSTATS_INF_EID, CFE_EVS_EventType_INFORMATION, 
-                                "\n%sv%d.%d.%d.%d\n cFE chksm %d",
-                                CFS_VERSIONS, 
-                                CFE_PSP_MAJOR_VERSION, CFE_PSP_MINOR_VERSION, CFE_PSP_REVISION, CFE_PSP_MISSION_REV,
-                                (int)CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum);
-
-#endif  /* CFE_PSP_VERSION */
+    Status = CFE_EVS_SendEvent(CFE_ES_INITSTATS_INF_EID, CFE_EVS_EventType_INFORMATION,
+            "cFS Versions: cfe %s, osal %s, psp %s. cFE chksm %d",
+            GLOBAL_CONFIGDATA.CfeVersion, GLOBAL_CONFIGDATA.OsalVersion, CFE_PSP_VERSION, (int)CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum);
 
     if ( Status != CFE_SUCCESS )
     {
-        CFE_ES_WriteToSysLog("ES:Error sending version event:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("ES:Error sending init stats event:RC=0x%08X\n", (unsigned int)Status);
         return(Status);
     }
 
     /*
-     ** Advertise the build and version information at start up
-     ** If unique and non-error, reports component information
+     * Generate all module version and build info events.
      */
-    if (strstr(GLOBAL_CONFIGDATA.MissionVersion, "error"))
-    {
-       snprintf(EventBuffer, sizeof(EventBuffer), "Mission %s", GLOBAL_CONFIGDATA.Config);
-    }
-    else
-    {
-       snprintf(EventBuffer, sizeof(EventBuffer), "Mission %s.%s",
-                GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.Config);
-    }
-    Remaining = sizeof(EventBuffer)-strlen(EventBuffer)-1;
-    if(Remaining > 0 && strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.CfeVersion))
-    {
-       snprintf(VersionBuffer, sizeof(VersionBuffer), ", CFE git version: %s",
-                GLOBAL_CONFIGDATA.CfeVersion);
-       VersionBuffer[Remaining] = 0;
-       strcat(EventBuffer, VersionBuffer);
-       Remaining = sizeof(EventBuffer)-strlen(EventBuffer)-1;
-    }
-    if(Remaining > 0 && strcmp(GLOBAL_CONFIGDATA.MissionVersion, GLOBAL_CONFIGDATA.OsalVersion))
-    {
-       snprintf(VersionBuffer, sizeof(VersionBuffer), ", OSAL git version: %s",
-                GLOBAL_CONFIGDATA.OsalVersion);
-       VersionBuffer[Remaining] = 0;
-       strcat(EventBuffer, VersionBuffer);
-    }
-
-    Status = CFE_EVS_SendEvent(CFE_ES_VERSION_INF_EID,
-          CFE_EVS_EventType_INFORMATION, "%s", EventBuffer);
-    if ( Status != CFE_SUCCESS )
-    {
-       CFE_ES_WriteToSysLog("ES:Error sending version event:RC=0x%08X\n", (unsigned int)Status);
-       return(Status);
-    }
-
-    Status = CFE_EVS_SendEvent(CFE_ES_BUILD_INF_EID,
-          CFE_EVS_EventType_INFORMATION,
-          "Build %s %s",
-          GLOBAL_CONFIGDATA.Date, GLOBAL_CONFIGDATA.User);
-    if ( Status != CFE_SUCCESS )
-    {
-       CFE_ES_WriteToSysLog("ES:Error sending build info event:RC=0x%08X\n", (unsigned int)Status);
-       return(Status);
-    }
+    CFE_ES_GenerateVersionEvents();
+    CFE_ES_GenerateBuildInfoEvents();
 
     /*
      * Initialize the "background task" which is a low priority child task
@@ -743,7 +842,6 @@ int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     return CFE_SUCCESS;
 } /* End of CFE_ES_HousekeepingCmd() */
 
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                 */
 /* CFE_ES_NoopCmd() -- ES task ground command (NO-OP)              */
@@ -757,30 +855,17 @@ int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
     ** For unit testing purposes, it helps to put this first - the UT
     ** is checking for the last event sent to be NOOP_INF_EID.
     */
-    CFE_EVS_SendEvent(CFE_ES_BUILD_INF_EID,
-            CFE_EVS_EventType_INFORMATION,
-            "Build %s %s",
-            GLOBAL_CONFIGDATA.Date, GLOBAL_CONFIGDATA.User);
+   CFE_ES_GenerateBuildInfoEvents();
 
     /*
     ** This command will always succeed.
     */
     CFE_ES_TaskData.CommandCounter++;
 
-                    
-#ifdef CFE_PSP_VERSION
     CFE_EVS_SendEvent(CFE_ES_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                      "No-op command:\n %s%s",                    
-                        CFS_VERSIONS, CFE_PSP_VERSION);
+                      "No-op command:\n cFS Versions: cfe %s, osal %s, psp %s",
+                        GLOBAL_CONFIGDATA.CfeVersion, GLOBAL_CONFIGDATA.OsalVersion, CFE_PSP_VERSION);
 
-#else /* CFE_PSP_VERSION */
-
-    CFE_EVS_SendEvent(CFE_ES_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                      "No-op command:\n %sv%d.%d.%d.%d",                    
-                        CFS_VERSIONS,
-                        CFE_PSP_MAJOR_VERSION, CFE_PSP_MINOR_VERSION, CFE_PSP_REVISION, CFE_PSP_MISSION_REV);
-
-#endif /* CFE_PSP_VERSION */
     return CFE_SUCCESS;
 } /* End of CFE_ES_NoopCmd() */
 
