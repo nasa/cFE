@@ -10,6 +10,17 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev392
+
+- Fix #665, update pipe name documentation.
+- Fix #1165, remove configs about shells
+- Fix #1094, Update CRC documentation
+- Fix #979, add stack size and priority to task info …
+- Fix #1170, refactor target config objects …
+- Fix #1207, Add wrapper targets to simplify app builds …
+- Fix #1211, Add Testing Tools to the Security Policy
+- See <https://github.com/nasa/cFE/pull/1213>
+
 ### Development Build: v6.8.0-rc1+dev382
 
 - Refactors the SB buffer descriptor object `CFE_SB_BufferD_t` and simplify the zero-copy buffer paradigm. Combines the zero-copy and the normal CFE buffer descriptor into a single unified `CFE_SB_BufferD_t` object. Results in a simpler zero-copy design that is similarto the the standard, non-zero-copy message path. All message descriptor objects are now tracked in a list by SB. All changes are internal to SB. This does not affect API or behavior of any existing APIs (but see note). Corrects a minor issue where the `MsgSendErrorCounter` would get incremented if there were no subscribers, but only in the zero copy API.  
