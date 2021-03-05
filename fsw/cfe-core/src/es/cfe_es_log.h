@@ -183,6 +183,37 @@ void CFE_ES_SysLogClear_Unsync(void);
  */
 void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer);
 
+/**
+ * \brief Initialize Buffer for an incremental reading the system log
+ *
+ * This a helper function is intended to initialize the Buffer contents, assuming
+ * the Buffer was passed into CFE_ES_SysLogReadStart_Unsync at some time prior.
+ * This function supports incremental reading of the syslog buffer over time
+ * for systems that will send logs down in packets as opposed to logging to disk.
+ *
+ * This incremental reading of logs is only supported if set to OVERWRITE mode,
+ * otherwise the behavior will mimic a call to CFE_ES_SysLogReadStart_Unsync.
+ *
+ * This incremental reading of logs is only supported if CFE_ES_SysLogReadStart_Unsync
+ * has been called once previously on the Buffer, otherwise the behavior will mimic a 
+ * call to CFE_ES_SysLogReadStart_Unsync.
+ *
+ * This function uses the Buffers current (as passed in) LastOffset from a previous
+ * read log data, and the current state of the syslog log buffer to intialize the
+ * buffer to read data logged since the Buffer's LastOffset.
+ *
+ * \param Buffer  A local buffer which will be initialized based on its current LastOffset 
+ *                to read unread data from the syslog buffer.
+ *
+ * \note This function requires external thread synchronization
+ * \note This function requires Buffer has been initialized at some point by
+ *       CFE_ES_SysLogReadStart_Unsync, but only once.
+ * \note This function requires the logs be set to OVERWRITE mode.
+ * \sa CFE_ES_SysLogReadData()
+ */
+void CFE_ES_SysLogIncReadInit_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer);
+
+
 
 /**
  * \brief Write a printf-style formatted string to the system log
