@@ -121,7 +121,7 @@ Table of Contents
 
 # 1. Introduction
 
-#### 1.1 Scope
+## 1.1 Scope
 
 The purpose of this document is to provide guidelines and conventions
 for flight code development using the Core Flight Executive (cFE)
@@ -149,7 +149,7 @@ The weighting can be determined by the use of the following words:
     statements designate examples of an acceptable implementation but
     do not require the developer to follow the example precisely.
 
-#### 1.2 Background
+## 1.2 Background
 
 The cFE provides a project-independent Flight Software (FSW) operational
 environment with a set of services that are the functional building
@@ -177,7 +177,7 @@ software interface.
 
 ![](.//media/cFE_Application_Developers_Guide_image3.png)
 
-#### 1.3 Applicable Documents
+## 1.3 Applicable Documents
 
 | **Location**                                 | **Documents**         | **Description**    |
 |:---------------------------------------------|:----------------------|:-------------------|
@@ -185,7 +185,7 @@ software interface.
 | TBD                                          |	PSP API (TBD)        | Describes PSP API  |
 
 
-#### 1.4 Acronyms
+## 1.4 Acronyms
 
   | **Acronym** | **Description**                                    |
   |:------------|:---------------------------------------------------|
@@ -236,7 +236,7 @@ software interface.
   | TLM         | Telemetry                                          |
   | UTC         | Coordinated Universal Time                         |
 
-#### 1.5 Glossary of Terms
+## 1.5 Glossary of Terms
 
   The following table defines the terms used throughout this document.
   These terms are identified as proper nouns and are capitalized.
@@ -301,7 +301,7 @@ development environment in which the Developer writes and integrates
 their Application code. Each Mission could have, for their own reasons,
 a variation on this standard.
 
-#### 2.1 Directory Tree
+## 2.1 Directory Tree
 
 The following diagrams show the standard development and build directory
 tree or mission tree as it is often referred to. The purpose of each
@@ -313,6 +313,36 @@ directory is described as a note under each folder.
 
 ![](.//media/cFE_Application_Developers_Guide_image6.png)
 
+Each cFE core component is itself a modular entity, all of which work together to form the 
+complete cFE core executive.  These modules are all contained under the `modules` subdirectory:
+
+| **Directory**           | **Content**                                                                                                        |
+|:------------------------|:------------------------------------------------------------------------------------------------------------------ |
+| `modules/core_api/`     | Contains the public interface definition of the complete CFE core - public API/headers only, no implementation     |
+| `modules/core_private/` | Contains the inter-module interface definition of the CFE core - internal API/headers only, no implementation      |
+| `modules/es/`           | Implementation of the Executive Services (ES) core module - provides app and task management                       | 
+| `modules/evs/`          | Implementation of the Event Services (EVS) core module - manages sending of events on behalf of other apps         | 
+| `modules/fs/`           | Implementation of the File Services (FS) core module - defines file-related functions                              | 
+| `modules/msg/`          | Implementation of the Message (MSG) core module - defines message header manipulation/access routines              | 
+| `modules/resourceid/`   | Implementation of the Resource ID core module - maniplation/access of system resource IDs (AppID, PipeID, etc.)    | 
+| `modules/sb/`           | Implementation of the Software Bus (SB) core module - sends messages between applications                          | 
+| `modules/tbl/`          | Implementation of the Table Services (TBL) core module - manages runtime tables                                    | 
+| `modules/time/`         | Implementation of the Time Services (TIME) core module - manages timing and synchronization                        |
+
+**NOTE**: The modules contained here constitute the "reference" implementation of each module.  The CMake build system also permits advanced users
+with special use cases to add, remove, or override entire core modules as necessary to support their particular mission requirements.
+
+Each module directory is in turn divided into subdirectories as follows:
+
+| **Subdirectory**        | **Content**                                                                                                  |
+|:------------------------|:-------------------------------------------------------------------------------------------------------------|
+| _module_`/fsw/`         | All components which are used on/deployed to the actual target or define the interface to those components   |
+| _module_`/fsw/inc/`     | Public/Interface headers for the component                                                                   |
+| _module_`/fsw/src/`     | Source files and private headers for the component                                                           |
+| _module_`/ut-stubs/`    | Stubs to support coverage testing of other components (correlates with API defined in `fsw/inc`)             |
+| _module_`/ut-coverage/` | Coverage tests to provide line/branch testing (correlates with internal implementation in `fsw/src`)         |
+| _module_`/eds/`         | Command & Telemetry interface description as a CCSDS book 876.0 Electronic Data Sheet                        |
+
 ![](.//media/cFE_Application_Developers_Guide_image7.png)
 
 ![](.//media/cFE_Application_Developers_Guide_image8.png)
@@ -323,33 +353,62 @@ directory is described as a note under each folder.
 
 ![](.//media/cFE_Application_Developers_Guide_image11.png)
 
-#### 2.2 Header Files
+## 2.2 Header Files
 
 In order for applications to use and call cFE service functions, the
-Developer must include the appropriate header files in their source
-code. The cFE can be easily incorporated by including the following
-line:
+developer must include the appropriate header files in their source
+code. 
+
+The cFE header files are split into several parts/sections, allowing
+application/libraries to individually select the parts they need.  The
+naming convention is as follows:
+
+| **Filename Pattern**         | **Contents**                                                                                  |
+|:-----------------------------|:----------------------------------------------------------------------------------------------|
+| _module_`_extern_typedefs.h` | Macros and Data Types shared between CMD/TLM messages, data files, and API functions          |
+| _module_`_msg.h`             | Command and Telemetry message definitions, including command code (`_CC`) number assignments  |
+| _module_`_events.h`          | Event id (`_EID`) number assignments for events generated via Event Services                  |
+| _module_`_api_typedefs.h`    | Macros and Data Types used by the component API, no function prototypes                       |
+
+In general the files are scoped such that an application/library should only need to include the information it
+actually needs to use for the task it performs.  For instance, if a tool needs to interpret a data file generated
+by CFE ES, only the `cfe_es_extern_typedefs.h` file should be required.  To send commands or interpret telemetry, the
+`cfe_es_msg.h` may be used.  If a library builds upon data types or extends functions from the ES API, then the 
+`cfe_es_api_typedefs.h` header may be used.
+
+An "unqualified" header file (with no extra suffix) provides the complete runtime API definition for the component.
+This includes all API function prototypes and is intended for use in C source files.  The following API header files 
+are provided by cFE:
+
+| **Filename**     | **Contents**                         |
+|:-----------------|:-------------------------------------|
+| cfe_es.h         | cFE Executive Service Interface      |
+| cfe_evs.h        | cFE Event Service Interface          |
+| cfe_fs.h         | cFE File Service Interface           |
+| cfe_msg.h        | cFE Message Interface                |
+| cfe_resourceid.h | cFE Resource ID Interface            |
+| cfe_sb.h         | cFE Software Bus Interface           |
+| cfe_tbl.h        | cFE Table Service Interface          |
+| cfe_time.h       | cFE Time Service Interface           |
+
+
+**NOTE**: The files listed above provide function prototypes and are intended to be used by C source files 
+that contain code which needs to invoke the function(s) prototyped within them.  When referencing the
+data types or macros from another header file, the targeted/qualified header should be used instead.
+
+As a rule of thumb, files listed in the first table (with suffix) should be included from within other 
+headers, while files listed in the second table (without suffix) should be used by source files.
+
+Finally, to simplify application headers, a single "all-inclusive" cFE header is also provided:
 
 ```
 #include "cfe.h" /* Define cFE API prototypes and data types */
 ```
 
-However, if the Developer is interested in viewing the API prototype
-declarations or data type definitions, they must look for them in the
-header file for the particular cFE Service. These header files are named
-as follows:
+This encompasses the interface definitions from all CFE core components (ES, EVS, etc.) as well as
+OSAL, PSP, and the global-scope mission configuration (`cfe_mission_cfg.h`).
 
-| **Filename** | **Contents**                         |
-| ------------:| ------------------------------------:|
-| cfe_es.h     | cFE Executive Service interface      |
-| cfe_evs.h    | cFE Event Service Interface          |
-| cfe_fs.h     | cFE File Service Interface           |
-| cfe_sb.h     | cFE Software Bus Interface           |
-| cfe_tbl.h    | cFE Table Service Interface          |
-| cfe_time.h   | cFE Time Service Interface           |
-
-All of these header files can be found in the **"\.../cfe-core/inc/"**
-directory.
+All of these header files can be found in the `modules/core_api/fsw/inc` directory.
 
 # 3. cFE Deployment Environment
 
@@ -357,7 +416,7 @@ The cFE core makes some assumptions about the target platform.
 Modifications to these assumptions would require modification to the cFE
 core source code.
 
-#### 3.1 Assumed On-Board Directory Structure
+## 3.1 Assumed On-Board Directory Structure
 
 Portions of the cFE are capable of generating/overwriting files in
 response to commands (e.g. -- log files, registry contents, etc). The
@@ -373,9 +432,9 @@ of the frameworks described below has been designed to minimize code
 modification when the code is ported to either another platform and/or
 another mission.
 
-#### 4.1	Application Models
+## 4.1	Application Models
 
-##### 4.1.1 "Software Only" Application
+### 4.1.1 "Software Only" Application
 
 A "Software Only" Application is a cFE Application that does not require
 communication with hardware directly. It is an Application that receives
@@ -392,7 +451,7 @@ hardware or the underlying operating system.  The Developer should ensure that
 all function calls to functions outside of the Application code are either to
 the cFE APIs or to the OS Abstraction Layer.
 
-##### 4.1.2 "Hardware Servicing" Application
+### 4.1.2 "Hardware Servicing" Application
 
 A "Hardware Servicing" Application is a cFE Application that communicates
 directly with a piece of hardware. This could be mission specific
@@ -419,7 +478,7 @@ sending messages, events, performing memory allocation, etc. For further
 details on this design, see section 5.6 and the device management API
 reference in Appendix A.
 
-##### 4.1.3 Multi-threaded Applications
+### 4.1.3 Multi-threaded Applications
 
 The cFE supports the concept of multiple threads within an Application.
 Each thread is referred to as a Task. The first Task that executes when
@@ -439,11 +498,20 @@ in mind these facts:
 Child Tasks can be useful in both "Software Only" and "Hardware Servicing"
 applications.
 
-#### 4.2 Best Practices
-##### 4.2.1 cFS Application Template
+## 4.2 Best Practices
+### 4.2.1 cFS Application Template
 
 Applications designed to interface with the cFE should follow standard templates.  
 Reference sample_app on Github for “live” example.
+
+| **Directory**                         | **Descriptions**                                                                                             |
+|:--------------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| fsw/                                  | All components which are used on/deployed to the actual target or define the interface to those components   | 
+| fsw/inc/                              | Public/Interface headers for the component                                                                   |
+| fsw/src/                              | Source files and private headers for the component                                                           |
+| tables/                               | Example/Initial table definitions                                                                            |
+
+
 
 | **Files**                             | **Descriptions**                                                                                             |
 |:--------------------------------------|:-------------------------------------------------------------------------------------------------------------|
@@ -459,7 +527,7 @@ In addition to showing the standard structure of a cFS application, the
 sample_app also demonstrates how to interface with cFS libraries and table
 services.  
 
-##### 4.2.2 Avoid "Endian-ness" Dependencies
+### 4.2.2 Avoid "Endian-ness" Dependencies
 
 To ensure Application portability, Developers should be aware of code
 designs that can be affected by the "Endian-ness" of the processor. An
@@ -477,7 +545,7 @@ types. Clearly, if the code is ported from a little-endian machine to a
 big-endian machine or vice-versa, the ground system telemetry database
 would be required to change.
 
-##### 4.2.3 Avoid Inter-Task Dependencies
+### 4.2.3 Avoid Inter-Task Dependencies
 The Developer must separate those items that represent interface
 controlled data structures and values from other aspects of their
 software into unique header files. These files are then available to
@@ -496,7 +564,7 @@ Examples of items that do not need to be shared with other Applications include
 Table IDs, Table data structures, Event IDs and Pipe IDs.  Tables are not
 intended to be used as inter-application communication mechanisms.
 
-##### 4.2.4 Consolidate Resource Allocations
+### 4.2.4 Consolidate Resource Allocations
 It is generally recommended to consolidate resource allocations to the
 application initialization function(s).  Allocations and setup of resources
 such as memory pools and child tasks should happen once during initialization in
@@ -525,13 +593,13 @@ and the other is a "CFE_ES_" function, the Developer should use the
 "CFE_ES_" function. Additional information about the OS API can be
 found in the OSAL Library API documentation.
 
-#### 5.1 Application Registration
+## 5.1 Application Registration
 
 All cFE Applications must register immediately with ES when started.
 This is accomplished with the CFE_ES_RegisterApp function and it
 should be the first function called by a cFE Application's main task.
 
-#### 5.2 Application Names and IDs
+## 5.2 Application Names and IDs
 
 The Executive Services maps Application names to numeric Application IDs.
 This simplifies the identification of Applications within the processor
@@ -548,7 +616,7 @@ to be the same Application. Therefore, no matter whether the call is made from
 the Main Task or one of the Child Tasks, the Application ID returned is
 the same.
 
-#### 5.3 Child Task Control
+## 5.3 Child Task Control
 
 As mentioned in section 4.3, cFE Applications can be multi-threaded.
 Each thread is referred to as a Task. The thread that is started when
@@ -566,7 +634,7 @@ by the CFE_ES_CreateChildTask function in order to identify the Child
 Task.  Note that Child Tasks can only be created from an Application's
 Main Task.
 
-#### 5.4 Application Start-Up Types
+## 5.4 Application Start-Up Types
 
 Upon startup, an Application may need to know which type of restart it is
 undergoing.  As part of its initialization, an Application should call
@@ -579,14 +647,14 @@ return value of this function can be one of the following values:
 
 Reference cFE API documentation for more detail on reset types.
 
-#### 5.5 Shared Libraries
+## 5.5 Shared Libraries
 
 The cFE contains support for shared libraries. For the current version
 of the cFE, the shared libraries must be loaded on cFE startup.
 
 Reference sample_lib on Github for a “live” example.
 
-#### 5.6 Obtaining OS and Platform Information
+## 5.6 Obtaining OS and Platform Information
 
 There are numerous functions related to obtaining OS and platform
 information. A number of these functions are not necessary for the cFE
@@ -624,9 +692,9 @@ uint32 ConvertSecs2Ticks(uint32 Seconds)
 
 }
 ```
-#### 5.7 OS Queues, Semaphores and Mutexes
+## 5.7 OS Queues, Semaphores and Mutexes
 
-##### 5.7.1 Queues
+### 5.7.1 Queues
 
 Developers are discouraged from using the OS_QueueCreate, OS_QueueGet,
 OS_QueuePut, and OS_QueueDelete functions. These functions are a lower level
@@ -636,7 +704,7 @@ would also impose a requirement that two Applications must reside on the
 same processor. The only exception to this rule might be communication
 between a Main Task and its Child Task(s).
 
-##### 5.7.2 Binary Semaphores
+### 5.7.2 Binary Semaphores
 
 Binary semaphores can be used for Application synchronization. A binary
 semaphore is essentially a flag that is available or unavailable. When
@@ -663,7 +731,7 @@ header file osids.h by a macro of the form xxx_SEM_ID. To add a new
 semaphore to a processor, one must modify the osids.h file and
 osobjtab.c file for the processor.
 
-##### 5.7.2.1 Binary Semaphore Functions
+### 5.7.2.1 Binary Semaphore Functions
 
 A binary semaphore can be created using the OS_BinSemCreate function.  Upon
 success, the OS_BinSemCreate function sets the sem_id parameter to the ID of
@@ -699,7 +767,7 @@ int32 OS_BinSemGive( uint32 xxx_SEM_ID );
 For more detail on these functions (including arguments and return codes, refer
 to the OSAL Library API).
 
-##### 5.7.3 Counting Semaphores
+### 5.7.3 Counting Semaphores
 
 Counting semaphores are similar to binary semaphores except that they indicate
 more than a simple "available" or "unavailable" status.  Counting semaphores
@@ -710,7 +778,7 @@ useful method of synchronization between main tasks and child tasks.  As an
 example, the File Manager (FM) application uses a counting semaphore to
 implement a kind of handshake between its main task and its child task.
 
-##### 5.7.3.1 Counting Semaphore Functions
+### 5.7.3.1 Counting Semaphore Functions
 
 A counting semaphore can be created using the OS_CountSemCreate function.  
 Upon success, the OS_CountSemCreate function sets the sem_id parameter to the
@@ -742,7 +810,7 @@ int32 OS_CountSemGive( uint32 xxx_SEM_ID );
 For more detail on these functions (including arguments and return codes, refer
 to the OSAL Library API).
 
-##### 5.7.4 Mutex Semaphores
+### 5.7.4 Mutex Semaphores
 
 Mutex semaphores are used to provide "mutual exclusion" for a shared
 resource in order to protect against several Applications using the
@@ -792,7 +860,7 @@ software design that involves pending in a protected region must be
 reviewed by the entire development group since it can affect the timing
 of the entire system.
 
-##### 5.7.4.1 Mutex Functions
+### 5.7.4.1 Mutex Functions
 
 An application creates a mutex by calling:
 
@@ -825,7 +893,7 @@ For more detail on these functions (including arguments and return codes, refer
 to the OSAL Library API).
 
 
-#### 5.8 Interrupt Handling
+## 5.8 Interrupt Handling
 
 OSAL interrupt handling functions have been deprecated due to 
 platform dependencies, incomplete testing, and incomplete implementaion
@@ -834,7 +902,7 @@ No longer supporting abstracted interrupt handling API from OSAL.  Could
 consider at the PSP layer as future work but current dependencies should
 revert to native interrupt handling.
 
-#### 5.9 Exceptions
+## 5.9 Exceptions
 
 Similar to interrupt service routines, handlers can be associated with
 specific exceptions. The following function specifies a handler for an
@@ -860,7 +928,7 @@ OS_ExcEnable( uint32 ExceptionNumber );
 OS_ExcDisable( uint32 ExceptionNumber );
 ```
 
-##### 5.9.1 Floating Point Processor Exceptions
+### 5.9.1 Floating Point Processor Exceptions
 
 In addition to the exception handlers identified above, a similar
 paradigm exists for handling floating point processor exceptions. The
@@ -886,9 +954,9 @@ OS_FPUExcEnable( uint32 ExceptionNumber );
 OS_FPUExcDisable( uint32 ExceptionNumber );
 ```
 
-#### 5.10 Memory Utilities
+## 5.10 Memory Utilities
 
-##### 5.10.1 Memory Pool
+### 5.10.1 Memory Pool
 
 The Executive Services mempool library provides simple block memory
 management API's and functions for pseudo dynamic memory allocations
@@ -943,7 +1011,7 @@ and the allocation and deallocation of one request for 12 bytes.
 
 Figure 5.2 Example mempool allocations
 
-##### 5.10.2 Memory Read/Write Functions
+### 5.10.2 Memory Read/Write Functions
 
 CFE provides a set of functions that read and write values of fixed sizes at
 specified physical addresses.  These functions are intended for accessing h
@@ -953,7 +1021,7 @@ of EEPROM and then verify that the modification was successful.
 
 Reference “PSP API Documentation”.
 
-##### 5.10.3 Critical Data Store
+### 5.10.3 Critical Data Store
 
 When an Application needs to store a small amount of data that will
 survive a cFE Reset, the cFE provides an area of memory called a
@@ -1095,7 +1163,7 @@ void SAMPLE_TaskMain(void)
 } /* End of SAMPLE_TaskMain() */
 ```
 
-##### 5.10.4	Standard CRC Calculations
+### 5.10.4	Standard CRC Calculations
 There are many Applications that require a validation of received data or of
 data in memory.  This is usually done by a Cyclic Redundancy Check (CRC).  
 There are many different ways to calculate a CRC.  To help ensure that the
@@ -1123,7 +1191,7 @@ CFE_MISSION_ES_DEFAULT_CRC – the mission specified default CRC calculation
 Unless there is a specific interface with a specified CRC calculation,
 Applications must use the CFE_MISSION_ES_DEFAULT_CRC type.
 
-#### 5.11 File System Functions
+## 5.11 File System Functions
 
 The OSAL API provides a POSIX.1 standard interface for performing file
 system activities. These functions break down into the following three
@@ -1131,7 +1199,7 @@ categories: Device, Directory and File routines. Specific details of the
 API are not covered here. Refer to the OSAL Library API documentation for
 details.
 
-##### 5.11.1 Device Functions
+### 5.11.1 Device Functions
 
   | **OS API File System Function** |  **Brief Description**                         |
   |:--------------------------------|:-----------------------------------------------|
@@ -1140,7 +1208,7 @@ details.
   | OS_unmount                      | Unmounts a previously mounted file system      |
   | OS_chkfs                        | Checks file system to ensure links are correct |
 
-##### 5.11.2 Directory Functions
+### 5.11.2 Directory Functions
 
   | **OS API File System Function** | **Brief Description**                                       |
   |:--------------------------------|:------------------------------------------------------------|
@@ -1151,7 +1219,7 @@ details.
   | OS_rewinddir                    | Resets a file pointer for a directory back to the beginning |
   | OS_rmdir                        | Deletes a directory                                         |
 
-##### 5.11.3 File Functions
+### 5.11.3 File Functions
 
   | **OS API File System Function** | **Brief Description**                                                         |
   |:--------------------------------|:------------------------------------------------------------------------------|
@@ -1166,7 +1234,7 @@ details.
   | OS_remove                       | Deletes a file                                                                |
   | OS_rename                       | Renames a file                                                                |
 
-#### 5.12 System Log
+## 5.12 System Log
 
 The Executive Services provide a System Log. A System Log provides a
 mechanism of recording Events that cannot be issued as Event Messages
@@ -1188,7 +1256,7 @@ the ASCII string to a buffer that is preserved during resets.
 At minimum, the CFE_ES_WriteToSysLog function is generally used if the call
 to CFE_EVS_Register fails or if the Application is about to exit.
 
-#### 5.13 Software Performance Analysis
+## 5.13 Software Performance Analysis
 
 cFE provides utilities to track the performance of an application.  Two
 functions are provided to configure regions for performance tracking:
@@ -1300,9 +1368,9 @@ present or it may Pend (blocking) on a pipe and have its execution
 suspended until an SB Message arrives. An application may specify a Pend
 with timeout as well.
 
-#### 6.1 Software Bus Terminology
+## 6.1 Software Bus Terminology
 
-##### 6.1.1 Software Bus Messages
+### 6.1.1 Software Bus Messages
 
 A Software Bus Message (SB Message) is a collection of data treated as a
 single entity. The format and the definition of the content is uniquely
@@ -1325,7 +1393,7 @@ on the Software Bus.  Depending on the implementation, different
 ranges and values are supported, and the values effect the message
 header differently.
 
-##### 6.1.2 Pipes
+### 6.1.2 Pipes
 
 The destinations to which SB Messages are sent are called *pipes*. These
 are queues that can hold SB Messages until they are read out and
@@ -1336,7 +1404,7 @@ perform a simple check on their pipes to determine if an SB Message has
 arrived. Applications call the SB API to create their pipes and to
 access the data arriving on those pipes.
 
-###### 6.1.2.1 Software Bus Message Limits and Overflows
+#### 6.1.2.1 Software Bus Message Limits and Overflows
 
 The SB software places a limit on how many SB Messages may be present at
 each pipe. There are two types of limits: pipe depth and message limit.
@@ -1360,7 +1428,7 @@ this is a limitation on top of the Pipe depth.
 The choice of buffer limits depends on the timing of both the sending
 and receiving applications.
 
-##### 6.1.3 Routing of Software Bus Messages
+### 6.1.3 Routing of Software Bus Messages
 
 On a spacecraft using the cFE as the backbone of inter-Application
 communication, the routing of SB Messages between Applications occurs
@@ -1370,14 +1438,14 @@ performs the operations necessary to transfer the SB Message to the
 target pipe(s). Applications call the SB API to request specified SB
 Message IDs to be routed to their previously created pipes.
 
-###### 6.1.3.1 Sending Applications
+#### 6.1.3.1 Sending Applications
 
 Any software application is capable of sending SB Messages. However,
 interrupt and exception handlers shall not send SB Messages since the SB
 service uses operating system calls that may be prohibited (i.e. -- they
 may be blocking calls) in such circumstances.
 
-###### 6.1.3.2 Receiving Applications
+#### 6.1.3.2 Receiving Applications
 
 Any software application is capable of receiving SB messages. However,
 interrupt and exception handlers shall not receive packets since the SB
@@ -1391,7 +1459,7 @@ it can process it as needed. The SB Message remains accessible to the
 application until the application starts to receive a new SB Message
 from the pipe, at which point the old SB Message is discarded.
 
-#### 6.2 Creating Software Bus Pipes
+## 6.2 Creating Software Bus Pipes
 
 During the initialization of an Application, the Application must notify
 the cFE of pipes that it requires to receive data. The Application
@@ -1454,7 +1522,7 @@ receive data from the created pipe. If multiple threads require access
 to messages, each thread needs to create their own pipe and make their
 own message subscriptions.
 
-#### 6.2.1 Deleting Software Bus Pipes
+## 6.2.1 Deleting Software Bus Pipes
 
 If an Application no longer requires a Pipe, it can delete the Pipe by
 calling the CFE_SB_DeletePipe API. This API is demonstrated as
@@ -1482,7 +1550,7 @@ merely provides a mechanism for Applications that may only need a Pipe
 temporarily.
 
 
-#### 6.3 Software Bus Message Subscription
+## 6.3 Software Bus Message Subscription
 
 Once an Application has created a Pipe, it can begin to request data be
 put into that Pipe. This process is referred to a SB Message
@@ -1559,7 +1627,7 @@ Applications that need to specify something other than the default QoS
 or Messages Limit, the SB API provides an additional function,
 CFE_SB_SubscribeEx that allows those parameters to be specified.
 
-#### 6.4 Unsubscribing from Receiving Software Bus Messages
+## 6.4 Unsubscribing from Receiving Software Bus Messages
 
 If an Application no longer wishes to receive an SB Message that it had
 previously subscribed to, it can selectively unsubscribe to specified SB
@@ -1580,7 +1648,7 @@ The first parameter identifies the SB Message ID that is to be
 unsubscribed and the second parameter identifies which Pipe the message
 is currently subscribed to.
 
-#### 6.5 Creating Software Bus Messages
+## 6.5 Creating Software Bus Messages
 
 For an Application to send an SB Message, it must first create it. The
 Application shall define the data structure of the SB Message, allocate
@@ -1664,7 +1732,7 @@ of the Application's interface. This makes it much simpler to port the
 Application to another mission where SB Message IDs may need to be
 renumbered.
 
-##### 6.5.1 Message Header Types
+### 6.5.1 Message Header Types
 
 The Message module supports two main types of headers: command headers and telemetry
 headers.  In the CCSDS implementation, the command and telemetry
@@ -1704,7 +1772,7 @@ It is important to note that some API calls require the presence of a
 particular header type and will return an error if the other header type
 is present instead.  The following section provides more detail.  
 
-##### 6.5.2 Setting Message Header Information
+### 6.5.2 Setting Message Header Information
 
 Before sending a Message to the SB, the Application can set fields in the
 Message Header. The following table summarizes the functions that
@@ -1733,14 +1801,14 @@ really just a best guess since the packet structure is dependent on implementati
 The preference is to use CFE_MSG_SetSize and actual packet structure
 information when available.
 
-##### 6.5.2.1 Modifying Command Message Header Information
+### 6.5.2.1 Modifying Command Message Header Information
 The most common update for command messages is to set the command code.  
 This is done through the CFE_MSG_SetFcnCode() API call.  This code is used
 to distinguish between multiple commands that share a Message ID.  It is
 common practice for an application to have a single "CMD_MID" to capture
 all commands and then to differentiate those commands using a command code.
 
-##### 6.5.2.2 Modifying Telemetry Message Header Information
+### 6.5.2.2 Modifying Telemetry Message Header Information
 The most common update for telemetry messages is to put the current time in
 the Message. This is accomplished with one of two API functions. The
 most commonly used function would be CFE_SB_TimeStampMsg(). This API would
@@ -1751,7 +1819,7 @@ time in the Message Header to the time specified during the call. This is
 useful when the Application wishes to time tag a series of Messages with
 the same time.
 
-##### 6.5.3 Reading Message Header Information
+### 6.5.3 Reading Message Header Information
 
 There are several APIs available for extracting the Message Header
 Fields. These APIs shall always be used by Applications to ensure the
@@ -1779,7 +1847,7 @@ they are based on assumptions about the defintion of "User Data" and are
 really just a best guess since the packet structure is dependent on implementation.
 The preference is to use the actual packet structure when available.
 
-#### 6.6 Sending Software Bus Messages
+## 6.6 Sending Software Bus Messages
 
 After an SB message has been created (see Section 6.5) and its contents
 have been set to the appropriate values, the application can then
@@ -1807,7 +1875,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    ...
 }
 ```
-#### 6.7 Receiving Software Bus Messages
+## 6.7 Receiving Software Bus Messages
 
 To receive a SB Message, an application calls CFE_SB_ReceiveBuffer.  Since most
 applications are message-driven, this typically occurs in an application's
@@ -1869,7 +1937,7 @@ described in Section 6.5.3) should be used to identify the message so that
 the application can react to it appropriately.  
 
 
-#### 6.8 Improving Message Transfer Performance for Large Messages
+## 6.8 Improving Message Transfer Performance for Large Messages
 
 Occasionally, there is a need for large quantities of data to be passed
 between Applications that are on the same processor (e.g.- Science data
@@ -1967,7 +2035,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 }
 ```
 
-#### 6.9 Best Practices for using Software Bus
+## 6.9 Best Practices for using Software Bus
 
 The following are recommended "best practices" for applications using EVS.
 1. Applications should use the Software Bus for all communication with other
@@ -1985,7 +2053,7 @@ The following are recommended "best practices" for applications using EVS.
 
 # 7. Event Service Interface
 
-#### 7.1 Event Messages
+## 7.1 Event Messages
 
 Event messages are descriptive notices generated by an application in
 response to commands, software errors, hardware errors,
@@ -2003,7 +2071,7 @@ for developers to note that Event Messages are not automatically sent
 as telemetry.  A Telemetry Output (or equivalent) application must be
 configured to downlink event messages if they need to be sent as telemetry.  
 
-#### 7.2 Event Types
+## 7.2 Event Types
 
 Event Messages are classified within the cFE and on the ground by an
 Event Type. Event Types defined within the cFE are:
@@ -2049,7 +2117,7 @@ events from a particular Application or even all of the events of a
 particular Event Type from one specific Application. The Developer
 should consider these filter options when categorizing their events.
 
-#### 7.3 Event Format
+## 7.3 Event Format
 
 Event services provides two formats for event messages: long and short. The
 format is selected with the CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE
@@ -2060,7 +2128,7 @@ across an Application, including all Child Tasks. Unique message IDs will
 allow a message to be understood even in "short format" when the text
 string is unavailable to provide supplemental information.   
 
-#### 7.4 Event Service Registration
+## 7.4 Event Service Registration
 
 Applications must register with the EVS in order to use cFE event
 services. If an application has registered with EVS, then all of its
@@ -2089,7 +2157,7 @@ via command. See the cFE User's Guide for more information on the
 cFE EVS ground interface. For an example of how to register an
 Application with the Event Services, see section 7.4.1 below.
 
-##### 7.4.1 Binary Filtering Scheme
+### 7.4.1 Binary Filtering Scheme
 
 Currently there exists only one supported filtering scheme within the
 EVS. The filtering scheme is based upon a binary filtering algorithm
@@ -2219,7 +2287,7 @@ FILE: sample_app.c
 }
 ```
 
-#### 7.5 Sending an Event Message
+## 7.5 Sending an Event Message
 
 Event messages are sent using either the CFE_EVS_SendEvent() function
 or the CFE_EVS_SendTimedEvent() function, which are both analogous to
@@ -2261,7 +2329,7 @@ with the EVS. The EVS will ignore all function calls from unregistered
 applications. If an application fails to register with the EVS, a call
 to the CFE_EVS_SendEvent function will have no effect.
 
-##### 7.5.1 Event Message Text
+### 7.5.1 Event Message Text
 
 An event message is a text string with at most 122 characters. Although
 there is no fixed format for the text, it should follow these
@@ -2297,7 +2365,7 @@ consistent style of writing in all messages. One should consult, if
 possible, with members of the Flight Operations team and scientists to
 find what kind of messages are required and how they should be worded.
 
-#### 7.6 Event Service Un-registration
+## 7.6 Event Service Un-registration
 
 Applications that have registered with the EVS can un-register
 themselves. The cFE, however, will automatically un-register an
@@ -2309,7 +2377,7 @@ shown below:
 CFE_EVS_Unregister ();
 ```
 
-#### 7.7 Best Practices for using Event Services
+## 7.7 Best Practices for using Event Services
 
 The following are recommended "best practices" for applications using EVS.
 1. Event Message IDs should be unique across an application so that an
@@ -2347,9 +2415,9 @@ ground-flight interface for modifying Tables is consistent across all
 Applications and any change in the interface will only require a change
 to the cFE Table Services rather than modifying each Application.
 
-#### 8.1 Table Terminology
+## 8.1 Table Terminology
 
-##### 8.1.1 Tables
+### 8.1.1 Tables
 
 A Table is a contiguous block of memory that contains, typically, static
 parameters that an Application requires. These parameters are items that
@@ -2362,7 +2430,7 @@ for a particular mission. Examples of data contained in Tables are:
 3. attitude control gains and biases for different control laws or control modes,
 etc.
 
-##### 8.1.2 Active vs. Inactive Tables
+### 8.1.2 Active vs. Inactive Tables
 
 Logically, each Table has an Active and an Inactive image. The Active
 Table is the Table that an Application can obtain a pointer to and can
@@ -2372,7 +2440,7 @@ stored commands. Once desired modifications have been made to an
 Inactive Table, the Table Service can, upon command, switch the contents
 of the Active Table with the Inactive Table.
 
-##### 8.1.3 Single vs. Double Buffered Tables
+### 8.1.3 Single vs. Double Buffered Tables
 
 When a Table is registered, an Application can decide whether to
 implement the Table as a Single Buffered Table or as a Double Buffered
@@ -2390,7 +2458,7 @@ Inactive to Active is deterministic, quick and never blocking. This
 makes Double Buffered Tables ideal for providing data to time critical
 operations and Interrupt Service Routines.
 
-##### 8.1.4 Loading/Activating a Table
+### 8.1.4 Loading/Activating a Table
 
 An Operator and an Application have the ability to Load the contents of
 a Table Image with values specified in a file. Applications also have
@@ -2405,7 +2473,7 @@ convinced that the Table is configured correctly, the Table is
 "Activated" which causes the contents of the Active Table Image to be
 replaced by the contents of the Inactive Table Image.
 
-##### 8.1.5 Dumping a Table
+### 8.1.5 Dumping a Table
 
 An Operator has the ability to command Table Services to make a Table
 Dump File. The current contents of the Active Table Image are written to
@@ -2417,7 +2485,7 @@ data structure as a dump only table, when registering the table. No
 buffers are allocated for this capability. This capability was added to
 support heritage flight software.
 
-##### 8.1.6 Validating a Table
+### 8.1.6 Validating a Table
 
 An Operator can validate the contents of a table. When the operator
 chooses a Table Image, either the Active or the Inactive, as a Table to
@@ -2431,7 +2499,7 @@ bounds and are logically coherent. The result of this check is combined
 with the Data Integrity Check Value calculated earlier and reported to
 the ground in the Table Services Housekeeping Telemetry Packet.
 
-#### 8.2 Registering Tables
+## 8.2 Registering Tables
 
 In order for an Application to make use of the features of a Table, it
 must first request that a Table Image be created. This is done through
@@ -2473,9 +2541,9 @@ because tables are not intended to serve as a communication mechanism between
 applications - table sharing increases the coupling between applications and
 should only be done when necessary.
 
-#### 8.3 Accessing Table Data
+## 8.3 Accessing Table Data
 
-##### 8.3.1 Acquiring Table Data
+### 8.3.1 Acquiring Table Data
 
 Once an Application has acquired the Table Handle for a particular Table
 (either via the CFE_TBL_Register API or the CFE_TBL_Share API), the
@@ -2522,7 +2590,7 @@ CFE_TBL_GetAddresses call is that an error in any one table will
 return an error code that will be difficult to associate with a
 particular table.
 
-##### 8.3.2 Releasing Table Data
+### 8.3.2 Releasing Table Data
 
 Once an Application is done accessing its Table Data, it must release
 the pointers it obtained with the CFE_TBL_ReleaseAddress or
@@ -2533,7 +2601,7 @@ Application does not release its allocated pointers. For an example of
 acquiring and releasing Table pointers, see the example above in Section
 8.3.1.
 
-#### 8.4 Managing a Table
+## 8.4 Managing a Table
 
 Each Application is required to perform some activities to allow the
 operators an opportunity to validate the table's contents and to change
@@ -2542,7 +2610,7 @@ are used by an Application to perform these management duties. These
 APIs are CFE_TBL_GetStatus, CFE_TBL_Validate, CFE_TBL_Update and
 CFE_TBL_Manage.
 
-##### 8.4.1 Validating Table Data
+### 8.4.1 Validating Table Data
 
 When an outside entity loads a new image for a table, they may wish to
 validate the table contents prior to activating the table for usage. The
@@ -2615,7 +2683,7 @@ Table Validation Request has been made as shown below:
 }
 ```
 
-##### 8.4.2 Loading/Updating Table Data
+### 8.4.2 Loading/Updating Table Data
 
 An Application has control of when the contents of the Table are updated
 within its execution cycle. If an Application wishes to change the
@@ -2678,7 +2746,7 @@ Table Image waiting to be activated. The Application performs this
 update when it feels the time is right by calling the CFE_TBL_Update
 API.
 
-##### 8.4.3 Simplifying Table Management
+### 8.4.3 Simplifying Table Management
 
 The example shown in Section 8.4.1 can be tedious to implement for every
 table an Application has created. Therefore, the Table Services API has
@@ -2696,7 +2764,7 @@ Telemetry Request cycle, for example, to keep the management at a
 reasonable level with a reasonable amount of lag in its response to
 Operation requests for table validations and activations.
 
-#### 8.5 Typical File Organization for Tables
+## 8.5 Typical File Organization for Tables
 
 A typical layout of table-related files within an application (xx) is shown
 below. Note that this does not show all of an application's files, just those
@@ -2732,7 +2800,7 @@ The xx_table1.c file is the source code for a table itself.
 The xx_platform_cfg.h file contains configuration parameters for applications,
 and there are typically several configuration parameters associated with tables.
 
-##### 8.5.1 Table Files Example
+### 8.5.1 Table Files Example
 
 ```
 FILE: xx_app.h
@@ -2868,7 +2936,7 @@ FILE: xx_platform_cfg.h
 #define XX_TABLE_ENTRY_COUNT   3
 
 ```
-#### 8.6 Building Tables  
+## 8.6 Building Tables  
 
 In order to build application tables with the CMake build system, the
 "add_cfe_tables" command needs to be added to the CMakeLists.txt file.  If the
@@ -2884,7 +2952,7 @@ add_cfe_tables(xx ${APP_TABLE_FILES})
 
 ```
 
-#### 8.7 Best Practices for using Table Services
+## 8.7 Best Practices for using Table Services
 
 The following are recommended "best practices" for applications using table
 services.
@@ -2906,7 +2974,7 @@ writing data to a file, reference the *OS Abstraction Layer Library* document.
 The File Service API is concerned mostly with handling of the cFE File Service
 standard file header.
 
-#### 9.1 Standard File Header
+## 9.1 Standard File Header
 
 The structure of the standard file header is as follows:
 
@@ -2956,7 +3024,7 @@ when the header was created.
 The Description field provides a brief ASCII description of the contents
 of the file.
 
-#### 9.2 Accessing and Modifying the Standard File Header
+## 9.2 Accessing and Modifying the Standard File Header
 
 File Services provides a few functions for accessing and modifying the
 contents of the standard file header. The first of these is the
@@ -2986,7 +3054,7 @@ CFE_TIME_SysTime_t data format. This function may be useful when time
 tagging experiment data with the time the data was acquired rather than
 the time the file was created.
 
-#### 9.3 Other File Service Utility Functions
+## 9.3 Other File Service Utility Functions
 
 The File Service provides a utility function that can move the file
 pointer associated with a specified file to the first byte of data
@@ -3012,7 +3080,7 @@ The cFE Time Service is an API that allows Applications the ability to
 access, convert and manipulate the current time. The definitions for
 the TIME API are found in cfe_time.h.
 
-#### 10.1 Time Formats
+## 10.1 Time Formats
 
 The cFE Time Service manages time as two 32-bit integers. The first
 integer represents the number of seconds and the second integer
@@ -3032,7 +3100,7 @@ simply a single integer or floating point number, the Time Service
 provides a collection of functions for converting and manipulating time
 in these formats. These functions are described in the sections below.
 
-#### 10.2 Time Values
+## 10.2 Time Values
 
 The cFE Time Service allows each mission to define an Epoch. This is a
 mission's time reference to which a derived number of seconds is added.
@@ -3097,7 +3165,7 @@ Service time values are summarized below.
 
 - UTC (Coordinated Universal Time): TAI - Leap Seconds.
 
-#### 10.3 Basic Time Functions
+## 10.3 Basic Time Functions
 
 The following Time Service API functions are available for obtaining
 time information. Most Developer's will only need one time function,
@@ -3159,7 +3227,7 @@ is CFE_TIME_INVALID, then the Application knows that the
 CFE_TIME_Get... functions are returning a local time that has never
 been synchronized to the primary onboard time base.
 
-#### 10.4 Time Conversion Functions
+## 10.4 Time Conversion Functions
 
 Since working with subseconds as an integer of 2^-32 seconds is
 sometimes cumbersome, the cFE Time Services provides two functions to
@@ -3171,7 +3239,7 @@ The second function, CFE_TIME_Micro2SubSecs, reverses this process and
 can convert an integer within the range of 0 to 999,999 into the
 appropriate number of 2^-32 seconds.
 
-#### 10.5 Time Manipulation Functions
+## 10.5 Time Manipulation Functions
 
 In order to understand what is involved in performing arithmetic on
 time, one must understand that time is represented in the computer in a
@@ -3281,7 +3349,7 @@ standard so as to not cause confusion when a status code is reported. By
 using the standard defined below, each mission should be able to
 generate a unique status code for each condition to be reported.
 
-#### 11.1 Standard Error Codes
+## 11.1 Standard Error Codes
 
 The status code is designed to have the following bit format:
 
