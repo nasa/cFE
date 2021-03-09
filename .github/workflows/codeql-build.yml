@@ -48,9 +48,7 @@ jobs:
       # Build the code
       - name: Build
         run: |
-          make cfe-core
-          make native/default_cpu1/cfe-core/unit-test/
-          make native/default_cpu1/cfe-core/ut-stubs/
+          make -C build/native/default_cpu1 core_api core_private es evs fs msg resourceid sb sbr tbl time
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
