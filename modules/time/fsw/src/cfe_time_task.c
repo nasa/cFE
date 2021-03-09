@@ -197,7 +197,7 @@ void CFE_TIME_TaskMain(void)
 
 int32 CFE_TIME_TaskInit(void)
 {
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
     osal_id_t TimeBaseId;
     osal_id_t TimerId;
 

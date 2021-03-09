@@ -491,7 +491,6 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
 int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    CFE_ES_AppId_t AppId;
     CFE_ES_TaskEntryFuncPtr_t EntryFunc;
     int32 ReturnCode;
     int32 Timeout;
@@ -501,7 +500,6 @@ int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
      */
     ReturnCode = CFE_ES_ERR_APP_REGISTER;
     Timeout = CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC;
-    AppId = CFE_ES_APPID_UNDEFINED;
     EntryFunc = NULL;
 
     while(true)
@@ -512,9 +510,8 @@ int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
         TaskRecPtr = CFE_ES_GetTaskRecordByContext();
         if (TaskRecPtr != NULL)
         {
-            AppId = TaskRecPtr->AppId;
             EntryFunc = TaskRecPtr->EntryFunc;
-            if (CFE_RESOURCEID_TEST_DEFINED(AppId) && EntryFunc != 0)
+            if (CFE_RESOURCEID_TEST_DEFINED(TaskRecPtr->AppId) && EntryFunc != 0)
             {
                 ReturnCode = CFE_SUCCESS;
             }
@@ -1441,8 +1438,6 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
          * of resources are freed.
          */
         CFE_ES_AppRecordSetUsed(AppRecPtr, CFE_RESOURCEID_RESERVED);
-
-        ReturnCode = CFE_SUCCESS;
     }
     else
     {

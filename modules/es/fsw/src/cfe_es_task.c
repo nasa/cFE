@@ -1384,8 +1384,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
                 FileSize += Result;
                 EntryCount ++;
             }
-
-            ++AppRecPtr;
+            
         } /* end for */
 
         OS_close(FileDescriptor);

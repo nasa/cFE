@@ -379,7 +379,6 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
       if ( CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset != true )
       {
          CFE_ES_ResetDataPtr->ResetVars.ResetType = CFE_PSP_RST_TYPE_PROCESSOR;
-         CFE_ES_ResetDataPtr->ResetVars.ResetSubtype = StartSubtype; 
          CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount++;
          
          /*

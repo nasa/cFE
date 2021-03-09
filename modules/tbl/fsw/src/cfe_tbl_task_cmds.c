@@ -1027,7 +1027,7 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
     const CFE_TBL_ActivateCmd_Payload_t *CmdPtr = &data->Payload;
     char                         TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     CFE_TBL_RegistryRec_t       *RegRecPtr;
-    bool                         ValidationStatus = false;
+    bool                         ValidationStatus;
 
     /* Make sure all strings are null terminated before attempting to process them */
     CFE_SB_MessageStringGet(TableName, (char *)CmdPtr->TableName, NULL,

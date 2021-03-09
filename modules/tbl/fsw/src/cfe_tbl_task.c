@@ -144,7 +144,7 @@ void CFE_TBL_TaskMain(void)
 
 int32 CFE_TBL_TaskInit(void)
 {
-    int32 Status = CFE_SUCCESS;
+    int32 Status;
 
     /*
     ** Register Table Services with ES

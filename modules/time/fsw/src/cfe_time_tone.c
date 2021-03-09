@@ -1461,7 +1461,7 @@ void CFE_TIME_Local1HzTask(void)
 
 void  CFE_TIME_NotifyTimeSynchApps(void)
 {
-    uint32      i = 0;
+    uint32      i;
     CFE_TIME_SynchCallbackPtr_t Func;
 
     /*

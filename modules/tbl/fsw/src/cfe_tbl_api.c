@@ -55,8 +55,8 @@ int32 CFE_TBL_Register( CFE_TBL_Handle_t *TblHandlePtr,
     CFE_TBL_LoadBuff_t         *WorkingBufferPtr;
     CFE_TBL_CritRegRec_t       *CritRegRecPtr = NULL;
     int32                       Status;
-    size_t                      NameLen = 0;
-    int16                       RegIndx = -1;
+    size_t                      NameLen;
+    int16                       RegIndx;
     CFE_ES_AppId_t              ThisAppId;
     char                        AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
     char                        TblName[CFE_TBL_MAX_FULL_NAME_LEN] = {""};
@@ -518,7 +518,7 @@ int32 CFE_TBL_Share( CFE_TBL_Handle_t *TblHandlePtr,
 {
     int32   Status;
     CFE_ES_AppId_t  ThisAppId;
-    int16   RegIndx = CFE_TBL_NOT_FOUND;
+    int16   RegIndx;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
     char    AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
@@ -1507,7 +1507,7 @@ int32 CFE_TBL_Modified( CFE_TBL_Handle_t TblHandle )
     CFE_TBL_RegistryRec_t      *RegRecPtr = NULL;
     CFE_TBL_Handle_t            AccessIterator;
     CFE_ES_AppId_t              ThisAppId;
-    size_t                      FilenameLen = 0;
+    size_t                      FilenameLen;
 
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_ValidateAccess(TblHandle, &ThisAppId);

@@ -755,7 +755,6 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
     osal_id_t SysQueueId;
 
     PendingEventID = 0;
-    Status = CFE_SUCCESS;
     SysQueueId = OS_OBJECT_ID_UNDEFINED;
 
     if(PipeName == NULL || PipeIdPtr == NULL)

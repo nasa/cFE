@@ -437,7 +437,7 @@ static inline volatile CFE_TIME_ReferenceState_t *CFE_TIME_GetReferenceState(voi
 ** Function prototypes (process time at the tone signal and data packet)...
 */
 void CFE_TIME_ToneSignal(void);
-void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *Packet);
+void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd);
 void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);
 void CFE_TIME_ToneUpdate(void);
 
