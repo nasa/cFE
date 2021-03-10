@@ -76,11 +76,7 @@ function(add_psp_module MOD_NAME MOD_SRC_FILES)
   
   target_compile_definitions(${MOD_NAME} PRIVATE 
     _CFE_PSP_MODULE_
-  #  $<TARGET_PROPERTY:psp_module_api,INTERFACE_COMPILE_DEFINITIONS>
   )
-  #target_include_directories(${MOD_NAME} PRIVATE
-  #  $<TARGET_PROPERTY:psp_module_api,INTERFACE_INCLUDE_DIRECTORIES>
-  #)
 
 endfunction(add_psp_module)
 

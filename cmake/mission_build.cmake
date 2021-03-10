@@ -280,21 +280,22 @@ function(prepare)
   # have the documentation associated with each macro definition.
   configure_file("${osal_MISSION_DIR}/osconfig.h.in"
     "${CMAKE_BINARY_DIR}/doc/osconfig-example.h")
-    
+  
   # The user guide should include the doxygen from the _public_ API files from CFE + OSAL
   # NOTE: the userguide is built against the headers of the default core apps. Even if
   # an alternate version of the module is in use, it should adhere to the same interface.
-  file(GLOB MISSION_USERGUIDE_HEADERFILES 
-    "${es_MISSION_DIR}/fsw/inc/*.h"
-    "${evs_MISSION_DIR}/fsw/inc/*.h"
-    "${fs_MISSION_DIR}/fsw/inc/*.h"
-    "${sb_MISSION_DIR}/fsw/inc/*.h"
-    "${tbl_MISSION_DIR}/fsw/inc/*.h"
-    "${time_MISSION_DIR}/fsw/inc/*.h"
+  set(SUBMODULE_HEADER_PATHS
     "${osal_MISSION_DIR}/src/os/inc/*.h"
     "${psp_MISSION_DIR}/psp/fsw/inc/*.h"
+  )
+  foreach(MODULE core_api es evs fs msg sb tbl time)
+    list(APPEND SUBMODULE_HEADER_PATHS "${${MODULE}_MISSION_DIR}/fsw/inc/*.h")
+  endforeach()
+  file(GLOB MISSION_USERGUIDE_HEADERFILES 
+    ${SUBMODULE_HEADER_PATHS}
     "${CMAKE_BINARY_DIR}/doc/osconfig-example.h"
   )
+    
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}") 
 
   # OSAL API GUIDE include PUBLIC API
