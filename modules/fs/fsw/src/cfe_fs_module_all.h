@@ -36,6 +36,7 @@
 */
 #include "cfe.h"
 #include "cfe_fs_priv.h"
+#include "cfe_fs_core_internal.h"
 
 
 #endif /* CFE_FS_MODULE_ALL_H */

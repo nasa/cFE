@@ -345,38 +345,6 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg);
 
 /**@}*/
 
-
-/*
- * The internal APIs prototyped within this block are only intended to be invoked from 
- * other CFE core apps.  They still need to be prototyped in the shared header such that
- * they can be called from other core modules, but applications should not call these.
- */
-#ifdef _CFE_CORE_
-
-/** @defgroup CFEAPIFSCoreInternal cFE Internal File Service APIs, internal to CFE core
- * @{
- */
-
-/*****************************************************************************/
-/**
-** \brief Initializes the cFE core module API Library
-**
-** \par Description
-**        Initializes the cFE core module API Library
-**
-** \par Assumptions, External Events, and Notes:
-**        -# This function MUST be called before any module API's are called.
-**
-******************************************************************************/
-extern int32 CFE_FS_EarlyInit(void);
-
-
-/**@}*/
-
-#endif /* _CFE_CORE_ */
-
-
-
 #endif /* _cfe_fs_ */
 
 /************************/

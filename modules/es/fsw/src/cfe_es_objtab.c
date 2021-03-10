@@ -38,6 +38,13 @@
 */
 #include "cfe_es_module_all.h"
 
+/* Init functions from other modules are in separate headers */
+#include "cfe_evs_core_internal.h"
+#include "cfe_fs_core_internal.h"
+#include "cfe_sb_core_internal.h"
+#include "cfe_tbl_core_internal.h"
+#include "cfe_time_core_internal.h"
+
 /*
 **
 ** ES_object_table

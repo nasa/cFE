@@ -39,6 +39,8 @@
 #include "cfe_msgids.h"
 #include "cfe_perfids.h"
 
+#include "cfe_time_core_internal.h"
+
 #include "cfe_time_msg.h"
 #include "cfe_time_events.h"
 #include "cfe_time_utils.h"

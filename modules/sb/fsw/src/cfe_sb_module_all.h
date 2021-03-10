@@ -39,6 +39,8 @@
 #include "cfe_msgids.h"
 #include "cfe_perfids.h"
 
+#include "cfe_sb_core_internal.h"
+
 #include "cfe_sb_priv.h"
 #include "cfe_sb_events.h"
 #include "cfe_sb_destination_typedef.h"

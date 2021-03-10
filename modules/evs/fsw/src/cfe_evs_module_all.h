@@ -39,6 +39,8 @@
 #include "cfe_msgids.h"
 #include "cfe_perfids.h"
 
+#include "cfe_evs_core_internal.h"
+
 #include "cfe_evs_events.h"   /* EVS event IDs */
 #include "cfe_evs_task.h"     /* EVS internal definitions */
 #include "cfe_evs_log.h"      /* EVS log file definitions */

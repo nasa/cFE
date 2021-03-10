@@ -40,6 +40,7 @@
 #include "cfe_msgids.h"
 #include "cfe_perfids.h"
 
+#include "cfe_es_core_internal.h"
 #include "cfe_es_apps.h"
 #include "cfe_es_cds.h"
 #include "cfe_es_perf.h"

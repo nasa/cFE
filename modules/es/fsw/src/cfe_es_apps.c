@@ -38,6 +38,11 @@
 */
 #include "cfe_es_module_all.h"
 
+#include "cfe_evs_core_internal.h"
+#include "cfe_sb_core_internal.h"
+#include "cfe_tbl_core_internal.h"
+#include "cfe_time_core_internal.h"
+
 #include <stdio.h>
 #include <string.h> /* memset() */
 #include <fcntl.h>
