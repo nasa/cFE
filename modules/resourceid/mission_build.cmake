@@ -18,7 +18,7 @@ endif ()
 # Generate the header definition files, use local default for this module)
 generate_config_includefile(
     FILE_NAME           "cfe_resourceid_typedef.h" 
-    FALLBACK_FILE       "${CMAKE_CURRENT_LIST_DIR}/option/${RESOURCEID_HDR_FILE}"
+    FALLBACK_FILE       "${CMAKE_CURRENT_LIST_DIR}/option_inc/${RESOURCEID_HDR_FILE}"
 )
 
 # Resource ID base value header
@@ -26,7 +26,7 @@ generate_config_includefile(
 # but missions can provide their own if desired to override this.
 generate_config_includefile(
     FILE_NAME           "cfe_resourceid_basevalue.h" 
-    FALLBACK_FILE       "${CMAKE_CURRENT_LIST_DIR}/option/cfe_resourceid_osal_compatible.h"
+    FALLBACK_FILE       "${CMAKE_CURRENT_LIST_DIR}/option_inc/cfe_resourceid_osal_compatible.h"
 )
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/inc)

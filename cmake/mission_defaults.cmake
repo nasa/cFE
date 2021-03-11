@@ -10,8 +10,16 @@
 # The "MISSION_CORE_MODULES" will be built and statically linked as part
 # of the CFE core executable on every target.  These can be used to amend
 # or override parts of the CFE core on a mission-specific basis.
+# The "intf" modules are headers only, and define the interface(s) between components
 set(MISSION_CORE_MODULES 
-    "cfe-core" 
+    "core_api"  
+    "core_private"  
+    "es" 
+    "evs" 
+    "fs" 
+    "sb" 
+    "tbl" 
+    "time" 
     "osal"
     "psp"
     "msg"
@@ -45,7 +53,6 @@ set(MISSION_MODULE_SEARCH_PATH
 # a variable named "<component>_SEARCH_PATH".  This is
 # used for locating cfe-core and osal which are not part
 # of the standard search path.
-set(cfe-core_SEARCH_PATH "cfe/fsw")
 set(osal_SEARCH_PATH ".")
 set(psp_SEARCH_PATH ".")
 

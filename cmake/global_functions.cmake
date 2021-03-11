@@ -264,39 +264,3 @@ function(read_targetconfig)
   endforeach(SYSVAR ${TGTSYS_LIST})
   
 endfunction(read_targetconfig)
-
-##################################################################
-#
-# FUNCTION: get_current_cflags
-#
-# Convert the input string, which is a simple text string of compiler flags such
-# as CMAKE_C_FLAGS or CMAKE_CXX_FLAGS, and convert it to a list of individual options
-#
-# In addition, the "-I" options from include_directories() and -D options from 
-# add_definitions() will be added to the output list.  The contents of these will be
-# obtained via the properities of the current source directory. 
-#
-function(get_current_cflags OUTPUT_LIST)
-
-  # Start by converting the supplied string to a list 
-  set(FLAGLIST)
-  foreach (FLGSTR ${ARGN})
-    string(REGEX REPLACE " +" ";" TEMPFLG ${FLGSTR})
-    list(APPEND FLAGLIST ${TEMPFLG})
-  endforeach (FLGSTR ${ARGN})
-  
-  # Append any compile definitions from the directory properties
-  get_directory_property(CURRENT_DEFS COMPILE_DEFINITIONS)
-  foreach(DEF ${CURRENT_DEFS})
-    list(APPEND FLAGLIST "-D${DEF}")
-  endforeach(DEF ${CURRENT_DEFS})
-  
-  # Append any include directories from the directory properties
-  get_directory_property(CURRENT_INCDIRS INCLUDE_DIRECTORIES)
-  foreach(INC ${CURRENT_INCDIRS})
-    list(APPEND FLAGLIST "-I${INC}")
-  endforeach(INC ${CURRENT_INCDIRS})
-
-  set(${OUTPUT_LIST} ${FLAGLIST} PARENT_SCOPE)
-  
-endfunction(get_current_cflags OUTPUT_LIST INPUT_FLAGS)

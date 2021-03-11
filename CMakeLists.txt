@@ -51,9 +51,10 @@ set(CMAKE_LEGACY_CYGWIN_WIN32 0)
 # (this is not required, and the directory can be empty/nonexistent)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../psp/cmake/Modules" ${CMAKE_MODULE_PATH})
 
-# The minimum CMake version is chosen because 2.6.4 is what is
-# included by default with RHEL/Centos 5.x
-cmake_minimum_required(VERSION 2.6.4)
+# The minimum CMake version is chosen because v3.5.1 is what is
+# available by default with Ubuntu 16.04 LTS at the time of development
+# RHEL/CentOS users should install the "cmake3" package from EPEL repo 
+cmake_minimum_required(VERSION 3.5)
 
 # This top-level file does not define ANY targets directly but we know
 # that the subdirectories will at least use the "C" language, so
