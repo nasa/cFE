@@ -51,39 +51,42 @@
 /*
 ** Structures
 */
-typedef struct {
-     CFE_MSG_CommandHeader_t Hdr;
-     uint32                  Cmd32Param1;
-     uint16                  Cmd16Param1;
-     uint16                  Cmd16Param2;
-     uint8                   Cmd8Param1;
-     uint8                   Cmd8Param2;
-     uint8                   Cmd8Param3;
-     uint8                   Cmd8Param4;
+typedef struct
+{
+    CFE_MSG_CommandHeader_t Hdr;
+    uint32                  Cmd32Param1;
+    uint16                  Cmd16Param1;
+    uint16                  Cmd16Param2;
+    uint8                   Cmd8Param1;
+    uint8                   Cmd8Param2;
+    uint8                   Cmd8Param3;
+    uint8                   Cmd8Param4;
 } SB_UT_Test_Cmd_t;
 
-typedef struct {
-     CFE_MSG_TelemetryHeader_t Hdr;
-     uint32                    Tlm32Param1;
-     uint16                    Tlm16Param1;
-     uint16                    Tlm16Param2;
-     uint8                     Tlm8Param1;
-     uint8                     Tlm8Param2;
-     uint8                     Tlm8Param3;
-     uint8                     Tlm8Param4;
+typedef struct
+{
+    CFE_MSG_TelemetryHeader_t Hdr;
+    uint32                    Tlm32Param1;
+    uint16                    Tlm16Param1;
+    uint16                    Tlm16Param2;
+    uint8                     Tlm8Param1;
+    uint8                     Tlm8Param2;
+    uint8                     Tlm8Param3;
+    uint8                     Tlm8Param4;
 } SB_UT_Test_Tlm_t;
 
-typedef struct {
-     CFE_MSG_Message_t Pri;
-     uint8             Tlm8Param1;
-     uint8             Tlm8Param2;
-     uint32            Tlm32Param1;
-     uint16            Tlm16Param1;
-     uint16            Tlm16Param2;
+typedef struct
+{
+    CFE_MSG_Message_t Pri;
+    uint8             Tlm8Param1;
+    uint8             Tlm8Param2;
+    uint32            Tlm32Param1;
+    uint16            Tlm16Param1;
+    uint16            Tlm16Param2;
 } SB_UT_TstPktWoSecHdr_t;
 
-#define SB_UT_CMD_MID_VALUE_BASE    CFE_PLATFORM_CMD_MID_BASE + 1
-#define SB_UT_TLM_MID_VALUE_BASE    CFE_PLATFORM_TLM_MID_BASE + 1
+#define SB_UT_CMD_MID_VALUE_BASE CFE_PLATFORM_CMD_MID_BASE + 1
+#define SB_UT_TLM_MID_VALUE_BASE CFE_PLATFORM_TLM_MID_BASE + 1
 
 /* SB unit test functions */
 /*****************************************************************************/
@@ -2415,7 +2418,6 @@ void Test_ReceiveBuffer_UnsubResubPath(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_MessageString(void);
-
 
 void Test_SB_Macros(void);
 

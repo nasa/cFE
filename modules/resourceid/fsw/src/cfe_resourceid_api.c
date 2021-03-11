@@ -41,7 +41,6 @@
 #include "cfe_resourceid.h"
 #include "cfe_resourceid_basevalue.h"
 
-
 /*********************************************************************/
 /*
  * CFE_ResourceId_GetBase
@@ -63,7 +62,6 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId)
 {
     return (CFE_ResourceId_ToInteger(ResourceId) & ((uint32)CFE_RESOURCEID_MAX));
 }
-
 
 /*********************************************************************/
 /*
@@ -97,7 +95,8 @@ int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 Table
  *
  * For complete API information, see prototype in header
  */
-CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize, bool (*CheckFunc)(CFE_ResourceId_t))
+CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
+                                         bool (*CheckFunc)(CFE_ResourceId_t))
 {
     uint32           Serial;
     uint32           Count;

@@ -32,7 +32,6 @@
 **
 */
 
-
 #ifndef _cfe_es_apps_
 #define _cfe_es_apps_
 
@@ -47,7 +46,7 @@
 /*
 ** Macro Definitions
 */
-#define CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE      8
+#define CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE 8
 
 /*
 ** Type Definitions
@@ -60,11 +59,10 @@
 */
 typedef struct
 {
-    uint32     AppControlRequest;   /* What the App should be doing next */
-    int32      AppTimerMsec;        /* Countdown timer for killing an app, in milliseconds */
+    uint32 AppControlRequest; /* What the App should be doing next */
+    int32  AppTimerMsec;      /* Countdown timer for killing an app, in milliseconds */
 
 } CFE_ES_ControlReq_t;
-
 
 /*
 ** CFE_ES_ModuleLoadParams_t contains the information used when a module
@@ -79,8 +77,8 @@ typedef struct
 */
 typedef struct
 {
-    char                  InitSymbolName[OS_MAX_API_NAME];
-    char                  FileName[OS_MAX_PATH_LEN];
+    char InitSymbolName[OS_MAX_API_NAME];
+    char FileName[OS_MAX_PATH_LEN];
 
 } CFE_ES_ModuleLoadParams_t;
 
@@ -93,25 +91,23 @@ typedef struct
 */
 typedef struct
 {
-    osal_id_t             ModuleId;
-    cpuaddr               InitSymbolAddress;
+    osal_id_t ModuleId;
+    cpuaddr   InitSymbolAddress;
 
 } CFE_ES_ModuleLoadStatus_t;
 
-
 /*
 ** CFE_ES_TaskStartParams_t contains basic details about a CFE task
-** 
+**
 ** This information needs to be specified when starting a task and is
 ** stored as part of the task record for future reference.
 */
 typedef struct
 {
-    size_t                          StackSize;
-    CFE_ES_TaskPriority_Atom_t      Priority;
+    size_t                     StackSize;
+    CFE_ES_TaskPriority_Atom_t Priority;
 
 } CFE_ES_TaskStartParams_t;
-
 
 /*
 ** CFE_ES_AppStartParams_t contains basic details about a CFE app.
@@ -132,7 +128,6 @@ typedef struct
 
 } CFE_ES_AppStartParams_t;
 
-
 /*
 ** CFE_ES_AppRecord_t is an internal structure used to keep track of
 ** CFE Applications that are active in the system.
@@ -149,7 +144,6 @@ typedef struct
     CFE_ES_TaskId_t           MainTaskId;               /* The Application's Main Task ID */
 
 } CFE_ES_AppRecord_t;
-
 
 /*
 ** CFE_ES_TaskRecord_t is an internal structure used to keep track of
@@ -190,8 +184,6 @@ typedef struct
     uint8  LastScanCommandCount;
 } CFE_ES_AppTableScanState_t;
 
-
-
 /*****************************************************************************/
 /*
 ** Function prototypes
@@ -200,7 +192,7 @@ typedef struct
 /*
 ** Internal function start applications based on the startup script
 */
-void  CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath );
+void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath);
 
 /*
 ** Internal function to parse/execute a line of the cFE application startup 'script'
@@ -212,7 +204,8 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
 ** This only loads the code and looks up relevent runtime information.
 ** It does not start any tasks.
 */
-int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName, const CFE_ES_ModuleLoadParams_t* LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
+int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
+                        const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
 
 /*
 ** Internal function to determine the entry point of an app.
@@ -231,7 +224,8 @@ void CFE_ES_TaskEntryPoint(void);
 /*
 ** Internal function to start a task associated with an app.
 */
-int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc, const CFE_ES_TaskStartParams_t* Params, CFE_ES_AppId_t ParentAppId);
+int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc,
+                          const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId);
 
 /*
 ** Internal function to create/start a new cFE app
@@ -262,7 +256,8 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
 /*
  * Background file write event handler for ER log entry
  */
-void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position);
+void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
+                                            size_t BlockSize, size_t Position);
 
 /*
 ** Perform the requested control action for an application
@@ -278,7 +273,6 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId);
 ** Clean up all Task resources and detete the task
 */
 int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId);
-
 
 /*
 **---------------------------------------------------------------------------------------
@@ -307,5 +301,4 @@ void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE
 */
 void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoPtr);
 
-
-#endif  /* _cfe_es_apps_ */
+#endif /* _cfe_es_apps_ */

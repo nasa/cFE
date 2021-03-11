@@ -19,11 +19,11 @@
 */
 
 /*
-**  File: 
+**  File:
 **  cfe_es_generic_pool.h
 **
 **  Purpose:
-**  This file contains the Internal interface for the cFE Critical Data Store 
+**  This file contains the Internal interface for the cFE Critical Data Store
 **  memory pool functions.
 **
 **  References:
@@ -33,7 +33,6 @@
 **  Notes:
 **
 */
-
 
 #ifndef cfe_es_generic_pool_h
 #define cfe_es_generic_pool_h
@@ -46,12 +45,12 @@
 /*
 ** Macro Definitions
 */
-#define CFE_ES_CHECK_PATTERN           ((uint16)0x5a5a)
-#define CFE_ES_MEMORY_ALLOCATED        ((uint16)0xaaaa)
-#define CFE_ES_MEMORY_DEALLOCATED      ((uint16)0xdddd)
+#define CFE_ES_CHECK_PATTERN      ((uint16)0x5a5a)
+#define CFE_ES_MEMORY_ALLOCATED   ((uint16)0xaaaa)
+#define CFE_ES_MEMORY_DEALLOCATED ((uint16)0xdddd)
 
-
-#define CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE sizeof(CFE_ES_GenPoolBD_t)  /* amount of space to reserve with every allocation */
+#define CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE \
+    sizeof(CFE_ES_GenPoolBD_t) /* amount of space to reserve with every allocation */
 
 /*
 ** Type Definitions
@@ -59,20 +58,19 @@
 
 typedef struct CFE_ES_GenPoolBD
 {
-  uint16    CheckBits;              /**< Set to a fixed bit pattern after init */
-  uint16    Allocated;              /**< Set to a bit pattern depending on allocation state */
-  size_t    ActualSize;             /**< The actual requested size of the block */
-  size_t    NextOffset;             /**< The offset of the next descriptor in the free stack */
+    uint16 CheckBits;  /**< Set to a fixed bit pattern after init */
+    uint16 Allocated;  /**< Set to a bit pattern depending on allocation state */
+    size_t ActualSize; /**< The actual requested size of the block */
+    size_t NextOffset; /**< The offset of the next descriptor in the free stack */
 } CFE_ES_GenPoolBD_t;
-
 
 typedef struct CFE_ES_GenPoolBucket
 {
-    size_t  BlockSize;
-    size_t  FirstOffset;            /**< Top of the "free stack" of buffers which have been returned */
-    uint32  AllocationCount;        /**< Total number of buffers of this block size that exist (initial get) */
-    uint32  ReleaseCount;           /**< Total number of buffers that have been released (put back) */
-    uint32  RecycleCount;           /**< Total number of buffers that have been recycled (get after put) */
+    size_t BlockSize;
+    size_t FirstOffset;     /**< Top of the "free stack" of buffers which have been returned */
+    uint32 AllocationCount; /**< Total number of buffers of this block size that exist (initial get) */
+    uint32 ReleaseCount;    /**< Total number of buffers that have been released (put back) */
+    uint32 RecycleCount;    /**< Total number of buffers that have been recycled (get after put) */
 } CFE_ES_GenPoolBucket_t;
 
 /*
@@ -88,8 +86,8 @@ typedef struct CFE_ES_GenPoolRecord CFE_ES_GenPoolRecord_t;
  * the descriptor data.  On memory mapped pools it may output a direct
  * pointer to the data instead of copying it.
  */
-typedef int32 (*CFE_ES_PoolRetrieve_Func_t)(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        size_t Offset, CFE_ES_GenPoolBD_t **BdPtr);
+typedef int32 (*CFE_ES_PoolRetrieve_Func_t)(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
+                                            CFE_ES_GenPoolBD_t **BdPtr);
 
 /**
  * \brief Function to commit a buffer descriptor to the pool storage
@@ -98,27 +96,26 @@ typedef int32 (*CFE_ES_PoolRetrieve_Func_t)(CFE_ES_GenPoolRecord_t *PoolRecPtr,
  * directly accessed as memory.  This routine writes data back to pool
  * storage.  It may be a no-op for memory mapped pools.
  */
-typedef int32 (*CFE_ES_PoolCommit_Func_t)(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr);
-
+typedef int32 (*CFE_ES_PoolCommit_Func_t)(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
+                                          const CFE_ES_GenPoolBD_t *BdPtr);
 
 /**
  * \brief Generic Memory Pool Type
  */
 struct CFE_ES_GenPoolRecord
 {
-    size_t PoolTotalSize;   /**< Total size of the pool area, in bytes */
-    size_t PoolMaxOffset;   /**< End offset (position) of the pool */
-    size_t AlignMask;       /**< Alignment mask applied to all new allocations */
-    size_t TailPosition;    /**< Current high watermark of the pool, end of last allocation */
+    size_t PoolTotalSize; /**< Total size of the pool area, in bytes */
+    size_t PoolMaxOffset; /**< End offset (position) of the pool */
+    size_t AlignMask;     /**< Alignment mask applied to all new allocations */
+    size_t TailPosition;  /**< Current high watermark of the pool, end of last allocation */
 
-    CFE_ES_PoolRetrieve_Func_t Retrieve;  /**< Function to access a buffer descriptor in the pool storage */
-    CFE_ES_PoolCommit_Func_t   Commit;    /**< Function to commit a buffer descriptor to the pool storage */
+    CFE_ES_PoolRetrieve_Func_t Retrieve; /**< Function to access a buffer descriptor in the pool storage */
+    CFE_ES_PoolCommit_Func_t   Commit;   /**< Function to commit a buffer descriptor to the pool storage */
 
-    uint32  AllocationCount;        /**< Total number of block allocations of any size */
-    uint32  ValidationErrorCount;   /**< Count of validation errors */
+    uint32 AllocationCount;      /**< Total number of block allocations of any size */
+    uint32 ValidationErrorCount; /**< Count of validation errors */
 
-    uint16                 NumBuckets;   /**< Number of entries in the "Buckets" array that are valid */
+    uint16                 NumBuckets; /**< Number of entries in the "Buckets" array that are valid */
     CFE_ES_GenPoolBucket_t Buckets[CFE_PLATFORM_ES_POOL_MAX_BUCKETS]; /**< Bucket States */
 };
 
@@ -144,14 +141,9 @@ struct CFE_ES_GenPoolRecord
  *
  * \return #CFE_SUCCESS, or error code \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        size_t                      StartOffset,
-        size_t                      PoolSize,
-        size_t                      AlignSize,
-        uint16                      NumBlockSizes,
-        const size_t               *BlockSizeList,
-        CFE_ES_PoolRetrieve_Func_t  RetrieveFunc,
-        CFE_ES_PoolCommit_Func_t    CommitFunc);
+int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartOffset, size_t PoolSize,
+                               size_t AlignSize, uint16 NumBlockSizes, const size_t *BlockSizeList,
+                               CFE_ES_PoolRetrieve_Func_t RetrieveFunc, CFE_ES_PoolCommit_Func_t CommitFunc);
 
 /**
  * \brief Gets a block from the pool
@@ -165,9 +157,7 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr,
  *
  * \return #CFE_SUCCESS, or error code \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        size_t         *BlockOffsetPtr,
-        size_t          ReqSize);
+int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOffsetPtr, size_t ReqSize);
 
 /**
  * \brief Returns a block to the pool
@@ -181,9 +171,7 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr,
  *
  * \return #CFE_SUCCESS, or error code \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        size_t         *BlockSizePtr,
-        size_t          BlockOffset);
+int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset);
 
 /**
  * \brief Rebuild list of free blocks in pool
@@ -217,9 +205,7 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr);
  *
  * \return #CFE_SUCCESS, or error code \ref CFEReturnCodes
  */
-int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        size_t         *BlockSizePtr,
-        size_t          BlockOffset);
+int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset);
 
 /**
  * \brief Validate a pool structure
@@ -241,18 +227,17 @@ bool CFE_ES_GenPoolValidateState(const CFE_ES_GenPoolRecord_t *PoolRecPtr);
  * \param[out] FreeSizeBuf    Buffer to store free size
  * \param[out] TotalSizeBuf   Buffer to store total size
  *
- * \note This function is intended for telemetry purposes, so it 
- * uses the message size type (CFE_ES_MemOffset_t) rather 
- * than size_t, to be compatible with the type used in telemetry 
+ * \note This function is intended for telemetry purposes, so it
+ * uses the message size type (CFE_ES_MemOffset_t) rather
+ * than size_t, to be compatible with the type used in telemetry
  * messages.
  */
-void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        CFE_ES_MemOffset_t *FreeSizeBuf,
-        CFE_ES_MemOffset_t *TotalSizeBuf);
+void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t *FreeSizeBuf,
+                            CFE_ES_MemOffset_t *TotalSizeBuf);
 
 /**
  * \brief Query counters associated with the pool structure
- * 
+ *
  * Obtain pool counters for telemetry/statistics reporting.
  *
  * \param[in]  PoolRecPtr     Pointer to pool structure
@@ -260,10 +245,8 @@ void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr,
  * \param[out] AllocCountBuf  Buffer to store allocation count
  * \param[out] ValidationErrorCountBuf  Buffer to store validation error count
  */
-void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr,
-        uint16             *NumBucketsBuf,
-        uint32             *AllocCountBuf,
-        uint32             *ValidationErrorCountBuf);
+void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 *NumBucketsBuf, uint32 *AllocCountBuf,
+                             uint32 *ValidationErrorCountBuf);
 
 /**
  * \brief Query bucket-specific usage of the pool structure
@@ -277,7 +260,7 @@ void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr,
  * \param[out] BlockStatsBuf  Buffer to store block stats
  */
 void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId,
-        CFE_ES_BlockStats_t *BlockStatsBuf);
+                                  CFE_ES_BlockStats_t *BlockStatsBuf);
 
 /**
  * \brief Calculate the pool size required for the specified number of blocks
@@ -296,9 +279,6 @@ void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 Buc
  *
  * \return Minimum size required for requested number of blocks.
  */
-size_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes,
-        const size_t             *BlockSizeList,
-        uint32                    NumBlocks);
+size_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes, const size_t *BlockSizeList, uint32 NumBlocks);
 
-#endif  /* _cfe_es_generic_pool_ */
-
+#endif /* _cfe_es_generic_pool_ */

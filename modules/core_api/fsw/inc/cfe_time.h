@@ -35,7 +35,6 @@
 #ifndef _cfe_time_
 #define _cfe_time_
 
-
 /*
 ** Includes
 */
@@ -44,7 +43,6 @@
 #include "cfe_time_api_typedefs.h"
 #include "cfe_es_api_typedefs.h"
 
-
 /**
 ** \brief Time Copy
 **
@@ -52,8 +50,11 @@
 ** Preferred to use this macro as it does not require the two arguments to be exactly the same type,
 ** it will work with any two structures that define "Seconds" and "Subseconds" members.
 */
-#define CFE_TIME_Copy(m,t)   { (m)->Seconds = (t)->Seconds; (m)->Subseconds = (t)->Subseconds; }
-
+#define CFE_TIME_Copy(m, t)                \
+    {                                      \
+        (m)->Seconds    = (t)->Seconds;    \
+        (m)->Subseconds = (t)->Subseconds; \
+    }
 
 /*****************************************************************************/
 /*
@@ -69,11 +70,11 @@
 ** \brief Get the current spacecraft time
 **
 ** \par Description
-**        This routine returns the current spacecraft time.  The time returned 
+**        This routine returns the current spacecraft time.  The time returned
 **        is either TAI (no leap seconds) or UTC (including leap seconds).  This choice
 **        is made in the mission configuration file by defining either #CFE_MISSION_TIME_CFG_DEFAULT_TAI
-**        or #CFE_MISSION_TIME_CFG_DEFAULT_UTC as true at compile time.  To maintain re-usability 
-**        across missions, most applications should be using this function 
+**        or #CFE_MISSION_TIME_CFG_DEFAULT_UTC as true at compile time.  To maintain re-usability
+**        across missions, most applications should be using this function
 **        (or #CFE_TIME_GetTime) rather than the specific routines for getting UTC/TAI directly.
 **
 ** \par Assumptions, External Events, and Notes:
@@ -81,68 +82,68 @@
 **
 ** \return The current spacecraft time in default format
 **
-** \sa #CFE_TIME_GetTAI, #CFE_TIME_GetUTC, #CFE_TIME_GetMET, 
+** \sa #CFE_TIME_GetTAI, #CFE_TIME_GetUTC, #CFE_TIME_GetMET,
 **     #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs
 **
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetTime(void);
+CFE_TIME_SysTime_t CFE_TIME_GetTime(void);
 
 /*****************************************************************************/
 /**
 ** \brief Get the current TAI (MET + SCTF) time
 **
 ** \par Description
-**        This routine returns the current TAI time to the caller.  TAI is an 
-**        international time standard that does not include leap seconds.  
-**        This routine should only be used in situations where TAI is absolutely 
-**        required.  Applications that call #CFE_TIME_GetTAI may not be portable 
-**        to all missions.  Maintenance of correct TAI in flight is not guaranteed 
-**        under all mission operations scenarios.  To maintain re-usability across 
-**        missions, most applications should be using #CFE_TIME_GetTime, rather 
+**        This routine returns the current TAI time to the caller.  TAI is an
+**        international time standard that does not include leap seconds.
+**        This routine should only be used in situations where TAI is absolutely
+**        required.  Applications that call #CFE_TIME_GetTAI may not be portable
+**        to all missions.  Maintenance of correct TAI in flight is not guaranteed
+**        under all mission operations scenarios.  To maintain re-usability across
+**        missions, most applications should be using #CFE_TIME_GetTime, rather
 **        than the specific routines for getting UTC/TAI directly.
 **
 ** \par Assumptions, External Events, and Notes:
-**          -# The "TAI" time returned is referenced to the mission-defined time epoch, 
+**          -# The "TAI" time returned is referenced to the mission-defined time epoch,
 **             which may or may not be the same as the standard TAI epoch.
-**          -# Even though TAI does not include leap seconds, the time returned by this 
-**             function can still jump forward or backward without warning when the 
-**             spacecraft clock is set or adjusted by operators.  Applications using 
+**          -# Even though TAI does not include leap seconds, the time returned by this
+**             function can still jump forward or backward without warning when the
+**             spacecraft clock is set or adjusted by operators.  Applications using
 **             this function must be able to handle these time discontinuities gracefully.
 **
 ** \return The current spacecraft time in TAI
 **
-** \sa #CFE_TIME_GetTime, #CFE_TIME_GetUTC, #CFE_TIME_GetMET, 
+** \sa #CFE_TIME_GetTime, #CFE_TIME_GetUTC, #CFE_TIME_GetMET,
 **     #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs
 **
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetTAI(void);
+CFE_TIME_SysTime_t CFE_TIME_GetTAI(void);
 
 /*****************************************************************************/
 /**
 ** \brief Get the current UTC (MET + SCTF - Leap Seconds) time
 **
 ** \par Description
-**        This routine returns the current UTC time to the caller.  This routine 
-**        should only be used in situations where UTC is absolutely required.  
-**        Applications that call #CFE_TIME_GetUTC may not be portable to all 
-**        missions.  Maintenance of correct UTC in flight is not guaranteed under 
-**        all mission operations scenarios.  If UTC is maintained in flight, it will 
-**        jump backwards occasionally due to leap second adjustments.  To maintain 
-**        re-usability across missions, most applications should be using 
-**        #CFE_TIME_GetTime, rather than the specific routines for getting 
+**        This routine returns the current UTC time to the caller.  This routine
+**        should only be used in situations where UTC is absolutely required.
+**        Applications that call #CFE_TIME_GetUTC may not be portable to all
+**        missions.  Maintenance of correct UTC in flight is not guaranteed under
+**        all mission operations scenarios.  If UTC is maintained in flight, it will
+**        jump backwards occasionally due to leap second adjustments.  To maintain
+**        re-usability across missions, most applications should be using
+**        #CFE_TIME_GetTime, rather than the specific routines for getting
 **        UTC/TAI directly.
 **
 ** \par Assumptions, External Events, and Notes:
-**          Note: The "UTC" time returned is referenced to the mission-defined time epoch, 
+**          Note: The "UTC" time returned is referenced to the mission-defined time epoch,
 **                which may or may not be the same as the standard UTC epoch.
 **
 ** \return The current spacecraft time in UTC
 **
-** \sa #CFE_TIME_GetTime, #CFE_TIME_GetTAI, #CFE_TIME_GetMET, 
+** \sa #CFE_TIME_GetTime, #CFE_TIME_GetTAI, #CFE_TIME_GetMET,
 **     #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs
 **
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetUTC(void);
+CFE_TIME_SysTime_t CFE_TIME_GetUTC(void);
 
 /*****************************************************************************/
 /**
@@ -164,7 +165,7 @@ CFE_TIME_SysTime_t  CFE_TIME_GetUTC(void);
 **     #CFE_TIME_GetMETseconds, #CFE_TIME_GetMETsubsecs, #CFE_TIME_MET2SCTime
 **
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetMET(void);
+CFE_TIME_SysTime_t CFE_TIME_GetMET(void);
 
 /*****************************************************************************/
 /**
@@ -183,7 +184,7 @@ CFE_TIME_SysTime_t  CFE_TIME_GetMET(void);
 **     #CFE_TIME_GetMETsubsecs, #CFE_TIME_MET2SCTime
 **
 ******************************************************************************/
-uint32  CFE_TIME_GetMETseconds(void);
+uint32 CFE_TIME_GetMETseconds(void);
 
 /*****************************************************************************/
 /**
@@ -203,7 +204,7 @@ uint32  CFE_TIME_GetMETseconds(void);
 **     #CFE_TIME_GetMETseconds, #CFE_TIME_MET2SCTime
 **
 ******************************************************************************/
-uint32  CFE_TIME_GetMETsubsecs(void);
+uint32 CFE_TIME_GetMETsubsecs(void);
 /**@}*/
 
 /** @defgroup CFEAPITIMEGetInfo cFE Get Time Information APIs
@@ -215,12 +216,12 @@ uint32  CFE_TIME_GetMETsubsecs(void);
 ** \brief Get the current value of the spacecraft time correction factor (STCF).
 **
 ** \par Description
-**        This routine returns the current value of the spacecraft time correction 
-**        factor.  This is the delta time between the MET and the TAI time.  
-**        Applications cannot set or adjust the STCF; that can only be done 
-**        through ground commands.  However, science applications may want to 
-**        include the STCF in their data products to aid in time correlation 
-**        during downstream science data processing. 
+**        This routine returns the current value of the spacecraft time correction
+**        factor.  This is the delta time between the MET and the TAI time.
+**        Applications cannot set or adjust the STCF; that can only be done
+**        through ground commands.  However, science applications may want to
+**        include the STCF in their data products to aid in time correlation
+**        during downstream science data processing.
 **
 ** \par Assumptions, External Events, and Notes:
 **        Does not include leap seconds
@@ -228,25 +229,25 @@ uint32  CFE_TIME_GetMETsubsecs(void);
 ** \return The current SCTF
 **
 ** \sa #CFE_TIME_GetLeapSeconds, #CFE_TIME_GetClockState, #CFE_TIME_GetClockInfo
-**               
+**
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_GetSTCF(void);
+CFE_TIME_SysTime_t CFE_TIME_GetSTCF(void);
 
 /*****************************************************************************/
 /**
 ** \brief Get the current value of the leap seconds counter.
 **
 ** \par Description
-**        This routine returns the current value of the leap seconds counter.  
-**        This is the delta seconds between international atomic time (TAI) 
-**        and universal coordinated time (UTC).  Applications cannot set or 
-**        adjust the leap seconds; that can only be done through ground commands.  
-**        However, science applications may want to include the leap seconds 
-**        counter in their data products to aid in time correlation during 
-**        downstream science data processing.  Note that some mission operations 
-**        teams do not maintain the leap seconds count, preferring to adjust the 
-**        STCF instead.  Users of this function should check with their mission 
-**        ops team to see how they are planning to handle leap seconds. 
+**        This routine returns the current value of the leap seconds counter.
+**        This is the delta seconds between international atomic time (TAI)
+**        and universal coordinated time (UTC).  Applications cannot set or
+**        adjust the leap seconds; that can only be done through ground commands.
+**        However, science applications may want to include the leap seconds
+**        counter in their data products to aid in time correlation during
+**        downstream science data processing.  Note that some mission operations
+**        teams do not maintain the leap seconds count, preferring to adjust the
+**        STCF instead.  Users of this function should check with their mission
+**        ops team to see how they are planning to handle leap seconds.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -254,19 +255,19 @@ CFE_TIME_SysTime_t  CFE_TIME_GetSTCF(void);
 ** \returns The current spacecraft leap seconds.
 **
 ** \sa #CFE_TIME_GetSTCF, #CFE_TIME_GetClockState, #CFE_TIME_GetClockInfo
-**               
+**
 ******************************************************************************/
-int16   CFE_TIME_GetLeapSeconds(void);
+int16 CFE_TIME_GetLeapSeconds(void);
 
 /*****************************************************************************/
 /**
 ** \brief Get the current state of the spacecraft clock.
 **
 ** \par Description
-**        This routine returns the spacecraft clock state.  Applications that 
-**        are highly dependent on valid time may want to call this routine 
-**        before taking actions based on the times returned by the various 
-**        clock routines 
+**        This routine returns the spacecraft clock state.  Applications that
+**        are highly dependent on valid time may want to call this routine
+**        before taking actions based on the times returned by the various
+**        clock routines
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -274,16 +275,16 @@ int16   CFE_TIME_GetLeapSeconds(void);
 ** \return The current spacecraft clock state
 **
 ** \sa #CFE_TIME_GetSTCF, #CFE_TIME_GetLeapSeconds, #CFE_TIME_GetClockInfo
-**               
+**
 ******************************************************************************/
-CFE_TIME_ClockState_Enum_t  CFE_TIME_GetClockState(void);
+CFE_TIME_ClockState_Enum_t CFE_TIME_GetClockState(void);
 
 /*****************************************************************************/
 /**
 ** \brief Provides information about the spacecraft clock.
 **
 ** \par Description
-**        This routine returns information on the spacecraft clock in a bit mask. 
+**        This routine returns information on the spacecraft clock in a bit mask.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -295,7 +296,7 @@ CFE_TIME_ClockState_Enum_t  CFE_TIME_GetClockState(void);
 **            the following definition of the \c CFE_TIME_FLAG_xxxxxx is true. <br>
 **
 ** \sa #CFE_TIME_GetSTCF, #CFE_TIME_GetLeapSeconds, #CFE_TIME_GetClockState
-**               
+**
 ******************************************************************************/
 uint16 CFE_TIME_GetClockInfo(void);
 /**@}*/
@@ -309,10 +310,10 @@ uint16 CFE_TIME_GetClockInfo(void);
 ** \brief Adds two time values
 **
 ** \par Description
-**        This routine adds the two specified times and returns the result.  
-**        Normally, at least one of the input times should be a value representing 
-**        a delta time.  Adding two absolute times together will not cause an error, 
-**        but the result will probably be meaningless. 
+**        This routine adds the two specified times and returns the result.
+**        Normally, at least one of the input times should be a value representing
+**        a delta time.  Adding two absolute times together will not cause an error,
+**        but the result will probably be meaningless.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -326,17 +327,17 @@ uint16 CFE_TIME_GetClockInfo(void);
 **         #CFE_TIME_SysTime_t, the result will roll over (this is not considered an error).
 **
 ** \sa #CFE_TIME_Subtract, #CFE_TIME_Compare
-**                
+**
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);
+CFE_TIME_SysTime_t CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);
 
 /*****************************************************************************/
 /**
 ** \brief Subtracts two time values
 **
 ** \par Description
-**        This routine subtracts time2 from time1 and returns the result.  The 
-**        time values can represent either absolute or delta times, but not all 
+**        This routine subtracts time2 from time1 and returns the result.  The
+**        time values can represent either absolute or delta times, but not all
 **        combinations make sense.
 **           -  AbsTime - AbsTime = DeltaTime
 **           -  AbsTime - DeltaTime = AbsTime
@@ -351,32 +352,32 @@ CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Ti
 ** \param[in] Time2   The time to be subtracted from the base time.
 **
 ** \return The result of subtracting the two times.
-**         If the subtraction results in an underflow, the result will 
+**         If the subtraction results in an underflow, the result will
 **         roll over (this is not considered an error).
 **
 ** \sa #CFE_TIME_Add, #CFE_TIME_Compare
-**                
+**
 ******************************************************************************/
-CFE_TIME_SysTime_t  CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);
+CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);
 
 /*****************************************************************************/
 /**
 ** \brief Compares two time values
 **
 ** \par Description
-**        This routine compares two time values to see which is "greater".  It 
-**        is important that applications use this function rather than trying 
-**        to directly compare the component pieces of times.  This function will 
+**        This routine compares two time values to see which is "greater".  It
+**        is important that applications use this function rather than trying
+**        to directly compare the component pieces of times.  This function will
 **        handle roll-over cases seamlessly, which may not be intuitively obvious.
-**        The cFE's internal representation of time "rolls over" when the 32 bit 
-**        seconds count reaches 0xFFFFFFFF.  Also, subtracting a delta time from 
-**        an absolute time close to the epoch could result in "roll under".  The 
-**        strange cases that result from these situations can be handled by defining 
+**        The cFE's internal representation of time "rolls over" when the 32 bit
+**        seconds count reaches 0xFFFFFFFF.  Also, subtracting a delta time from
+**        an absolute time close to the epoch could result in "roll under".  The
+**        strange cases that result from these situations can be handled by defining
 **        the comparison function for times as follows:
-**        Plot the two times on the circumference of a circle where 0 is at the 
-**        top and 0x80000000 is at the bottom.  If the shortest arc from time A 
-**        to time B runs clockwise around the circle, then time A is less than 
-**        time B.  If the shortest arc from A to B runs counter-clockwise, then 
+**        Plot the two times on the circumference of a circle where 0 is at the
+**        top and 0x80000000 is at the bottom.  If the shortest arc from time A
+**        to time B runs clockwise around the circle, then time A is less than
+**        time B.  If the shortest arc from A to B runs counter-clockwise, then
 **        time A is greater than time B.
 **
 ** \par Assumptions, External Events, and Notes:
@@ -392,9 +393,9 @@ CFE_TIME_SysTime_t  CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime
 ** \retval #CFE_TIME_A_LT_B \copybrief CFE_TIME_A_LT_B
 **
 ** \sa #CFE_TIME_Add, #CFE_TIME_Subtract
-**                
+**
 ******************************************************************************/
-CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB);
+CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB);
 /**@}*/
 
 /** @defgroup CFEAPITIMEConvert cFE Time Conversion APIs
@@ -422,14 +423,14 @@ CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_
 **     #CFE_TIME_Sub2MicroSecs, #CFE_TIME_Micro2SubSecs
 **
 ******************************************************************************/
-CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime);
+CFE_TIME_SysTime_t CFE_TIME_MET2SCTime(CFE_TIME_SysTime_t METTime);
 
 /*****************************************************************************/
 /**
 ** \brief Converts a sub-seconds count to an equivalent number of microseconds
 **
 ** \par Description
-**        This routine converts from a sub-seconds count 
+**        This routine converts from a sub-seconds count
 **        (each tick is 1 / 2^32 seconds) to microseconds (each tick is 1e-06 seconds).
 **
 ** \par Assumptions, External Events, and Notes:
@@ -439,17 +440,17 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime (CFE_TIME_SysTime_t METTime);
 **
 ** \return The equivalent number of microseconds.
 **
-** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Micro2SubSecs, 
+** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Micro2SubSecs,
 **
 ******************************************************************************/
-uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds);
+uint32 CFE_TIME_Sub2MicroSecs(uint32 SubSeconds);
 
 /*****************************************************************************/
 /**
 ** \brief Converts a number of microseconds to an equivalent sub-seconds count.
 **
 ** \par Description
-**        This routine converts from microseconds (each tick is 1e-06 seconds) 
+**        This routine converts from microseconds (each tick is 1e-06 seconds)
 **        to a subseconds count (each tick is 1 / 2^32 seconds).
 **
 ** \par Assumptions, External Events, and Notes:
@@ -461,10 +462,10 @@ uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds);
 **         passed in is greater than one second, (i.e. > 999,999), the return
 **         value is equal to \c 0xffffffff.
 **
-** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Sub2MicroSecs, 
+** \sa #CFE_TIME_MET2SCTime, #CFE_TIME_Sub2MicroSecs,
 **
 ******************************************************************************/
-uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);
+uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);
 
 /**@}*/
 
@@ -477,11 +478,11 @@ uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);
 ** \brief Provides the 1 Hz signal from an external source
 **
 ** \par Description
-**        This routine provides a method for cFE TIME software to be notified 
-**        of the occurance of the 1Hz tone signal without knowledge of the 
-**        specific hardware design.  Regardless of the source of the tone, 
-**        this routine should be called as soon as possible after detection 
-**        to allow cFE TIME software the opportunity to latch the local clock 
+**        This routine provides a method for cFE TIME software to be notified
+**        of the occurance of the 1Hz tone signal without knowledge of the
+**        specific hardware design.  Regardless of the source of the tone,
+**        this routine should be called as soon as possible after detection
+**        to allow cFE TIME software the opportunity to latch the local clock
 **        as close as possible to the instant of the tone.
 **
 ** \par Assumptions, External Events, and Notes:
@@ -489,9 +490,9 @@ uint32  CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);
 **            interrupt handler.
 **
 ** \sa #CFE_TIME_ExternalMET, #CFE_TIME_ExternalGPS, #CFE_TIME_ExternalTime
-**                
+**
 ******************************************************************************/
-void  CFE_TIME_ExternalTone(void);
+void CFE_TIME_ExternalTone(void);
 
 /*
 ** Function prototypes (external time source)...
@@ -509,70 +510,68 @@ void  CFE_TIME_ExternalTone(void);
 **    create and distribute the "time at the tone" command packet.
 */
 
-
 /*****************************************************************************/
 /**
 ** \brief Provides the Mission Elapsed Time from an external source
 **
 ** \par Description
-**        This routine provides a method to provide cFE TIME with MET acquired 
-**        from an external source.  There is a presumption that this function 
-**        will be called at the appropriate time (relative to the tone) such 
-**        that this call may be used by cFE TIME as the signal to generate the 
-**        "time at the tone" data command.  The "time at the tone" data command 
-**        must arrive within the configuration parameter specified window for 
+**        This routine provides a method to provide cFE TIME with MET acquired
+**        from an external source.  There is a presumption that this function
+**        will be called at the appropriate time (relative to the tone) such
+**        that this call may be used by cFE TIME as the signal to generate the
+**        "time at the tone" data command.  The "time at the tone" data command
+**        must arrive within the configuration parameter specified window for
 **        tone signal and data packet verification. <br> <br>
-**        The MET value at the tone "should" have zero subseconds.  Although the 
-**        interface accepts non-zero values for sub-seconds, it may be harmful 
-**        to other applications that expect zero subseconds at the moment of the 
+**        The MET value at the tone "should" have zero subseconds.  Although the
+**        interface accepts non-zero values for sub-seconds, it may be harmful
+**        to other applications that expect zero subseconds at the moment of the
 **        tone.  Any decision to use non-zero subseconds should be carefully considered.
 **
 ** \par Assumptions, External Events, and Notes:
-**          - This routine is included in the API only when 3 specific configuration 
-**            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines 
-**            this instantiation of cFE TIME as a time server (not a client).  The 
-**            second required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which 
-**            enables time source selection commands to the cFE TIME task, and further 
-**            enables configuration definitions for the selected type of external time 
-**            data.  The third configuration parameter required for this routine is 
-**            #CFE_PLATFORM_TIME_CFG_SRC_MET, which indicates that the external time data consists 
+**          - This routine is included in the API only when 3 specific configuration
+**            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines
+**            this instantiation of cFE TIME as a time server (not a client).  The
+**            second required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which
+**            enables time source selection commands to the cFE TIME task, and further
+**            enables configuration definitions for the selected type of external time
+**            data.  The third configuration parameter required for this routine is
+**            #CFE_PLATFORM_TIME_CFG_SRC_MET, which indicates that the external time data consists
 **            of MET.
 **
 ** \param[in]  NewMET   The MET value at the next (or previous) 1 Hz tone signal.
 **
 ** \sa #CFE_TIME_ExternalTone, #CFE_TIME_ExternalGPS, #CFE_TIME_ExternalTime
-**                
+**
 ******************************************************************************/
 void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET);
-
 
 /*****************************************************************************/
 /**
 ** \brief Provide the time from an external source that has data common to GPS receivers.
 **
 ** \par Description
-**        This routine provides a method to provide cFE TIME with current time 
-**        data acquired from an external source.  There is a presumption that 
-**        this function will be called at the appropriate time (relative to the 
-**        tone) such that this call may be used by cFE TIME as the signal to 
-**        generate the "time at the tone" data command.  The "time at the tone" 
-**        data command must arrive within the configuration parameter specified 
+**        This routine provides a method to provide cFE TIME with current time
+**        data acquired from an external source.  There is a presumption that
+**        this function will be called at the appropriate time (relative to the
+**        tone) such that this call may be used by cFE TIME as the signal to
+**        generate the "time at the tone" data command.  The "time at the tone"
+**        data command must arrive within the configuration parameter specified
 **        window for tone signal and data packet verification. <br> <br>
-**        Internally, cFE TIME will calculate a new STCF as the difference between 
-**        this new time value and the spacecraft MET value at the tone.  This allows 
-**        cFE TIME to always calculate time as the sum of MET and STCF.  The value 
-**        of STCF will change only as much as the drift factor between spacecraft 
+**        Internally, cFE TIME will calculate a new STCF as the difference between
+**        this new time value and the spacecraft MET value at the tone.  This allows
+**        cFE TIME to always calculate time as the sum of MET and STCF.  The value
+**        of STCF will change only as much as the drift factor between spacecraft
 **        MET and the external time source.
 **
 ** \par Assumptions, External Events, and Notes:
-**          - This routine is included in the API only when 3 specific configuration 
-**            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines this 
-**            instantiation of cFE TIME as a time server (not a client).  The second 
-**            required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which enables 
-**            time source selection commands to the cFE TIME task, and further enables 
-**            configuration definitions for the selected type of external time data.  
-**            The third configuration parameter required for this routine is 
-**            #CFE_PLATFORM_TIME_CFG_SRC_GPS, which indicates that the external time data consists 
+**          - This routine is included in the API only when 3 specific configuration
+**            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines this
+**            instantiation of cFE TIME as a time server (not a client).  The second
+**            required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which enables
+**            time source selection commands to the cFE TIME task, and further enables
+**            configuration definitions for the selected type of external time data.
+**            The third configuration parameter required for this routine is
+**            #CFE_PLATFORM_TIME_CFG_SRC_GPS, which indicates that the external time data consists
 **            of a time value relative to a known epoch, plus a leap seconds value.
 **
 ** \param[in]  NewTime   The MET value at the next (or previous) 1 Hz tone signal.
@@ -580,7 +579,7 @@ void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET);
 ** \param[in]  NewLeaps The Leap Seconds value used to calculate time as UTC.
 **
 ** \sa #CFE_TIME_ExternalTone, #CFE_TIME_ExternalMET, #CFE_TIME_ExternalTime
-**                
+**
 ******************************************************************************/
 void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 
@@ -589,34 +588,34 @@ void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 ** \brief Provide the time from an external source that measures time relative to a known epoch.
 **
 ** \par Description
-**        This routine provides a method to provide cFE TIME with current time 
-**        data acquired from an external source.  There is a presumption that 
-**        this function will be called at the appropriate time (relative to the 
-**        tone) such that this call may be used by cFE TIME as the signal to 
-**        generate the "time at the tone" data command.  The "time at the tone" 
-**        data command must arrive within the configuration specified window for 
+**        This routine provides a method to provide cFE TIME with current time
+**        data acquired from an external source.  There is a presumption that
+**        this function will be called at the appropriate time (relative to the
+**        tone) such that this call may be used by cFE TIME as the signal to
+**        generate the "time at the tone" data command.  The "time at the tone"
+**        data command must arrive within the configuration specified window for
 **        tone signal and data packet verification. <br> <br>
-**        Internally, cFE TIME will calculate a new STCF as the difference between 
-**        this new time value and the spacecraft MET value at the tone.  This allows 
-**        cFE TIME to always calculate time as the sum of MET and STCF.  The value 
-**        of STCF will change only as much as the drift factor between spacecraft 
+**        Internally, cFE TIME will calculate a new STCF as the difference between
+**        this new time value and the spacecraft MET value at the tone.  This allows
+**        cFE TIME to always calculate time as the sum of MET and STCF.  The value
+**        of STCF will change only as much as the drift factor between spacecraft
 **        MET and the external time source.
 **
 ** \par Assumptions, External Events, and Notes:
-**          - This routine is included in the API only when 3 specific configuration 
-**            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines this 
-**            instanciation of cFE TIME as a time server (not a client).  The second 
-**            required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which enables 
-**            time source selection commands to the cFE TIME task, and further enables 
-**            configuration definitions for the selected type of external time data.  
-**            The third configuration parameter required for this routine is 
-**            #CFE_PLATFORM_TIME_CFG_SRC_TIME, which indicates that the external time data consists 
+**          - This routine is included in the API only when 3 specific configuration
+**            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines this
+**            instanciation of cFE TIME as a time server (not a client).  The second
+**            required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which enables
+**            time source selection commands to the cFE TIME task, and further enables
+**            configuration definitions for the selected type of external time data.
+**            The third configuration parameter required for this routine is
+**            #CFE_PLATFORM_TIME_CFG_SRC_TIME, which indicates that the external time data consists
 **            of a time value relative to a known epoch.
 **
 ** \param[in]  NewTime   The MET value at the next (or previous) 1 Hz tone signal.
 **
 ** \sa #CFE_TIME_ExternalTone, #CFE_TIME_ExternalMET, #CFE_TIME_ExternalGPS
-**                
+**
 ******************************************************************************/
 void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime);
 
@@ -642,8 +641,7 @@ void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime);
 ** \sa #CFE_TIME_UnregisterSynchCallback
 **
 ******************************************************************************/
-CFE_Status_t  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr);   
-
+CFE_Status_t CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr);
 
 /*****************************************************************************/
 /**
@@ -665,7 +663,7 @@ CFE_Status_t  CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callbac
 ** \sa #CFE_TIME_RegisterSynchCallback
 **
 ******************************************************************************/
-CFE_Status_t  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr);   
+CFE_Status_t CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr);
 /**@}*/
 
 /** @defgroup CFEAPITIMEMisc cFE Miscellaneous Time APIs
@@ -700,7 +698,8 @@ CFE_Status_t  CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callb
 **          structure is approximately 136 years.
 **
 ** \param[in, out]  PrintBuffer   Pointer to a character array of at least
-**                           #CFE_TIME_PRINTED_STRING_SIZE characters in length. *PrintBuffer is the time as a character string as described above.
+**                           #CFE_TIME_PRINTED_STRING_SIZE characters in length. *PrintBuffer is the time as a
+**                           character string as described above.
 **
 ** \param[in]  TimeToPrint   The time to print into the character array.
 **
@@ -723,7 +722,6 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
 ******************************************************************************/
 void CFE_TIME_Local1HzISR(void);
 /**@}*/
-
 
 #endif /* _cfe_time_ */
 

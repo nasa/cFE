@@ -66,7 +66,6 @@
 #define CFE_RESOURCEID_SHIFT OS_OBJECT_TYPE_SHIFT
 #define CFE_RESOURCEID_MAX   OS_OBJECT_INDEX_MASK
 
-
 /**
  * @brief A macro to generate a CFE resource ID base value from an offset
  *
@@ -74,6 +73,5 @@
  * starting at OS_OBJECT_TYPE_USER.
  */
 #define CFE_RESOURCEID_MAKE_BASE(offset) (CFE_RESOURCEID_MARK | ((offset) << CFE_RESOURCEID_SHIFT))
-
 
 #endif /* CFE_RESOURCEID_OSAL_COMPATIBLE_H */

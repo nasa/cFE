@@ -39,81 +39,79 @@
 
 /* Local Function Prototypes */
 
-
 /* Function Definitions */
 
 /*
 ** Function: CFE_EVS_Register - See API and header file for details
 */
-int32 CFE_EVS_Register (const void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
+int32 CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
 {
-   uint16 FilterLimit;
-   uint16 i;
-   int32  Status;
-   CFE_ES_AppId_t         AppID;
-   CFE_EVS_BinFilter_t   *AppFilters;
-   EVS_AppData_t         *AppDataPtr;
+    uint16               FilterLimit;
+    uint16               i;
+    int32                Status;
+    CFE_ES_AppId_t       AppID;
+    CFE_EVS_BinFilter_t *AppFilters;
+    EVS_AppData_t *      AppDataPtr;
 
-   /* Query and verify the caller's AppID */
-   Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
-   if (Status == CFE_SUCCESS)
-   {
-      /* Clear and configure entry */
-      memset(AppDataPtr, 0, sizeof(EVS_AppData_t));
+    /* Query and verify the caller's AppID */
+    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    if (Status == CFE_SUCCESS)
+    {
+        /* Clear and configure entry */
+        memset(AppDataPtr, 0, sizeof(EVS_AppData_t));
 
-      /* Verify filter arguments */
-      if (FilterScheme != CFE_EVS_EventFilter_BINARY)
-      {
-         Status = CFE_EVS_UNKNOWN_FILTER;
-      }
-      else if ((NumEventFilters != 0) && (Filters == NULL))
-      {
-         Status = CFE_ES_ERR_BUFFER;
-      }
-      else
-      {
-         /* Initialize application event data */
-         AppDataPtr->ActiveFlag   = true;
-         AppDataPtr->EventTypesActiveFlag = CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG;
+        /* Verify filter arguments */
+        if (FilterScheme != CFE_EVS_EventFilter_BINARY)
+        {
+            Status = CFE_EVS_UNKNOWN_FILTER;
+        }
+        else if ((NumEventFilters != 0) && (Filters == NULL))
+        {
+            Status = CFE_ES_ERR_BUFFER;
+        }
+        else
+        {
+            /* Initialize application event data */
+            AppDataPtr->ActiveFlag           = true;
+            AppDataPtr->EventTypesActiveFlag = CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG;
 
-         /* Set limit for number of provided filters */
-         if (NumEventFilters < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS)
-         {
-            FilterLimit = NumEventFilters;
-         }
-         else
-         {
-            FilterLimit = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
-            CFE_ES_WriteToSysLog("CFE_EVS_Register: Filter limit truncated to %d\n",
-                                 (int)FilterLimit);
-         }
-
-         if (Filters != NULL)
-         {
-            AppFilters = (CFE_EVS_BinFilter_t *) Filters;
-
-            /* Copy provided filters */
-            for (i = 0; i < FilterLimit; i++)
+            /* Set limit for number of provided filters */
+            if (NumEventFilters < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS)
             {
-               AppDataPtr->BinFilters[i].EventID = AppFilters[i].EventID;
-               AppDataPtr->BinFilters[i].Mask    = AppFilters[i].Mask;
-               AppDataPtr->BinFilters[i].Count   = 0;
+                FilterLimit = NumEventFilters;
             }
-         }
+            else
+            {
+                FilterLimit = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
+                CFE_ES_WriteToSysLog("CFE_EVS_Register: Filter limit truncated to %d\n", (int)FilterLimit);
+            }
 
-         /* Initialize remainder of filters as unused */
-         for (i = FilterLimit; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
-         {
-            AppDataPtr->BinFilters[i].EventID = CFE_EVS_FREE_SLOT;
-            AppDataPtr->BinFilters[i].Mask    = 0;
-            AppDataPtr->BinFilters[i].Count   = 0;
-         }
+            if (Filters != NULL)
+            {
+                AppFilters = (CFE_EVS_BinFilter_t *)Filters;
 
-         EVS_AppDataSetUsed(AppDataPtr, AppID);
-      }
-   }
+                /* Copy provided filters */
+                for (i = 0; i < FilterLimit; i++)
+                {
+                    AppDataPtr->BinFilters[i].EventID = AppFilters[i].EventID;
+                    AppDataPtr->BinFilters[i].Mask    = AppFilters[i].Mask;
+                    AppDataPtr->BinFilters[i].Count   = 0;
+                }
+            }
 
-   return(Status);
+            /* Initialize remainder of filters as unused */
+            for (i = FilterLimit; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
+            {
+                AppDataPtr->BinFilters[i].EventID = CFE_EVS_FREE_SLOT;
+                AppDataPtr->BinFilters[i].Mask    = 0;
+                AppDataPtr->BinFilters[i].Count   = 0;
+            }
+
+            EVS_AppDataSetUsed(AppDataPtr, AppID);
+        }
+    }
+
+    return (Status);
 
 } /* End CFE_EVS_Register */
 
@@ -122,206 +120,205 @@ int32 CFE_EVS_Register (const void *Filters, uint16 NumEventFilters, uint16 Filt
 */
 int32 CFE_EVS_Unregister(void)
 {
-   int32 Status;
-   CFE_ES_AppId_t AppID;
-   EVS_AppData_t *AppDataPtr;
+    int32          Status;
+    CFE_ES_AppId_t AppID;
+    EVS_AppData_t *AppDataPtr;
 
-   /* Query and verify the caller's AppID */
-   Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
-   if (Status == CFE_SUCCESS &&
-           EVS_AppDataIsMatch(AppDataPtr, AppID))
-   {
-       EVS_AppDataSetFree(AppDataPtr);
-   }
+    /* Query and verify the caller's AppID */
+    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    if (Status == CFE_SUCCESS && EVS_AppDataIsMatch(AppDataPtr, AppID))
+    {
+        EVS_AppDataSetFree(AppDataPtr);
+    }
 
-   return(Status);
+    return (Status);
 
 } /* End CFE_EVS_Unregister */
 
 /*
 ** Function: CFE_EVS_SendEvent - See API and header file for details
 */
-int32 CFE_EVS_SendEvent (uint16 EventID, uint16 EventType, const char *Spec, ... )
+int32 CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
-   int32              Status;
-   CFE_ES_AppId_t     AppID;
-   CFE_TIME_SysTime_t Time;
-   va_list            Ptr;
-   EVS_AppData_t     *AppDataPtr;
+    int32              Status;
+    CFE_ES_AppId_t     AppID;
+    CFE_TIME_SysTime_t Time;
+    va_list            Ptr;
+    EVS_AppData_t *    AppDataPtr;
 
-   if(Spec == NULL){
-      return CFE_EVS_INVALID_PARAMETER;
-   }
+    if (Spec == NULL)
+    {
+        return CFE_EVS_INVALID_PARAMETER;
+    }
 
-   /* Query and verify the caller's AppID */
-   Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
-   if (Status == CFE_SUCCESS)
-   {
-      if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
-      {
-         /* Handler for events from apps not registered with EVS */
-         Status = EVS_NotRegistered(AppDataPtr, AppID);
-      }
-      else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
-      {
-          /* Get current spacecraft time */
-          Time = CFE_TIME_GetTime();
+    /* Query and verify the caller's AppID */
+    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    if (Status == CFE_SUCCESS)
+    {
+        if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
+        {
+            /* Handler for events from apps not registered with EVS */
+            Status = EVS_NotRegistered(AppDataPtr, AppID);
+        }
+        else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
+        {
+            /* Get current spacecraft time */
+            Time = CFE_TIME_GetTime();
 
-          /* Send the event packets */
-          va_start(Ptr, Spec);
-          EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
-          va_end(Ptr);
-      }
-   }
+            /* Send the event packets */
+            va_start(Ptr, Spec);
+            EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
+            va_end(Ptr);
+        }
+    }
 
-   return(Status);
+    return (Status);
 
 } /* End CFE_EVS_SendEvent */
-
 
 /*
 ** Function: CFE_EVS_SendEventWithAppID - See API and header file for details
 */
-int32 CFE_EVS_SendEventWithAppID (uint16 EventID, uint16 EventType, CFE_ES_AppId_t AppID, const char *Spec, ... )
+int32 CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_t AppID, const char *Spec, ...)
 {
-   int32              Status = CFE_SUCCESS;
-   CFE_TIME_SysTime_t Time;
-   va_list            Ptr;
-   EVS_AppData_t     *AppDataPtr;
+    int32              Status = CFE_SUCCESS;
+    CFE_TIME_SysTime_t Time;
+    va_list            Ptr;
+    EVS_AppData_t *    AppDataPtr;
 
-   if(Spec == NULL){
-      return CFE_EVS_INVALID_PARAMETER;
-   }
+    if (Spec == NULL)
+    {
+        return CFE_EVS_INVALID_PARAMETER;
+    }
 
-   AppDataPtr = EVS_GetAppDataByID (AppID);
-   if (AppDataPtr == NULL)
-   {
-      Status = CFE_EVS_APP_ILLEGAL_APP_ID;
-   }
-   else if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
-   {
-      /* Handler for events from apps not registered with EVS */
-      Status = EVS_NotRegistered(AppDataPtr, AppID);
-   }
-   else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
-   {
-      /* Get current spacecraft time */
-      Time = CFE_TIME_GetTime();
+    AppDataPtr = EVS_GetAppDataByID(AppID);
+    if (AppDataPtr == NULL)
+    {
+        Status = CFE_EVS_APP_ILLEGAL_APP_ID;
+    }
+    else if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
+    {
+        /* Handler for events from apps not registered with EVS */
+        Status = EVS_NotRegistered(AppDataPtr, AppID);
+    }
+    else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
+    {
+        /* Get current spacecraft time */
+        Time = CFE_TIME_GetTime();
 
-      /* Send the event packets */
-      va_start(Ptr, Spec);
-      EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
-      va_end(Ptr);
-   }
+        /* Send the event packets */
+        va_start(Ptr, Spec);
+        EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
+        va_end(Ptr);
+    }
 
-   return Status;
+    return Status;
 
 } /* End CFE_EVS_SendEventWithAppID */
 
 /*
 ** Function: CFE_EVS_SendTimedEvent - See API and header file for details
 */
-int32 CFE_EVS_SendTimedEvent (CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ... )
+int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
-   int32              Status;
-   CFE_ES_AppId_t     AppID;
-   va_list            Ptr;
-   EVS_AppData_t     *AppDataPtr;
+    int32          Status;
+    CFE_ES_AppId_t AppID;
+    va_list        Ptr;
+    EVS_AppData_t *AppDataPtr;
 
-   if(Spec == NULL){
-      return CFE_EVS_INVALID_PARAMETER;
-   }
+    if (Spec == NULL)
+    {
+        return CFE_EVS_INVALID_PARAMETER;
+    }
 
-   /* Query and verify the caller's AppID */
-   Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
-   if (Status == CFE_SUCCESS)
-   {
-      if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
-      {
-         /* Handler for events from apps not registered with EVS */
-         Status = EVS_NotRegistered(AppDataPtr, AppID);
-      }
-      else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
-      {
-         /* Send the event packets */
-         va_start(Ptr, Spec);
-         EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
-         va_end(Ptr);
-      }
-   }
+    /* Query and verify the caller's AppID */
+    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    if (Status == CFE_SUCCESS)
+    {
+        if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
+        {
+            /* Handler for events from apps not registered with EVS */
+            Status = EVS_NotRegistered(AppDataPtr, AppID);
+        }
+        else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
+        {
+            /* Send the event packets */
+            va_start(Ptr, Spec);
+            EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
+            va_end(Ptr);
+        }
+    }
 
-   return(Status);
+    return (Status);
 
 } /* End CFE_EVS_SendTimedEvent */
 
 /*
 ** Function: CFE_EVS_ResetFilter - See API and header file for details
 */
-int32 CFE_EVS_ResetFilter (int16 EventID)
+int32 CFE_EVS_ResetFilter(int16 EventID)
 {
-   int32            Status;
-   EVS_BinFilter_t *FilterPtr = NULL;
-   CFE_ES_AppId_t   AppID;
-   EVS_AppData_t   *AppDataPtr;
+    int32            Status;
+    EVS_BinFilter_t *FilterPtr = NULL;
+    CFE_ES_AppId_t   AppID;
+    EVS_AppData_t *  AppDataPtr;
 
-   /* Query and verify the caller's AppID */
-   Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
-   if (Status == CFE_SUCCESS)
-   {
-      if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
-      {
-         Status = CFE_EVS_APP_NOT_REGISTERED;
-      }
-      else
-      {
-         FilterPtr = EVS_FindEventID(EventID, AppDataPtr->BinFilters);
+    /* Query and verify the caller's AppID */
+    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    if (Status == CFE_SUCCESS)
+    {
+        if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
+        {
+            Status = CFE_EVS_APP_NOT_REGISTERED;
+        }
+        else
+        {
+            FilterPtr = EVS_FindEventID(EventID, AppDataPtr->BinFilters);
 
-         if (FilterPtr != NULL)
-         {
-            FilterPtr->Count = 0;
-         }
-         else
-         {
-            Status = CFE_EVS_EVT_NOT_REGISTERED;
-         }
-      }
-   }
+            if (FilterPtr != NULL)
+            {
+                FilterPtr->Count = 0;
+            }
+            else
+            {
+                Status = CFE_EVS_EVT_NOT_REGISTERED;
+            }
+        }
+    }
 
-   return(Status);
+    return (Status);
 
 } /* End CFE_EVS_ResetFilter */
-
 
 /*
 ** Function: CFE_EVS_ResetAllFilters - See API and header file for details
 */
-int32 CFE_EVS_ResetAllFilters ( void )
+int32 CFE_EVS_ResetAllFilters(void)
 {
-   int32    Status;
-   CFE_ES_AppId_t AppID;
-   uint32   i;
-   EVS_AppData_t *AppDataPtr;
+    int32          Status;
+    CFE_ES_AppId_t AppID;
+    uint32         i;
+    EVS_AppData_t *AppDataPtr;
 
-   /* Query and verify the caller's AppID */
-   Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
-   if (Status == CFE_SUCCESS)
-   {
-      if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
-      {
-         Status = CFE_EVS_APP_NOT_REGISTERED;
-      }
-      else
-      {
-         for (i = 0; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
-         {
-            AppDataPtr->BinFilters[i].Count = 0;
-         }
-      }
-   }
+    /* Query and verify the caller's AppID */
+    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    if (Status == CFE_SUCCESS)
+    {
+        if (!EVS_AppDataIsMatch(AppDataPtr, AppID))
+        {
+            Status = CFE_EVS_APP_NOT_REGISTERED;
+        }
+        else
+        {
+            for (i = 0; i < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS; i++)
+            {
+                AppDataPtr->BinFilters[i].Count = 0;
+            }
+        }
+    }
 
-   return(Status);
+    return (Status);
 
 } /* End CFE_EVS_ResetAllFilters */
-
 
 /* End CFE_EVS.C */

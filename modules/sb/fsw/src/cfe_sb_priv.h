@@ -50,56 +50,55 @@
 ** Macro Definitions
 */
 
-#define CFE_SB_UNUSED_QUEUE             OS_OBJECT_ID_UNDEFINED
-#define CFE_SB_NO_DESTINATION           0xFF
-#define CFE_SB_FAILED                   1
-#define SB_DONT_CARE                    0
+#define CFE_SB_UNUSED_QUEUE   OS_OBJECT_ID_UNDEFINED
+#define CFE_SB_NO_DESTINATION 0xFF
+#define CFE_SB_FAILED         1
+#define SB_DONT_CARE          0
 
-#define CFE_SB_NO_DUPLICATE             0
-#define CFE_SB_DUPLICATE                1
+#define CFE_SB_NO_DUPLICATE 0
+#define CFE_SB_DUPLICATE    1
 
-#define CFE_SB_INACTIVE                 0
-#define CFE_SB_ACTIVE                   1
+#define CFE_SB_INACTIVE 0
+#define CFE_SB_ACTIVE   1
 
-#define CFE_SB_MSG_GLOBAL               0
-#define CFE_SB_MSG_LOCAL                1
+#define CFE_SB_MSG_GLOBAL 0
+#define CFE_SB_MSG_LOCAL  1
 
-#define CFE_SB_SEND_ZEROCOPY            0
-#define CFE_SB_SEND_ONECOPY             1
+#define CFE_SB_SEND_ZEROCOPY 0
+#define CFE_SB_SEND_ONECOPY  1
 
-#define CFE_SB_NOT_IN_USE               0
-#define CFE_SB_IN_USE                   1
+#define CFE_SB_NOT_IN_USE 0
+#define CFE_SB_IN_USE     1
 
-#define CFE_SB_DISABLE                  0
-#define CFE_SB_ENABLE                   1
+#define CFE_SB_DISABLE 0
+#define CFE_SB_ENABLE  1
 
-#define CFE_SB_DENIED                   0
-#define CFE_SB_GRANTED                  1
+#define CFE_SB_DENIED  0
+#define CFE_SB_GRANTED 1
 
-#define CFE_SB_DO_NOT_INCREMENT         0
-#define CFE_SB_INCREMENT_TLM            1
+#define CFE_SB_DO_NOT_INCREMENT 0
+#define CFE_SB_INCREMENT_TLM    1
 
-#define CFE_SB_MAIN_LOOP_ERR_DLY        1000
-#define CFE_SB_CMD_PIPE_DEPTH           32
-#define CFE_SB_CMD_PIPE_NAME            "SB_CMD_PIPE"
-#define CFE_SB_MAX_CFG_FILE_EVENTS_TO_FILTER     8
+#define CFE_SB_MAIN_LOOP_ERR_DLY             1000
+#define CFE_SB_CMD_PIPE_DEPTH                32
+#define CFE_SB_CMD_PIPE_NAME                 "SB_CMD_PIPE"
+#define CFE_SB_MAX_CFG_FILE_EVENTS_TO_FILTER 8
 
-#define CFE_SB_PIPE_OVERFLOW            (-1)
-#define CFE_SB_PIPE_WR_ERR              (-2)
-#define CFE_SB_USECNT_ERR               (-3)
-#define CFE_SB_FILE_IO_ERR              (-5)
+#define CFE_SB_PIPE_OVERFLOW (-1)
+#define CFE_SB_PIPE_WR_ERR   (-2)
+#define CFE_SB_USECNT_ERR    (-3)
+#define CFE_SB_FILE_IO_ERR   (-5)
 
 /* bit map for stopping recursive event problem */
-#define CFE_SB_SEND_NO_SUBS_EID_BIT     0
-#define CFE_SB_GET_BUF_ERR_EID_BIT      1
-#define CFE_SB_MSGID_LIM_ERR_EID_BIT    2
-#define CFE_SB_Q_FULL_ERR_EID_BIT       3
-#define CFE_SB_Q_WR_ERR_EID_BIT         4
+#define CFE_SB_SEND_NO_SUBS_EID_BIT  0
+#define CFE_SB_GET_BUF_ERR_EID_BIT   1
+#define CFE_SB_MSGID_LIM_ERR_EID_BIT 2
+#define CFE_SB_Q_FULL_ERR_EID_BIT    3
+#define CFE_SB_Q_WR_ERR_EID_BIT      4
 
 /*
 ** Type Definitions
 */
-
 
 /**
  * \brief Basic linked list structure allowing all buffer descriptors to be tracked.
@@ -126,31 +125,31 @@ typedef struct CFE_SB_BufferD
     CFE_SB_BufferLink_t Link; /**< Links for inclusion in the tracking lists */
 
     /**
-     * Actual MsgId of the content, cached here to avoid repeat 
+     * Actual MsgId of the content, cached here to avoid repeat
      * calls into CFE_MSG API during traversal/delivery of the message.
-     * 
+     *
      * MsgId is set for buffers which contain actual data in transit.  AppId is unset
      * while in transit, as it may be sent to multiple apps.
-     * 
+     *
      * During zero copy buffer initial allocation, the MsgId is not known at this time
      * and should be set to the invalid msg ID.
      */
-    CFE_SB_MsgId_t MsgId; 
+    CFE_SB_MsgId_t MsgId;
 
     /**
      * Current owner of the buffer, if owned by a single app.
-     * 
-     * This is used to track "zero copy" buffer allocations - this will be set to 
+     *
+     * This is used to track "zero copy" buffer allocations - this will be set to
      * the AppID that initally allocated it, before it is used to transmit a message.
-     * 
+     *
      * When the message is in transit, it may be queued to multiple applictions,
      * so this is unset.
      */
     CFE_ES_AppId_t AppId;
 
-    size_t         AllocatedSize;  /**< Total size of this descriptor (including descriptor itself) */
-    size_t         ContentSize;    /**< Actual size of message content currently stored in the buffer */
-    CFE_MSG_Type_t ContentType;    /**< Type of message content currently stored in the buffer */
+    size_t         AllocatedSize; /**< Total size of this descriptor (including descriptor itself) */
+    size_t         ContentSize;   /**< Actual size of message content currently stored in the buffer */
+    CFE_MSG_Type_t ContentType;   /**< Type of message content currently stored in the buffer */
 
     bool AutoSequence; /**< If message should get its sequence number assigned from the route */
 
@@ -160,7 +159,6 @@ typedef struct CFE_SB_BufferD
 
 } CFE_SB_BufferD_t;
 
-
 /******************************************************************************
 **  Typedef:  CFE_SB_PipeD_t
 **
@@ -169,17 +167,18 @@ typedef struct CFE_SB_BufferD
 **     characteristics and status of a pipe.
 */
 
-typedef struct {
-     CFE_SB_PipeId_t     PipeId;
-     uint8               Opts;
-     uint8               Spare;
-     CFE_ES_AppId_t      AppId;
-     osal_id_t           SysQueueId;
-     uint16              SendErrors;
-     uint16              MaxQueueDepth;
-     uint16              CurrentQueueDepth;
-     uint16              PeakQueueDepth;
-     CFE_SB_BufferD_t   *LastBuffer;
+typedef struct
+{
+    CFE_SB_PipeId_t   PipeId;
+    uint8             Opts;
+    uint8             Spare;
+    CFE_ES_AppId_t    AppId;
+    osal_id_t         SysQueueId;
+    uint16            SendErrors;
+    uint16            MaxQueueDepth;
+    uint16            CurrentQueueDepth;
+    uint16            PeakQueueDepth;
+    CFE_SB_BufferD_t *LastBuffer;
 } CFE_SB_PipeD_t;
 
 /******************************************************************************
@@ -188,21 +187,22 @@ typedef struct {
 **  Purpose:
 **     This structure defines the variables related to the SB routing buffers.
 */
-typedef struct {
+typedef struct
+{
 
-   CFE_ES_MemHandle_t PoolHdl;
-   CFE_ES_STATIC_POOL_TYPE(CFE_PLATFORM_SB_BUF_MEMORY_BYTES) Partition;
+    CFE_ES_MemHandle_t PoolHdl;
+    CFE_ES_STATIC_POOL_TYPE(CFE_PLATFORM_SB_BUF_MEMORY_BYTES) Partition;
 
 } CFE_SB_MemParams_t;
 
 /*******************************************************************************/
-/**   
+/**
 ** \brief SB route info temporary structure
 **
 ** This tracks the number of desinations along with destination data for 1 route.
 ** Each route may contain zero or more desinations (variable length).
 */
-typedef struct 
+typedef struct
 {
     uint32                    NumDestinations;
     CFE_SB_RoutingFileEntry_t DestEntries[CFE_PLATFORM_SB_MAX_DEST_PER_PKT]; /**< Actual data written to file */
@@ -220,18 +220,16 @@ typedef union
     CFE_SB_MsgMapFileEntry_t           MsgMapInfo;
 } CFE_SB_BackgroundFileBuffer_t;
 
-/**   
+/**
  * \brief SB Background file write state information
  *
  * Must be stored in persistent memory (e.g. global).
  */
-typedef struct 
+typedef struct
 {
     CFE_FS_FileWriteMetaData_t    FileWrite; /**< FS state data - must be first */
     CFE_SB_BackgroundFileBuffer_t Buffer;    /**< Temporary holding area for file record */
 } CFE_SB_BackgroundFileStateInfo_t;
-
-
 
 /******************************************************************************
 **  Typedef:  CFE_SB_Global_t
@@ -241,30 +239,29 @@ typedef struct
 */
 typedef struct
 {
-    osal_id_t                      SharedDataMutexId;
-    uint32                         SubscriptionReporting;
-    CFE_ES_AppId_t                 AppId;
-    uint32                         StopRecurseFlags[OS_MAX_TASKS];
-    CFE_SB_PipeD_t                 PipeTbl[CFE_PLATFORM_SB_MAX_PIPES];
-    CFE_SB_HousekeepingTlm_t       HKTlmMsg;
-    CFE_SB_StatsTlm_t              StatTlmMsg;
-    CFE_SB_PipeId_t                CmdPipe;
-    CFE_SB_MemParams_t             Mem;
-    CFE_SB_AllSubscriptionsTlm_t   PrevSubMsg;
-    CFE_EVS_BinFilter_t            EventFilters[CFE_SB_MAX_CFG_FILE_EVENTS_TO_FILTER];
-    CFE_SB_Qos_t                   Default_Qos;
-    CFE_ResourceId_t               LastPipeId;
+    osal_id_t                    SharedDataMutexId;
+    uint32                       SubscriptionReporting;
+    CFE_ES_AppId_t               AppId;
+    uint32                       StopRecurseFlags[OS_MAX_TASKS];
+    CFE_SB_PipeD_t               PipeTbl[CFE_PLATFORM_SB_MAX_PIPES];
+    CFE_SB_HousekeepingTlm_t     HKTlmMsg;
+    CFE_SB_StatsTlm_t            StatTlmMsg;
+    CFE_SB_PipeId_t              CmdPipe;
+    CFE_SB_MemParams_t           Mem;
+    CFE_SB_AllSubscriptionsTlm_t PrevSubMsg;
+    CFE_EVS_BinFilter_t          EventFilters[CFE_SB_MAX_CFG_FILE_EVENTS_TO_FILTER];
+    CFE_SB_Qos_t                 Default_Qos;
+    CFE_ResourceId_t             LastPipeId;
 
     CFE_SB_BackgroundFileStateInfo_t BackgroundFile;
 
     /* A list of buffers currently in-transit, owned by SB */
-    CFE_SB_BufferLink_t            InTransitList;
+    CFE_SB_BufferLink_t InTransitList;
 
     /* A list of buffers currently issued to apps for zero-copy */
-    CFE_SB_BufferLink_t            ZeroCopyList;
+    CFE_SB_BufferLink_t ZeroCopyList;
 
 } CFE_SB_Global_t;
-
 
 /******************************************************************************
 **  Typedef:  CFE_SB_SendErrEventBuf_t
@@ -272,12 +269,12 @@ typedef struct
 **  Purpose:
 **     This structure is used to store event information during a send.
 */
-typedef struct{
-  uint32            EventId;
-  int32             ErrStat;
-  CFE_SB_PipeId_t   PipeId;
-}CFE_SB_SendErrEventBuf_t;
-
+typedef struct
+{
+    uint32          EventId;
+    int32           ErrStat;
+    CFE_SB_PipeId_t PipeId;
+} CFE_SB_SendErrEventBuf_t;
 
 /******************************************************************************
 **  Typedef:  CFE_SB_EventBuf_t
@@ -285,59 +282,51 @@ typedef struct{
 **  Purpose:
 **     This structure is used to store event information during a send.
 */
-typedef struct{
-  uint32    EvtsToSnd;
-  CFE_SB_SendErrEventBuf_t  EvtBuf[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
-}CFE_SB_EventBuf_t;
-
+typedef struct
+{
+    uint32                   EvtsToSnd;
+    CFE_SB_SendErrEventBuf_t EvtBuf[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
+} CFE_SB_EventBuf_t;
 
 /*
 ** Software Bus Function Prototypes
 */
 
-int32  CFE_SB_AppInit(void);
-int32  CFE_SB_InitBuffers(void);
-void   CFE_SB_InitPipeTbl(void);
-void   CFE_SB_InitIdxStack(void);
-void   CFE_SB_ResetCounts(void);
-void   CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber);
-void   CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
-void   CFE_SB_ReleaseBuffer (CFE_SB_BufferD_t *bd, CFE_SB_DestinationD_t *dest);
-int32  CFE_SB_WriteQueue(CFE_SB_PipeD_t *pd,uint32 TskId,
-                         const CFE_SB_BufferD_t *bd,CFE_SB_MsgId_t MsgId );
-void   CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr);
-void   CFE_SB_ResetCounters(void);
-void   CFE_SB_SetMsgSeqCnt(CFE_MSG_Message_t *MsgPtr,uint32 Count);
-char   *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char* FullName);
-int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId,CFE_ES_AppId_t AppId);
-int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId,CFE_ES_AppId_t AppId);
-int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t   MsgId,
-                           CFE_SB_PipeId_t  PipeId,
-                           CFE_SB_Qos_t     Quality,
-                           uint16           MsgLim,
-                           uint8            Scope);
+int32 CFE_SB_AppInit(void);
+int32 CFE_SB_InitBuffers(void);
+void  CFE_SB_InitPipeTbl(void);
+void  CFE_SB_InitIdxStack(void);
+void  CFE_SB_ResetCounts(void);
+void  CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber);
+void  CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
+void  CFE_SB_ReleaseBuffer(CFE_SB_BufferD_t *bd, CFE_SB_DestinationD_t *dest);
+int32 CFE_SB_WriteQueue(CFE_SB_PipeD_t *pd, uint32 TskId, const CFE_SB_BufferD_t *bd, CFE_SB_MsgId_t MsgId);
+void  CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr);
+void  CFE_SB_ResetCounters(void);
+void  CFE_SB_SetMsgSeqCnt(CFE_MSG_Message_t *MsgPtr, uint32 Count);
+char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName);
+int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
+int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
+int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim,
+                           uint8 Scope);
 
-int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
-        CFE_ES_AppId_t AppId);
+int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
 
-int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
-                              uint8 Scope, CFE_ES_AppId_t AppId);
-int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr,
-                                 CFE_SB_MsgId_t    *MsgIdPtr,
-                                 CFE_MSG_Size_t    *SizePtr,
-                                 CFE_SBR_RouteId_t *RouteIdPtr);
-int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t         AppId);
-void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
-void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
-int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
-int32 CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId);
-void CFE_SB_IncrCmdCtr(int32 status);
-void CFE_SB_SetSubscriptionReporting(uint32 state);
-int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality);
+int32  CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8 Scope, CFE_ES_AppId_t AppId);
+int32  CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
+                                  CFE_SBR_RouteId_t *RouteIdPtr);
+int32  CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId);
+void   CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
+void   CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
+int32  CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
+int32  CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId);
+void   CFE_SB_IncrCmdCtr(int32 status);
+void   CFE_SB_SetSubscriptionReporting(uint32 state);
+int32  CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality);
 uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
-void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
+void   CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
 CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void);
-int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest);
+int32                  CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest);
 
 /**
  * \brief For SB buffer tracking, get first/next position in a list
@@ -358,7 +347,7 @@ static inline bool CFE_SB_TrackingListIsEnd(CFE_SB_BufferLink_t *List, CFE_SB_Bu
 
 /**
  * \brief For SB buffer tracking, reset link state to default
- * 
+ *
  * This turns the node into a singleton/lone object (not in a list)
  * or resets the head link to be empty.
  */
@@ -366,7 +355,7 @@ void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link);
 
 /**
  * \brief For SB buffer tracking, removes a node from a tracking list
- * 
+ *
  * Extracts a single node from whatever list it is in.  After this the
  * node becomes a singleton owned by the caller.  It may be put into
  * another list or freed.
@@ -375,17 +364,16 @@ void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node);
 
 /**
  * \brief For SB buffer tracking, adds a node to a tracking list
- * 
+ *
  * Extracts a single node from the list its in.  After this the
  * node becomes a singleton owned by the caller.  It must put it
  * in another list or free it.
  */
 void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node);
 
-
 /**
  * \brief Allocates a new buffer descriptor from the SB memory pool.
- * 
+ *
  * \param[in] MaxMsgSize Maximum message content size that the buffer must be capable of holding
  * \returns Pointer to buffer descriptor, or NULL on failure.
  */
@@ -396,37 +384,37 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize);
  *
  * \param[in] Pointer to descriptor to return
  */
-void   CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
+void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
 
 /**
  * \brief Broadcast a SB buffer descriptor to all destinations in route
- * 
+ *
  * Internal routine that implements the logic of transmitting a message buffer
  * to all destinations subscribed in the SB route.
- * 
- * As this function will broadcast the message to any number of destinations (0-many), 
- * and some may be successful and some may fail, the status cannot be expressed 
+ *
+ * As this function will broadcast the message to any number of destinations (0-many),
+ * and some may be successful and some may fail, the status cannot be expressed
  * in any single error code, so this does not return any status.
- * 
+ *
  * Instead, this routine handles all potential outcomes on its own, and does
  * not expect the caller to handle any delivery issues.  Also note that the general
  * design pattern of the software bus is a "send and forget" model where the sender does
  * not know (or care) what entities are subscribed to the data being generated.
- * 
+ *
  *  - For any undeliverable destination (limit, OSAL error, etc), a proper event is generated.
  *  - For any successful queueing, the buffer use count is incremented
- * 
+ *
  * The caller is expected to hold a reference (use count) of the buffer prior to invoking
  * this routine, representing itself, which is then consumed by this routine.
- * 
- * \note  _This call will "consume" the buffer by decrementing the buffer use count_ after 
+ *
+ * \note  _This call will "consume" the buffer by decrementing the buffer use count_ after
  *        broadcasting the message to all subscribed pipes.
- * 
+ *
  * The caller should not access the buffer again after calling this function, as it may
  * be deallocated at any time.  If the caller wishes to continue accessing the buffer,
  * it should explicitly increment the use count before calling this, which will prevent
  * deallocation.
- * 
+ *
  * \param[in] BufDscPtr Pointer to the buffer descriptor to broadcast
  * \param[in] RouteId   Route to send to
  */
@@ -440,8 +428,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
  *
  * \returns CFE_SUCCESS if validation passed, or error code.
  */
-int32 CFE_SB_ZeroCopyHandleValidate(CFE_SB_Buffer_t        *BufPtr,
-                                    CFE_SB_ZeroCopyHandle_t ZeroCopyHandle);
+int32 CFE_SB_ZeroCopyHandleValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t ZeroCopyHandle);
 
 /**
  * \brief Add a destination node
@@ -518,7 +505,6 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
 **/
 size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr);
 
-
 /*
  * Software Bus Message Handler Function prototypes
  */
@@ -535,8 +521,6 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data);
 int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data);
 int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
 
-
-
 /**
  * @brief Locate the Pipe table entry correlating with a given Pipe ID.
  *
@@ -546,9 +530,7 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
  * @param[in]   PipeId   the Pipe ID to locate
  * @return pointer to Pipe Table entry for the given Pipe ID
  */
-extern CFE_SB_PipeD_t* CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId);
-
-
+extern CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId);
 
 /**
  * @brief Check if an Pipe descriptor is in use or free/empty
@@ -633,7 +615,6 @@ static inline bool CFE_SB_PipeDescIsMatch(const CFE_SB_PipeD_t *PipeDscPtr, CFE_
 /* Availability check functions used in conjunction with CFE_ResourceId_FindNext() */
 bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId);
 
-
 /*
  * Helper functions for background file write requests (callbacks)
  */
@@ -642,7 +623,8 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
 void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr);
 bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
-void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position);
+void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
+                                       size_t BlockSize, size_t Position);
 
 /*
  * External variables private to the software bus module

@@ -55,17 +55,17 @@
 /*
 ** ES File descriptions
 */
-#define CFE_ES_SYS_LOG_DESC    "ES system log data file"
-#define CFE_ES_TASK_LOG_DESC   "ES Task Info file"
-#define CFE_ES_APP_LOG_DESC    "ES Application Info file"
-#define CFE_ES_ER_LOG_DESC     "ES ERlog data file"
-#define CFE_ES_PERF_LOG_DESC   "ES Performance data file"
+#define CFE_ES_SYS_LOG_DESC  "ES system log data file"
+#define CFE_ES_TASK_LOG_DESC "ES Task Info file"
+#define CFE_ES_APP_LOG_DESC  "ES Application Info file"
+#define CFE_ES_ER_LOG_DESC   "ES ERlog data file"
+#define CFE_ES_PERF_LOG_DESC "ES Performance data file"
 
 /*
  * Limit for the total number of entries that may be
  * produced by a "query all" type command.
  */
-#define CFE_ES_QUERY_ALL_MAX_ENTRIES    (CFE_PLATFORM_ES_MAX_APPLICATIONS + CFE_PLATFORM_ES_MAX_LIBRARIES)
+#define CFE_ES_QUERY_ALL_MAX_ENTRIES (CFE_PLATFORM_ES_MAX_APPLICATIONS + CFE_PLATFORM_ES_MAX_LIBRARIES)
 
 /*************************************************************************/
 /*
@@ -90,8 +90,8 @@
  */
 typedef struct
 {
-    CFE_FS_FileWriteMetaData_t    FileWrite;   /**< FS state data - must be first */
-    CFE_ES_ERLog_FileEntry_t      EntryBuffer; /**< Temp holding area for record to write */
+    CFE_FS_FileWriteMetaData_t FileWrite;   /**< FS state data - must be first */
+    CFE_ES_ERLog_FileEntry_t   EntryBuffer; /**< Temp holding area for record to write */
 } CFE_ES_BackgroundLogDumpGlobal_t;
 
 /*
@@ -99,46 +99,46 @@ typedef struct
 */
 typedef struct
 {
-  /*
-  ** ES Task command interface counters
-  */
-  uint8                 CommandCounter;
-  uint8                 CommandErrorCounter;
+    /*
+    ** ES Task command interface counters
+    */
+    uint8 CommandCounter;
+    uint8 CommandErrorCounter;
 
-  /*
-  ** ES Task housekeeping telemetry
-  */
-  CFE_ES_HousekeepingTlm_t HkPacket;
+    /*
+    ** ES Task housekeeping telemetry
+    */
+    CFE_ES_HousekeepingTlm_t HkPacket;
 
-  /*
-  ** Single application telemetry
-  */
-  CFE_ES_OneAppTlm_t OneAppPacket;
+    /*
+    ** Single application telemetry
+    */
+    CFE_ES_OneAppTlm_t OneAppPacket;
 
-  /*
-  ** Memory statistics telemetry
-  */
-  CFE_ES_MemStatsTlm_t MemStatsPacket;
+    /*
+    ** Memory statistics telemetry
+    */
+    CFE_ES_MemStatsTlm_t MemStatsPacket;
 
-  /*
-  ** ES Task operational data (not reported in housekeeping)
-  */
-  CFE_SB_PipeId_t    CmdPipe;
+    /*
+    ** ES Task operational data (not reported in housekeeping)
+    */
+    CFE_SB_PipeId_t CmdPipe;
 
-  /*
-  ** ES Task initialization data (not reported in housekeeping)
-  */
-  CFE_ES_BackgroundLogDumpGlobal_t  BackgroundERLogDumpState;
+    /*
+    ** ES Task initialization data (not reported in housekeeping)
+    */
+    CFE_ES_BackgroundLogDumpGlobal_t BackgroundERLogDumpState;
 
-  /*
-   * Persistent state data associated with performance log data file writes
-   */
-  CFE_ES_PerfDumpGlobal_t    BackgroundPerfDumpState;
+    /*
+     * Persistent state data associated with performance log data file writes
+     */
+    CFE_ES_PerfDumpGlobal_t BackgroundPerfDumpState;
 
-  /*
-   * Persistent state data associated with background app table scans
-   */
-  CFE_ES_AppTableScanState_t BackgroundAppScanState;
+    /*
+     * Persistent state data associated with background app table scans
+     */
+    CFE_ES_AppTableScanState_t BackgroundAppScanState;
 
 } CFE_ES_TaskData_t;
 
@@ -146,8 +146,6 @@ typedef struct
 ** Executive Services (ES) task global data.
 */
 extern CFE_ES_TaskData_t CFE_ES_TaskData;
-
-
 
 /*************************************************************************/
 
@@ -157,7 +155,6 @@ extern CFE_ES_TaskData_t CFE_ES_TaskData;
 void  CFE_ES_TaskMain(void);
 int32 CFE_ES_TaskInit(void);
 void  CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
-
 
 /*
  * Functions related to the ES background helper task for low-priority tasks
@@ -198,9 +195,9 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data);
 /*
 ** Message Handler Helper Functions
 */
-bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t  Handle);
+bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t Handle);
 bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
-void CFE_ES_FileWriteByteCntErr(const char *Filename,size_t Requested,size_t Actual);
+void CFE_ES_FileWriteByteCntErr(const char *Filename, size_t Requested, size_t Actual);
 
 /*************************************************************************/
 
@@ -209,4 +206,3 @@ void CFE_ES_FileWriteByteCntErr(const char *Filename,size_t Requested,size_t Act
 /************************/
 /*  End of File Comment */
 /************************/
-

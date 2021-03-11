@@ -23,7 +23,7 @@
 **
 ** Purpose:
 ** Unit test stubs for File Service routines
-** 
+**
 ** Notes:
 ** Minimal work is done, only what is required for unit testing
 **
@@ -36,7 +36,6 @@
 #include "cfe.h"
 #include "utstubs.h"
 
-
 /*
 ** Functions
 */
@@ -47,10 +46,10 @@
 const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_GetDefaultMountPoint), FileCategory);
-    
-    int32 Status;
+
+    int32             Status;
     static const char DEFAULT_MOUNTPOINT[] = "/ut";
-    const char *Result;
+    const char *      Result;
 
     Status = UT_DEFAULT_IMPL(CFE_FS_GetDefaultMountPoint);
     Result = NULL;
@@ -58,7 +57,7 @@ const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory)
     if (Status == CFE_SUCCESS)
     {
         /* If the test case supplied a buffer, return it, otherwise return fixed value */
-        UT_GetDataBuffer(UT_KEY(CFE_FS_GetDefaultMountPoint), (void**)&Result, NULL, NULL);
+        UT_GetDataBuffer(UT_KEY(CFE_FS_GetDefaultMountPoint), (void **)&Result, NULL, NULL);
         if (Result == NULL)
         {
             Result = DEFAULT_MOUNTPOINT;
@@ -74,10 +73,10 @@ const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory)
 const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_GetDefaultExtension), FileCategory);
-    
-    int32 Status;
+
+    int32             Status;
     static const char DEFAULT_EXTENSION[] = ".ut";
-    const char *Result;
+    const char *      Result;
 
     Status = UT_DEFAULT_IMPL(CFE_FS_GetDefaultExtension);
     Result = NULL;
@@ -85,7 +84,7 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
     if (Status == CFE_SUCCESS)
     {
         /* If the test case supplied a buffer, return it, otherwise return fixed value */
-        UT_GetDataBuffer(UT_KEY(CFE_FS_GetDefaultExtension), (void**)&Result, NULL, NULL);
+        UT_GetDataBuffer(UT_KEY(CFE_FS_GetDefaultExtension), (void **)&Result, NULL, NULL);
         if (Result == NULL)
         {
             Result = DEFAULT_EXTENSION;
@@ -94,7 +93,6 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
 
     return Result;
 }
-
 
 /*****************************************************************************/
 /**
@@ -117,7 +115,7 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
     UT_Stub_RegisterContext(UT_KEY(CFE_FS_InitHeader), Description);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_InitHeader), SubType);
 
-    memset(Hdr,0,sizeof(CFE_FS_Header_t));
+    memset(Hdr, 0, sizeof(CFE_FS_Header_t));
     UT_DEFAULT_IMPL(CFE_FS_InitHeader);
 }
 
@@ -154,7 +152,7 @@ int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 
     if (status > 0)
     {
-        UT_Stub_CopyFromLocal(UT_KEY(CFE_FS_WriteHeader), (const uint8*)Hdr, status);
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_FS_WriteHeader), (const uint8 *)Hdr, status);
     }
 
     return status;
@@ -193,7 +191,7 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 
     if (status > 0)
     {
-        UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ReadHeader), (uint8*)Hdr, status);
+        UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ReadHeader), (uint8 *)Hdr, status);
     }
 
     return status;
@@ -259,8 +257,9 @@ int32 CFE_FS_EarlyInit(void)
 /*
  * Stub for CFE_FS_ParseInputFileNameEx - see prototype for description
  */
-int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize, size_t InputBufSize, 
-        const char *DefaultInput, const char *DefaultPath, const char *DefaultExtension)
+int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
+                                  size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
+                                  const char *DefaultExtension)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_ParseInputFileNameEx), OutputBuffer);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_ParseInputFileNameEx), InputBuffer);
@@ -271,13 +270,12 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_ParseInputFileNameEx), DefaultExtension);
 
     int32 status;
-    
+
     status = UT_DEFAULT_IMPL(CFE_FS_ParseInputFileNameEx);
 
     /* Copy any specific output supplied by test case */
-    if (status >= 0 && 
-            UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ParseInputFileNameEx), OutputBuffer, OutputBufSize) == 0 && 
-            OutputBufSize > 0 && DefaultInput != NULL)
+    if (status >= 0 && UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ParseInputFileNameEx), OutputBuffer, OutputBufSize) == 0 &&
+        OutputBufSize > 0 && DefaultInput != NULL)
     {
         /* Otherwise fall back to simple copy */
         strncpy(OutputBuffer, DefaultInput, OutputBufSize);
@@ -291,7 +289,7 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
  * Stub for CFE_FS_ParseInputFileName - see prototype for description
  */
 int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
-        CFE_FS_FileCategory_t FileCategory)
+                                CFE_FS_FileCategory_t FileCategory)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_ParseInputFileName), OutputBuffer);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_ParseInputFileName), InputName);
@@ -299,13 +297,12 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_ParseInputFileName), FileCategory);
 
     int32 status;
-    
+
     status = UT_DEFAULT_IMPL(CFE_FS_ParseInputFileName);
 
     /* Copy any specific output supplied by test case */
-    if (status >= 0 && 
-            UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ParseInputFileName), OutputBuffer, OutputBufSize) == 0 && 
-            OutputBufSize > 0)
+    if (status >= 0 && UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ParseInputFileName), OutputBuffer, OutputBufSize) == 0 &&
+        OutputBufSize > 0)
     {
         /* Otherwise fall back to simple copy */
         strncpy(OutputBuffer, InputName, OutputBufSize);
@@ -313,7 +310,6 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
 
     return status;
 }
-
 
 /*****************************************************************************/
 /**
@@ -342,10 +338,10 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
     UT_Stub_RegisterContext(UT_KEY(CFE_FS_ExtractFilenameFromPath), OriginalPath);
     UT_Stub_RegisterContext(UT_KEY(CFE_FS_ExtractFilenameFromPath), FileNameOnly);
 
-    int   i,j;
-    int   StringLength;
-    int   DirMarkIdx;
-    int32 status;
+    int    i, j;
+    int    StringLength;
+    int    DirMarkIdx;
+    int32  status;
     uint32 UserBuffLen;
 
     status = UT_DEFAULT_IMPL(CFE_FS_ExtractFilenameFromPath);
@@ -358,7 +354,8 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
         }
         else
         {
-            UserBuffLen = UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ExtractFilenameFromPath), (uint8*)FileNameOnly, OS_MAX_FILE_NAME);
+            UserBuffLen =
+                UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ExtractFilenameFromPath), (uint8 *)FileNameOnly, OS_MAX_FILE_NAME);
 
             if (UserBuffLen >= OS_MAX_FILE_NAME)
             {
@@ -410,15 +407,14 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
                 }
                 else
                 {
-                   status = CFE_FS_FNAME_TOO_LONG;
+                    status = CFE_FS_FNAME_TOO_LONG;
                 }
             }
         }
     }
-   
+
     return status;
 }
-
 
 bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 {
@@ -454,5 +450,4 @@ bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta)
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_FS_BackgroundFileDumpIsPending), Meta);
 
     return UT_DEFAULT_IMPL(CFE_FS_BackgroundFileDumpIsPending);
-
 }

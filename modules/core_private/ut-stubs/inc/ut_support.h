@@ -58,17 +58,16 @@ extern const char *UT_OSP_MESSAGES[];
 #define CFE_ES_CDS_NUM_BLOCK_SIZES 17
 
 /* MIN_BLOCK_SIZE must be < 16 bytes */
-#define CFE_ES_CDS_MIN_BLOCK_SIZE   8
-#define UT_EVENT_HISTORY_SIZE       64
-#define UT_MAX_MESSAGE_LENGTH       300
+#define CFE_ES_CDS_MIN_BLOCK_SIZE 8
+#define UT_EVENT_HISTORY_SIZE     64
+#define UT_MAX_MESSAGE_LENGTH     300
 
 /* Macro to add a test to the UT assert list */
-#define UT_ADD_TEST(Func)       UtTest_Add(Func, NULL, NULL, #Func)
-
+#define UT_ADD_TEST(Func) UtTest_Add(Func, NULL, NULL, #Func)
 
 /* Required to be defined for GetMsgId and SetMsgId stubs
  * Actual macro defitiions are in cfe_sb_msg_id_utils.h
- * #ifndef so that the actual macros are used for unit 
+ * #ifndef so that the actual macros are used for unit
  * testing of SB
  * */
 #ifndef CFE_SB_CMD_MESSAGE_TYPE
@@ -76,15 +75,15 @@ extern const char *UT_OSP_MESSAGES[];
 #endif
 
 #ifndef CFE_SB_RD_APID_FROM_MSGID
-#define CFE_SB_RD_APID_FROM_MSGID(MsgId)          (MsgId & 0x0000007F)  
+#define CFE_SB_RD_APID_FROM_MSGID(MsgId) (MsgId & 0x0000007F)
 #endif
 
 #ifndef CFE_SB_RD_SUBSYS_ID_FROM_MSGID
-#define CFE_SB_RD_SUBSYS_ID_FROM_MSGID(MsgId)  ( (MsgId & 0x0000FF00) >> 8) 
+#define CFE_SB_RD_SUBSYS_ID_FROM_MSGID(MsgId) ((MsgId & 0x0000FF00) >> 8)
 #endif
 
 #ifndef CFE_SB_RD_TYPE_FROM_MSGID
-#define CFE_SB_RD_TYPE_FROM_MSGID(MsgId)       ( (MsgId & CFE_SB_CMD_MESSAGE_TYPE) >> 7) 
+#define CFE_SB_RD_TYPE_FROM_MSGID(MsgId) ((MsgId & CFE_SB_CMD_MESSAGE_TYPE) >> 7)
 #endif
 
 /*
@@ -98,16 +97,15 @@ extern const char *UT_OSP_MESSAGES[];
  */
 #define UT_LITTLE_ENDIAN 1
 #define UT_BIG_ENDIAN    2
-extern uint8  UT_Endianess;
-
+extern uint8 UT_Endianess;
 
 typedef struct
 {
     CFE_SB_MsgId_t MsgId;
-    uint16 SnapshotOffset;
-    uint16 SnapshotSize;
-    uint16 Count;
-    void *SnapshotBuffer;
+    uint16         SnapshotOffset;
+    uint16         SnapshotSize;
+    uint16         Count;
+    void *         SnapshotBuffer;
 } UT_SoftwareBusSnapshot_Entry_t;
 
 /*
@@ -237,8 +235,7 @@ void UT_ResetPoolBufferIndex(void);
 **        This function does not return a value.
 **
 ******************************************************************************/
-void UT_Report(const char *file, uint32 line, bool test, const char *fun_name,
-		       const char *info);
+void UT_Report(const char *file, uint32 line, bool test, const char *fun_name, const char *info);
 
 /*****************************************************************************/
 /**
@@ -273,8 +270,8 @@ void UT_ReportFailures(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t*), CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
-        UT_TaskPipeDispatchId_t DispatchId);
+void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t *), CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
+                     UT_TaskPipeDispatchId_t DispatchId);
 
 /*****************************************************************************/
 /**
@@ -290,8 +287,7 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t*), CFE_MSG_Message_t *
 **        Passes through the return code from the handler
 **
 ******************************************************************************/
-int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCount,
-        const UT_StubContext_t *Context);
+int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context);
 
 /*****************************************************************************/
 /**
@@ -335,8 +331,7 @@ void UT_SetAppID(CFE_ES_AppId_t AppID_in);
 **        This function does not return a value.
 **
 ******************************************************************************/
-void UT_SetStatusBSPResetArea(int32 status, uint32 Signature,
-                              uint32 ClockSignal);
+void UT_SetStatusBSPResetArea(int32 status, uint32 Signature, uint32 ClockSignal);
 
 /*****************************************************************************/
 /**
@@ -434,7 +429,7 @@ void UT_SetSizeofESResetArea(int32 Size);
 **        This function does not return a value.
 **
 ******************************************************************************/
-uint8* UT_SetCDSSize(int32 Size);
+uint8 *UT_SetCDSSize(int32 Size);
 
 /*****************************************************************************/
 /**
@@ -581,7 +576,6 @@ void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size);
 ******************************************************************************/
 CFE_ES_ResetData_t *UT_GetResetDataPtr(void);
 
-
 /*****************************************************************************/
 /**
 ** \brief Add a test as a member of a subgroup.
@@ -598,8 +592,8 @@ CFE_ES_ResetData_t *UT_GetResetDataPtr(void);
 **        None
 **
 ******************************************************************************/
-void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void),
-        const char *GroupName, const char *TestName);
+void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void), const char *GroupName,
+                   const char *TestName);
 
 /** \brief Function to be called by the SETUP() macro */
 void UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
@@ -642,8 +636,8 @@ void UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, con
 #define ASSERT(FN) (UT_ASSERT_impl(__FILE__, __LINE__, __func__, (#FN), (FN)))
 
 /** \brief Function to be called by the ASSERT_EQ() macro */
-void UT_ASSERT_EQ_impl(const char *FileName, int LineNum,
-    const char *FnName, int32 FnRet, const char *ExpName, int32 Exp);
+void UT_ASSERT_EQ_impl(const char *FileName, int LineNum, const char *FnName, int32 FnRet, const char *ExpName,
+                       int32 Exp);
 
 /*****************************************************************************/
 /**
@@ -661,12 +655,10 @@ void UT_ASSERT_EQ_impl(const char *FileName, int LineNum,
 ** \sa #START, #SETUP, #ASSERT, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
 **
 ******************************************************************************/
-#define ASSERT_EQ(FN,EXP) (UT_ASSERT_EQ_impl(__FILE__, __LINE__, (#FN), (FN), (#EXP), (EXP)))
-
+#define ASSERT_EQ(FN, EXP) (UT_ASSERT_EQ_impl(__FILE__, __LINE__, (#FN), (FN), (#EXP), (EXP)))
 
 /** \brief Function to be called by the ASSERT_EQ() macro */
-void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
-    const char *ExpName, bool Exp);
+void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName, const char *ExpName, bool Exp);
 
 /*****************************************************************************/
 /**

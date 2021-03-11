@@ -20,10 +20,10 @@
 
 /**
  * @file cfe_es_module_all.h
- * 
+ *
  * Encapsulates all ES module internal header files, as well
  * as the public API from all other CFE core modules, OSAL, and PSP.
- * 
+ *
  * This simplifies the set of include files that need to be put at the
  * start of every source file.
  */
@@ -53,6 +53,5 @@
 #include "cfe_es_task.h"
 #include "cfe_es_resource.h"
 #include "cfe_es_log.h"
-
 
 #endif

@@ -53,90 +53,86 @@
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
-#define CFE_EVS_MSG_TRUNCATED           '$'
-#define CFE_EVS_FREE_SLOT               (-1)
-#define CFE_EVS_NO_MASK                 0
-#define CFE_EVS_PIPE_DEPTH              32
-#define CFE_EVS_MAX_EVENT_SEND_COUNT    65535
-#define CFE_EVS_MAX_FILTER_COUNT        65535
-#define CFE_EVS_PIPE_NAME               "EVS_CMD_PIPE"
-#define CFE_EVS_MAX_PORT_MSG_LENGTH     (CFE_MISSION_EVS_MAX_MESSAGE_LENGTH+OS_MAX_API_NAME+30)
+#define CFE_EVS_MSG_TRUNCATED        '$'
+#define CFE_EVS_FREE_SLOT            (-1)
+#define CFE_EVS_NO_MASK              0
+#define CFE_EVS_PIPE_DEPTH           32
+#define CFE_EVS_MAX_EVENT_SEND_COUNT 65535
+#define CFE_EVS_MAX_FILTER_COUNT     65535
+#define CFE_EVS_PIPE_NAME            "EVS_CMD_PIPE"
+#define CFE_EVS_MAX_PORT_MSG_LENGTH  (CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + OS_MAX_API_NAME + 30)
 
-/* Since CFE_EVS_MAX_PORT_MSG_LENGTH is the size of the buffer that is sent to 
- * print out (using OS_printf), we need to check to make sure that the buffer 
+/* Since CFE_EVS_MAX_PORT_MSG_LENGTH is the size of the buffer that is sent to
+ * print out (using OS_printf), we need to check to make sure that the buffer
  * size the OS uses is big enough. This check has to be made here because it is
  * the first spot after CFE_EVS_MAX_PORT_MSG_LENGTH is defined */
-#if OS_BUFFER_SIZE < CFE_EVS_MAX_PORT_MSG_LENGTH 
-    #error CFE_EVS_MAX_PORT_MSG_LENGTH cannot be greater than OS_BUFFER_SIZE!
+#if OS_BUFFER_SIZE < CFE_EVS_MAX_PORT_MSG_LENGTH
+#error CFE_EVS_MAX_PORT_MSG_LENGTH cannot be greater than OS_BUFFER_SIZE!
 #endif
-
 
 /************************  Internal Structure Definitions  *****************************/
 
 typedef struct
 {
-   int16               EventID;     /* Numerical event identifier */
-   uint16              Mask;        /* Binary filter mask */
-   uint16              Count;       /* Binary filter counter */
-   uint16              Padding;     /* Structure padding */
+    int16  EventID; /* Numerical event identifier */
+    uint16 Mask;    /* Binary filter mask */
+    uint16 Count;   /* Binary filter counter */
+    uint16 Padding; /* Structure padding */
 
 } EVS_BinFilter_t;
-
 
 typedef struct
 {
     CFE_ES_AppId_t AppID;
     CFE_ES_AppId_t UnregAppID;
 
-    EVS_BinFilter_t    BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS];  /* Array of binary filters */
+    EVS_BinFilter_t BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Array of binary filters */
 
-    uint8              ActiveFlag;             /* Application event service active flag */
-    uint8              EventTypesActiveFlag;   /* Application event types active flag */
-    uint16             EventCount;             /* Application event counter */
+    uint8  ActiveFlag;           /* Application event service active flag */
+    uint8  EventTypesActiveFlag; /* Application event types active flag */
+    uint16 EventCount;           /* Application event counter */
 
 } EVS_AppData_t;
 
-
-typedef struct {
-   char                AppName[OS_MAX_API_NAME];               /* Application name */
-   uint8               ActiveFlag;                             /* Application event service active flag */
-   uint8               EventTypesActiveFlag;                   /* Application event types active flag */
-   uint16              EventCount;                             /* Application event counter */
-   EVS_BinFilter_t     Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS];     /* Application event filters */
+typedef struct
+{
+    char            AppName[OS_MAX_API_NAME];                    /* Application name */
+    uint8           ActiveFlag;                                  /* Application event service active flag */
+    uint8           EventTypesActiveFlag;                        /* Application event types active flag */
+    uint16          EventCount;                                  /* Application event counter */
+    EVS_BinFilter_t Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Application event filters */
 
 } CFE_EVS_AppDataFile_t;
-
 
 /* Global data structure */
 typedef struct
 {
-   EVS_AppData_t       AppData[CFE_PLATFORM_ES_MAX_APPLICATIONS];    /* Application state data and event filters */
+    EVS_AppData_t AppData[CFE_PLATFORM_ES_MAX_APPLICATIONS]; /* Application state data and event filters */
 
-   CFE_EVS_Log_t      *EVS_LogPtr;    /* Pointer to the EVS log in the ES Reset area*/
-                                         /* see cfe_es_global.h */
-                                         
-   /*
-   ** EVS task data
-   */
-   CFE_EVS_HousekeepingTlm_t    EVS_TlmPkt;
-   CFE_SB_PipeId_t     EVS_CommandPipe;
-   osal_id_t           EVS_SharedDataMutexID;
-   CFE_ES_AppId_t      EVS_AppID;
+    CFE_EVS_Log_t *EVS_LogPtr; /* Pointer to the EVS log in the ES Reset area*/
+                               /* see cfe_es_global.h */
+
+    /*
+    ** EVS task data
+    */
+    CFE_EVS_HousekeepingTlm_t EVS_TlmPkt;
+    CFE_SB_PipeId_t           EVS_CommandPipe;
+    osal_id_t                 EVS_SharedDataMutexID;
+    CFE_ES_AppId_t            EVS_AppID;
 
 } CFE_EVS_Global_t;
 
 /*
  *  Global variable specific to EVS module
  */
-extern CFE_EVS_Global_t   CFE_EVS_Global;
-
+extern CFE_EVS_Global_t CFE_EVS_Global;
 
 /*****************************  Function Prototypes   **********************************/
 
 /*
-* Functions used within this module and by the unit test
-*/
-extern int32 CFE_EVS_TaskInit (void);
+ * Functions used within this module and by the unit test
+ */
+extern int32 CFE_EVS_TaskInit(void);
 extern void  CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
 
 /*
@@ -163,5 +159,4 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data);
 int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data);
 int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data);
 
-
-#endif  /* _cfe_evs_task_ */
+#endif /* _cfe_evs_task_ */

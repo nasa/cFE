@@ -33,25 +33,24 @@
 
 #include <common_types.h>
 
-#include "cfe_time_resetvars_typedef.h"  /* Required for CFE_TIME_ResetVars_t definition */
-#include "cfe_es_erlog_typedef.h"      /* Required for CFE_ES_ERLog_t definition */
-#include "cfe_es_perfdata_typedef.h"   /* Required for CFE_ES_PerfData_t definition */
-#include "cfe_evs_log_typedef.h"       /* Required for CFE_EVS_Log_t definition */
-#include "cfe_platform_cfg.h"          /* CFE_PLATFORM_ES_ER_LOG_ENTRIES, CFE_PLATFORM_ES_SYSTEM_LOG_SIZE */
+#include "cfe_time_resetvars_typedef.h" /* Required for CFE_TIME_ResetVars_t definition */
+#include "cfe_es_erlog_typedef.h"       /* Required for CFE_ES_ERLog_t definition */
+#include "cfe_es_perfdata_typedef.h"    /* Required for CFE_ES_PerfData_t definition */
+#include "cfe_evs_log_typedef.h"        /* Required for CFE_EVS_Log_t definition */
+#include "cfe_platform_cfg.h"           /* CFE_PLATFORM_ES_ER_LOG_ENTRIES, CFE_PLATFORM_ES_SYSTEM_LOG_SIZE */
 
 /*
 ** Reset Variables type
 */
 typedef struct
 {
-   uint32     ResetType;
-   uint32     ResetSubtype;
-   uint32     BootSource;
-   uint32     ES_CausedReset;
-   uint32     ProcessorResetCount;
-   uint32     MaxProcessorResetCount;
+    uint32 ResetType;
+    uint32 ResetSubtype;
+    uint32 BootSource;
+    uint32 ES_CausedReset;
+    uint32 ProcessorResetCount;
+    uint32 MaxProcessorResetCount;
 } CFE_ES_ResetVariables_t;
-
 
 /*
 ** Executive Services Global Reset Data type
@@ -60,46 +59,44 @@ typedef struct
 */
 typedef struct
 {
-   /*
-   ** Exception and Reset log declaration
-   */
-   CFE_ES_ERLog_MetaData_t    ERLog[CFE_PLATFORM_ES_ER_LOG_ENTRIES];
-   uint32            ERLogIndex;
-   uint32            ERLogEntries;
-   uint32            LastAppId;
+    /*
+    ** Exception and Reset log declaration
+    */
+    CFE_ES_ERLog_MetaData_t ERLog[CFE_PLATFORM_ES_ER_LOG_ENTRIES];
+    uint32                  ERLogIndex;
+    uint32                  ERLogEntries;
+    uint32                  LastAppId;
 
-   /*
-   ** System Log declaration
-   */
-   char            SystemLog[CFE_PLATFORM_ES_SYSTEM_LOG_SIZE];
-   size_t          SystemLogWriteIdx;
-   size_t          SystemLogEndIdx;
-   uint32          SystemLogMode;
-   uint32          SystemLogEntryNum;
+    /*
+    ** System Log declaration
+    */
+    char   SystemLog[CFE_PLATFORM_ES_SYSTEM_LOG_SIZE];
+    size_t SystemLogWriteIdx;
+    size_t SystemLogEndIdx;
+    uint32 SystemLogMode;
+    uint32 SystemLogEntryNum;
 
-   /*
-   ** Performance Data
-   */
-   CFE_ES_PerfData_t       Perf;
+    /*
+    ** Performance Data
+    */
+    CFE_ES_PerfData_t Perf;
 
-   /*
-   ** Reset Variables
-   */
-   CFE_ES_ResetVariables_t  ResetVars;
+    /*
+    ** Reset Variables
+    */
+    CFE_ES_ResetVariables_t ResetVars;
 
-   /*
-   ** Time variables that are
-   ** preserved on a processor reset
-   */
-   CFE_TIME_ResetVars_t TimeResetVars;
+    /*
+    ** Time variables that are
+    ** preserved on a processor reset
+    */
+    CFE_TIME_ResetVars_t TimeResetVars;
 
-   /*
-   ** EVS Log and associated variables. This needs to be preserved on a processor reset.
-   */
-   CFE_EVS_Log_t              EVS_Log;
+    /*
+    ** EVS Log and associated variables. This needs to be preserved on a processor reset.
+    */
+    CFE_EVS_Log_t EVS_Log;
 
 } CFE_ES_ResetData_t;
-
-
 
 #endif /* CFE_ES_RESETDATA_TYPEDEF_H_ */

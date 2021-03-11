@@ -29,7 +29,6 @@
 **
 */
 
-
 /*
 ** Required header files...
 */
@@ -43,17 +42,16 @@
 /*
  * Fixed default file system extensions (not platform dependent)
  */
-const char CFE_FS_DEFAULT_SCRIPT_EXTENSION[] =      ".scr";
-const char CFE_FS_DEFAULT_DUMP_FILE_EXTENSION[] =   ".dat";
-const char CFE_FS_DEFAULT_TEMP_FILE_EXTENSION[] =   ".tmp";
-const char CFE_FS_DEFAULT_LOG_FILE_EXTENSION[] =    ".log";
-
+const char CFE_FS_DEFAULT_SCRIPT_EXTENSION[]    = ".scr";
+const char CFE_FS_DEFAULT_DUMP_FILE_EXTENSION[] = ".dat";
+const char CFE_FS_DEFAULT_TEMP_FILE_EXTENSION[] = ".tmp";
+const char CFE_FS_DEFAULT_LOG_FILE_EXTENSION[]  = ".log";
 
 const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory)
 {
     const char *Result;
 
-    switch(FileCategory)
+    switch (FileCategory)
     {
         case CFE_FS_FileCategory_SCRIPT:
         case CFE_FS_FileCategory_DYNAMIC_MODULE:
@@ -67,7 +65,7 @@ const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory)
             Result = GLOBAL_CFE_CONFIGDATA.RamdiskMountPoint;
             break;
         default:
-            Result = NULL;   /* Should not be used */
+            Result = NULL; /* Should not be used */
             break;
     }
 
@@ -78,7 +76,7 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
 {
     const char *Result;
 
-    switch(FileCategory)
+    switch (FileCategory)
     {
         case CFE_FS_FileCategory_SCRIPT:
             Result = CFE_FS_DEFAULT_SCRIPT_EXTENSION;
@@ -98,7 +96,7 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
             Result = CFE_FS_DEFAULT_LOG_FILE_EXTENSION;
             break;
         default:
-            Result = NULL;   /* Should not be used */
+            Result = NULL; /* Should not be used */
             break;
     }
 
@@ -110,14 +108,14 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
 */
 int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 {
-    int32   Result;
-    int32   EndianCheck = 0x01020304;
+    int32 Result;
+    int32 EndianCheck = 0x01020304;
 
     if (Hdr == NULL)
     {
         return CFE_FS_BAD_ARGUMENT;
     }
-    
+
     /*
     ** Ensure that we are at the start of the file...
     */
@@ -130,16 +128,16 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
         */
         Result = OS_read(FileDes, Hdr, sizeof(CFE_FS_Header_t));
 
-	    /* Determine if this processor is a little endian processor */
-    	if ((*(char *)(&EndianCheck)) == 0x04)
-    	{
-    	    /* If this is a little endian processor, then convert the header data structure from */
-    	    /* its standard big-endian format into a little endian format to ease user access    */
-    	    CFE_FS_ByteSwapCFEHeader(Hdr);
-    	}
+        /* Determine if this processor is a little endian processor */
+        if ((*(char *)(&EndianCheck)) == 0x04)
+        {
+            /* If this is a little endian processor, then convert the header data structure from */
+            /* its standard big-endian format into a little endian format to ease user access    */
+            CFE_FS_ByteSwapCFEHeader(Hdr);
+        }
     }
-    
-    return(Result);
+
+    return (Result);
 
 } /* End of CFE_FS_ReadHeader() */
 
@@ -148,16 +146,16 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 */
 void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 SubType)
 {
-   if(Hdr == NULL || Description == NULL)
-   {
+    if (Hdr == NULL || Description == NULL)
+    {
         CFE_ES_WriteToSysLog("CFE_FS:InitHeader-Failed invalid arguments\n");
-   }
-   else
-   {
+    }
+    else
+    {
         memset(Hdr, 0, sizeof(CFE_FS_Header_t));
         strncpy((char *)Hdr->Description, Description, sizeof(Hdr->Description) - 1);
         Hdr->SubType = SubType;
-   }
+    }
 }
 
 /*
@@ -166,14 +164,14 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 {
     CFE_TIME_SysTime_t Time;
-    int32   Result;
-    int32   EndianCheck = 0x01020304;
-    CFE_ES_AppId_t AppID;
+    int32              Result;
+    int32              EndianCheck = 0x01020304;
+    CFE_ES_AppId_t     AppID;
 
     if (Hdr == NULL)
-	{
-		return CFE_FS_BAD_ARGUMENT;
-	}
+    {
+        return CFE_FS_BAD_ARGUMENT;
+    }
 
     /*
     ** Ensure that we are at the start of the file...
@@ -185,25 +183,24 @@ int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
         /*
         ** Fill in the ID fields...
         */
-          Hdr->SpacecraftID  = CFE_PSP_GetSpacecraftId();
-          Hdr->ProcessorID   = CFE_PSP_GetProcessorId();
-          CFE_ES_GetAppID(&AppID);
-          Hdr->ApplicationID = CFE_RESOURCEID_TO_ULONG(AppID);
+        Hdr->SpacecraftID = CFE_PSP_GetSpacecraftId();
+        Hdr->ProcessorID  = CFE_PSP_GetProcessorId();
+        CFE_ES_GetAppID(&AppID);
+        Hdr->ApplicationID = CFE_RESOURCEID_TO_ULONG(AppID);
 
-          /* Fill in length field */
+        /* Fill in length field */
 
-          Hdr->Length = sizeof(CFE_FS_Header_t);
+        Hdr->Length = sizeof(CFE_FS_Header_t);
 
-          /* put the header, 'cfe1' in hex, in to the content type */
-          Hdr->ContentType = 0x63464531;
+        /* put the header, 'cfe1' in hex, in to the content type */
+        Hdr->ContentType = 0x63464531;
 
-          
         /*
         ** Fill in the timestamp fields...
         */
-          Time = CFE_TIME_GetTime();
-          Hdr->TimeSeconds = Time.Seconds;
-          Hdr->TimeSubSeconds = Time.Subseconds;
+        Time                = CFE_TIME_GetTime();
+        Hdr->TimeSeconds    = Time.Seconds;
+        Hdr->TimeSubSeconds = Time.Subseconds;
 
         /*
         ** Determine if this is a little endian processor
@@ -229,10 +226,9 @@ int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
             /* from the required CFE standard big endian format to the little endian format      */
             CFE_FS_ByteSwapCFEHeader(Hdr);
         }
-
     }
 
-    return(Result);
+    return (Result);
 
 } /* End of CFE_FS_WriteHeader() */
 
@@ -243,13 +239,13 @@ int32 CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp)
 {
     int32              Result;
     CFE_FS_Header_t    TempHdr;
-    int32              EndianCheck = 0x01020304;
+    int32              EndianCheck  = 0x01020304;
     CFE_TIME_SysTime_t OutTimestamp = NewTimestamp;
-    int32              FileOffset = 0;
-    
+    int32              FileOffset   = 0;
+
     FileOffset = ((char *)&TempHdr.TimeSeconds - (char *)&TempHdr.ContentType);
-    Result = OS_lseek(FileDes, FileOffset, OS_SEEK_SET);
-    
+    Result     = OS_lseek(FileDes, FileOffset, OS_SEEK_SET);
+
     if (Result == FileOffset)
     {
         /*
@@ -262,14 +258,14 @@ int32 CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp)
             CFE_FS_ByteSwapUint32(&OutTimestamp.Seconds);
             CFE_FS_ByteSwapUint32(&OutTimestamp.Subseconds);
         }
-        
+
         Result = OS_write(FileDes, &OutTimestamp.Seconds, sizeof(OutTimestamp.Seconds));
-        
+
         /* On a good write, the value returned will equal the number of bytes written */
         if (Result == sizeof(OutTimestamp.Seconds))
         {
             Result = OS_write(FileDes, &OutTimestamp.Subseconds, sizeof(OutTimestamp.Subseconds));
-            
+
             if (Result == sizeof(OutTimestamp.Subseconds))
             {
                 Result = OS_SUCCESS;
@@ -288,10 +284,9 @@ int32 CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp)
     {
         CFE_ES_WriteToSysLog("CFE_FS:SetTime-Failed to lseek time fields (Status=0x%08X)\n", (unsigned int)Result);
     }
-    
-    return(Result);
-} /* End of CFE_FS_SetTimestamp() */
 
+    return (Result);
+} /* End of CFE_FS_SetTimestamp() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                         */
@@ -312,7 +307,6 @@ void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr)
 
 } /* End of CFE_FS_ByteSwapCFEHeader() */
 
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*                                                                         */
 /* CFE_FS_ByteSwapUint32() -- byte swap an uint32                          */
@@ -321,14 +315,14 @@ void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr)
 
 void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
 {
-    int32 Temp = *Uint32ToSwapPtr;
-    char *InPtr = (char *)&Temp;
+    int32 Temp   = *Uint32ToSwapPtr;
+    char *InPtr  = (char *)&Temp;
     char *OutPtr = (char *)Uint32ToSwapPtr;
-    
+
     OutPtr[0] = InPtr[3];
     OutPtr[1] = InPtr[2];
     OutPtr[2] = InPtr[1];
-    OutPtr[3] = InPtr[0];    
+    OutPtr[3] = InPtr[0];
 } /* End of CFE_FS_ByteSwapUint32() */
 
 /*
@@ -340,17 +334,18 @@ void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
 **            - module extension is optional; append default for OS/platform if missing
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize, size_t InputBufSize, 
-        const char *DefaultInput, const char *DefaultPath, const char *DefaultExtension)
+int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
+                                  size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
+                                  const char *DefaultExtension)
 {
-    int32 Status;
+    int32       Status;
     const char *InputPtr;
     const char *ComponentPtr;
-    size_t ComponentLen;
-    char ComponentTerm;
-    size_t OutputLen;
-    size_t InputLen;
-    bool LastPathReached;
+    size_t      ComponentLen;
+    char        ComponentTerm;
+    size_t      OutputLen;
+    size_t      InputLen;
+    bool        LastPathReached;
 
     /* The filename consists of a pathname, filename, and extension component. */
     enum
@@ -370,9 +365,9 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
         return CFE_FS_BAD_ARGUMENT;
     }
 
-    Status = CFE_FS_INVALID_PATH;
-    OutputLen = 0;
-    ComponentTerm = 0;
+    Status          = CFE_FS_INVALID_PATH;
+    OutputLen       = 0;
+    ComponentTerm   = 0;
     LastPathReached = false;
 
     /* If input buffer is not empty, then use it, otherwise use DefaultInput */
@@ -401,19 +396,19 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
         if (Component == PATHNAME_SEPARATOR && !LastPathReached)
         {
             /* repeat until LastPathReached */
-            Component = PATHNAME_COMPONENT;   
+            Component = PATHNAME_COMPONENT;
         }
         else
         {
             ++Component;
         }
 
-        switch(Component)
+        switch (Component)
         {
             case PATHNAME_COMPONENT:
                 /* path part ends with the last / char, which begins the filename */
                 ComponentTerm = '/';
-                ComponentPtr = memchr(InputPtr, ComponentTerm, InputLen);
+                ComponentPtr  = memchr(InputPtr, ComponentTerm, InputLen);
                 if (ComponentPtr != NULL)
                 {
                     /* has path: use pathname from input, advance InputPtr to next part (filename) */
@@ -422,7 +417,7 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
                     InputPtr += ComponentLen;
                     InputLen -= ComponentLen;
                 }
-                else 
+                else
                 {
                     LastPathReached = true;
 
@@ -432,7 +427,7 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
                         ComponentLen = strlen(DefaultPath);
                         ComponentPtr = DefaultPath;
                     }
-                    else 
+                    else
                     {
                         /* use no pathname at all */
                         ComponentLen = 0;
@@ -444,7 +439,7 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
             case FILENAME_COMPONENT:
                 /* filename ends with a . char, which begins the extension */
                 ComponentTerm = '.';
-                ComponentPtr = memchr(InputPtr, ComponentTerm, InputLen);
+                ComponentPtr  = memchr(InputPtr, ComponentTerm, InputLen);
                 if (ComponentPtr != NULL)
                 {
                     /* has ext: use pathname from input, advance InputPtr to next part (extension) */
@@ -473,7 +468,7 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
 
                 if (ComponentLen > 0 && *ComponentPtr != 0)
                 {
-                    /* 
+                    /*
                      * If the filename part is non-empty, then consider the conversion successful
                      * (note that extension is not really needed for an acceptable filename)
                      */
@@ -485,7 +480,7 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
             case PATHNAME_SEPARATOR:
             case EXTENSION_SEPARATOR:
                 /* Remove duplicate terminators that may have been in the input */
-                while (OutputLen > 0 && OutputBuffer[OutputLen-1] == ComponentTerm)
+                while (OutputLen > 0 && OutputBuffer[OutputLen - 1] == ComponentTerm)
                 {
                     --OutputLen;
                 }
@@ -501,23 +496,22 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
                 }
                 break;
 
-
             case EXTENSION_COMPONENT:
                 /* Intentional fall through to default case */
 
             default:
-                /* Just consume the rest of input - 
+                /* Just consume the rest of input -
                  * should already be pointing to correct data */
                 ComponentTerm = 0;
-                ComponentLen = InputLen;
-                ComponentPtr = InputPtr;
-                InputPtr = NULL; /* no more input */
-                InputLen = 0;
+                ComponentLen  = InputLen;
+                ComponentPtr  = InputPtr;
+                InputPtr      = NULL; /* no more input */
+                InputLen      = 0;
                 break;
         }
 
         /* Append component */
-        while(ComponentLen > 0 && *ComponentPtr != 0)
+        while (ComponentLen > 0 && *ComponentPtr != 0)
         {
             OutputBuffer[OutputLen] = *ComponentPtr;
             ++ComponentPtr;
@@ -527,18 +521,18 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
             if (OutputLen >= OutputBufSize)
             {
                 /* name is too long to fit in output buffer */
-                Status = CFE_FS_FNAME_TOO_LONG;
+                Status   = CFE_FS_FNAME_TOO_LONG;
                 InputPtr = NULL; /* no more input */
                 InputLen = 0;
-                --OutputLen;     /* back up one char for term */
+                --OutputLen; /* back up one char for term */
                 break;
             }
         }
     }
 
-    /* 
+    /*
      * Always add a final terminating NUL char.
-     * 
+     *
      * Note that the loop above should never entirely fill
      * buffer (length check includes extra char).
      */
@@ -555,86 +549,87 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
 **            a non-empty, null terminated string and the fixed-length input buffer not needed.
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize, CFE_FS_FileCategory_t FileCategory)
+int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
+                                CFE_FS_FileCategory_t FileCategory)
 {
-    return CFE_FS_ParseInputFileNameEx(OutputBuffer, NULL, OutputBufSize, 0, InputName, 
-        CFE_FS_GetDefaultMountPoint(FileCategory), CFE_FS_GetDefaultExtension(FileCategory));
+    return CFE_FS_ParseInputFileNameEx(OutputBuffer, NULL, OutputBufSize, 0, InputName,
+                                       CFE_FS_GetDefaultMountPoint(FileCategory),
+                                       CFE_FS_GetDefaultExtension(FileCategory));
 }
-
 
 /*
 ** CFE_FS_ExtractFilenameFromPath - See API and header file for details
 */
 int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnly)
 {
-   uint32 i,j;
-   int    StringLength;
-   int    DirMarkIdx;
-   int32   ReturnCode;
-   
-   if ( OriginalPath == NULL || FileNameOnly == NULL )
-   {
-      ReturnCode = CFE_FS_BAD_ARGUMENT;
-   }
-   else
-   {
-      
-       /*
-       ** Get the string length of the original file path
-       */
-       StringLength = strlen(OriginalPath);
-   
-       /*
-       ** Extract the filename from the Path
-       */
-    
-       /* 
-       ** Find the last '/' Character 
-       */
-       DirMarkIdx = -1;
-       for ( i = 0; i < StringLength; i++ )
-       {
-          if ( OriginalPath[i] == '/' )
-          {
-             DirMarkIdx = i;
-          }
-       }
-    
-       /*
-       ** Verify the filename isn't too long
-       */
-       if ((StringLength - (DirMarkIdx + 1)) < OS_MAX_PATH_LEN)
-       {       
-          /* 
-          ** Extract the filename portion 
-          */
-          if ( DirMarkIdx > 0 )
-          {    
-             /* 
-             ** Extract the filename portion 
-             */
-             j = 0;
-             for ( i = DirMarkIdx + 1; i < StringLength; i++ )
-             {
-                FileNameOnly[j] = OriginalPath[i];
-                j++;
-             }
-             FileNameOnly[j] = '\0';
-    
-             ReturnCode = CFE_SUCCESS;       
-          }
-          else
-          { 
-             ReturnCode = CFE_FS_INVALID_PATH;
-          }
-       }
-       else 
-       {
-           ReturnCode = CFE_FS_FNAME_TOO_LONG;
-       }
+    uint32 i, j;
+    int    StringLength;
+    int    DirMarkIdx;
+    int32  ReturnCode;
+
+    if (OriginalPath == NULL || FileNameOnly == NULL)
+    {
+        ReturnCode = CFE_FS_BAD_ARGUMENT;
     }
-   
-    return(ReturnCode);
+    else
+    {
+
+        /*
+        ** Get the string length of the original file path
+        */
+        StringLength = strlen(OriginalPath);
+
+        /*
+        ** Extract the filename from the Path
+        */
+
+        /*
+        ** Find the last '/' Character
+        */
+        DirMarkIdx = -1;
+        for (i = 0; i < StringLength; i++)
+        {
+            if (OriginalPath[i] == '/')
+            {
+                DirMarkIdx = i;
+            }
+        }
+
+        /*
+        ** Verify the filename isn't too long
+        */
+        if ((StringLength - (DirMarkIdx + 1)) < OS_MAX_PATH_LEN)
+        {
+            /*
+            ** Extract the filename portion
+            */
+            if (DirMarkIdx > 0)
+            {
+                /*
+                ** Extract the filename portion
+                */
+                j = 0;
+                for (i = DirMarkIdx + 1; i < StringLength; i++)
+                {
+                    FileNameOnly[j] = OriginalPath[i];
+                    j++;
+                }
+                FileNameOnly[j] = '\0';
+
+                ReturnCode = CFE_SUCCESS;
+            }
+            else
+            {
+                ReturnCode = CFE_FS_INVALID_PATH;
+            }
+        }
+        else
+        {
+            ReturnCode = CFE_FS_FNAME_TOO_LONG;
+        }
+    }
+
+    return (ReturnCode);
 }
 
 /*
@@ -642,19 +637,19 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
 */
 bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 {
-    CFE_FS_CurrentFileState_t *State;
+    CFE_FS_CurrentFileState_t *       State;
     CFE_FS_BackgroundFileDumpEntry_t *Curr;
-    CFE_FS_FileWriteMetaData_t *Meta;
-    int32               Status;
-    CFE_FS_Header_t     FileHdr;
-    void *RecordPtr;
-    size_t RecordSize;
-    bool IsEOF;
+    CFE_FS_FileWriteMetaData_t *      Meta;
+    int32                             Status;
+    CFE_FS_Header_t                   FileHdr;
+    void *                            RecordPtr;
+    size_t                            RecordSize;
+    bool                              IsEOF;
 
-    State = &CFE_FS_Global.FileDump.Current;
-    Curr = NULL;
-    IsEOF = false;
-    RecordPtr = NULL;
+    State      = &CFE_FS_Global.FileDump.Current;
+    Curr       = NULL;
+    IsEOF      = false;
+    RecordPtr  = NULL;
     RecordSize = 0;
 
     State->Credit += (ElapsedTime * CFE_FS_BACKGROUND_CREDIT_PER_SECOND) / 1000;
@@ -672,7 +667,8 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 
     if (CFE_FS_Global.FileDump.CompleteCount != CFE_FS_Global.FileDump.RequestCount)
     {
-        Curr = &CFE_FS_Global.FileDump.Entries[CFE_FS_Global.FileDump.CompleteCount & (CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1)];
+        Curr = &CFE_FS_Global.FileDump
+                    .Entries[CFE_FS_Global.FileDump.CompleteCount & (CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1)];
     }
 
     CFE_FS_UnlockSharedData(__func__);
@@ -688,7 +684,7 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
     {
         /* First time processing this entry - open the file */
         Status = OS_OpenCreate(&State->Fd, Meta->FileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-        if(Status < 0)
+        if (Status < 0)
         {
             State->Fd = OS_OBJECT_ID_UNDEFINED;
             Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
@@ -703,7 +699,8 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
             {
                 OS_close(State->Fd);
                 State->Fd = OS_OBJECT_ID_UNDEFINED;
-                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR, Status, State->RecordNum, sizeof(CFE_FS_Header_t), State->FileSize);
+                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR, Status, State->RecordNum,
+                              sizeof(CFE_FS_Header_t), State->FileSize);
             }
             else
             {
@@ -721,7 +718,7 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
          */
         IsEOF = Meta->GetData(Meta, State->RecordNum, &RecordPtr, &RecordSize);
 
-        /* 
+        /*
          * if the getter outputs a record size of 0, this means there is no data for
          * this entry, but the cycle keeps going (in case of "holes" or unused table entries
          * in the database).
@@ -731,9 +728,9 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
             State->Credit -= RecordSize;
 
             /*
-            * Now write to file
-            */
-            Status = OS_write(State->Fd,RecordPtr,RecordSize);
+             * Now write to file
+             */
+            Status = OS_write(State->Fd, RecordPtr, RecordSize);
 
             if (Status != RecordSize)
             {
@@ -742,7 +739,8 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
                 State->Fd = OS_OBJECT_ID_UNDEFINED;
 
                 /* generate write error event */
-                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, Status, State->RecordNum, RecordSize, State->FileSize);
+                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, Status, State->RecordNum, RecordSize,
+                              State->FileSize);
                 break;
             }
             else
@@ -765,7 +763,7 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
         Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_COMPLETE, CFE_SUCCESS, State->RecordNum, 0, State->FileSize);
     }
 
-    /* 
+    /*
      * if the file is not open, consider this file complete, and advance the head position.
      * (done this way so it also catches the case where the file failed to create, not just EOF)
      */
@@ -793,8 +791,8 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
 {
     CFE_FS_BackgroundFileDumpEntry_t *Curr;
-    int32 Status;
-    uint32 PendingRequestCount;
+    int32                             Status;
+    uint32                            PendingRequestCount;
 
     /* Pre-validate inputs */
     if (Meta == NULL)
@@ -820,7 +818,6 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
         return CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
 
-
     CFE_FS_LockSharedData(__func__);
 
     PendingRequestCount = CFE_FS_Global.FileDump.RequestCount + 1;
@@ -832,18 +829,19 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
     }
     else
     {
-        Curr = &CFE_FS_Global.FileDump.Entries[CFE_FS_Global.FileDump.RequestCount & (CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1)];
+        Curr = &CFE_FS_Global.FileDump
+                    .Entries[CFE_FS_Global.FileDump.RequestCount & (CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1)];
 
-        /* 
-         * store the meta object - note this retains the pointer that was submitted 
+        /*
+         * store the meta object - note this retains the pointer that was submitted
          * (caller must not reuse/change this object until request is completed)
          */
         Curr->Meta = Meta;
 
-        /* 
+        /*
          * The "IsPending" Flag will be set true whenever while this is waiting in the request queue.
          * It will be set false when the file is done.
-         * 
+         *
          * The requester can check this flag to determine if/when the request is complete
          */
         Meta->IsPending = true;
@@ -858,9 +856,9 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
 
     if (Status == CFE_SUCCESS)
     {
-        /* 
+        /*
          * If successfully added to write queue, then wake the ES background task to get started.
-         * 
+         *
          * This may reduce the overall latency between request and completion (depending on other
          * background task work).  If this is the only pending job, this should get it started faster.
          */

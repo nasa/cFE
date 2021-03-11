@@ -21,7 +21,7 @@
 #ifndef _CFE_SB_EXTERN_TYPEDEFS_H_
 #define _CFE_SB_EXTERN_TYPEDEFS_H_
 
-/* This header may be generated from an EDS file, 
+/* This header may be generated from an EDS file,
  * tools are available and the feature is enabled */
 #ifdef CFE_EDS_ENABLED_BUILD
 
@@ -35,8 +35,7 @@
 #include "cfe_mission_cfg.h"
 #include "cfe_resourceid_typedef.h"
 
-
-#define CFE_SB_SUB_ENTRIES_PER_PKT      20     /**< \brief Configuration parameter used by SBN App */
+#define CFE_SB_SUB_ENTRIES_PER_PKT 20 /**< \brief Configuration parameter used by SBN App */
 
 /**
  * @brief Label definitions associated with CFE_SB_QosPriority_Enum_t
@@ -44,15 +43,15 @@
 enum CFE_SB_QosPriority
 {
 
-   /**
-    * @brief Normal priority level
-    */
-   CFE_SB_QosPriority_LOW                             = 0,
+    /**
+     * @brief Normal priority level
+     */
+    CFE_SB_QosPriority_LOW = 0,
 
-   /**
-    * @brief High priority
-    */
-   CFE_SB_QosPriority_HIGH                            = 1
+    /**
+     * @brief High priority
+     */
+    CFE_SB_QosPriority_HIGH = 1
 };
 
 /**
@@ -61,8 +60,7 @@ enum CFE_SB_QosPriority
  *
  * @sa enum CFE_SB_QosPriority
  */
-typedef uint8                                            CFE_SB_QosPriority_Enum_t;
-
+typedef uint8 CFE_SB_QosPriority_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_SB_QosReliability_Enum_t
@@ -70,15 +68,15 @@ typedef uint8                                            CFE_SB_QosPriority_Enum
 enum CFE_SB_QosReliability
 {
 
-   /**
-    * @brief Normal (best-effort) reliability
-    */
-   CFE_SB_QosReliability_LOW                          = 0,
+    /**
+     * @brief Normal (best-effort) reliability
+     */
+    CFE_SB_QosReliability_LOW = 0,
 
-   /**
-    * @brief High reliability
-    */
-   CFE_SB_QosReliability_HIGH                         = 1
+    /**
+     * @brief High reliability
+     */
+    CFE_SB_QosReliability_HIGH = 1
 };
 
 /**
@@ -87,12 +85,12 @@ enum CFE_SB_QosReliability
  *
  * @sa enum CFE_SB_QosReliability
  */
-typedef uint8                                            CFE_SB_QosReliability_Enum_t;
+typedef uint8 CFE_SB_QosReliability_Enum_t;
 
 /**
  * @brief An integer type that should be used for indexing into the Routing Table
  */
-typedef uint16  CFE_SB_RouteId_Atom_t;
+typedef uint16 CFE_SB_RouteId_Atom_t;
 
 /**
  * @brief  CFE_SB_MsgId_Atom_t primitive type definition
@@ -127,13 +125,13 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_SB_PipeId_t;
 ** Currently an unused parameter in #CFE_SB_SubscribeEx
 ** Intended to be used for interprocessor communication only
 **/
-typedef  struct {
-    uint8 Priority;/**< \brief  Specify high(1) or low(0) message priority for off-board routing, currently unused */
-    uint8 Reliability;/**< \brief  Specify high(1) or low(0) message transfer reliability for off-board routing, currently unused */
-}CFE_SB_Qos_t;
-
+typedef struct
+{
+    uint8 Priority; /**< \brief  Specify high(1) or low(0) message priority for off-board routing, currently unused */
+    uint8 Reliability; /**< \brief  Specify high(1) or low(0) message transfer reliability for off-board routing,
+                          currently unused */
+} CFE_SB_Qos_t;
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* _CFE_SB_EXTERN_TYPEDEFS_H_ */
-

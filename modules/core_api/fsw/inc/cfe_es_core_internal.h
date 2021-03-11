@@ -39,7 +39,7 @@
 #include "cfe_es_extern_typedefs.h"
 
 /*
- * The internal APIs prototyped within this block are only intended to be invoked from 
+ * The internal APIs prototyped within this block are only intended to be invoked from
  * other CFE core apps.  They still need to be prototyped in the shared header such that
  * they can be called from other core modules, but applications should not call these.
  */
@@ -47,7 +47,6 @@
 /** @defgroup CFEAPIESCoreInternal cFE Internal Executive Service APIs, internal to CFE core
  * @{
  */
-
 
 /*****************************************************************************/
 /**
@@ -59,10 +58,9 @@
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** 
+**
 ******************************************************************************/
 extern void CFE_ES_TaskMain(void);
-
 
 /*****************************************************************************/
 /**
@@ -76,7 +74,6 @@ extern void CFE_ES_TaskMain(void);
 **
 ******************************************************************************/
 extern int32 CFE_ES_CDS_EarlyInit(void);
-
 
 /*****************************************************************************/
 /**
@@ -92,7 +89,9 @@ extern int32 CFE_ES_CDS_EarlyInit(void);
 **        -# This function assumes input parameters are error free and have met size/value restrictions.
 **        -# The calling function is responsible for issuing any event messages associated with errors.
 **
-** \param[in, out]   HandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle. *HandlePtr is the handle of the CDS block that can be used in #CFE_ES_CopyToCDS and #CFE_ES_RestoreFromCDS.
+** \param[in, out]   HandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle.
+**                               HandlePtr is the handle of the CDS block that can be used in #CFE_ES_CopyToCDS and
+**                               #CFE_ES_RestoreFromCDS.
 **
 ** \param[in]   UserBlockSize   The number of bytes needed in the CDS.
 **
@@ -132,10 +131,8 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
 ** \return Any of the return values from CFE_ES_GenPoolPutBlock
 **
 ******************************************************************************/
-int32  CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices);
-
+int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices);
 
 /**@}*/
 
-
-#endif  /* CFE_ES_CORE_INTERNAL_H */
+#endif /* CFE_ES_CORE_INTERNAL_H */

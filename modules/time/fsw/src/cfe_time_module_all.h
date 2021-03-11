@@ -20,10 +20,10 @@
 
 /**
  * @file cfe_time_module_all.h
- * 
+ *
  * Encapsulates all TIME module internal header files, as well
  * as the public API from all other CFE core modules, OSAL, and PSP.
- * 
+ *
  * This simplifies the set of include files that need to be put at the
  * start of every source file.
  */
@@ -33,7 +33,7 @@
 
 /********************* Include Files  ************************/
 
-#include "cfe.h"                 /* All CFE+OSAL public API definitions */
+#include "cfe.h" /* All CFE+OSAL public API definitions */
 #include "cfe_platform_cfg.h"
 
 #include "cfe_msgids.h"
@@ -45,5 +45,4 @@
 #include "cfe_time_events.h"
 #include "cfe_time_utils.h"
 
-
-#endif  /* CFE_TIME_MODULE_ALL_H */
+#endif /* CFE_TIME_MODULE_ALL_H */

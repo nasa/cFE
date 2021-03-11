@@ -89,9 +89,9 @@ typedef enum CFE_MSG_PlaybackFlag
 
 /*
  * Abstract Message Base Types
- * 
- * The concrete definition of these is provided by "cfe_msg_hdr.h" which is 
- * user-selectable depending on the actual desired message defintion.  These 
+ *
+ * The concrete definition of these is provided by "cfe_msg_hdr.h" which is
+ * user-selectable depending on the actual desired message defintion.  These
  * abstract types are used in the API definition; the API is defined based
  * on these abstract types, independent of the actual message definition.
  */
@@ -110,6 +110,5 @@ typedef struct CFE_MSG_CommandHeader CFE_MSG_CommandHeader_t;
  * \brief cFS telemetry header
  */
 typedef struct CFE_MSG_TelemetryHeader CFE_MSG_TelemetryHeader_t;
-
 
 #endif /* _cfe_msg_typedefs_ */

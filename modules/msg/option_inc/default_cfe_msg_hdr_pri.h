@@ -57,7 +57,7 @@ typedef struct
 
 /**
  * \brief cFS generic base message
- * 
+ *
  * This provides the definition of CFE_MSG_Message_t
  */
 union CFE_MSG_Message
@@ -68,7 +68,7 @@ union CFE_MSG_Message
 
 /**
  * \brief cFS command header
- * 
+ *
  * This provides the definition of CFE_MSG_CommandHeader_t
  */
 struct CFE_MSG_CommandHeader
@@ -79,13 +79,13 @@ struct CFE_MSG_CommandHeader
 
 /**
  * \brief cFS telemetry header
- * 
+ *
  * This provides the definition of CFE_MSG_TelemetryHeader_t
  */
 struct CFE_MSG_TelemetryHeader
 {
-    CFE_MSG_Message_t                  Msg; /**< \brief Base message */
-    CFE_MSG_TelemetrySecondaryHeader_t Sec; /**< \brief Secondary header */
+    CFE_MSG_Message_t                  Msg;      /**< \brief Base message */
+    CFE_MSG_TelemetrySecondaryHeader_t Sec;      /**< \brief Secondary header */
     uint8                              Spare[4]; /**< \brief Padding to end on 64 bit boundary */
 };
 

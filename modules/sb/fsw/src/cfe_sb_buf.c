@@ -37,11 +37,10 @@
 
 /*
  * The actual message content of a SB Buffer Descriptor is the
- * offset of the content member.  This will be auto-aligned by 
+ * offset of the content member.  This will be auto-aligned by
  * the compiler according to the requirements of the machine.
  */
-#define CFE_SB_BUFFERD_CONTENT_OFFSET   (offsetof(CFE_SB_BufferD_t,Content))
-
+#define CFE_SB_BUFFERD_CONTENT_OFFSET (offsetof(CFE_SB_BufferD_t, Content))
 
 /******************************************************************************
  *
@@ -82,7 +81,6 @@ void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node
     Node->Prev->Next = Node;
     Node->Next->Prev = Node;
 }
-
 
 /******************************************************************************
 **  Function:   CFE_SB_GetBufferFromPool()
@@ -138,16 +136,15 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
     /* Initialize the buffer descriptor structure. */
     memset(bd, 0, CFE_SB_BUFFERD_CONTENT_OFFSET);
 
-    bd->MsgId          = CFE_SB_INVALID_MSG_ID;
-    bd->UseCount       = 1;
-    bd->AllocatedSize  = AllocSize;
+    bd->MsgId         = CFE_SB_INVALID_MSG_ID;
+    bd->UseCount      = 1;
+    bd->AllocatedSize = AllocSize;
 
     CFE_SB_TrackingListReset(&bd->Link);
 
     return bd;
 
 } /* CFE_SB_GetBufferFromPool */
-
 
 /******************************************************************************
 **  Function:   CFE_SB_ReturnBufferToPool()
@@ -177,8 +174,7 @@ void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
     /* finally give the buf descriptor back to the buf descriptor pool */
     CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, bd);
 
-}/* end CFE_SB_ReturnBufferToPool */
-
+} /* end CFE_SB_ReturnBufferToPool */
 
 /******************************************************************************
 **  Function:   CFE_SB_IncrBufUseCnt()
@@ -201,13 +197,12 @@ void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
 void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd)
 {
     /* range check the UseCount variable */
-    if(bd->UseCount < 0x7FFF)
+    if (bd->UseCount < 0x7FFF)
     {
         ++bd->UseCount;
     }
 
-}/* end CFE_SB_DecrBufUseCnt */
-
+} /* end CFE_SB_DecrBufUseCnt */
 
 /******************************************************************************
 **  Function:   CFE_SB_DecrBufUseCnt()
@@ -232,19 +227,17 @@ void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd)
 void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
 {
     /* range check the UseCount variable */
-    if(bd->UseCount > 0)
+    if (bd->UseCount > 0)
     {
         --bd->UseCount;
 
-        if (bd->UseCount == 0) 
+        if (bd->UseCount == 0)
         {
-           CFE_SB_ReturnBufferToPool(bd);
+            CFE_SB_ReturnBufferToPool(bd);
         }
     }
 
-}/* end CFE_SB_DecrBufUseCnt */
-
-
+} /* end CFE_SB_DecrBufUseCnt */
 
 /******************************************************************************
 **  Function:   CFE_SB_GetDestinationBlk()
@@ -263,26 +256,27 @@ void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
 */
 CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
 {
-    int32 Stat;
+    int32                  Stat;
     CFE_SB_DestinationD_t *Dest = NULL;
 
     /* Allocate a new destination descriptor from the SB memory pool.*/
-    Stat = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t*)&Dest, CFE_SB_Global.Mem.PoolHdl,  sizeof(CFE_SB_DestinationD_t));
-    if(Stat < 0){
+    Stat = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t *)&Dest, CFE_SB_Global.Mem.PoolHdl, sizeof(CFE_SB_DestinationD_t));
+    if (Stat < 0)
+    {
         return NULL;
     }
 
     /* Add the size of a destination descriptor to the memory-in-use ctr and */
     /* adjust the high water mark if needed */
-    CFE_SB_Global.StatTlmMsg.Payload.MemInUse+=Stat;
-    if(CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse){
-       CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
-    }/* end if */
+    CFE_SB_Global.StatTlmMsg.Payload.MemInUse += Stat;
+    if (CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse)
+    {
+        CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
+    } /* end if */
 
     return Dest;
 
-}/* end CFE_SB_GetDestinationBlk */
-
+} /* end CFE_SB_GetDestinationBlk */
 
 /******************************************************************************
 **  Function:   CFE_SB_PutDestinationBlk()
@@ -303,20 +297,21 @@ int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)
 {
     int32 Stat;
 
-    if(Dest==NULL){
+    if (Dest == NULL)
+    {
         return CFE_SB_BAD_ARGUMENT;
-    }/* end if */
+    } /* end if */
 
     /* give the destination block back to the SB memory pool */
     Stat = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, Dest);
-    if(Stat > 0){
+    if (Stat > 0)
+    {
         /* Substract the size of the destination block from the Memory in use ctr */
-        CFE_SB_Global.StatTlmMsg.Payload.MemInUse-=Stat;
-    }/* end if */
+        CFE_SB_Global.StatTlmMsg.Payload.MemInUse -= Stat;
+    } /* end if */
 
     return CFE_SUCCESS;
 
-}/* end CFE_SB_PutDestinationBlk */
-
+} /* end CFE_SB_PutDestinationBlk */
 
 /*****************************************************************************/

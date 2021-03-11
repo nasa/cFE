@@ -21,7 +21,7 @@
 #ifndef _CFE_TBL_EXTERN_TYPEDEFS_H_
 #define _CFE_TBL_EXTERN_TYPEDEFS_H_
 
-/* This header may be generated from an EDS file, 
+/* This header may be generated from an EDS file,
  * tools are available and the feature is enabled */
 #ifdef CFE_EDS_ENABLED_BUILD
 
@@ -33,7 +33,7 @@
 
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
-#include "cfe_mission_cfg.h"  /* for CFE_MISSION_TBL_MAX_FULL_NAME_LEN */
+#include "cfe_mission_cfg.h" /* for CFE_MISSION_TBL_MAX_FULL_NAME_LEN */
 
 /**
  * @brief Label definitions associated with CFE_TBL_BufferSelect_Enum_t
@@ -41,15 +41,15 @@
 enum CFE_TBL_BufferSelect
 {
 
-   /**
-    * @brief Select the Inactive buffer for validate or dump
-    */
-   CFE_TBL_BufferSelect_INACTIVE                      = 0,
+    /**
+     * @brief Select the Inactive buffer for validate or dump
+     */
+    CFE_TBL_BufferSelect_INACTIVE = 0,
 
-   /**
-    * @brief Select the Active buffer for validate or dump
-    */
-   CFE_TBL_BufferSelect_ACTIVE                        = 1
+    /**
+     * @brief Select the Active buffer for validate or dump
+     */
+    CFE_TBL_BufferSelect_ACTIVE = 1
 };
 
 /**
@@ -58,9 +58,7 @@ enum CFE_TBL_BufferSelect
  *
  * @sa enum CFE_TBL_BufferSelect
  */
-typedef uint16                                           CFE_TBL_BufferSelect_Enum_t;
-
-
+typedef uint16 CFE_TBL_BufferSelect_Enum_t;
 
 /**
  * @brief The definition of the header fields that are included in CFE Table Data files.
@@ -69,16 +67,12 @@ typedef uint16                                           CFE_TBL_BufferSelect_En
  */
 typedef struct CFE_TBL_File_Hdr
 {
-    uint32                   Reserved;                             /**< Future Use: NumTblSegments in File?   */
-    CFE_ES_MemOffset_t       Offset;                               /**< Byte Offset at which load should commence */
-    CFE_ES_MemOffset_t       NumBytes;                             /**< Number of bytes to load into table */
-    char                     TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
+    uint32             Reserved;                                     /**< Future Use: NumTblSegments in File?   */
+    CFE_ES_MemOffset_t Offset;                                       /**< Byte Offset at which load should commence */
+    CFE_ES_MemOffset_t NumBytes;                                     /**< Number of bytes to load into table */
+    char               TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< Fully qualified name of table to load */
 } CFE_TBL_File_Hdr_t;
-
-
-
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* _CFE_TBL_EXTERN_TYPEDEFS_H_ */
-

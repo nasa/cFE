@@ -93,21 +93,21 @@ typedef int32 CFE_Status_t;
 #define CFE_SEVERITY_BITMASK ((CFE_Status_t)0xc0000000) /**< @brief Error Severity Bitmask */
 
 #define CFE_SEVERITY_SUCCESS ((CFE_Status_t)0x00000000) /**< @brief Severity Success */
-#define CFE_SEVERITY_INFO ((CFE_Status_t)0x40000000)    /**< @brief Severity Info */
-#define CFE_SEVERITY_ERROR ((CFE_Status_t)0xc0000000)   /**< @brief Severity Error */
+#define CFE_SEVERITY_INFO    ((CFE_Status_t)0x40000000) /**< @brief Severity Info */
+#define CFE_SEVERITY_ERROR   ((CFE_Status_t)0xc0000000) /**< @brief Severity Error */
 
 /*
 ** cFE Service Identifiers
 */
 #define CFE_SERVICE_BITMASK ((CFE_Status_t)0x0e000000) /**< @brief Error Service Bitmask */
 
-#define CFE_EVENTS_SERVICE ((CFE_Status_t)0x02000000)       /**< @brief Event Service */
-#define CFE_EXECUTIVE_SERVICE ((CFE_Status_t)0x04000000)    /**< @brief Executive Service */
-#define CFE_FILE_SERVICE ((CFE_Status_t)0x06000000)         /**< @brief File Service */
-#define CFE_GENERIC_SERVICE ((CFE_Status_t)0x08000000)      /**< @brief Generic Service */
+#define CFE_EVENTS_SERVICE       ((CFE_Status_t)0x02000000) /**< @brief Event Service */
+#define CFE_EXECUTIVE_SERVICE    ((CFE_Status_t)0x04000000) /**< @brief Executive Service */
+#define CFE_FILE_SERVICE         ((CFE_Status_t)0x06000000) /**< @brief File Service */
+#define CFE_GENERIC_SERVICE      ((CFE_Status_t)0x08000000) /**< @brief Generic Service */
 #define CFE_SOFTWARE_BUS_SERVICE ((CFE_Status_t)0x0a000000) /**< @brief Software Bus Service */
-#define CFE_TABLE_SERVICE ((CFE_Status_t)0x0c000000)        /**< @brief Table Service */
-#define CFE_TIME_SERVICE ((CFE_Status_t)0x0e000000)         /**< @brief Time Service */
+#define CFE_TABLE_SERVICE        ((CFE_Status_t)0x0c000000) /**< @brief Table Service */
+#define CFE_TIME_SERVICE         ((CFE_Status_t)0x0e000000) /**< @brief Time Service */
 
 /*
 ************* COMMON STATUS CODES *************
@@ -164,7 +164,7 @@ typedef int32 CFE_Status_t;
  *
  *  This error indicates that the operation failed for
  *  some reason outside the scope of CFE.  The real failure may
- *  have been in OSAL, PSP, or another dependent library.  
+ *  have been in OSAL, PSP, or another dependent library.
  *
  *  Details of the original failure should be written to syslog
  *  and/or a system event before returning this error.
@@ -178,7 +178,7 @@ typedef int32 CFE_Status_t;
  *  limit has been reached.  No more requests can be made until
  *  the current request(s) complete.
  */
-#define CFE_STATUS_REQUEST_ALREADY_PENDING       ((int32)0xc8000006)
+#define CFE_STATUS_REQUEST_ALREADY_PENDING ((int32)0xc8000006)
 
 /**
  * @brief Not Implemented
@@ -352,7 +352,7 @@ typedef int32 CFE_Status_t;
  */
 #define CFE_ES_BAD_ARGUMENT ((CFE_Status_t)0xc400000a)
 
-/** 
+/**
  * @brief Child Task Register Error
  *
  *  Errors occured when trying to register a child task.
@@ -360,7 +360,7 @@ typedef int32 CFE_Status_t;
  */
 #define CFE_ES_ERR_CHILD_TASK_REGISTER ((CFE_Status_t)0xc400000b)
 
-/** 
+/**
  * @brief Shell Command Error
  *
  *  Error occured ehen trying to pass a system call to the OS shell
@@ -539,9 +539,9 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Application Cleanup Error
  *
- *  Occurs when an attempt was made to Clean Up an application 
+ *  Occurs when an attempt was made to Clean Up an application
  *  which involves calling Table, EVS, and SB cleanup functions, then
- *  deleting all ES resources, child tasks, and unloading the 
+ *  deleting all ES resources, child tasks, and unloading the
  *  object module. The approach here is to keep going even though one
  *  of these steps had an error. There will be syslog messages detailing
  *  each problem.
@@ -656,7 +656,7 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Bad Argument
  *
- *  A parameter given by a caller to a File Services API did not pass 
+ *  A parameter given by a caller to a File Services API did not pass
  *  validation checks.
  *
  */
@@ -714,7 +714,7 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Bad Argument
  *
- *  A parameter given by a caller to a Software Bus API did not pass 
+ *  A parameter given by a caller to a Software Bus API did not pass
  *  validation checks.
  *
  */
@@ -723,9 +723,9 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Max Pipes Met
  *
- *  This error code will be returned from #CFE_SB_CreatePipe when the  
- *  SB cannot accomodate the request to create a pipe because the maximum 
- *  number of pipes (#CFE_PLATFORM_SB_MAX_PIPES) are in use. This configuration 
+ *  This error code will be returned from #CFE_SB_CreatePipe when the
+ *  SB cannot accomodate the request to create a pipe because the maximum
+ *  number of pipes (#CFE_PLATFORM_SB_MAX_PIPES) are in use. This configuration
  *  parameter is defined in the cfe_platform_cfg.h file.
  *
  */
@@ -734,10 +734,10 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Pipe Create Error
  *
- *  The maximum number of queues(#OS_MAX_QUEUES) are in use. Or possibly a 
+ *  The maximum number of queues(#OS_MAX_QUEUES) are in use. Or possibly a
  *  lower level problem with creating the underlying queue has occurred
- *  such as a lack of memory. If the latter is the problem, the status 
- *  code displayed in the event must be tracked.       
+ *  such as a lack of memory. If the latter is the problem, the status
+ *  code displayed in the event must be tracked.
  *
  */
 #define CFE_SB_PIPE_CR_ERR ((CFE_Status_t)0xca000005)
@@ -746,7 +746,7 @@ typedef int32 CFE_Status_t;
  * @brief Pipe Read Error
  *
  *  This return value indicates an error at the Queue read level. This
- *  error typically cannot be corrected by the caller. Some possible 
+ *  error typically cannot be corrected by the caller. Some possible
  *  causes are: queue was not properly initialized or created, the number
  *  of bytes read from the queue was not the number of bytes requested in
  *  the read. The queue id is invalid. Similar errors regarding the pipe
@@ -758,8 +758,8 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Message Too Big
  *
- *  The size field in the message header indicates the message exceeds the  
- *  max Software Bus message size. The max size is defined by   
+ *  The size field in the message header indicates the message exceeds the
+ *  max Software Bus message size. The max size is defined by
  *  configuration parameter #CFE_MISSION_SB_MAX_SB_MSG_SIZE in cfe_mission_cfg.h
  *
  */
@@ -770,9 +770,9 @@ typedef int32 CFE_Status_t;
  *
  *  Returned when the memory in the SB message buffer pool has been depleted.
  *  The amount of memory in the pool is dictated by the configuration parameter
- *  #CFE_PLATFORM_SB_BUF_MEMORY_BYTES specified in the cfe_platform_cfg.h file. Also 
- *  the memory statistics, including current utilization figures and high 
- *  water marks for the SB Buffer memory pool can be monitored by sending 
+ *  #CFE_PLATFORM_SB_BUF_MEMORY_BYTES specified in the cfe_platform_cfg.h file. Also
+ *  the memory statistics, including current utilization figures and high
+ *  water marks for the SB Buffer memory pool can be monitored by sending
  *  a Software Bus command to send the SB statistics packet.
  *
  */
@@ -792,9 +792,9 @@ typedef int32 CFE_Status_t;
  * @brief Max Destinations Met
  *
  *  Will be returned when calling one of the SB subscription API's if the
- *  SB routing table cannot accomodate another destination for a 
- *  particular the given message ID. This occurs when the number of   
- *  destinations in use meets the platform configuration parameter 
+ *  SB routing table cannot accomodate another destination for a
+ *  particular the given message ID. This occurs when the number of
+ *  destinations in use meets the platform configuration parameter
  *  #CFE_PLATFORM_SB_MAX_DEST_PER_PKT.
  *
  */
@@ -812,8 +812,8 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Internal Error
  *
- *  This error code will be returned by the #CFE_SB_Subscribe API if the 
- *  code detects an internal index is out of range. The most likely 
+ *  This error code will be returned by the #CFE_SB_Subscribe API if the
+ *  code detects an internal index is out of range. The most likely
  *  cause would be a Single Event Upset.
  *
  */
@@ -841,7 +841,7 @@ typedef int32 CFE_Status_t;
 /**
  * @brief No Message Recieved
  *
- *  When trying to determine the last senders ID, this return 
+ *  When trying to determine the last senders ID, this return
  *  value indicates that there was not a message recived on the pipe.
  *
  */
@@ -872,7 +872,7 @@ typedef int32 CFE_Status_t;
  */
 #define CFE_TBL_ERR_INVALID_HANDLE ((CFE_Status_t)0xcc000001)
 
-/** 
+/**
  * @brief Invalid Name
  *
  *  The calling Application attempted to register a table whose
@@ -922,7 +922,7 @@ typedef int32 CFE_Status_t;
  * @brief Duplicate Warning
  *
  *  This is an error that the registration is trying to replace
- *  an existing table with the same name.  The previous table 
+ *  an existing table with the same name.  The previous table
  *  stays in place and the new table is rejected.
  *
  */
@@ -1230,7 +1230,7 @@ typedef int32 CFE_Status_t;
  *  contents were discovered in the Critical Data Store.  The discovered
  *  contents were copied back into the newly registered table as the
  *  table's initial contents.<BR>
- *  \b NOTE: In this situation, the contents of the table are \b NOT 
+ *  \b NOTE: In this situation, the contents of the table are \b NOT
  *  validated using the table's validation function.
  *
  */
@@ -1276,16 +1276,16 @@ typedef int32 CFE_Status_t;
 **  Error code indicating that the TBL file could not be
 **  opened by the OS.
 */
-#define CFE_TBL_ERR_ACCESS              ((CFE_Status_t)0xcc00002c)
+#define CFE_TBL_ERR_ACCESS ((CFE_Status_t)0xcc00002c)
 
 /**
  * @brief Bad Argument
  *
- *  A parameter given by a caller to a Table API did not pass 
+ *  A parameter given by a caller to a Table API did not pass
  *  validation checks.
  *
  */
-#define CFE_TBL_BAD_ARGUMENT            ((CFE_Status_t)0xcc00002d)
+#define CFE_TBL_BAD_ARGUMENT ((CFE_Status_t)0xcc00002d)
 
 /**
  * @brief Not Implemented
@@ -1364,19 +1364,19 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Bad Argument
  *
- *  A parameter given by a caller to a TIME Services API did not pass 
+ *  A parameter given by a caller to a TIME Services API did not pass
  *  validation checks.
  *
  */
-#define CFE_TIME_BAD_ARGUMENT            ((CFE_Status_t)0xce000005)
+#define CFE_TIME_BAD_ARGUMENT ((CFE_Status_t)0xce000005)
 /**@}*/
 
 /* Compatibility for error names which have been updated */
 #ifndef CFE_OMIT_DEPRECATED_6_8
-#define CFE_ES_ERR_TASKID CFE_ES_ERR_RESOURCEID_NOT_VALID
-#define CFE_ES_ERR_APPID CFE_ES_ERR_RESOURCEID_NOT_VALID
-#define CFE_ES_ERR_MEM_HANDLE CFE_ES_ERR_RESOURCEID_NOT_VALID
-#define CFE_ES_ERR_APPNAME CFE_ES_ERR_NAME_NOT_FOUND
+#define CFE_ES_ERR_TASKID        CFE_ES_ERR_RESOURCEID_NOT_VALID
+#define CFE_ES_ERR_APPID         CFE_ES_ERR_RESOURCEID_NOT_VALID
+#define CFE_ES_ERR_MEM_HANDLE    CFE_ES_ERR_RESOURCEID_NOT_VALID
+#define CFE_ES_ERR_APPNAME       CFE_ES_ERR_NAME_NOT_FOUND
 #define CFE_ES_CDS_NOT_FOUND_ERR CFE_ES_ERR_NAME_NOT_FOUND
 #define CFE_ES_CDS_REGISTRY_FULL CFE_ES_NO_RESOURCE_IDS_AVAILABLE
 #endif

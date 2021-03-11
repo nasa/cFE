@@ -42,7 +42,7 @@
 
 /*************************************************************************/
 
-#define CFE_TIME_NEGATIVE        0x80000000  /* ~ 68 * 31,536,000 seconds */
+#define CFE_TIME_NEGATIVE 0x80000000 /* ~ 68 * 31,536,000 seconds */
 
 /*************************************************************************/
 
@@ -50,23 +50,23 @@
 ** Main task definitions...
 */
 #define CFE_TIME_TASK_NAME       "CFE_TIME"
-#define CFE_TIME_RESET_SIGNATURE   0xA5A55A5A
+#define CFE_TIME_RESET_SIGNATURE 0xA5A55A5A
 
 /*
 ** Interrupt task definitions...
 */
-#define CFE_TIME_TASK_TONE_NAME  "TIME_TONE_TASK"
-#define CFE_TIME_TASK_1HZ_NAME   "TIME_1HZ_TASK"
-#define CFE_TIME_TASK_STACK_PTR  CFE_ES_TASK_STACK_ALLOCATE
-#define CFE_TIME_TASK_FLAGS      0
+#define CFE_TIME_TASK_TONE_NAME "TIME_TONE_TASK"
+#define CFE_TIME_TASK_1HZ_NAME  "TIME_1HZ_TASK"
+#define CFE_TIME_TASK_STACK_PTR CFE_ES_TASK_STACK_ALLOCATE
+#define CFE_TIME_TASK_FLAGS     0
 
 /*
 ** Interrupt semaphore definitions...
 */
-#define CFE_TIME_SEM_TONE_NAME   "TIME_TONE_SEM"
-#define CFE_TIME_SEM_1HZ_NAME    "TIME_1HZ_SEM"
-#define CFE_TIME_SEM_VALUE       0
-#define CFE_TIME_SEM_OPTIONS     0
+#define CFE_TIME_SEM_TONE_NAME "TIME_TONE_SEM"
+#define CFE_TIME_SEM_1HZ_NAME  "TIME_1HZ_SEM"
+#define CFE_TIME_SEM_VALUE     0
+#define CFE_TIME_SEM_OPTIONS   0
 
 /*
 ** Main Task Pipe definitions...
@@ -79,10 +79,10 @@
 ** Reset Area state state at startup...
 */
 
-#define CFE_TIME_RESET_AREA_ERROR       1   /* no mem available */
-#define CFE_TIME_RESET_AREA_BAD         2   /* had invalid data */
-#define CFE_TIME_RESET_AREA_NEW         3   /* new memory block */
-#define CFE_TIME_RESET_AREA_EXISTING    4   /* had valid data   */
+#define CFE_TIME_RESET_AREA_ERROR    1 /* no mem available */
+#define CFE_TIME_RESET_AREA_BAD      2 /* had invalid data */
+#define CFE_TIME_RESET_AREA_NEW      3 /* new memory block */
+#define CFE_TIME_RESET_AREA_EXISTING 4 /* had valid data   */
 
 /*
  * Definitions for time reference multi-buffering
@@ -100,8 +100,8 @@
  *
  * This must be a power of 2.
  */
-#define CFE_TIME_REFERENCE_BUF_DEPTH    4
-#define CFE_TIME_REFERENCE_BUF_MASK     (CFE_TIME_REFERENCE_BUF_DEPTH-1)
+#define CFE_TIME_REFERENCE_BUF_DEPTH 4
+#define CFE_TIME_REFERENCE_BUF_MASK  (CFE_TIME_REFERENCE_BUF_DEPTH - 1)
 
 /*************************************************************************/
 
@@ -111,17 +111,17 @@
 typedef struct
 {
 
-  CFE_TIME_SysTime_t    AtToneMET;      /* MET at time of tone */
-  CFE_TIME_SysTime_t    AtToneSTCF;     /* STCF at time of tone */
-  int16                 AtToneLeapSeconds;    /* Leap Seconds at time of tone */
-  int16                 ClockSetState;  /* Time has been "set" */
-  int16                 ClockFlyState;  /* Current fly-wheel state */
-  int16                 DelayDirection; /* Wheter "AtToneDelay" is add or subtract */
-  CFE_TIME_SysTime_t    AtToneDelay;    /* Adjustment for slow tone detection */
-  CFE_TIME_SysTime_t    AtToneLatch;    /* Local clock latched at time of tone */
-  CFE_TIME_SysTime_t    CurrentLatch;   /* Local clock latched just "now" */
-  CFE_TIME_SysTime_t    TimeSinceTone;  /* Time elapsed since the tone */
-  CFE_TIME_SysTime_t    CurrentMET;     /* MET at this instant */
+    CFE_TIME_SysTime_t AtToneMET;         /* MET at time of tone */
+    CFE_TIME_SysTime_t AtToneSTCF;        /* STCF at time of tone */
+    int16              AtToneLeapSeconds; /* Leap Seconds at time of tone */
+    int16              ClockSetState;     /* Time has been "set" */
+    int16              ClockFlyState;     /* Current fly-wheel state */
+    int16              DelayDirection;    /* Wheter "AtToneDelay" is add or subtract */
+    CFE_TIME_SysTime_t AtToneDelay;       /* Adjustment for slow tone detection */
+    CFE_TIME_SysTime_t AtToneLatch;       /* Local clock latched at time of tone */
+    CFE_TIME_SysTime_t CurrentLatch;      /* Local clock latched just "now" */
+    CFE_TIME_SysTime_t TimeSinceTone;     /* Time elapsed since the tone */
+    CFE_TIME_SysTime_t CurrentMET;        /* MET at this instant */
 
 } CFE_TIME_Reference_t;
 
@@ -130,7 +130,7 @@ typedef struct
 */
 typedef struct
 {
-  volatile CFE_TIME_SynchCallbackPtr_t    Ptr;  /**< \brief Pointer to Callback function */
+    volatile CFE_TIME_SynchCallbackPtr_t Ptr; /**< \brief Pointer to Callback function */
 } CFE_TIME_SynchCallbackRegEntry_t;
 
 /*
@@ -142,17 +142,17 @@ typedef struct
 */
 typedef struct
 {
-    uint32                StateVersion;
+    uint32 StateVersion;
 
-    int16                 AtToneLeapSeconds;
-    int16                 ClockSetState;
-    int16                 ClockFlyState;
-    int16                 DelayDirection;
+    int16 AtToneLeapSeconds;
+    int16 ClockSetState;
+    int16 ClockFlyState;
+    int16 DelayDirection;
 
-    CFE_TIME_SysTime_t    AtToneMET;
-    CFE_TIME_SysTime_t    AtToneSTCF;
-    CFE_TIME_SysTime_t    AtToneDelay;
-    CFE_TIME_SysTime_t    AtToneLatch;
+    CFE_TIME_SysTime_t AtToneMET;
+    CFE_TIME_SysTime_t AtToneSTCF;
+    CFE_TIME_SysTime_t AtToneDelay;
+    CFE_TIME_SysTime_t AtToneLatch;
 
 } CFE_TIME_ReferenceState_t;
 
@@ -163,164 +163,164 @@ typedef struct
 */
 typedef struct
 {
-  /*
-  ** Task command interface counters...
-  */
-  uint8                 CommandCounter;
-  uint8                 CommandErrorCounter;
+    /*
+    ** Task command interface counters...
+    */
+    uint8 CommandCounter;
+    uint8 CommandErrorCounter;
 
-  /*
-  ** Task housekeeping and diagnostics telemetry packets...
-  */
-  CFE_TIME_HousekeepingTlm_t    HkPacket;
-  CFE_TIME_DiagnosticTlm_t      DiagPacket;
+    /*
+    ** Task housekeeping and diagnostics telemetry packets...
+    */
+    CFE_TIME_HousekeepingTlm_t HkPacket;
+    CFE_TIME_DiagnosticTlm_t   DiagPacket;
 
-  /*
-  ** Task operational data (not reported in housekeeping)...
-  */
-  CFE_SB_PipeId_t    CmdPipe;
+    /*
+    ** Task operational data (not reported in housekeeping)...
+    */
+    CFE_SB_PipeId_t CmdPipe;
 
-  /*
-  ** Task initialization data (not reported in housekeeping)...
-  */
-  int16                 ClockSource;
-  int16                 ClockSignal;
-  int16                 ServerFlyState;
+    /*
+    ** Task initialization data (not reported in housekeeping)...
+    */
+    int16 ClockSource;
+    int16 ClockSignal;
+    int16 ServerFlyState;
 
-  /*
-  ** Pending data values (from "time at tone" command data)...
-  */
-  CFE_TIME_SysTime_t    PendingMET;
-  CFE_TIME_SysTime_t    PendingSTCF;
-  int16                 PendingLeaps;
-  int16                 PendingState;
+    /*
+    ** Pending data values (from "time at tone" command data)...
+    */
+    CFE_TIME_SysTime_t PendingMET;
+    CFE_TIME_SysTime_t PendingSTCF;
+    int16              PendingLeaps;
+    int16              PendingState;
 
-  /*
-  ** STCF adjustment values...
-  */
-  CFE_TIME_SysTime_t    OneTimeAdjust;
-  CFE_TIME_SysTime_t    OneHzAdjust;
+    /*
+    ** STCF adjustment values...
+    */
+    CFE_TIME_SysTime_t OneTimeAdjust;
+    CFE_TIME_SysTime_t OneHzAdjust;
 
-  int16                 OneTimeDirection; /* Add = true */
-  int16                 OneHzDirection;
+    int16 OneTimeDirection; /* Add = true */
+    int16 OneHzDirection;
 
-  /*
-  ** Most recent local clock latch values...
-  */
-  CFE_TIME_SysTime_t    ToneSignalLatch;  /* Latched at tone */
-  CFE_TIME_SysTime_t    ToneDataLatch;    /* Latched at packet */
+    /*
+    ** Most recent local clock latch values...
+    */
+    CFE_TIME_SysTime_t ToneSignalLatch; /* Latched at tone */
+    CFE_TIME_SysTime_t ToneDataLatch;   /* Latched at packet */
 
-  /*
-  ** Miscellaneous counters...
-  */
-  uint32                ToneMatchCounter;   /* Tone and data match */
-  uint32                ToneMatchErrorCounter;  /* Tone and data mismatch */
-  uint32                ToneSignalCounter;  /* Tone signal commands */
-  uint32                ToneDataCounter;    /* Tone data commands */
-  uint32                ToneIntCounter;     /* Tone interrupts (valid) */
-  uint32                ToneIntErrorCounter;    /* Tone interrupts (invalid) */
-  uint32                ToneTaskCounter;    /* Tone task wake-ups */
-  uint32                VirtualMET;       /* Software MET */
-  uint32                LocalIntCounter;    /* Local 1Hz interrupts */
-  uint32                LocalTaskCounter;   /* Local 1Hz task wake-ups */
-  uint32                InternalCount;    /* Time from internal data */
-  uint32                ExternalCount;    /* Time from external data */
+    /*
+    ** Miscellaneous counters...
+    */
+    uint32 ToneMatchCounter;      /* Tone and data match */
+    uint32 ToneMatchErrorCounter; /* Tone and data mismatch */
+    uint32 ToneSignalCounter;     /* Tone signal commands */
+    uint32 ToneDataCounter;       /* Tone data commands */
+    uint32 ToneIntCounter;        /* Tone interrupts (valid) */
+    uint32 ToneIntErrorCounter;   /* Tone interrupts (invalid) */
+    uint32 ToneTaskCounter;       /* Tone task wake-ups */
+    uint32 VirtualMET;            /* Software MET */
+    uint32 LocalIntCounter;       /* Local 1Hz interrupts */
+    uint32 LocalTaskCounter;      /* Local 1Hz task wake-ups */
+    uint32 InternalCount;         /* Time from internal data */
+    uint32 ExternalCount;         /* Time from external data */
 
-  volatile CFE_TIME_ReferenceState_t ReferenceState[CFE_TIME_REFERENCE_BUF_DEPTH];
-  volatile uint32       LastVersionCounter;    /* Completed Updates to "AtTone" values */
-  uint32                ResetVersionCounter;   /* Version counter at last counter reset */
+    volatile CFE_TIME_ReferenceState_t ReferenceState[CFE_TIME_REFERENCE_BUF_DEPTH];
+    volatile uint32                    LastVersionCounter;  /* Completed Updates to "AtTone" values */
+    uint32                             ResetVersionCounter; /* Version counter at last counter reset */
 
-  /*
-  ** Time window verification values (converted from micro-secs)...
-  **
-  ** Regardless of whether the tone follows the time packet, or vice
-  **    versa, these values define the acceptable window of time for
-  **    the second event to follow the first.  The minimum value may
-  **    be as little as zero, and the maximum must be something less
-  **    than a second.
-  */
-  uint32                MinElapsed;
-  uint32                MaxElapsed;
+    /*
+    ** Time window verification values (converted from micro-secs)...
+    **
+    ** Regardless of whether the tone follows the time packet, or vice
+    **    versa, these values define the acceptable window of time for
+    **    the second event to follow the first.  The minimum value may
+    **    be as little as zero, and the maximum must be something less
+    **    than a second.
+    */
+    uint32 MinElapsed;
+    uint32 MaxElapsed;
 
-  /*
-  ** Maximum local clock value (before roll-over)...
-  */
-  CFE_TIME_SysTime_t    MaxLocalClock;
+    /*
+    ** Maximum local clock value (before roll-over)...
+    */
+    CFE_TIME_SysTime_t MaxLocalClock;
 
-  /*
-  ** Clock state has been commanded into (CFE_TIME_ClockState_FLYWHEEL)...
-  */
-  bool                  Forced2Fly;
+    /*
+    ** Clock state has been commanded into (CFE_TIME_ClockState_FLYWHEEL)...
+    */
+    bool Forced2Fly;
 
-  /*
-  ** Clock state has just transitioned into (CFE_TIME_ClockState_FLYWHEEL)...
-  **   (not in HK since it won't be true long enough to detect)
-  */
+    /*
+    ** Clock state has just transitioned into (CFE_TIME_ClockState_FLYWHEEL)...
+    **   (not in HK since it won't be true long enough to detect)
+    */
 
-  bool                  AutoStartFly;
-  bool                  IsToneGood;
+    bool AutoStartFly;
+    bool IsToneGood;
 
-  /*
-  ** Spare byte for alignment 
-  */
-  bool                  Spare;
+    /*
+    ** Spare byte for alignment
+    */
+    bool Spare;
 
-  /*
-  ** Local 1Hz wake-up command packet (not related to time at tone)...
-  */
-  CFE_TIME_1HzCmd_t Local1HzCmd;
+    /*
+    ** Local 1Hz wake-up command packet (not related to time at tone)...
+    */
+    CFE_TIME_1HzCmd_t Local1HzCmd;
 
-  /*
-  ** Time at the tone command packets (sent by time servers)...
-  */
-  CFE_TIME_ToneDataCmd_t ToneDataCmd;
-  CFE_TIME_ToneSignalCmd_t ToneSignalCmd;
+    /*
+    ** Time at the tone command packets (sent by time servers)...
+    */
+    CFE_TIME_ToneDataCmd_t   ToneDataCmd;
+    CFE_TIME_ToneSignalCmd_t ToneSignalCmd;
 
-  /*
-   * Normally "tone send" commands come from the scheduler based on the
-   * configured action table, so it occurs at the right point between tones.
-   *
-   * However when "fake tone" mode is enabled, then we will locally generate the
-   * "tone send" message as part of the Tone task, in addition to the regular
-   * "tone signal" message above.
-   */
+    /*
+     * Normally "tone send" commands come from the scheduler based on the
+     * configured action table, so it occurs at the right point between tones.
+     *
+     * However when "fake tone" mode is enabled, then we will locally generate the
+     * "tone send" message as part of the Tone task, in addition to the regular
+     * "tone signal" message above.
+     */
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
-  CFE_TIME_FakeToneCmd_t ToneSendCmd;
+    CFE_TIME_FakeToneCmd_t ToneSendCmd;
 #endif
 
-  /*
-  ** Interrupt task semaphores...
-  */
-  osal_id_t             LocalSemaphore;
-  osal_id_t             ToneSemaphore;
-  /*
-  ** Interrupt task ID's...
-  */
-  CFE_ES_TaskId_t       LocalTaskID;
-  CFE_ES_TaskId_t       ToneTaskID;
+    /*
+    ** Interrupt task semaphores...
+    */
+    osal_id_t LocalSemaphore;
+    osal_id_t ToneSemaphore;
+    /*
+    ** Interrupt task ID's...
+    */
+    CFE_ES_TaskId_t LocalTaskID;
+    CFE_ES_TaskId_t ToneTaskID;
 
-  /*
-  ** Maximum difference from expected for external time sources...
-  */
+    /*
+    ** Maximum difference from expected for external time sources...
+    */
 
-  CFE_TIME_SysTime_t    MaxDelta;
+    CFE_TIME_SysTime_t MaxDelta;
 
-  /*
-  ** Tone signal tolerance limits...
-  */
-  uint32                ToneOverLimit;
-  uint32                ToneUnderLimit;
+    /*
+    ** Tone signal tolerance limits...
+    */
+    uint32 ToneOverLimit;
+    uint32 ToneUnderLimit;
 
-  /*
-  ** Reset Area ...
-  */
-  uint32                DataStoreStatus;
-  
-  /*
-  ** Synchronization Callback Registry
-  ** One callback per app is allowed
-  */
-  CFE_TIME_SynchCallbackRegEntry_t SynchCallback[CFE_PLATFORM_ES_MAX_APPLICATIONS];
+    /*
+    ** Reset Area ...
+    */
+    uint32 DataStoreStatus;
+
+    /*
+    ** Synchronization Callback Registry
+    ** One callback per app is allowed
+    */
+    CFE_TIME_SynchCallbackRegEntry_t SynchCallback[CFE_PLATFORM_ES_MAX_APPLICATIONS];
 
 } CFE_TIME_Global_t;
 
@@ -328,7 +328,6 @@ typedef struct
 ** Time task global data (from "cfe_time_task.c")...
 */
 extern CFE_TIME_Global_t CFE_TIME_Global;
-
 
 /*************************************************************************/
 /*
@@ -339,13 +338,13 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void);
 /*
 ** Function prototypes (Time Services utilities data)...
 */
-int32 CFE_TIME_TaskInit (void);
+int32 CFE_TIME_TaskInit(void);
 void  CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
-void CFE_TIME_InitData(void);
-void CFE_TIME_QueryResetVars(void);
-void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference);
-void CFE_TIME_GetDiagData(void);
-void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference);
+void  CFE_TIME_InitData(void);
+void  CFE_TIME_QueryResetVars(void);
+void  CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference);
+void  CFE_TIME_GetDiagData(void);
+void  CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference);
 
 /*
 ** Function prototypes (reference)...
@@ -406,7 +405,6 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime);
 #endif
 
-
 /*
  * Helper function for updating the "Reference" value
  * This is the local replacement for "OS_IntLock()"
@@ -429,8 +427,7 @@ static inline void CFE_TIME_FinishReferenceUpdate(volatile CFE_TIME_ReferenceSta
  */
 static inline volatile CFE_TIME_ReferenceState_t *CFE_TIME_GetReferenceState(void)
 {
-    return &CFE_TIME_Global.ReferenceState
-            [CFE_TIME_Global.LastVersionCounter & CFE_TIME_REFERENCE_BUF_MASK];
+    return &CFE_TIME_Global.ReferenceState[CFE_TIME_Global.LastVersionCounter & CFE_TIME_REFERENCE_BUF_MASK];
 }
 
 /*
@@ -454,7 +451,6 @@ void CFE_TIME_NotifyTimeSynchApps(void);
 void CFE_TIME_Local1HzTask(void);
 void CFE_TIME_Local1HzStateMachine(void);
 void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg);
-
 
 #endif /* _cfe_time_utils_ */
 

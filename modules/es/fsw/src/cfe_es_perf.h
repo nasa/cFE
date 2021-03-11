@@ -32,7 +32,6 @@
 #ifndef _cfe_es_perf_
 #define _cfe_es_perf_
 
-
 /*
 ** Include Files
 */
@@ -44,14 +43,16 @@
 **  Defines
 */
 
-enum CFE_ES_PerfState_t {
+enum CFE_ES_PerfState_t
+{
     CFE_ES_PERF_IDLE = 0,
     CFE_ES_PERF_WAITING_FOR_TRIGGER,
     CFE_ES_PERF_TRIGGERED,
     CFE_ES_PERF_MAX_STATES
 };
 
-enum CFE_ES_PerfMode_t {
+enum CFE_ES_PerfMode_t
+{
     CFE_ES_PERF_TRIGGER_START = 0,
     CFE_ES_PERF_TRIGGER_CENTER,
     CFE_ES_PERF_TRIGGER_END,
@@ -68,18 +69,18 @@ enum CFE_ES_PerfMode_t {
  */
 typedef enum
 {
-    CFE_ES_PerfDumpState_IDLE,                  /* Placeholder for idle, no action */
-    CFE_ES_PerfDumpState_INIT,                  /* Placeholder for entry/init, no action */
-    CFE_ES_PerfDumpState_OPEN_FILE,             /* Opening of the output file */
-    CFE_ES_PerfDumpState_DELAY,                 /* Wait-state to ensure in-progress writes are finished */
-    CFE_ES_PerfDumpState_LOCK_DATA,             /* Locking of the global data structure */
-    CFE_ES_PerfDumpState_WRITE_FS_HDR,          /* Write the CFE FS file header */
-    CFE_ES_PerfDumpState_WRITE_PERF_METADATA,   /* Write the Perf global metadata */
-    CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES,    /* Write the Perf Log entries (throttled) */
-    CFE_ES_PerfDumpState_CLEANUP,               /* Placeholder for cleanup, no action */
-    CFE_ES_PerfDumpState_UNLOCK_DATA,           /* Unlocking of the global data structure */
-    CFE_ES_PerfDumpState_CLOSE_FILE,            /* Closing of the output file */
-    CFE_ES_PerfDumpState_MAX                    /* Placeholder for last state, no action, always last */
+    CFE_ES_PerfDumpState_IDLE,                /* Placeholder for idle, no action */
+    CFE_ES_PerfDumpState_INIT,                /* Placeholder for entry/init, no action */
+    CFE_ES_PerfDumpState_OPEN_FILE,           /* Opening of the output file */
+    CFE_ES_PerfDumpState_DELAY,               /* Wait-state to ensure in-progress writes are finished */
+    CFE_ES_PerfDumpState_LOCK_DATA,           /* Locking of the global data structure */
+    CFE_ES_PerfDumpState_WRITE_FS_HDR,        /* Write the CFE FS file header */
+    CFE_ES_PerfDumpState_WRITE_PERF_METADATA, /* Write the Perf global metadata */
+    CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES,  /* Write the Perf Log entries (throttled) */
+    CFE_ES_PerfDumpState_CLEANUP,             /* Placeholder for cleanup, no action */
+    CFE_ES_PerfDumpState_UNLOCK_DATA,         /* Unlocking of the global data structure */
+    CFE_ES_PerfDumpState_CLOSE_FILE,          /* Closing of the output file */
+    CFE_ES_PerfDumpState_MAX                  /* Placeholder for last state, no action, always last */
 } CFE_ES_PerfDumpState_t;
 
 /*
@@ -95,20 +96,20 @@ typedef enum
  * where the command processor sets the PendingState.
  *
  * Once state is non-IDLE, the structure becomes owned by the background
- * task.  It will progress through the remainder of the state machine, 
+ * task.  It will progress through the remainder of the state machine,
  * eventually arriving back at IDLE when the request is completed.
  */
 typedef struct
 {
-    CFE_ES_PerfDumpState_t  CurrentState;   /* the current state of the job */
-    CFE_ES_PerfDumpState_t  PendingState;   /* the pending/next state, if transitioning */
+    CFE_ES_PerfDumpState_t CurrentState; /* the current state of the job */
+    CFE_ES_PerfDumpState_t PendingState; /* the pending/next state, if transitioning */
 
-    char                DataFileName[OS_MAX_PATH_LEN];  /* output file name from dump command */
-    osal_id_t           FileDesc;                       /* file descriptor for writing */
-    uint32              WorkCredit;                     /* accumulator based on the passage of time */
-    uint32              StateCounter;                   /* number of blocks/items left in current state */
-    uint32              DataPos;                        /* last position within the Perf Log */
-    size_t              FileSize;                       /* Total file size, for progress reporing in telemetry */
+    char      DataFileName[OS_MAX_PATH_LEN]; /* output file name from dump command */
+    osal_id_t FileDesc;                      /* file descriptor for writing */
+    uint32    WorkCredit;                    /* accumulator based on the passage of time */
+    uint32    StateCounter;                  /* number of blocks/items left in current state */
+    uint32    DataPos;                       /* last position within the Perf Log */
+    size_t    FileSize;                      /* Total file size, for progress reporing in telemetry */
 } CFE_ES_PerfDumpGlobal_t;
 
 /*
@@ -132,4 +133,3 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void);
 bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg);
 
 #endif /* _cfe_es_perf_ */
-

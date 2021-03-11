@@ -35,7 +35,6 @@
 #ifndef CFE_TIME_API_TYPES_H
 #define CFE_TIME_API_TYPES_H
 
-
 /*
 ** Includes
 */
@@ -47,15 +46,15 @@
 ** Macro Definitions
 */
 
-#define CFE_TIME_PRINTED_STRING_SIZE      24 /**< \brief Required size of buffer to be passed into #CFE_TIME_Print (includes null terminator) */
-
+#define CFE_TIME_PRINTED_STRING_SIZE \
+    24 /**< \brief Required size of buffer to be passed into #CFE_TIME_Print (includes null terminator) */
 
 /*****************************************************************************/
 /*
 ** Type Definitions
 */
 
-/** 
+/**
 **  \brief Enumerated types identifying the relative relationships of two times
 **
 **  \par Description
@@ -65,9 +64,9 @@
 */
 typedef enum CFE_TIME_Compare
 {
-  CFE_TIME_A_LT_B  = -1,      /**< \brief The first specified time is considered to be before the second specified time */
-  CFE_TIME_EQUAL   =  0,      /**< \brief The two specified times are considered to be equal */
-  CFE_TIME_A_GT_B  =  1       /**< \brief The first specified time is considered to be after the second specified time */
+    CFE_TIME_A_LT_B = -1, /**< \brief The first specified time is considered to be before the second specified time */
+    CFE_TIME_EQUAL  = 0,  /**< \brief The two specified times are considered to be equal */
+    CFE_TIME_A_GT_B = 1   /**< \brief The first specified time is considered to be after the second specified time */
 } CFE_TIME_Compare_t;
 
 /**
@@ -79,7 +78,6 @@ typedef enum CFE_TIME_Compare
 **        #CFE_TIME_RegisterSynchCallback API.
 */
 typedef int32 (*CFE_TIME_SynchCallbackPtr_t)(void);
-
 
 #endif /* CFE_TIME_API_TYPES_H */
 

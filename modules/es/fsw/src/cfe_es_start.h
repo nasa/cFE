@@ -20,7 +20,7 @@
 
 /*
 **
-**  File: 
+**  File:
 **  cfe_es_start.h
 **
 **  Purpose:
@@ -47,8 +47,8 @@
 ** Macro Definitions
 */
 
-/* 
-** values of object_type in OS object table 
+/*
+** values of object_type in OS object table
 */
 #define CFE_ES_NULL_ENTRY    0x00
 #define CFE_ES_CORE_TASK     0x01
@@ -65,34 +65,33 @@ typedef int32 (*CFE_ES_EarlyInitFuncPtr_t)(void); /**< \brief Req'd prototype of
 
 typedef union
 {
-    CFE_ES_EarlyInitFuncPtr_t     FunctionPtr;
-    CFE_ES_TaskEntryFuncPtr_t     MainTaskPtr;
-    void                         *VoidPtr;
+    CFE_ES_EarlyInitFuncPtr_t FunctionPtr;
+    CFE_ES_TaskEntryFuncPtr_t MainTaskPtr;
+    void *                    VoidPtr;
 } CFE_ES_FuncPtrUnion_t;
 
-typedef struct 
+typedef struct
 {
-    uint32                   ObjectType;                   /* The type of object being created */
-    char                     ObjectName[OS_MAX_API_NAME];  /* task or OS object name */
-    CFE_ES_FuncPtrUnion_t    FuncPtrUnion;                 /* task or function reference */
-    uint32                   ObjectPriority;               /* object priority */
-    uint32                   ObjectSize;                   /* size used for stack, queue size, etc. */
-    uint32                   ObjectFlags;                  /* extra flags to pass */
+    uint32                ObjectType;                  /* The type of object being created */
+    char                  ObjectName[OS_MAX_API_NAME]; /* task or OS object name */
+    CFE_ES_FuncPtrUnion_t FuncPtrUnion;                /* task or function reference */
+    uint32                ObjectPriority;              /* object priority */
+    uint32                ObjectSize;                  /* size used for stack, queue size, etc. */
+    uint32                ObjectFlags;                 /* extra flags to pass */
 
 } CFE_ES_ObjectTable_t;
 
 /*
 ** Exported data
 */
-extern CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE];  /* es object table */
+extern CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE]; /* es object table */
 
 /*
 ** Function prototypes
 */
-extern void  CFE_ES_CreateObjects(void);
-extern void  CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource);
-extern void  CFE_ES_InitializeFileSystems(uint32 StartType);
+extern void CFE_ES_CreateObjects(void);
+extern void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource);
+extern void CFE_ES_InitializeFileSystems(uint32 StartType);
 extern void CFE_ES_SetupPerfVariables(uint32 ResetType);
 
-
-#endif  /* _cfe_es_start_ */
+#endif /* _cfe_es_start_ */

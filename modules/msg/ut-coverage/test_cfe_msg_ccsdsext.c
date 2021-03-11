@@ -131,7 +131,6 @@ void Test_MSG_Init_Ext(void)
 
     /* Confirm the rest of the fields not already explicitly checked */
     ASSERT_EQ(Test_MSG_Ext_NotZero(&msg) & ~(MSG_EDSVER_FLAG | MSG_ENDIAN_FLAG | MSG_SUBSYS_FLAG | MSG_SYSTEM_FLAG), 0);
-
 }
 
 void Test_MSG_EDSVersion(void)

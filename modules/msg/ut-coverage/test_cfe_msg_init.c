@@ -123,6 +123,6 @@ void Test_MSG_Init(void)
         ASSERT_EQ(hdrver, 0);
     }
 
-    ASSERT_EQ(Test_MSG_Pri_NotZero(&cmd.Msg) & ~MSG_HDRVER_FLAG, MSG_APID_FLAG | MSG_HASSEC_FLAG | MSG_TYPE_FLAG |
-                                   MSG_LENGTH_FLAG | MSG_SEGMENT_FLAG);
+    ASSERT_EQ(Test_MSG_Pri_NotZero(&cmd.Msg) & ~MSG_HDRVER_FLAG,
+              MSG_APID_FLAG | MSG_HASSEC_FLAG | MSG_TYPE_FLAG | MSG_LENGTH_FLAG | MSG_SEGMENT_FLAG);
 }

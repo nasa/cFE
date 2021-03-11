@@ -34,14 +34,14 @@
 */
 #include "common_types.h"
 
-
 /* Macro to convert 16/32 bit types from platform "endianness" to Big Endian */
 #ifdef SOFTWARE_BIG_BIT_ORDER
-  #define CFE_MAKE_BIG16(n) (n)
-  #define CFE_MAKE_BIG32(n) (n)
+#define CFE_MAKE_BIG16(n) (n)
+#define CFE_MAKE_BIG32(n) (n)
 #else
-  #define CFE_MAKE_BIG16(n) ( (((n) << 8) & 0xFF00) | (((n) >> 8) & 0x00FF) )
-  #define CFE_MAKE_BIG32(n) ( (((n) << 24) & 0xFF000000) | (((n) << 8) & 0x00FF0000) | (((n) >> 8) & 0x0000FF00) | (((n) >> 24) & 0x000000FF) )
+#define CFE_MAKE_BIG16(n) ((((n) << 8) & 0xFF00) | (((n) >> 8) & 0x00FF))
+#define CFE_MAKE_BIG32(n) \
+    ((((n) << 24) & 0xFF000000) | (((n) << 8) & 0x00FF0000) | (((n) >> 8) & 0x0000FF00) | (((n) >> 24) & 0x000000FF))
 #endif
 
-#endif  /* CFE_ENDIAN_H */
+#endif /* CFE_ENDIAN_H */

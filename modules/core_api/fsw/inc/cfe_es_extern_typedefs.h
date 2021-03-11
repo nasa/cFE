@@ -41,15 +41,15 @@
 enum CFE_ES_LogMode
 {
 
-   /**
-    * @brief Overwrite Log Mode
-    */
-   CFE_ES_LogMode_OVERWRITE                           = 0,
+    /**
+     * @brief Overwrite Log Mode
+     */
+    CFE_ES_LogMode_OVERWRITE = 0,
 
-   /**
-    * @brief Discard Log Mode
-    */
-   CFE_ES_LogMode_DISCARD                             = 1
+    /**
+     * @brief Discard Log Mode
+     */
+    CFE_ES_LogMode_DISCARD = 1
 };
 
 /**
@@ -58,8 +58,7 @@ enum CFE_ES_LogMode
  *
  * @sa enum CFE_ES_LogMode
  */
-typedef uint8                                            CFE_ES_LogMode_Enum_t;
-
+typedef uint8 CFE_ES_LogMode_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_ES_ExceptionAction_Enum_t
@@ -67,15 +66,15 @@ typedef uint8                                            CFE_ES_LogMode_Enum_t;
 enum CFE_ES_ExceptionAction
 {
 
-   /**
-    * @brief Restart application if exception occurs
-    */
-   CFE_ES_ExceptionAction_RESTART_APP                 = 0,
+    /**
+     * @brief Restart application if exception occurs
+     */
+    CFE_ES_ExceptionAction_RESTART_APP = 0,
 
-   /**
-    * @brief Restart processor if exception occurs
-    */
-   CFE_ES_ExceptionAction_PROC_RESTART                = 1
+    /**
+     * @brief Restart processor if exception occurs
+     */
+    CFE_ES_ExceptionAction_PROC_RESTART = 1
 };
 
 /**
@@ -84,8 +83,7 @@ enum CFE_ES_ExceptionAction
  *
  * @sa enum CFE_ES_ExceptionAction
  */
-typedef uint8                                            CFE_ES_ExceptionAction_Enum_t;
-
+typedef uint8 CFE_ES_ExceptionAction_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_ES_AppType_Enum_t
@@ -93,20 +91,20 @@ typedef uint8                                            CFE_ES_ExceptionAction_
 enum CFE_ES_AppType
 {
 
-   /**
-    * @brief CFE core application
-    */
-   CFE_ES_AppType_CORE                                = 1,
+    /**
+     * @brief CFE core application
+     */
+    CFE_ES_AppType_CORE = 1,
 
-   /**
-    * @brief CFE external application
-    */
-   CFE_ES_AppType_EXTERNAL                            = 2,
+    /**
+     * @brief CFE external application
+     */
+    CFE_ES_AppType_EXTERNAL = 2,
 
-   /**
-    * @brief CFE library
-    */
-   CFE_ES_AppType_LIBRARY                             = 3
+    /**
+     * @brief CFE library
+     */
+    CFE_ES_AppType_LIBRARY = 3
 };
 
 /**
@@ -115,8 +113,7 @@ enum CFE_ES_AppType
  *
  * @sa enum CFE_ES_AppType
  */
-typedef uint8                                            CFE_ES_AppType_Enum_t;
-
+typedef uint8 CFE_ES_AppType_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_ES_RunStatus_Enum_t
@@ -126,57 +123,57 @@ enum CFE_ES_RunStatus
     /**
      * @brief Reserved value, should not be used
      */
-    CFE_ES_RunStatus_UNDEFINED                        = 0,
+    CFE_ES_RunStatus_UNDEFINED = 0,
 
-   /**
-    * @brief Indicates that the Application should continue to run
-    */
-   CFE_ES_RunStatus_APP_RUN                           = 1,
+    /**
+     * @brief Indicates that the Application should continue to run
+     */
+    CFE_ES_RunStatus_APP_RUN = 1,
 
-   /**
-    * @brief Indicates that the Application wants to exit normally
-    */
-   CFE_ES_RunStatus_APP_EXIT                          = 2,
+    /**
+     * @brief Indicates that the Application wants to exit normally
+     */
+    CFE_ES_RunStatus_APP_EXIT = 2,
 
-   /**
-    * @brief Indicates that the Application is quitting with an error
-    */
-   CFE_ES_RunStatus_APP_ERROR                         = 3,
+    /**
+     * @brief Indicates that the Application is quitting with an error
+     */
+    CFE_ES_RunStatus_APP_ERROR = 3,
 
-   /**
-    * @brief The cFE App caused an exception
-    */
-   CFE_ES_RunStatus_SYS_EXCEPTION                     = 4,
+    /**
+     * @brief The cFE App caused an exception
+     */
+    CFE_ES_RunStatus_SYS_EXCEPTION = 4,
 
-   /**
-    * @brief The system is requesting a restart of the cFE App
-    */
-   CFE_ES_RunStatus_SYS_RESTART                       = 5,
+    /**
+     * @brief The system is requesting a restart of the cFE App
+     */
+    CFE_ES_RunStatus_SYS_RESTART = 5,
 
-   /**
-    * @brief The system is requesting a reload of the cFE App
-    */
-   CFE_ES_RunStatus_SYS_RELOAD                        = 6,
+    /**
+     * @brief The system is requesting a reload of the cFE App
+     */
+    CFE_ES_RunStatus_SYS_RELOAD = 6,
 
-   /**
-    * @brief The system is requesting that the cFE App is stopped
-    */
-   CFE_ES_RunStatus_SYS_DELETE                        = 7,
+    /**
+     * @brief The system is requesting that the cFE App is stopped
+     */
+    CFE_ES_RunStatus_SYS_DELETE = 7,
 
-   /**
-    * @brief Indicates that the Core Application could not Init
-    */
-   CFE_ES_RunStatus_CORE_APP_INIT_ERROR               = 8,
+    /**
+     * @brief Indicates that the Core Application could not Init
+     */
+    CFE_ES_RunStatus_CORE_APP_INIT_ERROR = 8,
 
-   /**
-    * @brief Indicates that the Core Application had a runtime failure
-    */
-   CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR            = 9,
+    /**
+     * @brief Indicates that the Core Application had a runtime failure
+     */
+    CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR = 9,
 
-   /**
-    * @brief Reserved value, marker for the maximum state
-    */
-   CFE_ES_RunStatus_MAX
+    /**
+     * @brief Reserved value, marker for the maximum state
+     */
+    CFE_ES_RunStatus_MAX
 
 };
 
@@ -186,8 +183,7 @@ enum CFE_ES_RunStatus
  *
  * @sa enum CFE_ES_RunStatus
  */
-typedef uint32                                           CFE_ES_RunStatus_Enum_t;
-
+typedef uint32 CFE_ES_RunStatus_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_ES_SystemState_Enum_t
@@ -195,45 +191,45 @@ typedef uint32                                           CFE_ES_RunStatus_Enum_t
 enum CFE_ES_SystemState
 {
 
-   /**
-    * @brief reserved
-    */
-   CFE_ES_SystemState_UNDEFINED                       = 0,
+    /**
+     * @brief reserved
+     */
+    CFE_ES_SystemState_UNDEFINED = 0,
 
-   /**
-    * @brief single threaded mode while setting up CFE itself
-    */
-   CFE_ES_SystemState_EARLY_INIT                      = 1,
+    /**
+     * @brief single threaded mode while setting up CFE itself
+     */
+    CFE_ES_SystemState_EARLY_INIT = 1,
 
-   /**
-    * @brief core apps (CFE_ES_ObjectTable) are starting (multi-threaded)
-    */
-   CFE_ES_SystemState_CORE_STARTUP                    = 2,
+    /**
+     * @brief core apps (CFE_ES_ObjectTable) are starting (multi-threaded)
+     */
+    CFE_ES_SystemState_CORE_STARTUP = 2,
 
-   /**
-    * @brief core is ready, starting other external apps/libraries (if any)
-    */
-   CFE_ES_SystemState_CORE_READY                      = 3,
+    /**
+     * @brief core is ready, starting other external apps/libraries (if any)
+     */
+    CFE_ES_SystemState_CORE_READY = 3,
 
-   /**
-    * @brief startup apps have all completed their early init, but not necessarily operational yet
-    */
-   CFE_ES_SystemState_APPS_INIT                       = 4,
+    /**
+     * @brief startup apps have all completed their early init, but not necessarily operational yet
+     */
+    CFE_ES_SystemState_APPS_INIT = 4,
 
-   /**
-    * @brief normal operation mode; all apps are RUNNING
-    */
-   CFE_ES_SystemState_OPERATIONAL                     = 5,
+    /**
+     * @brief normal operation mode; all apps are RUNNING
+     */
+    CFE_ES_SystemState_OPERATIONAL = 5,
 
-   /**
-    * @brief reserved for future use, all apps would be STOPPED
-    */
-   CFE_ES_SystemState_SHUTDOWN                        = 6,
+    /**
+     * @brief reserved for future use, all apps would be STOPPED
+     */
+    CFE_ES_SystemState_SHUTDOWN = 6,
 
-   /**
-    * @brief Reserved value, marker for the maximum state
-    */
-   CFE_ES_SystemState_MAX
+    /**
+     * @brief Reserved value, marker for the maximum state
+     */
+    CFE_ES_SystemState_MAX
 };
 
 /**
@@ -246,9 +242,7 @@ enum CFE_ES_SystemState
  *
  * @sa enum CFE_ES_SystemState
  */
-typedef uint32                                           CFE_ES_SystemState_Enum_t;
-
-
+typedef uint32 CFE_ES_SystemState_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_ES_LogEntryType_Enum_t
@@ -256,15 +250,15 @@ typedef uint32                                           CFE_ES_SystemState_Enum
 enum CFE_ES_LogEntryType
 {
 
-   /**
-    * @brief Log entry from a core subsystem
-    */
-   CFE_ES_LogEntryType_CORE                           = 1,
+    /**
+     * @brief Log entry from a core subsystem
+     */
+    CFE_ES_LogEntryType_CORE = 1,
 
-   /**
-    * @brief Log entry from an application
-    */
-   CFE_ES_LogEntryType_APPLICATION                    = 2
+    /**
+     * @brief Log entry from an application
+     */
+    CFE_ES_LogEntryType_APPLICATION = 2
 };
 
 /**
@@ -273,8 +267,7 @@ enum CFE_ES_LogEntryType
  *
  * @sa enum CFE_ES_LogEntryType
  */
-typedef uint8                                            CFE_ES_LogEntryType_Enum_t;
-
+typedef uint8 CFE_ES_LogEntryType_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_ES_AppState_Enum_t
@@ -282,40 +275,40 @@ typedef uint8                                            CFE_ES_LogEntryType_Enu
 enum CFE_ES_AppState
 {
 
-   /**
-    * @brief Initial state before app thread is started
-    */
-   CFE_ES_AppState_UNDEFINED                          = 0,
+    /**
+     * @brief Initial state before app thread is started
+     */
+    CFE_ES_AppState_UNDEFINED = 0,
 
-   /**
-    * @brief App thread has started, app performing early initialization of its own data
-    */
-   CFE_ES_AppState_EARLY_INIT                         = 1,
+    /**
+     * @brief App thread has started, app performing early initialization of its own data
+     */
+    CFE_ES_AppState_EARLY_INIT = 1,
 
-   /**
-    * @brief Early/Local initialization is complete.  First sync point.
-    */
-   CFE_ES_AppState_LATE_INIT                          = 2,
+    /**
+     * @brief Early/Local initialization is complete.  First sync point.
+     */
+    CFE_ES_AppState_LATE_INIT = 2,
 
-   /**
-    * @brief All initialization is complete.  Second sync point.
-    */
-   CFE_ES_AppState_RUNNING                            = 3,
+    /**
+     * @brief All initialization is complete.  Second sync point.
+     */
+    CFE_ES_AppState_RUNNING = 3,
 
-   /**
-    * @brief Application is waiting on a Restart/Reload/Delete request
-    */
-   CFE_ES_AppState_WAITING                            = 4,
+    /**
+     * @brief Application is waiting on a Restart/Reload/Delete request
+     */
+    CFE_ES_AppState_WAITING = 4,
 
-   /**
-    * @brief Application is stopped
-    */
-   CFE_ES_AppState_STOPPED                            = 5,
+    /**
+     * @brief Application is stopped
+     */
+    CFE_ES_AppState_STOPPED = 5,
 
-   /**
-    * @brief Reserved entry, marker for the maximum state
-    */
-   CFE_ES_AppState_MAX
+    /**
+     * @brief Reserved entry, marker for the maximum state
+     */
+    CFE_ES_AppState_MAX
 };
 
 /**
@@ -329,8 +322,7 @@ enum CFE_ES_AppState
  *
  * @sa enum CFE_ES_AppState
  */
-typedef uint32                                           CFE_ES_AppState_Enum_t;
-
+typedef uint32 CFE_ES_AppState_Enum_t;
 
 /**
  * @brief A type for Application IDs
@@ -383,7 +375,7 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_CDSHandle_t;
  * a wider type is used for backward compatibility
  * in binary formats of messages.
  */
-typedef uint16  CFE_ES_TaskPriority_Atom_t;
+typedef uint16 CFE_ES_TaskPriority_Atom_t;
 
 /**
  * @brief Type used for memory sizes and offsets in commands and telemetry
@@ -397,14 +389,13 @@ typedef uint16  CFE_ES_TaskPriority_Atom_t;
  *
  * In either case this must be an unsigned type.
  */
-typedef uint32  CFE_ES_MemOffset_t;
+typedef uint32 CFE_ES_MemOffset_t;
 
 /*
  * A converter macro to use when initializing an CFE_ES_MemOffset_t
  * from an integer value of a different type.
  */
-#define CFE_ES_MEMOFFSET_C(x) ((CFE_ES_MemOffset_t)(x))
-
+#define CFE_ES_MEMOFFSET_C(x)  ((CFE_ES_MemOffset_t)(x))
 
 /**
  * @brief Type used for memory addresses in command and telemetry messages
@@ -435,69 +426,67 @@ typedef uint32 CFE_ES_MemAddress_t;
  * that it will fit into a 32-bit telemetry field.  Obviously, the resulting
  * value is no longer usable as a memory address after this.
  */
-#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x) & 0xFFFFFFFF))
+#define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
 
-
-/* 
+/*
  * Data Sructures shared between API and Message (CMD/TLM) interfaces
  */
-
 
 /**
  * \brief Application Information
  *
  * Structure that is used to provide information about an app.
  * It is primarily used for the QueryOne and QueryAll Commands.
- * 
+ *
  * While this structure is primarily intended for Application info,
  * it can also represent Library information where only a subset of
- * the information applies.  
+ * the information applies.
  */
 typedef struct CFE_ES_AppInfo
 {
-   CFE_ResourceId_t   ResourceId;              /**< \cfetlmmnemonic \ES_APP_ID
-                                                    \brief Application or Library ID for this resource */
-   uint32   Type;                              /**< \cfetlmmnemonic \ES_APPTYPE
-                                                    \brief The type of App: CORE or EXTERNAL */
+    CFE_ResourceId_t ResourceId; /**< \cfetlmmnemonic \ES_APP_ID
+                                      \brief Application or Library ID for this resource */
+    uint32 Type;                 /**< \cfetlmmnemonic \ES_APPTYPE
+                                      \brief The type of App: CORE or EXTERNAL */
 
-   char Name[CFE_MISSION_MAX_API_LEN];         /**< \cfetlmmnemonic \ES_APPNAME
-                                                    \brief The Registered Name of the Application */
-   char EntryPoint[CFE_MISSION_MAX_API_LEN];   /**< \cfetlmmnemonic \ES_APPENTRYPT
-                                                    \brief The Entry Point label for the Application */
-   char FileName[CFE_MISSION_MAX_PATH_LEN];    /**< \cfetlmmnemonic \ES_APPFILENAME
-                                                    \brief The Filename of the file containing the Application */
+    char Name[CFE_MISSION_MAX_API_LEN];       /**< \cfetlmmnemonic \ES_APPNAME
+                                                   \brief The Registered Name of the Application */
+    char EntryPoint[CFE_MISSION_MAX_API_LEN]; /**< \cfetlmmnemonic \ES_APPENTRYPT
+                                                   \brief The Entry Point label for the Application */
+    char FileName[CFE_MISSION_MAX_PATH_LEN];  /**< \cfetlmmnemonic \ES_APPFILENAME
+                                                   \brief The Filename of the file containing the Application */
 
-   CFE_ES_MemOffset_t   StackSize;             /**< \cfetlmmnemonic \ES_STACKSIZE
-                                                    \brief The Stack Size of the Application */
-   uint32   AddressesAreValid;                 /**< \cfetlmmnemonic \ES_ADDRVALID
-                                                    \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
-   CFE_ES_MemAddress_t CodeAddress;            /**< \cfetlmmnemonic \ES_CODEADDR
-                                                    \brief The Address of the Application Code Segment*/
-   CFE_ES_MemOffset_t  CodeSize;               /**< \cfetlmmnemonic \ES_CODESIZE
-                                                    \brief The Code Size of the Application */
-   CFE_ES_MemAddress_t DataAddress;            /**< \cfetlmmnemonic \ES_DATAADDR
-                                                    \brief The Address of the Application Data Segment*/
-   CFE_ES_MemOffset_t  DataSize;               /**< \cfetlmmnemonic \ES_DATASIZE
-                                                    \brief The Data Size of the Application */
-   CFE_ES_MemAddress_t BSSAddress;             /**< \cfetlmmnemonic \ES_BSSADDR
-                                                    \brief The Address of the Application BSS Segment*/
-   CFE_ES_MemOffset_t  BSSSize;                /**< \cfetlmmnemonic \ES_BSSSIZE
-                                                    \brief The BSS Size of the Application */
-   CFE_ES_MemAddress_t StartAddress;           /**< \cfetlmmnemonic \ES_STARTADDR
-                                                    \brief The Start Address of the Application */
-   CFE_ES_ExceptionAction_Enum_t ExceptionAction;   /**< \cfetlmmnemonic \ES_EXCEPTNACTN
-                                                    \brief What should occur if Application has an exception
-                                                    (Restart Application OR Restart Processor) */
-   CFE_ES_TaskPriority_Atom_t   Priority;        /**< \cfetlmmnemonic \ES_PRIORITY
-                                                    \brief The Priority of the Application */
-   CFE_ES_TaskId_t   MainTaskId;               /**< \cfetlmmnemonic \ES_MAINTASKID
-                                                    \brief The Application's Main Task ID */
-   uint32   ExecutionCounter;                  /**< \cfetlmmnemonic \ES_MAINTASKEXECNT
-                                                    \brief The Application's Main Task Execution Counter */
-   char MainTaskName[CFE_MISSION_MAX_API_LEN]; /**< \cfetlmmnemonic \ES_MAINTASKNAME
-                                                    \brief The Application's Main Task ID */
-   uint32   NumOfChildTasks;                   /**< \cfetlmmnemonic \ES_CHILDTASKS
-                                                    \brief Number of Child tasks for an App */
+    CFE_ES_MemOffset_t StackSize;                  /**< \cfetlmmnemonic \ES_STACKSIZE
+                                                        \brief The Stack Size of the Application */
+    uint32 AddressesAreValid;                      /**< \cfetlmmnemonic \ES_ADDRVALID
+                                                        \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
+    CFE_ES_MemAddress_t CodeAddress;               /**< \cfetlmmnemonic \ES_CODEADDR
+                                                        \brief The Address of the Application Code Segment*/
+    CFE_ES_MemOffset_t CodeSize;                   /**< \cfetlmmnemonic \ES_CODESIZE
+                                                        \brief The Code Size of the Application */
+    CFE_ES_MemAddress_t DataAddress;               /**< \cfetlmmnemonic \ES_DATAADDR
+                                                        \brief The Address of the Application Data Segment*/
+    CFE_ES_MemOffset_t DataSize;                   /**< \cfetlmmnemonic \ES_DATASIZE
+                                                        \brief The Data Size of the Application */
+    CFE_ES_MemAddress_t BSSAddress;                /**< \cfetlmmnemonic \ES_BSSADDR
+                                                        \brief The Address of the Application BSS Segment*/
+    CFE_ES_MemOffset_t BSSSize;                    /**< \cfetlmmnemonic \ES_BSSSIZE
+                                                        \brief The BSS Size of the Application */
+    CFE_ES_MemAddress_t StartAddress;              /**< \cfetlmmnemonic \ES_STARTADDR
+                                                        \brief The Start Address of the Application */
+    CFE_ES_ExceptionAction_Enum_t ExceptionAction; /**< \cfetlmmnemonic \ES_EXCEPTNACTN
+                                                   \brief What should occur if Application has an exception
+                                                   (Restart Application OR Restart Processor) */
+    CFE_ES_TaskPriority_Atom_t Priority;           /**< \cfetlmmnemonic \ES_PRIORITY
+                                                      \brief The Priority of the Application */
+    CFE_ES_TaskId_t MainTaskId;                    /**< \cfetlmmnemonic \ES_MAINTASKID
+                                                        \brief The Application's Main Task ID */
+    uint32 ExecutionCounter;                       /**< \cfetlmmnemonic \ES_MAINTASKEXECNT
+                                                        \brief The Application's Main Task Execution Counter */
+    char MainTaskName[CFE_MISSION_MAX_API_LEN];    /**< \cfetlmmnemonic \ES_MAINTASKNAME
+                                                        \brief The Application's Main Task ID */
+    uint32 NumOfChildTasks;                        /**< \cfetlmmnemonic \ES_CHILDTASKS
+                                                        \brief Number of Child tasks for an App */
 
 } CFE_ES_AppInfo_t;
 
@@ -538,11 +527,11 @@ typedef struct CFE_ES_TaskInfo
  */
 typedef struct CFE_ES_CDSRegDumpRec
 {
-    CFE_ES_CDSHandle_t    Handle;          /**< \brief Handle of CDS */
-    CFE_ES_MemOffset_t    Size;            /**< \brief Size, in bytes, of the CDS memory block */
-    bool                  Table;           /**< \brief Flag that indicates whether CDS contains a Critical Table */
-    char                  Name[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN]; /**< \brief Processor Unique Name of CDS */
-    uint8                 ByteAlignSpare[3]; /**< \brief Spare bytes to ensure structure size is multiple of 4 bytes */
+    CFE_ES_CDSHandle_t Handle; /**< \brief Handle of CDS */
+    CFE_ES_MemOffset_t Size;   /**< \brief Size, in bytes, of the CDS memory block */
+    bool               Table;  /**< \brief Flag that indicates whether CDS contains a Critical Table */
+    char               Name[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN]; /**< \brief Processor Unique Name of CDS */
+    uint8              ByteAlignSpare[3]; /**< \brief Spare bytes to ensure structure size is multiple of 4 bytes */
 } CFE_ES_CDSRegDumpRec_t;
 
 /**
@@ -553,9 +542,9 @@ typedef struct CFE_ES_CDSRegDumpRec
  */
 typedef struct CFE_ES_BlockStats
 {
-    CFE_ES_MemOffset_t BlockSize;    /**< \brief Number of bytes in each of these blocks */
-    uint32  NumCreated;              /**< \brief Number of Memory Blocks of this size created */
-    uint32  NumFree;                 /**< \brief Number of Memory Blocks of this size that are free */
+    CFE_ES_MemOffset_t BlockSize;  /**< \brief Number of bytes in each of these blocks */
+    uint32             NumCreated; /**< \brief Number of Memory Blocks of this size created */
+    uint32             NumFree;    /**< \brief Number of Memory Blocks of this size that are free */
 } CFE_ES_BlockStats_t;
 
 /**
@@ -568,21 +557,18 @@ typedef struct CFE_ES_BlockStats
  */
 typedef struct CFE_ES_MemPoolStats
 {
-    CFE_ES_MemOffset_t    PoolSize;                /**< \cfetlmmnemonic \ES_POOLSIZE
-                                                        \brief  Size of Memory Pool (in bytes) */
-    uint32                NumBlocksRequested;      /**< \cfetlmmnemonic \ES_BLKSREQ
-                                                        \brief Number of times a memory block has been allocated */
-    uint32                CheckErrCtr;             /**< \cfetlmmnemonic \ES_BLKERRCTR
-                                                        \brief Number of errors detected when freeing a memory block */
-    CFE_ES_MemOffset_t    NumFreeBytes;            /**< \cfetlmmnemonic \ES_FREEBYTES
-                                                        \brief Number of bytes never allocated to a block */
-    CFE_ES_BlockStats_t   BlockStats[CFE_MISSION_ES_POOL_MAX_BUCKETS]; /**< \cfetlmmnemonic \ES_BLKSTATS
-                                                                            \brief Contains stats on each block size */
+    CFE_ES_MemOffset_t PoolSize;                                     /**< \cfetlmmnemonic \ES_POOLSIZE
+                                                                          \brief  Size of Memory Pool (in bytes) */
+    uint32 NumBlocksRequested;                                       /**< \cfetlmmnemonic \ES_BLKSREQ
+                                                                          \brief Number of times a memory block has been allocated */
+    uint32 CheckErrCtr;                                              /**< \cfetlmmnemonic \ES_BLKERRCTR
+                                                                          \brief Number of errors detected when freeing a memory block */
+    CFE_ES_MemOffset_t NumFreeBytes;                                 /**< \cfetlmmnemonic \ES_FREEBYTES
+                                                                          \brief Number of bytes never allocated to a block */
+    CFE_ES_BlockStats_t BlockStats[CFE_MISSION_ES_POOL_MAX_BUCKETS]; /**< \cfetlmmnemonic \ES_BLKSTATS
+                                                                          \brief Contains stats on each block size */
 } CFE_ES_MemPoolStats_t;
-
-
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* _CFE_ES_EXTERN_TYPEDEFS_H_ */
-

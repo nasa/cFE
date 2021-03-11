@@ -69,7 +69,6 @@ typedef struct
     UT_Table1_t        TblData;
 } UT_TempFile_t;
 
-
 /* TBL unit test functions */
 
 /*****************************************************************************/
