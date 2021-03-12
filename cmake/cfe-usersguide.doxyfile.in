@@ -22,3 +22,6 @@ PREDEFINED            += @USERGUIDE_PREDEFINED@
 
 # Bring in the cFE header files for the documentation of the various API calls
 INPUT                 += @MISSION_USERGUIDE_HEADERFILES@
+
+# Resolve references
+INPUT                 += @MISSION_SOURCE_DIR@/psp/fsw/inc

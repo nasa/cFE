@@ -13,7 +13,17 @@ INPUT                 += @MISSION_DEFS@  \
                          @MISSION_SOURCE_DIR@/osal/src/os/shared \
                          @MISSION_SOURCE_DIR@/psp/fsw/inc \
                          @MISSION_SOURCE_DIR@/psp/fsw/shared \
-                         @MISSION_SOURCE_DIR@/cfe/fsw/cfe-core/src
+                         @MISSION_SOURCE_DIR@/cfe/modules/core_api/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/core_private/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/es/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/evs/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/fs/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/msg/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/resourceid/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/sb/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/sbr/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/tbl/fsw \
+                         @MISSION_SOURCE_DIR@/cfe/modules/time/fsw
                          
 STRIP_FROM_PATH       += @MISSION_DEFS@
 
