@@ -189,9 +189,16 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
       else()
         message("NOTE: Selected ${TBL_SRC} as source for ${TBLWE}")
       endif()    
-    
-      add_library(${TGT}_${TBLWE}-obj OBJECT ${TBL_SRC})
+
+      # NOTE: On newer CMake versions this should become an OBJECT library which makes this simpler.
+      # On older versions one may not referece the TARGET_OBJECTS property from the custom command.
+      # As a workaround this is built into a static library, and then the desired object is extracted
+      # before passing to elf2cfetbl.  It is roundabout but it works.
+      add_library(${TGT}_${TBLWE}-obj STATIC ${TBL_SRC})
       target_link_libraries(${TGT}_${TBLWE}-obj PRIVATE core_api)
+
+      get_filename_component(TBLOBJ ${TBL} NAME)
+      string(APPEND TBLOBJ ${CMAKE_C_OUTPUT_EXTENSION})
 
       # IMPORTANT: This rule assumes that the output filename of elf2cfetbl matches
       # the input file name but with a different extension (.o -> .tbl)
@@ -201,7 +208,8 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
       # current content of a dependency (rightfully so).
       add_custom_command(
         OUTPUT "${TABLE_DESTDIR}/${TBLWE}.tbl"
-        COMMAND ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl $<TARGET_OBJECTS:${TGT}_${TBLWE}-obj>
+        COMMAND ${CMAKE_AR} x $<TARGET_FILE:${TGT}_${TBLWE}-obj>
+        COMMAND ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl "${TBLOBJ}"
         DEPENDS ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TGT}_${TBLWE}-obj
         WORKING_DIRECTORY ${TABLE_DESTDIR}
       )
@@ -462,7 +470,7 @@ function(cfs_app_check_intf MODULE_NAME)
         configure_file(${CFE_SOURCE_DIR}/cmake/check_header.c.in ${CMAKE_CURRENT_BINARY_DIR}/src/check_${HDR}.c)
         list(APPEND ${MODULE_NAME}_hdrcheck_SOURCES ${CMAKE_CURRENT_BINARY_DIR}/src/check_${HDR}.c)
     endforeach(HDR ${ARGN})
-    add_library(${MODULE_NAME}_headercheck OBJECT ${${MODULE_NAME}_hdrcheck_SOURCES})
+    add_library(${MODULE_NAME}_headercheck STATIC EXCLUDE_FROM_ALL ${${MODULE_NAME}_hdrcheck_SOURCES})
 
     # This causes the check to compile with the same set of defines and include dirs as specified
     # in the "INTERFACE" properties of the actual module
