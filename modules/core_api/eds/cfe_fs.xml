@@ -19,13 +19,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    This document adheres to the Electronic Data Sheet (EDS) XML schema 
-    as prescribed in CCSDS book 876.0. 
-      
-    Purpose: 
+    This document adheres to the Electronic Data Sheet (EDS) XML schema
+    as prescribed in CCSDS book 876.0.
+
+    Purpose:
       This describes all interface objects for the File Services (CFE_FS)
-      core application 
-      
+      core application
+
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
   <Package name="CFE_FS" shortDescription="NASA Core Flight System File Services">
@@ -143,7 +143,7 @@
                 <PolynomialCalibrator>
                     <Term coefficient="1" exponent="1" />
                     <Term coefficient="0" exponent="0" />
-                </PolynomialCalibrator> 
+                </PolynomialCalibrator>
           </LengthEntry>
           <FixedValueEntry name="SpacecraftID" type="BASE_TYPES/uint32" shortDescription="Spacecraft that generated the file" fixedValue="${CFE_MISSION/SPACECRAFT_ID}" />
           <Entry name="ProcessorID" type="BASE_TYPES/uint32" shortDescription="Processor that generated the file" />
@@ -159,7 +159,7 @@
           <ValueConstraint entry="ContentType" value="${CFE_FS/FILE_CONTENT_ID}" />
         </ConstraintSet>
       </ContainerDataType>
-      
+
     </DataTypeSet>
   </Package>
 </PackageFile>

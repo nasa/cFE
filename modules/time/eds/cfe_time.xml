@@ -19,13 +19,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    This document adheres to the Electronic Data Sheet (EDS) XML schema 
-    as prescribed in CCSDS book 876.0. 
-      
-    Purpose: 
+    This document adheres to the Electronic Data Sheet (EDS) XML schema
+    as prescribed in CCSDS book 876.0.
+
+    Purpose:
       This describes all interface objects for the Time Services (CFE_TIME)
-      core application 
-      
+      core application
+
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
   <Package name="CFE_TIME" shortDescription="NASA Core Flight System Time Services">
@@ -64,24 +64,24 @@
         <EnumerationList>
           <Enumeration label="INVALID" value="-1">
             <LongDescription>
-                The spacecraft time has not been set since the last clock 
+                The spacecraft time has not been set since the last clock
                 reset.  Times returned by clock routines have no relationship
                 to any ground-based time reference.
             </LongDescription>
-          </Enumeration>  
+          </Enumeration>
           <Enumeration label="VALID" value="0">
             <LongDescription>
-                 The spacecraft time has been set at least once since the last 
-                 clock reset, and it is synchronized with the primary on-board 
+                 The spacecraft time has been set at least once since the last
+                 clock reset, and it is synchronized with the primary on-board
                  time base.  Times returned by clock routines can be trusted.
             </LongDescription>
-          </Enumeration>  
+          </Enumeration>
           <Enumeration label="FLYWHEEL" value="1">
             <LongDescription>
-                  The spacecraft time has been set at least once since the last 
-                  clock reset, but it is not currently synchronized with the 
-                  primary on-board time base.  Times returned by clock routines 
-                  are a "best guess" based on a non-optimal oscillator. 
+                  The spacecraft time has been set at least once since the last
+                  clock reset, but it is not currently synchronized with the
+                  primary on-board time base.  Times returned by clock routines
+                  are a "best guess" based on a non-optimal oscillator.
             </LongDescription>
           </Enumeration>
         </EnumerationList>
@@ -94,7 +94,7 @@
           <Enumeration label="EXTERNAL" value="2" shortDescription="Use External Source"  />
         </EnumerationList>
       </EnumeratedDataType>
-      
+
       <EnumeratedDataType name="ToneSignalSelect" shortDescription="Tone Signal Selection Parameters">
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
@@ -102,7 +102,7 @@
           <Enumeration label="REDUNDANT" value="2" shortDescription="Redundant Source" />
         </EnumerationList>
       </EnumeratedDataType>
-      
+
       <EnumeratedDataType name="AdjustDirection" shortDescription="STCF adjustment direction (for both one-time and 1Hz adjustments)">
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
@@ -110,7 +110,7 @@
           <Enumeration label="SUBTRACT" value="2" shortDescription="Subtract time adjustment" />
         </EnumerationList>
       </EnumeratedDataType>
-      
+
       <EnumeratedDataType name="FlywheelState" shortDescription="Fly-wheel status values" >
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
@@ -118,7 +118,7 @@
           <Enumeration label="IS_FLY" value="1" shortDescription="In flywheel state" />
         </EnumerationList>
       </EnumeratedDataType>
-      
+
       <EnumeratedDataType name="SetState" shortDescription="Clock status values (has the clock been set to correct time)">
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
@@ -126,7 +126,7 @@
           <Enumeration label="WAS_SET" value="1" shortDescription="Spacecraft time has been set"  />
         </EnumerationList>
       </EnumeratedDataType>
-      
+
       <ContainerDataType name="SysTime" shortDescription="Data structure used to hold system time values">
         <LongDescription>
         \par Description
@@ -589,7 +589,7 @@
           via configuration parameters, this command provides a common method
           for switching between the local processor clock and an external
           source for time data.
-          
+
           When commanded to accept external time data (GPS, MET, spacecraft
           time, etc.), the Time Server will enable input via an API function
           specific to the configuration definitions for the particular source.
@@ -597,7 +597,7 @@
           the external data.  However, the Time Server will continue to use the
           API function as the trigger to generate a "time at the tone" command
           packet regardless of the internal/external command selection.
-          
+
           Notes:
           - Operating in FLYWHEEL mode is not considered a choice related
           to clock source, but rather an element of the clock state.  See below
@@ -621,7 +621,7 @@
           - Invalid Source selection
           (a value other than #CFE_TIME_SourceSelect_INTERNAL or #CFE_TIME_SourceSelect_EXTERNAL was specified)
           - Time source selection not allowed on this platform
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - Command Error counter will increment
           - Error specific event message (either #CFE_TIME_SOURCE_CFG_EID or #CFE_TIME_SOURCE_ERR_EID)
@@ -648,18 +648,18 @@
           of clock state.  Clock state is a combination of factors, most significantly
           whether the spacecraft time has been accurately set, and whether Time Service
           is operating in FLYWHEEL mode.
-          
+
           This command may be used to notify the Time Server that spacecraft time is
           now correct, or that time is no longer correct.  This information will be
           distributed to Time Clients, and in turn, to any interested sub-systems.
-          
+
           Also, this command may be used to force a Time Server or Time Client into
           FLYWHEEL mode.  Use of FLYWHEEL mode is mainly for debug purposes although
           in extreme circumstances, it may be of value to force Time Service not to rely
           on normal time updates.  Note that when commanded into FLYWHEEL mode, the Time
           Service will remain so until receipt of another "set state" command setting the
           state into a mode other than FLYWHEEL.
-          
+
           Note also that setting the clock state to VALID or INVALID on a Time Client that
           is currently getting time updates from the Time Server will have very limited
           effect.  As soon as the Time Client receives the next time update, the VALID/INVALID
@@ -683,7 +683,7 @@
           - Invalid State selection
           (a value other than #CFE_TIME_ClockState_INVALID, #CFE_TIME_ClockState_VALID or #CFE_TIME_ClockState_FLYWHEEL was specified)
           - Time source selection not allowed on this platform
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - Command Error counter will increment
           - Error specific event message (#CFE_TIME_STATE_ERR_EID)
@@ -733,7 +733,7 @@
           \par  Error Conditions
           - An invalid number of microseconds was specified (must be less than 1 million)
           - Platorm receiving the command is not a Time Client
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event messages will be issued (#CFE_TIME_DELAY_CFG_EID or #CFE_TIME_DELAY_ERR_EID)
@@ -762,7 +762,7 @@
           calculation for Time Clients, so this command has no meaning for Time Servers.  Each Time
           Client can have a unique latency setting.  The latency value is a positive number of seconds
           and microseconds that represent the deviation from the time maintained by the Time Server.
-          
+
           Note that it is unimaginable that the seconds value will ever be anything but zero.
           \cfecmdmnemonic  \TIME_SUBCLOCKLAT
 
@@ -780,7 +780,7 @@
           \par  Error Conditions
           - An invalid number of microseconds was specified (must be less than 1 million)
           - Platorm receiving the command is not a Time Client
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event messages will be issued (#CFE_TIME_DELAY_CFG_EID or #CFE_TIME_DELAY_ERR_EID)
@@ -811,11 +811,11 @@
           this command.  Time Service will calculate a new STCF value
           based on the current MET and the desired new time using one
           of the following:
-          
+
           If Time Service is configured to compute current time as TAI
           - STCF = (new time) - (current MET)
           - (current time) = (current MET) + STCF
-          
+
           If Time Service is configured to compute current time as UTC
           - STCF = ((new time) - (current MET)) + (Leap Seconds)
           - (current time) = ((curent MET) + STCF) - (Leap Seconds)
@@ -835,7 +835,7 @@
           \par  Error Conditions
           - An invalid number of microseconds was specified (must be less than 1 million)
           - Platorm receiving the command is not a Time Server
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event messages will be issued (#CFE_TIME_TIME_CFG_EID or #CFE_TIME_TIME_ERR_EID)
@@ -860,15 +860,15 @@
 
           \par  Description
           This command sets the Mission Elapsed Timer (MET) to the specified value.
-          
+
           Note that the MET (as implemented for cFE Time Service) is a logical representation
           and not a physical timer.  Thus, setting the MET is not dependent on whether the
           hardware supports a MET register that can be written to.
-          
+
           Note also that Time Service "assumes" that during normal operation, the MET is
           synchronized to the tone signal.  Therefore, unless operating in FLYWHEEL mode,
           the sub-seconds portion of the MET will be set to zero at the next tone signal interrupt.
-          
+
           The new MET takes effect immediately upon execution of this command.
           \cfecmdmnemonic  \TIME_SETCLOCKMET
 
@@ -886,7 +886,7 @@
           \par  Error Conditions
           - An invalid number of microseconds was specified (must be less than 1 million)
           - Platorm receiving the command is not a Time Server
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event messages will be issued (#CFE_TIME_MET_CFG_EID or #CFE_TIME_MET_ERR_EID)
@@ -931,7 +931,7 @@
           \par  Error Conditions
           - An invalid number of microseconds was specified (must be less than 1 million)
           - Platorm receiving the command is not a Time Server
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event messages will be issued (#CFE_TIME_STCF_CFG_EID or #CFE_TIME_STCF_ERR_EID)
@@ -974,7 +974,7 @@
 
           \par  Error Conditions
           - Platorm receiving the command is not a Time Server
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event messages will be issued (#CFE_TIME_LEAPS_CFG_EID)
@@ -1017,7 +1017,7 @@
           \par  Error Conditions
           - An invalid number of microseconds was specified (must be less than 1 million)
           - Platorm receiving the command is not a Time Server
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event messages will be issued (#CFE_TIME_DELTA_ERR_EID or #CFE_TIME_DELTA_CFG_EID)
@@ -1059,7 +1059,7 @@
           \par  Error Conditions
           - An invalid number of microseconds was specified (must be less than 1 million)
           - Platorm receiving the command is not a Time Server
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event messages will be issued (#CFE_TIME_DELTA_ERR_EID or #CFE_TIME_DELTA_CFG_EID)
@@ -1087,14 +1087,14 @@
           rather than micro-seconds as an input argument.  This change occurred
           after the determination was made that one micro-second is too large an
           increment for a constant 1Hz adjustment.
-          
+
           This command continuously adjusts the Spacecraft Time Correlation Factor (STCF)
           every second, by adding the specified value.  The adjustment to the STCF is
           applied in the Time Service local 1Hz interrupt handler.  As the local 1Hz
           interrupt is not synchronized to the tone signal, one cannot say when the
           adjustment will occur, other than once a second, at about the same time
           relative to the tone.
-          
+
           There was some debate about whether the maximum 1Hz clock drift correction
           factor would ever need to exceed some small fraction of a second.  But, the
           decision was made to provide the capability to make 1Hz adjustments greater
@@ -1115,7 +1115,7 @@
 
           \par  Error Conditions
           - Platorm receiving the command is not a Time Server
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event message will be issued (#CFE_TIME_1HZ_CFG_EID)
@@ -1143,14 +1143,14 @@
           rather than micro-seconds as an input argument.  This change occurred
           after the determination was made that one micro-second is too large an
           increment for a constant 1Hz adjustment.
-          
+
           This command continuously adjusts the Spacecraft Time Correlation Factor (STCF)
           every second, by subtracting the specified value.  The adjustment to the STCF
           is applied in the Time Service local 1Hz interrupt handler.  As the local 1Hz
           interrupt is not synchronized to the tone signal, one cannot say when the
           adjustment will occur, other than once a second, at about the same time
           relative to the tone.
-          
+
           There was some debate about whether the maximum 1Hz clock drift correction
           factor would ever need to exceed some small fraction of a second.  But, the
           decision was made to provide the capability to make 1Hz adjustments greater
@@ -1171,7 +1171,7 @@
 
           \par  Error Conditions
           - Platorm receiving the command is not a Time Server
-          
+
           Evidence of Failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - command error counter will increment
           - Error specific event message will be issued (#CFE_TIME_1HZ_CFG_EID)
@@ -1200,7 +1200,7 @@
           choice is the selection of primary or redundant tone signal.  The selection
           may be available to both the Time Server and Time Clients, depending on
           hardware configuration.
-          
+
           Notes:
           - This command is only valid when the #CFE_PLATFORM_TIME_CFG_SIGNAL configuration
           parameter in the cfe_platform_cfg.h file has been set to true.
@@ -1223,7 +1223,7 @@
           - Invalid Signal selection
           (a value other than #CFE_TIME_ToneSignalSelect_PRIMARY or #CFE_TIME_ToneSignalSelect_REDUNDANT was specified)
           - Multiple Tone Signal Sources not available on this platform
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \TIME_CMDEC - Command Error counter will increment
           - Error specific event message (either #CFE_TIME_SIGNAL_CFG_EID or #CFE_TIME_SIGNAL_ERR_EID)
@@ -1246,21 +1246,21 @@
           <Entry type="HousekeepingTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="DiagnosticTlm" baseType="CCSDS/TelemetryPacket">
         <EntryList>
           <Entry type="DiagnosticTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="ToneDataCmd" baseType="CCSDS/CommandPacket">
         <EntryList>
           <Entry type="ToneDataCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
-      
+
     </DataTypeSet>
-    
+
 
     <ComponentSet>
       <Component name="Application">
@@ -1303,7 +1303,7 @@
               <GenericTypeMap name="TelecommandDataType" type="CCSDS/CommandPacket" />
             </GenericTypeMapSet>
           </Interface>
-          <Interface name="DIAG_TLM" type="CFE_SB/Telemetry"> 
+          <Interface name="DIAG_TLM" type="CFE_SB/Telemetry">
             <GenericTypeMapSet>
               <GenericTypeMap name="TelemetryDataType" type="DiagnosticTlm" />
             </GenericTypeMapSet>
@@ -1335,6 +1335,6 @@
       </Component>
     </ComponentSet>
 
-    
+
   </Package>
 </PackageFile>

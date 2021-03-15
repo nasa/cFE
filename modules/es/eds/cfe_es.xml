@@ -19,18 +19,18 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    This document adheres to the Electronic Data Sheet (EDS) XML schema 
-    as prescribed in CCSDS book 876.0. 
-      
-    Purpose: 
+    This document adheres to the Electronic Data Sheet (EDS) XML schema
+    as prescribed in CCSDS book 876.0.
+
+    Purpose:
       This describes all interface objects for the Executive Services (CFE_ES)
-      core application 
-      
+      core application
+
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
   <Package name="CFE_ES" shortDescription="NASA Core Flight System Executive Services">
     <DataTypeSet>
-    
+
       <EnumeratedDataType name="LogMode" shortDescription="Identifies handling of log messages after storage is filled" >
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
@@ -38,7 +38,7 @@
           <Enumeration label="DISCARD" value="1" shortDescription="Discard Log Mode" />
         </EnumerationList>
       </EnumeratedDataType>
-    
+
       <EnumeratedDataType name="ExceptionAction" shortDescription="Identifies action to take if exception occurs" >
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
@@ -54,7 +54,7 @@
           <Enumeration label="EXTERNAL"  value="2" shortDescription="CFE external application" />
         </EnumerationList>
       </EnumeratedDataType>
-      
+
       <EnumeratedDataType name="RunStatus" shortDescription="Run Status and Exit Status identifiers">
         <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
         <EnumerationList>
@@ -69,7 +69,7 @@
           <Enumeration label="CORE_APP_RUNTIME_ERROR" value="9" shortDescription="Indicates that the Core Application had a runtime failure" />
         </EnumerationList>
       </EnumeratedDataType>
-      
+
       <EnumeratedDataType name="LogEntryType" shortDescription="Type of entry in the Error and Reset (ER) Log">
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <EnumerationList>
@@ -77,11 +77,11 @@
           <Enumeration label="APPLICATION" value="2" shortDescription="Log entry from an application" />
         </EnumerationList>
       </EnumeratedDataType>
-      
+
       <EnumeratedDataType name="SystemState" shortDescription="The overall cFE System State">
         <LongDescription>
             These values are used with the CFE_ES_WaitForSystemState() API call to synchronize application startup.
-            
+
             @note These are defined in order so that relational comparisons e.g. if (STATEA &lt; STATEB) are possible
         </LongDescription>
         <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
@@ -95,12 +95,12 @@
           <Enumeration label="SHUTDOWN"     value="6" shortDescription="reserved for future use, all apps would be STOPPED" />
         </EnumerationList>
       </EnumeratedDataType>
-      
+
       <EnumeratedDataType name="AppState" shortDescription="Application Run State">
         <LongDescription>
             The normal progression of APP states:
             UNDEFINED -> EARLY_INIT -> LATE_INIT -> RUNNING -> WAITING -> STOPPED
-            
+
             @note These are defined in order so that relational comparisons e.g. if (STATEA &lt; STATEB) are possible
         </LongDescription>
         <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
@@ -114,18 +114,18 @@
           <Enumeration label="MAX" value="6" shortDescription="Reserved, placeholder for maximum value" />
         </EnumerationList>
       </EnumeratedDataType>
-      
-      
+
+
       <StringDataType name="char_x_CFE_ES_MAX_SHELL_CMD" length="${CFE_MISSION/ES_MAX_SHELL_CMD}" />
       <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
       <StringDataType name="char_x_CFE_ES_MAX_SHELL_PKT" length="${CFE_MISSION/ES_MAX_SHELL_PKT}" />
-      
+
       <ArrayDataType name="boolean_x_CFE_ES_PERF_MAX_IDS" dataTypeRef="BASE_TYPES/StatusBit">
         <DimensionList>
           <Dimension size="${CFE_MISSION/ES_PERF_MAX_IDS}" />
         </DimensionList>
       </ArrayDataType>
-      
+
       <ContainerDataType name="AppInfo">
         <LongDescription>
           CFE_ES_AppInfo_t is a structure that is used to provide
@@ -240,7 +240,7 @@
           </Entry>
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="BlockStats" shortDescription="Memory Pool Statistics data type">
         <EntryList>
           <Entry name="BlockSize" type="BASE_TYPES/uint32" shortDescription="Number of bytes in each of these blocks" />
@@ -248,13 +248,13 @@
           <Entry name="NumFree" type="BASE_TYPES/uint32" shortDescription="Number of Memory Blocks of this size that are free" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ArrayDataType name="BlockStats_x_CFE_MAX_MEMPOOL_BLOCKS" dataTypeRef="BlockStats">
         <DimensionList>
           <Dimension size="${CFE_MISSION/MAX_MEMPOOL_BLOCKS}" />
         </DimensionList>
       </ArrayDataType>
-      
+
       <ContainerDataType name="MemPoolStats">
         <EntryList>
           <Entry name="PoolSize" type="BASE_TYPES/uint32" shortDescription="Size of Memory Pool (in bytes)">
@@ -284,7 +284,7 @@
           </Entry>
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="RestartCmd_Payload" shortDescription="Reset cFE Command">
         <LongDescription>
           For command details, see #CFE_ES_RESTART_CC
@@ -293,7 +293,7 @@
           <Entry name="RestartType" type="BASE_TYPES/uint16" shortDescription="#CFE_ES_PROCESSOR_RESET=Processor Reset or #CFE_ES_POWERON_RESET=Power-On Reset" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="ShellCmd_Payload" shortDescription="Shell Command">
         <LongDescription>
           For command details, see #CFE_ES_SHELL_CMD_CC
@@ -303,13 +303,13 @@
           <Entry name="OutputFilename" type="BASE_TYPES/PathName" shortDescription="Filename where shell command output is to be written" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="FileNameCmd_Payload" shortDescription="Generic message payload for messages that require only a filename">
         <EntryList>
           <Entry name="FileName" type="BASE_TYPES/PathName" shortDescription="ASCII text string of full path and filename of file" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="OverWriteSysLogCmd_Payload" shortDescription="Overwrite/Discard System Log Configuration Command">
         <LongDescription>
           For command details, see #CFE_ES_OVERWRITE_SYSLOG_CC
@@ -323,7 +323,7 @@
           </Entry>
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="StartAppCmd_Payload" shortDescription="Start Application Command">
         <LongDescription>
           For command details, see #CFE_ES_START_APP_CC.
@@ -342,7 +342,7 @@
           <Entry name="Priority" type="BASE_TYPES/uint16" shortDescription="The new Applications runtime priority." />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="AppNameCmd_Payload" shortDescription="Command Structure for Commands requiring just an Application Name">
         <LongDescription>
           For command details, see #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_QUERY_ONE_CC
@@ -351,7 +351,7 @@
           <Entry name="Application" type="BASE_TYPES/ApiName" shortDescription="ASCII text string containing Application Name" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="AppReloadCmd_Payload" shortDescription="Reload Application Command">
         <LongDescription>
           For command details, see #CFE_ES_RELOAD_APP_CC
@@ -361,7 +361,7 @@
           <Entry name="AppFileName" type="BASE_TYPES/PathName" shortDescription="Full path and filename of Application's executable image" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="SetMaxPRCountCmd_Payload" shortDescription="Set Maximum Processor Reset Count Command">
         <LongDescription>
           For command details, see #CFE_ES_SET_MAX_PR_COUNT_CC
@@ -370,7 +370,7 @@
           <Entry name="MaxPRCount" type="BASE_TYPES/uint16" shortDescription="New maximum number of Processor Resets before an automatic Power-On Reset is performed" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="DeleteCDSCmd_Payload" shortDescription="Delete Critical Data Store Command">
         <LongDescription>
           For command details, see #CFE_ES_DELETE_CDS_CC
@@ -379,7 +379,7 @@
           <Entry name="CdsName" type="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" shortDescription="ASCII text string containing name of CDS to delete" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="StartPerfCmd_Payload" shortDescription="Start Performance Analyzer Command">
         <LongDescription>
           For command details, see #CFE_ES_PERF_STARTDATA_CC
@@ -388,7 +388,7 @@
           <Entry name="TriggerMode" type="BASE_TYPES/uint32" shortDescription="Desired trigger position (Start, Center, End)" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="StopPerfCmd_Payload" shortDescription="Stop Performance Analyzer Command">
         <LongDescription>
           For command details, see #CFE_ES_PERF_STOPDATA_CC
@@ -397,7 +397,7 @@
           <Entry name="DataFileName" type="BASE_TYPES/PathName" shortDescription="ASCII text string of full path and filename of file Performance Analyzer data is to be written" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="SetPerfFilterMaskCmd_Payload" shortDescription="Set Performance Analyzer Filter Mask Command">
         <LongDescription>
           For command details, see #CFE_ES_PERF_SETFILTERMASK_CC
@@ -407,7 +407,7 @@
           <Entry name="FilterMask" type="BASE_TYPES/uint32" shortDescription="New Mask for specified entry in array of Filter Masks" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="SetPerfTrigMaskCmd_Payload" shortDescription="Set Performance Analyzer Trigger Mask Command" >
         <LongDescription>
           For command details, see #CFE_ES_PERF_SETTRIGMASK_CC
@@ -417,7 +417,7 @@
           <Entry name="TriggerMask" type="BASE_TYPES/uint32" shortDescription="New Mask for specified entry in array of Trigger Masks" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="SendMemPoolStatsCmd_Payload" shortDescription="">
         <LongDescription>
            \brief  Telemeter Memory Pool Statistics Command.
@@ -428,7 +428,7 @@
           <Entry name="PoolHandle" type="BASE_TYPES/CpuAddress" shortDescription="Handle of Pool whose statistics are to be telemetered" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="DumpCDSRegistryCmd_Payload" shortDescription="Dump CDS Registry Command">
         <LongDescription>
           For command details, see #CFE_ES_DUMP_CDS_REG_CC
@@ -437,13 +437,13 @@
           <Entry name="DumpFilename" type="BASE_TYPES/PathName" shortDescription="ASCII text string of full path and filename of file CDS Registry is to be written" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="OneAppTlm_Payload" shortDescription="Single Application Information Packet">
         <EntryList>
           <Entry name="AppInfo" type="AppInfo" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="PoolStatsTlm_Payload" shortDescription="Memory Pool Statistics Packet">
         <EntryList>
           <Entry name="PoolHandle" type="BASE_TYPES/CpuAddress" shortDescription="Handle of memory pool whose stats are being telemetered">
@@ -454,7 +454,7 @@
           <Entry name="PoolStats" type="MemPoolStats" shortDescription="For more info, see #CFE_ES_MemPoolStats_t" />
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="HousekeepingTlm_Payload">
         <EntryList>
           <Entry name="CommandCounter" type="BASE_TYPES/uint8" shortDescription="The ES Application Command Counter">
@@ -649,18 +649,18 @@
           </Entry>
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="ShellPacket_Payload">
         <EntryList>
           <Entry name="ShellOutput" type="char_x_CFE_ES_MAX_SHELL_PKT">
             <LongDescription>
-               \brief  ASCII text string containing output from OS Shell 
+               \brief  ASCII text string containing output from OS Shell
               that was received in response to an OS Shell Command
             </LongDescription>
           </Entry>
         </EntryList>
       </ContainerDataType>
-      
+
       <ContainerDataType name="CommandBase" baseType="CCSDS/CommandPacket">
       </ContainerDataType>
 
@@ -687,16 +687,16 @@
           <Entry type="PoolStatsTlm_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
-    
+
 
       <ContainerDataType name="Noop" baseType="CommandBase">
         <LongDescription>
           \cfeescmd  Executive Services No-Op
 
           \par  Description
-          
-          This command performs no other function than to increment the 
-          command execution counter. The command may be used to verify 
+
+          This command performs no other function than to increment the
+          command execution counter. The command may be used to verify
           general aliveness of the Executive Services task.
           \cfecmdmnemonic  \ES_NOOP
 
@@ -704,19 +704,19 @@
           #CFE_ES_NoArgsCmd_t
 
           \par  Command Verification
-          
-          Successful execution of this command may be verified with the 
+
+          Successful execution of this command may be verified with the
           following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_NOOP_INF_EID informational event message will 
+          - The #CFE_ES_NOOP_INF_EID informational event message will
           be generated
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
           - the #CFE_ES_LEN_ERR_EID error event message will be generated
@@ -734,8 +734,8 @@
           \cfeescmd  Executive Services Reset Counters
 
           \par  Description
-          
-          This command resets the following counters within the Executive 
+
+          This command resets the following counters within the Executive
           Services housekeeping telemetry:
           - Command Execution Counter
           - Command Error Counter
@@ -745,28 +745,28 @@
           #CFE_ES_NoArgsCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_RESET_INF_EID informational event message will be 
+          - The #CFE_ES_RESET_INF_EID informational event message will be
           generated
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
           - the #CFE_ES_LEN_ERR_EID error event message will be generated
 
           \par  Criticality
-          
-          This command is not inherently dangerous.  However, it is 
-          possible for ground systems and on-board safing procedures 
-          to be designed such that they react to changes in the counter 
+
+          This command is not inherently dangerous.  However, it is
+          possible for ground systems and on-board safing procedures
+          to be designed such that they react to changes in the counter
           values that are reset by this command.
 
           \sa  #CFE_ES_RESET_PR_COUNT_CC
@@ -781,15 +781,15 @@
           \cfeescmd  Executive Services Processor / Power-On Reset
 
           \par  Description
-          
+
           This command restarts the cFE in one of two modes.  The Power-On Reset
           will cause the cFE to restart as though the power were first applied
           to the processor.  The Processor Reset will attempt to retain the contents
           of the volatile disk and the contents of the Critical Data Store.
-          NOTE: If a requested Processor Reset should cause the 
+          NOTE: If a requested Processor Reset should cause the
           Processor Reset Counter (\b \c \ES_PROCRESETCNT)
           to exceed OR EQUAL the limit #CFE_ES_MAX_PROCESSOR_RESETS (which is reported in
-          housekeeping telemetry as \b \c \ES_MAXPROCRESETS), 
+          housekeeping telemetry as \b \c \ES_MAXPROCRESETS),
           the command is \b AUTOMATICALLY upgraded to a Power-On Reset.
           \cfecmdmnemonic  \ES_RESET
 
@@ -797,8 +797,8 @@
           #CFE_ES_RestartCmd_t
 
           \par  Command Verification
-          
-          Successful execution of this command (as a Processor Reset)  
+
+          Successful execution of this command (as a Processor Reset)
           may be verified with the following telemetry:
           - \b \c \ES_PROCRESETCNT - processor reset counter will increment
           - New entries in the Exception Reset Log and System Log can be found
@@ -809,18 +809,18 @@
           command execution.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The \link #CFE_ES_RestartCmd_t.RestartType Restart Type \endlink was
-          not a recognized value. 
-          
+          not a recognized value.
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
           - the #CFE_ES_BOOT_ERR_EID error event message will be generated
 
           \par  Criticality
-          
+
           This command is, by definition, dangerous.  Significant loss of
           data will occur.  All processes and the cFE itself will be stopped
           and restarted.  With the Power-On reset option, all data on the
@@ -842,12 +842,12 @@
           \cfeescmd  Executive Services O/S Shell Command
 
           \par  Description
-          
+
           This command passes an ASCII string as a command line to the
           underlying realtime operating system shell.  Any response to
           the command is both written to the shell command output file
           and sent as a series of shell command output telemetry packets.
-          
+
           If the shell command output filename argument is empty, then
           #CFE_ES_DEFAULT_SHELL_FILENAME will be used as the filename.
           \cfecmdmnemonic  \ES_SHELL
@@ -856,16 +856,16 @@
           #CFE_ES_ShellCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_SHELL_INF_EID informational event message will be 
+          - The #CFE_ES_SHELL_INF_EID informational event message will be
           generated
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - Failure to create the shell command output file
@@ -874,14 +874,14 @@
           - There was an error while performing a #OS_lseek on the shell command output file
           - There was an error while redirecting the shell command response to the
           shell command output file
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
           - the #CFE_ES_SHELL_ERR_EID error event message will be generated
           - Additional information on the error should be found in the System Log
 
           \par  Criticality
-          
+
           This command should be used with caution.  Interfering with the
           operation of the underlying realtime operating system can cause
           significant problems.
@@ -899,8 +899,8 @@
           \cfeescmd  Load and Start an Application
 
           \par  Description
-          
-          This command starts the specified application with the 
+
+          This command starts the specified application with the
           specified start address, stack size, etc options.
           \cfecmdmnemonic  \ES_STARTAPP
 
@@ -908,16 +908,16 @@
           #CFE_ES_StartAppCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_START_INF_EID informational event message will be 
+          - The #CFE_ES_START_INF_EID informational event message will be
           generated
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The specified application filename string is either a NULL string
@@ -929,14 +929,14 @@
           - The specified exception action is neither #CFE_ES_ExceptionAction_RESTART_APP (0) or
           #CFE_ES_ExceptionAction_PROC_RESTART (1)
           - The Operating System was unable to load the specified application file
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           This command is not inherently dangerous although system resources
           could be taxed beyond their limits with the starting of erroneous
           or invalid applications.
@@ -956,12 +956,12 @@
           \cfeescmd  Stop and Unload Application
 
           \par  Description
-          
+
           This command halts and removes the specified Application
           from the system. \b NOTE: This command should never be used
           on the Command Ingest application.  This would prevent further
           commands from entering the system.  If Command Ingest needs to
-          be stopped and restarted, use #CFE_ES_RESTART_APP_CC or 
+          be stopped and restarted, use #CFE_ES_RESTART_APP_CC or
           #CFE_ES_RELOAD_APP_CC.
           \cfecmdmnemonic  \ES_STOPAPP
 
@@ -969,35 +969,35 @@
           #CFE_ES_AppNameCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_STOP_DBG_EID debug event message will be 
+          - The #CFE_ES_STOP_DBG_EID debug event message will be
           generated. NOTE: This event message only identifies that the
           stop has been started, not that is has completed.
           - Once the stop has successfully completed, the list of Applications
-          and Tasks created in response to the \b \c \ES_WRITEAPPINFO2FILE, 
-          \b \c \ES_WRITETASKINFO2FILE should no longer contain the 
+          and Tasks created in response to the \b \c \ES_WRITEAPPINFO2FILE,
+          \b \c \ES_WRITETASKINFO2FILE should no longer contain the
           specified application.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The specified application name is not recognized as an active application
           - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued forall error 
+          - A command specific error event message is issued forall error
           cases
           - Additional information on the reason for command failure may be found
           in the System Log
 
           \par  Criticality
-          
+
           This command is not inherently dangerous, however the removal of certain
           applications (e.g. - Spacecraft Attitude and Control) may have a detrimental effect
           on the spacecraft.
@@ -1017,7 +1017,7 @@
           \cfeescmd  Stops and Restarts an Application
 
           \par  Description
-          
+
           This command halts and restarts the specified Application.
           This command does \b NOT reload the application from the onboard
           filesystem.
@@ -1027,31 +1027,31 @@
           #CFE_ES_AppNameCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_RESTART_APP_DBG_EID debug event message will be 
+          - The #CFE_ES_RESTART_APP_DBG_EID debug event message will be
           generated. NOTE: This event message only identifies that the
           act of stopping the application has begun, not that is has completed.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The specified application name is not recognized as an active application
           - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
           - Additional information on the reason for command failure may be found
           in the System Log
 
           \par  Criticality
-          
+
           This command is not inherently dangerous, however the restarting of certain
           applications (e.g. - Spacecraft Attitude and Control) may have a detrimental effect
           on the spacecraft.
@@ -1071,10 +1071,10 @@
           \cfeescmd  Stops, Unloads, Loads from a File and Restarts an Application
 
           \par  Description
-          
+
           This command halts and removes the specified Application
           from the system.  Then it immediately loads the Application from
-          the command specified file and restarts it.  This command is 
+          the command specified file and restarts it.  This command is
           especially useful for restarting a Command Ingest Application
           since once it has been stopped, no further commands can come in
           to restart it.
@@ -1084,31 +1084,31 @@
           #CFE_ES_AppReloadCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_RELOAD_APP_DBG_EID debug event message will be 
+          - The #CFE_ES_RELOAD_APP_DBG_EID debug event message will be
           generated. NOTE: This event message only identifies that the
           act of stopping the application has begun, not that is has completed.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The specified application name is not recognized as an active application
           - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
           - Additional information on the reason for command failure may be found
           in the System Log
 
           \par  Criticality
-          
+
           This command is not inherently dangerous, however the restarting of certain
           applications (e.g. - Spacecraft Attitude and Control) may have a detrimental effect
           on the spacecraft.
@@ -1128,7 +1128,7 @@
           \cfeescmd  Request Executive Services Information on a Specified Application
 
           \par  Description
-          
+
           This command takes the information kept by Executive Services on the
           specified application and telemeters it to the ground.
           \cfecmdmnemonic  \ES_QUERYAPP
@@ -1137,25 +1137,25 @@
           #CFE_ES_AppNameCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_ONE_APP_EID debug event message will be 
+          - The #CFE_ES_ONE_APP_EID debug event message will be
           generated. NOTE: This event message only identifies that the
           act of stopping the application has begun, not that is has completed.
           - Receipt of the #CFE_ES_APP_TLM_t telemetry packet
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The specified application name is not recognized as an active application
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
@@ -1176,7 +1176,7 @@
           \cfeescmd  Writes all Executive Services Information on All Applications to a File
 
           \par  Description
-          
+
           This command takes the information kept by Executive Services on all of the
           registered applications and writes it to the specified file.
           \cfecmdmnemonic  \ES_WRITEAPPINFO2FILE
@@ -1185,33 +1185,33 @@
           #CFE_ES_QueryAllCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_ALL_APPS_EID debug event message will be 
+          - The #CFE_ES_ALL_APPS_EID debug event message will be
           generated.
           - The file specified in the command (or the default specified
-          by the #CFE_ES_DEFAULT_APP_LOG_FILE configuration parameter) will be 
+          by the #CFE_ES_DEFAULT_APP_LOG_FILE configuration parameter) will be
           updated with the lastest information.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - An Error occurs while trying to write to the file
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
-          This command is not inherently dangerous.  It will create a new 
-          file in the file system (or overwrite an existing one) and could, 
-          if performed repeatedly without sufficient file management by the 
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
           operator, fill the file system.
 
           \sa  #CFE_ES_QUERY_ONE_CC, #CFE_ES_QUERY_ALL_TASKS_CC
@@ -1229,7 +1229,7 @@
           \cfeescmd  Clear Executive Services System Log
 
           \par  Description
-          
+
           This command clears the contents of the Executive Services System Log.
           \cfecmdmnemonic  \ES_CLEARSYSLOG
 
@@ -1237,28 +1237,28 @@
           #CFE_ES_NoArgsCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_SYSLOG1_INF_EID informational event message will be 
+          - The #CFE_ES_SYSLOG1_INF_EID informational event message will be
           generated.
           - \b \c \ES_SYSLOGBYTEUSED - System Log Bytes Used will go to zero
           - \b \c \ES_SYSLOGENTRIES - Number of System Log Entries will go to zero
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           This command is not dangerous.  However, any previously logged data
           will be lost.
 
@@ -1275,7 +1275,7 @@
           \cfeescmd  Writes contents of Executive Services System Log to a File
 
           \par  Description
-          
+
           This command causes the contents of the Executive Services System Log
           to be written to a log file.
           \cfecmdmnemonic  \ES_WRITESYSLOG2FILE
@@ -1284,33 +1284,33 @@
           #CFE_ES_WriteSyslogCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_SYSLOG2_EID debug event message will be 
+          - The #CFE_ES_SYSLOG2_EID debug event message will be
           generated.
           - The file specified in the command (or the default specified
-          by the #CFE_ES_DEFAULT_SYSLOG_FILE configuration parameter) will be 
+          by the #CFE_ES_DEFAULT_SYSLOG_FILE configuration parameter) will be
           updated with the lastest information.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - An Error occurs while trying to write to the file
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
-          This command is not inherently dangerous.  It will create a new 
-          file in the file system (or overwrite an existing one) and could, 
-          if performed repeatedly without sufficient file management by the 
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
           operator, fill the file system.
 
           \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_CLEAR_ERLOG_CC, #CFE_ES_WRITE_ERLOG_CC,
@@ -1329,7 +1329,7 @@
           \cfeescmd  Clears the contents of the Exeception and Reset Log
 
           \par  Description
-          
+
           This command causes the contents of the Executive Services Exception
           and Reset Log to be cleared.
           \cfecmdmnemonic  \ES_CLEARERLOG
@@ -1338,27 +1338,27 @@
           #CFE_ES_NoArgsCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_ERLOG1_INF_EID informational event message will be 
+          - The #CFE_ES_ERLOG1_INF_EID informational event message will be
           generated.
           - \b \c \ES_ERLOGINDEX - Index into Exception Reset Log goes to zero
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           This command is not dangerous.  However, any previously logged data
           will be lost.
 
@@ -1374,7 +1374,7 @@
           \cfeescmd  Writes Exeception and Reset Log to a File
 
           \par  Description
-          
+
           This command causes the contents of the Executive Services Exception
           and Reset Log to be written to the specified file.
           \cfecmdmnemonic  \ES_WRITEERLOG2FILE
@@ -1383,33 +1383,33 @@
           #CFE_ES_WriteERlogCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_ERLOG2_EID debug event message will be 
+          - The #CFE_ES_ERLOG2_EID debug event message will be
           generated.
           - The file specified in the command (or the default specified
-          by the #CFE_ES_DEFAULT_ER_LOG_FILE configuration parameter) will be 
+          by the #CFE_ES_DEFAULT_ER_LOG_FILE configuration parameter) will be
           updated with the lastest information.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - An Error occurs while trying to write to the file
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
-          This command is not inherently dangerous.  It will create a new 
-          file in the file system (or overwrite an existing one) and could, 
-          if performed repeatedly without sufficient file management by the 
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
           operator, fill the file system.
 
           \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_CLEAR_ERLOG_CC
@@ -1427,7 +1427,7 @@
           \cfeescmd  Start Performance Analyzer
 
           \par  Description
-          
+
           This command causes the Performance Analyzer to begin collecting data using the specified trigger mode.
           \cfecmdmnemonic  \ES_STARTLADATA
 
@@ -1435,37 +1435,37 @@
           #CFE_ES_PerfStartCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
           - \b \c \ES_PERFSTATE - Current performance analyzer state will change to
           either WAITING FOR TRIGGER or, if conditions are appropriate fast enough,
           TRIGGERED.
-          - \b \c \ES_PERFMODE - Performance Analyzer Mode will change to the commanded trigger mode (TRIGGER START, 
+          - \b \c \ES_PERFMODE - Performance Analyzer Mode will change to the commanded trigger mode (TRIGGER START,
           TRIGGER CENTER, or TRIGGER END).
           - \b \c \ES_PERFTRIGCNT - Performance Trigger Count will go to zero
           - \b \c \ES_PERFDATASTART - Data Start Index will go to zero
           - \b \c \ES_PERFDATAEND - Data End Index will go to zero
           - \b \c \ES_PERFDATACNT - Performance Data Counter will go to zero
-          - The #CFE_ES_PERF_STARTCMD_EID debug event message will be 
+          - The #CFE_ES_PERF_STARTCMD_EID debug event message will be
           generated.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - A previous #CFE_ES_PERF_STOPDATA_CC command has not completely finished.
           - An invalid trigger mode is requested.
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           This command is not inherently dangerous but may cause a small increase in CPU
           utilization as the performance analyzer data is collected.
 
@@ -1484,7 +1484,7 @@
           \cfeescmd  Stop Performance Analyzer
 
           \par  Description
-          
+
           This command stops the Performance Analyzer from collecting any more data.
           \cfecmdmnemonic  \ES_STOPLADATA
 
@@ -1492,34 +1492,34 @@
           #CFE_ES_PerfStopCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
           - \b \c \ES_PERFSTATE - Current performance analyzer state will change to
-          IDLE. 
-          - The #CFE_ES_PERF_STOPCMD_EID debug event message will be 
+          IDLE.
+          - The #CFE_ES_PERF_STOPCMD_EID debug event message will be
           generated.
           - The file specified in the command (or the default specified
-          by the #CFE_ES_DEFAULT_PERF_DUMP_FILENAME configuration parameter) will be 
+          by the #CFE_ES_DEFAULT_PERF_DUMP_FILENAME configuration parameter) will be
           updated with the lastest information.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - A previous Stop Performance Analyzer command is still in process
           - An error occurred while spawning the child task responsible for
           dumping the Performance Analyzer data to a file
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           This command is not inherently dangerous.  An additional low priority child
           task will be spawned, however, to dump the performance analyzer data to a file.
 
@@ -1538,7 +1538,7 @@
           \cfeescmd  Set Performance Analyzer's Filter Masks
 
           \par  Description
-          
+
           This command sets the Performance Analyzer's Filter Masks.
           \cfecmdmnemonic  \ES_LAFILTERMASK
 
@@ -1546,29 +1546,29 @@
           #CFE_ES_SetPerfFilterMaskCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
           - \B \C \ES_PERFFLTRMASK - the current performance filter mask
           value(s) should reflect the commanded value
-          - The #CFE_ES_PERF_FILTMSKCMD_EID debug event message will be 
+          - The #CFE_ES_PERF_FILTMSKCMD_EID debug event message will be
           generated.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The Filter Mask ID number is out of range
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           Changing the filter masks may cause a small change in the Performance
           Analyzer's CPU utilization.
 
@@ -1594,29 +1594,29 @@
           #CFE_ES_PerfSetTrigMaskCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
           - \b \c \ES_PERFTRIGMASK - the current performance trigger mask
           value(s) should reflect the commanded value
-          - The #CFE_ES_PERF_TRIGMSKCMD_EID debug event message will be 
+          - The #CFE_ES_PERF_TRIGMSKCMD_EID debug event message will be
           generated.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The Trigger Mask ID number is out of range
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           Changing the trigger masks may cause a small change in the Performance
           Analyzer's CPU utilization.
 
@@ -1635,7 +1635,7 @@
           \cfeescmd  Set Executive Services System Log Mode to Discard/Overwrite
 
           \par  Description
-          
+
           This command allows the user to configure the Executive Services
           to either discard new System Log messages when it is full or to
           overwrite the oldest messages.
@@ -1645,29 +1645,29 @@
           #CFE_ES_OverWriteSysLogCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
           - \b \c \ES_SYSLOGMODE - Current System Log Mode should reflect
           the commanded value
-          - The #CFE_ES_SYSLOGMODE_EID debug event message will be 
+          - The #CFE_ES_SYSLOGMODE_EID debug event message will be
           generated.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The desired mode is neither #CFE_ES_LogMode_OVERWRITE or #CFE_ES_LogMode_DISCARD
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           None. (It should be noted that "Overwrite" mode would allow a message
           identifying the cause of a problem to be lost by a subsequent flood of
           additional messages).
@@ -1687,9 +1687,9 @@
           \cfeescmd  Resets the Processor Reset Counter to Zero
 
           \par  Description
-          
+
           This command allows the user to reset the Processor Reset Counter to zero.
-          The Processor Reset Counter counts the number of Processor Resets that 
+          The Processor Reset Counter counts the number of Processor Resets that
           have occurred so as to identify when a Processor Reset should automatically
           be upgraded to a full Power-On Reset.
           \cfecmdmnemonic  \ES_RESETPRCNT
@@ -1698,27 +1698,27 @@
           #CFE_ES_NoArgsCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
           - \b \c \ES_PROCRESETCNT - Current number of processor resets will go to zero
-          - The #CFE_ES_RESET_PR_COUNT_EID informational event message will be 
+          - The #CFE_ES_RESET_PR_COUNT_EID informational event message will be
           generated.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           This command is not critical.  The only impact would be that the system
           would have to have more processor resets before an automatic power-on reset
           occurred.
@@ -1735,7 +1735,7 @@
           \cfeescmd  Configure the Maximum Number of Processor Resets before a Power-On Reset
 
           \par  Description
-          
+
           This command allows the user to specify the number of Processor Resets that
           are allowed before the next Processor Reset is upgraded to a Power-On Reset.
           \cfecmdmnemonic  \ES_SETMAXPRCNT
@@ -1744,28 +1744,28 @@
           #CFE_ES_SetMaxPRCountCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - \b \c \ES_MAXPROCRESETS - Current maximum number of processor resets 
+          - \b \c \ES_MAXPROCRESETS - Current maximum number of processor resets
           before an automatic power-on reset will go to the command specified value.
-          - The #CFE_ES_SET_MAX_PR_COUNT_EID informational event message will be 
+          - The #CFE_ES_SET_MAX_PR_COUNT_EID informational event message will be
           generated.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           If the operator were to set the Maximum Processor Reset Count to too high a value,
           the processor would require an inordinate number of consecutive processor resets
           before an automatic power-on reset would occur.  This could potentially leave the
@@ -1787,7 +1787,7 @@
           \cfeescmd  Delete Critical Data Store
 
           \par  Description
-          
+
           This command allows the user to delete a Critical Data Store that was created
           by an Application that is now no longer executing.
           \cfecmdmnemonic  \ES_DELETECDS
@@ -1796,32 +1796,32 @@
           #CFE_ES_DeleteCDSCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_CDS_DELETED_INFO_EID informational event message will be 
+          - The #CFE_ES_CDS_DELETED_INFO_EID informational event message will be
           generated.
           - The specified CDS should no longer appear in a CDS Registry dump generated
           upon receipt of the #CFE_ES_DUMP_CDS_REG_CC command
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The specified CDS is the CDS portion of a Critical Table. See #CFE_TBL_DELETE_CDS_CC.
           - The specified CDS is not found in the CDS Registry
           - The specified CDS is associated with an Application that is still active
           - An error occurred while accessing the CDS memory (see the System Log for more details)
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           This command is not critical because it is not possible to delete a CDS that is
           associated with an active application.  However, deleting a CDS does eliminate
           any "history" that an application may be wishing to keep.
@@ -1841,7 +1841,7 @@
           \cfeescmd  Telemeter Memory Pool Statistics
 
           \par  Description
-          
+
           This command allows the user to obtain a snapshot of the statistics maintained
           for a specified memory pool.
           \cfecmdmnemonic  \ES_SendMemPoolStats
@@ -1850,31 +1850,31 @@
           #CFE_ES_SendMemPoolStatsCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_TLM_POOL_STATS_INFO_EID debug event message will be 
+          - The #CFE_ES_TLM_POOL_STATS_INFO_EID debug event message will be
           generated.
           - The \link #CFE_ES_MEMSTATS_TLM_t Memory Pool Statistics Telemetry Packet \endlink
           is produced
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - The specified handle is not associated with a known memory pool
           - The specified handle caused a processor exception because it improperly
           identified a segment of memory
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
+
           An incorrect Memory Pool Handle value can cause a system crash.
           Extreme care should be taken to ensure the memory handle value
           used in the command is correct.
@@ -1892,7 +1892,7 @@
           \cfeescmd  Dump Critical Data Store Registry to a File
 
           \par  Description
-          
+
           This command allows the user to dump the Critical Data Store
           Registry to an onboard file.
           \cfecmdmnemonic  \ES_DumpCDSRegistry
@@ -1901,32 +1901,32 @@
           #CFE_ES_DumpCDSRegistryCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_CDS_REG_DUMP_INF_EID debug event message will be 
+          - The #CFE_ES_CDS_REG_DUMP_INF_EID debug event message will be
           generated.
           - The file specified in the command (or the default specified
-          by the #CFE_ES_DEFAULT_CDS_REG_DUMP_FILE configuration parameter) will be 
+          by the #CFE_ES_DEFAULT_CDS_REG_DUMP_FILE configuration parameter) will be
           updated with the lastest information.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - Error occurred while trying to create the dump file
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
-          This command is not inherently dangerous.  It will create a new 
-          file in the file system (or overwrite an existing one) and could, 
-          if performed repeatedly without sufficient file management by the 
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
           operator, fill the file system.
 
           \sa  #CFE_ES_DELETE_CDS_CC, #CFE_TBL_DELETE_CDS_CC
@@ -1944,7 +1944,7 @@
           \cfeescmd  Writes a list of All Executive Services Tasks to a File
 
           \par  Description
-          
+
           This command takes the information kept by Executive Services on all of the
           registered tasks and writes it to the specified file.
           \cfecmdmnemonic  \ES_WRITETASKINFO2FILE
@@ -1953,33 +1953,33 @@
           #CFE_ES_QueryAllTasksCmd_t
 
           \par  Command Verification
-          
+
           Successful execution of this command may be verified with 
           the following telemetry:
-          - \b \c \ES_CMDPC - command execution counter will 
+          - \b \c \ES_CMDPC - command execution counter will
           increment
-          - The #CFE_ES_TASKINFO_EID debug event message will be 
+          - The #CFE_ES_TASKINFO_EID debug event message will be
           generated.
           - The file specified in the command (or the default specified
-          by the #CFE_ES_DEFAULT_TASK_LOG_FILE configuration parameter) will be 
+          by the #CFE_ES_DEFAULT_TASK_LOG_FILE configuration parameter) will be
           updated with the lastest information.
 
           \par  Error Conditions
-          
+
           This command may fail for the following reason(s):
           - The command packet length is incorrect
           - An Error occurs while trying to write to the file
-          
+
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued for all error 
+          - A command specific error event message is issued for all error
           cases
 
           \par  Criticality
-          
-          This command is not inherently dangerous.  It will create a new 
-          file in the file system (or overwrite an existing one) and could, 
-          if performed repeatedly without sufficient file management by the 
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
           operator, fill the file system.
 
           \sa  #CFE_ES_QUERY_ALL_CC, CFE_ES_QUERY_ONE_CC
@@ -1991,9 +1991,9 @@
           <Entry type="FileNameCmd_Payload" name="Payload" />
         </EntryList>
       </ContainerDataType>
-      
+
     </DataTypeSet>
-    
+
     <ComponentSet>
       <Component name="Application">
         <RequiredInterfaceSet>
@@ -2039,7 +2039,7 @@
             <Variable type="BASE_TYPES/uint16" readOnly="true" name="MemStatsTlmTopicId" initialValue="${CFE_MISSION/ES_MEMSTATS_TLM_TOPICID}" />
           </VariableSet>
           <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
-          <ParameterMapSet>          
+          <ParameterMapSet>
             <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
             <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
             <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />
@@ -2050,6 +2050,6 @@
         </Implementation>
       </Component>
     </ComponentSet>
-    
+
   </Package>
 </PackageFile>
