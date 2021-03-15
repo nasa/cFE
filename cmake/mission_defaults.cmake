@@ -51,7 +51,7 @@ set(MISSION_MODULE_SEARCH_PATH
 
 # The path for specific components can also be set via
 # a variable named "<component>_SEARCH_PATH".  This is
-# used for locating cfe-core and osal which are not part
+# used for locating other modules that are not part
 # of the standard search path.
 set(osal_SEARCH_PATH ".")
 set(psp_SEARCH_PATH ".")

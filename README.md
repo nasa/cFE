@@ -10,6 +10,13 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev402
+
+- HOTFIX 20210312, updates to work with older CMake
+- Fix #972, reorganize directory structure
+- HOTFIX IC 2021-03-05: Correct static app build issue
+- See <https://github.com/nasa/cFE/pull/1222>
+
 ### Development Build: v6.8.0-rc1+dev392
 
 - Fix #665, update pipe name documentation.
