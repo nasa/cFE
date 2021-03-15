@@ -1,10 +1,10 @@
 ##################################################################
 #
-# cFE Global/Public Application Interface 
+# cFE Global/Public Application Interface
 #
 ##################################################################
 
-# NOTE: This module is shared headers and configuration only, it has has no 
+# NOTE: This module is shared headers and configuration only, it has has no
 # source files of its own.  It just defines the intefaces betwen the CFE core
 # modules and other private headers that define CFE internal shared data objects.
 add_library(core_api INTERFACE)
@@ -14,7 +14,7 @@ target_include_directories(core_api INTERFACE fsw/inc)
 
 # The list of modules that comprise the "CFE app interface"
 # This is the set of APIs that applications and libraries may call directly
-# The include path to all of them is 
+# The include path to all of them is
 set(core_api_MODULES es evs fs msg resourceid sb tbl time osal psp)
 
 # Propagate any INTERFACE-level include dirs and compile defintions from

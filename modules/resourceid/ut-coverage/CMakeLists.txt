@@ -9,7 +9,7 @@
 
 # Unit test object library sources, options, and includes
 add_library(ut_resourceid_OBJS OBJECT ${resourceid_SOURCES})
-target_compile_options(ut_resourceid_OBJS PRIVATE 
+target_compile_options(ut_resourceid_OBJS PRIVATE
     ${UT_COVERAGE_COMPILE_FLAGS}
 )
 target_include_directories(ut_resourceid_OBJS PRIVATE
@@ -22,7 +22,7 @@ add_executable(resourceid_UT test_cfe_resourceid.c $<TARGET_OBJECTS:ut_resourcei
 # allow direct use of the "option" headers no matter which is actually selected by mission
 target_include_directories(resourceid_UT PRIVATE ${CFE_RESOURCEID_SOURCE_DIR}/option)
 
-# Also add the UT_COVERAGE_LINK_FLAGS to the link command    
+# Also add the UT_COVERAGE_LINK_FLAGS to the link command
 # This should enable coverage analysis on platforms that support this
 target_link_libraries(resourceid_UT
     ${UT_COVERAGE_LINK_FLAGS}

@@ -12,7 +12,7 @@
 #
 # Create the generic stubs library
 #
-add_library(ut_${DEP}_stubs STATIC 
+add_library(ut_${DEP}_stubs STATIC
     src/ut_osprintf_stubs.c
     src/ut_support.c
 )

@@ -14,7 +14,7 @@
 
 # If the OMIT_DEPRECATED flag is specified, then define the respective macros
 # that omit the deprecated features from the build.  This is conditional in this
-# example for CI purposes, so it can be tested both ways.  Most projects would 
+# example for CI purposes, so it can be tested both ways.  Most projects would
 # likely set this only one way.
 set(OMIT_DEPRECATED $ENV{OMIT_DEPRECATED} CACHE STRING "Omit deprecated elements")
 if (OMIT_DEPRECATED)

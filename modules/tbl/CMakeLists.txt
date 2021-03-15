@@ -7,7 +7,7 @@
 project(CFE_TBL C)
 
 # Table Services source files
-set(tbl_SOURCES 
+set(tbl_SOURCES
     fsw/src/cfe_tbl_api.c
     fsw/src/cfe_tbl_internal.c
     fsw/src/cfe_tbl_task.c
