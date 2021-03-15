@@ -72,7 +72,7 @@
   from header implementation, often abbreviated as message ID, MsgId, or MID.
   Header and message identifier values should not be accessed directly to
   avoid implementation specific dependencies.
- 
+
   Telemetry packets typically contain a timestamp that indicates when the packet
   was produced.  Command packets typically contain a command code that identifies
   the particular type of command.
@@ -506,7 +506,7 @@
            How many copies of the message are performed in a typical message delivery?
         </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
            There is a single copy of the message performed when sending a message
-           (from the callers memory space) using CFE_SB_TransmitMsg. 
+           (from the callers memory space) using CFE_SB_TransmitMsg.
            When transmitting the message, the software bus copies the message from the
            callers memory space into a buffer in the software bus memory space. There
            is also the option to request a buffer from SB, write directly to the buffer

@@ -6,7 +6,7 @@
  volume view regardless of the underlying system type. For example, vxWorks
  uses MS-DOS style volume names and directories where a vxWorks RAM disk might
  have the volume “RAM:0”. With this File System API, volumes are represented
- as Unix-style paths where each volume is mounted on the root file system: 
+ as Unix-style paths where each volume is mounted on the root file system:
 
  <UL>
     <LI>RAM:0/file1.dat becomes /mnt/ram/file1.dat
@@ -36,7 +36,7 @@
         directory “.”. In the example of “/tmp” all of the directories created
         for the volumes would be under “/tmp” on the Linux file system. For a real
         disk device in Linux, such as a RAM disk, this field is the device
-        name “/dev/ram0”. 
+        name “/dev/ram0”.
    <LI> Volume Type: This field defines the type of volume. The types are:
         FS_BASED which uses the existing file system, RAM_DISK which uses a
         RAM_DISK device in vxWorks, RTEMS, or Linux, FLASH_DISK_FORMAT which uses
@@ -45,7 +45,7 @@
         before it’s use, EEPROM which is for an EEPROM or PROM based system.
    <LI> Volatile Flag: This flag indicates that the volume or disk is a volatile
         disk (RAM disk ) or a non-volatile disk, that retains its contents when
-        the system is rebooted. This should be set to TRUE or FALSE. 
+        the system is rebooted. This should be set to TRUE or FALSE.
    <LI> Free Flag: This is an internal flag that should be set to FALSE or zero.
    <LI> Is Mounted Flag: This is an internal flag that should be set to FALSE
         or zero. Note that a “pre-mounted” FS_BASED path can be set up by setting
@@ -60,7 +60,7 @@
 **/
 
 /**
-\page osalfsfd File Descriptors In Osal 
+\page osalfsfd File Descriptors In Osal
 
  The OSAL uses abstracted file descriptors. This means that the file descriptors
  passed back from the OS_open and OS_creat calls will only work with other OSAL OS_*
@@ -72,7 +72,7 @@ instance, the path of the file that the file descriptor points to can be easily
   retrieved. Also, the OSAL task ID of the task that opened the file can also be
  retrieved easily.  Both of these pieces of information are very useful when trying
  to determine statistics for a task, or the entire system. This information can all
- be retrieved with a single API, OS_FDGetInfo. 
+ be retrieved with a single API, OS_FDGetInfo.
 
  All of possible file system calls are not implemented.  "Special" files requiring OS
  specific control/operations are by nature not portable.  Abstraction in this case is
@@ -83,7 +83,7 @@ instance, the path of the file that the file descriptor points to can be easily
  There are some small drawbacks with the OSAL file descriptors. Because the related
  information is kept in a table, there is a define called OS_MAX_NUM_OPEN_FILES that
  defines the maximum number of file descriptors available. This is a configuration
-parameter, and can be changed to fit your needs. 
+parameter, and can be changed to fit your needs.
 
  Also, if you open or create a file not using the OSAL calls (OS_open or OS_creat)
  then none of the other OS_* calls that accept a file descriptor as a parameter will

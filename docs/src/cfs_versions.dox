@@ -19,7 +19,7 @@
 
   The REVISION number shall be incremented on changes that benefit from unique identification such as bug fixes or major documentation updates.
   The Revision number may also be updated if there are other changes contained within a release that make it desirable for applications to distinguish one release from another.
-  WARNING: The revision number is set to the number 99 in development builds. To distinguish between development builds refer to the BUILD_NUMBER and BUILD_BASELINE detailed in the section "Identifying Development Builds". 
+  WARNING: The revision number is set to the number 99 in development builds. To distinguish between development builds refer to the BUILD_NUMBER and BUILD_BASELINE detailed in the section "Identifying Development Builds".
 
   The Major, Minor, and Revision numbers are provided in this header file as part of the API
   definition; this macro must expand to a simple integer value, so that it can be used in simple if directives by the macro preprocessor.
