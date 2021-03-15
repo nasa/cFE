@@ -14,13 +14,13 @@ CFE_APP, sch_lab,     SCH_Lab_AppMain, SCH_LAB_APP,  80,   16384, 0x0, 0;
 ! 7. Load Address     -- This is the Optional Load Address for the App or Library. Currently not implemented
 !                        so keep it at 0x0.
 ! 8. Exception Action -- This is the Action the cFE should take if the App has an exception.
-!                        0        = Just restart the Application 
+!                        0        = Just restart the Application
 !                        Non-Zero = Do a cFE Processor Reset
 !
 ! Other  Notes:
 ! 1. The software will not try to parse anything after the first '!' character it sees. That
 !    is the End of File marker.
-! 2. Common Application file extensions: 
+! 2. Common Application file extensions:
 !    Linux = .so  ( ci.so )
 !    OS X  = .bundle  ( ci.bundle )
 !    Cygwin = .dll ( ci.dll )
@@ -28,6 +28,6 @@ CFE_APP, sch_lab,     SCH_Lab_AppMain, SCH_LAB_APP,  80,   16384, 0x0, 0;
 !    RTEMS with S-record Loader = .s3r ( ci.s3r )
 !    RTEMS with CEXP Loader = .o ( ci.o )
 ! 3. The filename field (2) no longer requires a fully-qualified filename; the path and extension
-!    may be omitted.  If omitted, the standard virtual path (/cf) and a platform-specific default 
+!    may be omitted.  If omitted, the standard virtual path (/cf) and a platform-specific default
 !    extension will be used, which is derived from the build system.
- 
+

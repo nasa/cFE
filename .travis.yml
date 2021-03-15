@@ -26,4 +26,4 @@ script:
       cat cppcheck_flight_cfe.txt
       exit -1
     fi
- 
+
