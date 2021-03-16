@@ -49,8 +49,7 @@
 /*
 ** Main task definitions...
 */
-#define CFE_TIME_TASK_NAME       "CFE_TIME"
-#define CFE_TIME_RESET_SIGNATURE 0xA5A55A5A
+#define CFE_TIME_TASK_NAME "CFE_TIME"
 
 /*
 ** Interrupt task definitions...

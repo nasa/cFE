@@ -41,11 +41,7 @@
 ** Includes
 */
 #include <string.h>
-#include "cfe.h"
-#include "cfe_sb_events.h"
-#include "cfe_sb_priv.h"
-#include "osapi.h"
-#include "common_types.h"
+#include "cfe_sb_module_all.h"
 #include "ut_support.h"
 
 /*

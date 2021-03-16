@@ -47,21 +47,12 @@
 ** Includes
 */
 #include <string.h>
-#include "cfe.h"
-#include "common_types.h"
-#include "osapi.h"
+#include "cfe_es_module_all.h"
+#include "cfe_time_core_internal.h"
+#include "cfe_tbl_core_internal.h"
+#include "cfe_evs_core_internal.h"
+#include "cfe_sb_core_internal.h"
 #include "cfe_version.h"
-#include "cfe_es.h"
-#include "cfe_es_cds.h"
-#include "cfe_es_cds_mempool.h"
-#include "cfe_es_generic_pool.h"
-#include "cfe_es_global.h"
-#include "cfe_es_resource.h"
-#include "cfe_es_log.h"
-#include "cfe_es_perf.h"
-#include "cfe_es_task.h"
-#include "cfe_es_verify.h"
-#include "cfe_es_start.h"
 #include "ut_support.h"
 #include "ut_osprintf_stubs.h"
 

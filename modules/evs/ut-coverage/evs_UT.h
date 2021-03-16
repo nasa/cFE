@@ -41,16 +41,7 @@
 ** Includes
 */
 #include <string.h>
-#include "cfe.h"
-#include "common_types.h"
-#include "osapi.h"
-#include "cfe_evs.h"
-#include "cfe_evs_log.h"
-#include "cfe_evs_task.h"
-#include "cfe_evs_utils.h"
-#include "cfe_sb.h"
-#include "cfe_es.h"
-#include "cfe_time.h"
+#include "cfe_evs_module_all.h"
 #include "ut_support.h"
 
 /* EVS unit test functions */

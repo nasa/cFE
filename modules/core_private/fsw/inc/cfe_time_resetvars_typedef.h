@@ -41,6 +41,8 @@
 #include "common_types.h"
 #include "cfe_time_extern_typedefs.h"
 
+#define CFE_TIME_RESET_SIGNATURE 0xA5A55A5A
+
 /**
 **  \brief Time related variables that are maintained through a Processor Reset
 **

@@ -41,14 +41,8 @@
 ** Includes
 */
 #include <string.h>
-#include "cfe.h"
-#include "cfe_tbl.h"
-#include "common_types.h"
-#include "ut_support.h"
-#include "cfe_tbl_msg.h"
 #include "cfe_tbl_module_all.h"
-#include "cfe_tbl_task.h"
-#include "cfe_tbl_task_cmds.h"
+#include "ut_support.h"
 
 typedef struct
 {
