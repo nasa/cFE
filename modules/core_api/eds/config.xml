@@ -19,11 +19,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    Purpose: 
+    Purpose:
       Assign values to basic configuration parameters of the Core Flight
       System (cFS).  The CFS EDS toolchain uses values defined here to
-      as substitutions for the ${} syntax in EDS files. 
-      
+      as substitutions for the ${} syntax in EDS files.
+
 -->
 <DesignParameters>
 
@@ -33,17 +33,17 @@
      <Define name="INFORMATION_BIT" value="0x0002" />
      <Define name="ERROR_BIT" value="0x0004" />
      <Define name="CRITICAL_BIT" value="0x0008" />
-     
+
      <Define name="PORT1_BIT" value="0x0001" />
      <Define name="PORT2_BIT" value="0x0002" />
      <Define name="PORT3_BIT" value="0x0004" />
      <Define name="PORT4_BIT" value="0x0008" />
   </Package>
-    
+
   <Package name="CFE_FS" shortDescription="File Services Configuration">
      <Define name="FILE_CONTENT_ID" value="0x63464531" shortDescription="Magic Number for cFE compliant files (= cFE1)" />
   </Package>
-      
+
   <Package name="CFE_SB" shortDescription="Software Bus Configuration">
      <Define name="SUB_ENTRIES_PER_PKT" value="20" />
      <Define name="MSGID_BIT_SIZE" value="32" />

@@ -19,11 +19,11 @@
 */
 
 /*
-**  File:  
+**  File:
 **    cfe_es_log.h
 **
-**  Purpose:  
-**    This file contains definitions needed for the cFE ES Logs. The 
+**  Purpose:
+**    This file contains definitions needed for the cFE ES Logs. The
 **    logs include the Mode Transition log, the System Log, and the
 **    Performance log.
 **
@@ -45,7 +45,7 @@
 #include "cfe_es_api_typedefs.h"
 #include "cfe_time_api_typedefs.h"
 
-#include <stdarg.h>     /* required for "va_list" */
+#include <stdarg.h> /* required for "va_list" */
 
 /*
 ** Macro Definitions
@@ -63,8 +63,7 @@
  *
  * note that a null terminator byte is accounted for in "CFE_TIME_PRINTED_STRING_SIZE"
  */
-#define CFE_ES_MAX_SYSLOG_MSG_SIZE  (CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + CFE_TIME_PRINTED_STRING_SIZE + 2)
-
+#define CFE_ES_MAX_SYSLOG_MSG_SIZE (CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + CFE_TIME_PRINTED_STRING_SIZE + 2)
 
 /**
  * Size of the syslog "dump buffer"
@@ -85,8 +84,7 @@
  * therefore NOT blocked.   Design preference is given to applications over the absolute
  * integrity of the dump file.
  */
-#define CFE_ES_SYSLOG_READ_BUFFER_SIZE      (3 * CFE_ES_MAX_SYSLOG_MSG_SIZE)
-
+#define CFE_ES_SYSLOG_READ_BUFFER_SIZE (3 * CFE_ES_MAX_SYSLOG_MSG_SIZE)
 
 /**
  * \brief Self-synchronized macro to call CFE_ES_SysLogAppend_Unsync
@@ -100,14 +98,13 @@
  *
  * \sa CFE_ES_SysLogAppend_Unsync()
  */
-#define CFE_ES_SYSLOG_APPEND(LogString)                     \
-        {                                                   \
-            CFE_ES_LockSharedData(__func__, __LINE__);      \
-            CFE_ES_SysLogAppend_Unsync(LogString);          \
-            CFE_ES_UnlockSharedData(__func__, __LINE__);    \
-            OS_printf("%s", LogString);                     \
-        }
-
+#define CFE_ES_SYSLOG_APPEND(LogString)              \
+    {                                                \
+        CFE_ES_LockSharedData(__func__, __LINE__);   \
+        CFE_ES_SysLogAppend_Unsync(LogString);       \
+        CFE_ES_UnlockSharedData(__func__, __LINE__); \
+        OS_printf("%s", LogString);                  \
+    }
 
 /**
  * \brief Indicates no context information Error Logs
@@ -115,7 +112,7 @@
  * For use with the CFE_ES_WriteToERLog() function when no context
  * information is available.
  */
-#define CFE_ES_ERLOG_NO_CONTEXT         (0)
+#define CFE_ES_ERLOG_NO_CONTEXT (0)
 
 /*
 ** Type Definitions
@@ -132,15 +129,13 @@
  */
 typedef struct
 {
-    size_t SizeLeft;        /**< Total amount of unread syslog data */
-    size_t BlockSize;       /**< Size of content currently in the "Data" member */
-    size_t EndIdx;          /**< End of the syslog buffer at the time reading started */
-    size_t LastOffset;      /**< Current Read Position */
+    size_t SizeLeft;   /**< Total amount of unread syslog data */
+    size_t BlockSize;  /**< Size of content currently in the "Data" member */
+    size_t EndIdx;     /**< End of the syslog buffer at the time reading started */
+    size_t LastOffset; /**< Current Read Position */
 
-    char   Data[CFE_ES_SYSLOG_READ_BUFFER_SIZE];    /**< Actual syslog content */
+    char Data[CFE_ES_SYSLOG_READ_BUFFER_SIZE]; /**< Actual syslog content */
 } CFE_ES_SysLogReadBuffer_t;
-
-
 
 /*
 ** Function prototypes
@@ -151,7 +146,6 @@ typedef struct
 **
 ** NOTE: CFE_ES_WriteToSysLog() is a public routine in cfe_es.h, it is not prototyped here
 */
-
 
 /**
  * \brief Clear system log
@@ -183,7 +177,6 @@ void CFE_ES_SysLogClear_Unsync(void);
  */
 void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer);
 
-
 /**
  * \brief Write a printf-style formatted string to the system log
  *
@@ -195,7 +188,6 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer);
  * \note This function requires external thread synchronization
  */
 int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...);
-
 
 /**
  * \brief Append a complete pre-formatted string to the ES SysLog
@@ -299,7 +291,7 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
  *
  * \sa CFE_ES_SysLogAppend_Unsync()
  */
-void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...) OS_PRINTF(3,4);
+void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...) OS_PRINTF(3, 4);
 
 /**
  * \brief Write the contents of the syslog to a disk file
@@ -332,14 +324,14 @@ int32 CFE_ES_SysLogDump(const char *Filename);
 ** Processor Performance log management
 */
 int32 CFE_ES_PerfLogClear(void);
-void CFE_ES_PerfLogDump(void); 
+void  CFE_ES_PerfLogDump(void);
 
 /*
 ** Exception and Reset Log API
 */
 
 /**
- * \brief Create an entry in the ES Exception and Reset Log. 
+ * \brief Create an entry in the ES Exception and Reset Log.
  *
  * The exception and reset log is used to track significant system-level events and anomalies
  * for later analysis.
@@ -351,9 +343,8 @@ void CFE_ES_PerfLogDump(void);
  *
  * \return CFE_SUCCESS if successful, or an appropriate error code from cfe_error.h
  */
-int32 CFE_ES_WriteToERLog( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  ResetType, uint32 ResetSubtype,
-                              const char  *Description);
-
+int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
+                          const char *Description);
 
 /**
  * \copydoc CFE_ES_WriteToERLog()
@@ -365,7 +356,7 @@ int32 CFE_ES_WriteToERLog( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  Reset
  * \param AppId The Application ID associated with the task that caused the exception
  * \param PspContextId Identifier of extended context info stored in the PSP (if available)
  */
-int32 CFE_ES_WriteToERLogWithContext( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  ResetType, uint32 ResetSubtype,
-                           const char  *Description, CFE_ES_AppId_t AppId, uint32 PspContextId);
+int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
+                                     const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId);
 
-#endif  /* _cfe_es_log_ */
+#endif /* _cfe_es_log_ */

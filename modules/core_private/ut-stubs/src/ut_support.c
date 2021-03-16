@@ -39,19 +39,19 @@
 /*
 ** Global variables
 */
-uint8  UT_Endianess;
+uint8 UT_Endianess;
 
-static char    UT_appname[80];
-static char    UT_subsys[5];
-static CFE_ES_AppId_t  UT_AppID;
-static uint32  UT_LastCDSSize = 0;
+static char           UT_appname[80];
+static char           UT_subsys[5];
+static CFE_ES_AppId_t UT_AppID;
+static uint32         UT_LastCDSSize = 0;
 
 typedef union
 {
     long long int AlignLong;
-    long double AlignDbl;
-    void *AlignPtr;
-    char Content[128 * 1024];
+    long double   AlignDbl;
+    void *        AlignPtr;
+    char          Content[128 * 1024];
 } UT_Buffer_t;
 
 static UT_Buffer_t UT_CFE_ES_MemoryPool;
@@ -60,14 +60,13 @@ static UT_Buffer_t UT_SyslogBuffer;
 static UT_Buffer_t UT_PrintfBuffer;
 static union
 {
-    UT_Buffer_t Buff;
+    UT_Buffer_t        Buff;
     CFE_ES_ResetData_t ResetData;
 } UT_CFE_ES_ResetData;
 
-static uint16   UT_SendEventHistory[UT_EVENT_HISTORY_SIZE];
-static uint16   UT_SendTimedEventHistory[UT_EVENT_HISTORY_SIZE];
-static uint16   UT_SendEventAppIDHistory[UT_EVENT_HISTORY_SIZE * 10];
-
+static uint16 UT_SendEventHistory[UT_EVENT_HISTORY_SIZE];
+static uint16 UT_SendTimedEventHistory[UT_EVENT_HISTORY_SIZE];
+static uint16 UT_SendEventAppIDHistory[UT_EVENT_HISTORY_SIZE * 10];
 
 extern int32 dummy_function(void);
 
@@ -82,8 +81,8 @@ void UT_Init(const char *subsys)
     int8 i;
 
     /* Copy the application name for later use */
-    strncpy(UT_subsys, subsys, sizeof(UT_subsys)-1);
-    UT_subsys[sizeof(UT_subsys)-1] = 0;
+    strncpy(UT_subsys, subsys, sizeof(UT_subsys) - 1);
+    UT_subsys[sizeof(UT_subsys) - 1] = 0;
     snprintf(UT_appname, 80, "ut_cfe_%s", subsys);
 
     /* Convert to upper case */
@@ -108,7 +107,7 @@ void UT_Init(const char *subsys)
      */
     int32 EndianCheck = 0x01020304;
 
-    if ((*(char *) &EndianCheck) == 0x04)
+    if ((*(char *)&EndianCheck) == 0x04)
     {
         UT_Endianess = UT_LITTLE_ENDIAN;
     }
@@ -116,7 +115,6 @@ void UT_Init(const char *subsys)
     {
         UT_Endianess = UT_BIG_ENDIAN;
     }
-
 }
 
 /*
@@ -138,7 +136,6 @@ void UT_InitData(void)
 
     UT_PrintfBuffer.AlignLong = 0;
     UT_SetDataBuffer(UT_KEY(OS_printf), &UT_PrintfBuffer, sizeof(UT_PrintfBuffer), false);
-
 
     /*
      * Set up the CFE_ES reset area
@@ -165,7 +162,7 @@ void UT_InitData(void)
      * Set up CFE_ES_GetAppName() and friends
      * This should return the UT_appname
      */
-    UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppName), (uint8*)UT_appname, sizeof(UT_appname), false);
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppName), (uint8 *)UT_appname, sizeof(UT_appname), false);
 
     /*
      * Reset the OSAL stubs to the default state
@@ -174,7 +171,6 @@ void UT_InitData(void)
 
     UT_ClearEventHistory();
     UT_ResetPoolBufferIndex();
-
 }
 
 void UT_ResetCDS(void)
@@ -198,11 +194,9 @@ void UT_ResetPoolBufferIndex(void)
 /*
 ** Output single test's pass/fail status
 */
-void UT_Report(const char *file, uint32 line, bool test, const char *fun_name,
-		       const char *info)
+void UT_Report(const char *file, uint32 line, bool test, const char *fun_name, const char *info)
 {
-    UtAssertEx(test, UtAssert_GetContext(), file, line, "%s - %s", fun_name,
-    		   info);
+    UtAssertEx(test, UtAssert_GetContext(), file, line, "%s - %s", fun_name, info);
 }
 
 /*
@@ -212,7 +206,7 @@ void UT_Report(const char *file, uint32 line, bool test, const char *fun_name,
 ** then invokes the pipe function.
 */
 void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t *), CFE_MSG_Message_t *MsgPtr, size_t MsgSize,
-        UT_TaskPipeDispatchId_t DispatchId)
+                     UT_TaskPipeDispatchId_t DispatchId)
 {
     union
     {
@@ -244,7 +238,7 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t *), CFE_MSG_Message_t 
 int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
     UT_SoftwareBusSnapshot_Entry_t *Snapshot = UserObj;
-    const CFE_MSG_Message_t *MsgPtr;
+    const CFE_MSG_Message_t *       MsgPtr;
 
     if (Context->ArgCount > 0)
     {
@@ -260,8 +254,7 @@ int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCo
         ++Snapshot->Count;
         if (Snapshot->SnapshotSize > 0 && Snapshot->SnapshotBuffer != NULL)
         {
-            memcpy(Snapshot->SnapshotBuffer, &MsgPtr->Byte[Snapshot->SnapshotOffset],
-                    Snapshot->SnapshotSize);
+            memcpy(Snapshot->SnapshotBuffer, &MsgPtr->Byte[Snapshot->SnapshotOffset], Snapshot->SnapshotSize);
         }
     }
 
@@ -274,7 +267,7 @@ int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCo
 void UT_SetAppID(CFE_ES_AppId_t AppID_in)
 {
     UT_AppID = AppID_in;
-    UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppID), (uint8*)&UT_AppID, sizeof(UT_AppID), false);
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppID), (uint8 *)&UT_AppID, sizeof(UT_AppID), false);
 }
 
 /*
@@ -283,7 +276,7 @@ void UT_SetAppID(CFE_ES_AppId_t AppID_in)
 */
 void UT_SetStatusBSPResetArea(int32 status, uint32 Signature, uint32 ClockSignal)
 {
-    UT_CFE_ES_ResetData.ResetData.TimeResetVars.Signature = Signature;
+    UT_CFE_ES_ResetData.ResetData.TimeResetVars.Signature   = Signature;
     UT_CFE_ES_ResetData.ResetData.TimeResetVars.ClockSignal = ClockSignal;
     if (status != 0)
     {
@@ -339,7 +332,7 @@ void UT_SetSizeofESResetArea(int32 Size)
 /*
 ** Set the CDS size returned by the BSP
 */
-uint8* UT_SetCDSSize(int32 Size)
+uint8 *UT_SetCDSSize(int32 Size)
 {
     UT_ResetState(UT_KEY(CFE_PSP_GetCDSSize));
     UT_ResetState(UT_KEY(CFE_PSP_ReadFromCDS));
@@ -359,7 +352,7 @@ uint8* UT_SetCDSSize(int32 Size)
     UT_SetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), &UT_CDS_Data, Size, false);
     UT_SetDataBuffer(UT_KEY(CFE_PSP_WriteToCDS), &UT_CDS_Data, Size, false);
     UT_LastCDSSize = Size;
-    return (uint8*)UT_CDS_Data.Content;
+    return (uint8 *)UT_CDS_Data.Content;
 }
 
 /*
@@ -381,17 +374,18 @@ void UT_ClearEventHistory(void)
     UT_ResetState(UT_KEY(CFE_EVS_SendTimedEvent));
     UT_SetDataBuffer(UT_KEY(CFE_EVS_SendEvent), UT_SendEventHistory, sizeof(UT_SendEventHistory), false);
     UT_SetDataBuffer(UT_KEY(CFE_EVS_SendTimedEvent), UT_SendTimedEventHistory, sizeof(UT_SendTimedEventHistory), false);
-    UT_SetDataBuffer(UT_KEY(CFE_EVS_SendEventWithAppID), UT_SendEventAppIDHistory, sizeof(UT_SendEventAppIDHistory), false);
+    UT_SetDataBuffer(UT_KEY(CFE_EVS_SendEventWithAppID), UT_SendEventAppIDHistory, sizeof(UT_SendEventAppIDHistory),
+                     false);
 }
 
 static bool UT_CheckEventHistoryFromFunc(UT_EntryKey_t Func, uint16 EventIDToSearchFor)
 {
-    bool Result = false;
-    size_t Position;
-    size_t MaxSize;
+    bool    Result = false;
+    size_t  Position;
+    size_t  MaxSize;
     uint16 *EvBuf;
 
-    UT_GetDataBuffer(Func, (void**)&EvBuf, &MaxSize, &Position);
+    UT_GetDataBuffer(Func, (void **)&EvBuf, &MaxSize, &Position);
     if (EvBuf != NULL && MaxSize > 0)
     {
         Position /= sizeof(*EvBuf);
@@ -410,15 +404,14 @@ static bool UT_CheckEventHistoryFromFunc(UT_EntryKey_t Func, uint16 EventIDToSea
     return Result;
 }
 
-
 /*
 ** Search the event history for a specified event ID
 */
 bool UT_EventIsInHistory(uint16 EventIDToSearchFor)
 {
-    return (UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendEvent),EventIDToSearchFor) ||
-            UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendEventWithAppID),EventIDToSearchFor) ||
-            UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendTimedEvent),EventIDToSearchFor));
+    return (UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendEvent), EventIDToSearchFor) ||
+            UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendEventWithAppID), EventIDToSearchFor) ||
+            UT_CheckEventHistoryFromFunc(UT_KEY(CFE_EVS_SendTimedEvent), EventIDToSearchFor));
 }
 
 /*
@@ -429,7 +422,7 @@ uint16 UT_GetNumEventsSent(void)
     uint16 Total = 0;
     size_t Position;
     size_t MaxSize;
-    void *EvBuf;
+    void * EvBuf;
 
     UT_GetDataBuffer(UT_KEY(CFE_EVS_SendEvent), &EvBuf, &MaxSize, &Position);
     Total += Position / sizeof(uint16);
@@ -449,8 +442,8 @@ void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size)
     uint8 *BytePtr = MsgPtr->Byte;
     size_t i;
     size_t BufSize = UT_MAX_MESSAGE_LENGTH;
-    char DisplayMsg[UT_MAX_MESSAGE_LENGTH];
-    char *msgPtr = DisplayMsg;
+    char   DisplayMsg[UT_MAX_MESSAGE_LENGTH];
+    char * msgPtr = DisplayMsg;
 
     DisplayMsg[0] = '\0';
 
@@ -464,7 +457,6 @@ void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size)
 
     UtPrintf("%s", DisplayMsg);
 }
-
 
 CFE_ES_ResetData_t *UT_GetResetDataPtr(void)
 {
@@ -499,15 +491,15 @@ static int UT_StrCmpFormatStr(const char *FormatStr, const char *TestStr, uint32
     const char *ChunkStart;
     const char *ChunkEnd;
     const char *TestStart;
-    int WildCard;
-    int MatchGood;
-    size_t ChunkLen;
+    int         WildCard;
+    int         MatchGood;
+    size_t      ChunkLen;
 
     /* Step through each character in both strings */
     ChunkStart = FormatStr;
-    TestStart = TestStr;
-    WildCard = 1;
-    MatchGood = 1;
+    TestStart  = TestStr;
+    WildCard   = 1;
+    MatchGood  = 1;
     while (FormatLength > 0)
     {
         if (*ChunkStart == '%')
@@ -517,8 +509,7 @@ static int UT_StrCmpFormatStr(const char *FormatStr, const char *TestStr, uint32
             {
                 --FormatLength;
                 ++ChunkStart;
-            }
-            while (FormatLength > 0 && strchr("%cdfFgGiuspxX ",*ChunkStart) == NULL);
+            } while (FormatLength > 0 && strchr("%cdfFgGiuspxX ", *ChunkStart) == NULL);
 
             if (FormatLength == 0)
             {
@@ -550,7 +541,7 @@ static int UT_StrCmpFormatStr(const char *FormatStr, const char *TestStr, uint32
         {
             /* Matchable content - Find the NEXT conversion specifier in the format string */
             MatchGood = 0;
-            ChunkEnd = memchr(ChunkStart, '%', FormatLength);
+            ChunkEnd  = memchr(ChunkStart, '%', FormatLength);
             if (ChunkEnd != NULL)
             {
                 ChunkLen = ChunkEnd - ChunkStart;
@@ -601,19 +592,19 @@ static int UT_StrCmpExact(const char *RefStr, const char *TestStr, uint32 RefLen
 }
 
 static uint32 UT_GetMessageCount(const char *Msg, UT_Buffer_t *Buf,
-        int (*Comparator)(const char *, const char *, uint32, uint32))
+                                 int (*Comparator)(const char *, const char *, uint32, uint32))
 {
-    uint32 Count = 0;
+    uint32 Count  = 0;
     uint32 MsgLen = strlen(Msg);
-    char *Start = Buf->Content;
-    char *End;
+    char * Start  = Buf->Content;
+    char * End;
 
-    while (MsgLen > 0 && Msg[MsgLen-1] == '\n')
+    while (MsgLen > 0 && Msg[MsgLen - 1] == '\n')
     {
         --MsgLen;
     }
 
-    while(1)
+    while (1)
     {
         End = strchr(Start, '\n');
         if (End == NULL)
@@ -652,9 +643,10 @@ uint32 UT_PrintfIsInHistory(const char *MsgToSearchFor)
     return UT_GetMessageCount(MsgToSearchFor, &UT_PrintfBuffer, UT_StrCmpFormatStr);
 }
 
-void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void), const char *GroupName, const char *TestName)
+void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void), const char *GroupName,
+                   const char *TestName)
 {
-    char CompleteTestName[128];
+    char        CompleteTestName[128];
     const char *GroupPtr;
     const char *TestPtr;
 
@@ -663,7 +655,7 @@ void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(voi
      * and this repetitive information just becomes clutter.
      */
     GroupPtr = GroupName;
-    TestPtr = TestName;
+    TestPtr  = TestName;
     while (*GroupPtr != 0 && *GroupPtr == *TestPtr)
     {
         ++GroupPtr;
@@ -673,7 +665,7 @@ void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(voi
     /*
      * Only break at an underscore(_) to avoid weird effects
      */
-    while(TestPtr > TestName && *TestPtr != '_')
+    while (TestPtr > TestName && *TestPtr != '_')
     {
         --TestPtr;
     }
@@ -708,27 +700,25 @@ void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(voi
 void UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
     UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TSF, FileName, LineNum, "%s - Setup - %s returned 0x%lx",
-            TestName, FnName, (long int)FnRet);
+               TestName, FnName, (long int)FnRet);
 }
 
 void UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UtAssert_GetContext(), FileName, LineNum, "%s - %s returned 0x%lx, expected CFE_SUCCESS",
-            TestName, FnName, (long int)FnRet);
+    UtAssertEx(FnRet == CFE_SUCCESS, UtAssert_GetContext(), FileName, LineNum,
+               "%s - %s returned 0x%lx, expected CFE_SUCCESS", TestName, FnName, (long int)FnRet);
 }
 
-void UT_ASSERT_EQ_impl(const char *FileName, int LineNum,
-    const char *FnName, int32 FnRet, const char *ExpName, int32 Exp)
+void UT_ASSERT_EQ_impl(const char *FileName, int LineNum, const char *FnName, int32 FnRet, const char *ExpName,
+                       int32 Exp)
 {
     UtAssertEx(FnRet == Exp, UtAssert_GetContext(), FileName, LineNum, "%s - value %ld 0x%lx, expected %s[%ld 0x%lx]",
-        FnName, (long)FnRet, (long)FnRet, ExpName, (long)Exp, (long)Exp);
+               FnName, (long)FnRet, (long)FnRet, ExpName, (long)Exp, (long)Exp);
 }
 
-void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName,
-    const char *ExpName, bool Exp)
+void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName, const char *ExpName, bool Exp)
 {
-    UtAssertEx(Exp, UtAssert_GetContext(), FileName, LineNum, "%s - %s",
-            TestName, ExpName);
+    UtAssertEx(Exp, UtAssert_GetContext(), FileName, LineNum, "%s - %s", TestName, ExpName);
 }
 
 void UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int32 CntExp)
@@ -736,18 +726,17 @@ void UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int
     int32 CntSent = UT_GetNumEventsSent();
 
     UtAssertEx(CntSent == CntExp, UtAssert_GetContext(), FileName, LineNum, "%s - event count (sent %ld, expected %ld)",
-            TestName, (long int)CntSent, (long int)CntExp);
+               TestName, (long int)CntSent, (long int)CntExp);
 }
 
 void UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, const char *EvtName, int32 EvtId)
 {
     UtAssertEx(UT_EventIsInHistory(EvtId), UtAssert_GetContext(), FileName, LineNum, "%s - sent event %s [%ld]",
-            TestName, EvtName, (long int)EvtId);
+               TestName, EvtName, (long int)EvtId);
 }
 
 void UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TTF, FileName, LineNum, "%s - Teardown failed (%s returned 0x%lx)",
-            TestName, FnName, (long int)FnRet);
+    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TTF, FileName, LineNum,
+               "%s - Teardown failed (%s returned 0x%lx)", TestName, FnName, (long int)FnRet);
 }
-

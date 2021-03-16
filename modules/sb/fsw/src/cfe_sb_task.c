@@ -32,12 +32,12 @@
 
 #include "cfe_sb_module_all.h"
 #include "cfe_version.h"
-#include "cfe_es_msg.h"     /* needed for local use of CFE_ES_RestartCmd_t */
+#include "cfe_es_msg.h" /* needed for local use of CFE_ES_RestartCmd_t */
 
 #include <string.h>
 
 /*  Task Globals */
-CFE_SB_Global_t                CFE_SB_Global;
+CFE_SB_Global_t CFE_SB_Global;
 
 /* Local structure for file writing callbacks */
 typedef struct
@@ -69,14 +69,14 @@ void CFE_SB_TaskMain(void)
     CFE_ES_PerfLogEntry(CFE_MISSION_SB_MAIN_PERF_ID);
 
     Status = CFE_SB_AppInit();
-    
-    if(Status != CFE_SUCCESS)
+
+    if (Status != CFE_SUCCESS)
     {
-      CFE_ES_WriteToSysLog("SB:Application Init Failed,RC=0x%08X\n", (unsigned int)Status);
-      CFE_ES_PerfLogExit(CFE_MISSION_SB_MAIN_PERF_ID);
-      /* Note: CFE_ES_ExitApp will not return */
-      CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
-    }/* end if */
+        CFE_ES_WriteToSysLog("SB:Application Init Failed,RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_PerfLogExit(CFE_MISSION_SB_MAIN_PERF_ID);
+        /* Note: CFE_ES_ExitApp will not return */
+        CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
+    } /* end if */
 
     /*
      * Wait for other apps to start.
@@ -88,35 +88,33 @@ void CFE_SB_TaskMain(void)
 
     /* Main loop */
     while (Status == CFE_SUCCESS)
-    {    
+    {
         /* Increment the Main task Execution Counter */
         CFE_ES_IncrementTaskCounter();
 
         CFE_ES_PerfLogExit(CFE_MISSION_SB_MAIN_PERF_ID);
 
         /* Pend on receipt of packet */
-        Status = CFE_SB_ReceiveBuffer(&SBBufPtr,
-                                CFE_SB_Global.CmdPipe,
-                                CFE_SB_PEND_FOREVER);
+        Status = CFE_SB_ReceiveBuffer(&SBBufPtr, CFE_SB_Global.CmdPipe, CFE_SB_PEND_FOREVER);
 
         CFE_ES_PerfLogEntry(CFE_MISSION_SB_MAIN_PERF_ID);
 
-        if(Status == CFE_SUCCESS)
+        if (Status == CFE_SUCCESS)
         {
             /* Process cmd pipe msg */
             CFE_SB_ProcessCmdPipePkt(SBBufPtr);
-        }else{
-            CFE_ES_WriteToSysLog("SB:Error reading cmd pipe,RC=0x%08X\n",(unsigned int)Status);
-        }/* end if */
+        }
+        else
+        {
+            CFE_ES_WriteToSysLog("SB:Error reading cmd pipe,RC=0x%08X\n", (unsigned int)Status);
+        } /* end if */
 
-    }/* end while */
+    } /* end while */
 
     /* while loop exits only if CFE_SB_ReceiveBuffer returns error */
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
 
-}/* end CFE_SB_TaskMain */
-
-
+} /* end CFE_SB_TaskMain */
 
 /******************************************************************************
 **  Function:  CFE_SB_AppInit()
@@ -131,170 +129,178 @@ void CFE_SB_TaskMain(void)
 **  Return:
 **    CFE_SUCCESS if no errors, otherwise this function returns the error code
 **    that was received from the function that detected the error.
-**    
+**
 */
-int32 CFE_SB_AppInit(void){
+int32 CFE_SB_AppInit(void)
+{
 
-    uint32 CfgFileEventsToFilter = 0;    
+    uint32              CfgFileEventsToFilter = 0;
     CFE_ES_MemPoolBuf_t TmpPtr;
-    int32  Status;
-    
+    int32               Status;
+
     Status = CFE_ES_RegisterApp();
 
-    if(Status != CFE_SUCCESS){
-      CFE_ES_WriteToSysLog("SB:Call to CFE_ES_RegisterApp Failed:RC=0x%08X\n",(unsigned int)Status);
-      return Status;
-    }/* end if */
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("SB:Call to CFE_ES_RegisterApp Failed:RC=0x%08X\n", (unsigned int)Status);
+        return Status;
+    } /* end if */
 
     /* Get the assigned Application ID for the SB Task */
     CFE_ES_GetAppID(&CFE_SB_Global.AppId);
 
     /* Process the platform cfg file events to be filtered */
-    if(CFE_PLATFORM_SB_FILTERED_EVENT1 != 0){
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT1;
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK1;      
-      CfgFileEventsToFilter++;
-    }/* end if */           
+    if (CFE_PLATFORM_SB_FILTERED_EVENT1 != 0)
+    {
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT1;
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK1;
+        CfgFileEventsToFilter++;
+    } /* end if */
 
-    if(CFE_PLATFORM_SB_FILTERED_EVENT2 != 0){
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT2;
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK2;      
-      CfgFileEventsToFilter++;
-    }/* end if */      
+    if (CFE_PLATFORM_SB_FILTERED_EVENT2 != 0)
+    {
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT2;
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK2;
+        CfgFileEventsToFilter++;
+    } /* end if */
 
-    if(CFE_PLATFORM_SB_FILTERED_EVENT3 != 0){
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT3;
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK3;      
-      CfgFileEventsToFilter++;
-    }/* end if */      
+    if (CFE_PLATFORM_SB_FILTERED_EVENT3 != 0)
+    {
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT3;
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK3;
+        CfgFileEventsToFilter++;
+    } /* end if */
 
-    if(CFE_PLATFORM_SB_FILTERED_EVENT4 != 0){
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT4;
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK4;      
-      CfgFileEventsToFilter++;
-    }/* end if */      
+    if (CFE_PLATFORM_SB_FILTERED_EVENT4 != 0)
+    {
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT4;
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK4;
+        CfgFileEventsToFilter++;
+    } /* end if */
 
-    if(CFE_PLATFORM_SB_FILTERED_EVENT5 != 0){
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT5;
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK5;      
-      CfgFileEventsToFilter++;
-    }/* end if */      
+    if (CFE_PLATFORM_SB_FILTERED_EVENT5 != 0)
+    {
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT5;
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK5;
+        CfgFileEventsToFilter++;
+    } /* end if */
 
-    if(CFE_PLATFORM_SB_FILTERED_EVENT6 != 0){
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT6;
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK6;      
-      CfgFileEventsToFilter++;
-    }/* end if */      
+    if (CFE_PLATFORM_SB_FILTERED_EVENT6 != 0)
+    {
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT6;
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK6;
+        CfgFileEventsToFilter++;
+    } /* end if */
 
-    if(CFE_PLATFORM_SB_FILTERED_EVENT7 != 0){
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT7;
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK7;      
-      CfgFileEventsToFilter++;
-    }/* end if */      
+    if (CFE_PLATFORM_SB_FILTERED_EVENT7 != 0)
+    {
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT7;
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK7;
+        CfgFileEventsToFilter++;
+    } /* end if */
 
-    if(CFE_PLATFORM_SB_FILTERED_EVENT8 != 0){
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT8;
-      CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK8;      
-      CfgFileEventsToFilter++;
-    }/* end if */
-    
-    /* Be sure the number of events to register for filtering   
+    if (CFE_PLATFORM_SB_FILTERED_EVENT8 != 0)
+    {
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT8;
+        CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK8;
+        CfgFileEventsToFilter++;
+    } /* end if */
+
+    /* Be sure the number of events to register for filtering
     ** does not exceed CFE_PLATFORM_EVS_MAX_EVENT_FILTERS */
-    if(CFE_PLATFORM_EVS_MAX_EVENT_FILTERS < CfgFileEventsToFilter){
-      CfgFileEventsToFilter = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
-    }/* end if */
-
+    if (CFE_PLATFORM_EVS_MAX_EVENT_FILTERS < CfgFileEventsToFilter)
+    {
+        CfgFileEventsToFilter = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
+    } /* end if */
 
     /* Register event filter table... */
-    Status = CFE_EVS_Register(CFE_SB_Global.EventFilters,
-                              CfgFileEventsToFilter,
-                              CFE_EVS_EventFilter_BINARY);
-    if(Status != CFE_SUCCESS){
-      CFE_ES_WriteToSysLog("SB:Call to CFE_EVS_Register Failed:RC=0x%08X\n",(unsigned int)Status);
-      return Status;
-    }/* end if */
-    
-    CFE_ES_WriteToSysLog("SB:Registered %d events for filtering\n",(int)CfgFileEventsToFilter);
+    Status = CFE_EVS_Register(CFE_SB_Global.EventFilters, CfgFileEventsToFilter, CFE_EVS_EventFilter_BINARY);
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("SB:Call to CFE_EVS_Register Failed:RC=0x%08X\n", (unsigned int)Status);
+        return Status;
+    } /* end if */
 
-    CFE_MSG_Init(&CFE_SB_Global.HKTlmMsg.Hdr.Msg,
-                 CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID),
+    CFE_ES_WriteToSysLog("SB:Registered %d events for filtering\n", (int)CfgFileEventsToFilter);
+
+    CFE_MSG_Init(&CFE_SB_Global.HKTlmMsg.Hdr.Msg, CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID),
                  sizeof(CFE_SB_Global.HKTlmMsg));
 
-    CFE_MSG_Init(&CFE_SB_Global.PrevSubMsg.Hdr.Msg,
-                 CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID),
+    CFE_MSG_Init(&CFE_SB_Global.PrevSubMsg.Hdr.Msg, CFE_SB_ValueToMsgId(CFE_SB_ALLSUBS_TLM_MID),
                  sizeof(CFE_SB_Global.PrevSubMsg));
 
     /* Populate the fixed fields in the HK Tlm Msg */
     CFE_SB_Global.HKTlmMsg.Payload.MemPoolHandle = CFE_SB_Global.Mem.PoolHdl;
-    
+
     /* Populate the fixed fields in the Stat Tlm Msg */
-    CFE_SB_Global.StatTlmMsg.Payload.MaxMsgIdsAllowed = CFE_PLATFORM_SB_MAX_MSG_IDS;
-    CFE_SB_Global.StatTlmMsg.Payload.MaxPipesAllowed  = CFE_PLATFORM_SB_MAX_PIPES;
-    CFE_SB_Global.StatTlmMsg.Payload.MaxMemAllowed    = CFE_PLATFORM_SB_BUF_MEMORY_BYTES;
+    CFE_SB_Global.StatTlmMsg.Payload.MaxMsgIdsAllowed    = CFE_PLATFORM_SB_MAX_MSG_IDS;
+    CFE_SB_Global.StatTlmMsg.Payload.MaxPipesAllowed     = CFE_PLATFORM_SB_MAX_PIPES;
+    CFE_SB_Global.StatTlmMsg.Payload.MaxMemAllowed       = CFE_PLATFORM_SB_BUF_MEMORY_BYTES;
     CFE_SB_Global.StatTlmMsg.Payload.MaxPipeDepthAllowed = OS_QUEUE_MAX_DEPTH;
     CFE_SB_Global.StatTlmMsg.Payload.MaxSubscriptionsAllowed =
-                    ((CFE_PLATFORM_SB_MAX_MSG_IDS)*(CFE_PLATFORM_SB_MAX_DEST_PER_PKT));
-    
-    Status = CFE_SB_CreatePipe(&CFE_SB_Global.CmdPipe,
-                                CFE_SB_CMD_PIPE_DEPTH,
-                                CFE_SB_CMD_PIPE_NAME);
-    if(Status != CFE_SUCCESS){
-      CFE_ES_WriteToSysLog("SB:Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n",(unsigned int)Status);
-      return Status;
-    }/* end if */                                
+        ((CFE_PLATFORM_SB_MAX_MSG_IDS) * (CFE_PLATFORM_SB_MAX_DEST_PER_PKT));
 
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_CMD_MID),CFE_SB_Global.CmdPipe);
+    Status = CFE_SB_CreatePipe(&CFE_SB_Global.CmdPipe, CFE_SB_CMD_PIPE_DEPTH, CFE_SB_CMD_PIPE_NAME);
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("SB:Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n", (unsigned int)Status);
+        return Status;
+    } /* end if */
 
-    if(Status != CFE_SUCCESS){
-      CFE_ES_WriteToSysLog("SB:Subscribe to Cmds Failed:RC=0x%08X\n",(unsigned int)Status);
-      return Status;
-    }/* end if */
-        
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_SEND_HK_MID),CFE_SB_Global.CmdPipe);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_CMD_MID), CFE_SB_Global.CmdPipe);
 
-    if(Status != CFE_SUCCESS){
-      CFE_ES_WriteToSysLog("SB:Subscribe to HK Request Failed:RC=0x%08X\n",(unsigned int)Status);
-      return Status;
-    }/* end if */
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("SB:Subscribe to Cmds Failed:RC=0x%08X\n", (unsigned int)Status);
+        return Status;
+    } /* end if */
 
-    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID),CFE_SB_Global.CmdPipe);
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_SEND_HK_MID), CFE_SB_Global.CmdPipe);
 
-    if(Status != CFE_SUCCESS){
-      CFE_ES_WriteToSysLog("SB:Subscribe to Subscription Report Request Failed:RC=0x%08X\n",(unsigned int)Status);
-      return Status;
-    }/* end if */
-     
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("SB:Subscribe to HK Request Failed:RC=0x%08X\n", (unsigned int)Status);
+        return Status;
+    } /* end if */
+
+    Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID), CFE_SB_Global.CmdPipe);
+
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("SB:Subscribe to Subscription Report Request Failed:RC=0x%08X\n", (unsigned int)Status);
+        return Status;
+    } /* end if */
+
     /* Ensure a ground commanded reset does not get blocked if SB mem pool  */
     /* becomes fully configured (DCR6772) */
-    Status = CFE_ES_GetPoolBuf(&TmpPtr, CFE_SB_Global.Mem.PoolHdl,
-                                        sizeof(CFE_ES_RestartCmd_t));
+    Status = CFE_ES_GetPoolBuf(&TmpPtr, CFE_SB_Global.Mem.PoolHdl, sizeof(CFE_ES_RestartCmd_t));
 
-    if(Status < 0){
-      CFE_ES_WriteToSysLog("SB:Init error, GetPool Failed:RC=0x%08X\n",(unsigned int)Status);
-      return Status;
-    }/* end if */
+    if (Status < 0)
+    {
+        CFE_ES_WriteToSysLog("SB:Init error, GetPool Failed:RC=0x%08X\n", (unsigned int)Status);
+        return Status;
+    } /* end if */
 
     /* Return mem block used on previous call,the actual memory is not needed.*/
     /* The SB mem pool is now configured with a block size for the reset cmd. */
     Status = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, TmpPtr);
 
-    if(Status < 0){
-      CFE_ES_WriteToSysLog("SB:Init error, PutPool Failed:RC=0x%08X\n",(unsigned int)Status);
-      return Status;
-    }/* end if */    
-    
-    Status = CFE_EVS_SendEvent(CFE_SB_INIT_EID,
-                              CFE_EVS_EventType_INFORMATION,
-                              "cFE SB Initialized");
-    if(Status != CFE_SUCCESS){
-      CFE_ES_WriteToSysLog("SB:Error sending init event:RC=0x%08X\n",(unsigned int)Status);
-      return Status;
-    }/* end if */
-                      
-    return CFE_SUCCESS;                      
+    if (Status < 0)
+    {
+        CFE_ES_WriteToSysLog("SB:Init error, PutPool Failed:RC=0x%08X\n", (unsigned int)Status);
+        return Status;
+    } /* end if */
 
-}/* end CFE_SB_AppInit */
+    Status = CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized");
+    if (Status != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("SB:Error sending init event:RC=0x%08X\n", (unsigned int)Status);
+        return Status;
+    } /* end if */
 
+    return CFE_SUCCESS;
+
+} /* end CFE_SB_AppInit */
 
 /******************************************************************************
 **  Function:  CFE_SB_VerifyCmdLength()
@@ -327,17 +333,15 @@ bool CFE_SB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 
         CFE_EVS_SendEvent(CFE_SB_LEN_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Invalid msg length: ID = 0x%X,  CC = %u, Len = %u, Expected = %u",
-                          (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode,
-                          (unsigned int)ActualLength, (unsigned int)ExpectedLength);
+                          (unsigned int)CFE_SB_MsgIdToValue(MsgId), (unsigned int)FcnCode, (unsigned int)ActualLength,
+                          (unsigned int)ExpectedLength);
         result = false;
         ++CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter;
     }
 
-    return(result);
+    return (result);
 
 } /* End of CFE_SB_VerifyCmdLength() */
-
-
 
 /******************************************************************************
 **  Function:  CFE_SB_ProcessCmdPipePkt()
@@ -353,131 +357,131 @@ bool CFE_SB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 */
 void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
 {
-   CFE_SB_MsgId_t MessageID = CFE_SB_INVALID_MSG_ID;
-   CFE_MSG_FcnCode_t FcnCode = 0;
+    CFE_SB_MsgId_t    MessageID = CFE_SB_INVALID_MSG_ID;
+    CFE_MSG_FcnCode_t FcnCode   = 0;
 
-   CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
+    CFE_MSG_GetMsgId(&SBBufPtr->Msg, &MessageID);
 
-   switch(CFE_SB_MsgIdToValue(MessageID)){
+    switch (CFE_SB_MsgIdToValue(MessageID))
+    {
 
-      case CFE_SB_SEND_HK_MID:
-         /* Note: Command counter not incremented for this command */
-         CFE_SB_SendHKTlmCmd((CFE_MSG_CommandHeader_t *)SBBufPtr);
-         break;
+        case CFE_SB_SEND_HK_MID:
+            /* Note: Command counter not incremented for this command */
+            CFE_SB_SendHKTlmCmd((CFE_MSG_CommandHeader_t *)SBBufPtr);
+            break;
 
-      case CFE_SB_SUB_RPT_CTRL_MID:
-         /* Note: Command counter not incremented for this command */
-         CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);
-         switch (FcnCode) {
-            case CFE_SB_SEND_PREV_SUBS_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendPrevSubsCmd_t)))
-                {
-                    CFE_SB_SendPrevSubsCmd((CFE_SB_SendPrevSubsCmd_t *)SBBufPtr);
-                }
-                break;
+        case CFE_SB_SUB_RPT_CTRL_MID:
+            /* Note: Command counter not incremented for this command */
+            CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);
+            switch (FcnCode)
+            {
+                case CFE_SB_SEND_PREV_SUBS_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendPrevSubsCmd_t)))
+                    {
+                        CFE_SB_SendPrevSubsCmd((CFE_SB_SendPrevSubsCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            case CFE_SB_ENABLE_SUB_REPORTING_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_EnableSubReportingCmd_t)))
-                {
-                    CFE_SB_EnableSubReportingCmd((CFE_SB_EnableSubReportingCmd_t *)SBBufPtr);
-                }
-                break;
+                case CFE_SB_ENABLE_SUB_REPORTING_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_EnableSubReportingCmd_t)))
+                    {
+                        CFE_SB_EnableSubReportingCmd((CFE_SB_EnableSubReportingCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            case CFE_SB_DISABLE_SUB_REPORTING_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_DisableSubReportingCmd_t)))
-                {
-                    CFE_SB_DisableSubReportingCmd((CFE_SB_DisableSubReportingCmd_t *)SBBufPtr);
-                }
-                break;
+                case CFE_SB_DISABLE_SUB_REPORTING_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_DisableSubReportingCmd_t)))
+                    {
+                        CFE_SB_DisableSubReportingCmd((CFE_SB_DisableSubReportingCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            default:
-               CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID,CFE_EVS_EventType_ERROR,
-                     "Invalid Cmd, Unexpected Command Code %u", (unsigned int)FcnCode);
-               CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
-               break;
-         } /* end switch on cmd code */
-         break;
+                default:
+                    CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID, CFE_EVS_EventType_ERROR,
+                                      "Invalid Cmd, Unexpected Command Code %u", (unsigned int)FcnCode);
+                    CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
+                    break;
+            } /* end switch on cmd code */
+            break;
 
-      case CFE_SB_CMD_MID:
-         CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);
-         switch (FcnCode) {
-            case CFE_SB_NOOP_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_NoopCmd_t)))
-                {
-                    CFE_SB_NoopCmd((CFE_SB_NoopCmd_t *)SBBufPtr);
-                }
-                break;
+        case CFE_SB_CMD_MID:
+            CFE_MSG_GetFcnCode(&SBBufPtr->Msg, &FcnCode);
+            switch (FcnCode)
+            {
+                case CFE_SB_NOOP_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_NoopCmd_t)))
+                    {
+                        CFE_SB_NoopCmd((CFE_SB_NoopCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            case CFE_SB_RESET_COUNTERS_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_ResetCountersCmd_t)))
-                {
-                    /* Note: Command counter not incremented for this command */
-                    CFE_SB_ResetCountersCmd((CFE_SB_ResetCountersCmd_t *)SBBufPtr);
-                }
-                break;
+                case CFE_SB_RESET_COUNTERS_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_ResetCountersCmd_t)))
+                    {
+                        /* Note: Command counter not incremented for this command */
+                        CFE_SB_ResetCountersCmd((CFE_SB_ResetCountersCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            case CFE_SB_SEND_SB_STATS_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendSbStatsCmd_t)))
-                {
-                    CFE_SB_SendStatsCmd((CFE_SB_SendSbStatsCmd_t *)SBBufPtr);
-                }
-                break;
+                case CFE_SB_SEND_SB_STATS_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_SendSbStatsCmd_t)))
+                    {
+                        CFE_SB_SendStatsCmd((CFE_SB_SendSbStatsCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            case CFE_SB_WRITE_ROUTING_INFO_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WriteRoutingInfoCmd_t)))
-                {
-                    CFE_SB_WriteRoutingInfoCmd((CFE_SB_WriteRoutingInfoCmd_t *)SBBufPtr);
-                }
-                break;
+                case CFE_SB_WRITE_ROUTING_INFO_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WriteRoutingInfoCmd_t)))
+                    {
+                        CFE_SB_WriteRoutingInfoCmd((CFE_SB_WriteRoutingInfoCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            case CFE_SB_ENABLE_ROUTE_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_EnableRouteCmd_t)))
-                {
-                    CFE_SB_EnableRouteCmd((CFE_SB_EnableRouteCmd_t *)SBBufPtr);
-                }
-                break;
+                case CFE_SB_ENABLE_ROUTE_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_EnableRouteCmd_t)))
+                    {
+                        CFE_SB_EnableRouteCmd((CFE_SB_EnableRouteCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            case CFE_SB_DISABLE_ROUTE_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_DisableRouteCmd_t)))
-                {
-                    CFE_SB_DisableRouteCmd((CFE_SB_DisableRouteCmd_t *)SBBufPtr);
-                }
-                break;
+                case CFE_SB_DISABLE_ROUTE_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_DisableRouteCmd_t)))
+                    {
+                        CFE_SB_DisableRouteCmd((CFE_SB_DisableRouteCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            case CFE_SB_WRITE_PIPE_INFO_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WritePipeInfoCmd_t)))
-                {
-                    CFE_SB_WritePipeInfoCmd((CFE_SB_WritePipeInfoCmd_t *)SBBufPtr);
-                }
-                break;
+                case CFE_SB_WRITE_PIPE_INFO_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WritePipeInfoCmd_t)))
+                    {
+                        CFE_SB_WritePipeInfoCmd((CFE_SB_WritePipeInfoCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            case CFE_SB_WRITE_MAP_INFO_CC:
-                if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WriteMapInfoCmd_t)))
-                {
-                    CFE_SB_WriteMapInfoCmd((CFE_SB_WriteMapInfoCmd_t *)SBBufPtr);
-                }
-                break;
+                case CFE_SB_WRITE_MAP_INFO_CC:
+                    if (CFE_SB_VerifyCmdLength(&SBBufPtr->Msg, sizeof(CFE_SB_WriteMapInfoCmd_t)))
+                    {
+                        CFE_SB_WriteMapInfoCmd((CFE_SB_WriteMapInfoCmd_t *)SBBufPtr);
+                    }
+                    break;
 
-            default:
-               CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID,CFE_EVS_EventType_ERROR,
-                     "Invalid Cmd, Unexpected Command Code %u", FcnCode);
-               CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
-               break;
-         } /* end switch on cmd code */
-         break;
+                default:
+                    CFE_EVS_SendEvent(CFE_SB_BAD_CMD_CODE_EID, CFE_EVS_EventType_ERROR,
+                                      "Invalid Cmd, Unexpected Command Code %u", FcnCode);
+                    CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
+                    break;
+            } /* end switch on cmd code */
+            break;
 
-         default:
-            CFE_EVS_SendEvent(CFE_SB_BAD_MSGID_EID,CFE_EVS_EventType_ERROR,
-                  "Invalid Cmd, Unexpected Msg Id: 0x%x",
-                  (unsigned int)CFE_SB_MsgIdToValue(MessageID));
+        default:
+            CFE_EVS_SendEvent(CFE_SB_BAD_MSGID_EID, CFE_EVS_EventType_ERROR, "Invalid Cmd, Unexpected Msg Id: 0x%x",
+                              (unsigned int)CFE_SB_MsgIdToValue(MessageID));
             CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
             break;
 
-   } /* end switch on MsgId */
+    } /* end switch on MsgId */
 
 } /* end CFE_SB_ProcessCmdPipePkt */
-
-
 
 /******************************************************************************
 **  Function:  CFE_SB_NoopCmd()
@@ -488,8 +492,7 @@ void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
 */
 int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 {
-    CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID,CFE_EVS_EventType_INFORMATION,
-            "No-op Cmd Rcvd. %s", CFE_VERSION_STRING);
+    CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd. %s", CFE_VERSION_STRING);
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;
@@ -504,8 +507,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 */
 int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
 {
-    CFE_EVS_SendEvent(CFE_SB_CMD1_RCVD_EID,CFE_EVS_EventType_DEBUG,
-            "Reset Counters Cmd Rcvd");
+    CFE_EVS_SendEvent(CFE_SB_CMD1_RCVD_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Cmd Rcvd");
 
     CFE_SB_ResetCounters();
 
@@ -538,7 +540,6 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
     return CFE_SUCCESS;
 }
 
-
 /******************************************************************************
 **  Function:  CFE_SB_SendHKTlmCmd()
 **
@@ -558,8 +559,9 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
 {
     CFE_SB_LockSharedData(__FILE__, __LINE__);
 
-    CFE_SB_Global.HKTlmMsg.Payload.MemInUse        = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
-    CFE_SB_Global.HKTlmMsg.Payload.UnmarkedMem     = CFE_PLATFORM_SB_BUF_MEMORY_BYTES - CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse;
+    CFE_SB_Global.HKTlmMsg.Payload.MemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
+    CFE_SB_Global.HKTlmMsg.Payload.UnmarkedMem =
+        CFE_PLATFORM_SB_BUF_MEMORY_BYTES - CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse;
 
     CFE_SB_UnlockSharedData(__FILE__, __LINE__);
 
@@ -567,8 +569,7 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
     CFE_SB_TransmitMsg(&CFE_SB_Global.HKTlmMsg.Hdr.Msg, true);
 
     return CFE_SUCCESS;
-}/* end CFE_SB_SendHKTlmCmd */
-
+} /* end CFE_SB_SendHKTlmCmd */
 
 /******************************************************************************
 **  Function:  CFE_SB_ResetCounters()
@@ -585,22 +586,22 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
 **  Return:
 **    none
 */
-void CFE_SB_ResetCounters(void){
+void CFE_SB_ResetCounters(void)
+{
 
-   CFE_SB_Global.HKTlmMsg.Payload.CommandCounter          = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter           = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter    = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.DuplicateSubscriptionsCounter = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter       = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter    = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter      = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter    = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter     = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.PipeOverflowErrorCounter  = 0;
-   CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter        = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.CommandCounter                = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter           = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter          = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.DuplicateSubscriptionsCounter = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter           = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter        = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter          = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter        = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter         = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.PipeOverflowErrorCounter      = 0;
+    CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter          = 0;
 
-}/* end CFE_SB_ResetCounters */
-
+} /* end CFE_SB_ResetCounters */
 
 /******************************************************************************
 **  Function:  CFE_SB_EnableRouteCmd()
@@ -617,23 +618,22 @@ void CFE_SB_ResetCounters(void){
 */
 int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 {
-    CFE_SB_MsgId_t          MsgId;
-    CFE_SB_PipeD_t          *PipeDscPtr;
-    CFE_SB_DestinationD_t   *DestPtr;
-    const CFE_SB_RouteCmd_Payload_t      *CmdPtr;
-    uint16 PendingEventID;
+    CFE_SB_MsgId_t                   MsgId;
+    CFE_SB_PipeD_t *                 PipeDscPtr;
+    CFE_SB_DestinationD_t *          DestPtr;
+    const CFE_SB_RouteCmd_Payload_t *CmdPtr;
+    uint16                           PendingEventID;
 
     PendingEventID = 0;
-    CmdPtr = &data->Payload;
+    CmdPtr         = &data->Payload;
 
-    MsgId  = CmdPtr->MsgId;
+    MsgId = CmdPtr->MsgId;
 
-    CFE_SB_LockSharedData(__func__,__LINE__);
+    CFE_SB_LockSharedData(__func__, __LINE__);
 
     /* check cmd parameters */
     PipeDscPtr = CFE_SB_LocatePipeDescByID(CmdPtr->Pipe);
-    if(!CFE_SB_IsValidMsgId(MsgId) ||
-       !CFE_SB_PipeDescIsMatch(PipeDscPtr,CmdPtr->Pipe))
+    if (!CFE_SB_IsValidMsgId(MsgId) || !CFE_SB_PipeDescIsMatch(PipeDscPtr, CmdPtr->Pipe))
     {
         PendingEventID = CFE_SB_ENBL_RTE3_EID;
         CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
@@ -641,7 +641,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
     else
     {
         DestPtr = CFE_SB_GetDestPtr(CFE_SBR_GetRouteId(MsgId), CmdPtr->Pipe);
-        if(DestPtr == NULL)
+        if (DestPtr == NULL)
         {
             PendingEventID = CFE_SB_ENBL_RTE1_EID;
             CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
@@ -649,40 +649,34 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
         else
         {
             DestPtr->Active = CFE_SB_ACTIVE;
-            PendingEventID = CFE_SB_ENBL_RTE2_EID;
+            PendingEventID  = CFE_SB_ENBL_RTE2_EID;
             CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
         }
 
-    }/* end if */    
+    } /* end if */
 
-    CFE_SB_UnlockSharedData(__func__,__LINE__);
+    CFE_SB_UnlockSharedData(__func__, __LINE__);
 
-    switch(PendingEventID)
+    switch (PendingEventID)
     {
         case CFE_SB_ENBL_RTE1_EID:
-            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE1_EID,CFE_EVS_EventType_ERROR,
-                "Enbl Route Cmd:Route does not exist.Msg 0x%x,Pipe %lu",
-                (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE1_EID, CFE_EVS_EventType_ERROR,
+                              "Enbl Route Cmd:Route does not exist.Msg 0x%x,Pipe %lu",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_ENBL_RTE3_EID:
-            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE3_EID,CFE_EVS_EventType_ERROR,
-                      "Enbl Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
-                      (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                      CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE3_EID, CFE_EVS_EventType_ERROR,
+                              "Enbl Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_ENBL_RTE2_EID:
-            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID,CFE_EVS_EventType_DEBUG,
-                      "Enabling Route,Msg 0x%x,Pipe %lu",
-                      (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                      CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+            CFE_EVS_SendEvent(CFE_SB_ENBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Enabling Route,Msg 0x%x,Pipe %lu",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
     }
 
     return CFE_SUCCESS;
-}/* end CFE_SB_EnableRouteCmd */
-
-
+} /* end CFE_SB_EnableRouteCmd */
 
 /******************************************************************************
 **  Function:  CFE_SB_DisableRouteCmd()
@@ -699,23 +693,22 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 */
 int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
 {
-    CFE_SB_MsgId_t          MsgId;
-    CFE_SB_PipeD_t          *PipeDscPtr;
-    CFE_SB_DestinationD_t   *DestPtr;
-    const CFE_SB_RouteCmd_Payload_t      *CmdPtr;
-    uint16 PendingEventID;
+    CFE_SB_MsgId_t                   MsgId;
+    CFE_SB_PipeD_t *                 PipeDscPtr;
+    CFE_SB_DestinationD_t *          DestPtr;
+    const CFE_SB_RouteCmd_Payload_t *CmdPtr;
+    uint16                           PendingEventID;
 
     PendingEventID = 0;
-    CmdPtr = &data->Payload;
+    CmdPtr         = &data->Payload;
 
-    MsgId  = CmdPtr->MsgId;
+    MsgId = CmdPtr->MsgId;
 
-    CFE_SB_LockSharedData(__func__,__LINE__);
+    CFE_SB_LockSharedData(__func__, __LINE__);
 
     /* check cmd parameters */
     PipeDscPtr = CFE_SB_LocatePipeDescByID(CmdPtr->Pipe);
-    if(!CFE_SB_IsValidMsgId(MsgId) ||
-       !CFE_SB_PipeDescIsMatch(PipeDscPtr,CmdPtr->Pipe))
+    if (!CFE_SB_IsValidMsgId(MsgId) || !CFE_SB_PipeDescIsMatch(PipeDscPtr, CmdPtr->Pipe))
     {
         PendingEventID = CFE_SB_DSBL_RTE3_EID;
         CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
@@ -723,7 +716,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
     else
     {
         DestPtr = CFE_SB_GetDestPtr(CFE_SBR_GetRouteId(MsgId), CmdPtr->Pipe);
-        if(DestPtr == NULL)
+        if (DestPtr == NULL)
         {
             PendingEventID = CFE_SB_DSBL_RTE1_EID;
             CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
@@ -731,40 +724,34 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
         else
         {
             DestPtr->Active = CFE_SB_INACTIVE;
-            PendingEventID = CFE_SB_DSBL_RTE2_EID;
+            PendingEventID  = CFE_SB_DSBL_RTE2_EID;
             CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
         }
 
-    }/* end if */    
+    } /* end if */
 
-    CFE_SB_UnlockSharedData(__func__,__LINE__);
+    CFE_SB_UnlockSharedData(__func__, __LINE__);
 
-
-    switch(PendingEventID)
+    switch (PendingEventID)
     {
         case CFE_SB_DSBL_RTE1_EID:
-            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE1_EID,CFE_EVS_EventType_ERROR,
-                "Disable Route Cmd:Route does not exist,Msg 0x%x,Pipe %lu",
-                (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE1_EID, CFE_EVS_EventType_ERROR,
+                              "Disable Route Cmd:Route does not exist,Msg 0x%x,Pipe %lu",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_DSBL_RTE3_EID:
-            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE3_EID,CFE_EVS_EventType_ERROR,
-                   "Disable Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
-                   (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                   CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE3_EID, CFE_EVS_EventType_ERROR,
+                              "Disable Route Cmd:Invalid Param.Msg 0x%x,Pipe %lu",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
         case CFE_SB_DSBL_RTE2_EID:
-            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID,CFE_EVS_EventType_DEBUG,
-                      "Route Disabled,Msg 0x%x,Pipe %lu",
-                      (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                      CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
+            CFE_EVS_SendEvent(CFE_SB_DSBL_RTE2_EID, CFE_EVS_EventType_DEBUG, "Route Disabled,Msg 0x%x,Pipe %lu",
+                              (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(CmdPtr->Pipe));
             break;
     }
 
     return CFE_SUCCESS;
-}/* end CFE_SB_DisableRouteCmd */
-
+} /* end CFE_SB_DisableRouteCmd */
 
 /******************************************************************************
 **  Function:  CFE_SB_SendStatsCmd()
@@ -780,18 +767,18 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
 */
 int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
 {
-    uint32 PipeDscCount;
-    uint32 PipeStatCount;
-    CFE_SB_PipeD_t *PipeDscPtr;
+    uint32                   PipeDscCount;
+    uint32                   PipeStatCount;
+    CFE_SB_PipeD_t *         PipeDscPtr;
     CFE_SB_PipeDepthStats_t *PipeStatPtr;
 
     CFE_SB_LockSharedData(__FILE__, __LINE__);
 
     /* Collect data on pipes */
-    PipeDscCount = CFE_PLATFORM_SB_MAX_PIPES;
+    PipeDscCount  = CFE_PLATFORM_SB_MAX_PIPES;
     PipeStatCount = CFE_MISSION_SB_MAX_PIPES;
-    PipeDscPtr = CFE_SB_Global.PipeTbl;
-    PipeStatPtr = CFE_SB_Global.StatTlmMsg.Payload.PipeDepthStats;
+    PipeDscPtr    = CFE_SB_Global.PipeTbl;
+    PipeStatPtr   = CFE_SB_Global.StatTlmMsg.Payload.PipeDepthStats;
 
     while (PipeDscCount > 0 && PipeStatCount > 0)
     {
@@ -825,26 +812,25 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
     CFE_SB_TimeStampMsg(&CFE_SB_Global.StatTlmMsg.Hdr.Msg);
     CFE_SB_TransmitMsg(&CFE_SB_Global.StatTlmMsg.Hdr.Msg, true);
 
-    CFE_EVS_SendEvent(CFE_SB_SND_STATS_EID,CFE_EVS_EventType_DEBUG,
-                      "Software Bus Statistics packet sent");
+    CFE_EVS_SendEvent(CFE_SB_SND_STATS_EID, CFE_EVS_EventType_DEBUG, "Software Bus Statistics packet sent");
 
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;
-}/* CFE_SB_SendStatsCmd */
+} /* CFE_SB_SendStatsCmd */
 
 /******************************************************************************
  * Local callback helper for writing routing info to a file
  */
 void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
-    CFE_SB_DestinationD_t      *DestPtr;
-    CFE_SB_PipeD_t             *PipeDscPtr;
-    CFE_SB_MsgId_t              RouteMsgId;
+    CFE_SB_DestinationD_t *             DestPtr;
+    CFE_SB_PipeD_t *                    PipeDscPtr;
+    CFE_SB_MsgId_t                      RouteMsgId;
     CFE_SB_BackgroundRouteInfoBuffer_t *RouteBufferPtr;
-    CFE_SB_RoutingFileEntry_t   *FileEntryPtr;
-    CFE_ES_AppId_t              DestAppId[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
-    uint32 i;
+    CFE_SB_RoutingFileEntry_t *         FileEntryPtr;
+    CFE_ES_AppId_t                      DestAppId[CFE_PLATFORM_SB_MAX_DEST_PER_PKT];
+    uint32                              i;
 
     /* Cast arguments for local use */
     RouteBufferPtr = (CFE_SB_BackgroundRouteInfoBuffer_t *)ArgPtr;
@@ -853,7 +839,7 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
     /* Data must be locked to snapshot the route info */
     CFE_SB_LockSharedData(__FILE__, __LINE__);
 
-    RouteMsgId = CFE_SBR_GetMsgId(RouteId);
+    RouteMsgId                      = CFE_SBR_GetMsgId(RouteId);
     RouteBufferPtr->NumDestinations = 0;
 
     /* If this is a valid route, get the destinations */
@@ -862,12 +848,12 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
         DestPtr = CFE_SBR_GetDestListHeadPtr(RouteId);
 
         /* copy relevant data from the destination list into the temp buffer */
-        while(DestPtr != NULL && RouteBufferPtr->NumDestinations < CFE_PLATFORM_SB_MAX_DEST_PER_PKT)
+        while (DestPtr != NULL && RouteBufferPtr->NumDestinations < CFE_PLATFORM_SB_MAX_DEST_PER_PKT)
         {
             PipeDscPtr = CFE_SB_LocatePipeDescByID(DestPtr->PipeId);
 
             /* If invalid id, continue on to next entry */
-            if (CFE_SB_PipeDescIsMatch(PipeDscPtr,DestPtr->PipeId))
+            if (CFE_SB_PipeDescIsMatch(PipeDscPtr, DestPtr->PipeId))
             {
                 FileEntryPtr = &RouteBufferPtr->DestEntries[RouteBufferPtr->NumDestinations];
 
@@ -876,7 +862,7 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 
                 FileEntryPtr->PipeId = DestPtr->PipeId;
                 FileEntryPtr->State  = DestPtr->Active;
-                FileEntryPtr->MsgCnt = DestPtr->DestCnt;                
+                FileEntryPtr->MsgCnt = DestPtr->DestCnt;
 
                 /* Stash the Pipe Owner AppId - App Name is looked up later (comes from ES) */
                 DestAppId[RouteBufferPtr->NumDestinations] = PipeDscPtr->AppId;
@@ -892,7 +878,7 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 
     /* Go through the temp buffer and fill in the remaining info for each dest */
     FileEntryPtr = RouteBufferPtr->DestEntries;
-    for(i = 0; i < RouteBufferPtr->NumDestinations; ++i)
+    for (i = 0; i < RouteBufferPtr->NumDestinations; ++i)
     {
         /* All dest entries refer to the same MsgId (based on the route) */
         FileEntryPtr->MsgId = RouteMsgId;
@@ -925,26 +911,24 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality)
 {
     CFE_SB_SingleSubscriptionTlm_t SubRptMsg;
-    int32  Status;
+    int32                          Status;
 
     Status = CFE_SUCCESS;
 
     if (CFE_SB_Global.SubscriptionReporting == CFE_SB_ENABLE)
     {
-        CFE_MSG_Init(&SubRptMsg.Hdr.Msg,
-                    CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID),
-                    sizeof(SubRptMsg));
+        CFE_MSG_Init(&SubRptMsg.Hdr.Msg, CFE_SB_ValueToMsgId(CFE_SB_ONESUB_TLM_MID), sizeof(SubRptMsg));
 
-        SubRptMsg.Payload.MsgId = MsgId;
-        SubRptMsg.Payload.Pipe = PipeId;
-        SubRptMsg.Payload.Qos = Quality;
+        SubRptMsg.Payload.MsgId   = MsgId;
+        SubRptMsg.Payload.Pipe    = PipeId;
+        SubRptMsg.Payload.Qos     = Quality;
         SubRptMsg.Payload.SubType = CFE_SB_SUBSCRIPTION;
 
         Status = CFE_SB_TransmitMsg(&SubRptMsg.Hdr.Msg, true);
-        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID,CFE_EVS_EventType_DEBUG,CFE_SB_Global.AppId,
-                "Sending Subscription Report Msg=0x%x,Pipe=%lu,Stat=0x%x",
-                (unsigned int)CFE_SB_MsgIdToValue(MsgId),
-                CFE_RESOURCEID_TO_ULONG(PipeId),(unsigned int)Status);
+        CFE_EVS_SendEventWithAppID(CFE_SB_SUBSCRIPTION_RPT_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+                                   "Sending Subscription Report Msg=0x%x,Pipe=%lu,Stat=0x%x",
+                                   (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
+                                   (unsigned int)Status);
     }
 
     return Status;
@@ -953,14 +937,14 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
 bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
-    CFE_SBR_Throttle_t        Throttle;
+    CFE_SBR_Throttle_t                Throttle;
 
     /* Cast arguments for local use */
     BgFilePtr = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
 
     Throttle.StartIndex = RecordNum;
-    Throttle.MaxLoop = 1;
-    Throttle.NextIndex = 0;
+    Throttle.MaxLoop    = 1;
+    Throttle.NextIndex  = 0;
 
     /* Reset NumDestinations to 0, just in case the CFE_SBR_ForEachRouteId() is a no-op */
     BgFilePtr->Buffer.RouteInfo.NumDestinations = 0;
@@ -976,7 +960,8 @@ bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer
     return (Throttle.NextIndex == 0);
 }
 
-void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position)
+void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
+                                       size_t BlockSize, size_t Position)
 {
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
 
@@ -985,38 +970,34 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
     /*
      * Note that this runs in the context of ES background task (file writer background job)
      * It does NOT run in the context of the CFE_TBL app task.
-     * 
+     *
      * Events should use CFE_EVS_SendEventWithAppID() rather than CFE_EVS_SendEvent()
      * to get proper association with TBL task.
      */
-    switch(Event)
+    switch (Event)
     {
         case CFE_FS_FileWriteEvent_COMPLETE:
-            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_EID,CFE_EVS_EventType_DEBUG,
-                            CFE_SB_Global.AppId,
-                            "%s written:Size=%d,Entries=%d",
-                            BgFilePtr->FileWrite.FileName, (int)Position, (int)RecordNum);
-            break;        
+            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_EID, CFE_EVS_EventType_DEBUG, CFE_SB_Global.AppId,
+                                       "%s written:Size=%d,Entries=%d", BgFilePtr->FileWrite.FileName, (int)Position,
+                                       (int)RecordNum);
+            break;
 
         case CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR:
         case CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR:
-            CFE_EVS_SendEventWithAppID(CFE_SB_FILEWRITE_ERR_EID,CFE_EVS_EventType_ERROR,
-                            CFE_SB_Global.AppId,
-                            "File write,byte cnt err,file %s,request=%d,actual=%d",
-                            BgFilePtr->FileWrite.FileName, (int)BlockSize, (int)Status);
+            CFE_EVS_SendEventWithAppID(CFE_SB_FILEWRITE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "File write,byte cnt err,file %s,request=%d,actual=%d",
+                                       BgFilePtr->FileWrite.FileName, (int)BlockSize, (int)Status);
             break;
 
         case CFE_FS_FileWriteEvent_CREATE_ERROR:
-            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_ERR1_EID, CFE_EVS_EventType_ERROR,
-                            CFE_SB_Global.AppId,
-                            "Error creating file %s, stat=0x%x",
-                            BgFilePtr->FileWrite.FileName, (int)Status);
+            CFE_EVS_SendEventWithAppID(CFE_SB_SND_RTG_ERR1_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                       "Error creating file %s, stat=0x%x", BgFilePtr->FileWrite.FileName, (int)Status);
             break;
-        
+
         default:
             /* unhandled event - ignore */
             break;
-    }       
+    }
 }
 
 /******************************************************************************
@@ -1029,11 +1010,11 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
 int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
-    CFE_SB_BackgroundFileStateInfo_t *StatePtr;
-    int32                       Status;
+    CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
+    int32                                    Status;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
-    CmdPtr = &data->Payload;
+    CmdPtr   = &data->Payload;
 
     /* If a routing info dump was already pending, do not overwrite the current request */
     if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
@@ -1042,11 +1023,12 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
         memset(StatePtr, 0, sizeof(*StatePtr));
 
         /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
-        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->Filename, CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME,
-                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename));
+        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->Filename,
+                                CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME, sizeof(StatePtr->FileWrite.FileName),
+                                sizeof(CmdPtr->Filename));
 
-        /* 
-         * Fill out the remainder of meta data.  
+        /*
+         * Fill out the remainder of meta data.
          * This data is currently the same for every request
          */
         StatePtr->FileWrite.FileSubType = CFE_FS_SubType_SB_ROUTEDATA;
@@ -1061,29 +1043,28 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
     {
         Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
-    
+
     if (Status != CFE_SUCCESS)
     {
         /* generate the same event as is generated when unable to create the file (same thing, really) */
         CFE_SB_BackgroundFileEventHandler(StatePtr, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
     }
-    
-    CFE_SB_IncrCmdCtr(Status);
-    
-    return CFE_SUCCESS;
-}/* end CFE_SB_WriteRoutingInfoCmd */
 
+    CFE_SB_IncrCmdCtr(Status);
+
+    return CFE_SUCCESS;
+} /* end CFE_SB_WriteRoutingInfoCmd */
 
 bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
-    CFE_SB_PipeInfoEntry_t *PipeBufferPtr;
-    CFE_SB_PipeD_t *PipeDscPtr;
-    osal_id_t SysQueueId;
-    bool PipeIsValid;
+    CFE_SB_PipeInfoEntry_t *          PipeBufferPtr;
+    CFE_SB_PipeD_t *                  PipeDscPtr;
+    osal_id_t                         SysQueueId;
+    bool                              PipeIsValid;
 
-    BgFilePtr = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
-    PipeDscPtr = NULL;
+    BgFilePtr   = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
+    PipeDscPtr  = NULL;
     PipeIsValid = false;
 
     PipeBufferPtr = &BgFilePtr->Buffer.PipeInfo;
@@ -1092,7 +1073,7 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
     {
         PipeDscPtr = &CFE_SB_Global.PipeTbl[RecordNum];
 
-        CFE_SB_LockSharedData(__FILE__,__LINE__); 
+        CFE_SB_LockSharedData(__FILE__, __LINE__);
 
         PipeIsValid = CFE_SB_PipeDescIsUsed(PipeDscPtr);
 
@@ -1104,9 +1085,9 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
             memset(PipeBufferPtr, 0, sizeof(*PipeBufferPtr));
 
             /*
-             * Take a "snapshot" of the PipeDsc state while locked 
+             * Take a "snapshot" of the PipeDsc state while locked
              */
-            PipeBufferPtr->PipeId = CFE_SB_PipeDescGetID(PipeDscPtr);            
+            PipeBufferPtr->PipeId = CFE_SB_PipeDescGetID(PipeDscPtr);
             PipeBufferPtr->AppId  = PipeDscPtr->AppId;
             PipeBufferPtr->Opts   = PipeDscPtr->Opts;
 
@@ -1122,9 +1103,9 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
         {
             SysQueueId = OS_OBJECT_ID_UNDEFINED;
         }
-        
-        CFE_SB_UnlockSharedData(__FILE__,__LINE__);
-    }    
+
+        CFE_SB_UnlockSharedData(__FILE__, __LINE__);
+    }
 
     if (PipeIsValid)
     {
@@ -1137,19 +1118,18 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
         OS_GetResourceName(SysQueueId, PipeBufferPtr->PipeName, sizeof(PipeBufferPtr->PipeName));
         CFE_ES_GetAppName(PipeBufferPtr->AppName, PipeBufferPtr->AppId, sizeof(PipeBufferPtr->AppName));
 
-        *Buffer = PipeBufferPtr;
+        *Buffer  = PipeBufferPtr;
         *BufSize = sizeof(*PipeBufferPtr);
     }
     else
     {
-        *Buffer = NULL;
+        *Buffer  = NULL;
         *BufSize = 0;
     }
-    
-    /* Check for EOF (last entry)  */
-    return (RecordNum >= (CFE_PLATFORM_SB_MAX_PIPES-1));
-}
 
+    /* Check for EOF (last entry)  */
+    return (RecordNum >= (CFE_PLATFORM_SB_MAX_PIPES - 1));
+}
 
 /******************************************************************************
  * \brief SB internal function to handle processing of 'Write Pipe Info' Cmd
@@ -1161,11 +1141,11 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
 int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
-    CFE_SB_BackgroundFileStateInfo_t *StatePtr;
-    int32                       Status;
+    CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
+    int32                                    Status;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
-    CmdPtr = &data->Payload;
+    CmdPtr   = &data->Payload;
 
     /* If a pipe info dump was already pending, do not overwrite the current request */
     if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
@@ -1175,10 +1155,10 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
 
         /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
         CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->Filename, CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME,
-                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename));
+                                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename));
 
-        /* 
-         * Fill out the remainder of meta data.  
+        /*
+         * Fill out the remainder of meta data.
          * This data is currently the same for every request
          */
         StatePtr->FileWrite.FileSubType = CFE_FS_SubType_SB_PIPEDATA;
@@ -1193,7 +1173,7 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
     {
         Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
-    
+
     if (Status != CFE_SUCCESS)
     {
         /* generate the same event as is generated when unable to create the file (same thing, really) */
@@ -1203,7 +1183,6 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
     CFE_SB_IncrCmdCtr(Status);
 
     return CFE_SUCCESS;
-
 }
 
 /******************************************************************************
@@ -1211,7 +1190,7 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
  */
 void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
-    CFE_SB_MsgMapFileEntry_t   *BufferPtr;
+    CFE_SB_MsgMapFileEntry_t *BufferPtr;
 
     /* Cast arguments for local use */
     BufferPtr = (CFE_SB_MsgMapFileEntry_t *)ArgPtr;
@@ -1223,21 +1202,20 @@ void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
     BufferPtr->MsgId = CFE_SBR_GetMsgId(RouteId);
     BufferPtr->Index = CFE_SBR_RouteIdToValue(RouteId);
 
-    CFE_SB_UnlockSharedData(__FILE__,__LINE__); 
+    CFE_SB_UnlockSharedData(__FILE__, __LINE__);
 }
-
 
 bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
-    CFE_SBR_Throttle_t        Throttle;
+    CFE_SBR_Throttle_t                Throttle;
 
     /* Cast arguments for local use */
     BgFilePtr = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
 
     Throttle.StartIndex = RecordNum;
-    Throttle.MaxLoop = 1;
-    Throttle.NextIndex = 0;
+    Throttle.MaxLoop    = 1;
+    Throttle.NextIndex  = 0;
 
     /* Set the MsgId intially - will be overwritten with real info in CFE_SB_CollectMsgMapInfo */
     BgFilePtr->Buffer.MsgMapInfo.MsgId = CFE_SB_INVALID_MSG_ID;
@@ -1261,7 +1239,6 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
     return (Throttle.NextIndex == 0);
 }
 
-
 /******************************************************************************
  * \brief SB internal function to handle processing of 'Write Map Info' Cmd
  *
@@ -1272,11 +1249,11 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
 int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
-    CFE_SB_BackgroundFileStateInfo_t *StatePtr;
-    int32                       Status;
+    CFE_SB_BackgroundFileStateInfo_t *       StatePtr;
+    int32                                    Status;
 
     StatePtr = &CFE_SB_Global.BackgroundFile;
-    CmdPtr = &data->Payload;
+    CmdPtr   = &data->Payload;
 
     /* If a pipe info dump was already pending, do not overwrite the current request */
     if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
@@ -1286,10 +1263,10 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
 
         /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
         CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->Filename, CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME,
-                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename));
+                                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->Filename));
 
-        /* 
-         * Fill out the remainder of meta data.  
+        /*
+         * Fill out the remainder of meta data.
          * This data is currently the same for every request
          */
         StatePtr->FileWrite.FileSubType = CFE_FS_SubType_SB_MAPDATA;
@@ -1304,7 +1281,7 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
     {
         Status = CFE_STATUS_REQUEST_ALREADY_PENDING;
     }
-    
+
     if (Status != CFE_SUCCESS)
     {
         /* generate the same event as is generated when unable to create the file (same thing, really) */
@@ -1314,7 +1291,7 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
     CFE_SB_IncrCmdCtr(Status);
 
     return CFE_SUCCESS;
-}/* end CFE_SB_WriteMapInfoCmd */
+} /* end CFE_SB_WriteMapInfoCmd */
 
 /******************************************************************************
  * Local callback helper for sending route subscriptions
@@ -1327,28 +1304,29 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
     destptr = CFE_SBR_GetDestListHeadPtr(RouteId);
 
     /* Loop through destinations */
-    while(destptr != NULL)
+    while (destptr != NULL)
     {
 
-        if(destptr->Scope == CFE_SB_MSG_GLOBAL)
+        if (destptr->Scope == CFE_SB_MSG_GLOBAL)
         {
 
             /* ...add entry into pkt */
-            CFE_SB_Global.PrevSubMsg.Payload.Entry[CFE_SB_Global.PrevSubMsg.Payload.Entries].MsgId = CFE_SBR_GetMsgId(RouteId);
-            CFE_SB_Global.PrevSubMsg.Payload.Entry[CFE_SB_Global.PrevSubMsg.Payload.Entries].Qos.Priority = 0;
+            CFE_SB_Global.PrevSubMsg.Payload.Entry[CFE_SB_Global.PrevSubMsg.Payload.Entries].MsgId =
+                CFE_SBR_GetMsgId(RouteId);
+            CFE_SB_Global.PrevSubMsg.Payload.Entry[CFE_SB_Global.PrevSubMsg.Payload.Entries].Qos.Priority    = 0;
             CFE_SB_Global.PrevSubMsg.Payload.Entry[CFE_SB_Global.PrevSubMsg.Payload.Entries].Qos.Reliability = 0;
             CFE_SB_Global.PrevSubMsg.Payload.Entries++;
 
             /* send pkt if full */
-            if(CFE_SB_Global.PrevSubMsg.Payload.Entries >= CFE_SB_SUB_ENTRIES_PER_PKT)
+            if (CFE_SB_Global.PrevSubMsg.Payload.Entries >= CFE_SB_SUB_ENTRIES_PER_PKT)
             {
-                CFE_SB_UnlockSharedData(__func__,__LINE__);
+                CFE_SB_UnlockSharedData(__func__, __LINE__);
                 status = CFE_SB_TransmitMsg(&CFE_SB_Global.PrevSubMsg.Hdr.Msg, true);
                 CFE_EVS_SendEvent(CFE_SB_FULL_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
                                   "Full Sub Pkt %d Sent,Entries=%d,Stat=0x%x\n",
                                   (int)CFE_SB_Global.PrevSubMsg.Payload.PktSegment,
                                   (int)CFE_SB_Global.PrevSubMsg.Payload.Entries, (unsigned int)status);
-                CFE_SB_LockSharedData(__func__,__LINE__);
+                CFE_SB_LockSharedData(__func__, __LINE__);
                 CFE_SB_Global.PrevSubMsg.Payload.Entries = 0;
                 CFE_SB_Global.PrevSubMsg.Payload.PktSegment++;
             }
@@ -1360,7 +1338,6 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
              * subscription if there are more than one
              */
             break;
-
         }
 
         /* Advance to next destination */
@@ -1387,31 +1364,29 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
     int32 status;
 
     /* Take semaphore to ensure data does not change during this function */
-    CFE_SB_LockSharedData(__func__,__LINE__);
+    CFE_SB_LockSharedData(__func__, __LINE__);
 
     /* Initialize entry/segment tracking */
     CFE_SB_Global.PrevSubMsg.Payload.PktSegment = 1;
-    CFE_SB_Global.PrevSubMsg.Payload.Entries = 0;
+    CFE_SB_Global.PrevSubMsg.Payload.Entries    = 0;
 
     /* Send subcription for each route */
     CFE_SBR_ForEachRouteId(CFE_SB_SendRouteSub, NULL, NULL);
 
-    CFE_SB_UnlockSharedData(__func__,__LINE__);
+    CFE_SB_UnlockSharedData(__func__, __LINE__);
 
     /* if pkt has any number of entries, send it as a partial pkt */
-    if(CFE_SB_Global.PrevSubMsg.Payload.Entries > 0)
+    if (CFE_SB_Global.PrevSubMsg.Payload.Entries > 0)
     {
         status = CFE_SB_TransmitMsg(&CFE_SB_Global.PrevSubMsg.Hdr.Msg, true);
         CFE_EVS_SendEvent(CFE_SB_PART_SUB_PKT_EID, CFE_EVS_EventType_DEBUG,
                           "Partial Sub Pkt %d Sent,Entries=%d,Stat=0x%x",
-                          (int)CFE_SB_Global.PrevSubMsg.Payload.PktSegment, (int)CFE_SB_Global.PrevSubMsg.Payload.Entries,
-                          (unsigned int)status);
+                          (int)CFE_SB_Global.PrevSubMsg.Payload.PktSegment,
+                          (int)CFE_SB_Global.PrevSubMsg.Payload.Entries, (unsigned int)status);
     }
 
     return CFE_SUCCESS;
-}/* end CFE_SB_SendPrevSubsCmd */
-
-
+} /* end CFE_SB_SendPrevSubsCmd */
 
 /******************************************************************************
 **  Function:  CFE_SB_IncrCmdCtr()
@@ -1426,15 +1401,19 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
 **  Return:
 **    None
 */
-void CFE_SB_IncrCmdCtr(int32 status){
+void CFE_SB_IncrCmdCtr(int32 status)
+{
 
-    if(status==CFE_SUCCESS){
-      CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
-    }else{
-      CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
-    }/* end if */
+    if (status == CFE_SUCCESS)
+    {
+        CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
+    }
+    else
+    {
+        CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
+    } /* end if */
 
-}/* end CFE_SB_IncrCmdCtr */
+} /* end CFE_SB_IncrCmdCtr */
 
 /******************************************************************************
 **  Function:  CFE_SB_SetSubscriptionReporting()
@@ -1448,8 +1427,9 @@ void CFE_SB_IncrCmdCtr(int32 status){
 **  Return:
 **    None
 */
-void CFE_SB_SetSubscriptionReporting(uint32 state){
+void CFE_SB_SetSubscriptionReporting(uint32 state)
+{
 
     CFE_SB_Global.SubscriptionReporting = state;
 
-}/* end CFE_SB_SetSubscriptionReporting */
+} /* end CFE_SB_SetSubscriptionReporting */

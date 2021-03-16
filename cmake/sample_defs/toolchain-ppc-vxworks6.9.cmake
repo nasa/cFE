@@ -57,5 +57,5 @@ SET(CMAKE_PREFIX_PATH                   /)
 SET(CFE_SYSTEM_PSPNAME                  mcp750-vxworks)
 
 include_directories(${WIND_BASE}/target/h/wrn/coreip)
-include_directories(${WIND_BASE}/target/h) 
+include_directories(${WIND_BASE}/target/h)
 

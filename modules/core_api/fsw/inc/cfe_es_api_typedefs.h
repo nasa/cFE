@@ -36,12 +36,10 @@
 #define CFE_ES_ABSTRACT_TYPES_H
 
 /*
-** Includes 
+** Includes
 */
 #include "common_types.h"
 #include "cfe_es_extern_typedefs.h"
-
-
 
 /*
 ** Note about reset type and subtypes:
@@ -58,9 +56,8 @@
 */
 /** \name Reset Type extensions */
 /** \{ */
-#define CFE_ES_APP_RESTART       CFE_PSP_RST_TYPE_MAX       /**< Application only was reset (extend the PSP enumeration here) */
+#define CFE_ES_APP_RESTART CFE_PSP_RST_TYPE_MAX /**< Application only was reset (extend the PSP enumeration here) */
 /** \} */
-
 
 /*****************************************************************************/
 /*
@@ -71,11 +68,12 @@
 ** Entry Function Prototypes
 */
 typedef void (*CFE_ES_TaskEntryFuncPtr_t)(void); /**< \brief Required Prototype of Task Main Functions */
-typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(CFE_ES_LibId_t LibId); /**< \brief Required Prototype of Library Initialization Functions */
+typedef int32 (*CFE_ES_LibraryEntryFuncPtr_t)(
+    CFE_ES_LibId_t LibId); /**< \brief Required Prototype of Library Initialization Functions */
 
 /**
  * \brief Compatible typedef for ES child task entry point.
- * 
+ *
  * All ES task functions (main + child) use the same entry point type.
  */
 typedef CFE_ES_TaskEntryFuncPtr_t CFE_ES_ChildTaskMainFuncPtr_t;
@@ -85,7 +83,7 @@ typedef CFE_ES_TaskEntryFuncPtr_t CFE_ES_ChildTaskMainFuncPtr_t;
  *
  * This type is used in the CFE ES task API.
  */
-typedef void* CFE_ES_StackPointer_t; /* aka osal_stackptr_t in proposed OSAL change */
+typedef void *CFE_ES_StackPointer_t; /* aka osal_stackptr_t in proposed OSAL change */
 
 /**
  * \brief Pool Alignement
@@ -98,8 +96,8 @@ typedef union CFE_ES_PoolAlign
 {
     void *Ptr; /**< \brief Aligned pointer */
     /* note -- native types (int/double) are intentional here */
-    long long int LongInt; /**< \brief Aligned Long Integer */
-    long double LongDouble; /**< \brief Aligned Long Double */
+    long long int LongInt;    /**< \brief Aligned Long Integer */
+    long double   LongDouble; /**< \brief Aligned Long Double */
 } CFE_ES_PoolAlign_t;
 
 /**
@@ -109,8 +107,12 @@ typedef union CFE_ES_PoolAlign
  * This resolves to a union type that contains a member called "Data" that will
  * be correctly aligned to be a memory pool and sized according to the argument.
  */
-#define CFE_ES_STATIC_POOL_TYPE(size)    union { CFE_ES_PoolAlign_t Align; uint8 Data[size]; }
-
+#define CFE_ES_STATIC_POOL_TYPE(size)  \
+    union                              \
+    {                                  \
+        CFE_ES_PoolAlign_t Align;      \
+        uint8              Data[size]; \
+    }
 
 /**
  * @brief Pointer type used for memory pool API
@@ -126,7 +128,7 @@ typedef union CFE_ES_PoolAlign
  * Although the API type is now void* to make usage easier, the
  * pool buffers are aligned to machine requirements - typically 64 bits.
  */
-typedef void* CFE_ES_MemPoolBuf_t;
+typedef void *CFE_ES_MemPoolBuf_t;
 
 /**
  * @brief Conversion macro to create buffer pointer from another type
@@ -150,27 +152,27 @@ typedef void* CFE_ES_MemPoolBuf_t;
  * and convert it to the corresponding resource-specific type.
  *
  * These should only be used when with the resource ID constants,
- * or where the code has confirmed or is determining the generic 
+ * or where the code has confirmed or is determining the generic
  * identifier does correspond to a resource of that type.
  */
-#define CFE_ES_APPID_C(val)             ((CFE_ES_AppId_t)CFE_RESOURCEID_WRAP(val))
-#define CFE_ES_TASKID_C(val)            ((CFE_ES_TaskId_t)CFE_RESOURCEID_WRAP(val))
-#define CFE_ES_LIBID_C(val)             ((CFE_ES_LibId_t)CFE_RESOURCEID_WRAP(val))
-#define CFE_ES_COUNTERID_C(val)         ((CFE_ES_CounterId_t)CFE_RESOURCEID_WRAP(val))
-#define CFE_ES_MEMHANDLE_C(val)         ((CFE_ES_MemHandle_t)CFE_RESOURCEID_WRAP(val))
-#define CFE_ES_CDSHANDLE_C(val)         ((CFE_ES_CDSHandle_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_APPID_C(val)     ((CFE_ES_AppId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_TASKID_C(val)    ((CFE_ES_TaskId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_LIBID_C(val)     ((CFE_ES_LibId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_COUNTERID_C(val) ((CFE_ES_CounterId_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_MEMHANDLE_C(val) ((CFE_ES_MemHandle_t)CFE_RESOURCEID_WRAP(val))
+#define CFE_ES_CDSHANDLE_C(val) ((CFE_ES_CDSHandle_t)CFE_RESOURCEID_WRAP(val))
 
 /** \} */
 
 /** \name Type-specific initalizers for "undefined" resource IDs */
 /** \{ */
 
-#define CFE_ES_APPID_UNDEFINED      CFE_ES_APPID_C(CFE_RESOURCEID_UNDEFINED)
-#define CFE_ES_TASKID_UNDEFINED     CFE_ES_TASKID_C(CFE_RESOURCEID_UNDEFINED)
-#define CFE_ES_LIBID_UNDEFINED      CFE_ES_LIBID_C(CFE_RESOURCEID_UNDEFINED)
-#define CFE_ES_COUNTERID_UNDEFINED  CFE_ES_COUNTERID_C(CFE_RESOURCEID_UNDEFINED)
-#define CFE_ES_MEMHANDLE_UNDEFINED  CFE_ES_MEMHANDLE_C(CFE_RESOURCEID_UNDEFINED)
-#define CFE_ES_CDS_BAD_HANDLE       CFE_ES_CDSHANDLE_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_APPID_UNDEFINED     CFE_ES_APPID_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_TASKID_UNDEFINED    CFE_ES_TASKID_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_LIBID_UNDEFINED     CFE_ES_LIBID_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_COUNTERID_UNDEFINED CFE_ES_COUNTERID_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_MEMHANDLE_UNDEFINED CFE_ES_MEMHANDLE_C(CFE_RESOURCEID_UNDEFINED)
+#define CFE_ES_CDS_BAD_HANDLE      CFE_ES_CDSHANDLE_C(CFE_RESOURCEID_UNDEFINED)
 /** \} */
 
 /** \name Task Stack Constants */
@@ -182,12 +184,10 @@ typedef void* CFE_ES_MemPoolBuf_t;
  * This value may be supplied as the Stack Pointer argument to CFE_ES_ChildTaskCreate()
  * to indicate that the stack should be dynamically allocated.
  */
-#define CFE_ES_TASK_STACK_ALLOCATE  NULL /* aka OS_TASK_STACK_ALLOCATE in proposed OSAL change */
+#define CFE_ES_TASK_STACK_ALLOCATE NULL /* aka OS_TASK_STACK_ALLOCATE in proposed OSAL change */
 /** \} */
 
-#define CFE_ES_NO_MUTEX   false  /**< \brief Indicates that the memory pool selection will not use a semaphore */
-#define CFE_ES_USE_MUTEX  true   /**< \brief Indicates that the memory pool selection will use a semaphore */
+#define CFE_ES_NO_MUTEX  false /**< \brief Indicates that the memory pool selection will not use a semaphore */
+#define CFE_ES_USE_MUTEX true  /**< \brief Indicates that the memory pool selection will use a semaphore */
 
-
-
-#endif  /* CFE_ES_ABSTRACT_TYPES_H */
+#endif /* CFE_ES_ABSTRACT_TYPES_H */

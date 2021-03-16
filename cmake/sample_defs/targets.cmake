@@ -83,13 +83,13 @@ SET(SPACECRAFT_ID 0x42)
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built
 # for every defined and target.  These are built as dynamic modules
 # and must be loaded explicitly via startup script or command.
-# This list is effectively appended to every TGTx_APPLIST in targets.cmake.  
+# This list is effectively appended to every TGTx_APPLIST in targets.cmake.
 # Example:
 list(APPEND MISSION_GLOBAL_APPLIST sample_app sample_lib)
 
 # The "MISSION_GLOBAL_STATIC_APPLIST" is similar to MISSION_GLOBAL_APPLIST
-# but the apps are statically linked.  
-# This list is effectively appended to every TGTx_STATIC_APPLIST in targets.cmake.  
+# but the apps are statically linked.
+# This list is effectively appended to every TGTx_STATIC_APPLIST in targets.cmake.
 # Example:
 #   list(APPEND MISSION_GLOBAL_STATIC_APPLIST my_static_app)
 
@@ -104,7 +104,7 @@ SET(cpu1_PROCESSORID 1)
 SET(cpu1_APPLIST ci_lab to_lab sch_lab)
 SET(cpu1_FILELIST cfe_es_startup.scr)
 
-# CPU2 example.  This is not built by default anymore but 
+# CPU2 example.  This is not built by default anymore but
 # serves as an example of how one would configure multiple cpus.
 SET(cpu2_PROCESSORID 2)
 SET(cpu2_APPLIST ci_lab to_lab sch_lab)

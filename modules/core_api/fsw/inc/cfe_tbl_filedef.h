@@ -51,8 +51,8 @@
 
 #include <cfe_mission_cfg.h>
 #include <common_types.h>
-#include "cfe_tbl_extern_typedefs.h"    /* for "CFE_TBL_FileHdr_t" definition */
-#include "cfe_fs_extern_typedefs.h"     /* for "CFE_FS_HDR_DESC_MAX_LEN" definition */
+#include "cfe_tbl_extern_typedefs.h" /* for "CFE_TBL_FileHdr_t" definition */
+#include "cfe_fs_extern_typedefs.h"  /* for "CFE_FS_HDR_DESC_MAX_LEN" definition */
 
 /*
  * The definition of the file definition metadata that can be used by
@@ -60,22 +60,26 @@
  */
 typedef struct CFE_TBL_FileDef
 {
-    char        ObjectName[64];                             /**< \brief Name of instantiated variable that contains desired table image */
-    char        TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table as defined onboard */
-    char        Description[CFE_FS_HDR_DESC_MAX_LEN];       /**< \brief Description of table image that is included in cFE File Header */
-    char        TgtFilename[CFE_MISSION_MAX_FILE_LEN];      /**< \brief Default filename to be used for output of elf2cfetbl utility  */
-    uint32      ObjectSize;                                 /**< \brief Size, in bytes, of instantiated object */
+    char ObjectName[64]; /**< \brief Name of instantiated variable that contains desired table image */
+    char TableName[CFE_MISSION_TBL_MAX_FULL_NAME_LEN]; /**< \brief Name of Table as defined onboard */
+    char Description[CFE_FS_HDR_DESC_MAX_LEN];  /**< \brief Description of table image that is included in cFE File
+                                                   Header */
+    char TgtFilename[CFE_MISSION_MAX_FILE_LEN]; /**< \brief Default filename to be used for output of elf2cfetbl utility
+                                                 */
+    uint32 ObjectSize;                          /**< \brief Size, in bytes, of instantiated object */
 } CFE_TBL_FileDef_t;
 
-/** The CFE_TBL_FILEDEF macro can be used to simplify the declaration of a table image when using the elf2cfetbl utility.
+/** The CFE_TBL_FILEDEF macro can be used to simplify the declaration of a table image when using the elf2cfetbl
+utility.
 **
 **  Note that the macro adds a NULL at the end to ensure that it is null-terminated. (C allows
 **  a struct to be statically initialized with a string exactly the length of the array, which
 **  loses the null terminator.) This means the actual length limit of the fields are the above
 **  LEN - 1.
 **
-**  An example of the source code and how this macro would be used is as follows: \code
- 
+**  An example of the source code and how this macro would be used is as follows:
+\code
+
     #include "cfe_tbl_filedef.h"
 
    typedef struct MyTblStruct
@@ -89,11 +93,13 @@ typedef struct CFE_TBL_FileDef
    MyTblStruct_t MyTblStruct = { 0x01020304, 0x05060708, 0x090A0B0C, 0x0D };
 
    CFE_TBL_FILEDEF(MyTblStruct, MyApp.TableName, Table Utility Test Table, MyTblDefault.bin )
-   
+
 \endcode
 */
-  
-#define CFE_TBL_FILEDEF(ObjName, TblName, Desc, Filename) static OS_USED CFE_TBL_FileDef_t CFE_TBL_FileDef={#ObjName "\0", #TblName "\0", #Desc "\0", #Filename "\0", sizeof(ObjName)};
+
+#define CFE_TBL_FILEDEF(ObjName, TblName, Desc, Filename)                                                         \
+    static OS_USED CFE_TBL_FileDef_t CFE_TBL_FileDef = {#ObjName "\0", #TblName "\0", #Desc "\0", #Filename "\0", \
+                                                        sizeof(ObjName)};
 
 /*************************************************************************/
 

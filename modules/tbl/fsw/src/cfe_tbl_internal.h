@@ -25,7 +25,7 @@
 **
 ** Author:   D. Kobe/the Hammers Company, Inc.
 **
-** Notes:    
+** Notes:
 **
 */
 
@@ -46,9 +46,9 @@
 
 /*********************  Macro and Constant Type Definitions   ***************************/
 
-#define CFE_TBL_NOT_OWNED               CFE_ES_APPID_UNDEFINED
-#define CFE_TBL_NOT_FOUND               (-1)
-#define CFE_TBL_END_OF_LIST             (CFE_TBL_Handle_t)0xFFFF
+#define CFE_TBL_NOT_OWNED   CFE_ES_APPID_UNDEFINED
+#define CFE_TBL_NOT_FOUND   (-1)
+#define CFE_TBL_END_OF_LIST (CFE_TBL_Handle_t)0xFFFF
 
 /*****************************  Function Prototypes   **********************************/
 
@@ -65,12 +65,12 @@
 **          None
 **
 ** \param[in]  TblHandle  - Handle to be validated
-** 
+**
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
-**                     
+**
 ******************************************************************************/
-int32   CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle);
+int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -89,16 +89,17 @@ int32   CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle);
 **
 ** \param[in]  TblHandle Handle of table whose access is desired.
 **
-** \param[in, out]  AppIdPtr  Pointer to value that will hold AppID on return. *AppIdPtr is the AppID as obtained from #CFE_ES_GetAppID
-** 
+** \param[in, out]  AppIdPtr  Pointer to value that will hold AppID on return. *AppIdPtr is the AppID as obtained from
+*#CFE_ES_GetAppID
+**
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_BAD_APP_ID          \copydoc CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
-**                     
+**
 ******************************************************************************/
-int32   CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppIdPtr);
+int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppIdPtr);
 
 /*****************************************************************************/
 /**
@@ -114,15 +115,14 @@ int32   CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppId
 **        Note: The TblHandle and ThisAppId parameters are assumed to be valid.
 **
 ** \param[in]  TblHandle Handle of table whose access is desired.
-** 
+**
 ** \param[in]  ThisAppId Application ID of Application making the call
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
-**                     
+**
 ******************************************************************************/
-int32   CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
-
+int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
 
 /*****************************************************************************/
 /**
@@ -139,12 +139,11 @@ int32   CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t Thi
 **           filled out and the TblHandle has been validated.
 **
 ** \param[in]  TblHandle Handle of Access Descriptor to be removed.
-** 
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS                     
+**
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 **
 ******************************************************************************/
-int32   CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle);
-
+int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -161,19 +160,19 @@ int32   CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle);
 **           this function would return #CFE_TBL_ERR_UNREGISTERED.
 **        -# ThisAppId parameter is assumed to be validated.
 **
-** \param[in, out]  TblPtr    Pointer to pointer that will hold address of data upon return. *TblPtr is the address of the Table Data.
+** \param[in, out]  TblPtr    Pointer to pointer that will hold address of data upon return. *TblPtr is the address of
+**                            the Table Data.
 ** \param[in]  TblHandle Handle of Table whose address is needed.
 ** \param[in]  ThisAppId AppID of application making the address request.
-** 
+**
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE 
-** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS      
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_UNREGISTERED        \copydoc CFE_TBL_ERR_UNREGISTERED
-**                
+**
 ******************************************************************************/
-int32   CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
-
+int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
 
 /*****************************************************************************/
 /**
@@ -187,14 +186,13 @@ int32   CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CF
 **
 ** \param[in]  TblHandle Handle of Table whose pending notifications are
 **                       to be returned.
-** 
+**
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_INFO_UPDATE_PENDING     \copydoc CFE_TBL_INFO_UPDATE_PENDING
 ** \retval #CFE_TBL_INFO_UPDATED            \copydoc CFE_TBL_INFO_UPDATED
 **
 ******************************************************************************/
-int32   CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle);
-
+int32 CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -209,11 +207,11 @@ int32   CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle);
 **
 ** \param[in]  TblName - Pointer to character string containing complete
 **                       Table Name (of the format "AppName.TblName").
-** 
+**
 ** \retval #CFE_TBL_NOT_FOUND or the Index into Registry for Table with specified name
-**                     
+**
 ******************************************************************************/
-int16            CFE_TBL_FindTableInRegistry(const char *TblName);
+int16 CFE_TBL_FindTableInRegistry(const char *TblName);
 
 /*****************************************************************************/
 /**
@@ -225,9 +223,9 @@ int16            CFE_TBL_FindTableInRegistry(const char *TblName);
 ** \par Assumptions, External Events, and Notes:
 **        Note: This function assumes the registry has been locked.
 **
-** \retval #CFE_TBL_NOT_FOUND or Index into Table Registry of unused entry                     
+** \retval #CFE_TBL_NOT_FOUND or Index into Table Registry of unused entry
 ******************************************************************************/
-int16            CFE_TBL_FindFreeRegistryEntry(void);
+int16 CFE_TBL_FindFreeRegistryEntry(void);
 
 /*****************************************************************************/
 /**
@@ -239,10 +237,9 @@ int16            CFE_TBL_FindFreeRegistryEntry(void);
 ** \par Assumptions, External Events, and Notes:
 **        Note: This function assumes the registry has been locked.
 **
-** \retval #CFE_TBL_END_OF_LIST or Table Handle of unused Access Descriptor                     
+** \retval #CFE_TBL_END_OF_LIST or Table Handle of unused Access Descriptor
 ******************************************************************************/
 CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void);
-
 
 /*****************************************************************************/
 /**
@@ -256,19 +253,19 @@ CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void);
 ** \par Assumptions, External Events, and Notes:
 **        Note: AppName portion will be truncated to OS_MAX_API_NAME.
 **
-** \param[in, out]  FullTblName pointer to character buffer of #CFE_TBL_MAX_FULL_NAME_LEN size
-**                         that will be filled with the processor specific Table Name. *FullTblName is the processor specific Table Name of the form "AppName.TblName".
-** 
+** \param[in, out]  FullTblName pointer to character buffer of #CFE_TBL_MAX_FULL_NAME_LEN size that will be filled with
+**                  the processor specific Table Name. *FullTblName is the processor specific Table Name of the form
+**                  "AppName.TblName".
+**
 ** \param[in]  TblName pointer to character string containing the Application's local name for
 **                     the Table.
 **
-** \param[in]  ThisAppId the Application ID of the Application making the call. 
+** \param[in]  ThisAppId the Application ID of the Application making the call.
 **
 **
-**                      
+**
 ******************************************************************************/
 void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_t ThisAppId);
-
 
 /*****************************************************************************/
 /**
@@ -281,9 +278,9 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS                     
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ******************************************************************************/
-int32   CFE_TBL_LockRegistry(void);
+int32 CFE_TBL_LockRegistry(void);
 
 /*****************************************************************************/
 /**
@@ -297,10 +294,9 @@ int32   CFE_TBL_LockRegistry(void);
 **          None
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-**                     
+**
 ******************************************************************************/
-int32   CFE_TBL_UnlockRegistry(void);
-
+int32 CFE_TBL_UnlockRegistry(void);
 
 /*****************************************************************************/
 /**
@@ -319,7 +315,8 @@ int32   CFE_TBL_UnlockRegistry(void);
 **           are legitimate.
 **
 ** \param[in, out]  WorkingBufferPtr  Pointer to variable that will contain the
-**                               address of the first byte of the working buffer. *WorkingBufferPtr is the address of the first byte of the working buffer
+**                                    address of the first byte of the working buffer. *WorkingBufferPtr is the address
+**                                    of the first byte of the working buffer
 **
 ** \param[in]  RegRecPtr         Pointer to Table Registry Entry for Table for whom
 **                               a working buffer is to be obtained
@@ -327,16 +324,14 @@ int32   CFE_TBL_UnlockRegistry(void);
 ** \param[in]  CalledByApp       Boolean that identifies whether this internal API
 **                               function is being called by a user Application (true)
 **                               or by the Table Services Application (false)
-** 
+**
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copydoc CFE_TBL_ERR_NO_BUFFER_AVAIL                     
+** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copydoc CFE_TBL_ERR_NO_BUFFER_AVAIL
 **
 ******************************************************************************/
-int32   CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
-                                 CFE_TBL_RegistryRec_t *RegRecPtr,
-                                 bool CalledByApp);
-                                 
+int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                               bool CalledByApp);
 
 /*****************************************************************************/
 /**
@@ -356,31 +351,30 @@ int32   CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr,
 **
 ** \param[in]  RegRecPtr        Pointer to Table Registry record for table whose
 **                              buffer is to filled with data from the specified file
-** 
+**
 ** \param[in]  Filename         Pointer to ASCII string containing full path and filename
 **                              of table image file to be loaded
 **
 ** \retval #CFE_SUCCESS                      \copydoc CFE_SUCCESS
-** \retval #OS_INVALID_POINTER               \copydoc OS_INVALID_POINTER      
-** \retval #OS_FS_ERR_PATH_TOO_LONG          \copydoc OS_FS_ERR_PATH_TOO_LONG      
-** \retval #OS_FS_ERR_PATH_INVALID           \copydoc OS_FS_ERR_PATH_INVALID      
-** \retval #OS_FS_ERR_NAME_TOO_LONG          \copydoc OS_FS_ERR_NAME_TOO_LONG      
-** \retval #OS_ERR_NO_FREE_IDS               \copydoc OS_ERR_NO_FREE_IDS      
-** \retval #OS_ERROR                         \copydoc OS_ERROR      
-** \retval #CFE_TBL_ERR_FILE_TOO_LARGE       \copydoc CFE_TBL_ERR_FILE_TOO_LARGE      
-** \retval #CFE_TBL_WARN_SHORT_FILE          \copydoc CFE_TBL_WARN_SHORT_FILE         
-** \retval #CFE_TBL_WARN_PARTIAL_LOAD        \copydoc CFE_TBL_WARN_PARTIAL_LOAD       
-** \retval #CFE_TBL_ERR_FILENAME_TOO_LONG    \copydoc CFE_TBL_ERR_FILENAME_TOO_LONG   
+** \retval #OS_INVALID_POINTER               \copydoc OS_INVALID_POINTER
+** \retval #OS_FS_ERR_PATH_TOO_LONG          \copydoc OS_FS_ERR_PATH_TOO_LONG
+** \retval #OS_FS_ERR_PATH_INVALID           \copydoc OS_FS_ERR_PATH_INVALID
+** \retval #OS_FS_ERR_NAME_TOO_LONG          \copydoc OS_FS_ERR_NAME_TOO_LONG
+** \retval #OS_ERR_NO_FREE_IDS               \copydoc OS_ERR_NO_FREE_IDS
+** \retval #OS_ERROR                         \copydoc OS_ERROR
+** \retval #CFE_TBL_ERR_FILE_TOO_LARGE       \copydoc CFE_TBL_ERR_FILE_TOO_LARGE
+** \retval #CFE_TBL_WARN_SHORT_FILE          \copydoc CFE_TBL_WARN_SHORT_FILE
+** \retval #CFE_TBL_WARN_PARTIAL_LOAD        \copydoc CFE_TBL_WARN_PARTIAL_LOAD
+** \retval #CFE_TBL_ERR_FILENAME_TOO_LONG    \copydoc CFE_TBL_ERR_FILENAME_TOO_LONG
 ** \retval #CFE_TBL_ERR_FILE_FOR_WRONG_TABLE \copydoc CFE_TBL_ERR_FILE_FOR_WRONG_TABLE
-** \retval #CFE_TBL_ERR_NO_STD_HEADER        \copydoc CFE_TBL_ERR_NO_STD_HEADER       
-** \retval #CFE_TBL_ERR_NO_TBL_HEADER        \copydoc CFE_TBL_ERR_NO_TBL_HEADER       
-** \retval #CFE_TBL_ERR_BAD_CONTENT_ID       \copydoc CFE_TBL_ERR_BAD_CONTENT_ID      
-** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID       \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID      
-**                     
+** \retval #CFE_TBL_ERR_NO_STD_HEADER        \copydoc CFE_TBL_ERR_NO_STD_HEADER
+** \retval #CFE_TBL_ERR_NO_TBL_HEADER        \copydoc CFE_TBL_ERR_NO_TBL_HEADER
+** \retval #CFE_TBL_ERR_BAD_CONTENT_ID       \copydoc CFE_TBL_ERR_BAD_CONTENT_ID
+** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID       \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID
+**
 ******************************************************************************/
-int32   CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, 
-                             CFE_TBL_RegistryRec_t *RegRecPtr, const char *Filename);
-
+int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
+                           const char *Filename);
 
 /*****************************************************************************/
 /**
@@ -397,17 +391,15 @@ int32   CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuf
 **           is called.
 **
 ** \param[in]  TblHandle      Handle of Table to be updated.
-** 
+**
 ** \param[in]  RegRecPtr      Pointer to Table Registry Entry for table to be updated
 **
 ** \param[in]  AccessDescPtr  Pointer to appropriate access descriptor for table-application interface
 **
-** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS                     
+** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ******************************************************************************/
-int32   CFE_TBL_UpdateInternal( CFE_TBL_Handle_t TblHandle, 
-                                CFE_TBL_RegistryRec_t *RegRecPtr,
-                                CFE_TBL_AccessDescriptor_t *AccessDescPtr );
-
+int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
+                             CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
 /*****************************************************************************/
 /**
@@ -423,8 +415,7 @@ int32   CFE_TBL_UpdateInternal( CFE_TBL_Handle_t TblHandle,
 **
 ** \param[in]  RegRecPtr      Pointer to Table Registry Entry for table to be updated
 ******************************************************************************/
-void   CFE_TBL_NotifyTblUsersOfUpdate( CFE_TBL_RegistryRec_t *RegRecPtr );
-
+void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*****************************************************************************/
 /**
@@ -439,33 +430,31 @@ void   CFE_TBL_NotifyTblUsersOfUpdate( CFE_TBL_RegistryRec_t *RegRecPtr );
 **        -# FileDescriptor is assumed to be valid
 **
 ** \param[in]  FileDescriptor    File Descriptor, as provided by OS_fopen
-** 
+**
 ** \param[in, out]  StdFileHeaderPtr  Pointer to buffer to be filled with the contents
-**                               of the file's standard cFE Header. *StdFileHeaderPtr is the contents of the standard cFE File Header
+**                                    of the file's standard cFE Header. *StdFileHeaderPtr is the contents of the
+**                                    standard cFE File Header
 **
 ** \param[in, out]  TblFileHeaderPtr  Pointer to buffer to be filled with the contents
-**                               of the file's standard cFE Table Header. *TblFileHeaderPtr is the contents of the standard cFE Table File Header
+**                                    of the file's standard cFE Table Header. *TblFileHeaderPtr is the contents of the
+**                                    standard cFE Table File Header
 **
 ** \param[in]  LoadFilename      Pointer to character string containing full path
 **                               and filename of table image to be loaded
-** 
+**
 **
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_NO_STD_HEADER       \copydoc CFE_TBL_ERR_NO_STD_HEADER 
-** \retval #CFE_TBL_ERR_NO_TBL_HEADER       \copydoc CFE_TBL_ERR_NO_TBL_HEADER 
+** \retval #CFE_TBL_ERR_NO_STD_HEADER       \copydoc CFE_TBL_ERR_NO_STD_HEADER
+** \retval #CFE_TBL_ERR_NO_TBL_HEADER       \copydoc CFE_TBL_ERR_NO_TBL_HEADER
 ** \retval #CFE_TBL_ERR_BAD_CONTENT_ID      \copydoc CFE_TBL_ERR_BAD_CONTENT_ID
 ** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID      \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID
 ** \retval #CFE_TBL_ERR_BAD_SPACECRAFT_ID   \copydoc CFE_TBL_ERR_BAD_SPACECRAFT_ID
 ** \retval #CFE_TBL_ERR_BAD_PROCESSOR_ID    \copydoc CFE_TBL_ERR_BAD_PROCESSOR_ID
-**                     
+**
 ******************************************************************************/
-int32 CFE_TBL_ReadHeaders( osal_id_t FileDescriptor,
-                           CFE_FS_Header_t *StdFileHeaderPtr, 
-                           CFE_TBL_File_Hdr_t *TblFileHeaderPtr,
-                           const char *LoadFilename );
-
-
+int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
+                          CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename);
 
 /*****************************************************************************/
 /**
@@ -478,8 +467,7 @@ int32 CFE_TBL_ReadHeaders( osal_id_t FileDescriptor,
 **        -# This function is intended to be called before populating a table registry record
 **
 ******************************************************************************/
-void CFE_TBL_InitRegistryRecord (CFE_TBL_RegistryRec_t *RegRecPtr);
-
+void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 /*****************************************************************************/
 /**
@@ -493,11 +481,10 @@ void CFE_TBL_InitRegistryRecord (CFE_TBL_RegistryRec_t *RegRecPtr);
 **          None
 **
 ** \param[in, out]  HdrPtr   Pointer to table header that needs to be swapped. *HdrPtr provides the swapped header
-** 
-**                     
+**
+**
 ******************************************************************************/
 void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr);
-
 
 /*****************************************************************************/
 /**
@@ -517,14 +504,13 @@ void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr);
 **                               the start address of the located Critical Table Registry
 **                               Record. *CritRegRecPtr is the pointer to the start address of the located Critical
 **                               Table Registry Record.  \c NULL if the record is not
-**                               found. 
+**                               found.
 **
 ** \param[in]  CDSHandleToFind   CDS Handle to be located in Critical Table Registry.
-** 
+**
 **
 ******************************************************************************/
 void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CDSHandle_t CDSHandleToFind);
-
 
 /*****************************************************************************/
 /**
@@ -541,11 +527,10 @@ void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CD
 **
 ** \param[in]  RegRecPtr Pointer to Registry Record of Critical Table whose CDS
 **                       needs to be updated.
-** 
-**                     
+**
+**
 ******************************************************************************/
 void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
-
 
 /*****************************************************************************/
 /**
@@ -561,8 +546,8 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 **          None
 **
 ** \param[in]  RegRecPtr Pointer to Registry Record of Table whose owner needs notifying.
-** 
-**                     
+**
+**
 ******************************************************************************/
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 
@@ -589,15 +574,13 @@ extern void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
  * These callbacks are used with the FS background write request API
  * and are implemented per that specification.
  */
-void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position);
+void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
+                                      size_t BlockSize, size_t Position);
 bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
-
 
 /*
 ** Globals specific to the TBL module
 */
 extern CFE_TBL_Global_t CFE_TBL_Global;
-
-
 
 #endif /* CFE_TBL_INTERNAL_H */

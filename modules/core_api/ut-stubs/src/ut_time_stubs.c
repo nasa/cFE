@@ -23,7 +23,7 @@
 **
 ** Purpose:
 ** Unit test stubs for Time routines
-** 
+**
 ** Notes:
 ** Minimal work is done, only what is required for unit testing
 **
@@ -105,10 +105,7 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
     UT_Stub_RegisterContext(UT_KEY(CFE_TIME_Print), PrintBuffer);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Print), TimeToPrint);
 
-    snprintf(PrintBuffer,
-             CFE_TIME_PRINTED_STRING_SIZE,
-             "UT %u.%u -",
-             (unsigned int)TimeToPrint.Seconds,
+    snprintf(PrintBuffer, CFE_TIME_PRINTED_STRING_SIZE, "UT %u.%u -", (unsigned int)TimeToPrint.Seconds,
              (unsigned int)TimeToPrint.Subseconds);
 
     UT_DEFAULT_IMPL(CFE_TIME_Print);
@@ -132,15 +129,15 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 ******************************************************************************/
 CFE_TIME_SysTime_t CFE_TIME_GetTime(void)
 {
-    static CFE_TIME_SysTime_t SimTime = { 0 };
-    CFE_TIME_SysTime_t Result = { 0 };
-    int32 status;
+    static CFE_TIME_SysTime_t SimTime = {0};
+    CFE_TIME_SysTime_t        Result  = {0};
+    int32                     status;
 
     status = UT_DEFAULT_IMPL(CFE_TIME_GetTime);
 
     if (status >= 0)
     {
-        if (UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_GetTime), (uint8*)&Result, sizeof(Result)) < sizeof(Result))
+        if (UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_GetTime), (uint8 *)&Result, sizeof(Result)) < sizeof(Result))
         {
             SimTime.Seconds++;
             SimTime.Subseconds++;
@@ -180,8 +177,7 @@ int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
     return status;
 }
 
-
-CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB)
+CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Compare), TimeA);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Compare), TimeB);
@@ -189,24 +185,24 @@ CFE_TIME_Compare_t  CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_
     int32 status;
 
     status = UT_DEFAULT_IMPL(CFE_TIME_Compare);
-    
-    return (CFE_TIME_Compare_t) status;
+
+    return (CFE_TIME_Compare_t)status;
 }
 
-CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
+CFE_TIME_SysTime_t CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Add), Time1);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Add), Time2);
 
-    static CFE_TIME_SysTime_t SimTime = { 0 };
-    CFE_TIME_SysTime_t Result = { 0 };
-    int32 status;
+    static CFE_TIME_SysTime_t SimTime = {0};
+    CFE_TIME_SysTime_t        Result  = {0};
+    int32                     status;
 
     status = UT_DEFAULT_IMPL(CFE_TIME_Add);
 
     if (status >= 0)
     {
-        if (UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_Add), (uint8*)&Result, sizeof(Result)) < sizeof(Result))
+        if (UT_Stub_CopyToLocal(UT_KEY(CFE_TIME_Add), (uint8 *)&Result, sizeof(Result)) < sizeof(Result))
         {
             SimTime.Seconds++;
             SimTime.Subseconds++;
@@ -217,7 +213,7 @@ CFE_TIME_SysTime_t  CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Ti
     return Result;
 }
 
-uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
+uint32 CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Sub2MicroSecs), SubSeconds);
 
@@ -225,7 +221,7 @@ uint32  CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
 
     status = UT_DEFAULT_IMPL(CFE_TIME_Sub2MicroSecs);
 
-    return (uint32) status;
+    return (uint32)status;
 }
 
 int32 CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)
@@ -295,8 +291,8 @@ int16 CFE_TIME_GetLeapSeconds(void)
 
 CFE_TIME_SysTime_t CFE_TIME_GetMET(void)
 {
-    int32 status;
-    CFE_TIME_SysTime_t Result = { 0 };
+    int32              status;
+    CFE_TIME_SysTime_t Result = {0};
 
     status = UT_DEFAULT_IMPL(CFE_TIME_GetMET);
     if (status == 0)
@@ -327,8 +323,8 @@ uint32 CFE_TIME_GetMETsubsecs(void)
 
 CFE_TIME_SysTime_t CFE_TIME_GetSTCF(void)
 {
-    int32 status;
-    CFE_TIME_SysTime_t Result = { 0 };
+    int32              status;
+    CFE_TIME_SysTime_t Result = {0};
 
     status = UT_DEFAULT_IMPL(CFE_TIME_GetSTCF);
     if (status == 0)
@@ -341,8 +337,8 @@ CFE_TIME_SysTime_t CFE_TIME_GetSTCF(void)
 
 CFE_TIME_SysTime_t CFE_TIME_GetTAI(void)
 {
-    int32 status;
-    CFE_TIME_SysTime_t Result = { 0 };
+    int32              status;
+    CFE_TIME_SysTime_t Result = {0};
 
     status = UT_DEFAULT_IMPL(CFE_TIME_GetTAI);
     if (status == 0)
@@ -355,8 +351,8 @@ CFE_TIME_SysTime_t CFE_TIME_GetTAI(void)
 
 CFE_TIME_SysTime_t CFE_TIME_GetUTC(void)
 {
-    int32 status;
-    CFE_TIME_SysTime_t Result = { 0 };
+    int32              status;
+    CFE_TIME_SysTime_t Result = {0};
 
     status = UT_DEFAULT_IMPL(CFE_TIME_GetUTC);
     if (status == 0)
@@ -371,8 +367,8 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime(CFE_TIME_SysTime_t METTime)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_MET2SCTime), METTime);
 
-    int32 status;
-    CFE_TIME_SysTime_t Result = { 0 };
+    int32              status;
+    CFE_TIME_SysTime_t Result = {0};
 
     status = UT_DEFAULT_IMPL(CFE_TIME_MET2SCTime);
     if (status == 0)
@@ -410,8 +406,8 @@ CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Subtract), Time1);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_TIME_Subtract), Time2);
 
-    int32 status;
-    CFE_TIME_SysTime_t Result = { 0 };
+    int32              status;
+    CFE_TIME_SysTime_t Result = {0};
 
     status = UT_DEFAULT_IMPL(CFE_TIME_Subtract);
     if (status == 0)
@@ -421,4 +417,3 @@ CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_
 
     return Result;
 }
-

@@ -4,8 +4,8 @@
 # In this sample application, the cross toolchain is configured to
 # use a compiler for the RTEMS operating system targeting the "pc686" BSP
 
-# Note that to use this, the "RTEMS" platform module may need to be added 
-# to the system-wide CMake installation as a default CMake does not yet 
+# Note that to use this, the "RTEMS" platform module may need to be added
+# to the system-wide CMake installation as a default CMake does not yet
 # recognize RTEMS as a system name.  An example of this is distributed with
 # the pc-rtems PSP.
 

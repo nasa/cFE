@@ -51,148 +51,87 @@
 ** Note: The name field in this table should be no more than OS_MAX_API_NAME -1 characters.
 **
 */
-CFE_ES_ObjectTable_t  CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE] =
-{
-   /*
-   ** Spare entries -- The spares should be distributed evenly through this table
-   */
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   
-   /*
-   ** cFE core early initialization calls. These must be done before the tasks start
-   */
-   {
-           .ObjectType = CFE_ES_FUNCTION_CALL,
-           .ObjectName = "CFE_ES_CDSEarlyInit",
-           .FuncPtrUnion.FunctionPtr = CFE_ES_CDS_EarlyInit
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_FUNCTION_CALL,
-           .ObjectName = "CFE_EVS_EarlyInit",
-           .FuncPtrUnion.FunctionPtr = CFE_EVS_EarlyInit
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_FUNCTION_CALL,
-           .ObjectName = "CFE_SB_EarlyInit",
-           .FuncPtrUnion.FunctionPtr = CFE_SB_EarlyInit
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_FUNCTION_CALL,
-           .ObjectName = "CFE_TIME_EarlyInit",
-           .FuncPtrUnion.FunctionPtr = CFE_TIME_EarlyInit
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY },
-   {
-           .ObjectType = CFE_ES_FUNCTION_CALL,
-           .ObjectName = "CFE_TBL_EarlyInit",
-           .FuncPtrUnion.FunctionPtr = CFE_TBL_EarlyInit
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_FUNCTION_CALL,
-           .ObjectName = "CFE_FS_EarlyInit",
-           .FuncPtrUnion.FunctionPtr = CFE_FS_EarlyInit
-   },
+CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE] = {
+    /*
+    ** Spare entries -- The spares should be distributed evenly through this table
+    */
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
 
+    /*
+    ** cFE core early initialization calls. These must be done before the tasks start
+    */
+    {.ObjectType               = CFE_ES_FUNCTION_CALL,
+     .ObjectName               = "CFE_ES_CDSEarlyInit",
+     .FuncPtrUnion.FunctionPtr = CFE_ES_CDS_EarlyInit},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType               = CFE_ES_FUNCTION_CALL,
+     .ObjectName               = "CFE_EVS_EarlyInit",
+     .FuncPtrUnion.FunctionPtr = CFE_EVS_EarlyInit},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType               = CFE_ES_FUNCTION_CALL,
+     .ObjectName               = "CFE_SB_EarlyInit",
+     .FuncPtrUnion.FunctionPtr = CFE_SB_EarlyInit},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType               = CFE_ES_FUNCTION_CALL,
+     .ObjectName               = "CFE_TIME_EarlyInit",
+     .FuncPtrUnion.FunctionPtr = CFE_TIME_EarlyInit},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType               = CFE_ES_FUNCTION_CALL,
+     .ObjectName               = "CFE_TBL_EarlyInit",
+     .FuncPtrUnion.FunctionPtr = CFE_TBL_EarlyInit},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType               = CFE_ES_FUNCTION_CALL,
+     .ObjectName               = "CFE_FS_EarlyInit",
+     .FuncPtrUnion.FunctionPtr = CFE_FS_EarlyInit},
 
-   /*
-   ** Spare entries
-   */
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
+    /*
+    ** Spare entries
+    */
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
 
-   /*
-   ** cFE core tasks
-   */
-   {
-           .ObjectType = CFE_ES_CORE_TASK,
-           .ObjectName = "CFE_EVS",
-           .FuncPtrUnion.MainTaskPtr = CFE_EVS_TaskMain,
-           .ObjectPriority = CFE_PLATFORM_EVS_START_TASK_PRIORITY,
-           .ObjectSize = CFE_PLATFORM_EVS_START_TASK_STACK_SIZE
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_CORE_TASK,
-           .ObjectName = "CFE_SB",
-           .FuncPtrUnion.MainTaskPtr = CFE_SB_TaskMain,
-           .ObjectPriority = CFE_PLATFORM_SB_START_TASK_PRIORITY,
-           .ObjectSize = CFE_PLATFORM_SB_START_TASK_STACK_SIZE
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_CORE_TASK,
-           .ObjectName = "CFE_ES",
-           .FuncPtrUnion.MainTaskPtr = CFE_ES_TaskMain,
-           .ObjectPriority = CFE_PLATFORM_ES_START_TASK_PRIORITY,
-           .ObjectSize = CFE_PLATFORM_ES_START_TASK_STACK_SIZE
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_CORE_TASK,
-           .ObjectName = "CFE_TIME",
-           .FuncPtrUnion.MainTaskPtr = CFE_TIME_TaskMain,
-           .ObjectPriority = CFE_PLATFORM_TIME_START_TASK_PRIORITY,
-           .ObjectSize = CFE_PLATFORM_TIME_START_TASK_STACK_SIZE
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_CORE_TASK,
-           .ObjectName = "CFE_TBL",
-           .FuncPtrUnion.MainTaskPtr = CFE_TBL_TaskMain,
-           .ObjectPriority = CFE_PLATFORM_TBL_START_TASK_PRIORITY,
-           .ObjectSize = CFE_PLATFORM_TBL_START_TASK_STACK_SIZE
-   },
+    /*
+    ** cFE core tasks
+    */
+    {.ObjectType               = CFE_ES_CORE_TASK,
+     .ObjectName               = "CFE_EVS",
+     .FuncPtrUnion.MainTaskPtr = CFE_EVS_TaskMain,
+     .ObjectPriority           = CFE_PLATFORM_EVS_START_TASK_PRIORITY,
+     .ObjectSize               = CFE_PLATFORM_EVS_START_TASK_STACK_SIZE},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType               = CFE_ES_CORE_TASK,
+     .ObjectName               = "CFE_SB",
+     .FuncPtrUnion.MainTaskPtr = CFE_SB_TaskMain,
+     .ObjectPriority           = CFE_PLATFORM_SB_START_TASK_PRIORITY,
+     .ObjectSize               = CFE_PLATFORM_SB_START_TASK_STACK_SIZE},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType               = CFE_ES_CORE_TASK,
+     .ObjectName               = "CFE_ES",
+     .FuncPtrUnion.MainTaskPtr = CFE_ES_TaskMain,
+     .ObjectPriority           = CFE_PLATFORM_ES_START_TASK_PRIORITY,
+     .ObjectSize               = CFE_PLATFORM_ES_START_TASK_STACK_SIZE},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType               = CFE_ES_CORE_TASK,
+     .ObjectName               = "CFE_TIME",
+     .FuncPtrUnion.MainTaskPtr = CFE_TIME_TaskMain,
+     .ObjectPriority           = CFE_PLATFORM_TIME_START_TASK_PRIORITY,
+     .ObjectSize               = CFE_PLATFORM_TIME_START_TASK_STACK_SIZE},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType               = CFE_ES_CORE_TASK,
+     .ObjectName               = "CFE_TBL",
+     .FuncPtrUnion.MainTaskPtr = CFE_TBL_TaskMain,
+     .ObjectPriority           = CFE_PLATFORM_TBL_START_TASK_PRIORITY,
+     .ObjectSize               = CFE_PLATFORM_TBL_START_TASK_STACK_SIZE},
 
-   /*
-   ** Spare entries
-   */
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   },
-   {
-           .ObjectType = CFE_ES_NULL_ENTRY
-   }
+    /*
+    ** Spare entries
+    */
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType = CFE_ES_NULL_ENTRY},
+    {.ObjectType = CFE_ES_NULL_ENTRY}
 
 };

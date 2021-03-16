@@ -27,7 +27,7 @@
 #define CFE_SB_DESTINATION_TYPEDEF_H_
 
 #include "common_types.h"
-#include "cfe_sb_extern_typedefs.h"  /* Required for CFE_SB_PipeId_t definition */
+#include "cfe_sb_extern_typedefs.h" /* Required for CFE_SB_PipeId_t definition */
 
 /******************************************************************************
  * This structure defines a DESTINATION DESCRIPTOR used to specify
@@ -38,15 +38,15 @@
  */
 typedef struct
 {
-     CFE_SB_PipeId_t PipeId;
-     uint8           Active;
-     uint16          MsgId2PipeLim;
-     uint16          BuffCount;
-     uint16          DestCnt;
-     uint8           Scope;
-     uint8           Spare[3];
-     void            *Prev;
-     void            *Next;
+    CFE_SB_PipeId_t PipeId;
+    uint8           Active;
+    uint16          MsgId2PipeLim;
+    uint16          BuffCount;
+    uint16          DestCnt;
+    uint8           Scope;
+    uint8           Spare[3];
+    void *          Prev;
+    void *          Next;
 } CFE_SB_DestinationD_t;
 
 #endif /* CFE_SB_DESTINATION_TYPEDEF_H_ */

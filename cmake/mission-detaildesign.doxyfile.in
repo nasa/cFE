@@ -24,10 +24,10 @@ INPUT                 += @MISSION_DEFS@  \
                          @MISSION_SOURCE_DIR@/cfe/modules/sbr/fsw \
                          @MISSION_SOURCE_DIR@/cfe/modules/tbl/fsw \
                          @MISSION_SOURCE_DIR@/cfe/modules/time/fsw
-                         
+
 STRIP_FROM_PATH       += @MISSION_DEFS@
 
 #---------------------------------------------------------------------------
-# The user content doxyfile contains paths to the mission-specific applications   
+# The user content doxyfile contains paths to the mission-specific applications
 #---------------------------------------------------------------------------
 @INCLUDE               = @CMAKE_BINARY_DIR@/doc/mission-content.doxyfile

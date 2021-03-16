@@ -7,7 +7,7 @@
 project(CFE_FS C)
 
 # File services source files
-set(fs_SOURCES 
+set(fs_SOURCES
     fsw/src/cfe_fs_api.c
     fsw/src/cfe_fs_priv.c
     fsw/src/cfe_fs_api.c

@@ -26,7 +26,7 @@
  *
  * A CFE ES Resource ID is a common way to identify CFE-managed resources such
  * as apps, tasks, counters, memory pools, CDS blocks, and other entities.
- * 
+ *
  * Simple operations are provided as inline functions, which
  * should alleviate the need to do direct manipulation of resource IDs:
  *
@@ -41,7 +41,7 @@
 
 /*
  * The basic resource ID typedef
- * 
+ *
  * This is provided via the external resourceid library
  * and may be customized by the user/mission preferences.
  */
@@ -54,7 +54,6 @@
 /** \name Resource ID predefined values */
 /** \{ */
 
-
 /**
  * @brief A resource ID value that represents an undefined/unused resource
  *
@@ -65,7 +64,7 @@
  * type via standard functions like memset(), such that objects initialized
  * using this method will also be set to safe values.
  */
-#define CFE_RESOURCEID_UNDEFINED     ((CFE_ResourceId_t) CFE_RESOURCEID_WRAP(0))
+#define CFE_RESOURCEID_UNDEFINED ((CFE_ResourceId_t)CFE_RESOURCEID_WRAP(0))
 
 /**
  * @brief A resource ID value that represents a reserved entry
@@ -74,9 +73,8 @@
  * table entries that are not available for use.  For instance, this may
  * be used while setting up an entry initially.
  */
-#define CFE_RESOURCEID_RESERVED      ((CFE_ResourceId_t) CFE_RESOURCEID_WRAP(0xFFFFFFFF))
+#define CFE_RESOURCEID_RESERVED ((CFE_ResourceId_t)CFE_RESOURCEID_WRAP(0xFFFFFFFF))
 
 /** \} */
 
-
-#endif  /* CFE_RESOURCEID_API_TYPEDEFS_H */
+#endif /* CFE_RESOURCEID_API_TYPEDEFS_H */

@@ -39,11 +39,10 @@
 #define CFE_TBL_API_H
 
 /********************* Include Files  ************************/
-#include "common_types.h"  /* Basic Data Types */
+#include "common_types.h" /* Basic Data Types */
 #include "cfe_error.h"
 #include "cfe_tbl_api_typedefs.h"
 #include "cfe_sb_api_typedefs.h"
-
 
 /*************************** Function Prototypes ******************************/
 
@@ -56,114 +55,120 @@
 ** \brief Register a table with cFE to obtain Table Management Services
 **
 ** \par Description
-**          When an application is created and initialized, it is responsible for creating its table images via 
-**          the TBL API.  The application must inform the Table Service of the table name, table size and selection 
+**          When an application is created and initialized, it is responsible for creating its table images via
+**          the TBL API.  The application must inform the Table Service of the table name, table size and selection
 **          of optional table features.
 **
 ** \par Assumptions, External Events, and Notes:
-**          Note: This function call can block.  Therefore, interrupt service routines should NOT create 
-**                their own tables.  An application should create any table(s) and provide the handle(s) 
+**          Note: This function call can block.  Therefore, interrupt service routines should NOT create
+**                their own tables.  An application should create any table(s) and provide the handle(s)
 **                to the interrupt service routine.
 **
-** \param[in, out] TblHandlePtr         a pointer to a #CFE_TBL_Handle_t type variable that will be assigned the 
-**                                 table's handle.  The table handle is required for other API calls when 
-**                                 accessing the data contained in the table. *TblHandlePtr is the handle used to identify table to cFE when performing Table operations.
-**                                 This value is returned at the address specified by TblHandlePtr.
+** \param[in, out] TblHandlePtr    a pointer to a #CFE_TBL_Handle_t type variable that will be assigned the table's
+**                                 handle.  The table handle is required for other API calls when accessing the data
+**                                 contained in the table. *TblHandlePtr is the handle used to identify table to cFE
+**                                 when performing Table operations. This value is returned at  ddress specified by
+**                                 TblHandlePtr.
 **
-** \param[in] Name                 The application-specific name.  This name will be combined with the name of the 
-**                                 application to produce a processor specific name of the form 
-**                                 "ApplicationName.TableName".  The processor specific name will be used in commands 
+** \param[in] Name                 The application-specific name.  This name will be combined with the name of the
+**                                 application to produce a processor specific name of the form
+**                                 "ApplicationName.TableName".  The processor specific name will be used in commands
 **                                 for modifying or viewing the contents of the table.
 **
-** \param[in] Size                 The size, in bytes, of the table to be created.  This is the size that will be 
-**                                 allocated as a shared memory resource between the Table Management Service and 
+** \param[in] Size                 The size, in bytes, of the table to be created.  This is the size that will be
+**                                 allocated as a shared memory resource between the Table Management Service and
 **                                 the calling application.
 **
-** \param[in] TblOptionFlags       Flag bits indicating selected options for table.  A bitwise OR of the following 
+** \param[in] TblOptionFlags       Flag bits indicating selected options for table.  A bitwise OR of the following
 **                                 option flags:
-**                                 \arg #CFE_TBL_OPT_DEFAULT     - The default setting for table options is a 
-**                                                                 combination of #CFE_TBL_OPT_SNGL_BUFFER and 
-**                                                                 #CFE_TBL_OPT_LOAD_DUMP.  See below for a 
-**                                                                 description of these two options.  This option 
-**                                                                 is mutually exclusive with the 
-**                                                                 #CFE_TBL_OPT_DBL_BUFFER, #CFE_TBL_OPT_DUMP_ONLY 
+**                                 \arg #CFE_TBL_OPT_DEFAULT     - The default setting for table options is a
+**                                                                 combination of #CFE_TBL_OPT_SNGL_BUFFER and
+**                                                                 #CFE_TBL_OPT_LOAD_DUMP.  See below for a
+**                                                                 description of these two options.  This option
+**                                                                 is mutually exclusive with the
+**                                                                 #CFE_TBL_OPT_DBL_BUFFER, #CFE_TBL_OPT_DUMP_ONLY
 **                                                                 and #CFE_TBL_OPT_USR_DEF_ADDR options.
-**                                 \arg #CFE_TBL_OPT_SNGL_BUFFER - When this option is selected, the table will use 
-**                                                                 a shared session table for performing table 
-**                                                                 modifications and a memory copy from the session 
-**                                                                 table to the "active" table buffer will occur 
-**                                                                 when the table is updated.  This is the preferred 
-**                                                                 option since it will minimize memory usage.  
-**                                                                 This option is mutually exclusive with the 
+**                                 \arg #CFE_TBL_OPT_SNGL_BUFFER - When this option is selected, the table will use
+**                                                                 a shared session table for performing table
+**                                                                 modifications and a memory copy from the session
+**                                                                 table to the "active" table buffer will occur
+**                                                                 when the table is updated.  This is the preferred
+**                                                                 option since it will minimize memory usage.
+**                                                                 This option is mutually exclusive with the
 **                                                                 #CFE_TBL_OPT_DBL_BUFFER option
-**                                 \arg #CFE_TBL_OPT_DBL_BUFFER  - When this option is selected, two instances of 
-**                                                                 the table are created.   One is considered the 
+**                                 \arg #CFE_TBL_OPT_DBL_BUFFER  - When this option is selected, two instances of
+**                                                                 the table are created.   One is considered the
 **                                                                 "active" table and the other the "inactive" table.
-**                                                                 Whenever table modifications occur, they do not 
-**                                                                 require the use of a common session table.  
-**                                                                 Modifications occur in the "inactive" buffer.  
-**                                                                 Then, when it is time to update the table, 
-**                                                                 the pointer to the "active" table is changed to 
-**                                                                 point to the "inactive" buffer thus making it 
-**                                                                 the new "active" buffer.  This feature is most 
-**                                                                 useful for time critical applications (ie - 
-**                                                                 interrupt service routines, etc).  This option is 
-**                                                                 mutually exclusive with the 
-**                                                                 #CFE_TBL_OPT_SNGL_BUFFER and #CFE_TBL_OPT_DEFAULT 
+**                                                                 Whenever table modifications occur, they do not
+**                                                                 require the use of a common session table.
+**                                                                 Modifications occur in the "inactive" buffer.
+**                                                                 Then, when it is time to update the table,
+**                                                                 the pointer to the "active" table is changed to
+**                                                                 point to the "inactive" buffer thus making it
+**                                                                 the new "active" buffer.  This feature is most
+**                                                                 useful for time critical applications (ie -
+**                                                                 interrupt service routines, etc).  This option is
+**                                                                 mutually exclusive with the
+**                                                                 #CFE_TBL_OPT_SNGL_BUFFER and #CFE_TBL_OPT_DEFAULT
 **                                                                 option.
-**                                 \arg #CFE_TBL_OPT_LOAD_DUMP   - When this option is selected, the Table Service 
-**                                                                 is allowed to perform all operations on the 
-**                                                                 specified table.  This option is mutually 
+**                                 \arg #CFE_TBL_OPT_LOAD_DUMP   - When this option is selected, the Table Service
+**                                                                 is allowed to perform all operations on the
+**                                                                 specified table.  This option is mutually
 **                                                                 exclusive with the #CFE_TBL_OPT_DUMP_ONLY option.
-**                                 \arg #CFE_TBL_OPT_DUMP_ONLY   - When this option is selected, the Table Service 
-**                                                                 will not perform table loads to this table.  This 
-**                                                                 does not prevent, however, a task from writing 
-**                                                                 to the table via an address obtained with the 
-**                                                                 #CFE_TBL_GetAddress API function.  This option is 
+**                                 \arg #CFE_TBL_OPT_DUMP_ONLY   - When this option is selected, the Table Service
+**                                                                 will not perform table loads to this table.  This
+**                                                                 does not prevent, however, a task from writing
+**                                                                 to the table via an address obtained with the
+**                                                                 #CFE_TBL_GetAddress API function.  This option is
 **                                                                 mutually exclusive with the #CFE_TBL_OPT_LOAD_DUMP
-**                                                                 and #CFE_TBL_OPT_DEFAULT options. If the Application wishes
-**                                                                 to specify their own block of memory as the Dump Only table,
-**                                                                 they need to also include the #CFE_TBL_OPT_USR_DEF_ADDR option
-**                                                                 explained below.
-**                                 \arg #CFE_TBL_OPT_NOT_USR_DEF - When this option is selected, Table Services allocates
-**                                                                 memory for the table and, in the case of a double buffered
-**                                                                 table, it allocates the same amount of memory again for the
-**                                                                 second buffer.  This option is mutually exclusive with
-**                                                                 the #CFE_TBL_OPT_USR_DEF_ADDR option.
-**                                 \arg #CFE_TBL_OPT_USR_DEF_ADDR- When this option is selected, the Table Service 
-**                                                                 will not allocate memory for the table.  Table Services
-**                                                                 will require the Application to identify the location of the
-**                                                                 active table buffer via the #CFE_TBL_Load function. This 
-**                                                                 option implies the #CFE_TBL_OPT_DUMP_ONLY and the 
-**                                                                 #CFE_TBL_OPT_SNGL_BUFFER options and is mutually 
+**                                                                 and #CFE_TBL_OPT_DEFAULT options. If the Application
+**                                                                 wishes to specify their own block of memory as the
+**                                                                 Dump Only table, they need to also include the
+**                                                                 #CFE_TBL_OPT_USR_DEF_ADDR option explained below.
+**                                 \arg #CFE_TBL_OPT_NOT_USR_DEF - When this option is selected, Table Services
+**                                                                 allocates memory for the table and, in the case of a
+**                                                                 double buffered table, it allocates the same amount
+**                                                                 of memory again for the second buffer.  This option
+**                                                                 is mutually exclusive with the
+**                                                                 #CFE_TBL_OPT_USR_DEF_ADDR option.
+**                                 \arg #CFE_TBL_OPT_USR_DEF_ADDR- When this option is selected, the Table Service
+**                                                                 will not allocate memory for the table.  Table
+**                                                                 Services will require the Application to identify
+**                                                                 the location of the active table buffer via the
+**                                                                 #CFE_TBL_Load function. This option implies the
+**                                                                 #CFE_TBL_OPT_DUMP_ONLY and the
+**                                                                 #CFE_TBL_OPT_SNGL_BUFFER options and is mutually
 **                                                                 exclusive of the #CFE_TBL_OPT_DBL_BUFFER option.
-**                                 \arg #CFE_TBL_OPT_CRITICAL-     When this option is selected, the Table Service 
-**                                                                 will automatically allocate space in the Critical Data Store (CDS)
-**                                                                 for the table and insure that the contents in the CDS are the same
-**                                                                 as the contents of the currently active buffer for the table.
-**                                                                 This option is mutually exclusive of the #CFE_TBL_OPT_USR_DEF_ADDR
-**                                                                 and #CFE_TBL_OPT_DUMP_ONLY options.  It should also be noted that
-**                                                                 the use of this option with double buffered tables will prevent
-**                                                                 the update of the double buffered table from being quick and
-**                                                                 it could be blocked.  Therefore, critical tables should not be
-**                                                                 updated by Interrupt Service Routines.
+**                                 \arg #CFE_TBL_OPT_CRITICAL-     When this option is selected, the Table Service
+**                                                                 will automatically allocate space in the Critical
+**                                                                 Data Store (CDS) for the table and insure that the
+**                                                                 contents in the CDS are the same
+**                                                                 as the contents of the currently active buffer for
+**                                                                 the table. This option is mutually exclusive of the
+**                                                                 #CFE_TBL_OPT_USR_DEF_ADDR and #CFE_TBL_OPT_DUMP_ONLY
+**                                                                 options.  It should also be noted that the use of
+**                                                                 this option with double buffered tables will prevent
+**                                                                 the update of the double buffered table from being
+**                                                                 quick and it could be blocked.  Therefore, critical
+**                                                                 tables should not be updated by Interrupt Service
+**                                                                 Routines.
 **
-** \param[in] TblValidationFuncPtr is a pointer to a function that will be executed in the context of the Table 
-**                                 Management Service when the contents of a table need to be validated.  If set 
-**                                 to NULL, then the Table Management Service will assume any data is valid.  If 
-**                                 the value is not NULL, it must be a pointer to a function with the following 
+** \param[in] TblValidationFuncPtr is a pointer to a function that will be executed in the context of the Table
+**                                 Management Service when the contents of a table need to be validated.  If set
+**                                 to NULL, then the Table Management Service will assume any data is valid.  If
+**                                 the value is not NULL, it must be a pointer to a function with the following
 **                                 prototype: <BR>
 **                                 <B> int32 CallbackFunc(void *TblPtr);</B> <BR>
 **                                 where  <BR>
-**                                 <B>TblPtr </B> will be a pointer to the table data that is to be verified.  When the 
-**                                 function returns #CFE_SUCCESS, the data is considered valid and ready for a commit.  
-**                                 When the function returns a negative value, the data is considered invalid and an 
+**                                 <B>TblPtr </B> will be a pointer to the table data that is to be verified.  When the
+**                                 function returns #CFE_SUCCESS, the data is considered valid and ready for a commit.
+**                                 When the function returns a negative value, the data is considered invalid and an
 **                                 Event Message will be issued containing the returned value.  If the function should
 **                                 return a positive number, the table is considered invalid and the return code is
-**                                 considered invalid.  Validation functions \b must return either #CFE_SUCCESS or a negative
-**                                 number (whose value is at the developer's discretion).  The validation function 
-**                                 will be executed in the Application's context so that Event Messages describing the 
-**                                 validation failure are possible from within the function.
+**                                 considered invalid.  Validation functions \b must return either #CFE_SUCCESS or a
+**                                 negative number (whose value is at the developer's discretion).  The validation
+**                                 function will be executed in the Application's context so that Event Messages
+**                                 describing the validation failure are possible from within the function.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
@@ -178,37 +183,38 @@
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Share
 **/
-CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr,                  /* Returned Handle */
-                          const char   *Name,                              /* Application specific name  */
-                          size_t  Size,                                    /* Size, in bytes, of table   */
-                          uint16  TblOptionFlags,                          /* Tbl Options Settings     */
-                          CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr); /* Ptr to func that validates tbl */
+CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *        TblHandlePtr,          /* Returned Handle */
+                              const char *              Name,                  /* Application specific name  */
+                              size_t                    Size,                  /* Size, in bytes, of table   */
+                              uint16                    TblOptionFlags,        /* Tbl Options Settings     */
+                              CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr); /* Ptr to func that validates tbl */
 
 /*****************************************************************************/
 /**
 ** \brief Obtain handle of table registered by another application
 **
 ** \par Description
-**        After a table has been created, other applications can gain access 
-**        to that table via the table handle.  In order for two or more 
-**        applications to share a table, the applications that do not create 
+**        After a table has been created, other applications can gain access
+**        to that table via the table handle.  In order for two or more
+**        applications to share a table, the applications that do not create
 **        the table must obtain the handle using this function.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in, out]  TblHandlePtr  A pointer to a #CFE_TBL_Handle_t type variable 
-**                           that will be assigned the table's handle.  The 
-**                           table handle is required for other API calls 
-**                           when accessing the data contained in the table. *TblHandlePtr is the handle used to identify table to cFE when performing Table operations.
+** \param[in, out]  TblHandlePtr  A pointer to a #CFE_TBL_Handle_t type variable
+**                           that will be assigned the table's handle.  The
+**                           table handle is required for other API calls
+**                           when accessing the data contained in the table. *TblHandlePtr is the handle used to
+**                           identify table to cFE when performing Table operations.
 **                           This value is returned at the address specified by TblHandlePtr.
 **
-** \param[in]  TblName       The processor specific name of the table.  It is important to note 
-**                           that the processor specific table name is different from the table 
-**                           name specified in the #CFE_TBL_Register API call.  The processor 
-**                           specific table name includes the name of the application that created 
-**                           the table.  The name would be of the form "ApplicationName.TableName".  
-**                           An example of this would be "ACS.TamParams" for a table called "TamParams" 
+** \param[in]  TblName       The processor specific name of the table.  It is important to note
+**                           that the processor specific table name is different from the table
+**                           name specified in the #CFE_TBL_Register API call.  The processor
+**                           specific table name includes the name of the application that created
+**                           the table.  The name would be of the form "ApplicationName.TableName".
+**                           An example of this would be "ACS.TamParams" for a table called "TamParams"
 **                           that was registered by the application called "ACS".
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -227,10 +233,10 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName);
 ** \brief Unregister a previously registered table and free associated resources
 **
 ** \par Description
-**        When an application is being removed from the system, it should 
-**        unregister those tables that it created.  The application should 
-**        call this function as a part of its cleanup process.  The table 
-**        will be removed from memory once all table addresses referencing 
+**        When an application is being removed from the system, it should
+**        unregister those tables that it created.  The application should
+**        call this function as a part of its cleanup process.  The table
+**        will be removed from memory once all table addresses referencing
 **        it have been released.
 **
 ** \par Assumptions, External Events, and Notes:
@@ -246,9 +252,9 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName);
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
 **
 ** \sa #CFE_TBL_Share, #CFE_TBL_Register
-** 
+**
 ******************************************************************************/
-CFE_Status_t CFE_TBL_Unregister (CFE_TBL_Handle_t TblHandle);
+CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle);
 /**@}*/
 
 /** @defgroup CFEAPITBLManage cFE Manage Table Content APIs
@@ -260,15 +266,15 @@ CFE_Status_t CFE_TBL_Unregister (CFE_TBL_Handle_t TblHandle);
 ** \brief Load a specified table with data from specified source
 **
 ** \par Description
-**        Once an application has created a table (#CFE_TBL_Register), it must 
-**        provide the values that initialize the contents of that table.  The 
-**        application accomplishes this with one of two different TBL API calls.  
-**        This function call initializes the table with values that are held 
-**        in a data structure.  
+**        Once an application has created a table (#CFE_TBL_Register), it must
+**        provide the values that initialize the contents of that table.  The
+**        application accomplishes this with one of two different TBL API calls.
+**        This function call initializes the table with values that are held
+**        in a data structure.
 **
 ** \par Assumptions, External Events, and Notes:
-**        This function call can block.  Therefore, interrupt service routines 
-**        should NOT initialize their own tables.  An application should initialize 
+**        This function call can block.  Therefore, interrupt service routines
+**        should NOT initialize their own tables.  An application should initialize
 **        any table(s) prior to providing the handle(s) to the interrupt service routine.
 **
 ** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
@@ -277,8 +283,8 @@ CFE_Status_t CFE_TBL_Unregister (CFE_TBL_Handle_t TblHandle);
 ** \param[in] SrcType    Flag indicating the nature of the given \c SrcDataPtr below.
 **                       This value can be any one of the following:
 **                          \arg #CFE_TBL_SRC_FILE    - \copybrief CFE_TBL_SRC_FILE
-**                          \arg #CFE_TBL_SRC_ADDRESS - \copybrief CFE_TBL_SRC_ADDRESS 
-**                                                      
+**                          \arg #CFE_TBL_SRC_ADDRESS - \copybrief CFE_TBL_SRC_ADDRESS
+**
 ** \param[in] SrcDataPtr Pointer to either a character string specifying a filename or
 **                       a memory address of a block of binary data to be loaded into a table or,
 **                       if the table was registered with the #CFE_TBL_OPT_USR_DEF_ADDR option,
@@ -300,7 +306,7 @@ CFE_Status_t CFE_TBL_Unregister (CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_BAD_CONTENT_ID    \copybrief CFE_TBL_ERR_BAD_CONTENT_ID
 ** \retval #CFE_TBL_ERR_PARTIAL_LOAD      \copybrief CFE_TBL_ERR_PARTIAL_LOAD
 **
-** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Manage 
+** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Manage
 **
 ******************************************************************************/
 CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType, const void *SrcDataPtr);
@@ -310,20 +316,20 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 ** \brief Update contents of a specified table, if an update is pending
 **
 ** \par Description
-**        An application is \b required to perform a periodic check for an update 
-**        for all the tables that it creates.  Typically, the application that 
-**        created the table would call this function at the start or conclusion 
-**        of any routine processing cycle or at regular intervals.  To determine 
-**        whether an update is pending prior to making this call, the Application 
-**        can use the #CFE_TBL_GetStatus API first.  If a table update is pending, 
+**        An application is \b required to perform a periodic check for an update
+**        for all the tables that it creates.  Typically, the application that
+**        created the table would call this function at the start or conclusion
+**        of any routine processing cycle or at regular intervals.  To determine
+**        whether an update is pending prior to making this call, the Application
+**        can use the #CFE_TBL_GetStatus API first.  If a table update is pending,
 **        it will take place during this function call.
-** 
+**
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
 ** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
 **                       identifies the Table to be updated.
-**                                      
+**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                    \copybrief CFE_SUCCESS
 ** \retval #CFE_TBL_INFO_NO_UPDATE_PENDING \copybrief CFE_TBL_INFO_NO_UPDATE_PENDING
@@ -422,7 +428,7 @@ CFE_Status_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle);
 ** \sa #CFE_TBL_Manage
 **
 ******************************************************************************/
-CFE_Status_t   CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle);
+CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle);
 
 /*****************************************************************************/
 /**
@@ -448,7 +454,7 @@ CFE_Status_t   CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle);
 ** \sa #CFE_TBL_Manage
 **
 ******************************************************************************/
-CFE_Status_t   CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
+CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
 /**@}*/
 
 /** @defgroup CFEAPITBLAccess cFE Access Table Content APIs
@@ -460,21 +466,21 @@ CFE_Status_t   CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
 ** \brief Obtain the current address of the contents of the specified table
 **
 ** \par Description
-**        When a table has been created and initialized, it is available to 
-**        any application that can identify it with its unique handle.  In 
-**        order to view the data contained in the table, an application must 
+**        When a table has been created and initialized, it is available to
+**        any application that can identify it with its unique handle.  In
+**        order to view the data contained in the table, an application must
 **        call this function or #CFE_TBL_GetAddresses.
 **
 ** \par Assumptions, External Events, and Notes:
-**        -# This call can be a blocking call when the table is not double buffered 
-**           and is shared with another application of lower priority that just happens 
-**           to be in the middle of a table update of the specific table.  If this occurs, 
-**           the application performing the table update will automatically have its 
+**        -# This call can be a blocking call when the table is not double buffered
+**           and is shared with another application of lower priority that just happens
+**           to be in the middle of a table update of the specific table.  If this occurs,
+**           the application performing the table update will automatically have its
 **           priority elevated in order to release the resource as soon as possible.
-**        -# An application must always release the returned table address using the 
-**           #CFE_TBL_ReleaseAddress or #CFE_TBL_ReleaseAddresses function prior to 
-**           either a #CFE_TBL_Update call or any blocking call (e.g. - pending on software 
-**           bus message, etc).  Table updates cannot occur while table addresses have not 
+**        -# An application must always release the returned table address using the
+**           #CFE_TBL_ReleaseAddress or #CFE_TBL_ReleaseAddresses function prior to
+**           either a #CFE_TBL_Update call or any blocking call (e.g. - pending on software
+**           bus message, etc).  Table updates cannot occur while table addresses have not
 **           been released.
 **        -# #CFE_TBL_ERR_NEVER_LOADED will be returned if the table has never been
 **           loaded (either from file or from a block of memory), but the function
@@ -482,9 +488,10 @@ CFE_Status_t   CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
 **           This pointer mush be released with the #CFE_TBL_ReleaseAddress API before
 **           the table can be loaded with data.
 **
-** \param[in, out]  TblPtr     The address of a pointer that will be loaded with the address of 
-**                        the first byte of the table.  This pointer can then be typecast 
-**                        by the calling application to the appropriate table data structure. *TblPtr is the address of the first byte of data associated with the specified table.
+** \param[in, out]  TblPtr     The address of a pointer that will be loaded with the address of
+**                        the first byte of the table.  This pointer can then be typecast
+**                        by the calling application to the appropriate table data structure. *TblPtr is the address of
+**                        the first byte of data associated with the specified table.
 **
 ** \param[in]  TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
 **                        identifies the Table whose address is to be returned.
@@ -508,13 +515,13 @@ CFE_Status_t CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle);
 ** \brief Release previously obtained pointer to the contents of the specified table
 **
 ** \par Description
-**        Each application is \b required to release a table address obtained through 
+**        Each application is \b required to release a table address obtained through
 **        the #CFE_TBL_GetAddress function.
 **
 ** \par Assumptions, External Events, and Notes:
-**        An application must always release the returned table address using the 
-**        #CFE_TBL_ReleaseAddress function prior to either a #CFE_TBL_Update call 
-**        or any blocking call (e.g. - pending on software bus message, etc).  
+**        An application must always release the returned table address using the
+**        #CFE_TBL_ReleaseAddress function prior to either a #CFE_TBL_Update call
+**        or any blocking call (e.g. - pending on software bus message, etc).
 **        Table updates cannot occur while table addresses have not been released.
 **
 ** \param[in] TblHandle  Handle, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share, that
@@ -538,21 +545,21 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle);
 ** \brief Obtain the current addresses of an array of specified tables
 **
 ** \par Description
-**        When a table has been created and initialized, it is available to 
-**        any application that can identify it with its unique handle.  In 
-**        order to view the data contained in the table, an application must 
+**        When a table has been created and initialized, it is available to
+**        any application that can identify it with its unique handle.  In
+**        order to view the data contained in the table, an application must
 **        call this function or #CFE_TBL_GetAddresses.
 **
 ** \par Assumptions, External Events, and Notes:
-**        -# This call can be a blocking call when the table is not double buffered 
-**           and is shared with another application of lower priority that just happens 
-**           to be in the middle of a table update of the specific table.  If this occurs, 
-**           the application performing the table update will automatically have its 
+**        -# This call can be a blocking call when the table is not double buffered
+**           and is shared with another application of lower priority that just happens
+**           to be in the middle of a table update of the specific table.  If this occurs,
+**           the application performing the table update will automatically have its
 **           priority elevated in order to release the resource as soon as possible.
-**        -# An application must always release the returned table address using the 
-**           #CFE_TBL_ReleaseAddress or #CFE_TBL_ReleaseAddresses function prior to 
-**           either a #CFE_TBL_Update call or any blocking call (e.g. - pending on software 
-**           bus message, etc).  Table updates cannot occur while table addresses have not 
+**        -# An application must always release the returned table address using the
+**           #CFE_TBL_ReleaseAddress or #CFE_TBL_ReleaseAddresses function prior to
+**           either a #CFE_TBL_Update call or any blocking call (e.g. - pending on software
+**           bus message, etc).  Table updates cannot occur while table addresses have not
 **           been released.
 **        -# #CFE_TBL_ERR_NEVER_LOADED will be returned if the table has never been
 **           loaded (either from file or from a block of memory), but the function
@@ -561,8 +568,8 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle);
 **           the table can be loaded with data.
 **
 ** \param[in, out] TblPtrs    Array of Pointers to variables that calling Application
-**                       wishes to hold the start addresses of the Tables. *TblPtrs is an array of addresses of the first byte of data associated with the
-**                       specified tables.
+**                       wishes to hold the start addresses of the Tables. *TblPtrs is an array of addresses of the
+**                       first byte of data associated with the specified tables.
 **
 ** \param[in] NumTables  Size of TblPtrs and TblHandles arrays.
 **
@@ -588,13 +595,13 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
 ** \brief Release the addresses of an array of specified tables
 **
 ** \par Description
-**        Each application is \b required to release a table address obtained through 
+**        Each application is \b required to release a table address obtained through
 **        the #CFE_TBL_GetAddress function.
 **
 ** \par Assumptions, External Events, and Notes:
-**        An application must always release the returned table address using the 
-**        #CFE_TBL_ReleaseAddress function prior to either a #CFE_TBL_Update call 
-**        or any blocking call (e.g. - pending on software bus message, etc).  
+**        An application must always release the returned table address using the
+**        #CFE_TBL_ReleaseAddress function prior to either a #CFE_TBL_Update call
+**        or any blocking call (e.g. - pending on software bus message, etc).
 **        Table updates cannot occur while table addresses have not been released.
 **
 ** \param[in] NumTables  Size of TblHandles array.
@@ -625,11 +632,11 @@ CFE_Status_t CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t T
 ** \brief Obtain current status of pending actions for a table.
 **
 ** \par Description
-**        An application is \b required to perform a periodic check for an update 
-**        or a validation request for all the tables that it creates.  Typically, 
-**        the application that created the table would call this function at the 
-**        start or conclusion of any routine processing cycle.  If a table update 
-**        or validation request is pending, the Application should follow up with 
+**        An application is \b required to perform a periodic check for an update
+**        or a validation request for all the tables that it creates.  Typically,
+**        the application that created the table would call this function at the
+**        start or conclusion of any routine processing cycle.  If a table update
+**        or validation request is pending, the Application should follow up with
 **        a call to #CFE_TBL_Update or #CFE_TBL_Validate respectively.
 **
 ** \par Assumptions, External Events, and Notes:
@@ -668,15 +675,16 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle);
 **          None
 **
 ** \param[in, out]  TblInfoPtr    A pointer to a CFE_TBL_Info_t data structure that is to be populated
-**                           with table characteristics and information. *TblInfoPtr is the description of the tables characteristics and registry information stored in
-**                           the #CFE_TBL_Info_t data structure format.
-** 
-** \param[in]  TblName       The processor specific name of the table.  It is important to note 
-**                           that the processor specific table name is different from the table 
-**                           name specified in the #CFE_TBL_Register API call.  The processor 
-**                           specific table name includes the name of the application that created 
-**                           the table.  The name would be of the form "ApplicationName.TableName".  
-**                           An example of this would be "ACS.TamParams" for a table called "TamParams" 
+**                           with table characteristics and information. *TblInfoPtr is the description of the tables
+**                           characteristics and registry information stored in the #CFE_TBL_Info_t data structure
+**                           format.
+**
+** \param[in]  TblName       The processor specific name of the table.  It is important to note
+**                           that the processor specific table name is different from the table
+**                           name specified in the #CFE_TBL_Register API call.  The processor
+**                           specific table name includes the name of the application that created
+**                           the table.  The name would be of the form "ApplicationName.TableName".
+**                           An example of this would be "ACS.TamParams" for a table called "TamParams"
 **                           that was registered by the application called "ACS".
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -707,17 +715,17 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName);
 **          similar to how schedulers typically trigger application housekeeping messages.
 **
 ** \param[in]  TblHandle      Handle of Table with which the message should be associated.
-** 
+**
 ** \param[in]  MsgId          Message ID to be used in notification message sent by Table Services.
-** 
-** \param[in]  CommandCode    Command Code value to be placed in secondary header of message 
+**
+** \param[in]  CommandCode    Command Code value to be placed in secondary header of message
 **                            sent by Table Services.
-** 
-** \param[in]  Parameter      Application defined value to be passed as a parameter in the 
+**
+** \param[in]  Parameter      Application defined value to be passed as a parameter in the
 **                            message sent by Table Services.  Suggested use includes an application's
 **                            table index that allows the same MsgId and Command Code to be used for
 **                            all table management notifications.
-** 
+**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
@@ -727,8 +735,8 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName);
 ** \sa #CFE_TBL_Register
 **
 ******************************************************************************/
-CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode, uint32 Parameter);
+CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode,
+                                     uint32 Parameter);
 /**@}*/
 
-
-#endif  /* CFE_TBL_API_H */
+#endif /* CFE_TBL_API_H */

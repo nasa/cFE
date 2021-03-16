@@ -21,7 +21,7 @@
 #ifndef _CFE_TIME_EXTERN_TYPEDEFS_H_
 #define _CFE_TIME_EXTERN_TYPEDEFS_H_
 
-/* This header may be generated from an EDS file, 
+/* This header may be generated from an EDS file,
  * tools are available and the feature is enabled */
 #ifdef CFE_EDS_ENABLED_BUILD
 
@@ -33,7 +33,7 @@
 
 #include "common_types.h"
 
-/** 
+/**
 **  \brief Data structure used to hold system time values
 **
 **  \par Description
@@ -46,8 +46,8 @@
 */
 typedef struct CFE_TIME_SysTime
 {
-  uint32  Seconds;            /**< \brief Number of seconds since epoch */
-  uint32  Subseconds;         /**< \brief Number of subseconds since epoch (LSB = 2^(-32) seconds) */
+    uint32 Seconds;    /**< \brief Number of seconds since epoch */
+    uint32 Subseconds; /**< \brief Number of subseconds since epoch (LSB = 2^(-32) seconds) */
 } CFE_TIME_SysTime_t;
 
 /**
@@ -56,60 +56,60 @@ typedef struct CFE_TIME_SysTime
 enum CFE_TIME_FlagBit
 {
 
-   /**
-    * @brief The spacecraft time has been set
-    */
-   CFE_TIME_FlagBit_CLKSET                            = 0,
+    /**
+     * @brief The spacecraft time has been set
+     */
+    CFE_TIME_FlagBit_CLKSET = 0,
 
-   /**
-    * @brief This instance of Time Services is flywheeling
-    */
-   CFE_TIME_FlagBit_FLYING                            = 1,
+    /**
+     * @brief This instance of Time Services is flywheeling
+     */
+    CFE_TIME_FlagBit_FLYING = 1,
 
-   /**
-    * @brief The clock source is set to internal
-    */
-   CFE_TIME_FlagBit_SRCINT                            = 2,
+    /**
+     * @brief The clock source is set to internal
+     */
+    CFE_TIME_FlagBit_SRCINT = 2,
 
-   /**
-    * @brief The clock signal is set to primary
-    */
-   CFE_TIME_FlagBit_SIGPRI                            = 3,
+    /**
+     * @brief The clock signal is set to primary
+     */
+    CFE_TIME_FlagBit_SIGPRI = 3,
 
-   /**
-    * @brief The Time Server is in flywheel mode
-    */
-   CFE_TIME_FlagBit_SRVFLY                            = 4,
+    /**
+     * @brief The Time Server is in flywheel mode
+     */
+    CFE_TIME_FlagBit_SRVFLY = 4,
 
-   /**
-    * @brief This instance of Time Services was commanded into flywheel mode
-    */
-   CFE_TIME_FlagBit_CMDFLY                            = 5,
+    /**
+     * @brief This instance of Time Services was commanded into flywheel mode
+     */
+    CFE_TIME_FlagBit_CMDFLY = 5,
 
-   /**
-    * @brief One time STCF Adjustment is to be done in positive direction
-    */
-   CFE_TIME_FlagBit_ADDADJ                            = 6,
+    /**
+     * @brief One time STCF Adjustment is to be done in positive direction
+     */
+    CFE_TIME_FlagBit_ADDADJ = 6,
 
-   /**
-    * @brief 1 Hz STCF Adjustment is to be done in a positive direction
-    */
-   CFE_TIME_FlagBit_ADD1HZ                            = 7,
+    /**
+     * @brief 1 Hz STCF Adjustment is to be done in a positive direction
+     */
+    CFE_TIME_FlagBit_ADD1HZ = 7,
 
-   /**
-    * @brief Time Client Latency is applied in a positive direction
-    */
-   CFE_TIME_FlagBit_ADDTCL                            = 8,
+    /**
+     * @brief Time Client Latency is applied in a positive direction
+     */
+    CFE_TIME_FlagBit_ADDTCL = 8,
 
-   /**
-    * @brief This instance of Time Services is a Time Server
-    */
-   CFE_TIME_FlagBit_SERVER                            = 9,
+    /**
+     * @brief This instance of Time Services is a Time Server
+     */
+    CFE_TIME_FlagBit_SERVER = 9,
 
-   /**
-    * @brief The tone received is good compared to the last tone received
-    */
-   CFE_TIME_FlagBit_GDTONE                            = 10
+    /**
+     * @brief The tone received is good compared to the last tone received
+     */
+    CFE_TIME_FlagBit_GDTONE = 10
 };
 
 /**
@@ -118,8 +118,7 @@ enum CFE_TIME_FlagBit
  *
  * @sa enum CFE_TIME_FlagBit
  */
-typedef uint8                                            CFE_TIME_FlagBit_Enum_t;
-
+typedef uint8 CFE_TIME_FlagBit_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_TIME_ClockState_Enum_t
@@ -127,33 +126,33 @@ typedef uint8                                            CFE_TIME_FlagBit_Enum_t
 enum CFE_TIME_ClockState
 {
 
-   /**
-    *
-    * The spacecraft time has not been set since the last clock
-    * reset.  Times returned by clock routines have no relationship
-    * to any ground-based time reference.
-    *
-    */
-   CFE_TIME_ClockState_INVALID                        = -1,
+    /**
+     *
+     * The spacecraft time has not been set since the last clock
+     * reset.  Times returned by clock routines have no relationship
+     * to any ground-based time reference.
+     *
+     */
+    CFE_TIME_ClockState_INVALID = -1,
 
-   /**
-    *
-    * The spacecraft time has been set at least once since the last
-    * clock reset, and it is synchronized with the primary on-board
-    * time base.  Times returned by clock routines can be trusted.
-    *
-    */
-   CFE_TIME_ClockState_VALID                          = 0,
+    /**
+     *
+     * The spacecraft time has been set at least once since the last
+     * clock reset, and it is synchronized with the primary on-board
+     * time base.  Times returned by clock routines can be trusted.
+     *
+     */
+    CFE_TIME_ClockState_VALID = 0,
 
-   /**
-    *
-    * The spacecraft time has been set at least once since the last
-    * clock reset, but it is not currently synchronized with the
-    * primary on-board time base.  Times returned by clock routines
-    * are a "best guess" based on a non-optimal oscillator.
-    *
-    */
-   CFE_TIME_ClockState_FLYWHEEL                       = 1
+    /**
+     *
+     * The spacecraft time has been set at least once since the last
+     * clock reset, but it is not currently synchronized with the
+     * primary on-board time base.  Times returned by clock routines
+     * are a "best guess" based on a non-optimal oscillator.
+     *
+     */
+    CFE_TIME_ClockState_FLYWHEEL = 1
 };
 
 /**
@@ -173,8 +172,7 @@ enum CFE_TIME_ClockState
  *
  * @sa enum CFE_TIME_ClockState
  */
-typedef int16                                            CFE_TIME_ClockState_Enum_t;
-
+typedef int16 CFE_TIME_ClockState_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_TIME_SourceSelect_Enum_t
@@ -182,15 +180,15 @@ typedef int16                                            CFE_TIME_ClockState_Enu
 enum CFE_TIME_SourceSelect
 {
 
-   /**
-    * @brief Use Internal Source
-    */
-   CFE_TIME_SourceSelect_INTERNAL                     = 1,
+    /**
+     * @brief Use Internal Source
+     */
+    CFE_TIME_SourceSelect_INTERNAL = 1,
 
-   /**
-    * @brief Use External Source
-    */
-   CFE_TIME_SourceSelect_EXTERNAL                     = 2
+    /**
+     * @brief Use External Source
+     */
+    CFE_TIME_SourceSelect_EXTERNAL = 2
 };
 
 /**
@@ -199,8 +197,7 @@ enum CFE_TIME_SourceSelect
  *
  * @sa enum CFE_TIME_SourceSelect
  */
-typedef uint8                                            CFE_TIME_SourceSelect_Enum_t;
-
+typedef uint8 CFE_TIME_SourceSelect_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_TIME_ToneSignalSelect_Enum_t
@@ -208,15 +205,15 @@ typedef uint8                                            CFE_TIME_SourceSelect_E
 enum CFE_TIME_ToneSignalSelect
 {
 
-   /**
-    * @brief Primary Source
-    */
-   CFE_TIME_ToneSignalSelect_PRIMARY                  = 1,
+    /**
+     * @brief Primary Source
+     */
+    CFE_TIME_ToneSignalSelect_PRIMARY = 1,
 
-   /**
-    * @brief Redundant Source
-    */
-   CFE_TIME_ToneSignalSelect_REDUNDANT                = 2
+    /**
+     * @brief Redundant Source
+     */
+    CFE_TIME_ToneSignalSelect_REDUNDANT = 2
 };
 
 /**
@@ -225,8 +222,7 @@ enum CFE_TIME_ToneSignalSelect
  *
  * @sa enum CFE_TIME_ToneSignalSelect
  */
-typedef uint8                                            CFE_TIME_ToneSignalSelect_Enum_t;
-
+typedef uint8 CFE_TIME_ToneSignalSelect_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_TIME_AdjustDirection_Enum_t
@@ -234,15 +230,15 @@ typedef uint8                                            CFE_TIME_ToneSignalSele
 enum CFE_TIME_AdjustDirection
 {
 
-   /**
-    * @brief Add time adjustment
-    */
-   CFE_TIME_AdjustDirection_ADD                       = 1,
+    /**
+     * @brief Add time adjustment
+     */
+    CFE_TIME_AdjustDirection_ADD = 1,
 
-   /**
-    * @brief Subtract time adjustment
-    */
-   CFE_TIME_AdjustDirection_SUBTRACT                  = 2
+    /**
+     * @brief Subtract time adjustment
+     */
+    CFE_TIME_AdjustDirection_SUBTRACT = 2
 };
 
 /**
@@ -251,8 +247,7 @@ enum CFE_TIME_AdjustDirection
  *
  * @sa enum CFE_TIME_AdjustDirection
  */
-typedef uint8                                            CFE_TIME_AdjustDirection_Enum_t;
-
+typedef uint8 CFE_TIME_AdjustDirection_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_TIME_FlywheelState_Enum_t
@@ -260,15 +255,15 @@ typedef uint8                                            CFE_TIME_AdjustDirectio
 enum CFE_TIME_FlywheelState
 {
 
-   /**
-    * @brief Not in flywheel state
-    */
-   CFE_TIME_FlywheelState_NO_FLY                      = 0,
+    /**
+     * @brief Not in flywheel state
+     */
+    CFE_TIME_FlywheelState_NO_FLY = 0,
 
-   /**
-    * @brief In flywheel state
-    */
-   CFE_TIME_FlywheelState_IS_FLY                      = 1
+    /**
+     * @brief In flywheel state
+     */
+    CFE_TIME_FlywheelState_IS_FLY = 1
 };
 
 /**
@@ -277,8 +272,7 @@ enum CFE_TIME_FlywheelState
  *
  * @sa enum CFE_TIME_FlywheelState
  */
-typedef uint8                                            CFE_TIME_FlywheelState_Enum_t;
-
+typedef uint8 CFE_TIME_FlywheelState_Enum_t;
 
 /**
  * @brief Label definitions associated with CFE_TIME_SetState_Enum_t
@@ -286,15 +280,15 @@ typedef uint8                                            CFE_TIME_FlywheelState_
 enum CFE_TIME_SetState
 {
 
-   /**
-    * @brief Spacecraft time has not been set
-    */
-   CFE_TIME_SetState_NOT_SET                          = 0,
+    /**
+     * @brief Spacecraft time has not been set
+     */
+    CFE_TIME_SetState_NOT_SET = 0,
 
-   /**
-    * @brief Spacecraft time has been set
-    */
-   CFE_TIME_SetState_WAS_SET                          = 1
+    /**
+     * @brief Spacecraft time has been set
+     */
+    CFE_TIME_SetState_WAS_SET = 1
 };
 
 /**
@@ -303,11 +297,8 @@ enum CFE_TIME_SetState
  *
  * @sa enum CFE_TIME_SetState
  */
-typedef uint8                                            CFE_TIME_SetState_Enum_t;
-
-
+typedef uint8 CFE_TIME_SetState_Enum_t;
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
 #endif /* _CFE_TIME_EXTERN_TYPEDEFS_H_ */
-

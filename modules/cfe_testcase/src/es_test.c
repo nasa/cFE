@@ -36,7 +36,7 @@
 void ES_Test_AppId(void)
 {
     CFE_ES_AppId_t AppId;
-    char   AppNameBuf[OS_MAX_API_NAME + 4];
+    char           AppNameBuf[OS_MAX_API_NAME + 4];
 
     UtAssert_INT32_EQ(CFE_ES_GetAppID(&AppId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppNameBuf, AppId, sizeof(AppNameBuf)), CFE_SUCCESS);

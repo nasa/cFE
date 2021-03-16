@@ -19,10 +19,10 @@
 */
 
 /*
-**  File:  
+**  File:
 **    cfe_es_erlog.c
 **
-**  Purpose:  
+**  Purpose:
 **    This file implements the cFE Executive Services Exception and Reset Log functions.
 **
 **  References:
@@ -30,7 +30,7 @@
 **     cFE Flight Software Application Developers Guide
 **
 **  Notes:
-** 
+**
 **  Modification History:
 **
 */
@@ -48,110 +48,106 @@
 /*
 ** Function: CFE_ES_WriteToERLogWithContext
 **
-** Purpose:  Create an entry in the ES Exception and Reset Log. 
+** Purpose:  Create an entry in the ES Exception and Reset Log.
 **           This log API accepts extra context information (AppID and ContextID)
 **           and is used when the app/task invoking this API is not the same app
 **           as where the event occurred.
 **
 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int32 CFE_ES_WriteToERLogWithContext( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  ResetType, uint32 ResetSubtype,
-                           const char  *Description, CFE_ES_AppId_t AppId, uint32 PspContextId)
+int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
+                                     const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId)
 {
-   uint32 LogIdx;
-   CFE_ES_ERLog_MetaData_t *EntryPtr;
-   CFE_TIME_SysTime_t PendingTime;
+    uint32                   LogIdx;
+    CFE_ES_ERLog_MetaData_t *EntryPtr;
+    CFE_TIME_SysTime_t       PendingTime;
 
-   /*
-    * Snapshot the time before locking (different subsystem)
+    /*
+     * Snapshot the time before locking (different subsystem)
+     */
+    PendingTime = CFE_TIME_GetTime();
+
+    /*
+     * Ensure that description string is not NULL.
+     */
+    if (Description == NULL)
+    {
+        Description = "No Description String Given.";
+    }
+
+    /*
+     * This routine needs to lock in case it is called
+     * from concurrent threads
+     */
+    CFE_ES_LockSharedData(__func__, __LINE__);
+
+    /*
+    ** Try to clean up an invalid ER log index variable.
     */
-   PendingTime = CFE_TIME_GetTime();
+    if (CFE_ES_ResetDataPtr->ERLogIndex >= CFE_PLATFORM_ES_ER_LOG_ENTRIES)
+    {
+        CFE_ES_ResetDataPtr->ERLogIndex = 0;
+    }
+    LogIdx = CFE_ES_ResetDataPtr->ERLogIndex;
 
-   /*
-    * Ensure that description string is not NULL.
+    /*
+    ** Now that the Local Index variable is set, increment the index for the next entry.
     */
-   if ( Description  == NULL)
-   {
-       Description  = "No Description String Given.";
-   }
+    CFE_ES_ResetDataPtr->ERLogIndex++;
+    if (CFE_ES_ResetDataPtr->ERLogIndex >= CFE_PLATFORM_ES_ER_LOG_ENTRIES)
+    {
+        CFE_ES_ResetDataPtr->ERLogIndex = 0;
+    }
 
-   /*
-    * This routine needs to lock in case it is called
-    * from concurrent threads
+    /*
+    ** Clear out the log entry we are about to use.
     */
-   CFE_ES_LockSharedData(__func__,__LINE__);
+    EntryPtr = &CFE_ES_ResetDataPtr->ERLog[LogIdx];
+    memset(EntryPtr, 0, sizeof(*EntryPtr));
 
-   /*
-   ** Try to clean up an invalid ER log index variable.
-   */
-   if ( CFE_ES_ResetDataPtr->ERLogIndex >= CFE_PLATFORM_ES_ER_LOG_ENTRIES )
-   {
-      CFE_ES_ResetDataPtr->ERLogIndex = 0;
-   }
-   LogIdx = CFE_ES_ResetDataPtr->ERLogIndex;
-
-   /*
-   ** Now that the Local Index variable is set, increment the index for the next entry.
-   */
-   CFE_ES_ResetDataPtr->ERLogIndex++;
-   if ( CFE_ES_ResetDataPtr->ERLogIndex >= CFE_PLATFORM_ES_ER_LOG_ENTRIES )
-   {
-      CFE_ES_ResetDataPtr->ERLogIndex = 0;
-   }
-
-
-   /*
-   ** Clear out the log entry we are about to use.
-   */
-   EntryPtr = &CFE_ES_ResetDataPtr->ERLog[LogIdx];
-   memset(EntryPtr, 0, sizeof (*EntryPtr));
-
-   /*
-   ** Fill out the log fields
-   */
-   EntryPtr->BaseInfo.LogEntryType = EntryType;
-   EntryPtr->BaseInfo.ResetType    = ResetType;
-   EntryPtr->BaseInfo.ResetSubtype = ResetSubtype;
-   EntryPtr->BaseInfo.BootSource   = CFE_ES_ResetDataPtr->ResetVars.BootSource;
-   EntryPtr->BaseInfo.ProcessorResetCount =
-                               CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount;
-   EntryPtr->BaseInfo.MaxProcessorResetCount =
-                               CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount;
-
-   /*
-   ** Copy the ES Reset variables to the log (before they are modified by the log entry).
-   */
-   memcpy(&EntryPtr->BaseInfo.DebugVars, &CFE_ES_Global.DebugVars,
-          sizeof(EntryPtr->BaseInfo.DebugVars));
-
-   /*
-   ** Time Stamp the log entry with the system time
-   */
-   EntryPtr->BaseInfo.TimeCode = PendingTime;
-
-   /*
-   ** Copy the Description string to the log.
-   */
-   strncpy(EntryPtr->BaseInfo.Description, Description, sizeof(EntryPtr->BaseInfo.Description) - 1);
-   EntryPtr->BaseInfo.Description[sizeof(EntryPtr->BaseInfo.Description) - 1] = '\0';
-
-   /*
-    * Store the context info (if any)
+    /*
+    ** Fill out the log fields
     */
-   EntryPtr->AppID = AppId;
-   EntryPtr->PspContextId = PspContextId;
+    EntryPtr->BaseInfo.LogEntryType           = EntryType;
+    EntryPtr->BaseInfo.ResetType              = ResetType;
+    EntryPtr->BaseInfo.ResetSubtype           = ResetSubtype;
+    EntryPtr->BaseInfo.BootSource             = CFE_ES_ResetDataPtr->ResetVars.BootSource;
+    EntryPtr->BaseInfo.ProcessorResetCount    = CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount;
+    EntryPtr->BaseInfo.MaxProcessorResetCount = CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount;
 
-   /*
-   ** Increment the number of ER log entries made
-   */
-   CFE_ES_ResetDataPtr->ERLogEntries++;
-
-   /*
-    * Shared data update is complete
+    /*
+    ** Copy the ES Reset variables to the log (before they are modified by the log entry).
     */
-   CFE_ES_UnlockSharedData(__func__,__LINE__);
+    memcpy(&EntryPtr->BaseInfo.DebugVars, &CFE_ES_Global.DebugVars, sizeof(EntryPtr->BaseInfo.DebugVars));
 
-   return(CFE_SUCCESS);
+    /*
+    ** Time Stamp the log entry with the system time
+    */
+    EntryPtr->BaseInfo.TimeCode = PendingTime;
+
+    /*
+    ** Copy the Description string to the log.
+    */
+    strncpy(EntryPtr->BaseInfo.Description, Description, sizeof(EntryPtr->BaseInfo.Description) - 1);
+    EntryPtr->BaseInfo.Description[sizeof(EntryPtr->BaseInfo.Description) - 1] = '\0';
+
+    /*
+     * Store the context info (if any)
+     */
+    EntryPtr->AppID        = AppId;
+    EntryPtr->PspContextId = PspContextId;
+
+    /*
+    ** Increment the number of ER log entries made
+    */
+    CFE_ES_ResetDataPtr->ERLogEntries++;
+
+    /*
+     * Shared data update is complete
+     */
+    CFE_ES_UnlockSharedData(__func__, __LINE__);
+
+    return (CFE_SUCCESS);
 
 } /* End of CFE_ES_WriteToERLogWithContext() */
 
@@ -159,18 +155,18 @@ int32 CFE_ES_WriteToERLogWithContext( CFE_ES_LogEntryType_Enum_t EntryType,   ui
 /*
 ** Function: CFE_ES_WriteToERLog
 **
-** Purpose:  Create an entry in the ES Exception and Reset Log. 
+** Purpose:  Create an entry in the ES Exception and Reset Log.
 **           This log API is simplified for cases which do not have a separate context
 **
 */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-int32 CFE_ES_WriteToERLog( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  ResetType, uint32 ResetSubtype,
-                              const char  *Description)
+int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
+                          const char *Description)
 {
     /* passing 0xFFFFFFFF as the appid avoids confusion with actual appid 0 */
-    return CFE_ES_WriteToERLogWithContext(EntryType, ResetType, ResetSubtype,
-                               Description, CFE_ES_APPID_UNDEFINED, CFE_ES_ERLOG_NO_CONTEXT);
-    
+    return CFE_ES_WriteToERLogWithContext(EntryType, ResetType, ResetSubtype, Description, CFE_ES_APPID_UNDEFINED,
+                                          CFE_ES_ERLOG_NO_CONTEXT);
+
 } /* End of CFE_ES_WriteToERLog() */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -183,11 +179,11 @@ int32 CFE_ES_WriteToERLog( CFE_ES_LogEntryType_Enum_t EntryType,   uint32  Reset
 bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_ES_BackgroundLogDumpGlobal_t *BgFilePtr;
-    CFE_ES_ERLog_FileEntry_t      *FileBufferPtr;
-    CFE_ES_ERLog_MetaData_t *EntryPtr;
-    int32 PspStatus;
-    
-    BgFilePtr = (CFE_ES_BackgroundLogDumpGlobal_t *)Meta;
+    CFE_ES_ERLog_FileEntry_t *        FileBufferPtr;
+    CFE_ES_ERLog_MetaData_t *         EntryPtr;
+    int32                             PspStatus;
+
+    BgFilePtr     = (CFE_ES_BackgroundLogDumpGlobal_t *)Meta;
     FileBufferPtr = &BgFilePtr->EntryBuffer;
 
     if (RecordNum < CFE_PLATFORM_ES_ER_LOG_ENTRIES)
@@ -197,7 +193,7 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
         /* First wipe the buffer before re-use */
         memset(FileBufferPtr, 0, sizeof(*FileBufferPtr));
 
-        CFE_ES_LockSharedData(__func__,__LINE__);
+        CFE_ES_LockSharedData(__func__, __LINE__);
 
         /* The basic info comes directly from the ES log */
         FileBufferPtr->BaseInfo = EntryPtr->BaseInfo;
@@ -221,24 +217,23 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
             FileBufferPtr->ContextSize = 0;
         }
 
-        CFE_ES_UnlockSharedData(__func__,__LINE__);
+        CFE_ES_UnlockSharedData(__func__, __LINE__);
 
         /*
          * Export data to caller for actual write
          */
-        *Buffer = FileBufferPtr;
+        *Buffer  = FileBufferPtr;
         *BufSize = sizeof(*FileBufferPtr);
     }
     else
     {
-        *Buffer = NULL;
+        *Buffer  = NULL;
         *BufSize = 0;
     }
 
     /* Check for EOF (last entry)  */
-    return (RecordNum >= (CFE_PLATFORM_ES_ER_LOG_ENTRIES-1));
+    return (RecordNum >= (CFE_PLATFORM_ES_ER_LOG_ENTRIES - 1));
 }
-
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /*  Function:  CFE_ER_BackgroundERLogFileEventHandler()                          */
@@ -247,7 +242,8 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
 /*    Report events during writing exception & reset log to a file.              */
 /*                                                                               */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position)
+void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
+                                            size_t BlockSize, size_t Position)
 {
     CFE_ES_BackgroundLogDumpGlobal_t *BgFilePtr;
 
@@ -256,35 +252,33 @@ void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t 
     /*
      * Note that this runs in the context of ES background task (file writer background job)
      * It does NOT run in the context of the CFE_TBL app task.
-     * 
+     *
      * Events should use CFE_EVS_SendEventWithAppID() rather than CFE_EVS_SendEvent()
      * to get proper association with TBL task.
      */
-    switch(Event)
+    switch (Event)
     {
         case CFE_FS_FileWriteEvent_COMPLETE:
-            CFE_EVS_SendEvent(CFE_ES_ERLOG2_EID, CFE_EVS_EventType_DEBUG,
-                    "%s written:Size=%lu",
-                    BgFilePtr->FileWrite.FileName,(unsigned long)Position);
-            break;        
+            CFE_EVS_SendEvent(CFE_ES_ERLOG2_EID, CFE_EVS_EventType_DEBUG, "%s written:Size=%lu",
+                              BgFilePtr->FileWrite.FileName, (unsigned long)Position);
+            break;
 
         case CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR:
         case CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR:
-            CFE_EVS_SendEvent(CFE_ES_FILEWRITE_ERR_EID,CFE_EVS_EventType_ERROR,
-                    "File write,byte cnt err,file %s,request=%u,actual=%u",
-                    BgFilePtr->FileWrite.FileName, (int)BlockSize, (int)Status);
+            CFE_EVS_SendEvent(CFE_ES_FILEWRITE_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "File write,byte cnt err,file %s,request=%u,actual=%u", BgFilePtr->FileWrite.FileName,
+                              (int)BlockSize, (int)Status);
             break;
 
         case CFE_FS_FileWriteEvent_CREATE_ERROR:
-            CFE_EVS_SendEvent(CFE_ES_ERLOG2_ERR_EID,CFE_EVS_EventType_ERROR,
-                    "Error creating file %s, RC = %d",
-                    BgFilePtr->FileWrite.FileName, (int)Status);
+            CFE_EVS_SendEvent(CFE_ES_ERLOG2_ERR_EID, CFE_EVS_EventType_ERROR, "Error creating file %s, RC = %d",
+                              BgFilePtr->FileWrite.FileName, (int)Status);
             break;
-        
+
         default:
             /* unhandled event - ignore */
             break;
-    }       
+    }
 }
 
 /*
@@ -298,14 +292,14 @@ void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t 
 */
 bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
 {
-    int32               Status;
-    uint32              PspContextId;
-    char                ReasonString[CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH];
-    CFE_ES_TaskInfo_t   EsTaskInfo;
-    osal_id_t           ExceptionTaskID;
-    uint32              ResetType;
+    int32                      Status;
+    uint32                     PspContextId;
+    char                       ReasonString[CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH];
+    CFE_ES_TaskInfo_t          EsTaskInfo;
+    osal_id_t                  ExceptionTaskID;
+    uint32                     ResetType;
     CFE_ES_LogEntryType_Enum_t LogType;
-    CFE_ES_AppRecord_t  *AppRecPtr;
+    CFE_ES_AppRecord_t *       AppRecPtr;
 
     if (CFE_PSP_Exception_GetCount() == 0)
     {
@@ -324,7 +318,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
     {
         /* reason string is not available - populate with something for the log */
         snprintf(ReasonString, sizeof(ReasonString), "Unknown - CFE_PSP_ExceptionGetSummary() error %ld", (long)Status);
-        PspContextId = 0;
+        PspContextId    = 0;
         ExceptionTaskID = OS_OBJECT_ID_UNDEFINED;
     } /* end if */
 
@@ -332,8 +326,8 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
      * Note that writes to the ES ER log actually do not get propagated to the debug console.
      * so by writing to SysLog here it becomes visible in both places.
      */
-    CFE_ES_WriteToSysLog("ExceptionID 0x%lx in TaskID %lu: %s\n",
-            (unsigned long)PspContextId, OS_ObjectIdToInteger(ExceptionTaskID), ReasonString);
+    CFE_ES_WriteToSysLog("ExceptionID 0x%lx in TaskID %lu: %s\n", (unsigned long)PspContextId,
+                         OS_ObjectIdToInteger(ExceptionTaskID), ReasonString);
 
     /*
      * If task ID is 0, this means it was a system level exception and
@@ -344,7 +338,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
      */
     if (OS_ObjectIdDefined(ExceptionTaskID))
     {
-        Status = CFE_ES_GetTaskInfo( &EsTaskInfo, CFE_ES_TaskId_FromOSAL(ExceptionTaskID) );
+        Status = CFE_ES_GetTaskInfo(&EsTaskInfo, CFE_ES_TaskId_FromOSAL(ExceptionTaskID));
 
         /*
          * The App ID was found, now see if the ExceptionAction is set for a reset
@@ -352,7 +346,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
         if (Status == CFE_SUCCESS)
         {
             AppRecPtr = CFE_ES_LocateAppRecordByID(EsTaskInfo.AppId);
-            CFE_ES_LockSharedData(__func__,__LINE__);
+            CFE_ES_LockSharedData(__func__, __LINE__);
             if (CFE_ES_AppRecordIsMatch(AppRecPtr, EsTaskInfo.AppId) &&
                 AppRecPtr->StartParams.ExceptionAction == CFE_ES_ExceptionAction_RESTART_APP)
             {
@@ -361,7 +355,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
                  */
                 ResetType = CFE_ES_APP_RESTART;
             }
-            CFE_ES_UnlockSharedData(__func__,__LINE__);
+            CFE_ES_UnlockSharedData(__func__, __LINE__);
         }
     }
 
@@ -373,20 +367,19 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
          */
         if (ResetType == 0)
         {
-            if ( CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount >=
-                    CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount )
+            if (CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount >=
+                CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount)
             {
                 CFE_ES_WriteToSysLog("Maximum Processor Reset count reached (%u)",
-                        (unsigned int)CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount);
+                                     (unsigned int)CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount);
 
                 ResetType = CFE_PSP_RST_TYPE_POWERON;
             }
             else
             {
                 CFE_ES_WriteToSysLog("Processor Reset count not reached (%u/%u)",
-                        (unsigned int)CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount,
-                        (unsigned int)CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount);
-
+                                     (unsigned int)CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount,
+                                     (unsigned int)CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount);
 
                 /*
                 ** Update the reset variables
@@ -407,11 +400,8 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
             LogType = CFE_ES_LogEntryType_CORE;
         }
 
-
-        CFE_ES_WriteToERLogWithContext(LogType,  ResetType,
-                CFE_PSP_RST_SUBTYPE_EXCEPTION, ReasonString,
-                EsTaskInfo.AppId,
-                PspContextId);
+        CFE_ES_WriteToERLogWithContext(LogType, ResetType, CFE_PSP_RST_SUBTYPE_EXCEPTION, ReasonString,
+                                       EsTaskInfo.AppId, PspContextId);
 
         if (ResetType == CFE_ES_APP_RESTART)
         {
@@ -432,13 +422,9 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
             /* normally this will not return */
             CFE_PSP_Restart(ResetType);
         }
-    }
-    while(ResetType == 0);
+    } while (ResetType == 0);
 
-
-    return true;    /* returning true because there was an exception to deal with */
+    return true; /* returning true because there was an exception to deal with */
 }
-
-
 
 /* end of file */

@@ -136,7 +136,7 @@ void TestApps(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void TestERLog(void);
 
@@ -153,7 +153,7 @@ void TestERLog(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void TestTask(void);
 
@@ -185,7 +185,7 @@ void TestBackground(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void TestPerf(void);
 
@@ -200,7 +200,7 @@ void TestPerf(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void TestAPI(void);
 
@@ -216,7 +216,7 @@ void TestAPI(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void TestCDS(void);
 
@@ -233,7 +233,7 @@ void TestCDS(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void TestCDSMempool(void);
 
@@ -250,7 +250,7 @@ void TestCDSMempool(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void TestESMempool(void);
 

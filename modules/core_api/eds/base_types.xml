@@ -19,12 +19,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    This document adheres to the Electronic Data Sheet (EDS) XML schema 
-    as prescribed in CCSDS book 876.0. 
-      
-    Purpose: 
+    This document adheres to the Electronic Data Sheet (EDS) XML schema
+    as prescribed in CCSDS book 876.0.
+
+    Purpose:
       This describes stardard data types used throughout the Core Flight System
-      
+
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
 <Package name="BASE_TYPES" shortDescription="Standard type defintions for Core Flight System">
@@ -35,7 +35,7 @@
       <BooleanDataType name="StatusBit" shortDescription="Single true/false status bit">
         <BooleanDataEncoding sizeInBits="1"/>
       </BooleanDataType>
-      
+
       <!-- Fixed width integer types -->
       <IntegerDataType name="int8" shortDescription="Signed 8 bit integer">
         <IntegerDataEncoding sizeInBits="8" encoding="${CFE_MISSION/SIGNED_INTEGER_ENCODING}"  byteOrder="${CFE_MISSION/DATA_BYTE_ORDER}" />
@@ -85,7 +85,7 @@
           <MinMaxRange max="18446744073709551615" min="0" rangeType="inclusiveMinInclusiveMax"/>
         </Range>
       </IntegerDataType>
-      
+
       <!-- Floating point types -->
       <FloatDataType name="float" shortDescription="Single precision (32 bit) floating point value">
         <FloatDataEncoding encodingAndPrecision="IEEE754_2008_single" byteOrder="${CFE_MISSION/DATA_BYTE_ORDER}" sizeInBits="32" />
@@ -99,12 +99,12 @@
           <PrecisionRange>double</PrecisionRange>
         </Range>
       </FloatDataType>
-      
+
       <!-- Commonly used string types in all CFE/CFS messages -->
       <StringDataType name="ApiName" length="${CFE_MISSION/MAX_API_LEN}" />
       <StringDataType name="PathName" length="${CFE_MISSION/MAX_PATH_LEN}" />
-      
-      <!-- 
+
+      <!--
         CPU memory addresses in messages can be either 32 or 64 bits.
         This depends on specific CPUs in use, but it should be consistent
         across all cpus.
@@ -123,26 +123,26 @@
         If this is desired then two configuration parameters need to change:
          - Set the 'TELEMETRY_SUBSECONDS_TYPE' EDS directive
          - Set the 'CFE_SB_PACKET_TIME_SUBSECONDS_UNITS' config directive
-        And uncomment these types... 
-        
-        
+        And uncomment these types...
+
+
       <IntegerDataType name="MicrosecondsValue">
         <IntegerDataEncoding sizeInBits="20" encoding="unsigned" />
       </IntegerDataType>
       <IntegerDataType name="MicrosecondsPad">
         <IntegerDataEncoding sizeInBits="12" encoding="unsigned" />
       </IntegerDataType>
-      
+
       <ContainerDataType name="TlmMicrosecs">
         <EntryList>
             <Entry name="Micros" type="MicrosecondsValue" />
             <Entry name="Pad" type="MicrosecondsPad" />
         </EntryList>
       </ContainerDataType>
-      
+
       -->
-              
+
    </DataTypeSet>
-   
+
 </Package>
 </PackageFile>

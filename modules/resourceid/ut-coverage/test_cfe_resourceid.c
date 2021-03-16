@@ -36,7 +36,6 @@ static bool UT_ResourceId_CheckIdSlotUsed(CFE_ResourceId_t Id)
     return UT_DEFAULT_IMPL(UT_ResourceId_CheckIdSlotUsed) != 0;
 }
 
-
 void TestResourceID(void)
 {
     /*
@@ -130,7 +129,8 @@ void TestResourceID(void)
     /* Now verify that CFE_ResourceId_FindNext() recycles the first item again */
     Id = CFE_ResourceId_FindNext(LastId, UT_RESOURCEID_TEST_SLOTS, UT_ResourceId_CheckIdSlotUsed);
     UtAssert_True(CFE_ResourceId_IsDefined(Id), "CFE_ResourceId_FindNext() after wrap");
-    UtAssert_True(CFE_ResourceId_ToInteger(Id) < (RefBase + UT_RESOURCEID_TEST_SLOTS), "CFE_ResourceId_FindNext() wrap ID");
+    UtAssert_True(CFE_ResourceId_ToInteger(Id) < (RefBase + UT_RESOURCEID_TEST_SLOTS),
+                  "CFE_ResourceId_FindNext() wrap ID");
 
     /*
      * Confirm outputs are as expected after wrapping around -
@@ -143,9 +143,8 @@ void TestResourceID(void)
                   CFE_ResourceId_ToInteger(Id), (unsigned long)RefSerial, (unsigned long)TestSerial);
 
     UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, UT_RESOURCEID_TEST_SLOTS, &TestIndex), CFE_SUCCESS);
-    UtAssert_True(TestIndex == RefIndex, "ID index after wrap: id=%lx, expected=%lu, got=%lu", CFE_ResourceId_ToInteger(Id),
-                  (unsigned long)RefIndex, (unsigned long)TestIndex);
-
+    UtAssert_True(TestIndex == RefIndex, "ID index after wrap: id=%lx, expected=%lu, got=%lu",
+                  CFE_ResourceId_ToInteger(Id), (unsigned long)RefIndex, (unsigned long)TestIndex);
 
     /*
      * Now check that CFE_ResourceId_FindNext() adheres to the CheckFunc.
@@ -161,9 +160,8 @@ void TestResourceID(void)
     UtAssert_True(TestSerial == RefSerial, "ID serial after search: id=%lx, previous=%lx, got=%lx",
                   CFE_ResourceId_ToInteger(Id), (unsigned long)RefSerial, (unsigned long)TestSerial);
     UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, UT_RESOURCEID_TEST_SLOTS, &TestIndex), CFE_SUCCESS);
-    UtAssert_True(TestIndex == RefIndex, "ID index after search: id=%lx, expected=%lu, got=%lu", CFE_ResourceId_ToInteger(Id),
-                  (unsigned long)RefIndex, (unsigned long)TestIndex);
-
+    UtAssert_True(TestIndex == RefIndex, "ID index after search: id=%lx, expected=%lu, got=%lu",
+                  CFE_ResourceId_ToInteger(Id), (unsigned long)RefIndex, (unsigned long)TestIndex);
 
     /* Validate off-nominal inputs */
     Id = CFE_ResourceId_FindNext(CFE_RESOURCEID_UNDEFINED, 0, NULL);

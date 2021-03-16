@@ -1,6 +1,6 @@
 ##################################################################
 #
-# cFE Inter-module interface 
+# cFE Inter-module interface
 #
 ##################################################################
 
@@ -10,7 +10,7 @@ add_library(core_private INTERFACE)
 # code compiled as CFE core internal will have _CFE_CORE_ macro set
 target_compile_definitions(core_private INTERFACE _CFE_CORE_)
 
-target_include_directories(core_private INTERFACE 
+target_include_directories(core_private INTERFACE
     fsw/inc     # includes shared typedefs among CFE core apps, not called/used by apps
     ${CFE_SOURCE_DIR}/cmake/target/inc # allow CFE core apps to get "target_config.h" file
 )

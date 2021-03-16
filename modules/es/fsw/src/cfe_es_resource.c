@@ -39,37 +39,35 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 /*********************************************************************/
 /*
  * Function: CFE_ES_TaskId_ToOSAL
- * 
+ *
  * For complete API information, see prototype in header
  */
 osal_id_t CFE_ES_TaskId_ToOSAL(CFE_ES_TaskId_t id)
 {
-    osal_id_t Result;
+    osal_id_t     Result;
     unsigned long Val;
 
-    Val = CFE_ResourceId_ToInteger(CFE_RESOURCEID_UNWRAP(id));
+    Val    = CFE_ResourceId_ToInteger(CFE_RESOURCEID_UNWRAP(id));
     Result = OS_ObjectIdFromInteger(Val ^ CFE_RESOURCEID_MARK);
 
     return Result;
 }
 
-
 /*********************************************************************/
 /*
  * Function: CFE_TaskId_FromOSAL
- * 
+ *
  * For complete API information, see prototype in header
  */
 CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id)
 {
     CFE_ResourceId_t Result;
-    unsigned long Val;
+    unsigned long    Val;
 
-    Val =  OS_ObjectIdToInteger(id);
+    Val    = OS_ObjectIdToInteger(id);
     Result = CFE_ResourceId_FromInteger(Val ^ CFE_RESOURCEID_MARK);
 
     return CFE_ES_TASKID_C(Result);
@@ -83,32 +81,31 @@ CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id)
  */
 CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name)
 {
-   CFE_ES_AppRecord_t *AppRecPtr;
-   uint32 Count;
+    CFE_ES_AppRecord_t *AppRecPtr;
+    uint32              Count;
 
-   /*
-   ** Search the Application table for an app with a matching name.
-   */
-   AppRecPtr = CFE_ES_Global.AppTable;
-   Count = CFE_PLATFORM_ES_MAX_APPLICATIONS;
-   while ( true )
-   {
-       if ( Count == 0 )
-       {
-           AppRecPtr = NULL;
-           break;
-       }
-       if ( CFE_ES_AppRecordIsUsed(AppRecPtr) &&
-               strcmp(Name, CFE_ES_AppRecordGetName(AppRecPtr)) == 0 )
-       {
-           break;
-       }
+    /*
+    ** Search the Application table for an app with a matching name.
+    */
+    AppRecPtr = CFE_ES_Global.AppTable;
+    Count     = CFE_PLATFORM_ES_MAX_APPLICATIONS;
+    while (true)
+    {
+        if (Count == 0)
+        {
+            AppRecPtr = NULL;
+            break;
+        }
+        if (CFE_ES_AppRecordIsUsed(AppRecPtr) && strcmp(Name, CFE_ES_AppRecordGetName(AppRecPtr)) == 0)
+        {
+            break;
+        }
 
-      ++AppRecPtr;
-      --Count;
-   }
+        ++AppRecPtr;
+        --Count;
+    }
 
-   return AppRecPtr;
+    return AppRecPtr;
 
 } /* End of CFE_ES_LocateAppRecordByName() */
 
@@ -120,35 +117,33 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name)
  */
 CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name)
 {
-   CFE_ES_LibRecord_t *LibRecPtr;
-   uint32 Count;
+    CFE_ES_LibRecord_t *LibRecPtr;
+    uint32              Count;
 
-   /*
-   ** Search the Library table for a library with a matching name.
-   */
-   LibRecPtr = CFE_ES_Global.LibTable;
-   Count = CFE_PLATFORM_ES_MAX_LIBRARIES;
-   while ( true )
-   {
-       if ( Count == 0 )
-       {
-           LibRecPtr = NULL;
-           break;
-       }
-       if ( CFE_ES_LibRecordIsUsed(LibRecPtr) &&
-               strcmp(Name, CFE_ES_LibRecordGetName(LibRecPtr)) == 0 )
-       {
-           break;
-       }
+    /*
+    ** Search the Library table for a library with a matching name.
+    */
+    LibRecPtr = CFE_ES_Global.LibTable;
+    Count     = CFE_PLATFORM_ES_MAX_LIBRARIES;
+    while (true)
+    {
+        if (Count == 0)
+        {
+            LibRecPtr = NULL;
+            break;
+        }
+        if (CFE_ES_LibRecordIsUsed(LibRecPtr) && strcmp(Name, CFE_ES_LibRecordGetName(LibRecPtr)) == 0)
+        {
+            break;
+        }
 
-      ++LibRecPtr;
-      --Count;
-   }
+        ++LibRecPtr;
+        --Count;
+    }
 
-   return LibRecPtr;
+    return LibRecPtr;
 
 } /* End of CFE_ES_LocateLibRecordByName() */
-
 
 /*********************************************************************/
 /*
@@ -159,33 +154,31 @@ CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name)
 CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name)
 {
     CFE_ES_GenCounterRecord_t *CounterRecPtr;
-    uint32 Count;
+    uint32                     Count;
 
     /*
     ** Search the Counter table for a matching name.
     */
     CounterRecPtr = CFE_ES_Global.CounterTable;
-    Count = CFE_PLATFORM_ES_MAX_GEN_COUNTERS;
-    while ( true )
+    Count         = CFE_PLATFORM_ES_MAX_GEN_COUNTERS;
+    while (true)
     {
-        if ( Count == 0 )
+        if (Count == 0)
         {
             CounterRecPtr = NULL;
             break;
         }
-        if ( CFE_ES_CounterRecordIsUsed(CounterRecPtr) &&
-                strcmp(Name, CFE_ES_CounterRecordGetName(CounterRecPtr)) == 0 )
+        if (CFE_ES_CounterRecordIsUsed(CounterRecPtr) && strcmp(Name, CFE_ES_CounterRecordGetName(CounterRecPtr)) == 0)
         {
             break;
         }
 
-       ++CounterRecPtr;
-       --Count;
+        ++CounterRecPtr;
+        --Count;
     }
 
     return CounterRecPtr;
 }
-
 
 /*********************************************************************/
 /*
@@ -196,7 +189,7 @@ CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name)
 CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
-    uint32 Idx;
+    uint32              Idx;
 
     if (CFE_ES_AppID_ToIndex(AppID, &Idx) == CFE_SUCCESS)
     {
@@ -216,10 +209,10 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID)
  *
  * For complete API information, see prototype in header
  */
-CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID)
+CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID)
 {
     CFE_ES_LibRecord_t *LibRecPtr;
-    uint32 Idx;
+    uint32              Idx;
 
     if (CFE_ES_LibID_ToIndex(LibID, &Idx) == CFE_SUCCESS)
     {
@@ -242,7 +235,7 @@ CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID)
 CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    uint32 Idx;
+    uint32               Idx;
 
     if (CFE_ES_TaskID_ToIndex(TaskID, &Idx) == CFE_SUCCESS)
     {
@@ -262,10 +255,10 @@ CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID)
  *
  * For complete API information, see prototype in header
  */
-CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t CounterID)
+CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t CounterID)
 {
     CFE_ES_GenCounterRecord_t *CounterRecPtr;
-    uint32 Idx;
+    uint32                     Idx;
 
     if (CFE_ES_CounterID_ToIndex(CounterID, &Idx) == CFE_SUCCESS)
     {
@@ -291,12 +284,12 @@ CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t Cou
 CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    CFE_ES_TaskId_t TaskID;
+    CFE_ES_TaskId_t      TaskID;
 
     /*
     ** Use the OS task ID to get the ES task record
     */
-    TaskID = CFE_ES_TaskId_FromOSAL(OS_TaskGetId());
+    TaskID     = CFE_ES_TaskId_FromOSAL(OS_TaskGetId());
     TaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskID);
 
     /*
@@ -321,7 +314,7 @@ CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
  */
 CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
 {
-    CFE_ES_AppRecord_t *AppRecPtr;
+    CFE_ES_AppRecord_t * AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
 
     /*
@@ -357,8 +350,8 @@ CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
 /*
  * ---------------------------------------------------------------------------------------
  * Function: CFE_ES_CheckCounterIdSlotUsed
- * 
- * Purpose: Helper function, Aids in allocating a new ID by checking if 
+ *
+ * Purpose: Helper function, Aids in allocating a new ID by checking if
  * a given ID is available.  Must be called while locked.
  * ---------------------------------------------------------------------------------------
  */
@@ -370,8 +363,8 @@ bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId)
 /*
  *---------------------------------------------------------------------------------------
  * Function: CFE_ES_CheckAppIdSlotUsed
- * 
- * Purpose: Helper function, Aids in allocating a new ID by checking if 
+ *
+ * Purpose: Helper function, Aids in allocating a new ID by checking if
  * a given ID is available.  Must be called while locked.
  *---------------------------------------------------------------------------------------
  */
@@ -383,8 +376,8 @@ bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId)
 /*
  * ---------------------------------------------------------------------------------------
  * Function: CFE_ES_CheckLibIdSlotUsed
- * 
- * Purpose: Helper function, Aids in allocating a new ID by checking if 
+ *
+ * Purpose: Helper function, Aids in allocating a new ID by checking if
  * a given ID is available.  Must be called while locked.
  * ---------------------------------------------------------------------------------------
  */
@@ -392,5 +385,3 @@ bool CFE_ES_CheckLibIdSlotUsed(CFE_ResourceId_t CheckId)
 {
     return CFE_ES_LibRecordIsUsed(CFE_ES_LocateLibRecordByID(CFE_ES_LIBID_C(CheckId)));
 }
-
-

@@ -62,22 +62,22 @@
 /**
   \page cfebackground Background
 
-  The Core Flight Executive (cFE) is an application development and run-time environment. The cFE 
-  provides a set of core services including Software Bus (messaging), Time, Event (Alerts), Executive 
-  (startup and runtime), and Table services. The cFE defines an application programming interface (API) 
+  The Core Flight Executive (cFE) is an application development and run-time environment. The cFE
+  provides a set of core services including Software Bus (messaging), Time, Event (Alerts), Executive
+  (startup and runtime), and Table services. The cFE defines an application programming interface (API)
   for each service which serves as the basis for application development. <BR>
-  
-  The cFE Software Bus service provides a publish and subscribe messaging system that allows applications 
-  to easily plug and play into the system. Applications subscribe to cFE services at runtime, making 
-  system modifications easy. Facilitating rapid prototyping, new applications can be compiled, linked, loaded, 
-  and started without requiring the entire system to be rebuilt. 
+
+  The cFE Software Bus service provides a publish and subscribe messaging system that allows applications
+  to easily plug and play into the system. Applications subscribe to cFE services at runtime, making
+  system modifications easy. Facilitating rapid prototyping, new applications can be compiled, linked, loaded,
+  and started without requiring the entire system to be rebuilt.
 
   \image html CFSPubSub.jpg
-  
-  Each service comes complete with a built in application that allows users to interface with each service. To 
-  support reuse and project independence, the cFE contains a configurable set of requirements and code. The configurable 
-  parameters allow the cFE to be tailored for each environment including desk-top and closed loop simulation environments. 
-  This provides the ability to run and test software applications on a developer's desktop and then deploy that same software 
+
+  Each service comes complete with a built in application that allows users to interface with each service. To
+  support reuse and project independence, the cFE contains a configurable set of requirements and code. The configurable
+  parameters allow the cFE to be tailored for each environment including desk-top and closed loop simulation environments.
+  This provides the ability to run and test software applications on a developer's desktop and then deploy that same software
   without changes to the embedded system. In addition the cFE includes the following software development tools:
 
   <ul> <li> Unit Test Framework (UTF) for unit testing applications developed via the cFE </li>
@@ -85,59 +85,59 @@
        <li> Table Builder </li>
        <li> Command and Telemetry utilities </li> </ul>
 
-   The cFE is one of the components of the Core Flight System (cFS), a platform and project independent reusable 
-   software framework and set of reusable software applications. There are three key aspects to the cFS architecture: 
-   a dynamic run-time environment, layered software, and a component based design. The combination of these key aspects 
-   along with an implementation targeted to the embedded software domain makes it suitable for reuse on any number of 
-   NASA flight projects and/or embedded software systems. <BR> 
+   The cFE is one of the components of the Core Flight System (cFS), a platform and project independent reusable
+   software framework and set of reusable software applications. There are three key aspects to the cFS architecture:
+   a dynamic run-time environment, layered software, and a component based design. The combination of these key aspects
+   along with an implementation targeted to the embedded software domain makes it suitable for reuse on any number of
+   NASA flight projects and/or embedded software systems. <BR>
 
-   The pivotal design feature, abstracting the software architecture from the hardware and forming the basis of reuse, 
-   is component layering. Each layer of the architecture "hides" its implementation and technology details from the other 
-   layers by defining and using standard Application Programming Interfaces (APIs). The internals of a layer can be changed 
-   without affecting other layers' internals and components. <BR> 
+   The pivotal design feature, abstracting the software architecture from the hardware and forming the basis of reuse,
+   is component layering. Each layer of the architecture "hides" its implementation and technology details from the other
+   layers by defining and using standard Application Programming Interfaces (APIs). The internals of a layer can be changed
+   without affecting other layers' internals and components. <BR>
 
    \image html CFSLayers.jpg
 
-   The layers include an OS Abstraction Layer (OSAL), Platform Support Package (PSP) layer, core Flight Executive (cFE) layer, 
-   and an Application layer. The cFE layer runs on top of the PSP and OSAL layers. The cFE comes complete with a build 
-   environment, deployment guide, API reference guide, and provides a sample PSP. The OSAL is available open source and 
-   once integrated into the cFE build environment, developers will be ready to build and run the system and start developing 
+   The layers include an OS Abstraction Layer (OSAL), Platform Support Package (PSP) layer, core Flight Executive (cFE) layer,
+   and an Application layer. The cFE layer runs on top of the PSP and OSAL layers. The cFE comes complete with a build
+   environment, deployment guide, API reference guide, and provides a sample PSP. The OSAL is available open source and
+   once integrated into the cFE build environment, developers will be ready to build and run the system and start developing
    their mission/project specific applications that easily plug and play into the system.
-  
+
    <H2> Core Flight Executive (cFE) Goals </H2>
 
-   The main long term goal of the cFE is to form the basis for a platform and project 
-   independent reusable software framework. The cFE with the OSAL allow the development 
-   of portable embedded system software that is independent of a particular Real Time 
-   Operating System and hardware platform. A secondary long term goal is to create a 
-   standardized, product-line approach for development of embedded aerospace flight 
+   The main long term goal of the cFE is to form the basis for a platform and project
+   independent reusable software framework. The cFE with the OSAL allow the development
+   of portable embedded system software that is independent of a particular Real Time
+   Operating System and hardware platform. A secondary long term goal is to create a
+   standardized, product-line approach for development of embedded aerospace flight
    software. <BR>
 
    <H3> Functional and Community Goals </H3>
 
-   The cFE allows embedded system software to be developed and tested on desktop workstations 
-   and ported to the target platform without changing a single line of code, providing a shorter 
-   development and debug time. The cFE is an enabler of software collaboration amongst all users 
-   promoting the growth of the application and library layers where new applications, libraries, 
+   The cFE allows embedded system software to be developed and tested on desktop workstations
+   and ported to the target platform without changing a single line of code, providing a shorter
+   development and debug time. The cFE is an enabler of software collaboration amongst all users
+   promoting the growth of the application and library layers where new applications, libraries,
    tools, and lessons learned can be contributed and shared. <BR>
 
-   It is important for application developers to realize the long term and functional 
-   goals of the cFE.  With a standard set of services providing a standard API, all 
-   applications developed with the cFE have an opportunity to become useful on 
-   future missions through code reuse.  In order to achieve this goal, 
-   applications must be written with care to ensure that their code does not 
-   have dependencies on specific hardware, software or compilers.  The cFE and 
-   the underlying generic operating system API (OS API) have been designed to 
-   insulate the cFE Application developer from hardware and software dependencies.  
-   The developer, however, must make the effort to identify the proper methods 
-   through the cFE and OS API to satisfy their software requirements and not 
-   be tempted to take a "short-cut" and accomplish their goal with a direct 
+   It is important for application developers to realize the long term and functional
+   goals of the cFE.  With a standard set of services providing a standard API, all
+   applications developed with the cFE have an opportunity to become useful on
+   future missions through code reuse.  In order to achieve this goal,
+   applications must be written with care to ensure that their code does not
+   have dependencies on specific hardware, software or compilers.  The cFE and
+   the underlying generic operating system API (OS API) have been designed to
+   insulate the cFE Application developer from hardware and software dependencies.
+   The developer, however, must make the effort to identify the proper methods
+   through the cFE and OS API to satisfy their software requirements and not
+   be tempted to take a "short-cut" and accomplish their goal with a direct
    hardware or operating system software interface.
 **/
 
 /**
   \page cfeappdocs Applicable Documents
-  
+
   <TABLE>
      <TR>
         <TH> Document Title
@@ -163,13 +163,13 @@
 /**
   \page cfedependencies Dependencies
 
-  The Core Flight Executive (cFE) is required to be built with the Operating System Abstraction Layer (OSAL) and Platform Support Package (PSP) 
-  componenets of the Core Flight System (cFS).  It is always recommended to build with the latest versions of each of the components as 
+  The Core Flight Executive (cFE) is required to be built with the Operating System Abstraction Layer (OSAL) and Platform Support Package (PSP)
+  componenets of the Core Flight System (cFS).  It is always recommended to build with the latest versions of each of the components as
   backward compatability may not be supported. <BR>
-  
-  Several internal data structures within the cFE use the "char" data type.  This data type is typically 1 byte in storage size with a value 
-  range -128 to 127 or 0 to 255.  The size of the "char" data type and whether or not the type is signed or unsigned can change across 
-  platforms.  The cFE assumes use of the "char" data type as an <B> 8-bit type. </B>         
+
+  Several internal data structures within the cFE use the "char" data type.  This data type is typically 1 byte in storage size with a value
+  range -128 to 127 or 0 to 255.  The size of the "char" data type and whether or not the type is signed or unsigned can change across
+  platforms.  The cFE assumes use of the "char" data type as an <B> 8-bit type. </B>
 
 **/
 

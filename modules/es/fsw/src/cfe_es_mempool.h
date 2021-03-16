@@ -70,9 +70,8 @@ typedef struct
     /**
      * Optional Mutex for serializing get/put operations
      */
-    osal_id_t          MutexId;
+    osal_id_t MutexId;
 } CFE_ES_MemPoolRecord_t;
-
 
 /**
  * @brief Obtain an index value correlating to an ES Memory Pool ID
@@ -107,7 +106,7 @@ int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx);
  * @param[in]   PoolID   the Pool ID to locate
  * @return pointer to Pool Table entry for the given Pool ID
  */
-CFE_ES_MemPoolRecord_t* CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID);
+CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID);
 
 /**
  * @brief Check if a Memory Pool record is in use or free/empty
@@ -187,9 +186,9 @@ static inline bool CFE_ES_MemPoolRecordIsMatch(const CFE_ES_MemPoolRecord_t *Poo
  * @brief Check if a Pool ID table slot is used
  *
  * Checks if a table slot is available for a potential new ID
- * This is a helper function intended to be used with 
+ * This is a helper function intended to be used with
  * CFE_ResourceId_FindNext() for allocating new IDs
- * 
+ *
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
@@ -198,5 +197,4 @@ static inline bool CFE_ES_MemPoolRecordIsMatch(const CFE_ES_MemPoolRecord_t *Poo
  */
 bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId);
 
-
-#endif  /* _CFE_ES_MEMPOOL_H_ */
+#endif /* _CFE_ES_MEMPOOL_H_ */

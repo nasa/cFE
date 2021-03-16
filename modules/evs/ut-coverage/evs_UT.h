@@ -69,7 +69,7 @@
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_Init(void);
 
@@ -84,7 +84,7 @@ void Test_Init(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_IllegalAppID(void);
 
@@ -99,7 +99,7 @@ void Test_IllegalAppID(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_UnregisteredApp(void);
 
@@ -114,7 +114,7 @@ void Test_UnregisteredApp(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_FilterRegistration(void);
 
@@ -129,7 +129,7 @@ void Test_FilterRegistration(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_FilterReset(void);
 
@@ -146,7 +146,7 @@ void Test_FilterReset(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_Format(void);
 
@@ -161,7 +161,7 @@ void Test_Format(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_Ports(void);
 
@@ -176,7 +176,7 @@ void Test_Ports(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_Logging(void);
 
@@ -191,7 +191,7 @@ void Test_Logging(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_WriteApp(void);
 
@@ -208,7 +208,7 @@ void Test_WriteApp(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_BadAppCmd(void);
 
@@ -223,7 +223,7 @@ void Test_BadAppCmd(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_EventCmd(void);
 
@@ -238,7 +238,7 @@ void Test_EventCmd(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_FilterCmd(void);
 
@@ -255,7 +255,7 @@ void Test_FilterCmd(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_InvalidCmd(void);
 
@@ -270,7 +270,7 @@ void Test_InvalidCmd(void);
 **        None
 **
 ** \returns
-**        This function does not return a value.  
+**        This function does not return a value.
 ******************************************************************************/
 void Test_Misc(void);
 

@@ -43,14 +43,14 @@
 
 /********************* Include Files  ************************/
 
-#include "cfe_evs_task.h"        /* EVS internal definitions */
+#include "cfe_evs_task.h" /* EVS internal definitions */
 #include "cfe_resourceid.h"
 #include "cfe_es_api_typedefs.h"
 #include "cfe_time_api_typedefs.h"
 
 /* ==============   Section I: Macro and Constant Type Definitions   =========== */
 
-/* ==============   Section II: Internal Structures ============ */     
+/* ==============   Section II: Internal Structures ============ */
 
 /* ==============   Section III: Function Prototypes =========== */
 
@@ -66,7 +66,7 @@
  * @param[in]   AppID   AppID to find
  * @returns Pointer to app table entry, or NULL if ID is invalid.
  */
-EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_AppId_t AppID);
+EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID);
 
 /**
  * @brief Obtain the context information for the currently running app
@@ -77,8 +77,7 @@ EVS_AppData_t *EVS_GetAppDataByID (CFE_ES_AppId_t AppID);
  * @param[out]   AppIDOut       Location to store AppID
  * @returns CFE_SUCCESS if successful, or relevant error code.
  */
-int32 EVS_GetCurrentContext (EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut);
-
+int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut);
 
 /**
  * @brief Check if an EVS app record is in use or free/empty
@@ -158,22 +157,20 @@ static inline bool EVS_AppDataIsMatch(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t 
     return (AppDataPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(AppDataPtr->AppID, AppID));
 }
 
-
-
 int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName);
 
-int32 EVS_NotRegistered (EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID);
+int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID);
 
 bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType);
 
 EVS_BinFilter_t *EVS_FindEventID(int16 EventID, EVS_BinFilter_t *FilterArray);
 
-void EVS_EnableTypes (EVS_AppData_t *AppDataPtr, uint8 BitMask);
-void EVS_DisableTypes (EVS_AppData_t *AppDataPtr, uint8 BitMask);
+void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask);
+void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask);
 
 void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType,
-        const CFE_TIME_SysTime_t *Time, const char *MsgSpec, va_list ArgPtr);
+                                const CFE_TIME_SysTime_t *Time, const char *MsgSpec, va_list ArgPtr);
 
-int32 EVS_SendEvent (uint16 EventID, uint16 EventType, const char *Spec, ... );
+int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...);
 
-#endif  /* _cfe_evs_utils_ */
+#endif /* _cfe_evs_utils_ */

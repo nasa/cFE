@@ -33,7 +33,6 @@
 #ifndef CFE_FS_ABSTRACT_TYPES_H
 #define CFE_FS_ABSTRACT_TYPES_H
 
-
 /*
 ** Required header files...
 */
@@ -43,10 +42,10 @@
 
 /**
  * \brief Generalized file types/categories known to FS
- * 
+ *
  * This defines different categories of files, where they
  * may reside in different default locations of the virtualized file system.
- * 
+ *
  * This is different from, and should not be confused with, the "SubType"
  * field in the FS header.  This value is only used at runtime for FS APIs
  * and should not actually appear in any output file or message.
@@ -66,7 +65,7 @@ typedef enum
  * Because FS is a library not an app, it does not have its own context or
  * event IDs.  The file writer runs in the context of the ES background task
  * on behalf of whatever App requested the file write.
- * 
+ *
  * This is a list of abstract events associated with background file write jobs.
  * An app requesting the file write must supply a callback function to translate
  * these into its own event IDs for feedback (i.e. file complete, error conditions, etc).
@@ -75,31 +74,30 @@ typedef enum
 {
     CFE_FS_FileWriteEvent_UNDEFINED, /* placeholder, no-op, keep as 0 */
 
-    CFE_FS_FileWriteEvent_COMPLETE,             /**< File is completed successfully */
-    CFE_FS_FileWriteEvent_CREATE_ERROR,         /**< Unable to create/open file */
-    CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR,   /**< Unable to write FS header */
-    CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR,   /**< Unable to write data record */
+    CFE_FS_FileWriteEvent_COMPLETE,           /**< File is completed successfully */
+    CFE_FS_FileWriteEvent_CREATE_ERROR,       /**< Unable to create/open file */
+    CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR, /**< Unable to write FS header */
+    CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, /**< Unable to write data record */
 
     CFE_FS_FileWriteEvent_MAX /* placeholder, no-op, keep last */
 
 } CFE_FS_FileWriteEvent_t;
 
-
-
 /**
  * Data Getter routine provided by requester
- * 
+ *
  * Outputs a data block.  Should return true if the file is complete (last record/EOF), otherwise return false.
  */
 typedef bool (*CFE_FS_FileWriteGetData_t)(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 
 /**
  * Event generator routine provided by requester
- * 
+ *
  * Invoked from certain points in the file write process.  Implementation may invoke CFE_EVS_SendEvent() appropriately
  * to inform of progress.
  */
-typedef void (*CFE_FS_FileWriteOnEvent_t)(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize, size_t Position);
+typedef void (*CFE_FS_FileWriteOnEvent_t)(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
+                                          size_t BlockSize, size_t Position);
 
 /**
  * \brief External Metadata/State object associated with background file writes
@@ -107,23 +105,21 @@ typedef void (*CFE_FS_FileWriteOnEvent_t)(void *Meta, CFE_FS_FileWriteEvent_t Ev
  * Applications intending to schedule background file write jobs should instantiate
  * this object in static/global data memory.  This keeps track of the state of the
  * file write request(s).
- */ 
+ */
 typedef struct CFE_FS_FileWriteMetaData
 {
-    volatile bool IsPending;            /**< Whether request is pending (volatile as it may be checked outside lock) */
+    volatile bool IsPending; /**< Whether request is pending (volatile as it may be checked outside lock) */
 
-    char   FileName[OS_MAX_PATH_LEN];   /**< Name of file to write */
+    char FileName[OS_MAX_PATH_LEN]; /**< Name of file to write */
 
     /* Data for FS header */
     uint32 FileSubType;                          /**< Type of file to write (for FS header) */
     char   Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< Description of file (for FS header) */
 
-    CFE_FS_FileWriteGetData_t GetData;  /**< Application callback to get a data record */
-    CFE_FS_FileWriteOnEvent_t OnEvent;  /**< Application callback for abstract event processing */
+    CFE_FS_FileWriteGetData_t GetData; /**< Application callback to get a data record */
+    CFE_FS_FileWriteOnEvent_t OnEvent; /**< Application callback for abstract event processing */
 
 } CFE_FS_FileWriteMetaData_t;
-
-
 
 #endif /* CFE_FS_ABSTRACT_TYPES_H */
 

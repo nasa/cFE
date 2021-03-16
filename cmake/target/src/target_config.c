@@ -38,28 +38,27 @@
 #include "cfe_es.h"
 #include "cfe_time.h"
 #include "cfe_es_resetdata_typedef.h"
-#include "cfe_version.h"    /* for CFE_VERSION_STRING */
-#include "osapi-version.h"  /* for OS_VERSION_STRING */
-
+#include "cfe_version.h"   /* for CFE_VERSION_STRING */
+#include "osapi-version.h" /* for OS_VERSION_STRING */
 
 #ifndef CFE_CPU_NAME_VALUE
-#define CFE_CPU_NAME_VALUE          "unknown"
+#define CFE_CPU_NAME_VALUE "unknown"
 #endif
 
 #ifndef CFE_CPU_ID_VALUE
-#define CFE_CPU_ID_VALUE            0
+#define CFE_CPU_ID_VALUE 0
 #endif
 
 #ifndef CFE_SPACECRAFT_ID_VALUE
-#define CFE_SPACECRAFT_ID_VALUE     0x42
+#define CFE_SPACECRAFT_ID_VALUE 0x42
 #endif
 
 #ifndef CFE_DEFAULT_MODULE_EXTENSION
-#define CFE_DEFAULT_MODULE_EXTENSION    ""
+#define CFE_DEFAULT_MODULE_EXTENSION ""
 #endif
 
 #ifndef CFE_DEFAULT_CORE_FILENAME
-#define CFE_DEFAULT_CORE_FILENAME       ""
+#define CFE_DEFAULT_CORE_FILENAME ""
 #endif
 
 /*
@@ -68,8 +67,8 @@
  * the data, which is then compiled and linked with this file.
  */
 
-extern const char CFE_MISSION_NAME[];       /**< Name of CFE mission */
-extern const char CFE_MISSION_CONFIG[];     /**< Configuration name used for build */
+extern const char CFE_MISSION_NAME[];   /**< Name of CFE mission */
+extern const char CFE_MISSION_CONFIG[]; /**< Configuration name used for build */
 
 /**
  * A list of modules which are statically linked into CFE core.
@@ -130,36 +129,33 @@ extern CFE_ConfigKeyValue_t CFE_MODULE_VERSION_TABLE[];
  */
 extern CFE_StaticModuleLoadEntry_t CFE_PSP_MODULE_LIST[];
 
-
 /**
  * A structure that encapsulates all the CFE static configuration
  */
-Target_CfeConfigData GLOBAL_CFE_CONFIGDATA =
-{
-      /*
-       * Entry points to CFE code called by the PSP
-       */
-      .System1HzISR = CFE_TIME_Local1HzISR,
-      .SystemMain = CFE_ES_Main,
-      .SystemNotify = CFE_ES_ProcessAsyncEvent,
+Target_CfeConfigData GLOBAL_CFE_CONFIGDATA = {
+    /*
+     * Entry points to CFE code called by the PSP
+     */
+    .System1HzISR = CFE_TIME_Local1HzISR,
+    .SystemMain   = CFE_ES_Main,
+    .SystemNotify = CFE_ES_ProcessAsyncEvent,
 
-      /*
-       * Default values for various file paths
-       */
-      .NonvolMountPoint = CFE_PLATFORM_ES_NONVOL_DISK_MOUNT_STRING,
-      .RamdiskMountPoint = CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING,
-      .NonvolStartupFile = CFE_PLATFORM_ES_NONVOL_STARTUP_FILE,
+    /*
+     * Default values for various file paths
+     */
+    .NonvolMountPoint  = CFE_PLATFORM_ES_NONVOL_DISK_MOUNT_STRING,
+    .RamdiskMountPoint = CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING,
+    .NonvolStartupFile = CFE_PLATFORM_ES_NONVOL_STARTUP_FILE,
 
-      /*
-       * Sizes of other memory segments
-       */
-      .CdsSize = CFE_PLATFORM_ES_CDS_SIZE,
-      .ResetAreaSize = sizeof(CFE_ES_ResetData_t),
-      .UserReservedSize = CFE_PLATFORM_ES_USER_RESERVED_SIZE,
+    /*
+     * Sizes of other memory segments
+     */
+    .CdsSize          = CFE_PLATFORM_ES_CDS_SIZE,
+    .ResetAreaSize    = sizeof(CFE_ES_ResetData_t),
+    .UserReservedSize = CFE_PLATFORM_ES_USER_RESERVED_SIZE,
 
-      .RamDiskSectorSize = CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
-      .RamDiskTotalSectors = CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS
-};
+    .RamDiskSectorSize   = CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
+    .RamDiskTotalSectors = CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS};
 
 /**
  * Instantiation of global system-wide configuration struct
@@ -167,23 +163,21 @@ Target_CfeConfigData GLOBAL_CFE_CONFIGDATA =
  * configuration structures.  Everything will be linked together
  * in the final executable.
  */
-Target_ConfigData GLOBAL_CONFIGDATA =
-{
-        .MissionName = CFE_MISSION_NAME,
-        .CfeVersion = CFE_SRC_VERSION,
-        .OsalVersion = OS_VERSION,
-        .Config = CFE_MISSION_CONFIG,
-        .Default_CpuName = CFE_CPU_NAME_VALUE,
-        .Default_CpuId = CFE_CPU_ID_VALUE,
-        .Default_SpacecraftId = CFE_SPACECRAFT_ID_VALUE,
-        .Default_ModuleExtension = CFE_DEFAULT_MODULE_EXTENSION,
-        .Default_CoreFilename = CFE_DEFAULT_CORE_FILENAME,
-        .CfeConfig = &GLOBAL_CFE_CONFIGDATA,
-        .PspConfig = &GLOBAL_PSP_CONFIGDATA,
-        .PspModuleList = CFE_PSP_MODULE_LIST,
-        .BuildEnvironment = CFE_BUILD_ENV_TABLE,
-        .ModuleVersionList = CFE_MODULE_VERSION_TABLE,
-        .CoreModuleList = CFE_CORE_MODULE_LIST,
-        .StaticAppList = CFE_STATIC_APP_LIST,
+Target_ConfigData GLOBAL_CONFIGDATA = {
+    .MissionName             = CFE_MISSION_NAME,
+    .CfeVersion              = CFE_SRC_VERSION,
+    .OsalVersion             = OS_VERSION,
+    .Config                  = CFE_MISSION_CONFIG,
+    .Default_CpuName         = CFE_CPU_NAME_VALUE,
+    .Default_CpuId           = CFE_CPU_ID_VALUE,
+    .Default_SpacecraftId    = CFE_SPACECRAFT_ID_VALUE,
+    .Default_ModuleExtension = CFE_DEFAULT_MODULE_EXTENSION,
+    .Default_CoreFilename    = CFE_DEFAULT_CORE_FILENAME,
+    .CfeConfig               = &GLOBAL_CFE_CONFIGDATA,
+    .PspConfig               = &GLOBAL_PSP_CONFIGDATA,
+    .PspModuleList           = CFE_PSP_MODULE_LIST,
+    .BuildEnvironment        = CFE_BUILD_ENV_TABLE,
+    .ModuleVersionList       = CFE_MODULE_VERSION_TABLE,
+    .CoreModuleList          = CFE_CORE_MODULE_LIST,
+    .StaticAppList           = CFE_STATIC_APP_LIST,
 };
-

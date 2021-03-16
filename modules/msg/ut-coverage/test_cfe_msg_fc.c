@@ -42,7 +42,7 @@
 void Test_MSG_FcnCode(void)
 {
     CFE_MSG_CommandHeader_t cmd;
-    CFE_MSG_Message_t      *msgptr  = &cmd.Msg;
+    CFE_MSG_Message_t *     msgptr  = &cmd.Msg;
     CFE_MSG_FcnCode_t       input[] = {0, TEST_FCNCODE_MAX / 2, TEST_FCNCODE_MAX};
     CFE_MSG_FcnCode_t       actual  = TEST_FCNCODE_MAX;
     int                     i;

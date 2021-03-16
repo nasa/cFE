@@ -26,7 +26,7 @@
  *
  * A CFE ES Resource ID is a common way to identify CFE-managed resources such
  * as apps, tasks, counters, memory pools, CDS blocks, and other entities.
- * 
+ *
  * Simple operations are provided as inline functions, which
  * should alleviate the need to do direct manipulation of resource IDs:
  *
@@ -44,42 +44,40 @@
  */
 #include "cfe_resourceid_api_typedefs.h"
 
-
 /** \name Resource ID test/conversion macros and inline functions */
 /** \{ */
 
-
 /**
  * \brief Convert a derived (app-specific) ID directly into an "unsigned long"
- * 
- * This generic routine is implemented as a macro so it is agnostic to the actual argument type, 
+ *
+ * This generic routine is implemented as a macro so it is agnostic to the actual argument type,
  * and it will evaluate correctly so long as the argument type is based on the CFE_RESOURCEID_BASE_TYPE.
- * 
+ *
  * There is no inverse of this macro, as it depends on the actual derived type desired.
  * Applications needing to recreate an ID from an integer should use CFE_ResourceId_FromInteger()
  * combined with a cast/conversion to the correct/intended derived type, as needed.
- * 
- * \note This evaluates as an "unsigned long" such that it can be used in 
+ *
+ * \note This evaluates as an "unsigned long" such that it can be used in
  * printf()-style functions with the "%lx" modifier without extra casting,
  * as this is the most typical use-case for representing an ID as an integer.
  */
-#define CFE_RESOURCEID_TO_ULONG(id)        CFE_ResourceId_ToInteger(CFE_RESOURCEID_UNWRAP(id))
+#define CFE_RESOURCEID_TO_ULONG(id) CFE_ResourceId_ToInteger(CFE_RESOURCEID_UNWRAP(id))
 
 /**
  * \brief Determine if a derived (app-specific) ID is defined or not
- * 
- * This generic routine is implemented as a macro so it is agnostic to the actual argument type, 
+ *
+ * This generic routine is implemented as a macro so it is agnostic to the actual argument type,
  * and it will evaluate correctly so long as the argument type is based on the CFE_RESOURCEID_BASE_TYPE.
  */
-#define CFE_RESOURCEID_TEST_DEFINED(id)    CFE_ResourceId_IsDefined(CFE_RESOURCEID_UNWRAP(id))
+#define CFE_RESOURCEID_TEST_DEFINED(id) CFE_ResourceId_IsDefined(CFE_RESOURCEID_UNWRAP(id))
 
 /**
  * \brief Determine if two derived (app-specific) IDs are equal
- * 
- * This generic routine is implemented as a macro so it is agnostic to the actual argument type, 
+ *
+ * This generic routine is implemented as a macro so it is agnostic to the actual argument type,
  * and it will evaluate correctly so long as the argument type is based on the CFE_RESOURCEID_BASE_TYPE.
  */
-#define CFE_RESOURCEID_TEST_EQUAL(id1,id2) CFE_ResourceId_Equal(CFE_RESOURCEID_UNWRAP(id1), CFE_RESOURCEID_UNWRAP(id2))
+#define CFE_RESOURCEID_TEST_EQUAL(id1, id2) CFE_ResourceId_Equal(CFE_RESOURCEID_UNWRAP(id1), CFE_RESOURCEID_UNWRAP(id2))
 
 /**
  * @brief Convert a resource ID to an integer.
@@ -159,7 +157,6 @@ static inline bool CFE_ResourceId_IsDefined(CFE_ResourceId_t id)
 
 /** \} */
 
-
 /*
  * Non-inline API functions provided by the Resource ID module
  */
@@ -169,7 +166,7 @@ static inline bool CFE_ResourceId_IsDefined(CFE_ResourceId_t id)
  *
  * This masks out the ID serial number to obtain the base value, which is different
  * for each resource type.
- * 
+ *
  * @note The value is NOT shifted or otherwise adjusted.
  *
  * @param[in]   ResourceId   the resource ID to decode
@@ -182,12 +179,11 @@ extern uint32 CFE_ResourceId_GetBase(CFE_ResourceId_t ResourceId);
  *
  * This masks out the ID base value to obtain the serial number, which is different
  * for each entity created.
- * 
+ *
  * @param[in]   ResourceId   the resource ID to decode
  * @returns     The serial number associated with that ID
  */
 extern uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
-
 
 /**
  * @brief Locate the next resource ID which does not map to an in-use table entry
@@ -206,7 +202,8 @@ extern uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
  * @retval      #CFE_RESOURCEID_UNDEFINED if no open slots.
  *
  */
-extern CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize, bool (*CheckFunc)(CFE_ResourceId_t) );
+extern CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
+                                                bool (*CheckFunc)(CFE_ResourceId_t));
 
 /**
  * @brief Internal routine to aid in converting an ES resource ID to an array index
@@ -219,6 +216,4 @@ extern CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32
  */
 extern int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx);
 
-
-
-#endif  /* CFE_RESOURCEID_H */
+#endif /* CFE_RESOURCEID_H */

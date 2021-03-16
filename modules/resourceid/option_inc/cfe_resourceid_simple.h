@@ -23,7 +23,6 @@
 
 #include "common_types.h"
 
-
 /**
  * @brief A type that provides a common, abstract identifier for
  * all ES managed resources (e.g. apps, tasks, counters, etc).
@@ -41,7 +40,6 @@ typedef uint32 CFE_ResourceId_t;
  */
 #define CFE_RESOURCEID_BASE_TYPE CFE_ResourceId_t
 
-
 /**
  * @brief A fixed bit that will be set in all CFE resource ID values
  *
@@ -50,7 +48,6 @@ typedef uint32 CFE_ResourceId_t;
  * CFE Task IDs and OSAL task IDs are same thing and are interchangable.
  */
 #define CFE_RESOURCEID_MARK 0
-
 
 /*
  * Wrap/Unwrap macros.

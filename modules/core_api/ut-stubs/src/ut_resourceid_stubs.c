@@ -27,7 +27,6 @@
 #include "cfe_resourceid.h"
 #include "cfe_resourceid_basevalue.h"
 
-
 uint32 CFE_ResourceId_GetBase(CFE_ResourceId_t ResourceId)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ResourceId_GetBase), ResourceId);
@@ -64,7 +63,8 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId)
     return (CFE_ResourceId_ToInteger(ResourceId) & ((uint32)CFE_RESOURCEID_MAX));
 }
 
-CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize, bool (*CheckFunc)(CFE_ResourceId_t))
+CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
+                                         bool (*CheckFunc)(CFE_ResourceId_t))
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ResourceId_FindNext), StartId);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_ResourceId_FindNext), TableSize);
@@ -118,4 +118,3 @@ int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 Table
 
     return return_code;
 }
-

@@ -33,7 +33,6 @@
 #ifndef _cfe_fs_
 #define _cfe_fs_
 
-
 /*
 ** Required header files...
 */
@@ -43,7 +42,6 @@
 #include "cfe_error.h"
 #include "cfe_fs_api_typedefs.h"
 #include "cfe_fs_extern_typedefs.h"
-
 
 /** @defgroup CFEAPIFSHeader cFE File Header Management APIs
  * @{
@@ -66,7 +64,8 @@
 **                    that is associated with the file whose header is to be read.
 **
 ** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
-**                    filled with the contents of the Standard cFE File Header. *Hdr is the contents of the Standard cFE File Header for the specified file.
+**                         filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
+**                         Standard cFE File Header for the specified file.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 **
@@ -110,10 +109,12 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **      -# \link #CFE_FS_Header_t::SpacecraftID \c SpacecraftID \endlink - Filled with the Spacecraft ID
 **      -# \link #CFE_FS_Header_t::ProcessorID \c ProcessorID \endlink - Filled with the Processor ID
 **      -# \link #CFE_FS_Header_t::ApplicationID \c ApplicationID \endlink -  Filled with the Application ID
-**      -# \link #CFE_FS_Header_t::TimeSeconds \c TimeSeconds \endlink - Filled with the Time, in seconds, as obtained by #CFE_TIME_GetTime
-**      -# \link #CFE_FS_Header_t::TimeSubSeconds \c TimeSubSeconds \endlink - Filled with the Time, subseconds, as obtained by #CFE_TIME_GetTime
-**        
-**        
+**      -# \link #CFE_FS_Header_t::TimeSeconds \c TimeSeconds \endlink - Filled with the Time, in seconds, as obtained
+**                                                                       by #CFE_TIME_GetTime
+**      -# \link #CFE_FS_Header_t::TimeSubSeconds \c TimeSubSeconds \endlink - Filled with the Time, subseconds, as
+**                                                                             obtained by #CFE_TIME_GetTime
+**
+**
 ** \par Assumptions, External Events, and Notes:
 **        -# The File has already been successfully opened using #OS_OpenCreate and
 **           the caller has a legitimate File Descriptor.
@@ -124,7 +125,8 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **                    that is associated with the file whose header is to be read.
 **
 ** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
-**                    filled with the contents of the Standard cFE File Header. *Hdr is the contents of the Standard cFE File Header for the specified file.
+**                         filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
+**                         Standard cFE File Header for the specified file.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 **
@@ -154,11 +156,10 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr);
 **                         to be put into the file's Standard cFE File Header.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-**               
+**
 ******************************************************************************/
 CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp);
 /**@}*/
-
 
 /** @defgroup CFEAPIFSUtil cFE File Utility APIs
  * @{
@@ -169,14 +170,14 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
 ** \brief Get the default virtual mount point for a file category
 **
 ** Certain classes of files generally reside in a common directory, mainly
-** either the persistent storage (/cf typically) or ram disk (/ram typically).  
+** either the persistent storage (/cf typically) or ram disk (/ram typically).
 **
-** Ephemeral status files are generally in the ram disk while application 
+** Ephemeral status files are generally in the ram disk while application
 ** modules and scripts are generally in the persistent storage.
 **
-** This returns the expected directory for a given class of files in the form 
+** This returns the expected directory for a given class of files in the form
 ** of a virtual OSAL mount point string.
-** 
+**
 ** \returns String containing the mount point, or NULL if unkown/invalid
 */
 const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory);
@@ -185,18 +186,17 @@ const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory);
 /**
 ** \brief Get the default filename extension for a file category
 **
-** Certain file types may have an extension that varies from system to system. 
-** This is primarily an issue for application modules which are ".so" on 
+** Certain file types may have an extension that varies from system to system.
+** This is primarily an issue for application modules which are ".so" on
 ** Linux systems, ".dll" on Windows, ".o" on VxWorks, ".obj" on RTEMS, and so on.
 **
-** This uses a combination of compile-time configuration and hints from the 
+** This uses a combination of compile-time configuration and hints from the
 ** build environment to get the default/expected extension for a given file
 ** category.
-** 
+**
 ** \returns String containing the extension, or NULL if unkown/invalid
 */
 const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory);
-
 
 /*****************************************************************************/
 /**
@@ -232,23 +232,23 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory);
 ** \return Execution status, see \ref CFEReturnCodes
 **
 ******************************************************************************/
-int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize, size_t InputBufSize, 
-        const char *DefaultInput, const char *DefaultPath, const char *DefaultExtension);
-
+int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
+                                  size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
+                                  const char *DefaultExtension);
 
 /*****************************************************************************/
 /**
 ** \brief Parse a filename string from the user into a local buffer
 **
 ** \par Description
-**        Simplified API for CFE_FS_ParseInputFileNameEx() where input is 
-**        always known to be a non-empty, null terminated string and the fixed-length 
+**        Simplified API for CFE_FS_ParseInputFileNameEx() where input is
+**        always known to be a non-empty, null terminated string and the fixed-length
 **        input buffer not needed.  For instance this may be used where
 **        the input is a fixed string from cfe_platform_cfg.h or similar.
 **
 ** \par Assumptions, External Events, and Notes:
-**        The parameters are organized such that this is basically like strncpy() with an 
-**        extra argument, and existing file name accesses which use a direct copy can 
+**        The parameters are organized such that this is basically like strncpy() with an
+**        extra argument, and existing file name accesses which use a direct copy can
 **        easily change to use this instead.
 **
 ** \sa CFE_FS_ParseInputFileNameEx()
@@ -262,8 +262,8 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
 **
 **---------------------------------------------------------------------------------------
 */
-int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize, CFE_FS_FileCategory_t FileCategory);
-
+int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
+                                CFE_FS_FileCategory_t FileCategory);
 
 /*****************************************************************************/
 /**
@@ -277,7 +277,7 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
 ** \par Assumptions, External Events, and Notes:
 **        -# The paths and filenames used here are the standard unix style
 **            filenames separated by "/" characters.
-**        -# The extracted filename (including terminator) is no longer than #OS_MAX_PATH_LEN 
+**        -# The extracted filename (including terminator) is no longer than #OS_MAX_PATH_LEN
 **
 ** \param[in] OriginalPath The original path.
 ** \param[out] FileNameOnly The filename that is extracted from the path.

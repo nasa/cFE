@@ -20,10 +20,10 @@
 
 /**
  * @file cfe_sb_module_all.h
- * 
+ *
  * Encapsulates all SB module internal header files, as well
  * as the public API from all other CFE core modules, OSAL, and PSP.
- * 
+ *
  * This simplifies the set of include files that need to be put at the
  * start of every source file.
  */
@@ -47,6 +47,5 @@
 #include "cfe_sb_msg.h"
 #include "cfe_sbr.h"
 #include "cfe_core_resourceid_basevalues.h"
-
 
 #endif /* CFE_SB_MODULE_ALL_H */

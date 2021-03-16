@@ -48,71 +48,57 @@
  * minimum alignment requirement.  (C99 is lacking a standardized "alignof" operator,
  * and this is intended to substitute).
  */
-#define ALIGN_OF(type)      ((cpuaddr)&((struct { char Byte; type Align; } *)0)->Align)
-
+#define ALIGN_OF(type)           \
+    ((cpuaddr) & ((struct {      \
+                     char Byte;  \
+                     type Align; \
+                 } *)0)          \
+                     ->Align)
 
 /*****************************************************************************/
 /*
 ** Type Definitions
 */
 
-const size_t CFE_ES_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] =
-{
-    CFE_PLATFORM_ES_MAX_BLOCK_SIZE,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_16,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_15,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_14,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_13,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_12,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_11,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_10,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_09,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_08,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_07,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_06,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_05,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_04,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_03,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_02,
-    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01
-};
+const size_t CFE_ES_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
+    CFE_PLATFORM_ES_MAX_BLOCK_SIZE,    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_16, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_15,
+    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_14, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_13, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_12,
+    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_11, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_10, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_09,
+    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_08, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_07, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_06,
+    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_05, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_04, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_03,
+    CFE_PLATFORM_ES_MEM_BLOCK_SIZE_02, CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01};
 
 /*****************************************************************************/
 /*
 ** Functions
 */
 
-int32 CFE_ES_MemPoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
-        CFE_ES_GenPoolBD_t **BdPtr)
+int32 CFE_ES_MemPoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
 {
-    cpuaddr DataAddress;
+    cpuaddr                 DataAddress;
     CFE_ES_MemPoolRecord_t *MemPoolRecPtr = (CFE_ES_MemPoolRecord_t *)PoolRecPtr;
 
     DataAddress = MemPoolRecPtr->BaseAddr + Offset;
-    *BdPtr = (CFE_ES_GenPoolBD_t *)DataAddress;
+    *BdPtr      = (CFE_ES_GenPoolBD_t *)DataAddress;
 
     return CFE_SUCCESS;
 }
 
-int32 CFE_ES_MemPoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset,
-        const CFE_ES_GenPoolBD_t *BdPtr)
+int32 CFE_ES_MemPoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
 {
     return CFE_SUCCESS;
 }
-
 
 int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx)
 {
-    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(PoolID),
-            CFE_ES_POOLID_BASE,
-            CFE_PLATFORM_ES_MAX_MEMORY_POOLS,
-            Idx);
+    return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(PoolID), CFE_ES_POOLID_BASE, CFE_PLATFORM_ES_MAX_MEMORY_POOLS,
+                                  Idx);
 }
 
 /*---------------------------------------------------------------------------------------
  * Function: CFE_ES_CheckMemPoolSlotUsed
- * 
- * Purpose: Helper function, Aids in allocating a new ID by checking if 
+ *
+ * Purpose: Helper function, Aids in allocating a new ID by checking if
  * a given table slot is available.  Must be called while locked.
  *---------------------------------------------------------------------------------------
  */
@@ -121,10 +107,10 @@ bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId)
     return CFE_ES_MemPoolRecordIsUsed(CFE_ES_LocateMemPoolRecordByID(CFE_ES_MEMHANDLE_C(CheckId)));
 }
 
-CFE_ES_MemPoolRecord_t* CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID)
+CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID)
 {
     CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
-    uint32 Idx;
+    uint32                  Idx;
 
     if (CFE_ES_MemPoolID_ToIndex(PoolID, &Idx) == CFE_SUCCESS)
     {
@@ -141,39 +127,30 @@ CFE_ES_MemPoolRecord_t* CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID
 /*
 ** CFE_ES_PoolCreateNoSem will initialize a pre-allocated memory pool without using a mutex.
 */
-int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t  *PoolID,
-                             uint8               *MemPtr,
-                             size_t               Size )
+int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size)
 {
-    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
-                               &CFE_ES_MemPoolDefSize[0],CFE_ES_NO_MUTEX);
+    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS, &CFE_ES_MemPoolDefSize[0],
+                               CFE_ES_NO_MUTEX);
 }
 
 /*
 ** CFE_ES_PoolCreate will initialize a pre-allocated memory pool while using a mutex.
 */
-int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t  *PoolID,
-                        uint8               *MemPtr,
-                        size_t               Size )
+int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size)
 {
-    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
-                               &CFE_ES_MemPoolDefSize[0],CFE_ES_USE_MUTEX);
+    return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS, &CFE_ES_MemPoolDefSize[0],
+                               CFE_ES_USE_MUTEX);
 }
 
-
-int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
-                          uint8                    *MemPtr,
-                          size_t                    Size,
-                          uint16                    NumBlockSizes,
-                          const size_t             *BlockSizes,
-                          bool                      UseMutex )
+int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size, uint16 NumBlockSizes,
+                          const size_t *BlockSizes, bool UseMutex)
 {
-    int32 Status;
-    CFE_ResourceId_t PendingID;
+    int32                   Status;
+    CFE_ResourceId_t        PendingID;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    size_t Alignment;
-    size_t MinimumSize;
-    char     MutexName[OS_MAX_API_NAME];
+    size_t                  Alignment;
+    size_t                  MinimumSize;
+    char                    MutexName[OS_MAX_API_NAME];
 
     /* Sanity Check inputs */
     if (MemPtr == NULL || PoolID == NULL)
@@ -184,9 +161,9 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
     /* If too many sizes are specified, return an error */
     if (NumBlockSizes > CFE_PLATFORM_ES_POOL_MAX_BUCKETS)
     {
-       CFE_ES_WriteToSysLog("CFE_ES:poolCreate Num Block Sizes (%d) greater than max (%d)\n",
-                            (int)NumBlockSizes, CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
-       return(CFE_ES_BAD_ARGUMENT);
+        CFE_ES_WriteToSysLog("CFE_ES:poolCreate Num Block Sizes (%d) greater than max (%d)\n", (int)NumBlockSizes,
+                             CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
+        return (CFE_ES_BAD_ARGUMENT);
     }
 
     /*
@@ -204,21 +181,19 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
     /*
      * Sanity check the pool size
      */
-    MinimumSize =  CFE_ES_GenPoolCalcMinSize(NumBlockSizes, BlockSizes, 1);
-    if ( Size < MinimumSize )
+    MinimumSize = CFE_ES_GenPoolCalcMinSize(NumBlockSizes, BlockSizes, 1);
+    if (Size < MinimumSize)
     {
-        CFE_ES_WriteToSysLog("CFE_ES:poolCreate Pool size(%lu) too small, need >=%lu bytes\n",
-                (unsigned long)Size,
-                (unsigned long)MinimumSize);
+        CFE_ES_WriteToSysLog("CFE_ES:poolCreate Pool size(%lu) too small, need >=%lu bytes\n", (unsigned long)Size,
+                             (unsigned long)MinimumSize);
         return CFE_ES_BAD_ARGUMENT;
     }
 
-
-
-    CFE_ES_LockSharedData(__func__,__LINE__);
+    CFE_ES_LockSharedData(__func__, __LINE__);
 
     /* scan for a free slot */
-    PendingID = CFE_ResourceId_FindNext(CFE_ES_Global.LastMemPoolId, CFE_PLATFORM_ES_MAX_MEMORY_POOLS, CFE_ES_CheckMemPoolSlotUsed);
+    PendingID  = CFE_ResourceId_FindNext(CFE_ES_Global.LastMemPoolId, CFE_PLATFORM_ES_MAX_MEMORY_POOLS,
+                                        CFE_ES_CheckMemPoolSlotUsed);
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(CFE_ES_MEMHANDLE_C(PendingID));
 
     if (PoolRecPtr == NULL)
@@ -232,10 +207,10 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
         memset(PoolRecPtr, 0, sizeof(*PoolRecPtr));
         CFE_ES_MemPoolRecordSetUsed(PoolRecPtr, CFE_RESOURCEID_RESERVED);
         CFE_ES_Global.LastMemPoolId = PendingID;
-        Status = CFE_SUCCESS;
+        Status                      = CFE_SUCCESS;
     }
 
-    CFE_ES_UnlockSharedData(__func__,__LINE__);
+    CFE_ES_UnlockSharedData(__func__, __LINE__);
 
     /*
      * If no open resource ID was found, return now.
@@ -249,7 +224,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
         return Status;
     }
 
-    Alignment = ALIGN_OF(CFE_ES_PoolAlign_t);  /* memory mapped pools should be aligned */
+    Alignment = ALIGN_OF(CFE_ES_PoolAlign_t); /* memory mapped pools should be aligned */
     if (Alignment < CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN)
     {
         /*
@@ -264,38 +239,30 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
      * Most of the work is done by the generic pool implementation.
      * This subsystem works in offsets, not pointers.
      */
-    Status = CFE_ES_GenPoolInitialize(
-            &PoolRecPtr->Pool,
-            0,
-            Size,
-            Alignment,
-            NumBlockSizes,
-            BlockSizes,
-            CFE_ES_MemPoolDirectRetrieve,
-            CFE_ES_MemPoolDirectCommit);
+    Status = CFE_ES_GenPoolInitialize(&PoolRecPtr->Pool, 0, Size, Alignment, NumBlockSizes, BlockSizes,
+                                      CFE_ES_MemPoolDirectRetrieve, CFE_ES_MemPoolDirectCommit);
 
     /*
      * If successful, complete the process.
      */
     if (Status == CFE_SUCCESS && UseMutex == CFE_ES_USE_MUTEX)
     {
-       /*
-       ** Construct a name for the Mutex from the address
-       ** This is needed only because OS_MutSemCreate requires
-       ** a unique name for each semaphore created.
-       */
-       snprintf(MutexName, OS_MAX_API_NAME, "Pool%08lX", CFE_ResourceId_ToInteger(PendingID));
+        /*
+        ** Construct a name for the Mutex from the address
+        ** This is needed only because OS_MutSemCreate requires
+        ** a unique name for each semaphore created.
+        */
+        snprintf(MutexName, OS_MAX_API_NAME, "Pool%08lX", CFE_ResourceId_ToInteger(PendingID));
 
-       /* create a mutex to protect this memory pool */
-       Status = OS_MutSemCreate(&PoolRecPtr->MutexId, MutexName, 0);
-       if (Status != OS_SUCCESS)
-       {
-           /* log error and rewrite to CFE status code */
-           CFE_ES_WriteToSysLog("CFE_ES:poolCreate OSAL error %d while creating mutex\n",
-                   (int)Status);
+        /* create a mutex to protect this memory pool */
+        Status = OS_MutSemCreate(&PoolRecPtr->MutexId, MutexName, 0);
+        if (Status != OS_SUCCESS)
+        {
+            /* log error and rewrite to CFE status code */
+            CFE_ES_WriteToSysLog("CFE_ES:poolCreate OSAL error %d while creating mutex\n", (int)Status);
 
-           Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-       }
+            Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        }
     }
 
     if (Status == CFE_SUCCESS)
@@ -329,8 +296,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
 
         if (Status == CFE_ES_POOL_BOUNDS_ERROR)
         {
-            CFE_ES_WriteToSysLog("CFE_ES:poolCreate Pool size(%lu) too small\n",
-                    (unsigned long)Size);
+            CFE_ES_WriteToSysLog("CFE_ES:poolCreate Pool size(%lu) too small\n", (unsigned long)Size);
         }
     }
 
@@ -339,15 +305,15 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t       *PoolID,
      */
     *PoolID = CFE_ES_MEMHANDLE_C(PendingID);
 
-    return(Status);
+    return (Status);
 }
 
 int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
 {
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    osal_id_t MutexId;
-    int32 Status;
-    int32 MutDeleteStatus;
+    osal_id_t               MutexId;
+    int32                   Status;
+    int32                   MutDeleteStatus;
 
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(PoolID);
 
@@ -363,7 +329,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
     else
     {
         MutexId = OS_OBJECT_ID_UNDEFINED;
-        Status = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        Status  = CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
@@ -382,8 +348,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
              * The MemPool entry has already been deleted, so this
              * function should not return an error at this point.
              */
-            CFE_ES_WriteToSysLog("CFE_ES:poolDelete error %d deleting mutex\n",
-                    (int)MutDeleteStatus);
+            CFE_ES_WriteToSysLog("CFE_ES:poolDelete error %d deleting mutex\n", (int)MutDeleteStatus);
         }
     }
 
@@ -397,14 +362,12 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
 ** Purpose:
 **   CFE_ES_GetPoolBuf allocates a block from the memory pool.
 */
-int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr,
-                        CFE_ES_MemHandle_t   Handle,
-                        size_t               Size )
+int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, size_t Size)
 {
-    int32 Status;
-    CFE_ES_AppId_t  AppId;
+    int32                   Status;
+    CFE_ES_AppId_t          AppId;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    size_t   DataOffset;
+    size_t                  DataOffset;
 
     if (BufPtr == NULL)
     {
@@ -417,10 +380,9 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr,
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
         CFE_ES_GetAppID(&AppId);
-        CFE_ES_WriteToSysLog("CFE_ES:getPoolBuf err:Bad handle(0x%08lX) AppId=%lu\n",
-                CFE_RESOURCEID_TO_ULONG(Handle),
-                CFE_RESOURCEID_TO_ULONG(AppId));
-        return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        CFE_ES_WriteToSysLog("CFE_ES:getPoolBuf err:Bad handle(0x%08lX) AppId=%lu\n", CFE_RESOURCEID_TO_ULONG(Handle),
+                             CFE_RESOURCEID_TO_ULONG(AppId));
+        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 
     /*
@@ -455,7 +417,6 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr,
         return (Status);
     }
 
-
     /* Compute the actual buffer address. */
     *BufPtr = CFE_ES_MEMPOOLBUF_C(PoolRecPtr->BaseAddr + DataOffset);
 
@@ -465,13 +426,12 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr,
 /*
 ** CFE_ES_GetPoolBufInfo gets the size of the specified block (if it exists).
 */
-int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t   Handle,
-                            CFE_ES_MemPoolBuf_t  BufPtr)
+int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
 {
-    int32 Status;
+    int32                   Status;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    size_t   DataOffset;
-    size_t   DataSize;
+    size_t                  DataOffset;
+    size_t                  DataSize;
 
     if (BufPtr == NULL)
     {
@@ -483,7 +443,7 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t   Handle,
     /* basic sanity check */
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
-        return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 
     /*
@@ -508,7 +468,6 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t   Handle,
         OS_MutSemGive(PoolRecPtr->MutexId);
     }
 
-
     if (Status == CFE_SUCCESS)
     {
         /*
@@ -524,13 +483,12 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t   Handle,
 /*
 ** CFE_ES_putPoolBuf returns a block back to the memory pool.
 */
-int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
-                        CFE_ES_MemPoolBuf_t  BufPtr)
+int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
 {
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    size_t   DataSize;
-    size_t   DataOffset;
-    int32 Status;
+    size_t                  DataSize;
+    size_t                  DataOffset;
+    int32                   Status;
 
     if (BufPtr == NULL)
     {
@@ -543,9 +501,9 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
         CFE_ES_WriteToSysLog("CFE_ES:putPoolBuf err:Invalid Memory Handle (0x%08lX).\n",
-                CFE_RESOURCEID_TO_ULONG(Handle));
+                             CFE_RESOURCEID_TO_ULONG(Handle));
 
-        return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 
     /*
@@ -589,12 +547,12 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
     else if (Status == CFE_ES_POOL_BLOCK_INVALID)
     {
         CFE_ES_WriteToSysLog("CFE_ES:putPoolBuf err:Deallocating invalid or corrupt memory block @ 0x%08lX\n",
-                (unsigned long)BufPtr);
+                             (unsigned long)BufPtr);
     }
     else if (Status == CFE_ES_BUFFER_NOT_IN_POOL)
     {
         CFE_ES_WriteToSysLog("CFE_ES_GenPoolPutBlock err:Bad offset(%lu) outside pool boundary\n",
-                (unsigned long)DataOffset);
+                             (unsigned long)DataOffset);
     }
 
     return Status;
@@ -607,13 +565,12 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t   Handle,
 ** Purpose:
 **
 */
-int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
-                             CFE_ES_MemHandle_t  Handle)
+int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHandle_t Handle)
 {
-    CFE_ES_AppId_t  AppId;
+    CFE_ES_AppId_t          AppId;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
-    uint16 NumBuckets;
-    uint16 Idx;
+    uint16                  NumBuckets;
+    uint16                  Idx;
 
     if (BufPtr == NULL)
     {
@@ -627,8 +584,8 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
     {
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("CFE_ES:getMemPoolStats err:Bad handle(0x%08lX) AppId=%lu\n",
-                CFE_RESOURCEID_TO_ULONG(Handle), CFE_RESOURCEID_TO_ULONG(AppId));
-        return(CFE_ES_ERR_RESOURCEID_NOT_VALID);
+                             CFE_RESOURCEID_TO_ULONG(Handle), CFE_RESOURCEID_TO_ULONG(AppId));
+        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 
     /*
@@ -643,22 +600,16 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
     /*
      * Obtain the free and total byte count
      */
-    CFE_ES_GenPoolGetUsage(&PoolRecPtr->Pool,
-            &BufPtr->NumFreeBytes,
-            &BufPtr->PoolSize);
+    CFE_ES_GenPoolGetUsage(&PoolRecPtr->Pool, &BufPtr->NumFreeBytes, &BufPtr->PoolSize);
 
     /*
      * Obtain the allocation and validation error counts
      */
-    CFE_ES_GenPoolGetCounts(&PoolRecPtr->Pool,
-            &NumBuckets,
-            &BufPtr->NumBlocksRequested,
-            &BufPtr->CheckErrCtr);
+    CFE_ES_GenPoolGetCounts(&PoolRecPtr->Pool, &NumBuckets, &BufPtr->NumBlocksRequested, &BufPtr->CheckErrCtr);
 
     for (Idx = 0; Idx < CFE_MISSION_ES_POOL_MAX_BUCKETS; ++Idx)
     {
-        CFE_ES_GenPoolGetBucketUsage(&PoolRecPtr->Pool, NumBuckets,
-                &BufPtr->BlockStats[Idx]);
+        CFE_ES_GenPoolGetBucketUsage(&PoolRecPtr->Pool, NumBuckets, &BufPtr->BlockStats[Idx]);
 
         if (NumBuckets > 0)
         {
@@ -674,10 +625,9 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
     {
         OS_MutSemGive(PoolRecPtr->MutexId);
     }
-    
+
     return CFE_SUCCESS;
 }
-
 
 /*
 ** Function:
@@ -686,10 +636,10 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr,
 ** Purpose:
 **   Insures that the handle passed in meets all of the requirements of a valid handle.
 */
-bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t  Handle)
+bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t Handle)
 {
-    CFE_ES_MemPoolRecord_t   *PoolRecPtr;
-    CFE_ES_MemOffset_t TotalSize;
+    CFE_ES_MemPoolRecord_t *PoolRecPtr;
+    CFE_ES_MemOffset_t      TotalSize;
 
     /* Test #1) Handle must be valid */
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(Handle);
@@ -706,9 +656,7 @@ bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t  Handle)
 
     /* Test #3) Check memory address in PSP (allows both RAM and EEPROM) */
     CFE_ES_GenPoolGetUsage(&PoolRecPtr->Pool, NULL, &TotalSize);
-    if (CFE_PSP_MemValidateRange(PoolRecPtr->BaseAddr,
-            TotalSize,
-            CFE_PSP_MEM_ANY) != CFE_PSP_SUCCESS)
+    if (CFE_PSP_MemValidateRange(PoolRecPtr->BaseAddr, TotalSize, CFE_PSP_MEM_ANY) != CFE_PSP_SUCCESS)
     {
         return false;
     }

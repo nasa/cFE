@@ -38,7 +38,6 @@
 #include "cfe_core_resourceid_basevalues.h"
 #include "cfe_es_global.h"
 
-
 /**
  * @brief Locate the app table entry correlating with a given app ID.
  *
@@ -48,7 +47,7 @@
  * @param[in]   AppID   the app ID to locate
  * @return pointer to App Table entry for the given app ID
  */
-extern CFE_ES_AppRecord_t* CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID);
+extern CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID);
 
 /**
  * @brief Locate the Library table entry correlating with a given Lib ID.
@@ -59,7 +58,7 @@ extern CFE_ES_AppRecord_t* CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID);
  * @param[in]   LibID   the Lib ID to locate
  * @return pointer to Library Table entry for the given Lib ID
  */
-extern CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID);
+extern CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID);
 
 /**
  * @brief Locate the task table entry correlating with a given task ID.
@@ -70,7 +69,7 @@ extern CFE_ES_LibRecord_t* CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID);
  * @param[in]   TaskID   the task ID to locate
  * @return pointer to Task Table entry for the given task ID
  */
-extern CFE_ES_TaskRecord_t* CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID);
+extern CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID);
 
 /**
  * @brief Locate the Counter table entry correlating with a given Counter ID.
@@ -81,7 +80,7 @@ extern CFE_ES_TaskRecord_t* CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID);
  * @param[in]   CounterID   the Counter ID to locate
  * @return pointer to Counter Table entry for the given Counter ID
  */
-extern CFE_ES_GenCounterRecord_t* CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t CounterID);
+extern CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t CounterID);
 
 /**
  * @brief Check if an app record is in use or free/empty
@@ -171,12 +170,10 @@ static inline bool CFE_ES_AppRecordIsMatch(const CFE_ES_AppRecord_t *AppRecPtr, 
  * @param[in]   AppRecPtr   pointer to App table entry
  * @returns Pointer to Application name
  */
-static inline const char* CFE_ES_AppRecordGetName(const CFE_ES_AppRecord_t *AppRecPtr)
+static inline const char *CFE_ES_AppRecordGetName(const CFE_ES_AppRecord_t *AppRecPtr)
 {
     return AppRecPtr->AppName;
 }
-
-
 
 /**
  * @brief Check if a Library record is in use or free/empty
@@ -264,12 +261,10 @@ static inline bool CFE_ES_LibRecordIsMatch(const CFE_ES_LibRecord_t *LibRecPtr, 
  * @param[in]   LibRecPtr   pointer to Lib table entry
  * @returns Pointer to Library name
  */
-static inline const char* CFE_ES_LibRecordGetName(const CFE_ES_LibRecord_t *LibRecPtr)
+static inline const char *CFE_ES_LibRecordGetName(const CFE_ES_LibRecord_t *LibRecPtr)
 {
     return LibRecPtr->LibName;
 }
-
-
 
 /**
  * @brief Get the ID value from an Task table entry
@@ -362,12 +357,10 @@ static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPt
  * @param[in]   TaskRecPtr   pointer to Task table entry
  * @returns Pointer to Task name
  */
-static inline const char* CFE_ES_TaskRecordGetName(const CFE_ES_TaskRecord_t *TaskRecPtr)
+static inline const char *CFE_ES_TaskRecordGetName(const CFE_ES_TaskRecord_t *TaskRecPtr)
 {
     return TaskRecPtr->TaskName;
 }
-
-
 
 /**
  * @brief Check if an Counter record is in use or free/empty
@@ -444,7 +437,8 @@ static inline void CFE_ES_CounterRecordSetFree(CFE_ES_GenCounterRecord_t *Counte
  * @param[in]   CounterID       expected Counter ID
  * @returns true if the entry matches the given Counter ID
  */
-static inline bool CFE_ES_CounterRecordIsMatch(const CFE_ES_GenCounterRecord_t *CounterRecPtr, CFE_ES_CounterId_t CounterID)
+static inline bool CFE_ES_CounterRecordIsMatch(const CFE_ES_GenCounterRecord_t *CounterRecPtr,
+                                               CFE_ES_CounterId_t               CounterID)
 {
     return (CounterRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(CounterRecPtr->CounterId, CounterID));
 }
@@ -457,11 +451,10 @@ static inline bool CFE_ES_CounterRecordIsMatch(const CFE_ES_GenCounterRecord_t *
  * @param[in]   CounterRecPtr   pointer to Counter table entry
  * @returns Pointer to counter name
  */
-static inline const char* CFE_ES_CounterRecordGetName(const CFE_ES_GenCounterRecord_t *CounterRecPtr)
+static inline const char *CFE_ES_CounterRecordGetName(const CFE_ES_GenCounterRecord_t *CounterRecPtr)
 {
     return CounterRecPtr->CounterName;
 }
-
 
 /**
  * Locate and validate the app record for the calling context.
@@ -473,7 +466,7 @@ static inline const char* CFE_ES_CounterRecordGetName(const CFE_ES_GenCounterRec
  *
  * The global data lock should be obtained prior to invoking this function.
  */
-extern CFE_ES_AppRecord_t* CFE_ES_GetAppRecordByContext(void);
+extern CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void);
 
 /**
  * Locate and validate the task record for the calling context.
@@ -485,17 +478,17 @@ extern CFE_ES_AppRecord_t* CFE_ES_GetAppRecordByContext(void);
  *
  * The global data lock should be obtained prior to invoking this function.
  */
-extern CFE_ES_TaskRecord_t* CFE_ES_GetTaskRecordByContext(void);
+extern CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void);
 
 /*
  * OSAL <-> CFE task ID conversion
- * 
+ *
  * CFE ES does not currently allocate its own task IDs; instead it piggybacks on top
  * of the allocation that is already done by OSAL.  This is partly for backward
  * compatibility - historically the OSAL task IDs were used directly by CFE task APIs.
- * 
+ *
  * This is _only_ used for tasks - for all other resource types ES should allocate
- * its own identifiers independently of any other subsystem.  This conversion may also 
+ * its own identifiers independently of any other subsystem.  This conversion may also
  * be removed in a future version of CFE, if ES starts allocating task IDs independently
  * of OSAL task IDs.
  */
@@ -546,9 +539,9 @@ extern CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id);
  * These functions do not lock, they must only be used internally by ES when
  * the lock is already held.
  */
-CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name);
-CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name);
-CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByName(const char *Name);
+CFE_ES_AppRecord_t *       CFE_ES_LocateAppRecordByName(const char *Name);
+CFE_ES_LibRecord_t *       CFE_ES_LocateLibRecordByName(const char *Name);
+CFE_ES_TaskRecord_t *      CFE_ES_LocateTaskRecordByName(const char *Name);
 CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name);
 
 /* Availability check functions used in conjunction with CFE_ResourceId_FindNext() */
@@ -556,5 +549,4 @@ bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId);
 bool CFE_ES_CheckLibIdSlotUsed(CFE_ResourceId_t CheckId);
 bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId);
 
-
-#endif  /* CFE_ES_RESOURCE_H */
+#endif /* CFE_ES_RESOURCE_H */

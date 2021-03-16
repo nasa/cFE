@@ -15,7 +15,7 @@ include_directories(${osal_MISSION_DIR}/ut_assert/inc)
 #
 # Create the generic stubs library
 #
-add_library(ut_${DEP}_stubs STATIC 
+add_library(ut_${DEP}_stubs STATIC
     src/ut_es_stubs.c
     src/ut_evs_stubs.c
     src/ut_msg_stubs.c

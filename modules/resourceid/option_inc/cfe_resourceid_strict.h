@@ -61,7 +61,6 @@ typedef struct
         CFE_ResourceId_t id;     \
     }
 
-
 /**
  * @brief A fixed bit that should be set in all CFE resource ID values
  *
@@ -71,7 +70,6 @@ typedef struct
  */
 #define CFE_RESOURCEID_MARK 0x02000000
 
-
 /*
  * Wrap/Unwrap macros.
  *
@@ -80,8 +78,10 @@ typedef struct
  * These are not type-safe - Whenever possible applications should use
  * the type-safe inline functions  provided in cfe_resourceid.h instead.
  */
-#define CFE_RESOURCEID_WRAP(x)   {x}
+#define CFE_RESOURCEID_WRAP(x) \
+    {                          \
+        x                      \
+    }
 #define CFE_RESOURCEID_UNWRAP(x) (x).id
-
 
 #endif /* CFE_RESOURCEID_STRICT_H */

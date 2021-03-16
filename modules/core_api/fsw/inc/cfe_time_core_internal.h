@@ -39,7 +39,7 @@
 #include "cfe_es_extern_typedefs.h"
 
 /*
- * The internal APIs prototyped within this block are only intended to be invoked from 
+ * The internal APIs prototyped within this block are only intended to be invoked from
  * other CFE core apps.  They still need to be prototyped in the shared header such that
  * they can be called from other core modules, but applications should not call these.
  */
@@ -58,7 +58,7 @@
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** 
+**
 ******************************************************************************/
 extern void CFE_TIME_TaskMain(void);
 
@@ -87,9 +87,7 @@ extern int32 CFE_TIME_EarlyInit(void);
 ******************************************************************************/
 extern int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId);
 
-
 /**@}*/
-
 
 #endif /* CFE_TIME_CORE_INTERNAL_H */
 

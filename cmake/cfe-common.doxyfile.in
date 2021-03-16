@@ -90,7 +90,7 @@ PAPER_TYPE             = letter
 #---------------------------------------------------------------------------
 COMPACT_RTF            = YES
 #---------------------------------------------------------------------------
-# Configuration options related to the dot tool   
+# Configuration options related to the dot tool
 #---------------------------------------------------------------------------
 CLASS_DIAGRAMS         = NO
 HAVE_DOT               = YES
@@ -102,7 +102,7 @@ CALL_GRAPH             = YES
 GRAPHICAL_HIERARCHY    = NO
 MAX_DOT_GRAPH_DEPTH    = 1000
 #---------------------------------------------------------------------------
-# Configuration::additions related to the search engine   
+# Configuration::additions related to the search engine
 #---------------------------------------------------------------------------
 SEARCHENGINE           = NO
 #---------------------------------------------------------------------------

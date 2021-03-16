@@ -7,7 +7,7 @@
 project(CFE_ES C)
 
 # Executive services source files
-set(es_SOURCES 
+set(es_SOURCES
     fsw/src/cfe_es_api.c
     fsw/src/cfe_es_apps.c
     fsw/src/cfe_es_backgroundtask.c

@@ -40,10 +40,9 @@
  * @{
  */
 
-
 /*
  * Assign unique offsets per resource types used in CFE core apps.
- * 
+ *
  * Applications should not use these values directly, but rather
  * in conjuction with the CFE_RESOURCEID_MAKE_BASE macro provided
  * by the Resource ID module.  (see below)
@@ -51,15 +50,15 @@
 enum
 {
     /*
-    * Note for Task ID base value --
-    * This currently shares the same offset as OSAL tasks, such that
-    * when "simple" (non-enforcing/backward-compatible) IDs are selected,
-    * the CFE task IDs and the OSAL task IDs end up as the same value.
-    * 
-    * The "CFE_RESOURCEID_MARK" bit still differentiates the value when
-    * in strict mode, so there is no overlap in that case.
-    */
-    CFE_RESOURCEID_ES_TASKID_BASE_OFFSET     = OS_OBJECT_TYPE_OS_TASK,
+     * Note for Task ID base value --
+     * This currently shares the same offset as OSAL tasks, such that
+     * when "simple" (non-enforcing/backward-compatible) IDs are selected,
+     * the CFE task IDs and the OSAL task IDs end up as the same value.
+     *
+     * The "CFE_RESOURCEID_MARK" bit still differentiates the value when
+     * in strict mode, so there is no overlap in that case.
+     */
+    CFE_RESOURCEID_ES_TASKID_BASE_OFFSET = OS_OBJECT_TYPE_OS_TASK,
 
     /* Other ES managed resources */
     CFE_RESOURCEID_ES_APPID_BASE_OFFSET      = OS_OBJECT_TYPE_USER + 1,
@@ -72,9 +71,9 @@ enum
     CFE_RESOURCEID_SB_PIPEID_RESOURCE_BASE_OFFSET = OS_OBJECT_TYPE_USER + 6
 };
 
-/* 
+/*
  * Assign actual base values from the offsets above
- * 
+ *
  * Using "enum" ensures these are resolved as integers now, as opposed at to the point of use like macros.
  */
 enum
@@ -88,10 +87,9 @@ enum
     CFE_ES_CDSBLOCKID_BASE = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_ES_CDSBLOCKID_BASE_OFFSET),
 
     /* SB managed resources */
-    CFE_SB_PIPEID_BASE     = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_SB_PIPEID_RESOURCE_BASE_OFFSET)
+    CFE_SB_PIPEID_BASE = CFE_RESOURCEID_MAKE_BASE(CFE_RESOURCEID_SB_PIPEID_RESOURCE_BASE_OFFSET)
 };
 
 /** @} */
 
-
-#endif  /* CFE_CORE_RESOURCEID_BASEVALUES_H */
+#endif /* CFE_CORE_RESOURCEID_BASEVALUES_H */

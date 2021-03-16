@@ -37,29 +37,25 @@
 #ifndef _cfe_perfids_
 #define _cfe_perfids_
 
-
-#define CFE_MISSION_ES_PERF_EXIT_BIT            31      /**< \brief bit (31) is reserved by the perf utilities */
+#define CFE_MISSION_ES_PERF_EXIT_BIT 31 /**< \brief bit (31) is reserved by the perf utilities */
 
 /** \name cFE Performance Monitor IDs (Reserved IDs 0-31) */
 /** \{ */
-#define CFE_MISSION_ES_MAIN_PERF_ID             1    /**< \brief Performance ID for Executive Services Task */
-#define CFE_MISSION_EVS_MAIN_PERF_ID            2    /**< \brief Performance ID for Events Services Task */
-#define CFE_MISSION_TBL_MAIN_PERF_ID            3    /**< \brief Performance ID for Table Services Task */
-#define CFE_MISSION_SB_MAIN_PERF_ID             4    /**< \brief Performance ID for Software Bus Services Task */
-#define CFE_MISSION_SB_MSG_LIM_PERF_ID          5    /**< \brief Performance ID for Software Bus Msg Limit Errors */
-#define CFE_MISSION_SB_PIPE_OFLOW_PERF_ID       27   /**< \brief Performance ID for Software Bus Pipe Overflow Errors */
+#define CFE_MISSION_ES_MAIN_PERF_ID       1  /**< \brief Performance ID for Executive Services Task */
+#define CFE_MISSION_EVS_MAIN_PERF_ID      2  /**< \brief Performance ID for Events Services Task */
+#define CFE_MISSION_TBL_MAIN_PERF_ID      3  /**< \brief Performance ID for Table Services Task */
+#define CFE_MISSION_SB_MAIN_PERF_ID       4  /**< \brief Performance ID for Software Bus Services Task */
+#define CFE_MISSION_SB_MSG_LIM_PERF_ID    5  /**< \brief Performance ID for Software Bus Msg Limit Errors */
+#define CFE_MISSION_SB_PIPE_OFLOW_PERF_ID 27 /**< \brief Performance ID for Software Bus Pipe Overflow Errors */
 
+#define CFE_MISSION_TIME_MAIN_PERF_ID        6 /**< \brief Performance ID for Time Services Task */
+#define CFE_MISSION_TIME_TONE1HZISR_PERF_ID  7 /**< \brief Performance ID for 1 Hz Tone ISR */
+#define CFE_MISSION_TIME_LOCAL1HZISR_PERF_ID 8 /**< \brief Performance ID for 1 Hz Local ISR */
 
-#define CFE_MISSION_TIME_MAIN_PERF_ID           6    /**< \brief Performance ID for Time Services Task */
-#define CFE_MISSION_TIME_TONE1HZISR_PERF_ID     7    /**< \brief Performance ID for 1 Hz Tone ISR */
-#define CFE_MISSION_TIME_LOCAL1HZISR_PERF_ID    8    /**< \brief Performance ID for 1 Hz Local ISR */
-
-#define CFE_MISSION_TIME_SENDMET_PERF_ID        9    /**< \brief Performance ID for Time ToneSendMET */
-#define CFE_MISSION_TIME_LOCAL1HZTASK_PERF_ID   10   /**< \brief Performance ID for 1 Hz Local Task */
-#define CFE_MISSION_TIME_TONE1HZTASK_PERF_ID    11   /**< \brief Performance ID for 1 Hz Tone Task */
-
+#define CFE_MISSION_TIME_SENDMET_PERF_ID      9  /**< \brief Performance ID for Time ToneSendMET */
+#define CFE_MISSION_TIME_LOCAL1HZTASK_PERF_ID 10 /**< \brief Performance ID for 1 Hz Local Task */
+#define CFE_MISSION_TIME_TONE1HZTASK_PERF_ID  11 /**< \brief Performance ID for 1 Hz Tone Task */
 
 /** \} */
 
-
-#endif   /* _cfe_perfids_ */
+#endif /* _cfe_perfids_ */

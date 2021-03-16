@@ -21,14 +21,13 @@
 /*
 ** File: cfe_fs_priv.c
 **
-** Purpose:  cFE File Services (FS) library API Initialization 
+** Purpose:  cFE File Services (FS) library API Initialization
 **
-** Author:  Alan Cudmore/NASA GSFC 
+** Author:  Alan Cudmore/NASA GSFC
 **
 ** Notes:
 **
 */
-
 
 /*
 ** Required header files
@@ -37,10 +36,9 @@
 
 #include <string.h>
 
-
 /*
 ** Global data
-** 
+**
 */
 CFE_FS_Global_t CFE_FS_Global;
 
@@ -58,28 +56,28 @@ CFE_FS_Global_t CFE_FS_Global;
 **  Return:
 **    CFE_SUCCESS
 */
-int32 CFE_FS_EarlyInit (void) 
+int32 CFE_FS_EarlyInit(void)
 {
     int32 Stat;
 
     memset(&CFE_FS_Global, 0, sizeof(CFE_FS_Global));
 
     Stat = OS_MutSemCreate(&CFE_FS_Global.SharedDataMutexId, "CFE_FS_SharedMutex", 0);
-    if( Stat != OS_SUCCESS )
+    if (Stat != OS_SUCCESS)
     {
-      CFE_ES_WriteToSysLog("FS Shared Data Mutex creation failed! RC=0x%08x\n",(unsigned int)Stat);
-      return Stat;
-    }/* end if */
+        CFE_ES_WriteToSysLog("FS Shared Data Mutex creation failed! RC=0x%08x\n", (unsigned int)Stat);
+        return Stat;
+    } /* end if */
 
     return Stat;
 
-}/* end CFE_FS_EarlyInit */
+} /* end CFE_FS_EarlyInit */
 
 /******************************************************************************
 **  Function:  CFE_FS_LockSharedData()
 **
 **  Purpose:
-**    FS internal function to handle a semaphore take failure for the FS 
+**    FS internal function to handle a semaphore take failure for the FS
 **    Data Mutex
 **
 **  Arguments:
@@ -90,22 +88,22 @@ int32 CFE_FS_EarlyInit (void)
 */
 void CFE_FS_LockSharedData(const char *FunctionName)
 {
-    int32   Status;
-    CFE_ES_AppId_t  AppId;
+    int32          Status;
+    CFE_ES_AppId_t AppId;
 
     Status = OS_MutSemTake(CFE_FS_Global.SharedDataMutexId);
-    if (Status != OS_SUCCESS) 
+    if (Status != OS_SUCCESS)
     {
         CFE_ES_GetAppID(&AppId);
 
-        CFE_ES_WriteToSysLog("FS SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n",
-                (unsigned int)Status,CFE_RESOURCEID_TO_ULONG(AppId),FunctionName);
+        CFE_ES_WriteToSysLog("FS SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n", (unsigned int)Status,
+                             CFE_RESOURCEID_TO_ULONG(AppId), FunctionName);
 
-    }/* end if */
+    } /* end if */
 
     return;
 
-}/* end CFE_FS_LockSharedData */
+} /* end CFE_FS_LockSharedData */
 
 /******************************************************************************
 **  Function:  CFE_FS_UnlockSharedData()
@@ -122,20 +120,20 @@ void CFE_FS_LockSharedData(const char *FunctionName)
 */
 void CFE_FS_UnlockSharedData(const char *FunctionName)
 {
-   int32   Status;
-   CFE_ES_AppId_t  AppId;
+    int32          Status;
+    CFE_ES_AppId_t AppId;
 
-   Status = OS_MutSemGive(CFE_FS_Global.SharedDataMutexId);
-   if (Status != OS_SUCCESS) 
-   {
-       CFE_ES_GetAppID(&AppId);
-       CFE_ES_WriteToSysLog("FS SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n",
-               (unsigned int)Status,CFE_RESOURCEID_TO_ULONG(AppId),FunctionName);
+    Status = OS_MutSemGive(CFE_FS_Global.SharedDataMutexId);
+    if (Status != OS_SUCCESS)
+    {
+        CFE_ES_GetAppID(&AppId);
+        CFE_ES_WriteToSysLog("FS SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n", (unsigned int)Status,
+                             CFE_RESOURCEID_TO_ULONG(AppId), FunctionName);
 
-   }/* end if */
-   return;
+    } /* end if */
+    return;
 
-}/* end CFE_FS_UnlockSharedData */
+} /* end CFE_FS_UnlockSharedData */
 
 /************************/
 /*  End of File Comment */

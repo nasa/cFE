@@ -19,13 +19,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
-    This document adheres to the Electronic Data Sheet (EDS) XML schema 
-    as prescribed in CCSDS book 876.0. 
-      
-    Purpose: 
+    This document adheres to the Electronic Data Sheet (EDS) XML schema
+    as prescribed in CCSDS book 876.0.
+
+    Purpose:
       This describes all interface objects for the Software Bus (CFE_SB)
-      core application 
-      
+      core application
+
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
   <Package name="CFE_SB" shortDescription="NASA Core Flight System Software Bus">
@@ -206,7 +206,7 @@
           </Entry>
         </EntryList>
       </ContainerDataType>
-      
+
       <ArrayDataType name="PipeDepthStatsSet" dataTypeRef="PipeDepthStats">
         <DimensionList>
           <Dimension size="${CFE_MISSION/SB_MAX_PIPES}" />
@@ -380,9 +380,9 @@
       </ContainerDataType>
 
       <ContainerDataType name="CommandBase" baseType="CCSDS/CommandPacket">
-        <!-- 
-        This container has no entries of its own, it just serves as a common base type for all command messages.  
-        Defined command messages must all use this container as a base type. 
+        <!--
+        This container has no entries of its own, it just serves as a common base type for all command messages.
+        Defined command messages must all use this container as a base type.
         -->
       </ContainerDataType>
 
@@ -873,9 +873,9 @@
       </ContainerDataType>
 
     </DataTypeSet>
-    
+
     <DeclaredInterfaceSet>
-    
+
       <Interface name="SoftwareBusRouting" level="subnetwork" shortDescription="CFE software bus low-level message transfer service">
         <LongDescription>
           Basic message routing service over the CFE software bus.  Messages are routed based on the Application ID field
@@ -891,10 +891,10 @@
           </Command>
         </CommandSet>
       </Interface>
-      
+
       <Interface name="SoftwareBusAccess" level="access" shortDescription="CFE software bus publish/subscribe interface">
         <LongDescription>
-           This represents the access interface used for passing message datagrams 
+           This represents the access interface used for passing message datagrams
            to and from the message transfer service (MTS).  It operates using publish/subscribe
            semantics, where messages are sent and received using an abstract idenifier referred
            to as a software bus message ID.  This essentially acts as a filter on the underlying
@@ -913,20 +913,20 @@
           </Command>
         </CommandSet>
       </Interface>
-      
-      
+
+
         <!--
-        NOTE: The TC/TM interfaces are declared separately because many CFS applications do 
-        not have a 1:1 relationship between telecommand and telemetry streams.  For instance, some 
+        NOTE: The TC/TM interfaces are declared separately because many CFS applications do
+        not have a 1:1 relationship between telecommand and telemetry streams.  For instance, some
         applications define a single command packet, but publish 3-4 different telemetry packets.
-        
+
         For instance, the software bus application itself listens for 2 different command streams but
         publishes 4 different telemetry streams.  There is no direct relationship between these.
          -->
       <Interface name="Telemetry" level="functional" shortDescription="CFE software bus pipe publication interface">
         <LongDescription>
             Higher level interface to publish a message via the CFE software bus.  cFS applications may define their
-            own application-specific interface of this type to indicate the message(s) it will publish via 
+            own application-specific interface of this type to indicate the message(s) it will publish via
             the software bus.  This is typically the various types of telemetry that the application generates.
         </LongDescription>
         <GenericTypeSet>
@@ -948,13 +948,13 @@
           </Command>
         </CommandSet>
       </Interface>
-      
+
       <Interface name="Telecommand" level="functional" shortDescription="CFE software bus pipe listener interface">
         <LongDescription>
             Interface to listen for a message from the CFE software bus.  cFS application data sheets may derive their
-            own application-specific interface from this base to indicate the type of message(s) it will subscribe to 
-            via the software bus.  This is typically the various telecommand messages that the application supports. 
-            
+            own application-specific interface from this base to indicate the type of message(s) it will subscribe to
+            via the software bus.  This is typically the various telecommand messages that the application supports.
+
             This is a receive-only interface; the Telemetry interface provides the equivalent send function.
         </LongDescription>
         <GenericTypeSet>
@@ -977,14 +977,14 @@
         </CommandSet>
       </Interface>
     </DeclaredInterfaceSet>
-    
+
     <ComponentSet>
       <Component name="MTS">
         <ProvidedInterfaceSet>
           <Interface name="Transport" type="SoftwareBusRouting" />
         </ProvidedInterfaceSet>
       </Component>
-      
+
       <Component name="SoftwareBus">
         <ProvidedInterfaceSet>
           <Interface name="PubSub" type="SoftwareBusAccess" />
@@ -993,7 +993,7 @@
           <Interface name="Transport" type="SoftwareBusRouting" />
         </RequiredInterfaceSet>
       </Component>
-        
+
       <Component name="Listener">
         <ProvidedInterfaceSet>
           <Interface name="Telecommand" type="Telecommand" />
@@ -1002,7 +1002,7 @@
           <Interface name="Subscribe" type="SoftwareBusAccess" />
         </RequiredInterfaceSet>
       </Component>
-      
+
       <Component name="Publisher">
         <ProvidedInterfaceSet>
           <Interface name="Telemetry" type="Telemetry" />
@@ -1011,7 +1011,7 @@
           <Interface name="Publish" type="SoftwareBusAccess" />
         </RequiredInterfaceSet>
       </Component>
-      
+
       <Component name="Application">
         <RequiredInterfaceSet>
           <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">
@@ -1072,6 +1072,6 @@
         </Implementation>
       </Component>
     </ComponentSet>
-    
+
   </Package>
 </PackageFile>

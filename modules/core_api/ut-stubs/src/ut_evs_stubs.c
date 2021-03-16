@@ -23,7 +23,7 @@
 **
 ** Purpose:
 ** Unit test stubs for Event Service routines
-** 
+**
 ** Notes:
 ** Minimal work is done, only what is required for unit testing
 **
@@ -105,10 +105,7 @@ void CFE_EVS_TaskMain(void)
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_EVS_SendEvent(uint16 EventID,
-                        uint16 EventType,
-                        const char *Spec,
-                        ...)
+int32 CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEvent), EventID);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEvent), EventType);
@@ -116,7 +113,7 @@ int32 CFE_EVS_SendEvent(uint16 EventID,
 
     UtDebug("CFE_EVS_SendEvent: %u - %s", EventID, Spec);
 
-    int32 status;
+    int32   status;
     va_list va;
 
     va_start(va, Spec);
@@ -125,7 +122,7 @@ int32 CFE_EVS_SendEvent(uint16 EventID,
 
     if (status >= 0)
     {
-        UT_Stub_CopyFromLocal(UT_KEY(CFE_EVS_SendEvent), (uint8*)&EventID, sizeof(EventID));
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_EVS_SendEvent), (uint8 *)&EventID, sizeof(EventID));
     }
 
     return status;
@@ -146,17 +143,13 @@ int32 CFE_EVS_SendEvent(uint16 EventID,
 **        Returns CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
-                             uint16 EventID,
-                             uint16 EventType,
-                             const char *Spec,
-                             ...)
+int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
-    /* 
+    /*
      * NOTE: These args are out of order so that Arg[0] and Arg[1] will
      * be the same as they are for other EVS calls.  This keeps it
      * compatible with old/existing UT hook routines.
-     * Newly-implemented hooks should use the name-based argument 
+     * Newly-implemented hooks should use the name-based argument
      * retrieval so it is independent of the order.
      */
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendTimedEvent), EventID);
@@ -164,7 +157,7 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendTimedEvent), Time);
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendTimedEvent), Spec);
 
-    int32 status;
+    int32   status;
     va_list va;
 
     UtDebug("CFE_EVS_SendTimedEvent: %u - %s", EventID, Spec);
@@ -175,7 +168,7 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
 
     if (status >= 0)
     {
-        UT_Stub_CopyFromLocal(UT_KEY(CFE_EVS_SendTimedEvent), (uint8*)&EventID, sizeof(EventID));
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_EVS_SendTimedEvent), (uint8 *)&EventID, sizeof(EventID));
     }
 
     return CFE_SUCCESS;
@@ -201,9 +194,7 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time,
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_EVS_Register(const void *Filters,
-                       uint16 NumFilteredEvents,
-                       uint16 FilterScheme)
+int32 CFE_EVS_Register(const void *Filters, uint16 NumFilteredEvents, uint16 FilterScheme)
 {
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_Register), Filters);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_Register), NumFilteredEvents);
@@ -239,18 +230,14 @@ int32 CFE_EVS_Register(const void *Filters,
 **        Returns either a user-defined status flag or CFE_SUCCESS.
 **
 ******************************************************************************/
-int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
-                                 uint16 EventType,
-                                 CFE_ES_AppId_t AppID,
-                                 const char *Spec,
-                                 ...)
+int32 CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_t AppID, const char *Spec, ...)
 {
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEventWithAppID), EventID);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEventWithAppID), EventType);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_EVS_SendEventWithAppID), AppID);
     UT_Stub_RegisterContext(UT_KEY(CFE_EVS_SendEventWithAppID), Spec);
 
-    int32 status;
+    int32   status;
     va_list va;
 
     UtDebug("CFE_EVS_SendEventWithAppID: %u - %s", EventID, Spec);
@@ -261,9 +248,8 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID,
 
     if (status >= 0)
     {
-        UT_Stub_CopyFromLocal(UT_KEY(CFE_EVS_SendEventWithAppID), (uint8*)&EventID, sizeof(EventID));
+        UT_Stub_CopyFromLocal(UT_KEY(CFE_EVS_SendEventWithAppID), (uint8 *)&EventID, sizeof(EventID));
     }
-
 
     return status;
 }
@@ -325,4 +311,3 @@ int32 CFE_EVS_Unregister(void)
 
     return status;
 }
-

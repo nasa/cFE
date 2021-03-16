@@ -43,7 +43,7 @@ foreach(SBR_TEST ${SBR_TEST_SET})
     # Add include to get private defaults
     target_include_directories(${SBR_TEST}_UT PRIVATE ../fsw/src)
 
-    # Also add the UT_COVERAGE_LINK_FLAGS to the link command    
+    # Also add the UT_COVERAGE_LINK_FLAGS to the link command
     # This should enable coverage analysis on platforms that support this
     target_link_libraries(${SBR_TEST}_UT
         ${UT_COVERAGE_LINK_FLAGS}

@@ -42,7 +42,6 @@
 /** \brief Invalid route id */
 #define CFE_SBR_INVALID_ROUTE_ID ((CFE_SBR_RouteId_t) {.RouteId = 0})
 
-
 /******************************************************************************
  * Type Definitions
  */
@@ -73,6 +72,5 @@ typedef struct
 
 /** \brief For each id callback function prototype */
 typedef void (*CFE_SBR_CallbackPtr_t)(CFE_SBR_RouteId_t RouteId, void *ArgPtr);
-
 
 #endif /* CFE_SBR_API_TYPEDEFS_H */

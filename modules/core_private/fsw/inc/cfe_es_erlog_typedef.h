@@ -34,20 +34,20 @@
 #include <common_types.h>
 #include <cfe_platform_cfg.h>
 
-#include <cfe_time_extern_typedefs.h>   /* Needed for CFE_TIME_SysTime_t */
-#include <cfe_es_extern_typedefs.h>     /* Needed for CFE_ES_AppId_t */
+#include <cfe_time_extern_typedefs.h> /* Needed for CFE_TIME_SysTime_t */
+#include <cfe_es_extern_typedefs.h>   /* Needed for CFE_ES_AppId_t */
 
-#define CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH     80
+#define CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH 80
 
 /*
 ** Debug variables type
 */
 typedef struct
 {
-   uint32 DebugFlag;
-   uint32 WatchdogWriteFlag;
-   uint32 PrintfEnabledFlag;
-   uint32 LastAppId;
+    uint32 DebugFlag;
+    uint32 WatchdogWriteFlag;
+    uint32 PrintfEnabledFlag;
+    uint32 LastAppId;
 
 } CFE_ES_DebugVariables_t;
 
@@ -58,17 +58,16 @@ typedef struct
 */
 typedef struct
 {
-     uint32                  LogEntryType;                  /* What type of log entry */
-     uint32                  ResetType;                     /* Main cause for the reset */
-     uint32                  ResetSubtype;                  /* The sub-type for the reset */
-     uint32                  BootSource;                    /* The boot source  */
-     uint32                  ProcessorResetCount;           /* The number of processor resets */
-     uint32                  MaxProcessorResetCount;        /* The maximum number before a Power On */
-     CFE_ES_DebugVariables_t DebugVars;                     /* ES Debug variables */
-     CFE_TIME_SysTime_t      TimeCode;                      /* Time code */
-     char                    Description[CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH];  /* The ascii data for the event */
+    uint32                  LogEntryType;                                     /* What type of log entry */
+    uint32                  ResetType;                                        /* Main cause for the reset */
+    uint32                  ResetSubtype;                                     /* The sub-type for the reset */
+    uint32                  BootSource;                                       /* The boot source  */
+    uint32                  ProcessorResetCount;                              /* The number of processor resets */
+    uint32                  MaxProcessorResetCount;                           /* The maximum number before a Power On */
+    CFE_ES_DebugVariables_t DebugVars;                                        /* ES Debug variables */
+    CFE_TIME_SysTime_t      TimeCode;                                         /* Time code */
+    char                    Description[CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH]; /* The ascii data for the event */
 } CFE_ES_ERLog_BaseInfo_t;
-
 
 /*
 ** Exception and Reset Log File Structure
@@ -82,12 +81,11 @@ typedef struct
 */
 typedef struct
 {
-    CFE_ES_ERLog_BaseInfo_t BaseInfo;                       /* basic info about the event */
-    uint32                  ContextSize;                   /* Indicates the context data is valid */
-    uint32                  AppID;                         /* The application ID */
-    uint8                   Context[CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE];  /* cpu  context */
+    CFE_ES_ERLog_BaseInfo_t BaseInfo;                                         /* basic info about the event */
+    uint32                  ContextSize;                                      /* Indicates the context data is valid */
+    uint32                  AppID;                                            /* The application ID */
+    uint8                   Context[CFE_PLATFORM_ES_ER_LOG_MAX_CONTEXT_SIZE]; /* cpu  context */
 } CFE_ES_ERLog_FileEntry_t;
-
 
 /*
 ** Exception and Reset Log Metadata Structure
@@ -95,14 +93,9 @@ typedef struct
 */
 typedef struct
 {
-    CFE_ES_ERLog_BaseInfo_t BaseInfo;       /**< Core Log Data */
-    CFE_ES_AppId_t          AppID;          /* The application ID */
-    uint32                  PspContextId;   /**< Reference to context information stored in PSP */
+    CFE_ES_ERLog_BaseInfo_t BaseInfo;     /**< Core Log Data */
+    CFE_ES_AppId_t          AppID;        /* The application ID */
+    uint32                  PspContextId; /**< Reference to context information stored in PSP */
 } CFE_ES_ERLog_MetaData_t;
-
-
-
-
-
 
 #endif /* CFE_ES_ERLOG_TYPEDEF_H_ */
