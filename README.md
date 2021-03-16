@@ -10,6 +10,12 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev412
+
+- Apply standard code style and format
+- Add new continuous integration workflow to enforce this format
+- See <https://github.com/nasa/cFE/pull/1219>
+
 ### Development Build: v6.8.0-rc1+dev402
 
 - HOTFIX 20210312, updates to work with older CMake
