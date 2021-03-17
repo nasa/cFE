@@ -44,10 +44,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "cfe.h"
-#include "cfe_fs.h"
-#include "cfe_fs_priv.h"
-#include "common_types.h"
+#include "cfe_fs_module_all.h"
 #include "ut_support.h"
 
 /* FS unit test functions */

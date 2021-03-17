@@ -41,12 +41,7 @@
 ** Includes
 */
 #include <string.h>
-#include "cfe_platform_cfg.h"
-#include "cfe_sb.h"
-#include "cfe_time.h"
-#include "cfe_time_msg.h"
-#include "cfe_time_utils.h"
-#include "common_types.h"
+#include "cfe_time_module_all.h"
 #include "ut_support.h"
 
 /*

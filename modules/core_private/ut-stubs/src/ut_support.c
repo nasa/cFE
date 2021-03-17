@@ -33,6 +33,7 @@
 ** Includes
 */
 #include "ut_support.h"
+#include "cfe_core_resourceid_basevalues.h"
 
 #include <string.h>
 
@@ -163,6 +164,11 @@ void UT_InitData(void)
      * This should return the UT_appname
      */
     UT_SetDataBuffer(UT_KEY(CFE_ES_GetAppName), (uint8 *)UT_appname, sizeof(UT_appname), false);
+
+    /*
+     * Set up CFE_ES_GetAppID() to return the equivalent of AppID 1 by default
+     */
+    UT_SetAppID(CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE + 1)));
 
     /*
      * Reset the OSAL stubs to the default state
