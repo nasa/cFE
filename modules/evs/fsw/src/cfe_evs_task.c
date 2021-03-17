@@ -80,7 +80,6 @@ int32 CFE_EVS_EarlyInit(void)
     /* Elements stored in the hk packet that have non-zero default values */
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE;
     CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort        = CFE_PLATFORM_EVS_PORT_DEFAULT;
-    CFE_EVS_Global.EVS_TlmPkt.Payload.LogFullFlag       = false;
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogMode           = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
 
     /* Get a pointer to the CFE reset area from the BSP */
