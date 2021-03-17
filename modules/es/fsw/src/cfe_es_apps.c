@@ -1287,42 +1287,37 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
             break;
     }
 
-    if (EventID != 0 && ReqName != NULL)
+    if (MessageDetail[0] != 0)
     {
-        if (MessageDetail[0] != 0)
-        {
-            /* Detail message already set, assume it is an error event */
-            EventType = CFE_EVS_EventType_ERROR;
-        }
-        else if (StartupStatus != CFE_SUCCESS)
-        {
-            /* Make detail message for event containing startup error code */
-            EventType = CFE_EVS_EventType_ERROR;
-            snprintf(MessageDetail, sizeof(MessageDetail), "Failed: AppCreate Error 0x%08X.",
-                     (unsigned int)StartupStatus);
-        }
-        else if (CleanupStatus != CFE_SUCCESS)
-        {
-            /* Make detail message for event containing cleanup error code */
-            EventType = CFE_EVS_EventType_ERROR;
-            snprintf(MessageDetail, sizeof(MessageDetail), "Failed: CleanUpApp Error 0x%08X.",
-                     (unsigned int)CleanupStatus);
-        }
-        else if (CFE_RESOURCEID_TEST_DEFINED(NewAppId))
-        {
-            /* Record success message for event where app is restarted */
-            EventType = CFE_EVS_EventType_INFORMATION;
-            snprintf(MessageDetail, sizeof(MessageDetail), "Completed, AppID=%lu", CFE_RESOURCEID_TO_ULONG(NewAppId));
-        }
-        else
-        {
-            /* Record success message for event */
-            EventType = CFE_EVS_EventType_INFORMATION;
-            snprintf(MessageDetail, sizeof(MessageDetail), "Completed.");
-        }
-
-        CFE_EVS_SendEvent(EventID, EventType, "%s Application %s %s", ReqName, OrigAppName, MessageDetail);
+        /* Detail message already set, assume it is an error event */
+        EventType = CFE_EVS_EventType_ERROR;
     }
+    else if (StartupStatus != CFE_SUCCESS)
+    {
+        /* Make detail message for event containing startup error code */
+        EventType = CFE_EVS_EventType_ERROR;
+        snprintf(MessageDetail, sizeof(MessageDetail), "Failed: AppCreate Error 0x%08X.", (unsigned int)StartupStatus);
+    }
+    else if (CleanupStatus != CFE_SUCCESS)
+    {
+        /* Make detail message for event containing cleanup error code */
+        EventType = CFE_EVS_EventType_ERROR;
+        snprintf(MessageDetail, sizeof(MessageDetail), "Failed: CleanUpApp Error 0x%08X.", (unsigned int)CleanupStatus);
+    }
+    else if (CFE_RESOURCEID_TEST_DEFINED(NewAppId))
+    {
+        /* Record success message for event where app is restarted */
+        EventType = CFE_EVS_EventType_INFORMATION;
+        snprintf(MessageDetail, sizeof(MessageDetail), "Completed, AppID=%lu", CFE_RESOURCEID_TO_ULONG(NewAppId));
+    }
+    else
+    {
+        /* Record success message for event */
+        EventType = CFE_EVS_EventType_INFORMATION;
+        snprintf(MessageDetail, sizeof(MessageDetail), "Completed.");
+    }
+
+    CFE_EVS_SendEvent(EventID, EventType, "%s Application %s %s", ReqName, OrigAppName, MessageDetail);
 
 } /* End Function */
 
