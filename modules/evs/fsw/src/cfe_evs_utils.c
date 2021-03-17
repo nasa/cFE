@@ -393,8 +393,11 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     ExpandedLength =
         vsnprintf((char *)LongEventTlm.Payload.Message, sizeof(LongEventTlm.Payload.Message), MsgSpec, ArgPtr);
 
-    /* Were any characters truncated in the buffer? */
-    if (ExpandedLength >= sizeof(LongEventTlm.Payload.Message))
+    /*
+     * If vsnprintf is bigger than message size, mark with truncation character
+     * Note negative returns (error from vsnprintf) will just leave the message as-is
+     */
+    if (ExpandedLength >= (int)sizeof(LongEventTlm.Payload.Message))
     {
         /* Mark character before zero terminator to indicate truncation */
         LongEventTlm.Payload.Message[sizeof(LongEventTlm.Payload.Message) - 2] = CFE_EVS_MSG_TRUNCATED;
