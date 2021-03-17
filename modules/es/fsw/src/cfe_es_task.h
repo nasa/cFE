@@ -197,7 +197,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data);
 */
 bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t Handle);
 bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
-void CFE_ES_FileWriteByteCntErr(const char *Filename, size_t Requested, size_t Actual);
+void CFE_ES_FileWriteByteCntErr(const char *Filename, size_t Requested, int32 Status);
 
 /*************************************************************************/
 
