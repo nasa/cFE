@@ -37,18 +37,6 @@
 
 #include <string.h>
 
-#ifndef CFE_OMIT_DEPRECATED_6_8
-/*
- * Function: CFE_SB_InitMsg - See API and header file for details
- */
-void CFE_SB_InitMsg(void *MsgPtr, CFE_SB_MsgId_t MsgId, size_t Length, bool Clear)
-{
-
-    CFE_MSG_Init((CFE_MSG_Message_t *)MsgPtr, MsgId, Length);
-
-} /* end CFE_SB_InitMsg */
-#endif
-
 /******************************************************************************
 **  Function:  CFE_SB_MsgHdrSize()
 **
@@ -161,55 +149,6 @@ void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
     }
 } /* end CFE_SB_SetUserDataLength */
 
-#ifndef CFE_OMIT_DEPRECATED_6_8
-/*
- * Function: CFE_SB_GetTotalMsgLength - See API and header file for details
- */
-size_t CFE_SB_GetTotalMsgLength(const CFE_MSG_Message_t *MsgPtr)
-{
-
-    CFE_MSG_Size_t size;
-
-    CFE_MSG_GetSize(MsgPtr, &size);
-
-    return size;
-
-} /* end CFE_SB_GetTotalMsgLength */
-
-/*
- * Function: CFE_SB_SetTotalMsgLength - See API and header file for details
- */
-void CFE_SB_SetTotalMsgLength(CFE_MSG_Message_t *MsgPtr, size_t TotalLength)
-{
-
-    CFE_MSG_SetSize(MsgPtr, TotalLength);
-
-} /* end CFE_SB_SetTotalMsgLength */
-
-/*
- * Function: CFE_SB_GetMsgTime - See API and header file for details
- */
-CFE_TIME_SysTime_t CFE_SB_GetMsgTime(CFE_MSG_Message_t *MsgPtr)
-{
-    CFE_TIME_SysTime_t TimeFromMsg = {0};
-
-    CFE_MSG_GetMsgTime(MsgPtr, &TimeFromMsg);
-
-    return TimeFromMsg;
-
-} /* end CFE_SB_GetMsgTime */
-
-/*
- * Function: CFE_SB_SetMsgTime - See API and header file for details
- */
-int32 CFE_SB_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t NewTime)
-{
-
-    return CFE_MSG_SetMsgTime(MsgPtr, NewTime);
-
-} /* end CFE_SB_SetMsgTime */
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
-
 /*
  * Function: CFE_SB_TimeStampMsg - See API and header file for details
  */
@@ -218,78 +157,6 @@ void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr)
     CFE_MSG_SetMsgTime(MsgPtr, CFE_TIME_GetTime());
 
 } /* end CFE_SB_TimeStampMsg */
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
-/*
- * Function: CFE_SB_GetCmdCode - See API and header file for details
- */
-uint16 CFE_SB_GetCmdCode(CFE_MSG_Message_t *MsgPtr)
-{
-
-    CFE_MSG_FcnCode_t fc;
-
-    CFE_MSG_GetFcnCode(MsgPtr, &fc);
-
-    return fc;
-
-} /* end CFE_SB_GetCmdCode */
-
-/*
- * Function: CFE_SB_SetCmdCode - See API and header file for details
- */
-int32 CFE_SB_SetCmdCode(CFE_MSG_Message_t *MsgPtr, uint16 CmdCode)
-{
-
-    return CFE_MSG_SetFcnCode(MsgPtr, CmdCode);
-
-} /* end CFE_SB_SetCmdCode */
-
-/*
- * Function: CFE_SB_GetChecksum - See API and header file for details
- */
-uint16 CFE_SB_GetChecksum(CFE_MSG_Message_t *MsgPtr)
-{
-
-    CFE_MSG_Type_t type      = CFE_MSG_Type_Invalid;
-    bool           hassechdr = false;
-
-    CFE_MSG_GetHasSecondaryHeader(MsgPtr, &hassechdr);
-    CFE_MSG_GetType(MsgPtr, &type);
-
-    /* if msg type is telemetry or there is no secondary hdr... */
-    if ((type == CFE_MSG_Type_Tlm) || (!hassechdr))
-    {
-        return 0;
-    } /* end if */
-
-    /* Byte access for now to avoid error if secondary doesn't contain checksum */
-    return MsgPtr->Byte[sizeof(CCSDS_SpacePacket_t) + 1];
-
-} /* end CFE_SB_GetChecksum */
-
-/*
- * Function: CFE_SB_GenerateChecksum - See API and header file for details
- */
-void CFE_SB_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
-{
-
-    CFE_MSG_GenerateChecksum(MsgPtr);
-
-} /* end CFE_SB_GenerateChecksum */
-
-/*
- * Function: CFE_SB_ValidateChecksum - See API and header file for details
- */
-bool CFE_SB_ValidateChecksum(CFE_MSG_Message_t *MsgPtr)
-{
-    bool isvalid = false;
-
-    CFE_MSG_ValidateChecksum(MsgPtr, &isvalid);
-
-    return isvalid;
-
-} /* end CFE_SB_ValidateChecksum */
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /*
  * Function: CFE_SB_MessageStringGet - See API and header file for details
