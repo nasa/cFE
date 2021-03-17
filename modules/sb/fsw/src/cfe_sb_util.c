@@ -119,7 +119,7 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
  */
 size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
 {
-    CFE_MSG_Size_t TotalMsgSize;
+    CFE_MSG_Size_t TotalMsgSize = 0;
     size_t         HdrSize;
 
     if (MsgPtr == NULL)
