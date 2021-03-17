@@ -660,7 +660,7 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
 {
     CFE_Status_t        Status;
     CFE_ES_AppRecord_t *AppRecPtr;
-    CFE_ResourceId_t    PendingResourceId;
+    CFE_ResourceId_t    PendingResourceId = CFE_RESOURCEID_UNDEFINED;
 
     /*
      * The AppName must not be NULL
