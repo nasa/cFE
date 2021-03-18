@@ -417,7 +417,7 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
          *
          * Strip off all trailing whitespace, and add back a single newline
          */
-        while (StringLen > 0 && isspace((int)Buffer[StringLen - 1]))
+        while (StringLen > 0 && isspace((unsigned char)Buffer[StringLen - 1]))
         {
             --StringLen;
         }
