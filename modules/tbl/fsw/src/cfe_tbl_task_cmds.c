@@ -360,6 +360,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     CFE_TBL_File_Hdr_t               TblFileHeader;
     osal_id_t                        FileDescriptor;
     int32                            Status;
+    int16                            RegIndex;
     CFE_TBL_RegistryRec_t *          RegRecPtr;
     CFE_TBL_LoadBuff_t *             WorkingBufferPtr;
     char                             LoadFilename[OS_MAX_PATH_LEN];
@@ -379,9 +380,9 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
         if (Status == CFE_SUCCESS)
         {
             /* Locate specified table in registry */
-            Status = CFE_TBL_FindTableInRegistry(TblFileHeader.TableName);
+            RegIndex = CFE_TBL_FindTableInRegistry(TblFileHeader.TableName);
 
-            if (Status == CFE_TBL_NOT_FOUND)
+            if (RegIndex == CFE_TBL_NOT_FOUND)
             {
                 CFE_EVS_SendEvent(CFE_TBL_NO_SUCH_TABLE_ERR_EID, CFE_EVS_EventType_ERROR,
                                   "Unable to locate '%s' in Table Registry", TblFileHeader.TableName);
@@ -389,7 +390,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
             else
             {
                 /* Translate the registry index into a record pointer */
-                RegRecPtr = &CFE_TBL_Global.Registry[Status];
+                RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
 
                 if (RegRecPtr->DumpOnly)
                 {
@@ -1321,7 +1322,7 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
     char                               TableName[CFE_TBL_MAX_FULL_NAME_LEN];
     CFE_TBL_CritRegRec_t *             CritRegRecPtr = NULL;
     uint32                             i;
-    uint32                             RegIndex;
+    int16                              RegIndex;
     int32                              Status;
 
     /* Make sure all strings are null terminated before attempting to process them */

@@ -1990,12 +1990,12 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
 /*                                a byte count discrepancy has been*/
 /*                                detected during the file write   */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void CFE_ES_FileWriteByteCntErr(const char *Filename, size_t Requested, size_t Actual)
+void CFE_ES_FileWriteByteCntErr(const char *Filename, size_t Requested, int32 Status)
 {
 
     CFE_EVS_SendEvent(CFE_ES_FILEWRITE_ERR_EID, CFE_EVS_EventType_ERROR,
-                      "File write,byte cnt err,file %s,request=%u,actual=%u", Filename, (unsigned int)Requested,
-                      (unsigned int)Actual);
+                      "File write,byte cnt err,file %s,request=%u,status=0x%08x", Filename, (unsigned int)Requested,
+                      (unsigned int)Status);
 
 } /* End of CFE_ES_FileWriteByteCntErr() */
 
