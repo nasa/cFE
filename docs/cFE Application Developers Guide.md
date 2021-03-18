@@ -1393,6 +1393,9 @@ on the Software Bus.  Depending on the implementation, different
 ranges and values are supported, and the values effect the message
 header differently.
 
+If you are using the default, MsgID maps directly to the CCSDS Stream ID.
+When using the default, for commands use 0x18xx and telemetry use 0x08xx
+
 ### 6.1.2 Pipes
 
 The destinations to which SB Messages are sent are called *pipes*. These
