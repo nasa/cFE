@@ -30,7 +30,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <cfe.h>
+#include "cfe.h"
 
 #include "utbsp.h"
 #include "uttest.h"

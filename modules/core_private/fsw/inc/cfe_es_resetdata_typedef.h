@@ -31,7 +31,7 @@
 #ifndef CFE_ES_RESETDATA_TYPEDEF_H_
 #define CFE_ES_RESETDATA_TYPEDEF_H_
 
-#include <common_types.h>
+#include "common_types.h"
 
 #include "cfe_time_resetvars_typedef.h" /* Required for CFE_TIME_ResetVars_t definition */
 #include "cfe_es_erlog_typedef.h"       /* Required for CFE_ES_ERLog_t definition */

@@ -34,8 +34,8 @@
 #ifndef TARGET_CONFIG_H_
 #define TARGET_CONFIG_H_
 
-#include <common_types.h>
-#include <cfe_psp_configdata.h>
+#include "common_types.h"
+#include "cfe_psp_configdata.h"
 
 /**
  * Prototype for the main system entry function implemented in CFE ES
