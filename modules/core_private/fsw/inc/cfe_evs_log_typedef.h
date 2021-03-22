@@ -31,8 +31,8 @@
 #ifndef CFE_EVS_LOG_TYPEDEF_H_
 #define CFE_EVS_LOG_TYPEDEF_H_
 
-#include <common_types.h>
-#include <cfe_platform_cfg.h>
+#include "common_types.h"
+#include "cfe_platform_cfg.h"
 
 #include "cfe_evs_msg.h" /* Required for CFE_EVS_LongEventTlm_t definition */
 

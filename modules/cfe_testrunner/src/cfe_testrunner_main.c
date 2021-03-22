@@ -29,7 +29,7 @@
  * Includes
  */
 
-#include <cfe.h>
+#include "cfe.h"
 
 #include "cfe_testrunner.h"
 

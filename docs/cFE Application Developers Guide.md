@@ -488,12 +488,12 @@ deciding on whether to create multiple Applications versus a single
 Application with multiple Tasks, the Application Developer should keep
 in mind these facts:
 
--   Child Tasks can only execute at a priority equal to or less than the
-    priority of the Application's Main Task.
+-   When the Application exits it is the responsiabilty of the 
+    Main Task to safely stop all of its Child Tasks.
 
 -   If the Main Task of an Application is stopped, either through
     detection of an exception or via command, all Child Tasks are also
-    stopped.
+    forcibly stopped in an unsafe manner. 
 
 Child Tasks can be useful in both "Software Only" and "Hardware Servicing"
 applications.
@@ -1392,6 +1392,9 @@ concept that is implementation depended, used for routing messages
 on the Software Bus.  Depending on the implementation, different
 ranges and values are supported, and the values effect the message
 header differently.
+
+If you are using the default, MsgID maps directly to the CCSDS Stream ID.
+When using the default, for commands use 0x18xx and telemetry use 0x08xx
 
 ### 6.1.2 Pipes
 

@@ -33,7 +33,7 @@
  * Includes
  */
 
-#include <cfe.h>
+#include "cfe.h"
 
 #include "uttest.h"
 #include "utassert.h"

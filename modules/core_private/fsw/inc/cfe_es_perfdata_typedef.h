@@ -30,7 +30,7 @@
 #ifndef CFE_ES_PERFDATA_TYPEDEF_H_
 #define CFE_ES_PERFDATA_TYPEDEF_H_
 
-#include <common_types.h>
+#include "common_types.h"
 #include "cfe_mission_cfg.h"  /* Required for CFE_MISSION_ES_PERF_MAX_IDS */
 #include "cfe_platform_cfg.h" /* Required for CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE */
 

@@ -49,8 +49,8 @@
 #ifndef _cfe_tbl_filedef_
 #define _cfe_tbl_filedef_
 
-#include <cfe_mission_cfg.h>
-#include <common_types.h>
+#include "cfe_mission_cfg.h"
+#include "common_types.h"
 #include "cfe_tbl_extern_typedefs.h" /* for "CFE_TBL_FileHdr_t" definition */
 #include "cfe_fs_extern_typedefs.h"  /* for "CFE_FS_HDR_DESC_MAX_LEN" definition */
 

@@ -65,8 +65,9 @@ int32 CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId)
         return CFE_MSG_BAD_ARGUMENT;
     }
 
-    MsgPtr->CCSDS.Pri.StreamId[0] = (uint8)(msgidval >> 8);
-    MsgPtr->CCSDS.Pri.StreamId[1] = (uint8)(msgidval);
+    /* Shift and mask bytes to be endian agnostic */
+    MsgPtr->CCSDS.Pri.StreamId[0] = (msgidval >> 8) & 0xFF;
+    MsgPtr->CCSDS.Pri.StreamId[1] = msgidval & 0xFF;
 
     return CFE_SUCCESS;
 }

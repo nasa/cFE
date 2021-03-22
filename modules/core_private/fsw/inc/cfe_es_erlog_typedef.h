@@ -31,11 +31,11 @@
 #ifndef CFE_ES_ERLOG_TYPEDEF_H_
 #define CFE_ES_ERLOG_TYPEDEF_H_
 
-#include <common_types.h>
-#include <cfe_platform_cfg.h>
+#include "common_types.h"
+#include "cfe_platform_cfg.h"
 
-#include <cfe_time_extern_typedefs.h> /* Needed for CFE_TIME_SysTime_t */
-#include <cfe_es_extern_typedefs.h>   /* Needed for CFE_ES_AppId_t */
+#include "cfe_time_extern_typedefs.h" /* Needed for CFE_TIME_SysTime_t */
+#include "cfe_es_extern_typedefs.h"   /* Needed for CFE_ES_AppId_t */
 
 #define CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH 80
 

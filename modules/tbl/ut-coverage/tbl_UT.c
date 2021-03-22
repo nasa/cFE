@@ -2589,7 +2589,7 @@ void Test_CFE_TBL_Manage(void)
 {
     int32                       RtnCode;
     bool                        EventsCorrect;
-    int32                       RegIndex;
+    int16                       RegIndex;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_LoadBuff_t *        WorkingBufferPtr;
     UT_Table1_t                 TestTable1;
