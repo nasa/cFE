@@ -10,6 +10,19 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev436
+
+- Adds a local definition of SOFTWARE_BIG/LITTLE_BIT_ORDER directly inside cfe_endian.h to provide a compatible symbol for apps that still require this. This allows CFE to build and run successfully when OSAL stops providing this in `common_types.h`.
+- Removes incorrect statements from Application Developers Guide
+- Fixes truncation handling on vsnprintf error by adding a cast to avoid implicit conversion
+- Clarify the documentation on SB MsgId regarding requirements for command and telemetry messages
+- Avoids undefined behavior and resolves static analysis warnings by casting isspace input to unsigned char.
+- Updates message module and msgid v1, CFE_MSG_SetMsgId, to use mask instead of cast to alter value. Resolves static analysis warning.
+- Updates CFE_ES_FileWriteByteCntErr to report status, not a size_t actual since OS_write returns int32. Use int16 for local type from CFE_TBL_FindTableInRegistry since it's an index, not a status.
+- Replaces <> with " in local #includes
+- Adds CONTRIBUING.md that links to the main cFS contributing guide.
+- See <https://github.com/nasa/cFE/pull/1243>
+
 ### Development Build: v6.8.0-rc1+dev412
 
 - Apply standard code style and format
