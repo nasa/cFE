@@ -1114,7 +1114,7 @@ int32 CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
     CFE_ES_AppId_t              ThisAppId;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
-    char                        AppName[OS_MAX_API_NAME] = {"UNKNWON"};
+    char                        AppName[OS_MAX_API_NAME] = {"UNKNOWN"};
 
     /* Verify that this application has the right to perform operation */
     Status = CFE_TBL_ValidateAccess(TblHandle, &ThisAppId);
