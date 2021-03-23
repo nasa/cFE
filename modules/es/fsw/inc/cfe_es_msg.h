@@ -1489,6 +1489,15 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
     uint8 OSALMissionRevision; /**< \cfetlmmnemonic \ES_OSMISSIONREV
                                     \brief OS Abstraction Layer MissionRevision Number */
 
+    uint8 PSPMajorVersion;    /**< \cfetlmmnemonic \ES_PSPMAJORVER
+                                   \brief Platform Support Package Major Version Number */
+    uint8 PSPMinorVersion;    /**< \cfetlmmnemonic \ES_PSPMINORVER
+                                   \brief Platform Support Package Minor Version Number */
+    uint8 PSPRevision;        /**< \cfetlmmnemonic \ES_PSPREVISION
+                                   \brief Platform Support Package Revision Number */
+    uint8 PSPMissionRevision; /**< \cfetlmmnemonic \ES_PSPMISSIONREV
+                                   \brief Platform Support Package MissionRevision Number */
+
     CFE_ES_MemOffset_t SysLogBytesUsed; /**< \cfetlmmnemonic \ES_SYSLOGBYTEUSED
                                              \brief Total number of bytes used in system log */
     CFE_ES_MemOffset_t SysLogSize;      /**< \cfetlmmnemonic \ES_SYSLOGSIZE

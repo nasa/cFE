@@ -338,6 +338,7 @@ int32 CFE_ES_TaskInit(void)
     int32   Status;
     uint32  SizeofCfeSegment;
     cpuaddr CfeSegmentAddr;
+    uint8   VersionNumber[4];
 
     /*
     ** Register the Application
@@ -444,14 +445,22 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Initialize the version numbers in the ES Housekeeping pkt
     */
-    CFE_ES_TaskData.HkPacket.Payload.CFEMajorVersion     = CFE_MAJOR_VERSION;
-    CFE_ES_TaskData.HkPacket.Payload.CFEMinorVersion     = CFE_MINOR_VERSION;
-    CFE_ES_TaskData.HkPacket.Payload.CFERevision         = CFE_REVISION;
-    CFE_ES_TaskData.HkPacket.Payload.CFEMissionRevision  = CFE_MISSION_REV;
-    CFE_ES_TaskData.HkPacket.Payload.OSALMajorVersion    = OS_MAJOR_VERSION;
-    CFE_ES_TaskData.HkPacket.Payload.OSALMinorVersion    = OS_MINOR_VERSION;
-    CFE_ES_TaskData.HkPacket.Payload.OSALRevision        = OS_REVISION;
-    CFE_ES_TaskData.HkPacket.Payload.OSALMissionRevision = OS_MISSION_REV;
+    CFE_ES_TaskData.HkPacket.Payload.CFEMajorVersion    = CFE_MAJOR_VERSION;
+    CFE_ES_TaskData.HkPacket.Payload.CFEMinorVersion    = CFE_MINOR_VERSION;
+    CFE_ES_TaskData.HkPacket.Payload.CFERevision        = CFE_REVISION;
+    CFE_ES_TaskData.HkPacket.Payload.CFEMissionRevision = CFE_MISSION_REV;
+
+    OS_GetVersionNumber(VersionNumber);
+    CFE_ES_TaskData.HkPacket.Payload.OSALMajorVersion    = VersionNumber[0];
+    CFE_ES_TaskData.HkPacket.Payload.OSALMinorVersion    = VersionNumber[1];
+    CFE_ES_TaskData.HkPacket.Payload.OSALRevision        = VersionNumber[2];
+    CFE_ES_TaskData.HkPacket.Payload.OSALMissionRevision = VersionNumber[3];
+
+    CFE_PSP_GetVersionNumber(VersionNumber);
+    CFE_ES_TaskData.HkPacket.Payload.PSPMajorVersion    = VersionNumber[0];
+    CFE_ES_TaskData.HkPacket.Payload.PSPMinorVersion    = VersionNumber[1];
+    CFE_ES_TaskData.HkPacket.Payload.PSPRevision        = VersionNumber[2];
+    CFE_ES_TaskData.HkPacket.Payload.PSPMissionRevision = VersionNumber[3];
 
     /*
     ** Task startup event message.
