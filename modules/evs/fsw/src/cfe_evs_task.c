@@ -286,14 +286,6 @@ int32 CFE_EVS_TaskInit(void)
     int32          Status;
     CFE_ES_AppId_t AppID;
 
-    /* Register EVS application */
-    Status = CFE_ES_RegisterApp();
-    if (Status != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("EVS:Call to CFE_ES_RegisterApp Failed:RC=0x%08X\n", (unsigned int)Status);
-        return Status;
-    }
-
     /* Query and verify the AppID */
     Status = CFE_ES_GetAppID(&AppID);
     if (Status != CFE_SUCCESS)

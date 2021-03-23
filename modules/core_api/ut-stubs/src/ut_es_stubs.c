@@ -348,59 +348,6 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t Buffe
 
 /*****************************************************************************/
 /**
-** \brief CFE_ES_RegisterApp stub function
-**
-** \par Description
-**        This function is used to mimic the response of the cFE ES function
-**        CFE_ES_RegisterApp.  The user can adjust the response by setting
-**        the values in the ES_RegisterRtn structure prior to this function
-**        being called.  If the value ES_RegisterRtn.count is greater than
-**        zero then the counter is decremented; if it then equals zero the
-**        return value is set to the user-defined value ES_RegisterRtn.value.
-**        CFE_SUCCESS is returned otherwise.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        Returns either a user-defined status flag or CFE_SUCCESS.
-**
-******************************************************************************/
-int32 CFE_ES_RegisterApp(void)
-{
-    int32 status;
-
-    status = UT_DEFAULT_IMPL(CFE_ES_RegisterApp);
-
-    return status;
-}
-
-/*****************************************************************************/
-/**
-** \brief CFE_ES_RegisterChildTask stub function
-**
-** \par Description
-**        This function is used to mimic the response of the cFE ES function
-**        CFE_ES_RegisterChildTask.  It always returns CFE_SUCCESS when called.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        Returns CFE_SUCCESS.
-**
-******************************************************************************/
-int32 CFE_ES_RegisterChildTask(void)
-{
-    int32 status = CFE_SUCCESS;
-
-    status = UT_DEFAULT_IMPL(CFE_ES_RegisterChildTask);
-
-    return status;
-}
-
-/*****************************************************************************/
-/**
 ** \brief CFE_ES_WriteToSysLog stub function
 **
 ** \par Description

@@ -313,20 +313,20 @@ directory is described as a note under each folder.
 
 ![](.//media/cFE_Application_Developers_Guide_image6.png)
 
-Each cFE core component is itself a modular entity, all of which work together to form the 
+Each cFE core component is itself a modular entity, all of which work together to form the
 complete cFE core executive.  These modules are all contained under the `modules` subdirectory:
 
 | **Directory**           | **Content**                                                                                                        |
 |:------------------------|:------------------------------------------------------------------------------------------------------------------ |
 | `modules/core_api/`     | Contains the public interface definition of the complete CFE core - public API/headers only, no implementation     |
 | `modules/core_private/` | Contains the inter-module interface definition of the CFE core - internal API/headers only, no implementation      |
-| `modules/es/`           | Implementation of the Executive Services (ES) core module - provides app and task management                       | 
-| `modules/evs/`          | Implementation of the Event Services (EVS) core module - manages sending of events on behalf of other apps         | 
-| `modules/fs/`           | Implementation of the File Services (FS) core module - defines file-related functions                              | 
-| `modules/msg/`          | Implementation of the Message (MSG) core module - defines message header manipulation/access routines              | 
-| `modules/resourceid/`   | Implementation of the Resource ID core module - maniplation/access of system resource IDs (AppID, PipeID, etc.)    | 
-| `modules/sb/`           | Implementation of the Software Bus (SB) core module - sends messages between applications                          | 
-| `modules/tbl/`          | Implementation of the Table Services (TBL) core module - manages runtime tables                                    | 
+| `modules/es/`           | Implementation of the Executive Services (ES) core module - provides app and task management                       |
+| `modules/evs/`          | Implementation of the Event Services (EVS) core module - manages sending of events on behalf of other apps         |
+| `modules/fs/`           | Implementation of the File Services (FS) core module - defines file-related functions                              |
+| `modules/msg/`          | Implementation of the Message (MSG) core module - defines message header manipulation/access routines              |
+| `modules/resourceid/`   | Implementation of the Resource ID core module - maniplation/access of system resource IDs (AppID, PipeID, etc.)    |
+| `modules/sb/`           | Implementation of the Software Bus (SB) core module - sends messages between applications                          |
+| `modules/tbl/`          | Implementation of the Table Services (TBL) core module - manages runtime tables                                    |
 | `modules/time/`         | Implementation of the Time Services (TIME) core module - manages timing and synchronization                        |
 
 **NOTE**: The modules contained here constitute the "reference" implementation of each module.  The CMake build system also permits advanced users
@@ -357,7 +357,7 @@ Each module directory is in turn divided into subdirectories as follows:
 
 In order for applications to use and call cFE service functions, the
 developer must include the appropriate header files in their source
-code. 
+code.
 
 The cFE header files are split into several parts/sections, allowing
 application/libraries to individually select the parts they need.  The
@@ -373,11 +373,11 @@ naming convention is as follows:
 In general the files are scoped such that an application/library should only need to include the information it
 actually needs to use for the task it performs.  For instance, if a tool needs to interpret a data file generated
 by CFE ES, only the `cfe_es_extern_typedefs.h` file should be required.  To send commands or interpret telemetry, the
-`cfe_es_msg.h` may be used.  If a library builds upon data types or extends functions from the ES API, then the 
+`cfe_es_msg.h` may be used.  If a library builds upon data types or extends functions from the ES API, then the
 `cfe_es_api_typedefs.h` header may be used.
 
 An "unqualified" header file (with no extra suffix) provides the complete runtime API definition for the component.
-This includes all API function prototypes and is intended for use in C source files.  The following API header files 
+This includes all API function prototypes and is intended for use in C source files.  The following API header files
 are provided by cFE:
 
 | **Filename**     | **Contents**                         |
@@ -392,11 +392,11 @@ are provided by cFE:
 | cfe_time.h       | cFE Time Service Interface           |
 
 
-**NOTE**: The files listed above provide function prototypes and are intended to be used by C source files 
+**NOTE**: The files listed above provide function prototypes and are intended to be used by C source files
 that contain code which needs to invoke the function(s) prototyped within them.  When referencing the
 data types or macros from another header file, the targeted/qualified header should be used instead.
 
-As a rule of thumb, files listed in the first table (with suffix) should be included from within other 
+As a rule of thumb, files listed in the first table (with suffix) should be included from within other
 headers, while files listed in the second table (without suffix) should be used by source files.
 
 Finally, to simplify application headers, a single "all-inclusive" cFE header is also provided:
@@ -501,12 +501,12 @@ applications.
 ## 4.2 Best Practices
 ### 4.2.1 cFS Application Template
 
-Applications designed to interface with the cFE should follow standard templates.  
+Applications designed to interface with the cFE should follow standard templates.
 Reference sample_app on Github for “live” example.
 
 | **Directory**                         | **Descriptions**                                                                                             |
 |:--------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| fsw/                                  | All components which are used on/deployed to the actual target or define the interface to those components   | 
+| fsw/                                  | All components which are used on/deployed to the actual target or define the interface to those components   |
 | fsw/inc/                              | Public/Interface headers for the component                                                                   |
 | fsw/src/                              | Source files and private headers for the component                                                           |
 | tables/                               | Example/Initial table definitions                                                                            |
@@ -525,7 +525,7 @@ Reference sample_app on Github for “live” example.
 
 In addition to showing the standard structure of a cFS application, the
 sample_app also demonstrates how to interface with cFS libraries and table
-services.  
+services.
 
 ### 4.2.2 Avoid "Endian-ness" Dependencies
 
@@ -558,7 +558,7 @@ Examples of items that must be shared with other Applications include
 Message IDs and Message data structures.  Inter- application communication
 should rely on the published interfaces described above (generally using the
 software bus) rather than directly calling functions internal to another
-application.  
+application.
 
 Examples of items that do not need to be shared with other Applications include
 Table IDs, Table data structures, Event IDs and Pipe IDs.  Tables are not
@@ -595,9 +595,9 @@ found in the OSAL Library API documentation.
 
 ## 5.1 Application Registration
 
-All cFE Applications must register immediately with ES when started.
-This is accomplished with the CFE_ES_RegisterApp function and it
-should be the first function called by a cFE Application's main task.
+All cFE Applications are now automatically registered with ES before the
+user-specified entry point is invoked.  There is no specific registration
+function to invoke as was necessary in older versions of cFE.
 
 ## 5.2 Application Names and IDs
 
@@ -625,10 +625,11 @@ additional threads that are spawned by this thread are referred to as
 Child Tasks. There are a handful of functions provided by the Executive
 Services for controlling Child Tasks. The first is
 CFE_ES_CreateChildTask. This function spawns a Child Task that is
-"owned" by the Main Task. Each of the Child Tasks must then register
-with ES via the CFE_ES_RegisterChildTask function. The remaining
-functions, CFE_ES_DeleteChildTask, CFE_ES_SuspendChildTask and
-CFE_ES_ResumeChildTask can control the existence and execution of the
+"owned" by the Main Task.  This child task is automatically registered
+with ES before invoking the entry point.
+
+The remaining functions, CFE_ES_DeleteChildTask, CFE_ES_SuspendChildTask
+and CFE_ES_ResumeChildTask can control the existence and execution of the
 Child Task. All of these functions require the task ID that is returned
 by the CFE_ES_CreateChildTask function in order to identify the Child
 Task.  Note that Child Tasks can only be created from an Application's
@@ -736,7 +737,7 @@ osobjtab.c file for the processor.
 A binary semaphore can be created using the OS_BinSemCreate function.  Upon
 success, the OS_BinSemCreate function sets the sem_id parameter to the ID of
 the newly-created resource.  This ID is used in all other functions that use
-the binary semaphore.  
+the binary semaphore.
 
 ```
 int32 OS_BinSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
@@ -780,10 +781,10 @@ implement a kind of handshake between its main task and its child task.
 
 ### 5.7.3.1 Counting Semaphore Functions
 
-A counting semaphore can be created using the OS_CountSemCreate function.  
+A counting semaphore can be created using the OS_CountSemCreate function.
 Upon success, the OS_CountSemCreate function sets the sem_id parameter to the
 ID of the newly-created resource. This ID is used in all other functions that
-use the binary semaphore.  
+use the binary semaphore.
 
 ```
 int32 OS_CountSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
@@ -895,7 +896,7 @@ to the OSAL Library API).
 
 ## 5.8 Interrupt Handling
 
-OSAL interrupt handling functions have been deprecated due to 
+OSAL interrupt handling functions have been deprecated due to
 platform dependencies, incomplete testing, and incomplete implementaion
 
 No longer supporting abstracted interrupt handling API from OSAL.  Could
@@ -1097,7 +1098,7 @@ int32 SAMPLE_TaskInit(void)
     {
         /* Critical Data Store already existed, we need to get a */
         /* copy of its current contents to see if we can work use it */
-        Status = CFE_ES_RestoreFromCDS(&SAMPLE_MyCDSDataType_t,  
+        Status = CFE_ES_RestoreFromCDS(&SAMPLE_MyCDSDataType_t,
                                         SAMPLE_TaskData.MyCDSHandle);
 
         if (Status == CFE_SUCCESS)
@@ -1165,7 +1166,7 @@ void SAMPLE_TaskMain(void)
 
 ### 5.10.4	Standard CRC Calculations
 There are many Applications that require a validation of received data or of
-data in memory.  This is usually done by a Cyclic Redundancy Check (CRC).  
+data in memory.  This is usually done by a Cyclic Redundancy Check (CRC).
 There are many different ways to calculate a CRC.  To help ensure that the
 calculation is done consistently for a mission, the Executive Services provides
 an API for a CRC calculation that can be used by all Applications on a mission.
@@ -1269,7 +1270,7 @@ main execution loop.  Applications can track performance of multiple sections
 of code, but must define a unique "performance id" (or "perfid") for each
 segment of code to monitor.  Applications typically define these perfids in
 their xx_mission_cfg.h file.  A common pattern for performance monitoring is
-shown below.  
+shown below.
 
 ```
 FILE: xx_app.c
@@ -1279,9 +1280,6 @@ void XX_AppMain(void)
     uint32 RunStatus = CFE_ES_RunStatus_APP_RUN;
     CFE_SB_Buffer_t *SBBufPtr;
     int32  Result = CFE_SUCCESS;
-
-    /* Register application */
-    Result = CFE_ES_RegisterApp();
 
     /* Performance Log (start time counter) */
     CFE_ES_PerfLogEntry(XX_APPMAIN_PERF_ID);
@@ -1773,7 +1771,7 @@ sizeof(CFE_MSG_CommandHeader_t) and sizeof(CFE_MSG_TelemetryHeader_t) respective
 
 It is important to note that some API calls require the presence of a
 particular header type and will return an error if the other header type
-is present instead.  The following section provides more detail.  
+is present instead.  The following section provides more detail.
 
 ### 6.5.2 Setting Message Header Information
 
@@ -1805,7 +1803,7 @@ The preference is to use CFE_MSG_SetSize and actual packet structure
 information when available.
 
 ### 6.5.2.1 Modifying Command Message Header Information
-The most common update for command messages is to set the command code.  
+The most common update for command messages is to set the command code.
 This is done through the CFE_MSG_SetFcnCode() API call.  This code is used
 to distinguish between multiple commands that share a Message ID.  It is
 common practice for an application to have a single "CMD_MID" to capture
@@ -1937,7 +1935,7 @@ a CFE_SB_NO_MESSAGE status code.
 
 After a message is received, the SB Message Header accessor functions (as
 described in Section 6.5.3) should be used to identify the message so that
-the application can react to it appropriately.  
+the application can react to it appropriately.
 
 
 ## 6.8 Improving Message Transfer Performance for Large Messages
@@ -2043,7 +2041,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 The following are recommended "best practices" for applications using EVS.
 1. Applications should use the Software Bus for all communication with other
    applications.
-2. Pipe depth and message limits are dependent on the entire software system.  
+2. Pipe depth and message limits are dependent on the entire software system.
    Consider both the receiving application and any sending application(s) when
    choosing those limits.
 3. Applications shall always use AB API functions to read or manipulate the SB
@@ -2051,7 +2049,7 @@ The following are recommended "best practices" for applications using EVS.
 4. Applications should maintain a command counter and a command error counter
    in housekeeping telemetry.
 5. Applications should support a "No-operation" command and a "Reset Counters"
-   command.  
+   command.
 6. Every application should have at least one pipe.
 
 # 7. Event Service Interface
@@ -2072,7 +2070,7 @@ Child Task.
 Event messages are implemented as software bus messages.  It is important
 for developers to note that Event Messages are not automatically sent
 as telemetry.  A Telemetry Output (or equivalent) application must be
-configured to downlink event messages if they need to be sent as telemetry.  
+configured to downlink event messages if they need to be sent as telemetry.
 
 ## 7.2 Event Types
 
@@ -2129,7 +2127,7 @@ the short format does not include the text string portion of the message.
 Because of this, it is very important that Event Messages IDs be unique
 across an Application, including all Child Tasks. Unique message IDs will
 allow a message to be understood even in "short format" when the text
-string is unavailable to provide supplemental information.   
+string is unavailable to provide supplemental information.
 
 ## 7.4 Event Service Registration
 
@@ -2137,7 +2135,7 @@ Applications must register with the EVS in order to use cFE event
 services. If an application has registered with EVS, then all of its
 Child Tasks are also registered and able to send Event Messages. cFE
 libraries however are not able to register for EVS or send Event
-Messages.  
+Messages.
 
 Event services include the sending and filtering of event
 messages. EVS registration is performed using the CFE_EVS_Register
@@ -2384,7 +2382,7 @@ CFE_EVS_Unregister ();
 
 The following are recommended "best practices" for applications using EVS.
 1. Event Message IDs should be unique across an application so that an
-   event can be identified even without text.  
+   event can be identified even without text.
 2. The "No Operation" command in an application should send an Information
    Event Message with the application's version number.
 3. Abide by the guidance in Section 7.5.1 when creating event message
@@ -2396,7 +2394,7 @@ The following are recommended "best practices" for applications using EVS.
 5. Ensure that adequate debug messages are left in an application to allow
    debugging to occur in flight if necessary. When an application is
    complete, all remaining debug "printf" statements should be either
-   removed or converted to Debug event messages.  
+   removed or converted to Debug event messages.
 
 # 8. Table Service Interface
 
@@ -2511,7 +2509,7 @@ they wish to have created and the cFE responds with an Application
 unique Table Handle. An example of this process is shown in Section 8.5.1.
 
 It should be noted that the Table Services automatically makes the table name
-processor specific by prepending the Application name to the given table name.  
+processor specific by prepending the Application name to the given table name.
 Therefore, after the above example is executed, Table Services would have
 added a table with the name “SAMPLE.MyTableName” to the Table Registry.
 If an Application is sharing a Table that is created by another Application,
@@ -2781,13 +2779,13 @@ xx
        |     |----xx_tbl.c
        |
        |----tables
-       |      |----xx_table1.c  
+       |      |----xx_table1.c
        |
        |----platform_inc
-              |----xx_platform_cfg.h       
+              |----xx_platform_cfg.h
 
 The xx_app.h file is included in this layout only because table handles are
-typically stored in an application's AppData_t structure.  
+typically stored in an application's AppData_t structure.
 
 The file xx_tbldefs.h (sometimes just named xx_tbl.h) typically contains the
 structure definition of a single table entry.  This file is included in the
@@ -2798,7 +2796,7 @@ The xx_tbl.c file typically contains table-related utility functions.  For
 instance, many applications define table initialization and validation functions
 in this file.
 
-The xx_table1.c file is the source code for a table itself.  
+The xx_table1.c file is the source code for a table itself.
 
 The xx_platform_cfg.h file contains configuration parameters for applications,
 and there are typically several configuration parameters associated with tables.
@@ -2896,7 +2894,7 @@ int32 XX_ValidateTable(void *TableData)
     {
         /* validate each entry of the table */
         ...
-    }   
+    }
    ...
 
    return Status;
@@ -2939,7 +2937,7 @@ FILE: xx_platform_cfg.h
 #define XX_TABLE_ENTRY_COUNT   3
 
 ```
-## 8.6 Building Tables  
+## 8.6 Building Tables
 
 In order to build application tables with the CMake build system, the
 "add_cfe_tables" command needs to be added to the CMakeLists.txt file.  If the

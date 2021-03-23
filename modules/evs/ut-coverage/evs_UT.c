@@ -50,7 +50,7 @@ static const char *EVS_SYSLOG_MSGS[] = {
     "Event Log restored, n=%d, c=%d, f=%d, m=%d, o=%d\n",
     "EVS:Application Init Failed,RC=0x%08X\n",
     "EVS:Error reading cmd pipe,RC=0x%08X\n",
-    "EVS:Call to CFE_ES_RegisterApp Failed:RC=0x%08X\n",
+    NULL, /* old message removed - placeholder to maintain indices */
     "EVS:Call to CFE_ES_GetAppID Failed:RC=0x%08X\n",
     "EVS:Call to CFE_EVS_Register Failed:RC=0x%08X\n",
     "EVS:Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n",
@@ -248,14 +248,6 @@ void Test_Init(void)
     ASSERT_TRUE(UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[8]));
     ASSERT_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ERR_MSGID_EID);
 
-    /* Test TaskMain with a register application failure */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, -1);
-    CFE_EVS_TaskMain();
-    UT_Report(__FILE__, __LINE__,
-              UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[7]) && UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 2,
-              "CFE_EVS_TaskMain", "Application initialization failure");
-
     /* Test early initialization with a get reset area failure */
     UT_InitData();
     UT_SetStatusBSPResetArea(-1, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_PRIMARY);
@@ -324,13 +316,6 @@ void Test_Init(void)
     CFE_EVS_EarlyInit();
     UT_Report(__FILE__, __LINE__, UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[4]), "CFE_EVS_EarlyInit",
               "Early initialization successful");
-
-    /* Test task initialization where the application registration fails */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, -1);
-    CFE_EVS_TaskInit();
-    UT_Report(__FILE__, __LINE__, UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[9]), "CFE_EVS_TaskInit",
-              "Call to CFE_ES_RegisterApp failure");
 
     /* Test task initialization where event services fails */
     UT_InitData();

@@ -15,7 +15,6 @@
     </UL>
     <LI> \ref CFEAPIESAppBehavior
     <UL>
-      <LI> #CFE_ES_RegisterApp - \copybrief CFE_ES_RegisterApp
       <LI> #CFE_ES_RunLoop - \copybrief CFE_ES_RunLoop
       <LI> #CFE_ES_WaitForStartupSync - \copybrief CFE_ES_WaitForStartupSync
       <LI> #CFE_ES_WaitForSystemState - \copybrief CFE_ES_WaitForSystemState
@@ -33,7 +32,6 @@
     </UL>
     <LI> \ref CFEAPIESChildTask
     <UL>
-      <LI> #CFE_ES_RegisterChildTask - \copybrief CFE_ES_RegisterChildTask
       <LI> #CFE_ES_CreateChildTask - \copybrief CFE_ES_CreateChildTask
       <LI> #CFE_ES_DeleteChildTask - \copybrief CFE_ES_DeleteChildTask
       <LI> #CFE_ES_ExitChildTask - \copybrief CFE_ES_ExitChildTask

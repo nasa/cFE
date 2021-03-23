@@ -147,17 +147,6 @@ int32 CFE_TBL_TaskInit(void)
     int32 Status;
 
     /*
-    ** Register Table Services with ES
-    */
-    Status = CFE_ES_RegisterApp();
-
-    if (Status != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("TBL:Call to CFE_ES_RegisterApp Failed:RC=0x%08X\n", (unsigned int)Status);
-        return Status;
-    } /* end if */
-
-    /*
     ** Initialize global Table Services data
     */
     CFE_TBL_InitData();

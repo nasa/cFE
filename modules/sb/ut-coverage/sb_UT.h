@@ -135,21 +135,6 @@ void Test_SB_AppInit(void);
 
 /*****************************************************************************/
 /**
-** \brief Test task init with ES_RegisterApp returning error
-**
-** \par Description
-**        This function tests task init with ES_RegisterApp returning error.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_SB_AppInit_ESRegFail(void);
-
-/*****************************************************************************/
-/**
 ** \brief Test task init with EVS_Register returning error
 **
 ** \par Description

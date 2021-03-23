@@ -438,7 +438,7 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Application Register Error
  *
- *  Occurs when the #CFE_ES_RegisterApp fails.
+ *  Occurs when a task cannot be registered in ES global tables
  *
  */
 #define CFE_ES_ERR_APP_REGISTER ((CFE_Status_t)0xc4000017)
@@ -950,9 +950,6 @@ typedef int32 CFE_Status_t;
  * @brief Bad Application ID
  *
  *  The calling application does not have a legitimate Application ID.
- *  Most likely cause is a failure to register with the cFE via the
- *  #CFE_ES_RegisterApp function.
- *
  */
 #define CFE_TBL_ERR_BAD_APP_ID ((CFE_Status_t)0xcc00000A)
 
