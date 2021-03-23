@@ -906,15 +906,16 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
     const CFE_ES_StartAppCmd_Payload_t *cmd = &data->Payload;
     CFE_ES_AppId_t                      AppID;
     int32                               Result;
-    int32                               FilenameLen;
     int32                               AppEntryLen;
     int32                               AppNameLen;
     char                                LocalAppName[OS_MAX_API_NAME];
     CFE_ES_AppStartParams_t             StartParams;
 
     /* Create local copies of all input strings and ensure null termination */
-    FilenameLen = CFE_SB_MessageStringGet(StartParams.BasicInfo.FileName, cmd->AppFileName, NULL,
-                                          sizeof(StartParams.BasicInfo.FileName), sizeof(cmd->AppFileName));
+    Result = CFE_FS_ParseInputFileNameEx(StartParams.BasicInfo.FileName, cmd->AppFileName,
+                                         sizeof(StartParams.BasicInfo.FileName), sizeof(cmd->AppFileName), NULL,
+                                         CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_DYNAMIC_MODULE),
+                                         CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_DYNAMIC_MODULE));
 
     AppEntryLen = CFE_SB_MessageStringGet(StartParams.BasicInfo.InitSymbolName, cmd->AppEntryPoint, NULL,
                                           sizeof(StartParams.BasicInfo.InitSymbolName), sizeof(cmd->AppEntryPoint));
@@ -925,11 +926,11 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
     /*
     ** Verify command parameters
     */
-    if (FilenameLen < 4)
+    if (Result != CFE_SUCCESS)
     {
         CFE_ES_TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_START_INVALID_FILENAME_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "CFE_ES_StartAppCmd: invalid filename: %s", StartParams.BasicInfo.FileName);
+                          "CFE_ES_StartAppCmd: invalid filename, status=%lx", (unsigned long)Result);
     }
     else if (AppEntryLen <= 0)
     {
@@ -1108,15 +1109,22 @@ int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
     CFE_ES_AppId_t                       AppID;
     int32                                Result;
 
-    CFE_SB_MessageStringGet(LocalFileName, (char *)cmd->AppFileName, NULL, sizeof(LocalFileName),
-                            sizeof(cmd->AppFileName));
     CFE_SB_MessageStringGet(LocalApp, (char *)cmd->Application, NULL, sizeof(LocalApp), sizeof(cmd->Application));
 
     Result = CFE_ES_GetAppIDByName(&AppID, LocalApp);
 
     if (Result == CFE_SUCCESS)
     {
-        Result = CFE_ES_ReloadApp(AppID, LocalFileName);
+        /* Read input string as a file name for dynamic module */
+        Result = CFE_FS_ParseInputFileNameEx(LocalFileName, cmd->AppFileName, sizeof(LocalFileName),
+                                             sizeof(cmd->AppFileName), NULL,
+                                             CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_DYNAMIC_MODULE),
+                                             CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_DYNAMIC_MODULE));
+
+        if (Result == CFE_SUCCESS)
+        {
+            Result = CFE_ES_ReloadApp(AppID, LocalFileName);
+        }
 
         /*
         ** Send appropriate event message.
@@ -1232,12 +1240,6 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     CFE_ES_LibRecord_t *                LibRecPtr;
 
     /*
-    ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
-    */
-    CFE_SB_MessageStringGet(QueryAllFilename, (char *)CmdPtr->FileName, CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE,
-                            sizeof(QueryAllFilename), sizeof(CmdPtr->FileName));
-
-    /*
      * Collect list of active resource IDs.
      *
      * This should be done while locked, but the actual writing
@@ -1267,21 +1269,31 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     }
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    /*
-    ** Check to see if the file already exists
-    */
-    Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-    if (Result >= 0)
+    /* Copy the commanded filename, using default if unspecified */
+    Result = CFE_FS_ParseInputFileNameEx(QueryAllFilename, CmdPtr->FileName, sizeof(QueryAllFilename),
+                                         sizeof(CmdPtr->FileName), CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE,
+                                         CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
+                                         CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
+
+    if (Result == CFE_SUCCESS)
     {
-        OS_close(FileDescriptor);
-        OS_remove(QueryAllFilename);
+        /*
+        ** Check to see if the file already exists
+        */
+        Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+        if (Result >= 0)
+        {
+            OS_close(FileDescriptor);
+            OS_remove(QueryAllFilename);
+        }
+
+        /*
+        ** Create ES task log data file
+        */
+        Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE,
+                               OS_WRITE_ONLY);
     }
 
-    /*
-    ** Create ES task log data file
-    */
-    Result =
-        OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
     if (Result >= 0)
     {
         /*
@@ -1386,12 +1398,6 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
     CFE_ES_TaskRecord_t *               TaskRecPtr;
 
     /*
-    ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
-    */
-    CFE_SB_MessageStringGet(QueryAllFilename, (char *)CmdPtr->FileName, CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE,
-                            sizeof(QueryAllFilename), sizeof(CmdPtr->FileName));
-
-    /*
      * Collect list of active task IDs.
      *
      * This should be done while locked, but the actual writing
@@ -1412,20 +1418,32 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
     /*
-    ** Check to see if the file already exists
+    ** Copy the commanded filename into local buffer to ensure size limitation and to allow for modification
     */
-    Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-    if (Result >= 0)
+    Result = CFE_FS_ParseInputFileNameEx(QueryAllFilename, CmdPtr->FileName, sizeof(QueryAllFilename),
+                                         sizeof(CmdPtr->FileName), CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE,
+                                         CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
+                                         CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
+
+    if (Result == CFE_SUCCESS)
     {
-        OS_close(FileDescriptor);
-        OS_remove(QueryAllFilename);
+        /*
+        ** Check to see if the file already exists
+        */
+        Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+        if (Result >= 0)
+        {
+            OS_close(FileDescriptor);
+            OS_remove(QueryAllFilename);
+        }
+
+        /*
+        ** Create ES task log data file
+        */
+        Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE,
+                               OS_WRITE_ONLY);
     }
 
-    /*
-    ** Create ES task log data file
-    */
-    Result =
-        OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
     if (Result >= 0)
     {
         /*
@@ -1576,10 +1594,26 @@ int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data)
     int32                               Stat;
     char                                LogFilename[OS_MAX_PATH_LEN];
 
-    CFE_SB_MessageStringGet(LogFilename, (char *)CmdPtr->FileName, CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE,
-                            sizeof(LogFilename), sizeof(CmdPtr->FileName));
+    /*
+    ** Copy the filename into local buffer with default name/path/extension if not specified
+    **
+    ** Note even though this fundamentally contains strings, it is written as a binary file with an FS header,
+    ** not as normal text file, so still using the BINARY DATA DUMP category for its default extension.
+    */
+    Stat = CFE_FS_ParseInputFileNameEx(LogFilename, CmdPtr->FileName, sizeof(LogFilename), sizeof(CmdPtr->FileName),
+                                       CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE,
+                                       CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
+                                       CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
-    Stat = CFE_ES_SysLogDump(LogFilename);
+    if (Stat != CFE_SUCCESS)
+    {
+        CFE_EVS_SendEvent(CFE_ES_SYSLOG2_ERR_EID, CFE_EVS_EventType_ERROR, "Error parsing file name RC = 0x%08X",
+                          (unsigned int)Stat);
+    }
+    else
+    {
+        Stat = CFE_ES_SysLogDump(LogFilename);
+    }
 
     if (Stat == CFE_SUCCESS)
     {
@@ -1661,18 +1695,37 @@ int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
         StatePtr->FileWrite.GetData = CFE_ES_BackgroundERLogFileDataGetter;
         StatePtr->FileWrite.OnEvent = CFE_ES_BackgroundERLogFileEventHandler;
 
-        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->FileName, CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE,
-                                sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->FileName));
+        /*
+        ** Copy the filename into local buffer with default name/path/extension if not specified
+        */
+        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName, CmdPtr->FileName,
+                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->FileName),
+                                             CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE,
+                                             CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
+                                             CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
-        Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
+        if (Status == CFE_SUCCESS)
+        {
+            Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
+        }
     }
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(CFE_ES_ERLOG_PENDING_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Error log write to file %s already in progress", StatePtr->FileWrite.FileName);
+        if (Status == CFE_STATUS_REQUEST_ALREADY_PENDING)
+        {
+            /* Specific event if already pending */
+            CFE_EVS_SendEvent(CFE_ES_ERLOG_PENDING_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Error log write already in progress");
+        }
+        else
+        {
+            /* Some other validation issue e.g. bad file name */
+            CFE_EVS_SendEvent(CFE_ES_ERLOG2_ERR_EID, CFE_EVS_EventType_ERROR, "Error creating file, RC = %d",
+                              (int)Status);
+        }
 
-        /* background dump already running, consider this an error */
+        /* background dump did not start, consider this an error */
         CFE_ES_TaskData.CommandErrorCounter++;
     }
     else
@@ -1894,14 +1947,33 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
     int32                                      FileSize   = 0;
     int32                                      NumEntries = 0;
 
-    /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
-    CFE_SB_MessageStringGet(DumpFilename, CmdPtr->DumpFilename, CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE,
-                            sizeof(DumpFilename), sizeof(CmdPtr->DumpFilename));
+    /*
+    ** Copy the filename into local buffer with default name/path/extension if not specified
+    */
+    Status = CFE_FS_ParseInputFileNameEx(DumpFilename, CmdPtr->DumpFilename, sizeof(DumpFilename),
+                                         sizeof(CmdPtr->DumpFilename), CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE,
+                                         CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
+                                         CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
-    /* Create a new dump file, overwriting anything that may have existed previously */
-    Status = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+    if (Status != OS_SUCCESS)
+    {
+        CFE_EVS_SendEvent(CFE_ES_CREATING_CDS_DUMP_ERR_EID, CFE_EVS_EventType_ERROR,
+                          "Error parsing CDS dump filename, Status=0x%08X", (unsigned int)Status);
+    }
+    else
+    {
+        /* Create a new dump file, overwriting anything that may have existed previously */
+        Status =
+            OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
 
-    if (Status >= OS_SUCCESS)
+        if (Status != OS_SUCCESS)
+        {
+            CFE_EVS_SendEvent(CFE_ES_CREATING_CDS_DUMP_ERR_EID, CFE_EVS_EventType_ERROR,
+                              "Error creating CDS dump file '%s', Status=0x%08X", DumpFilename, (unsigned int)Status);
+        }
+    }
+
+    if (Status == OS_SUCCESS)
     {
         /* Initialize the standard cFE File Header for the Dump File */
         CFE_FS_InitHeader(&StdFileHeader, "CDS_Registry", CFE_FS_SubType_ES_CDS_REG);
@@ -1974,9 +2046,6 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
     }
     else
     {
-        CFE_EVS_SendEvent(CFE_ES_CREATING_CDS_DUMP_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Error creating CDS dump file '%s', Status=0x%08X", DumpFilename, (unsigned int)Status);
-
         /* Increment Command Error Counter */
         CFE_ES_TaskData.CommandErrorCounter++;
     }

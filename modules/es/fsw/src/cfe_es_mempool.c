@@ -172,7 +172,7 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size
     if (BlockSizes == NULL)
     {
         BlockSizes = CFE_ES_MemPoolDefSize;
-        if (NumBlockSizes == 0 || NumBlockSizes > CFE_PLATFORM_ES_POOL_MAX_BUCKETS)
+        if (NumBlockSizes == 0)
         {
             NumBlockSizes = CFE_PLATFORM_ES_POOL_MAX_BUCKETS;
         }

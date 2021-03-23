@@ -419,7 +419,6 @@ int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *Blo
         else
         {
             *BlockSizePtr = BdPtr->ActualSize;
-            Status        = CFE_SUCCESS;
         }
     }
 

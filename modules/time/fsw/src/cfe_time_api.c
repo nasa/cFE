@@ -736,21 +736,20 @@ int32 CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncP
     if (Status == CFE_SUCCESS)
     {
         Status = CFE_ES_AppID_ToIndex(AppId, &AppIndex);
-    }
-    if (Status != CFE_SUCCESS)
-    {
-        /* Called from an invalid context */
-        return Status;
-    }
 
-    if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])) ||
-        CFE_TIME_Global.SynchCallback[AppIndex].Ptr != CallbackFuncPtr)
-    {
-        Status = CFE_TIME_CALLBACK_NOT_REGISTERED;
-    }
-    else
-    {
-        CFE_TIME_Global.SynchCallback[AppIndex].Ptr = NULL;
+        if (Status == CFE_SUCCESS)
+        {
+
+            if (AppIndex >= (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])) ||
+                CFE_TIME_Global.SynchCallback[AppIndex].Ptr != CallbackFuncPtr)
+            {
+                Status = CFE_TIME_CALLBACK_NOT_REGISTERED;
+            }
+            else
+            {
+                CFE_TIME_Global.SynchCallback[AppIndex].Ptr = NULL;
+            }
+        }
     }
 
     return Status;

@@ -963,6 +963,12 @@ void Test_CFE_TBL_DumpRegCmd(void)
     UT_Report(__FILE__, __LINE__, CFE_TBL_DumpRegistryCmd(&DumpRegCmd) == CFE_TBL_INC_CMD_CTR,
               "CFE_TBL_DumpRegistryCmd", "Default dump file name");
 
+    /* Test command with a bad file name */
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_Report(__FILE__, __LINE__, CFE_TBL_DumpRegistryCmd(&DumpRegCmd) == CFE_TBL_INC_ERR_CTR,
+              "CFE_TBL_DumpRegistryCmd", "Dump file name invalid");
+    UT_ResetState(UT_KEY(CFE_FS_ParseInputFileNameEx));
+
     /* Test command with the dump file already pending (max requests pending) */
     UT_SetDefaultReturnValue(UT_KEY(CFE_FS_BackgroundFileDumpIsPending), true);
     UT_SetDefaultReturnValue(UT_KEY(CFE_FS_BackgroundFileDumpRequest), CFE_STATUS_REQUEST_ALREADY_PENDING);

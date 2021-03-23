@@ -145,7 +145,7 @@ int32 CFE_TBL_EarlyInit(void)
             }
 
             j++;
-        } while ((j < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS) && (Status >= CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE));
+        } while (j < CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS);
     }
 
     /* Try to obtain a previous image of the Critical Table Registry from the Critical Data Store */

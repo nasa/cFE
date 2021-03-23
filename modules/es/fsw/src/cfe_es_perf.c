@@ -203,6 +203,7 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
 {
     const CFE_ES_StopPerfCmd_Payload_t *CmdPtr        = &data->Payload;
     CFE_ES_PerfDumpGlobal_t *           PerfDumpState = &CFE_ES_TaskData.BackgroundPerfDumpState;
+    int32                               Status;
 
     /* Ensure there is no file write in progress before proceeding */
     /* note - also need to check the PendingState here, in case this command
@@ -213,19 +214,30 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
         Perf->MetaData.State = CFE_ES_PERF_IDLE;
 
         /* Copy out the string, using default if unspecified */
-        CFE_SB_MessageStringGet(PerfDumpState->DataFileName, CmdPtr->DataFileName,
-                                CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME, sizeof(PerfDumpState->DataFileName),
-                                sizeof(CmdPtr->DataFileName));
+        Status = CFE_FS_ParseInputFileNameEx(PerfDumpState->DataFileName, CmdPtr->DataFileName,
+                                             sizeof(PerfDumpState->DataFileName), sizeof(CmdPtr->DataFileName),
+                                             CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME,
+                                             CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
+                                             CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
-        PerfDumpState->PendingState = CFE_ES_PerfDumpState_INIT;
-        CFE_ES_BackgroundWakeup();
+        if (Status == CFE_SUCCESS)
+        {
+            PerfDumpState->PendingState = CFE_ES_PerfDumpState_INIT;
+            CFE_ES_BackgroundWakeup();
 
-        CFE_ES_TaskData.CommandCounter++;
+            CFE_ES_TaskData.CommandCounter++;
 
-        CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_EID, CFE_EVS_EventType_DEBUG,
-                          "Perf Stop Cmd Rcvd, will write %d entries.%dmS dly every %d entries",
-                          (int)Perf->MetaData.DataCount, (int)CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,
-                          (int)CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS);
+            CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_EID, CFE_EVS_EventType_DEBUG,
+                              "Perf Stop Cmd Rcvd, will write %d entries.%dmS dly every %d entries",
+                              (int)Perf->MetaData.DataCount, (int)CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,
+                              (int)CFE_PLATFORM_ES_PERF_ENTRIES_BTWN_DLYS);
+        }
+        else
+        {
+            CFE_ES_TaskData.CommandErrorCounter++;
+            CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID, CFE_EVS_EventType_ERROR, "Error parsing filename, RC = %d",
+                              (int)Status);
+        }
 
     } /* if data to write == 0 */
     else

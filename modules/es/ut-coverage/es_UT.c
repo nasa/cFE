@@ -2348,7 +2348,7 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_START_ERR_EID), "CFE_ES_StartAppCmd",
               "Start application from file name fail");
 
-    /* Test app create with the file name too short */
+    /* Test app create with an invalid file name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "123", sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
@@ -2361,6 +2361,7 @@ void TestTask(void)
     CmdBuf.StartAppCmd.Payload.Priority                                                        = 160;
     CmdBuf.StartAppCmd.Payload.StackSize       = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.StartAppCmd), UT_TPID_CFE_ES_CMD_START_APP_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_START_INVALID_FILENAME_ERR_EID), "CFE_ES_StartAppCmd",
               "Invalid file name");
@@ -2626,6 +2627,14 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_ALL_APPS_EID), "CFE_ES_QueryAllCmd",
               "Query all applications - null file name");
 
+    /* Test write of all app data to file with a bad file name */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllCmd), UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_OSCREATE_ERR_EID), "CFE_ES_QueryAllCmd",
+              "Query all applications - bad file name");
+
     /* Test write of all app data to file with a write header failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
@@ -2660,6 +2669,15 @@ void TestTask(void)
                     UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_TASKINFO_EID), "CFE_ES_QueryAllTasksCmd",
               "Task information file written");
+
+    /* Test write of all task data to a file with file name validation failure */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllTasksCmd),
+                    UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_TASKINFO_OSCREATE_ERR_EID), "CFE_ES_QueryAllTasksCmd",
+              "Task information file write fail; OS create");
 
     /* Test write of all task data to a file with write header failure */
     ES_ResetUnitTest();
@@ -2726,6 +2744,14 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_SYSLOG2_EID), "CFE_ES_WriteSysLogCmd",
               "Write system log; success");
 
+    /* Test writing the system log using a bad file name */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteSysLogCmd), UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_SYSLOG2_ERR_EID), "CFE_ES_WriteSysLogCmd",
+              "Write system log; bad file name");
+
     /* Test writing the system log using a null file name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
@@ -2782,6 +2808,13 @@ void TestTask(void)
               "CFE_ES_WriteERLogCmd", "Write E&R log command; pending");
     UT_Report(__FILE__, __LINE__, !UT_EventIsInHistory(CFE_ES_ERLOG_PENDING_ERR_EID), "CFE_ES_WriteERLogCmd",
               "Write E&R log command; no events");
+
+    /* Failure of parsing the file name */
+    UT_ClearEventHistory();
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteERLogCmd), UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_ERLOG2_ERR_EID), "CFE_ES_WriteERLogCmd",
+              "Write E&R log command; bad file name");
 
     /* Failure from CFE_FS_BackgroundFileDumpRequest() should send the pending error event ID */
     UT_ClearEventHistory();
@@ -2929,6 +2962,15 @@ void TestTask(void)
                     UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_CDS_REG_DUMP_INF_EID), "CFE_ES_DumpCDSRegistryCmd",
               "Dump CDS; success (default dump file)");
+
+    /* Test dumping of the CDS to a file with a bad file name */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.DumpCDSRegistryCmd),
+                    UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_CREATING_CDS_DUMP_ERR_EID), "CFE_ES_DumpCDSRegistryCmd",
+              "Dump CDS; bad file name");
 
     /* Test dumping of the CDS to a file with a bad FS write header */
     ES_ResetUnitTest();
@@ -3286,6 +3328,15 @@ void TestPerf(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd), UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_PERF_STOPCMD_EID), "CFE_ES_StopPerfDataCmd",
               "Stop collecting performance data");
+
+    /* Test performance data collection stop with a file name validation issue */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_ParseInputFileNameEx), CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd), UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_PERF_LOG_ERR_EID), "CFE_ES_StopPerfDataCmd",
+              "Stop performance data command bad file name");
 
     /* Test successful performance data collection stop with a non-default
          file name */

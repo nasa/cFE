@@ -80,7 +80,6 @@ int32 CFE_EVS_EarlyInit(void)
     /* Elements stored in the hk packet that have non-zero default values */
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_PLATFORM_EVS_DEFAULT_MSG_FORMAT_MODE;
     CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort        = CFE_PLATFORM_EVS_PORT_DEFAULT;
-    CFE_EVS_Global.EVS_TlmPkt.Payload.LogFullFlag       = false;
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogMode           = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
 
     /* Get a pointer to the CFE reset area from the BSP */
@@ -1693,20 +1692,33 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
     const CFE_EVS_AppDataCmd_Payload_t *CmdPtr = &data->Payload;
     char                                LocalName[OS_MAX_PATH_LEN];
 
-    /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
-    CFE_SB_MessageStringGet(LocalName, CmdPtr->AppDataFilename, CFE_PLATFORM_EVS_DEFAULT_APP_DATA_FILE,
-                            sizeof(LocalName), sizeof(CmdPtr->AppDataFilename));
+    /*
+    ** Copy the filename into local buffer with default name/path/extension if not specified
+    */
+    Result = CFE_FS_ParseInputFileNameEx(LocalName, CmdPtr->AppDataFilename, sizeof(LocalName),
+                                         sizeof(CmdPtr->AppDataFilename), CFE_PLATFORM_EVS_DEFAULT_APP_DATA_FILE,
+                                         CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
+                                         CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
-    /* Create Application Data File */
-    Result = OS_OpenCreate(&FileHandle, LocalName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-
-    if (Result < OS_SUCCESS)
+    if (Result != CFE_SUCCESS)
     {
         EVS_SendEvent(CFE_EVS_ERR_CRDATFILE_EID, CFE_EVS_EventType_ERROR,
-                      "Write App Data Command Error: OS_OpenCreate = 0x%08X, filename = %s", (unsigned int)Result,
-                      LocalName);
+                      "Write App Data Command Error: CFE_FS_ParseInputFileNameEx() = 0x%08X", (unsigned int)Result);
     }
     else
+    {
+        /* Create Application Data File */
+        Result = OS_OpenCreate(&FileHandle, LocalName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+
+        if (Result != OS_SUCCESS)
+        {
+            EVS_SendEvent(CFE_EVS_ERR_CRDATFILE_EID, CFE_EVS_EventType_ERROR,
+                          "Write App Data Command Error: OS_OpenCreate = 0x%08X, filename = %s", (unsigned int)Result,
+                          LocalName);
+        }
+    }
+
+    if (Result == OS_SUCCESS)
     {
         /* Result will be overridden if everything works */
         Result = CFE_EVS_FILE_WRITE_ERROR;

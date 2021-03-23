@@ -59,7 +59,7 @@
 /*
  * Entry point for this application
  */
-void CFE_TestRunner_AppMain(void)
+void CFE_TR_AppMain(void)
 {
     int32  rc;
     uint32 RunStatus;

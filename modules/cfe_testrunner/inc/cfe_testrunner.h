@@ -54,7 +54,7 @@
 **
 **
 *************************************************************************/
-void CFE_TestRunner_AppMain(void);
+void CFE_TR_AppMain(void);
 
 #endif /* cfe_testrunner_h_ */
 
