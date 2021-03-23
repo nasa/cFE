@@ -993,7 +993,8 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
         /*
          * If the command count changes, then a scan becomes due immediately.
          */
-        if (State->LastScanCommandCount == CFE_ES_TaskData.CommandCounter && State->BackgroundScanTimer > ElapsedTime)
+        if (State->LastScanCommandCount == CFE_ES_Global.TaskData.CommandCounter &&
+            State->BackgroundScanTimer > ElapsedTime)
         {
             /* no action at this time, background scan is not due yet */
             State->BackgroundScanTimer -= ElapsedTime;
@@ -1008,7 +1009,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
      */
     NumAppTimeouts                = 0;
     State->BackgroundScanTimer    = CFE_PLATFORM_ES_APP_SCAN_RATE;
-    State->LastScanCommandCount   = CFE_ES_TaskData.CommandCounter;
+    State->LastScanCommandCount   = CFE_ES_Global.TaskData.CommandCounter;
     State->PendingAppStateChanges = 0;
 
     /*

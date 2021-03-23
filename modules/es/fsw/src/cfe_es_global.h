@@ -38,6 +38,7 @@
 ** Includes
 */
 #include "common_types.h"
+#include "cfe_es_msg.h"
 #include "cfe_es_api_typedefs.h"
 
 #include "cfe_es_erlog_typedef.h"
@@ -70,6 +71,61 @@ typedef struct
     osal_id_t       WorkSem;        /**< Semaphore that is given whenever background work is pending */
     uint32          NumJobsRunning; /**< Current Number of active jobs (updated by background task) */
 } CFE_ES_BackgroundTaskState_t;
+
+/*
+ * Background log dump state structure
+ *
+ * This structure is stored in global memory and keeps the state
+ * of the log dump from one iteration to the next.
+ *
+ * NOTE: This is used for log structures which are expected to be small
+ * enough so such that it is not necessary to throttle the file write or
+ * spread it over time.
+ *
+ * Therefore, the only thing necessary to be stored is whether there
+ * is a pending write request, and the data file name.
+ *
+ * Larger log files, such as the Perf log, must implement a state machine
+ * with a dedicated state data structure.
+ */
+typedef struct
+{
+    CFE_FS_FileWriteMetaData_t FileWrite;   /**< FS state data - must be first */
+    CFE_ES_ERLog_FileEntry_t   EntryBuffer; /**< Temp holding area for record to write */
+} CFE_ES_BackgroundLogDumpGlobal_t;
+
+/*
+** Type definition (ES task global data)
+*/
+typedef struct
+{
+    /*
+    ** ES Task command interface counters
+    */
+    uint8 CommandCounter;
+    uint8 CommandErrorCounter;
+
+    /*
+    ** ES Task housekeeping telemetry
+    */
+    CFE_ES_HousekeepingTlm_t HkPacket;
+
+    /*
+    ** Single application telemetry
+    */
+    CFE_ES_OneAppTlm_t OneAppPacket;
+
+    /*
+    ** Memory statistics telemetry
+    */
+    CFE_ES_MemStatsTlm_t MemStatsPacket;
+
+    /*
+    ** ES Task operational data (not reported in housekeeping)
+    */
+    CFE_SB_PipeId_t CmdPipe;
+
+} CFE_ES_TaskData_t;
 
 /*
 ** Executive Services Global Memory Data
@@ -143,17 +199,37 @@ typedef struct
     CFE_ResourceId_t       LastMemPoolId;
     CFE_ES_MemPoolRecord_t MemPoolTable[CFE_PLATFORM_ES_MAX_MEMORY_POOLS];
 
+    /*
+    ** ES Task initialization data (not reported in housekeeping)
+    */
+    CFE_ES_BackgroundLogDumpGlobal_t BackgroundERLogDumpState;
+
+    /*
+     * Persistent state data associated with performance log data file writes
+     */
+    CFE_ES_PerfDumpGlobal_t BackgroundPerfDumpState;
+
+    /*
+     * Persistent state data associated with background app table scans
+     */
+    CFE_ES_AppTableScanState_t BackgroundAppScanState;
+
+    /*
+     * Task global data (formerly a separate global).
+     */
+    CFE_ES_TaskData_t TaskData;
+
+    /*
+     * Pointer to the Reset data that is preserved on a processor reset
+     */
+    CFE_ES_ResetData_t *ResetDataPtr;
+
 } CFE_ES_Global_t;
 
 /*
 ** The Executive Services Global Data declaration
 */
 extern CFE_ES_Global_t CFE_ES_Global;
-
-/*
-** The Executive Services Nonvolatile Data declaration
-*/
-extern CFE_ES_ResetData_t *CFE_ES_ResetDataPtr;
 
 /*
 ** Functions used to lock/unlock shared data

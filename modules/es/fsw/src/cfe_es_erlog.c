@@ -84,25 +84,25 @@ int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint3
     /*
     ** Try to clean up an invalid ER log index variable.
     */
-    if (CFE_ES_ResetDataPtr->ERLogIndex >= CFE_PLATFORM_ES_ER_LOG_ENTRIES)
+    if (CFE_ES_Global.ResetDataPtr->ERLogIndex >= CFE_PLATFORM_ES_ER_LOG_ENTRIES)
     {
-        CFE_ES_ResetDataPtr->ERLogIndex = 0;
+        CFE_ES_Global.ResetDataPtr->ERLogIndex = 0;
     }
-    LogIdx = CFE_ES_ResetDataPtr->ERLogIndex;
+    LogIdx = CFE_ES_Global.ResetDataPtr->ERLogIndex;
 
     /*
     ** Now that the Local Index variable is set, increment the index for the next entry.
     */
-    CFE_ES_ResetDataPtr->ERLogIndex++;
-    if (CFE_ES_ResetDataPtr->ERLogIndex >= CFE_PLATFORM_ES_ER_LOG_ENTRIES)
+    CFE_ES_Global.ResetDataPtr->ERLogIndex++;
+    if (CFE_ES_Global.ResetDataPtr->ERLogIndex >= CFE_PLATFORM_ES_ER_LOG_ENTRIES)
     {
-        CFE_ES_ResetDataPtr->ERLogIndex = 0;
+        CFE_ES_Global.ResetDataPtr->ERLogIndex = 0;
     }
 
     /*
     ** Clear out the log entry we are about to use.
     */
-    EntryPtr = &CFE_ES_ResetDataPtr->ERLog[LogIdx];
+    EntryPtr = &CFE_ES_Global.ResetDataPtr->ERLog[LogIdx];
     memset(EntryPtr, 0, sizeof(*EntryPtr));
 
     /*
@@ -111,9 +111,9 @@ int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint3
     EntryPtr->BaseInfo.LogEntryType           = EntryType;
     EntryPtr->BaseInfo.ResetType              = ResetType;
     EntryPtr->BaseInfo.ResetSubtype           = ResetSubtype;
-    EntryPtr->BaseInfo.BootSource             = CFE_ES_ResetDataPtr->ResetVars.BootSource;
-    EntryPtr->BaseInfo.ProcessorResetCount    = CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount;
-    EntryPtr->BaseInfo.MaxProcessorResetCount = CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount;
+    EntryPtr->BaseInfo.BootSource             = CFE_ES_Global.ResetDataPtr->ResetVars.BootSource;
+    EntryPtr->BaseInfo.ProcessorResetCount    = CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount;
+    EntryPtr->BaseInfo.MaxProcessorResetCount = CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount;
 
     /*
     ** Copy the ES Reset variables to the log (before they are modified by the log entry).
@@ -140,7 +140,7 @@ int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint3
     /*
     ** Increment the number of ER log entries made
     */
-    CFE_ES_ResetDataPtr->ERLogEntries++;
+    CFE_ES_Global.ResetDataPtr->ERLogEntries++;
 
     /*
      * Shared data update is complete
@@ -188,7 +188,7 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
 
     if (RecordNum < CFE_PLATFORM_ES_ER_LOG_ENTRIES)
     {
-        EntryPtr = &CFE_ES_ResetDataPtr->ERLog[RecordNum];
+        EntryPtr = &CFE_ES_Global.ResetDataPtr->ERLog[RecordNum];
 
         /* First wipe the buffer before re-use */
         memset(FileBufferPtr, 0, sizeof(*FileBufferPtr));
@@ -367,25 +367,25 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
          */
         if (ResetType == 0)
         {
-            if (CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount >=
-                CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount)
+            if (CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount >=
+                CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount)
             {
                 CFE_ES_WriteToSysLog("Maximum Processor Reset count reached (%u)",
-                                     (unsigned int)CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount);
+                                     (unsigned int)CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount);
 
                 ResetType = CFE_PSP_RST_TYPE_POWERON;
             }
             else
             {
                 CFE_ES_WriteToSysLog("Processor Reset count not reached (%u/%u)",
-                                     (unsigned int)CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount,
-                                     (unsigned int)CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount);
+                                     (unsigned int)CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount,
+                                     (unsigned int)CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount);
 
                 /*
                 ** Update the reset variables
                 */
-                CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount++;
-                CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset = true;
+                CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount++;
+                CFE_ES_Global.ResetDataPtr->ResetVars.ES_CausedReset = true;
 
                 ResetType = CFE_PSP_RST_TYPE_PROCESSOR;
             }

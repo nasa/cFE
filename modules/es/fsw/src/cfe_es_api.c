@@ -49,10 +49,10 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
 {
     if (ResetSubtypePtr != NULL)
     {
-        *ResetSubtypePtr = CFE_ES_ResetDataPtr->ResetVars.ResetSubtype;
+        *ResetSubtypePtr = CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype;
     }
 
-    return (CFE_ES_ResetDataPtr->ResetVars.ResetType);
+    return (CFE_ES_Global.ResetDataPtr->ResetVars.ResetType);
 
 } /* End of CFE_ES_GetResetType() */
 
@@ -68,13 +68,14 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
         /*
         ** Increment the processor reset count
         */
-        CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount++;
+        CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount++;
 
         /*
         ** Before doing a Processor reset, check to see
         ** if the maximum number has been exceeded
         */
-        if (CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount > CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount)
+        if (CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount >
+            CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount)
         {
             CFE_ES_WriteToSysLog("POWER ON RESET due to max proc resets (Commanded).\n");
 
@@ -96,7 +97,7 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
             /*
             ** Update the reset variables
             */
-            CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset = true;
+            CFE_ES_Global.ResetDataPtr->ResetVars.ES_CausedReset = true;
 
             /*
             ** Log the reset in the ER Log
