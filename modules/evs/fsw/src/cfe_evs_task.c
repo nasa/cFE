@@ -1683,7 +1683,7 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
 int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
 {
     int32                               Result;
-    osal_id_t                           FileHandle;
+    osal_id_t                           FileHandle = OS_OBJECT_ID_UNDEFINED;
     int32                               BytesWritten;
     uint32                              EntryCount = 0;
     uint32                              i;
