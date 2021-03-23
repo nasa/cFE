@@ -423,12 +423,12 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
 /**
  * \brief Perform basic sanity check on the Zero Copy handle
  *
- * \param[in] BufPtr pointer to the content buffer
- * \param[in] ZeroCopyHandle Zero copy handle to check
+ * \param[in]  BufPtr pointer to the content buffer
+ * \param[out] BufDscPtr Will be set to actual buffer descriptor
  *
  * \returns CFE_SUCCESS if validation passed, or error code.
  */
-int32 CFE_SB_ZeroCopyHandleValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t ZeroCopyHandle);
+int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **BufDscPtr);
 
 /**
  * \brief Add a destination node

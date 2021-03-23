@@ -510,11 +510,9 @@ int32 CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount)
 **        Returns CFE_SUCCESS or overridden unit test value
 **
 ******************************************************************************/
-int32 CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t ZeroCopyHandle,
-                            bool IncrementSequenceCount)
+int32 CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequenceCount)
 {
-    UT_Stub_RegisterContext(UT_KEY(CFE_SB_TransmitBuffer), BufPtr);
-    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_TransmitBuffer), ZeroCopyHandle);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_TransmitBuffer), BufPtr);
     UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_TransmitBuffer), IncrementSequenceCount);
 
     int32 status = CFE_SUCCESS;
@@ -1159,60 +1157,30 @@ int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
     return status;
 }
 
-CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize, CFE_SB_ZeroCopyHandle_t *BufferHandle)
+CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
 {
-    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ZeroCopyGetPtr), MsgSize);
-    UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopyGetPtr), BufferHandle);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_AllocateMessageBuffer), MsgSize);
 
     int32            status;
     CFE_SB_Buffer_t *SBBufPtr = NULL;
 
-    status = UT_DEFAULT_IMPL(CFE_SB_ZeroCopyGetPtr);
+    status = UT_DEFAULT_IMPL(CFE_SB_AllocateMessageBuffer);
 
     if (status == CFE_SUCCESS)
     {
-        UT_Stub_CopyToLocal(UT_KEY(CFE_SB_ZeroCopyGetPtr), &SBBufPtr, sizeof(SBBufPtr));
+        UT_Stub_CopyToLocal(UT_KEY(CFE_SB_AllocateMessageBuffer), &SBBufPtr, sizeof(SBBufPtr));
     }
 
     return SBBufPtr;
 }
 
-#ifndef CFE_OMIT_DEPRECATED_6_8
-int32 CFE_SB_ZeroCopyPass(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t BufferHandle)
+int32 CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
 {
-    UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopyPass), BufPtr);
-    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ZeroCopyPass), BufferHandle);
+    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ReleaseMessageBuffer), BufPtr);
 
     int32 status;
 
-    status = UT_DEFAULT_IMPL(CFE_SB_ZeroCopyPass);
+    status = UT_DEFAULT_IMPL(CFE_SB_ReleaseMessageBuffer);
 
     return status;
 }
-#endif
-
-int32 CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t BufferHandle)
-{
-    UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopyReleasePtr), Ptr2Release);
-    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ZeroCopyReleasePtr), BufferHandle);
-
-    int32 status;
-
-    status = UT_DEFAULT_IMPL(CFE_SB_ZeroCopyReleasePtr);
-
-    return status;
-}
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
-int32 CFE_SB_ZeroCopySend(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t BufferHandle)
-{
-    UT_Stub_RegisterContext(UT_KEY(CFE_SB_ZeroCopySend), BufPtr);
-    UT_Stub_RegisterContextGenericArg(UT_KEY(CFE_SB_ZeroCopySend), BufferHandle);
-
-    int32 status;
-
-    status = UT_DEFAULT_IMPL(CFE_SB_ZeroCopySend);
-
-    return status;
-}
-#endif

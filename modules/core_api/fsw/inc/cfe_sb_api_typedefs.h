@@ -162,19 +162,6 @@ typedef CFE_MSG_Message_t *CFE_SB_MsgPtr_t;
 /** \brief  CFE_SB_MsgPayloadPtr_t defined as an opaque pointer to a message Payload portion */
 typedef uint8 *CFE_SB_MsgPayloadPtr_t;
 
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
-
-/** \brief  CFE_SB_ZeroCopyHandle_t to primitive type definition
-**
-** Software Zero Copy handle used in many SB APIs
-*/
-typedef struct
-{
-    struct CFE_SB_BufferD *BufDscPtr; /* abstract descriptor reference (internal use) */
-} CFE_SB_ZeroCopyHandle_t;
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
-
 #define CFE_SB_Default_Qos CFE_SB_DEFAULT_QOS /**< \deprecated use CFE_SB_DEFAULT_QOS */
 
 #define CFE_SB_CMD_HDR_SIZE (sizeof(CFE_MSG_CommandHeader_t))   /**< \brief Size of command header */

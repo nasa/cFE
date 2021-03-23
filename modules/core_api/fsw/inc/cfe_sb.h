@@ -552,31 +552,26 @@ CFE_Status_t CFE_SB_RcvMsg(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int
 **          This routine can be used to get a pointer to one of the software bus'
 **          internal memory buffers that are used for sending messages.  The caller
 **          can use this memory buffer to build an SB message, then send it using
-**          the #CFE_SB_TransmitBuffer function.  This interface is more complicated
-**          than the normal #CFE_SB_TransmitMsg interface, but it avoids an extra
+**          the CFE_SB_TransmitBuffer() function.  This interface avoids an extra
 **          copy of the message from the user's memory buffer to the software bus
-**          internal buffer.  The "zero copy" interface can be used to improve
-**          performance in high-rate, high-volume software bus traffic.
+**          internal buffer.
 **
 ** \par Assumptions, External Events, and Notes:
-**          -# The pointer returned by #CFE_SB_ZeroCopyGetPtr is only good for one
-**             call to #CFE_SB_TransmitBuffer.
-**          -# Applications should be written as if #CFE_SB_ZeroCopyGetPtr is
-**             equivalent to a \c malloc() and #CFE_SB_TransmitBuffer is equivalent to
-**             a \c free().
+**          -# The pointer returned by CFE_SB_AllocateMessageBuffer() is only good for one
+**             call to CFE_SB_TransmitBuffer().
+**          -# Once a buffer has been successfully transmitted (as indicated by a successful
+**             return from CFE_SB_TransmitBuffer()) the buffer becomes owned by the SB application.
+**             It will automatically be freed by SB once all recipients have finished reading it.
 **          -# Applications must not de-reference the message pointer (for reading
-**             or writing) after the call to #CFE_SB_TransmitBuffer.
+**             or writing) after the call to CFE_SB_TransmitBuffer().
 **
 ** \param[in]  MsgSize  The size of the SB message buffer the caller wants
 **                      (including the SB message header).
 **
-** \param[out] BufferHandle  A handle that must be supplied when sending or releasing
-**                           in zero copy mode.
-**
 ** \return A pointer to a memory buffer that message data can be written to
-**         for use with #CFE_SB_TransmitBuffer.
+**         for use with CFE_SB_TransmitBuffer().
 **/
-CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize, CFE_SB_ZeroCopyHandle_t *BufferHandle);
+CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize);
 
 /*****************************************************************************/
 /**
@@ -589,21 +584,18 @@ CFE_SB_Buffer_t *CFE_SB_ZeroCopyGetPtr(size_t MsgSize, CFE_SB_ZeroCopyHandle_t *
 ** \par Assumptions, External Events, and Notes:
 **          -# This function is not needed for normal "zero copy" transfers.  It
 **             is needed only for cleanup when an application gets a pointer using
-**             #CFE_SB_ZeroCopyGetPtr, but (due to some error condition) never uses
-**             that pointer for a #CFE_SB_TransmitBuffer
+**             CFE_SB_AllocateMessageBuffer(), but (due to some error condition) never
+**             uses that pointer in a call to CFE_SB_TransmitBuffer().
 **
-** \param[in]  Ptr2Release  A pointer to the SB internal buffer.  This must be a
-**                          pointer returned by a call to #CFE_SB_ZeroCopyGetPtr,
-**                          but never used in a call to #CFE_SB_TransmitBuffer.
-**
-** \param[in]  ZeroCopyHandle  This must be the handle supplied with the pointer
-**                             when #CFE_SB_ZeroCopyGetPtr was called.
+** \param[in]  BufPtr  A pointer to the SB internal buffer.  This must be a
+**                     pointer returned by a call to CFE_SB_AllocateMessageBuffer(),
+**                     but never used in a call to CFE_SB_TransmitBuffer().
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
 ** \retval #CFE_SB_BUFFER_INVALID \copybrief CFE_SB_BUFFER_INVALID
 **/
-CFE_Status_t CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_ZeroCopyHandle_t ZeroCopyHandle);
+CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 
 /*****************************************************************************/
 /**
@@ -612,14 +604,14 @@ CFE_Status_t CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_Zero
 ** \par Description
 **          This routine sends a message that has been created directly in an
 **          internal SB message buffer by an application (after a call to
-**          #CFE_SB_ZeroCopyGetPtr).  This interface is more complicated than
+**          #CFE_SB_AllocateMessageBuffer).  This interface is more complicated than
 **          the normal #CFE_SB_TransmitMsg interface, but it avoids an extra copy of
 **          the message from the user's memory buffer to the software bus
 **          internal buffer.  The "zero copy" interface can be used to improve
 **          performance in high-rate, high-volume software bus traffic.
 **
 ** \par Assumptions, External Events, and Notes:
-**          -# A handle returned by #CFE_SB_ZeroCopyGetPtr is "consumed" by
+**          -# A handle returned by #CFE_SB_AllocateMessageBuffer is "consumed" by
 **             a _successful_ call to #CFE_SB_TransmitBuffer.
 **          -# If this function returns CFE_SUCCESS, this indicates the zero copy handle is
 **             now owned by software bus, and is no longer owned by the calling application,
@@ -627,7 +619,7 @@ CFE_Status_t CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_Zero
 **          -# Howver if this function fails (returns any error status) it does not change
 **             the state of the buffer at all, meaning the calling application still owns it.
 **             (a failure means the buffer is left in the same state it was before the call).
-**          -# Applications should be written as if #CFE_SB_ZeroCopyGetPtr is
+**          -# Applications should be written as if #CFE_SB_AllocateMessageBuffer is
 **             equivalent to a \c malloc() and a successful call to #CFE_SB_TransmitBuffer
 **             is equivalent to a \c free().
 **          -# Applications must not de-reference the message pointer (for reading
@@ -636,7 +628,6 @@ CFE_Status_t CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_Zero
 **             sequence counter if set to do so.
 **
 ** \param[in] BufPtr                 A pointer to the buffer to be sent.
-** \param[in] ZeroCopyHandle         The handle supplied by the #CFE_SB_ZeroCopyGetPtr call
 ** \param[in] IncrementSequenceCount Boolean to increment the internally tracked
 **                                   sequence count and update the message if the
 **                                   buffer contains a telemetry message
@@ -645,93 +636,8 @@ CFE_Status_t CFE_SB_ZeroCopyReleasePtr(CFE_SB_Buffer_t *Ptr2Release, CFE_SB_Zero
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
 ** \retval #CFE_SB_BAD_ARGUMENT \copybrief CFE_SB_BAD_ARGUMENT
 ** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
-** \retval #CFE_SB_BUF_ALOC_ERR \copybrief CFE_SB_BUF_ALOC_ERR
 **/
-CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t ZeroCopyHandle,
-                                   bool IncrementSequenceCount);
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
-/*****************************************************************************/
-/**
-** \brief DEPRECATED: Send an SB message in "zero copy" mode.
-** \deprecated use CFE_SB_TransmitBuffer
-**
-** \par Description
-**          This routine sends a message that has been created directly in an
-**          internal SB message buffer by an application (after a call to
-**          #CFE_SB_ZeroCopyGetPtr).  This interface is more complicated than
-**          the normal #CFE_SB_TransmitMsg interface, but it avoids an extra copy of
-**          the message from the user's memory buffer to the software bus
-**          internal buffer.  The "zero copy" interface can be used to improve
-**          performance in high-rate, high-volume software bus traffic.
-**
-** \par Assumptions, External Events, and Notes:
-**          -# The pointer returned by #CFE_SB_ZeroCopyGetPtr is only good for
-**             one call to #CFE_SB_TransmitBuffer.
-**          -# Callers must not use the same SB message buffer for multiple sends.
-**          -# Applications should be written as if #CFE_SB_ZeroCopyGetPtr is
-**             equivalent to a \c malloc() and #CFE_SB_TransmitBuffer is equivalent
-**             to a \c free().
-**          -# Applications must not de-reference the message pointer (for reading
-**             or writing) after the call to #CFE_SB_TransmitBuffer.
-**          -# This function tracks and increments the source sequence counter
-**             of a telemetry message.
-**
-** \param[in]  BufPtr  A pointer to the SB buffer to be sent.
-**
-** \param[in]  BufferHandle  The handle supplied with the #CFE_SB_ZeroCopyGetPtr call.
-**
-** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
-** \retval #CFE_SB_BAD_ARGUMENT   \copybrief CFE_SB_BAD_ARGUMENT
-** \retval #CFE_SB_MSG_TOO_BIG    \copybrief CFE_SB_MSG_TOO_BIG
-** \retval #CFE_SB_BUF_ALOC_ERR   \copybrief CFE_SB_BUF_ALOC_ERR
-** \retval #CFE_SB_BUFFER_INVALID \copybrief CFE_SB_BUFFER_INVALID
-**/
-CFE_Status_t CFE_SB_ZeroCopySend(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t BufferHandle);
-
-/*****************************************************************************/
-/**
-** \brief DEPRECATED: Pass an SB message in "zero copy" mode.
-** \deprecated use CFE_SB_TransmitBuffer
-**
-** \par Description
-**          This routine sends a message that has been created directly in an
-**          internal SB message buffer by an application (after a call to
-**          #CFE_SB_ZeroCopyGetPtr).  This interface is more complicated than
-**          the normal #CFE_SB_TransmitMsg interface, but it avoids an extra copy of
-**          the message from the user's memory buffer to the software bus
-**          internal buffer.  The "zero copy" interface can be used to improve
-**          performance in high-rate, high-volume software bus traffic. This
-**          version is intended to pass messages not generated by the caller
-**          (to preserve the source sequence count).
-**
-** \par Assumptions, External Events, and Notes:
-**          -# The pointer returned by #CFE_SB_ZeroCopyGetPtr is only good for
-**             one call to #CFE_SB_TransmitBuffer or #CFE_SB_ZeroCopyPass.
-**          -# Callers must not use the same SB message buffer for multiple sends.
-**          -# Applications should be written as if #CFE_SB_ZeroCopyGetPtr is
-**             equivalent to a \c malloc() and #CFE_SB_ZeroCopyPass is equivalent
-**             to a \c free().
-**          -# Applications must not de-reference the message pointer (for reading
-**             or writing) after the call to #CFE_SB_ZeroCopyPass.
-**          -# This routine will not modify the sequence counter in a telemetry
-**             message
-**
-** \param[in]  BufPtr  A pointer to the SB buffer to be sent.
-**
-** \param[in]  BufferHandle  The handle supplied with the #CFE_SB_ZeroCopyGetPtr call.
-**
-** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
-** \retval #CFE_SB_BAD_ARGUMENT   \copybrief CFE_SB_BAD_ARGUMENT
-** \retval #CFE_SB_MSG_TOO_BIG    \copybrief CFE_SB_MSG_TOO_BIG
-** \retval #CFE_SB_BUF_ALOC_ERR   \copybrief CFE_SB_BUF_ALOC_ERR
-** \retval #CFE_SB_BUFFER_INVALID \copybrief CFE_SB_BUFFER_INVALID
-**/
-CFE_Status_t CFE_SB_ZeroCopyPass(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t BufferHandle);
-/**@}*/
-#endif
+CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequenceCount);
 
 /** @defgroup CFEAPISBSetMessage cFE Setting Message Characteristics APIs
  * @{
