@@ -139,7 +139,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
     int32                               Result;
     int32                               LogIndex;
     int32                               BytesWritten;
-    osal_id_t                           LogFileHandle;
+    osal_id_t                           LogFileHandle = OS_OBJECT_ID_UNDEFINED;
     uint32                              i;
     CFE_FS_Header_t                     LogFileHdr;
     char                                LogFilename[OS_MAX_PATH_LEN];

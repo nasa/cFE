@@ -1067,7 +1067,7 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
     CFE_SB_PipeInfoEntry_t *          PipeBufferPtr;
     CFE_SB_PipeD_t *                  PipeDscPtr;
-    osal_id_t                         SysQueueId;
+    osal_id_t                         SysQueueId = OS_OBJECT_ID_UNDEFINED;
     bool                              PipeIsValid;
 
     BgFilePtr   = (CFE_SB_BackgroundFileStateInfo_t *)Meta;
@@ -1105,10 +1105,6 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
             PipeBufferPtr->PeakQueueDepth    = PipeDscPtr->PeakQueueDepth;
 
             SysQueueId = PipeDscPtr->SysQueueId;
-        }
-        else
-        {
-            SysQueueId = OS_OBJECT_ID_UNDEFINED;
         }
 
         CFE_SB_UnlockSharedData(__FILE__, __LINE__);

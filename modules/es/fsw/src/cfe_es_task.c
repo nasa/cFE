@@ -1226,7 +1226,7 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
 int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
 {
     CFE_FS_Header_t                     FileHeader;
-    osal_id_t                           FileDescriptor;
+    osal_id_t                           FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     uint32                              i;
     uint32                              EntryCount = 0;
     uint32                              FileSize   = 0;
@@ -1385,7 +1385,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
 int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
 {
     CFE_FS_Header_t                     FileHeader;
-    osal_id_t                           FileDescriptor;
+    osal_id_t                           FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     uint32                              i;
     uint32                              EntryCount = 0;
     uint32                              FileSize   = 0;
@@ -1937,7 +1937,7 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
 int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
 {
     CFE_FS_Header_t                            StdFileHeader;
-    osal_id_t                                  FileDescriptor;
+    osal_id_t                                  FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     int32                                      Status;
     int16                                      RegIndex = 0;
     const CFE_ES_DumpCDSRegistryCmd_Payload_t *CmdPtr   = &data->Payload;
