@@ -298,7 +298,14 @@ CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
  */
 bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_SB_PipeDescIsUsed(CFE_SB_LocatePipeDescByID(CFE_SB_PIPEID_C(CheckId)));
+    CFE_SB_PipeD_t *PipeDscPtr;
+    /*
+     * Note - The pointer here should never be NULL because the ID should always be
+     * within the expected range, but if it ever is NULL, this should return true
+     * such that the caller will _not_ attempt to use the record.
+     */
+    PipeDscPtr = CFE_SB_LocatePipeDescByID(CFE_SB_PIPEID_C(CheckId));
+    return (PipeDscPtr == NULL || CFE_SB_PipeDescIsUsed(PipeDscPtr));
 }
 
 /******************************************************************************

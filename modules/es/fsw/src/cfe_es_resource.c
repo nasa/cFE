@@ -357,7 +357,14 @@ CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
  */
 bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_CounterRecordIsUsed(CFE_ES_LocateCounterRecordByID(CFE_ES_COUNTERID_C(CheckId)));
+    CFE_ES_GenCounterRecord_t *GenCounterRecPtr;
+    /*
+     * Note - The pointer here should never be NULL because the ID should always be
+     * within the expected range, but if it ever is NULL, this should return true
+     * such that the caller will _not_ attempt to use the record.
+     */
+    GenCounterRecPtr = CFE_ES_LocateCounterRecordByID(CFE_ES_COUNTERID_C(CheckId));
+    return (GenCounterRecPtr == NULL || CFE_ES_CounterRecordIsUsed(GenCounterRecPtr));
 }
 
 /*
@@ -370,7 +377,14 @@ bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId)
  */
 bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_AppRecordIsUsed(CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(CheckId)));
+    CFE_ES_AppRecord_t *AppRecPtr;
+    /*
+     * Note - The pointer here should never be NULL because the ID should always be
+     * within the expected range, but if it ever is NULL, this should return true
+     * such that the caller will _not_ attempt to use the record.
+     */
+    AppRecPtr = CFE_ES_LocateAppRecordByID(CFE_ES_APPID_C(CheckId));
+    return (AppRecPtr == NULL || CFE_ES_AppRecordIsUsed(AppRecPtr));
 }
 
 /*
@@ -383,5 +397,12 @@ bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId)
  */
 bool CFE_ES_CheckLibIdSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_LibRecordIsUsed(CFE_ES_LocateLibRecordByID(CFE_ES_LIBID_C(CheckId)));
+    CFE_ES_LibRecord_t *LibRecPtr;
+    /*
+     * Note - The pointer here should never be NULL because the ID should always be
+     * within the expected range, but if it ever is NULL, this should return true
+     * such that the caller will _not_ attempt to use the record.
+     */
+    LibRecPtr = CFE_ES_LocateLibRecordByID(CFE_ES_LIBID_C(CheckId));
+    return (LibRecPtr == NULL || CFE_ES_LibRecordIsUsed(LibRecPtr));
 }
