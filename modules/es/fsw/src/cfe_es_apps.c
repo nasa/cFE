@@ -110,7 +110,6 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
         else
         {
             CFE_ES_WriteToSysLog("ES Startup: Cannot Open Volatile Startup file, Trying Nonvolatile.\n");
-            FileOpened = false;
         }
 
     } /* end if */
@@ -141,7 +140,6 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
         {
             CFE_ES_WriteToSysLog("ES Startup: Error, Can't Open ES App Startup file: %s EC = 0x%08X\n", StartFilePath,
                                  (unsigned int)Status);
-            FileOpened = false;
         }
     }
 
