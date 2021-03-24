@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *      cFE Software Bus (SB) Event IDs
  *

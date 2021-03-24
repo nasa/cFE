@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  * Unit specification for Unit Test Stubs
  *

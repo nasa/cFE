@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose: Performance Analyzer data structures
  *
  * Design Notes:

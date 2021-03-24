@@ -61,7 +61,6 @@ enum CFE_TBL_BufferSelect
 /**
  * @brief Selects the buffer to operate on for validate or dump commands
  *
- *
  * @sa enum CFE_TBL_BufferSelect
  */
 typedef uint16 CFE_TBL_BufferSelect_Enum_t;

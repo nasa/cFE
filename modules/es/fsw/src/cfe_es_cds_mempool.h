@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *  This file contains the Internal interface for the cFE Critical Data Store
  *  memory pool functions.

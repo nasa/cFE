@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Subsystem: cFE TBL Task Command Handler Interface Definition File
  *
  * Author: David Kobe (the Hammers Company, Inc.)
@@ -99,7 +98,6 @@ typedef struct
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-**
 ******************************************************************************/
 extern void CFE_TBL_GetHkData(void);
 
@@ -115,7 +113,6 @@ extern void CFE_TBL_GetHkData(void);
 ** \par Assumptions, External Events, and Notes:
 **        #CFE_TBL_Global_t::HkTlmTblRegIndex is assumed to be a valid index into
 **           the Table Registry.
-**
 **
 ******************************************************************************/
 extern void CFE_TBL_GetTblRegData(void);

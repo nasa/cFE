@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *   This header file contains the Message Id's for messages used by the
  *   cFE core.

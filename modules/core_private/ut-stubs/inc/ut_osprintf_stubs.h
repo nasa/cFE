@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *    OS API unit test header
  *

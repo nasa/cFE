@@ -21,13 +21,11 @@
 /**
  * @file
  *
- *
  * Purpose:
  *      This header file contains prototypes for private functions and type
  *      definitions for FS internal use.
  *
  * Author:  A. Cudmore/NASA GSFC
- *
  *
  */
 

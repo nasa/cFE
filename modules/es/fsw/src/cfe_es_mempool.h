@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Contains data structure definitions used by the ES mempool implementation.
  *
  * The ES memory pools are now built on top of the generic memory pool implementation,

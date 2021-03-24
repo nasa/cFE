@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE Table Services (TBL) SB message definitions header file
  *
  * Author:   D.Kobe/Hammers

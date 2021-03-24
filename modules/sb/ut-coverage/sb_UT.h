@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *    SB unit test header
  *

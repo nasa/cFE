@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:   Table Services API Application Library Header File
  *
  *  Purpose:
@@ -63,7 +62,6 @@
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
-**
 **
 ******************************************************************************/
 extern void CFE_TBL_TaskMain(void);

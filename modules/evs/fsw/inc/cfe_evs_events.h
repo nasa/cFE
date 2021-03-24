@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *	           cFE Event Services (EVS) Event IDs
  *

@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *  cFE Executive Services (ES) Command and Telemetry packet definition file.
  *

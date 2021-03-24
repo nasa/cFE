@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:    cFE Status Code Definition Header File
  *
  *  Purpose:
@@ -74,7 +73,6 @@ typedef int32 CFE_Status_t;
 **          101 - Software Bus Services
 **          110 - Tables Services
 **          111 - Time Services
-**
 **
 **      Mission Defined - These bits are available for Mission
 **                        specific coding standards.  They can

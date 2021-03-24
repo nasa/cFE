@@ -21,11 +21,9 @@
 /**
  * @file
  *
- *
  * Purpose:
  *   This header file performs compile time checking for ES configuration
  *   parameters.
- *
  *
  *  References:
  *     Flight Software Branch C Coding Standard Version 1.0a

@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *    This file contains definitions needed for the cFE ES Logs. The
  *    logs include the Mode Transition log, the System Log, and the

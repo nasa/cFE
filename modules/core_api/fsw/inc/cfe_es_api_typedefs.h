@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *	Unit specification for Executive Services library functions and macros.
  *

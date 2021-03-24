@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:    Event Services API Application Library Header File
  *
  *  Purpose:
@@ -58,7 +57,6 @@
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
-**
 **
 ******************************************************************************/
 extern void CFE_EVS_TaskMain(void);

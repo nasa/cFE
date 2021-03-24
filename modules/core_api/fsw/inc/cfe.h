@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE header file
  *
  * Author:   David Kobe, the Hammers Company, Inc.

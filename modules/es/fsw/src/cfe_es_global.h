@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *  This file contains the ES global data definitions.
  *

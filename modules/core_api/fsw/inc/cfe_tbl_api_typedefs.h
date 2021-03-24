@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:   Table Services API Application Library Header File
  *
  *  Purpose:

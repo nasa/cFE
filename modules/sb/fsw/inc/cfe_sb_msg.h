@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *      This header file contains structure definitions for all SB command and
  *      telemetry packets

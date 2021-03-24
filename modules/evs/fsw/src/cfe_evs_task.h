@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:    Event Services API - Management Control Interfaces.
  *
  *  Purpose:

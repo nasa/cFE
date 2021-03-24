@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *      Define macros to enforce big-endian/network byte order for 16 and 32 bit integers
  *

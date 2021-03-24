@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE File Services (FS) library API header file
  *
  * Author:   S.Walling/Microtel
@@ -111,7 +110,6 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **                                                                       by #CFE_TIME_GetTime
 **      -# \link #CFE_FS_Header_t::TimeSubSeconds \c TimeSubSeconds \endlink - Filled with the Time, subseconds, as
 **                                                                             obtained by #CFE_TIME_GetTime
-**
 **
 ** \par Assumptions, External Events, and Notes:
 **        -# The File has already been successfully opened using #OS_OpenCreate and

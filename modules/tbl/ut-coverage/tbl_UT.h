@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *    TBL unit test header
  *

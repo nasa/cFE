@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:   ELF2CFETBL Utility Header File for Table Images
  *
  *  Purpose:

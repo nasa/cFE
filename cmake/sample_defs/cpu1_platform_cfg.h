@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *   This header file contains the platform configuration parameters.
  *

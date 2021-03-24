@@ -59,7 +59,6 @@ enum CFE_EVS_MsgFormat
 /**
  * @brief Identifies format of log messages
  *
- *
  * @sa enum CFE_EVS_MsgFormat
  */
 typedef uint8 CFE_EVS_MsgFormat_Enum_t;
@@ -83,7 +82,6 @@ enum CFE_EVS_LogMode
 
 /**
  * @brief Identifies handling of log messages after storage is filled
- *
  *
  * @sa enum CFE_EVS_LogMode
  */
@@ -119,7 +117,6 @@ enum CFE_EVS_EventType
 /**
  * @brief Identifies type of event message
  *
- *
  * @sa enum CFE_EVS_EventType
  */
 typedef uint16 CFE_EVS_EventType_Enum_t;
@@ -138,7 +135,6 @@ enum CFE_EVS_EventFilter
 
 /**
  * @brief Identifies event filter schemes
- *
  *
  * @sa enum CFE_EVS_EventFilter
  */
@@ -173,7 +169,6 @@ enum CFE_EVS_EventOutput
 
 /**
  * @brief Identifies event output port
- *
  *
  * @sa enum CFE_EVS_EventOutput
  */

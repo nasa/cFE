@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *    TIME unit test header
  *

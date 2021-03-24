@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *    EVS unit test header
  *

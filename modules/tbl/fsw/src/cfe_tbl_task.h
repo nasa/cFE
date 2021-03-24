@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE Table Services (TBL) task header file
  *
  * Author:   David Kobe (the Hammers Company, Inc.)
@@ -405,7 +404,6 @@ int32 CFE_TBL_TaskInit(void);
 **
 ** \param[in] MessagePtr a pointer to the message received from the command pipe
 **
-**
 ******************************************************************************/
 void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
 
@@ -418,7 +416,6 @@ void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
-**
 **
 ******************************************************************************/
 void CFE_TBL_InitData(void);

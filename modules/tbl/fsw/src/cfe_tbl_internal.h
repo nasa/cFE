@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE Table Services (TBL) utility function interface file
  *
  * Author:   D. Kobe/the Hammers Company, Inc.
@@ -92,7 +91,6 @@ int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle);
 **
 ** \param[in, out]  AppIdPtr  Pointer to value that will hold AppID on return. *AppIdPtr is the AppID as obtained from
 *#CFE_ES_GetAppID
-**
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_BAD_APP_ID          \copydoc CFE_TBL_ERR_BAD_APP_ID
@@ -165,7 +163,6 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle);
 **                            the Table Data.
 ** \param[in]  TblHandle Handle of Table whose address is needed.
 ** \param[in]  ThisAppId AppID of application making the address request.
-**
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
@@ -263,8 +260,6 @@ CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void);
 **
 ** \param[in]  ThisAppId the Application ID of the Application making the call.
 **
-**
-**
 ******************************************************************************/
 void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_t ThisAppId);
 
@@ -325,7 +320,6 @@ int32 CFE_TBL_UnlockRegistry(void);
 ** \param[in]  CalledByApp       Boolean that identifies whether this internal API
 **                               function is being called by a user Application (true)
 **                               or by the Table Services Application (false)
-**
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copydoc CFE_TBL_ERR_NO_BUFFER_AVAIL
@@ -443,8 +437,6 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \param[in]  LoadFilename      Pointer to character string containing full path
 **                               and filename of table image to be loaded
 **
-**
-**
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_NO_STD_HEADER       \copydoc CFE_TBL_ERR_NO_STD_HEADER
 ** \retval #CFE_TBL_ERR_NO_TBL_HEADER       \copydoc CFE_TBL_ERR_NO_TBL_HEADER
@@ -483,7 +475,6 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr);
 **
 ** \param[in, out]  HdrPtr   Pointer to table header that needs to be swapped. *HdrPtr provides the swapped header
 **
-**
 ******************************************************************************/
 void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr);
 
@@ -509,7 +500,6 @@ void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr);
 **
 ** \param[in]  CDSHandleToFind   CDS Handle to be located in Critical Table Registry.
 **
-**
 ******************************************************************************/
 void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CDSHandle_t CDSHandleToFind);
 
@@ -529,7 +519,6 @@ void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CD
 ** \param[in]  RegRecPtr Pointer to Registry Record of Critical Table whose CDS
 **                       needs to be updated.
 **
-**
 ******************************************************************************/
 void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 
@@ -548,7 +537,6 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 **
 ** \param[in]  RegRecPtr Pointer to Registry Record of Table whose owner needs notifying.
 **
-**
 ******************************************************************************/
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 
@@ -564,7 +552,6 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 **          None
 **
 ** \param[in, out]  Uint32ToSwapPtr Pointer to uint32 value to be swapped. *Uint32ToSwapPtr is the swapped uint32 value
-**
 **
 ******************************************************************************/
 extern void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);

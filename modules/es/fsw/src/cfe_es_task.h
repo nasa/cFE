@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *  cFE Executive Services (ES) task header file
  *

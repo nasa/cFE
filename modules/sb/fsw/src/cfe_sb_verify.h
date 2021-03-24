@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *      This header file performs compile time checking for SB configuration
  *      parameters.

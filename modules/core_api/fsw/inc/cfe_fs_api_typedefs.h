@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE File Services (FS) library API header file
  *
  * Author:   S.Walling/Microtel

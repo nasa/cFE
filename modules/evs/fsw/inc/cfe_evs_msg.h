@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:    Event Services Message definition header file Header File
  *
  *  Purpose:
@@ -254,7 +253,6 @@
 **       - \b \c \EVS_CMDEC - command error counter will increment
 **       - An Error specific event message
 **
-**
 **  \par Criticality
 **      Setting the event format mode is not particularly hazardous, as the
 **      result may be saving necessary bandwidth.  However, inappropriately
@@ -296,7 +294,6 @@
 **       increment
 **       - The generation of #CFE_EVS_ENAAPPEVTTYPE_EID debug event message
 **
-**
 **  \par Error Conditions
 **      This command may fail for the following reason(s):
 **      - Invalid Event Type Selection
@@ -304,7 +301,6 @@
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
 **       - An Error specific event message
-**
 **
 **  \par Criticality
 **      Enabling an application event type is not particularly hazardous, as

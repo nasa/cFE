@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Contains basic prototypes and definitions related to CFE ES resource
  * management and related resource IDs.
  *

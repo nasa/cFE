@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *      This header file contains prototypes for private functions and type
  *      definitions for SB internal use.

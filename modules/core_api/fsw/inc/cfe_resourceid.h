@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Contains global prototypes and definitions related to resource
  * management and related CFE resource IDs.
  *

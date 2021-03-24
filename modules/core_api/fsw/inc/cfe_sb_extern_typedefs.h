@@ -63,7 +63,6 @@ enum CFE_SB_QosPriority
 /**
  * @brief Selects the priorty level for message routing
  *
- *
  * @sa enum CFE_SB_QosPriority
  */
 typedef uint8 CFE_SB_QosPriority_Enum_t;
@@ -87,7 +86,6 @@ enum CFE_SB_QosReliability
 
 /**
  * @brief Selects the reliability level for message routing
- *
  *
  * @sa enum CFE_SB_QosReliability
  */

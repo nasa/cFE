@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:    Event Services API Application Library Header File
  *
  *  Purpose:

@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *      This header file contains all definitions for the cFE Software Bus
  *      Application Programmer's Interface.

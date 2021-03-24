@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE Time Services (TIME) library API header file
  *
  * Author:   S.Walling/Microtel
@@ -715,7 +714,6 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
 ** \par Assumptions, External Events, and Notes:
 **        This will update the global data structures accordingly, incrementing each
 **        by the 1Hz amount.
-**
 **
 ******************************************************************************/
 void CFE_TIME_Local1HzISR(void);

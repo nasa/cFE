@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE Time Services (TIME) library utilities header file
  *
  * Author:   S.Walling/Microtel

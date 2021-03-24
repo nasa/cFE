@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE Time Services (TIME) SB message definitions header file
  *
  * Author:   S.Walling/Microtel

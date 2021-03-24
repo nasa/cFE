@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *   This header file contains the mission configuration parameters and
  *   typedefs with mission scope.
@@ -66,7 +65,6 @@
 **      format.  This avoids having to modify each individual caller
 **      when the default choice is changed.
 **
-**
 **  \par Limits
 **      if CFE_MISSION_TIME_CFG_DEFAULT_TAI is defined as true then CFE_MISSION_TIME_CFG_DEFAULT_UTC must be
 **      defined as false.
@@ -82,7 +80,6 @@
 **  \par Description:
 **      The following definition enables the use of a simulated time at
 **      the tone signal using a software bus message.
-**
 **
 **  \par Limits
 **      Not Applicable
@@ -131,7 +128,6 @@
 **      before the tone.
 **
 **      Note: units are in micro-seconds
-**
 **
 **  \par Limits
 **       0 to 999,999 decimal
@@ -421,7 +417,6 @@
 **       Must be at least one.  No specific upper limit, but the number is
 **       anticipated to be reasonably small (i.e. tens, not hundreds).  Large
 **       values have not been tested.
-**
 **
 */
 #define CFE_MISSION_ES_POOL_MAX_BUCKETS 17

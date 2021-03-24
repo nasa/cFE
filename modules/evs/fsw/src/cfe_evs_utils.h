@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:    Event Services Task and API - Utility functions.
  *
  *  Purpose:

@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Title:   Table Services API Event ID Header File
  *
  *  Purpose:

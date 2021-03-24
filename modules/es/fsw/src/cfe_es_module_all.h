@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Encapsulates all ES module internal header files, as well
  * as the public API from all other CFE core modules, OSAL, and PSP.
  *

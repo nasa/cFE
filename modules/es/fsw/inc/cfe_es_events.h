@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *  cFE Executive Services (ES) Event IDs
  *
@@ -196,7 +195,6 @@
 **  Note that when this event is displayed, the Application is not reloaded. ES has
 **  accepted the request to reload the application, and it will be reloaded after the app exits
 **  it's main loop, or times out.
-**
 **
 **  The \c 's' field identifies the name of the Application that will be reloaded.
 **/

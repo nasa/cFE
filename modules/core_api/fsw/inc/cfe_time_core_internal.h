@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE Time Services (TIME) library API header file
  *
  * Author:   S.Walling/Microtel
@@ -55,7 +54,6 @@
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
-**
 **
 ******************************************************************************/
 extern void CFE_TIME_TaskMain(void);

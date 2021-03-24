@@ -21,13 +21,11 @@
 /**
  * @file
  *
- *
  * Purpose:  cFE Time Services (TIME) configuration verification
  *
  * Author:   S.Walling/Microtel
  *
  * Notes:
- *
  *
  */
 

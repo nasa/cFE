@@ -59,7 +59,6 @@
 **
 **  \return Execution status, see \ref CFEReturnCodes
 **
-**
 *************************************************************************/
 void CFE_Assert_AppMain(void);
 

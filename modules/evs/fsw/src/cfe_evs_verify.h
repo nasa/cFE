@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *   This header file performs compile time checking for EVS configuration
  *   parameters.
@@ -29,7 +28,6 @@
  * Author:   K.Audra(Microtel)
  *
  * Notes:
- *
  *
  */
 

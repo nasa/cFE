@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  * Purpose:
  *      This header file contains all definitions for the cFE Software Bus
  *      Application Programmer's Interface.
@@ -55,7 +54,6 @@
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
-**
 **
 ******************************************************************************/
 extern void CFE_SB_TaskMain(void);

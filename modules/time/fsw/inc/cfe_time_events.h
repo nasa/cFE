@@ -21,7 +21,6 @@
 /**
  * @file
  *
- *
  *  Purpose:
  *	           cFE Time Services (Time) Event IDs
  *

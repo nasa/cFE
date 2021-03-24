@@ -21,8 +21,6 @@
 /**
  * @file
  *
- *
- *
  *  Purpose:
  *    This header file performs compile time checking for TBL configuration
  *    parameters.
