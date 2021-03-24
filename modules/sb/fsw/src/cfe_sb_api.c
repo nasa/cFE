@@ -1441,34 +1441,6 @@ int32 CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount)
     return Status;
 }
 
-#ifndef CFE_OMIT_DEPRECATED_6_8
-/*
- * Function: CFE_SB_SendMsg - See API and header file for details
- */
-int32 CFE_SB_SendMsg(CFE_MSG_Message_t *MsgPtr)
-{
-    int32 Status = 0;
-
-    Status = CFE_SB_TransmitMsg(MsgPtr, true);
-
-    return Status;
-
-} /* end CFE_SB_SendMsg */
-
-/*
- * Function: CFE_SB_PassMsg - See API and header file for details
- */
-int32 CFE_SB_PassMsg(CFE_MSG_Message_t *MsgPtr)
-{
-    int32 Status = 0;
-
-    Status = CFE_SB_TransmitMsg(MsgPtr, false);
-
-    return Status;
-
-} /* end CFE_SB_PassMsg */
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
-
 /*****************************************************************************/
 /**
  * \brief Internal routine to validate a transmit message before sending
@@ -1811,13 +1783,6 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
         } /* end if */
     }
 }
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
-int32 CFE_SB_RcvMsg(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut)
-{
-    return CFE_SB_ReceiveBuffer(BufPtr, PipeId, TimeOut);
-}
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 /*
  * Function: CFE_SB_ReceiveBuffer - See API and header file for details
@@ -2244,31 +2209,3 @@ int32 CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t Zer
 
     return Status;
 }
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
-/*
- * Function: CFE_SB_ZeroCopySend - See API and header file for details
- */
-int32 CFE_SB_ZeroCopySend(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t BufferHandle)
-{
-    int32 Status = 0;
-
-    Status = CFE_SB_TransmitBuffer(BufPtr, BufferHandle, true);
-
-    return Status;
-
-} /* end CFE_SB_ZeroCopySend */
-
-/*
- * Function: CFE_SB_ZeroCopyPass - See API and header file for details
- */
-int32 CFE_SB_ZeroCopyPass(CFE_SB_Buffer_t *BufPtr, CFE_SB_ZeroCopyHandle_t BufferHandle)
-{
-    int32 Status = 0;
-
-    Status = CFE_SB_TransmitBuffer(BufPtr, BufferHandle, false);
-
-    return Status;
-
-} /* end CFE_SB_ZeroCopyPass */
-#endif
