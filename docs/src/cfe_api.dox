@@ -165,11 +165,6 @@
       <LI> #CFE_MSG_GetTypeFromMsgId - \copybrief CFE_MSG_GetTypeFromMsgId
       <LI> #CFE_SB_MessageStringGet - \copybrief CFE_SB_MessageStringGet
     </UL>
-    <LI> \ref CFEAPISBChecksum
-    <UL>
-      <LI> #CFE_MSG_GenerateChecksum - \copybrief CFE_MSG_GenerateChecksum
-      <LI> #CFE_MSG_ValidateChecksum - \copybrief CFE_MSG_ValidateChecksum
-    </UL>
     <LI> \ref CFEAPISBMessageID
     <UL>
       <LI> #CFE_SB_MsgId_Equal - \copybrief CFE_SB_MsgId_Equal

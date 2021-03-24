@@ -1087,7 +1087,6 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \retval #CFE_ES_CDS_ALREADY_EXISTS \copybrief CFE_ES_CDS_ALREADY_EXISTS
 ** \retval #CFE_ES_CDS_INVALID_SIZE   \copybrief CFE_ES_CDS_INVALID_SIZE
 ** \retval #CFE_ES_CDS_INVALID_NAME   \copybrief CFE_ES_CDS_INVALID_NAME
-** \retval #CFE_ES_CDS_REGISTRY_FULL  \copybrief CFE_ES_CDS_REGISTRY_FULL
 **
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
 **
