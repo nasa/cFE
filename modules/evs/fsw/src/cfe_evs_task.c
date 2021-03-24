@@ -111,11 +111,6 @@ int32 CFE_EVS_EarlyInit(void)
     }
     else
     {
-        Status = CFE_SUCCESS;
-    }
-
-    if (Status == CFE_SUCCESS)
-    {
         CFE_EVS_ResetDataPtr = (CFE_ES_ResetData_t *)resetAreaAddr;
         /* Save pointer to the EVS portion of the CFE reset area */
         CFE_EVS_Global.EVS_LogPtr = &CFE_EVS_ResetDataPtr->EVS_Log;
@@ -134,12 +129,9 @@ int32 CFE_EVS_EarlyInit(void)
         }
         else
         {
+            /* Convert to CFE success type */
             Status = CFE_SUCCESS;
         }
-    }
-
-    if (Status == CFE_SUCCESS)
-    {
 
         /* Report log as enabled */
         CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
