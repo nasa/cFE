@@ -95,7 +95,7 @@ int32 CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const char *Pi
     osal_id_t        SysQueueId;
     int32            Status;
     CFE_SB_PipeD_t * PipeDscPtr;
-    CFE_ResourceId_t PendingPipeId;
+    CFE_ResourceId_t PendingPipeId = CFE_RESOURCEID_UNDEFINED;
     uint16           PendingEventId;
     char             FullName[(OS_MAX_API_NAME * 2)];
 
