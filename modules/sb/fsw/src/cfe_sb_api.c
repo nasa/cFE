@@ -211,19 +211,8 @@ int32 CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const char *Pi
         }
         PendingPipeId = CFE_RESOURCEID_UNDEFINED;
 
-        /*
-         * If there is a relevant error counter, increment it now
-         * while the global data is locked.
-         */
-        switch (PendingEventId)
-        {
-            case CFE_SB_CR_PIPE_BAD_ARG_EID:
-                ++CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter;
-                break;
-            default:
-                /* no counter */
-                break;
-        }
+        /* Increment error counter for all errors */
+        CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter++;
     }
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
