@@ -79,7 +79,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     const char *TokenList[CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE];
     uint32      NumTokens;
     uint32      BuffLen; /* Length of the current buffer */
-    osal_id_t   AppFile;
+    osal_id_t   AppFile = OS_OBJECT_ID_UNDEFINED;
     int32       Status;
     char        c;
     bool        LineTooLong = false;
