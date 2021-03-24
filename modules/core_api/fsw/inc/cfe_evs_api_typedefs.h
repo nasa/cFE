@@ -18,22 +18,23 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_evs.h
-**
-**  Title:    Event Services API Application Library Header File
-**
-**  Purpose:
-**	           Unit specification for Event services library functions and macros.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**/
+/**
+ * @file
+ *
+ *
+ *  Title:    Event Services API Application Library Header File
+ *
+ *  Purpose:
+ *	           Unit specification for Event services library functions and macros.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ */
 
-#ifndef CFE_EVS_ABSTRACT_TYPES_H
-#define CFE_EVS_ABSTRACT_TYPES_H
+#ifndef CFE_EVS_API_TYPEDEFS_H
+#define CFE_EVS_API_TYPEDEFS_H
 
 /********************************** Include Files  ************************************/
 #include "common_types.h" /* Basic data types */
@@ -64,4 +65,4 @@ typedef struct CFE_EVS_BinFilter
 
 } CFE_EVS_BinFilter_t;
 
-#endif /* CFE_EVS_ABSTRACT_TYPES_H */
+#endif /* CFE_EVS_API_TYPEDEFS_H */

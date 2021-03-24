@@ -19,7 +19,8 @@
 */
 
 /**
- * \file cfe_es_resource.h
+ * @file
+ *
  *
  * Contains basic prototypes and definitions related to CFE ES resource
  * management and related resource IDs.

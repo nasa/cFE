@@ -18,19 +18,20 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_es.h
-**
-**  Purpose:
-**	Unit specification for Executive Services library functions and macros.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**	Notes:
-**
-*/
+/**
+ * @file
+ *
+ *
+ *  Purpose:
+ *	Unit specification for Executive Services library functions and macros.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *	Notes:
+ *
+ */
 
 #ifndef CFE_ES_CORE_INTERNAL_H
 #define CFE_ES_CORE_INTERNAL_H

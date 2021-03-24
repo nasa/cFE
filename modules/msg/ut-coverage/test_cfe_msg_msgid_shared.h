@@ -18,11 +18,13 @@
 **  limitations under the License.
 */
 
-/*
+/**
+ * @file
+ *
  * cfe_msg_msgid_shared test header
  */
-#ifndef test_cfe_msg_msgid_shared_
-#define test_cfe_msg_msgid_shared_
+#ifndef TEST_CFE_MSG_MSGID_SHARED_H
+#define TEST_CFE_MSG_MSGID_SHARED_H
 
 /*
  * Functions
@@ -30,4 +32,4 @@
 /* Test msgid shared accessor functions */
 void Test_MSG_MsgId_Shared(void);
 
-#endif /* test_cfe_msg_msgid_shared_ */
+#endif /* TEST_CFE_MSG_MSGID_SHARED_H */

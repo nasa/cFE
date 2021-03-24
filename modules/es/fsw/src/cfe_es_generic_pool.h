@@ -18,24 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-**  File:
-**  cfe_es_generic_pool.h
-**
-**  Purpose:
-**  This file contains the Internal interface for the cFE Critical Data Store
-**  memory pool functions.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
+/**
+ * @file
+ *
+ *
+ *  Purpose:
+ *  This file contains the Internal interface for the cFE Critical Data Store
+ *  memory pool functions.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *
+ */
 
-#ifndef cfe_es_generic_pool_h
-#define cfe_es_generic_pool_h
+#ifndef CFE_ES_GENERIC_POOL_H
+#define CFE_ES_GENERIC_POOL_H
 
 /*
 ** Include Files
@@ -281,4 +281,4 @@ void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 Buc
  */
 size_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes, const size_t *BlockSizeList, uint32 NumBlocks);
 
-#endif /* _cfe_es_generic_pool_ */
+#endif /* CFE_ES_GENERIC_POOL_H */

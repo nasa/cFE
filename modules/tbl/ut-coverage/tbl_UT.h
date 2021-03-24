@@ -18,24 +18,25 @@
 **  limitations under the License.
 */
 
-/*
-** File:
-**    tbl_UT.h
-**
-** Purpose:
-**    TBL unit test header
-**
-** References:
-**    1. cFE Application Developers Guide
-**    2. unit test standard 092503
-**    3. C Coding Standard 102904
-**
-** Notes:
-**    1. This is unit test code only, not for use in flight
-**
-*/
-#ifndef _tbl_UT_h_
-#define _tbl_UT_h_
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *    TBL unit test header
+ *
+ * References:
+ *    1. cFE Application Developers Guide
+ *    2. unit test standard 092503
+ *    3. C Coding Standard 102904
+ *
+ * Notes:
+ *    1. This is unit test code only, not for use in flight
+ *
+ */
+
+#ifndef TBL_UT_H
+#define TBL_UT_H
 
 /*
 ** Includes
@@ -667,4 +668,4 @@ void Test_CFE_TBL_Internal(void);
 ******************************************************************************/
 int32 Test_CFE_TBL_ValidationFunc(void *TblPtr);
 
-#endif /* _tbl_ut_h_ */
+#endif /* TBL_UT_H */

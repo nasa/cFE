@@ -18,24 +18,25 @@
 **  limitations under the License.
 */
 
-/*
-** File:
-**    sb_UT.h
-**
-** Purpose:
-**    SB unit test header
-**
-** References:
-**    1. cFE Application Developers Guide
-**    2. unit test standard 092503
-**    3. C Coding Standard 102904
-**
-** Notes:
-**    1. This is unit test code only, not for use in flight
-**
-*/
-#ifndef _sb_UT_h_
-#define _sb_UT_h_
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *    SB unit test header
+ *
+ * References:
+ *    1. cFE Application Developers Guide
+ *    2. unit test standard 092503
+ *    3. C Coding Standard 102904
+ *
+ * Notes:
+ *    1. This is unit test code only, not for use in flight
+ *
+ */
+
+#ifndef SB_UT_H
+#define SB_UT_H
 
 /*
 ** Includes
@@ -2421,4 +2422,4 @@ void Test_SB_CCSDSPriHdr_Macros(void);
 void Test_SB_CCSDSSecHdr_Macros(void);
 void Test_SB_IdxPushPop(void);
 
-#endif /* _sb_ut_h_ */
+#endif /* SB_UT_H */

@@ -18,24 +18,25 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_mission_cfg.h
-**
-** Purpose:
-**   This header file contains the mission configuration parameters and
-**   typedefs with mission scope.
-**
-** Notes:
-**   The impact of changing these configurations from their default value is
-**   not yet documented.  Changing these values may impact the performance
-**   and functionality of the system.
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *   This header file contains the mission configuration parameters and
+ *   typedefs with mission scope.
+ *
+ * Notes:
+ *   The impact of changing these configurations from their default value is
+ *   not yet documented.  Changing these values may impact the performance
+ *   and functionality of the system.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
-#ifndef _cfe_mission_cfg_
-#define _cfe_mission_cfg_
+#ifndef SAMPLE_MISSION_CFG_H
+#define SAMPLE_MISSION_CFG_H
 
 /**
 **  \cfesbcfg Maximum SB Message Size
@@ -562,4 +563,4 @@
 */
 #define CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 4)
 
-#endif /* _cfe_mission_cfg_ */
+#endif /* SAMPLE_MISSION_CFG_H */

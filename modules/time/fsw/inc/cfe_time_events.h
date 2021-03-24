@@ -18,21 +18,22 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_time_events.h
-**
-**  Purpose:
-**	           cFE Time Services (Time) Event IDs
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-*/
+/**
+ * @file
+ *
+ *
+ *  Purpose:
+ *	           cFE Time Services (Time) Event IDs
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ */
 
-#ifndef _cfe_time_events_
-#define _cfe_time_events_
+#ifndef CFE_TIME_EVENTS_H
+#define CFE_TIME_EVENTS_H
 
 /* **************************
 ** ****** Maximum EID. ******
@@ -619,4 +620,4 @@
 **/
 #define CFE_TIME_LEN_ERR_EID 49
 
-#endif /* _cfe_time_events_ */
+#endif /* CFE_TIME_EVENTS_H */

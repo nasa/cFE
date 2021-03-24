@@ -18,6 +18,12 @@
 **  limitations under the License.
 */
 
+/**
+ * @file
+ *
+ * Declarations and prototypes for strict (type-safe) resource ID implementation
+ */
+
 #ifndef CFE_RESOURCEID_STRICT_H
 #define CFE_RESOURCEID_STRICT_H
 

@@ -19,16 +19,13 @@
 */
 
 /**
- * \file cfe_es_perfdata_typedef.h
+ * @file
  *
- *  Created on: Jan 22, 2015
- *      Author: joseph.p.hickey@nasa.gov
- *
- * Placeholder for file content description
+ * Definition of CFE_ES_PerfData_t structure type
  */
 
-#ifndef CFE_ES_PERFDATA_TYPEDEF_H_
-#define CFE_ES_PERFDATA_TYPEDEF_H_
+#ifndef CFE_ES_PERFDATA_TYPEDEF_H
+#define CFE_ES_PERFDATA_TYPEDEF_H
 
 #include "common_types.h"
 #include "cfe_mission_cfg.h"  /* Required for CFE_MISSION_ES_PERF_MAX_IDS */
@@ -75,4 +72,4 @@ typedef struct
     CFE_ES_PerfDataEntry_t DataBuffer[CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE];
 } CFE_ES_PerfData_t;
 
-#endif /* CFE_ES_PERFDATA_TYPEDEF_H_ */
+#endif /* CFE_ES_PERFDATA_TYPEDEF_H */

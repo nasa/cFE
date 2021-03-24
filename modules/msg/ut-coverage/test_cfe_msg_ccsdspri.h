@@ -18,11 +18,14 @@
 **  limitations under the License.
 */
 
-/*
+/**
+ * @file
+ *
  * cfe_msg_ccsdspri test header
  */
-#ifndef test_cfe_msg_ccsdspri_
-#define test_cfe_msg_ccsdspri_
+
+#ifndef TEST_CFE_MSG_CCSDSPRI_H
+#define TEST_CFE_MSG_CCSDSPRI_H
 
 /*
  * Defines
@@ -36,4 +39,4 @@
 /* Test CCSDS Primary header accessor functions */
 void Test_MSG_CCSDSPri(void);
 
-#endif /* test_cfe_msg_ccsdspri_ */
+#endif /* TEST_CFE_MSG_CCSDSPRI_H */

@@ -18,19 +18,20 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_tbl_task_cmds.h
-**
-** Subsystem: cFE TBL Task Command Handler Interface Definition File
-**
-** Author: David Kobe (the Hammers Company, Inc.)
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ *
+ * Subsystem: cFE TBL Task Command Handler Interface Definition File
+ *
+ * Author: David Kobe (the Hammers Company, Inc.)
+ *
+ * Notes:
+ *
+ */
 
-#ifndef _cfe_tbl_task_cmds_
-#define _cfe_tbl_task_cmds_
+#ifndef CFE_TBL_TASK_CMDS_H
+#define CFE_TBL_TASK_CMDS_H
 
 /*
 ** Required header files
@@ -354,4 +355,4 @@ extern CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const c
 ******************************************************************************/
 void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr);
 
-#endif /* _cfe_tbl_task_cmds_ */
+#endif /* CFE_TBL_TASK_CMDS_H */

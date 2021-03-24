@@ -18,11 +18,14 @@
 **  limitations under the License.
 */
 
-/*
+/**
+ * @file
+ *
  * Message header test utilities
  */
-#ifndef test_msg_utils_
-#define test_msg_utils_
+
+#ifndef TEST_MSG_UTILS_H
+#define TEST_MSG_UTILS_H
 
 /*
  * Includes
@@ -36,4 +39,4 @@
 /* Subtest macro */
 #define MSG_UT_ADD_SUBTEST(Func) UT_AddSubTest(Func, NULL, NULL, __func__, #Func)
 
-#endif /* test_msg_utils_ */
+#endif /* TEST_MSG_UTILS_H */

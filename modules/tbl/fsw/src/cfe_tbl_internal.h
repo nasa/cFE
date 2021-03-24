@@ -18,16 +18,17 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_tbl_internal.h
-**
-** Purpose:  cFE Table Services (TBL) utility function interface file
-**
-** Author:   D. Kobe/the Hammers Company, Inc.
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ *
+ * Purpose:  cFE Table Services (TBL) utility function interface file
+ *
+ * Author:   D. Kobe/the Hammers Company, Inc.
+ *
+ * Notes:
+ *
+ */
 
 #ifndef CFE_TBL_INTERNAL_H
 #define CFE_TBL_INTERNAL_H

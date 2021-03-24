@@ -24,8 +24,15 @@
 **   Specification for the CFE testrunner (UT testrunner wrapper) functions.
 **
 *************************************************************************/
-#ifndef cfe_testrunner_h_
-#define cfe_testrunner_h_
+
+/**
+ * @file
+ *
+ * Declarations and prototypes for cfe_testrunner module
+ */
+
+#ifndef CFE_TESTRUNNER_H
+#define CFE_TESTRUNNER_H
 
 /************************************************************************
 ** Includes
@@ -56,8 +63,4 @@
 *************************************************************************/
 void CFE_TestRunner_AppMain(void);
 
-#endif /* cfe_testrunner_h_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TESTRUNNER_H */

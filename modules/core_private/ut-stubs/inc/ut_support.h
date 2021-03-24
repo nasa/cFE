@@ -18,19 +18,21 @@
 **  limitations under the License.
 */
 
-/*
-** File: ut_support.h
-**
-** Purpose:
-** Unit specification for Unit Test Stubs
-**
-** Notes:
-** These routines contain a minimum amount of functionality required for
-** unit testing full path coverage
-**
-*/
-#ifndef _UT_CFE_SUPPORT_H_
-#define _UT_CFE_SUPPORT_H_
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ * Unit specification for Unit Test Stubs
+ *
+ * Notes:
+ * These routines contain a minimum amount of functionality required for
+ * unit testing full path coverage
+ *
+ */
+
+#ifndef UT_SUPPORT_H
+#define UT_SUPPORT_H
 
 /*
 ** Includes
@@ -736,4 +738,4 @@ void UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, c
 ******************************************************************************/
 #define TEARDOWN(FN) (UT_TEARDOWN_impl(__FILE__, __LINE__, __func__, (#FN), (FN)))
 
-#endif /* __UT_STUBS_H_ */
+#endif /* UT_SUPPORT_H */

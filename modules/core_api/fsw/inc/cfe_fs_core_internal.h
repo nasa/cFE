@@ -18,18 +18,16 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_fs.h
-**
-** Purpose:  cFE File Services (FS) library API header file
-**
-** Author:   S.Walling/Microtel
-**
-*/
+/**
+ * @file
+ *
+ *
+ * Purpose:  cFE File Services (FS) library API header file
+ *
+ * Author:   S.Walling/Microtel
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
 #ifndef CFE_FS_CORE_INTERNAL_H
 #define CFE_FS_CORE_INTERNAL_H
 
@@ -61,7 +59,3 @@ extern int32 CFE_FS_EarlyInit(void);
 /**@}*/
 
 #endif /* CFE_FS_CORE_INTERNAL_H */
-
-/************************/
-/*  End of File Comment */
-/************************/

@@ -18,19 +18,21 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_sb_events.h
-**
-**  Purpose:
-**      cFE Software Bus (SB) Event IDs
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**************************************************************************/
-#ifndef _cfe_sb_events_
-#define _cfe_sb_events_
+/**
+ * @file
+ *
+ *
+ *  Purpose:
+ *      cFE Software Bus (SB) Event IDs
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ */
+
+#ifndef CFE_SB_EVENTS_H
+#define CFE_SB_EVENTS_H
 
 /* **************************
 ** ****** Maximum EID. ******
@@ -902,8 +904,4 @@
 **/
 #define CFE_SB_CR_PIPE_NO_FREE_EID 63
 
-#endif /* _cfe_sb_events_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_SB_EVENTS_H */

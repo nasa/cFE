@@ -18,25 +18,26 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_tbl_events.h
-**
-**  Title:   Table Services API Event ID Header File
-**
-**  Purpose:
-**     Identifies event codes for event messages issued by Table Services.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-**  Notes:
-**
-**/
+/**
+ * @file
+ *
+ *
+ *  Title:   Table Services API Event ID Header File
+ *
+ *  Purpose:
+ *     Identifies event codes for event messages issued by Table Services.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ *  Notes:
+ *
+ */
 
-#ifndef _cfe_tbl_events_
-#define _cfe_tbl_events_
+#ifndef CFE_TBL_EVENTS_H
+#define CFE_TBL_EVENTS_H
 
 /* **************************
 ** ****** Maximum EID. ******
@@ -1097,8 +1098,4 @@
 
 /** \} */
 
-#endif /* _cfe_tbl_events_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TBL_EVENTS_H */

@@ -18,19 +18,20 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_evs.h
-**
-**  Title:    Event Services API Application Library Header File
-**
-**  Purpose:
-**	           Unit specification for Event services library functions and macros.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**/
+/**
+ * @file
+ *
+ *
+ *  Title:    Event Services API Application Library Header File
+ *
+ *  Purpose:
+ *	           Unit specification for Event services library functions and macros.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ */
 
 #ifndef CFE_EVS_CORE_INTERNAL_H
 #define CFE_EVS_CORE_INTERNAL_H

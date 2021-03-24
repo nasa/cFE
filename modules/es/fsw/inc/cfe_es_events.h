@@ -18,22 +18,23 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_es_events.h
-**
-**  Purpose:
-**  cFE Executive Services (ES) Event IDs
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
-/*************************************************************************/
-#ifndef _cfe_es_events_
-#define _cfe_es_events_
+/**
+ * @file
+ *
+ *
+ *  Purpose:
+ *  cFE Executive Services (ES) Event IDs
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *
+ */
+
+#ifndef CFE_ES_EVENTS_H
+#define CFE_ES_EVENTS_H
 
 /* **************************
 ** ****** Maximum EID. ******
@@ -1449,8 +1450,4 @@
 **/
 #define CFE_ES_ERLOG_PENDING_ERR_EID 93
 
-#endif /* _cfe_es_events_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_ES_EVENTS_H */

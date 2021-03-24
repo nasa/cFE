@@ -18,25 +18,26 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_tbl.h
-**
-**  Title:   Table Services API Application Library Header File
-**
-**  Purpose:
-**     Unit specification for Table services library functions and macros.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-**  Notes:
-**
-**/
+/**
+ * @file
+ *
+ *
+ *  Title:   Table Services API Application Library Header File
+ *
+ *  Purpose:
+ *     Unit specification for Table services library functions and macros.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ *  Notes:
+ *
+ */
 
-#ifndef CFE_TBL_API_H
-#define CFE_TBL_API_H
+#ifndef CFE_TBL_H
+#define CFE_TBL_H
 
 /********************* Include Files  ************************/
 #include "common_types.h" /* Basic Data Types */
@@ -739,4 +740,4 @@ CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t 
                                      uint32 Parameter);
 /**@}*/
 
-#endif /* CFE_TBL_API_H */
+#endif /* CFE_TBL_H */

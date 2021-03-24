@@ -18,22 +18,23 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_es_msg.h
-**
-**  Purpose:
-**  cFE Executive Services (ES) Command and Telemetry packet definition file.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
-/*************************************************************************/
-#ifndef _cfe_es_msg_
-#define _cfe_es_msg_
+/**
+ * @file
+ *
+ *
+ *  Purpose:
+ *  cFE Executive Services (ES) Command and Telemetry packet definition file.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *
+ */
+
+#ifndef CFE_ES_MSG_H
+#define CFE_ES_MSG_H
 
 /*
 ** Includes
@@ -1558,8 +1559,4 @@ typedef struct CFE_ES_HousekeepingTlm
 
 } CFE_ES_HousekeepingTlm_t;
 
-#endif /* _cfe_es_msg_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_ES_MSG_H */

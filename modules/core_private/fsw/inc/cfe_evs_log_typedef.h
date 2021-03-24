@@ -19,17 +19,14 @@
 */
 
 /**
- * \file cfe_evs_log_typedef.h
- *
- *  Created on: Jan 22, 2015
- *      Author: joseph.p.hickey@nasa.gov
+ * @file
  *
  * Definition of the CFE_EVS_Log structure type.
  * This was moved into its own header file since it is referenced by multiple CFE core apps.
  */
 
-#ifndef CFE_EVS_LOG_TYPEDEF_H_
-#define CFE_EVS_LOG_TYPEDEF_H_
+#ifndef CFE_EVS_LOG_TYPEDEF_H
+#define CFE_EVS_LOG_TYPEDEF_H
 
 #include "common_types.h"
 #include "cfe_platform_cfg.h"
@@ -51,4 +48,4 @@ typedef struct
 
 } CFE_EVS_Log_t;
 
-#endif /* CFE_EVS_LOG_TYPEDEF_H_ */
+#endif /* CFE_EVS_LOG_TYPEDEF_H */

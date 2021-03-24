@@ -18,28 +18,29 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_evs_task.h
-**
-**  Title:    Event Services API - Management Control Interfaces.
-**
-**  Purpose:
-**            Unit specification for the event services management control interfaces.
-**
-**  Contents:
-**       I.  macro and constant type definitions
-**      II.  EVS internal structures
-**     III.  function prototypes
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-**/
+/**
+ * @file
+ *
+ *
+ *  Title:    Event Services API - Management Control Interfaces.
+ *
+ *  Purpose:
+ *            Unit specification for the event services management control interfaces.
+ *
+ *  Contents:
+ *       I.  macro and constant type definitions
+ *      II.  EVS internal structures
+ *     III.  function prototypes
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ */
 
-#ifndef _cfe_evs_task_
-#define _cfe_evs_task_
+#ifndef CFE_EVS_TASK_H
+#define CFE_EVS_TASK_H
 
 /********************************** Include Files  ************************************/
 #include "common_types.h"
@@ -159,4 +160,4 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data);
 int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data);
 int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data);
 
-#endif /* _cfe_evs_task_ */
+#endif /* CFE_EVS_TASK_H */

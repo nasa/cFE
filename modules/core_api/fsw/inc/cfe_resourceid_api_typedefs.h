@@ -19,7 +19,7 @@
 */
 
 /**
- * \file cfe_resourceid_api_typedefs.h
+ * @file
  *
  * Contains global prototypes and definitions related to resource
  * management and related CFE resource IDs.

@@ -18,25 +18,26 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_tbl.h
-**
-**  Title:   Table Services API Application Library Header File
-**
-**  Purpose:
-**     Unit specification for Table services library functions and macros.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-**  Notes:
-**
-**/
+/**
+ * @file
+ *
+ *
+ *  Title:   Table Services API Application Library Header File
+ *
+ *  Purpose:
+ *     Unit specification for Table services library functions and macros.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ *  Notes:
+ *
+ */
 
-#ifndef CFE_TBL_ABSTRACT_TYPES_H
-#define CFE_TBL_ABSTRACT_TYPES_H
+#ifndef CFE_TBL_API_TYPEDEFS_H
+#define CFE_TBL_API_TYPEDEFS_H
 
 /********************* Include Files  ************************/
 #include "common_types.h" /* Basic Data Types */
@@ -123,4 +124,4 @@ typedef struct CFE_TBL_Info
     char               LastFileLoaded[CFE_MISSION_MAX_PATH_LEN]; /**< \brief Filename of last file loaded into table */
 } CFE_TBL_Info_t;
 
-#endif /* CFE_TBL_ABSTRACT_TYPES_H */
+#endif /* CFE_TBL_API_TYPEDEFS_H */

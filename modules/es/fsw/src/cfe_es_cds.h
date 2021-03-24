@@ -18,24 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-**  File:
-**  cfe_es_cds.h
-**
-**  Purpose:
-**  This file contains the Internal interface for the cFE Critical Data Store functions.
-**  These functions and data structures manage the Critical Data Store in the cFE.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
+/**
+ * @file
+ *
+ *
+ *  Purpose:
+ *  This file contains the Internal interface for the cFE Critical Data Store functions.
+ *  These functions and data structures manage the Critical Data Store in the cFE.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *
+ */
 
-#ifndef _cfe_es_cds_
-#define _cfe_es_cds_
+#ifndef CFE_ES_CDS_H
+#define CFE_ES_CDS_H
 
 /*
 ** Include Files
@@ -642,4 +642,4 @@ int32 CFE_ES_ClearCDS(void);
 ******************************************************************************/
 int32 CFE_ES_InitCDSSignatures(void);
 
-#endif /* _cfe_es_cds_ */
+#endif /* CFE_ES_CDS_H */

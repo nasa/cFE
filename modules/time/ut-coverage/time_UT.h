@@ -18,24 +18,25 @@
 **  limitations under the License.
 */
 
-/*
-** File:
-**    time_UT.h
-**
-** Purpose:
-**    TIME unit test header
-**
-** References:
-**    1. cFE Application Developers Guide
-**    2. unit test standard 092503
-**    3. C Coding Standard 102904
-**
-** Notes:
-**    1. This is unit test code only, not for use in flight
-**
-*/
-#ifndef _time_UT_h_
-#define _time_UT_h_
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *    TIME unit test header
+ *
+ * References:
+ *    1. cFE Application Developers Guide
+ *    2. unit test standard 092503
+ *    3. C Coding Standard 102904
+ *
+ * Notes:
+ *    1. This is unit test code only, not for use in flight
+ *
+ */
+
+#ifndef TIME_UT_H
+#define TIME_UT_H
 
 /*
 ** Includes
@@ -351,4 +352,4 @@ void Test_UnregisterSynchCallback(void);
 ******************************************************************************/
 void Test_CleanUpApp(void);
 
-#endif /* _time_ut_h_ */
+#endif /* TIME_UT_H */

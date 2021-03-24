@@ -18,36 +18,34 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_tbl_filedef.h
-**
-**  Title:   ELF2CFETBL Utility Header File for Table Images
-**
-**  Purpose:
-**     This header file provides a data structure definition and macro definition
-**     required in source code that is intended to be compiled into a cFE compatible
-**     Table Image file.
-**
-**  Design Notes:
-**
-**     Typically, a user would include this file in a ".c" file that contains nothing
-**     but a desired instantiation of values for a table image along with the macro
-**     defined below.  After compilation, the resultant elf file can be processed using
-**     the 'elf2cfetbl' utility to generate a file that can be loaded onto a cFE flight
-**     system and successfully loaded into a table using the cFE Table Services.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-**  Notes:
-**
-*/
+/**
+ * @file
+ *
+ *
+ *  Title:   ELF2CFETBL Utility Header File for Table Images
+ *
+ *  Purpose:
+ *     This header file provides a data structure definition and macro definition
+ *     required in source code that is intended to be compiled into a cFE compatible
+ *     Table Image file.
+ *
+ *  Design Notes:
+ *
+ *     Typically, a user would include this file in a ".c" file that contains nothing
+ *     but a desired instantiation of values for a table image along with the macro
+ *     defined below.  After compilation, the resultant elf file can be processed using
+ *     the 'elf2cfetbl' utility to generate a file that can be loaded onto a cFE flight
+ *     system and successfully loaded into a table using the cFE Table Services.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ *  Notes:
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_tbl_filedef_
-#define _cfe_tbl_filedef_
+#ifndef CFE_TBL_FILEDEF_H
+#define CFE_TBL_FILEDEF_H
 
 #include "cfe_mission_cfg.h"
 #include "common_types.h"
@@ -103,8 +101,4 @@ utility.
 
 /*************************************************************************/
 
-#endif /* _cfe_tbl_filedef_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TBL_FILEDEF_H */

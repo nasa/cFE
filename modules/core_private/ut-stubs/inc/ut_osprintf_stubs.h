@@ -18,24 +18,25 @@
 **  limitations under the License.
 */
 
-/*
-** File:
-**    ut_osprintf_stubs.h
-**
-** Purpose:
-**    OS API unit test header
-**
-** References:
-**    1. cFE Application Developers Guide
-**    2. unit test standard 092503
-**    3. C Coding Standard 102904
-**
-** Notes:
-**    1. This is unit test code only, not for use in flight
-**
-*/
-#ifndef _UT_OSPRINTF_STUBS_H_
-#define _UT_OSPRINTF_STUBS_H_
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *    OS API unit test header
+ *
+ * References:
+ *    1. cFE Application Developers Guide
+ *    2. unit test standard 092503
+ *    3. C Coding Standard 102904
+ *
+ * Notes:
+ *    1. This is unit test code only, not for use in flight
+ *
+ */
+
+#ifndef UT_OSPRINTF_STUBS_H
+#define UT_OSPRINTF_STUBS_H
 
 #define UT_OSP_CORE_INIT                  11
 #define UT_OSP_POR_MAX_PROC_RESETS        12
@@ -99,4 +100,4 @@
 #define UT_OSP_BACKGROUND_REGISTER        70
 #define UT_OSP_BACKGROUND_TAKE            71
 
-#endif
+#endif /* UT_OSPRINTF_STUBS_H */

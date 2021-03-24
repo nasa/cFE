@@ -18,19 +18,20 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_sb.h
-**
-** Purpose:
-**      This header file contains all definitions for the cFE Software Bus
-**      Application Programmer's Interface.
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *      This header file contains all definitions for the cFE Software Bus
+ *      Application Programmer's Interface.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
-#ifndef CFE_SB_API_H
-#define CFE_SB_API_H
+#ifndef CFE_SB_H
+#define CFE_SB_H
 
 /*
 ** Includes
@@ -1309,5 +1310,4 @@ uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId);
 
 /**@}*/
 
-#endif /* CFE_SB_API_H */
-/*****************************************************************************/
+#endif /* CFE_SB_H */

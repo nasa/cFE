@@ -18,13 +18,15 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
+/**
+ * @file
+ *
  * Message header defaults, used to initialize messages
  *  - Avoid including outside this module
  */
 
-#ifndef _cfe_msg_defaults_
-#define _cfe_msg_defaults_
+#ifndef CFE_MSG_DEFAULTS_H
+#define CFE_MSG_DEFAULTS_H
 
 /*
  * Includes
@@ -78,4 +80,4 @@ void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr);
  */
 void CFE_MSG_SetDefaultCCSDSExt(CFE_MSG_Message_t *MsgPtr);
 
-#endif /* _cfe_msg_default_ */
+#endif /* CFE_MSG_DEFAULTS_H */

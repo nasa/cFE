@@ -18,19 +18,20 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_sb_verify.h
-**
-** Purpose:
-**      This header file performs compile time checking for SB configuration
-**      parameters.
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *      This header file performs compile time checking for SB configuration
+ *      parameters.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
-#ifndef _cfe_sb_verify_
-#define _cfe_sb_verify_
+#ifndef CFE_SB_VERIFY_H
+#define CFE_SB_VERIFY_H
 
 #include <stdint.h>
 
@@ -164,5 +165,4 @@
 #error CFE_PLATFORM_SB_START_TASK_STACK_SIZE must be greater than or equal to 2048
 #endif
 
-#endif /* _cfe_sb_verify_ */
-/*****************************************************************************/
+#endif /* CFE_SB_VERIFY_H */

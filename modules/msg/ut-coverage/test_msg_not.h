@@ -18,11 +18,14 @@
 **  limitations under the License.
 */
 
-/*
+/**
+ * @file
+ *
  * Message header fields not (Zero or F's)
  */
-#ifndef test_msg_not_
-#define test_msg_not_
+
+#ifndef TEST_MSG_NOT_H
+#define TEST_MSG_NOT_H
 
 /*
  * Defines
@@ -64,4 +67,4 @@ unsigned int Test_MSG_NotF(const CFE_MSG_Message_t *MsgPtr);
 unsigned int Test_MSG_Pri_NotF(const CFE_MSG_Message_t *MsgPtr);
 unsigned int Test_MSG_Ext_NotF(const CFE_MSG_Message_t *MsgPtr);
 
-#endif /* test_msg_not_ */
+#endif /* TEST_MSG_NOT_H */

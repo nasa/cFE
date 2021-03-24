@@ -18,11 +18,13 @@
 **  limitations under the License.
 */
 
-/*
+/**
+ * @file
+ *
  * cfe_msg_init test header
  */
-#ifndef test_cfe_msg_init_
-#define test_cfe_msg_init_
+#ifndef TEST_CFE_MSG_INIT_H
+#define TEST_CFE_MSG_INIT_H
 
 /*
  * Includes
@@ -34,4 +36,4 @@
 /* Test extended header mission functionality */
 void Test_MSG_Init(void);
 
-#endif /* test_cfe_msg_init_ */
+#endif /* TEST_CFE_MSG_INIT_H */

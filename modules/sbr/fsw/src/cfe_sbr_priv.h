@@ -18,13 +18,15 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
+/**
+ * @file
+ *
  * Prototypes for private functions and type definitions for SB
  * routing internal use.
- *****************************************************************************/
+ */
 
-#ifndef CFE_SBR_PRIV_H_
-#define CFE_SBR_PRIV_H_
+#ifndef CFE_SBR_PRIV_H
+#define CFE_SBR_PRIV_H
 
 /*
  * Includes
@@ -56,4 +58,4 @@ void CFE_SBR_Init_Map(void);
  */
 uint32 CFE_SBR_SetRouteId(CFE_SB_MsgId_t MsgId, CFE_SBR_RouteId_t RouteId);
 
-#endif /* CFE_SBR_PRIV_H_ */
+#endif /* CFE_SBR_PRIV_H */

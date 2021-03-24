@@ -18,18 +18,14 @@
 **  limitations under the License.
 */
 
-#ifndef _cfe_version_
-#define _cfe_version_
-
-/*! @file cfe_version.h
- * @brief Purpose:
- *     Provide version identifiers for the cFE core.
+/**
+ * @file
  *
- * target_config.h contains extended version information within it.
- * This information is generated automatically by the build using
- * git to determine the most recent tag and commit id.
- *
+ * Provide version identifiers for the cFE core.
  */
+
+#ifndef CFE_VERSION_H
+#define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
 #define CFE_BUILD_NUMBER 436 /*!< Development Build: Number of commits since baseline */
@@ -62,4 +58,4 @@
     " cFE DEVELOPMENT BUILD " CFE_SRC_VERSION " (Codename: Bootes)" /* Codename for current development */ \
     ", Last Official Release: cfe v6.7.0"                           /* For full support please use this version */
 
-#endif /* _cfe_version_ */
+#endif /* CFE_VERSION_H */

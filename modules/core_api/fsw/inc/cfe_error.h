@@ -18,26 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_error.h
-**
-**  Title:    cFE Status Code Definition Header File
-**
-**  Purpose:
-**            Common source of cFE API return status codes.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-**/
+/**
+ * @file
+ *
+ *
+ *  Title:    cFE Status Code Definition Header File
+ *
+ *  Purpose:
+ *            Common source of cFE API return status codes.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_error_
-#define _cfe_error_
+#ifndef CFE_ERROR_H
+#define CFE_ERROR_H
 
 /* Include Files */
 #include "osapi.h"
@@ -45,7 +43,6 @@
 /*
  * Define a type for readability.
  */
-
 typedef int32 CFE_Status_t;
 
 /*
@@ -1381,4 +1378,4 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_CDS_REGISTRY_FULL CFE_ES_NO_RESOURCE_IDS_AVAILABLE
 #endif
 
-#endif /* _cfe_error_ */
+#endif /* CFE_ERROR_H */

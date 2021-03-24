@@ -18,23 +18,24 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_platform_cfg.h
-**
-** Purpose:
-**   This header file contains the platform configuration parameters.
-**
-** Notes:
-**   The impact of changing these configurations from their default value is
-**   not yet documented.  Changing these values may impact the performance
-**   and functionality of the system.
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *   This header file contains the platform configuration parameters.
+ *
+ * Notes:
+ *   The impact of changing these configurations from their default value is
+ *   not yet documented.  Changing these values may impact the performance
+ *   and functionality of the system.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
-#ifndef _cfe_platform_cfg_
-#define _cfe_platform_cfg_
+#ifndef CPU1_PLATFORM_CFG_H
+#define CPU1_PLATFORM_CFG_H
 
 /**
 **  \cfeescfg Default virtual path for persistent storage
@@ -1708,4 +1709,4 @@
 */
 #define CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC 1000
 
-#endif /* _cfe_platform_cfg_ */
+#endif /* CPU1_PLATFORM_CFG_H */

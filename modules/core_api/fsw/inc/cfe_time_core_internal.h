@@ -18,20 +18,18 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_time_core_internal.h
-**
-** Purpose:  cFE Time Services (TIME) library API header file
-**
-** Author:   S.Walling/Microtel
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ *
+ * Purpose:  cFE Time Services (TIME) library API header file
+ *
+ * Author:   S.Walling/Microtel
+ *
+ * Notes:
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
 #ifndef CFE_TIME_CORE_INTERNAL_H
 #define CFE_TIME_CORE_INTERNAL_H
 
@@ -90,7 +88,3 @@ extern int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId);
 /**@}*/
 
 #endif /* CFE_TIME_CORE_INTERNAL_H */
-
-/************************/
-/*  End of File Comment */
-/************************/

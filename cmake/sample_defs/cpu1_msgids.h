@@ -18,22 +18,24 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_msgids.h
-**
-** Purpose:
-**   This header file contains the Message Id's for messages used by the
-**   cFE core.
-**
-** Author:   R.McGraw/SSI
-**
-** Notes:
-**   This file should not contain messages defined by cFE external
-**   applications.
-**
-******************************************************************************/
-#ifndef _cfe_msgids_
-#define _cfe_msgids_
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *   This header file contains the Message Id's for messages used by the
+ *   cFE core.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ * Notes:
+ *   This file should not contain messages defined by cFE external
+ *   applications.
+ *
+ */
+
+#ifndef CPU1_MSGIDS_H
+#define CPU1_MSGIDS_H
 
 /*
 ** Includes
@@ -129,4 +131,4 @@
 #define CFE_SB_ONESUB_TLM_MID       CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_SB_ONESUB_TLM_MSG       /* 0x080E */
 #define CFE_ES_MEMSTATS_TLM_MID     CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_ES_MEMSTATS_TLM_MSG     /* 0x0810 */
 
-#endif
+#endif /* CPU1_MSGIDS_H */

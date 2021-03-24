@@ -18,22 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_evs_msg.h
-**
-**  Title:    Event Services Message definition header file Header File
-**
-**  Purpose:
-**	           Unit specification for Event services command codes and data structures.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-*/
-#ifndef _cfe_evs_msg_
-#define _cfe_evs_msg_
+/**
+ * @file
+ *
+ *
+ *  Title:    Event Services Message definition header file Header File
+ *
+ *  Purpose:
+ *	           Unit specification for Event services command codes and data structures.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ */
+
+#ifndef CFE_EVS_MSG_H
+#define CFE_EVS_MSG_H
 
 /********************************** Include Files  ************************************/
 #include "common_types.h"            /* Basic data types */
@@ -1286,4 +1288,4 @@ typedef struct CFE_EVS_ShortEventTlm
 
 } CFE_EVS_ShortEventTlm_t;
 
-#endif
+#endif /* CFE_EVS_MSG_H */

@@ -18,19 +18,20 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_sb_priv.h
-**
-** Purpose:
-**      This header file contains prototypes for private functions and type
-**      definitions for SB internal use.
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *      This header file contains prototypes for private functions and type
+ *      definitions for SB internal use.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
-#ifndef _cfe_sb_priv_
-#define _cfe_sb_priv_
+#ifndef CFE_SB_PRIV_H
+#define CFE_SB_PRIV_H
 
 /*
 ** Includes
@@ -632,5 +633,4 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
 
 extern CFE_SB_Global_t CFE_SB_Global;
 
-#endif /* _cfe_sb_priv_ */
-/*****************************************************************************/
+#endif /* CFE_SB_PRIV_H */

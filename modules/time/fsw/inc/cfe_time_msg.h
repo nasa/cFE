@@ -18,22 +18,20 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_time_msg.h
-**
-** Purpose:  cFE Time Services (TIME) SB message definitions header file
-**
-** Author:   S.Walling/Microtel
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ *
+ * Purpose:  cFE Time Services (TIME) SB message definitions header file
+ *
+ * Author:   S.Walling/Microtel
+ *
+ * Notes:
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_time_msg_
-#define _cfe_time_msg_
+#ifndef CFE_TIME_MSG_H
+#define CFE_TIME_MSG_H
 
 /*
 ** Required header files...
@@ -1126,8 +1124,4 @@ typedef struct CFE_TIME_DiagnosticTlm
     CFE_TIME_DiagnosticTlm_Payload_t Payload;   /**< \brief Telemetry payload */
 } CFE_TIME_DiagnosticTlm_t;
 
-#endif /* _cfe_time_msg_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TIME_MSG_H */

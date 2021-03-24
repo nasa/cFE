@@ -18,20 +18,18 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_fs.h
-**
-** Purpose:  cFE File Services (FS) library API header file
-**
-** Author:   S.Walling/Microtel
-**
-*/
+/**
+ * @file
+ *
+ *
+ * Purpose:  cFE File Services (FS) library API header file
+ *
+ * Author:   S.Walling/Microtel
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_fs_
-#define _cfe_fs_
+#ifndef CFE_FS_H
+#define CFE_FS_H
 
 /*
 ** Required header files...
@@ -345,8 +343,4 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg);
 
 /**@}*/
 
-#endif /* _cfe_fs_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_FS_H */

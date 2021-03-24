@@ -18,8 +18,14 @@
 **  limitations under the License.
 */
 
-#ifndef _CFE_FS_EXTERN_TYPEDEFS_H_
-#define _CFE_FS_EXTERN_TYPEDEFS_H_
+/**
+ * @file
+ *
+ * Declarations and prototypes for cfe_fs_extern_typedefs module
+ */
+
+#ifndef CFE_FS_EXTERN_TYPEDEFS_H
+#define CFE_FS_EXTERN_TYPEDEFS_H
 
 /* This header may be generated from an EDS file,
  * tools are available and the feature is enabled */
@@ -236,4 +242,4 @@ typedef struct CFE_FS_Header
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
-#endif /* _CFE_FS_EXTERN_TYPEDEFS_H_ */
+#endif /* CFE_FS_EXTERN_TYPEDEFS_H */

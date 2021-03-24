@@ -18,28 +18,29 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_evs_utils.h
-**
-**  Title:    Event Services Task and API - Utility functions.
-**
-**  Purpose:
-**            Unit specification for the event services utility functions.
-**
-**  Contents:
-**       I.  macro and constant type definitions
-**      II.  EVS utility internal structures
-**     III.  function prototypes
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-*/
+/**
+ * @file
+ *
+ *
+ *  Title:    Event Services Task and API - Utility functions.
+ *
+ *  Purpose:
+ *            Unit specification for the event services utility functions.
+ *
+ *  Contents:
+ *       I.  macro and constant type definitions
+ *      II.  EVS utility internal structures
+ *     III.  function prototypes
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ */
 
-#ifndef _cfe_evs_utils_
-#define _cfe_evs_utils_
+#ifndef CFE_EVS_UTILS_H
+#define CFE_EVS_UTILS_H
 
 /********************* Include Files  ************************/
 
@@ -173,4 +174,4 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
 
 int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...);
 
-#endif /* _cfe_evs_utils_ */
+#endif /* CFE_EVS_UTILS_H */

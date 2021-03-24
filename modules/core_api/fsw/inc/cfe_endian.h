@@ -18,13 +18,14 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File:  cfe_endian.h
-**
-** Purpose:
-**      Define macros to enforce big-endian/network byte order for 16 and 32 bit integers
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *      Define macros to enforce big-endian/network byte order for 16 and 32 bit integers
+ *
+ */
 
 #ifndef CFE_ENDIAN_H
 #define CFE_ENDIAN_H

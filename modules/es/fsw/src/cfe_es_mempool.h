@@ -19,7 +19,8 @@
 */
 
 /**
- * \file cfe_es_mempool.h
+ * @file
+ *
  *
  * Contains data structure definitions used by the ES mempool implementation.
  *
@@ -27,8 +28,8 @@
  * with a layer on top to translate into memory mapped buffer addresses.
  */
 
-#ifndef _CFE_ES_MEMPOOL_H_
-#define _CFE_ES_MEMPOOL_H_
+#ifndef CFE_ES_MEMPOOL_H
+#define CFE_ES_MEMPOOL_H
 
 /*
 ** Include Files
@@ -197,4 +198,4 @@ static inline bool CFE_ES_MemPoolRecordIsMatch(const CFE_ES_MemPoolRecord_t *Poo
  */
 bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId);
 
-#endif /* _CFE_ES_MEMPOOL_H_ */
+#endif /* CFE_ES_MEMPOOL_H */

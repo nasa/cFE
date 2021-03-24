@@ -19,7 +19,8 @@
 */
 
 /**
- * @file cfe_es_module_all.h
+ * @file
+ *
  *
  * Encapsulates all ES module internal header files, as well
  * as the public API from all other CFE core modules, OSAL, and PSP.
@@ -54,4 +55,4 @@
 #include "cfe_es_resource.h"
 #include "cfe_es_log.h"
 
-#endif
+#endif /* CFE_ES_MODULE_ALL_H */

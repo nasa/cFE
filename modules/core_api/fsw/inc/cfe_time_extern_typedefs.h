@@ -18,8 +18,14 @@
 **  limitations under the License.
 */
 
-#ifndef _CFE_TIME_EXTERN_TYPEDEFS_H_
-#define _CFE_TIME_EXTERN_TYPEDEFS_H_
+/**
+ * @file
+ *
+ * Declarations and prototypes for cfe_time_extern_typedefs module
+ */
+
+#ifndef CFE_TIME_EXTERN_TYPEDEFS_H
+#define CFE_TIME_EXTERN_TYPEDEFS_H
 
 /* This header may be generated from an EDS file,
  * tools are available and the feature is enabled */
@@ -301,4 +307,4 @@ typedef uint8 CFE_TIME_SetState_Enum_t;
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
-#endif /* _CFE_TIME_EXTERN_TYPEDEFS_H_ */
+#endif /* CFE_TIME_EXTERN_TYPEDEFS_H */

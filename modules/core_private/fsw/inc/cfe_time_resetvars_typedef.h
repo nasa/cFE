@@ -18,20 +18,12 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_time.h
-**
-** Purpose:  cFE Time Services (TIME) library API header file
-**
-** Author:   S.Walling/Microtel
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ * Definition of the CFE_TIME_ResetVars_t structure type
+ */
 
-/*
-** Ensure that header is included only once...
-*/
 #ifndef CFE_TIME_RESETVARS_TYPEDEF_H
 #define CFE_TIME_RESETVARS_TYPEDEF_H
 
@@ -63,7 +55,3 @@ typedef struct CFE_TIME_ResetVars
 } CFE_TIME_ResetVars_t;
 
 #endif /* CFE_TIME_RESETVARS_TYPEDEF_H */
-
-/************************/
-/*  End of File Comment */
-/************************/

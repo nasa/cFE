@@ -18,14 +18,16 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
+/**
+ * @file
+ *
  * Define cFS standard secondary header
  *  - Avoid direct access for portability, use APIs
  *  - Used to construct message structures
  */
 
-#ifndef _cfe_msg_sechdr_
-#define _cfe_msg_sechdr_
+#ifndef DEFAULT_CFE_MSG_SECHDR_H
+#define DEFAULT_CFE_MSG_SECHDR_H
 
 /*
  * Include Files
@@ -74,4 +76,4 @@ typedef struct
 
 } CFE_MSG_TelemetrySecondaryHeader_t;
 
-#endif /* _cfe_msg_sechdr_ */
+#endif /* DEFAULT_CFE_MSG_SECHDR_H */

@@ -18,22 +18,20 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_time.h
-**
-** Purpose:  cFE Time Services (TIME) library API header file
-**
-** Author:   S.Walling/Microtel
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ *
+ * Purpose:  cFE Time Services (TIME) library API header file
+ *
+ * Author:   S.Walling/Microtel
+ *
+ * Notes:
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef CFE_TIME_API_TYPES_H
-#define CFE_TIME_API_TYPES_H
+#ifndef CFE_TIME_API_TYPEDEFS_H
+#define CFE_TIME_API_TYPEDEFS_H
 
 /*
 ** Includes
@@ -79,8 +77,4 @@ typedef enum CFE_TIME_Compare
 */
 typedef int32 (*CFE_TIME_SynchCallbackPtr_t)(void);
 
-#endif /* CFE_TIME_API_TYPES_H */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TIME_API_TYPEDEFS_H */

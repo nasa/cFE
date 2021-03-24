@@ -18,19 +18,20 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_sb_msg.h
-**
-** Purpose:
-**      This header file contains structure definitions for all SB command and
-**      telemetry packets
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ *
+ * Purpose:
+ *      This header file contains structure definitions for all SB command and
+ *      telemetry packets
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
-#ifndef _cfe_sb_msg_
-#define _cfe_sb_msg_
+#ifndef CFE_SB_MSG_H
+#define CFE_SB_MSG_H
 
 /*
 ** Includes
@@ -784,5 +785,4 @@ typedef struct CFE_SB_AllSubscriptionsTlm
     CFE_SB_AllSubscriptionsTlm_Payload_t Payload; /**< \brief Telemetry payload */
 } CFE_SB_AllSubscriptionsTlm_t;
 
-#endif /* _cfe_sb_msg_ */
-/*****************************************************************************/
+#endif /* CFE_SB_MSG_H */

@@ -18,11 +18,13 @@
 **  limitations under the License.
 */
 
-/*
+/**
+ * @file
+ *
  * cfe_msg_time test header
  */
-#ifndef test_cfe_msg_time_
-#define test_cfe_msg_time_
+#ifndef TEST_CFE_MSG_TIME_H
+#define TEST_CFE_MSG_TIME_H
 
 /*
  * Functions
@@ -30,4 +32,4 @@
 /* Test time accessor functions */
 void Test_MSG_Time(void);
 
-#endif /* test_cfe_msg_time_ */
+#endif /* TEST_CFE_MSG_TIME_H */

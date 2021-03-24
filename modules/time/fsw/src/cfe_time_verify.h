@@ -18,23 +18,21 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_time_verify.h
-**
-** Purpose:  cFE Time Services (TIME) configuration verification
-**
-** Author:   S.Walling/Microtel
-**
-** Notes:
-**
-**
-*/
+/**
+ * @file
+ *
+ *
+ * Purpose:  cFE Time Services (TIME) configuration verification
+ *
+ * Author:   S.Walling/Microtel
+ *
+ * Notes:
+ *
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_time_verify_
-#define _cfe_time_verify_
+#ifndef CFE_TIME_VERIFY_H
+#define CFE_TIME_VERIFY_H
 
 #include "cfe_mission_cfg.h"
 #include "cfe_platform_cfg.h"
@@ -188,8 +186,4 @@
 
 /*************************************************************************/
 
-#endif /* _cfe_time_verify_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TIME_VERIFY_H */

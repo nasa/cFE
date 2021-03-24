@@ -18,11 +18,13 @@
 **  limitations under the License.
 */
 
-/*
+/**
+ * @file
+ *
  * cfe_msg_checksum test header
  */
-#ifndef test_cfe_msg_checksum_
-#define test_cfe_msg_checksum_
+#ifndef TEST_CFE_MSG_CHECKSUM_H
+#define TEST_CFE_MSG_CHECKSUM_H
 
 /*
  * Functions
@@ -30,4 +32,4 @@
 /* Test checksum accessor functions */
 void Test_MSG_Checksum(void);
 
-#endif /* test_cfe_msg_checksum_ */
+#endif /* TEST_CFE_MSG_CHECKSUM_H */
