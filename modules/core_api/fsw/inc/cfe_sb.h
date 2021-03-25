@@ -18,19 +18,19 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_sb.h
-**
-** Purpose:
-**      This header file contains all definitions for the cFE Software Bus
-**      Application Programmer's Interface.
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ * Purpose:
+ *      This header file contains all definitions for the cFE Software Bus
+ *      Application Programmer's Interface.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
-#ifndef CFE_SB_API_H
-#define CFE_SB_API_H
+#ifndef CFE_SB_H
+#define CFE_SB_H
 
 /*
 ** Includes
@@ -841,5 +841,4 @@ static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
 }
 /**@}*/
 
-#endif /* CFE_SB_API_H */
-/*****************************************************************************/
+#endif /* CFE_SB_H */

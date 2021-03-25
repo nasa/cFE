@@ -18,8 +18,14 @@
 **  limitations under the License.
 */
 
-#ifndef _CFE_TIME_EXTERN_TYPEDEFS_H_
-#define _CFE_TIME_EXTERN_TYPEDEFS_H_
+/**
+ * @file
+ *
+ * Declarations and prototypes for cfe_time_extern_typedefs module
+ */
+
+#ifndef CFE_TIME_EXTERN_TYPEDEFS_H
+#define CFE_TIME_EXTERN_TYPEDEFS_H
 
 /* This header may be generated from an EDS file,
  * tools are available and the feature is enabled */
@@ -115,7 +121,6 @@ enum CFE_TIME_FlagBit
 /**
  * @brief Bit positions of the various clock state flags
  *
- *
  * @sa enum CFE_TIME_FlagBit
  */
 typedef uint8 CFE_TIME_FlagBit_Enum_t;
@@ -158,7 +163,6 @@ enum CFE_TIME_ClockState
 /**
  * @brief Enumerated types identifying the quality of the current time
  *
- *
  * \par Description
  * The #CFE_TIME_ClockState_Enum_t enumerations identify the three recognized states of the current time.
  * If the clock has never been successfully synchronized with the primary onboard clock source, the
@@ -194,7 +198,6 @@ enum CFE_TIME_SourceSelect
 /**
  * @brief Clock Source Selection Parameters
  *
- *
  * @sa enum CFE_TIME_SourceSelect
  */
 typedef uint8 CFE_TIME_SourceSelect_Enum_t;
@@ -218,7 +221,6 @@ enum CFE_TIME_ToneSignalSelect
 
 /**
  * @brief Tone Signal Selection Parameters
- *
  *
  * @sa enum CFE_TIME_ToneSignalSelect
  */
@@ -244,7 +246,6 @@ enum CFE_TIME_AdjustDirection
 /**
  * @brief STCF adjustment direction (for both one-time and 1Hz adjustments)
  *
- *
  * @sa enum CFE_TIME_AdjustDirection
  */
 typedef uint8 CFE_TIME_AdjustDirection_Enum_t;
@@ -268,7 +269,6 @@ enum CFE_TIME_FlywheelState
 
 /**
  * @brief Fly-wheel status values
- *
  *
  * @sa enum CFE_TIME_FlywheelState
  */
@@ -294,11 +294,10 @@ enum CFE_TIME_SetState
 /**
  * @brief Clock status values (has the clock been set to correct time)
  *
- *
  * @sa enum CFE_TIME_SetState
  */
 typedef uint8 CFE_TIME_SetState_Enum_t;
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
-#endif /* _CFE_TIME_EXTERN_TYPEDEFS_H_ */
+#endif /* CFE_TIME_EXTERN_TYPEDEFS_H */

@@ -19,7 +19,7 @@
 */
 
 /**
- * \file cfe_resourceid.h
+ * @file
  *
  * Contains global prototypes and definitions related to resource
  * management and related CFE resource IDs.
@@ -36,8 +36,8 @@
  *  - Convert simple integer to ID (inverse of above)
  */
 
-#ifndef CFE_RESOURCEID_API_H
-#define CFE_RESOURCEID_API_H
+#ifndef CFE_RESOURCEID_H
+#define CFE_RESOURCEID_H
 
 /*
  * The basic resource ID API definitions

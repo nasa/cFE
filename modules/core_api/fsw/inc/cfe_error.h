@@ -18,26 +18,23 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_error.h
-**
-**  Title:    cFE Status Code Definition Header File
-**
-**  Purpose:
-**            Common source of cFE API return status codes.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-**/
+/**
+ * @file
+ *
+ *  Title:    cFE Status Code Definition Header File
+ *
+ *  Purpose:
+ *            Common source of cFE API return status codes.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_error_
-#define _cfe_error_
+#ifndef CFE_ERROR_H
+#define CFE_ERROR_H
 
 /* Include Files */
 #include "osapi.h"
@@ -45,7 +42,6 @@
 /*
  * Define a type for readability.
  */
-
 typedef int32 CFE_Status_t;
 
 /*
@@ -77,7 +73,6 @@ typedef int32 CFE_Status_t;
 **          101 - Software Bus Services
 **          110 - Tables Services
 **          111 - Time Services
-**
 **
 **      Mission Defined - These bits are available for Mission
 **                        specific coding standards.  They can
@@ -1371,4 +1366,14 @@ typedef int32 CFE_Status_t;
 #define CFE_TIME_BAD_ARGUMENT ((CFE_Status_t)0xce000005)
 /**@}*/
 
-#endif /* _cfe_error_ */
+/* Compatibility for error names which have been updated */
+#ifndef CFE_OMIT_DEPRECATED_6_8
+#define CFE_ES_ERR_TASKID        CFE_ES_ERR_RESOURCEID_NOT_VALID
+#define CFE_ES_ERR_APPID         CFE_ES_ERR_RESOURCEID_NOT_VALID
+#define CFE_ES_ERR_MEM_HANDLE    CFE_ES_ERR_RESOURCEID_NOT_VALID
+#define CFE_ES_ERR_APPNAME       CFE_ES_ERR_NAME_NOT_FOUND
+#define CFE_ES_CDS_NOT_FOUND_ERR CFE_ES_ERR_NAME_NOT_FOUND
+#define CFE_ES_CDS_REGISTRY_FULL CFE_ES_NO_RESOURCE_IDS_AVAILABLE
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
+
+#endif /* CFE_ERROR_H */

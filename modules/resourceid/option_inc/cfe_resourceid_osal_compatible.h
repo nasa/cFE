@@ -19,7 +19,7 @@
 */
 
 /**
- * \file cfe_resourceid_osal_compatible.h
+ * @file
  *
  * An implementation of CFE resource ID base values/limits that will be
  * compatible with OSAL IDs.  This is intended as a transitional tool to

@@ -18,13 +18,15 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
+/**
+ * @file
+ *
  * Message private header
  *  - Avoid including outside this module
  */
 
-#ifndef _cfe_msg_priv_
-#define _cfe_msg_priv_
+#ifndef CFE_MSG_PRIV_H
+#define CFE_MSG_PRIV_H
 
 /*
  * Includes
@@ -79,4 +81,4 @@ static inline void CFE_MSG_SetHeaderField(uint8 *Word, uint16 Val, uint16 Mask)
  */
 void CFE_MSG_InitDefaultHdr(CFE_MSG_Message_t *MsgPtr);
 
-#endif /* _cfe_msg_priv_ */
+#endif /* CFE_MSG_PRIV_H */

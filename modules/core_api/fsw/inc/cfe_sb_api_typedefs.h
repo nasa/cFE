@@ -18,16 +18,16 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_sb.h
-**
-** Purpose:
-**      This header file contains all definitions for the cFE Software Bus
-**      Application Programmer's Interface.
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ * Purpose:
+ *      This header file contains all definitions for the cFE Software Bus
+ *      Application Programmer's Interface.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
 #ifndef CFE_SB_API_TYPEDEFS_H
 #define CFE_SB_API_TYPEDEFS_H
@@ -140,4 +140,3 @@ typedef struct
 } CFE_SB_ZeroCopyHandle_t;
 
 #endif /* CFE_SB_API_TYPEDEFS_H */
-/*****************************************************************************/

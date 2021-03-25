@@ -18,24 +18,24 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_mission_cfg.h
-**
-** Purpose:
-**   This header file contains the mission configuration parameters and
-**   typedefs with mission scope.
-**
-** Notes:
-**   The impact of changing these configurations from their default value is
-**   not yet documented.  Changing these values may impact the performance
-**   and functionality of the system.
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ * Purpose:
+ *   This header file contains the mission configuration parameters and
+ *   typedefs with mission scope.
+ *
+ * Notes:
+ *   The impact of changing these configurations from their default value is
+ *   not yet documented.  Changing these values may impact the performance
+ *   and functionality of the system.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
-#ifndef _cfe_mission_cfg_
-#define _cfe_mission_cfg_
+#ifndef SAMPLE_MISSION_CFG_H
+#define SAMPLE_MISSION_CFG_H
 
 /**
 **  \cfesbcfg Maximum SB Message Size
@@ -65,7 +65,6 @@
 **      format.  This avoids having to modify each individual caller
 **      when the default choice is changed.
 **
-**
 **  \par Limits
 **      if CFE_MISSION_TIME_CFG_DEFAULT_TAI is defined as true then CFE_MISSION_TIME_CFG_DEFAULT_UTC must be
 **      defined as false.
@@ -81,7 +80,6 @@
 **  \par Description:
 **      The following definition enables the use of a simulated time at
 **      the tone signal using a software bus message.
-**
 **
 **  \par Limits
 **      Not Applicable
@@ -130,7 +128,6 @@
 **      before the tone.
 **
 **      Note: units are in micro-seconds
-**
 **
 **  \par Limits
 **       0 to 999,999 decimal
@@ -421,7 +418,6 @@
 **       anticipated to be reasonably small (i.e. tens, not hundreds).  Large
 **       values have not been tested.
 **
-**
 */
 #define CFE_MISSION_ES_POOL_MAX_BUCKETS 17
 
@@ -562,4 +558,4 @@
 */
 #define CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN (CFE_MISSION_ES_CDS_MAX_NAME_LENGTH + CFE_MISSION_MAX_API_LEN + 4)
 
-#endif /* _cfe_mission_cfg_ */
+#endif /* SAMPLE_MISSION_CFG_H */

@@ -18,24 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-** File:
-**    fs_UT.h
-**
-** Purpose:
-**    FS unit test header
-**
-** References:
-**    1. cFE Application Developers Guide
-**    2. unit test standard 092503
-**    3. C Coding Standard 102904
-**
-** Notes:
-**    1. This is unit test code only, not for use in flight
-**
-*/
-#ifndef _fs_UT_h_
-#define _fs_UT_h_
+/**
+ * @file
+ *
+ * Purpose:
+ *    FS unit test header
+ *
+ * References:
+ *    1. cFE Application Developers Guide
+ *    2. unit test standard 092503
+ *    3. C Coding Standard 102904
+ *
+ * Notes:
+ *    1. This is unit test code only, not for use in flight
+ *
+ */
+
+#ifndef FS_UT_H
+#define FS_UT_H
 
 /*
 ** Includes
@@ -314,4 +314,4 @@ void Test_CFE_FS_GetUncompressedFile(void);
 ******************************************************************************/
 void Test_CFE_FS_BackgroundFileDump(void);
 
-#endif /* _es_ut_h_ */
+#endif /* FS_UT_H */

@@ -18,13 +18,13 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
- * File: cfe_sbr.h
+/**
+ * @file
  *
  * Purpose:
  *      Prototypes for private functions and type definitions for SB
  *      routing internal use.
- *****************************************************************************/
+ */
 
 #ifndef CFE_SBR_API_TYPEDEFS_H
 #define CFE_SBR_API_TYPEDEFS_H

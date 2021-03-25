@@ -18,14 +18,16 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
+/**
+ * @file
+ *
  * Define CCSDS packet header types
  *  - Avoid direct access for portability, use APIs
  *  - Used to construct message structures
  */
 
-#ifndef _ccsds_hdr_
-#define _ccsds_hdr_
+#ifndef CCSDS_HDR_H
+#define CCSDS_HDR_H
 
 /*
  * Include Files
@@ -87,4 +89,4 @@ typedef struct CCSDS_ExtendedHeader
 
 } CCSDS_ExtendedHeader_t;
 
-#endif /* _ccsds_hdr_ */
+#endif /* CCSDS_HDR_H */

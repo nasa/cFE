@@ -19,12 +19,14 @@
 */
 
 /**
- * Definition of the CFE_SB_DestinationD_t type.
+ * @file
+ *
+ * Definition of the CFE_SB_DestinationD_t structure type
  * This was moved into its own header file since it is referenced by multiple CFE modules.
  */
 
-#ifndef CFE_SB_DESTINATION_TYPEDEF_H_
-#define CFE_SB_DESTINATION_TYPEDEF_H_
+#ifndef CFE_SB_DESTINATION_TYPEDEF_H
+#define CFE_SB_DESTINATION_TYPEDEF_H
 
 #include "common_types.h"
 #include "cfe_sb_extern_typedefs.h" /* Required for CFE_SB_PipeId_t definition */
@@ -49,4 +51,4 @@ typedef struct
     void *          Next;
 } CFE_SB_DestinationD_t;
 
-#endif /* CFE_SB_DESTINATION_TYPEDEF_H_ */
+#endif /* CFE_SB_DESTINATION_TYPEDEF_H */

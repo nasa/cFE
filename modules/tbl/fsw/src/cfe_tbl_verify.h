@@ -18,19 +18,18 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-**  File: cfe_tbl_verify.h
-**
-**  File: cfe_tbl_verify.h
-**
-**  Purpose:
-**    This header file performs compile time checking for TBL configuration
-**    parameters.
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ *  Purpose:
+ *    This header file performs compile time checking for TBL configuration
+ *    parameters.
+ *
+ */
 
-#ifndef _cfe_tbl_verify_
-#define _cfe_tbl_verify_
+#ifndef CFE_TBL_VERIFY_H
+#define CFE_TBL_VERIFY_H
+
 #include "cfe_platform_cfg.h"
 
 #if (2 * CFE_PLATFORM_TBL_MAX_DBL_TABLE_SIZE) > CFE_PLATFORM_TBL_BUF_MEMORY_BYTES
@@ -92,5 +91,4 @@ OS_MAX_PATH_LEN #endif
 #error CFE_MISSION_TBL_MAX_FULL_NAME_LEN must be a multiple of 4
 #endif
 
-#endif /* _cfe_tbl_verify_ */
-/*****************************************************************************/
+#endif /* CFE_TBL_VERIFY_H */

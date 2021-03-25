@@ -18,20 +18,19 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_fs_priv.h
-**
-** Purpose:
-**      This header file contains prototypes for private functions and type
-**      definitions for FS internal use.
-**
-** Author:  A. Cudmore/NASA GSFC
-**
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ * Purpose:
+ *      This header file contains prototypes for private functions and type
+ *      definitions for FS internal use.
+ *
+ * Author:  A. Cudmore/NASA GSFC
+ *
+ */
 
-#ifndef _cfe_fs_priv_
-#define _cfe_fs_priv_
+#ifndef CFE_FS_PRIV_H
+#define CFE_FS_PRIV_H
 
 /*
 ** Includes
@@ -153,5 +152,4 @@ extern void CFE_FS_UnlockSharedData(const char *FunctionName);
 extern void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr);
 extern void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
 
-#endif /* _cfe_fs_priv_ */
-/*****************************************************************************/
+#endif /* CFE_FS_PRIV_H */

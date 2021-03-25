@@ -18,8 +18,14 @@
 **  limitations under the License.
 */
 
-#ifndef _CFE_FS_EXTERN_TYPEDEFS_H_
-#define _CFE_FS_EXTERN_TYPEDEFS_H_
+/**
+ * @file
+ *
+ * Declarations and prototypes for cfe_fs_extern_typedefs module
+ */
+
+#ifndef CFE_FS_EXTERN_TYPEDEFS_H
+#define CFE_FS_EXTERN_TYPEDEFS_H
 
 /* This header may be generated from an EDS file,
  * tools are available and the feature is enabled */
@@ -55,7 +61,6 @@ enum CFE_FS_SubType
     /**
      * @brief Executive Services Exception/Reset Log Type
      *
-     *
      * Executive Services Exception/Reset Log File which is generated in response to a
      * \link #CFE_ES_WRITE_ER_LOG_CC \ES_WRITEERLOG2FILE \endlink
      * command.
@@ -65,7 +70,6 @@ enum CFE_FS_SubType
 
     /**
      * @brief Executive Services System Log Type
-     *
      *
      * Executive Services System Log File which is generated in response to a
      * \link #CFE_ES_WRITE_SYSLOG_CC \ES_WRITESYSLOG2FILE \endlink
@@ -77,7 +81,6 @@ enum CFE_FS_SubType
     /**
      * @brief Executive Services Information on All Applications File
      *
-     *
      * Executive Services Information on All Applications File which is generated in response to a
      * \link #CFE_ES_QUERY_ALL_CC \ES_WRITEAPPINFO2FILE \endlink
      * command.
@@ -87,7 +90,6 @@ enum CFE_FS_SubType
 
     /**
      * @brief Executive Services Performance Data File
-     *
      *
      * Executive Services Performance Analyzer Data File which is generated in response to a
      * \link #CFE_ES_STOP_PERF_DATA_CC \ES_STOPLADATA \endlink
@@ -99,7 +101,6 @@ enum CFE_FS_SubType
     /**
      * @brief Executive Services Shell Response File
      *
-     *
      * Executive Services Shell Response Data File which is generated in response to a
      * shell command.
      *
@@ -108,7 +109,6 @@ enum CFE_FS_SubType
 
     /**
      * @brief Executive Services Critical Data Store Registry Dump File
-     *
      *
      * Executive Services Critical Data Store Registry Dump File which is generated in response to a
      * \link #CFE_ES_DUMP_CDS_REGISTRY_CC \ES_DUMPCDSREG \endlink
@@ -120,7 +120,6 @@ enum CFE_FS_SubType
     /**
      * @brief Table Services Registry Dump File
      *
-     *
      * Table Services Registry Dump File which is generated in response to a
      * \link #CFE_TBL_DUMP_REGISTRY_CC \TBL_WRITEREG2FILE \endlink
      * command.
@@ -131,7 +130,6 @@ enum CFE_FS_SubType
     /**
      * @brief Table Services Table Image File
      *
-     *
      * Table Services Table Image File which is generated either on the ground or in response to a
      * \link #CFE_TBL_DUMP_CC \TBL_DUMP \endlink command.
      *
@@ -140,7 +138,6 @@ enum CFE_FS_SubType
 
     /**
      * @brief Event Services Application Data Dump File
-     *
      *
      * Event Services Application Data Dump File which is generated in response to a
      * \link #CFE_EVS_WRITE_APP_DATA_FILE_CC \EVS_WRITEAPPDATA2FILE \endlink
@@ -152,7 +149,6 @@ enum CFE_FS_SubType
     /**
      * @brief Event Services Local Event Log Dump File
      *
-     *
      * Event Services Local Event Log Dump File which is generated in response to a
      * \link  #CFE_EVS_WRITE_LOG_DATA_FILE_CC \EVS_WRITELOG2FILE \endlink
      * command.
@@ -162,7 +158,6 @@ enum CFE_FS_SubType
 
     /**
      * @brief Software Bus Pipe Data Dump File
-     *
      *
      * Software Bus Pipe Data Dump File which is generated in response to a
      * \link #CFE_SB_WRITE_PIPE_INFO_CC \SB_WRITEPIPE2FILE \endlink
@@ -174,7 +169,6 @@ enum CFE_FS_SubType
     /**
      * @brief Software Bus Message Routing Data Dump File
      *
-     *
      * Software Bus Message Routing Data Dump File which is generated in response to a
      * \link #CFE_SB_WRITE_ROUTING_INFO_CC \SB_WRITEROUTING2FILE \endlink
      * command.
@@ -184,7 +178,6 @@ enum CFE_FS_SubType
 
     /**
      * @brief Software Bus Message Mapping Data Dump File
-     *
      *
      * Software Bus Message Mapping Data Dump File which is generated in response to a
      * \link #CFE_SB_WRITE_MAP_INFO_CC \SB_WRITEMAP2FILE \endlink
@@ -196,7 +189,6 @@ enum CFE_FS_SubType
     /**
      * @brief Executive Services Query All Tasks Data File
      *
-     *
      * Executive Services Query All Tasks Data File which is generated in response to a
      * \link #CFE_ES_QUERY_ALL_TASKS_CC \ES_WRITETASKINFO2FILE \endlink
      * command.
@@ -207,7 +199,6 @@ enum CFE_FS_SubType
 
 /**
  * @brief Content descriptor for File Headers
- *
  *
  * @sa enum CFE_FS_SubType
  */
@@ -236,4 +227,4 @@ typedef struct CFE_FS_Header
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
-#endif /* _CFE_FS_EXTERN_TYPEDEFS_H_ */
+#endif /* CFE_FS_EXTERN_TYPEDEFS_H */

@@ -18,22 +18,22 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_es_task.h
-**
-**  Purpose:
-**  cFE Executive Services (ES) task header file
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
-/*************************************************************************/
-#ifndef _cfe_es_task_
-#define _cfe_es_task_
+/**
+ * @file
+ *
+ *  Purpose:
+ *  cFE Executive Services (ES) task header file
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *
+ */
+
+#ifndef CFE_ES_TASK_H
+#define CFE_ES_TASK_H
 
 /*
 ** Includes
@@ -201,8 +201,4 @@ void CFE_ES_FileWriteByteCntErr(const char *Filename, size_t Requested, int32 St
 
 /*************************************************************************/
 
-#endif /* _cfe_es_task_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_ES_TASK_H */

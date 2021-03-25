@@ -18,22 +18,19 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_time_utils.h
-**
-** Purpose:  cFE Time Services (TIME) library utilities header file
-**
-** Author:   S.Walling/Microtel
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ * Purpose:  cFE Time Services (TIME) library utilities header file
+ *
+ * Author:   S.Walling/Microtel
+ *
+ * Notes:
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_time_utils_
-#define _cfe_time_utils_
+#ifndef CFE_TIME_UTILS_H
+#define CFE_TIME_UTILS_H
 
 /*
 ** Required header files...
@@ -451,8 +448,4 @@ void CFE_TIME_Local1HzTask(void);
 void CFE_TIME_Local1HzStateMachine(void);
 void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg);
 
-#endif /* _cfe_time_utils_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TIME_UTILS_H */

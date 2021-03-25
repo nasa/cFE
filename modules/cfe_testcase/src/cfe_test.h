@@ -26,13 +26,18 @@
 **
 *************************************************************************/
 
+/**
+ * @file
+ *
+ * Declarations and prototypes for cfe_test module
+ */
+
 #ifndef CFE_TEST_H
 #define CFE_TEST_H
 
 /*
  * Includes
  */
-
 #include "cfe.h"
 
 #include "uttest.h"

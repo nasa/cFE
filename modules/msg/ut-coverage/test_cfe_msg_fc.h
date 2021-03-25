@@ -18,11 +18,13 @@
 **  limitations under the License.
 */
 
-/*
+/**
+ * @file
+ *
  * cfe_msg_fc test header
  */
-#ifndef test_cfe_msg_fc_
-#define test_cfe_msg_fc_
+#ifndef TEST_CFE_MSG_FC_H
+#define TEST_CFE_MSG_FC_H
 
 /*
  * Functions
@@ -30,4 +32,4 @@
 /* Test function code accessor functions */
 void Test_MSG_FcnCode(void);
 
-#endif /* test_cfe_msg_fc_ */
+#endif /* TEST_CFE_MSG_FC_H */

@@ -18,25 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-**  File:
-**    cfe_es_log.h
-**
-**  Purpose:
-**    This file contains definitions needed for the cFE ES Logs. The
-**    logs include the Mode Transition log, the System Log, and the
-**    Performance log.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
+/**
+ * @file
+ *
+ *  Purpose:
+ *    This file contains definitions needed for the cFE ES Logs. The
+ *    logs include the Mode Transition log, the System Log, and the
+ *    Performance log.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *
+ */
 
-#ifndef _cfe_es_log_
-#define _cfe_es_log_
+#ifndef CFE_ES_LOG_H
+#define CFE_ES_LOG_H
 
 /*
 ** Include Files
@@ -359,4 +358,4 @@ int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType
 int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
                                      const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId);
 
-#endif /* _cfe_es_log_ */
+#endif /* CFE_ES_LOG_H */

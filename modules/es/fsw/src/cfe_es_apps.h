@@ -18,22 +18,21 @@
 **  limitations under the License.
 */
 
-/*
-**  File:
-**  cfe_es_apps.h
-**
-**  Purpose:
-**  This file contains the Internal interface for the cFE Application control functions of ES.
-**  These functions and data structures manage the Applications and Child tasks in the cFE.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-*/
+/**
+ * @file
+ *
+ *  Purpose:
+ *  This file contains the Internal interface for the cFE Application control functions of ES.
+ *  These functions and data structures manage the Applications and Child tasks in the cFE.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ */
 
-#ifndef _cfe_es_apps_
-#define _cfe_es_apps_
+#ifndef CFE_ES_APPS_H
+#define CFE_ES_APPS_H
 
 /*
 ** Include Files
@@ -301,4 +300,4 @@ void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE
 */
 void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoPtr);
 
-#endif /* _cfe_es_apps_ */
+#endif /* CFE_ES_APPS_H */

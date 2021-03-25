@@ -19,17 +19,14 @@
 */
 
 /**
- * \file cfe_es_resetdata_typedef.h
- *
- *  Created on: Jan 22, 2015
- *      Author: joseph.p.hickey@nasa.gov
+ * @file
  *
  * Definition of the CFE_ES_ResetData structure type.
  * This was moved into its own header file since it is referenced by multiple CFE core apps.
  */
 
-#ifndef CFE_ES_RESETDATA_TYPEDEF_H_
-#define CFE_ES_RESETDATA_TYPEDEF_H_
+#ifndef CFE_ES_RESETDATA_TYPEDEF_H
+#define CFE_ES_RESETDATA_TYPEDEF_H
 
 #include "common_types.h"
 
@@ -99,4 +96,4 @@ typedef struct
 
 } CFE_ES_ResetData_t;
 
-#endif /* CFE_ES_RESETDATA_TYPEDEF_H_ */
+#endif /* CFE_ES_RESETDATA_TYPEDEF_H */

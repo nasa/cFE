@@ -18,24 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-** File:
-**    es_UT.h
-**
-** Purpose:
-**    ES unit test header
-**
-** References:
-**    1. cFE Application Developers Guide
-**    2. unit test standard 092503
-**    3. C Coding Standard 102904
-**
-** Notes:
-**    1. This is unit test code only, not for use in flight
-**
-*/
-#ifndef _es_UT_h_
-#define _es_UT_h_
+/**
+ * @file
+ *
+ * Purpose:
+ *    ES unit test header
+ *
+ * References:
+ *    1. cFE Application Developers Guide
+ *    2. unit test standard 092503
+ *    3. C Coding Standard 102904
+ *
+ * Notes:
+ *    1. This is unit test code only, not for use in flight
+ *
+ */
+
+#ifndef ES_UT_H
+#define ES_UT_H
 
 /*
 ** Macro definitions
@@ -251,4 +251,4 @@ void TestGenericCounterAPI(void);
 void TestGenericPool(void);
 void TestLibs(void);
 
-#endif /* _es_ut_h_ */
+#endif /* ES_UT_H */

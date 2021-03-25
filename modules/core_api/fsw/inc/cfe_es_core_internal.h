@@ -18,19 +18,19 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_es.h
-**
-**  Purpose:
-**	Unit specification for Executive Services library functions and macros.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**	Notes:
-**
-*/
+/**
+ * @file
+ *
+ *  Purpose:
+ *	Unit specification for Executive Services library functions and macros.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *	Notes:
+ *
+ */
 
 #ifndef CFE_ES_CORE_INTERNAL_H
 #define CFE_ES_CORE_INTERNAL_H
@@ -57,7 +57,6 @@
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
-**
 **
 ******************************************************************************/
 extern void CFE_ES_TaskMain(void);
@@ -99,7 +98,6 @@ extern int32 CFE_ES_CDS_EarlyInit(void);
 **                          the CDS.
 **
 ** \param[in]   CriticalTbl   Indicates whether the CDS is to be used as a Critical Table or not
-**
 **
 ** \return See return codes for #CFE_ES_RegisterCDS
 **

@@ -18,21 +18,21 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_evs_events.h
-**
-**  Purpose:
-**	           cFE Event Services (EVS) Event IDs
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-*/
+/**
+ * @file
+ *
+ *  Purpose:
+ *	           cFE Event Services (EVS) Event IDs
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ */
 
-#ifndef _cfe_evs_events_
-#define _cfe_evs_events_
+#ifndef CFE_EVS_EVENTS_H
+#define CFE_EVS_EVENTS_H
 
 /* **************************
 ** ****** Maximum EID. ******
@@ -639,4 +639,4 @@
 **/
 #define CFE_EVS_LEN_ERR_EID 43
 
-#endif /* _cfe_evs_events_ */
+#endif /* CFE_EVS_EVENTS_H */

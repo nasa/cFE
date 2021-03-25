@@ -18,21 +18,20 @@
 **  limitations under the License.
 */
 
-/*
-**  File:
-**  cfe_es_global.h
-**
-**  Purpose:
-**  This file contains the ES global data definitions.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-*/
+/**
+ * @file
+ *
+ *  Purpose:
+ *  This file contains the ES global data definitions.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ */
 
-#ifndef _cfe_es_global_
-#define _cfe_es_global_
+#ifndef CFE_ES_GLOBAL_H
+#define CFE_ES_GLOBAL_H
 
 /*
 ** Includes
@@ -161,4 +160,4 @@ extern CFE_ES_ResetData_t *CFE_ES_ResetDataPtr;
 extern void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber);
 extern void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber);
 
-#endif
+#endif /* CFE_ES_GLOBAL_H */
