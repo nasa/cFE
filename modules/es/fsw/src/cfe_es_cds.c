@@ -170,7 +170,14 @@ int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx)
  */
 bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_CDSBlockRecordIsUsed(CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHANDLE_C(CheckId)));
+    CFE_ES_CDS_RegRec_t *CDSRegRecPtr;
+    /*
+     * Note - The pointer here should never be NULL because the ID should always be
+     * within the expected range, but if it ever is NULL, this should return true
+     * such that the caller will _not_ attempt to use the record.
+     */
+    CDSRegRecPtr = CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHANDLE_C(CheckId));
+    return (CDSRegRecPtr == NULL || CFE_ES_CDSBlockRecordIsUsed(CDSRegRecPtr));
 }
 
 /*******************************************************************/

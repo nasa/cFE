@@ -104,7 +104,14 @@ int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx)
  */
 bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_ES_MemPoolRecordIsUsed(CFE_ES_LocateMemPoolRecordByID(CFE_ES_MEMHANDLE_C(CheckId)));
+    CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
+    /*
+     * Note - The pointer here should never be NULL because the ID should always be
+     * within the expected range, but if it ever is NULL, this should return true
+     * such that the caller will _not_ attempt to use the record.
+     */
+    MemPoolRecPtr = CFE_ES_LocateMemPoolRecordByID(CFE_ES_MEMHANDLE_C(CheckId));
+    return (MemPoolRecPtr == NULL || CFE_ES_MemPoolRecordIsUsed(MemPoolRecPtr));
 }
 
 CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID)
