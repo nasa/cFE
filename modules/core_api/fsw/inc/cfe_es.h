@@ -524,7 +524,7 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName, #CFE_ES_GetTaskInfo
 **
@@ -549,7 +549,7 @@ CFE_Status_t CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr);
@@ -572,7 +572,7 @@ CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppName, #CFE_ES_GetAppInfo
 **
@@ -597,7 +597,7 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetLibName
 **
@@ -628,6 +628,7 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppInfo
 **
@@ -658,6 +659,7 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t Buffe
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetLibIDByName
 **
@@ -684,7 +686,7 @@ CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t Buffe
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName
 **
@@ -713,7 +715,7 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetTaskID, #CFE_ES_GetTaskIDByName, #CFE_ES_GetTaskName
 **
@@ -746,7 +748,7 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetLibIDByName, #CFE_ES_GetLibName
 **
@@ -780,7 +782,7 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetLibInfo, #CFE_ES_GetAppInfo
 **
@@ -849,6 +851,7 @@ CFE_Status_t CFE_ES_RegisterChildTask(void);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                  \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_CHILD_TASK_CREATE \copybrief CFE_ES_ERR_CHILD_TASK_CREATE
+** \retval #CFE_ES_BAD_ARGUMENT          \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_RegisterChildTask, #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
 **
@@ -875,7 +878,7 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetTaskName
 **
@@ -906,6 +909,7 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetTaskIDByName
 **
@@ -999,6 +1003,7 @@ void CFE_ES_BackgroundWakeup(void);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_SYS_LOG_FULL \copybrief CFE_ES_ERR_SYS_LOG_FULL
+** \retval #CFE_ES_BAD_ARGUMENT     \copybrief CFE_ES_BAD_ARGUMENT
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1, 2);
@@ -1088,6 +1093,7 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \retval #CFE_ES_CDS_INVALID_SIZE   \copybrief CFE_ES_CDS_INVALID_SIZE
 ** \retval #CFE_ES_CDS_INVALID_NAME   \copybrief CFE_ES_CDS_INVALID_NAME
 ** \retval #CFE_ES_CDS_REGISTRY_FULL  \copybrief CFE_ES_CDS_REGISTRY_FULL
+** \retval #CFE_ES_BAD_ARGUMENT       \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
 **
@@ -1112,7 +1118,7 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, size_t BlockSize,
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetCDSBlockName
 **
@@ -1143,6 +1149,7 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_CDSHandle_t *BlockIdPtr, const ch
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetCDSBlockIDByName
 **
@@ -1168,6 +1175,7 @@ CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId,
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_RegisterCDS, #CFE_ES_RestoreFromCDS
 **
@@ -1195,9 +1203,10 @@ CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy);
 **                                      the CDS. *RestoreToMemory is the contents of the specified CDS.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_CDS_BLOCK_CRC_ERR   \copybrief CFE_ES_CDS_BLOCK_CRC_ERR
+** \retval #CFE_ES_CDS_BLOCK_CRC_ERR          \copybrief CFE_ES_CDS_BLOCK_CRC_ERR
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_RegisterCDS, #CFE_ES_CopyToCDS
 **
@@ -1354,6 +1363,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 ** \return Bytes Allocated, or error code \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_ES_ERR_MEM_BLOCK_SIZE         \copybrief CFE_ES_ERR_MEM_BLOCK_SIZE
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats,
 *#CFE_ES_GetPoolBufInfo
@@ -1379,6 +1389,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t PoolID, 
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_ES_BUFFER_NOT_IN_POOL         \copybrief CFE_ES_BUFFER_NOT_IN_POOL
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats,
 *#CFE_ES_PutPoolBuf
@@ -1402,6 +1413,7 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_
 **
 ** \return Bytes released, or error code \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats,
 *#CFE_ES_GetPoolBufInfo
@@ -1431,6 +1443,7 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf
 **
@@ -1520,8 +1533,8 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit);
 ** \param[out] *CounterIdPtr  The Counter Id of the newly created counter.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
-** \retval #CFE_ES_BAD_ARGUMENT \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
+** \retval #CFE_ES_BAD_ARGUMENT  \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_IncrementGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount,
 *#CFE_ES_GetGenCounterIDByName
@@ -1564,8 +1577,8 @@ CFE_Status_t CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId);
 ** \param[in]   CounterId    The Counter to be incremented.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
-** \retval #CFE_ES_BAD_ARGUMENT \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
+** \retval #CFE_ES_BAD_ARGUMENT  \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount,
 *#CFE_ES_GetGenCounterIDByName
@@ -1637,7 +1650,7 @@ CFE_Status_t CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetGenCounterName
 **
@@ -1668,6 +1681,7 @@ CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, cons
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetGenCounterIDByName
 **

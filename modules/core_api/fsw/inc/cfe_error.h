@@ -296,14 +296,6 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_ERR_NAME_NOT_FOUND ((CFE_Status_t)0xc4000002)
 
 /**
- * @brief Invalid Pointer
- *
- *  Invalid pointer argument (NULL)
- *
- */
-#define CFE_ES_ERR_BUFFER ((CFE_Status_t)0xc4000003)
-
-/**
  * @brief Application Create Error
  *
  *  There was an error loading or creating the App.

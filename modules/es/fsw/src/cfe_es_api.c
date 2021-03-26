@@ -974,7 +974,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
     if (AppInfo == NULL)
     {
         CFE_ES_WriteToSysLog("CFE_ES_GetAppInfo: Invalid Parameter ( Null Pointer )\n");
-        return CFE_ES_ERR_BUFFER;
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     memset(AppInfo, 0, sizeof(*AppInfo));
@@ -1064,7 +1064,7 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId)
     if (LibInfo == NULL)
     {
         CFE_ES_WriteToSysLog("CFE_ES_GetLibInfo: Invalid Parameter ( Null Pointer )\n");
-        return CFE_ES_ERR_BUFFER;
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     memset(LibInfo, 0, sizeof(*LibInfo));
@@ -1152,7 +1152,7 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId)
     if (TaskInfo == NULL)
     {
         CFE_ES_WriteToSysLog("CFE_ES_GetTaskInfo: Invalid Parameter ( Null Pointer )\n");
-        return CFE_ES_ERR_BUFFER;
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     memset(TaskInfo, 0, sizeof(*TaskInfo));

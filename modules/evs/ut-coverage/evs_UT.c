@@ -2039,7 +2039,7 @@ void Test_Misc(void)
 
     /* Test registering an application with invalid filter argument */
     UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_EVS_Register(NULL, 1, 0) == CFE_ES_ERR_BUFFER, "CFE_EVS_Register",
+    UT_Report(__FILE__, __LINE__, CFE_EVS_Register(NULL, 1, 0) == CFE_ES_BAD_ARGUMENT, "CFE_EVS_Register",
               "Register application with invalid arguments");
 
     /* Test housekeeping report with log disabled */

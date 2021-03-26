@@ -67,7 +67,7 @@ int32 CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 Filte
         }
         else if ((NumEventFilters != 0) && (Filters == NULL))
         {
-            Status = CFE_ES_ERR_BUFFER;
+            Status = CFE_ES_BAD_ARGUMENT;
         }
         else
         {
