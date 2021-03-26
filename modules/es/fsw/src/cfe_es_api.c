@@ -788,6 +788,11 @@ int32 CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
     CFE_ES_AppRecord_t *AppRecPtr;
     int32               Result;
 
+    if (AppIdPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     CFE_ES_LockSharedData(__func__, __LINE__);
 
     AppRecPtr = CFE_ES_GetAppRecordByContext();
@@ -816,6 +821,11 @@ int32 CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr)
 {
     int32                Result;
     CFE_ES_TaskRecord_t *TaskRecPtr;
+
+    if (TaskIdPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
 
     CFE_ES_LockSharedData(__func__, __LINE__);
     TaskRecPtr = CFE_ES_GetTaskRecordByContext();
