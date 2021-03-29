@@ -512,6 +512,26 @@
                \cfetlmmnemonic  \ES_OSMISSIONREV
             </LongDescription>
           </Entry>
+          <Entry name="PSPMajorVersion" type="BASE_TYPES/uint8" shortDescription="Platform Support Package Major Version Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PSPMAJORVER
+            </LongDescription>
+          </Entry>
+          <Entry name="PSPMinorVersion" type="BASE_TYPES/uint8" shortDescription="Platform Support Package Minor Version Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PSPMINORVER
+            </LongDescription>
+          </Entry>
+          <Entry name="PSPRevision" type="BASE_TYPES/uint8" shortDescription="Platform Support Package Revision Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PSPREVISION
+            </LongDescription>
+          </Entry>
+          <Entry name="PSPMissionRevision" type="BASE_TYPES/uint8" shortDescription="Platform Support Package MissionRevision Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PSPMISSIONREV
+            </LongDescription>
+          </Entry>
           <Entry name="SysLogBytesUsed" type="BASE_TYPES/uint32" shortDescription="Total number of bytes used in system log">
             <LongDescription>
                \cfetlmmnemonic  \ES_SYSLOGBYTEUSED
@@ -746,7 +766,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -857,7 +877,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -909,7 +929,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -970,7 +990,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1028,7 +1048,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1085,7 +1105,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1138,7 +1158,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1186,7 +1206,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1238,7 +1258,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1285,7 +1305,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1339,7 +1359,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1384,7 +1404,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1436,7 +1456,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1493,7 +1513,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1547,7 +1567,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1595,7 +1615,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1646,7 +1666,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1699,7 +1719,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1745,7 +1765,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1797,7 +1817,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1851,7 +1871,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1902,7 +1922,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
@@ -1954,7 +1974,7 @@
 
           \par  Command Verification
 
-          Successful execution of this command may be verified with 
+          Successful execution of this command may be verified with
           the following telemetry:
           - \b \c \ES_CMDPC - command execution counter will
           increment
