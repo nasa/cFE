@@ -33,11 +33,6 @@
 
 #include <string.h>
 
-/*
-** Pointer to performance log in the reset area
-*/
-CFE_ES_PerfData_t *Perf;
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* Name: CFE_ES_SetupPerfVariables                                               */
 /*                                                                               */
@@ -60,12 +55,13 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
         uint8  Endian;
     } EndianCheck = {.Word = 0x0100};
 
-    uint32 i;
+    uint32             i;
+    CFE_ES_PerfData_t *Perf;
 
     /*
     ** Set the pointer to the data area
     */
-    Perf = (CFE_ES_PerfData_t *)&(CFE_ES_ResetDataPtr->Perf);
+    Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
     if (ResetType == CFE_PSP_RST_TYPE_PROCESSOR)
     {
@@ -110,9 +106,15 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 uint32 CFE_ES_GetPerfLogDumpRemaining(void)
 {
-    CFE_ES_PerfDumpGlobal_t *PerfDumpState = &CFE_ES_TaskData.BackgroundPerfDumpState;
+    CFE_ES_PerfDumpGlobal_t *PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
     CFE_ES_PerfDumpState_t   CurrentState  = PerfDumpState->CurrentState;
     uint32                   Result;
+    CFE_ES_PerfData_t *      Perf;
+
+    /*
+    ** Set the pointer to the data area
+    */
+    Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
     /* note this reads the data "live" without exclusion and as such it
      * may change even between checking the state and checking the value.
@@ -147,7 +149,13 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void)
 int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
 {
     const CFE_ES_StartPerfCmd_Payload_t *CmdPtr        = &data->Payload;
-    CFE_ES_PerfDumpGlobal_t *            PerfDumpState = &CFE_ES_TaskData.BackgroundPerfDumpState;
+    CFE_ES_PerfDumpGlobal_t *            PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
+    CFE_ES_PerfData_t *                  Perf;
+
+    /*
+    ** Set the pointer to the data area
+    */
+    Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
     /* Ensure there is no file write in progress before proceeding */
     if (PerfDumpState->CurrentState == CFE_ES_PerfDumpState_IDLE &&
@@ -158,7 +166,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
         if ((CmdPtr->TriggerMode >= CFE_ES_PERF_TRIGGER_START) && (CmdPtr->TriggerMode < CFE_ES_PERF_MAX_MODES))
         {
 
-            CFE_ES_TaskData.CommandCounter++;
+            CFE_ES_Global.TaskData.CommandCounter++;
 
             /* Taking lock here as this might be changing states from one active mode to another.
              * In that case, need to make sure that the log is not written to while resetting the counters. */
@@ -178,7 +186,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
         }
         else
         {
-            CFE_ES_TaskData.CommandErrorCounter++;
+            CFE_ES_Global.TaskData.CommandErrorCounter++;
             CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_TRIG_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Cannot start collecting performance data, trigger mode (%d) out of range (%d to %d)",
                               (int)CmdPtr->TriggerMode, (int)CFE_ES_PERF_TRIGGER_START, (int)CFE_ES_PERF_TRIGGER_END);
@@ -186,7 +194,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
     }
     else
     {
-        CFE_ES_TaskData.CommandErrorCounter++;
+        CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Cannot start collecting performance data,perf data write in progress");
     } /* end if */
@@ -202,8 +210,14 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
 int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
 {
     const CFE_ES_StopPerfCmd_Payload_t *CmdPtr        = &data->Payload;
-    CFE_ES_PerfDumpGlobal_t *           PerfDumpState = &CFE_ES_TaskData.BackgroundPerfDumpState;
+    CFE_ES_PerfDumpGlobal_t *           PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
+    CFE_ES_PerfData_t *                 Perf;
     int32                               Status;
+
+    /*
+    ** Set the pointer to the data area
+    */
+    Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
     /* Ensure there is no file write in progress before proceeding */
     /* note - also need to check the PendingState here, in case this command
@@ -225,7 +239,7 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
             PerfDumpState->PendingState = CFE_ES_PerfDumpState_INIT;
             CFE_ES_BackgroundWakeup();
 
-            CFE_ES_TaskData.CommandCounter++;
+            CFE_ES_Global.TaskData.CommandCounter++;
 
             CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_EID, CFE_EVS_EventType_DEBUG,
                               "Perf Stop Cmd Rcvd, will write %d entries.%dmS dly every %d entries",
@@ -234,7 +248,7 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
         }
         else
         {
-            CFE_ES_TaskData.CommandErrorCounter++;
+            CFE_ES_Global.TaskData.CommandErrorCounter++;
             CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID, CFE_EVS_EventType_ERROR, "Error parsing filename, RC = %d",
                               (int)Status);
         }
@@ -243,7 +257,7 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
     else
     {
 
-        CFE_ES_TaskData.CommandErrorCounter++;
+        CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_ERR2_EID, CFE_EVS_EventType_ERROR,
                           "Stop performance data cmd ignored,perf data write in progress");
     } /* end if */
@@ -270,6 +284,12 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
     int32                    Status;
     CFE_FS_Header_t          FileHdr;
     size_t                   BlockSize;
+    CFE_ES_PerfData_t *      Perf;
+
+    /*
+    ** Set the pointer to the data area
+    */
+    Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
     /*
      * each time this background job is re-entered after a time delay,
@@ -484,6 +504,12 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 {
     const CFE_ES_SetPerfFilterMaskCmd_Payload_t *cmd = &data->Payload;
+    CFE_ES_PerfData_t *                          Perf;
+
+    /*
+    ** Set the pointer to the data area
+    */
+    Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
     if (cmd->FilterMaskNum < CFE_ES_PERF_32BIT_WORDS_IN_MASK)
     {
@@ -494,7 +520,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
                           "Set Performance Filter Mask Cmd rcvd, num %u, val 0x%08X", (unsigned int)cmd->FilterMaskNum,
                           (unsigned int)cmd->FilterMask);
 
-        CFE_ES_TaskData.CommandCounter++;
+        CFE_ES_Global.TaskData.CommandCounter++;
     }
     else
     {
@@ -502,7 +528,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
                           "Performance Filter Mask Cmd Error,Index(%u)out of range(%u)",
                           (unsigned int)cmd->FilterMaskNum, (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
 
-        CFE_ES_TaskData.CommandErrorCounter++;
+        CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
 
     return CFE_SUCCESS;
@@ -516,6 +542,12 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
 {
     const CFE_ES_SetPerfTrigMaskCmd_Payload_t *cmd = &data->Payload;
+    CFE_ES_PerfData_t *                        Perf;
+
+    /*
+    ** Set the pointer to the data area
+    */
+    Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
     if (cmd->TriggerMaskNum < CFE_ES_PERF_32BIT_WORDS_IN_MASK)
     {
@@ -526,7 +558,7 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
                           "Set Performance Trigger Mask Cmd rcvd,num %u, val 0x%08X", (unsigned int)cmd->TriggerMaskNum,
                           (unsigned int)cmd->TriggerMask);
 
-        CFE_ES_TaskData.CommandCounter++;
+        CFE_ES_Global.TaskData.CommandCounter++;
     }
     else
     {
@@ -534,7 +566,7 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
                           "Performance Trigger Mask Cmd Error,Index(%u)out of range(%u)",
                           (unsigned int)cmd->TriggerMaskNum, (unsigned int)CFE_ES_PERF_32BIT_WORDS_IN_MASK);
 
-        CFE_ES_TaskData.CommandErrorCounter++;
+        CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
 
     return CFE_SUCCESS;
@@ -567,6 +599,12 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
 {
     CFE_ES_PerfDataEntry_t EntryData;
     uint32                 DataEnd;
+    CFE_ES_PerfData_t *    Perf;
+
+    /*
+    ** Set the pointer to the data area
+    */
+    Perf = &CFE_ES_Global.ResetDataPtr->Perf;
 
     /*
      * If the global state is idle, exit immediately without locking or doing anything

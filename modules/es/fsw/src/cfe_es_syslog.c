@@ -84,9 +84,9 @@ void CFE_ES_SysLogClear_Unsync(void)
      * by simply zeroing out the indices will cover it.
      */
 
-    CFE_ES_ResetDataPtr->SystemLogWriteIdx = 0;
-    CFE_ES_ResetDataPtr->SystemLogEndIdx   = 0;
-    CFE_ES_ResetDataPtr->SystemLogEntryNum = 0;
+    CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = 0;
+    CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = 0;
+    CFE_ES_Global.ResetDataPtr->SystemLogEntryNum = 0;
 
 } /* End of CFE_ES_SysLogClear_Unsync() */
 
@@ -102,8 +102,8 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
     size_t EndIdx;
     size_t TotalSize;
 
-    ReadIdx   = CFE_ES_ResetDataPtr->SystemLogWriteIdx;
-    EndIdx    = CFE_ES_ResetDataPtr->SystemLogEndIdx;
+    ReadIdx   = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
+    EndIdx    = CFE_ES_Global.ResetDataPtr->SystemLogEndIdx;
     TotalSize = EndIdx;
 
     /*
@@ -114,7 +114,7 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
     {
         ++ReadIdx;
         --TotalSize;
-        if (CFE_ES_ResetDataPtr->SystemLog[ReadIdx - 1] == '\n')
+        if (CFE_ES_Global.ResetDataPtr->SystemLog[ReadIdx - 1] == '\n')
         {
             break;
         }
@@ -173,10 +173,10 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
      * EndIdx -> indicates the entire size of the buffer
      *
      * Keeping them in local stack variables allows more efficient modification,
-     * since CFE_ES_ResetDataPtr may point directly into a slower NVRAM space.
+     * since CFE_ES_Global.ResetDataPtr may point directly into a slower NVRAM space.
      */
-    WriteIdx = CFE_ES_ResetDataPtr->SystemLogWriteIdx;
-    EndIdx   = CFE_ES_ResetDataPtr->SystemLogEndIdx;
+    WriteIdx = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
+    EndIdx   = CFE_ES_Global.ResetDataPtr->SystemLogEndIdx;
 
     /*
      * Check if the log message plus will fit between
@@ -189,7 +189,7 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
      */
     if ((WriteIdx + MessageLen) > CFE_PLATFORM_ES_SYSTEM_LOG_SIZE)
     {
-        if (CFE_ES_ResetDataPtr->SystemLogMode == CFE_ES_LogMode_OVERWRITE)
+        if (CFE_ES_Global.ResetDataPtr->SystemLogMode == CFE_ES_LogMode_OVERWRITE)
         {
             /* In "overwrite" mode, start back at the beginning of the buffer */
             EndIdx   = WriteIdx;
@@ -219,7 +219,7 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
         /*
          * Copy the message in, EXCEPT for the last char which is probably a newline
          */
-        memcpy(&CFE_ES_ResetDataPtr->SystemLog[WriteIdx], LogString, MessageLen - 1);
+        memcpy(&CFE_ES_Global.ResetDataPtr->SystemLog[WriteIdx], LogString, MessageLen - 1);
         WriteIdx += MessageLen;
 
         /*
@@ -227,7 +227,7 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
          * This would have been enforced already except in cases where
          * the message got truncated.
          */
-        CFE_ES_ResetDataPtr->SystemLog[WriteIdx - 1] = '\n';
+        CFE_ES_Global.ResetDataPtr->SystemLog[WriteIdx - 1] = '\n';
 
         /*
          * Keep track of the buffer endpoint for future reference
@@ -240,9 +240,9 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
         /*
          * Export updated index values to the reset area for next time.
          */
-        CFE_ES_ResetDataPtr->SystemLogWriteIdx = WriteIdx;
-        CFE_ES_ResetDataPtr->SystemLogEndIdx   = EndIdx;
-        ++CFE_ES_ResetDataPtr->SystemLogEntryNum;
+        CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = WriteIdx;
+        CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = EndIdx;
+        ++CFE_ES_Global.ResetDataPtr->SystemLogEntryNum;
     }
 
     return (ReturnCode);
@@ -323,7 +323,7 @@ void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer)
             break;
         }
 
-        memcpy(&Buffer->Data[Buffer->BlockSize], &CFE_ES_ResetDataPtr->SystemLog[Buffer->LastOffset], BlockSize);
+        memcpy(&Buffer->Data[Buffer->BlockSize], &CFE_ES_Global.ResetDataPtr->SystemLog[Buffer->LastOffset], BlockSize);
 
         Buffer->BlockSize += BlockSize;
         Buffer->LastOffset += BlockSize;
@@ -343,8 +343,8 @@ int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode)
 
     if ((Mode == CFE_ES_LogMode_OVERWRITE) || (Mode == CFE_ES_LogMode_DISCARD))
     {
-        CFE_ES_ResetDataPtr->SystemLogMode = Mode;
-        Status                             = CFE_SUCCESS;
+        CFE_ES_Global.ResetDataPtr->SystemLogMode = Mode;
+        Status                                    = CFE_SUCCESS;
     }
     else
     {
@@ -544,7 +544,8 @@ int32 CFE_ES_SysLogDump(const char *Filename)
     else
     {
         CFE_EVS_SendEvent(CFE_ES_SYSLOG2_EID, CFE_EVS_EventType_DEBUG, "%s written:Size=%lu,Entries=%u", Filename,
-                          (unsigned long)TotalSize, (unsigned int)CFE_ES_TaskData.HkPacket.Payload.SysLogEntries);
+                          (unsigned long)TotalSize,
+                          (unsigned int)CFE_ES_Global.TaskData.HkPacket.Payload.SysLogEntries);
         Status = CFE_SUCCESS;
     }
 
