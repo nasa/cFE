@@ -144,20 +144,32 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
     CFE_FS_Header_t                     LogFileHdr;
     char                                LogFilename[OS_MAX_PATH_LEN];
 
-    /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
-    CFE_SB_MessageStringGet(LogFilename, (const char *)CmdPtr->LogFilename, CFE_PLATFORM_EVS_DEFAULT_LOG_FILE,
-                            sizeof(LogFilename), sizeof(CmdPtr->LogFilename));
+    /*
+    ** Copy the filename into local buffer with default name/path/extension if not specified
+    */
+    Result = CFE_FS_ParseInputFileNameEx(LogFilename, CmdPtr->LogFilename, sizeof(LogFilename),
+                                         sizeof(CmdPtr->LogFilename), CFE_PLATFORM_EVS_DEFAULT_LOG_FILE,
+                                         CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
+                                         CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
-    /* Create the log file */
-    Result = OS_OpenCreate(&LogFileHandle, LogFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-
-    if (Result < OS_SUCCESS)
+    if (Result != OS_SUCCESS)
     {
         EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID, CFE_EVS_EventType_ERROR,
-                      "Write Log File Command Error: OS_OpenCreate = 0x%08X, filename = %s", (unsigned int)Result,
-                      LogFilename);
+                      "Write Log File Command Error: CFE_FS_ParseInputFileNameEx() = 0x%08X", (unsigned int)Result);
     }
     else
+    {
+        /* Create the log file */
+        Result = OS_OpenCreate(&LogFileHandle, LogFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+        if (Result != OS_SUCCESS)
+        {
+            EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID, CFE_EVS_EventType_ERROR,
+                          "Write Log File Command Error: OS_OpenCreate = 0x%08X, filename = %s", (unsigned int)Result,
+                          LogFilename);
+        }
+    }
+
+    if (Result == OS_SUCCESS)
     {
         /* Result will be overridden if everything works */
         Result = CFE_EVS_FILE_WRITE_ERROR;

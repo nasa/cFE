@@ -1008,6 +1008,12 @@ void Test_Logging(void)
     UT_Report(__FILE__, __LINE__, CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) == CFE_SUCCESS,
               "CFE_EVS_WriteLogDataFileCmd", "Write single event log entry - successful (default log name)");
 
+    /* Test writing a log entry with a file name failure */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_Report(__FILE__, __LINE__, CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) != CFE_SUCCESS,
+              "CFE_EVS_WriteLogDataFileCmd", "FS parse filename failure");
+
     /* Test writing a log entry with a create failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
@@ -1097,6 +1103,14 @@ void Test_WriteApp(void)
                                  UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC, &UT_EVS_EventBuf);
     UT_Report(__FILE__, __LINE__, UT_EVS_EventBuf.EventID == CFE_EVS_ERR_CRDATFILE_EID, "CFE_EVS_WriteAppDataFileCmd",
               "OS create fail (default file name)");
+
+    /* Test writing application data with bad file name */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
+                                 UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC, &UT_EVS_EventBuf);
+    UT_Report(__FILE__, __LINE__, UT_EVS_EventBuf.EventID == CFE_EVS_ERR_CRDATFILE_EID, "CFE_EVS_WriteAppDataFileCmd",
+              "parse filename failure");
 
     /* Test writing application data with a write/close failure */
     UT_InitData();
