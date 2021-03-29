@@ -174,7 +174,6 @@ Target_ConfigData GLOBAL_CONFIGDATA = {
     .Default_ModuleExtension = CFE_DEFAULT_MODULE_EXTENSION,
     .Default_CoreFilename    = CFE_DEFAULT_CORE_FILENAME,
     .CfeConfig               = &GLOBAL_CFE_CONFIGDATA,
-    .PspConfig               = &GLOBAL_PSP_CONFIGDATA,
     .PspModuleList           = CFE_PSP_MODULE_LIST,
     .BuildEnvironment        = CFE_BUILD_ENV_TABLE,
     .ModuleVersionList       = CFE_MODULE_VERSION_TABLE,

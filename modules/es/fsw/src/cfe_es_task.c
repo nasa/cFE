@@ -465,10 +465,10 @@ int32 CFE_ES_TaskInit(void)
         return (Status);
     }
 
-    Status = CFE_EVS_SendEvent(CFE_ES_INITSTATS_INF_EID, CFE_EVS_EventType_INFORMATION,
-                               "cFS Versions: cfe %s, osal %s, psp %s. cFE chksm %d", GLOBAL_CONFIGDATA.CfeVersion,
-                               GLOBAL_CONFIGDATA.OsalVersion, CFE_PSP_VERSION,
-                               (int)CFE_ES_Global.TaskData.HkPacket.Payload.CFECoreChecksum);
+    Status =
+        CFE_EVS_SendEvent(CFE_ES_INITSTATS_INF_EID, CFE_EVS_EventType_INFORMATION,
+                          "cFS Versions: cfe %s, osal %s, psp %s. cFE chksm %d", CFE_SRC_VERSION, OS_GetVersionString(),
+                          CFE_PSP_GetVersionString(), (int)CFE_ES_Global.TaskData.HkPacket.Payload.CFECoreChecksum);
 
     if (Status != CFE_SUCCESS)
     {
@@ -847,8 +847,8 @@ int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
     CFE_ES_Global.TaskData.CommandCounter++;
 
     CFE_EVS_SendEvent(CFE_ES_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION,
-                      "No-op command:\n cFS Versions: cfe %s, osal %s, psp %s", GLOBAL_CONFIGDATA.CfeVersion,
-                      GLOBAL_CONFIGDATA.OsalVersion, CFE_PSP_VERSION);
+                      "No-op command:\n cFS Versions: cfe %s, osal %s, psp %s", CFE_SRC_VERSION, OS_GetVersionString(),
+                      CFE_PSP_GetVersionString());
 
     return CFE_SUCCESS;
 } /* End of CFE_ES_NoopCmd() */
