@@ -46,8 +46,6 @@ const char *UT_OSP_MESSAGES[] = {
     [UT_OSP_MOUNT_VOLATILE] = "ES Startup: Error Mounting Volatile(RAM) Volume. EC = 0x%08X\n",
     /* CFE_ES_ExitApp: CORE Application CFE_ES Had a Runtime Error. */
     [UT_OSP_CORE_RUNTIME] = "CFE_ES_ExitApp: CORE Application %s Had a Runtime Error.\n",
-    /* ES:Call to CFE_ES_RegisterApp Failed, RC = 0x~ */
-    [UT_OSP_REGISTER_APP] = "ES:Call to CFE_ES_RegisterApp Failed, RC = 0x%08X\n",
     /* ES Startup: OS_TaskCreate error creating core App: CFE_TBL: EC = 0x~ */
     [UT_OSP_CORE_APP_CREATE] = "ES Startup: OS_TaskCreate error creating core App: %s: EC = 0x%08X\n",
     /* ES Startup: Error returned when calling function: CFE_TBL_EarlyInit: EC = 0x~ */
@@ -161,6 +159,5 @@ const char *UT_OSP_MESSAGES[] = {
     [UT_OSP_RECORD_USED] = "ES Startup: Error: ES_TaskTable slot for ID %lx in use at task creation!\n",
     /* CFE_ES_ExitChildTask called from invalid task context */
     [UT_OSP_TASKEXIT_BAD_CONTEXT] = "CFE_ES_ExitChildTask called from invalid task context\n",
-    [UT_OSP_BACKGROUND_REGISTER]  = "CFE_ES: Background Task Failed to register: %08lx\n",
     [UT_OSP_BACKGROUND_TAKE]      = "CFE_ES: Failed to take background sem: %08lx\n",
 };

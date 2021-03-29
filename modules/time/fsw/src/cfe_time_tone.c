@@ -1148,9 +1148,9 @@ void CFE_TIME_Tone1HzISR(void)
 
 void CFE_TIME_Tone1HzTask(void)
 {
-    int32 Result = CFE_ES_RegisterChildTask();
+    int32 Result;
 
-    while (Result == CFE_SUCCESS)
+    while (true)
     {
         /* Increment the Main task Execution Counter */
         CFE_ES_IncrementTaskCounter();
@@ -1159,31 +1159,32 @@ void CFE_TIME_Tone1HzTask(void)
         ** Pend on semaphore given by tone ISR (above)...
         */
         Result = OS_BinSemTake(CFE_TIME_Global.ToneSemaphore);
+        if (Result != OS_SUCCESS)
+        {
+            break;
+        }
 
         /* Start Performance Monitoring */
         CFE_ES_PerfLogEntry(CFE_MISSION_TIME_TONE1HZTASK_PERF_ID);
 
-        if (Result == CFE_SUCCESS)
-        {
-            /*
-            ** Send tone signal command packet...
-            */
-            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneSignalCmd.CmdHeader.Msg, false);
+        /*
+        ** Send tone signal command packet...
+        */
+        CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneSignalCmd.CmdHeader.Msg, false);
 
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
-            /*
-            ** If we are simulating the tone signal, also generate the message
-            ** to send the tone to other time clients.
-            ** (this is done by scheduler in non-fake mode)
-            */
-            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneSendCmd.CmdHeader.Msg, false);
+        /*
+        ** If we are simulating the tone signal, also generate the message
+        ** to send the tone to other time clients.
+        ** (this is done by scheduler in non-fake mode)
+        */
+        CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneSendCmd.CmdHeader.Msg, false);
 #endif
 
-            /*
-            ** Maintain count of tone task wake-ups...
-            */
-            CFE_TIME_Global.ToneTaskCounter++;
-        }
+        /*
+        ** Maintain count of tone task wake-ups...
+        */
+        CFE_TIME_Global.ToneTaskCounter++;
 
         /* Exit performance monitoring */
         CFE_ES_PerfLogExit(CFE_MISSION_TIME_TONE1HZTASK_PERF_ID);
@@ -1343,9 +1344,9 @@ void CFE_TIME_Local1HzISR(void)
 
 void CFE_TIME_Local1HzTask(void)
 {
-    int32 Result = CFE_ES_RegisterChildTask();
+    int32 Result;
 
-    while (Result == CFE_SUCCESS)
+    while (true)
     {
 
         /* Increment the Main task Execution Counter */
@@ -1355,31 +1356,32 @@ void CFE_TIME_Local1HzTask(void)
         ** Pend on the 1HZ semaphore (given by local 1Hz ISR)...
         */
         Result = OS_BinSemTake(CFE_TIME_Global.LocalSemaphore);
+        if (Result != OS_SUCCESS)
+        {
+            break;
+        }
 
         /* Start Performance Monitoring */
         CFE_ES_PerfLogEntry(CFE_MISSION_TIME_LOCAL1HZTASK_PERF_ID);
 
-        if (Result == CFE_SUCCESS)
+        /*
+        ** Send "info" event if we just started flywheel mode...
+        */
+        if (CFE_TIME_Global.AutoStartFly)
         {
-            /*
-            ** Send "info" event if we just started flywheel mode...
-            */
-            if (CFE_TIME_Global.AutoStartFly)
-            {
-                CFE_TIME_Global.AutoStartFly = false;
+            CFE_TIME_Global.AutoStartFly = false;
 
-                CFE_EVS_SendEvent(CFE_TIME_FLY_ON_EID, CFE_EVS_EventType_INFORMATION, "Start FLYWHEEL");
-            }
-
-            /*
-            ** Send 1Hz timing packet...
-            ** This used to be optional in previous CFE versions, but it is now required
-            ** as TIME subscribes to this itself to do state machine tasks.
-            */
-            CFE_SB_TransmitMsg(&CFE_TIME_Global.Local1HzCmd.CmdHeader.Msg, false);
-
-            CFE_TIME_Global.LocalTaskCounter++;
+            CFE_EVS_SendEvent(CFE_TIME_FLY_ON_EID, CFE_EVS_EventType_INFORMATION, "Start FLYWHEEL");
         }
+
+        /*
+        ** Send 1Hz timing packet...
+        ** This used to be optional in previous CFE versions, but it is now required
+        ** as TIME subscribes to this itself to do state machine tasks.
+        */
+        CFE_SB_TransmitMsg(&CFE_TIME_Global.Local1HzCmd.CmdHeader.Msg, false);
+
+        CFE_TIME_Global.LocalTaskCounter++;
 
         /* Exit performance monitoring */
         CFE_ES_PerfLogExit(CFE_MISSION_TIME_LOCAL1HZTASK_PERF_ID);

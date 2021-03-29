@@ -198,13 +198,6 @@ int32 CFE_TIME_TaskInit(void)
     osal_id_t TimeBaseId;
     osal_id_t TimerId;
 
-    Status = CFE_ES_RegisterApp();
-    if (Status != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("TIME:Call to CFE_ES_RegisterApp Failed:RC=0x%08X\n", (unsigned int)Status);
-        return Status;
-    } /* end if */
-
     Status = CFE_EVS_Register(NULL, 0, 0);
     if (Status != CFE_SUCCESS)
     {

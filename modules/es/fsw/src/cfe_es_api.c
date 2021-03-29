@@ -640,44 +640,6 @@ void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 }
 
 /*
-** Function: - See API and header file for details
-*/
-int32 CFE_ES_RegisterApp(void)
-{
-    int32 Result;
-
-    CFE_ES_LockSharedData(__func__, __LINE__);
-
-    /*
-    ** Register the task
-    */
-    Result = OS_TaskRegister();
-
-    if (Result == OS_SUCCESS)
-    {
-        Result = CFE_SUCCESS;
-    }
-    else
-    {
-        /*
-        ** Cannot create a syslog entry here because it requires the task to
-        ** be registered
-        */
-        Result = CFE_ES_ERR_APP_REGISTER;
-    }
-
-    /*
-    ** Set the default exception environment
-    */
-    CFE_PSP_SetDefaultExceptionEnvironment();
-
-    CFE_ES_UnlockSharedData(__func__, __LINE__);
-
-    return (Result);
-
-} /* End of CFE_ES_RegisterApp() */
-
-/*
 ** Function: CFE_ES_GetAppIDByName - See API and header file for details
 */
 int32 CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName)
@@ -1295,45 +1257,6 @@ int32 CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
     return (ReturnCode);
 
 } /* End of CFE_ES_CreateChildTask() */
-
-/*
-** Function: CFE_ES_RegisterChildTask - See API and header file for details
-*/
-int32 CFE_ES_RegisterChildTask(void)
-{
-    int32 Result;
-    int32 ReturnCode;
-
-    CFE_ES_LockSharedData(__func__, __LINE__);
-
-    /*
-    ** Register the task with the OS
-    */
-    Result = OS_TaskRegister();
-
-    if (Result != OS_SUCCESS)
-    {
-        /*
-        ** Cannot create a syslog entry here because it requires the task to
-        ** be registered
-        */
-        ReturnCode = CFE_ES_ERR_CHILD_TASK_REGISTER;
-    }
-    else
-    {
-        ReturnCode = CFE_SUCCESS;
-    }
-
-    /*
-    ** Set the default exception environment
-    */
-    CFE_PSP_SetDefaultExceptionEnvironment();
-
-    CFE_ES_UnlockSharedData(__func__, __LINE__);
-
-    return (ReturnCode);
-
-} /* End of CFE_ES_RegisterChildTask() */
 
 /*
 ** Function: CFE_ES_IncrementTaskCounter - See API and header file for details

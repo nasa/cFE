@@ -167,13 +167,6 @@ void Test_Main(void)
     CFE_TIME_TaskMain();
     UT_Report(__FILE__, __LINE__, UT_SyslogIsInHistory(TIME_SYSLOG_MSGS[1]), "CFE_TIME_TaskMain",
               "Command pipe read error");
-
-    /* Test with an application initialization failure */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, -1);
-    CFE_TIME_TaskMain();
-    UT_Report(__FILE__, __LINE__, UT_SyslogIsInHistory(TIME_SYSLOG_MSGS[2]), "CFE_TIME_TaskMain",
-              "Application initialization fail");
 }
 
 /*
@@ -210,11 +203,6 @@ void Test_Init(void)
     /* Test successful time task initialization */
     UT_InitData();
     UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == CFE_SUCCESS, "CFE_TIME_Task_Init", "Successful");
-
-    /* Test response to a failure to register an application */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, -1);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == -1, "CFE_TIME_Task_Init", "Register application failure");
 
     /* Test response to a failure creating the first child task */
     UT_InitData();

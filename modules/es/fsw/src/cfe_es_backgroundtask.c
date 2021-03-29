@@ -111,14 +111,6 @@ void CFE_ES_BackgroundTask(void)
     OS_time_t                          LastTime;
     const CFE_ES_BackgroundJobEntry_t *JobPtr;
 
-    status = CFE_ES_RegisterChildTask();
-    if (status != CFE_SUCCESS)
-    {
-        /* should never occur */
-        CFE_ES_WriteToSysLog("CFE_ES: Background Task Failed to register: %08lx\n", (unsigned long)status);
-        return;
-    }
-
     CFE_PSP_GetTime(&LastTime);
 
     while (true)

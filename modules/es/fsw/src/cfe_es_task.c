@@ -340,16 +340,6 @@ int32 CFE_ES_TaskInit(void)
     cpuaddr CfeSegmentAddr;
 
     /*
-    ** Register the Application
-    */
-    Status = CFE_ES_RegisterApp();
-    if (Status != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("ES:Call to CFE_ES_RegisterApp Failed, RC = 0x%08X\n", (unsigned int)Status);
-        return (Status);
-    }
-
-    /*
     ** Initialize task command execution counters
     */
     CFE_ES_TaskData.CommandCounter      = 0;

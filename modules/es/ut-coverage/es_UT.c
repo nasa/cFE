@@ -2199,15 +2199,6 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]), "CFE_ES_TaskMain",
               "Command pipe error, UT_OSP_COMMAND_PIPE message");
 
-    /* Test task main process loop with an initialization failure */
-    ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(OS_TaskRegister), OS_ERROR);
-    CFE_ES_TaskMain();
-    UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_APP_INIT]), "CFE_ES_TaskMain",
-              "Task initialization fail, UT_OSP_APP_INIT message");
-    UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REGISTER_APP]), "CFE_ES_TaskMain",
-              "Task initialization fail, UT_OSP_REGISTER_APP message");
-
     /* Test task main process loop with bad checksum information */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_GetCFETextSegmentInfo), 1, -1);
@@ -2235,12 +2226,6 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__,
               CFE_ES_TaskInit() == CFE_SUCCESS && CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
               "CFE_ES_TaskInit", "Checksum success, PR Path");
-
-    /* Test task main process loop with a register app failure */
-    ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(OS_TaskRegister), OS_ERROR);
-    UT_Report(__FILE__, __LINE__, CFE_ES_TaskInit() == CFE_ES_ERR_APP_REGISTER, "CFE_ES_TaskInit",
-              "Register application fail");
 
     /* Test task main process loop with a with an EVS register failure */
     ES_ResetUnitTest();
@@ -3767,11 +3752,6 @@ void TestAPI(void)
               CFE_ES_RunLoop(&RunStatus) == true && UtAppRecPtr->AppState == CFE_ES_AppState_RUNNING, "CFE_ES_RunLoop",
               "Status change from initializing to run");
 
-    /* Test successful CFE application registration */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__, CFE_ES_RegisterApp() == CFE_SUCCESS, "CFE_ES_RegisterApp",
-              "Application registration successful");
-
     /* Test getting the cFE application and task ID by context */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
@@ -3980,17 +3960,6 @@ void TestAPI(void)
     CFE_ES_ExitChildTask();
     UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_TASKEXIT_BAD_CONTEXT]),
               "CFE_ES_ExitChildTask", "Invalid context");
-
-    /* Test registering a child task with an OS task register failure */
-    ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(OS_TaskRegister), OS_ERROR);
-    UT_Report(__FILE__, __LINE__, CFE_ES_RegisterChildTask() == CFE_ES_ERR_CHILD_TASK_REGISTER,
-              "CFE_ES_RegisterChildTask", "OS task register failed");
-
-    /* Test successfully registering a child task */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__, CFE_ES_RegisterChildTask() == CFE_SUCCESS, "CFE_ES_RegisterChildTask",
-              "Register child task successful");
 
     /* Test successfully adding a time-stamped message to the system log that
      * must be truncated
@@ -5286,15 +5255,6 @@ void TestBackground(void)
     OS_BinSemCreate(&CFE_ES_Global.BackgroundTask.WorkSem, "UT", 0, 0);
     CFE_ES_BackgroundCleanup();
     UtAssert_True(UT_GetStubCount(UT_KEY(OS_BinSemDelete)) == 1, "CFE_ES_BackgroundCleanup - OS_BinSemDelete called");
-
-    /*
-     * Test background task loop function
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_TaskRegister), 1, -1);
-    CFE_ES_BackgroundTask();
-    UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_REGISTER]),
-              "CFE_ES_BackgroundTask", "Failed to register error");
 
     /*
      * When testing the background task loop, it is normally an infinite loop,

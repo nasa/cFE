@@ -551,6 +551,18 @@ void CFE_ES_TaskEntryPoint(void)
 
     if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS && RealEntryFunc != NULL)
     {
+        /*
+         * Set the default exception environment, which should
+         * be done serialized (i.e. only one task at a time should
+         * call into CFE_PSP_SetDefaultExceptionEnvironment).
+         */
+        CFE_ES_LockSharedData(__func__, __LINE__);
+        CFE_PSP_SetDefaultExceptionEnvironment();
+        CFE_ES_UnlockSharedData(__func__, __LINE__);
+
+        /*
+         * Call the actual task entry function
+         */
         (*RealEntryFunc)();
     }
 }
@@ -563,8 +575,8 @@ void CFE_ES_TaskEntryPoint(void)
 **
 ** Note that OSAL does not separate the action of creating and start a task, providing
 ** only OS_TaskCreate which does both.  But there is a potential race condition if
-** the real task code starts and calls e.g. CFE_ES_RegisterApp() or any other function
-** that depends on having an AppID context, before its fully registered in the global app table.
+** the real task code starts and calls any function that depends on having an AppID
+** context before its fully registered in the global app table.
 **
 ** Therefore this calls a dedicated CFE_ES_AppEntryPoint which then will wait until
 ** the task is fully registered in the global, before calling the actual app entry point.

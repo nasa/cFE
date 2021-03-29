@@ -184,7 +184,6 @@ void SB_ResetUnitTest(void)
 */
 void Test_SB_AppInit(void)
 {
-    SB_UT_ADD_SUBTEST(Test_SB_AppInit_ESRegFail);
     SB_UT_ADD_SUBTEST(Test_SB_AppInit_EVSRegFail);
     SB_UT_ADD_SUBTEST(Test_SB_AppInit_EVSSendEvtFail);
     SB_UT_ADD_SUBTEST(Test_SB_AppInit_CrPipeFail);
@@ -193,20 +192,6 @@ void Test_SB_AppInit(void)
     SB_UT_ADD_SUBTEST(Test_SB_AppInit_GetPoolFail);
     SB_UT_ADD_SUBTEST(Test_SB_AppInit_PutPoolFail);
 } /* end Test_SB_AppInit */
-
-/*
-** Test task init with ES_RegisterApp returning error
-*/
-void Test_SB_AppInit_ESRegFail(void)
-{
-    int32 ForcedRtnVal = -1;
-
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, ForcedRtnVal);
-    ASSERT_EQ(CFE_SB_AppInit(), ForcedRtnVal);
-
-    EVTCNT(0);
-
-} /* end Test_SB_AppInit_ESRegFail */
 
 /*
 ** Test task init with EVS_Register returning error

@@ -340,7 +340,8 @@ CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID);
 ** \arg #CFE_ES_RunStatus_CORE_APP_INIT_ERROR - \copybrief CFE_ES_RunStatus_CORE_APP_INIT_ERROR
 ** \arg #CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR - \copybrief CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR
 **
-** \sa #CFE_ES_RunLoop, #CFE_ES_RegisterApp
+**
+** \sa #CFE_ES_RunLoop
 **
 ******************************************************************************/
 void CFE_ES_ExitApp(uint32 ExitStatus);
@@ -366,7 +367,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 ** \retval true  Application should continue running
 ** \retval false Application should not continue running
 **
-** \sa #CFE_ES_ExitApp, #CFE_ES_RegisterApp
+** \sa #CFE_ES_ExitApp
 **
 ******************************************************************************/
 bool CFE_ES_RunLoop(uint32 *ExitStatus);
@@ -433,23 +434,6 @@ CFE_Status_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMill
 **
 ******************************************************************************/
 void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds);
-
-/*****************************************************************************/
-/**
-** \brief Registers a cFE Application with the Executive Services
-**
-** \par Description
-**        This API registers the calling Application with the cFE.
-**
-** \par Assumptions, External Events, and Notes:
-**        NOTE: This function \b MUST be called before any other cFE API functions are called.
-**
-** \return Execution status, see \ref CFEReturnCodes
-**
-** \sa #CFE_ES_ExitApp, #CFE_ES_RunLoop
-**
-******************************************************************************/
-CFE_Status_t CFE_ES_RegisterApp(void);
 
 /*****************************************************************************/
 /**
@@ -782,26 +766,6 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 
 /*****************************************************************************/
 /**
-** \brief Registers a cFE Child task associated with a cFE Application
-**
-** \par Description
-**        This routine registers a cFE Child task and associates it with its parent
-**        cFE Application.
-**
-** \par Assumptions, External Events, and Notes:
-**        NOTE: This API \b MUST be called by the Child Task before any other cFE API calls are made.
-**
-** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                    \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_CHILD_TASK_REGISTER \copybrief CFE_ES_ERR_CHILD_TASK_REGISTER
-**
-** \sa #CFE_ES_CreateChildTask, #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
-**
-******************************************************************************/
-CFE_Status_t CFE_ES_RegisterChildTask(void);
-
-/*****************************************************************************/
-/**
 ** \brief Creates a new task under an existing Application
 **
 ** \par Description
@@ -837,7 +801,7 @@ CFE_Status_t CFE_ES_RegisterChildTask(void);
 ** \retval #CFE_SUCCESS                  \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_CHILD_TASK_CREATE \copybrief CFE_ES_ERR_CHILD_TASK_CREATE
 **
-** \sa #CFE_ES_RegisterChildTask, #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
+** \sa #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
@@ -915,7 +879,7 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t B
 ** \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_NOT_IMPLEMENTED \copybrief CFE_ES_NOT_IMPLEMENTED
 **
-** \sa #CFE_ES_RegisterChildTask, #CFE_ES_CreateChildTask, #CFE_ES_ExitChildTask
+** \sa #CFE_ES_CreateChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId);
@@ -935,7 +899,7 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId);
 **        at all, it is assumed that the Task was either unregistered or
 **        this function was called from a cFE Application's main task.
 **
-** \sa #CFE_ES_RegisterChildTask, #CFE_ES_CreateChildTask, #CFE_ES_DeleteChildTask
+** \sa #CFE_ES_CreateChildTask, #CFE_ES_DeleteChildTask
 **
 ******************************************************************************/
 void CFE_ES_ExitChildTask(void);

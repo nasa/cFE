@@ -138,14 +138,6 @@ int32 CFE_SB_AppInit(void)
     CFE_ES_MemPoolBuf_t TmpPtr;
     int32               Status;
 
-    Status = CFE_ES_RegisterApp();
-
-    if (Status != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("SB:Call to CFE_ES_RegisterApp Failed:RC=0x%08X\n", (unsigned int)Status);
-        return Status;
-    } /* end if */
-
     /* Get the assigned Application ID for the SB Task */
     CFE_ES_GetAppID(&CFE_SB_Global.AppId);
 

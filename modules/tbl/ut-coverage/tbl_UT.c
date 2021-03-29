@@ -239,18 +239,6 @@ void Test_CFE_TBL_TaskInit(void)
               ExitCode == CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR && UT_GetStubCount(UT_KEY(CFE_ES_ExitApp)) == 1,
               "CFE_TBL_TaskMain", "Success");
 
-    /* Test table services main entry point execution with a register
-     * application failure
-     */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, -1);
-    ExitCode = 0;
-    UT_SetDataBuffer(UT_KEY(CFE_ES_ExitApp), &ExitCode, sizeof(ExitCode), false);
-    CFE_TBL_TaskMain();
-    UT_Report(__FILE__, __LINE__,
-              ExitCode == CFE_ES_RunStatus_CORE_APP_INIT_ERROR && UT_GetStubCount(UT_KEY(CFE_ES_ExitApp)) == 2,
-              "CFE_TBL_TaskMain", "Application register fail");
-
     /* Test successful table services core application initialization */
     UT_InitData();
     UT_Report(__FILE__, __LINE__, CFE_TBL_TaskInit() == CFE_SUCCESS, "CFE_TBL_TaskInit", "Success");
