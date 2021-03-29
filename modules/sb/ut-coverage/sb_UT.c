@@ -2730,15 +2730,15 @@ void Test_TransmitMsg_API(void)
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_PipeFull);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_MsgLimitExceeded);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_GetPoolBufErr);
-    SB_UT_ADD_SUBTEST(Test_TransmitMsg_ZeroCopyGetPtr);
     SB_UT_ADD_SUBTEST(Test_TransmitBuffer_IncrementSeqCnt);
     SB_UT_ADD_SUBTEST(Test_TransmitBuffer_NoIncrement);
-    SB_UT_ADD_SUBTEST(Test_TransmitMsg_ZeroCopyHandleValidate);
-    SB_UT_ADD_SUBTEST(Test_TransmitMsg_ZeroCopyReleasePtr);
+    SB_UT_ADD_SUBTEST(Test_TransmitMsg_ZeroCopyBufferValidate);
     SB_UT_ADD_SUBTEST(Test_TransmitMsg_DisabledDestination);
     SB_UT_ADD_SUBTEST(Test_BroadcastBufferToRoute);
     SB_UT_ADD_SUBTEST(Test_TransmitMsgValidate_MaxMsgSizePlusOne);
     SB_UT_ADD_SUBTEST(Test_TransmitMsgValidate_NoSubscribers);
+    SB_UT_ADD_SUBTEST(Test_AllocateMessageBuffer);
+    SB_UT_ADD_SUBTEST(Test_ReleaseMessageBuffer);
 } /* end Test_TransmitMsg_API */
 
 /*
@@ -3040,17 +3040,16 @@ void Test_TransmitMsg_GetPoolBufErr(void)
 ** Test getting a pointer to a buffer for zero copy mode with buffer
 ** allocation failures
 */
-void Test_TransmitMsg_ZeroCopyGetPtr(void)
+void Test_AllocateMessageBuffer(void)
 {
-    CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl;
-    uint16                  MsgSize = 10;
-    uint32                  MemUse;
+    uint16 MsgSize = 10;
+    uint32 MemUse;
 
     /* Have GetPoolBuf stub return error on its next call (buf descriptor
      * allocation failed)
      */
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
-    ASSERT_TRUE(CFE_SB_ZeroCopyGetPtr(MsgSize, &ZeroCpyBufHndl) == NULL);
+    ASSERT_TRUE(CFE_SB_AllocateMessageBuffer(MsgSize) == NULL);
 
     EVTCNT(0);
 
@@ -3063,7 +3062,7 @@ void Test_TransmitMsg_ZeroCopyGetPtr(void)
     CFE_SB_Global.StatTlmMsg.Payload.MemInUse           = 0;
     CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse       = MemUse + 10;
     CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse = CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse + 2;
-    ASSERT_TRUE(CFE_SB_ZeroCopyGetPtr(MsgSize, &ZeroCpyBufHndl) != NULL);
+    ASSERT_TRUE(CFE_SB_AllocateMessageBuffer(MsgSize) != NULL);
 
     ASSERT_EQ(CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse, MemUse + 10); /* unchanged */
     ASSERT_EQ(CFE_SB_Global.StatTlmMsg.Payload.MemInUse, MemUse);          /* predicted value */
@@ -3074,46 +3073,37 @@ void Test_TransmitMsg_ZeroCopyGetPtr(void)
 
 } /* end Test_TransmitMsg_ZeroCopyGetPtr */
 
-void Test_TransmitMsg_ZeroCopyHandleValidate(void)
+void Test_TransmitMsg_ZeroCopyBufferValidate(void)
 {
-    CFE_SB_Buffer_t *       SendPtr;
-    CFE_SB_ZeroCopyHandle_t GoodZeroCpyBufHndl;
-    CFE_SB_ZeroCopyHandle_t BadZeroCpyBufHndl;
-    CFE_SB_ZeroCopyHandle_t NullZeroCpyBufHndl;
-    CFE_SB_BufferD_t        TestBufDsc;
+    CFE_SB_Buffer_t * SendPtr;
+    CFE_SB_BufferD_t  BadZeroCpyBuf;
+    CFE_SB_BufferD_t *BufDscPtr;
 
     /* Create a real/valid Zero Copy handle via the API */
-    SendPtr = CFE_SB_ZeroCopyGetPtr(sizeof(SB_UT_Test_Tlm_t), &GoodZeroCpyBufHndl);
+    SendPtr = CFE_SB_AllocateMessageBuffer(sizeof(SB_UT_Test_Tlm_t));
     if (SendPtr == NULL)
     {
         UtAssert_Failed("Unexpected NULL pointer returned from ZeroCopyGetPtr");
     }
 
-    /* The NULL handle is just zero */
-    NullZeroCpyBufHndl = (CFE_SB_ZeroCopyHandle_t) {0};
-
     /* Create an invalid Zero Copy handle that is not NULL but refers to a
-     * descriptor which is NOT from CFE_SB_ZeroCopyGetPtr(). */
-    memset(&TestBufDsc, 0, sizeof(TestBufDsc));
-    BadZeroCpyBufHndl = (CFE_SB_ZeroCopyHandle_t) {&TestBufDsc};
+     * descriptor which is NOT from CFE_SB_AllocateMessageBuffer(). */
+    memset(&BadZeroCpyBuf, 0, sizeof(BadZeroCpyBuf));
 
-    /* Good buffer pointer + Null Handle => BAD_ARGUMENT */
-    ASSERT_EQ(CFE_SB_ZeroCopyHandleValidate(SendPtr, NullZeroCpyBufHndl), CFE_SB_BAD_ARGUMENT);
+    /* Null Buffer => BAD_ARGUMENT */
+    ASSERT_EQ(CFE_SB_ZeroCopyBufferValidate(NULL, &BufDscPtr), CFE_SB_BAD_ARGUMENT);
 
-    /* Bad buffer pointer + Good Handle => BAD_ARGUMENT */
-    ASSERT_EQ(CFE_SB_ZeroCopyHandleValidate(NULL, GoodZeroCpyBufHndl), CFE_SB_BAD_ARGUMENT);
-
-    /* Good buffer pointer + Non Zero-Copy Handle => CFE_SB_BUFFER_INVALID */
-    ASSERT_EQ(CFE_SB_ZeroCopyHandleValidate(SendPtr, BadZeroCpyBufHndl), CFE_SB_BUFFER_INVALID);
-
-    /* Mismatched buffer pointer + Good Handle => CFE_SB_BUFFER_INVALID */
-    ASSERT_EQ(CFE_SB_ZeroCopyHandleValidate(SendPtr + 1, GoodZeroCpyBufHndl), CFE_SB_BUFFER_INVALID);
+    /* Non-null buffer pointer but Non Zero-Copy => CFE_SB_BUFFER_INVALID */
+    ASSERT_EQ(CFE_SB_ZeroCopyBufferValidate(&BadZeroCpyBuf.Content, &BufDscPtr), CFE_SB_BUFFER_INVALID);
 
     /* Good buffer pointer + Good Handle => SUCCESS */
-    ASSERT_EQ(CFE_SB_ZeroCopyHandleValidate(SendPtr, GoodZeroCpyBufHndl), CFE_SUCCESS);
+    ASSERT_EQ(CFE_SB_ZeroCopyBufferValidate(SendPtr, &BufDscPtr), CFE_SUCCESS);
+
+    /* Confirm that the computed pointer was correct */
+    ASSERT_TRUE(&BufDscPtr->Content == SendPtr);
 
     /* Clean-up */
-    CFE_SB_ZeroCopyReleasePtr(SendPtr, GoodZeroCpyBufHndl);
+    CFE_SB_ReleaseMessageBuffer(SendPtr);
 }
 
 /*
@@ -3127,7 +3117,6 @@ void Test_TransmitBuffer_IncrementSeqCnt(void)
     CFE_SB_PipeId_t         PipeId;
     CFE_SB_MsgId_t          MsgId     = SB_UT_TLM_MID;
     uint32                  PipeDepth = 10;
-    CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl;
     CFE_MSG_SequenceCount_t SeqCnt;
     CFE_MSG_Size_t          Size = sizeof(SB_UT_Test_Tlm_t);
     CFE_MSG_Type_t          Type = CFE_MSG_Type_Tlm;
@@ -3140,7 +3129,7 @@ void Test_TransmitBuffer_IncrementSeqCnt(void)
     SETUP(CFE_SB_Subscribe(MsgId, PipeId));
 
     /* Create a real/valid Zero Copy handle via the API */
-    SendPtr = CFE_SB_ZeroCopyGetPtr(sizeof(SB_UT_Test_Tlm_t), &ZeroCpyBufHndl);
+    SendPtr = CFE_SB_AllocateMessageBuffer(sizeof(SB_UT_Test_Tlm_t));
     if (SendPtr == NULL)
     {
         UtAssert_Failed("Unexpected NULL pointer returned from ZeroCopyGetPtr");
@@ -3151,7 +3140,7 @@ void Test_TransmitBuffer_IncrementSeqCnt(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     /* Test a successful zero copy send */
-    ASSERT(CFE_SB_TransmitBuffer(SendPtr, ZeroCpyBufHndl, true));
+    ASSERT(CFE_SB_TransmitBuffer(SendPtr, true));
 
     ASSERT(CFE_SB_ReceiveBuffer(&ReceivePtr, PipeId, CFE_SB_PEND_FOREVER));
 
@@ -3177,10 +3166,9 @@ void Test_TransmitBuffer_NoIncrement(void)
     CFE_SB_PipeId_t         PipeId;
     CFE_SB_MsgId_t          MsgId     = SB_UT_TLM_MID;
     uint32                  PipeDepth = 10;
-    CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl;
-    CFE_MSG_SequenceCount_t SeqCnt = 22;
-    CFE_MSG_Size_t          Size   = sizeof(SB_UT_Test_Tlm_t);
-    CFE_MSG_Type_t          Type   = CFE_MSG_Type_Tlm;
+    CFE_MSG_SequenceCount_t SeqCnt    = 22;
+    CFE_MSG_Size_t          Size      = sizeof(SB_UT_Test_Tlm_t);
+    CFE_MSG_Type_t          Type      = CFE_MSG_Type_Tlm;
 
     /* Set up hook for checking CFE_MSG_SetSequenceCount calls */
     UT_SetHookFunction(UT_KEY(CFE_MSG_SetSequenceCount), UT_CheckSetSequenceCount, &SeqCnt);
@@ -3188,7 +3176,7 @@ void Test_TransmitBuffer_NoIncrement(void)
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "ZeroCpyPassTestPipe"));
     SETUP(CFE_SB_Subscribe(MsgId, PipeId));
 
-    SendPtr = CFE_SB_ZeroCopyGetPtr(sizeof(SB_UT_Test_Tlm_t), &ZeroCpyBufHndl);
+    SendPtr = CFE_SB_AllocateMessageBuffer(sizeof(SB_UT_Test_Tlm_t));
 
     if (SendPtr == NULL)
     {
@@ -3200,7 +3188,7 @@ void Test_TransmitBuffer_NoIncrement(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     /* Test a successful zero copy pass */
-    ASSERT(CFE_SB_TransmitBuffer(SendPtr, ZeroCpyBufHndl, false));
+    ASSERT(CFE_SB_TransmitBuffer(SendPtr, false));
     ASSERT(CFE_SB_ReceiveBuffer(&ReceivePtr, PipeId, CFE_SB_PEND_FOREVER));
 
     ASSERT_TRUE(SendPtr == ReceivePtr);
@@ -3216,35 +3204,34 @@ void Test_TransmitBuffer_NoIncrement(void)
 /*
 ** Test releasing a pointer to a buffer for zero copy mode
 */
-void Test_TransmitMsg_ZeroCopyReleasePtr(void)
+void Test_ReleaseMessageBuffer(void)
 {
-    CFE_SB_Buffer_t *       ZeroCpyMsgPtr1 = NULL;
-    CFE_SB_Buffer_t *       ZeroCpyMsgPtr2 = NULL;
-    CFE_SB_Buffer_t *       ZeroCpyMsgPtr3 = NULL;
-    CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl1;
-    CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl2;
-    CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl3;
-    uint16                  MsgSize = 10;
+    CFE_SB_Buffer_t *ZeroCpyMsgPtr1 = NULL;
+    CFE_SB_Buffer_t *ZeroCpyMsgPtr2 = NULL;
+    CFE_SB_Buffer_t *ZeroCpyMsgPtr3 = NULL;
+    CFE_SB_BufferD_t BadBufferDesc;
+    uint16           MsgSize = 10;
 
-    ZeroCpyMsgPtr1 = CFE_SB_ZeroCopyGetPtr(MsgSize, &ZeroCpyBufHndl1);
-    ZeroCpyMsgPtr2 = CFE_SB_ZeroCopyGetPtr(MsgSize, &ZeroCpyBufHndl2);
-    ZeroCpyMsgPtr3 = CFE_SB_ZeroCopyGetPtr(MsgSize, &ZeroCpyBufHndl3);
-    SETUP(CFE_SB_ZeroCopyReleasePtr(ZeroCpyMsgPtr2, ZeroCpyBufHndl2));
+    ZeroCpyMsgPtr1 = CFE_SB_AllocateMessageBuffer(MsgSize);
+    ZeroCpyMsgPtr2 = CFE_SB_AllocateMessageBuffer(MsgSize);
+    ZeroCpyMsgPtr3 = CFE_SB_AllocateMessageBuffer(MsgSize);
+    SETUP(CFE_SB_ReleaseMessageBuffer(ZeroCpyMsgPtr2));
 
-    /* Test response to an invalid buffer */
-    ASSERT_EQ(CFE_SB_ZeroCopyReleasePtr(ZeroCpyMsgPtr2, ZeroCpyBufHndl2), CFE_SB_BUFFER_INVALID);
+    /* Test response to an invalid buffer (has been released already) */
+    ASSERT_EQ(CFE_SB_ReleaseMessageBuffer(ZeroCpyMsgPtr2), CFE_SB_BUFFER_INVALID);
 
     /* Test response to a null message pointer */
-    ASSERT_EQ(CFE_SB_ZeroCopyReleasePtr(NULL, ZeroCpyBufHndl3), CFE_SB_BAD_ARGUMENT);
+    ASSERT_EQ(CFE_SB_ReleaseMessageBuffer(NULL), CFE_SB_BAD_ARGUMENT);
 
     /* Test response to an invalid message pointer */
-    ASSERT_EQ(CFE_SB_ZeroCopyReleasePtr(ZeroCpyMsgPtr1, ZeroCpyBufHndl3), CFE_SB_BUFFER_INVALID);
+    memset(&BadBufferDesc, 0, sizeof(BadBufferDesc));
+    ASSERT_EQ(CFE_SB_ReleaseMessageBuffer(&BadBufferDesc.Content), CFE_SB_BUFFER_INVALID);
 
     /* Test successful release of the second buffer */
-    ASSERT(CFE_SB_ZeroCopyReleasePtr(ZeroCpyMsgPtr3, ZeroCpyBufHndl3));
+    ASSERT(CFE_SB_ReleaseMessageBuffer(ZeroCpyMsgPtr3));
 
     /* Test successful release of the third buffer */
-    ASSERT(CFE_SB_ZeroCopyReleasePtr(ZeroCpyMsgPtr1, ZeroCpyBufHndl1));
+    ASSERT(CFE_SB_ReleaseMessageBuffer(ZeroCpyMsgPtr1));
 
     EVTCNT(0);
 
@@ -3520,11 +3507,10 @@ void Test_ReceiveBuffer_PendForever(void)
 */
 void Test_CleanupApp_API(void)
 {
-    CFE_SB_PipeId_t         PipeId;
-    CFE_SB_ZeroCopyHandle_t ZeroCpyBufHndl;
-    uint16                  PipeDepth = 10;
-    CFE_ES_AppId_t          AppID;
-    CFE_ES_AppId_t          AppID2;
+    CFE_SB_PipeId_t PipeId;
+    uint16          PipeDepth = 10;
+    CFE_ES_AppId_t  AppID;
+    CFE_ES_AppId_t  AppID2;
 
     /*
      * Reset global descriptor list
@@ -3535,15 +3521,15 @@ void Test_CleanupApp_API(void)
     AppID2 = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(2));
 
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
-    CFE_SB_ZeroCopyGetPtr(10, &ZeroCpyBufHndl);
+    CFE_SB_AllocateMessageBuffer(10);
 
     /* Mimic a different app ID getting a buffer */
     UT_SetAppID(AppID2);
-    CFE_SB_ZeroCopyGetPtr(10, &ZeroCpyBufHndl);
+    CFE_SB_AllocateMessageBuffer(10);
 
     /* Original app gets a second buffer */
     UT_SetAppID(AppID);
-    CFE_SB_ZeroCopyGetPtr(10, &ZeroCpyBufHndl);
+    CFE_SB_AllocateMessageBuffer(10);
 
     /* Set second application ID to provide complete branch path coverage */
     CFE_SB_Global.PipeTbl[1].PipeId = SB_UT_PIPEID_1;

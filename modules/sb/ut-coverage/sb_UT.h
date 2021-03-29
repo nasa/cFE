@@ -1901,7 +1901,7 @@ void Test_TransmitMsg_GetPoolBufErr(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitMsg_ZeroCopyGetPtr(void);
+void Test_AllocateMessageBuffer(void);
 
 /*****************************************************************************/
 /**
@@ -1933,7 +1933,7 @@ void Test_TransmitBuffer_IncrementSeqCnt(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitMsg_ZeroCopyHandleValidate(void);
+void Test_TransmitMsg_ZeroCopyBufferValidate(void);
 
 /*****************************************************************************/
 /**
@@ -1966,7 +1966,7 @@ void Test_TransmitBuffer_NoIncrement(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitMsg_ZeroCopyReleasePtr(void);
+void Test_ReleaseMessageBuffer(void);
 
 /*****************************************************************************/
 /**
