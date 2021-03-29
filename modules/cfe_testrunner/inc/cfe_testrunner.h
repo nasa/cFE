@@ -60,6 +60,6 @@
 **  \return Execution status, see \ref CFEReturnCodes
 **
 *************************************************************************/
-void CFE_TestRunner_AppMain(void);
+void CFE_TR_AppMain(void);
 
 #endif /* CFE_TESTRUNNER_H */
