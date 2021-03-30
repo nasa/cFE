@@ -136,8 +136,8 @@
     </UL>
     <LI> \ref CFEAPISBZeroCopy
     <UL>
-      <LI> #CFE_SB_ZeroCopyGetPtr - \copybrief CFE_SB_ZeroCopyGetPtr
-      <LI> #CFE_SB_ZeroCopyReleasePtr - \copybrief CFE_SB_ZeroCopyReleasePtr
+      <LI> #CFE_SB_AllocateMessageBuffer - \copybrief CFE_SB_AllocateMessageBuffer
+      <LI> #CFE_SB_ReleaseMessageBuffer - \copybrief CFE_SB_ReleaseMessageBuffer
       <LI> #CFE_SB_TransmitBuffer - \copybrief CFE_SB_TransmitBuffer
     </UL>
     <LI> \ref CFEAPISBSetMessage

@@ -488,12 +488,12 @@ deciding on whether to create multiple Applications versus a single
 Application with multiple Tasks, the Application Developer should keep
 in mind these facts:
 
--   When the Application exits it is the responsiabilty of the 
+-   When the Application exits it is the responsiabilty of the
     Main Task to safely stop all of its Child Tasks.
 
 -   If the Main Task of an Application is stopped, either through
     detection of an exception or via command, all Child Tasks are also
-    forcibly stopped in an unsafe manner. 
+    forcibly stopped in an unsafe manner.
 
 Child Tasks can be useful in both "Software Only" and "Hardware Servicing"
 applications.
@@ -1052,7 +1052,7 @@ into a working image in the Application. 
 
 An example of how to use the CDS is shown below:
 
-```
+```c
 FILE: "sample_task.h":
 
 /* Define the structure for the data stored in my Critical Data Store */
@@ -1079,7 +1079,7 @@ typedef struct
 #define SAMPLE_CDS_NAME "CDS"
 ```
 
-```
+```c
 FILE: "sample_task.c":
 
 SAMPLE_TaskData_t SAMPLE_TaskData;
@@ -1172,7 +1172,7 @@ calculation is done consistently for a mission, the Executive Services provides
 an API for a CRC calculation that can be used by all Applications on a mission.
 This function looks like the following:
 
-```
+```c
 uint32 CFE_ES_CalculateCRC(void *pData, uint32 DataLength, uint32 InputCRC, uint32 TypeCRC);
 ```
 
@@ -1272,7 +1272,7 @@ segment of code to monitor.  Applications typically define these perfids in
 their xx_mission_cfg.h file.  A common pattern for performance monitoring is
 shown below.
 
-```
+```c
 FILE: xx_app.c
 
 void XX_AppMain(void)
@@ -1324,7 +1324,7 @@ void XX_AppMain(void)
             RunStatus = CFE_ES_RunStatus_APP_ERROR;
         }
     }
-
+}
 ```
 
 While outside the scope of this documentation, an external post processing tool
@@ -1467,7 +1467,7 @@ the cFE of pipes that it requires to receive data. The Application
 performs this request by calling the CFE_SB_CreatePipe API. The
 following is a brief example of how this is accomplished:
 
-```
+```c
 FILE: sample_app.h
 
 ...
@@ -1482,9 +1482,9 @@ typedef struct
    CFE_SB_PipeId_t  SAMPLE_Pipe_1; /* Variable to hold Pipe ID (i.e.- Handle) */
    ...
 } SAMPLE_AppData_t;
+```
 
-```
-```
+```c
 FILE: sample_app.c
 
 SAMPLE_AppData_t;  SAMPLE_AppData;
@@ -1499,10 +1499,9 @@ SAMPLE_AppData_t;  SAMPLE_AppData;
                                SAMPLE_PIPE_1_NAME);           /* Name of Pipe */
    ...
 }
-
 ```
 
-In this example, the Developer has created a Pipe, called "SAMPLE_PIPE_1"
+In this example, the Developer has created a Pipe, called `SAMPLE_PIPE_1`
 with a depth of 10. The Pipe name shall be at least one character and no
 more than OS_MAX_API_NAME characters long. Developers should prefix their Pipe
 names with the Application's abbreviated name, because Pipe names will
@@ -1520,8 +1519,7 @@ important when using other SB API functions. It is important to realize
 that the Pipe is not multi-thread safe. Therefore, it is illegal for
 another thread, even one from the same Application, to attempt to
 receive data from the created pipe. If multiple threads require access
-to messages, each thread needs to create their own pipe and make their
-own message subscriptions.
+to messages, each thread needs to create their own pipe and make their own message subscriptions.
 
 ## 6.2.1 Deleting Software Bus Pipes
 
@@ -1529,7 +1527,7 @@ If an Application no longer requires a Pipe, it can delete the Pipe by
 calling the CFE_SB_DeletePipe API. This API is demonstrated as
 follows:
 
-```
+```c
 FILE: sample_app.c
 
 {
@@ -1557,7 +1555,7 @@ Once an Application has created a Pipe, it can begin to request data be
 put into that Pipe. This process is referred to a SB Message
 Subscription. An example of this process can be seen below:
 
-```
+```c
 FILE: sample_msgids.h
 
 ...
@@ -1565,7 +1563,7 @@ FILE: sample_msgids.h
 #define SAMPLE_CMDID_1        (0x0123)
 ...
 ```
-```
+```c
 FILE: sample_app.h
 
 ...
@@ -1581,7 +1579,7 @@ typedef struct
 } SAMPLE_AppData_t;
 
 ```
-```
+```c
 FILE: sample_app.c
 
 SAMPLE_AppData_t SAMPLE_AppData;
@@ -1634,7 +1632,7 @@ If an Application no longer wishes to receive an SB Message that it had
 previously subscribed to, it can selectively unsubscribe to specified SB
 Message IDs. The following is a sample of the API to accomplish this:
 
-```
+```c
 {
    int32 Status;
 
@@ -1657,7 +1655,7 @@ memory for it (instantiate it), initialize it with the appropriate SB
 Message Header information and fill the rest of the structure with
 appropriate data. An example of this process can be seen below:
 
-```
+```c
 FILE: sample_msgids.h
 
 ...
@@ -1666,7 +1664,7 @@ FILE: sample_msgids.h
 
 ```
 
-```
+```c
 FILE: sample_app.h
 
 /*
@@ -1698,7 +1696,7 @@ typedef struct
   ...
 } SAMPLE_AppData_t;
 ```
-```
+```c
 FILE: sample_app.c
 
 SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
@@ -1742,7 +1740,7 @@ secondary header structures. The secondary header structures are
 shown below.  Note that all messages must have a secondary header, a message
 containing just a CFE_MSG_Message_t is invalid per the CCSDS standard.
 
-```
+```c
 typedef struct
 {
 
@@ -1854,7 +1852,7 @@ After an SB message has been created (see Section 6.5) and its contents
 have been set to the appropriate values, the application can then
 send the message on the SB. An example of this is shown below:
 
-```
+```c
 FILE: sample_app.c
 
 SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
@@ -1875,14 +1873,15 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
     CFE_SB_TransmitMsg(&SAMPLE_APP_Data.HkTlm.TlmHeader.Msg, true);
    ...
 }
-```
+```  
+
 ## 6.7 Receiving Software Bus Messages
 
 To receive a SB Message, an application calls CFE_SB_ReceiveBuffer.  Since most
 applications are message-driven, this typically occurs in an application's
 main execution loop.  An example of this is shown below.
 
-```
+```c
 FILE: sample_app.h
 
 typedef struct
@@ -1892,7 +1891,7 @@ typedef struct
   ...
 } SAMPLE_AppData_t;
 ```
-```
+```c
 FILE: sample_app.c
 
 {
@@ -1949,7 +1948,7 @@ copy is too time consuming, the Developer can choose to utilize the
 "Zero Copy" protocol.
 
 The application can request a buffer from SB utilizing
-CFE_SB_ZeroCopyGetPtr, then write the message data directly to the
+`CFE_SB_AllocateMessageBuffer`, then write the message data directly to the
 buffer that can be sent directly (without a copy) by SB.
 
 Once an Application has formatted and filled the SB buffer with the
@@ -1961,14 +1960,14 @@ calls the CFE_SB_TransmitBuffer API.** Applications should not
 assume the SB Buffer pointer is accessible once the buffer
 has been sent.
 
-If an Application has called the CFE_SB_ZeroCopyGetPtr API call and
+If an Application has called the `CFE_SB_AllocateMessageBuffer` API call and
 then later determines that it is not going to send the SB Message, it
 shall free the allocated buffer by calling the
-CFE_SB_ZeroCopyReleasePtr API.
+`CFE_SB_ReleaseMessageBuffer` API.
 
 An example of the "Zero Copy" protocol is shown below:
 
-```
+```c
 FILE: app_msgids.h
 
 ...
@@ -2017,8 +2016,8 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    /*
    ** Get a SB Message block of memory and initialize it
    */
-   SAMPLE_AppData.BigPktBuf = (SAMPLE_BigPkt_Buffer_t *)CFE_SB_ZeroCopyGetPtr(sizeof(SAMPLE_BigPkt_t),
-                              &BufferHandle);
+   SAMPLE_AppData.BigPktBuf = (SAMPLE_BigPkt_Buffer_t *)CFE_SB_AllocateMessageBuffer(sizeof(SAMPLE_BigPkt_t));
+
    CFE_MSG_Init(SAMPLE_AppData.BigPktBuf->Pkt.TlmHeader.Msg, SAMPLE_BIG_TLM_MID,
                 sizeof(SAMPLE_AppData.BigPktBuf->Pkt);
 
@@ -2034,7 +2033,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    /* SAMPLE_AppData.BigPktBuf is no longer a valid pointer */
    ...
 }
-```
+```c  
 
 ## 6.9 Best Practices for using Software Bus
 
