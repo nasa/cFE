@@ -463,7 +463,7 @@ CFE_Status_t CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenc
 ** \retval #CFE_SB_NO_MESSAGE   \copybrief CFE_SB_NO_MESSAGE
 **/
 CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut);
-/**@}*/
+/** @} */
 
 /** @defgroup CFEAPISBZeroCopy cFE Zero Copy APIs
  * @{
@@ -564,6 +564,8 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 **/
 CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequenceCount);
 
+/** @} */
+
 /** @defgroup CFEAPISBSetMessage cFE Setting Message Characteristics APIs
  * @{
  */
@@ -642,7 +644,7 @@ void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr);
 */
 int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
                               size_t SourceMaxSize);
-/**@}*/
+/** @} */
 
 /** @defgroup CFEAPIGetMessage cFE Getting Message Characteristics APIs
  * @{
@@ -725,7 +727,7 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr);
 */
 int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
                               size_t DestMaxSize, size_t SourceMaxSize);
-/**@}*/
+/** @} */
 
 /** @defgroup CFEAPISBMessageID cFE Message ID APIs
  * @{
@@ -827,6 +829,6 @@ static inline CFE_SB_MsgId_t CFE_SB_ValueToMsgId(CFE_SB_MsgId_Atom_t MsgIdValue)
     CFE_SB_MsgId_t Result = CFE_SB_MSGID_WRAP_VALUE(MsgIdValue);
     return Result;
 }
-/**@}*/
+/** @} */
 
 #endif /* CFE_SB_H */
