@@ -1434,7 +1434,7 @@ void TestApps(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    UT_Report(__FILE__, __LINE__, CFE_ES_GetAppInfo(NULL, AppId) == CFE_ES_ERR_BUFFER, "CFE_ES_GetAppInfo",
+    UT_Report(__FILE__, __LINE__, CFE_ES_GetAppInfo(NULL, AppId) == CFE_ES_BAD_ARGUMENT, "CFE_ES_GetAppInfo",
               "Null application information pointer");
 
     /* Test populating the application information structure using an
@@ -3862,7 +3862,7 @@ void TestAPI(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
     TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
-    UT_Report(__FILE__, __LINE__, CFE_ES_GetTaskInfo(NULL, TaskId) == CFE_ES_ERR_BUFFER, "CFE_ES_GetTaskInfo",
+    UT_Report(__FILE__, __LINE__, CFE_ES_GetTaskInfo(NULL, TaskId) == CFE_ES_BAD_ARGUMENT, "CFE_ES_GetTaskInfo",
               "Get task info by ID; NULL buffer");
 
     /* Test getting task information using the task ID - bad task ID  */
