@@ -10,6 +10,30 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev484
+
+- Removes cases in `cfe_es_apps.c` and `cfe_tbl_internal.c` that could never hit the alternate condition since the condition was already checked
+- Removes all APIs deprecated in #777 and #998
+- Resolves CodeQL warnings on uninitialized variables.
+- Refactors a small portion of `CFE_TIME_UnregisterSynchCallback` and initializes variables to resolve "uninitialized variable" false alarms.
+- Fixes a typo in initialization in `CFE_TBL_Validate( CFE_TBL_Handle_t TblHandle )`
+- Initializes `TotalMsgSize` as 0 to avoid static analysis warning of "use before initialized"
+- Increments the `CreatePipeErrorCounter` for all create pipe errors to eliminate a trivial static analysis warning
+- Removes redundant or unreachable assignments and checks
+- Updates header guards to standard format. Converts some file-scope block comments to a doxygen format to include a summary of the file.
+- Enables the internal helper functions that determine table slot availability to handle NULL pointers.
+- Resolves static analysis warnings by removing redundant check for `CFE_SUCCESS` in `CFE_EVS_EarlyInit`
+- Moves the invocation of `CFE_PSP_AttachExceptions()` from the registration function to the pre-entry function and removes all references to task registration in code, docs, and tests. **This API change affects cFS apps.**
+- Renames `CFE_TestRunner_AppMain` as `CFE_TR_AppMain` so it is less than 20 characters long. Updates App file names in documentation for `cfe_es_startup.scr`.
+- Replace the call to `CFE_SB_MessageStringGet()` with the new filename-aware function `CFE_FS_ParseInputFileName()` for commands that contain file names like `CFE_ES_StopPerfDataCmd`. The default pathname/extension logic is now applied here too and only a "basename" is strictly necessary, although if a full/absolute path is given, it will be used as is.
+- Removes the now-unnecessary `CFE_SB_ZeroCopyHandle_t` type and all APIs that refer or require it .Replaces `CFE_SB_ZeroCopyGetPtr()` and `CFE_SB_ZeroCopyGetPtr()` with two new simplified functions `CFE_SB_AllocateMessageBuffer()` and `CFE_SB_ReleaseMessageBuffer()` , respectively.  These new functions do not use a separate handle. Updates the `CFE_SB_TransmitBuffer()` API to also remove the handle. Does affect public APIs.
+- Internal cleanup localized to ES implementation. Consolidate all ES global variables under the `CFE_ES_Global` struct. Removes the separate `CFE_ES_TaskData` and some random pointers that were stored at global scope. Adjusts all references to the deprecated items accordingly (search and replace).
+- Adds PSP version info to ES Housekeeping TLM messages. Changes both PSP and OSAL version info assignments on HK TLM to use the new version info API.
+- Fixes check for "NumBuckets" member to use `<=` instead of `<`. `CFE_ES_GenPoolValidateState()` now returns `true` if using the max number of buckets (17 by default) and the pool structure using max value will correctly validate
+- Replaces remaining `CFE_ES_ERR_BUFFER` with `CFE_ES_BAD_ARGUMENT` for when functions receive an invalid null-pointer argument. Adds null pointer checks in `cfe_es_api.c`.
+- Adds branch coverage to html report when running `make lcov`
+- See <https://github.com/nasa/cFE/pull/1258>
+
 ### Development Build: v6.8.0-rc1+dev436
 
 - Adds a local definition of SOFTWARE_BIG/LITTLE_BIT_ORDER directly inside cfe_endian.h to provide a compatible symbol for apps that still require this. This allows CFE to build and run successfully when OSAL stops providing this in `common_types.h`.
