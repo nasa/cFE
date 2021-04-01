@@ -19,17 +19,14 @@
 */
 
 /**
- * \file cfe_es_erlog_typedef.h
- *
- *  Created on: Jan 22, 2015
- *      Author: joseph.p.hickey@nasa.gov
+ * @file
  *
  * Definition of the CFE_ES_ERLog structure type.
  * This was moved into its own header file since it is referenced by multiple CFE core apps.
  */
 
-#ifndef CFE_ES_ERLOG_TYPEDEF_H_
-#define CFE_ES_ERLOG_TYPEDEF_H_
+#ifndef CFE_ES_ERLOG_TYPEDEF_H
+#define CFE_ES_ERLOG_TYPEDEF_H
 
 #include "common_types.h"
 #include "cfe_platform_cfg.h"
@@ -98,4 +95,4 @@ typedef struct
     uint32                  PspContextId; /**< Reference to context information stored in PSP */
 } CFE_ES_ERLog_MetaData_t;
 
-#endif /* CFE_ES_ERLOG_TYPEDEF_H_ */
+#endif /* CFE_ES_ERLOG_TYPEDEF_H */

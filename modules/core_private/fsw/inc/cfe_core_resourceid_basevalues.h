@@ -19,7 +19,7 @@
 */
 
 /**
- * \file cfe_core_resourceid_basevalues.h
+ * @file
  *
  * Contains CFE internal prototypes and definitions related to resource
  * management and related CFE resource IDs.

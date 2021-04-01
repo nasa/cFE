@@ -18,24 +18,23 @@
 **  limitations under the License.
 */
 
-/*
-**  File:
-**  cfe_es_cds_mempool.h
-**
-**  Purpose:
-**  This file contains the Internal interface for the cFE Critical Data Store
-**  memory pool functions.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
+/**
+ * @file
+ *
+ *  Purpose:
+ *  This file contains the Internal interface for the cFE Critical Data Store
+ *  memory pool functions.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *
+ */
 
-#ifndef _cfe_es_cds_mempool_
-#define _cfe_es_cds_mempool_
+#ifndef CFE_ES_CDS_MEMPOOL_H
+#define CFE_ES_CDS_MEMPOOL_H
 
 /*
 ** Include Files
@@ -76,4 +75,4 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle);
 
 size_t CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport);
 
-#endif /* _cfe_es_cds_mempool_ */
+#endif /* CFE_ES_CDS_MEMPOOL_H */

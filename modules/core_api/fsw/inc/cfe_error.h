@@ -18,26 +18,23 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_error.h
-**
-**  Title:    cFE Status Code Definition Header File
-**
-**  Purpose:
-**            Common source of cFE API return status codes.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-**/
+/**
+ * @file
+ *
+ *  Title:    cFE Status Code Definition Header File
+ *
+ *  Purpose:
+ *            Common source of cFE API return status codes.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_error_
-#define _cfe_error_
+#ifndef CFE_ERROR_H
+#define CFE_ERROR_H
 
 /* Include Files */
 #include "osapi.h"
@@ -45,7 +42,6 @@
 /*
  * Define a type for readability.
  */
-
 typedef int32 CFE_Status_t;
 
 /*
@@ -77,7 +73,6 @@ typedef int32 CFE_Status_t;
 **          101 - Software Bus Services
 **          110 - Tables Services
 **          111 - Time Services
-**
 **
 **      Mission Defined - These bits are available for Mission
 **                        specific coding standards.  They can
@@ -296,14 +291,6 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_ERR_NAME_NOT_FOUND ((CFE_Status_t)0xc4000002)
 
 /**
- * @brief Invalid Pointer
- *
- *  Invalid pointer argument (NULL)
- *
- */
-#define CFE_ES_ERR_BUFFER ((CFE_Status_t)0xc4000003)
-
-/**
  * @brief Application Create Error
  *
  *  There was an error loading or creating the App.
@@ -438,7 +425,7 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Application Register Error
  *
- *  Occurs when the #CFE_ES_RegisterApp fails.
+ *  Occurs when a task cannot be registered in ES global tables
  *
  */
 #define CFE_ES_ERR_APP_REGISTER ((CFE_Status_t)0xc4000017)
@@ -950,9 +937,6 @@ typedef int32 CFE_Status_t;
  * @brief Bad Application ID
  *
  *  The calling application does not have a legitimate Application ID.
- *  Most likely cause is a failure to register with the cFE via the
- *  #CFE_ES_RegisterApp function.
- *
  */
 #define CFE_TBL_ERR_BAD_APP_ID ((CFE_Status_t)0xcc00000A)
 
@@ -1379,6 +1363,6 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_ERR_APPNAME       CFE_ES_ERR_NAME_NOT_FOUND
 #define CFE_ES_CDS_NOT_FOUND_ERR CFE_ES_ERR_NAME_NOT_FOUND
 #define CFE_ES_CDS_REGISTRY_FULL CFE_ES_NO_RESOURCE_IDS_AVAILABLE
-#endif
+#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
-#endif /* _cfe_error_ */
+#endif /* CFE_ERROR_H */

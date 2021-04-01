@@ -19,7 +19,7 @@
 */
 
 /**
- * @file cfe_time_module_all.h
+ * @file
  *
  * Encapsulates all TIME module internal header files, as well
  * as the public API from all other CFE core modules, OSAL, and PSP.

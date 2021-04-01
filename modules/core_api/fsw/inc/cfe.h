@@ -18,24 +18,19 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe.h
-**
-** Purpose:  cFE header file
-**
-** Author:   David Kobe, the Hammers Company, Inc.
-**
-** Notes:    This header file centralizes the includes for all cFE
-**           Applications.  It includes all header files necessary
-**           to completely define the cFE interface.
-**
-*/
+/**
+ * @file
+ *
+ * Purpose:  cFE header file
+ *
+ * Author:   David Kobe, the Hammers Company, Inc.
+ *
+ * Notes:    This header file centralizes the includes for all cFE
+ *           Applications.  It includes all header files necessary
+ *           to completely define the cFE interface.
+ *
+ */
 
-/*************************************************************************/
-
-/*
-** Ensure that header is included only once...
-*/
 #ifndef CFE_H
 #define CFE_H
 

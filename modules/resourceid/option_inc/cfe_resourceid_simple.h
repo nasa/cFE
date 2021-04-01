@@ -18,6 +18,12 @@
 **  limitations under the License.
 */
 
+/**
+ * @file
+ *
+ * Declarations and prototypes for simple (uint32 compatible) resource ID implementation
+ */
+
 #ifndef CFE_RESOURCEID_SIMPLE_H
 #define CFE_RESOURCEID_SIMPLE_H
 

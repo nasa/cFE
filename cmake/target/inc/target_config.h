@@ -19,10 +19,7 @@
 */
 
 /**
- * \file target_config.h
- *
- *  Created on: Dec 12, 2014
- *  Created by: joseph.p.hickey@nasa.gov
+ * @file
  *
  * Defines structures for the global system-wide configuration data.
  * These structures can be accessed at runtime and are an alternative to
@@ -31,8 +28,8 @@
  * code becomes more portable.
  */
 
-#ifndef TARGET_CONFIG_H_
-#define TARGET_CONFIG_H_
+#ifndef TARGET_CONFIG_H
+#define TARGET_CONFIG_H
 
 #include "common_types.h"
 #include "cfe_psp_configdata.h"
@@ -213,4 +210,4 @@ typedef const struct
  */
 extern Target_ConfigData GLOBAL_CONFIGDATA;
 
-#endif /* TARGET_CONFIG_H_ */
+#endif /* TARGET_CONFIG_H */

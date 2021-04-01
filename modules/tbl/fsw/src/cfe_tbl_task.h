@@ -18,22 +18,19 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_tbl_task.h
-**
-** Purpose:  cFE Table Services (TBL) task header file
-**
-** Author:   David Kobe (the Hammers Company, Inc.)
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ * Purpose:  cFE Table Services (TBL) task header file
+ *
+ * Author:   David Kobe (the Hammers Company, Inc.)
+ *
+ * Notes:
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_tbl_task_
-#define _cfe_tbl_task_
+#ifndef CFE_TBL_TASK_H
+#define CFE_TBL_TASK_H
 
 /*
 ** Required header files
@@ -407,7 +404,6 @@ int32 CFE_TBL_TaskInit(void);
 **
 ** \param[in] MessagePtr a pointer to the message received from the command pipe
 **
-**
 ******************************************************************************/
 void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
 
@@ -421,12 +417,7 @@ void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-**
 ******************************************************************************/
 void CFE_TBL_InitData(void);
 
-#endif /* _cfe_tbl_task_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TBL_TASK_H */

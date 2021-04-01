@@ -18,22 +18,19 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_time.h
-**
-** Purpose:  cFE Time Services (TIME) library API header file
-**
-** Author:   S.Walling/Microtel
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ * Purpose:  cFE Time Services (TIME) library API header file
+ *
+ * Author:   S.Walling/Microtel
+ *
+ * Notes:
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_time_
-#define _cfe_time_
+#ifndef CFE_TIME_H
+#define CFE_TIME_H
 
 /*
 ** Includes
@@ -718,13 +715,8 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
 **        This will update the global data structures accordingly, incrementing each
 **        by the 1Hz amount.
 **
-**
 ******************************************************************************/
 void CFE_TIME_Local1HzISR(void);
 /**@}*/
 
-#endif /* _cfe_time_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TIME_H */

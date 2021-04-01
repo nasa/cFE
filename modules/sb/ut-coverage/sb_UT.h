@@ -18,24 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-** File:
-**    sb_UT.h
-**
-** Purpose:
-**    SB unit test header
-**
-** References:
-**    1. cFE Application Developers Guide
-**    2. unit test standard 092503
-**    3. C Coding Standard 102904
-**
-** Notes:
-**    1. This is unit test code only, not for use in flight
-**
-*/
-#ifndef _sb_UT_h_
-#define _sb_UT_h_
+/**
+ * @file
+ *
+ * Purpose:
+ *    SB unit test header
+ *
+ * References:
+ *    1. cFE Application Developers Guide
+ *    2. unit test standard 092503
+ *    3. C Coding Standard 102904
+ *
+ * Notes:
+ *    1. This is unit test code only, not for use in flight
+ *
+ */
+
+#ifndef SB_UT_H
+#define SB_UT_H
 
 /*
 ** Includes
@@ -132,21 +132,6 @@ void Test_SB_App(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_SB_AppInit(void);
-
-/*****************************************************************************/
-/**
-** \brief Test task init with ES_RegisterApp returning error
-**
-** \par Description
-**        This function tests task init with ES_RegisterApp returning error.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns
-**        This function does not return a value.
-******************************************************************************/
-void Test_SB_AppInit_ESRegFail(void);
 
 /*****************************************************************************/
 /**
@@ -1916,7 +1901,7 @@ void Test_TransmitMsg_GetPoolBufErr(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitMsg_ZeroCopyGetPtr(void);
+void Test_AllocateMessageBuffer(void);
 
 /*****************************************************************************/
 /**
@@ -1948,7 +1933,7 @@ void Test_TransmitBuffer_IncrementSeqCnt(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitMsg_ZeroCopyHandleValidate(void);
+void Test_TransmitMsg_ZeroCopyBufferValidate(void);
 
 /*****************************************************************************/
 /**
@@ -1981,7 +1966,7 @@ void Test_TransmitBuffer_NoIncrement(void);
 ** \returns
 **        This function does not return a value.
 ******************************************************************************/
-void Test_TransmitMsg_ZeroCopyReleasePtr(void);
+void Test_ReleaseMessageBuffer(void);
 
 /*****************************************************************************/
 /**
@@ -2421,4 +2406,4 @@ void Test_SB_CCSDSPriHdr_Macros(void);
 void Test_SB_CCSDSSecHdr_Macros(void);
 void Test_SB_IdxPushPop(void);
 
-#endif /* _sb_ut_h_ */
+#endif /* SB_UT_H */

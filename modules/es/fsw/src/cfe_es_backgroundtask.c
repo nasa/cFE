@@ -67,12 +67,12 @@ typedef struct
 const CFE_ES_BackgroundJobEntry_t CFE_ES_BACKGROUND_JOB_TABLE[] = {
     {/* ES app table background scan */
      .RunFunc      = CFE_ES_RunAppTableScan,
-     .JobArg       = &CFE_ES_TaskData.BackgroundAppScanState,
+     .JobArg       = &CFE_ES_Global.BackgroundAppScanState,
      .ActivePeriod = CFE_PLATFORM_ES_APP_SCAN_RATE / 4,
      .IdlePeriod   = CFE_PLATFORM_ES_APP_SCAN_RATE},
     {/* Performance Log Data Dump to file */
      .RunFunc      = CFE_ES_RunPerfLogDump,
-     .JobArg       = &CFE_ES_TaskData.BackgroundPerfDumpState,
+     .JobArg       = &CFE_ES_Global.BackgroundPerfDumpState,
      .ActivePeriod = CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY,
      .IdlePeriod   = CFE_PLATFORM_ES_PERF_CHILD_MS_DELAY * 1000},
     {/* Check for exceptions stored in the PSP */
@@ -110,14 +110,6 @@ void CFE_ES_BackgroundTask(void)
     OS_time_t                          CurrTime;
     OS_time_t                          LastTime;
     const CFE_ES_BackgroundJobEntry_t *JobPtr;
-
-    status = CFE_ES_RegisterChildTask();
-    if (status != CFE_SUCCESS)
-    {
-        /* should never occur */
-        CFE_ES_WriteToSysLog("CFE_ES: Background Task Failed to register: %08lx\n", (unsigned long)status);
-        return;
-    }
 
     CFE_PSP_GetTime(&LastTime);
 

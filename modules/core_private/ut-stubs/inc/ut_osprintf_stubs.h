@@ -18,24 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-** File:
-**    ut_osprintf_stubs.h
-**
-** Purpose:
-**    OS API unit test header
-**
-** References:
-**    1. cFE Application Developers Guide
-**    2. unit test standard 092503
-**    3. C Coding Standard 102904
-**
-** Notes:
-**    1. This is unit test code only, not for use in flight
-**
-*/
-#ifndef _UT_OSPRINTF_STUBS_H_
-#define _UT_OSPRINTF_STUBS_H_
+/**
+ * @file
+ *
+ * Purpose:
+ *    OS API unit test header
+ *
+ * References:
+ *    1. cFE Application Developers Guide
+ *    2. unit test standard 092503
+ *    3. C Coding Standard 102904
+ *
+ * Notes:
+ *    1. This is unit test code only, not for use in flight
+ *
+ */
+
+#ifndef UT_OSPRINTF_STUBS_H
+#define UT_OSPRINTF_STUBS_H
 
 #define UT_OSP_CORE_INIT                  11
 #define UT_OSP_POR_MAX_PROC_RESETS        12
@@ -68,7 +68,6 @@
 #define UT_OSP_ES_APP_STARTUP_OPEN        39
 #define UT_OSP_COMMAND_PIPE               40
 #define UT_OSP_APP_INIT                   41
-#define UT_OSP_REGISTER_APP               42
 #define UT_OSP_SHARED_LIBRARY_INIT        43
 #define UT_OSP_DECOMPRESS_LIBRARY         44
 #define UT_OSP_EXTRACT_FILENAME_CF        45
@@ -96,7 +95,6 @@
 #define UT_OSP_STARTUP_SYNC_FAIL_2        67
 #define UT_OSP_MODULE_UNLOAD_FAILED       68
 #define UT_OSP_TASKEXIT_BAD_CONTEXT       69
-#define UT_OSP_BACKGROUND_REGISTER        70
 #define UT_OSP_BACKGROUND_TAKE            71
 
-#endif
+#endif /* UT_OSPRINTF_STUBS_H */

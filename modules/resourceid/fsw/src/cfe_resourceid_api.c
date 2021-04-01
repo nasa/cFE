@@ -75,7 +75,7 @@ int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 Table
 
     if (Idx == NULL)
     {
-        return CFE_ES_ERR_BUFFER;
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     Serial = CFE_ResourceId_ToInteger(Id) - BaseValue;

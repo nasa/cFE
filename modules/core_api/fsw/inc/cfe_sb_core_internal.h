@@ -18,16 +18,16 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_sb.h
-**
-** Purpose:
-**      This header file contains all definitions for the cFE Software Bus
-**      Application Programmer's Interface.
-**
-** Author:   R.McGraw/SSI
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ * Purpose:
+ *      This header file contains all definitions for the cFE Software Bus
+ *      Application Programmer's Interface.
+ *
+ * Author:   R.McGraw/SSI
+ *
+ */
 
 #ifndef CFE_SB_CORE_INTERNAL_H
 #define CFE_SB_CORE_INTERNAL_H
@@ -54,7 +54,6 @@
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
-**
 **
 ******************************************************************************/
 extern void CFE_SB_TaskMain(void);
@@ -87,4 +86,3 @@ extern int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId);
 /**@}*/
 
 #endif /* CFE_SB_CORE_INTERNAL_H */
-/*****************************************************************************/

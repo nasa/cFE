@@ -18,8 +18,14 @@
 **  limitations under the License.
 */
 
-#ifndef _CFE_TBL_EXTERN_TYPEDEFS_H_
-#define _CFE_TBL_EXTERN_TYPEDEFS_H_
+/**
+ * @file
+ *
+ * Declarations and prototypes for cfe_tbl_extern_typedefs module
+ */
+
+#ifndef CFE_TBL_EXTERN_TYPEDEFS_H
+#define CFE_TBL_EXTERN_TYPEDEFS_H
 
 /* This header may be generated from an EDS file,
  * tools are available and the feature is enabled */
@@ -55,7 +61,6 @@ enum CFE_TBL_BufferSelect
 /**
  * @brief Selects the buffer to operate on for validate or dump commands
  *
- *
  * @sa enum CFE_TBL_BufferSelect
  */
 typedef uint16 CFE_TBL_BufferSelect_Enum_t;
@@ -75,4 +80,4 @@ typedef struct CFE_TBL_File_Hdr
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
-#endif /* _CFE_TBL_EXTERN_TYPEDEFS_H_ */
+#endif /* CFE_TBL_EXTERN_TYPEDEFS_H */

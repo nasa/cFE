@@ -219,29 +219,6 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
     return destptr;
 }
 
-#ifndef CFE_OMIT_DEPRECATED_6_8
-/******************************************************************************
-**  Function:  CFE_SB_SetMsgSeqCnt()
-**
-**  Purpose:
-**    SB internal function to set the sequence count of a message to a
-**    particular value.
-**
-**  Arguments:
-**    MsgPtr  : pointer to the message
-**    Count   : sets the sequence count to this value
-**
-**  Return:
-**    None
-*/
-void CFE_SB_SetMsgSeqCnt(CFE_MSG_Message_t *MsgPtr, uint32 Count)
-{
-
-    CFE_MSG_SetSequenceCount(MsgPtr, Count);
-
-} /* end CFE_SB_SetMsgSeqCnt */
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
-
 /******************************************************************************
 **  Function:  CFE_SB_ValidateMsgId()
 **
@@ -298,7 +275,14 @@ CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
  */
 bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId)
 {
-    return CFE_SB_PipeDescIsUsed(CFE_SB_LocatePipeDescByID(CFE_SB_PIPEID_C(CheckId)));
+    CFE_SB_PipeD_t *PipeDscPtr;
+    /*
+     * Note - The pointer here should never be NULL because the ID should always be
+     * within the expected range, but if it ever is NULL, this should return true
+     * such that the caller will _not_ attempt to use the record.
+     */
+    PipeDscPtr = CFE_SB_LocatePipeDescByID(CFE_SB_PIPEID_C(CheckId));
+    return (PipeDscPtr == NULL || CFE_SB_PipeDescIsUsed(PipeDscPtr));
 }
 
 /******************************************************************************

@@ -34,6 +34,9 @@ int32 CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type)
 
     CFE_MSG_Message_t msg;
 
+    /* Memset to initialize avoids possible GCC bug 53119 */
+    memset(&msg, 0, sizeof(msg));
+
     if (Type == NULL)
     {
         return CFE_MSG_BAD_ARGUMENT;

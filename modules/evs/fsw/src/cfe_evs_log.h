@@ -18,30 +18,29 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_evs_log.h
-**
-**  Title:    Event Services API Log Control Interfaces.
-**
-**  Purpose:
-**            Unit specification for the event services log control interfaces.
-**
-**  Contents:
-**       I.  macro and constant type definitions
-**      II.  EVM internal structures
-**     III.  function prototypes
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-**  Notes:
-**
-**/
+/**
+ * @file
+ *
+ *  Title:    Event Services API Log Control Interfaces.
+ *
+ *  Purpose:
+ *            Unit specification for the event services log control interfaces.
+ *
+ *  Contents:
+ *       I.  macro and constant type definitions
+ *      II.  EVM internal structures
+ *     III.  function prototypes
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ *  Notes:
+ */
 
-#ifndef _cfe_evs_log_
-#define _cfe_evs_log_
+#ifndef CFE_EVS_LOG_H
+#define CFE_EVS_LOG_H
 
 /********************* Include Files  ************************/
 
@@ -58,4 +57,4 @@ void  EVS_ClearLog(void);
 int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data);
 int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data);
 
-#endif /* _cfe_evs_log_ */
+#endif /* CFE_EVS_LOG_H */

@@ -79,7 +79,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     const char *TokenList[CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE];
     uint32      NumTokens;
     uint32      BuffLen; /* Length of the current buffer */
-    osal_id_t   AppFile;
+    osal_id_t   AppFile = OS_OBJECT_ID_UNDEFINED;
     int32       Status;
     char        c;
     bool        LineTooLong = false;
@@ -110,7 +110,6 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
         else
         {
             CFE_ES_WriteToSysLog("ES Startup: Cannot Open Volatile Startup file, Trying Nonvolatile.\n");
-            FileOpened = false;
         }
 
     } /* end if */
@@ -141,7 +140,6 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
         {
             CFE_ES_WriteToSysLog("ES Startup: Error, Can't Open ES App Startup file: %s EC = 0x%08X\n", StartFilePath,
                                  (unsigned int)Status);
-            FileOpened = false;
         }
     }
 
@@ -553,6 +551,18 @@ void CFE_ES_TaskEntryPoint(void)
 
     if (CFE_ES_GetTaskFunction(&RealEntryFunc) == CFE_SUCCESS && RealEntryFunc != NULL)
     {
+        /*
+         * Set the default exception environment, which should
+         * be done serialized (i.e. only one task at a time should
+         * call into CFE_PSP_SetDefaultExceptionEnvironment).
+         */
+        CFE_ES_LockSharedData(__func__, __LINE__);
+        CFE_PSP_SetDefaultExceptionEnvironment();
+        CFE_ES_UnlockSharedData(__func__, __LINE__);
+
+        /*
+         * Call the actual task entry function
+         */
         (*RealEntryFunc)();
     }
 }
@@ -565,8 +575,8 @@ void CFE_ES_TaskEntryPoint(void)
 **
 ** Note that OSAL does not separate the action of creating and start a task, providing
 ** only OS_TaskCreate which does both.  But there is a potential race condition if
-** the real task code starts and calls e.g. CFE_ES_RegisterApp() or any other function
-** that depends on having an AppID context, before its fully registered in the global app table.
+** the real task code starts and calls any function that depends on having an AppID
+** context before its fully registered in the global app table.
 **
 ** Therefore this calls a dedicated CFE_ES_AppEntryPoint which then will wait until
 ** the task is fully registered in the global, before calling the actual app entry point.
@@ -660,7 +670,7 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
 {
     CFE_Status_t        Status;
     CFE_ES_AppRecord_t *AppRecPtr;
-    CFE_ResourceId_t    PendingResourceId;
+    CFE_ResourceId_t    PendingResourceId = CFE_RESOURCEID_UNDEFINED;
 
     /*
      * The AppName must not be NULL
@@ -993,7 +1003,8 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
         /*
          * If the command count changes, then a scan becomes due immediately.
          */
-        if (State->LastScanCommandCount == CFE_ES_TaskData.CommandCounter && State->BackgroundScanTimer > ElapsedTime)
+        if (State->LastScanCommandCount == CFE_ES_Global.TaskData.CommandCounter &&
+            State->BackgroundScanTimer > ElapsedTime)
         {
             /* no action at this time, background scan is not due yet */
             State->BackgroundScanTimer -= ElapsedTime;
@@ -1008,7 +1019,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
      */
     NumAppTimeouts                = 0;
     State->BackgroundScanTimer    = CFE_PLATFORM_ES_APP_SCAN_RATE;
-    State->LastScanCommandCount   = CFE_ES_TaskData.CommandCounter;
+    State->LastScanCommandCount   = CFE_ES_Global.TaskData.CommandCounter;
     State->PendingAppStateChanges = 0;
 
     /*
@@ -1287,42 +1298,37 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
             break;
     }
 
-    if (EventID != 0 && ReqName != NULL)
+    if (MessageDetail[0] != 0)
     {
-        if (MessageDetail[0] != 0)
-        {
-            /* Detail message already set, assume it is an error event */
-            EventType = CFE_EVS_EventType_ERROR;
-        }
-        else if (StartupStatus != CFE_SUCCESS)
-        {
-            /* Make detail message for event containing startup error code */
-            EventType = CFE_EVS_EventType_ERROR;
-            snprintf(MessageDetail, sizeof(MessageDetail), "Failed: AppCreate Error 0x%08X.",
-                     (unsigned int)StartupStatus);
-        }
-        else if (CleanupStatus != CFE_SUCCESS)
-        {
-            /* Make detail message for event containing cleanup error code */
-            EventType = CFE_EVS_EventType_ERROR;
-            snprintf(MessageDetail, sizeof(MessageDetail), "Failed: CleanUpApp Error 0x%08X.",
-                     (unsigned int)CleanupStatus);
-        }
-        else if (CFE_RESOURCEID_TEST_DEFINED(NewAppId))
-        {
-            /* Record success message for event where app is restarted */
-            EventType = CFE_EVS_EventType_INFORMATION;
-            snprintf(MessageDetail, sizeof(MessageDetail), "Completed, AppID=%lu", CFE_RESOURCEID_TO_ULONG(NewAppId));
-        }
-        else
-        {
-            /* Record success message for event */
-            EventType = CFE_EVS_EventType_INFORMATION;
-            snprintf(MessageDetail, sizeof(MessageDetail), "Completed.");
-        }
-
-        CFE_EVS_SendEvent(EventID, EventType, "%s Application %s %s", ReqName, OrigAppName, MessageDetail);
+        /* Detail message already set, assume it is an error event */
+        EventType = CFE_EVS_EventType_ERROR;
     }
+    else if (StartupStatus != CFE_SUCCESS)
+    {
+        /* Make detail message for event containing startup error code */
+        EventType = CFE_EVS_EventType_ERROR;
+        snprintf(MessageDetail, sizeof(MessageDetail), "Failed: AppCreate Error 0x%08X.", (unsigned int)StartupStatus);
+    }
+    else if (CleanupStatus != CFE_SUCCESS)
+    {
+        /* Make detail message for event containing cleanup error code */
+        EventType = CFE_EVS_EventType_ERROR;
+        snprintf(MessageDetail, sizeof(MessageDetail), "Failed: CleanUpApp Error 0x%08X.", (unsigned int)CleanupStatus);
+    }
+    else if (CFE_RESOURCEID_TEST_DEFINED(NewAppId))
+    {
+        /* Record success message for event where app is restarted */
+        EventType = CFE_EVS_EventType_INFORMATION;
+        snprintf(MessageDetail, sizeof(MessageDetail), "Completed, AppID=%lu", CFE_RESOURCEID_TO_ULONG(NewAppId));
+    }
+    else
+    {
+        /* Record success message for event */
+        EventType = CFE_EVS_EventType_INFORMATION;
+        snprintf(MessageDetail, sizeof(MessageDetail), "Completed.");
+    }
+
+    CFE_EVS_SendEvent(EventID, EventType, "%s Application %s %s", ReqName, OrigAppName, MessageDetail);
 
 } /* End Function */
 

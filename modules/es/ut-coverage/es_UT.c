@@ -54,15 +54,18 @@
  */
 #define ES_UT_CDS_LARGE_TEST_SIZE (128 * 1024)
 
-extern CFE_ES_PerfData_t *Perf;
-extern CFE_ES_Global_t    CFE_ES_Global;
-extern CFE_ES_TaskData_t  CFE_ES_TaskData;
+extern CFE_ES_Global_t CFE_ES_Global;
 
 extern int32 dummy_function(void);
 
 /*
 ** Global variables
 */
+
+/*
+ * Pointer to reset data that will be re-configured/preserved across calls to ES_ResetUnitTest()
+ */
+static CFE_ES_ResetData_t *ES_UT_PersistentResetData = NULL;
 
 /* Buffers to support memory pool testing */
 typedef union
@@ -581,9 +584,6 @@ void UtTest_Setup(void)
     UT_Init("es");
     UtPrintf("cFE ES Unit Test Output File\n\n");
 
-    /* Set up the performance logging variable */
-    Perf = (CFE_ES_PerfData_t *)&CFE_ES_ResetDataPtr->Perf;
-
     UT_ADD_TEST(TestInit);
     UT_ADD_TEST(TestStartupErrorPaths);
     UT_ADD_TEST(TestResourceID);
@@ -619,6 +619,15 @@ void ES_ResetUnitTest(void)
     CFE_ES_Global.LastCounterId          = CFE_ResourceId_FromInteger(CFE_ES_COUNTID_BASE);
     CFE_ES_Global.LastMemPoolId          = CFE_ResourceId_FromInteger(CFE_ES_POOLID_BASE);
     CFE_ES_Global.CDSVars.LastCDSBlockId = CFE_ResourceId_FromInteger(CFE_ES_CDSBLOCKID_BASE);
+
+    /*
+     * (Re-)Initialize the reset data pointer
+     * This was formerly a separate global, but now part of CFE_ES_Global.
+     *
+     * Some unit tests assume/rely on it preserving its value across tests,
+     * so is must be re-initialized here every time CFE_ES_Global is reset.
+     */
+    CFE_ES_Global.ResetDataPtr = ES_UT_PersistentResetData;
 
 } /* end ES_ResetUnitTest() */
 
@@ -660,6 +669,14 @@ void TestStartupErrorPaths(void)
     CFE_ES_AppRecord_t *    AppRecPtr;
 
     UtPrintf("Begin Test Startup Error Paths");
+
+    /*
+     * Get the reference to the reset area and save it so it will be preserved
+     * across calls to ES_ResetUnitTest().  This is required since now the pointer
+     * is part of CFE_ES_Global which is zeroed out as part of test reset.  Formerly
+     * this was a separate global which was not cleared with the other globals.
+     */
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_GetResetArea), (void **)&ES_UT_PersistentResetData, NULL, NULL);
 
     /* Set up the startup script for reading */
     strncpy(StartupScript,
@@ -722,8 +739,8 @@ void TestStartupErrorPaths(void)
 
     /* Perform the maximum number of processor resets */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = 0;
-    CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset      = false;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount = 0;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ES_CausedReset      = false;
 
     for (j = 0; j < CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS; j++)
     {
@@ -731,7 +748,7 @@ void TestStartupErrorPaths(void)
     }
 
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount == CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS,
+              CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount == CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS,
               "CFE_ES_SetupResetVariables", "Maximum processor resets");
 
     /* Attempt another processor reset after the maximum have occurred */
@@ -739,7 +756,7 @@ void TestStartupErrorPaths(void)
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Restart), &ResetType, sizeof(ResetType), false);
     CFE_ES_SetupResetVariables(CFE_PSP_RST_TYPE_PROCESSOR, CFE_PSP_RST_SUBTYPE_POWER_CYCLE, 1);
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount == CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS + 1 &&
+              CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount == CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS + 1 &&
                   ResetType == CFE_PSP_RST_TYPE_POWERON && UT_GetStubCount(UT_KEY(CFE_PSP_Restart)) == 1,
               "CFE_ES_SetupResetVariables",
               "Processor reset - power cycle; exceeded maximum "
@@ -757,7 +774,7 @@ void TestStartupErrorPaths(void)
     ES_ResetUnitTest();
     UT_SetStatusBSPResetArea(OS_ERROR, 0, CFE_TIME_ToneSignalSelect_PRIMARY);
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Panic), &PanicStatus, sizeof(PanicStatus), false);
-    CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset = true;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ES_CausedReset = true;
     CFE_ES_SetupResetVariables(CFE_PSP_RST_TYPE_PROCESSOR, CFE_PSP_RST_SUBTYPE_POWER_CYCLE, 1);
     UT_Report(__FILE__, __LINE__,
               PanicStatus == CFE_PSP_PANIC_MEMORY_ALLOC && UT_GetStubCount(UT_KEY(CFE_PSP_Panic)) == 1,
@@ -766,7 +783,7 @@ void TestStartupErrorPaths(void)
     /* Perform a processor reset triggered by ES */
     /* Added for coverage, as the "panic" case will should not cover this one */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset = true;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ES_CausedReset = true;
     CFE_ES_SetupResetVariables(CFE_PSP_RST_TYPE_PROCESSOR, CFE_PSP_RST_SUBTYPE_POWER_CYCLE, 1);
     UT_Report(__FILE__, __LINE__, UT_GetStubCount(UT_KEY(CFE_PSP_Panic)) == 0, "CFE_ES_SetupResetVariables",
               "Processor Reset caused by ES");
@@ -1203,8 +1220,8 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
-    memset(&CFE_ES_TaskData.BackgroundAppScanState, 0, sizeof(CFE_ES_TaskData.BackgroundAppScanState));
-    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
+    memset(&CFE_ES_Global.BackgroundAppScanState, 0, sizeof(CFE_ES_Global.BackgroundAppScanState));
+    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) && UtAppRecPtr->ControlReq.AppTimerMsec == 0,
               "CFE_ES_RunAppTableScan", "Waiting; process control request");
 
@@ -1215,7 +1232,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 5000;
-    CFE_ES_RunAppTableScan(1000, &CFE_ES_TaskData.BackgroundAppScanState);
+    CFE_ES_RunAppTableScan(1000, &CFE_ES_Global.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__,
               UtAppRecPtr->ControlReq.AppTimerMsec == 4000 &&
                   UtAppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_EXIT,
@@ -1228,7 +1245,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
-    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
+    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_PCR_ERR2_EID) && UtAppRecPtr->ControlReq.AppTimerMsec == 0,
               "CFE_ES_RunAppTableScan", "Stopped; process control request");
 
@@ -1238,7 +1255,7 @@ void TestApps(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppTimerMsec = 5000;
-    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
+    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__, UT_GetNumEventsSent() == 0 && UtAppRecPtr->ControlReq.AppTimerMsec == 5000,
               "CFE_ES_RunAppTableScan", "Initializing; process control request");
 
@@ -1417,7 +1434,7 @@ void TestApps(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    UT_Report(__FILE__, __LINE__, CFE_ES_GetAppInfo(NULL, AppId) == CFE_ES_ERR_BUFFER, "CFE_ES_GetAppInfo",
+    UT_Report(__FILE__, __LINE__, CFE_ES_GetAppInfo(NULL, AppId) == CFE_ES_BAD_ARGUMENT, "CFE_ES_GetAppInfo",
               "Null application information pointer");
 
     /* Test populating the application information structure using an
@@ -1600,7 +1617,7 @@ void TestApps(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppTimerMsec = 0;
-    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
+    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__, UT_GetNumEventsSent() == 0 && UtAppRecPtr->ControlReq.AppTimerMsec == 0,
               "CFE_ES_RunAppTableScan", "Waiting; process control request");
 
@@ -1610,7 +1627,7 @@ void TestApps(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppTimerMsec = 0;
-    CFE_ES_RunAppTableScan(0, &CFE_ES_TaskData.BackgroundAppScanState);
+    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
     UT_Report(__FILE__, __LINE__, UT_GetNumEventsSent() == 0 && UtAppRecPtr->ControlReq.AppTimerMsec == 0,
               "CFE_ES_RunAppTableScan", "Running; process control request");
 
@@ -1876,12 +1893,12 @@ void TestERLog(void)
      * and non-null context with small size
      */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->ERLogIndex = CFE_PLATFORM_ES_ER_LOG_ENTRIES + 1;
-    Return                          = CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, 1, NULL);
+    CFE_ES_Global.ResetDataPtr->ERLogIndex = CFE_PLATFORM_ES_ER_LOG_ENTRIES + 1;
+    Return = CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, 1, NULL);
     UT_Report(__FILE__, __LINE__,
               Return == CFE_SUCCESS &&
-                  !strcmp(CFE_ES_ResetDataPtr->ERLog[0].BaseInfo.Description, "No Description String Given.") &&
-                  CFE_ES_ResetDataPtr->ERLogIndex == 1,
+                  !strcmp(CFE_ES_Global.ResetDataPtr->ERLog[0].BaseInfo.Description, "No Description String Given.") &&
+                  CFE_ES_Global.ResetDataPtr->ERLogIndex == 1,
               "CFE_ES_WriteToERLog", "Log entries exceeded; no description; valid context size");
 
     /* Test non-rolling over log entry,
@@ -1889,10 +1906,10 @@ void TestERLog(void)
      * and null context
      */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->ERLogIndex = 0;
-    Return                          = CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, 1, NULL);
-    UT_Report(__FILE__, __LINE__, Return == CFE_SUCCESS && CFE_ES_ResetDataPtr->ERLogIndex == 1, "CFE_ES_WriteToERLog",
-              "No log entry rollover; no description; no context");
+    CFE_ES_Global.ResetDataPtr->ERLogIndex = 0;
+    Return = CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, 1, NULL);
+    UT_Report(__FILE__, __LINE__, Return == CFE_SUCCESS && CFE_ES_Global.ResetDataPtr->ERLogIndex == 1,
+              "CFE_ES_WriteToERLog", "No log entry rollover; no description; no context");
 
     /* Test ER log background write functions */
     memset(&State, 0, sizeof(State));
@@ -2185,8 +2202,8 @@ void TestTask(void)
      * depending on the value that the index has reached from previous tests
      */
     memset(&CmdBuf, 0, sizeof(CmdBuf));
-    CFE_ES_ResetDataPtr->SystemLogWriteIdx = 0;
-    CFE_ES_ResetDataPtr->SystemLogEndIdx   = CFE_ES_ResetDataPtr->SystemLogWriteIdx;
+    CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = 0;
+    CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
 
     /* Test task main process loop with a command pipe error */
     ES_ResetUnitTest();
@@ -2199,15 +2216,6 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]), "CFE_ES_TaskMain",
               "Command pipe error, UT_OSP_COMMAND_PIPE message");
 
-    /* Test task main process loop with an initialization failure */
-    ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(OS_TaskRegister), OS_ERROR);
-    CFE_ES_TaskMain();
-    UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_APP_INIT]), "CFE_ES_TaskMain",
-              "Task initialization fail, UT_OSP_APP_INIT message");
-    UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_REGISTER_APP]), "CFE_ES_TaskMain",
-              "Task initialization fail, UT_OSP_REGISTER_APP message");
-
     /* Test task main process loop with bad checksum information */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_GetCFETextSegmentInfo), 1, -1);
@@ -2215,32 +2223,26 @@ void TestTask(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     UT_Report(__FILE__, __LINE__, CFE_ES_TaskInit() == CFE_SUCCESS, "CFE_ES_TaskInit",
               "Checksum fail, task init result");
-    UT_Report(__FILE__, __LINE__, CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum == 0xFFFF, "CFE_ES_TaskInit",
+    UT_Report(__FILE__, __LINE__, CFE_ES_Global.TaskData.HkPacket.Payload.CFECoreChecksum == 0xFFFF, "CFE_ES_TaskInit",
               "Checksum fail, checksum value");
 
     /* Test successful task main process loop - Power On Reset Path */
     ES_ResetUnitTest();
     /* this is needed so CFE_ES_GetAppId works */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
-    CFE_ES_ResetDataPtr->ResetVars.ResetType = 2;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ResetType = 2;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_TaskInit() == CFE_SUCCESS && CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
+              CFE_ES_TaskInit() == CFE_SUCCESS && CFE_ES_Global.TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
               "CFE_ES_TaskInit", "Checksum success, POR Path");
 
     /* Test successful task main process loop - Processor Reset Path */
     ES_ResetUnitTest();
     /* this is needed so CFE_ES_GetAppId works */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
-    CFE_ES_ResetDataPtr->ResetVars.ResetType = 1;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ResetType = 1;
     UT_Report(__FILE__, __LINE__,
-              CFE_ES_TaskInit() == CFE_SUCCESS && CFE_ES_TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
+              CFE_ES_TaskInit() == CFE_SUCCESS && CFE_ES_Global.TaskData.HkPacket.Payload.CFECoreChecksum != 0xFFFF,
               "CFE_ES_TaskInit", "Checksum success, PR Path");
-
-    /* Test task main process loop with a register app failure */
-    ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(OS_TaskRegister), OS_ERROR);
-    UT_Report(__FILE__, __LINE__, CFE_ES_TaskInit() == CFE_ES_ERR_APP_REGISTER, "CFE_ES_TaskInit",
-              "Register application fail");
 
     /* Test task main process loop with a with an EVS register failure */
     ES_ResetUnitTest();
@@ -2281,19 +2283,19 @@ void TestTask(void)
      * DISCARD, which can result in a log overflow depending on the value that
      * the index reaches during subsequent tests
      */
-    CFE_ES_ResetDataPtr->SystemLogMode = CFE_ES_LogMode_OVERWRITE;
+    CFE_ES_Global.ResetDataPtr->SystemLogMode = CFE_ES_LogMode_OVERWRITE;
 
     /* Test a successful HK request */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_SEND_HK);
-    UT_Report(__FILE__, __LINE__, CFE_ES_TaskData.HkPacket.Payload.HeapBytesFree > 0, "CFE_ES_HousekeepingCmd",
+    UT_Report(__FILE__, __LINE__, CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree > 0, "CFE_ES_HousekeepingCmd",
               "HK packet - get heap successful");
 
     /* Test the HK request with a get heap failure */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_HeapGetInfo), 1, -1);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_SEND_HK);
-    UT_Report(__FILE__, __LINE__, CFE_ES_TaskData.HkPacket.Payload.HeapBytesFree == 0, "CFE_ES_HousekeepingCmd",
+    UT_Report(__FILE__, __LINE__, CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree == 0, "CFE_ES_HousekeepingCmd",
               "HK packet - get heap fail");
 
     /* Test successful no-op command */
@@ -2309,8 +2311,8 @@ void TestTask(void)
 
     /* Test successful cFE restart */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = 0;
-    CmdBuf.RestartCmd.Payload.RestartType              = CFE_PSP_RST_TYPE_PROCESSOR;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount = 0;
+    CmdBuf.RestartCmd.Payload.RestartType                     = CFE_PSP_RST_TYPE_PROCESSOR;
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Restart), &ResetType, sizeof(ResetType), false);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.RestartCmd), UT_TPID_CFE_ES_CMD_RESTART_CC);
     UT_Report(__FILE__, __LINE__,
@@ -2348,7 +2350,7 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_START_ERR_EID), "CFE_ES_StartAppCmd",
               "Start application from file name fail");
 
-    /* Test app create with the file name too short */
+    /* Test app create with an invalid file name */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy(CmdBuf.StartAppCmd.Payload.AppFileName, "123", sizeof(CmdBuf.StartAppCmd.Payload.AppFileName) - 1);
@@ -2361,6 +2363,7 @@ void TestTask(void)
     CmdBuf.StartAppCmd.Payload.Priority                                                        = 160;
     CmdBuf.StartAppCmd.Payload.StackSize       = CFE_ES_MEMOFFSET_C(12096);
     CmdBuf.StartAppCmd.Payload.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.StartAppCmd), UT_TPID_CFE_ES_CMD_START_APP_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_START_INVALID_FILENAME_ERR_EID), "CFE_ES_StartAppCmd",
               "Invalid file name");
@@ -2626,6 +2629,14 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_ALL_APPS_EID), "CFE_ES_QueryAllCmd",
               "Query all applications - null file name");
 
+    /* Test write of all app data to file with a bad file name */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllCmd), UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_OSCREATE_ERR_EID), "CFE_ES_QueryAllCmd",
+              "Query all applications - bad file name");
+
     /* Test write of all app data to file with a write header failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
@@ -2660,6 +2671,15 @@ void TestTask(void)
                     UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_TASKINFO_EID), "CFE_ES_QueryAllTasksCmd",
               "Task information file written");
+
+    /* Test write of all task data to a file with file name validation failure */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllTasksCmd),
+                    UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_TASKINFO_OSCREATE_ERR_EID), "CFE_ES_QueryAllTasksCmd",
+              "Task information file write fail; OS create");
 
     /* Test write of all task data to a file with write header failure */
     ES_ResetUnitTest();
@@ -2721,10 +2741,18 @@ void TestTask(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     strncpy(CmdBuf.WriteSysLogCmd.Payload.FileName, "filename", sizeof(CmdBuf.WriteSysLogCmd.Payload.FileName) - 1);
     CmdBuf.WriteSysLogCmd.Payload.FileName[sizeof(CmdBuf.WriteSysLogCmd.Payload.FileName) - 1] = '\0';
-    CFE_ES_TaskData.HkPacket.Payload.SysLogEntries                                             = 123;
+    CFE_ES_Global.TaskData.HkPacket.Payload.SysLogEntries                                      = 123;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteSysLogCmd), UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_SYSLOG2_EID), "CFE_ES_WriteSysLogCmd",
               "Write system log; success");
+
+    /* Test writing the system log using a bad file name */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteSysLogCmd), UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_SYSLOG2_ERR_EID), "CFE_ES_WriteSysLogCmd",
+              "Write system log; bad file name");
 
     /* Test writing the system log using a null file name */
     ES_ResetUnitTest();
@@ -2747,11 +2775,11 @@ void TestTask(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
-    CFE_ES_ResetDataPtr->SystemLogWriteIdx =
-        snprintf(CFE_ES_ResetDataPtr->SystemLog, sizeof(CFE_ES_ResetDataPtr->SystemLog),
+    CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx =
+        snprintf(CFE_ES_Global.ResetDataPtr->SystemLog, sizeof(CFE_ES_Global.ResetDataPtr->SystemLog),
                  "0000-000-00:00:00.00000 Test Message\n");
-    CFE_ES_ResetDataPtr->SystemLogEndIdx      = CFE_ES_ResetDataPtr->SystemLogWriteIdx;
-    CmdBuf.WriteSysLogCmd.Payload.FileName[0] = '\0';
+    CFE_ES_Global.ResetDataPtr->SystemLogEndIdx = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
+    CmdBuf.WriteSysLogCmd.Payload.FileName[0]   = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteSysLogCmd), UT_TPID_CFE_ES_CMD_WRITE_SYSLOG_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID), "CFE_ES_WriteSysLogCmd",
               "Write system log; OS write");
@@ -2783,6 +2811,13 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__, !UT_EventIsInHistory(CFE_ES_ERLOG_PENDING_ERR_EID), "CFE_ES_WriteERLogCmd",
               "Write E&R log command; no events");
 
+    /* Failure of parsing the file name */
+    UT_ClearEventHistory();
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.WriteERLogCmd), UT_TPID_CFE_ES_CMD_WRITE_ER_LOG_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_ERLOG2_ERR_EID), "CFE_ES_WriteERLogCmd",
+              "Write E&R log command; bad file name");
+
     /* Failure from CFE_FS_BackgroundFileDumpRequest() should send the pending error event ID */
     UT_ClearEventHistory();
     UT_SetDeferredRetcode(UT_KEY(CFE_FS_BackgroundFileDumpRequest), 1, CFE_STATUS_REQUEST_ALREADY_PENDING);
@@ -2805,8 +2840,8 @@ void TestTask(void)
               "Scan for exceptions; processor restart");
 
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount    = 0;
-    CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount = 1;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount    = 0;
+    CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount = 1;
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_Exception_GetCount), 1);
     CFE_ES_RunExceptionScan(0, NULL);
     /* first time should do a processor restart (limit reached) */
@@ -2929,6 +2964,15 @@ void TestTask(void)
                     UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_CDS_REG_DUMP_INF_EID), "CFE_ES_DumpCDSRegistryCmd",
               "Dump CDS; success (default dump file)");
+
+    /* Test dumping of the CDS to a file with a bad file name */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.DumpCDSRegistryCmd),
+                    UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_CREATING_CDS_DUMP_ERR_EID), "CFE_ES_DumpCDSRegistryCmd",
+              "Dump CDS; bad file name");
 
     /* Test dumping of the CDS to a file with a bad FS write header */
     ES_ResetUnitTest();
@@ -3199,6 +3243,14 @@ void TestPerf(void)
 
     UtPrintf("Begin Test Performance Log");
 
+    CFE_ES_PerfData_t *Perf;
+
+    /*
+    ** Set the pointer to the data area
+    */
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_GetResetArea), (void **)&ES_UT_PersistentResetData, NULL, NULL);
+    Perf = &ES_UT_PersistentResetData->Perf;
+
     /* Test successful performance mask and value initialization */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
@@ -3261,9 +3313,9 @@ void TestPerf(void)
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     /* clearing the BackgroundPerfDumpState will fully reset to initial state */
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
-    CmdBuf.PerfStartCmd.Payload.TriggerMode              = CFE_ES_PERF_TRIGGER_START;
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
+    CmdBuf.PerfStartCmd.Payload.TriggerMode            = CFE_ES_PERF_TRIGGER_START;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStartCmd), UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_PERF_STARTCMD_ERR_EID), "CFE_ES_StartPerfDataCmd",
               "Cannot collect performance data; write in progress");
@@ -3272,7 +3324,7 @@ void TestPerf(void)
      * start command
      */
     ES_ResetUnitTest();
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.PerfStartCmd.Payload.TriggerMode = CFE_ES_PERF_TRIGGER_START;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStartCmd), UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
@@ -3281,18 +3333,27 @@ void TestPerf(void)
 
     /* Test successful performance data collection stop */
     ES_ResetUnitTest();
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd), UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_PERF_STOPCMD_EID), "CFE_ES_StopPerfDataCmd",
               "Stop collecting performance data");
+
+    /* Test performance data collection stop with a file name validation issue */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_ParseInputFileNameEx), CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd), UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
+    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_PERF_LOG_ERR_EID), "CFE_ES_StopPerfDataCmd",
+              "Stop performance data command bad file name");
 
     /* Test successful performance data collection stop with a non-default
          file name */
     ES_ResetUnitTest();
 
     /* clearing the BackgroundPerfDumpState will fully reset to initial state */
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
     strncpy(CmdBuf.PerfStopCmd.Payload.DataFileName, "filename", sizeof(CmdBuf.PerfStopCmd.Payload.DataFileName) - 1);
     CmdBuf.PerfStopCmd.Payload.DataFileName[sizeof(CmdBuf.PerfStopCmd.Payload.DataFileName) - 1] = '\0';
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd), UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
@@ -3301,7 +3362,7 @@ void TestPerf(void)
 
     /* Test performance data collection stop with a file write in progress */
     ES_ResetUnitTest();
-    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd), UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_PERF_STOPCMD_ERR2_EID), "CFE_ES_StopPerfDataCmd",
               "Stop performance data command ignored");
@@ -3505,52 +3566,52 @@ void TestPerf(void)
     /* Test perf log dump state machine */
     /* Nominal call 1 - should go through up to the DELAY state */
     ES_ResetUnitTest();
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
-    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
-    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_DELAY,
-                  "CFE_ES_RunPerfLogDump - CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == DELAY (%d)",
-                  (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_DELAY);
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
+    UtAssert_True(CFE_ES_Global.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_DELAY,
+                  "CFE_ES_RunPerfLogDump - CFE_ES_Global.BackgroundPerfDumpState.CurrentState (%d) == DELAY (%d)",
+                  (int)CFE_ES_Global.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_DELAY);
     UtAssert_True(UT_GetStubCount(UT_KEY(OS_OpenCreate)) == 1, "CFE_ES_RunPerfLogDump - OS_OpenCreate() called");
 
     /* Nominal call 2 - should go through up to the remainder of states, back to IDLE */
-    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
-    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
-                  "CFE_ES_RunPerfLogDump - CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == IDLE (%d)",
-                  (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_IDLE);
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
+    UtAssert_True(CFE_ES_Global.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
+                  "CFE_ES_RunPerfLogDump - CFE_ES_Global.BackgroundPerfDumpState.CurrentState (%d) == IDLE (%d)",
+                  (int)CFE_ES_Global.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_IDLE);
     UtAssert_True(UT_GetStubCount(UT_KEY(OS_close)) == 1, "CFE_ES_RunPerfLogDump - OS_close() called");
 
     /* Test a failure to open the output file */
     /* This should go immediately back to idle, and generate CFE_ES_PERF_LOG_ERR_EID */
     ES_ResetUnitTest();
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), -10);
-    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
-    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
-                  "CFE_ES_RunPerfLogDump - OS create fail, CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) "
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
+    UtAssert_True(CFE_ES_Global.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
+                  "CFE_ES_RunPerfLogDump - OS create fail, CFE_ES_Global.BackgroundPerfDumpState.CurrentState (%d) "
                   "== IDLE (%d)",
-                  (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_IDLE);
+                  (int)CFE_ES_Global.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_IDLE);
     UtAssert_True(UT_EventIsInHistory(CFE_ES_PERF_LOG_ERR_EID),
                   "CFE_ES_RunPerfLogDump - OS create fail, generated CFE_ES_PERF_LOG_ERR_EID");
 
     /* Test a failure to write to the output file */
     ES_ResetUnitTest();
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
     UT_SetDefaultReturnValue(UT_KEY(OS_write), -10);
-    CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
-    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
-    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_DELAY,
-                  "CFE_ES_RunPerfLogDump - OS_write fail, CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == "
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
+    UtAssert_True(CFE_ES_Global.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_DELAY,
+                  "CFE_ES_RunPerfLogDump - OS_write fail, CFE_ES_Global.BackgroundPerfDumpState.CurrentState (%d) == "
                   "DELAY (%d)",
-                  (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_DELAY);
+                  (int)CFE_ES_Global.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_DELAY);
 
     /* This will trigger the OS_write() failure, which should go through up to the remainder of states, back to IDLE */
-    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
     UtAssert_True(
-        CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
-        "CFE_ES_RunPerfLogDump - OS_write fail, CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState (%d) == IDLE (%d)",
-        (int)CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_IDLE);
+        CFE_ES_Global.BackgroundPerfDumpState.CurrentState == CFE_ES_PerfDumpState_IDLE,
+        "CFE_ES_RunPerfLogDump - OS_write fail, CFE_ES_Global.BackgroundPerfDumpState.CurrentState (%d) == IDLE (%d)",
+        (int)CFE_ES_Global.BackgroundPerfDumpState.CurrentState, (int)CFE_ES_PerfDumpState_IDLE);
     UtAssert_True(UT_EventIsInHistory(CFE_ES_FILEWRITE_ERR_EID),
                   "CFE_ES_RunPerfLogDump - OS_write fail, generated CFE_ES_FILEWRITE_ERR_EID");
 
@@ -3559,35 +3620,35 @@ void TestPerf(void)
      * so that the writing position is toward the end of the buffer.
      */
     ES_ResetUnitTest();
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    OS_OpenCreate(&CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
-    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
-    CFE_ES_TaskData.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
-    CFE_ES_TaskData.BackgroundPerfDumpState.DataPos      = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - 2;
-    CFE_ES_TaskData.BackgroundPerfDumpState.StateCounter = 4;
-    CFE_ES_RunPerfLogDump(1000, &CFE_ES_TaskData.BackgroundPerfDumpState);
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    OS_OpenCreate(&CFE_ES_Global.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.DataPos      = CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE - 2;
+    CFE_ES_Global.BackgroundPerfDumpState.StateCounter = 4;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
     /* check that the wraparound occurred */
-    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.DataPos == 2,
+    UtAssert_True(CFE_ES_Global.BackgroundPerfDumpState.DataPos == 2,
                   "CFE_ES_RunPerfLogDump - wraparound, DataPos (%u) == 2",
-                  (unsigned int)CFE_ES_TaskData.BackgroundPerfDumpState.DataPos);
+                  (unsigned int)CFE_ES_Global.BackgroundPerfDumpState.DataPos);
     /* should have written 4 entries to the log */
-    UtAssert_True(CFE_ES_TaskData.BackgroundPerfDumpState.FileSize == sizeof(CFE_ES_PerfDataEntry_t) * 4,
+    UtAssert_True(CFE_ES_Global.BackgroundPerfDumpState.FileSize == sizeof(CFE_ES_PerfDataEntry_t) * 4,
                   "CFE_ES_RunPerfLogDump - wraparound, FileSize (%u) == sizeof(CFE_ES_PerfDataEntry_t) * 4",
-                  (unsigned int)CFE_ES_TaskData.BackgroundPerfDumpState.FileSize);
+                  (unsigned int)CFE_ES_Global.BackgroundPerfDumpState.FileSize);
 
     /* Confirm that the "CFE_ES_GetPerfLogDumpRemaining" function works.
      * This requires that the state is not idle, in order to get nonzero results.
      */
     ES_ResetUnitTest();
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
-    OS_OpenCreate(&CFE_ES_TaskData.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
-    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_METADATA;
-    CFE_ES_TaskData.BackgroundPerfDumpState.StateCounter = 10;
-    Perf->MetaData.DataCount                             = 100;
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    OS_OpenCreate(&CFE_ES_Global.BackgroundPerfDumpState.FileDesc, "UT", 0, OS_WRITE_ONLY);
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_METADATA;
+    CFE_ES_Global.BackgroundPerfDumpState.StateCounter = 10;
+    Perf->MetaData.DataCount                           = 100;
     /* in states other than WRITE_PERF_ENTRIES, it should report the full size of the log */
     UtAssert_True(CFE_ES_GetPerfLogDumpRemaining() == 100, " CFE_ES_GetPerfLogDumpRemaining - Setup Phase");
     /* in WRITE_PERF_ENTRIES, it should report the StateCounter */
-    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES;
     UtAssert_True(CFE_ES_GetPerfLogDumpRemaining() == 10, " CFE_ES_GetPerfLogDumpRemaining - Active Phase");
 }
 
@@ -3612,10 +3673,12 @@ void TestAPI(void)
 
     /* Test resetting the cFE with a processor reset */
     ES_ResetUnitTest();
-    ResetType                                          = CFE_PSP_RST_TYPE_PROCESSOR;
-    CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount - 1;
+    ResetType = CFE_PSP_RST_TYPE_PROCESSOR;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount =
+        CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount - 1;
     CFE_ES_ResetCFE(ResetType);
-    CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount = CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount =
+        CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_ResetCFE(ResetType) == CFE_ES_NOT_IMPLEMENTED &&
                   UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_POR_MAX_PROC_RESETS]) &&
@@ -3767,11 +3830,6 @@ void TestAPI(void)
               CFE_ES_RunLoop(&RunStatus) == true && UtAppRecPtr->AppState == CFE_ES_AppState_RUNNING, "CFE_ES_RunLoop",
               "Status change from initializing to run");
 
-    /* Test successful CFE application registration */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__, CFE_ES_RegisterApp() == CFE_SUCCESS, "CFE_ES_RegisterApp",
-              "Application registration successful");
-
     /* Test getting the cFE application and task ID by context */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
@@ -3804,7 +3862,7 @@ void TestAPI(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
     TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
-    UT_Report(__FILE__, __LINE__, CFE_ES_GetTaskInfo(NULL, TaskId) == CFE_ES_ERR_BUFFER, "CFE_ES_GetTaskInfo",
+    UT_Report(__FILE__, __LINE__, CFE_ES_GetTaskInfo(NULL, TaskId) == CFE_ES_BAD_ARGUMENT, "CFE_ES_GetTaskInfo",
               "Get task info by ID; NULL buffer");
 
     /* Test getting task information using the task ID - bad task ID  */
@@ -3981,31 +4039,20 @@ void TestAPI(void)
     UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_TASKEXIT_BAD_CONTEXT]),
               "CFE_ES_ExitChildTask", "Invalid context");
 
-    /* Test registering a child task with an OS task register failure */
-    ES_ResetUnitTest();
-    UT_SetDefaultReturnValue(UT_KEY(OS_TaskRegister), OS_ERROR);
-    UT_Report(__FILE__, __LINE__, CFE_ES_RegisterChildTask() == CFE_ES_ERR_CHILD_TASK_REGISTER,
-              "CFE_ES_RegisterChildTask", "OS task register failed");
-
-    /* Test successfully registering a child task */
-    ES_ResetUnitTest();
-    UT_Report(__FILE__, __LINE__, CFE_ES_RegisterChildTask() == CFE_SUCCESS, "CFE_ES_RegisterChildTask",
-              "Register child task successful");
-
     /* Test successfully adding a time-stamped message to the system log that
      * must be truncated
      */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->SystemLogWriteIdx = CFE_PLATFORM_ES_SYSTEM_LOG_SIZE - CFE_TIME_PRINTED_STRING_SIZE - 4;
-    CFE_ES_ResetDataPtr->SystemLogEndIdx   = CFE_ES_ResetDataPtr->SystemLogWriteIdx;
-    CFE_ES_ResetDataPtr->SystemLogMode     = CFE_ES_LogMode_DISCARD;
+    CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = CFE_PLATFORM_ES_SYSTEM_LOG_SIZE - CFE_TIME_PRINTED_STRING_SIZE - 4;
+    CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
+    CFE_ES_Global.ResetDataPtr->SystemLogMode     = CFE_ES_LogMode_DISCARD;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_SysLogWrite_Unsync("SysLogText This message should be truncated") == CFE_ES_ERR_SYS_LOG_TRUNCATED,
               "CFE_ES_SysLogWrite_Internal", "Add message to log that must be truncated");
 
     /* Reset the system log index to prevent an overflow in later tests */
-    CFE_ES_ResetDataPtr->SystemLogWriteIdx = 0;
-    CFE_ES_ResetDataPtr->SystemLogEndIdx   = 0;
+    CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = 0;
+    CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = 0;
 
     /* Test calculating a CRC on a range of memory using CRC type 8
      * NOTE: This capability is not currently implemented in cFE
@@ -4101,9 +4148,9 @@ void TestAPI(void)
      * causes the log index to be reset
      */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->SystemLogWriteIdx = CFE_PLATFORM_ES_SYSTEM_LOG_SIZE;
-    CFE_ES_ResetDataPtr->SystemLogEndIdx   = CFE_ES_ResetDataPtr->SystemLogWriteIdx;
-    CFE_ES_ResetDataPtr->SystemLogMode     = CFE_ES_LogMode_DISCARD;
+    CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = CFE_PLATFORM_ES_SYSTEM_LOG_SIZE;
+    CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
+    CFE_ES_Global.ResetDataPtr->SystemLogMode     = CFE_ES_LogMode_DISCARD;
     UT_Report(__FILE__, __LINE__, CFE_ES_WriteToSysLog("SysLogText") == CFE_ES_ERR_SYS_LOG_FULL, "CFE_ES_WriteToSysLog",
               "Add message to log that resets the log index");
 
@@ -4111,12 +4158,12 @@ void TestAPI(void)
      * causes the log index to be reset
      */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->SystemLogWriteIdx = CFE_PLATFORM_ES_SYSTEM_LOG_SIZE;
-    CFE_ES_ResetDataPtr->SystemLogEndIdx   = CFE_ES_ResetDataPtr->SystemLogWriteIdx;
-    CFE_ES_ResetDataPtr->SystemLogMode     = CFE_ES_LogMode_OVERWRITE;
+    CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = CFE_PLATFORM_ES_SYSTEM_LOG_SIZE;
+    CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
+    CFE_ES_Global.ResetDataPtr->SystemLogMode     = CFE_ES_LogMode_OVERWRITE;
     UT_Report(__FILE__, __LINE__,
               CFE_ES_WriteToSysLog("SysLogText") == CFE_SUCCESS &&
-                  CFE_ES_ResetDataPtr->SystemLogWriteIdx < CFE_PLATFORM_ES_SYSTEM_LOG_SIZE,
+                  CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx < CFE_PLATFORM_ES_SYSTEM_LOG_SIZE,
               "CFE_ES_WriteToSysLog", "Add message to log that resets the log index");
 
     /* Test run loop with an application error status */
@@ -5204,17 +5251,17 @@ void TestSysLog(void)
     /* Test loop in CFE_ES_SysLogReadStart_Unsync that ensures
      * reading at the start of a message */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->SystemLogWriteIdx = 0;
-    CFE_ES_ResetDataPtr->SystemLogEndIdx   = sizeof(CFE_ES_ResetDataPtr->SystemLog) - 1;
+    CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = 0;
+    CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1;
 
-    memset(CFE_ES_ResetDataPtr->SystemLog, 'a', CFE_ES_ResetDataPtr->SystemLogEndIdx);
-    CFE_ES_ResetDataPtr->SystemLog[CFE_ES_ResetDataPtr->SystemLogEndIdx - 1] = '\n';
+    memset(CFE_ES_Global.ResetDataPtr->SystemLog, 'a', CFE_ES_Global.ResetDataPtr->SystemLogEndIdx);
+    CFE_ES_Global.ResetDataPtr->SystemLog[CFE_ES_Global.ResetDataPtr->SystemLogEndIdx - 1] = '\n';
 
     CFE_ES_SysLogReadStart_Unsync(&SysLogBuffer);
 
     UT_Report(__FILE__, __LINE__,
-              SysLogBuffer.EndIdx == sizeof(CFE_ES_ResetDataPtr->SystemLog) - 1 &&
-                  SysLogBuffer.LastOffset == sizeof(CFE_ES_ResetDataPtr->SystemLog) - 1 &&
+              SysLogBuffer.EndIdx == sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1 &&
+                  SysLogBuffer.LastOffset == sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1 &&
                   SysLogBuffer.BlockSize == 0 && SysLogBuffer.SizeLeft == 0,
               "CFE_ES_SysLogReadStart_Unsync(SysLogBuffer)", "ResetDataPtr pointing to an old fragment of a message");
 
@@ -5250,8 +5297,8 @@ void TestSysLog(void)
     /* Test nominal flow through CFE_ES_SysLogDump
      * with multiple reads and writes  */
     ES_ResetUnitTest();
-    CFE_ES_ResetDataPtr->SystemLogWriteIdx = 0;
-    CFE_ES_ResetDataPtr->SystemLogEndIdx   = sizeof(CFE_ES_ResetDataPtr->SystemLog) - 1;
+    CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = 0;
+    CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1;
 
     CFE_ES_SysLogDump("fakefilename");
 
@@ -5288,15 +5335,6 @@ void TestBackground(void)
     UtAssert_True(UT_GetStubCount(UT_KEY(OS_BinSemDelete)) == 1, "CFE_ES_BackgroundCleanup - OS_BinSemDelete called");
 
     /*
-     * Test background task loop function
-     */
-    ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_TaskRegister), 1, -1);
-    CFE_ES_BackgroundTask();
-    UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_REGISTER]),
-              "CFE_ES_BackgroundTask", "Failed to register error");
-
-    /*
      * When testing the background task loop, it is normally an infinite loop,
      * so this is needed to set a condition for the loop to exit.
      *
@@ -5304,9 +5342,9 @@ void TestBackground(void)
      * execute the code which counts the number of active jobs.
      */
     ES_ResetUnitTest();
-    memset(&CFE_ES_TaskData.BackgroundPerfDumpState, 0, sizeof(CFE_ES_TaskData.BackgroundPerfDumpState));
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
     UT_SetDefaultReturnValue(UT_KEY(OS_write), -10);
-    CFE_ES_TaskData.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemTimedWait), 3, -4);
     CFE_ES_BackgroundTask();
     UT_Report(__FILE__, __LINE__, UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_TAKE]),

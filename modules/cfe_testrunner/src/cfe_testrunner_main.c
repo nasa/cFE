@@ -59,20 +59,10 @@
 /*
  * Entry point for this application
  */
-void CFE_TestRunner_AppMain(void)
+void CFE_TR_AppMain(void)
 {
     int32  rc;
     uint32 RunStatus;
-
-    /*
-    ** Register the app with Executive services
-    */
-    rc = CFE_ES_RegisterApp();
-    if (rc != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("Error in CFE_ES_RegisterApp(): %08lx\n", (unsigned long)rc);
-        return;
-    }
 
     /*
      * Delay until the system reaches "operational" state -- this is when all libs have initialized

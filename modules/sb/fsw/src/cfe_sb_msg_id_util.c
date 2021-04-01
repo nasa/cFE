@@ -28,48 +28,6 @@
 */
 #include "cfe_sb_module_all.h"
 
-#ifndef CFE_OMIT_DEPRECATED_6_8
-/*
- * Function: CFE_SB_GetMsgId - See API and header file for details
- */
-CFE_SB_MsgId_t CFE_SB_GetMsgId(const CFE_MSG_Message_t *MsgPtr)
-{
-    CFE_SB_MsgId_t MsgId;
-
-    /* Ignore return since no alternative action */
-    CFE_MSG_GetMsgId(MsgPtr, &MsgId);
-
-    return MsgId;
-
-} /* end CFE_SB_GetMsgId */
-
-/*
- * Function: CFE_SB_SetMsgId - See API and header file for details
- */
-void CFE_SB_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId)
-{
-
-    /* Ignore return, no alternate action */
-    CFE_MSG_SetMsgId(MsgPtr, MsgId);
-
-} /* end CFE_SB_SetMsgId */
-
-/*
- * Function: CFE_SB_GetPktType - See API and header file for details
- */
-uint32 CFE_SB_GetPktType(CFE_SB_MsgId_t MsgId)
-{
-
-    CFE_MSG_Type_t type;
-
-    /* Ignores return, no alternate action */
-    CFE_MSG_GetTypeFromMsgId(MsgId, &type);
-
-    return type;
-
-} /* end CFE_SB_GetPktType */
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
-
 /*
  * Function: CFE_SB_IsValidMsgId - See API and header file for details
  */

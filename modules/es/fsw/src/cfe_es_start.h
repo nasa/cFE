@@ -18,29 +18,26 @@
 **  limitations under the License.
 */
 
-/*
-**
-**  File:
-**  cfe_es_start.h
-**
-**  Purpose:
-**  cFE core startup module defines, data types and prototypes.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
+/**
+ * @file
+ *
+ *  Purpose:
+ *  cFE core startup module defines, data types and prototypes.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *
+ */
 
-#ifndef _cfe_es_start_
-#define _cfe_es_start_
+#ifndef CFE_ES_START_H
+#define CFE_ES_START_H
 
 /*
 ** Include Files
 */
-
 #include "cfe_es_api_typedefs.h"
 
 /*
@@ -94,4 +91,4 @@ extern void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, ui
 extern void CFE_ES_InitializeFileSystems(uint32 StartType);
 extern void CFE_ES_SetupPerfVariables(uint32 ResetType);
 
-#endif /* _cfe_es_start_ */
+#endif /* CFE_ES_START_H */

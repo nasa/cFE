@@ -18,24 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_perfids.h
-**
-** Purpose: This file contains the cFE performance IDs
-**
-** Design Notes:
-**   Each performance id is used to identify something that needs to be
-**   measured.  Performance ids are limited to the range of 0 to
-**   CFE_MISSION_ES_PERF_MAX_IDS - 1.  Any performance ids outside of this range
-**   will be ignored and will be flagged as an error.  Note that
-**   performance ids 0-31 are reserved for the cFE Core.
-**
-** References:
-**
-*/
+/**
+ * @file
+ *
+ * Purpose: This file contains the cFE performance IDs
+ *
+ * Design Notes:
+ *   Each performance id is used to identify something that needs to be
+ *   measured.  Performance ids are limited to the range of 0 to
+ *   CFE_MISSION_ES_PERF_MAX_IDS - 1.  Any performance ids outside of this range
+ *   will be ignored and will be flagged as an error.  Note that
+ *   performance ids 0-31 are reserved for the cFE Core.
+ *
+ * References:
+ *
+ */
 
-#ifndef _cfe_perfids_
-#define _cfe_perfids_
+#ifndef SAMPLE_PERFIDS_H
+#define SAMPLE_PERFIDS_H
 
 #define CFE_MISSION_ES_PERF_EXIT_BIT 31 /**< \brief bit (31) is reserved by the perf utilities */
 
@@ -58,4 +58,4 @@
 
 /** \} */
 
-#endif /* _cfe_perfids_ */
+#endif /* SAMPLE_PERFIDS_H */

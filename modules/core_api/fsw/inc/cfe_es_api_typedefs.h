@@ -18,22 +18,22 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_es_api_typedefs.h
-**
-**  Purpose:
-**	Unit specification for Executive Services library functions and macros.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**	Notes:
-**
-*/
+/**
+ * @file
+ *
+ *  Purpose:
+ *	Unit specification for Executive Services library functions and macros.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *	Notes:
+ *
+ */
 
-#ifndef CFE_ES_ABSTRACT_TYPES_H
-#define CFE_ES_ABSTRACT_TYPES_H
+#ifndef CFE_ES_API_TYPEDEFS_H
+#define CFE_ES_API_TYPEDEFS_H
 
 /*
 ** Includes
@@ -190,4 +190,4 @@ typedef void *CFE_ES_MemPoolBuf_t;
 #define CFE_ES_NO_MUTEX  false /**< \brief Indicates that the memory pool selection will not use a semaphore */
 #define CFE_ES_USE_MUTEX true  /**< \brief Indicates that the memory pool selection will use a semaphore */
 
-#endif /* CFE_ES_ABSTRACT_TYPES_H */
+#endif /* CFE_ES_API_TYPEDEFS_H */

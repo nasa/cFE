@@ -18,22 +18,23 @@
 **  limitations under the License.
 */
 
-/*
-**  Filename: cfe_evs_msg.h
-**
-**  Title:    Event Services Message definition header file Header File
-**
-**  Purpose:
-**	           Unit specification for Event services command codes and data structures.
-**
-**  Design Notes:
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**
-*/
-#ifndef _cfe_evs_msg_
-#define _cfe_evs_msg_
+/**
+ * @file
+ *
+ *  Title:    Event Services Message definition header file Header File
+ *
+ *  Purpose:
+ *	           Unit specification for Event services command codes and data structures.
+ *
+ *  Design Notes:
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *
+ */
+
+#ifndef CFE_EVS_MSG_H
+#define CFE_EVS_MSG_H
 
 /********************************** Include Files  ************************************/
 #include "common_types.h"            /* Basic data types */
@@ -252,7 +253,6 @@
 **       - \b \c \EVS_CMDEC - command error counter will increment
 **       - An Error specific event message
 **
-**
 **  \par Criticality
 **      Setting the event format mode is not particularly hazardous, as the
 **      result may be saving necessary bandwidth.  However, inappropriately
@@ -294,7 +294,6 @@
 **       increment
 **       - The generation of #CFE_EVS_ENAAPPEVTTYPE_EID debug event message
 **
-**
 **  \par Error Conditions
 **      This command may fail for the following reason(s):
 **      - Invalid Event Type Selection
@@ -302,7 +301,6 @@
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
 **       - An Error specific event message
-**
 **
 **  \par Criticality
 **      Enabling an application event type is not particularly hazardous, as
@@ -1286,4 +1284,4 @@ typedef struct CFE_EVS_ShortEventTlm
 
 } CFE_EVS_ShortEventTlm_t;
 
-#endif
+#endif /* CFE_EVS_MSG_H */

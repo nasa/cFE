@@ -18,11 +18,13 @@
 **  limitations under the License.
 */
 
-/*
+/**
+ * @file
+ *
  * cfe_msg_ccsdsext test header
  */
-#ifndef test_cfe_msg_ccsdsext_
-#define test_cfe_msg_ccsdsext_
+#ifndef TEST_CFE_MSG_CCSDSEXT_H
+#define TEST_CFE_MSG_CCSDSEXT_H
 
 /*
  * Defines
@@ -34,4 +36,4 @@
 /* Test CCSDS Extended header accessor functions */
 void Test_MSG_CCSDSExt(void);
 
-#endif /* test_cfe_msg_ccsdsext_ */
+#endif /* TEST_CFE_MSG_CCSDSEXT_H */

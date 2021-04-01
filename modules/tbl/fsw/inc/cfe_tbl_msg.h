@@ -18,22 +18,19 @@
 **  limitations under the License.
 */
 
-/*
-** File: cfe_tbl_msg.h
-**
-** Purpose:  cFE Table Services (TBL) SB message definitions header file
-**
-** Author:   D.Kobe/Hammers
-**
-** Notes:
-**
-*/
+/**
+ * @file
+ *
+ * Purpose:  cFE Table Services (TBL) SB message definitions header file
+ *
+ * Author:   D.Kobe/Hammers
+ *
+ * Notes:
+ *
+ */
 
-/*
-** Ensure that header is included only once...
-*/
-#ifndef _cfe_tbl_msg_
-#define _cfe_tbl_msg_
+#ifndef CFE_TBL_MSG_H
+#define CFE_TBL_MSG_H
 
 /*
 ** Required header files...
@@ -839,8 +836,4 @@ typedef struct CFE_TBL_TableRegistryTlm
     CFE_TBL_TblRegPacket_Payload_t Payload;   /**< \brief Telemetry payload */
 } CFE_TBL_TableRegistryTlm_t;
 
-#endif /* _cfe_tbl_msg_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_TBL_MSG_H */

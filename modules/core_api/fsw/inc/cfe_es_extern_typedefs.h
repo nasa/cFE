@@ -18,8 +18,14 @@
 **  limitations under the License.
 */
 
-#ifndef _CFE_ES_EXTERN_TYPEDEFS_H_
-#define _CFE_ES_EXTERN_TYPEDEFS_H_
+/**
+ * @file
+ *
+ * Declarations and prototypes for cfe_es_extern_typedefs module
+ */
+
+#ifndef CFE_ES_EXTERN_TYPEDEFS_H
+#define CFE_ES_EXTERN_TYPEDEFS_H
 
 /* This header may be generated from an EDS file,
  * tools are available and the feature is enabled */
@@ -55,7 +61,6 @@ enum CFE_ES_LogMode
 /**
  * @brief Identifies handling of log messages after storage is filled
  *
- *
  * @sa enum CFE_ES_LogMode
  */
 typedef uint8 CFE_ES_LogMode_Enum_t;
@@ -79,7 +84,6 @@ enum CFE_ES_ExceptionAction
 
 /**
  * @brief Identifies action to take if exception occurs
- *
  *
  * @sa enum CFE_ES_ExceptionAction
  */
@@ -109,7 +113,6 @@ enum CFE_ES_AppType
 
 /**
  * @brief Identifies type of CFE application
- *
  *
  * @sa enum CFE_ES_AppType
  */
@@ -180,7 +183,6 @@ enum CFE_ES_RunStatus
 /**
  * @brief Run Status and Exit Status identifiers
  *
- *
  * @sa enum CFE_ES_RunStatus
  */
 typedef uint32 CFE_ES_RunStatus_Enum_t;
@@ -235,7 +237,6 @@ enum CFE_ES_SystemState
 /**
  * @brief The overall cFE System State
  *
- *
  * These values are used with the #CFE_ES_WaitForSystemState API call to synchronize application startup.
  *
  * @note These are defined in order so that relational comparisons e.g. if (STATEA < STATEB) are possible
@@ -263,7 +264,6 @@ enum CFE_ES_LogEntryType
 
 /**
  * @brief Type of entry in the Error and Reset (ER) Log
- *
  *
  * @sa enum CFE_ES_LogEntryType
  */
@@ -313,7 +313,6 @@ enum CFE_ES_AppState
 
 /**
  * @brief Application Run State
- *
  *
  * The normal progression of APP states:
  * UNDEFINED -> EARLY_INIT -> LATE_INIT -> RUNNING -> WAITING -> STOPPED
@@ -571,4 +570,4 @@ typedef struct CFE_ES_MemPoolStats
 
 #endif /* CFE_EDS_ENABLED_BUILD */
 
-#endif /* _CFE_ES_EXTERN_TYPEDEFS_H_ */
+#endif /* CFE_ES_EXTERN_TYPEDEFS_H */

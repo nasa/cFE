@@ -18,25 +18,24 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_es_verify.h
-**
-** Purpose:
-**   This header file performs compile time checking for ES configuration
-**   parameters.
-**
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**     The upper limits are somewhat arbitrary right now.
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ * Purpose:
+ *   This header file performs compile time checking for ES configuration
+ *   parameters.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *     The upper limits are somewhat arbitrary right now.
+ *
+ */
 
-#ifndef _cfe_es_verify_
-#define _cfe_es_verify_
+#ifndef CFE_ES_VERIFY_H
+#define CFE_ES_VERIFY_H
 
 #include <stdint.h>
 
@@ -335,5 +334,4 @@
 #error CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN must be a multiple of 4
 #endif
 
-#endif /* _cfe_es_verify_ */
-/*****************************************************************************/
+#endif /* CFE_ES_VERIFY_H */

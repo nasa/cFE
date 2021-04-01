@@ -18,12 +18,14 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
+/**
+ * @file
+ *
  * Message access APIs
  */
 
-#ifndef _cfe_msg_api_
-#define _cfe_msg_api_
+#ifndef CFE_MSG_H
+#define CFE_MSG_H
 
 /*
  * Includes
@@ -664,4 +666,4 @@ CFE_Status_t CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type
 
 /**\}*/
 
-#endif /* _cfe_msg_api_ */
+#endif /* CFE_MSG_H */

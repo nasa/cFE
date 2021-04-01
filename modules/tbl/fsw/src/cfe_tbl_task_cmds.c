@@ -1231,11 +1231,6 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
     /* If a reg dump was already pending, do not overwrite the current request */
     if (!CFE_FS_BackgroundFileDumpIsPending(&StatePtr->FileWrite))
     {
-        /* Copy the commanded filename into local buffer to ensure size limitation and to allow for modification */
-        CFE_SB_MessageStringGet(StatePtr->FileWrite.FileName, CmdPtr->DumpFilename,
-                                CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE, sizeof(StatePtr->FileWrite.FileName),
-                                sizeof(CmdPtr->DumpFilename));
-
         /*
          * Fill out the remainder of meta data.
          * This data is currently the same for every request
@@ -1247,19 +1242,30 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
         StatePtr->FileWrite.OnEvent = CFE_TBL_DumpRegistryEventHandler;
 
         /*
-         * Before submitting the background request, use OS_stat() to check if the file exists already.
-         *
-         * This is because TBL services issued a different event ID in some cases if
-         * it is overwriting a file vs. creating a new file.
-         */
-        StatePtr->FileExisted = (OS_stat(StatePtr->FileWrite.FileName, &FileStat) == OS_SUCCESS);
-
-        Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
+        ** Copy the filename into local buffer with default name/path/extension if not specified
+        */
+        Status = CFE_FS_ParseInputFileNameEx(StatePtr->FileWrite.FileName, CmdPtr->DumpFilename,
+                                             sizeof(StatePtr->FileWrite.FileName), sizeof(CmdPtr->DumpFilename),
+                                             CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE,
+                                             CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
+                                             CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
         if (Status == CFE_SUCCESS)
         {
-            /* Increment the TBL generic command counter (successfully queued for background job) */
-            ReturnCode = CFE_TBL_INC_CMD_CTR;
+            /*
+             * Before submitting the background request, use OS_stat() to check if the file exists already.
+             *
+             * This is because TBL services issued a different event ID in some cases if
+             * it is overwriting a file vs. creating a new file.
+             */
+            StatePtr->FileExisted = (OS_stat(StatePtr->FileWrite.FileName, &FileStat) == OS_SUCCESS);
+
+            Status = CFE_FS_BackgroundFileDumpRequest(&StatePtr->FileWrite);
+            if (Status == CFE_SUCCESS)
+            {
+                /* Increment the TBL generic command counter (successfully queued for background job) */
+                ReturnCode = CFE_TBL_INC_CMD_CTR;
+            }
         }
     }
 

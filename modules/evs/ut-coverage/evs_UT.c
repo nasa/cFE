@@ -50,7 +50,7 @@ static const char *EVS_SYSLOG_MSGS[] = {
     "Event Log restored, n=%d, c=%d, f=%d, m=%d, o=%d\n",
     "EVS:Application Init Failed,RC=0x%08X\n",
     "EVS:Error reading cmd pipe,RC=0x%08X\n",
-    "EVS:Call to CFE_ES_RegisterApp Failed:RC=0x%08X\n",
+    NULL, /* old message removed - placeholder to maintain indices */
     "EVS:Call to CFE_ES_GetAppID Failed:RC=0x%08X\n",
     "EVS:Call to CFE_EVS_Register Failed:RC=0x%08X\n",
     "EVS:Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n",
@@ -248,14 +248,6 @@ void Test_Init(void)
     ASSERT_TRUE(UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[8]));
     ASSERT_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ERR_MSGID_EID);
 
-    /* Test TaskMain with a register application failure */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, -1);
-    CFE_EVS_TaskMain();
-    UT_Report(__FILE__, __LINE__,
-              UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[7]) && UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 2,
-              "CFE_EVS_TaskMain", "Application initialization failure");
-
     /* Test early initialization with a get reset area failure */
     UT_InitData();
     UT_SetStatusBSPResetArea(-1, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_PRIMARY);
@@ -324,13 +316,6 @@ void Test_Init(void)
     CFE_EVS_EarlyInit();
     UT_Report(__FILE__, __LINE__, UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[4]), "CFE_EVS_EarlyInit",
               "Early initialization successful");
-
-    /* Test task initialization where the application registration fails */
-    UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterApp), 1, -1);
-    CFE_EVS_TaskInit();
-    UT_Report(__FILE__, __LINE__, UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[9]), "CFE_EVS_TaskInit",
-              "Call to CFE_ES_RegisterApp failure");
 
     /* Test task initialization where event services fails */
     UT_InitData();
@@ -1023,6 +1008,12 @@ void Test_Logging(void)
     UT_Report(__FILE__, __LINE__, CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) == CFE_SUCCESS,
               "CFE_EVS_WriteLogDataFileCmd", "Write single event log entry - successful (default log name)");
 
+    /* Test writing a log entry with a file name failure */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_Report(__FILE__, __LINE__, CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd) != CFE_SUCCESS,
+              "CFE_EVS_WriteLogDataFileCmd", "FS parse filename failure");
+
     /* Test writing a log entry with a create failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
@@ -1112,6 +1103,14 @@ void Test_WriteApp(void)
                                  UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC, &UT_EVS_EventBuf);
     UT_Report(__FILE__, __LINE__, UT_EVS_EventBuf.EventID == CFE_EVS_ERR_CRDATFILE_EID, "CFE_EVS_WriteAppDataFileCmd",
               "OS create fail (default file name)");
+
+    /* Test writing application data with bad file name */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_EVS_DoDispatchCheckEvents(&CmdBuf.AppDataCmd, sizeof(CmdBuf.AppDataCmd),
+                                 UT_TPID_CFE_EVS_CMD_WRITE_APP_DATA_FILE_CC, &UT_EVS_EventBuf);
+    UT_Report(__FILE__, __LINE__, UT_EVS_EventBuf.EventID == CFE_EVS_ERR_CRDATFILE_EID, "CFE_EVS_WriteAppDataFileCmd",
+              "parse filename failure");
 
     /* Test writing application data with a write/close failure */
     UT_InitData();
@@ -2039,7 +2038,7 @@ void Test_Misc(void)
 
     /* Test registering an application with invalid filter argument */
     UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_EVS_Register(NULL, 1, 0) == CFE_ES_ERR_BUFFER, "CFE_EVS_Register",
+    UT_Report(__FILE__, __LINE__, CFE_EVS_Register(NULL, 1, 0) == CFE_ES_BAD_ARGUMENT, "CFE_EVS_Register",
               "Register application with invalid arguments");
 
     /* Test housekeeping report with log disabled */

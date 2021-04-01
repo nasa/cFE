@@ -60,11 +60,6 @@ static int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseco
 */
 CFE_ES_Global_t CFE_ES_Global;
 
-/*
-** Pointer to the Reset data that is preserved on a processor reset
-*/
-CFE_ES_ResetData_t *CFE_ES_ResetDataPtr;
-
 /***************************************************************************/
 /*
 ** Code
@@ -96,8 +91,9 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     ReturnCode = OS_MutSemCreate(&(CFE_ES_Global.SharedDataMutex), "ES_DATA_MUTEX", 0);
     if (ReturnCode != OS_SUCCESS)
     {
-        CFE_ES_SysLogWrite_Unsync("ES Startup: Error: ES Shared Data Mutex could not be created. RC=0x%08X\n",
-                                  (unsigned int)ReturnCode);
+        /* Cannot use SysLog here, since that requires the reset area to be set up */
+        OS_printf("ES Startup: Error: ES Shared Data Mutex could not be created. RC=0x%08X\n",
+                  (unsigned int)ReturnCode);
 
         /*
         ** Delay to allow the message to be read
@@ -309,12 +305,12 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
         return;
     }
 
-    CFE_ES_ResetDataPtr = (CFE_ES_ResetData_t *)ResetDataAddr;
+    CFE_ES_Global.ResetDataPtr = (CFE_ES_ResetData_t *)ResetDataAddr;
 
     /*
     ** Record the BootSource (bank) so it will be valid in the ER log entries.
     */
-    CFE_ES_ResetDataPtr->ResetVars.BootSource = BootSource;
+    CFE_ES_Global.ResetDataPtr->ResetVars.BootSource = BootSource;
 
     /*
     ** Determine how the system was started. The choices are:
@@ -331,8 +327,8 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
         /*
         ** Record the reset type and subtype
         */
-        CFE_ES_ResetDataPtr->ResetVars.ResetSubtype = StartSubtype;
-        CFE_ES_ResetDataPtr->ResetVars.ResetType    = CFE_PSP_RST_TYPE_POWERON;
+        CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype = StartSubtype;
+        CFE_ES_Global.ResetDataPtr->ResetVars.ResetType    = CFE_PSP_RST_TYPE_POWERON;
 
         /*
         ** Log the power-on reset.
@@ -359,9 +355,9 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
         /*
         ** Initialize all reset counters.
         */
-        CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount    = 0;
-        CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount = CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS;
-        CFE_ES_Global.DebugVars.DebugFlag                     = 0;
+        CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount    = 0;
+        CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount = CFE_PLATFORM_ES_MAX_PROCESSOR_RESETS;
+        CFE_ES_Global.DebugVars.DebugFlag                            = 0;
     }
     else if (StartType == CFE_PSP_RST_TYPE_PROCESSOR)
     {
@@ -369,21 +365,21 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
         ** If a Processor reset was not commanded, it must be a watchdog or other non-commanded reset
         ** Log the reset before updating any reset variables.
         */
-        if (CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset != true)
+        if (CFE_ES_Global.ResetDataPtr->ResetVars.ES_CausedReset != true)
         {
-            CFE_ES_ResetDataPtr->ResetVars.ResetType = CFE_PSP_RST_TYPE_PROCESSOR;
-            CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount++;
+            CFE_ES_Global.ResetDataPtr->ResetVars.ResetType = CFE_PSP_RST_TYPE_PROCESSOR;
+            CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount++;
 
             /*
             ** When coming up from a Processor reset that was not caused by ES, check to see
             ** if the maximum number has been exceeded
             */
-            if (CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount >
-                CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount)
+            if (CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount >
+                CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount)
             {
                 if (StartSubtype == CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND)
                 {
-                    CFE_ES_ResetDataPtr->ResetVars.ResetSubtype = CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND;
+                    CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype = CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND;
                     CFE_ES_SysLogWrite_Unsync("POWER ON RESET due to max proc resets (HW Spec Cmd).\n");
 
                     /*
@@ -395,7 +391,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                 }
                 else
                 {
-                    CFE_ES_ResetDataPtr->ResetVars.ResetSubtype = CFE_PSP_RST_SUBTYPE_HW_WATCHDOG;
+                    CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype = CFE_PSP_RST_SUBTYPE_HW_WATCHDOG;
                     CFE_ES_SysLogWrite_Unsync("POWER ON RESET due to max proc resets (Watchdog).\n");
 
                     /*
@@ -419,7 +415,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
             {
                 if (StartSubtype == CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND)
                 {
-                    CFE_ES_ResetDataPtr->ResetVars.ResetSubtype = CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND;
+                    CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype = CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND;
                     CFE_ES_SysLogWrite_Unsync("PROCESSOR RESET due to Hardware Special Command (HW Spec Cmd).\n");
 
                     /*
@@ -430,7 +426,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                 }
                 else
                 {
-                    CFE_ES_ResetDataPtr->ResetVars.ResetSubtype = CFE_PSP_RST_SUBTYPE_HW_WATCHDOG;
+                    CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype = CFE_PSP_RST_SUBTYPE_HW_WATCHDOG;
                     CFE_ES_SysLogWrite_Unsync("PROCESSOR RESET due to Watchdog (Watchdog).\n");
 
                     /*
@@ -450,8 +446,8 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
         */
         else
         {
-            CFE_ES_ResetDataPtr->ResetVars.ResetType    = CFE_PSP_RST_TYPE_PROCESSOR;
-            CFE_ES_ResetDataPtr->ResetVars.ResetSubtype = StartSubtype;
+            CFE_ES_Global.ResetDataPtr->ResetVars.ResetType    = CFE_PSP_RST_TYPE_PROCESSOR;
+            CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype = StartSubtype;
         }
 
         /*
@@ -463,7 +459,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
     /*
     ** Clear the commanded reset flag, in case a watchdog happens.
     */
-    CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset = false;
+    CFE_ES_Global.ResetDataPtr->ResetVars.ES_CausedReset = false;
 }
 
 /*

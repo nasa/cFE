@@ -18,22 +18,21 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
-** File: cfe_evs_verify.h
-**
-** Purpose:
-**   This header file performs compile time checking for EVS configuration
-**   parameters.
-**
-** Author:   K.Audra(Microtel)
-**
-** Notes:
-**
-**
-******************************************************************************/
+/**
+ * @file
+ *
+ * Purpose:
+ *   This header file performs compile time checking for EVS configuration
+ *   parameters.
+ *
+ * Author:   K.Audra(Microtel)
+ *
+ * Notes:
+ *
+ */
 
-#ifndef _cfe_evs_verify_
-#define _cfe_evs_verify_
+#ifndef CFE_EVS_VERIFY_H
+#define CFE_EVS_VERIFY_H
 
 /* NOTE: Besides the checks in this file, there is one more in cfe_evs_task.h.
  * The check is not here because it is checking a local #define based on a
@@ -64,5 +63,4 @@
 #error CFE_PLATFORM_EVS_START_TASK_STACK_SIZE must be greater than or equal to 2048
 #endif
 
-#endif /* _cfe_evs_verify_ */
-/*****************************************************************************/
+#endif /* CFE_EVS_VERIFY_H */

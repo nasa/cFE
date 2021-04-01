@@ -18,22 +18,22 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_es_msg.h
-**
-**  Purpose:
-**  cFE Executive Services (ES) Command and Telemetry packet definition file.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**  Notes:
-**
-*/
-/*************************************************************************/
-#ifndef _cfe_es_msg_
-#define _cfe_es_msg_
+/**
+ * @file
+ *
+ *  Purpose:
+ *  cFE Executive Services (ES) Command and Telemetry packet definition file.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *  Notes:
+ *
+ */
+
+#ifndef CFE_ES_MSG_H
+#define CFE_ES_MSG_H
 
 /*
 ** Includes
@@ -1489,6 +1489,15 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
     uint8 OSALMissionRevision; /**< \cfetlmmnemonic \ES_OSMISSIONREV
                                     \brief OS Abstraction Layer MissionRevision Number */
 
+    uint8 PSPMajorVersion;    /**< \cfetlmmnemonic \ES_PSPMAJORVER
+                                   \brief Platform Support Package Major Version Number */
+    uint8 PSPMinorVersion;    /**< \cfetlmmnemonic \ES_PSPMINORVER
+                                   \brief Platform Support Package Minor Version Number */
+    uint8 PSPRevision;        /**< \cfetlmmnemonic \ES_PSPREVISION
+                                   \brief Platform Support Package Revision Number */
+    uint8 PSPMissionRevision; /**< \cfetlmmnemonic \ES_PSPMISSIONREV
+                                   \brief Platform Support Package MissionRevision Number */
+
     CFE_ES_MemOffset_t SysLogBytesUsed; /**< \cfetlmmnemonic \ES_SYSLOGBYTEUSED
                                              \brief Total number of bytes used in system log */
     CFE_ES_MemOffset_t SysLogSize;      /**< \cfetlmmnemonic \ES_SYSLOGSIZE
@@ -1558,8 +1567,4 @@ typedef struct CFE_ES_HousekeepingTlm
 
 } CFE_ES_HousekeepingTlm_t;
 
-#endif /* _cfe_es_msg_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_ES_MSG_H */

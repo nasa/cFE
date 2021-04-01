@@ -18,14 +18,16 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
+/**
+ * @file
+ *
  * Define cFS standard full header
  *  - Avoid direct access for portability, use APIs
  *  - Used to construct message structures
  */
 
-#ifndef _cfe_msg_hdr_
-#define _cfe_msg_hdr_
+#ifndef DEFAULT_CFE_MSG_HDR_PRIEXT_H
+#define DEFAULT_CFE_MSG_HDR_PRIEXT_H
 
 /*
  * Include Files
@@ -87,4 +89,4 @@ typedef struct
 
 } CFE_MSG_TelemetryHeader_t;
 
-#endif /* _cfe_msg_hdr_ */
+#endif /* DEFAULT_CFE_MSG_HDR_PRIEXT_H */

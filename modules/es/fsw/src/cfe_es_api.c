@@ -49,10 +49,10 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
 {
     if (ResetSubtypePtr != NULL)
     {
-        *ResetSubtypePtr = CFE_ES_ResetDataPtr->ResetVars.ResetSubtype;
+        *ResetSubtypePtr = CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype;
     }
 
-    return (CFE_ES_ResetDataPtr->ResetVars.ResetType);
+    return (CFE_ES_Global.ResetDataPtr->ResetVars.ResetType);
 
 } /* End of CFE_ES_GetResetType() */
 
@@ -68,13 +68,14 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
         /*
         ** Increment the processor reset count
         */
-        CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount++;
+        CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount++;
 
         /*
         ** Before doing a Processor reset, check to see
         ** if the maximum number has been exceeded
         */
-        if (CFE_ES_ResetDataPtr->ResetVars.ProcessorResetCount > CFE_ES_ResetDataPtr->ResetVars.MaxProcessorResetCount)
+        if (CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount >
+            CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount)
         {
             CFE_ES_WriteToSysLog("POWER ON RESET due to max proc resets (Commanded).\n");
 
@@ -96,7 +97,7 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
             /*
             ** Update the reset variables
             */
-            CFE_ES_ResetDataPtr->ResetVars.ES_CausedReset = true;
+            CFE_ES_Global.ResetDataPtr->ResetVars.ES_CausedReset = true;
 
             /*
             ** Log the reset in the ER Log
@@ -640,44 +641,6 @@ void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
 }
 
 /*
-** Function: - See API and header file for details
-*/
-int32 CFE_ES_RegisterApp(void)
-{
-    int32 Result;
-
-    CFE_ES_LockSharedData(__func__, __LINE__);
-
-    /*
-    ** Register the task
-    */
-    Result = OS_TaskRegister();
-
-    if (Result == OS_SUCCESS)
-    {
-        Result = CFE_SUCCESS;
-    }
-    else
-    {
-        /*
-        ** Cannot create a syslog entry here because it requires the task to
-        ** be registered
-        */
-        Result = CFE_ES_ERR_APP_REGISTER;
-    }
-
-    /*
-    ** Set the default exception environment
-    */
-    CFE_PSP_SetDefaultExceptionEnvironment();
-
-    CFE_ES_UnlockSharedData(__func__, __LINE__);
-
-    return (Result);
-
-} /* End of CFE_ES_RegisterApp() */
-
-/*
 ** Function: CFE_ES_GetAppIDByName - See API and header file for details
 */
 int32 CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName)
@@ -788,6 +751,11 @@ int32 CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
     CFE_ES_AppRecord_t *AppRecPtr;
     int32               Result;
 
+    if (AppIdPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     CFE_ES_LockSharedData(__func__, __LINE__);
 
     AppRecPtr = CFE_ES_GetAppRecordByContext();
@@ -816,6 +784,11 @@ int32 CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr)
 {
     int32                Result;
     CFE_ES_TaskRecord_t *TaskRecPtr;
+
+    if (TaskIdPtr == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
 
     CFE_ES_LockSharedData(__func__, __LINE__);
     TaskRecPtr = CFE_ES_GetTaskRecordByContext();
@@ -964,7 +937,7 @@ int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
     if (AppInfo == NULL)
     {
         CFE_ES_WriteToSysLog("CFE_ES_GetAppInfo: Invalid Parameter ( Null Pointer )\n");
-        return CFE_ES_ERR_BUFFER;
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     memset(AppInfo, 0, sizeof(*AppInfo));
@@ -1054,7 +1027,7 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId)
     if (LibInfo == NULL)
     {
         CFE_ES_WriteToSysLog("CFE_ES_GetLibInfo: Invalid Parameter ( Null Pointer )\n");
-        return CFE_ES_ERR_BUFFER;
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     memset(LibInfo, 0, sizeof(*LibInfo));
@@ -1142,7 +1115,7 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId)
     if (TaskInfo == NULL)
     {
         CFE_ES_WriteToSysLog("CFE_ES_GetTaskInfo: Invalid Parameter ( Null Pointer )\n");
-        return CFE_ES_ERR_BUFFER;
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     memset(TaskInfo, 0, sizeof(*TaskInfo));
@@ -1295,45 +1268,6 @@ int32 CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
     return (ReturnCode);
 
 } /* End of CFE_ES_CreateChildTask() */
-
-/*
-** Function: CFE_ES_RegisterChildTask - See API and header file for details
-*/
-int32 CFE_ES_RegisterChildTask(void)
-{
-    int32 Result;
-    int32 ReturnCode;
-
-    CFE_ES_LockSharedData(__func__, __LINE__);
-
-    /*
-    ** Register the task with the OS
-    */
-    Result = OS_TaskRegister();
-
-    if (Result != OS_SUCCESS)
-    {
-        /*
-        ** Cannot create a syslog entry here because it requires the task to
-        ** be registered
-        */
-        ReturnCode = CFE_ES_ERR_CHILD_TASK_REGISTER;
-    }
-    else
-    {
-        ReturnCode = CFE_SUCCESS;
-    }
-
-    /*
-    ** Set the default exception environment
-    */
-    CFE_PSP_SetDefaultExceptionEnvironment();
-
-    CFE_ES_UnlockSharedData(__func__, __LINE__);
-
-    return (ReturnCode);
-
-} /* End of CFE_ES_RegisterChildTask() */
 
 /*
 ** Function: CFE_ES_IncrementTaskCounter - See API and header file for details

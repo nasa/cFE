@@ -24,8 +24,15 @@
 **   Specification for the CFE assert (UT assert wrapper) functions.
 **
 *************************************************************************/
-#ifndef cfe_assert_h_
-#define cfe_assert_h_
+
+/**
+ * @file
+ *
+ * Declarations and prototypes for cfe_assert module
+ */
+
+#ifndef CFE_ASSERT_H
+#define CFE_ASSERT_H
 
 /************************************************************************
 ** Includes
@@ -52,12 +59,7 @@
 **
 **  \return Execution status, see \ref CFEReturnCodes
 **
-**
 *************************************************************************/
 void CFE_Assert_AppMain(void);
 
-#endif /* cfe_assert_h_ */
-
-/************************/
-/*  End of File Comment */
-/************************/
+#endif /* CFE_ASSERT_H */

@@ -18,19 +18,19 @@
 **  limitations under the License.
 */
 
-/*
-** File:  cfe_es_perf.h
-**
-** Purpose: Performance Analyzer data structures
-**
-** Design Notes:
-**
-** References:
-**
-*/
+/**
+ * @file
+ *
+ * Purpose: Performance Analyzer data structures
+ *
+ * Design Notes:
+ *
+ * References:
+ *
+ */
 
-#ifndef _cfe_es_perf_
-#define _cfe_es_perf_
+#ifndef CFE_ES_PERF_H
+#define CFE_ES_PERF_H
 
 /*
 ** Include Files
@@ -132,4 +132,4 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void);
  */
 bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg);
 
-#endif /* _cfe_es_perf_ */
+#endif /* CFE_ES_PERF_H */

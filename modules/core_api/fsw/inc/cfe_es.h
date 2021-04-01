@@ -18,22 +18,22 @@
 **  limitations under the License.
 */
 
-/*
-**  File: cfe_es.h
-**
-**  Purpose:
-**	Unit specification for Executive Services library functions and macros.
-**
-**  References:
-**     Flight Software Branch C Coding Standard Version 1.0a
-**     cFE Flight Software Application Developers Guide
-**
-**	Notes:
-**
-*/
+/**
+ * @file
+ *
+ *  Purpose:
+ *	Unit specification for Executive Services library functions and macros.
+ *
+ *  References:
+ *     Flight Software Branch C Coding Standard Version 1.0a
+ *     cFE Flight Software Application Developers Guide
+ *
+ *	Notes:
+ *
+ */
 
-#ifndef CFE_ES_API_H
-#define CFE_ES_API_H
+#ifndef CFE_ES_H
+#define CFE_ES_H
 
 /*
 ** Includes
@@ -341,7 +341,7 @@ CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID);
 ** \arg #CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR - \copybrief CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR
 **
 **
-** \sa #CFE_ES_RunLoop, #CFE_ES_RegisterApp
+** \sa #CFE_ES_RunLoop
 **
 ******************************************************************************/
 void CFE_ES_ExitApp(uint32 ExitStatus);
@@ -367,7 +367,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 ** \retval true  Application should continue running
 ** \retval false Application should not continue running
 **
-** \sa #CFE_ES_ExitApp, #CFE_ES_RegisterApp
+** \sa #CFE_ES_ExitApp
 **
 ******************************************************************************/
 bool CFE_ES_RunLoop(uint32 *ExitStatus);
@@ -430,28 +430,10 @@ CFE_Status_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMill
 **                                   wait indefinitely to avoid hanging a critical
 **                                   application because a non-critical app did not start.
 **
-**
 ** \sa #CFE_ES_RunLoop
 **
 ******************************************************************************/
 void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds);
-
-/*****************************************************************************/
-/**
-** \brief Registers a cFE Application with the Executive Services
-**
-** \par Description
-**        This API registers the calling Application with the cFE.
-**
-** \par Assumptions, External Events, and Notes:
-**        NOTE: This function \b MUST be called before any other cFE API functions are called.
-**
-** \return Execution status, see \ref CFEReturnCodes
-**
-** \sa #CFE_ES_ExitApp, #CFE_ES_RunLoop
-**
-******************************************************************************/
-CFE_Status_t CFE_ES_RegisterApp(void);
 
 /*****************************************************************************/
 /**
@@ -497,7 +479,6 @@ void CFE_ES_IncrementTaskCounter(void);
 **                                      stored at the given address. For a list of possible Sub-Type values, see \link
 **                                      #CFE_PSP_RST_SUBTYPE_POWER_CYCLE "Reset Sub-Types" \endlink.
 **
-**
 ** \return Processor reset type
 ** \retval #CFE_PSP_RST_TYPE_POWERON   \copybrief CFE_PSP_RST_TYPE_POWERON
 ** \retval #CFE_PSP_RST_TYPE_PROCESSOR \copybrief CFE_PSP_RST_TYPE_PROCESSOR
@@ -520,11 +501,10 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr);
 ** \param[out]   AppIdPtr       Pointer to variable that is to receive the Application's ID.
 **                              *AppIdPtr will be set to the application ID of the calling Application.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetResetType, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName, #CFE_ES_GetTaskInfo
 **
@@ -549,7 +529,7 @@ CFE_Status_t CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr);
@@ -568,11 +548,10 @@ CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr);
 ** \param[out]  AppIdPtr       Pointer to variable that is to receive the Application's ID.
 ** \param[in]   AppName        Pointer to null terminated character string containing an Application name.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppName, #CFE_ES_GetAppInfo
 **
@@ -593,11 +572,10 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName
 ** \param[out]  LibIdPtr       Pointer to variable that is to receive the Library's ID.
 ** \param[in]   LibName        Pointer to null terminated character string containing a Library name.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetLibName
 **
@@ -624,10 +602,10 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName
 **                            into the \c AppName buffer.  This routine will truncate the name to this length,
 **                            if necessary.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppInfo
 **
@@ -654,10 +632,10 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t Buffe
 **                            into the \c LibName buffer.  This routine will truncate the name to this length,
 **                            if necessary.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetLibIDByName
 **
@@ -680,11 +658,10 @@ CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t Buffe
 **                           resource name and memory addresses information.
 ** \param[in]   AppId        ID of application to obtain information about
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetAppID, #CFE_ES_GetAppIDByName, #CFE_ES_GetAppName
 **
@@ -709,11 +686,10 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId);
 **
 ** \param[in]   TaskId        Application ID of Application whose name is being requested.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetTaskID, #CFE_ES_GetTaskIDByName, #CFE_ES_GetTaskName
 **
@@ -742,11 +718,10 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
 **                           resource name and memory addresses information.
 ** \param[in]   LibId        ID of application to obtain information about
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetLibIDByName, #CFE_ES_GetLibName
 **
@@ -768,7 +743,6 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId);
 **        easily ported to operate on either Libraries or Applications, where
 **        relevant.
 **
-**
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
@@ -776,11 +750,10 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId);
 **                           resource name and memory addresses information.
 ** \param[in]   ResourceId   ID of application or library to obtain information about
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_ERR_BUFFER                \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetLibInfo, #CFE_ES_GetAppInfo
 **
@@ -792,26 +765,6 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 /** @defgroup CFEAPIESChildTask cFE Child Task APIs
  * @{
  */
-
-/*****************************************************************************/
-/**
-** \brief Registers a cFE Child task associated with a cFE Application
-**
-** \par Description
-**        This routine registers a cFE Child task and associates it with its parent
-**        cFE Application.
-**
-** \par Assumptions, External Events, and Notes:
-**        NOTE: This API \b MUST be called by the Child Task before any other cFE API calls are made.
-**
-** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                    \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_CHILD_TASK_REGISTER \copybrief CFE_ES_ERR_CHILD_TASK_REGISTER
-**
-** \sa #CFE_ES_CreateChildTask, #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
-**
-******************************************************************************/
-CFE_Status_t CFE_ES_RegisterChildTask(void);
 
 /*****************************************************************************/
 /**
@@ -849,8 +802,9 @@ CFE_Status_t CFE_ES_RegisterChildTask(void);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                  \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_CHILD_TASK_CREATE \copybrief CFE_ES_ERR_CHILD_TASK_CREATE
+** \retval #CFE_ES_BAD_ARGUMENT          \copybrief CFE_ES_BAD_ARGUMENT
 **
-** \sa #CFE_ES_RegisterChildTask, #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
+** \sa #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
@@ -871,11 +825,10 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
 ** \param[out]  TaskIdPtr       Pointer to variable that is to receive the Task's ID.
 ** \param[in]   TaskName        Pointer to null terminated character string containing an Task name.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetTaskName
 **
@@ -902,10 +855,10 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
 **                            into the \c TaskName buffer.  This routine will truncate the name to this length,
 **                            if necessary.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetTaskIDByName
 **
@@ -930,7 +883,7 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t B
 ** \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_NOT_IMPLEMENTED \copybrief CFE_ES_NOT_IMPLEMENTED
 **
-** \sa #CFE_ES_RegisterChildTask, #CFE_ES_CreateChildTask, #CFE_ES_ExitChildTask
+** \sa #CFE_ES_CreateChildTask, #CFE_ES_ExitChildTask
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId);
@@ -950,7 +903,7 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId);
 **        at all, it is assumed that the Task was either unregistered or
 **        this function was called from a cFE Application's main task.
 **
-** \sa #CFE_ES_RegisterChildTask, #CFE_ES_CreateChildTask, #CFE_ES_DeleteChildTask
+** \sa #CFE_ES_CreateChildTask, #CFE_ES_DeleteChildTask
 **
 ******************************************************************************/
 void CFE_ES_ExitChildTask(void);
@@ -975,7 +928,6 @@ void CFE_ES_ExitChildTask(void);
 **        early will not cause the background task to do more work than it otherwise
 **        would - it just reduces the delay before work starts initially.
 **
-**
 ******************************************************************************/
 void CFE_ES_BackgroundWakeup(void);
 
@@ -999,6 +951,7 @@ void CFE_ES_BackgroundWakeup(void);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_SYS_LOG_FULL \copybrief CFE_ES_ERR_SYS_LOG_FULL
+** \retval #CFE_ES_BAD_ARGUMENT     \copybrief CFE_ES_BAD_ARGUMENT
 **
 ******************************************************************************/
 CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1, 2);
@@ -1050,7 +1003,6 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
 **        context which may use OSAL primitives.  In general this means that
 **        it shouldn't be _directly_ invoked from an ISR/signal context.
 **
-**
 ******************************************************************************/
 void CFE_ES_ProcessAsyncEvent(void);
 
@@ -1080,7 +1032,6 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \param[in]   Name        A pointer to a character string containing an application
 **                          unique name of #CFE_MISSION_ES_CDS_MAX_NAME_LENGTH characters or less.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS               The memory block was successfully created in the CDS.
 ** \retval #CFE_ES_NOT_IMPLEMENTED    The processor does not support a Critical Data Store.
@@ -1088,6 +1039,7 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \retval #CFE_ES_CDS_INVALID_SIZE   \copybrief CFE_ES_CDS_INVALID_SIZE
 ** \retval #CFE_ES_CDS_INVALID_NAME   \copybrief CFE_ES_CDS_INVALID_NAME
 ** \retval #CFE_ES_CDS_REGISTRY_FULL  \copybrief CFE_ES_CDS_REGISTRY_FULL
+** \retval #CFE_ES_BAD_ARGUMENT       \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
 **
@@ -1108,11 +1060,10 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, size_t BlockSize,
 ** \param[out]  BlockIdPtr       Pointer to variable that is to receive the CDS Block ID.
 ** \param[in]   BlockName        Pointer to null terminated character string containing a CDS Block name.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetCDSBlockName
 **
@@ -1139,10 +1090,10 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_CDSHandle_t *BlockIdPtr, const ch
 **                            into the \c BlockName buffer.  This routine will truncate the name to this length,
 **                            if necessary.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetCDSBlockIDByName
 **
@@ -1168,6 +1119,7 @@ CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId,
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_RegisterCDS, #CFE_ES_RestoreFromCDS
 **
@@ -1195,9 +1147,10 @@ CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy);
 **                                      the CDS. *RestoreToMemory is the contents of the specified CDS.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
+** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_CDS_BLOCK_CRC_ERR   \copybrief CFE_ES_CDS_BLOCK_CRC_ERR
+** \retval #CFE_ES_CDS_BLOCK_CRC_ERR          \copybrief CFE_ES_CDS_BLOCK_CRC_ERR
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_RegisterCDS, #CFE_ES_CopyToCDS
 **
@@ -1354,6 +1307,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 ** \return Bytes Allocated, or error code \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_ES_ERR_MEM_BLOCK_SIZE         \copybrief CFE_ES_ERR_MEM_BLOCK_SIZE
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats,
 *#CFE_ES_GetPoolBufInfo
@@ -1379,6 +1333,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t PoolID, 
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_ES_BUFFER_NOT_IN_POOL         \copybrief CFE_ES_BUFFER_NOT_IN_POOL
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats,
 *#CFE_ES_PutPoolBuf
@@ -1402,6 +1357,7 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_
 **
 ** \return Bytes released, or error code \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats,
 *#CFE_ES_GetPoolBufInfo
@@ -1427,10 +1383,10 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr);
 **
 ** \param[in]   Handle      The handle to the memory pool whose statistics are desired.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf
 **
@@ -1520,8 +1476,8 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit);
 ** \param[out] *CounterIdPtr  The Counter Id of the newly created counter.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
-** \retval #CFE_ES_BAD_ARGUMENT \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
+** \retval #CFE_ES_BAD_ARGUMENT  \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_IncrementGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount,
 *#CFE_ES_GetGenCounterIDByName
@@ -1564,8 +1520,8 @@ CFE_Status_t CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId);
 ** \param[in]   CounterId    The Counter to be incremented.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
-** \retval #CFE_ES_BAD_ARGUMENT \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
+** \retval #CFE_ES_BAD_ARGUMENT  \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_RegisterGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount,
 *#CFE_ES_GetGenCounterIDByName
@@ -1637,7 +1593,7 @@ CFE_Status_t CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
-** \retval #CFE_ES_ERR_BUFFER           \copybrief CFE_ES_ERR_BUFFER
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetGenCounterName
 **
@@ -1664,10 +1620,10 @@ CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, cons
 **                            into the \c CounterName buffer.  This routine will truncate the name to this length,
 **                            if necessary.
 **
-**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_GetGenCounterIDByName
 **
@@ -1676,4 +1632,4 @@ CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_CounterId_t Coun
 
 /**@}*/
 
-#endif /* CFE_ES_API_H */
+#endif /* CFE_ES_H */

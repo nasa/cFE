@@ -168,7 +168,7 @@ void TestResourceID(void)
     UtAssert_True(CFE_ResourceId_Equal(Id, CFE_RESOURCEID_UNDEFINED), "CFE_ResourceId_FindNext() bad input: id=%lx",
                   CFE_ResourceId_ToInteger(Id));
 
-    UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, 1, NULL), CFE_ES_ERR_BUFFER);
+    UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, 1, NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, RefBase, 0, &TestIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ResourceId_ToIndex(Id, ~RefBase, 1, &TestIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 }

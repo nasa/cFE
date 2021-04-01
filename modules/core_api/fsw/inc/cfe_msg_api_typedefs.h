@@ -18,13 +18,15 @@
 **  limitations under the License.
 */
 
-/******************************************************************************
- * Message type defines
+/**
+ * @file
+ *
+ * Typedefs for Message API
  *  - Separate from API so these can be adjusted for custom implementations
  */
 
-#ifndef _cfe_msg_typedefs_
-#define _cfe_msg_typedefs_
+#ifndef CFE_MSG_API_TYPEDEFS_H
+#define CFE_MSG_API_TYPEDEFS_H
 
 /*
  * Includes
@@ -111,4 +113,4 @@ typedef struct CFE_MSG_CommandHeader CFE_MSG_CommandHeader_t;
  */
 typedef struct CFE_MSG_TelemetryHeader CFE_MSG_TelemetryHeader_t;
 
-#endif /* _cfe_msg_typedefs_ */
+#endif /* CFE_MSG_API_TYPEDEFS_H */

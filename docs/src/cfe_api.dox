@@ -15,7 +15,6 @@
     </UL>
     <LI> \ref CFEAPIESAppBehavior
     <UL>
-      <LI> #CFE_ES_RegisterApp - \copybrief CFE_ES_RegisterApp
       <LI> #CFE_ES_RunLoop - \copybrief CFE_ES_RunLoop
       <LI> #CFE_ES_WaitForStartupSync - \copybrief CFE_ES_WaitForStartupSync
       <LI> #CFE_ES_WaitForSystemState - \copybrief CFE_ES_WaitForSystemState
@@ -33,7 +32,6 @@
     </UL>
     <LI> \ref CFEAPIESChildTask
     <UL>
-      <LI> #CFE_ES_RegisterChildTask - \copybrief CFE_ES_RegisterChildTask
       <LI> #CFE_ES_CreateChildTask - \copybrief CFE_ES_CreateChildTask
       <LI> #CFE_ES_DeleteChildTask - \copybrief CFE_ES_DeleteChildTask
       <LI> #CFE_ES_ExitChildTask - \copybrief CFE_ES_ExitChildTask
@@ -138,8 +136,8 @@
     </UL>
     <LI> \ref CFEAPISBZeroCopy
     <UL>
-      <LI> #CFE_SB_ZeroCopyGetPtr - \copybrief CFE_SB_ZeroCopyGetPtr
-      <LI> #CFE_SB_ZeroCopyReleasePtr - \copybrief CFE_SB_ZeroCopyReleasePtr
+      <LI> #CFE_SB_AllocateMessageBuffer - \copybrief CFE_SB_AllocateMessageBuffer
+      <LI> #CFE_SB_ReleaseMessageBuffer - \copybrief CFE_SB_ReleaseMessageBuffer
       <LI> #CFE_SB_TransmitBuffer - \copybrief CFE_SB_TransmitBuffer
     </UL>
     <LI> \ref CFEAPISBSetMessage
@@ -164,11 +162,6 @@
       <LI> #CFE_MSG_GetFcnCode - \copybrief CFE_MSG_GetFcnCode
       <LI> #CFE_MSG_GetTypeFromMsgId - \copybrief CFE_MSG_GetTypeFromMsgId
       <LI> #CFE_SB_MessageStringGet - \copybrief CFE_SB_MessageStringGet
-    </UL>
-    <LI> \ref CFEAPISBChecksum
-    <UL>
-      <LI> #CFE_MSG_GenerateChecksum - \copybrief CFE_MSG_GenerateChecksum
-      <LI> #CFE_MSG_ValidateChecksum - \copybrief CFE_MSG_ValidateChecksum
     </UL>
     <LI> \ref CFEAPISBMessageID
     <UL>

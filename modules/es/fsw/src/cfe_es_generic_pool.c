@@ -419,7 +419,6 @@ int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *Blo
         else
         {
             *BlockSizePtr = BdPtr->ActualSize;
-            Status        = CFE_SUCCESS;
         }
     }
 
@@ -601,7 +600,7 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr)
 bool CFE_ES_GenPoolValidateState(const CFE_ES_GenPoolRecord_t *PoolRecPtr)
 {
     return (PoolRecPtr->PoolTotalSize > 0 && PoolRecPtr->TailPosition <= PoolRecPtr->PoolMaxOffset &&
-            PoolRecPtr->NumBuckets > 0 && PoolRecPtr->NumBuckets < CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
+            PoolRecPtr->NumBuckets > 0 && PoolRecPtr->NumBuckets <= CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
 }
 
 /*

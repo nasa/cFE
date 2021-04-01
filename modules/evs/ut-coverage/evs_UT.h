@@ -18,24 +18,24 @@
 **  limitations under the License.
 */
 
-/*
-** File:
-**    evs_UT.h
-**
-** Purpose:
-**    EVS unit test header
-**
-** References:
-**    1. cFE Application Developers Guide
-**    2. unit test standard 092503
-**    3. C Coding Standard 102904
-**
-** Notes:
-**    1. This is unit test code only, not for use in flight
-**
-*/
-#ifndef _evs_UT_h_
-#define _evs_UT_h_
+/**
+ * @file
+ *
+ * Purpose:
+ *    EVS unit test header
+ *
+ * References:
+ *    1. cFE Application Developers Guide
+ *    2. unit test standard 092503
+ *    3. C Coding Standard 102904
+ *
+ * Notes:
+ *    1. This is unit test code only, not for use in flight
+ *
+ */
+
+#ifndef EVS_UT_H
+#define EVS_UT_H
 
 /*
 ** Includes
@@ -265,4 +265,4 @@ void Test_InvalidCmd(void);
 ******************************************************************************/
 void Test_Misc(void);
 
-#endif /* _evs_UT_h_ */
+#endif /* EVS_UT_H */
