@@ -18,47 +18,42 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_assert_main.c
+** File: cfe_assert.h
 **
 ** Purpose:
-**   Implementation of the CFE assert (UT assert wrapper) functions.
+**   Specification for the CFE assert (UT assert wrapper) functions.
 **
 *************************************************************************/
 
-/*
- * Includes
+/**
+ * @file
+ *
+ * Internal Declarations and prototypes for cfe_assert module
  */
 
-#include "cfe.h"
+#ifndef CFE_ASSERT_PRIV_H
+#define CFE_ASSERT_PRIV_H
 
-#include "cfe_assert_priv.h"
+/************************************************************************
+** Includes
+*************************************************************************/
+#include "common_types.h"
+#include "cfe_assert.h"
 
-#include "uttest.h"
-#include "utbsp.h"
+/************************************************************************
+** Type Definitions
+*************************************************************************/
 
-/*
- * Allows the test reports to be redirected to another destination
- */
-void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback)
+typedef struct
 {
-    CFE_Assert_Global.StatusCallback = Callback;
-}
+    uint32 CurrVerbosity;
 
-/*
- * Initialization Function for this library
- */
-int32 CFE_Assert_LibInit(uint32 LibId)
-{
-    UtTest_EarlyInit();
-    UT_BSP_Setup();
-
-    /*
-     * Start a test case for all startup logic.
-     *
-     * Test libs may use assert statements within their init function and these
-     * will be reported as a "startup" test case.
+    /**
+     * Function to invoke to report test status
      */
-    UtAssert_BeginTest("CFE-STARTUP");
+    CFE_Assert_StatusCallback_t StatusCallback;
+} CFE_Assert_Global_t;
 
-    return CFE_SUCCESS;
-}
+extern CFE_Assert_Global_t CFE_Assert_Global;
+
+#endif /* CFE_ASSERT_PRIV_H */

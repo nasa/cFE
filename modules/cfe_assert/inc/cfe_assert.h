@@ -43,6 +43,8 @@
 ** Type Definitions
 *************************************************************************/
 
+typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefix, const char *OutputMessage);
+
 /*************************************************************************
 ** Exported Functions
 *************************************************************************/
@@ -57,9 +59,27 @@
 **  \par Assumptions, External Events, and Notes:
 **        None
 **
-**  \return Execution status, see \ref CFEReturnCodes
+**  \return None
 **
 *************************************************************************/
 void CFE_Assert_AppMain(void);
+
+/************************************************************************/
+/** \brief Register a test status callback
+ *
+ *  \par Description
+ *        This user-supplied function will be invoked with the status
+ *        of each test and the associated message.  It may be used to
+ *        write the test messages to a location other than CFE ES Syslog.
+ *
+ *  \par Assumptions, External Events, and Notes:
+ *        None
+ *
+ * \param[in] Callback  Callback function to invoke after every test
+ *
+ * \return None
+ *
+ */
+void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback);
 
 #endif /* CFE_ASSERT_H */
