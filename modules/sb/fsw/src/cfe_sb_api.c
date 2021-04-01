@@ -1583,8 +1583,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
     if (CFE_SBR_IsValidRouteId(RouteId))
     {
         /* Set the seq count if requested (while locked) before actually sending */
-        /* For some reason this is only done for TLM types (historical, TBD) */
-        if (BufDscPtr->AutoSequence && BufDscPtr->ContentType == CFE_MSG_Type_Tlm)
+        if (BufDscPtr->AutoSequence)
         {
             CFE_SBR_IncrementSequenceCounter(RouteId);
 

@@ -412,8 +412,7 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 ** \param[in]  MsgPtr       A pointer to the message to be sent.  This must point
 **                          to the first byte of the message header.
 ** \param[in] IncrementSequenceCount Boolean to increment the internally tracked
-**                                   sequence count and update the message if the
-**                                   buffer contains a telemetry message
+**                                   sequence count and update the message
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -554,8 +553,7 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 **
 ** \param[in] BufPtr                 A pointer to the buffer to be sent.
 ** \param[in] IncrementSequenceCount Boolean to increment the internally tracked
-**                                   sequence count and update the message if the
-**                                   buffer contains a telemetry message
+**                                   sequence count and update the message
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
