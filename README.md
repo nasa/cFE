@@ -10,6 +10,12 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev490
+
+- Removes `PspConfig` member from the `GLOBAL_CONFIGDATA` object. Updates the only remaining reference to this object inside the CFE_PSP_VERSION and uses the new Version API instead. Updates the OSAL version print to use the version API call and CFE uses the macro directly.
+- Replaces duplicate mention of the removed `CFE_SB_ZeroCopyGetPtr` with the correct removal target of `CFE_SB_ZeroCopyReleasePtr`
+- See <https://github.com/nasa/cFE/pull/1279> and <https://github.com/nasa/cFS/pull/233>
+
 ### Development Build: v6.8.0-rc1+dev484
 
 - Removes cases in `cfe_es_apps.c` and `cfe_tbl_internal.c` that could never hit the alternate condition since the condition was already checked
