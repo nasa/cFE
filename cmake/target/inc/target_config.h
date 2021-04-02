@@ -32,7 +32,6 @@
 #define TARGET_CONFIG_H
 
 #include "common_types.h"
-#include "cfe_psp_configdata.h"
 
 /**
  * Prototype for the main system entry function implemented in CFE ES
@@ -191,7 +190,6 @@ typedef const struct
     const char *Default_CoreFilename;    /**< Default file name for CFE core executable/library */
 
     Target_CfeConfigData *CfeConfig; /**< CFE configuration sub-structure */
-    Target_PspConfigData *PspConfig; /**< PSP configuration sub-structure */
     CFE_StaticModuleLoadEntry_t
         *PspModuleList; /**< List of PSP modules (API structures) statically linked into the core EXE */
 
