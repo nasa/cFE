@@ -1,0 +1,2075 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    GSC-18128-1, "Core Flight Executive Version 6.7"
+
+    Copyright (c) 2006-2019 United States Government as represented by
+    the Administrator of the National Aeronautics and Space Administration.
+    All Rights Reserved.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    This document adheres to the Electronic Data Sheet (EDS) XML schema
+    as prescribed in CCSDS book 876.0.
+
+    Purpose:
+      This describes all interface objects for the Executive Services (CFE_ES)
+      core application
+
+-->
+<PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
+  <Package name="CFE_ES" shortDescription="NASA Core Flight System Executive Services">
+    <DataTypeSet>
+
+      <EnumeratedDataType name="LogMode" shortDescription="Identifies handling of log messages after storage is filled" >
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="OVERWRITE" value="0" shortDescription="Overwrite Log Mode" />
+          <Enumeration label="DISCARD" value="1" shortDescription="Discard Log Mode" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <EnumeratedDataType name="ExceptionAction" shortDescription="Identifies action to take if exception occurs" >
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="RESTART_APP" value="0" shortDescription="Restart application if exception occurs" />
+          <Enumeration label="PROC_RESTART"  value="1" shortDescription="Restart processor if exception occurs" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <EnumeratedDataType name="AppType" shortDescription="Identifies type of CFE application">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="CORE" value="1" shortDescription="CFE core application" />
+          <Enumeration label="EXTERNAL"  value="2" shortDescription="CFE external application" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <EnumeratedDataType name="RunStatus" shortDescription="Run Status and Exit Status identifiers">
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="APP_RUN" value="1" shortDescription="Indicates that the Application should continue to run" />
+          <Enumeration label="APP_EXIT" value="2" shortDescription="Indicates that the Application wants to exit normally" />
+          <Enumeration label="APP_ERROR" value="3" shortDescription="Indicates that the Application is quitting with an error" />
+          <Enumeration label="SYS_EXCEPTION" value="4" shortDescription="The cFE App caused an exception" />
+          <Enumeration label="SYS_RESTART" value="5" shortDescription="The system is requesting a restart of the cFE App" />
+          <Enumeration label="SYS_RELOAD" value="6" shortDescription="The system is requesting a reload of the cFE App" />
+          <Enumeration label="SYS_DELETE" value="7" shortDescription="The system is requesting that the cFE App is stopped" />
+          <Enumeration label="CORE_APP_INIT_ERROR" value="8" shortDescription="Indicates that the Core Application could not Init" />
+          <Enumeration label="CORE_APP_RUNTIME_ERROR" value="9" shortDescription="Indicates that the Core Application had a runtime failure" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <EnumeratedDataType name="LogEntryType" shortDescription="Type of entry in the Error and Reset (ER) Log">
+        <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="CORE" value="1" shortDescription="Log entry from a core subsystem" />
+          <Enumeration label="APPLICATION" value="2" shortDescription="Log entry from an application" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <EnumeratedDataType name="SystemState" shortDescription="The overall cFE System State">
+        <LongDescription>
+            These values are used with the CFE_ES_WaitForSystemState() API call to synchronize application startup.
+
+            @note These are defined in order so that relational comparisons e.g. if (STATEA &lt; STATEB) are possible
+        </LongDescription>
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="UNDEFINED"    value="0" shortDescription="reserved" />
+          <Enumeration label="EARLY_INIT"   value="1" shortDescription="single threaded mode while setting up CFE itself" />
+          <Enumeration label="CORE_STARTUP" value="2" shortDescription="core apps (CFE_ES_ObjectTable) are starting (multi-threaded)" />
+          <Enumeration label="CORE_READY"   value="3" shortDescription="core is ready, starting other external apps/libraries (if any)" />
+          <Enumeration label="APPS_INIT"    value="4" shortDescription="startup apps have all completed their early init, but not necessarily operational yet" />
+          <Enumeration label="OPERATIONAL"  value="5" shortDescription="normal operation mode; all apps are RUNNING" />
+          <Enumeration label="SHUTDOWN"     value="6" shortDescription="reserved for future use, all apps would be STOPPED" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+      <EnumeratedDataType name="AppState" shortDescription="Application Run State">
+        <LongDescription>
+            The normal progression of APP states:
+            UNDEFINED -> EARLY_INIT -> LATE_INIT -> RUNNING -> WAITING -> STOPPED
+
+            @note These are defined in order so that relational comparisons e.g. if (STATEA &lt; STATEB) are possible
+        </LongDescription>
+        <IntegerDataEncoding sizeInBits="32" encoding="unsigned" />
+        <EnumerationList>
+          <Enumeration label="UNDEFINED" value="0" shortDescription="Initial state before app thread is started" />
+          <Enumeration label="EARLY_INIT" value="1" shortDescription="App thread has started, app performing early initialization of its own data" />
+          <Enumeration label="LATE_INIT" value="2" shortDescription="Early/Local initialization is complete.  First sync point." />
+          <Enumeration label="RUNNING" value="3" shortDescription="All initialization is complete.  Second sync point." />
+          <Enumeration label="WAITING" value="4" shortDescription="Application is waiting on a Restart/Reload/Delete request" />
+          <Enumeration label="STOPPED" value="5" shortDescription="Application is stopped" />
+          <Enumeration label="MAX" value="6" shortDescription="Reserved, placeholder for maximum value" />
+        </EnumerationList>
+      </EnumeratedDataType>
+
+
+      <StringDataType name="char_x_CFE_ES_MAX_SHELL_CMD" length="${CFE_MISSION/ES_MAX_SHELL_CMD}" />
+      <StringDataType name="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" length="${CFE_MISSION/ES_CDS_MAX_FULL_NAME_LEN}" />
+      <StringDataType name="char_x_CFE_ES_MAX_SHELL_PKT" length="${CFE_MISSION/ES_MAX_SHELL_PKT}" />
+
+      <ArrayDataType name="boolean_x_CFE_ES_PERF_MAX_IDS" dataTypeRef="BASE_TYPES/StatusBit">
+        <DimensionList>
+          <Dimension size="${CFE_MISSION/ES_PERF_MAX_IDS}" />
+        </DimensionList>
+      </ArrayDataType>
+
+      <ContainerDataType name="AppInfo">
+        <LongDescription>
+          CFE_ES_AppInfo_t is a structure that is used to provide
+          information about an app. It is primarily used for the QueryOne and
+          QueryAll Commands.
+        </LongDescription>
+        <EntryList>
+          <Entry name="AppId" type="BASE_TYPES/uint32" shortDescription="Application ID for this Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_APP_ID
+            </LongDescription>
+          </Entry>
+          <Entry name="Type" type="AppType" shortDescription="The type of App: CORE or EXTERNAL">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_APPTYPE
+            </LongDescription>
+          </Entry>
+          <Entry name="Name" type="BASE_TYPES/ApiName" shortDescription="The Registered Name of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_APPNAME
+            </LongDescription>
+          </Entry>
+          <Entry name="EntryPoint" type="BASE_TYPES/ApiName" shortDescription="The Entry Point label for the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_APPENTRYPT
+            </LongDescription>
+          </Entry>
+          <Entry name="FileName" type="BASE_TYPES/PathName" shortDescription="The Filename of the file containing the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_APPFILENAME
+            </LongDescription>
+          </Entry>
+          <Entry name="StackSize" type="BASE_TYPES/uint32" shortDescription="The Stack Size of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_STACKSIZE
+            </LongDescription>
+          </Entry>
+          <Entry name="ModuleId" type="BASE_TYPES/uint32" shortDescription="The ID of the Loadable Module for the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_MODULEID
+            </LongDescription>
+          </Entry>
+          <Entry name="AddressesAreValid" type="BASE_TYPES/uint32" shortDescription="Indicates that the Code, Data, and BSS addresses/sizes are valid">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_ADDRVALID
+            </LongDescription>
+          </Entry>
+          <Entry name="CodeAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application Code Segment">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CODEADDR
+            </LongDescription>
+          </Entry>
+          <Entry name="CodeSize" type="BASE_TYPES/CpuAddress" shortDescription="The Code Size of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CODESIZE
+            </LongDescription>
+          </Entry>
+          <Entry name="DataAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application Data Segment">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_DATAADDR
+            </LongDescription>
+          </Entry>
+          <Entry name="DataSize" type="BASE_TYPES/CpuAddress" shortDescription="The Data Size of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_DATASIZE
+            </LongDescription>
+          </Entry>
+          <Entry name="BSSAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application BSS Segment">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_BSSADDR
+            </LongDescription>
+          </Entry>
+          <Entry name="BSSSize" type="BASE_TYPES/CpuAddress" shortDescription="The BSS Size of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_BSSSIZE
+            </LongDescription>
+          </Entry>
+          <Entry name="StartAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Start Address of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_STARTADDR
+            </LongDescription>
+          </Entry>
+          <Entry name="ExceptionAction" type="ExceptionAction" shortDescription="What should occur if Application has an exception (Restart Application OR Restart Processor)">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_EXCEPTNACTN
+            </LongDescription>
+          </Entry>
+          <Entry name="Priority" type="BASE_TYPES/uint16" shortDescription="The Priority of the Application">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PRIORITY
+            </LongDescription>
+          </Entry>
+          <Entry name="MainTaskId" type="BASE_TYPES/uint32" shortDescription="The Application's Main Task ID">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_MAINTASKID
+            </LongDescription>
+          </Entry>
+          <Entry name="ExecutionCounter" type="BASE_TYPES/uint32" shortDescription="The Application's Main Task Execution Counter">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_MAINTASKEXECNT
+            </LongDescription>
+          </Entry>
+          <Entry name="MainTaskName" type="BASE_TYPES/ApiName" shortDescription="The Application's Main Task Name">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_MAINTASKNAME
+            </LongDescription>
+          </Entry>
+          <Entry name="NumOfChildTasks" type="BASE_TYPES/uint32" shortDescription="Number of Child tasks for an App">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CHILDTASKS
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="BlockStats" shortDescription="Memory Pool Statistics data type">
+        <EntryList>
+          <Entry name="BlockSize" type="BASE_TYPES/uint32" shortDescription="Number of bytes in each of these blocks" />
+          <Entry name="NumCreated" type="BASE_TYPES/uint32" shortDescription="Number of Memory Blocks of this size created" />
+          <Entry name="NumFree" type="BASE_TYPES/uint32" shortDescription="Number of Memory Blocks of this size that are free" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ArrayDataType name="BlockStats_x_CFE_MAX_MEMPOOL_BLOCKS" dataTypeRef="BlockStats">
+        <DimensionList>
+          <Dimension size="${CFE_MISSION/MAX_MEMPOOL_BLOCKS}" />
+        </DimensionList>
+      </ArrayDataType>
+
+      <ContainerDataType name="MemPoolStats">
+        <EntryList>
+          <Entry name="PoolSize" type="BASE_TYPES/uint32" shortDescription="Size of Memory Pool (in bytes)">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_POOLSIZE
+            </LongDescription>
+          </Entry>
+          <Entry name="NumBlocksRequested" type="BASE_TYPES/uint32" shortDescription="Number of times a memory block has been allocated">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_BLKSREQ
+            </LongDescription>
+          </Entry>
+          <Entry name="CheckErrCtr" type="BASE_TYPES/uint32" shortDescription="Number of errors detected when freeing a memory block">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_BLKERRCTR
+            </LongDescription>
+          </Entry>
+          <Entry name="NumFreeBytes" type="BASE_TYPES/uint32" shortDescription="Number of bytes never allocated to a block">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_FREEBYTES
+            </LongDescription>
+          </Entry>
+          <Entry name="BlockStats" type="BlockStats_x_CFE_MAX_MEMPOOL_BLOCKS" shortDescription="Contains stats on each block size">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_BLKSTATS
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="RestartCmd_Payload" shortDescription="Reset cFE Command">
+        <LongDescription>
+          For command details, see #CFE_ES_RESTART_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="RestartType" type="BASE_TYPES/uint16" shortDescription="#CFE_ES_PROCESSOR_RESET=Processor Reset or #CFE_ES_POWERON_RESET=Power-On Reset" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ShellCmd_Payload" shortDescription="Shell Command">
+        <LongDescription>
+          For command details, see #CFE_ES_SHELL_CMD_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="CmdString" type="char_x_CFE_ES_MAX_SHELL_CMD" shortDescription="ASCII text string containing shell command to be executed" />
+          <Entry name="OutputFilename" type="BASE_TYPES/PathName" shortDescription="Filename where shell command output is to be written" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="FileNameCmd_Payload" shortDescription="Generic message payload for messages that require only a filename">
+        <EntryList>
+          <Entry name="FileName" type="BASE_TYPES/PathName" shortDescription="ASCII text string of full path and filename of file" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="OverWriteSysLogCmd_Payload" shortDescription="Overwrite/Discard System Log Configuration Command">
+        <LongDescription>
+          For command details, see #CFE_ES_OVERWRITE_SYSLOG_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="Mode" type="LogMode">
+            <LongDescription>
+               \brief  #CFE_ES_LogMode_DISCARD=Throw away most recent messages,
+              #CFE_ES_LogMode_OVERWRITE=Overwrite oldest with most recent
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="StartAppCmd_Payload" shortDescription="Start Application Command">
+        <LongDescription>
+          For command details, see #CFE_ES_START_APP_CC.
+        </LongDescription>
+        <EntryList>
+          <Entry name="Application" type="BASE_TYPES/ApiName" shortDescription="Name of Application to be started" />
+          <Entry name="AppEntryPoint" type="BASE_TYPES/ApiName" shortDescription="Symbolic name of Application's entry point" />
+          <Entry name="AppFileName" type="BASE_TYPES/PathName" shortDescription="Full path and filename of Application's executable image" />
+          <Entry name="StackSize" type="BASE_TYPES/uint32" shortDescription="Desired stack size for the new application" />
+          <Entry name="ExceptionAction" type="ExceptionAction">
+            <LongDescription>
+               \brief  #CFE_ES_ExceptionAction_RESTART_APP=On exception, restart Application,
+              #CFE_ES_ExceptionAction_PROC_RESTART=On exception, perform a Processor Reset
+            </LongDescription>
+          </Entry>
+          <Entry name="Priority" type="BASE_TYPES/uint16" shortDescription="The new Applications runtime priority." />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AppNameCmd_Payload" shortDescription="Command Structure for Commands requiring just an Application Name">
+        <LongDescription>
+          For command details, see #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_QUERY_ONE_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="Application" type="BASE_TYPES/ApiName" shortDescription="ASCII text string containing Application Name" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="AppReloadCmd_Payload" shortDescription="Reload Application Command">
+        <LongDescription>
+          For command details, see #CFE_ES_RELOAD_APP_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="Application" type="BASE_TYPES/ApiName" shortDescription="ASCII text string containing Application Name" />
+          <Entry name="AppFileName" type="BASE_TYPES/PathName" shortDescription="Full path and filename of Application's executable image" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetMaxPRCountCmd_Payload" shortDescription="Set Maximum Processor Reset Count Command">
+        <LongDescription>
+          For command details, see #CFE_ES_SET_MAX_PR_COUNT_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="MaxPRCount" type="BASE_TYPES/uint16" shortDescription="New maximum number of Processor Resets before an automatic Power-On Reset is performed" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DeleteCDSCmd_Payload" shortDescription="Delete Critical Data Store Command">
+        <LongDescription>
+          For command details, see #CFE_ES_DELETE_CDS_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="CdsName" type="char_x_CFE_ES_CDS_MAX_FULL_NAME_LEN" shortDescription="ASCII text string containing name of CDS to delete" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="StartPerfCmd_Payload" shortDescription="Start Performance Analyzer Command">
+        <LongDescription>
+          For command details, see #CFE_ES_PERF_STARTDATA_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="TriggerMode" type="BASE_TYPES/uint32" shortDescription="Desired trigger position (Start, Center, End)" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="StopPerfCmd_Payload" shortDescription="Stop Performance Analyzer Command">
+        <LongDescription>
+          For command details, see #CFE_ES_PERF_STOPDATA_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="DataFileName" type="BASE_TYPES/PathName" shortDescription="ASCII text string of full path and filename of file Performance Analyzer data is to be written" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetPerfFilterMaskCmd_Payload" shortDescription="Set Performance Analyzer Filter Mask Command">
+        <LongDescription>
+          For command details, see #CFE_ES_PERF_SETFILTERMASK_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="FilterMaskNum" type="BASE_TYPES/uint32" shortDescription="Index into array of Filter Masks" />
+          <Entry name="FilterMask" type="BASE_TYPES/uint32" shortDescription="New Mask for specified entry in array of Filter Masks" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetPerfTrigMaskCmd_Payload" shortDescription="Set Performance Analyzer Trigger Mask Command" >
+        <LongDescription>
+          For command details, see #CFE_ES_PERF_SETTRIGMASK_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="TriggerMaskNum" type="BASE_TYPES/uint32" shortDescription="Index into array of Trigger Masks" />
+          <Entry name="TriggerMask" type="BASE_TYPES/uint32" shortDescription="New Mask for specified entry in array of Trigger Masks" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SendMemPoolStatsCmd_Payload" shortDescription="">
+        <LongDescription>
+           \brief  Telemeter Memory Pool Statistics Command.
+          For command details, see #CFE_ES_TLM_POOL_STATS_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="Application" type="BASE_TYPES/ApiName" shortDescription="RESERVED - should be all zeroes" />
+          <Entry name="PoolHandle" type="BASE_TYPES/CpuAddress" shortDescription="Handle of Pool whose statistics are to be telemetered" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DumpCDSRegistryCmd_Payload" shortDescription="Dump CDS Registry Command">
+        <LongDescription>
+          For command details, see #CFE_ES_DUMP_CDS_REG_CC
+        </LongDescription>
+        <EntryList>
+          <Entry name="DumpFilename" type="BASE_TYPES/PathName" shortDescription="ASCII text string of full path and filename of file CDS Registry is to be written" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="OneAppTlm_Payload" shortDescription="Single Application Information Packet">
+        <EntryList>
+          <Entry name="AppInfo" type="AppInfo" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="PoolStatsTlm_Payload" shortDescription="Memory Pool Statistics Packet">
+        <EntryList>
+          <Entry name="PoolHandle" type="BASE_TYPES/CpuAddress" shortDescription="Handle of memory pool whose stats are being telemetered">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_POOLHANDLE
+            </LongDescription>
+          </Entry>
+          <Entry name="PoolStats" type="MemPoolStats" shortDescription="For more info, see #CFE_ES_MemPoolStats_t" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="HousekeepingTlm_Payload">
+        <EntryList>
+          <Entry name="CommandCounter" type="BASE_TYPES/uint8" shortDescription="The ES Application Command Counter">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CMDPC
+            </LongDescription>
+          </Entry>
+          <Entry name="CommandErrorCounter" type="BASE_TYPES/uint8" shortDescription="The ES Application Command Error Counter">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CMDEC
+            </LongDescription>
+          </Entry>
+          <Entry name="CFECoreChecksum" type="BASE_TYPES/uint16" shortDescription="Checksum of cFE Core Code">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CKSUM
+            </LongDescription>
+          </Entry>
+          <Entry name="CFEMajorVersion" type="BASE_TYPES/uint8" shortDescription="Major Version Number of cFE">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CFEMAJORVER
+            </LongDescription>
+          </Entry>
+          <Entry name="CFEMinorVersion" type="BASE_TYPES/uint8" shortDescription="Minor Version Number of cFE">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CFEMINORVER
+            </LongDescription>
+          </Entry>
+          <Entry name="CFERevision" type="BASE_TYPES/uint8" shortDescription="Sub-Minor Version Number of cFE">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CFEREVISION
+            </LongDescription>
+          </Entry>
+          <Entry name="CFEMissionRevision" type="BASE_TYPES/uint8" shortDescription="Mission Version Number of cFE">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_CFEMISSIONREV
+            </LongDescription>
+          </Entry>
+          <Entry name="OSALMajorVersion" type="BASE_TYPES/uint8" shortDescription="OS Abstraction Layer Major Version Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_OSMAJORVER
+            </LongDescription>
+          </Entry>
+          <Entry name="OSALMinorVersion" type="BASE_TYPES/uint8" shortDescription="OS Abstraction Layer Minor Version Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_OSMINORVER
+            </LongDescription>
+          </Entry>
+          <Entry name="OSALRevision" type="BASE_TYPES/uint8" shortDescription="OS Abstraction Layer Revision Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_OSREVISION
+            </LongDescription>
+          </Entry>
+          <Entry name="OSALMissionRevision" type="BASE_TYPES/uint8" shortDescription="OS Abstraction Layer MissionRevision Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_OSMISSIONREV
+            </LongDescription>
+          </Entry>
+          <Entry name="PSPMajorVersion" type="BASE_TYPES/uint8" shortDescription="Platform Support Package Major Version Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PSPMAJORVER
+            </LongDescription>
+          </Entry>
+          <Entry name="PSPMinorVersion" type="BASE_TYPES/uint8" shortDescription="Platform Support Package Minor Version Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PSPMINORVER
+            </LongDescription>
+          </Entry>
+          <Entry name="PSPRevision" type="BASE_TYPES/uint8" shortDescription="Platform Support Package Revision Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PSPREVISION
+            </LongDescription>
+          </Entry>
+          <Entry name="PSPMissionRevision" type="BASE_TYPES/uint8" shortDescription="Platform Support Package MissionRevision Number">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PSPMISSIONREV
+            </LongDescription>
+          </Entry>
+          <Entry name="SysLogBytesUsed" type="BASE_TYPES/uint32" shortDescription="Total number of bytes used in system log">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_SYSLOGBYTEUSED
+            </LongDescription>
+          </Entry>
+          <Entry name="SysLogSize" type="BASE_TYPES/uint32" shortDescription="Total size of the system log">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_SYSLOGSIZE
+            </LongDescription>
+          </Entry>
+          <Entry name="SysLogEntries" type="BASE_TYPES/uint32" shortDescription="Number of entries in the system log">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_SYSLOGENTRIES
+            </LongDescription>
+          </Entry>
+          <Entry name="SysLogMode" type="LogMode" shortDescription="Write/Overwrite Mode">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_SYSLOGMODE
+            </LongDescription>
+          </Entry>
+          <Entry name="ERLogIndex" type="BASE_TYPES/uint32" shortDescription="Current index of the ER Log (wraps around)">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_ERLOGINDEX
+            </LongDescription>
+          </Entry>
+          <Entry name="ERLogEntries" type="BASE_TYPES/uint32" shortDescription="Number of entries made in the ER Log since the power on">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_ERLOGENTRIES
+            </LongDescription>
+          </Entry>
+          <Entry name="RegisteredCoreApps" type="BASE_TYPES/uint32" shortDescription="Number of Applications registered with ES">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_REGCOREAPPS
+            </LongDescription>
+          </Entry>
+          <Entry name="RegisteredExternalApps" type="BASE_TYPES/uint32" shortDescription="Number of Applications registered with ES">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_REGEXTAPPS
+            </LongDescription>
+          </Entry>
+          <Entry name="RegisteredTasks" type="BASE_TYPES/uint32" shortDescription="Number of Tasks ( main AND child tasks ) registered with ES">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_REGTASKS
+            </LongDescription>
+          </Entry>
+          <Entry name="RegisteredLibs" type="BASE_TYPES/uint32" shortDescription="Number of Libraries registered with ES">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_REGLIBS
+            </LongDescription>
+          </Entry>
+          <Entry name="ResetType" type="BASE_TYPES/uint32" shortDescription="Reset type ( PROCESSOR or POWERON )">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_RESETTYPE
+            </LongDescription>
+          </Entry>
+          <Entry name="ResetSubtype" type="BASE_TYPES/uint32" shortDescription="Reset Sub Type">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_RESETSUBTYPE
+            </LongDescription>
+          </Entry>
+          <Entry name="ProcessorResets" type="BASE_TYPES/uint32" shortDescription="Number of processor resets since last power on">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PROCRESETCNT
+            </LongDescription>
+          </Entry>
+          <Entry name="MaxProcessorResets" type="BASE_TYPES/uint32" shortDescription="Max processor resets before a power on is done">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_MAXPROCRESETS
+            </LongDescription>
+          </Entry>
+          <Entry name="BootSource" type="BASE_TYPES/uint32" shortDescription="Boot source ( as provided from BSP )">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_BOOTSOURCE
+            </LongDescription>
+          </Entry>
+          <Entry name="PerfState" type="BASE_TYPES/uint32" shortDescription="Current state of Performance Analyzer">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PERFSTATE
+            </LongDescription>
+          </Entry>
+          <Entry name="PerfMode" type="BASE_TYPES/uint32" shortDescription="Current mode of Performance Analyzer">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PERFMODE
+            </LongDescription>
+          </Entry>
+          <Entry name="PerfTriggerCount" type="BASE_TYPES/uint32" shortDescription="Number of Times Perfomance Analyzer has Triggered">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PERFTRIGCNT
+            </LongDescription>
+          </Entry>
+          <Entry name="PerfFilterMask" type="boolean_x_CFE_ES_PERF_MAX_IDS" shortDescription="Current Setting of Performance Analyzer Filter Masks">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PERFFLTRMASK
+            </LongDescription>
+          </Entry>
+          <Entry name="PerfTriggerMask" type="boolean_x_CFE_ES_PERF_MAX_IDS" shortDescription="Current Setting of Performance Analyzer Trigger Masks">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PERFTRIGMASK
+            </LongDescription>
+          </Entry>
+          <Entry name="PerfDataStart" type="BASE_TYPES/uint32" shortDescription="Identifies First Stored Entry in Performance Analyzer Log">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PERFDATASTART
+            </LongDescription>
+          </Entry>
+          <Entry name="PerfDataEnd" type="BASE_TYPES/uint32" shortDescription="Identifies Last Stored Entry in Performance Analyzer Log">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PERFDATAEND
+            </LongDescription>
+          </Entry>
+          <Entry name="PerfDataCount" type="BASE_TYPES/uint32" shortDescription="Number of Entries Put Into the Performance Analyzer Log">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PERFDATACNT
+            </LongDescription>
+          </Entry>
+          <Entry name="PerfDataToWrite" type="BASE_TYPES/uint32" shortDescription="Number of Performance Analyzer Log Entries Left to be Written to Log Dump File">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_PERFDATA2WRITE
+            </LongDescription>
+          </Entry>
+          <Entry name="HeapBytesFree" type="BASE_TYPES/uint32" shortDescription="Number of free bytes remaining in the OS heap">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_HEAPBYTESFREE
+            </LongDescription>
+          </Entry>
+          <Entry name="HeapBlocksFree" type="BASE_TYPES/uint32" shortDescription="Number of free blocks remaining in the OS heap">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_HEAPBLKSFREE
+            </LongDescription>
+          </Entry>
+          <Entry name="HeapMaxBlockSize" type="BASE_TYPES/uint32" shortDescription="Number of bytes in the largest free block">
+            <LongDescription>
+               \cfetlmmnemonic  \ES_HEAPMAXBLK
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ShellPacket_Payload">
+        <EntryList>
+          <Entry name="ShellOutput" type="char_x_CFE_ES_MAX_SHELL_PKT">
+            <LongDescription>
+               \brief  ASCII text string containing output from OS Shell
+              that was received in response to an OS Shell Command
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="CommandBase" baseType="CCSDS/CommandPacket">
+      </ContainerDataType>
+
+      <ContainerDataType name="HousekeepingTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="HousekeepingTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="OneAppTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="OneAppTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ShellTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="ShellPacket_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="MemStatsTlm" baseType="CCSDS/TelemetryPacket">
+        <EntryList>
+          <Entry type="PoolStatsTlm_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+
+      <ContainerDataType name="Noop" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Executive Services No-Op
+
+          \par  Description
+
+          This command performs no other function than to increment the
+          command execution counter. The command may be used to verify
+          general aliveness of the Executive Services task.
+          \cfecmdmnemonic  \ES_NOOP
+
+          \par  Command Structure
+          #CFE_ES_NoArgsCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with the
+          following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_NOOP_INF_EID informational event message will
+          be generated
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - the #CFE_ES_LEN_ERR_EID error event message will be generated
+
+          \par  Criticality
+          None
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="0" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="ResetCounters" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Executive Services Reset Counters
+
+          \par  Description
+
+          This command resets the following counters within the Executive
+          Services housekeeping telemetry:
+          - Command Execution Counter
+          - Command Error Counter
+          \cfecmdmnemonic  \ES_RESETCTRS
+
+          \par  Command Structure
+          #CFE_ES_NoArgsCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_RESET_INF_EID informational event message will be
+          generated
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - the #CFE_ES_LEN_ERR_EID error event message will be generated
+
+          \par  Criticality
+
+          This command is not inherently dangerous.  However, it is
+          possible for ground systems and on-board safing procedures
+          to be designed such that they react to changes in the counter
+          values that are reset by this command.
+
+          \sa  #CFE_ES_RESET_PR_COUNT_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="1" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="Restart" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Executive Services Processor / Power-On Reset
+
+          \par  Description
+
+          This command restarts the cFE in one of two modes.  The Power-On Reset
+          will cause the cFE to restart as though the power were first applied
+          to the processor.  The Processor Reset will attempt to retain the contents
+          of the volatile disk and the contents of the Critical Data Store.
+          NOTE: If a requested Processor Reset should cause the
+          Processor Reset Counter (\b \c \ES_PROCRESETCNT)
+          to exceed OR EQUAL the limit #CFE_ES_MAX_PROCESSOR_RESETS (which is reported in
+          housekeeping telemetry as \b \c \ES_MAXPROCRESETS),
+          the command is \b AUTOMATICALLY upgraded to a Power-On Reset.
+          \cfecmdmnemonic  \ES_RESET
+
+          \par  Command Structure
+          #CFE_ES_RestartCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command (as a Processor Reset)
+          may be verified with the following telemetry:
+          - \b \c \ES_PROCRESETCNT - processor reset counter will increment
+          - New entries in the Exception Reset Log and System Log can be found
+          NOTE: Verification of a Power-On Reset is shown through the loss of
+          data nominally retained through a Processor Reset
+          NOTE: Since the reset of the processor resets the command execution
+          counter (\b \c \ES_CMDPC), this counter \b CANNOT be used to verify
+          command execution.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The \link #CFE_ES_RestartCmd_t.RestartType Restart Type \endlink was
+          not a recognized value.
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - the #CFE_ES_BOOT_ERR_EID error event message will be generated
+
+          \par  Criticality
+
+          This command is, by definition, dangerous.  Significant loss of
+          data will occur.  All processes and the cFE itself will be stopped
+          and restarted.  With the Power-On reset option, all data on the
+          volatile disk and the contents of the Critical Data Store will be
+          lost.
+
+          \sa  #CFE_ES_RESET_PR_COUNT_CC, #CFE_ES_SET_MAX_PR_COUNT_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="2" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="RestartCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="Shell" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Executive Services O/S Shell Command
+
+          \par  Description
+
+          This command passes an ASCII string as a command line to the
+          underlying realtime operating system shell.  Any response to
+          the command is both written to the shell command output file
+          and sent as a series of shell command output telemetry packets.
+
+          If the shell command output filename argument is empty, then
+          #CFE_ES_DEFAULT_SHELL_FILENAME will be used as the filename.
+          \cfecmdmnemonic  \ES_SHELL
+
+          \par  Command Structure
+          #CFE_ES_ShellCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_SHELL_INF_EID informational event message will be
+          generated
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - Failure to create the shell command output file
+          - The shell command started with ES_ but was not one of the
+          recognized cFE shell commands
+          - There was an error while performing a #OS_lseek on the shell command output file
+          - There was an error while redirecting the shell command response to the
+          shell command output file
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - the #CFE_ES_SHELL_ERR_EID error event message will be generated
+          - Additional information on the error should be found in the System Log
+
+          \par  Criticality
+
+          This command should be used with caution.  Interfering with the
+          operation of the underlying realtime operating system can cause
+          significant problems.
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="3" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="ShellCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="StartApp" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Load and Start an Application
+
+          \par  Description
+
+          This command starts the specified application with the
+          specified start address, stack size, etc options.
+          \cfecmdmnemonic  \ES_STARTAPP
+
+          \par  Command Structure
+          #CFE_ES_StartAppCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_START_INF_EID informational event message will be
+          generated
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The specified application filename string is either a NULL string
+          or less than four characters in length
+          - The specified application entry point is a NULL string
+          - The specified application name is a NULL string
+          - The specified stack size is less than #CFE_ES_DEFAULT_STACK_SIZE
+          - The specified priority is greater than #OS_MAX_PRIORITY
+          - The specified exception action is neither #CFE_ES_ExceptionAction_RESTART_APP (0) or
+          #CFE_ES_ExceptionAction_PROC_RESTART (1)
+          - The Operating System was unable to load the specified application file
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not inherently dangerous although system resources
+          could be taxed beyond their limits with the starting of erroneous
+          or invalid applications.
+
+          \sa  #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_RELOAD_APP_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="4" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="StartAppCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="StopApp" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Stop and Unload Application
+
+          \par  Description
+
+          This command halts and removes the specified Application
+          from the system. \b NOTE: This command should never be used
+          on the Command Ingest application.  This would prevent further
+          commands from entering the system.  If Command Ingest needs to
+          be stopped and restarted, use #CFE_ES_RESTART_APP_CC or
+          #CFE_ES_RELOAD_APP_CC.
+          \cfecmdmnemonic  \ES_STOPAPP
+
+          \par  Command Structure
+          #CFE_ES_AppNameCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_STOP_DBG_EID debug event message will be
+          generated. NOTE: This event message only identifies that the
+          stop has been started, not that is has completed.
+          - Once the stop has successfully completed, the list of Applications
+          and Tasks created in response to the \b \c \ES_WRITEAPPINFO2FILE,
+          \b \c \ES_WRITETASKINFO2FILE should no longer contain the
+          specified application.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The specified application name is not recognized as an active application
+          - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued forall error
+          cases
+          - Additional information on the reason for command failure may be found
+          in the System Log
+
+          \par  Criticality
+
+          This command is not inherently dangerous, however the removal of certain
+          applications (e.g. - Spacecraft Attitude and Control) may have a detrimental effect
+          on the spacecraft.
+
+          \sa  #CFE_ES_START_APP_CC, #CFE_ES_RESTART_APP_CC, #CFE_ES_RELOAD_APP_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="5" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="RestartApp" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Stops and Restarts an Application
+
+          \par  Description
+
+          This command halts and restarts the specified Application.
+          This command does \b NOT reload the application from the onboard
+          filesystem.
+          \cfecmdmnemonic  \ES_RESTARTAPP
+
+          \par  Command Structure
+          #CFE_ES_AppNameCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_RESTART_APP_DBG_EID debug event message will be
+          generated. NOTE: This event message only identifies that the
+          act of stopping the application has begun, not that is has completed.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The specified application name is not recognized as an active application
+          - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+          - Additional information on the reason for command failure may be found
+          in the System Log
+
+          \par  Criticality
+
+          This command is not inherently dangerous, however the restarting of certain
+          applications (e.g. - Spacecraft Attitude and Control) may have a detrimental effect
+          on the spacecraft.
+
+          \sa  #CFE_ES_START_APP_CC, #CFE_ES_STOP_APP_CC, #CFE_ES_RELOAD_APP_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="6" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ReloadApp" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Stops, Unloads, Loads from a File and Restarts an Application
+
+          \par  Description
+
+          This command halts and removes the specified Application
+          from the system.  Then it immediately loads the Application from
+          the command specified file and restarts it.  This command is
+          especially useful for restarting a Command Ingest Application
+          since once it has been stopped, no further commands can come in
+          to restart it.
+          \cfecmdmnemonic  \ES_RELOADAPP
+
+          \par  Command Structure
+          #CFE_ES_AppReloadCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_RELOAD_APP_DBG_EID debug event message will be
+          generated. NOTE: This event message only identifies that the
+          act of stopping the application has begun, not that is has completed.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The specified application name is not recognized as an active application
+          - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+          - Additional information on the reason for command failure may be found
+          in the System Log
+
+          \par  Criticality
+
+          This command is not inherently dangerous, however the restarting of certain
+          applications (e.g. - Spacecraft Attitude and Control) may have a detrimental effect
+          on the spacecraft.
+
+          \sa  #CFE_ES_START_APP_CC, #CFE_ES_STOP_APP_CC, #CFE_ES_RESTART_APP_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="7" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppReloadCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="QueryOne" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Request Executive Services Information on a Specified Application
+
+          \par  Description
+
+          This command takes the information kept by Executive Services on the
+          specified application and telemeters it to the ground.
+          \cfecmdmnemonic  \ES_QUERYAPP
+
+          \par  Command Structure
+          #CFE_ES_AppNameCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_ONE_APP_EID debug event message will be
+          generated. NOTE: This event message only identifies that the
+          act of stopping the application has begun, not that is has completed.
+          - Receipt of the #CFE_ES_APP_TLM_t telemetry packet
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The specified application name is not recognized as an active application
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+          None
+
+          \sa  #CFE_ES_QUERY_ALL_CC, #CFE_ES_QUERY_ALL_TASKS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="8" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="AppNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="QueryAll" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Writes all Executive Services Information on All Applications to a File
+
+          \par  Description
+
+          This command takes the information kept by Executive Services on all of the
+          registered applications and writes it to the specified file.
+          \cfecmdmnemonic  \ES_WRITEAPPINFO2FILE
+
+          \par  Command Structure
+          #CFE_ES_QueryAllCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_ALL_APPS_EID debug event message will be
+          generated.
+          - The file specified in the command (or the default specified
+          by the #CFE_ES_DEFAULT_APP_LOG_FILE configuration parameter) will be
+          updated with the lastest information.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - An Error occurs while trying to write to the file
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
+          operator, fill the file system.
+
+          \sa  #CFE_ES_QUERY_ONE_CC, #CFE_ES_QUERY_ALL_TASKS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="9" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="FileNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ClearSyslog" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Clear Executive Services System Log
+
+          \par  Description
+
+          This command clears the contents of the Executive Services System Log.
+          \cfecmdmnemonic  \ES_CLEARSYSLOG
+
+          \par  Command Structure
+          #CFE_ES_NoArgsCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_SYSLOG1_INF_EID informational event message will be
+          generated.
+          - \b \c \ES_SYSLOGBYTEUSED - System Log Bytes Used will go to zero
+          - \b \c \ES_SYSLOGENTRIES - Number of System Log Entries will go to zero
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not dangerous.  However, any previously logged data
+          will be lost.
+
+          \sa  #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_CLEAR_ERLOG_CC, #CFE_ES_WRITE_ERLOG_CC,
+          #CFE_ES_OVERWRITE_SYSLOG_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="10" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="WriteSyslog" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Writes contents of Executive Services System Log to a File
+
+          \par  Description
+
+          This command causes the contents of the Executive Services System Log
+          to be written to a log file.
+          \cfecmdmnemonic  \ES_WRITESYSLOG2FILE
+
+          \par  Command Structure
+          #CFE_ES_WriteSyslogCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_SYSLOG2_EID debug event message will be
+          generated.
+          - The file specified in the command (or the default specified
+          by the #CFE_ES_DEFAULT_SYSLOG_FILE configuration parameter) will be
+          updated with the lastest information.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - An Error occurs while trying to write to the file
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
+          operator, fill the file system.
+
+          \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_CLEAR_ERLOG_CC, #CFE_ES_WRITE_ERLOG_CC,
+          #CFE_ES_OVERWRITE_SYSLOG_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="11" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="FileNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ClearERLog" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Clears the contents of the Exeception and Reset Log
+
+          \par  Description
+
+          This command causes the contents of the Executive Services Exception
+          and Reset Log to be cleared.
+          \cfecmdmnemonic  \ES_CLEARERLOG
+
+          \par  Command Structure
+          #CFE_ES_NoArgsCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_ERLOG1_INF_EID informational event message will be
+          generated.
+          - \b \c \ES_ERLOGINDEX - Index into Exception Reset Log goes to zero
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not dangerous.  However, any previously logged data
+          will be lost.
+
+          \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_WRITE_ERLOG_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="12" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="WriteERLog" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Writes Exeception and Reset Log to a File
+
+          \par  Description
+
+          This command causes the contents of the Executive Services Exception
+          and Reset Log to be written to the specified file.
+          \cfecmdmnemonic  \ES_WRITEERLOG2FILE
+
+          \par  Command Structure
+          #CFE_ES_WriteERlogCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_ERLOG2_EID debug event message will be
+          generated.
+          - The file specified in the command (or the default specified
+          by the #CFE_ES_DEFAULT_ER_LOG_FILE configuration parameter) will be
+          updated with the lastest information.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - An Error occurs while trying to write to the file
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
+          operator, fill the file system.
+
+          \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC, #CFE_ES_CLEAR_ERLOG_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="13" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="FileNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="StartPerfData" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Start Performance Analyzer
+
+          \par  Description
+
+          This command causes the Performance Analyzer to begin collecting data using the specified trigger mode.
+          \cfecmdmnemonic  \ES_STARTLADATA
+
+          \par  Command Structure
+          #CFE_ES_PerfStartCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - \b \c \ES_PERFSTATE - Current performance analyzer state will change to
+          either WAITING FOR TRIGGER or, if conditions are appropriate fast enough,
+          TRIGGERED.
+          - \b \c \ES_PERFMODE - Performance Analyzer Mode will change to the commanded trigger mode (TRIGGER START,
+          TRIGGER CENTER, or TRIGGER END).
+          - \b \c \ES_PERFTRIGCNT - Performance Trigger Count will go to zero
+          - \b \c \ES_PERFDATASTART - Data Start Index will go to zero
+          - \b \c \ES_PERFDATAEND - Data End Index will go to zero
+          - \b \c \ES_PERFDATACNT - Performance Data Counter will go to zero
+          - The #CFE_ES_PERF_STARTCMD_EID debug event message will be
+          generated.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - A previous #CFE_ES_PERF_STOPDATA_CC command has not completely finished.
+          - An invalid trigger mode is requested.
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not inherently dangerous but may cause a small increase in CPU
+          utilization as the performance analyzer data is collected.
+
+          \sa  #CFE_ES_PERF_STOPDATA_CC, #CFE_ES_PERF_SETFILTERMASK_CC, #CFE_ES_PERF_SETTRIGMASK_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="14" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="StartPerfCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="StopPerfData" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Stop Performance Analyzer
+
+          \par  Description
+
+          This command stops the Performance Analyzer from collecting any more data.
+          \cfecmdmnemonic  \ES_STOPLADATA
+
+          \par  Command Structure
+          #CFE_ES_PerfStopCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - \b \c \ES_PERFSTATE - Current performance analyzer state will change to
+          IDLE.
+          - The #CFE_ES_PERF_STOPCMD_EID debug event message will be
+          generated.
+          - The file specified in the command (or the default specified
+          by the #CFE_ES_DEFAULT_PERF_DUMP_FILENAME configuration parameter) will be
+          updated with the lastest information.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - A previous Stop Performance Analyzer command is still in process
+          - An error occurred while spawning the child task responsible for
+          dumping the Performance Analyzer data to a file
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not inherently dangerous.  An additional low priority child
+          task will be spawned, however, to dump the performance analyzer data to a file.
+
+          \sa  #CFE_ES_PERF_STARTDATA_CC, #CFE_ES_PERF_SETFILTERMASK_CC, #CFE_ES_PERF_SETTRIGMASK_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="15" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="StopPerfCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetPerfFilterMask" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Set Performance Analyzer's Filter Masks
+
+          \par  Description
+
+          This command sets the Performance Analyzer's Filter Masks.
+          \cfecmdmnemonic  \ES_LAFILTERMASK
+
+          \par  Command Structure
+          #CFE_ES_SetPerfFilterMaskCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - \B \C \ES_PERFFLTRMASK - the current performance filter mask
+          value(s) should reflect the commanded value
+          - The #CFE_ES_PERF_FILTMSKCMD_EID debug event message will be
+          generated.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The Filter Mask ID number is out of range
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          Changing the filter masks may cause a small change in the Performance
+          Analyzer's CPU utilization.
+
+          \sa  #CFE_ES_PERF_STARTDATA_CC, #CFE_ES_PERF_STOPDATA_CC, #CFE_ES_PERF_SETTRIGMASK_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="16" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="SetPerfFilterMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetPerfTriggerMask" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Set Performance Analyzer's Trigger Masks
+
+          \par  Description
+          This command sets the Performance Analyzer's Trigger Masks.
+          \cfecmdmnemonic  \ES_LATRIGGERMASK
+
+          \par  Command Structure
+          #CFE_ES_PerfSetTrigMaskCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - \b \c \ES_PERFTRIGMASK - the current performance trigger mask
+          value(s) should reflect the commanded value
+          - The #CFE_ES_PERF_TRIGMSKCMD_EID debug event message will be
+          generated.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The Trigger Mask ID number is out of range
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          Changing the trigger masks may cause a small change in the Performance
+          Analyzer's CPU utilization.
+
+          \sa  #CFE_ES_PERF_STARTDATA_CC, #CFE_ES_PERF_STOPDATA_CC, #CFE_ES_PERF_SETFILTERMASK_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="17" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="SetPerfTrigMaskCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="OverWriteSyslog" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Set Executive Services System Log Mode to Discard/Overwrite
+
+          \par  Description
+
+          This command allows the user to configure the Executive Services
+          to either discard new System Log messages when it is full or to
+          overwrite the oldest messages.
+          \cfecmdmnemonic  \ES_OVERWRITESYSLOGMODE
+
+          \par  Command Structure
+          #CFE_ES_OverWriteSysLogCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - \b \c \ES_SYSLOGMODE - Current System Log Mode should reflect
+          the commanded value
+          - The #CFE_ES_SYSLOGMODE_EID debug event message will be
+          generated.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The desired mode is neither #CFE_ES_LogMode_OVERWRITE or #CFE_ES_LogMode_DISCARD
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          None. (It should be noted that "Overwrite" mode would allow a message
+          identifying the cause of a problem to be lost by a subsequent flood of
+          additional messages).
+
+          \sa  #CFE_ES_CLEAR_SYSLOG_CC, #CFE_ES_WRITE_SYSLOG_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="18" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="OverWriteSysLogCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="ResetPRCount" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Resets the Processor Reset Counter to Zero
+
+          \par  Description
+
+          This command allows the user to reset the Processor Reset Counter to zero.
+          The Processor Reset Counter counts the number of Processor Resets that
+          have occurred so as to identify when a Processor Reset should automatically
+          be upgraded to a full Power-On Reset.
+          \cfecmdmnemonic  \ES_RESETPRCNT
+
+          \par  Command Structure
+          #CFE_ES_NoArgsCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - \b \c \ES_PROCRESETCNT - Current number of processor resets will go to zero
+          - The #CFE_ES_RESET_PR_COUNT_EID informational event message will be
+          generated.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not critical.  The only impact would be that the system
+          would have to have more processor resets before an automatic power-on reset
+          occurred.
+
+          \sa  #CFE_ES_SET_MAX_PR_COUNT_CC, #CFE_ES_RESET_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="19" />
+        </ConstraintSet>
+      </ContainerDataType>
+
+      <ContainerDataType name="SetMaxPRCount" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Configure the Maximum Number of Processor Resets before a Power-On Reset
+
+          \par  Description
+
+          This command allows the user to specify the number of Processor Resets that
+          are allowed before the next Processor Reset is upgraded to a Power-On Reset.
+          \cfecmdmnemonic  \ES_SETMAXPRCNT
+
+          \par  Command Structure
+          #CFE_ES_SetMaxPRCountCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - \b \c \ES_MAXPROCRESETS - Current maximum number of processor resets
+          before an automatic power-on reset will go to the command specified value.
+          - The #CFE_ES_SET_MAX_PR_COUNT_EID informational event message will be
+          generated.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          If the operator were to set the Maximum Processor Reset Count to too high a value,
+          the processor would require an inordinate number of consecutive processor resets
+          before an automatic power-on reset would occur.  This could potentially leave the
+          spacecraft without any control for a significant amount of time if a processor reset
+          fails to clear a problem.
+
+          \sa  #CFE_ES_RESET_PR_COUNT_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="20" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="SetMaxPRCountCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DeleteCDS" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Delete Critical Data Store
+
+          \par  Description
+
+          This command allows the user to delete a Critical Data Store that was created
+          by an Application that is now no longer executing.
+          \cfecmdmnemonic  \ES_DELETECDS
+
+          \par  Command Structure
+          #CFE_ES_DeleteCDSCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_CDS_DELETED_INFO_EID informational event message will be
+          generated.
+          - The specified CDS should no longer appear in a CDS Registry dump generated
+          upon receipt of the #CFE_ES_DUMP_CDS_REG_CC command
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The specified CDS is the CDS portion of a Critical Table. See #CFE_TBL_DELETE_CDS_CC.
+          - The specified CDS is not found in the CDS Registry
+          - The specified CDS is associated with an Application that is still active
+          - An error occurred while accessing the CDS memory (see the System Log for more details)
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not critical because it is not possible to delete a CDS that is
+          associated with an active application.  However, deleting a CDS does eliminate
+          any "history" that an application may be wishing to keep.
+
+          \sa  #CFE_ES_DUMP_CDS_REG_CC, #CFE_TBL_DELETE_CDS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="21" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="DeleteCDSCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="SendMemPoolStats" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Telemeter Memory Pool Statistics
+
+          \par  Description
+
+          This command allows the user to obtain a snapshot of the statistics maintained
+          for a specified memory pool.
+          \cfecmdmnemonic  \ES_SendMemPoolStats
+
+          \par  Command Structure
+          #CFE_ES_SendMemPoolStatsCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_TLM_POOL_STATS_INFO_EID debug event message will be
+          generated.
+          - The \link #CFE_ES_MEMSTATS_TLM_t Memory Pool Statistics Telemetry Packet \endlink
+          is produced
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - The specified handle is not associated with a known memory pool
+          - The specified handle caused a processor exception because it improperly
+          identified a segment of memory
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          An incorrect Memory Pool Handle value can cause a system crash.
+          Extreme care should be taken to ensure the memory handle value
+          used in the command is correct.
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="22" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="SendMemPoolStatsCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="DumpCDSRegistry" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Dump Critical Data Store Registry to a File
+
+          \par  Description
+
+          This command allows the user to dump the Critical Data Store
+          Registry to an onboard file.
+          \cfecmdmnemonic  \ES_DumpCDSRegistry
+
+          \par  Command Structure
+          #CFE_ES_DumpCDSRegistryCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_CDS_REG_DUMP_INF_EID debug event message will be
+          generated.
+          - The file specified in the command (or the default specified
+          by the #CFE_ES_DEFAULT_CDS_REG_DUMP_FILE configuration parameter) will be
+          updated with the lastest information.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - Error occurred while trying to create the dump file
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
+          operator, fill the file system.
+
+          \sa  #CFE_ES_DELETE_CDS_CC, #CFE_TBL_DELETE_CDS_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="23" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="DumpCDSRegistryCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+      <ContainerDataType name="QueryAllTasks" baseType="CommandBase">
+        <LongDescription>
+          \cfeescmd  Writes a list of All Executive Services Tasks to a File
+
+          \par  Description
+
+          This command takes the information kept by Executive Services on all of the
+          registered tasks and writes it to the specified file.
+          \cfecmdmnemonic  \ES_WRITETASKINFO2FILE
+
+          \par  Command Structure
+          #CFE_ES_QueryAllTasksCmd_t
+
+          \par  Command Verification
+
+          Successful execution of this command may be verified with
+          the following telemetry:
+          - \b \c \ES_CMDPC - command execution counter will
+          increment
+          - The #CFE_ES_TASKINFO_EID debug event message will be
+          generated.
+          - The file specified in the command (or the default specified
+          by the #CFE_ES_DEFAULT_TASK_LOG_FILE configuration parameter) will be
+          updated with the lastest information.
+
+          \par  Error Conditions
+
+          This command may fail for the following reason(s):
+          - The command packet length is incorrect
+          - An Error occurs while trying to write to the file
+
+          Evidence of failure may be found in the following telemetry:
+          - \b \c \ES_CMDEC - command error counter will increment
+          - A command specific error event message is issued for all error
+          cases
+
+          \par  Criticality
+
+          This command is not inherently dangerous.  It will create a new
+          file in the file system (or overwrite an existing one) and could,
+          if performed repeatedly without sufficient file management by the
+          operator, fill the file system.
+
+          \sa  #CFE_ES_QUERY_ALL_CC, CFE_ES_QUERY_ONE_CC
+        </LongDescription>
+        <ConstraintSet>
+          <ValueConstraint entry="Sec.Command" value="24" />
+        </ConstraintSet>
+        <EntryList>
+          <Entry type="FileNameCmd_Payload" name="Payload" />
+        </EntryList>
+      </ContainerDataType>
+
+    </DataTypeSet>
+
+    <ComponentSet>
+      <Component name="Application">
+        <RequiredInterfaceSet>
+          <Interface name="CMD" shortDescription="Software bus telecommand interface" type="CFE_SB/Telecommand">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CommandBase" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="SEND_HK" shortDescription="Send telemetry command interface" type="CFE_SB/Telecommand">
+            <!-- This uses a bare spacepacket with no payload -->
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelecommandDataType" type="CCSDS/CommandPacket" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="HK_TLM" shortDescription="Software bus housekeeping telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="HousekeepingTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="APP_TLM" shortDescription="telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="OneAppTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="SHELL_TLM" shortDescription="telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="ShellTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+          <Interface name="MEMSTATS_TLM" shortDescription="telemetry interface" type="CFE_SB/Telemetry">
+            <GenericTypeMapSet>
+              <GenericTypeMap name="TelemetryDataType" type="MemStatsTlm" />
+            </GenericTypeMapSet>
+          </Interface>
+        </RequiredInterfaceSet>
+        <Implementation>
+          <VariableSet>
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="CmdTopicId" initialValue="${CFE_MISSION/ES_CMD_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="SendHkTopicId" initialValue="${CFE_MISSION/ES_SEND_HK_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="HkTlmTopicId" initialValue="${CFE_MISSION/ES_HK_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="AppTlmTopicId" initialValue="${CFE_MISSION/ES_APP_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="ShellTlmTopicId" initialValue="${CFE_MISSION/ES_SHELL_TLM_TOPICID}" />
+            <Variable type="BASE_TYPES/uint16" readOnly="true" name="MemStatsTlmTopicId" initialValue="${CFE_MISSION/ES_MEMSTATS_TLM_TOPICID}" />
+          </VariableSet>
+          <!-- Assign fixed numbers to the "TopicId" parameter of each interface -->
+          <ParameterMapSet>
+            <ParameterMap interface="CMD" parameter="TopicId" variableRef="CmdTopicId" />
+            <ParameterMap interface="SEND_HK" parameter="TopicId" variableRef="SendHkTopicId" />
+            <ParameterMap interface="HK_TLM" parameter="TopicId" variableRef="HkTlmTopicId" />
+            <ParameterMap interface="APP_TLM" parameter="TopicId" variableRef="AppTlmTopicId" />
+            <ParameterMap interface="SHELL_TLM" parameter="TopicId" variableRef="ShellTlmTopicId" />
+            <ParameterMap interface="MEMSTATS_TLM" parameter="TopicId" variableRef="MemStatsTlmTopicId" />
+          </ParameterMapSet>
+        </Implementation>
+      </Component>
+    </ComponentSet>
+
+  </Package>
+</PackageFile>
