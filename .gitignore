@@ -1,0 +1,12 @@
+# Ignore everything
+*
+
+# ...even if they are in subdirectories
+!*/
+
+# But not these files...
+!.gitignore
+
+# ES Files
+!modules/es/**
+!*cfe_es*
