@@ -1,0 +1,23 @@
+# Ignore everything
+*
+
+# ...even if they are in subdirectories
+!*/
+
+# But not these files...
+!/.gitignore
+
+
+# Build Files
+!cmake/**/target_config.*
+!cmake/target/CMAKELists.txt
+!cmake/arch_build.cmake
+!cmake/cfe_generated_file.h.in
+!cmake/check_header.c.in
+!cmake/generate_build_env.cmake
+!cmake/generate_git_module_version.cmake
+!cmake/global_functions.cmake
+!cmake/mission_build.cmake
+!cmake/mission_defaults.cmake
+
+!/CMakeLists.txt
