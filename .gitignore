@@ -27,3 +27,11 @@
 !modules/core_api/fsw/inc/cfe_endian.h
 !modules/core_api/fsw/inc/cfe_error.h
 !modules/core_api/fsw/inc/cfe_version.h
+
+# ES
+!modules/core_api/fsw/inc/cfe_es*
+!modules/core_private/fsw/inc/cfe_es*
+
+!modules/es/fsw/**
+
+!modules/es/CMakeLists.txt
