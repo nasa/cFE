@@ -35,3 +35,15 @@
 !modules/es/fsw/**
 
 !modules/es/CMakeLists.txt
+
+
+# ResourceID
+
+!modules/core_api/fsw/inc/cfe_resourceid*
+
+!modules/core_private/fsw/inc/cfe_core_resourceid_basevalues.h
+
+!modules/resourceid/fsw/src/*
+!modules/resourceid/option_inc/*
+!modules/resourceid/CMakeLists.txt
+!modules/resourceid/mission_build.cmake
