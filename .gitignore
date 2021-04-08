@@ -21,3 +21,9 @@
 !cmake/mission_defaults.cmake
 
 !/CMakeLists.txt
+
+# cFE-Core
+!modules/core_api/fsw/inc/cfe.h
+!modules/core_api/fsw/inc/cfe_endian.h
+!modules/core_api/fsw/inc/cfe_error.h
+!modules/core_api/fsw/inc/cfe_version.h
