@@ -10,6 +10,11 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev494
+
+- Adds new tests for the ES Info APIs
+- See <https://github.com/nasa/cFE/pull/1284> and <https://github.com/nasa/cFS/pull/238>
+
 ### Development Build: v6.8.0-rc1+dev490
 
 - Removes `PspConfig` member from the `GLOBAL_CONFIGDATA` object. Updates the only remaining reference to this object inside the CFE_PSP_VERSION and uses the new Version API instead. Updates the OSAL version print to use the version API call and CFE uses the macro directly.
