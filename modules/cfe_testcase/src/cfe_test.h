@@ -43,7 +43,16 @@
 #include "uttest.h"
 #include "utassert.h"
 
-void  ES_Test_AppId(void);
+/* Compare two Resource IDs */
+#define UtAssert_ResourceID_EQ(actual, expect)                                                \
+    UtAssert_True(CFE_RESOURCEID_TEST_EQUAL(actual, expect), "%s (%lu) == %s (%lu)", #actual, \
+                  CFE_RESOURCEID_TO_ULONG(actual), #expect, CFE_RESOURCEID_TO_ULONG(expect))
+
+/* Check if a Resource ID is Undefined */
+#define UtAssert_ResourceID_Undifeined(id) \
+    UtAssert_True(!CFE_RESOURCEID_TEST_DEFINED(id), "%s (%lu) not defined", #id, CFE_RESOURCEID_TO_ULONG(id))
+
 int32 CFE_Test_Init(int32 LibId);
+int32 ESInfoTestSetup(int32 LibId);
 
 #endif /* CFE_TEST_H */
