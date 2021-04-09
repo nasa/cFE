@@ -59,6 +59,6 @@ set(psp_SEARCH_PATH ".")
 # If ENABLE_UNIT_TEST is enabled, then include the cfe_assert library in
 # all targets.  This can still be overridden in targets.cmake.
 if (ENABLE_UNIT_TESTS)
-    list(APPEND MISSION_GLOBAL_APPLIST cfe_assert cfe_testrunner cfe_testcase)
+    list(APPEND MISSION_GLOBAL_APPLIST cfe_assert cfe_testcase)
 endif (ENABLE_UNIT_TESTS)
 

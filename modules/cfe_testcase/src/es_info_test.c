@@ -38,7 +38,7 @@ void TestAppInfo(void)
     CFE_ES_AppId_t   TestAppId;
     CFE_ES_AppId_t   ESAppId;
     CFE_ES_AppId_t   AppIdByName;
-    const char *     TestAppName = "TESTRUN_APP";
+    const char *     TestAppName = "CFE_TEST_APP";
     const char *     ESAppName   = "CFE_ES";
     const char *     InvalidName = "INVALID_NAME";
     char             AppNameBuf[OS_MAX_API_NAME + 4];
@@ -257,13 +257,11 @@ void TestModuleInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(NULL, CFE_RESOURCEID_UNWRAP(TestAppId)), CFE_ES_BAD_ARGUMENT);
 }
 
-int32 ESInfoTestSetup(int32 LibId)
+void ESInfoTestSetup(void)
 {
     UtTest_Add(TestAppInfo, NULL, NULL, "Test App Info");
     UtTest_Add(TestTaskInfo, NULL, NULL, "Test Task Info");
     UtTest_Add(TestLibInfo, NULL, NULL, "Test Lib Info");
     UtTest_Add(TestResetType, NULL, NULL, "Test Reset Type");
     UtTest_Add(TestModuleInfo, NULL, NULL, "Test Module Info");
-
-    return CFE_SUCCESS;
 }
