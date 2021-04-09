@@ -194,7 +194,7 @@ function(prepare)
   # This reflects all modules for all CPUs.  It is set as a usage convenience
   # for iterating through the full set of dependencies regardless of which level
   # or context each dependency relates to (CFE, PSP, apps, etc).
-  set(MISSION_DEPS ${MISSION_APPS} ${MISSION_CORE_MODULES} ${MISSION_PSPMODULES})
+  set(MISSION_DEPS ${MISSION_CORE_INTERFACES} ${MISSION_APPS} ${MISSION_CORE_MODULES} ${MISSION_PSPMODULES})
   set(APP_MISSING_COUNT 0)
 
   message(STATUS "Search path for modules: ${MISSION_MODULE_SEARCH_PATH}")
@@ -288,7 +288,7 @@ function(prepare)
     "${osal_MISSION_DIR}/src/os/inc/*.h"
     "${psp_MISSION_DIR}/psp/fsw/inc/*.h"
   )
-  foreach(MODULE core_api es evs fs msg sb tbl time)
+  foreach(MODULE core_api ${MISSION_CORE_MODULES})
     list(APPEND SUBMODULE_HEADER_PATHS "${${MODULE}_MISSION_DIR}/fsw/inc/*.h")
   endforeach()
   file(GLOB MISSION_USERGUIDE_HEADERFILES
@@ -371,12 +371,6 @@ function(prepare)
   # Add all public include dirs for core components to include path for tools
   include_directories(
     ${core_api_MISSION_DIR}/fsw/inc
-    #${es_MISSION_DIR}/fsw/inc
-    #${evs_MISSION_DIR}/fsw/inc
-    #${fs_MISSION_DIR}/fsw/inc
-    #${sb_MISSION_DIR}/fsw/inc
-    #${tbl_MISSION_DIR}/fsw/inc
-    #${time_MISSION_DIR}/fsw/inc
     ${osal_MISSION_DIR}/src/os/inc
     ${psp_MISSION_DIR}/psp/fsw/inc
   )

@@ -23,7 +23,7 @@ if (ENABLE_UNIT_TESTS)
     add_subdirectory(ut-stubs)
 endif (ENABLE_UNIT_TESTS)
 
-cfs_app_check_intf(${DEP}
+cfs_app_check_intf(core_private
     cfe_es_erlog_typedef.h
     cfe_evs_log_typedef.h
     cfe_es_resetdata_typedef.h
