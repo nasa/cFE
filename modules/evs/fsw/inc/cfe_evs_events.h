@@ -22,7 +22,7 @@
  * @file
  *
  *  Purpose:
- *	           cFE Event Services (EVS) Event IDs
+ *             cFE Event Services (EVS) Event IDs
  *
  *  Design Notes:
  *

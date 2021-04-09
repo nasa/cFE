@@ -22,7 +22,7 @@
  * @file
  *
  *  Purpose:
- *	           cFE Time Services (Time) Event IDs
+ *             cFE Time Services (Time) Event IDs
  *
  *  Design Notes:
  *

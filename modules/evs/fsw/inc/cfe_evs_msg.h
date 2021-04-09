@@ -24,7 +24,7 @@
  *  Title:    Event Services Message definition header file Header File
  *
  *  Purpose:
- *	           Unit specification for Event services command codes and data structures.
+ *             Unit specification for Event services command codes and data structures.
  *
  *  Design Notes:
  *
@@ -147,7 +147,7 @@
 **  \par Error Conditions
 **        This command may fail for the following reason(s):
 **
-**    	Invalid Event Type selection
+**      Invalid Event Type selection
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -246,8 +246,8 @@
 **
 **  \par Error Conditions
 **      This command may fail for the following reason(s):
-**  	Invalid SB message (command) length
-**  	Invalid MODE selection
+**      Invalid SB message (command) length
+**      Invalid MODE selection
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment

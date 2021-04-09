@@ -24,7 +24,7 @@
  *  Title:    Event Services API Application Library Header File
  *
  *  Purpose:
- *	           Unit specification for Event services library functions and macros.
+ *             Unit specification for Event services library functions and macros.
  *
  *  Design Notes:
  *

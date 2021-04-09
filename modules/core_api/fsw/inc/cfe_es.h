@@ -22,13 +22,13 @@
  * @file
  *
  *  Purpose:
- *	Unit specification for Executive Services library functions and macros.
+ *  Unit specification for Executive Services library functions and macros.
  *
  *  References:
  *     Flight Software Branch C Coding Standard Version 1.0a
  *     cFE Flight Software Application Developers Guide
  *
- *	Notes:
+ *  Notes:
  *
  */
 
