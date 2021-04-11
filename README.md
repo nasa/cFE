@@ -7,7 +7,7 @@ The corresponding, fully-working cFE instance matching the code in this branch c
 
 ### How to add your review comments
 
-Navigate to the ["files changed" tab](https://github.com/nasa/cFE/pull/1283/files) in the [nasa/cFE#1283](https://github.com/nasa/cFE/pull/1283) pull request.
+Navigate to the ["files changed" tab](https://github.com/nasa/cFE/pull/1294/files) in the [nasa/cFE#1294](https://github.com/nasa/cFE/pull/1294) pull request.
 
 
 <img width="820" alt="github-review-instructions-1of2" src="https://user-images.githubusercontent.com/59618057/113956688-dca76a00-97eb-11eb-99d4-9ec84b459dce.png">

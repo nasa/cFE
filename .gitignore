@@ -6,13 +6,14 @@
 
 # But not these files...
 !/.gitignore
-
+!/ReadMe.md
 
 
 # EVS
-!modules/evs/fsw/*
+!modules/evs/fsw/**/**
 !modules/core_api/fsw/inc/cfe_evs*
 !modules/core_private/fsw/inc/cfe_evs_log_typedef.h
+!modules/evs/CMakeLists.txt
 
 # FS
 # !cfe_fs*
