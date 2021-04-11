@@ -16,5 +16,6 @@
 !modules/evs/CMakeLists.txt
 
 # FS
-# !cfe_fs*
-# !modules/fs/fsw/*
+!cfe_fs*
+!modules/fs/fsw/*
+!modules/fs/CMakeLists.txt
