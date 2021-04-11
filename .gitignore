@@ -1,0 +1,19 @@
+# Ignore everything
+*
+
+# ...even if they are in subdirectories
+!*/
+
+# But not these files...
+!/.gitignore
+
+
+
+# EVS
+!modules/evs/fsw/*
+!modules/core_api/fsw/inc/cfe_evs*
+!modules/core_private/fsw/inc/cfe_evs_log_typedef.h
+
+# FS
+# !cfe_fs*
+# !modules/fs/fsw/*
