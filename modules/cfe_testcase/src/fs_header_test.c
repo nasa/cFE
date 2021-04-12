@@ -33,16 +33,81 @@
 
 #include "cfe_test.h"
 
-void TestHeader(void)
-{
-    UtPrintf("Testing: CFE_FS_ReadHeader, CFE_FS_InitHeader, CFE_FS_WriteHeader, CFE_FS_SetTimestamp");
+#define OS_TEST_HEADER_FILENAME "/drive0/header_test.txt"
+char *fsAddrPtr = NULL;
 
-    UtAssert_INT32_EQ(2, 2);
+static osal_id_t setup_file(void)
+{
+    osal_id_t id;
+    OS_mkfs(fsAddrPtr, "/ramdev1", "RAM", 512, 20);
+    OS_mount("/ramdev1", "/drive0");
+    UtAssert_INT32_EQ(OS_OpenCreate(&id, OS_TEST_HEADER_FILENAME, OS_FILE_FLAG_CREATE, OS_READ_WRITE), OS_SUCCESS);
+    return id;
+}
+
+void TestCreateHeader(void)
+{
+    CFE_FS_Header_t Header;
+    const char *    TestDescription = "TEST_HEADER";
+    osal_id_t       fd              = setup_file();
+
+    UtPrintf("Testing: CFE_FS_InitHeader, CFE_FS_WriteHeader");
+
+    CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, &Header), sizeof(CFE_FS_Header_t));
+
+    OS_close(fd);
+    OS_remove(OS_TEST_HEADER_FILENAME);
+}
+
+void TestReadHeader(void)
+{
+    CFE_FS_Header_t Header;
+    CFE_FS_Header_t ReadHeader;
+    const char *    TestDescription = "TEST_HEADER";
+    osal_id_t       fd              = setup_file();
+
+    UtPrintf("Testing: CFE_FS_ReadHeader");
+
+    CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, &Header), sizeof(CFE_FS_Header_t));
+    UtAssert_INT32_EQ(CFE_FS_ReadHeader(&ReadHeader, fd), sizeof(CFE_FS_Header_t));
+
+    UtAssert_INT32_EQ(Header.ContentType, ReadHeader.ContentType);
+    UtAssert_INT32_EQ(Header.SubType, ReadHeader.SubType);
+    UtAssert_StrCmp(TestDescription, ReadHeader.Description, "ReadHeader.Description = %s", ReadHeader.Description);
+
+    OS_close(fd);
+    OS_remove(OS_TEST_HEADER_FILENAME);
+}
+
+void TestTimeStamp(void)
+{
+    CFE_FS_Header_t    Header;
+    CFE_FS_Header_t    ReadHeader;
+    const char *       TestDescription = "TEST_HEADER";
+    CFE_TIME_SysTime_t NewTimestamp    = {10, 10};
+    osal_id_t          fd              = setup_file();
+
+    UtPrintf("Testing: CFE_FS_SetTimestamp");
+
+    CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, &Header), sizeof(CFE_FS_Header_t));
+    UtAssert_INT32_EQ(CFE_FS_SetTimestamp(fd, NewTimestamp), OS_SUCCESS);
+    UtAssert_INT32_EQ(CFE_FS_ReadHeader(&ReadHeader, fd), sizeof(CFE_FS_Header_t));
+
+    UtAssert_INT32_EQ(10, ReadHeader.TimeSeconds);
+    UtAssert_INT32_EQ(10, ReadHeader.TimeSubSeconds);
+
+    OS_close(fd);
+    OS_remove(OS_TEST_HEADER_FILENAME);
 }
 
 int32 FSHeaderTestSetup(int32 LibId)
 {
-    UtTest_Add(TestHeader, NULL, NULL, "Test Header");
+    UtTest_Add(TestCreateHeader, NULL, NULL, "Test Create Header");
+    UtTest_Add(TestReadHeader, NULL, NULL, "Test Read Header");
+    UtTest_Add(TestTimeStamp, NULL, NULL, "Test Time Stamp");
 
     return CFE_SUCCESS;
 }
