@@ -1,8 +1,5 @@
 project(CFE_ASSERT C)
 
-include_directories("${CFE_ASSERT_SOURCE_DIR}/inc")
-include_directories("${UT_ASSERT_SOURCE_DIR}/inc")
-
 # Create the app module
 add_cfe_app(cfe_assert
     src/cfe_assert_io.c
@@ -10,3 +7,8 @@ add_cfe_app(cfe_assert
     $<TARGET_OBJECTS:ut_assert_pic>
 )
 
+# publicize the interface to cfe_assert (and ut_assert)
+target_include_directories(cfe_assert PUBLIC
+    ${CFE_ASSERT_SOURCE_DIR}/inc
+    $<TARGET_PROPERTY:ut_assert,INTERFACE_INCLUDE_DIRECTORIES>
+)

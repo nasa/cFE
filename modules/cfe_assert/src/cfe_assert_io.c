@@ -31,23 +31,16 @@
 #include <stdbool.h>
 
 #include "cfe.h"
+#include "cfe_assert_priv.h"
 
 #include "utbsp.h"
 #include "uttest.h"
 
-/*
-**  Local Variables
-*/
-typedef struct
-{
-    uint32 CurrVerbosity;
-} BSP_UT_GlobalData_t;
-
-BSP_UT_GlobalData_t BSP_UT_Global;
+CFE_Assert_Global_t CFE_Assert_Global;
 
 void UT_BSP_Setup(void)
 {
-    BSP_UT_Global.CurrVerbosity = (2 << UTASSERT_CASETYPE_PASS) - 1;
+    CFE_Assert_Global.CurrVerbosity = (2 << UTASSERT_CASETYPE_PASS) - 1;
     UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, "CFE FUNCTIONAL TEST");
 }
 
@@ -59,55 +52,70 @@ void UT_BSP_StartTestSegment(uint32 SegmentNumber, const char *SegmentName)
     UT_BSP_DoText(UTASSERT_CASETYPE_BEGIN, ReportBuffer);
 }
 
-void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
+void UT_BSP_SysLogStatusReport(uint8 MessageType, const char *Prefix, const char *OutputMessage)
 {
-    const char *Prefix;
-    uint32      MsgEnabled = BSP_UT_Global.CurrVerbosity >> MessageType;
+    uint32 MsgEnabled = CFE_Assert_Global.CurrVerbosity >> MessageType;
 
     if (MsgEnabled & 1)
     {
-        switch (MessageType)
-        {
-            case UTASSERT_CASETYPE_ABORT:
-                Prefix = "ABORT";
-                break;
-            case UTASSERT_CASETYPE_FAILURE:
-                Prefix = "FAIL";
-                break;
-            case UTASSERT_CASETYPE_MIR:
-                Prefix = "MIR";
-                break;
-            case UTASSERT_CASETYPE_TSF:
-                Prefix = "TSF";
-                break;
-            case UTASSERT_CASETYPE_TTF:
-                Prefix = "TTF";
-                break;
-            case UTASSERT_CASETYPE_NA:
-                Prefix = "N/A";
-                break;
-            case UTASSERT_CASETYPE_BEGIN:
-                Prefix = "BEGIN";
-                break;
-            case UTASSERT_CASETYPE_END:
-                Prefix = "END";
-                break;
-            case UTASSERT_CASETYPE_PASS:
-                Prefix = "PASS";
-                break;
-            case UTASSERT_CASETYPE_INFO:
-                Prefix = "INFO";
-                break;
-            case UTASSERT_CASETYPE_DEBUG:
-                Prefix = "DEBUG";
-                break;
-            default:
-                Prefix = "OTHER";
-                break;
-        }
-
         CFE_ES_WriteToSysLog("[%5s] %s\n", Prefix, OutputMessage);
     }
+}
+
+void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
+{
+    const char *                Prefix;
+    CFE_Assert_StatusCallback_t StatusCallback;
+
+    switch (MessageType)
+    {
+        case UTASSERT_CASETYPE_ABORT:
+            Prefix = "ABORT";
+            break;
+        case UTASSERT_CASETYPE_FAILURE:
+            Prefix = "FAIL";
+            break;
+        case UTASSERT_CASETYPE_MIR:
+            Prefix = "MIR";
+            break;
+        case UTASSERT_CASETYPE_TSF:
+            Prefix = "TSF";
+            break;
+        case UTASSERT_CASETYPE_TTF:
+            Prefix = "TTF";
+            break;
+        case UTASSERT_CASETYPE_NA:
+            Prefix = "N/A";
+            break;
+        case UTASSERT_CASETYPE_BEGIN:
+            Prefix = "BEGIN";
+            break;
+        case UTASSERT_CASETYPE_END:
+            Prefix = "END";
+            break;
+        case UTASSERT_CASETYPE_PASS:
+            Prefix = "PASS";
+            break;
+        case UTASSERT_CASETYPE_INFO:
+            Prefix = "INFO";
+            break;
+        case UTASSERT_CASETYPE_DEBUG:
+            Prefix = "DEBUG";
+            break;
+        default:
+            Prefix = "OTHER";
+            break;
+    }
+
+    StatusCallback = CFE_Assert_Global.StatusCallback;
+
+    /* If not set, report status to CFE ES Syslog facility */
+    if (StatusCallback == NULL)
+    {
+        StatusCallback = UT_BSP_SysLogStatusReport;
+    }
+
+    StatusCallback(MessageType, Prefix, OutputMessage);
 
     /*
      * If any ABORT (major failure) message is thrown,
