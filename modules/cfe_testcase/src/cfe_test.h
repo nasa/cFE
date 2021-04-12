@@ -54,5 +54,6 @@
 
 int32 CFE_Test_Init(int32 LibId);
 int32 ESInfoTestSetup(int32 LibId);
+int32 TimeCurrentTestSetup(int32 LibId);
 
 #endif /* CFE_TEST_H */

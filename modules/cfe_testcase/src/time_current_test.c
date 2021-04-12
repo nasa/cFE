@@ -18,10 +18,11 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_test.c
+** File: es_info_test.c
 **
 ** Purpose:
-**   Initialization routine for CFE functional test
+**   Functional test of basic ES Information APIs
+**
 **   Demonstration of how to register and use the UT assert functions.
 **
 *************************************************************************/
@@ -32,13 +33,29 @@
 
 #include "cfe_test.h"
 
-/*
- * Initialization function
- * Register this test routine with CFE Assert
- */
-int32 CFE_Test_Init(int32 LibId)
+void TestGetTime(void)
 {
-    ESInfoTestSetup(LibId);
-    TimeCurrentTestSetup(LibId);
+    UtPrintf("Testing: CFE_TIME_GetTime");
+    CFE_TIME_SysTime_t currentTime;
+    CFE_TIME_SysTime_t currentTAI;
+    CFE_TIME_SysTime_t currentUTC;
+    char   timeBuf[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
+    
+    currentTime = CFE_TIME_GetTime();
+    currentTAI = CFE_TIME_GetTAI();
+    currentUTC = CFE_TIME_GetUTC();
+
+    CFE_TIME_Print(timeBuf, currentTime);
+
+    UtPrintf("The current time is %s", timeBuf);
+
+    UtAssert_True(currentUTC.Seconds < currentTAI.Seconds, "currentUTC (%d) < currentTAI (%d)", currentUTC.Seconds, currentTAI.Seconds);  
+
+}
+
+int32 TimeCurrentTestSetup(int32 LibId)
+{
+    UtTest_Add(TestGetTime, NULL, NULL, "Test Current Time");  
+
     return CFE_SUCCESS;
 }
