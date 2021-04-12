@@ -10,6 +10,11 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev498
+
+- Reports test failures as CFE events. Test status messages are now sent as Events rather than Syslog. This allows for more processing capability, and allows failures to be received externally (e.g. ground system).
+- See <https://github.com/nasa/cFE/pull/1295> and <https://github.com/nasa/cFS/pull/242>
+
 ### Development Build: v6.8.0-rc1+dev494
 
 - Adds new tests for the ES Info APIs
