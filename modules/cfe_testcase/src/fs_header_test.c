@@ -18,42 +18,31 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_test.c
+** File: es_info_test.c
 **
 ** Purpose:
-**   Initialization routine for CFE functional test
+**   Functional test of basic ES Information APIs
+**
 **   Demonstration of how to register and use the UT assert functions.
 **
 *************************************************************************/
 
-/**
- * @file
- *
- * Declarations and prototypes for cfe_test module
- */
-
-#ifndef CFE_TEST_H
-#define CFE_TEST_H
-
 /*
  * Includes
  */
-#include "cfe.h"
 
-#include "uttest.h"
-#include "utassert.h"
+#include "cfe_test.h"
 
-/* Compare two Resource IDs */
-#define UtAssert_ResourceID_EQ(actual, expect)                                                \
-    UtAssert_True(CFE_RESOURCEID_TEST_EQUAL(actual, expect), "%s (%lu) == %s (%lu)", #actual, \
-                  CFE_RESOURCEID_TO_ULONG(actual), #expect, CFE_RESOURCEID_TO_ULONG(expect))
+void TestHeader(void)
+{
+    UtPrintf("Testing: CFE_FS_ReadHeader, CFE_FS_InitHeader, CFE_FS_WriteHeader, CFE_FS_SetTimestamp");
 
-/* Check if a Resource ID is Undefined */
-#define UtAssert_ResourceID_Undifeined(id) \
-    UtAssert_True(!CFE_RESOURCEID_TEST_DEFINED(id), "%s (%lu) not defined", #id, CFE_RESOURCEID_TO_ULONG(id))
+    UtAssert_INT32_EQ(2, 2);
+}
 
-int32 CFE_Test_Init(int32 LibId);
-int32 ESInfoTestSetup(int32 LibId);
-int32 FSHeaderTestSetup(int32 LibId);
+int32 FSHeaderTestSetup(int32 LibId)
+{
+    UtTest_Add(TestHeader, NULL, NULL, "Test Header");
 
-#endif /* CFE_TEST_H */
+    return CFE_SUCCESS;
+}
