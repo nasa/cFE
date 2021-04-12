@@ -35,27 +35,58 @@
 
 void TestGetTime(void)
 {
-    UtPrintf("Testing: CFE_TIME_GetTime");
-    CFE_TIME_SysTime_t currentTime;
-    CFE_TIME_SysTime_t currentTAI;
-    CFE_TIME_SysTime_t currentUTC;
-    char   timeBuf[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
-    
-    currentTime = CFE_TIME_GetTime();
-    currentTAI = CFE_TIME_GetTAI();
-    currentUTC = CFE_TIME_GetUTC();
+    UtPrintf("Testing: CFE_TIME_GetTime, CFE_TIME_GetTAI, CFE_TIME_GetUTC, CFE_TIME_GetMET, CFE_TIME_GetSTCF, "
+             "CFE_TIME_GetLeapSeconds");
+    CFE_TIME_SysTime_t Time;
+    CFE_TIME_SysTime_t TAI;
+    CFE_TIME_SysTime_t UTC;
+    CFE_TIME_SysTime_t MET;
+    CFE_TIME_SysTime_t STCF;
+    uint32             METSeconds;
+    // uint32             METSubSeconds;
+    int16              LeapSeconds;
+    CFE_TIME_SysTime_t Buf;
 
-    CFE_TIME_Print(timeBuf, currentTime);
+    char timeBuf1[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
+    char timeBuf2[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
 
-    UtPrintf("The current time is %s", timeBuf);
+    Time = CFE_TIME_GetTime();
+    TAI  = CFE_TIME_GetTAI();
+    UTC  = CFE_TIME_GetUTC();
+    MET  = CFE_TIME_GetMET();
+    // METSubSeconds = CFE_TIME_GetMETsubsecs();
+    METSeconds  = CFE_TIME_GetMETseconds();
+    STCF        = CFE_TIME_GetSTCF();
+    LeapSeconds = CFE_TIME_GetLeapSeconds();
 
-    UtAssert_True(currentUTC.Seconds < currentTAI.Seconds, "currentUTC (%d) < currentTAI (%d)", currentUTC.Seconds, currentTAI.Seconds);  
+    CFE_TIME_Print(timeBuf1, Time);
+    UtPrintf("The current time is (%d) %s", Time.Seconds, timeBuf1);
 
+#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
+    CFE_TIME_Print(timeBuf2, TAI);
+    UtAssert_StrCmp(timeBuf1, timeBuf2, "Get Time (%s) = TAI (%s)", timeBuf1, timeBuf2);
+#else
+    CFE_TIME_Print(timeBuf2, UTC);
+    UtAssert_StrCmp(timeBuf1, timeBuf2, "Get Time (%s) = UTC(%s)", timeBuf1, timeBuf2);
+#endif
+
+    CFE_TIME_Print(timeBuf1, TAI);
+    Buf = CFE_TIME_Add(MET, STCF);
+    CFE_TIME_Print(timeBuf2, Buf);
+    UtAssert_StrCmp(timeBuf1, timeBuf2, "TAI (%s) = MET + STCF (%s)", timeBuf1, timeBuf2);
+
+    CFE_TIME_Print(timeBuf1, UTC);
+    Buf.Seconds = Buf.Seconds - LeapSeconds;
+    CFE_TIME_Print(timeBuf2, Buf);
+    UtAssert_StrCmp(timeBuf1, timeBuf2, "UTC (%s) = MET + STCF - Leap Seconds (%s)", timeBuf1, timeBuf2);
+
+    UtAssert_INT32_EQ(MET.Seconds, METSeconds);
+    // UtAssert_INT32_EQ(MET.Subseconds, METSubSeconds);
 }
 
 int32 TimeCurrentTestSetup(int32 LibId)
 {
-    UtTest_Add(TestGetTime, NULL, NULL, "Test Current Time");  
+    UtTest_Add(TestGetTime, NULL, NULL, "Test Current Time");
 
     return CFE_SUCCESS;
 }
