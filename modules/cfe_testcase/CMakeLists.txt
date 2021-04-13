@@ -8,4 +8,5 @@ add_cfe_app(cfe_testcase
     src/es_info_test.c
     src/es_task_test.c
     src/fs_header_test.c
+    src/time_current_test.c
 )

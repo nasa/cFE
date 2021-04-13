@@ -41,5 +41,6 @@ int32 CFE_Test_Init(int32 LibId)
     ESInfoTestSetup(LibId);
     ESTaskTestSetup(LibId);
     FSHeaderTestSetup(LibId);
+    TimeCurrentTestSetup(LibId);
     return CFE_SUCCESS;
 }
