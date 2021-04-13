@@ -16,6 +16,7 @@
 # that omit the deprecated features from the build.  This is conditional in this
 # example for CI purposes, so it can be tested both ways.  Most projects would
 # likely set this only one way.
+set(MISSION_RESOURCEID_MODE STRICT)
 set(OMIT_DEPRECATED $ENV{OMIT_DEPRECATED} CACHE STRING "Omit deprecated elements")
 if (OMIT_DEPRECATED)
   message (STATUS "OMIT_DEPRECATED=true: Not including deprecated elements in build")
