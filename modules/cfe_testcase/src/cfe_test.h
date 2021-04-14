@@ -52,10 +52,10 @@
 #define UtAssert_ResourceID_Undefined(id) \
     UtAssert_True(!CFE_RESOURCEID_TEST_DEFINED(id), "%s (%lu) not defined", #id, CFE_RESOURCEID_TO_ULONG(id))
 
-int32 CFE_Test_Init(int32 LibId);
-int32 ESInfoTestSetup(int32 LibId);
-int32 ESTaskTestSetup(int32 LibId);
-int32 FSHeaderTestSetup(int32 LibId);
-int32 TimeCurrentTestSetup(int32 LibId);
+void CFE_TestMain(void);
+void ESInfoTestSetup(void);
+void ESTaskTestSetup(void);
+void FSHeaderTestSetup(void);
+void TimeCurrentTestSetup(void);
 
 #endif /* CFE_TEST_H */

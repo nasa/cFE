@@ -38,6 +38,7 @@
 ** Includes
 *************************************************************************/
 #include "common_types.h"
+#include "cfe_es_api_typedefs.h"
 
 /************************************************************************
 ** Type Definitions
@@ -50,11 +51,37 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 *************************************************************************/
 
 /************************************************************************/
-/** \brief Application Entry Point Function
+/** \brief Library Init Function
 **
 **  \par Description
 **        This function should be specified in the cfe_es_startup.scr file
-**        as part of starting this application.
+**        as part of loading this library.
+**
+**  \par Assumptions, External Events, and Notes:
+**        None
+**
+**  \return #CFE_SUCCESS if successful, or error code
+**
+*************************************************************************/
+int32 CFE_Assert_LibInit(CFE_ES_LibId_t LibId);
+
+/************************************************************************/
+/** \brief Start Test
+**
+**  \par Description
+**
+**  \par Assumptions, External Events, and Notes:
+**        Must be followed by a call to CFE_Assert_ExecuteTest()
+**
+**  \return None
+**
+*************************************************************************/
+int32 CFE_Assert_RegisterTest(const char *TestName);
+
+/************************************************************************/
+/** \brief Execute Test and Exit
+**
+**  \par Description
 **
 **  \par Assumptions, External Events, and Notes:
 **        None
@@ -62,7 +89,7 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **  \return None
 **
 *************************************************************************/
-void CFE_Assert_AppMain(void);
+void CFE_Assert_ExecuteTest(void);
 
 /************************************************************************/
 /** \brief Register a test status callback
