@@ -51,6 +51,9 @@ void CFE_TestMain(void)
      * Register test cases in UtAssert
      */
     ESInfoTestSetup();
+    ESTaskTestSetup();
+    FSHeaderTestSetup();
+    TimeCurrentTestSetup();
 
     /*
      * Execute the tests

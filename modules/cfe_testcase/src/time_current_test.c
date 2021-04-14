@@ -84,9 +84,7 @@ void TestGetTime(void)
     // UtAssert_INT32_EQ(MET.Subseconds, METSubSeconds);
 }
 
-int32 TimeCurrentTestSetup(int32 LibId)
+void TimeCurrentTestSetup(void)
 {
     UtTest_Add(TestGetTime, NULL, NULL, "Test Current Time");
-
-    return CFE_SUCCESS;
 }

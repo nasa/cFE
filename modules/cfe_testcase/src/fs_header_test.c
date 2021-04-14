@@ -103,11 +103,9 @@ void TestTimeStamp(void)
     OS_remove(OS_TEST_HEADER_FILENAME);
 }
 
-int32 FSHeaderTestSetup(int32 LibId)
+void FSHeaderTestSetup(void)
 {
     UtTest_Add(TestCreateHeader, NULL, NULL, "Test Create Header");
     UtTest_Add(TestReadHeader, NULL, NULL, "Test Read Header");
     UtTest_Add(TestTimeStamp, NULL, NULL, "Test Time Stamp");
-
-    return CFE_SUCCESS;
 }

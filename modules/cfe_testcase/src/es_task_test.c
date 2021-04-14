@@ -108,10 +108,8 @@ void TestExitChild(void)
     UtAssert_INT32_EQ(count, 1);
 }
 
-int32 ESTaskTestSetup(int32 LibId)
+void ESTaskTestSetup(void)
 {
     UtTest_Add(TestCreateChild, NULL, NULL, "Test Create Child");
     UtTest_Add(TestExitChild, NULL, NULL, "Test Exit Child");
-
-    return CFE_SUCCESS;
 }
