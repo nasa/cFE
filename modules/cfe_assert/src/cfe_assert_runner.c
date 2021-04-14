@@ -83,13 +83,13 @@ void CFE_Assert_StatusReport(uint8 MessageType, const char *Prefix, const char *
         case UTASSERT_CASETYPE_TTF:
             EventType = CFE_EVS_EventType_ERROR;
             break;
-        case UTASSERT_CASETYPE_INFO:
-        case UTASSERT_CASETYPE_MIR:
-        case UTASSERT_CASETYPE_NA:
-            EventType = CFE_EVS_EventType_INFORMATION;
-            break;
         case UTASSERT_CASETYPE_BEGIN:
         case UTASSERT_CASETYPE_END:
+        case UTASSERT_CASETYPE_INFO:
+        case UTASSERT_CASETYPE_MIR:
+            EventType = CFE_EVS_EventType_INFORMATION;
+            break;
+        case UTASSERT_CASETYPE_NA:
         case UTASSERT_CASETYPE_PASS:
         case UTASSERT_CASETYPE_DEBUG:
         default:
