@@ -125,10 +125,10 @@ typedef union CFE_ES_CDS_AccessCacheData
 {
     char                     Sig[CFE_ES_CDS_SIGNATURE_LEN]; /**< A signature field (beginning or end) */
     uint32                   RegistrySize;                  /**< Registry Size Field */
-    uint32                   Zero[4];                       /**< Used when clearing CDS content */
     CFE_ES_GenPoolBD_t       Desc;                          /**< A generic block descriptor */
     CFE_ES_CDS_BlockHeader_t BlockHeader;                   /**< A user block header */
     CFE_ES_CDS_RegRec_t      RegEntry;                      /**< A registry entry */
+    uint32                   GenericDataBlock[4];           /**< A small generic storage buffer for any other data */
 } CFE_ES_CDS_AccessCacheData_t;
 
 typedef struct CFE_ES_CDS_AccessCache

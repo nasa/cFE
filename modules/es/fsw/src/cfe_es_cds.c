@@ -531,13 +531,13 @@ int32 CFE_ES_ClearCDS(void)
 
     /* Clear the CDS to ensure everything is gone */
     /* Create a block of zeros to write to the CDS */
-    Status = CFE_ES_CDS_CachePreload(&CDS->Cache, NULL, 0, sizeof(CDS->Cache.Data.Zero));
+    Status = CFE_ES_CDS_CachePreload(&CDS->Cache, NULL, 0, sizeof(CDS->Cache.Data.GenericDataBlock));
 
     /* While there is space to write another block of zeros, then do so */
     while (CDS->Cache.Offset < CDS->TotalSize)
     {
         RemainSize = CDS->TotalSize - CDS->Cache.Offset;
-        if (RemainSize < sizeof(CDS->Cache.Data.Zero))
+        if (RemainSize < sizeof(CDS->Cache.Data.GenericDataBlock))
         {
             /* partial size */
             CDS->Cache.Size = RemainSize;
