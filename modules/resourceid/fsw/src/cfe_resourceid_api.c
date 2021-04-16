@@ -41,6 +41,15 @@
 #include "cfe_resourceid.h"
 #include "cfe_resourceid_basevalue.h"
 
+/*
+ * The "CFE_RESOURCEID_MAX" limit is used as both a numeric maximum as well
+ * as a mask to separate the serial number bits from the base value bits.
+ *
+ * This sanity checks that the value is one less than a power of two so it
+ * works as a mask and the logic in this file works as expected.
+ */
+CompileTimeAssert(((CFE_RESOURCEID_MAX + 1) & CFE_RESOURCEID_MAX) == 0, CFE_RESOURCEID_MAX_BITMASK);
+
 /*********************************************************************/
 /*
  * CFE_ResourceId_GetBase
