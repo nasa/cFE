@@ -86,26 +86,6 @@
 #define CFE_ES_SYSLOG_READ_BUFFER_SIZE (3 * CFE_ES_MAX_SYSLOG_MSG_SIZE)
 
 /**
- * \brief Self-synchronized macro to call CFE_ES_SysLogAppend_Unsync
- *
- * Calls CFE_ES_SysLogAppend_Unsync() with appropriate synchronization.
- * It will acquire the shared data lock and release it after appending the log.
- *
- * This is implemented as a macro such that the "__func__" and "__LINE__" directives
- * will reflect the actual place that the append was done, rather than where this
- * wrapper was defined.
- *
- * \sa CFE_ES_SysLogAppend_Unsync()
- */
-#define CFE_ES_SYSLOG_APPEND(LogString)              \
-    {                                                \
-        CFE_ES_LockSharedData(__func__, __LINE__);   \
-        CFE_ES_SysLogAppend_Unsync(LogString);       \
-        CFE_ES_UnlockSharedData(__func__, __LINE__); \
-        OS_printf("%s", LogString);                  \
-    }
-
-/**
  * \brief Indicates no context information Error Logs
  *
  * For use with the CFE_ES_WriteToERLog() function when no context

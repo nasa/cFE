@@ -201,14 +201,12 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
         Status = CFE_ES_GenPoolGetBlockSize(&CDS->Pool, &BlockSize, CDSRegRecPtr->BlockOffset);
         if (Status != CFE_SUCCESS)
         {
-            CFE_ES_SysLog_snprintf(LogMessage, sizeof(LogMessage),
-                                   "CFE_ES:CDSBlkWrite-Invalid Handle or Block Descriptor.\n");
+            snprintf(LogMessage, sizeof(LogMessage), "Invalid Handle or Block Descriptor.\n");
         }
         else if (BlockSize <= sizeof(CFE_ES_CDS_BlockHeader_t) || BlockSize != CDSRegRecPtr->BlockSize)
         {
-            CFE_ES_SysLog_snprintf(LogMessage, sizeof(LogMessage),
-                                   "CFE_ES:CDSBlkWrite-Block size %lu invalid, expected %lu\n",
-                                   (unsigned long)BlockSize, (unsigned long)CDSRegRecPtr->BlockSize);
+            snprintf(LogMessage, sizeof(LogMessage), "Block size %lu invalid, expected %lu\n", (unsigned long)BlockSize,
+                     (unsigned long)CDSRegRecPtr->BlockSize);
             Status = CFE_ES_CDS_INVALID_SIZE;
         }
         else
@@ -227,20 +225,18 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
             Status = CFE_ES_CDS_CacheFlush(&CDS->Cache);
             if (Status != CFE_SUCCESS)
             {
-                CFE_ES_SysLog_snprintf(
-                    LogMessage, sizeof(LogMessage),
-                    "CFE_ES:CDSBlkWrite-Err writing header data to CDS (Stat=0x%08x) @Offset=0x%08lx\n",
-                    (unsigned int)CDS->Cache.AccessStatus, (unsigned long)CDSRegRecPtr->BlockOffset);
+                snprintf(LogMessage, sizeof(LogMessage),
+                         "Err writing header data to CDS (Stat=0x%08x) @Offset=0x%08lx\n",
+                         (unsigned int)CDS->Cache.AccessStatus, (unsigned long)CDSRegRecPtr->BlockOffset);
             }
             else
             {
                 Status = CFE_PSP_WriteToCDS(DataToWrite, UserDataOffset, UserDataSize);
                 if (Status != CFE_PSP_SUCCESS)
                 {
-                    CFE_ES_SysLog_snprintf(
-                        LogMessage, sizeof(LogMessage),
-                        "CFE_ES:CDSBlkWrite-Err writing user data to CDS (Stat=0x%08x) @Offset=0x%08lx\n",
-                        (unsigned int)Status, (unsigned long)UserDataOffset);
+                    snprintf(LogMessage, sizeof(LogMessage),
+                             "Err writing user data to CDS (Stat=0x%08x) @Offset=0x%08lx\n", (unsigned int)Status,
+                             (unsigned long)UserDataOffset);
                 }
             }
         }
@@ -255,7 +251,7 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
     /* Do the actual syslog if something went wrong */
     if (LogMessage[0] != 0)
     {
-        CFE_ES_SYSLOG_APPEND(LogMessage);
+        CFE_ES_WriteToSysLog("%s(): %s", __func__, LogMessage);
     }
 
     return Status;
@@ -271,16 +267,12 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
 int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    char                   LogMessage[CFE_ES_MAX_SYSLOG_MSG_SIZE];
     int32                  Status;
     uint32                 CrcOfCDSData;
     size_t                 BlockSize;
     size_t                 UserDataSize;
     size_t                 UserDataOffset;
     CFE_ES_CDS_RegRec_t *  CDSRegRecPtr;
-
-    /* Validate the handle before doing anything */
-    LogMessage[0] = 0;
 
     CDSRegRecPtr = CFE_ES_LocateCDSBlockRecordByID(Handle);
 
@@ -344,12 +336,6 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
     }
 
     CFE_ES_UnlockCDS();
-
-    /* Do the actual syslog if something went wrong */
-    if (LogMessage[0] != 0)
-    {
-        CFE_ES_SYSLOG_APPEND(LogMessage);
-    }
 
     return Status;
 }
