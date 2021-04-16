@@ -69,7 +69,7 @@ const char *UT_OSP_MESSAGES[] = {
     /* Warning: System Log full, log entry discarded. */
     [UT_OSP_SYSTEM_LOG_FULL] = "Warning: System Log full, log entry discarded.\n",
     /* ES Startup: ES Startup File Line is too long: 137 bytes. */
-    [UT_OSP_FILE_LINE_TOO_LONG] = "ES Startup: ES Startup File Line is too long: %u bytes.\n",
+    [UT_OSP_FILE_LINE_TOO_LONG] = "ES Startup: **WARNING** File Line %u is malformed: %u bytes, %u tokens.\n",
     /* ES Startup: Load Shared Library Init Error. */
     [UT_OSP_SHARED_LIBRARY_INIT] = "ES Startup: Load Shared Library Init Error = 0x%08x\n",
     /* ES Startup: Error Removing Volatile(RAM) Volume. EC = 0x~ */

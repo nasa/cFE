@@ -78,6 +78,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     char        ScriptFileName[OS_MAX_PATH_LEN];
     const char *TokenList[CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE];
     uint32      NumTokens;
+    uint32      NumLines;
     uint32      BuffLen; /* Length of the current buffer */
     osal_id_t   AppFile = OS_OBJECT_ID_UNDEFINED;
     int32       Status;
@@ -151,6 +152,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
         memset(ES_AppLoadBuffer, 0x0, ES_START_BUFF_SIZE);
         BuffLen      = 0;
         NumTokens    = 0;
+        NumLines     = 0;
         TokenList[0] = ES_AppLoadBuffer;
 
         /*
@@ -197,13 +199,17 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
                     }
                     BuffLen++;
 
-                    if (NumTokens < (CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE - 1))
+                    ++NumTokens;
+                    if (NumTokens < CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE)
                     {
                         /*
                          * NOTE: pointer never deferenced unless "LineTooLong" is false.
                          */
-                        ++NumTokens;
                         TokenList[NumTokens] = &ES_AppLoadBuffer[BuffLen];
+                    }
+                    else
+                    {
+                        LineTooLong = true;
                     }
                 }
                 else if (c != ';')
@@ -223,13 +229,16 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
                 }
                 else
                 {
+                    ++NumLines;
+
                     if (LineTooLong == true)
                     {
                         /*
-                        ** The was too big for the buffer
+                        ** The line was not formed correctly
                         */
-                        CFE_ES_WriteToSysLog("ES Startup: ES Startup File Line is too long: %u bytes.\n",
-                                             (unsigned int)BuffLen);
+                        CFE_ES_WriteToSysLog(
+                            "ES Startup: **WARNING** File Line %u is malformed: %u bytes, %u tokens.\n",
+                            (unsigned int)NumLines, (unsigned int)BuffLen, (unsigned int)NumTokens);
                         LineTooLong = false;
                     }
                     else
