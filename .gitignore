@@ -17,9 +17,9 @@
 !modules/tbl/CMakeLists.txt
 
 # Time Services (TIME)
-# !modules/core_private/fsw/inc/cfe_time*
-# !modules/core_api/fsw/inc/cfe_time*
+!modules/core_private/fsw/inc/cfe_time*
+!modules/core_api/fsw/inc/cfe_time*
 
-# !modules/time/fsw/**
-# !modules/time/CMakeLists.txt
+!modules/time/fsw/**
+!modules/time/CMakeLists.txt
 
