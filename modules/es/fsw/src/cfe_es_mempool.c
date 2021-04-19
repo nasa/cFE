@@ -134,7 +134,7 @@ CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID
 /*
 ** CFE_ES_PoolCreateNoSem will initialize a pre-allocated memory pool without using a mutex.
 */
-int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size)
+int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size)
 {
     return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS, &CFE_ES_MemPoolDefSize[0],
                                CFE_ES_NO_MUTEX);
@@ -143,13 +143,13 @@ int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t S
 /*
 ** CFE_ES_PoolCreate will initialize a pre-allocated memory pool while using a mutex.
 */
-int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size)
+int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size)
 {
     return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS, &CFE_ES_MemPoolDefSize[0],
                                CFE_ES_USE_MUTEX);
 }
 
-int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size, uint16 NumBlockSizes,
+int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
                           const size_t *BlockSizes, bool UseMutex)
 {
     int32                   Status;

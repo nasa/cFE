@@ -1178,10 +1178,12 @@ CFE_Status_t CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Han
 ** \param[in, out]   PoolID   A pointer to the variable the caller wishes to have the memory pool handle kept in.
 **                            PoolID is the memory pool handle.
 **
-** \param[in]   MemPtr      A Pointer to the pool of memory created by the calling application. This address must
-**                          be on a 32-bit boundary.
+** \param[in]   MemPtr        A Pointer to the pool of memory created by the calling application. This address must
+**                            be aligned suitably for the processor architecture.  The #CFE_ES_STATIC_POOL_TYPE
+**                            macro may be used to assist in creating properly aligned memory pools.
 **
-** \param[in]   Size        The size of the pool of memory.  Note that this must be an integral number of 32 bit words.
+** \param[in]   Size          The size of the pool of memory.  Note that this must be an integral multiple of the
+**                            memory alignment of the processor architecture.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
@@ -1190,7 +1192,7 @@ CFE_Status_t CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Han
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size);
+CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size);
 
 /*****************************************************************************/
 /**
@@ -1208,10 +1210,12 @@ CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, s
 ** \param[in, out]   PoolID   A pointer to the variable the caller wishes to have the memory pool handle kept in.
 **                            PoolID is the memory pool handle.
 **
-** \param[in]   MemPtr      A Pointer to the pool of memory created by the calling application. This address must
-**                          be on a 32-bit boundary.
+** \param[in]   MemPtr        A Pointer to the pool of memory created by the calling application. This address must
+**                            be aligned suitably for the processor architecture.  The #CFE_ES_STATIC_POOL_TYPE
+**                            macro may be used to assist in creating properly aligned memory pools.
 **
-** \param[in]   Size        The size of the pool of memory.  Note that this must be an integral number of 32 bit words.
+** \param[in]   Size          The size of the pool of memory.  Note that this must be an integral multiple of the
+**                            memory alignment of the processor architecture.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
@@ -1220,7 +1224,7 @@ CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, s
 ** \sa #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size);
+CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size);
 
 /*****************************************************************************/
 /**
@@ -1234,14 +1238,15 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in, out]   PoolID      A pointer to the variable the caller wishes to have the memory pool handle kept in.
-**                               PoolID is the memory pool handle.
+** \param[in, out]   PoolID    A pointer to the variable the caller wishes to have the memory pool handle kept in.
+**                             PoolID is the memory pool handle.
 **
 ** \param[in]   MemPtr         A Pointer to the pool of memory created by the calling application. This address must
-**                             be on a 32-bit boundary.
+**                             be aligned suitably for the processor architecture.  The #CFE_ES_STATIC_POOL_TYPE
+**                             macro may be used to assist in creating properly aligned memory pools.
 **
-** \param[in]   Size           The size of the pool of memory.  Note that this must be an integral number of 32 bit
-**                             words.
+** \param[in]   Size           The size of the pool of memory.  Note that this must be an integral multiple of the
+**                             memory alignment of the processor architecture.
 **
 ** \param[in]   NumBlockSizes  The number of different block sizes specified in the \c BlockSizes array. If set equal to
 **                             zero or if greater than 17, then default block sizes are used.
@@ -1260,7 +1265,7 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, uint8 *MemPtr, size_t Size, uint16 NumBlockSizes,
+CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
                                  const size_t *BlockSizes, bool UseMutex);
 
 /*****************************************************************************/
