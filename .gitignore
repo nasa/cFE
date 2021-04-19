@@ -1,0 +1,25 @@
+# Ignore everything
+*
+
+# ...even if they are in subdirectories
+!*/
+
+# But not these files...
+!/.gitignore
+!/README.md
+
+
+
+# Table (TBL)
+!modules/core_api/fsw/inc/cfe_tbl*
+
+!modules/tbl/fsw/**
+!modules/tbl/CMakeLists.txt
+
+# Time Services (TIME)
+# !modules/core_private/fsw/inc/cfe_time*
+# !modules/core_api/fsw/inc/cfe_time*
+
+# !modules/time/fsw/**
+# !modules/time/CMakeLists.txt
+
