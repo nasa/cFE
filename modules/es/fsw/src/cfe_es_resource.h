@@ -41,44 +41,108 @@
 /**
  * @brief Locate the app table entry correlating with a given app ID.
  *
- * This only returns a pointer to the table entry and does _not_
- * otherwise check/validate the entry.
+ * This only returns a pointer to the table entry where the record
+ * should reside, but does _not_ actually check/validate the entry.
+ *
+ * If the passed-in ID parameter is not within the acceptable range of ID
+ * values for applications, such that it could never be valid under
+ * any circumstances, then NULL is returned.  Otherwise, a pointer to the
+ * corresponding table entry is returned, indicating the location where
+ * that ID _should_ reside, if it is currently in use.
+ *
+ * @note This only returns where the ID should reside, not that it actually
+ * resides there.  If looking up an existing ID, then caller must additionally
+ * confirm that the returned record is a match to the expected ID before using
+ * or modifying the data within the returned record pointer.
+ *
+ * The CFE_ES_AppRecordIsMatch() function can be used to check/confirm
+ * if the returned table entry is a positive match for the given ID.
+ *
+ * @sa CFE_ES_AppRecordIsMatch()
  *
  * @param[in]   AppID   the app ID to locate
- * @return pointer to App Table entry for the given app ID
+ * @return pointer to App Table entry for the given app ID, or NULL if out of range
  */
 extern CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID);
 
 /**
  * @brief Locate the Library table entry correlating with a given Lib ID.
  *
- * This only returns a pointer to the table entry and does _not_
- * otherwise check/validate the entry.
+ * This only returns a pointer to the table entry where the record
+ * should reside, but does _not_ actually check/validate the entry.
+ *
+ * If the passed-in ID parameter is not within the acceptable range of ID
+ * values for libraries, such that it could never be valid under
+ * any circumstances, then NULL is returned.  Otherwise, a pointer to the
+ * corresponding table entry is returned, indicating the location where
+ * that ID _should_ reside, if it is currently in use.
+ *
+ * @note This only returns where the ID should reside, not that it actually
+ * resides there.  If looking up an existing ID, then caller must additionally
+ * confirm that the returned record is a match to the expected ID before using
+ * or modifying the data within the returned record pointer.
+ *
+ * The CFE_ES_LibRecordIsMatch() function can be used to check/confirm
+ * if the returned table entry is a positive match for the given ID.
+ *
+ * @sa CFE_ES_LibRecordIsMatch()
  *
  * @param[in]   LibID   the Lib ID to locate
- * @return pointer to Library Table entry for the given Lib ID
+ * @return pointer to Library Table entry for the given Lib ID, or NULL if out of range
  */
 extern CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID);
 
 /**
  * @brief Locate the task table entry correlating with a given task ID.
  *
- * This only returns a pointer to the table entry and does _not_
- * otherwise check/validate the entry.
+ * This only returns a pointer to the table entry where the record
+ * should reside, but does _not_ actually check/validate the entry.
+ *
+ * If the passed-in ID parameter is not within the acceptable range of ID
+ * values for tasks, such that it could never be valid under
+ * any circumstances, then NULL is returned.  Otherwise, a pointer to the
+ * corresponding table entry is returned, indicating the location where
+ * that ID _should_ reside, if it is currently in use.
+ *
+ * @note This only returns where the ID should reside, not that it actually
+ * resides there.  If looking up an existing ID, then caller must additionally
+ * confirm that the returned record is a match to the expected ID before using
+ * or modifying the data within the returned record pointer.
+ *
+ * The CFE_ES_TaskRecordIsMatch() function can be used to check/confirm
+ * if the returned table entry is a positive match for the given ID.
+ *
+ * @sa CFE_ES_TaskRecordIsMatch()
  *
  * @param[in]   TaskID   the task ID to locate
- * @return pointer to Task Table entry for the given task ID
+ * @return pointer to Task Table entry for the given task ID, or NULL if out of range
  */
 extern CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID);
 
 /**
  * @brief Locate the Counter table entry correlating with a given Counter ID.
  *
- * This only returns a pointer to the table entry and does _not_
- * otherwise check/validate the entry.
+ * This only returns a pointer to the table entry where the record
+ * should reside, but does _not_ actually check/validate the entry.
+ *
+ * If the passed-in ID parameter is not within the acceptable range of ID
+ * values for counters, such that it could never be valid under
+ * any circumstances, then NULL is returned.  Otherwise, a pointer to the
+ * corresponding table entry is returned, indicating the location where
+ * that ID _should_ reside, if it is currently in use.
+ *
+ * @note This only returns where the ID should reside, not that it actually
+ * resides there.  If looking up an existing ID, then caller must additionally
+ * confirm that the returned record is a match to the expected ID before using
+ * or modifying the data within the returned record pointer.
+ *
+ * The CFE_ES_CounterRecordIsMatch() function can be used to check/confirm
+ * if the returned table entry is a positive match for the given ID.
+ *
+ * @sa CFE_ES_CounterRecordIsMatch()
  *
  * @param[in]   CounterID   the Counter ID to locate
- * @return pointer to Counter Table entry for the given Counter ID
+ * @return pointer to Counter Table entry for the given Counter ID, or NULL if out of range
  */
 extern CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t CounterID);
 
@@ -89,6 +153,9 @@ extern CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterI
  *
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   AppRecPtr   pointer to app table entry
  * @returns true if the entry is in use/configured, or false if it is free/empty
@@ -102,6 +169,9 @@ static inline bool CFE_ES_AppRecordIsUsed(const CFE_ES_AppRecord_t *AppRecPtr)
  * @brief Get the ID value from an app table entry
  *
  * This routine converts the table entry back to an abstract ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   AppRecPtr   pointer to app table entry
  * @returns AppID of entry
@@ -120,6 +190,9 @@ static inline CFE_ES_AppId_t CFE_ES_AppRecordGetID(const CFE_ES_AppRecord_t *App
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   AppRecPtr   pointer to app table entry
  * @param[in]   PendingId   the app ID of this entry
  */
@@ -137,6 +210,9 @@ static inline void CFE_ES_AppRecordSetUsed(CFE_ES_AppRecord_t *AppRecPtr, CFE_Re
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   AppRecPtr   pointer to app table entry
  */
 static inline void CFE_ES_AppRecordSetFree(CFE_ES_AppRecord_t *AppRecPtr)
@@ -153,7 +229,17 @@ static inline void CFE_ES_AppRecordSetFree(CFE_ES_AppRecord_t *AppRecPtr)
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
- * @param[in]   AppRecPtr   pointer to app table entry
+ * This function may be used in conjunction with CFE_ES_LocateAppRecordByID()
+ * to confirm that the located record is a positive match to the expected ID.
+ * As such, the record pointer is also permitted to be NULL, to alleviate the
+ * need for the caller to handle this possibility explicitly.
+ *
+ * Once a record pointer has been successfully validated using this routine,
+ * it may be safely passed to all other internal functions.
+ *
+ * @sa CFE_ES_LocateAppRecordByID
+ *
+ * @param[in]   AppRecPtr   pointer to app table entry, or NULL
  * @param[in]   AppID       expected app ID
  * @returns true if the entry matches the given app ID
  */
@@ -166,6 +252,9 @@ static inline bool CFE_ES_AppRecordIsMatch(const CFE_ES_AppRecord_t *AppRecPtr, 
  * @brief Obtain the name associated with the Application record
  *
  * Returns the name field from within the Application record
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   AppRecPtr   pointer to App table entry
  * @returns Pointer to Application name
@@ -183,6 +272,9 @@ static inline const char *CFE_ES_AppRecordGetName(const CFE_ES_AppRecord_t *AppR
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   LibRecPtr   pointer to Lib table entry
  * @returns true if the entry is in use/configured, or false if it is free/empty
  */
@@ -195,6 +287,9 @@ static inline bool CFE_ES_LibRecordIsUsed(const CFE_ES_LibRecord_t *LibRecPtr)
  * @brief Get the ID value from a Library table entry
  *
  * This routine converts the table entry back to an abstract ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   LibRecPtr   pointer to Lib table entry
  * @returns LibID of entry
@@ -214,6 +309,9 @@ static inline CFE_ES_LibId_t CFE_ES_LibRecordGetID(const CFE_ES_LibRecord_t *Lib
  * This sets the internal field(s) within this entry, and marks
  * it as being associated with the given Lib ID.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   LibRecPtr   pointer to Lib table entry
  * @param[in]   PendingId   the Lib ID of this entry
  */
@@ -227,6 +325,9 @@ static inline void CFE_ES_LibRecordSetUsed(CFE_ES_LibRecord_t *LibRecPtr, CFE_Re
  *
  * This clears the internal field(s) within this entry, and allows the
  * memory to be re-used in the future.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   LibRecPtr   pointer to Lib table entry
  */
@@ -244,6 +345,16 @@ static inline void CFE_ES_LibRecordSetFree(CFE_ES_LibRecord_t *LibRecPtr)
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * This function may be used in conjunction with CFE_ES_LocateLibRecordByID()
+ * to confirm that the located record is a positive match to the expected ID.
+ * As such, the record pointer is also permitted to be NULL, to alleviate the
+ * need for the caller to handle this possibility explicitly.
+ *
+ * Once a record pointer has been successfully validated using this routine,
+ * it may be safely passed to all other internal functions.
+ *
+ * @sa CFE_ES_LocateLibRecordByID
+ *
  * @param[in]   LibRecPtr   pointer to Lib table entry
  * @param[in]   LibID       expected Lib ID
  * @returns true if the entry matches the given Lib ID
@@ -257,6 +368,9 @@ static inline bool CFE_ES_LibRecordIsMatch(const CFE_ES_LibRecord_t *LibRecPtr, 
  * @brief Obtain the name associated with the Library record
  *
  * Returns the name field from within the Library record
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   LibRecPtr   pointer to Lib table entry
  * @returns Pointer to Library name
@@ -274,6 +388,9 @@ static inline const char *CFE_ES_LibRecordGetName(const CFE_ES_LibRecord_t *LibR
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   TaskRecPtr   pointer to Task table entry
  * @returns TaskID of entry
  */
@@ -289,6 +406,9 @@ static inline CFE_ES_TaskId_t CFE_ES_TaskRecordGetID(const CFE_ES_TaskRecord_t *
  *
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   TaskRecPtr   pointer to task table entry
  * @returns true if the entry is in use/configured, or false if it is free/empty
@@ -307,6 +427,9 @@ static inline bool CFE_ES_TaskRecordIsUsed(const CFE_ES_TaskRecord_t *TaskRecPtr
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   TaskRecPtr   pointer to Task table entry
  * @param[in]   PendingId    the Task ID of this entry
  */
@@ -322,6 +445,9 @@ static inline void CFE_ES_TaskRecordSetUsed(CFE_ES_TaskRecord_t *TaskRecPtr, CFE
  *
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   TaskRecPtr   pointer to task table entry
  * @returns true if the entry is in use/configured, or false if it is free/empty
@@ -340,6 +466,16 @@ static inline void CFE_ES_TaskRecordSetFree(CFE_ES_TaskRecord_t *TaskRecPtr)
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * This function may be used in conjunction with CFE_ES_LocateTaskRecordByID()
+ * to confirm that the located record is a positive match to the expected ID.
+ * As such, the record pointer is also permitted to be NULL, to alleviate the
+ * need for the caller to handle this possibility explicitly.
+ *
+ * Once a record pointer has been successfully validated using this routine,
+ * it may be safely passed to all other internal functions.
+ *
+ * @sa CFE_ES_LocateTaskRecordByID
+ *
  * @param[in]   TaskRecPtr   pointer to task table entry
  * @param[in]   TaskID       The expected task ID to verify
  * @returns true if the entry matches the given task ID
@@ -353,6 +489,9 @@ static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPt
  * @brief Obtain the name associated with the Task record
  *
  * Returns the name field from within the Task record
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   TaskRecPtr   pointer to Task table entry
  * @returns Pointer to Task name
@@ -370,6 +509,9 @@ static inline const char *CFE_ES_TaskRecordGetName(const CFE_ES_TaskRecord_t *Ta
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   CounterRecPtr   pointer to Counter table entry
  * @returns true if the entry is in use/configured, or false if it is free/empty
  */
@@ -382,6 +524,9 @@ static inline bool CFE_ES_CounterRecordIsUsed(const CFE_ES_GenCounterRecord_t *C
  * @brief Get the ID value from an Counter table entry
  *
  * This routine converts the table entry back to an abstract ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   CounterRecPtr   pointer to Counter table entry
  * @returns CounterID of entry
@@ -400,6 +545,9 @@ static inline CFE_ES_CounterId_t CFE_ES_CounterRecordGetID(const CFE_ES_GenCount
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   CounterRecPtr   pointer to Counter table entry
  * @param[in]   PendingId       the Counter ID of this entry
  */
@@ -417,6 +565,9 @@ static inline void CFE_ES_CounterRecordSetUsed(CFE_ES_GenCounterRecord_t *Counte
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   CounterRecPtr   pointer to Counter table entry
  */
 static inline void CFE_ES_CounterRecordSetFree(CFE_ES_GenCounterRecord_t *CounterRecPtr)
@@ -433,6 +584,16 @@ static inline void CFE_ES_CounterRecordSetFree(CFE_ES_GenCounterRecord_t *Counte
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * This function may be used in conjunction with CFE_ES_LocateCounterRecordByID()
+ * to confirm that the located record is a positive match to the expected ID.
+ * As such, the record pointer is also permitted to be NULL, to alleviate the
+ * need for the caller to handle this possibility explicitly.
+ *
+ * Once a record pointer has been successfully validated using this routine,
+ * it may be safely passed to all other internal functions.
+ *
+ * @sa CFE_ES_LocateCounterRecordByID
+ *
  * @param[in]   CounterRecPtr   pointer to Counter table entry
  * @param[in]   CounterID       expected Counter ID
  * @returns true if the entry matches the given Counter ID
@@ -447,6 +608,9 @@ static inline bool CFE_ES_CounterRecordIsMatch(const CFE_ES_GenCounterRecord_t *
  * @brief Obtain the name associated with the counter record
  *
  * Returns the name field from within the counter record
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   CounterRecPtr   pointer to Counter table entry
  * @returns Pointer to counter name
