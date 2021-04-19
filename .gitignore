@@ -1,0 +1,32 @@
+# Ignore everything
+*
+
+# ...even if they are in subdirectories
+!*/
+
+# But not these files...
+!/.gitignore
+!/README.md
+
+
+
+# Software Bus (SB)
+!modules/core_api/fsw/inc/cfe_sb*
+
+!modules/core_private/fsw/inc/cfe_sb*
+
+!modules/sb/fsw/**
+!modules/sb/CMakeLists.txt
+
+!modules/sbr/fsw/src/cfe_sbr**
+!modules/sbr/CMakeLists.txt
+
+# CCSDS Message
+# !modules/core_api/fsw/inc/cfe_msg*
+
+# !modules/msg/fsw/**
+# !modules/msg/option_inc/**
+# !modules/msg/CMakeLists.txt
+
+
+# Global Variables
