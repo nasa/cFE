@@ -22,11 +22,8 @@
 !modules/sbr/CMakeLists.txt
 
 # CCSDS Message
-# !modules/core_api/fsw/inc/cfe_msg*
+!modules/core_api/fsw/inc/cfe_msg*
 
-# !modules/msg/fsw/**
-# !modules/msg/option_inc/**
-# !modules/msg/CMakeLists.txt
-
-
-# Global Variables
+!modules/msg/fsw/**
+!modules/msg/option_inc/**
+!modules/msg/CMakeLists.txt
