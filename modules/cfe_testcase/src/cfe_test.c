@@ -39,5 +39,6 @@
 int32 CFE_Test_Init(int32 LibId)
 {
     ESInfoTestSetup(LibId);
+    ESCDSTestSetup(LibId);
     return CFE_SUCCESS;
 }

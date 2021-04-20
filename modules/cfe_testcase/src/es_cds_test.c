@@ -18,42 +18,40 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_test.c
+** File: es_info_test.c
 **
 ** Purpose:
-**   Initialization routine for CFE functional test
+**   Functional test of basic ES Critical Data Store APIs
+**
 **   Demonstration of how to register and use the UT assert functions.
 **
 *************************************************************************/
 
-/**
- * @file
- *
- * Declarations and prototypes for cfe_test module
- */
-
-#ifndef CFE_TEST_H
-#define CFE_TEST_H
-
 /*
  * Includes
  */
-#include "cfe.h"
 
-#include "uttest.h"
-#include "utassert.h"
+#include "cfe_test.h"
 
-/* Compare two Resource IDs */
-#define UtAssert_ResourceID_EQ(actual, expect)                                                \
-    UtAssert_True(CFE_RESOURCEID_TEST_EQUAL(actual, expect), "%s (%lu) == %s (%lu)", #actual, \
-                  CFE_RESOURCEID_TO_ULONG(actual), #expect, CFE_RESOURCEID_TO_ULONG(expect))
+void TestCDS(void)
+{
+    CFE_ES_CDSHandle_t CDSHandlePtr;
+    size_t             BlockSize = 10;
+    const char *       Name      = "CDS_Testing";
+    CFE_ES_CDSHandle_t IdByName;
+    char               CDSNameBuf[CFE_MISSION_ES_CDS_MAX_NAME_LENGTH];
 
-/* Check if a Resource ID is Undefined */
-#define UtAssert_ResourceID_Undifeined(id) \
-    UtAssert_True(!CFE_RESOURCEID_TEST_DEFINED(id), "%s (%lu) not defined", #id, CFE_RESOURCEID_TO_ULONG(id))
+    UtPrintf("Testing: CFE_ES_RegisterCDS, CFE_ES_GetCDSBlockIDByName, CFE_ES_GetCDSBlockName");
 
-int32 CFE_Test_Init(int32 LibId);
-int32 ESInfoTestSetup(int32 LibId);
-int32 ESCDSTestSetup(int32 LibId);
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, Name), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&IdByName, Name), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSNameBuf, IdByName, sizeof(CDSNameBuf)), CFE_SUCCESS);
+    UtAssert_StrCmp(CDSNameBuf, Name, "CFE_ES_GetCDSBlockName() = %s", CDSNameBuf);
+}
 
-#endif /* CFE_TEST_H */
+int32 ESCDSTestSetup(int32 LibId)
+{
+    UtTest_Add(TestCDS, NULL, NULL, "Test CDS");
+
+    return CFE_SUCCESS;
+}

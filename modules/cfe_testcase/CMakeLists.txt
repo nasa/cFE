@@ -6,4 +6,5 @@ include_directories("${UT_ASSERT_SOURCE_DIR}/inc")
 add_cfe_app(cfe_testcase
     src/cfe_test.c
     src/es_info_test.c
+    src/es_cds_test.c
 )
