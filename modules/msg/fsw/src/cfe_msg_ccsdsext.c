@@ -34,9 +34,14 @@
 #define CFE_MSG_PLAYBACK_MASK 0x0200 /**< \brief CCSDS playback flag, playback when set */
 #define CFE_MSG_SUBSYS_MASK   0x01FF /**< \brief CCSDS Subsystem mask */
 
-/******************************************************************************
- * CCSDS extended header initialization - See header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetDefaultCCSDSExt
+ *
+ * Application-scope internal function
+ * See description in cfe_msg_defaults.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_MSG_SetDefaultCCSDSExt(CFE_MSG_Message_t *MsgPtr)
 {
 
@@ -53,9 +58,14 @@ void CFE_MSG_SetDefaultCCSDSExt(CFE_MSG_Message_t *MsgPtr)
     CFE_MSG_SetSystem(MsgPtr, (CFE_MSG_System_t)CFE_PSP_GetSpacecraftId());
 }
 
-/******************************************************************************
- * Get message EDS version - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetEDSVersion
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetEDSVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_t *Version)
 {
 
@@ -70,9 +80,14 @@ int32 CFE_MSG_GetEDSVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message EDS version - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetEDSVersion
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetEDSVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_t Version)
 {
     if (MsgPtr == NULL || (Version > (CFE_MSG_EDSVER_MASK >> CFE_MSG_EDSVER_SHIFT)))
@@ -85,9 +100,14 @@ int32 CFE_MSG_SetEDSVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion_t Vers
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Get message endian - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetEndian
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetEndian(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t *Endian)
 {
 
@@ -108,9 +128,14 @@ int32 CFE_MSG_GetEndian(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t *Endia
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message endian - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetEndian
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetEndian(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t Endian)
 {
     int32 status = CFE_SUCCESS;
@@ -136,9 +161,14 @@ int32 CFE_MSG_SetEndian(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t Endian)
     return status;
 }
 
-/******************************************************************************
- * Get message playback flag - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetPlaybackFlag
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetPlaybackFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackFlag_t *PlayFlag)
 {
 
@@ -159,9 +189,14 @@ int32 CFE_MSG_GetPlaybackFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackF
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message playback flag - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetPlaybackFlag
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetPlaybackFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackFlag_t PlayFlag)
 {
     int32 status = CFE_SUCCESS;
@@ -187,9 +222,14 @@ int32 CFE_MSG_SetPlaybackFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_PlaybackFlag_t 
     return status;
 }
 
-/******************************************************************************
- * Get message subsystem - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetSubsystem
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetSubsystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t *Subsystem)
 {
 
@@ -203,9 +243,14 @@ int32 CFE_MSG_GetSubsystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t 
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message subsystem - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetSubsystem
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetSubsystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t Subsystem)
 {
     if (MsgPtr == NULL || ((Subsystem & ~CFE_MSG_SUBSYS_MASK) != 0))
@@ -218,9 +263,14 @@ int32 CFE_MSG_SetSubsystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t Subsys
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Get message system - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetSystem
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetSystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t *System)
 {
 
@@ -234,9 +284,14 @@ int32 CFE_MSG_GetSystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t *Syste
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message system - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetSystem
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetSystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t System)
 {
     if (MsgPtr == NULL)

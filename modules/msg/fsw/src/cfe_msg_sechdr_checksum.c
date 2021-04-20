@@ -24,14 +24,17 @@
 #include "cfe_msg.h"
 #include "cfe_msg_priv.h"
 
-/******************************************************************************/
-/**
- * \brief Compute checksum - internal utility
+/*----------------------------------------------------------------
  *
- * \param[in]  MsgPtr  Message pointer to checksum
+ * Function: CFE_MSG_ComputeCheckSum
  *
- * \return Calculated checksum
- */
+ * Internal helper routine only, not part of API.
+ *
+ * Computes checksum -
+ * MsgPtr is Message pointer to checksum
+ * Return Value is Calculated checksum
+ *
+ *-----------------------------------------------------------------*/
 CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
 {
 
@@ -50,10 +53,14 @@ CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
     return chksum;
 }
 
-/******************************************************************************
- * Calculate and set checksum field - See API and header file for details
- * Implementation supports cFS secondary definition or no secodary header
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GenerateChecksum
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
 {
     uint32                   status;
@@ -85,10 +92,14 @@ int32 CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Validate checksum - See API and header file for details
- * Implementation supports cFS secondary definition or no secondary header
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_ValidateChecksum
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsValid)
 {
 

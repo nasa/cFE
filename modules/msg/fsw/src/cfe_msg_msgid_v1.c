@@ -27,12 +27,14 @@
 #include "cfe_platform_cfg.h"
 #include "cfe_sb.h"
 
-/******************************************************************************
- * Get message id - See API and header file for details
- * cFS default version 1 implementation using CCSDS headers
+/*----------------------------------------------------------------
  *
- * Message Id = CCSDS Stream ID (in local endian)
- */
+ * Function: CFE_MSG_GetMsgId
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId)
 {
 
@@ -49,12 +51,14 @@ int32 CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message id - See API and header file for details
- * cFS default version 1 implementations using CCSDS headers
+/*----------------------------------------------------------------
  *
- * CCSDS Stream ID = Message Id converted to big endian
- */
+ * Function: CFE_MSG_SetMsgId
+ *
+ * Implemented per public API
+ * See description in cfe_msg.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId)
 {
 
