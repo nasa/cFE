@@ -74,12 +74,18 @@
 /** \brief Message map shared data */
 CFE_SBR_RouteId_t CFE_SBR_MSGMAP[CFE_SBR_MSG_MAP_SIZE];
 
-/******************************************************************************
- * Internal helper function to hash the message id
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_MsgIdHash
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Hashes the message id
  *
  * Note: algorithm designed for a 32 bit int, changing the size of
  * CFE_SB_MsgId_Atom_t may require an update to this impelementation
- */
+ *
+ *-----------------------------------------------------------------*/
 CFE_SB_MsgId_Atom_t CFE_SBR_MsgIdHash(CFE_SB_MsgId_t MsgId)
 {
     CFE_SB_MsgId_Atom_t hash;
@@ -96,18 +102,28 @@ CFE_SB_MsgId_Atom_t CFE_SBR_MsgIdHash(CFE_SB_MsgId_t MsgId)
     return hash;
 }
 
-/******************************************************************************
- *  Interface function - see header for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_Init_Map
+ *
+ * Application-scope internal function
+ * See description in cfe_sbr_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SBR_Init_Map(void)
 {
     /* Clear the shared data */
     memset(&CFE_SBR_MSGMAP, 0, sizeof(CFE_SBR_MSGMAP));
 }
 
-/******************************************************************************
- *  Interface function - see header for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_SetRouteId
+ *
+ * Application-scope internal function
+ * See description in cfe_sbr_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 uint32 CFE_SBR_SetRouteId(CFE_SB_MsgId_t MsgId, CFE_SBR_RouteId_t RouteId)
 {
     CFE_SB_MsgId_Atom_t hash;
@@ -135,9 +151,13 @@ uint32 CFE_SBR_SetRouteId(CFE_SB_MsgId_t MsgId, CFE_SBR_RouteId_t RouteId)
     return collisions;
 }
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_GetRouteId
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 CFE_SBR_RouteId_t CFE_SBR_GetRouteId(CFE_SB_MsgId_t MsgId)
 {
     CFE_SB_MsgId_Atom_t hash;

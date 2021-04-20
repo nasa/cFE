@@ -37,11 +37,13 @@
  * Function prototypes
  */
 
+/*---------------------------------------------------------------------------------------*/
 /**
  *  \brief Routing map initialization
  */
 void CFE_SBR_Init_Map(void);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Associates the given route ID with the given message ID
  *
