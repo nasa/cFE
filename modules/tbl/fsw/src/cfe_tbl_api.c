@@ -40,9 +40,14 @@
 ** Local Macros
 */
 
-/*
- * Function: CFE_TBL_Register - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_Register
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t Size, uint16 TblOptionFlags,
                        CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr)
 {
@@ -501,11 +506,16 @@ int32 CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t 
     }
 
     return Status;
-} /* End of CFE_TBL_Register() */
+}
 
-/*
- * Function: CFE_TBL_Share - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_Share
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
 {
     int32                       Status;
@@ -599,11 +609,16 @@ int32 CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
     }
 
     return Status;
-} /* End of CFE_TBL_Share() */
+}
 
-/*
- * Function: CFE_TBL_Unregister - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_Unregister
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
@@ -659,16 +674,16 @@ int32 CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_Unregister() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_Load() -- Load a specified table with data from the
-**                   specified source
-**
-** NOTE: For complete prolog information, see 'cfe_tbl.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_Load
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType, const void *SrcDataPtr)
 {
     int32                       Status;
@@ -890,11 +905,16 @@ int32 CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType, const 
     }
 
     return Status;
-} /* End of CFE_TBL_Load() */
+}
 
-/*
- * Function: CFE_TBL_Update - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_Update
+ *
+ * Implemented per public API
+ * See description in cfe_tbl_events.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
@@ -962,11 +982,16 @@ int32 CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_Update() */
+}
 
-/*
- * Function: CFE_TBL_GetAddress - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_GetAddress
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle)
 {
     int32          Status;
@@ -997,11 +1022,16 @@ int32 CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_GetAddress() */
+}
 
-/*
- * Function: CFE_TBL_ReleaseAddress - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ReleaseAddress
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle)
 {
     int32          Status;
@@ -1029,11 +1059,16 @@ int32 CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_ReleaseAddress() */
+}
 
-/*
- * Function: CFE_TBL_GetAddresses() - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_GetAddresses
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_TBL_Handle_t TblHandles[])
 {
     uint16         i;
@@ -1077,11 +1112,16 @@ int32 CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_TBL_Han
     }
 
     return Status;
-} /* End of CFE_TBL_GetAddresses() */
+}
 
-/*
- * Function: CFE_TBL_ReleaseAddresses - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ReleaseAddresses
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t TblHandles[])
 {
     int32  Status = CFE_SUCCESS;
@@ -1103,11 +1143,16 @@ int32 CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t TblHandl
     }
 
     return Status;
-} /* End of CFE_TBL_ReleaseAddresses() */
+}
 
-/*
- * Function: CFE_TBL_Validate - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_Validate
+ *
+ * Implemented per public API
+ * See description in cfe_tbl_events.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
@@ -1246,11 +1291,16 @@ int32 CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_Validate() */
+}
 
-/*
- * Function: CFE_TBL_Manage - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_Manage
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle)
 {
     int32 Status           = CFE_SUCCESS;
@@ -1301,11 +1351,16 @@ int32 CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_Manage() */
+}
 
-/*
- * Function: CFE_TBL_GetStatus - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_GetStatus
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
@@ -1344,11 +1399,16 @@ int32 CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_GetStatus() */
+}
 
-/*
- * Function: CFE_TBL_GetInfo - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_GetInfo
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
 {
     int32                  Status = CFE_SUCCESS;
@@ -1403,11 +1463,16 @@ int32 CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
     }
 
     return Status;
-} /* End of CFE_TBL_GetInfo() */
+}
 
-/*
- * Function: CFE_TBL_DumpToBuffer - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_DumpToBuffer
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
@@ -1442,11 +1507,16 @@ int32 CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_DumpToBuffer() */
+}
 
-/*
- * Function: CFE_TBL_Modified - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_Modified
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
@@ -1508,11 +1578,16 @@ int32 CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_Modified() */
+}
 
-/*
- * Function: CFE_TBL_NotifyByMessage - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_NotifyByMessage
+ *
+ * Implemented per public API
+ * See description in cfe_tbl.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode,
                               uint32 Parameter)
 {
@@ -1547,8 +1622,4 @@ int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, 
     }
 
     return Status;
-} /* End of CFE_TBL_NotifyByMessage() */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

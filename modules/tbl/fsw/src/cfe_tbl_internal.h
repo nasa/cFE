@@ -52,7 +52,7 @@
 
 /*****************************  Function Prototypes   **********************************/
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Validates specified handle to ensure legality
 **
@@ -69,10 +69,10 @@
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Determines whether handle is associated with calling Application
 **
@@ -97,10 +97,10 @@ int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppIdPtr);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Determines if calling application has the right to access specified table
 **
@@ -120,10 +120,10 @@ int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppIdPt
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Removes Access Descriptor from Table's linked list of Access Descriptors
 **
@@ -141,10 +141,10 @@ int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisA
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Obtains the data address for the specified table
 **
@@ -169,10 +169,10 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_UNREGISTERED        \copydoc CFE_TBL_ERR_UNREGISTERED
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Returns any pending non-error status code for the specified table.
 **
@@ -189,10 +189,10 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_
 ** \retval #CFE_TBL_INFO_UPDATE_PENDING     \copydoc CFE_TBL_INFO_UPDATE_PENDING
 ** \retval #CFE_TBL_INFO_UPDATED            \copydoc CFE_TBL_INFO_UPDATED
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Returns the Registry Index for the specified Table Name
 **
@@ -208,10 +208,10 @@ int32 CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle);
 **
 ** \retval #CFE_TBL_NOT_FOUND or the Index into Registry for Table with specified name
 **
-******************************************************************************/
+*/
 int16 CFE_TBL_FindTableInRegistry(const char *TblName);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Locates a free slot in the Table Registry.
 **
@@ -222,10 +222,10 @@ int16 CFE_TBL_FindTableInRegistry(const char *TblName);
 **        Note: This function assumes the registry has been locked.
 **
 ** \retval #CFE_TBL_NOT_FOUND or Index into Table Registry of unused entry
-******************************************************************************/
+*/
 int16 CFE_TBL_FindFreeRegistryEntry(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Locates a free Access Descriptor in the Table Handles Array.
 **
@@ -236,10 +236,10 @@ int16 CFE_TBL_FindFreeRegistryEntry(void);
 **        Note: This function assumes the registry has been locked.
 **
 ** \retval #CFE_TBL_END_OF_LIST or Table Handle of unused Access Descriptor
-******************************************************************************/
+*/
 CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Creates a Full Table name from application name and table name
 **
@@ -260,10 +260,10 @@ CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void);
 **
 ** \param[in]  ThisAppId the Application ID of the Application making the call.
 **
-******************************************************************************/
+*/
 void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_t ThisAppId);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Locks access to the Table Registry
 **
@@ -275,10 +275,10 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_
 **          None
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-******************************************************************************/
+*/
 int32 CFE_TBL_LockRegistry(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Unlocks access to the Table Registry
 **
@@ -291,10 +291,10 @@ int32 CFE_TBL_LockRegistry(void);
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_UnlockRegistry(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Finds the address of a buffer compatible with the specified table
 **
@@ -324,11 +324,11 @@ int32 CFE_TBL_UnlockRegistry(void);
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copydoc CFE_TBL_ERR_NO_BUFFER_AVAIL
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
                                bool CalledByApp);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Loads a table buffer with data from a specified file
 **
@@ -367,11 +367,11 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
 ** \retval #CFE_TBL_ERR_BAD_CONTENT_ID       \copydoc CFE_TBL_ERR_BAD_CONTENT_ID
 ** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID       \copydoc CFE_TBL_ERR_BAD_SUBTYPE_ID
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
                            const char *Filename);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Updates the active table buffer with contents of inactive buffer
 **
@@ -392,11 +392,11 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
 ** \param[in]  AccessDescPtr  Pointer to appropriate access descriptor for table-application interface
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-******************************************************************************/
+*/
 int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Sets flags in access descriptors associated with specified table
 **
@@ -409,10 +409,10 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
 **           is called.
 **
 ** \param[in]  RegRecPtr      Pointer to Table Registry Entry for table to be updated
-******************************************************************************/
+*/
 void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Reads Table File Headers
 **
@@ -445,11 +445,11 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \retval #CFE_TBL_ERR_BAD_SPACECRAFT_ID   \copydoc CFE_TBL_ERR_BAD_SPACECRAFT_ID
 ** \retval #CFE_TBL_ERR_BAD_PROCESSOR_ID    \copydoc CFE_TBL_ERR_BAD_PROCESSOR_ID
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
                           CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Initializes the entries of a single Table Registry Record
 **
@@ -459,10 +459,10 @@ int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHead
 ** \par Assumptions, External Events, and Notes:
 **        -# This function is intended to be called before populating a table registry record
 **
-******************************************************************************/
+*/
 void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Byte swaps a CFE_TBL_File_Hdr_t structure
 **
@@ -475,10 +475,10 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr);
 **
 ** \param[in, out]  HdrPtr   Pointer to table header that needs to be swapped. *HdrPtr provides the swapped header
 **
-******************************************************************************/
+*/
 void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Searches the Critical Table Registry for the given handle
 **
@@ -500,10 +500,10 @@ void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr);
 **
 ** \param[in]  CDSHandleToFind   CDS Handle to be located in Critical Table Registry.
 **
-******************************************************************************/
+*/
 void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CDSHandle_t CDSHandleToFind);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Updates a CDS associated with a Critical Table
 **
@@ -519,10 +519,10 @@ void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CD
 ** \param[in]  RegRecPtr Pointer to Registry Record of Critical Table whose CDS
 **                       needs to be updated.
 **
-******************************************************************************/
+*/
 void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief When enabled, will send a manage notification command message
 **
@@ -537,10 +537,10 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr);
 **
 ** \param[in]  RegRecPtr Pointer to Registry Record of Table whose owner needs notifying.
 **
-******************************************************************************/
+*/
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Performs a byte swap on a uint32 integer
 **
@@ -553,7 +553,7 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 **
 ** \param[in, out]  Uint32ToSwapPtr Pointer to uint32 value to be swapped. *Uint32ToSwapPtr is the swapped uint32 value
 **
-******************************************************************************/
+*/
 extern void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
 
 /*

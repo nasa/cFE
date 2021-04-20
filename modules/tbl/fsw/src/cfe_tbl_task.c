@@ -85,6 +85,14 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
 
 /******************************************************************************/
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_TaskMain
+ *
+ * Implemented per public API
+ * See description in cfe_tbl_core_internal.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_TaskMain(void)
 {
     int32            Status;
@@ -137,11 +145,16 @@ void CFE_TBL_TaskMain(void)
 
     /* while loop exits only if CFE_SB_ReceiveBuffer returns error */
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
+}
 
-} /* end CFE_TBL_TaskMain() */
-
-/******************************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_TaskInit
+ *
+ * Application-scope internal function
+ * See description in cfe_tbl_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_TaskInit(void)
 {
     int32 Status;
@@ -207,11 +220,16 @@ int32 CFE_TBL_TaskInit(void)
     } /* end if */
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TBL_TaskInit() */
-
-/******************************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_InitData
+ *
+ * Application-scope internal function
+ * See description in cfe_tbl_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_InitData(void)
 {
 
@@ -227,11 +245,16 @@ void CFE_TBL_InitData(void)
 
     /* Message ID is set when sent, so OK as 0 here */
     CFE_MSG_Init(&CFE_TBL_Global.NotifyMsg.CmdHeader.Msg, CFE_SB_ValueToMsgId(0), sizeof(CFE_TBL_Global.NotifyMsg));
+}
 
-} /* End of CFE_TBL_InitData() */
-
-/******************************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_TaskPipe
+ *
+ * Application-scope internal function
+ * See description in cfe_tbl_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_SB_MsgId_t       MessageID   = CFE_SB_INVALID_MSG_ID;
@@ -302,11 +325,16 @@ void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
     }
 
     return;
+}
 
-} /* End of CFE_TBL_TaskPipe() */
-
-/******************************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_SearchCmdHndlrTbl
+ *
+ * Application-scope internal function
+ * See description in cfe_tbl_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode)
 {
     int16 TblIndx    = CFE_TBL_BAD_CMD_CODE;
@@ -361,8 +389,4 @@ int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode)
     }
 
     return TblIndx;
-} /* End of CFE_TBL_SearchCmdHndlrTbl() */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}
