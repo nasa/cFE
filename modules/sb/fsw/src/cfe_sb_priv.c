@@ -80,16 +80,14 @@
 
 #include <string.h>
 
-/******************************************************************************
-**  Function:  CFE_SB_CleanUpApp()
-**
-**  Purpose:
-**
-**  Arguments:
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_CleanUpApp
+ *
+ * Implemented per public API
+ * See description in cfe_sb_core_internal.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     uint32          i;
@@ -124,23 +122,16 @@ int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
     CFE_SB_ZeroCopyReleaseAppId(AppId);
 
     return CFE_SUCCESS;
+}
 
-} /* end CFE_SB_CleanUpApp */
-
-/******************************************************************************
-**  Function:  CFE_SB_LockSharedData()
-**
-**  Purpose:
-**    SB internal function to handle a semaphore take failure for the Shared
-**    Data Mutex
-**
-**  Arguments:
-**    FuncName   - the function name containing the code that generated the error.
-**    LineNumber - the line number in the file of the code that generated the error.
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_LockSharedData
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
 {
 
@@ -159,23 +150,16 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
     } /* end if */
 
     return;
+}
 
-} /* end CFE_SB_LockSharedData */
-
-/******************************************************************************
-**  Function:  CFE_SB_UnlockSharedData()
-**
-**  Purpose:
-**    SB internal function to handle a semaphore give failure  for the Shared
-**    Data Mutex
-**
-**  Arguments:
-**    FuncName   - the function name containing the code that generated the error.
-**    LineNumber - the line number in the file of the code that generated the error.
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_UnlockSharedData
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber)
 {
 
@@ -194,12 +178,16 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber)
     } /* end if */
 
     return;
+}
 
-} /* end CFE_SB_UnlockSharedData */
-
-/******************************************************************************
- * SB private function to get destination pointer - see description in header
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_GetDestPtr
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeId_t PipeId)
 {
     CFE_SB_DestinationD_t *destptr;
@@ -219,17 +207,14 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
     return destptr;
 }
 
-/******************************************************************************
-**  Function:  CFE_SB_ValidateMsgId()
-**
-**  Purpose:
-**    SB internal function to validate a given MsgId.
-**
-**  Arguments:
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_ValidateMsgId
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId)
 {
 
@@ -241,15 +226,18 @@ int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId)
     {
         return CFE_SUCCESS;
     } /* end if */
-
-} /* end CFE_SB_ValidateMsgId */
+}
 
 /*********************************************************************/
-/*
- * CFE_SB_LocatePipeDescByID
+
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_SB_LocatePipeDescByID
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
 {
     CFE_SB_PipeD_t *PipeDscPtr;
@@ -267,12 +255,14 @@ CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
     return PipeDscPtr;
 }
 
-/*********************************************************************/
-/*
- * CFE_SB_CheckPipeDescSlotUsed
+/*----------------------------------------------------------------
  *
- * Checks if a table slot is used or not (helper for allocating IDs)
- */
+ * Function: CFE_SB_CheckPipeDescSlotUsed
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId)
 {
     CFE_SB_PipeD_t *PipeDscPtr;
@@ -285,22 +275,14 @@ bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId)
     return (PipeDscPtr == NULL || CFE_SB_PipeDescIsUsed(PipeDscPtr));
 }
 
-/******************************************************************************
-**  Function:  CFE_SB_GetAppTskName()
-**
-**  Purpose:
-**    This function returns a pointer to the app.tsk name string
-**
-**  Arguments:
-**    TaskId - the task id of the app.task name desired
-**    FullName - string buffer to store name
-**
-**  Return:
-**    Pointer to App.Tsk Name
-**
-**  Note: With taskId, Parent App name and Child Task name can be queried from ES
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_GetAppTskName
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
 {
 
@@ -337,24 +319,16 @@ char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
     } /* end if */
 
     return FullName;
+}
 
-} /* end CFE_SB_GetAppTskName */
-
-/******************************************************************************
-**  Function:  CFE_SB_RequestToSendEvent()
-**
-**  Purpose:
-**    This function will test the given bit for the given task. If the bit is set
-**    this function will return CFE_SB_DENIED. If bit is not set, this function set
-**    the bit and return CFE_SB_GRANTED. This will prevent recursive events from
-**    occurring.
-**
-**  Arguments:
-**
-**  Return:
-**    If the bit is set this function will return CFE_SB_DENIED.
-**    If bit is not set, this function set the bit and return CFE_SB_GRANTED.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_RequestToSendEvent
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
 {
 
@@ -378,22 +352,16 @@ uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
         return CFE_SB_GRANTED;
 
     } /* end if */
+}
 
-} /* end CFE_SB_RequestToSendEvent */
-
-/******************************************************************************
-**  Function:  CFE_SB_FinishSendEvent()
-**
-**  Purpose:
-**    This function will clear the given bit for the given task. Called after
-**    a successful CFE_SB_RequestToSendEvent()
-**
-**  Arguments:
-**
-**  Return:
-**    If the bit is set this function will return CFE_SB_DENIED.
-**    If bit is not set, this function set the bit and return CFE_SB_GRANTED.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_FinishSendEvent
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
 {
 
@@ -406,11 +374,16 @@ void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
 
     /* clear the bit so the task may send this event again */
     CFE_CLR(CFE_SB_Global.StopRecurseFlags[Indx], Bit);
-} /* end CFE_SB_RequestToSendEvent */
+}
 
-/******************************************************************************
- * SB private function to add a destination node - see description in header
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_AddDestNode
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode)
 {
 
@@ -444,9 +417,14 @@ int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNo
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * SB private function to remove a destination - see description in header
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_RemoveDest
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_RemoveDest(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr)
 {
     CFE_SB_RemoveDestNode(RouteId, DestPtr);
@@ -454,9 +432,14 @@ void CFE_SB_RemoveDest(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr
     CFE_SB_Global.StatTlmMsg.Payload.SubscriptionsInUse--;
 }
 
-/******************************************************************************
- * SB private function to remove a destination node - see description in header
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_RemoveDestNode
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NodeToRemove)
 {
     CFE_SB_DestinationD_t *PrevNode;
@@ -495,29 +478,14 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
     NodeToRemove->Prev = NULL;
 }
 
-/******************************************************************************
-** Name:    CFE_SB_ZeroCopyReleaseAppId
-**
-** Purpose: API used for releasing all pointers to a buffers (for zero copy mode
-**          only) for a specific Application. This function is used for cleaning
-**          up when an application crashes.
-**
-** Assumptions, External Events, and Notes:
-**          None
-**
-** Date Written:
-**          07/23/2009
-**
-** Input Arguments:
-**          AppId
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_ZeroCopyReleaseAppId
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)
 {
     CFE_SB_BufferLink_t *NextLink;
@@ -556,7 +524,4 @@ int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)
     }
 
     return CFE_SUCCESS;
-
-} /* end CFE_SB_ZeroCopyReleaseAppId */
-
-/*****************************************************************************/
+}

@@ -37,18 +37,14 @@
 
 #include <string.h>
 
-/******************************************************************************
-**  Function:  CFE_SB_MsgHdrSize()
-**
-**  Purpose:
-**    Get the size of a message header.
-**
-**  Arguments:
-**    *MsgPtr - Pointer to a SB message
-**
-**  Return:
-**     Size of Message Header.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_MsgHdrSize
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
 {
     size_t         size      = 0;
@@ -79,12 +75,16 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
     }
 
     return size;
+}
 
-} /* end CFE_SB_MsgHdrSize */
-
-/*
- * Function: CFE_SB_GetUserData - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_GetUserData
+ *
+ * Implemented per public API
+ * See description in cfe_sb.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
 {
     uint8 *BytePtr;
@@ -100,11 +100,16 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
     HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
 
     return (BytePtr + HdrSize);
-} /* end CFE_SB_GetUserData */
+}
 
-/*
- * Function: CFE_SB_GetUserDataLength - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_GetUserDataLength
+ *
+ * Implemented per public API
+ * See description in cfe_sb.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
 {
     CFE_MSG_Size_t TotalMsgSize = 0;
@@ -119,11 +124,16 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
     HdrSize = CFE_SB_MsgHdrSize(MsgPtr);
 
     return TotalMsgSize - HdrSize;
-} /* end CFE_SB_GetUserDataLength */
+}
 
-/*
- * Function: CFE_SB_SetUserDataLength - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SetUserDataLength
+ *
+ * Implemented per public API
+ * See description in cfe_sb.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
 {
     CFE_MSG_Size_t TotalMsgSize;
@@ -147,20 +157,29 @@ void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
             CFE_ES_WriteToSysLog("CFE_SB:SetUserDataLength-Failed TotalMsgSize too large\n");
         }
     }
-} /* end CFE_SB_SetUserDataLength */
+}
 
-/*
- * Function: CFE_SB_TimeStampMsg - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_TimeStampMsg
+ *
+ * Implemented per public API
+ * See description in cfe_sb.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr)
 {
     CFE_MSG_SetMsgTime(MsgPtr, CFE_TIME_GetTime());
+}
 
-} /* end CFE_SB_TimeStampMsg */
-
-/*
- * Function: CFE_SB_MessageStringGet - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_MessageStringGet
+ *
+ * Implemented per public API
+ * See description in cfe_sb.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
                               size_t DestMaxSize, size_t SourceMaxSize)
 {
@@ -210,9 +229,14 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
     return Result;
 }
 
-/*
- * Function: CFE_SB_MessageStringSet - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_MessageStringSet
+ *
+ * Implemented per public API
+ * See description in cfe_sb.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
                               size_t SourceMaxSize)
 {

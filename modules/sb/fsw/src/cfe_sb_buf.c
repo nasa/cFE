@@ -42,10 +42,14 @@
  */
 #define CFE_SB_BUFFERD_CONTENT_OFFSET (offsetof(CFE_SB_BufferD_t, Content))
 
-/******************************************************************************
+/*----------------------------------------------------------------
  *
- * Helper function to reset/clear the links on a list node (make empty)
- */
+ * Function: CFE_SB_TrackingListReset
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link)
 {
     /* A singleton node/empty list points to itself */
@@ -53,10 +57,14 @@ void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link)
     Link->Next = Link;
 }
 
-/******************************************************************************
+/*----------------------------------------------------------------
  *
- * Helper function to remove a node from a tracking list
- */
+ * Function: CFE_SB_TrackingListRemove
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node)
 {
     /* Remove from list */
@@ -67,10 +75,14 @@ void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node)
     CFE_SB_TrackingListReset(Node);
 }
 
-/******************************************************************************
+/*----------------------------------------------------------------
  *
- * Helper function to add a node to a tracking list
- */
+ * Function: CFE_SB_TrackingListAdd
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node)
 {
     /* Connect this node to the list at "prev" position (tail) */
@@ -82,26 +94,14 @@ void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node
     Node->Next->Prev = Node;
 }
 
-/******************************************************************************
-**  Function:   CFE_SB_GetBufferFromPool()
-**
-**  Purpose:
-**    Request a buffer from the SB buffer pool. The SB buffer pool is a
-**    pre-allocated block of memory of size CFE_PLATFORM_SB_BUF_MEMORY_BYTES. It is used
-**    by the SB to dynamically allocate memory to hold the message and a buffer
-**    descriptor associated with the message during the sending of a message.
-**
-**  Note:
-**    This must only be invoked while holding the SB global lock
-**
-**  Arguments:
-**    MaxMsgSize         : Size of the buffer content area in bytes.
-**
-**  Return:
-**    Pointer to the buffer descriptor for the new buffer, or NULL if the buffer
-**    could not be allocated.
-*/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_GetBufferFromPool
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
 {
     int32             stat1;
@@ -143,26 +143,16 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
     CFE_SB_TrackingListReset(&bd->Link);
 
     return bd;
+}
 
-} /* CFE_SB_GetBufferFromPool */
-
-/******************************************************************************
-**  Function:   CFE_SB_ReturnBufferToPool()
-**
-**  Purpose:
-**    This function will return two blocks of memory back to the memory pool.
-**    One block is the memory used to store the actual message, the other block
-**    was used to store the buffer descriptor for the message.
-**
-**  Note:
-**    This must only be invoked while holding the SB global lock
-**
-**  Arguments:
-**    bd     : Pointer to the buffer descriptor.
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_ReturnBufferToPool
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
 {
     /* Remove from any tracking list (no effect if not in a list) */
@@ -173,27 +163,16 @@ void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
 
     /* finally give the buf descriptor back to the buf descriptor pool */
     CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, bd);
+}
 
-} /* end CFE_SB_ReturnBufferToPool */
-
-/******************************************************************************
-**  Function:   CFE_SB_IncrBufUseCnt()
-**
-**  Purpose:
-**    This function will increment the UseCount of a particular buffer.
-**
-**  Note:
-**    UseCount is a variable in the CFE_SB_BufferD_t and is used only to
-**    determine when a buffer may be returned to the memory pool.
-**
-**    This must only be invoked while holding the SB global lock
-**
-**  Arguments:
-**    bd : Pointer to the buffer descriptor.
-**
-**  Return:
-**    CFE_SUCCESS for normal operation.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_IncrBufUseCnt
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd)
 {
     /* range check the UseCount variable */
@@ -201,29 +180,16 @@ void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd)
     {
         ++bd->UseCount;
     }
+}
 
-} /* end CFE_SB_DecrBufUseCnt */
-
-/******************************************************************************
-**  Function:   CFE_SB_DecrBufUseCnt()
-**
-**  Purpose:
-**    This function will decrement the UseCount of a particular buffer. If the
-**    the UseCount is decremented to zero, it will return the buffer to the
-**    memory pool.
-**
-**  Note:
-**    UseCount is a variable in the CFE_SB_BufferD_t and is used only to
-**    determine when a buffer may be returned to the memory pool.
-**
-**    This must only be invoked while holding the SB global lock
-**
-**  Arguments:
-**    bd : Pointer to the buffer descriptor.
-**
-**  Return:
-**    CFE_SUCCESS for normal operation.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_DecrBufUseCnt
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
 {
     /* range check the UseCount variable */
@@ -236,24 +202,16 @@ void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
             CFE_SB_ReturnBufferToPool(bd);
         }
     }
+}
 
-} /* end CFE_SB_DecrBufUseCnt */
-
-/******************************************************************************
-**  Function:   CFE_SB_GetDestinationBlk()
-**
-**  Purpose:
-**    This function gets a destination descriptor from the SB memory pool.
-**
-**  Note:
-**    This must only be invoked while holding the SB global lock
-**
-**  Arguments:
-**    None
-**
-**  Return:
-**    Pointer to the destination descriptor
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_GetDestinationBlk
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
 {
     int32                  Stat;
@@ -275,24 +233,16 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
     } /* end if */
 
     return Dest;
+}
 
-} /* end CFE_SB_GetDestinationBlk */
-
-/******************************************************************************
-**  Function:   CFE_SB_PutDestinationBlk()
-**
-**  Purpose:
-**    This function returns a destination descriptor to the SB memory pool.
-**
-**  Note:
-**    This must only be invoked while holding the SB global lock
-**
-**  Arguments:
-**    None
-**
-**  Return:
-**    Pointer to the destination descriptor
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_PutDestinationBlk
+ *
+ * Application-scope internal function
+ * See description in cfe_sb_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)
 {
     int32 Stat;
@@ -311,7 +261,4 @@ int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)
     } /* end if */
 
     return CFE_SUCCESS;
-
-} /* end CFE_SB_PutDestinationBlk */
-
-/*****************************************************************************/
+}
