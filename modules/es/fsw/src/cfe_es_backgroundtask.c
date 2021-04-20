@@ -88,18 +88,14 @@ const CFE_ES_BackgroundJobEntry_t CFE_ES_BACKGROUND_JOB_TABLE[] = {
 
 #define CFE_ES_BACKGROUND_NUM_JOBS (sizeof(CFE_ES_BACKGROUND_JOB_TABLE) / sizeof(CFE_ES_BACKGROUND_JOB_TABLE[0]))
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/* Name: CFE_ES_BackgroundTask                                                   */
-/*                                                                               */
-/* Purpose: A helper task for low priority routines that may take time to        */
-/* execute, such as writing log files.                                           */
-/*                                                                               */
-/* Assumptions and Notes: This is started from the ES initialization, and        */
-/* pends on a semaphore until a work request comes in.  This is intended to      */
-/* avoid the need to create a child task "on demand" when work items arrive,     */
-/* which is a form of dynamic allocation.                                        */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_BackgroundTask
+ *
+ * Application-scope internal function
+ * See description in cfe_es_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_BackgroundTask(void)
 {
     int32                              status;
@@ -166,12 +162,14 @@ void CFE_ES_BackgroundTask(void)
     }
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/* Name: CFE_ES_BackgroundInit                                                   */
-/*                                                                               */
-/* Purpose: Initialize the background task                                       */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_BackgroundInit
+ *
+ * Application-scope internal function
+ * See description in cfe_es_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_BackgroundInit(void)
 {
     int32 status;
@@ -198,12 +196,14 @@ int32 CFE_ES_BackgroundInit(void)
     return CFE_SUCCESS;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/* Name: CFE_ES_BackgroundCleanup                                                */
-/*                                                                               */
-/* Purpose: Exit/Stop the background task                                        */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_BackgroundCleanup
+ *
+ * Application-scope internal function
+ * See description in cfe_es_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_BackgroundCleanup(void)
 {
     CFE_ES_DeleteChildTask(CFE_ES_Global.BackgroundTask.TaskID);
@@ -213,13 +213,14 @@ void CFE_ES_BackgroundCleanup(void)
     CFE_ES_Global.BackgroundTask.WorkSem = OS_OBJECT_ID_UNDEFINED;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/* Name: CFE_ES_BackgroundWakeup                                                 */
-/*                                                                               */
-/* Purpose: Wake up the background task                                          */
-/* Notifies the background task to perform an extra poll for new work            */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_BackgroundWakeup
+ *
+ * Implemented per public API
+ * See description in cfe_es.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_BackgroundWakeup(void)
 {
     /* wake up the background task by giving the sem.

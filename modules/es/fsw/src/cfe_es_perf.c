@@ -33,16 +33,14 @@
 
 #include <string.h>
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/* Name: CFE_ES_SetupPerfVariables                                               */
-/*                                                                               */
-/* Purpose:This function initializes filter mask,trigger mask, data & state vals */
-/*                                                                               */
-/* Assumptions and Notes: This gets called from CFE_ES_Main() at startup         */
-/* This code must be called before any other task or code that would use         */
-/* CFE_ES_PerfLogEntry() / CFE_ES_PerfLogExit() functions                        */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SetupPerfVariables
+ *
+ * Application-scope internal function
+ * See description in cfe_es_start.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_SetupPerfVariables(uint32 ResetType)
 {
     /* Create a constant union -
@@ -97,13 +95,14 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
     }
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                               */
-/* CFE_ES_GetPerfLogDumpRemaining() --                                           */
-/* Estimate the number of perf log entries left to write                         */
-/* This is used for telemetry/progress reporting for the perf log dump request   */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GetPerfLogDumpRemaining
+ *
+ * Application-scope internal function
+ * See description in cfe_es_perf.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 uint32 CFE_ES_GetPerfLogDumpRemaining(void)
 {
     CFE_ES_PerfDumpGlobal_t *PerfDumpState = &CFE_ES_Global.BackgroundPerfDumpState;
@@ -141,11 +140,14 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void)
     return Result;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                               */
-/* CFE_ES_StartPerfDataCmd() --                                                  */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_StartPerfDataCmd
+ *
+ * Application-scope internal function
+ * See description in cfe_es_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
 {
     const CFE_ES_StartPerfCmd_Payload_t *CmdPtr        = &data->Payload;
@@ -200,13 +202,16 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
     } /* end if */
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_StartPerfDataCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                               */
-/* CFE_ES_StopPerfDataCmd() --                                                   */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_StopPerfDataCmd
+ *
+ * Application-scope internal function
+ * See description in cfe_es_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
 {
     const CFE_ES_StopPerfCmd_Payload_t *CmdPtr        = &data->Payload;
@@ -263,21 +268,16 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
     } /* end if */
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_StopPerfDataCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*  Function:  CFE_ES_RunPerfLogDump()                                           */
-/*                                                                               */
-/*  Purpose:                                                                     */
-/*    Write performance data to a file                                           */
-/*    This is implemented as a state machine that is invoked in the background   */
-/*    Each iteration should perform a limited amount of work, which will resume  */
-/*    on the next iteration.  State is kept in a global structure.               */
-/*                                                                               */
-/*  Arguments:                                                                   */
-/*    None                                                                       */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_RunPerfLogDump
+ *
+ * Application-scope internal function
+ * See description in cfe_es_perf.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 {
     CFE_ES_PerfDumpGlobal_t *State = (CFE_ES_PerfDumpGlobal_t *)Arg;
@@ -494,13 +494,16 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
      * Return "true" if activity is ongoing, or "false" if not active
      */
     return (State->CurrentState != CFE_ES_PerfDumpState_IDLE);
-} /* end CFE_ES_PerfLogDump */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                               */
-/* CFE_ES_SetPerfFilterMaskCmd() --                                              */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SetPerfFilterMaskCmd
+ *
+ * Application-scope internal function
+ * See description in cfe_es_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 {
     const CFE_ES_SetPerfFilterMaskCmd_Payload_t *cmd = &data->Payload;
@@ -532,13 +535,16 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_SetPerfFilterMaskCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                               */
-/* CFE_ES_SetPerfTriggerMaskCmd() --                                             */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SetPerfTriggerMaskCmd
+ *
+ * Application-scope internal function
+ * See description in cfe_es_task.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
 {
     const CFE_ES_SetPerfTrigMaskCmd_Payload_t *cmd = &data->Payload;
@@ -570,31 +576,16 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_SetPerfTriggerMaskCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/* Name: CFE_ES_PerfLogAdd                                                       */
-/*                                                                               */
-/* Purpose: This function adds a new entry to the data buffer.                   */
-/*                                                                               */
-/* Assumptions and Notes:                                                        */
-/*                                                                               */
-/*  This function implements a circular buffer using an array.                   */
-/*      DataStart points to first stored entry                                   */
-/*      DataEnd points to next available entry                                   */
-/*      if DataStart == DataEnd then the buffer is either empty or full          */
-/*      depending on the value of the DataCount                                  */
-/*                                                                               */
-/*  Time is stored as 2 32 bit integers, (TimerLower32, TimerUpper32):           */
-/*      TimerLower32 is the curent value of the hardware timer register.         */
-/*      TimerUpper32 is the number of times the timer has rolled over.           */
-/*                                                                               */
-/*  Time is stored as a absolute time instead of a relative time between log     */
-/*  entries. This will yield better accuracy since storing relative time between */
-/*  entries will accumulate (rounding/sampling) errors over time.  It also is    */
-/*  faster since the time does not need to be calculated.                        */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_PerfLogAdd
+ *
+ * Implemented per public API
+ * See description in cfe_es.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
 {
     CFE_ES_PerfDataEntry_t EntryData;
@@ -720,5 +711,4 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
     }
 
     OS_MutSemGive(CFE_ES_Global.PerfDataMutex);
-
-} /* end CFE_ES_PerfLogAdd */
+}

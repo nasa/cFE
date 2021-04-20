@@ -64,14 +64,14 @@
 ***************************************************************************
 */
 
-/*
-** Name:
-**   CFE_ES_StartApplications
-**
-** Purpose:
-**   This routine loads/starts cFE applications.
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_StartApplications
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
 {
     char        ES_AppLoadBuffer[ES_START_BUFF_SIZE]; /* A buffer of for a line in a file */
@@ -269,14 +269,14 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     }
 }
 
-/*
-**---------------------------------------------------------------------------------------
-** Name: CFE_ES_ParseFileEntry
-**
-**   Purpose: This function parses the startup file line for an individual
-**            cFE application.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ParseFileEntry
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 {
     const char *  ModuleName;
@@ -380,16 +380,14 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
     return (Status);
 }
 
-/*
-**-------------------------------------------------------------------------------------
-** Name: CFE_ES_LoadModule
-**
-** Helper function to load + configure (but not start) a new app/lib module
-**
-** Loads the module file via OSAL and stores all relevant info in the table entry as necessary.
-**
-**-------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_LoadModule
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
                         const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
 {
@@ -484,17 +482,14 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
     return ReturnCode;
 }
 
-/*
-**-------------------------------------------------------------------------------------
-** Name: CFE_ES_GetTaskFunction
-**
-** Helper function to act as the intermediate entry point of an app
-** This is to support starting apps before having a fully completed entry in the
-** global app table.  The app startup will delay until the app creation is completed
-** and verified, then the actual entry point will be determined.
-**
-**-------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GetTaskFunction
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
 {
     CFE_ES_TaskRecord_t *     TaskRecPtr;
@@ -543,17 +538,14 @@ int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
     return (ReturnCode);
 }
 
-/*
-**-------------------------------------------------------------------------------------
-** Name: CFE_ES_TaskEntryPoint
-**
-** Helper function to act as the intermediate entry point of an app
-** This is to support starting apps before having a fully completed entry in the
-** global app table.  The app startup will delay until the app creation is completed
-** and verified, then the actual entry point will be determined.
-**
-**-------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_TaskEntryPoint
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_TaskEntryPoint(void)
 {
     CFE_ES_TaskEntryFuncPtr_t RealEntryFunc;
@@ -576,22 +568,14 @@ void CFE_ES_TaskEntryPoint(void)
     }
 }
 
-/*
-**-------------------------------------------------------------------------------------
-** Name: CFE_ES_StartMainTask
-**
-** Helper function to start (but not load) a new app/lib module
-**
-** Note that OSAL does not separate the action of creating and start a task, providing
-** only OS_TaskCreate which does both.  But there is a potential race condition if
-** the real task code starts and calls any function that depends on having an AppID
-** context before its fully registered in the global app table.
-**
-** Therefore this calls a dedicated CFE_ES_AppEntryPoint which then will wait until
-** the task is fully registered in the global, before calling the actual app entry point.
-**
-**-------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_StartAppTask
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc,
                           const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId)
 {
@@ -664,17 +648,14 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
     return ReturnCode;
 }
 
-/*
-**---------------------------------------------------------------------------------------
-** Name: ES_AppCreate
-**
-**   Purpose: This function loads and creates a cFE Application.
-**            This function can be called from the ES startup code when it
-**            loads the cFE Applications from the disk using the startup script, or it
-**            can be called when the ES Start Application command is executed.
-**
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_AppCreate
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, const CFE_ES_AppStartParams_t *Params)
 {
     CFE_Status_t        Status;
@@ -830,17 +811,16 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
     *ApplicationIdPtr = CFE_ES_APPID_C(PendingResourceId);
 
     return Status;
+}
 
-} /* End Function */
-
-/*
-**---------------------------------------------------------------------------------------
-** Name: CFE_ES_LoadLibrary
-**
-**   Purpose: This function loads and initializes a cFE Shared Library.
-**
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_LoadLibrary
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, const CFE_ES_ModuleLoadParams_t *Params)
 {
     CFE_ES_LibraryEntryFuncPtr_t FunctionPointer;
@@ -987,18 +967,16 @@ int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, cons
     *LibraryIdPtr = CFE_ES_LIBID_C(PendingResourceId);
 
     return (Status);
+}
 
-} /* End Function */
-
-/*
-**---------------------------------------------------------------------------------------
-** Name: CFE_ES_RunAppTableScan
-**
-**   Purpose: This function scans the ES Application table and acts on the changes
-**             in application states. This is where the external cFE Applications are
-**             restarted, reloaded, or deleted.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_RunAppTableScan
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
 {
     CFE_ES_AppTableScanState_t *State = (CFE_ES_AppTableScanState_t *)Arg;
@@ -1112,16 +1090,16 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
      * to be called from the background task at a faster interval.
      */
     return (State->PendingAppStateChanges != 0);
+}
 
-} /* End Function */
-
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_ProcessControlRequest
-**
-**   Purpose: This function will perform the requested control action for an application.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ProcessControlRequest
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
 {
     CFE_ES_AppRecord_t *     AppRecPtr;
@@ -1338,16 +1316,16 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
     }
 
     CFE_EVS_SendEvent(EventID, EventType, "%s Application %s %s", ReqName, OrigAppName, MessageDetail);
+}
 
-} /* End Function */
-
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CleanUpApp
-**
-**   Purpose: Delete an application by cleaning up all of it's resources.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CleanUpApp
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     uint32                  i;
@@ -1569,8 +1547,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
     return (ReturnCode);
-
-} /* end function */
+}
 
 /*
  * Simple state structure used when cleaning up objects associated with tasks
@@ -1586,15 +1563,16 @@ typedef struct
     int32  OverallStatus;
 } CFE_ES_CleanupState_t;
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CleanupObjectCallback
-**
-**   Purpose: Helper function clean up all objects.
-**
-**   NOTE: This is called while holding the ES global lock
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CleanupObjectCallback
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Purpose: clean up all objects.
+ * NOTE: This is called while holding the ES global lock
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
 {
     CFE_ES_CleanupState_t *CleanState;
@@ -1686,15 +1664,14 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
     }
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CleanupTaskResources
-**
-**   Purpose: Clean up the OS resources associated with an individual Task
-**   Note: This is called when the ES global is UNLOCKED - so it should not touch
-**         any ES global data structures.  It should only clean up at the OSAL level.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CleanupTaskResources
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_CleanupState_t CleanState;
@@ -1754,16 +1731,14 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
     return (Result);
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CopyModuleBasicInfo
-**
-**   Purpose: Populate the cFE_ES_AppInfo structure with the data for an app.
-**
-**   This internal function does not log any errors/events.  The caller is expected
-**   to check the return code and log any relevant errors based on the context.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CopyModuleBasicInfo
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
     strncpy(AppInfoPtr->EntryPoint, ParamsPtr->InitSymbolName, sizeof(AppInfoPtr->EntryPoint) - 1);
@@ -1773,31 +1748,27 @@ void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_
     AppInfoPtr->FileName[sizeof(AppInfoPtr->FileName) - 1] = '\0';
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CopyModuleStatusInfo
-**
-**   Purpose: Populate the cFE_ES_AppInfo structure with the data for an app.
-**
-**   This internal function does not log any errors/events.  The caller is expected
-**   to check the return code and log any relevant errors based on the context.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CopyModuleStatusInfo
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE_ES_AppInfo_t *AppInfoPtr)
 {
     AppInfoPtr->StartAddress = CFE_ES_MEMADDRESS_C(StatusPtr->InitSymbolAddress);
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CopyModuleAddressInfo
-**
-**   Purpose: Populate the cFE_ES_AppInfo structure with the data for an app.
-**
-**   This internal function does not log any errors/events.  The caller is expected
-**   to check the return code and log any relevant errors based on the context.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CopyModuleAddressInfo
+ *
+ * Application-scope internal function
+ * See description in cfe_es_apps.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoPtr)
 {
     OS_module_prop_t ModuleInfo;

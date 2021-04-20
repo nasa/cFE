@@ -65,9 +65,14 @@ CFE_ES_Global_t CFE_ES_Global;
 ** Code
 */
 
-/*
-** Name: CFE_ES_Main - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_Main
+ *
+ * Implemented per public API
+ * See description in cfe_es.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const char *StartFilePath)
 {
     int32 ReturnCode;
@@ -232,17 +237,16 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     CFE_ES_Global.SystemState = CFE_ES_SystemState_OPERATIONAL;
 }
 
-/*
-** Name: CFE_ES_SetupResetVariables
-**
-** Purpose: This function initializes the ES reset variables depending on the reset type.
-**          It will also initiate a power on reset when too many processor resets
-**           have happened.
-**
-** SYSLOGGING NOTE: Any logging in here must use CFE_ES_SysLogWrite_Unsync() as the necessary
-** primitives are not even initialized yet.  There is no chance for log contention here.
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SetupResetVariables
+ *
+ * Application-scope internal function
+ * See description in cfe_es_start.h for argument/return detail
+ *
+ * SYSLOGGING NOTE: Any logging in here must use CFE_ES_SysLogWrite_Unsync() as the necessary
+ * primitives are not even initialized yet.  There is no chance for log contention here.
+ *-----------------------------------------------------------------*/
 void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource)
 {
 
@@ -462,12 +466,14 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
     CFE_ES_Global.ResetDataPtr->ResetVars.ES_CausedReset = false;
 }
 
-/*
-** Name: CFE_ES_InitializeFileSystems
-**
-** Purpose: This function initializes the file systems used in the cFE core.
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_InitializeFileSystems
+ *
+ * Application-scope internal function
+ * See description in cfe_es_start.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_InitializeFileSystems(uint32 StartType)
 {
     int32        RetStatus;
@@ -705,19 +711,16 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
         } /* end if BlocksFree */
 
     } /* end if processor reset */
+}
 
-} /* end function */
-
-/*-------------------------------------------------------------------------
-**
-**                  Functional Prolog
-**
-**   Name: CFE_ES_CreateObjects
-**
-**   Purpose: This function reads the es_object_table and performs all of the
-**            application layer initialization.
-**----------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CreateObjects
+ *
+ * Application-scope internal function
+ * See description in cfe_es_start.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_CreateObjects(void)
 {
     int32               ReturnCode;
@@ -886,13 +889,16 @@ void CFE_ES_CreateObjects(void)
     CFE_ES_WriteToSysLog("ES Startup: Finished ES CreateObject table entries.\n");
 }
 
-/*
-** Function: CFE_ES_MainTaskSyncDelay
-**
-** Purpose:  Waits for all of the applications that CFE has started thus far to
-**           reach the indicated state, by polling the app counters in a delay loop.
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_MainTaskSyncDelay
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Waits for all of the applications that CFE has started thus far to
+ * reach the indicated state, by polling the app counters in a delay loop.
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_MainTaskSyncDelay(uint32 AppStateId, uint32 TimeOutMilliseconds)
 {
     int32               Status;

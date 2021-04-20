@@ -44,13 +44,14 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-/*****************************************************************************/
-/*
- * CFE_ES_CDS_EarlyInit
+/*----------------------------------------------------------------
  *
- * NOTE: For complete prolog information, see 'cfe_es_cds.h'
- */
-/*****************************************************************************/
+ * Function: CFE_ES_CDS_EarlyInit
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_EarlyInit(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -145,29 +146,30 @@ int32 CFE_ES_CDS_EarlyInit(void)
     }
 
     return Status;
+}
 
-} /* End of CFE_ES_CDS_EarlyInit() */
-
-/*******************************************************************/
-/*
- * CFE_ES_LocateCDSBlockRecordByID
+/*----------------------------------------------------------------
  *
- * NOTE: For complete prolog information, see 'cfe_es_cds.h'
- */
-/*******************************************************************/
+ * Function: CFE_ES_CDSHandle_ToIndex
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx)
 {
     return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(BlockID), CFE_ES_CDSBLOCKID_BASE,
                                   CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES, Idx);
 }
 
-/*---------------------------------------------------------------------------------------
+/*----------------------------------------------------------------
+ *
  * Function: CFE_ES_CheckCDSHandleSlotUsed
  *
- * Purpose: Helper function, Aids in allocating a new ID by checking if
- * a given ID is available.  Must be called while locked.
- *---------------------------------------------------------------------------------------
- */
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId)
 {
     CFE_ES_CDS_RegRec_t *CDSRegRecPtr;
@@ -180,13 +182,14 @@ bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId)
     return (CDSRegRecPtr == NULL || CFE_ES_CDSBlockRecordIsUsed(CDSRegRecPtr));
 }
 
-/*******************************************************************/
-/*
- * CFE_ES_LocateCDSBlockRecordByID
+/*----------------------------------------------------------------
  *
- * NOTE: For complete prolog information, see 'cfe_es_cds.h'
- */
-/*******************************************************************/
+ * Function: CFE_ES_LocateCDSBlockRecordByID
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -205,13 +208,14 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID)
     return CDSRegRecPtr;
 }
 
-/*******************************************************************/
-/*
- * CFE_ES_CacheRead()
+/*----------------------------------------------------------------
  *
- * NOTE: For complete prolog information, see 'cfe_es_cds.h'
- */
-/*******************************************************************/
+ * Function: CFE_ES_CDS_CacheFetch
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size_t Size)
 {
     int32 Status;
@@ -239,13 +243,14 @@ int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size
     return Status;
 }
 
-/*******************************************************************/
-/*
- * CFE_ES_CDS_CacheFlush()
+/*----------------------------------------------------------------
  *
- * NOTE: For complete prolog information, see 'cfe_es_cds.h'
- */
-/*******************************************************************/
+ * Function: CFE_ES_CDS_CacheFlush
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
 {
     int32 Status;
@@ -271,13 +276,14 @@ int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
     return Status;
 }
 
-/*******************************************************************/
-/*
- * CFE_ES_CDS_CachePreload()
+/*----------------------------------------------------------------
  *
- * NOTE: For complete prolog information, see 'cfe_es_cds.h'
- */
-/*******************************************************************/
+ * Function: CFE_ES_CDS_CachePreload
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, size_t Offset, size_t Size)
 {
     int32 Status;
@@ -306,13 +312,14 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
     return Status;
 }
 
-/*******************************************************************
-**
-** CFE_ES_RegisterCDSEx
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_RegisterCDSEx
+ *
+ * Implemented per public API
+ * See description in cfe_es_core_internal.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name, bool CriticalTbl)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -463,16 +470,16 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
     *HandlePtr = CFE_ES_CDSHANDLE_C(PendingBlockId);
 
     return (Status);
+}
 
-} /* End of CFE_ES_RegisterCDSEx() */
-
-/*******************************************************************
-**
-** CFE_ES_ValidateCDS
-**
-** NOTE: For complete prolog information, see prototype above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ValidateCDS
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_ValidateCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -514,15 +521,16 @@ int32 CFE_ES_ValidateCDS(void)
 
     /* All sanity checks passed */
     return CFE_SUCCESS;
-} /* End of CFE_ES_ValidateCDS() */
+}
 
-/*******************************************************************
-**
-** CFE_ES_ClearCDS
-**
-** NOTE: For complete prolog information, see prototype above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ClearCDS
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_ClearCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -562,13 +570,14 @@ int32 CFE_ES_ClearCDS(void)
     return Status;
 }
 
-/*******************************************************************
-**
-** CFE_ES_InitCDSSignatures
-**
-** NOTE: For complete prolog information, see prototype above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_InitCDSSignatures
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_InitCDSSignatures(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -600,15 +609,16 @@ int32 CFE_ES_InitCDSSignatures(void)
     }
 
     return Status;
-} /* End of CFE_ES_InitCDSSignatures() */
+}
 
-/*******************************************************************
-**
-** CFE_ES_InitCDSRegistry
-**
-** NOTE: For complete prolog information, see prototype above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_InitCDSRegistry
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_InitCDSRegistry(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -633,15 +643,16 @@ int32 CFE_ES_InitCDSRegistry(void)
     }
 
     return Status;
-} /* End of CFE_ES_InitCDSRegistry() */
+}
 
-/*******************************************************************
-**
-** CFE_ES_UpdateCDSRegistry
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_UpdateCDSRegistry
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_UpdateCDSRegistry(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -659,13 +670,14 @@ int32 CFE_ES_UpdateCDSRegistry(void)
     return Status;
 }
 
-/*******************************************************************
-**
-** CFE_ES_FormCDSName
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_FormCDSName
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t ThisAppId)
 {
     char AppName[OS_MAX_API_NAME];
@@ -679,15 +691,16 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
     sprintf(FullCDSName, "%s.%s", AppName, CDSName);
 
     return;
-} /* End of CFE_ES_FormCDSName() */
+}
 
-/*******************************************************************
-**
-** CFE_ES_LockCDSRegistry
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_LockCDS
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_LockCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -706,16 +719,16 @@ int32 CFE_ES_LockCDS(void)
     }
 
     return Status;
+}
 
-} /* End of CFE_ES_LockCDSRegistry() */
-
-/*******************************************************************
-**
-** CFE_ES_UnlockCDSRegistry
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_UnlockCDS
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_UnlockCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -734,16 +747,16 @@ int32 CFE_ES_UnlockCDS(void)
     }
 
     return Status;
+}
 
-} /* End of CFE_ES_UnlockCDSRegistry() */
-
-/*******************************************************************
-**
-** CFE_ES_LocateCDSBlockRecordByName
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_LocateCDSBlockRecordByName
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -775,15 +788,16 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName)
     }
 
     return CDSRegRecPtr;
-} /* End of CFE_ES_LocateCDSBlockRecordByName() */
+}
 
-/*******************************************************************
-**
-** CFE_ES_RebuildCDS
-**
-** NOTE: For complete prolog information, see above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_RebuildCDS
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_RebuildCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -825,13 +839,14 @@ int32 CFE_ES_RebuildCDS(void)
     return Status;
 }
 
-/*******************************************************************
-**
-** CFE_ES_DeleteCDS
-**
-** NOTE: For complete prolog information, see 'cfe_es_cds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_DeleteCDS
+ *
+ * Implemented per public API
+ * See description in cfe_es_core_internal.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -926,6 +941,4 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
     }
 
     return Status;
-} /* End of CFE_ES_DeleteCDS() */
-
-/* end of file */
+}

@@ -84,11 +84,40 @@ typedef struct
 extern CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE]; /* es object table */
 
 /*
-** Function prototypes
-*/
+ * Name: CFE_ES_CreateObjects
+ *
+ * Purpose: This function reads the es_object_table and performs all of the
+ *          application layer initialization.
+ */
 extern void CFE_ES_CreateObjects(void);
+
+/*
+ * Name: CFE_ES_SetupResetVariables
+ *
+ * Purpose: This function initializes the ES reset variables depending on the reset type.
+ *          It will also initiate a power on reset when too many processor resets
+ *          have happened.
+ *
+ */
 extern void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource);
+
+/*
+ * Name: CFE_ES_InitializeFileSystems
+ *
+ * Purpose: This function initializes the file systems used in the cFE core.
+ *
+ */
 extern void CFE_ES_InitializeFileSystems(uint32 StartType);
+
+/*
+ * Name: CFE_ES_SetupPerfVariables
+ *
+ * Purpose:This function initializes filter mask,trigger mask, data & state vals
+ *
+ * Assumptions and Notes: This gets called from CFE_ES_Main() at startup
+ * This code must be called before any other task or code that would use
+ * CFE_ES_PerfLogEntry() / CFE_ES_PerfLogExit() functions
+ */
 extern void CFE_ES_SetupPerfVariables(uint32 ResetType);
 
 #endif /* CFE_ES_START_H */

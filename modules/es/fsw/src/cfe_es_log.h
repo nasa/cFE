@@ -126,6 +126,7 @@ typedef struct
 ** NOTE: CFE_ES_WriteToSysLog() is a public routine in cfe_es.h, it is not prototyped here
 */
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Clear system log
  *
@@ -135,6 +136,7 @@ typedef struct
  */
 void CFE_ES_SysLogClear_Unsync(void);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Begin reading the system log
  *
@@ -156,6 +158,7 @@ void CFE_ES_SysLogClear_Unsync(void);
  */
 void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Write a printf-style formatted string to the system log
  *
@@ -168,6 +171,7 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer);
  */
 int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Append a complete pre-formatted string to the ES SysLog
  *
@@ -188,6 +192,7 @@ int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...);
  */
 int32 CFE_ES_SysLogAppend_Unsync(const char *LogString);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Read data from the system log buffer into the local buffer
  *
@@ -213,6 +218,7 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString);
  */
 void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Sets the operating mode of the system log buffer
  *
@@ -233,6 +239,7 @@ void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer);
  */
 int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Format a message intended for output to the system log
  *
@@ -256,6 +263,7 @@ int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode);
  */
 void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, va_list ArgPtr);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Format a message intended for output to the system log
  *
@@ -272,6 +280,7 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
  */
 void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...) OS_PRINTF(3, 4);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Write the contents of the syslog to a disk file
  *
@@ -300,15 +309,10 @@ void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStr
 int32 CFE_ES_SysLogDump(const char *Filename);
 
 /*
-** Processor Performance log management
-*/
-int32 CFE_ES_PerfLogClear(void);
-void  CFE_ES_PerfLogDump(void);
-
-/*
 ** Exception and Reset Log API
 */
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Create an entry in the ES Exception and Reset Log.
  *
@@ -325,6 +329,7 @@ void  CFE_ES_PerfLogDump(void);
 int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
                           const char *Description);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \copydoc CFE_ES_WriteToERLog()
  *

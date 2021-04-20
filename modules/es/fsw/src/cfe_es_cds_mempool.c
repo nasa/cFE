@@ -63,11 +63,16 @@ const size_t CFE_ES_CDSMemPoolDefSize[CFE_ES_CDS_NUM_BLOCK_SIZES] = {
 ** Functions
 */
 
-/*
-** CFE_ES_CDS_PoolRetrieve will obtain a block descriptor from CDS storage.
-**
-** This is a bridge between the generic pool implementation and the CDS cache.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CDS_PoolRetrieve
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Obtains a block descriptor from CDS storage.
+ * This is a bridge between the generic pool implementation and the CDS cache.
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_PoolRetrieve(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
 {
     CFE_ES_CDS_Instance_t *CDS = (CFE_ES_CDS_Instance_t *)GenPoolRecPtr;
@@ -77,11 +82,16 @@ int32 CFE_ES_CDS_PoolRetrieve(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offs
     return CFE_ES_CDS_CacheFetch(&CDS->Cache, Offset, sizeof(CFE_ES_GenPoolBD_t));
 }
 
-/*
-** CFE_ES_CDS_PoolCommit will write a block descriptor to CDS storage.
-**
-** This is a bridge between the generic pool implementation and the CDS cache.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CDS_PoolCommit
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Writes a block descriptor to CDS storage.
+ * This is a bridge between the generic pool implementation and the CDS cache.
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
 {
     CFE_ES_CDS_Instance_t *CDS = (CFE_ES_CDS_Instance_t *)GenPoolRecPtr;
@@ -91,14 +101,14 @@ int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset
     return CFE_ES_CDS_CacheFlush(&CDS->Cache);
 }
 
-/*
-** CFE_ES_CreateCDSPool will initialize a pre-allocated memory pool.
-**
-** NOTE:
-**  This function is only ever called during "Early Init" phase,
-**  where it is not possible to have contention writing into the syslog.
-**  Therefore the use of CFE_ES_SysLogWrite_Unsync() is acceptable
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CreateCDSPool
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds_mempool.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -126,17 +136,14 @@ int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
     return Status;
 }
 
-/*
-** Function:
-**   CFE_ES_RebuildCDSPool
-**
-** Purpose:
-**
-** NOTE:
-**  This function is only ever called during "Early Init" phase,
-**  where it is not possible to have contention writing into the syslog.
-**  Therefore the use of CFE_ES_SysLogWrite_Unsync() is acceptable
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_RebuildCDSPool
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds_mempool.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -163,13 +170,14 @@ int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
     return Status;
 }
 
-/*
-** Function:
-**   CFE_ES_CDSBlockWrite
-**
-** Purpose:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CDSBlockWrite
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds_mempool.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -257,13 +265,14 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
     return Status;
 }
 
-/*
-** Function:
-**   CFE_ES_CDSBlockRead
-**
-** Purpose:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CDSBlockRead
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds_mempool.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
@@ -340,13 +349,14 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
     return Status;
 }
 
-/*
-** Function:
-**   CFE_ES_CDSReqdMinSize
-**
-** Purpose:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_CDSReqdMinSize
+ *
+ * Application-scope internal function
+ * See description in cfe_es_cds_mempool.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 size_t CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport)
 {
     size_t ReqSize;

@@ -38,6 +38,7 @@
 #include "cfe_core_resourceid_basevalues.h"
 #include "cfe_es_global.h"
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Locate the app table entry correlating with a given app ID.
  *
@@ -65,6 +66,7 @@
  */
 extern CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Locate the Library table entry correlating with a given Lib ID.
  *
@@ -92,6 +94,7 @@ extern CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID);
  */
 extern CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Locate the task table entry correlating with a given task ID.
  *
@@ -119,6 +122,7 @@ extern CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID);
  */
 extern CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Locate the Counter table entry correlating with a given Counter ID.
  *
@@ -146,6 +150,7 @@ extern CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID);
  */
 extern CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t CounterID);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if an app record is in use or free/empty
  *
@@ -165,6 +170,7 @@ static inline bool CFE_ES_AppRecordIsUsed(const CFE_ES_AppRecord_t *AppRecPtr)
     return CFE_RESOURCEID_TEST_DEFINED(AppRecPtr->AppId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get the ID value from an app table entry
  *
@@ -181,6 +187,7 @@ static inline CFE_ES_AppId_t CFE_ES_AppRecordGetID(const CFE_ES_AppRecord_t *App
     return AppRecPtr->AppId;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Marks an app table entry as used (not free)
  *
@@ -201,6 +208,7 @@ static inline void CFE_ES_AppRecordSetUsed(CFE_ES_AppRecord_t *AppRecPtr, CFE_Re
     AppRecPtr->AppId = CFE_ES_APPID_C(PendingId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Set an app record table entry free (not used)
  *
@@ -220,6 +228,7 @@ static inline void CFE_ES_AppRecordSetFree(CFE_ES_AppRecord_t *AppRecPtr)
     AppRecPtr->AppId = CFE_ES_APPID_UNDEFINED;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if an app record is a match for the given AppID
  *
@@ -248,6 +257,7 @@ static inline bool CFE_ES_AppRecordIsMatch(const CFE_ES_AppRecord_t *AppRecPtr, 
     return (AppRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(AppRecPtr->AppId, AppID));
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Obtain the name associated with the Application record
  *
@@ -264,6 +274,7 @@ static inline const char *CFE_ES_AppRecordGetName(const CFE_ES_AppRecord_t *AppR
     return AppRecPtr->AppName;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if a Library record is in use or free/empty
  *
@@ -283,6 +294,7 @@ static inline bool CFE_ES_LibRecordIsUsed(const CFE_ES_LibRecord_t *LibRecPtr)
     return CFE_RESOURCEID_TEST_DEFINED(LibRecPtr->LibId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get the ID value from a Library table entry
  *
@@ -303,6 +315,7 @@ static inline CFE_ES_LibId_t CFE_ES_LibRecordGetID(const CFE_ES_LibRecord_t *Lib
     return (LibRecPtr->LibId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Marks a Library table entry as used (not free)
  *
@@ -320,6 +333,7 @@ static inline void CFE_ES_LibRecordSetUsed(CFE_ES_LibRecord_t *LibRecPtr, CFE_Re
     LibRecPtr->LibId = CFE_ES_LIBID_C(PendingId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Set a Library record table entry free (not used)
  *
@@ -336,6 +350,7 @@ static inline void CFE_ES_LibRecordSetFree(CFE_ES_LibRecord_t *LibRecPtr)
     LibRecPtr->LibId = CFE_ES_LIBID_UNDEFINED;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if a Library record is a match for the given LibID
  *
@@ -364,6 +379,7 @@ static inline bool CFE_ES_LibRecordIsMatch(const CFE_ES_LibRecord_t *LibRecPtr, 
     return (LibRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(LibRecPtr->LibId, LibID));
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Obtain the name associated with the Library record
  *
@@ -380,6 +396,7 @@ static inline const char *CFE_ES_LibRecordGetName(const CFE_ES_LibRecord_t *LibR
     return LibRecPtr->LibName;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get the ID value from an Task table entry
  *
@@ -399,6 +416,7 @@ static inline CFE_ES_TaskId_t CFE_ES_TaskRecordGetID(const CFE_ES_TaskRecord_t *
     return (TaskRecPtr->TaskId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if a Task record is in use or free/empty
  *
@@ -418,6 +436,7 @@ static inline bool CFE_ES_TaskRecordIsUsed(const CFE_ES_TaskRecord_t *TaskRecPtr
     return CFE_RESOURCEID_TEST_DEFINED(TaskRecPtr->TaskId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Marks an Task table entry as used (not free)
  *
@@ -438,6 +457,7 @@ static inline void CFE_ES_TaskRecordSetUsed(CFE_ES_TaskRecord_t *TaskRecPtr, CFE
     TaskRecPtr->TaskId = CFE_ES_TASKID_C(PendingId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Set a Task record table entry free
  *
@@ -457,6 +477,7 @@ static inline void CFE_ES_TaskRecordSetFree(CFE_ES_TaskRecord_t *TaskRecPtr)
     TaskRecPtr->TaskId = CFE_ES_TASKID_UNDEFINED;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if a Task record is a match for the given TaskID
  *
@@ -485,6 +506,7 @@ static inline bool CFE_ES_TaskRecordIsMatch(const CFE_ES_TaskRecord_t *TaskRecPt
     return (TaskRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(TaskRecPtr->TaskId, TaskID));
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Obtain the name associated with the Task record
  *
@@ -501,6 +523,7 @@ static inline const char *CFE_ES_TaskRecordGetName(const CFE_ES_TaskRecord_t *Ta
     return TaskRecPtr->TaskName;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if an Counter record is in use or free/empty
  *
@@ -520,6 +543,7 @@ static inline bool CFE_ES_CounterRecordIsUsed(const CFE_ES_GenCounterRecord_t *C
     return CFE_RESOURCEID_TEST_DEFINED(CounterRecPtr->CounterId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get the ID value from an Counter table entry
  *
@@ -536,6 +560,7 @@ static inline CFE_ES_CounterId_t CFE_ES_CounterRecordGetID(const CFE_ES_GenCount
     return CounterRecPtr->CounterId;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Marks an Counter table entry as used (not free)
  *
@@ -556,6 +581,7 @@ static inline void CFE_ES_CounterRecordSetUsed(CFE_ES_GenCounterRecord_t *Counte
     CounterRecPtr->CounterId = CFE_ES_COUNTERID_C(PendingId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Set an Counter record table entry free (not used)
  *
@@ -575,6 +601,7 @@ static inline void CFE_ES_CounterRecordSetFree(CFE_ES_GenCounterRecord_t *Counte
     CounterRecPtr->CounterId = CFE_ES_COUNTERID_UNDEFINED;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if an Counter record is a match for the given CounterID
  *
@@ -604,6 +631,7 @@ static inline bool CFE_ES_CounterRecordIsMatch(const CFE_ES_GenCounterRecord_t *
     return (CounterRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(CounterRecPtr->CounterId, CounterID));
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Obtain the name associated with the counter record
  *
@@ -620,6 +648,7 @@ static inline const char *CFE_ES_CounterRecordGetName(const CFE_ES_GenCounterRec
     return CounterRecPtr->CounterName;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Locate and validate the app record for the calling context.
  *
@@ -632,6 +661,7 @@ static inline const char *CFE_ES_CounterRecordGetName(const CFE_ES_GenCounterRec
  */
 extern CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * Locate and validate the task record for the calling context.
  *
@@ -657,6 +687,7 @@ extern CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void);
  * of OSAL task IDs.
  */
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Convert an ES Task ID to an OSAL task ID
  *
@@ -677,6 +708,7 @@ extern CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void);
  */
 extern osal_id_t CFE_ES_TaskId_ToOSAL(CFE_ES_TaskId_t id);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Convert an ES Task ID to an OSAL task ID
  *
@@ -703,14 +735,86 @@ extern CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id);
  * These functions do not lock, they must only be used internally by ES when
  * the lock is already held.
  */
-CFE_ES_AppRecord_t *       CFE_ES_LocateAppRecordByName(const char *Name);
-CFE_ES_LibRecord_t *       CFE_ES_LocateLibRecordByName(const char *Name);
-CFE_ES_TaskRecord_t *      CFE_ES_LocateTaskRecordByName(const char *Name);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Finds an application table record matching the given name
+ *
+ * Helper function, aids in finding an application record from a name string.
+ * Must be called while locked.
+ *
+ * @returns pointer to table entry matching name, or NULL if not found
+ */
+CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Finds a library table record matching the given name
+ *
+ * Helper function, aids in finding a library record from a name string.
+ * Must be called while locked.
+ *
+ * @returns pointer to table entry matching name, or NULL if not found
+ */
+CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Finds a task table record matching the given name
+ *
+ * Helper function, aids in finding a task record from a name string.
+ * Must be called while locked.
+ *
+ * @returns pointer to table entry matching name, or NULL if not found
+ */
+CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByName(const char *Name);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Finds a counter table record matching the given name
+ *
+ * Helper function, aids in finding a counter record from a name string.
+ * Must be called while locked.
+ *
+ * @returns pointer to table entry matching name, or NULL if not found
+ */
 CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name);
 
-/* Availability check functions used in conjunction with CFE_ResourceId_FindNext() */
+/*
+ * Availability check functions used in conjunction with CFE_ResourceId_FindNext()
+ */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Checks if Application slot is currently used
+ *
+ * Helper function, Aids in allocating a new ID by checking if
+ * a given ID is available.  Must be called while locked.
+ *
+ * @returns false if slot is unused/available, true if used/unavailable
+ */
 bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Checks if Library slot is currently used
+ *
+ * Helper function, Aids in allocating a new ID by checking if
+ * a given ID is available.  Must be called while locked.
+ *
+ * @returns false if slot is unused/available, true if used/unavailable
+ */
 bool CFE_ES_CheckLibIdSlotUsed(CFE_ResourceId_t CheckId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Checks if Counter slot is currently used
+ *
+ * Helper function, Aids in allocating a new ID by checking if
+ * a given ID is available.  Must be called while locked.
+ *
+ * @returns false if slot is unused/available, true if used/unavailable
+ */
 bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId);
 
 #endif /* CFE_ES_RESOURCE_H */

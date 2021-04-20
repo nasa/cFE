@@ -188,116 +188,165 @@ typedef struct
 ** Function prototypes
 */
 
-/*
-** Internal function start applications based on the startup script
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * This routine loads/starts cFE applications.
+ */
 void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath);
 
-/*
-** Internal function to parse/execute a line of the cFE application startup 'script'
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * This function parses the startup file line for an individual cFE application.
+ */
 int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
 
-/*
-** Internal function to load a module (app or library)
-** This only loads the code and looks up relevent runtime information.
-** It does not start any tasks.
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Helper function to load + configure (but not start) a new app/lib module
+ *
+ * Loads the module file via OSAL and stores all relevant info in the table entry as necessary.
+ *
+ * This only loads the code and looks up relevent runtime information.
+ * It does not start any tasks.
+ */
 int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
                         const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus);
 
-/*
-** Internal function to determine the entry point of an app.
-** If the app isn't fully registered in the global app table,
-** then this delays until the app is completely configured and the entry point is
-** confirmed to be valid.
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Internal function to determine the entry point of an app.
+ *
+ * If the app isn't fully registered in the global app table, then this delays until
+ * the app is completely configured and the entry point is confirmed to be valid.
+ */
 int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr);
 
-/*
-** Intermediate entry point of all tasks.  Determines the actual
-** entry point from the global data structures.
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Helper function to act as the intermediate entry point of an app
+ *
+ * This is to support starting apps before having a fully completed entry in the
+ * global app table.  The app startup will delay until the app creation is completed
+ * and verified, then the actual entry point will be determined.
+ */
 void CFE_ES_TaskEntryPoint(void);
 
-/*
-** Internal function to start a task associated with an app.
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Helper function to start (but not load) a new app/lib module
+ *
+ * Note that OSAL does not separate the action of creating and start a task, providing
+ * only OS_TaskCreate which does both.  But there is a potential race condition if
+ * the real task code starts and calls any function that depends on having an AppID
+ * context before its fully registered in the global app table.
+ *
+ * Therefore this calls a dedicated CFE_ES_AppEntryPoint which then will wait until
+ * the task is fully registered in the global, before calling the actual app entry point.
+ */
 int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_ES_TaskEntryFuncPtr_t EntryFunc,
                           const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId);
 
-/*
-** Internal function to create/start a new cFE app
-** based on the parameters passed in
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * This function loads and creates a cFE Application.
+ *
+ * This function can be called from the ES startup code when it
+ * loads the cFE Applications from the disk using the startup script, or it
+ * can be called when the ES Start Application command is executed.
+ */
 int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, const CFE_ES_AppStartParams_t *Params);
 
-/*
-** Internal function to load a a new cFE shared Library
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * This function loads and initializes a cFE Shared Library.
+ */
 int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, const CFE_ES_ModuleLoadParams_t *Params);
 
-/*
-** Scan the Application Table for actions to take
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Scan the Application Table for actions to take
+ *
+ * This function scans the ES Application table and acts on the changes
+ * in application states. This is where the external cFE Applications are
+ * restarted, reloaded, or deleted.
+ */
 bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg);
 
-/*
-** Scan for new exceptions stored in the PSP
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Scan for new exceptions stored in the PSP
+ *
+ * This function pools the PSP to check if any exceptions have been logged
+ * since the last background cycle.  If an exception is present, retreive
+ * the details, add it to the ER log, and trigger the action (e.g. app restart).
+ */
 bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg);
 
-/*
+/*---------------------------------------------------------------------------------------*/
+/**
  * Background file write data getter for ER log entry
+ *
+ * Gets a single record from exception & reset log to write to a file.
  */
 bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 
-/*
+/*---------------------------------------------------------------------------------------*/
+/**
  * Background file write event handler for ER log entry
+ *
+ * Report events during writing exception & reset log to a file
  */
 void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
                                             size_t BlockSize, size_t Position);
 
-/*
-** Perform the requested control action for an application
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Perform the requested control action for an application
+ */
 void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId);
 
-/*
-** Clean up all app resources and delete it
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Clean up all app resources and delete it
+ */
 int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId);
 
-/*
-** Clean up all Task resources and detete the task
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Clean up all Task resources and delete the task
+ *
+ * Cleans up the OS resources associated with an individual Task.
+ *
+ * Note: This is called when the ES global is UNLOCKED  so it should not touch
+ * any ES global data structures.  It should only clean up at the OSAL level.
+ */
 int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId);
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CopyModuleBasicInfo
-**
-**   Purpose: Populate the cFE_ES_AppInfo structure from the CFE_ES_ModuleLoadParams_t data
-**---------------------------------------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Populate the cFE_ES_AppInfo structure with the data for an app.
+ *
+ * This internal function does not log any errors/events.  The caller is expected
+ * to check the return code and log any relevant errors based on the context.
+ */
 void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_ES_AppInfo_t *AppInfoPtr);
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CopyModuleStatusInfo
-**
-**   Purpose: Populate the cFE_ES_AppInfo structure from the CFE_ES_ModuleLoadStatus_t data
-**---------------------------------------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Populate the cFE_ES_AppInfo structure with the data for an app.
+ *
+ * This internal function does not log any errors/events.  The caller is expected
+ * to check the return code and log any relevant errors based on the context.
+ */
 void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE_ES_AppInfo_t *AppInfoPtr);
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_CopyModuleAddressInfo
-**
-**   Purpose: Populate the cFE_ES_AppInfo structure with address information from OSAL.
-**---------------------------------------------------------------------------------------
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Populate the cFE_ES_AppInfo structure with the data for an app.
+ *
+ * This internal function does not log any errors/events.  The caller is expected
+ * to check the return code and log any relevant errors based on the context.
+ */
 void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoPtr);
 
 #endif /* CFE_ES_APPS_H */

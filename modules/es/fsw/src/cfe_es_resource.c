@@ -39,12 +39,14 @@
 #include <string.h>
 #include <stdlib.h>
 
-/*********************************************************************/
-/*
+/*----------------------------------------------------------------
+ *
  * Function: CFE_ES_TaskId_ToOSAL
  *
- * For complete API information, see prototype in header
- */
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 osal_id_t CFE_ES_TaskId_ToOSAL(CFE_ES_TaskId_t id)
 {
     osal_id_t     Result;
@@ -56,12 +58,14 @@ osal_id_t CFE_ES_TaskId_ToOSAL(CFE_ES_TaskId_t id)
     return Result;
 }
 
-/*********************************************************************/
-/*
- * Function: CFE_TaskId_FromOSAL
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ES_TaskId_FromOSAL
+ *
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id)
 {
     CFE_ResourceId_t Result;
@@ -73,12 +77,14 @@ CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id)
     return CFE_ES_TASKID_C(Result);
 }
 
-/*********************************************************************/
-/*
- * CFE_ES_LocateAppRecordByName
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ES_LocateAppRecordByName
+ *
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
@@ -106,15 +112,16 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name)
     }
 
     return AppRecPtr;
+}
 
-} /* End of CFE_ES_LocateAppRecordByName() */
-
-/*********************************************************************/
-/*
- * CFE_ES_LocateLibRecordByName
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ES_LocateLibRecordByName
+ *
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name)
 {
     CFE_ES_LibRecord_t *LibRecPtr;
@@ -142,15 +149,16 @@ CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name)
     }
 
     return LibRecPtr;
+}
 
-} /* End of CFE_ES_LocateLibRecordByName() */
-
-/*********************************************************************/
-/*
- * CFE_ES_LocateCounterRecordByName
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ES_LocateCounterRecordByName
+ *
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name)
 {
     CFE_ES_GenCounterRecord_t *CounterRecPtr;
@@ -180,12 +188,14 @@ CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name)
     return CounterRecPtr;
 }
 
-/*********************************************************************/
-/*
- * CFE_ES_LocateAppRecordByID
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ES_LocateAppRecordByID
+ *
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
@@ -203,12 +213,14 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID)
     return AppRecPtr;
 }
 
-/*********************************************************************/
-/*
- * CFE_ES_LocateLibRecordByID
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ES_LocateLibRecordByID
+ *
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID)
 {
     CFE_ES_LibRecord_t *LibRecPtr;
@@ -226,12 +238,14 @@ CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID)
     return LibRecPtr;
 }
 
-/*********************************************************************/
-/*
- * CFE_ES_LocateTaskRecordByID
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ES_LocateTaskRecordByID
+ *
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
@@ -249,12 +263,14 @@ CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID)
     return TaskRecPtr;
 }
 
-/*********************************************************************/
-/*
- * CFE_ES_LocateCounterRecordByID
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ES_LocateCounterRecordByID
+ *
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t CounterID)
 {
     CFE_ES_GenCounterRecord_t *CounterRecPtr;
@@ -272,15 +288,14 @@ CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t Cou
     return CounterRecPtr;
 }
 
-/*********************************************************************/
-/*
- * CFE_ES_GetTaskRecordByContext
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
+ * Function: CFE_ES_GetTaskRecordByContext
  *
- * This function does additional validation on the task record
- * and should only be called when global data is locked.
- */
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
@@ -306,12 +321,14 @@ CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
     return TaskRecPtr;
 }
 
-/*********************************************************************/
-/*
- * CFE_ES_GetAppRecordByContext
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ES_GetAppRecordByContext
+ *
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
 {
     CFE_ES_AppRecord_t * AppRecPtr;
@@ -347,14 +364,14 @@ CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
     return AppRecPtr;
 }
 
-/*
- * ---------------------------------------------------------------------------------------
+/*----------------------------------------------------------------
+ *
  * Function: CFE_ES_CheckCounterIdSlotUsed
  *
- * Purpose: Helper function, Aids in allocating a new ID by checking if
- * a given ID is available.  Must be called while locked.
- * ---------------------------------------------------------------------------------------
- */
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId)
 {
     CFE_ES_GenCounterRecord_t *GenCounterRecPtr;
@@ -367,14 +384,14 @@ bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId)
     return (GenCounterRecPtr == NULL || CFE_ES_CounterRecordIsUsed(GenCounterRecPtr));
 }
 
-/*
- *---------------------------------------------------------------------------------------
+/*----------------------------------------------------------------
+ *
  * Function: CFE_ES_CheckAppIdSlotUsed
  *
- * Purpose: Helper function, Aids in allocating a new ID by checking if
- * a given ID is available.  Must be called while locked.
- *---------------------------------------------------------------------------------------
- */
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
@@ -387,14 +404,14 @@ bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId)
     return (AppRecPtr == NULL || CFE_ES_AppRecordIsUsed(AppRecPtr));
 }
 
-/*
- * ---------------------------------------------------------------------------------------
+/*----------------------------------------------------------------
+ *
  * Function: CFE_ES_CheckLibIdSlotUsed
  *
- * Purpose: Helper function, Aids in allocating a new ID by checking if
- * a given ID is available.  Must be called while locked.
- * ---------------------------------------------------------------------------------------
- */
+ * Application-scope internal function
+ * See description in cfe_es_resource.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_CheckLibIdSlotUsed(CFE_ResourceId_t CheckId)
 {
     CFE_ES_LibRecord_t *LibRecPtr;
