@@ -12,19 +12,19 @@
 #
 # Create the generic stubs library
 #
-add_library(ut_${DEP}_stubs STATIC
+add_library(ut_core_private_stubs STATIC
     src/ut_osprintf_stubs.c
     src/ut_support.c
 )
 
-target_include_directories(ut_${DEP}_stubs PUBLIC inc)
+target_include_directories(ut_core_private_stubs PUBLIC inc)
 
 
 # linking with the CFE stubs implies also linking
 # with the OSAL and PSP stubs.  This is in line with
 # how the real application is linked, in that cfe-core
 # executable also provides OSAL and PSP functions.
-target_link_libraries(ut_${DEP}_stubs
+target_link_libraries(ut_core_private_stubs
     core_private
     ut_core_api_stubs
     ut_psp-${CFE_SYSTEM_PSPNAME}_stubs

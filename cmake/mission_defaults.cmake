@@ -7,13 +7,23 @@
 #
 ##################################################################
 
+# The "MISSION_CORE_INTERFACES" defines the set of interface libraries
+# that comprise CFE core.  These are CMake interface libraries that define
+# a set of include directories and compile options for all modules,
+# including the ubiquitous "cfe.h" header file and all it depends on).
+# NOTE: these interfaces are really what defines "CFE core" - changing
+# this list is not recommend, as these interface names are important.
+set(MISSION_CORE_INTERFACES
+    core_api        # this is the "public" core API that apps use, includes cfe.h and all core headers
+    core_private    # this is the "private" interface that core apps use, but not used by apps
+)
+
 # The "MISSION_CORE_MODULES" will be built and statically linked as part
 # of the CFE core executable on every target.  These can be used to amend
 # or override parts of the CFE core on a mission-specific basis.
-# The "intf" modules are headers only, and define the interface(s) between components
+# NOTE: Everthing in this list becomes part of the "core_api" interface above.
+# Missions may add/remove/replace components in this list as needed.
 set(MISSION_CORE_MODULES
-    "core_api"
-    "core_private"
     "es"
     "evs"
     "fs"
@@ -56,9 +66,13 @@ set(MISSION_MODULE_SEARCH_PATH
 set(osal_SEARCH_PATH ".")
 set(psp_SEARCH_PATH ".")
 
-# If ENABLE_UNIT_TEST is enabled, then include the cfe_assert library in
-# all targets.  This can still be overridden in targets.cmake.
+# Include "cfe_assert" library in all builds, because it is included
+# in the default startup script.  It should not have any effect if not
+# used.
+list(APPEND MISSION_GLOBAL_APPLIST cfe_assert)
+
+# If ENABLE_UNIT_TEST is enabled, then include the cfe_testcase app
 if (ENABLE_UNIT_TESTS)
-    list(APPEND MISSION_GLOBAL_APPLIST cfe_assert cfe_testrunner cfe_testcase)
+    list(APPEND MISSION_GLOBAL_APPLIST cfe_testcase)
 endif (ENABLE_UNIT_TESTS)
 

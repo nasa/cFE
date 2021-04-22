@@ -4,6 +4,7 @@ project(CFE_ASSERT C)
 add_cfe_app(cfe_assert
     src/cfe_assert_io.c
     src/cfe_assert_init.c
+    src/cfe_assert_runner.c
     $<TARGET_OBJECTS:ut_assert_pic>
 )
 

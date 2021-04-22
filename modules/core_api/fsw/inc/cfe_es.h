@@ -1021,7 +1021,13 @@ void CFE_ES_ProcessAsyncEvent(void);
 **        the calling Application.  The memory can survive an Application restart as well as a Processor Reset.
 **
 ** \par Assumptions, External Events, and Notes:
-**        None
+**        This function does _not_ clear or otherwise initialize/modify the data within the  CDS block.
+**        If this function returns #CFE_ES_CDS_ALREADY_EXISTS the block may already have valid data in it.
+**
+**        If a new CDS block is reserved (either because the name did not exist, or existed as a different
+**        size) it is the responsibility of the calling application to fill the CDS block with valid data.
+**        This is indicated by a #CFE_SUCCESS return code, and in this case the calling application should
+**        ensure that it also calls CFE_ES_CopyToCDS() to fill the block with valid data.
 **
 ** \param[in, out]   HandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle.
 **                               HandlePtr is the handle of the CDS block that can be used in
