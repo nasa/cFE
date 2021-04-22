@@ -28,7 +28,7 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER 498 /*!< Development Build: Number of commits since baseline */
+#define CFE_BUILD_NUMBER 509 /*!< Development Build: Number of commits since baseline */
 #define CFE_BUILD_BASELINE                                                                    \
     "v6.8.0-rc1" /*!< Development Build: git tag that is the base for the current development \
                   */
