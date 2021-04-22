@@ -15,7 +15,7 @@ include_directories(${osal_MISSION_DIR}/ut_assert/inc)
 #
 # Create the generic stubs library
 #
-add_library(ut_${DEP}_stubs STATIC
+add_library(ut_core_api_stubs STATIC
     src/ut_es_stubs.c
     src/ut_evs_stubs.c
     src/ut_msg_stubs.c
@@ -27,13 +27,13 @@ add_library(ut_${DEP}_stubs STATIC
 )
 
 # Define _CFE_CORE_ within stubs to also reveal internal APIs in header
-target_compile_definitions(ut_${DEP}_stubs PRIVATE _CFE_CORE_)
+target_compile_definitions(ut_core_api_stubs PRIVATE _CFE_CORE_)
 
 # linking with the CFE stubs implies also linking
 # with the OSAL and PSP stubs.  This is in line with
 # how the real application is linked, in that cfe-core
 # executable also provides OSAL and PSP functions.
-target_link_libraries(ut_${DEP}_stubs
+target_link_libraries(ut_core_api_stubs
     core_api
     ut_psp-${CFE_SYSTEM_PSPNAME}_stubs
     ut_osapi_stubs

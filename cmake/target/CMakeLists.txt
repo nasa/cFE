@@ -50,7 +50,7 @@ configure_file(${CFE_SOURCE_DIR}/cmake/cfe_generated_file.h.in ${CMAKE_CURRENT_B
 
 # Generate lists of modules that will be statically linked into this CFE core target
 set(GENERATED_ENTRIES_CORE_MODULES)
-foreach(DEP ${MISSION_CORE_MODULES})
+foreach(DEP core_api ${MISSION_CORE_MODULES})
     list(APPEND GENERATED_ENTRIES_CORE_MODULES "{ \"${DEP}\" },\n")
 endforeach()
 
@@ -257,6 +257,8 @@ if (DEFINED ${TGTNAME}_EMBED_FILELIST)
 endif (DEFINED ${TGTNAME}_EMBED_FILELIST)
 
 target_link_libraries(core-${TGTNAME}
+    ${MISSION_CORE_INTERFACES}
+
     # The following libs should be included whole, even if they
     # do not necessarily resolve any symbols, because they may be needed by apps
     ${START_WHOLE_ARCHIVE}
