@@ -258,7 +258,7 @@ endfunction(add_cfe_coverage_dependency)
 # FUNCTION: add_cfe_coverage_test
 #
 # Add executable target for coverage testing.  This builds the target
-# units with extra compiler flags for coverage instrumentation, along with 
+# units with extra compiler flags for coverage instrumentation, along with
 # a "testrunner" executable to run the tests.  It also registers
 # that testrunner with ctest via the add_test() function.
 #
@@ -620,6 +620,7 @@ function(process_arch SYSVAR)
   # this may result in "add_subdirectory" of itself which causes a loop.  This can happen
   # if the variables/lists were modified unexpectedly.
   foreach(DEP
+        ${MISSION_CORE_INTERFACES}
         ${MISSION_CORE_MODULES}
         ${TGTSYS_${SYSVAR}_PSPMODULES}
         ${TGTSYS_${SYSVAR}_STATICAPPS}
@@ -632,7 +633,7 @@ function(process_arch SYSVAR)
 
   # Add all core modules
   # The osal is handled explicitly (above) since this has special extra config
-  foreach(DEP ${MISSION_CORE_MODULES})
+  foreach(DEP ${MISSION_CORE_INTERFACES} ${MISSION_CORE_MODULES})
     if(NOT DEP STREQUAL "osal")
       message(STATUS "Building Core Module: ${DEP}")
       add_subdirectory("${${DEP}_MISSION_DIR}" ${DEP})
