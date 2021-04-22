@@ -30,14 +30,35 @@
  * Includes
  */
 
+#include "cfe_assert.h"
 #include "cfe_test.h"
 
 /*
- * Initialization function
+ * Test main function
  * Register this test routine with CFE Assert
  */
-int32 CFE_Test_Init(int32 LibId)
+void CFE_TestMain(void)
 {
-    ESInfoTestSetup(LibId);
-    return CFE_SUCCESS;
+    /*
+     * Register this test app with CFE assert
+     *
+     * Note this also waits for the appropriate overall system
+     * state and gets ownership of the UtAssert subsystem
+     */
+    CFE_Assert_RegisterTest("CFE API");
+
+    /*
+     * Register test cases in UtAssert
+     */
+    ESInfoTestSetup();
+
+    /*
+     * Execute the tests
+     *
+     * Note this also releases ownership of the UtAssert subsystem when complete
+     */
+    CFE_Assert_ExecuteTest();
+
+    /* Nothing more for this app to do */
+    CFE_ES_ExitApp(CFE_ES_RunStatus_APP_EXIT);
 }

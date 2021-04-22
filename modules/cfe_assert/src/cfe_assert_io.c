@@ -140,6 +140,4 @@ void UT_BSP_EndTest(const UtAssert_TestCounter_t *TestCounters)
 
     CFE_ES_WriteToSysLog("TEST COMPLETE: %u tests Segment(s) executed\n\n",
                          (unsigned int)TestCounters->TestSegmentCount);
-
-    OS_TaskExit();
 }
