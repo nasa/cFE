@@ -122,7 +122,7 @@ void TestAppInfo(void)
     UtAssert_True(ESAppInfo.NumOfChildTasks > 0, "ES App Info -> Child Tasks  = %d", (int)ESAppInfo.NumOfChildTasks);
 
     UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppIdByName, INVALID_APP_NAME), CFE_ES_ERR_NAME_NOT_FOUND);
-    UtAssert_ResourceID_Undifeined(AppIdByName);
+    UtAssert_ResourceID_Undefined(AppIdByName);
     UtAssert_INT32_EQ(CFE_ES_GetAppID(NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(NULL, TEST_EXPECTED_APP_NAME), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppNameBuf, CFE_ES_APPID_UNDEFINED, sizeof(AppNameBuf)),
@@ -205,7 +205,7 @@ void TestLibInfo(void)
 
     UtAssert_INT32_EQ(LibInfo.ExceptionAction, 0);
     UtAssert_True(LibInfo.Priority == 0, "Lib Info -> Priority  = %d", (int)LibInfo.Priority);
-    UtAssert_ResourceID_Undifeined(LibInfo.MainTaskId);
+    UtAssert_ResourceID_Undefined(LibInfo.MainTaskId);
     UtAssert_True(LibInfo.ExecutionCounter == 0, "Lib Info -> ExecutionCounter  = %d", (int)LibInfo.ExecutionCounter);
     UtAssert_True(strlen(LibInfo.MainTaskName) == 0, "Lib Info -> Task Name  = %s", LibInfo.MainTaskName);
     UtAssert_True(LibInfo.NumOfChildTasks == 0, "Lib Info -> Child Tasks  = %d", (int)LibInfo.NumOfChildTasks);
