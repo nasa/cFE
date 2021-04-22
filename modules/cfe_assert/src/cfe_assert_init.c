@@ -47,10 +47,21 @@ void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback)
 /*
  * Initialization Function for this library
  */
-int32 CFE_Assert_LibInit(uint32 LibId)
+int32 CFE_Assert_LibInit(CFE_ES_LibId_t LibId)
 {
+    int32 status;
+
+    memset(&CFE_Assert_Global, 0, sizeof(CFE_Assert_Global));
+
     UtTest_EarlyInit();
     UT_BSP_Setup();
+
+    status = OS_MutSemCreate(&CFE_Assert_Global.AccessMutex, "CFE_Assert", 0);
+    if (status != OS_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): OS_MutSemCreate failed, rc=%d\n", __func__, (int)status);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    }
 
     /*
      * Start a test case for all startup logic.

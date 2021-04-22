@@ -33,41 +33,45 @@
 
 #include "cfe_test.h"
 
+const char TEST_EXPECTED_ENTRYPOINT[] = "CFE_TestMain";
+const char TEST_EXPECTED_APP_NAME[]   = "CFE_TEST_APP";
+const char TEST_EXPECTED_FILE_NAME[]  = "cfe_testcase";
+const char ES_APP_EXPECTED_NAME[]     = "CFE_ES";
+const char INVALID_APP_NAME[]         = "INVALID_NAME";
+
 void TestAppInfo(void)
 {
     CFE_ES_AppId_t   TestAppId;
     CFE_ES_AppId_t   ESAppId;
     CFE_ES_AppId_t   AppIdByName;
-    const char *     TestAppName = "TESTRUN_APP";
-    const char *     ESAppName   = "CFE_ES";
-    const char *     InvalidName = "INVALID_NAME";
     char             AppNameBuf[OS_MAX_API_NAME + 4];
     CFE_ES_AppInfo_t TestAppInfo;
     CFE_ES_AppInfo_t ESAppInfo;
 
     UtPrintf("Testing: CFE_ES_GetAppID, CFE_ES_GetAppIDByName, CFE_ES_GetAppName, CFE_ES_GetAppInfo");
 
-    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppIdByName, TestAppName), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppIdByName, TEST_EXPECTED_APP_NAME), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetAppID(&TestAppId), CFE_SUCCESS);
     UtAssert_ResourceID_EQ(TestAppId, AppIdByName);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppNameBuf, TestAppId, sizeof(AppNameBuf)), CFE_SUCCESS);
-    UtAssert_StrCmp(AppNameBuf, TestAppName, "CFE_ES_GetAppName() = %s", AppNameBuf);
+    UtAssert_StrCmp(AppNameBuf, TEST_EXPECTED_APP_NAME, "CFE_ES_GetAppName() = %s", AppNameBuf);
 
     UtAssert_INT32_EQ(CFE_ES_GetAppInfo(&TestAppInfo, TestAppId), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&ESAppId, ESAppName), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&ESAppId, ES_APP_EXPECTED_NAME), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetAppInfo(&ESAppInfo, ESAppId), CFE_SUCCESS);
 
     UtAssert_True(TestAppInfo.Type == CFE_ES_AppType_EXTERNAL, "Test App Info -> Type = %d", (int)TestAppInfo.Type);
     UtAssert_True(ESAppInfo.Type == CFE_ES_AppType_CORE, "ES App Info -> Type = %d", (int)ESAppInfo.Type);
 
-    UtAssert_StrCmp(TestAppInfo.Name, TestAppName, "Test App Info -> Name = %s", TestAppInfo.Name);
-    UtAssert_StrCmp(ESAppInfo.Name, ESAppName, "ES App Info -> Name = %s", ESAppInfo.Name);
+    UtAssert_StrCmp(TestAppInfo.Name, TEST_EXPECTED_APP_NAME, "Test App Info -> Name = %s", TestAppInfo.Name);
+    UtAssert_StrCmp(ESAppInfo.Name, ES_APP_EXPECTED_NAME, "ES App Info -> Name = %s", ESAppInfo.Name);
 
-    UtAssert_StrCmp(TestAppInfo.EntryPoint, "CFE_TR_AppMain", "Test App Info -> EntryPt  = %s", TestAppInfo.EntryPoint);
+    UtAssert_StrCmp(TestAppInfo.EntryPoint, TEST_EXPECTED_ENTRYPOINT, "Test App Info -> EntryPt  = %s",
+                    TestAppInfo.EntryPoint);
     UtAssert_True(strlen(ESAppInfo.EntryPoint) == 0, "ES App Info -> EntryPt  = %s", ESAppInfo.EntryPoint);
 
-    UtAssert_StrCmp(TestAppInfo.FileName, "/cf/cfe_testrunner.so", "Test App Info -> FileName = %s",
-                    TestAppInfo.FileName);
+    UtAssert_True(strstr(TestAppInfo.FileName, TEST_EXPECTED_FILE_NAME) != NULL, "Test App Info -> FileName = %s",
+                  TestAppInfo.FileName);
     UtAssert_True(strlen(ESAppInfo.FileName) == 0, "ES App Info -> FileName  = %s", ESAppInfo.FileName);
 
     UtAssert_True(TestAppInfo.StackSize > 0, "Test App Info -> StackSz  = %d", (int)TestAppInfo.StackSize);
@@ -117,10 +121,10 @@ void TestAppInfo(void)
                   (int)TestAppInfo.NumOfChildTasks);
     UtAssert_True(ESAppInfo.NumOfChildTasks > 0, "ES App Info -> Child Tasks  = %d", (int)ESAppInfo.NumOfChildTasks);
 
-    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppIdByName, InvalidName), CFE_ES_ERR_NAME_NOT_FOUND);
+    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppIdByName, INVALID_APP_NAME), CFE_ES_ERR_NAME_NOT_FOUND);
     UtAssert_ResourceID_Undifeined(AppIdByName);
     UtAssert_INT32_EQ(CFE_ES_GetAppID(NULL), CFE_ES_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(NULL, TestAppName), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(NULL, TEST_EXPECTED_APP_NAME), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppNameBuf, CFE_ES_APPID_UNDEFINED, sizeof(AppNameBuf)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(NULL, TestAppId, sizeof(AppNameBuf)), CFE_ES_BAD_ARGUMENT);
@@ -257,13 +261,11 @@ void TestModuleInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(NULL, CFE_RESOURCEID_UNWRAP(TestAppId)), CFE_ES_BAD_ARGUMENT);
 }
 
-int32 ESInfoTestSetup(int32 LibId)
+void ESInfoTestSetup(void)
 {
     UtTest_Add(TestAppInfo, NULL, NULL, "Test App Info");
     UtTest_Add(TestTaskInfo, NULL, NULL, "Test Task Info");
     UtTest_Add(TestLibInfo, NULL, NULL, "Test Lib Info");
     UtTest_Add(TestResetType, NULL, NULL, "Test Reset Type");
     UtTest_Add(TestModuleInfo, NULL, NULL, "Test Module Info");
-
-    return CFE_SUCCESS;
 }
