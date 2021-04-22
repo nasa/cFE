@@ -10,6 +10,14 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev509
+
+- Separates the list of CFE core interface modules (e.g. core_api) from the list of CFE core implementation modules (e.g. msg). This allows the content of core_api to be expanded to locally include any additional modules the user has added to cFE core via the `MISSION_CORE_MODULES` list.
+- Adds documentation for `CFE_ES_RegisterCDS()` regarding clearing.
+- Removes the separate CFE "testrunner" module and moves the logic associated with running a test into cfe_assert library. Converts the "testcase" module from a library into an app, by calling into the runner logic that is now inside cfe_assert. Each functional test is a separate app, not a library, so it can be started and stopped via ES command like any other app.
+- Removes check on `ENABLE_UNIT_TESTS=true` when building "cfe_assert", it should be built all the time.
+- See <https://github.com/nasa/cfe/pull/1406> and <https://github.com/nasa/cfs/pull/248>
+
 ### Development Build: v6.8.0-rc1+dev498
 
 - Reports test failures as CFE events. Test status messages are now sent as Events rather than Syslog. This allows for more processing capability, and allows failures to be received externally (e.g. ground system).
