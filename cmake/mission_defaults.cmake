@@ -66,9 +66,13 @@ set(MISSION_MODULE_SEARCH_PATH
 set(osal_SEARCH_PATH ".")
 set(psp_SEARCH_PATH ".")
 
-# If ENABLE_UNIT_TEST is enabled, then include the cfe_assert library in
-# all targets.  This can still be overridden in targets.cmake.
+# Include "cfe_assert" library in all builds, because it is included
+# in the default startup script.  It should not have any effect if not
+# used.
+list(APPEND MISSION_GLOBAL_APPLIST cfe_assert)
+
+# If ENABLE_UNIT_TEST is enabled, then include the cfe_testcase app
 if (ENABLE_UNIT_TESTS)
-    list(APPEND MISSION_GLOBAL_APPLIST cfe_assert cfe_testcase)
+    list(APPEND MISSION_GLOBAL_APPLIST cfe_testcase)
 endif (ENABLE_UNIT_TESTS)
 
