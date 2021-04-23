@@ -47,6 +47,14 @@ const char CFE_FS_DEFAULT_DUMP_FILE_EXTENSION[] = ".dat";
 const char CFE_FS_DEFAULT_TEMP_FILE_EXTENSION[] = ".tmp";
 const char CFE_FS_DEFAULT_LOG_FILE_EXTENSION[]  = ".log";
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_GetDefaultMountPoint
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory)
 {
     const char *Result;
@@ -72,6 +80,14 @@ const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory)
     return Result;
 }
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_GetDefaultExtension
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
 {
     const char *Result;
@@ -103,9 +119,14 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
     return Result;
 }
 
-/*
-** CFE_FS_ReadHeader() - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_ReadHeader
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 {
     int32 Result;
@@ -138,12 +159,16 @@ int32 CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
     }
 
     return (Result);
+}
 
-} /* End of CFE_FS_ReadHeader() */
-
-/*
-** CFE_FS_InitHeader() - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_InitHeader
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 SubType)
 {
     if (Hdr == NULL || Description == NULL)
@@ -158,9 +183,14 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
     }
 }
 
-/*
-** CFE_FS_WriteHeader() - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_WriteHeader
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 {
     CFE_TIME_SysTime_t Time;
@@ -229,12 +259,16 @@ int32 CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
     }
 
     return (Result);
+}
 
-} /* End of CFE_FS_WriteHeader() */
-
-/*
-** CFE_FS_SetTimestamp - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_SetTimestamp
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp)
 {
     int32              Result;
@@ -286,14 +320,16 @@ int32 CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp)
     }
 
     return (Result);
-} /* End of CFE_FS_SetTimestamp() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_FS_ByteSwapCFEHeader() -- byte swap cFE file header structure       */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_ByteSwapCFEHeader
+ *
+ * Application-scope internal function
+ * See description in cfe_fs_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr)
 {
     CFE_FS_ByteSwapUint32(&Hdr->ContentType);
@@ -304,15 +340,16 @@ void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr)
     CFE_FS_ByteSwapUint32(&Hdr->ApplicationID);
     CFE_FS_ByteSwapUint32(&Hdr->TimeSeconds);
     CFE_FS_ByteSwapUint32(&Hdr->TimeSubSeconds);
+}
 
-} /* End of CFE_FS_ByteSwapCFEHeader() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_FS_ByteSwapUint32() -- byte swap an uint32                          */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_ByteSwapUint32
+ *
+ * Application-scope internal function
+ * See description in cfe_fs_priv.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
 {
     int32 Temp   = *Uint32ToSwapPtr;
@@ -323,17 +360,16 @@ void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
     OutPtr[1] = InPtr[2];
     OutPtr[2] = InPtr[1];
     OutPtr[3] = InPtr[0];
-} /* End of CFE_FS_ByteSwapUint32() */
+}
 
-/*
-**---------------------------------------------------------------------------------------
-** Name: CFE_FS_ParseInputFileNameEx
-**
-**   Purpose: This reads a file name from user input with extra logic to make more user friendly
-**            - absolute path is optional; assume default dir if missing
-**            - module extension is optional; append default for OS/platform if missing
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_ParseInputFileNameEx
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
                                   size_t InputBufSize, const char *DefaultInput, const char *DefaultPath,
                                   const char *DefaultExtension)
@@ -541,14 +577,14 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
     return Status;
 }
 
-/*
-**---------------------------------------------------------------------------------------
-** Name: CFE_FS_ParseInputFileName
-**
-**   Purpose: Simplified API for CFE_FS_ParseInputFileNameEx where input is always known to be
-**            a non-empty, null terminated string and the fixed-length input buffer not needed.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_ParseInputFileName
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_t OutputBufSize,
                                 CFE_FS_FileCategory_t FileCategory)
 {
@@ -557,9 +593,14 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
                                        CFE_FS_GetDefaultExtension(FileCategory));
 }
 
-/*
-** CFE_FS_ExtractFilenameFromPath - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_ExtractFilenameFromPath
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnly)
 {
     uint32 i, j;
@@ -632,9 +673,14 @@ int32 CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnl
     return (ReturnCode);
 }
 
-/*
-** CFE_FS_RunBackgroundFileDump - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_RunBackgroundFileDump
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
 {
     CFE_FS_CurrentFileState_t *       State;
@@ -785,9 +831,14 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
     return !IsEOF;
 }
 
-/*
-** CFE_FS_BackgroundFileDumpRequest - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_BackgroundFileDumpRequest
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
 {
     CFE_FS_BackgroundFileDumpEntry_t *Curr;
@@ -868,9 +919,14 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
     return Status;
 }
 
-/*
-** CFE_FS_ExtractFilenameFromPath - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_BackgroundFileDumpIsPending
+ *
+ * Implemented per public API
+ * See description in cfe_fs.h for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta)
 {
     if (Meta == NULL)
@@ -880,7 +936,3 @@ bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta)
 
     return Meta->IsPending;
 }
-
-/************************/
-/*  End of File Comment */
-/************************/
