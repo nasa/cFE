@@ -117,7 +117,7 @@ typedef int32 CFE_Status_t;
  *
  *  Operation was performed successfully
  */
-#define CFE_SUCCESS (0)
+#define CFE_SUCCESS ((CFE_Status_t)0)
 
 /**
  * @brief No Counter Increment
