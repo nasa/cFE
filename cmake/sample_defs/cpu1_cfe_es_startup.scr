@@ -31,4 +31,3 @@ CFE_APP, sch_lab,     SCH_Lab_AppMain,    SCH_LAB_APP,  80,   16384, 0x0, 0;
 ! 3. The filename field (2) no longer requires a fully-qualified filename; the path and extension
 !    may be omitted.  If omitted, the standard virtual path (/cf) and a platform-specific default
 !    extension will be used, which is derived from the build system.
-
