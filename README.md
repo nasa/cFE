@@ -10,6 +10,27 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev540
+
+
+- Changes the type of pointer for `MemPtr` in `CFE_ES_PoolCreateNoSem` API from uint8* to void* to be more consistent and easier to use. Should be backward compatible.
+Updates the doxygen documentation for this parameter, as it was incorrectly specifying a 32-bit alignment requirement.
+- Adds new functional tests for ES Child Task API. Does not check edge cases. Fixed spelling mistake in `UtAssert_ResourceID_Undifeined` name
+- Removes BUILDDIR reference and an old comment. No behavior changes
+- Moves and renames `cfe_resourceid_basevalue.h` to `cfe_resourceid_basevalue.h`. Since it is is assumed/required that resource IDs follow the "osal compatible" pattern. Perhaps in a future version this could change, but
+- Ensures that the `CFE_SUCCESS` constant is of the `CFE_Status_t` type. Since an explicit cast is required on all error codes that are expected to be negative values.
+- Removes unused error codes: `CFE_ES_ERR_SHELL_CMD` and `CFE_SB_NO_MSG_RECV`. No impact to behavior.
+- When a startup file has a line with too many tokens the build script will generate a concise warning including an indicator of which line is causing the problem.
+- Confirm that the call to `CFE_ES_CDS_CachePreload` returns `CFE_SUCCESS` before continuing. No behavior changes. Now shows up as untested lines in the coverage report since error condition cannot be exercised through coverage.
+- [docs] Clarify that `CFE_ES_DeleteCDS` does not wipe or erase the block, it only returns resources to the pool for re-use.
+- [docs] Adds comments in `CFE_ES_RunExceptionScan` describing the logic when an exception cannot be traced back to a specific app, in that it should fall back to the PSP reset.
+- `CFE_ES_GenPoolInitialize` now returns ` CFE_ES_BAD_ARGUMENT` error if the `AlignSize` passed-in value is not actually a power of two instead of "fixing" the alignment mask,
+- Replace internal `CFE_ES_SYSLOG_APPEND` macro with the `CFE_ES_WriteToSysLog()` API since coding standards discourage use of multi-line macros.
+- [docs] Improve Resource IDs documentation. Specifically on use of the various helper functions and common patterns Documents that the "IsMatch()" functions accept NULL pointers so they can be used with initial validation (gatekeeper). All other helper functions assume a non-NULL pointer.
+- Compiler will catch if the `CFE_RESOURCEID_MAX` value changes in such a way that makes it not usable as a bit mask as intended. Add a compile time assert to ensure that `CFE_RESOURCEID_MAX` value is one less than a power of two  (i.e. an LSB-justified bit mask). Notes in the comments that it serves as both a numeric limit and a mask.
+- See <https://github.com/nasa/cFE/pull/1431> and <https://github.com/nasa/cFS/pull/250>
+
+
 ### Development Build: v6.8.0-rc1+dev509
 
 - Separates the list of CFE core interface modules (e.g. core_api) from the list of CFE core implementation modules (e.g. msg). This allows the content of core_api to be expanded to locally include any additional modules the user has added to cFE core via the `MISSION_CORE_MODULES` list.
