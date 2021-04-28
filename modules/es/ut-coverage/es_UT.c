@@ -1065,6 +1065,16 @@ void TestApps(void)
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]));
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
 
+    /* Test starting an application where the startup script has extra tokens */
+    ES_ResetUnitTest();
+    strncpy(StartupScript, "A,B,C,D,E,F,G,H,I,J,K; !", sizeof(StartupScript) - 1);
+    StartupScript[sizeof(StartupScript) - 1] = '\0';
+    NumBytes                                 = strlen(StartupScript);
+    UT_SetReadBuffer(StartupScript, NumBytes);
+    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
+    UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]));
+    UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
+
     /* Create a valid startup script for subsequent tests */
     strncpy(StartupScript,
             "CFE_LIB, /cf/apps/tst_lib.bundle, TST_LIB_Init, TST_LIB, 0, 0, 0x0, 1; "
