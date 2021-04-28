@@ -2,7 +2,6 @@
 # Core Flight Software CMake / GNU make wrapper
 #
 # ABOUT THIS MAKEFILE:
-# This is actually part of the CMake alternative build system.
 # It is a GNU-make wrapper that calls the CMake tools appropriately
 # so that setting up a new build is fast and easy with no need to
 # learn the CMake commands.  It also makes it easier to integrate
@@ -124,7 +123,7 @@ install:
 
 prep $(O)/.prep:
 	mkdir -p "$(O)"
-	(cd "$(O)/$(BUILDDIR)" && cmake $(PREP_OPTS) "$(CURDIR)/cfe")
+	(cd "$(O)" && cmake $(PREP_OPTS) "$(CURDIR)/cfe")
 	echo "$(PREP_OPTS)" > "$(O)/.prep"
 
 clean:
