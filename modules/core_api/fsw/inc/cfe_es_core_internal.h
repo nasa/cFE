@@ -112,8 +112,14 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
 **        Removes the record of the specified CDS from the CDS Registry and
 **        frees the associated CDS memory for future use.
 **
+**        This operation invalidates the registry entry and returns
+**        the underlying data storage back to the CDS pool for re-use.
+**
 ** \par Assumptions, External Events, and Notes:
-**          None
+**        The actual data block is not modified by this call.  Specifically, this does not
+**        "wipe" or otherwise overwrite the data block.  If the application needs to ensure
+**        that the data is actually erased, it should explicitly do so (by e.g. writing all
+**        zeros or all ones) before deleting the block.
 **
 ** \param[in]  CDSName - Pointer to character string containing complete
 **                       CDS Name (of the format "AppName.CDSName").
