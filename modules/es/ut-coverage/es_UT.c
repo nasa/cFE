@@ -1997,6 +1997,13 @@ void TestGenericPool(void)
 
     ES_ResetUnitTest();
 
+    /* Test Attempt to create pool with bad alignment / non power of 2 - should reject. */
+    memset(&UT_MemPoolDirectBuffer, 0xee, sizeof(UT_MemPoolDirectBuffer));
+    OffsetEnd = sizeof(UT_MemPoolDirectBuffer.Data);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolInitialize(&Pool1, 0, OffsetEnd, 42, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
+                                               UT_POOL_BLOCK_SIZES, ES_UT_PoolDirectRetrieve, ES_UT_PoolDirectCommit),
+                      CFE_ES_BAD_ARGUMENT);
+
     /* Test successfully creating direct access pool, with alignment, no mutex */
     memset(&UT_MemPoolDirectBuffer, 0xee, sizeof(UT_MemPoolDirectBuffer));
     OffsetEnd = sizeof(UT_MemPoolDirectBuffer.Data);

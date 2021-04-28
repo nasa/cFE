@@ -252,7 +252,6 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
 
     /*
      * Convert alignment to a bit mask.
-     * This sets all LSBs if the passed in value was not actually a power of 2.
      */
     if (AlignSize <= 1)
     {
@@ -261,11 +260,16 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
     else
     {
         AlignMask = AlignSize - 1;
-        AlignMask |= AlignMask >> 1;
-        AlignMask |= AlignMask >> 2;
-        AlignMask |= AlignMask >> 4;
-        AlignMask |= AlignMask >> 8;
-        AlignMask |= AlignMask >> 16;
+    }
+
+    /*
+     * This confirms that the passed in value is a power of 2.
+     * The result of this check should always be 0 if so.
+     */
+    if ((AlignMask & AlignSize) != 0)
+    {
+        CFE_ES_WriteToSysLog("%s(): invalid alignment for pool: %lu\n", __func__, (unsigned long)AlignSize);
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     /* complete initialization of pool record entry */
