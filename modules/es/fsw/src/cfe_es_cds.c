@@ -887,10 +887,9 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
                 /* Report any errors incurred while freeing the CDS Memory Block */
                 if (Status != CFE_SUCCESS)
                 {
-                    CFE_ES_SysLog_snprintf(
-                        LogMessage, sizeof(LogMessage),
-                        "CFE_ES:DeleteCDS-Failed to free CDS Mem Block (Handle=0x%08lX)(Stat=0x%08X)\n",
-                        (unsigned long)RegRecPtr->BlockOffset, (unsigned int)Status);
+                    snprintf(LogMessage, sizeof(LogMessage),
+                             "Failed to free CDS Mem Block (Handle=0x%08lX)(Stat=0x%08X)\n",
+                             (unsigned long)RegRecPtr->BlockOffset, (unsigned int)Status);
                 }
                 else
                 {
@@ -901,9 +900,8 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
 
                     if (Status != CFE_SUCCESS)
                     {
-                        CFE_ES_SysLog_snprintf(LogMessage, sizeof(LogMessage),
-                                               "CFE_ES:DeleteCDS-Failed to update CDS Registry (Stat=0x%08X)\n",
-                                               (unsigned int)Status);
+                        snprintf(LogMessage, sizeof(LogMessage), "Failed to update CDS Registry (Stat=0x%08X)\n",
+                                 (unsigned int)Status);
                     }
                 }
             }
@@ -924,7 +922,7 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
     /* Output the message to syslog once the CDS registry resource is unlocked */
     if (LogMessage[0] != 0)
     {
-        CFE_ES_SYSLOG_APPEND(LogMessage);
+        CFE_ES_WriteToSysLog("%s(): %s", __func__, LogMessage);
     }
 
     return Status;
