@@ -529,9 +529,11 @@ int32 CFE_ES_ClearCDS(void)
     size_t                 RemainSize;
     int32                  Status;
 
+    Status = CFE_SUCCESS;
+
     /* Clear the CDS to ensure everything is gone */
     /* Create a block of zeros to write to the CDS */
-    Status = CFE_ES_CDS_CachePreload(&CDS->Cache, NULL, 0, sizeof(CDS->Cache.Data.Zero));
+    CFE_ES_CDS_CachePreload(&CDS->Cache, NULL, 0, sizeof(CDS->Cache.Data.Zero));
 
     /* While there is space to write another block of zeros, then do so */
     while (CDS->Cache.Offset < CDS->TotalSize)
