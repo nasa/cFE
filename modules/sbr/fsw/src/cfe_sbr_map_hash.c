@@ -107,7 +107,7 @@ CFE_SB_MsgId_Atom_t CFE_SBR_MsgIdHash(CFE_SB_MsgId_t MsgId)
  * Function: CFE_SBR_Init_Map
  *
  * Application-scope internal function
- * See description in cfe_sbr_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SBR_Init_Map(void)
@@ -121,7 +121,7 @@ void CFE_SBR_Init_Map(void)
  * Function: CFE_SBR_SetRouteId
  *
  * Application-scope internal function
- * See description in cfe_sbr_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 uint32 CFE_SBR_SetRouteId(CFE_SB_MsgId_t MsgId, CFE_SBR_RouteId_t RouteId)

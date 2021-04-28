@@ -85,7 +85,7 @@
  * Function: CFE_SB_CleanUpApp
  *
  * Implemented per public API
- * See description in cfe_sb_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
@@ -129,7 +129,7 @@ int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
  * Function: CFE_SB_LockSharedData
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
@@ -157,7 +157,7 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
  * Function: CFE_SB_UnlockSharedData
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber)
@@ -185,7 +185,7 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber)
  * Function: CFE_SB_GetDestPtr
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeId_t PipeId)
@@ -212,7 +212,7 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
  * Function: CFE_SB_ValidateMsgId
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId)
@@ -235,7 +235,7 @@ int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId)
  * Function: CFE_SB_LocatePipeDescByID
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
@@ -260,7 +260,7 @@ CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
  * Function: CFE_SB_CheckPipeDescSlotUsed
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId)
@@ -280,7 +280,7 @@ bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId)
  * Function: CFE_SB_GetAppTskName
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
@@ -326,7 +326,7 @@ char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
  * Function: CFE_SB_RequestToSendEvent
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
@@ -359,7 +359,7 @@ uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
  * Function: CFE_SB_FinishSendEvent
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
@@ -381,7 +381,7 @@ void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
  * Function: CFE_SB_AddDestNode
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode)
@@ -422,7 +422,7 @@ int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNo
  * Function: CFE_SB_RemoveDest
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_RemoveDest(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr)
@@ -437,7 +437,7 @@ void CFE_SB_RemoveDest(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr
  * Function: CFE_SB_RemoveDestNode
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NodeToRemove)
@@ -483,7 +483,7 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
  * Function: CFE_SB_ZeroCopyReleaseAppId
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId)

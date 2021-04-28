@@ -30,7 +30,7 @@
  * Function: CFE_MSG_InitDefaultHdr
  *
  * Application-scope internal function
- * See description in cfe_msg_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_MSG_InitDefaultHdr(CFE_MSG_Message_t *MsgPtr)

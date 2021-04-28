@@ -68,7 +68,7 @@ CFE_ES_TaskData_t CFE_ES_TaskData;
  * Function: CFE_ES_TaskMain
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_TaskMain(void)
@@ -348,7 +348,7 @@ void CFE_ES_GenerateBuildInfoEvents(void)
  * Function: CFE_ES_TaskInit
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_TaskInit(void)
@@ -517,7 +517,7 @@ int32 CFE_ES_TaskInit(void)
  * Function: CFE_ES_TaskPipe
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
@@ -734,7 +734,7 @@ void CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
  * Function: CFE_ES_HousekeepingCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
@@ -848,7 +848,7 @@ int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
  * Function: CFE_ES_NoopCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
@@ -877,7 +877,7 @@ int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
  * Function: CFE_ES_ResetCountersCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data)
@@ -898,7 +898,7 @@ int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data)
  * Function: CFE_ES_RestartCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data)
@@ -927,7 +927,7 @@ int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data)
  * Function: CFE_ES_StartAppCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
@@ -1032,7 +1032,7 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
  * Function: CFE_ES_StopAppCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data)
@@ -1083,7 +1083,7 @@ int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data)
  * Function: CFE_ES_RestartAppCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data)
@@ -1133,7 +1133,7 @@ int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data)
  * Function: CFE_ES_ReloadAppCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
@@ -1192,7 +1192,7 @@ int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
  * Function: CFE_ES_QueryOneCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
@@ -1259,7 +1259,7 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
  * Function: CFE_ES_QueryAllCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
@@ -1420,7 +1420,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
  * Function: CFE_ES_QueryAllTasksCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
@@ -1572,7 +1572,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
  * Function: CFE_ES_ClearSysLogCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data)
@@ -1599,7 +1599,7 @@ int32 CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data)
  * Function: CFE_ES_OverWriteSysLogCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data)
@@ -1632,7 +1632,7 @@ int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data)
  * Function: CFE_ES_WriteSysLogCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data)
@@ -1679,7 +1679,7 @@ int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data)
  * Function: CFE_ES_ClearERLogCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
@@ -1715,7 +1715,7 @@ int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
  * Function: CFE_ES_WriteERLogCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
@@ -1792,7 +1792,7 @@ int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
  * Function: CFE_ES_VerifyCmdLength
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
@@ -1828,7 +1828,7 @@ bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
  * Function: CFE_ES_ResetPRCountCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data)
@@ -1853,7 +1853,7 @@ int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data)
  * Function: CFE_ES_SetMaxPRCountCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data)
@@ -1881,7 +1881,7 @@ int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data)
  * Function: CFE_ES_DeleteCDSCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data)
@@ -1939,7 +1939,7 @@ int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data)
  * Function: CFE_ES_SendMemPoolStatsCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
@@ -1989,7 +1989,7 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
  * Function: CFE_ES_DumpCDSRegistryCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
@@ -2116,7 +2116,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
  * Function: CFE_ES_FileWriteByteCntErr
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_FileWriteByteCntErr(const char *Filename, size_t Requested, int32 Status)

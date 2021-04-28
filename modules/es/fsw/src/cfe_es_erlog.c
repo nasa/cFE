@@ -49,7 +49,7 @@
  * Function: CFE_ES_WriteToERLogWithContext
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
@@ -152,7 +152,7 @@ int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint3
  * Function: CFE_ES_WriteToERLog
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
@@ -168,7 +168,7 @@ int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType
  * Function: CFE_ES_BackgroundERLogFileDataGetter
  *
  * Application-scope internal function
- * See description in cfe_es_apps.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
@@ -235,7 +235,7 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
  * Function: CFE_ES_BackgroundERLogFileEventHandler
  *
  * Application-scope internal function
- * See description in cfe_es_apps.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
@@ -282,7 +282,7 @@ void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t 
  * Function: CFE_ES_RunExceptionScan
  *
  * Application-scope internal function
- * See description in cfe_es_apps.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)

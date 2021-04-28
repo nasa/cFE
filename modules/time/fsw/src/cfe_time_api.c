@@ -41,7 +41,7 @@
  * Function: CFE_TIME_GetTime
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_GetTime(void)
@@ -66,7 +66,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetTime(void)
  * Function: CFE_TIME_GetTAI
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_GetTAI(void)
@@ -97,7 +97,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetTAI(void)
  * Function: CFE_TIME_GetUTC
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_GetUTC(void)
@@ -127,7 +127,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetUTC(void)
  * Function: CFE_TIME_MET2SCTime
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_MET2SCTime(CFE_TIME_SysTime_t METTime)
@@ -168,7 +168,7 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime(CFE_TIME_SysTime_t METTime)
  * Function: CFE_TIME_GetClockState
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_ClockState_Enum_t CFE_TIME_GetClockState(void)
@@ -198,7 +198,7 @@ CFE_TIME_ClockState_Enum_t CFE_TIME_GetClockState(void)
  * Function: CFE_TIME_GetClockInfo
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 uint16 CFE_TIME_GetClockInfo(void)
@@ -292,7 +292,7 @@ uint16 CFE_TIME_GetClockInfo(void)
  * Function: CFE_TIME_GetLeapSeconds
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int16 CFE_TIME_GetLeapSeconds(void)
@@ -317,7 +317,7 @@ int16 CFE_TIME_GetLeapSeconds(void)
  * Function: CFE_TIME_GetSTCF
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_GetSTCF(void)
@@ -342,7 +342,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetSTCF(void)
  * Function: CFE_TIME_GetMET
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_GetMET(void)
@@ -367,7 +367,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetMET(void)
  * Function: CFE_TIME_GetMETseconds
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 uint32 CFE_TIME_GetMETseconds(void)
@@ -392,7 +392,7 @@ uint32 CFE_TIME_GetMETseconds(void)
  * Function: CFE_TIME_GetMETsubsecs
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 uint32 CFE_TIME_GetMETsubsecs(void)
@@ -417,7 +417,7 @@ uint32 CFE_TIME_GetMETsubsecs(void)
  * Function: CFE_TIME_Add
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
@@ -446,7 +446,7 @@ CFE_TIME_SysTime_t CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Tim
  * Function: CFE_TIME_Subtract
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
@@ -472,7 +472,7 @@ CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_
  * Function: CFE_TIME_Compare
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t TimeB)
@@ -534,7 +534,7 @@ CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t
  * Function: CFE_TIME_Sub2MicroSecs
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 uint32 CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
@@ -556,7 +556,7 @@ uint32 CFE_TIME_Sub2MicroSecs(uint32 SubSeconds)
  * Function: CFE_TIME_Micro2SubSecs
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
@@ -589,7 +589,7 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
  * Function: CFE_TIME_Print
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
@@ -741,7 +741,7 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
  * Function: CFE_TIME_ExternalTone
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_ExternalTone(void)
@@ -759,7 +759,7 @@ void CFE_TIME_ExternalTone(void)
  * Function: CFE_TIME_RegisterSynchCallback
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)
@@ -801,7 +801,7 @@ int32 CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr
  * Function: CFE_TIME_UnregisterSynchCallback
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncPtr)
@@ -843,7 +843,7 @@ int32 CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t CallbackFuncP
  * Function: CFE_TIME_ExternalMET
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
@@ -863,7 +863,7 @@ void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET)
  * Function: CFE_TIME_ExternalGPS
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
@@ -883,7 +883,7 @@ void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
  * Function: CFE_TIME_ExternalTime
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)

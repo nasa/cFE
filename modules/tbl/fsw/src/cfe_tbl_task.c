@@ -90,7 +90,7 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
  * Function: CFE_TBL_TaskMain
  *
  * Implemented per public API
- * See description in cfe_tbl_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TBL_TaskMain(void)
@@ -152,7 +152,7 @@ void CFE_TBL_TaskMain(void)
  * Function: CFE_TBL_TaskInit
  *
  * Application-scope internal function
- * See description in cfe_tbl_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_TaskInit(void)
@@ -227,7 +227,7 @@ int32 CFE_TBL_TaskInit(void)
  * Function: CFE_TBL_InitData
  *
  * Application-scope internal function
- * See description in cfe_tbl_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TBL_InitData(void)
@@ -252,7 +252,7 @@ void CFE_TBL_InitData(void)
  * Function: CFE_TBL_TaskPipe
  *
  * Application-scope internal function
- * See description in cfe_tbl_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
@@ -332,7 +332,7 @@ void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
  * Function: CFE_TBL_SearchCmdHndlrTbl
  *
  * Application-scope internal function
- * See description in cfe_tbl_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode)

@@ -106,7 +106,7 @@ int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset
  * Function: CFE_ES_CreateCDSPool
  *
  * Application-scope internal function
- * See description in cfe_es_cds_mempool.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
@@ -141,7 +141,7 @@ int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
  * Function: CFE_ES_RebuildCDSPool
  *
  * Application-scope internal function
- * See description in cfe_es_cds_mempool.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
@@ -175,7 +175,7 @@ int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
  * Function: CFE_ES_CDSBlockWrite
  *
  * Application-scope internal function
- * See description in cfe_es_cds_mempool.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
@@ -270,7 +270,7 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
  * Function: CFE_ES_CDSBlockRead
  *
  * Application-scope internal function
- * See description in cfe_es_cds_mempool.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
@@ -354,7 +354,7 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
  * Function: CFE_ES_CDSReqdMinSize
  *
  * Application-scope internal function
- * See description in cfe_es_cds_mempool.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 size_t CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport)

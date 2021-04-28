@@ -70,7 +70,7 @@ CFE_ES_Global_t CFE_ES_Global;
  * Function: CFE_ES_Main
  *
  * Implemented per public API
- * See description in cfe_es.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const char *StartFilePath)
@@ -242,7 +242,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
  * Function: CFE_ES_SetupResetVariables
  *
  * Application-scope internal function
- * See description in cfe_es_start.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  * SYSLOGGING NOTE: Any logging in here must use CFE_ES_SysLogWrite_Unsync() as the necessary
  * primitives are not even initialized yet.  There is no chance for log contention here.
@@ -471,7 +471,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
  * Function: CFE_ES_InitializeFileSystems
  *
  * Application-scope internal function
- * See description in cfe_es_start.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_InitializeFileSystems(uint32 StartType)
@@ -718,7 +718,7 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
  * Function: CFE_ES_CreateObjects
  *
  * Application-scope internal function
- * See description in cfe_es_start.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_CreateObjects(void)

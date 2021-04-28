@@ -93,7 +93,7 @@ const CFE_ES_BackgroundJobEntry_t CFE_ES_BACKGROUND_JOB_TABLE[] = {
  * Function: CFE_ES_BackgroundTask
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_BackgroundTask(void)
@@ -167,7 +167,7 @@ void CFE_ES_BackgroundTask(void)
  * Function: CFE_ES_BackgroundInit
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_BackgroundInit(void)
@@ -201,7 +201,7 @@ int32 CFE_ES_BackgroundInit(void)
  * Function: CFE_ES_BackgroundCleanup
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_BackgroundCleanup(void)
@@ -218,7 +218,7 @@ void CFE_ES_BackgroundCleanup(void)
  * Function: CFE_ES_BackgroundWakeup
  *
  * Implemented per public API
- * See description in cfe_es.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_BackgroundWakeup(void)

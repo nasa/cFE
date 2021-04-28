@@ -54,7 +54,7 @@ typedef struct
  * Function: CFE_SB_TaskMain
  *
  * Implemented per public API
- * See description in cfe_sb_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_TaskMain(void)
@@ -116,7 +116,7 @@ void CFE_SB_TaskMain(void)
  * Function: CFE_SB_AppInit
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_AppInit(void)
@@ -323,7 +323,7 @@ bool CFE_SB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
  * Function: CFE_SB_ProcessCmdPipePkt
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
@@ -458,7 +458,7 @@ void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
  * Function: CFE_SB_NoopCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
@@ -474,7 +474,7 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
  * Function: CFE_SB_ResetCountersCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
@@ -491,7 +491,7 @@ int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
  * Function: CFE_SB_EnableSubReportingCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data)
@@ -505,7 +505,7 @@ int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data)
  * Function: CFE_SB_DisableSubReportingCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
@@ -519,7 +519,7 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
  * Function: CFE_SB_SendHKTlmCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
@@ -543,7 +543,7 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
  * Function: CFE_SB_ResetCounters
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_ResetCounters(void)
@@ -567,7 +567,7 @@ void CFE_SB_ResetCounters(void)
  * Function: CFE_SB_EnableRouteCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
@@ -637,7 +637,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
  * Function: CFE_SB_DisableRouteCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
@@ -707,7 +707,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
  * Function: CFE_SB_SendStatsCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
@@ -769,7 +769,7 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
  * Function: CFE_SB_CollectRouteInfo
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
@@ -850,7 +850,7 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
  * Function: CFE_SB_SendSubscriptionReport
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality)
@@ -884,7 +884,7 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
  * Function: CFE_SB_WriteRouteInfoDataGetter
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
@@ -918,7 +918,7 @@ bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer
  * Function: CFE_SB_BackgroundFileEventHandler
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
@@ -966,7 +966,7 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
  * Function: CFE_SB_WriteRoutingInfoCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
@@ -1029,7 +1029,7 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
  * Function: CFE_SB_WritePipeInfoDataGetter
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
@@ -1109,7 +1109,7 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
  * Function: CFE_SB_WritePipeInfoCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
@@ -1172,7 +1172,7 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
  * Function: CFE_SB_CollectMsgMapInfo
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
@@ -1197,7 +1197,7 @@ void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
  * Function: CFE_SB_WriteMsgMapInfoDataGetter
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
@@ -1239,7 +1239,7 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
  * Function: CFE_SB_WriteMapInfoCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
@@ -1360,7 +1360,7 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
  * Function: CFE_SB_SendPrevSubsCmd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
@@ -1397,7 +1397,7 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
  * Function: CFE_SB_IncrCmdCtr
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_IncrCmdCtr(int32 status)
@@ -1418,7 +1418,7 @@ void CFE_SB_IncrCmdCtr(int32 status)
  * Function: CFE_SB_SetSubscriptionReporting
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_SetSubscriptionReporting(uint32 state)

@@ -76,7 +76,7 @@
  * Function: CFE_ES_SysLogClear_Unsync
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_SysLogClear_Unsync(void)
@@ -96,7 +96,7 @@ void CFE_ES_SysLogClear_Unsync(void)
  * Function: CFE_ES_SysLogReadStart_Unsync
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
@@ -134,7 +134,7 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
  * Function: CFE_ES_SysLogAppend_Unsync
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
@@ -258,7 +258,7 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
  * Function: CFE_ES_SysLogWrite_Unsync
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...)
@@ -293,7 +293,7 @@ int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...)
  * Function: CFE_ES_SysLogReadData
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer)
@@ -343,7 +343,7 @@ void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer)
  * Function: CFE_ES_SysLogSetMode
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode)
@@ -368,7 +368,7 @@ int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode)
  * Function: CFE_ES_SysLog_vsnprintf
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, va_list ArgPtr)
@@ -447,7 +447,7 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
  * Function: CFE_ES_SysLog_snprintf
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...)
@@ -464,7 +464,7 @@ void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStr
  * Function: CFE_ES_SysLogDump
  *
  * Application-scope internal function
- * See description in cfe_es_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogDump(const char *Filename)

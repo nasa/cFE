@@ -48,7 +48,7 @@
  * Function: CFE_TIME_ToneSend
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -170,7 +170,7 @@ void CFE_TIME_ToneSend(void)
  * Function: CFE_TIME_ToneSendMET
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
@@ -303,7 +303,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
  * Function: CFE_TIME_ToneSendGPS
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
@@ -443,7 +443,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
  * Function: CFE_TIME_ToneSendTime
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
@@ -585,7 +585,7 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
  * Function: CFE_TIME_ToneData
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
@@ -657,7 +657,7 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
  * Function: CFE_TIME_ToneSignal
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_ToneSignal(void)
@@ -700,7 +700,7 @@ void CFE_TIME_ToneSignal(void)
  * Function: CFE_TIME_ToneVerify
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
@@ -788,7 +788,7 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
  * Function: CFE_TIME_ToneUpdate
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_ToneUpdate(void)
@@ -979,7 +979,7 @@ void CFE_TIME_ToneUpdate(void)
  * Function: CFE_TIME_Local1HzTimerCallback
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg)
@@ -992,7 +992,7 @@ void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg)
  * Function: CFE_TIME_Tone1HzISR
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Tone1HzISR(void)
@@ -1101,7 +1101,7 @@ void CFE_TIME_Tone1HzISR(void)
  * Function: CFE_TIME_Tone1HzTask
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Tone1HzTask(void)
@@ -1160,7 +1160,7 @@ void CFE_TIME_Tone1HzTask(void)
  * Function: CFE_TIME_Local1HzStateMachine
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzStateMachine(void)
@@ -1278,7 +1278,7 @@ void CFE_TIME_Local1HzStateMachine(void)
  * Function: CFE_TIME_Local1HzISR
  *
  * Implemented per public API
- * See description in cfe_time.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzISR(void)
@@ -1299,7 +1299,7 @@ void CFE_TIME_Local1HzISR(void)
  * Function: CFE_TIME_Local1HzTask
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzTask(void)
@@ -1359,7 +1359,7 @@ void CFE_TIME_Local1HzTask(void)
  * Function: CFE_TIME_NotifyTimeSynchApps
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_NotifyTimeSynchApps(void)

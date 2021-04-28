@@ -47,7 +47,7 @@ CFE_FS_Global_t CFE_FS_Global;
  * Function: CFE_FS_EarlyInit
  *
  * Implemented per public API
- * See description in cfe_fs_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_FS_EarlyInit(void)
@@ -71,7 +71,7 @@ int32 CFE_FS_EarlyInit(void)
  * Function: CFE_FS_LockSharedData
  *
  * Application-scope internal function
- * See description in cfe_fs_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_FS_LockSharedData(const char *FunctionName)
@@ -97,7 +97,7 @@ void CFE_FS_LockSharedData(const char *FunctionName)
  * Function: CFE_FS_UnlockSharedData
  *
  * Application-scope internal function
- * See description in cfe_fs_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_FS_UnlockSharedData(const char *FunctionName)

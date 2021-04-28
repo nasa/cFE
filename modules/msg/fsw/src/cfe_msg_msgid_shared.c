@@ -30,7 +30,7 @@
  * Function: CFE_MSG_GetTypeFromMsgId
  *
  * Implemented per public API
- * See description in cfe_msg.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type)

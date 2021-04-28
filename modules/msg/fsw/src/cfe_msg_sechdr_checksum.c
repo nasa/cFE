@@ -58,7 +58,7 @@ CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
  * Function: CFE_MSG_GenerateChecksum
  *
  * Implemented per public API
- * See description in cfe_msg.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
@@ -97,7 +97,7 @@ int32 CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
  * Function: CFE_MSG_ValidateChecksum
  *
  * Implemented per public API
- * See description in cfe_msg.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsValid)

@@ -53,7 +53,7 @@ const size_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
  * Function: CFE_SB_EarlyInit
  *
  * Implemented per public API
- * See description in cfe_sb_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_EarlyInit(void)
@@ -100,7 +100,7 @@ int32 CFE_SB_EarlyInit(void)
  * Function: CFE_SB_InitBuffers
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_InitBuffers(void)
@@ -134,7 +134,7 @@ int32 CFE_SB_InitBuffers(void)
  * Function: CFE_SB_InitPipeTbl
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_InitPipeTbl(void)

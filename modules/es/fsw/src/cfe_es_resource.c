@@ -44,7 +44,7 @@
  * Function: CFE_ES_TaskId_ToOSAL
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 osal_id_t CFE_ES_TaskId_ToOSAL(CFE_ES_TaskId_t id)
@@ -63,7 +63,7 @@ osal_id_t CFE_ES_TaskId_ToOSAL(CFE_ES_TaskId_t id)
  * Function: CFE_ES_TaskId_FromOSAL
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id)
@@ -82,7 +82,7 @@ CFE_ES_TaskId_t CFE_ES_TaskId_FromOSAL(osal_id_t id)
  * Function: CFE_ES_LocateAppRecordByName
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name)
@@ -119,7 +119,7 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByName(const char *Name)
  * Function: CFE_ES_LocateLibRecordByName
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name)
@@ -156,7 +156,7 @@ CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByName(const char *Name)
  * Function: CFE_ES_LocateCounterRecordByName
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name)
@@ -193,7 +193,7 @@ CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByName(const char *Name)
  * Function: CFE_ES_LocateAppRecordByID
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID)
@@ -218,7 +218,7 @@ CFE_ES_AppRecord_t *CFE_ES_LocateAppRecordByID(CFE_ES_AppId_t AppID)
  * Function: CFE_ES_LocateLibRecordByID
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID)
@@ -243,7 +243,7 @@ CFE_ES_LibRecord_t *CFE_ES_LocateLibRecordByID(CFE_ES_LibId_t LibID)
  * Function: CFE_ES_LocateTaskRecordByID
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID)
@@ -268,7 +268,7 @@ CFE_ES_TaskRecord_t *CFE_ES_LocateTaskRecordByID(CFE_ES_TaskId_t TaskID)
  * Function: CFE_ES_LocateCounterRecordByID
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t CounterID)
@@ -293,7 +293,7 @@ CFE_ES_GenCounterRecord_t *CFE_ES_LocateCounterRecordByID(CFE_ES_CounterId_t Cou
  * Function: CFE_ES_GetTaskRecordByContext
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
@@ -326,7 +326,7 @@ CFE_ES_TaskRecord_t *CFE_ES_GetTaskRecordByContext(void)
  * Function: CFE_ES_GetAppRecordByContext
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
@@ -369,7 +369,7 @@ CFE_ES_AppRecord_t *CFE_ES_GetAppRecordByContext(void)
  * Function: CFE_ES_CheckCounterIdSlotUsed
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId)
@@ -389,7 +389,7 @@ bool CFE_ES_CheckCounterIdSlotUsed(CFE_ResourceId_t CheckId)
  * Function: CFE_ES_CheckAppIdSlotUsed
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId)
@@ -409,7 +409,7 @@ bool CFE_ES_CheckAppIdSlotUsed(CFE_ResourceId_t CheckId)
  * Function: CFE_ES_CheckLibIdSlotUsed
  *
  * Application-scope internal function
- * See description in cfe_es_resource.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_ES_CheckLibIdSlotUsed(CFE_ResourceId_t CheckId)

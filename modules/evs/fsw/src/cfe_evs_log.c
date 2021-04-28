@@ -38,7 +38,7 @@
  * Function: EVS_AddLog
  *
  * Application-scope internal function
- * See description in cfe_evs_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
@@ -95,7 +95,7 @@ void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
  * Function: EVS_ClearLog
  *
  * Application-scope internal function
- * See description in cfe_evs_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void EVS_ClearLog(void)
@@ -122,7 +122,7 @@ void EVS_ClearLog(void)
  * Function: CFE_EVS_WriteLogDataFileCmd
  *
  * Application-scope internal function
- * See description in cfe_evs_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
@@ -239,7 +239,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
  * Function: CFE_EVS_SetLogModeCmd
  *
  * Application-scope internal function
- * See description in cfe_evs_log.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data)

@@ -52,7 +52,7 @@
  * Function: CFE_MSG_GetMsgId
  *
  * Implemented per public API
- * See description in cfe_msg.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId)
@@ -87,7 +87,7 @@ int32 CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId)
  * Function: CFE_MSG_SetMsgId
  *
  * Implemented per public API
- * See description in cfe_msg.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId)

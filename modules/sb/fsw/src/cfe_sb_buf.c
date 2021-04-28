@@ -47,7 +47,7 @@
  * Function: CFE_SB_TrackingListReset
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link)
@@ -62,7 +62,7 @@ void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link)
  * Function: CFE_SB_TrackingListRemove
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node)
@@ -80,7 +80,7 @@ void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node)
  * Function: CFE_SB_TrackingListAdd
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node)
@@ -99,7 +99,7 @@ void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node
  * Function: CFE_SB_GetBufferFromPool
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
@@ -150,7 +150,7 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
  * Function: CFE_SB_ReturnBufferToPool
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
@@ -170,7 +170,7 @@ void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
  * Function: CFE_SB_IncrBufUseCnt
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd)
@@ -187,7 +187,7 @@ void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd)
  * Function: CFE_SB_DecrBufUseCnt
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
@@ -209,7 +209,7 @@ void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
  * Function: CFE_SB_GetDestinationBlk
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
@@ -240,7 +240,7 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
  * Function: CFE_SB_PutDestinationBlk
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)

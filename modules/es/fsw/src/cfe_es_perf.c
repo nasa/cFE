@@ -38,7 +38,7 @@
  * Function: CFE_ES_SetupPerfVariables
  *
  * Application-scope internal function
- * See description in cfe_es_start.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_SetupPerfVariables(uint32 ResetType)
@@ -100,7 +100,7 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
  * Function: CFE_ES_GetPerfLogDumpRemaining
  *
  * Application-scope internal function
- * See description in cfe_es_perf.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 uint32 CFE_ES_GetPerfLogDumpRemaining(void)
@@ -145,7 +145,7 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void)
  * Function: CFE_ES_StartPerfDataCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
@@ -209,7 +209,7 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
  * Function: CFE_ES_StopPerfDataCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
@@ -275,7 +275,7 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
  * Function: CFE_ES_RunPerfLogDump
  *
  * Application-scope internal function
- * See description in cfe_es_perf.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
@@ -501,7 +501,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
  * Function: CFE_ES_SetPerfFilterMaskCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
@@ -542,7 +542,7 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
  * Function: CFE_ES_SetPerfTriggerMaskCmd
  *
  * Application-scope internal function
- * See description in cfe_es_task.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
@@ -583,7 +583,7 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
  * Function: CFE_ES_PerfLogAdd
  *
  * Implemented per public API
- * See description in cfe_es.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)

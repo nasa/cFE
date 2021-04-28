@@ -32,7 +32,7 @@
  * Function: CFE_MSG_SetMsgTime
  *
  * Implemented per public API
- * See description in cfe_msg.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t NewTime)
@@ -73,7 +73,7 @@ int32 CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t NewTime)
  * Function: CFE_MSG_GetMsgTime
  *
  * Implemented per public API
- * See description in cfe_msg.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t *Time)

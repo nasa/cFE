@@ -45,7 +45,7 @@ CFE_TIME_Global_t CFE_TIME_Global;
  * Function: CFE_TIME_EarlyInit
  *
  * Implemented per public API
- * See description in cfe_time_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_EarlyInit(void)
@@ -63,7 +63,7 @@ int32 CFE_TIME_EarlyInit(void)
  * Function: CFE_TIME_TaskMain
  *
  * Implemented per public API
- * See description in cfe_time_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_TaskMain(void)
@@ -126,7 +126,7 @@ void CFE_TIME_TaskMain(void)
  * Function: CFE_TIME_TaskInit
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_TaskInit(void)
@@ -349,7 +349,7 @@ bool CFE_TIME_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
  * Function: CFE_TIME_TaskPipe
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
@@ -554,7 +554,7 @@ void CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
  * Function: CFE_TIME_HousekeepingCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
@@ -594,7 +594,7 @@ int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
  * Function: CFE_TIME_ToneSignalCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data)
@@ -616,7 +616,7 @@ int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data)
  * Function: CFE_TIME_ToneDataCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data)
@@ -638,7 +638,7 @@ int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data)
  * Function: CFE_TIME_OneHzCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_OneHzCmd(const CFE_TIME_1HzCmd_t *data)
@@ -670,7 +670,7 @@ int32 CFE_TIME_OneHzCmd(const CFE_TIME_1HzCmd_t *data)
  * Function: CFE_TIME_ToneSendCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -694,7 +694,7 @@ int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data)
  * Function: CFE_TIME_NoopCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
@@ -712,7 +712,7 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
  * Function: CFE_TIME_ResetCountersCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
@@ -753,7 +753,7 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
  * Function: CFE_TIME_SendDiagnosticTlm
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
@@ -781,7 +781,7 @@ int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
  * Function: CFE_TIME_SetStateCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
@@ -832,7 +832,7 @@ int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
  * Function: CFE_TIME_SetSourceCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
@@ -901,7 +901,7 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
  * Function: CFE_TIME_SetSignalCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
@@ -970,7 +970,7 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
  * Function: CFE_TIME_SetDelayImpl
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction)
@@ -1020,7 +1020,7 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
  * Function: CFE_TIME_AddDelayCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data)
@@ -1034,7 +1034,7 @@ int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data)
  * Function: CFE_TIME_SubDelayCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data)
@@ -1048,7 +1048,7 @@ int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data)
  * Function: CFE_TIME_SetTimeCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
@@ -1101,7 +1101,7 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
  * Function: CFE_TIME_SetMETCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
@@ -1154,7 +1154,7 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
  * Function: CFE_TIME_SetSTCFCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
@@ -1207,7 +1207,7 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
  * Function: CFE_TIME_SetLeapSecondsCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
@@ -1245,7 +1245,7 @@ int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
  * Function: CFE_TIME_AdjustImpl
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction)
@@ -1295,7 +1295,7 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
  * Function: CFE_TIME_AddAdjustCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data)
@@ -1309,7 +1309,7 @@ int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data)
  * Function: CFE_TIME_SubAdjustCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data)
@@ -1323,7 +1323,7 @@ int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data)
  * Function: CFE_TIME_1HzAdjImpl
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr,
@@ -1362,7 +1362,7 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
  * Function: CFE_TIME_Add1HZAdjustmentCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_Add1HZAdjustmentCmd(const CFE_TIME_Add1HZAdjustmentCmd_t *data)
@@ -1376,7 +1376,7 @@ int32 CFE_TIME_Add1HZAdjustmentCmd(const CFE_TIME_Add1HZAdjustmentCmd_t *data)
  * Function: CFE_TIME_Sub1HZAdjustmentCmd
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data)

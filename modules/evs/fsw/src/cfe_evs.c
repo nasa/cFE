@@ -40,7 +40,7 @@
  * Function: CFE_EVS_Register
  *
  * Implemented per public API
- * See description in cfe_evs.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
@@ -118,7 +118,7 @@ int32 CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 Filte
  * Function: CFE_EVS_Unregister
  *
  * Implemented per public API
- * See description in cfe_evs.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_Unregister(void)
@@ -142,7 +142,7 @@ int32 CFE_EVS_Unregister(void)
  * Function: CFE_EVS_SendEvent
  *
  * Implemented per public API
- * See description in cfe_evs.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
@@ -187,7 +187,7 @@ int32 CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
  * Function: CFE_EVS_SendEventWithAppID
  *
  * Implemented per public API
- * See description in cfe_evs.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_t AppID, const char *Spec, ...)
@@ -231,7 +231,7 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_
  * Function: CFE_EVS_SendTimedEvent
  *
  * Implemented per public API
- * See description in cfe_evs.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ...)
@@ -272,7 +272,7 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 Eve
  * Function: CFE_EVS_ResetFilter
  *
  * Implemented per public API
- * See description in cfe_evs.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_ResetFilter(int16 EventID)
@@ -313,7 +313,7 @@ int32 CFE_EVS_ResetFilter(int16 EventID)
  * Function: CFE_EVS_ResetAllFilters
  *
  * Implemented per public API
- * See description in cfe_evs.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_ResetAllFilters(void)

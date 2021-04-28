@@ -47,7 +47,7 @@
  * Function: CFE_TIME_StartReferenceUpdate
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 volatile CFE_TIME_ReferenceState_t *CFE_TIME_StartReferenceUpdate(void)
@@ -80,7 +80,7 @@ volatile CFE_TIME_ReferenceState_t *CFE_TIME_StartReferenceUpdate(void)
  * Function: CFE_TIME_LatchClock
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_LatchClock(void)
@@ -107,7 +107,7 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void)
  * Function: CFE_TIME_QueryResetVars
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_QueryResetVars(void)
@@ -197,7 +197,7 @@ void CFE_TIME_QueryResetVars(void)
  * Function: CFE_TIME_UpdateResetVars
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference)
@@ -241,7 +241,7 @@ void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference)
  * Function: CFE_TIME_InitData
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_InitData(void)
@@ -378,7 +378,7 @@ void CFE_TIME_InitData(void)
  * Function: CFE_TIME_GetHkData
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference)
@@ -438,7 +438,7 @@ void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference)
  * Function: CFE_TIME_GetDiagData
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_GetDiagData(void)
@@ -560,7 +560,7 @@ void CFE_TIME_GetDiagData(void)
  * Function: CFE_TIME_GetReference
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_GetReference(CFE_TIME_Reference_t *Reference)
@@ -669,7 +669,7 @@ void CFE_TIME_GetReference(CFE_TIME_Reference_t *Reference)
  * Function: CFE_TIME_CalculateTAI
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_CalculateTAI(const CFE_TIME_Reference_t *Reference)
@@ -686,7 +686,7 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateTAI(const CFE_TIME_Reference_t *Reference)
  * Function: CFE_TIME_CalculateUTC
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference)
@@ -704,7 +704,7 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference)
  * Function: CFE_TIME_CalculateState
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference)
@@ -758,7 +758,7 @@ int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference)
  * Function: CFE_TIME_SetState
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_SetState(int16 NewState)
@@ -804,7 +804,7 @@ void CFE_TIME_SetState(int16 NewState)
  * Function: CFE_TIME_SetSource
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
@@ -819,7 +819,7 @@ void CFE_TIME_SetSource(int16 NewSource)
  * Function: CFE_TIME_SetSignal
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
@@ -837,7 +837,7 @@ void CFE_TIME_SetSignal(int16 NewSignal)
  * Function: CFE_TIME_SetDelay
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
@@ -864,7 +864,7 @@ void CFE_TIME_SetDelay(CFE_TIME_SysTime_t NewDelay, int16 Direction)
  * Function: CFE_TIME_SetTime
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -915,7 +915,7 @@ void CFE_TIME_SetTime(CFE_TIME_SysTime_t NewTime)
  * Function: CFE_TIME_SetMET
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -953,7 +953,7 @@ void CFE_TIME_SetMET(CFE_TIME_SysTime_t NewMET)
  * Function: CFE_TIME_SetSTCF
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -979,7 +979,7 @@ void CFE_TIME_SetSTCF(CFE_TIME_SysTime_t NewSTCF)
  * Function: CFE_TIME_SetLeapSeconds
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -1005,7 +1005,7 @@ void CFE_TIME_SetLeapSeconds(int16 NewLeaps)
  * Function: CFE_TIME_SetAdjust
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -1044,7 +1044,7 @@ void CFE_TIME_SetAdjust(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
  * Function: CFE_TIME_Set1HzAdj
  *
  * Application-scope internal function
- * See description in cfe_time_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -1063,7 +1063,7 @@ void CFE_TIME_Set1HzAdj(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
  * Function: CFE_TIME_CleanUpApp
  *
  * Implemented per public API
- * See description in cfe_time_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)

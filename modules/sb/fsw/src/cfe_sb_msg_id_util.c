@@ -33,7 +33,7 @@
  * Function: CFE_SB_IsValidMsgId
  *
  * Implemented per public API
- * See description in cfe_sb.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_SB_IsValidMsgId(CFE_SB_MsgId_t MsgId)

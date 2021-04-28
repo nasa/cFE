@@ -42,7 +42,7 @@
  * Function: CFE_SB_MsgHdrSize
  *
  * Application-scope internal function
- * See description in cfe_sb_priv.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
@@ -82,7 +82,7 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
  * Function: CFE_SB_GetUserData
  *
  * Implemented per public API
- * See description in cfe_sb.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
@@ -107,7 +107,7 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
  * Function: CFE_SB_GetUserDataLength
  *
  * Implemented per public API
- * See description in cfe_sb.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
@@ -131,7 +131,7 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
  * Function: CFE_SB_SetUserDataLength
  *
  * Implemented per public API
- * See description in cfe_sb.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
@@ -164,7 +164,7 @@ void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
  * Function: CFE_SB_TimeStampMsg
  *
  * Implemented per public API
- * See description in cfe_sb.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr)
@@ -177,7 +177,7 @@ void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr)
  * Function: CFE_SB_MessageStringGet
  *
  * Implemented per public API
- * See description in cfe_sb.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,
@@ -234,7 +234,7 @@ int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, 
  * Function: CFE_SB_MessageStringSet
  *
  * Implemented per public API
- * See description in cfe_sb.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,

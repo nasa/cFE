@@ -48,7 +48,7 @@ void EVS_OutputPort4(char *Message);
  * Function: EVS_GetAppDataByID
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID)
@@ -73,7 +73,7 @@ EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID)
  * Function: EVS_GetCurrentContext
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut)
@@ -116,7 +116,7 @@ int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut
  * Function: EVS_GetApplicationInfo
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName)
@@ -159,7 +159,7 @@ int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName)
  * Function: EVS_NotRegistered
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
@@ -194,7 +194,7 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
  * Function: EVS_IsFiltered
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
@@ -294,7 +294,7 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
  * Function: EVS_FindEventID
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 EVS_BinFilter_t *EVS_FindEventID(int16 EventID, EVS_BinFilter_t *FilterArray)
@@ -317,7 +317,7 @@ EVS_BinFilter_t *EVS_FindEventID(int16 EventID, EVS_BinFilter_t *FilterArray)
  * Function: EVS_EnableTypes
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
@@ -333,7 +333,7 @@ void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
  * Function: EVS_DisableTypes
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
@@ -349,7 +349,7 @@ void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
  * Function: EVS_GenerateEventTelemetry
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType,
@@ -539,7 +539,7 @@ void EVS_OutputPort4(char *Message)
  * Function: EVS_SendEvent
  *
  * Application-scope internal function
- * See description in cfe_evs_utils.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)

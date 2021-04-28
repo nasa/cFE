@@ -49,7 +49,7 @@
  * Function: CFE_ES_CDS_EarlyInit
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_EarlyInit(void)
@@ -153,7 +153,7 @@ int32 CFE_ES_CDS_EarlyInit(void)
  * Function: CFE_ES_CDSHandle_ToIndex
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx)
@@ -167,7 +167,7 @@ int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx)
  * Function: CFE_ES_CheckCDSHandleSlotUsed
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId)
@@ -187,7 +187,7 @@ bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId)
  * Function: CFE_ES_LocateCDSBlockRecordByID
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID)
@@ -213,7 +213,7 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID)
  * Function: CFE_ES_CDS_CacheFetch
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size_t Size)
@@ -248,7 +248,7 @@ int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size
  * Function: CFE_ES_CDS_CacheFlush
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
@@ -281,7 +281,7 @@ int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache)
  * Function: CFE_ES_CDS_CachePreload
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, size_t Offset, size_t Size)
@@ -317,7 +317,7 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
  * Function: CFE_ES_RegisterCDSEx
  *
  * Implemented per public API
- * See description in cfe_es_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, const char *Name, bool CriticalTbl)
@@ -477,7 +477,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
  * Function: CFE_ES_ValidateCDS
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ValidateCDS(void)
@@ -528,7 +528,7 @@ int32 CFE_ES_ValidateCDS(void)
  * Function: CFE_ES_ClearCDS
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_ClearCDS(void)
@@ -575,7 +575,7 @@ int32 CFE_ES_ClearCDS(void)
  * Function: CFE_ES_InitCDSSignatures
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_InitCDSSignatures(void)
@@ -616,7 +616,7 @@ int32 CFE_ES_InitCDSSignatures(void)
  * Function: CFE_ES_InitCDSRegistry
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_InitCDSRegistry(void)
@@ -650,7 +650,7 @@ int32 CFE_ES_InitCDSRegistry(void)
  * Function: CFE_ES_UpdateCDSRegistry
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_UpdateCDSRegistry(void)
@@ -675,7 +675,7 @@ int32 CFE_ES_UpdateCDSRegistry(void)
  * Function: CFE_ES_FormCDSName
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t ThisAppId)
@@ -698,7 +698,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
  * Function: CFE_ES_LockCDS
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_LockCDS(void)
@@ -726,7 +726,7 @@ int32 CFE_ES_LockCDS(void)
  * Function: CFE_ES_UnlockCDS
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_UnlockCDS(void)
@@ -754,7 +754,7 @@ int32 CFE_ES_UnlockCDS(void)
  * Function: CFE_ES_LocateCDSBlockRecordByName
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName)
@@ -795,7 +795,7 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName)
  * Function: CFE_ES_RebuildCDS
  *
  * Application-scope internal function
- * See description in cfe_es_cds.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_RebuildCDS(void)
@@ -844,7 +844,7 @@ int32 CFE_ES_RebuildCDS(void)
  * Function: CFE_ES_DeleteCDS
  *
  * Implemented per public API
- * See description in cfe_es_core_internal.h for argument/return detail
+ * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
