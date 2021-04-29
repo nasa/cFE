@@ -79,7 +79,7 @@ extern int32 dummy_function(void);
 */
 void UT_Init(const char *subsys)
 {
-    int8 i;
+    size_t i;
 
     /* Copy the application name for later use */
     strncpy(UT_subsys, subsys, sizeof(UT_subsys) - 1);
