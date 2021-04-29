@@ -335,6 +335,14 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
      *
      * Otherwise, if it was related to a task, determine the associated AppID
      * so the exception action can be checked.
+     *
+     * NOTE: the default exception handling is to restart the processor/system.
+     * There is an option to only restart the specific app needs, but this must
+     * be "opt-in", that is, the app was created initially with this option, and
+     * the exception is also traced back to that app.  If either is not possible
+     * for whatever reason then the restart action (default) should be taken, as
+     * this gets the highest assurance that the system will be returned to a coherent
+     * state.
      */
     if (OS_ObjectIdDefined(ExceptionTaskID))
     {
@@ -342,6 +350,9 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
 
         /*
          * The App ID was found, now see if the ExceptionAction is set for a reset
+         *
+         * NOTE: if anything in this logic fails and the app which caused the exception is not
+         * postively identified, then this will just follow the default case of PSP reset.
          */
         if (Status == CFE_SUCCESS)
         {

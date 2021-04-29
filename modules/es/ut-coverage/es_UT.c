@@ -1065,6 +1065,16 @@ void TestApps(void)
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]));
     UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
 
+    /* Test starting an application where the startup script has extra tokens */
+    ES_ResetUnitTest();
+    strncpy(StartupScript, "A,B,C,D,E,F,G,H,I,J,K; !", sizeof(StartupScript) - 1);
+    StartupScript[sizeof(StartupScript) - 1] = '\0';
+    NumBytes                                 = strlen(StartupScript);
+    UT_SetReadBuffer(StartupScript, NumBytes);
+    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
+    UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_FILE_LINE_TOO_LONG]));
+    UtAssert_NONZERO(UT_PrintfIsInHistory(UT_OSP_MESSAGES[UT_OSP_ES_APP_STARTUP_OPEN]));
+
     /* Create a valid startup script for subsequent tests */
     strncpy(StartupScript,
             "CFE_LIB, /cf/apps/tst_lib.bundle, TST_LIB_Init, TST_LIB, 0, 0, 0x0, 1; "
@@ -1986,6 +1996,13 @@ void TestGenericPool(void)
     uint32 ExpectedCount;
 
     ES_ResetUnitTest();
+
+    /* Test Attempt to create pool with bad alignment / non power of 2 - should reject. */
+    memset(&UT_MemPoolDirectBuffer, 0xee, sizeof(UT_MemPoolDirectBuffer));
+    OffsetEnd = sizeof(UT_MemPoolDirectBuffer.Data);
+    UtAssert_INT32_EQ(CFE_ES_GenPoolInitialize(&Pool1, 0, OffsetEnd, 42, CFE_PLATFORM_ES_POOL_MAX_BUCKETS,
+                                               UT_POOL_BLOCK_SIZES, ES_UT_PoolDirectRetrieve, ES_UT_PoolDirectCommit),
+                      CFE_ES_BAD_ARGUMENT);
 
     /* Test successfully creating direct access pool, with alignment, no mutex */
     memset(&UT_MemPoolDirectBuffer, 0xee, sizeof(UT_MemPoolDirectBuffer));

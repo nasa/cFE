@@ -13,6 +13,7 @@ set(resourceid_SOURCES
 add_library(resourceid STATIC ${resourceid_SOURCES})
 
 target_link_libraries(resourceid PRIVATE core_private)
+target_include_directories(resourceid PUBLIC fsw/inc)
 
 # Add unit test coverage subdirectory
 if(ENABLE_UNIT_TESTS)

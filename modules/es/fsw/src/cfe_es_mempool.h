@@ -100,8 +100,24 @@ int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx);
 /**
  * @brief Locate the Pool table entry correlating with a given Pool ID.
  *
- * This only returns a pointer to the table entry and does _not_
- * otherwise check/validate the entry.
+ * This only returns a pointer to the table entry where the record
+ * should reside, but does _not_ actually check/validate the entry.
+ *
+ * If the passed-in ID parameter is not within the acceptable range of ID
+ * values for memory pools, such that it could never be valid under
+ * any circumstances, then NULL is returned.  Otherwise, a pointer to the
+ * corresponding table entry is returned, indicating the location where
+ * that ID _should_ reside, if it is currently in use.
+ *
+ * @note This only returns where the ID should reside, not that it actually
+ * resides there.  If looking up an existing ID, then caller must additionally
+ * confirm that the returned record is a match to the expected ID before using
+ * or modifying the data within the returned record pointer.
+ *
+ * The CFE_ES_MemPoolRecordIsMatch() function can be used to check/confirm
+ * if the returned table entry is a positive match for the given ID.
+ *
+ * @sa CFE_ES_MemPoolRecordIsMatch()
  *
  * @param[in]   PoolID   the Pool ID to locate
  * @return pointer to Pool Table entry for the given Pool ID
@@ -116,6 +132,9 @@ CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   PoolRecPtr   pointer to Pool table entry
  * @returns true if the entry is in use/configured, or false if it is free/empty
  */
@@ -128,6 +147,9 @@ static inline bool CFE_ES_MemPoolRecordIsUsed(const CFE_ES_MemPoolRecord_t *Pool
  * @brief Get the ID value from a Memory Pool table entry
  *
  * This routine converts the table entry back to an abstract ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   PoolRecPtr   pointer to Pool table entry
  * @returns PoolID of entry
@@ -143,6 +165,9 @@ static inline CFE_ES_MemHandle_t CFE_ES_MemPoolRecordGetID(const CFE_ES_MemPoolR
  * This sets the internal field(s) within this entry, and marks
  * it as being associated with the given Pool ID.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   PoolRecPtr   pointer to Pool table entry
  * @param[in]   PendingId    the Pool ID of this entry
  */
@@ -156,6 +181,9 @@ static inline void CFE_ES_MemPoolRecordSetUsed(CFE_ES_MemPoolRecord_t *PoolRecPt
  *
  * This clears the internal field(s) within this entry, and allows the
  * memory to be re-used in the future.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   PoolRecPtr   pointer to Pool table entry
  */
@@ -172,6 +200,16 @@ static inline void CFE_ES_MemPoolRecordSetFree(CFE_ES_MemPoolRecord_t *PoolRecPt
  *
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
+ *
+ * This function may be used in conjunction with CFE_ES_LocateMemPoolRecordByID()
+ * to confirm that the located record is a positive match to the expected ID.
+ * As such, the record pointer is also permitted to be NULL, to alleviate the
+ * need for the caller to handle this possibility explicitly.
+ *
+ * Once a record pointer has been successfully validated using this routine,
+ * it may be safely passed to all other internal functions.
+ *
+ * @sa CFE_ES_LocateMemPoolRecordByID
  *
  * @param[in]   PoolRecPtr   pointer to Pool table entry
  * @param[in]   PoolID       expected Pool ID

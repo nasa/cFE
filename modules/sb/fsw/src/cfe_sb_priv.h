@@ -524,8 +524,24 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
 /**
  * @brief Locate the Pipe table entry correlating with a given Pipe ID.
  *
- * This only returns a pointer to the table entry and does _not_
- * otherwise check/validate the entry.
+ * This only returns a pointer to the table entry where the record
+ * should reside, but does _not_ actually check/validate the entry.
+ *
+ * If the passed-in ID parameter is not within the acceptable range of ID
+ * values for pipe IDs, such that it could never be valid under
+ * any circumstances, then NULL is returned.  Otherwise, a pointer to the
+ * corresponding table entry is returned, indicating the location where
+ * that ID _should_ reside, if it is currently in use.
+ *
+ * @note This only returns where the ID should reside, not that it actually
+ * resides there.  If looking up an existing ID, then caller must additionally
+ * confirm that the returned record is a match to the expected ID before using
+ * or modifying the data within the returned record pointer.
+ *
+ * The CFE_SB_PipeDescIsMatch() function can be used to check/confirm
+ * if the returned table entry is a positive match for the given ID.
+ *
+ * @sa CFE_SB_PipeDescIsMatch()
  *
  * @param[in]   PipeId   the Pipe ID to locate
  * @return pointer to Pipe Table entry for the given Pipe ID
@@ -540,6 +556,9 @@ extern CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId);
  * As this dereferences fields within the descriptor, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   PipeDscPtr   pointer to Pipe table entry
  * @returns true if the entry is in use/configured, or false if it is free/empty
  */
@@ -552,6 +571,9 @@ static inline bool CFE_SB_PipeDescIsUsed(const CFE_SB_PipeD_t *PipeDscPtr)
  * @brief Get the ID value from an Pipe table entry
  *
  * This routine converts the table entry back to an abstract ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   PipeDscPtr   pointer to Pipe table entry
  * @returns PipeID of entry
@@ -570,8 +592,11 @@ static inline CFE_SB_PipeId_t CFE_SB_PipeDescGetID(const CFE_SB_PipeD_t *PipeDsc
  * As this dereferences fields within the descriptor, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   PipeDscPtr   pointer to Pipe table entry
- * @param[in]   PipeID       the Pipe ID of this entry
+ * @param[in]   PendingID    the Pipe ID of this entry
  */
 static inline void CFE_SB_PipeDescSetUsed(CFE_SB_PipeD_t *PipeDscPtr, CFE_ResourceId_t PendingID)
 {
@@ -586,6 +611,9 @@ static inline void CFE_SB_PipeDescSetUsed(CFE_SB_PipeD_t *PipeDscPtr, CFE_Resour
  *
  * As this dereferences fields within the descriptor, global data must be
  * locked prior to invoking this function.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   PipeDscPtr   pointer to Pipe table entry
  */
@@ -602,6 +630,16 @@ static inline void CFE_SB_PipeDescSetFree(CFE_SB_PipeD_t *PipeDscPtr)
  *
  * As this dereferences fields within the descriptor, global data must be
  * locked prior to invoking this function.
+ *
+ * This function may be used in conjunction with CFE_SB_LocatePipeDescByID()
+ * to confirm that the located record is a positive match to the expected ID.
+ * As such, the record pointer is also permitted to be NULL, to alleviate the
+ * need for the caller to handle this possibility explicitly.
+ *
+ * Once a record pointer has been successfully validated using this routine,
+ * it may be safely passed to all other internal functions.
+ *
+ * @sa CFE_SB_LocatePipeDescByID
  *
  * @param[in]   PipeDscPtr   pointer to Pipe table entry
  * @param[in]   PipeID       expected Pipe ID

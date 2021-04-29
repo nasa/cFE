@@ -117,7 +117,7 @@ typedef int32 CFE_Status_t;
  *
  *  Operation was performed successfully
  */
-#define CFE_SUCCESS (0)
+#define CFE_SUCCESS ((CFE_Status_t)0)
 
 /**
  * @brief No Counter Increment
@@ -346,14 +346,6 @@ typedef int32 CFE_Status_t;
  *
  */
 #define CFE_ES_ERR_CHILD_TASK_REGISTER ((CFE_Status_t)0xc400000b)
-
-/**
- * @brief Shell Command Error
- *
- *  Error occured ehen trying to pass a system call to the OS shell
- *
- */
-#define CFE_ES_ERR_SHELL_CMD ((CFE_Status_t)0xc400000c)
 
 /**
  * @brief CDS Already Exists
@@ -824,15 +816,6 @@ typedef int32 CFE_Status_t;
  *
  */
 #define CFE_SB_BUFFER_INVALID ((CFE_Status_t)0xca00000e)
-
-/**
- * @brief No Message Recieved
- *
- *  When trying to determine the last senders ID, this return
- *  value indicates that there was not a message recived on the pipe.
- *
- */
-#define CFE_SB_NO_MSG_RECV ((CFE_Status_t)0xca00000f)
 
 /**
  * @brief Not Implemented

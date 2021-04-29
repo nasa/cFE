@@ -267,12 +267,24 @@ int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx);
 /**
  * @brief Get a registry record within the CDS, given a block ID/handle
  *
- * Retrieves a pointer to the registry record associated with a CDS block ID/handle
- * Returns NULL if the handle is outside the valid range
+ * This only returns a pointer to the table entry where the record
+ * should reside, but does _not_ actually check/validate the entry.
  *
- * @note This only does the lookup, it does not validate that the handle
- * actually matches the returned record.  The caller should lock the CDS and
- * confirm that the record is a match to the expected ID before using it.
+ * If the passed-in ID parameter is not within the acceptable range of ID
+ * values for CDS blocks, such that it could never be valid under
+ * any circumstances, then NULL is returned.  Otherwise, a pointer to the
+ * corresponding table entry is returned, indicating the location where
+ * that ID _should_ reside, if it is currently in use.
+ *
+ * @note This only returns where the ID should reside, not that it actually
+ * resides there.  If looking up an existing ID, then caller must additionally
+ * confirm that the returned record is a match to the expected ID before using
+ * or modifying the data within the returned record pointer.
+ *
+ * The CFE_ES_CDSBlockRecordIsMatch() function can be used to check/confirm
+ * if the returned table entry is a positive match for the given ID.
+ *
+ * @sa CFE_ES_CDSBlockRecordIsMatch()
  *
  * @param[in] BlockID the ID/handle of the CDS block to retrieve
  * @returns   Pointer to registry record, or NULL if ID/handle invalid.
@@ -287,6 +299,9 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID)
  * As this dereferences fields within the record, global data must be
  * locked prior to invoking this function.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   CDSBlockRecPtr   pointer to Pool table entry
  * @returns true if the entry is in use/configured, or false if it is free/empty
  */
@@ -299,6 +314,9 @@ static inline bool CFE_ES_CDSBlockRecordIsUsed(const CFE_ES_CDS_RegRec_t *CDSBlo
  * @brief Get the ID value from a Memory Pool table entry
  *
  * This routine converts the table entry back to an abstract ID.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   CDSBlockRecPtr   pointer to Pool table entry
  * @returns BlockID of entry
@@ -314,6 +332,9 @@ static inline CFE_ES_CDSHandle_t CFE_ES_CDSBlockRecordGetID(const CFE_ES_CDS_Reg
  * This sets the internal field(s) within this entry, and marks
  * it as being associated with the given Pool ID.
  *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
+ *
  * @param[in]   CDSBlockRecPtr   pointer to Pool table entry
  * @param[in]   PendingId        the Pool ID of this entry
  */
@@ -327,6 +348,9 @@ static inline void CFE_ES_CDSBlockRecordSetUsed(CFE_ES_CDS_RegRec_t *CDSBlockRec
  *
  * This clears the internal field(s) within this entry, and allows the
  * memory to be re-used in the future.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   CDSBlockRecPtr   pointer to Pool table entry
  */
@@ -343,6 +367,16 @@ static inline void CFE_ES_CDSBlockRecordSetFree(CFE_ES_CDS_RegRec_t *CDSBlockRec
  *
  * As this dereferences fields within the record, CDS access mutex must be
  * locked prior to invoking this function.
+ *
+ * This function may be used in conjunction with CFE_ES_LocateCDSBlockRecordByID()
+ * to confirm that the located record is a positive match to the expected ID.
+ * As such, the record pointer is also permitted to be NULL, to alleviate the
+ * need for the caller to handle this possibility explicitly.
+ *
+ * Once a record pointer has been successfully validated using this routine,
+ * it may be safely passed to all other internal functions.
+ *
+ * @sa CFE_ES_LocateCDSBlockRecordByID
  *
  * @param[in]   CDSBlockRecPtr   pointer to registry table entry
  * @param[in]   BlockID          expected block ID
@@ -364,6 +398,9 @@ static inline bool CFE_ES_CDSBlockRecordIsMatch(const CFE_ES_CDS_RegRec_t *CDSBl
  * @note CDS entries include an extra header in addition to the data,
  * which contains error checking information.  Therefore the usable data
  * size is less than the raw block size.
+ *
+ * @note This internal helper function must only be used on record pointers
+ * that are known to refer to an actual table location (i.e. non-null).
  *
  * @param[in]   CDSBlockRecPtr   pointer to registry table entry
  * @returns     Usable size of the CDS
