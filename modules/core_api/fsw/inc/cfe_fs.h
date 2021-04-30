@@ -39,6 +39,7 @@
 #include "cfe_error.h"
 #include "cfe_fs_api_typedefs.h"
 #include "cfe_fs_extern_typedefs.h"
+#include "cfe_time_api_typedefs.h"
 
 /** @defgroup CFEAPIFSHeader cFE File Header Management APIs
  * @{
