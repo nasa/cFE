@@ -321,25 +321,6 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta);
 ******************************************************************************/
 bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta);
 
-/*****************************************************************************/
-/**
-** \brief Execute the background file write job(s)
-**
-** \par Description
-**        Runs the state machine associated with background file write requests
-**
-** \par Assumptions, External Events, and Notes:
-**        This should only be invoked as a background job from the ES background task,
-**        it should not be invoked directly.
-**
-** \param[in] ElapsedTime       The amount of time passed since last invocation (ms)
-** \param[in] Arg               Not used/ignored
-**
-** \return true if jobs are pending, false if idle
-**
-******************************************************************************/
-bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg);
-
 /**@}*/
 
 #endif /* CFE_FS_H */

@@ -143,24 +143,6 @@ void UT_DefaultHandler_CFE_FS_ReadHeader(void *UserObj, UT_EntryKey_t FuncKey, c
 
 /*------------------------------------------------------------
  *
- * Default handler for CFE_FS_RunBackgroundFileDump coverage stub function
- *
- *------------------------------------------------------------*/
-void UT_DefaultHandler_CFE_FS_RunBackgroundFileDump(void *UserObj, UT_EntryKey_t FuncKey,
-                                                    const UT_StubContext_t *Context)
-{
-    int32 status;
-    bool  return_value;
-
-    UT_Stub_GetInt32StatusCode(Context, &status);
-
-    return_value = status;
-
-    UT_Stub_SetReturnValue(FuncKey, return_value);
-}
-
-/*------------------------------------------------------------
- *
  * Default handler for CFE_FS_ParseInputFileNameEx coverage stub function
  *
  *------------------------------------------------------------*/

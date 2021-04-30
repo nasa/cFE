@@ -35,7 +35,6 @@ extern void UT_DefaultHandler_CFE_FS_GetDefaultMountPoint(void *, UT_EntryKey_t,
 extern void UT_DefaultHandler_CFE_FS_ParseInputFileName(void *, UT_EntryKey_t, const UT_StubContext_t *);
 extern void UT_DefaultHandler_CFE_FS_ParseInputFileNameEx(void *, UT_EntryKey_t, const UT_StubContext_t *);
 extern void UT_DefaultHandler_CFE_FS_ReadHeader(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_FS_RunBackgroundFileDump(void *, UT_EntryKey_t, const UT_StubContext_t *);
 extern void UT_DefaultHandler_CFE_FS_WriteHeader(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
@@ -192,23 +191,6 @@ CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
     UT_GenStub_Execute(CFE_FS_ReadHeader, Basic, UT_DefaultHandler_CFE_FS_ReadHeader);
 
     return UT_GenStub_GetReturnValue(CFE_FS_ReadHeader, CFE_Status_t);
-}
-
-/*
- * ----------------------------------------------------
- * Generated stub function for CFE_FS_RunBackgroundFileDump()
- * ----------------------------------------------------
- */
-bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
-{
-    UT_GenStub_SetupReturnBuffer(CFE_FS_RunBackgroundFileDump, bool);
-
-    UT_GenStub_AddParam(CFE_FS_RunBackgroundFileDump, uint32, ElapsedTime);
-    UT_GenStub_AddParam(CFE_FS_RunBackgroundFileDump, void *, Arg);
-
-    UT_GenStub_Execute(CFE_FS_RunBackgroundFileDump, Basic, UT_DefaultHandler_CFE_FS_RunBackgroundFileDump);
-
-    return UT_GenStub_GetReturnValue(CFE_FS_RunBackgroundFileDump, bool);
 }
 
 /*
