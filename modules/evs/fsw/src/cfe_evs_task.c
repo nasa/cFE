@@ -51,18 +51,14 @@ bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
 
 /* Function Definitions */
 
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_EarlyInit
-**
-** Purpose:  This routine provides initialization for the EVS API.
-**
-** Assumptions and Notes: This routine must be called before the EVS
-**      application is started.  CFE_EVS_EarlyInit performs initialization
-**      necessary to support EVS API calls that might occur before
-**      the EVS application has completed its startup initialization.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_EarlyInit
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_EarlyInit(void)
 {
 
@@ -165,18 +161,16 @@ int32 CFE_EVS_EarlyInit(void)
     }
 
     return (Status);
+}
 
-} /* End CFE_EVS_EarlyInit */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_CleanUpApp
-**
-** Purpose:  ES calls this routine when an app is being terminated.
-**
-** Assumptions and Notes:
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_CleanUpApp
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppID)
 {
     int32          Status = CFE_SUCCESS;
@@ -197,16 +191,14 @@ int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppID)
     return (Status);
 }
 
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_TaskMain
-**
-** Purpose:  This is the main EVS task process loop.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_TaskMain
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_EVS_TaskMain(void)
 {
     int32            Status;
@@ -259,19 +251,16 @@ void CFE_EVS_TaskMain(void)
 
     /* while loop exits only if CFE_SB_ReceiveBuffer returns error */
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
+}
 
-} /* end CFE_EVS_TaskMain */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_TaskInit
-**
-** Purpose:  This function performs any necessary EVS task initialization.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_TaskInit
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_TaskInit(void)
 {
     int32          Status;
@@ -321,19 +310,16 @@ int32 CFE_EVS_TaskInit(void)
     EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized.%s", CFE_VERSION_STRING);
 
     return CFE_SUCCESS;
+}
 
-} /* End CFE_EVS_TaskInit */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ProcessCommandPacket
-**
-** Purpose:  This function processes packets received on the EVS command pipe.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ProcessCommandPacket
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_SB_MsgId_t MessageID = CFE_SB_INVALID_MSG_ID;
@@ -362,20 +348,18 @@ void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr)
     }
 
     return;
+}
 
-} /* End CFE_EVS_ProcessCommandPacket */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ProcessGroundCommand
-**
-** Purpose:  This function processes a command, verifying that it is valid and of
-**           proper length.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ProcessGroundCommand
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * This function processes a command, verifying that it is valid and of
+ *  proper length.
+ *
+ *-----------------------------------------------------------------*/
 void CFE_EVS_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr, CFE_SB_MsgId_t MsgId)
 {
     /* status will get reset if it passes length check */
@@ -575,19 +559,18 @@ void CFE_EVS_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr, CFE_SB_MsgId_t MsgI
     }
 
     return;
+}
 
-} /* End of EVS_ProcessGroundCommand() */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_VerifyCmdLength
-**
-** Purpose:  This function validates the length of incoming commands.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_VerifyCmdLength
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * This function validates the length of a command structure, and
+ * generates an error event if is not the expected length.
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 {
     bool              result       = true;
@@ -613,51 +596,44 @@ bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
     }
 
     return (result);
+}
 
-} /* End of CFE_EVS_VerifyCmdLength() */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_NoopCmd
-**
-** Purpose:  This function processes "no-op" commands received on the EVS command pipe.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_NoopCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 {
     EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op command. %s", CFE_VERSION_STRING);
     return CFE_SUCCESS;
 }
 
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ClearLogCmd
-**
-** Purpose:  This function processes "clear log" commands received on the EVS command pipe.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ClearLogCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data)
 {
     EVS_ClearLog();
     return CFE_SUCCESS;
 }
 
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ReportHousekeepingCmd
-**
-** Purpose:  Request for housekeeping status telemetry packet.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ReportHousekeepingCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 {
     uint32                i, j;
@@ -698,19 +674,16 @@ int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     CFE_SB_TransmitMsg(&CFE_EVS_Global.EVS_TlmPkt.TlmHeader.Msg, true);
 
     return CFE_STATUS_NO_COUNTER_INCREMENT;
-} /* End of CFE_EVS_ReportHousekeepingCmd() */
+}
 
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ResetCountersCmd
-**
-** Purpose:  This function resets all the global counter variables that are
-**           part of the task telemetry.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ResetCountersCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data)
 {
     /* Status of commands processed by EVS task */
@@ -727,19 +700,16 @@ int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data)
     /* NOTE: Historically the reset counters command does _NOT_ increment the command counter */
 
     return CFE_STATUS_NO_COUNTER_INCREMENT;
-} /* End of CFE_EVS_ResetCountersCmd() */
+}
 
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_SetEventFilterMaskCmd
-**
-** Purpose:  This routine sets the filter mask for the given event_id in the
-**           calling task's filter array
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_SetFilterCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
 {
     const CFE_EVS_AppNameEventIDMaskCmd_Payload_t *CmdPtr = &data->Payload;
@@ -798,20 +768,16 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
     }
 
     return Status;
+}
 
-} /* End CFE_EVS_SetFilterMaskCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_EnablePortsCmd
-**
-** Purpose:  This routine sets the command given ports to an enabled state
-**
-** Assumptions and Notes:
-** Shifting is done so the value not masked off is placed in the ones spot:
-** necessary for comparing with true.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_EnablePortsCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
@@ -852,20 +818,16 @@ int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End CFE_EVS_EnablePortsCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_DisablePortsCmd
-**
-** Purpose:  This routine sets the command given ports to a disabled state
-**
-** Assumptions and Notes:
-** Shifting is done so the value not masked off is placed in the ones spot:
-** necessary for comparing with true.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_DisablePortsCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
 {
     const CFE_EVS_BitMaskCmd_Payload_t *CmdPtr = &data->Payload;
@@ -907,20 +869,16 @@ int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End CFE_EVS_DisablePortsCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_EnableEventTypesCmd
-**
-** Purpose:  This routine sets the given event types to an enabled state across all
-**           registered applications
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_EnableEventTypeCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
 {
     uint32                              i;
@@ -957,20 +915,16 @@ int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End CFE_EVS_EnableEventTypesCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_DisableEventTypesCmd
-**
-** Purpose:  This routine sets the given event types to a disabled state across all
-**           registered applications
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_DisableEventTypeCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
 {
     uint32                              i;
@@ -1008,19 +962,16 @@ int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End CFE_EVS_DisableEventTypesCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_SetEventFormatModeCmd
-**
-** Purpose:  This routine sets the Event Format Mode
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_SetEventFormatModeCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data)
 {
     const CFE_EVS_SetEventFormatMode_Payload_t *CmdPtr = &data->Payload;
@@ -1043,20 +994,16 @@ int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data)
     }
 
     return Status;
+}
 
-} /* End CFE_EVS_SetEventFormatModeCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_EnableAppEventTypesCmd
-**
-** Purpose:  This routine sets the given event type for the given application identifier to an
-**           enabled state
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_EnableAppEventTypeCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
 {
     const CFE_EVS_AppNameBitMaskCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1115,20 +1062,16 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
     }
 
     return Status;
+}
 
-} /* End CFE_EVS_EnableAppEventTypesCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_DisableAppEventTypesCmd
-**
-** Purpose:  This routine sets the given event type for the given application identifier to a
-**           disabled state
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_DisableAppEventTypeCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *data)
 {
     EVS_AppData_t *                            AppDataPtr;
@@ -1187,19 +1130,16 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
     }
 
     return Status;
+}
 
-} /* End CFE_EVS_DisableAppEventTypes */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_EnableAppEventsCmd
-**
-** Purpose:  This routine enables application events for the given application identifier
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_EnableAppEventsCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
 {
     EVS_AppData_t *                     AppDataPtr;
@@ -1242,19 +1182,16 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
     }
 
     return Status;
+}
 
-} /* End EVS_EnableAppEventsCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_DisableAppEventsCmd
-**
-** Purpose:  This routine disables application events for the given application identifier
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_DisableAppEventsCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
 {
     EVS_AppData_t *                     AppDataPtr;
@@ -1297,20 +1234,16 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
     }
 
     return Status;
+}
 
-} /* End CFE_EVS_DisableAppEventsCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ResetAppEventCounterCmd
-**
-** Purpose:  This routine sets the application event counter to zero for the given
-**           application identifier
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ResetAppCounterCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
 {
     EVS_AppData_t *                     AppDataPtr;
@@ -1353,20 +1286,16 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
     }
 
     return Status;
+}
 
-} /* End CFE_EVS_ResetAppEventCounterCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ResetFilterCmd
-**
-** Purpose:  This routine sets the application event filter counter to zero for the given
-**           application identifier and event identifier
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ResetFilterCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
 {
     const CFE_EVS_AppNameEventIDCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1424,20 +1353,16 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
     }
 
     return Status;
+}
 
-} /* End CFE_EVS_ResetFilterCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_ResetAllFiltersCmd
-**
-** Purpose:  This routine sets all application event filter counters to zero for the given
-**           application identifier
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ResetAllFiltersCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
 {
     EVS_AppData_t *                     AppDataPtr;
@@ -1484,20 +1409,16 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
     }
 
     return Status;
+}
 
-} /* End CFE_EVS_ResetAllFiltersCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_AddEventFilterCmd
-**
-** Purpose:  This routine adds the given event filter for the given application
-**           identifier and event identifier.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_AddEventFilterCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
 {
     const CFE_EVS_AppNameEventIDMaskCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1575,20 +1496,16 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
     }
 
     return Status;
+}
 
-} /* CFE_End EVS_AddEventFilterCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_DeleteEventFilterCmd
-**
-** Purpose:  This routine deletes the event filter for the given application
-**           identifer and event identifier
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_DeleteEventFilterCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
 {
     const CFE_EVS_AppNameEventIDCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1648,21 +1565,16 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
     }
 
     return Status;
+}
 
-} /* End EVS_DeleteEventFilterCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_WriteAppDataFileCmd
-**
-** Purpose:  This routine writes all application data to a file for all applications that
-**           have registered with the EVS.  The application data includes the Application ID,
-**           Active Flag, Event Count, Event Types Active Flag, and Filter Data.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_WriteAppDataFileCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
 {
     int32                               Result;
@@ -1766,7 +1678,4 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
     }
 
     return (Result);
-
-} /* End CFE_EVS_WriteAppDataFileCmd */
-
-/* End cfe_evs_task */
+}

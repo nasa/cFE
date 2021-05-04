@@ -98,6 +98,7 @@ typedef struct
     size_t    FileSize;
 } CFE_FS_CurrentFileState_t;
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Background file dump queue structure
  *
@@ -147,9 +148,36 @@ extern CFE_FS_Global_t CFE_FS_Global;
 ** FS Function Prototypes
 */
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Obtains exclusive access to the FS global data structures
+ *
+ * @param FunctionName The name of the calling function
+ */
 extern void CFE_FS_LockSharedData(const char *FunctionName);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Releases exclusive access to the FS global data structures
+ *
+ * @param FunctionName The name of the calling function
+ */
 extern void CFE_FS_UnlockSharedData(const char *FunctionName);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief byte swap cFE file header structure
+ *
+ * @param Hdr The object to byte swap
+ */
 extern void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief byte swap uint32 value
+ *
+ * @param Uint32ToSwapPtr The buffer to byte swap
+ */
 extern void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
 
 #endif /* CFE_FS_PRIV_H */

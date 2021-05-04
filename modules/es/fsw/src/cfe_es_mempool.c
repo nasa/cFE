@@ -73,6 +73,13 @@ const size_t CFE_ES_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
 ** Functions
 */
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_MemPoolDirectRetrieve
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_MemPoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
 {
     cpuaddr                 DataAddress;
@@ -84,24 +91,40 @@ int32 CFE_ES_MemPoolDirectRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Of
     return CFE_SUCCESS;
 }
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_MemPoolDirectCommit
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_MemPoolDirectCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
 {
     return CFE_SUCCESS;
 }
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_MemPoolID_ToIndex
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx)
 {
     return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(PoolID), CFE_ES_POOLID_BASE, CFE_PLATFORM_ES_MAX_MEMORY_POOLS,
                                   Idx);
 }
 
-/*---------------------------------------------------------------------------------------
+/*----------------------------------------------------------------
+ *
  * Function: CFE_ES_CheckMemPoolSlotUsed
  *
- * Purpose: Helper function, Aids in allocating a new ID by checking if
- * a given table slot is available.  Must be called while locked.
- *---------------------------------------------------------------------------------------
- */
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId)
 {
     CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
@@ -114,6 +137,14 @@ bool CFE_ES_CheckMemPoolSlotUsed(CFE_ResourceId_t CheckId)
     return (MemPoolRecPtr == NULL || CFE_ES_MemPoolRecordIsUsed(MemPoolRecPtr));
 }
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_LocateMemPoolRecordByID
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID)
 {
     CFE_ES_MemPoolRecord_t *MemPoolRecPtr;
@@ -131,24 +162,42 @@ CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID
     return MemPoolRecPtr;
 }
 
-/*
-** CFE_ES_PoolCreateNoSem will initialize a pre-allocated memory pool without using a mutex.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_PoolCreateNoSem
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size)
 {
     return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS, &CFE_ES_MemPoolDefSize[0],
                                CFE_ES_NO_MUTEX);
 }
 
-/*
-** CFE_ES_PoolCreate will initialize a pre-allocated memory pool while using a mutex.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_PoolCreate
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size)
 {
     return CFE_ES_PoolCreateEx(PoolID, MemPtr, Size, CFE_PLATFORM_ES_POOL_MAX_BUCKETS, &CFE_ES_MemPoolDefSize[0],
                                CFE_ES_USE_MUTEX);
 }
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_PoolCreateEx
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
                           const size_t *BlockSizes, bool UseMutex)
 {
@@ -315,6 +364,14 @@ int32 CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size,
     return (Status);
 }
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_PoolDelete
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
 {
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
@@ -362,13 +419,14 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
     return Status;
 }
 
-/*
-** Function:
-**   CFE_ES_GetPoolBuf
-**
-** Purpose:
-**   CFE_ES_GetPoolBuf allocates a block from the memory pool.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GetPoolBuf
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, size_t Size)
 {
     int32                   Status;
@@ -430,9 +488,14 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
     return (int32)Size;
 }
 
-/*
-** CFE_ES_GetPoolBufInfo gets the size of the specified block (if it exists).
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GetPoolBufInfo
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
 {
     int32                   Status;
@@ -487,9 +550,14 @@ int32 CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPt
     return Status;
 }
 
-/*
-** CFE_ES_putPoolBuf returns a block back to the memory pool.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_PutPoolBuf
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
 {
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
@@ -565,13 +633,14 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
     return Status;
 }
 
-/*
-** Function:
-**   CFE_ES_GetMemPoolStats
-**
-** Purpose:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GetMemPoolStats
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHandle_t Handle)
 {
     CFE_ES_AppId_t          AppId;
@@ -636,13 +705,14 @@ int32 CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHandle_t H
     return CFE_SUCCESS;
 }
 
-/*
-** Function:
-**   CFE_ES_ValidateHandle
-**
-** Purpose:
-**   Insures that the handle passed in meets all of the requirements of a valid handle.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ValidateHandle
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_ValidateHandle(CFE_ES_MemHandle_t Handle)
 {
     CFE_ES_MemPoolRecord_t *PoolRecPtr;

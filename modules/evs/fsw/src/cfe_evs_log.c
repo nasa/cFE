@@ -33,16 +33,14 @@
 
 #include <string.h>
 
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_AddLog
-**
-** Purpose:  This routine adds an event packet to the internal event log.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_AddLog
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
 
@@ -90,19 +88,16 @@ void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
     OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 
     return;
+}
 
-} /* End EVS_AddLog */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_ClearLog
-**
-** Purpose:  This routine clears the contents of the internal event log.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_ClearLog
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void EVS_ClearLog(void)
 {
 
@@ -120,19 +115,16 @@ void EVS_ClearLog(void)
     OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 
     return;
+}
 
-} /* End EVS_ClearLog */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_WriteLogDataFileCmd
-**
-** Purpose:  This routine writes the contents of the internal event log to a file
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_WriteLogDataFileCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
 {
     const CFE_EVS_LogFileCmd_Payload_t *CmdPtr = &data->Payload;
@@ -240,19 +232,16 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
     }
 
     return (Result);
+}
 
-} /* End CFE_EVS_WriteLogDataFileCmd */
-
-/*
-**             Function Prologue
-**
-** Function Name:      CFE_EVS_SetLogModeCmd
-**
-** Purpose:  This routine sets the internal event log mode.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_SetLogModeCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data)
 {
     const CFE_EVS_SetLogMode_Payload_t *CmdPtr = &data->Payload;
@@ -278,7 +267,4 @@ int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data)
     }
 
     return Status;
-
-} /* End CFE_EVS_SetLogModeCmd */
-
-/* END EVSLOG.C */
+}

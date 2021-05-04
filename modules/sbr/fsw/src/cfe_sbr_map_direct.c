@@ -56,18 +56,28 @@
 /** \brief Message map shared data */
 CFE_SBR_RouteId_t CFE_SBR_MSGMAP[CFE_SBR_MSG_MAP_SIZE];
 
-/******************************************************************************
- *  Interface function - see header for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_Init_Map
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SBR_Init_Map(void)
 {
     /* Clear the shared data */
     memset(&CFE_SBR_MSGMAP, 0, sizeof(CFE_SBR_MSGMAP));
 }
 
-/******************************************************************************
- *  Interface function - see header for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_SetRouteId
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 uint32 CFE_SBR_SetRouteId(CFE_SB_MsgId_t MsgId, CFE_SBR_RouteId_t RouteId)
 {
     if (CFE_SB_IsValidMsgId(MsgId))
@@ -79,9 +89,13 @@ uint32 CFE_SBR_SetRouteId(CFE_SB_MsgId_t MsgId, CFE_SBR_RouteId_t RouteId)
     return 0;
 }
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_GetRouteId
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 CFE_SBR_RouteId_t CFE_SBR_GetRouteId(CFE_SB_MsgId_t MsgId)
 {
     CFE_SBR_RouteId_t routeid = CFE_SBR_INVALID_ROUTE_ID;

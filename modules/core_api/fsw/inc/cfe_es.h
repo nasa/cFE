@@ -1449,7 +1449,9 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
 
 /*****************************************************************************/
 /**
-** \brief Function called by #CFE_ES_PerfLogEntry and #CFE_ES_PerfLogExit macros
+** \brief Adds a new entry to the data buffer
+**
+** Function called by #CFE_ES_PerfLogEntry and #CFE_ES_PerfLogExit macros
 **
 ** \par Description
 **        This function logs the entry and exit marker for the specified
@@ -1457,7 +1459,16 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
 **        tool (see section 5.15).
 **
 ** \par Assumptions, External Events, and Notes:
-**        None
+
+**  This function implements a circular buffer using an array.
+**      DataStart points to first stored entry
+**      DataEnd points to next available entry
+**      if DataStart == DataEnd then the buffer is either empty or full
+**      depending on the value of the DataCount
+**
+**  Time is stored as 2 32 bit integers, (TimerLower32, TimerUpper32):
+**      TimerLower32 is the curent value of the hardware timer register.
+**      TimerUpper32 is the number of times the timer has rolled over.
 **
 ** \param[in]   Marker          Identifier of the specific event or marker.
 ** \param[in]   EntryExit       Used to specify Entry(0) or Exit(1)

@@ -349,7 +349,7 @@ typedef struct
  * Functions
  */
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Compares message with #CFE_TBL_CmdHandlerTbl to identify the message
 **
@@ -369,10 +369,10 @@ typedef struct
 ** \retval #CFE_TBL_BAD_CMD_CODE \copydoc CFE_TBL_BAD_CMD_CODE
 ** \retval #CFE_TBL_BAD_MSG_ID   \copydoc CFE_TBL_BAD_MSG_ID
 **
-******************************************************************************/
+*/
 extern int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandCode);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief cFE Table Services Core Application Initialization
 **
@@ -389,10 +389,10 @@ extern int16 CFE_TBL_SearchCmdHndlrTbl(CFE_SB_MsgId_t MessageID, uint16 CommandC
 ** \return Any of the return values from #CFE_SB_CreatePipe
 ** \return Any of the return values from #CFE_SB_Subscribe
 ** \return Any of the return values from #CFE_EVS_SendEvent
-******************************************************************************/
+*/
 int32 CFE_TBL_TaskInit(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Processes command pipe messages
 **
@@ -404,10 +404,10 @@ int32 CFE_TBL_TaskInit(void);
 **
 ** \param[in] MessagePtr a pointer to the message received from the command pipe
 **
-******************************************************************************/
+*/
 void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Table Service Application Data Initialization
 **
@@ -417,7 +417,7 @@ void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-******************************************************************************/
+*/
 void CFE_TBL_InitData(void);
 
 #endif /* CFE_TBL_TASK_H */

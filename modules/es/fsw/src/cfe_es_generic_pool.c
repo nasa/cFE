@@ -45,13 +45,15 @@
 ** Functions
 */
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolFindBucket
-**
-**   Local Helper function to find the appropriate bucket given a requested block size
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolFindBucket
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Find the appropriate bucket given a requested block size
+ *
+ *-----------------------------------------------------------------*/
 uint16 CFE_ES_GenPoolFindBucket(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t ReqSize)
 {
     uint16 Index;
@@ -72,13 +74,15 @@ uint16 CFE_ES_GenPoolFindBucket(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t ReqSi
     return (PoolRecPtr->NumBuckets - Index);
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolGetBucketState
-**
-**   Local Helper function to obtain the structure associated with a given bucket ID.
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolGetBucketState
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Obtain a pointer to the state structure associated with a given bucket ID
+ *
+ *-----------------------------------------------------------------*/
 CFE_ES_GenPoolBucket_t *CFE_ES_GenPoolGetBucketState(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId)
 {
     uint16 Index;
@@ -92,13 +96,15 @@ CFE_ES_GenPoolBucket_t *CFE_ES_GenPoolGetBucketState(CFE_ES_GenPoolRecord_t *Poo
     return &PoolRecPtr->Buckets[Index];
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolRecyclePoolBlock
-**
-**   Local helper function to find and re-allocate a previously returned block
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolRecyclePoolBlock
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Find and re-allocate a previously returned block
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize,
                                      size_t *BlockOffsetPtr)
 {
@@ -152,13 +158,15 @@ int32 CFE_ES_GenPoolRecyclePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 
     return Status;
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolCreatePoolBlock
-**
-**   Local helper function to create a new block of the given size
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolCreatePoolBlock
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Create a new block of the given size
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId, size_t NewSize,
                                     size_t *BlockOffsetPtr)
 {
@@ -227,13 +235,14 @@ int32 CFE_ES_GenPoolCreatePoolBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 B
     return Status;
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolInitialize
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolInitialize
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartOffset, size_t PoolSize,
                                size_t AlignSize, uint16 NumBlockSizes, const size_t *BlockSizeList,
                                CFE_ES_PoolRetrieve_Func_t RetrieveFunc, CFE_ES_PoolCommit_Func_t CommitFunc)
@@ -322,13 +331,14 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
     return CFE_SUCCESS;
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolCalcMinSize
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolCalcMinSize
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 size_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes, const size_t *BlockSizeList, uint32 NumBlocks)
 {
     uint16 BucketId;
@@ -353,13 +363,14 @@ size_t CFE_ES_GenPoolCalcMinSize(uint16 NumBlockSizes, const size_t *BlockSizeLi
     return (NumBlocks * MinBlockSize);
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolGetBlock
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolGetBlock
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOffsetPtr, size_t ReqSize)
 {
     int32  Status;
@@ -385,13 +396,14 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
     return (Status);
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolGetBlockSize
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolGetBlockSize
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset)
 {
     size_t                  DescOffset;
@@ -429,13 +441,14 @@ int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *Blo
     return Status;
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolPutBlock
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolPutBlock
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset)
 {
     size_t                  DescOffset;
@@ -483,13 +496,14 @@ int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSi
     return Status;
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolRebuild
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolRebuild
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr)
 {
     int32                   Status;
@@ -594,26 +608,28 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr)
     return Status;
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolValidateState
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolValidateState
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_GenPoolValidateState(const CFE_ES_GenPoolRecord_t *PoolRecPtr)
 {
     return (PoolRecPtr->PoolTotalSize > 0 && PoolRecPtr->TailPosition <= PoolRecPtr->PoolMaxOffset &&
             PoolRecPtr->NumBuckets > 0 && PoolRecPtr->NumBuckets <= CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolGetUsage
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolGetUsage
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t *FreeSizeBuf,
                             CFE_ES_MemOffset_t *TotalSizeBuf)
 {
@@ -627,13 +643,14 @@ void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset
     }
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolGetCounts
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolGetCounts
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 *NumBucketsBuf, uint32 *AllocCountBuf,
                              uint32 *ValidationErrorCountBuf)
 {
@@ -651,13 +668,14 @@ void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 *NumBuck
     }
 }
 
-/*
-**---------------------------------------------------------------------------------------
-**   Name: CFE_ES_GenPoolGetFreeSize
-**
-**   ES Internal API - See Prototype for full API description
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenPoolGetBucketUsage
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId,
                                   CFE_ES_BlockStats_t *BlockStatsBuf)
 {

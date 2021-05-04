@@ -230,10 +230,28 @@ typedef struct
 */
 extern CFE_ES_Global_t CFE_ES_Global;
 
-/*
-** Functions used to lock/unlock shared data
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Obtain exclusive access to the ES global data structures
+ *
+ * ES internal function to take the Shared Data Mutex and handle
+ * error conditions.
+ *
+ * @param FunctionName   the name of the function/caller
+ * @param LineNumber     the line number of the caller
+ */
 extern void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Release exclusive access to the ES global data structures
+ *
+ * ES internal function to Release the shared data mutex and handle error
+ * conditions.
+ *
+ * @param FunctionName   the name of the function/caller
+ * @param LineNumber     the line number of the caller
+ */
 extern void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber);
 
 #endif /* CFE_ES_GLOBAL_H */

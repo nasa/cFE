@@ -37,26 +37,14 @@
 #include <stdio.h>
 #include <string.h>
 
-/*******************************************************************
-**
-** CFE_TBL_EarlyInit
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-/******************************************************************************
-**  Function:  CFE_TBL_EarlyInit()
-**
-**  Purpose:
-**    Initialize the Table Services
-**
-**  Arguments:
-**
-**  Notes:
-**    This function MUST be called before any TBL API's are called.
-**
-**  Return:
-**    none
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_EarlyInit
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_EarlyInit(void)
 {
     uint16 i;
@@ -202,15 +190,16 @@ int32 CFE_TBL_EarlyInit(void)
     }
 
     return Status;
+}
 
-} /* End CFE_TBL_EarlyInit */
-
-/*******************************************************************
-**
-** CFE_TBL_InitRegistryRecord
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_InitRegistryRecord
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     memset(RegRecPtr, 0, sizeof(*RegRecPtr));
@@ -223,15 +212,16 @@ void CFE_TBL_InitRegistryRecord(CFE_TBL_RegistryRec_t *RegRecPtr)
     RegRecPtr->ValidateInactiveIndex = CFE_TBL_NO_VALIDATION_PENDING;
     RegRecPtr->CDSHandle             = CFE_ES_CDS_BAD_HANDLE;
     RegRecPtr->DumpControlIndex      = CFE_TBL_NO_DUMP_PENDING;
-} /* End CFE_TBL_InitRegistryRecord */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_ValidateHandle
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ValidateHandle
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle)
 {
     /* Is the handle out of range? */
@@ -248,15 +238,16 @@ int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle)
         }
     }
     return CFE_SUCCESS;
-} /* End of CFE_TBL_ValidateHandle() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_ValidateAccess
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ValidateAccess
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppIdPtr)
 {
     int32 Status;
@@ -280,15 +271,16 @@ int32 CFE_TBL_ValidateAccess(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t *AppIdPt
     Status = CFE_TBL_CheckAccessRights(TblHandle, *AppIdPtr);
 
     return Status;
-} /* End of CFE_TBL_ValidateAccess() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_CheckAccessRights
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_CheckAccessRights
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId)
 {
     int32 Status = CFE_SUCCESS;
@@ -304,15 +296,16 @@ int32 CFE_TBL_CheckAccessRights(CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisA
     }
 
     return Status;
-} /* End of CFE_TBL_CheckAccessRights() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_RemoveAccessLink
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_RemoveAccessLink
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status        = CFE_SUCCESS;
@@ -399,15 +392,16 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
     CFE_TBL_UnlockRegistry();
 
     return Status;
-} /* End of CFE_TBL_RemoveAccessLink() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_GetAddressInternal
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_GetAddressInternal
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_ES_AppId_t ThisAppId)
 {
     int32                       Status;
@@ -470,15 +464,16 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_
     }
 
     return Status;
-} /* End of CFE_TBL_GetAddressInternal() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_GetNextNotification
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_GetNextNotification
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status        = CFE_SUCCESS;
@@ -497,15 +492,16 @@ int32 CFE_TBL_GetNextNotification(CFE_TBL_Handle_t TblHandle)
     }
 
     return Status;
-} /* End of CFE_TBL_GetNextNotification() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_FindTableInRegistry
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_FindTableInRegistry
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int16 CFE_TBL_FindTableInRegistry(const char *TblName)
 {
     int16 RegIndx = CFE_TBL_NOT_FOUND;
@@ -529,15 +525,16 @@ int16 CFE_TBL_FindTableInRegistry(const char *TblName)
     } while ((RegIndx == CFE_TBL_NOT_FOUND) && (i < (CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1)));
 
     return RegIndx;
-} /* End of CFE_TBL_FindTableInRegistry() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_FindFreeRegistryEntry
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_FindFreeRegistryEntry
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int16 CFE_TBL_FindFreeRegistryEntry(void)
 {
     int16 RegIndx = CFE_TBL_NOT_FOUND;
@@ -559,15 +556,16 @@ int16 CFE_TBL_FindFreeRegistryEntry(void)
     }
 
     return RegIndx;
-} /* End of CFE_TBL_FindFreeRegistryEntry() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_FindFreeHandle
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_FindFreeHandle
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void)
 {
     CFE_TBL_Handle_t HandleIndx = CFE_TBL_END_OF_LIST;
@@ -586,15 +584,16 @@ CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void)
     }
 
     return HandleIndx;
-} /* End of CFE_TBL_FindFreeHandle() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_FormTableName
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_FormTableName
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_t ThisAppId)
 {
     char AppName[OS_MAX_API_NAME];
@@ -608,15 +607,16 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_
     sprintf(FullTblName, "%s.%s", AppName, TblName);
 
     return;
-} /* End of CFE_TBL_FormTableName() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_LockRegistry
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_LockRegistry
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_LockRegistry(void)
 {
     int32 Status;
@@ -629,16 +629,16 @@ int32 CFE_TBL_LockRegistry(void)
     }
 
     return Status;
+}
 
-} /* End of CFE_TBL_LockRegistry() */
-
-/*******************************************************************
-**
-** CFE_TBL_UnlockRegistry
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_UnlockRegistry
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_UnlockRegistry(void)
 {
     int32 Status;
@@ -651,16 +651,16 @@ int32 CFE_TBL_UnlockRegistry(void)
     }
 
     return Status;
+}
 
-} /* End of CFE_TBL_UnlockRegistry() */
-
-/*******************************************************************
-**
-** CFE_TBL_GetWorkingBuffer
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_GetWorkingBuffer
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
                                bool CalledByApp)
 {
@@ -787,16 +787,16 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
     }
 
     return Status;
+}
 
-} /* End of CFE_TBL_GetWorkingBuffer() */
-
-/*******************************************************************
-**
-** CFE_TBL_LoadFromFile
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_LoadFromFile
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBufferPtr, CFE_TBL_RegistryRec_t *RegRecPtr,
                            const char *Filename)
 {
@@ -914,15 +914,16 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     OS_close(FileDescriptor);
 
     return Status;
-} /* End of CFE_TBL_LoadFromFile() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_UpdateInternal
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_UpdateInternal
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *RegRecPtr,
                              CFE_TBL_AccessDescriptor_t *AccessDescPtr)
 {
@@ -1017,15 +1018,16 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
     }
 
     return Status;
-} /* End of CFE_TBL_UpdateInternal() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_NotifyTblUsersOfUpdate
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_NotifyTblUsersOfUpdate
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_Handle_t AccessIterator;
@@ -1044,15 +1046,16 @@ void CFE_TBL_NotifyTblUsersOfUpdate(CFE_TBL_RegistryRec_t *RegRecPtr)
 
         AccessIterator = CFE_TBL_Global.Handles[AccessIterator].NextLink;
     }
-} /* End of CFE_TBL_NotifyTblUsersOfUpdate() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_ReadHeaders
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ReadHeaders
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHeaderPtr,
                           CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename)
 {
@@ -1191,29 +1194,31 @@ int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHead
     }
 
     return Status;
-} /* End of CFE_TBL_ReadHeaders() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_ByteSwapTblHeader
-**
-** NOTE: For complete prolog information, see above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ByteSwapTblHeader
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_ByteSwapTblHeader(CFE_TBL_File_Hdr_t *HdrPtr)
 {
     CFE_TBL_ByteSwapUint32(&HdrPtr->Reserved);
     CFE_TBL_ByteSwapUint32(&HdrPtr->Offset);
     CFE_TBL_ByteSwapUint32(&HdrPtr->NumBytes);
-} /* End of CFE_TBL_ByteSwapTblHeader() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_ByteSwapUint32
-**
-** NOTE: For complete prolog information, see above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ByteSwapUint32
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
 {
     int32 Temp   = *Uint32ToSwapPtr;
@@ -1224,15 +1229,16 @@ void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
     OutPtr[1] = InPtr[2];
     OutPtr[2] = InPtr[1];
     OutPtr[3] = InPtr[0];
-} /* End of CFE_TBL_ByteSwapUint32() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_CleanUpApp
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_CleanUpApp
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     uint32                      i;
@@ -1290,15 +1296,16 @@ int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_TBL_CleanUpApp() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_FindCriticalTblInfo
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_FindCriticalTblInfo
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CDSHandle_t CDSHandleToFind)
 {
     uint32 i;
@@ -1314,15 +1321,16 @@ void CFE_TBL_FindCriticalTblInfo(CFE_TBL_CritRegRec_t **CritRegRecPtr, CFE_ES_CD
             break;
         }
     }
-} /* End of CFE_TBL_FindCriticalTblInfo() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_UpdateCriticalTblCDS
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_UpdateCriticalTblCDS
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     CFE_TBL_CritRegRec_t *CritRegRecPtr = NULL;
@@ -1371,15 +1379,16 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
     }
 
     /* Don't bother notifying the caller of the problem since the active table is still legitimate */
-} /* End of CFE_TBL_UpdateCriticalTblCDS() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_SendNotificationMsg
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_internal.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_SendNotificationMsg
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     int32 Status = CFE_SUCCESS;
@@ -1407,8 +1416,4 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
     }
 
     return Status;
-} /* End of CFE_TBL_SendNotificationMsg() */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

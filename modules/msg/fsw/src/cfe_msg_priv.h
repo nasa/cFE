@@ -34,7 +34,7 @@
 #include "common_types.h"
 #include "cfe_msg_hdr.h"
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief get generic header field (uint8 array[2])
  *
@@ -51,7 +51,7 @@ static inline void CFE_MSG_GetHeaderField(const uint8 *Word, uint16 *Val, uint16
     *Val = (Word[0] << 8 | Word[1]) & Mask;
 }
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Set generic header field (uint8 array[2])
  *
@@ -69,7 +69,7 @@ static inline void CFE_MSG_SetHeaderField(uint8 *Word, uint16 Val, uint16 Mask)
     Word[1] = ((Word[1] & ~Mask) | (Val & Mask)) & 0xFF;
 }
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Initialize default header - implemented based on selected header format
  *

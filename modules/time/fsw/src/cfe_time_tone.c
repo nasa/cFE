@@ -43,17 +43,14 @@
 
 #include <string.h>
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneSend() -- Send "time at the tone" (local time)     */
-/*                                                                 */
-/* There is a presumption that this function will be called at     */
-/*    the appropriate time (relative to the tone) such that the    */
-/*    "time at the tone" data command will arrive within the       */
-/*    specified window for tone and data packet verification.      */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneSend
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_ToneSend(void)
 {
@@ -165,21 +162,17 @@ void CFE_TIME_ToneSend(void)
     CFE_TIME_Global.InternalCount++;
 
     return;
-
-} /* End of CFE_TIME_ToneSend() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneSendMET() -- Send "time at tone" (external MET)    */
-/*                                                                 */
-/* There is a presumption that this function will be called at     */
-/*    the appropriate time (relative to the tone) such that the    */
-/*    "time at the tone" data command will arrive within the       */
-/*    specified window for tone and data packet verification.      */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneSendMET
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
 int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 {
@@ -302,21 +295,17 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
     /* Exit performance monitoring */
     CFE_ES_PerfLogExit(CFE_MISSION_TIME_SENDMET_PERF_ID);
     return (Result);
-
-} /* End of CFE_TIME_ToneSendMET() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_MET */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneSendGPS() -- Send "time at tone" (external GPS)    */
-/*                                                                 */
-/* There is a presumption that this function will be called at     */
-/*    the appropriate time (relative to the tone) such that the    */
-/*    "time at the tone" data command will arrive within the       */
-/*    specified window for tone and data packet verification.      */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneSendGPS
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
 int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 {
@@ -446,21 +435,17 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
     }
 
     return (Result);
-
-} /* End of CFE_TIME_ToneSendGPS() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_GPS */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneSendTime() -- Send "time at tone" (external time)  */
-/*                                                                 */
-/* There is a presumption that this function will be called at     */
-/*    the appropriate time (relative to the tone) such that the    */
-/*    "time at the tone" data command will arrive within the       */
-/*    specified window for tone and data packet verification.      */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneSendTime
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
 int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
 {
@@ -592,16 +577,17 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
     }
 
     return (Result);
-
-} /* End of CFE_TIME_ToneSendTime() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_TIME */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneData() -- process "time at tone" data packet       */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneData
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
 {
     /*
@@ -664,30 +650,16 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
     CFE_TIME_Global.ToneDataCounter++;
 
     return;
+}
 
-} /* End of CFE_TIME_ToneData() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneSignal() -- "tone signal" occurred recently        */
-/*                                                                 */
-/* This function is called upon receipt of a command indicating    */
-/*    that a time at the tone signal was detected.  The mission    */
-/*    dependent h/w or s/w that detected the tone signal latched   */
-/*    the local clock and generated this command.  The use of a    */
-/*    command announcing the tone signal ensures that this code    */
-/*    is not called from within an interrupt handler.              */
-/*                                                                 */
-/* It is not a concern that some amount of time has elapsed since  */
-/*    the tone actually occurred.  We are currently computing      */
-/*    time as a delta (as measured on our local clock) from a      */
-/*    previously latched tone.  It just doesn't matter if the      */
-/*    size of the delta slightly exceeds a second.  The quality    */
-/*    of our local clock will always be sufficient to measure      */
-/*    time for a couple of seconds.                                */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneSignal
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_ToneSignal(void)
 {
 /*
@@ -721,30 +693,16 @@ void CFE_TIME_ToneSignal(void)
     CFE_TIME_Global.ToneSignalCounter++;
 
     return;
+}
 
-} /* End of CFE_TIME_ToneSignal() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneVerify() -- validate tone and data packet          */
-/*                                                                 */
-/*                                                                 */
-/* If the data packet is designed to arrive after the tone, then   */
-/*                                                                 */
-/*    Time1 = local clock latched at the detection of the tone     */
-/*    Time2 = local clock latched at the arrival of the packet     */
-/*                                                                 */
-/*                                                                 */
-/* If the data packet is designed to arrive before the tone, then  */
-/*                                                                 */
-/*    Time1 = local clock latched at the arrival of the packet     */
-/*    Time2 = local clock latched at the detection of the tone     */
-/*                                                                 */
-/*                                                                 */
-/* In either case, Time1 occurred before Time2                     */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneVerify
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 {
     CFE_TIME_Compare_t result;
@@ -823,15 +781,16 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
     PrevTime2 = Time2;
 
     return;
+}
 
-} /* End of CFE_TIME_ToneVerify() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneUpdate() -- process "matching" tone & data packet  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneUpdate
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_ToneUpdate(void)
 {
     CFE_TIME_Reference_t                Reference;
@@ -1013,29 +972,29 @@ void CFE_TIME_ToneUpdate(void)
     }
 
     return;
+}
 
-} /* End of CFE_TIME_ToneUpdate() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_Local1HzTimerCallback() -- 1Hz callback routine        */
-/*                                                                 */
-/* This is a wrapper around CFE_TIME_Local1HzISR that conforms to  */
-/* the prototype of an OSAL Timer callback routine.                */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_Local1HzTimerCallback
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg)
 {
     CFE_TIME_Local1HzISR();
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_Tone1HzISR() -- Tone signal ISR                        */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_Tone1HzISR
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_Tone1HzISR(void)
 {
 
@@ -1135,17 +1094,16 @@ void CFE_TIME_Tone1HzISR(void)
     CFE_ES_PerfLogExit(CFE_MISSION_TIME_TONE1HZISR_PERF_ID);
 
     return;
+}
 
-} /* End of CFE_TIME_Tone1HzISR() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_Tone1HzTask() -- Tone 1Hz task                         */
-/*                                                                 */
-/* This task exists solely to generate the tone signal command.    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_Tone1HzTask
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_Tone1HzTask(void)
 {
     int32 Result;
@@ -1195,16 +1153,16 @@ void CFE_TIME_Tone1HzTask(void)
     **    had an error in the creation of the semaphore.
     */
     return;
+}
 
-} /* End of CFE_TIME_Tone1HzTask() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_Local1HzStateMachine() --                              */
-/*    Update the TIME state, should be called at 1Hz               */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_Local1HzStateMachine
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzStateMachine(void)
 {
 
@@ -1315,9 +1273,14 @@ void CFE_TIME_Local1HzStateMachine(void)
     CFE_ES_PerfLogExit(CFE_MISSION_TIME_LOCAL1HZISR_PERF_ID);
 }
 
-/*
- * Function: CFE_TIME_Local1HzISR - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_Local1HzISR
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzISR(void)
 {
 
@@ -1329,19 +1292,16 @@ void CFE_TIME_Local1HzISR(void)
     OS_BinSemGive(CFE_TIME_Global.LocalSemaphore);
 
     return;
+}
 
-} /* End of CFE_TIME_Local1HzISR() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_Local1HzTask() -- Local 1Hz task (not the tone)        */
-/*                                                                 */
-/* This task exists solely to generate the 1Hz wake-up command.    */
-/*                                                                 */
-/* This is a temporary solution until a scheduler is implemented.  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_Local1HzTask
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzTask(void)
 {
     int32 Result;
@@ -1392,15 +1352,16 @@ void CFE_TIME_Local1HzTask(void)
     **    error in the creation of the semaphore.
     */
     return;
+}
 
-} /* End of CFE_TIME_Local1HzTask() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_NotifyTimeSynchApps() -- Call App Synch Callback Funcs */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_NotifyTimeSynchApps
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_NotifyTimeSynchApps(void)
 {
     uint32                      i;
@@ -1427,7 +1388,3 @@ void CFE_TIME_NotifyTimeSynchApps(void)
 
     return;
 }
-
-/************************/
-/*  End of File Comment */
-/************************/

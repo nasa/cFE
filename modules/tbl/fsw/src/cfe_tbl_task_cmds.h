@@ -88,6 +88,8 @@ typedef struct
 
 /* Command Message Processing Functions */
 /*****************************************************************************/
+
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Gathers data and puts it into the Housekeeping Message format
 **
@@ -98,10 +100,10 @@ typedef struct
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-******************************************************************************/
+*/
 extern void CFE_TBL_GetHkData(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Convert Table Registry Entry for a Table into a Message
 **
@@ -114,10 +116,10 @@ extern void CFE_TBL_GetHkData(void);
 **        #CFE_TBL_Global_t::HkTlmTblRegIndex is assumed to be a valid index into
 **           the Table Registry.
 **
-******************************************************************************/
+*/
 extern void CFE_TBL_GetTblRegData(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process Housekeeping Request Message
 **
@@ -130,10 +132,10 @@ extern void CFE_TBL_GetTblRegData(void);
 ** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process NO OP Command Message
 **
@@ -147,10 +149,10 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process Reset Counters Command Message
 **
@@ -163,10 +165,10 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data);
 ** \param[in] data points to the message received via command pipe that needs processing
 **
 ** \retval #CFE_TBL_DONT_INC_CTR \copydoc CFE_TBL_DONT_INC_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process Load Table Command Message
 **
@@ -181,10 +183,10 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process Dump Table Command Message
 **
@@ -199,10 +201,10 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process Validate Table Command Message
 **
@@ -218,10 +220,10 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process Activate Table Command Message
 **
@@ -236,10 +238,10 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process Dump Table Registry Command Message
 **
@@ -253,10 +255,10 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process Telemeter Table Registry Entry Command Message
 **
@@ -271,10 +273,10 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Delete Critical Table's CDS Command message
 **
@@ -288,10 +290,10 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Process Abort Load Command message
 **
@@ -305,10 +307,10 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Output block of data to file with standard cFE Table Image Headers
 **
@@ -331,11 +333,11 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data);
 **
 ** \retval #CFE_TBL_INC_ERR_CTR  \copydoc CFE_TBL_INC_ERR_CTR
 ** \retval #CFE_TBL_INC_CMD_CTR  \copydoc CFE_TBL_INC_CMD_CTR
-******************************************************************************/
+*/
 extern CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *TableName,
                                                const void *DumpDataAddr, size_t TblSizeInBytes);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Aborts load by freeing associated inactive buffers and sending event message
 **
@@ -349,7 +351,7 @@ extern CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const c
 **
 ** \param[in] RegRecPtr   Pointer to registry record entry for the table whose load is to be aborted
 **
-******************************************************************************/
+*/
 void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr);
 
 #endif /* CFE_TBL_TASK_CMDS_H */

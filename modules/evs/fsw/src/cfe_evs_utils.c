@@ -43,16 +43,14 @@ void EVS_OutputPort4(char *Message);
 
 /* Function Definitions */
 
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_GetAppID
-**
-** Purpose:  This routine gets and validates the caller's AppID
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_GetAppDataByID
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID)
 {
     uint32         AppIndex;
@@ -68,9 +66,16 @@ EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID)
     }
 
     return (AppDataPtr);
+}
 
-} /* End EVS_GetAppDataByID */
-
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_GetCurrentContext
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut)
 {
     CFE_ES_AppId_t AppID;
@@ -104,20 +109,16 @@ int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut
     }
 
     return Status;
+}
 
-} /* End EVS_GetCurrentContext */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_GetApplicationInfo
-**
-** Purpose:  This routine returns the application ID and
-**           status specifying the validity of the ID
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_GetApplicationInfo
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName)
 {
     int32          Status;
@@ -151,19 +152,16 @@ int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName)
 
     *AppDataOut = AppDataPtr;
     return Status;
+}
 
-} /* End EVS_GetApplicationInfo */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_NotRegistered
-**
-** Purpose:  This routine sends one "not registered" event per application
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_NotRegistered
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
 {
     char AppName[OS_MAX_API_NAME];
@@ -189,21 +187,16 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
     }
 
     return (CFE_EVS_APP_NOT_REGISTERED);
+}
 
-} /* End EVS_NotRegistered */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_IsFiltered
-**
-** Purpose:  This routine returns true if the given event identifier and event type
-**           is filtered for the given application identifier.  Otherwise a value of
-**           false is returned.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_IsFiltered
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
 {
     EVS_BinFilter_t *FilterPtr;
@@ -294,20 +287,16 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
     }
 
     return (Filtered);
+}
 
-} /* End EVS_IsFiltered */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_FindEventID
-**
-** Purpose:  This routine searches and returns an index to the given Event ID with the
-**           given application filter array.
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_FindEventID
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 EVS_BinFilter_t *EVS_FindEventID(int16 EventID, EVS_BinFilter_t *FilterArray)
 {
     uint32 i;
@@ -321,61 +310,48 @@ EVS_BinFilter_t *EVS_FindEventID(int16 EventID, EVS_BinFilter_t *FilterArray)
     }
 
     return ((EVS_BinFilter_t *)NULL);
+}
 
-} /* End EVS_FindEventID */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_EnableTypes
-**
-** Purpose:  This routine enables event types selected in BitMask
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_EnableTypes
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
 {
     uint8 EventTypeBits = (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT);
 
     /* Enable selected event type bits from bitmask */
     AppDataPtr->EventTypesActiveFlag |= (BitMask & EventTypeBits);
+}
 
-} /* End EVS_EnableTypes */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_DisableTypes
-**
-** Purpose:  This routine disables event types selected in BitMask
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_DisableTypes
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
 {
     uint8 EventTypeBits = (CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT);
 
     /* Disable selected event type bits from bitmask */
     AppDataPtr->EventTypesActiveFlag &= ~(BitMask & EventTypeBits);
+}
 
-} /* End EVS_DisableTypes */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_GenerateEventTelemetry
-**
-** Purpose:  This routine sends an EVS event message out the software bus and all
-**           enabled output ports
-**
-** Assumptions and Notes:
-**           This always generates a "long" style message for logging purposes.
-**           If configured for long events the same message is sent on the software bus as well.
-**           If configured for short events, a separate short message is generated using a subset
-**           of the information from the long message.
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_GenerateEventTelemetry
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType,
                                 const CFE_TIME_SysTime_t *TimeStamp, const char *MsgSpec, va_list ArgPtr)
 {
@@ -449,19 +425,18 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     {
         AppDataPtr->EventCount++;
     }
+}
 
-} /* End EVS_GenerateEventTelemetry */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_SendViaPorts
-**
-** Purpose:  This routine sends a string event message out all enabled
-**           output ports
-**
-** Assumptions and Notes:
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_SendViaPorts
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * This routine sends a string event message out all enabled
+ * output ports
+ *
+ *-----------------------------------------------------------------*/
 void EVS_SendViaPorts(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
     char PortMessage[CFE_EVS_MAX_PORT_MSG_LENGTH];
@@ -509,89 +484,64 @@ void EVS_SendViaPorts(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
         /* Send string event out port #4 */
         EVS_OutputPort4(PortMessage);
     }
+}
 
-} /* End SendViaPorts */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_OutputPort1
-**
-** Purpose:  This routine sends the input message string out
-**           EVS port 1
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_OutputPort1
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 void EVS_OutputPort1(char *Message)
 {
     OS_printf("%s\n", Message);
+}
 
-} /* End ES_OutputPort1 */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_OutputPort2
-**
-** Purpose:  This routine sends the input message string out
-**           EVS port 2
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_OutputPort2
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 void EVS_OutputPort2(char *Message)
 {
     OS_printf("%s\n", Message);
+}
 
-} /* End ES_OutputPort2 */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_OutputPort3
-**
-** Purpose:  This routine sends the input message string out
-**           EVS port 3
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_OutputPort3
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 void EVS_OutputPort3(char *Message)
 {
     OS_printf("%s\n", Message);
+}
 
-} /* End ES_OutputPort3 */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_OutputPort4
-**
-** Purpose:  This routine sends the input message string out
-**           EVS port 4
-**
-** Assumptions and Notes:
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_OutputPort4
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 void EVS_OutputPort4(char *Message)
 {
     OS_printf("%s\n", Message);
+}
 
-} /* End ES_OutputPort4 */
-
-/*
-**             Function Prologue
-**
-** Function Name:      EVS_SendEvent
-**
-** Purpose:  This routine allows EVS to send events without having to verify
-**           that the caller has a valid AppID and has registered with EVS.
-**           This routine also does not need to acquire the mutex semaphore,
-**           which can be time consuming on some platforms.
-**
-** Assumptions and Notes:
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: EVS_SendEvent
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
     CFE_TIME_SysTime_t Time;
@@ -618,7 +568,4 @@ int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
     }
 
     return (CFE_SUCCESS);
-
-} /* End EVS_SendEvent */
-
-/* End cfe_evs_utils */
+}

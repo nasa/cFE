@@ -71,12 +71,14 @@
  *
  *******************************************************************/
 
-/*
- * -----------------------------------------------------------------
- * CFE_ES_SysLogClear --
- * Clear system log & index
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SysLogClear_Unsync
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_SysLogClear_Unsync(void)
 {
     /*
@@ -87,15 +89,16 @@ void CFE_ES_SysLogClear_Unsync(void)
     CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = 0;
     CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = 0;
     CFE_ES_Global.ResetDataPtr->SystemLogEntryNum = 0;
+}
 
-} /* End of CFE_ES_SysLogClear_Unsync() */
-
-/*
- * -----------------------------------------------------------------
- * CFE_ES_SysLogReadStart_Unsync --
- * Locate start (oldest message) of syslog for reading
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SysLogReadStart_Unsync
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
 {
     size_t ReadIdx;
@@ -124,14 +127,16 @@ void CFE_ES_SysLogReadStart_Unsync(CFE_ES_SysLogReadBuffer_t *Buffer)
     Buffer->LastOffset = ReadIdx;
     Buffer->EndIdx     = EndIdx;
     Buffer->BlockSize  = 0;
-} /* End of CFE_ES_SysLogReadStart_Unsync() */
+}
 
-/*
- * -----------------------------------------------------------------
- * CFE_ES_SysLogAppend_Unsync() --
- * Append a preformatted string to the syslog
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SysLogAppend_Unsync
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
 {
     int32  ReturnCode;
@@ -246,16 +251,16 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
     }
 
     return (ReturnCode);
-} /* End of CFE_ES_SysLogAppend_Unsync() */
+}
 
-/*
- * -----------------------------------------------------------------
- * CFE_ES_SysLogWrite_Unsync() --
- * Identical to the public CFE_ES_WriteToSysLog() function, except
- * that it operates in an unsynchronized manner.  It can be used in
- * cases where the appropriate lock is already held for other reasons
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SysLogWrite_Unsync
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...)
 {
     char    TmpString[CFE_ES_MAX_SYSLOG_MSG_SIZE];
@@ -272,7 +277,7 @@ int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...)
      * Append to the syslog buffer
      */
     return CFE_ES_SysLogAppend_Unsync(TmpString);
-} /* End of CFE_ES_SysLogWrite_Unsync() */
+}
 
 /*******************************************************************
  *
@@ -283,12 +288,14 @@ int32 CFE_ES_SysLogWrite_Unsync(const char *SpecStringPtr, ...)
  *
  *******************************************************************/
 
-/*
- * -----------------------------------------------------------------
- * CFE_ES_SysLogReadData --
- * Copy data out of the syslog buffer into a local buffer
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SysLogReadData
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer)
 {
     size_t BlockSize;
@@ -329,14 +336,16 @@ void CFE_ES_SysLogReadData(CFE_ES_SysLogReadBuffer_t *Buffer)
         Buffer->LastOffset += BlockSize;
         Buffer->SizeLeft -= BlockSize;
     }
-} /* End of CFE_ES_SysLogReadData() */
+}
 
-/*
- * -----------------------------------------------------------------
- * CFE_ES_SysLogOverwrite() --
- * Sets the SysLog Write mode (discard or overwrite)
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SysLogSetMode
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode)
 {
     int32 Status;
@@ -352,15 +361,16 @@ int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode)
     }
 
     return Status;
-} /* End of CFE_ES_SysLogSetMode() */
+}
 
-/*
- * -----------------------------------------------------------------
- * CFE_ES_SysLog_vsnprintf() --
- * Obtain a correctly formatted, time stamped message for output to the syslog,
- * with arguments similar to the "vsnprintf()" C library API call
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SysLog_vsnprintf
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, va_list ArgPtr)
 {
     size_t StringLen;
@@ -430,15 +440,16 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
         /* always output a null terminated string */
         Buffer[StringLen] = 0;
     }
-} /* End of CFE_ES_SysLog_vsnprintf() */
+}
 
-/*
- * -----------------------------------------------------------------
- * CFE_ES_SysLog_snprintf() --
- * Obtain a correctly formatted, time stamped message for output to the syslog,
- * with arguments similar to the "snprintf()" C library API call
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SysLog_snprintf
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...)
 {
     va_list ArgPtr;
@@ -446,14 +457,16 @@ void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStr
     va_start(ArgPtr, SpecStringPtr);
     CFE_ES_SysLog_vsnprintf(Buffer, BufferSize, SpecStringPtr, ArgPtr);
     va_end(ArgPtr);
-} /* End of CFE_ES_SysLog_snprintf() */
+}
 
-/*
- * -----------------------------------------------------------------
- * CFE_ES_SysLogDump() --
- * Writes the contents of the syslog buffer to disk file
- * -----------------------------------------------------------------
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SysLogDump
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogDump(const char *Filename)
 {
     osal_id_t fd;
@@ -550,7 +563,4 @@ int32 CFE_ES_SysLogDump(const char *Filename)
     }
 
     return Status;
-
-} /* End of CFE_ES_SysLogDump() */
-
-/* end of file */
+}

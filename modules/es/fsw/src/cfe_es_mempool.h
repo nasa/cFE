@@ -73,6 +73,7 @@ typedef struct
     osal_id_t MutexId;
 } CFE_ES_MemPoolRecord_t;
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Obtain an index value correlating to an ES Memory Pool ID
  *
@@ -97,6 +98,7 @@ typedef struct
  */
 int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Locate the Pool table entry correlating with a given Pool ID.
  *
@@ -124,6 +126,7 @@ int32 CFE_ES_MemPoolID_ToIndex(CFE_ES_MemHandle_t PoolID, uint32 *Idx);
  */
 CFE_ES_MemPoolRecord_t *CFE_ES_LocateMemPoolRecordByID(CFE_ES_MemHandle_t PoolID);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if a Memory Pool record is in use or free/empty
  *
@@ -143,6 +146,7 @@ static inline bool CFE_ES_MemPoolRecordIsUsed(const CFE_ES_MemPoolRecord_t *Pool
     return CFE_RESOURCEID_TEST_DEFINED(PoolRecPtr->PoolID);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get the ID value from a Memory Pool table entry
  *
@@ -159,6 +163,7 @@ static inline CFE_ES_MemHandle_t CFE_ES_MemPoolRecordGetID(const CFE_ES_MemPoolR
     return (PoolRecPtr->PoolID);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Marks a Memory Pool table entry as used (not free)
  *
@@ -176,6 +181,7 @@ static inline void CFE_ES_MemPoolRecordSetUsed(CFE_ES_MemPoolRecord_t *PoolRecPt
     PoolRecPtr->PoolID = CFE_ES_MEMHANDLE_C(PendingId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Set a Memory Pool record table entry free (not used)
  *
@@ -192,6 +198,7 @@ static inline void CFE_ES_MemPoolRecordSetFree(CFE_ES_MemPoolRecord_t *PoolRecPt
     PoolRecPtr->PoolID = CFE_ES_MEMHANDLE_UNDEFINED;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if an Mem Pool record is a match for the given Pool ID
  *
@@ -220,6 +227,7 @@ static inline bool CFE_ES_MemPoolRecordIsMatch(const CFE_ES_MemPoolRecord_t *Poo
     return (PoolRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(PoolRecPtr->PoolID, PoolID));
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if a Pool ID table slot is used
  *

@@ -49,18 +49,14 @@ typedef struct
     int32       Status;     /* File write status */
 } CFE_SB_FileWriteCallback_t;
 
-/******************************************************************************
-**  Function:  CFE_SB_TaskMain()
-**
-**  Purpose:
-**    Main loop for Software Bus task, used to process SB commands.
-**
-**  Arguments:
-**    none
-**
-**  Return:
-**    none
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_TaskMain
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_TaskMain(void)
 {
     int32            Status;
@@ -113,24 +109,16 @@ void CFE_SB_TaskMain(void)
 
     /* while loop exits only if CFE_SB_ReceiveBuffer returns error */
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
+}
 
-} /* end CFE_SB_TaskMain */
-
-/******************************************************************************
-**  Function:  CFE_SB_AppInit()
-**
-**  Purpose:
-**    Initialization routine for SB application. This routine is executed when
-**    the SB application is started by Executive Services.
-**
-**  Arguments:
-**    none
-**
-**  Return:
-**    CFE_SUCCESS if no errors, otherwise this function returns the error code
-**    that was received from the function that detected the error.
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_AppInit
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_AppInit(void)
 {
 
@@ -291,21 +279,17 @@ int32 CFE_SB_AppInit(void)
     } /* end if */
 
     return CFE_SUCCESS;
+}
 
-} /* end CFE_SB_AppInit */
-
-/******************************************************************************
-**  Function:  CFE_SB_VerifyCmdLength()
-**
-**  Purpose:
-**    Function to verify the length of incoming SB command packets
-**
-**  Arguments:
-**    Message pointer and expected length
-**
-**  Return:
-**    true if length is acceptable
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_VerifyCmdLength
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Verifies the length of incoming SB command packets, returns true if acceptable
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_SB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 {
     bool              result       = true;
@@ -332,21 +316,16 @@ bool CFE_SB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
     }
 
     return (result);
+}
 
-} /* End of CFE_SB_VerifyCmdLength() */
-
-/******************************************************************************
-**  Function:  CFE_SB_ProcessCmdPipePkt()
-**
-**  Purpose:
-**    Function to control actions when an SB command is received.
-**
-**  Arguments:
-**    Software bus buffer pointer
-**
-**  Return:
-**    none
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_ProcessCmdPipePkt
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_SB_MsgId_t    MessageID = CFE_SB_INVALID_MSG_ID;
@@ -472,16 +451,16 @@ void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
             break;
 
     } /* end switch on MsgId */
+}
 
-} /* end CFE_SB_ProcessCmdPipePkt */
-
-/******************************************************************************
-**  Function:  CFE_SB_NoopCmd()
-**
-**  Purpose:
-**    Handler function the SB command
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_NoopCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 {
     CFE_EVS_SendEvent(CFE_SB_CMD0_RCVD_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd. %s", CFE_VERSION_STRING);
@@ -490,13 +469,14 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
-**  Function:  CFE_SB_ResetCountersCmd()
-**
-**  Purpose:
-**    Handler function the SB command
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_ResetCountersCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
 {
     CFE_EVS_SendEvent(CFE_SB_CMD1_RCVD_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Cmd Rcvd");
@@ -506,47 +486,42 @@ int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
-**  Function:  CFE_SB_EnableSubReportingCmd()
-**
-**  Purpose:
-**    Handler function the SB command
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_EnableSubReportingCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data)
 {
     CFE_SB_SetSubscriptionReporting(CFE_SB_ENABLE);
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
-**  Function:  CFE_SB_DisableSubReportingCmd()
-**
-**  Purpose:
-**    Handler function the SB command
-**
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_DisableSubReportingCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
 {
     CFE_SB_SetSubscriptionReporting(CFE_SB_DISABLE);
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
-**  Function:  CFE_SB_SendHKTlmCmd()
-**
-**  Purpose:
-**    Function to send the SB housekeeping packet.
-**
-**  Arguments:
-**    none
-**
-**  Notes:
-**    Command counter not incremented for this command
-**
-**  Return:
-**    none
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SendHKTlmCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
 {
     CFE_SB_LockSharedData(__FILE__, __LINE__);
@@ -561,23 +536,16 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
     CFE_SB_TransmitMsg(&CFE_SB_Global.HKTlmMsg.Hdr.Msg, true);
 
     return CFE_SUCCESS;
-} /* end CFE_SB_SendHKTlmCmd */
+}
 
-/******************************************************************************
-**  Function:  CFE_SB_ResetCounters()
-**
-**  Purpose:
-**    Function to reset the SB housekeeping counters.
-**
-**  Arguments:
-**    none
-**
-**  Notes:
-**    Command counter not incremented for this command
-**
-**  Return:
-**    none
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_ResetCounters
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_ResetCounters(void)
 {
 
@@ -592,22 +560,16 @@ void CFE_SB_ResetCounters(void)
     CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter         = 0;
     CFE_SB_Global.HKTlmMsg.Payload.PipeOverflowErrorCounter      = 0;
     CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter          = 0;
+}
 
-} /* end CFE_SB_ResetCounters */
-
-/******************************************************************************
-**  Function:  CFE_SB_EnableRouteCmd()
-**
-**  Purpose:
-**    SB internal function to enable a specific route. A route is defined as a
-**    MsgId/PipeId combination.
-**
-**  Arguments:
-**    MsgPtr  : pointer to the message
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_EnableRouteCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t                   MsgId;
@@ -668,21 +630,16 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* end CFE_SB_EnableRouteCmd */
+}
 
-/******************************************************************************
-**  Function:  CFE_SB_DisableRouteCmd()
-**
-**  Purpose:
-**    SB internal function to disable a specific route. A route is defined as a
-**    MsgId/PipeId combination.
-**
-**  Arguments:
-**    MsgPtr  : pointer to the message
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_DisableRouteCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
 {
     CFE_SB_MsgId_t                   MsgId;
@@ -743,20 +700,16 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* end CFE_SB_DisableRouteCmd */
+}
 
-/******************************************************************************
-**  Function:  CFE_SB_SendStatsCmd()
-**
-**  Purpose:
-**    SB internal function to send a Software Bus statistics packet
-**
-**  Arguments:
-**    None
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SendStatsCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
 {
     uint32                   PipeDscCount;
@@ -809,11 +762,16 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
 
     return CFE_SUCCESS;
-} /* CFE_SB_SendStatsCmd */
+}
 
-/******************************************************************************
- * Local callback helper for writing routing info to a file
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_CollectRouteInfo
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
     CFE_SB_DestinationD_t *             DestPtr;
@@ -887,19 +845,14 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
     }
 }
 
-/******************************************************************************
-**  Function:  CFE_SB_SendSubscriptionReport()
-**
-**  Purpose:
-**    SB internal function to generate the "ONESUB_TLM" message after a subscription.
-**    No-op when subscription reporting is disabled.
-**
-**  Arguments:
-**    Payload of notification message - MsgId, PipeId, QOS
-**
-**  Return:
-**    CFE_SUCCESS or error code
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SendSubscriptionReport
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality)
 {
     CFE_SB_SingleSubscriptionTlm_t SubRptMsg;
@@ -926,6 +879,14 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
     return Status;
 }
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_WriteRouteInfoDataGetter
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
@@ -952,6 +913,14 @@ bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer
     return (Throttle.NextIndex == 0);
 }
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_BackgroundFileEventHandler
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
                                        size_t BlockSize, size_t Position)
 {
@@ -992,13 +961,14 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
     }
 }
 
-/******************************************************************************
- * \brief SB internal function to handle processing of 'Write Routing Info' Cmd
+/*----------------------------------------------------------------
  *
- * \param[in] data Pointer to command structure
+ * Function: CFE_SB_WriteRoutingInfoCmd
  *
- * \return Execution status, see \ref CFEReturnCodes
- */
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
@@ -1052,8 +1022,16 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
     CFE_SB_IncrCmdCtr(Status);
 
     return CFE_SUCCESS;
-} /* end CFE_SB_WriteRoutingInfoCmd */
+}
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_WritePipeInfoDataGetter
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
@@ -1126,13 +1104,14 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
     return (RecordNum >= (CFE_PLATFORM_SB_MAX_PIPES - 1));
 }
 
-/******************************************************************************
- * \brief SB internal function to handle processing of 'Write Pipe Info' Cmd
+/*----------------------------------------------------------------
  *
- * \param[in] data Pointer to command structure
+ * Function: CFE_SB_WritePipeInfoCmd
  *
- * \return Execution status, see \ref CFEReturnCodes
- */
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
@@ -1188,9 +1167,14 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Local callback helper for writing map info to a file
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_CollectMsgMapInfo
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
     CFE_SB_MsgMapFileEntry_t *BufferPtr;
@@ -1208,6 +1192,14 @@ void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
     CFE_SB_UnlockSharedData(__FILE__, __LINE__);
 }
 
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_WriteMsgMapInfoDataGetter
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_SB_BackgroundFileStateInfo_t *BgFilePtr;
@@ -1242,13 +1234,14 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
     return (Throttle.NextIndex == 0);
 }
 
-/******************************************************************************
- * \brief SB internal function to handle processing of 'Write Map Info' Cmd
+/*----------------------------------------------------------------
  *
- * \param[in] data Pointer to command structure
+ * Function: CFE_SB_WriteMapInfoCmd
  *
- * \return Execution status, see \ref CFEReturnCodes
- */
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
 {
     const CFE_SB_WriteFileInfoCmd_Payload_t *CmdPtr;
@@ -1302,11 +1295,17 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
     CFE_SB_IncrCmdCtr(Status);
 
     return CFE_SUCCESS;
-} /* end CFE_SB_WriteMapInfoCmd */
+}
 
-/******************************************************************************
- * Local callback helper for sending route subscriptions
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SendRouteSub
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Callback for sending route subscriptions
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
     CFE_SB_DestinationD_t *destptr;
@@ -1356,20 +1355,14 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
     }
 }
 
-/******************************************************************************
-**  Function:  CFE_SB_SendPrevSubsCmd()
-**
-**  Purpose:
-**    SB function to build and send an SB packet containing a complete list of
-**    current subscriptions.Intended to be used primarily for the Software Bus
-**    Networking Application (SBN).
-**
-**  Arguments:
-**    None
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SendPrevSubsCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
 {
     int32 status;
@@ -1397,21 +1390,16 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* end CFE_SB_SendPrevSubsCmd */
+}
 
-/******************************************************************************
-**  Function:  CFE_SB_IncrCmdCtr()
-**
-**  Purpose:
-**    SB internal function to increment the proper cmd counter based on the
-**    status input. This small utility was written to eliminate duplicate code.
-**
-**  Arguments:
-**    status - typically CFE_SUCCESS or an SB error code
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_IncrCmdCtr
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_IncrCmdCtr(int32 status)
 {
 
@@ -1423,24 +1411,18 @@ void CFE_SB_IncrCmdCtr(int32 status)
     {
         CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
     } /* end if */
+}
 
-} /* end CFE_SB_IncrCmdCtr */
-
-/******************************************************************************
-**  Function:  CFE_SB_SetSubscriptionReporting()
-**
-**  Purpose:
-**    SB internal function to enable and disable subscription reporting.
-**
-**  Arguments:
-**
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SetSubscriptionReporting
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_SetSubscriptionReporting(uint32 state)
 {
 
     CFE_SB_Global.SubscriptionReporting = state;
-
-} /* end CFE_SB_SetSubscriptionReporting */
+}

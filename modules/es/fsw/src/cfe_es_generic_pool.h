@@ -123,6 +123,7 @@ struct CFE_ES_GenPoolRecord
 ** Function prototypes
 */
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Initialize a generic pool structure
  *
@@ -144,6 +145,7 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
                                size_t AlignSize, uint16 NumBlockSizes, const size_t *BlockSizeList,
                                CFE_ES_PoolRetrieve_Func_t RetrieveFunc, CFE_ES_PoolCommit_Func_t CommitFunc);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Gets a block from the pool
  *
@@ -158,6 +160,7 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
  */
 int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOffsetPtr, size_t ReqSize);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Returns a block to the pool
  *
@@ -172,6 +175,7 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
  */
 int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Rebuild list of free blocks in pool
  *
@@ -192,6 +196,7 @@ int32 CFE_ES_GenPoolPutBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSi
  */
 int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Get size of pool block
  *
@@ -206,6 +211,7 @@ int32 CFE_ES_GenPoolRebuild(CFE_ES_GenPoolRecord_t *PoolRecPtr);
  */
 int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockSizePtr, size_t BlockOffset);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Validate a pool structure
  *
@@ -217,6 +223,7 @@ int32 CFE_ES_GenPoolGetBlockSize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *Blo
  */
 bool CFE_ES_GenPoolValidateState(const CFE_ES_GenPoolRecord_t *PoolRecPtr);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Query basic usage of the pool structure
  *
@@ -234,6 +241,7 @@ bool CFE_ES_GenPoolValidateState(const CFE_ES_GenPoolRecord_t *PoolRecPtr);
 void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset_t *FreeSizeBuf,
                             CFE_ES_MemOffset_t *TotalSizeBuf);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Query counters associated with the pool structure
  *
@@ -247,6 +255,7 @@ void CFE_ES_GenPoolGetUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, CFE_ES_MemOffset
 void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 *NumBucketsBuf, uint32 *AllocCountBuf,
                              uint32 *ValidationErrorCountBuf);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Query bucket-specific usage of the pool structure
  *
@@ -261,6 +270,7 @@ void CFE_ES_GenPoolGetCounts(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 *NumBuck
 void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 BucketId,
                                   CFE_ES_BlockStats_t *BlockStatsBuf);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Calculate the pool size required for the specified number of blocks
  *

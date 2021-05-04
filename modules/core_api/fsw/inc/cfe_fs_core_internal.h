@@ -47,7 +47,7 @@
 ** \brief Initializes the cFE core module API Library
 **
 ** \par Description
-**        Initializes the cFE core module API Library
+**      Initialize the FS data structures before the cFE runs.
 **
 ** \par Assumptions, External Events, and Notes:
 **        -# This function MUST be called before any module API's are called.

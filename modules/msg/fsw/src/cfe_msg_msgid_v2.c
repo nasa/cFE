@@ -47,9 +47,14 @@
 #define CFE_MSG_MSGID_TYPE_MASK   0x0080 /**< \brief Message type mask for MsgId, set = cmd */
 #define CFE_MSG_MSGID_SUBSYS_MASK 0xFF00 /**< \brief Subsystem mask for MsgId */
 
-/******************************************************************************
- * Get message id - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetMsgId
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId)
 {
 
@@ -77,9 +82,14 @@ int32 CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message id - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetMsgId
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId)
 {
 

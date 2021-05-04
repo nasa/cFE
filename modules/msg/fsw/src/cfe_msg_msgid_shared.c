@@ -25,10 +25,14 @@
 #include "cfe_msg_priv.h"
 #include "cfe_error.h"
 
-/******************************************************************************
- * Get type from message id - See API and header file for details
- * cFS default implementation
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetTypeFromMsgId
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetTypeFromMsgId(CFE_SB_MsgId_t MsgId, CFE_MSG_Type_t *Type)
 {
 
