@@ -35,6 +35,7 @@ extern void UT_DefaultHandler_CFE_MSG_GetHasSecondaryHeader(void *, UT_EntryKey_
 extern void UT_DefaultHandler_CFE_MSG_GetHeaderVersion(void *, UT_EntryKey_t, const UT_StubContext_t *);
 extern void UT_DefaultHandler_CFE_MSG_GetMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
 extern void UT_DefaultHandler_CFE_MSG_GetMsgTime(void *, UT_EntryKey_t, const UT_StubContext_t *);
+extern void UT_DefaultHandler_CFE_MSG_GetNextSequenceCount(void *, UT_EntryKey_t, const UT_StubContext_t *);
 extern void UT_DefaultHandler_CFE_MSG_GetPlaybackFlag(void *, UT_EntryKey_t, const UT_StubContext_t *);
 extern void UT_DefaultHandler_CFE_MSG_GetSegmentationFlag(void *, UT_EntryKey_t, const UT_StubContext_t *);
 extern void UT_DefaultHandler_CFE_MSG_GetSequenceCount(void *, UT_EntryKey_t, const UT_StubContext_t *);
@@ -195,6 +196,22 @@ CFE_Status_t CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTim
     UT_GenStub_Execute(CFE_MSG_GetMsgTime, Basic, UT_DefaultHandler_CFE_MSG_GetMsgTime);
 
     return UT_GenStub_GetReturnValue(CFE_MSG_GetMsgTime, CFE_Status_t);
+}
+
+/*
+ * ----------------------------------------------------
+ * Generated stub function for CFE_MSG_GetNextSequenceCount()
+ * ----------------------------------------------------
+ */
+CFE_MSG_SequenceCount_t CFE_MSG_GetNextSequenceCount(CFE_MSG_SequenceCount_t SeqCnt)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_MSG_GetNextSequenceCount, CFE_MSG_SequenceCount_t);
+
+    UT_GenStub_AddParam(CFE_MSG_GetNextSequenceCount, CFE_MSG_SequenceCount_t, SeqCnt);
+
+    UT_GenStub_Execute(CFE_MSG_GetNextSequenceCount, Basic, UT_DefaultHandler_CFE_MSG_GetNextSequenceCount);
+
+    return UT_GenStub_GetReturnValue(CFE_MSG_GetNextSequenceCount, CFE_MSG_SequenceCount_t);
 }
 
 /*

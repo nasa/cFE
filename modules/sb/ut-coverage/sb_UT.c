@@ -2820,7 +2820,7 @@ void Test_TransmitMsg_BasicSend(void)
 
 } /* end Test_TransmitMsg_BasicSend */
 
-/* Sequence count hook */
+/* Set sequence count hook */
 static int32 UT_CheckSetSequenceCount(void *UserObj, int32 StubRetcode, uint32 CallCount,
                                       const UT_StubContext_t *Context)
 {
@@ -2843,6 +2843,7 @@ void Test_TransmitMsg_SequenceCount(void)
     CFE_MSG_Type_t          Type      = CFE_MSG_Type_Tlm;
     uint32                  PipeDepth = 10;
     CFE_MSG_SequenceCount_t SeqCnt;
+    CFE_MSG_SequenceCount_t SeqCntExpected;
 
     /* Set up hook for checking CFE_MSG_SetSequenceCount calls */
     UT_SetHookFunction(UT_KEY(CFE_MSG_SetSequenceCount), UT_CheckSetSequenceCount, &SeqCnt);
@@ -2850,12 +2851,17 @@ void Test_TransmitMsg_SequenceCount(void)
     SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "SeqCntTestPipe"));
     SETUP(CFE_SB_Subscribe(MsgId, PipeId));
 
+    /* Note the Sequence count value doesn't really matter, just set unique to confirm use */
+    SeqCntExpected = 1;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), SeqCntExpected);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
+
     SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
     ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 1);
-    ASSERT_EQ(SeqCnt, 1);
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 1);
+    ASSERT_EQ(SeqCnt, SeqCntExpected);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
@@ -2863,34 +2869,44 @@ void Test_TransmitMsg_SequenceCount(void)
     ASSERT(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, false));
 
     /* Assert sequence count wasn't set */
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 1);
     ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 1);
 
+    SeqCntExpected = 2;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), SeqCntExpected);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     ASSERT(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
-    ASSERT_EQ(SeqCnt, 2);
+    ASSERT_EQ(SeqCnt, SeqCntExpected);
     ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 2);
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 2);
 
     EVTCNT(2);
     EVTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
     SETUP(CFE_SB_Unsubscribe(MsgId, PipeId)); /* should have no subscribers now */
 
+    SeqCntExpected = 3;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), SeqCntExpected);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true)); /* increment to 3 */
     ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 3);
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 3);
 
     SETUP(CFE_SB_Subscribe(MsgId, PipeId)); /* resubscribe so we can receive a msg */
 
+    SeqCntExpected = 4;
+    UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), SeqCntExpected);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true)); /* increment to 4 */
-    ASSERT_EQ(SeqCnt, 4);
+    ASSERT_EQ(SeqCnt, SeqCntExpected);
     ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 4);
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 4);
 
     TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
@@ -3135,6 +3151,7 @@ void Test_TransmitBuffer_IncrementSeqCnt(void)
         UtAssert_Failed("Unexpected NULL pointer returned from ZeroCopyGetPtr");
     }
 
+    UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), 1);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);

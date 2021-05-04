@@ -396,10 +396,13 @@ void Test_MSG_SegmentationFlag(void)
 
 void Test_MSG_SequenceCount(void)
 {
-    CFE_MSG_Message_t msg;
-    CFE_MSG_ApId_t    input[] = {0, TEST_SEQUENCE_MAX / 2, TEST_SEQUENCE_MAX};
-    CFE_MSG_ApId_t    actual  = TEST_SEQUENCE_MAX;
-    int               i;
+    CFE_MSG_Message_t             msg;
+    const CFE_MSG_SequenceCount_t input[] = {0, TEST_SEQUENCE_MAX / 2, TEST_SEQUENCE_MAX};
+    CFE_MSG_SequenceCount_t       actual  = TEST_SEQUENCE_MAX;
+    CFE_MSG_SequenceCount_t       maxsc;
+    int                           i;
+
+    memset(&maxsc, 0xFF, sizeof(maxsc));
 
     UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
@@ -410,7 +413,7 @@ void Test_MSG_SequenceCount(void)
     ASSERT_EQ(CFE_MSG_SetSequenceCount(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, TEST_SEQUENCE_MAX + 1), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
+    ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, maxsc), CFE_MSG_BAD_ARGUMENT);
     ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Set to all F's, various valid inputs");
@@ -452,6 +455,12 @@ void Test_MSG_SequenceCount(void)
             ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_SEQUENCE_FLAG);
         }
     }
+
+    UtPrintf("Fully exercise getting next sequence count");
+    ASSERT_EQ(CFE_MSG_GetNextSequenceCount(0), 1);
+    ASSERT_EQ(CFE_MSG_GetNextSequenceCount(TEST_SEQUENCE_MAX / 2), (TEST_SEQUENCE_MAX / 2) + 1);
+    ASSERT_EQ(CFE_MSG_GetNextSequenceCount(TEST_SEQUENCE_MAX), 0);
+    ASSERT_EQ(CFE_MSG_GetNextSequenceCount(maxsc), 0);
 }
 
 /*
