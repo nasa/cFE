@@ -50,34 +50,40 @@
  */
 CompileTimeAssert(((CFE_RESOURCEID_MAX + 1) & CFE_RESOURCEID_MAX) == 0, CFE_RESOURCEID_MAX_BITMASK);
 
-/*********************************************************************/
-/*
- * CFE_ResourceId_GetBase
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ResourceId_GetBase
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 uint32 CFE_ResourceId_GetBase(CFE_ResourceId_t ResourceId)
 {
     return (CFE_ResourceId_ToInteger(ResourceId) & ~((uint32)CFE_RESOURCEID_MAX));
 }
 
-/*********************************************************************/
-/*
- * CFE_ResourceId_GetSerial
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ResourceId_GetSerial
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId)
 {
     return (CFE_ResourceId_ToInteger(ResourceId) & ((uint32)CFE_RESOURCEID_MAX));
 }
 
-/*********************************************************************/
-/*
- * CFE_ResourceId_ToIndex
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ResourceId_ToIndex
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx)
 {
     uint32 Serial;
@@ -98,12 +104,14 @@ int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 Table
     return CFE_SUCCESS;
 }
 
-/*********************************************************************/
-/*
- * CFE_ResourceId_FindNext
+/*----------------------------------------------------------------
  *
- * For complete API information, see prototype in header
- */
+ * Function: CFE_ResourceId_FindNext
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
                                          bool (*CheckFunc)(CFE_ResourceId_t))
 {

@@ -51,7 +51,7 @@
 ** Function prototypes
 */
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Creates a CDS memory pool from scratch
 **
@@ -60,19 +60,43 @@
 **        offset into the CDS memory.
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**          This function must only be called during "Early Init" phase.
 **
 ** \return #CFE_SUCCESS                     \copydoc CFE_SUCCESS
 **
 ******************************************************************************/
 int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Rebuilds an existing CDS memory pool from contents
+ *
+ * \par Description
+ *        Reconstructs pool data structures from an existing CDS
+ *
+ * \par Assumptions, External Events, and Notes:
+ *          This function is only ever called during "Early Init" phase.
+ *
+ * \return #CFE_SUCCESS                     \copydoc CFE_SUCCESS
+ */
 int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Writes a block of data to CDS
+ */
 int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Reads a block of data from CDS
+ */
 int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Computes the minimum required size for a CDS pool
+ */
 size_t CFE_ES_CDSReqdMinSize(uint32 MaxNumBlocksToSupport);
 
 #endif /* CFE_ES_CDS_MEMPOOL_H */

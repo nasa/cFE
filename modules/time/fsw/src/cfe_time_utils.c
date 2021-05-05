@@ -42,12 +42,14 @@
 
 #include <string.h>
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_StartReferenceUpdate()                                 */
-/* Initiate an update to the global time reference data            */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_StartReferenceUpdate
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 volatile CFE_TIME_ReferenceState_t *CFE_TIME_StartReferenceUpdate(void)
 {
     uint32                              Version = CFE_TIME_Global.LastVersionCounter;
@@ -73,12 +75,14 @@ volatile CFE_TIME_ReferenceState_t *CFE_TIME_StartReferenceUpdate(void)
     return NextState;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_LatchClock() -- query local clock                      */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_LatchClock
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_LatchClock(void)
 {
     CFE_TIME_SysTime_t LatchTime;
@@ -96,15 +100,16 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void)
     LatchTime.Subseconds = OS_TimeGetSubsecondsPart(LocalTime);
 
     return (LatchTime);
+}
 
-} /* End of CFE_TIME_LatchClock() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_QueryResetVars() -- query contents of Reset Variables  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_QueryResetVars
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_QueryResetVars(void)
 {
 
@@ -185,15 +190,16 @@ void CFE_TIME_QueryResetVars(void)
     CFE_TIME_FinishReferenceUpdate(RefState);
 
     return;
+}
 
-} /* End of CFE_TIME_QueryResetVars() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_UpdateResetVars() -- update contents of Reset Variables*/
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_UpdateResetVars
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference)
 {
     CFE_TIME_ResetVars_t LocalResetVars;
@@ -228,15 +234,16 @@ void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference)
     }
 
     return;
+}
 
-} /* End of CFE_TIME_UpdateResetVars() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_InitData() -- initialize global time task nonzero data */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_InitData
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_InitData(void)
 {
     uint32                              i;
@@ -364,15 +371,16 @@ void CFE_TIME_InitData(void)
                  sizeof(CFE_TIME_Global.Local1HzCmd));
 
     return;
+}
 
-} /* End of CFE_TIME_InitData() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_GetHkData() -- Report local housekeeping data          */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_GetHkData
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference)
 {
 
@@ -423,15 +431,16 @@ void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference)
 #endif
 
     return;
+}
 
-} /* End of CFE_TIME_GetHkData() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_GetDiagData() -- Report diagnostics data               */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_GetDiagData
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_GetDiagData(void)
 {
     CFE_TIME_Reference_t Reference;
@@ -544,15 +553,16 @@ void CFE_TIME_GetDiagData(void)
     CFE_TIME_Global.DiagPacket.Payload.DataStoreStatus = CFE_TIME_Global.DataStoreStatus;
 
     return;
+}
 
-} /* End of CFE_TIME_GetDiagData() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_GetReference() -- get reference data (time at "tone")  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_GetReference
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_GetReference(CFE_TIME_Reference_t *Reference)
 {
     CFE_TIME_SysTime_t                  TimeSinceTone;
@@ -652,15 +662,16 @@ void CFE_TIME_GetReference(CFE_TIME_Reference_t *Reference)
     Reference->CurrentMET = CurrentMET;
 
     return;
+}
 
-} /* End of CFE_TIME_GetReference() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_CalculateTAI() -- calculate TAI from reference data    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_CalculateTAI
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_CalculateTAI(const CFE_TIME_Reference_t *Reference)
 {
     CFE_TIME_SysTime_t TimeAsTAI;
@@ -668,15 +679,16 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateTAI(const CFE_TIME_Reference_t *Reference)
     TimeAsTAI = CFE_TIME_Add(Reference->CurrentMET, Reference->AtToneSTCF);
 
     return (TimeAsTAI);
+}
 
-} /* End of CFE_TIME_CalculateTAI() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_CalculateUTC() -- calculate UTC from reference data    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_CalculateUTC
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference)
 {
     CFE_TIME_SysTime_t TimeAsUTC;
@@ -685,15 +697,16 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference)
     TimeAsUTC.Seconds -= Reference->AtToneLeapSeconds;
 
     return (TimeAsUTC);
+}
 
-} /* End of CFE_TIME_CalculateUTC() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_CalculateState() -- determine current time state (per API)     */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_CalculateState
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference)
 {
     int16 ClockState;
@@ -738,15 +751,16 @@ int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference)
     }
 
     return (ClockState);
+}
 
-} /* End of CFE_TIME_CalculateState() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetState() -- set clock state                          */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetState
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_SetState(int16 NewState)
 {
     volatile CFE_TIME_ReferenceState_t *RefState;
@@ -783,29 +797,31 @@ void CFE_TIME_SetState(int16 NewState)
     CFE_TIME_FinishReferenceUpdate(RefState);
 
     return;
+}
 
-} /* End of CFE_TIME_SetState() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetSource() -- set clock source                        */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetSource
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
 void CFE_TIME_SetSource(int16 NewSource)
 {
     CFE_TIME_Global.ClockSource = NewSource;
-
-} /* End of CFE_TIME_SetSource() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SOURCE */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetSignal() -- set tone signal (pri vs red)            */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetSignal
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
 void CFE_TIME_SetSignal(int16 NewSignal)
 {
@@ -813,16 +829,17 @@ void CFE_TIME_SetSignal(int16 NewSignal)
     ** Maintain current tone signal selection for telemetry...
     */
     CFE_TIME_Global.ClockSignal = NewSignal;
-
-} /* End of CFE_TIME_SetSignal() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SIGNAL */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetDelay() -- set tone delay (time client only)        */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetDelay
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
 void CFE_TIME_SetDelay(CFE_TIME_SysTime_t NewDelay, int16 Direction)
 {
@@ -839,16 +856,17 @@ void CFE_TIME_SetDelay(CFE_TIME_SysTime_t NewDelay, int16 Direction)
     CFE_TIME_FinishReferenceUpdate(RefState);
 
     return;
-
-} /* End of CFE_TIME_SetDelay() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_CLIENT */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetTime() -- set time (time server only)               */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetTime
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_SetTime(CFE_TIME_SysTime_t NewTime)
 {
@@ -889,21 +907,17 @@ void CFE_TIME_SetTime(CFE_TIME_SysTime_t NewTime)
     CFE_TIME_FinishReferenceUpdate(RefState);
 
     return;
-
-} /* End of CFE_TIME_SetTime() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetMET() -- set MET (time server only)                 */
-/*                                                                 */
-/* Note: This command will not have lasting effect if configured   */
-/*       to get external time of type MET.  Also, there cannot     */
-/*       be a local h/w MET and an external MET since both would   */
-/*       need to be synchronized to the same tone signal.          */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetMET
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_SetMET(CFE_TIME_SysTime_t NewMET)
 {
@@ -931,16 +945,17 @@ void CFE_TIME_SetMET(CFE_TIME_SysTime_t NewMET)
     CFE_TIME_FinishReferenceUpdate(RefState);
 
     return;
-
-} /* End of CFE_TIME_SetMET() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetSTCF() -- set STCF (time server only)               */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetSTCF
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_SetSTCF(CFE_TIME_SysTime_t NewSTCF)
 {
@@ -956,16 +971,17 @@ void CFE_TIME_SetSTCF(CFE_TIME_SysTime_t NewSTCF)
     CFE_TIME_FinishReferenceUpdate(RefState);
 
     return;
-
-} /* End of CFE_TIME_SetSTCF() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetLeapSeconds() -- set leap seconds (time server only)      */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetLeapSeconds
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_SetLeapSeconds(int16 NewLeaps)
 {
@@ -981,16 +997,17 @@ void CFE_TIME_SetLeapSeconds(int16 NewLeaps)
     CFE_TIME_FinishReferenceUpdate(RefState);
 
     return;
-
-} /* End of CFE_TIME_SetLeapSeconds() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetAdjust() -- one time STCF adjustment (server only)  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetAdjust
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_SetAdjust(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
 {
@@ -1019,16 +1036,17 @@ void CFE_TIME_SetAdjust(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
     CFE_TIME_FinishReferenceUpdate(RefState);
 
     return;
-
-} /* End of CFE_TIME_SetAdjust() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_Set1HzAdj() -- 1Hz STCF adjustment (time server only)  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_Set1HzAdj
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 void CFE_TIME_Set1HzAdj(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
 {
@@ -1037,16 +1055,17 @@ void CFE_TIME_Set1HzAdj(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
     */
     CFE_TIME_Global.OneHzAdjust    = NewAdjust;
     CFE_TIME_Global.OneHzDirection = Direction;
-
-} /* End of CFE_TIME_Set1HzAdj() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_CleanUpApp() -- Free resources associated with App     */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_CleanUpApp
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     int32  Status;
@@ -1068,7 +1087,3 @@ int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId)
 
     return Status;
 }
-
-/************************/
-/*  End of File Comment */
-/************************/

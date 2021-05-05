@@ -325,57 +325,147 @@ typedef struct
 */
 extern CFE_TIME_Global_t CFE_TIME_Global;
 
-/*************************************************************************/
-/*
-** Function prototypes (get local clock)...
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief query local clock
+ */
 CFE_TIME_SysTime_t CFE_TIME_LatchClock(void);
 
-/*
-** Function prototypes (Time Services utilities data)...
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Time task initialization
+ */
 int32 CFE_TIME_TaskInit(void);
-void  CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
-void  CFE_TIME_InitData(void);
-void  CFE_TIME_QueryResetVars(void);
-void  CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference);
-void  CFE_TIME_GetDiagData(void);
-void  CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference);
 
-/*
-** Function prototypes (reference)...
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Process command pipe message
+ */
+void CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Initialize global time task data
+ */
+void CFE_TIME_InitData(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief query contents of Reset Variables
+ */
+void CFE_TIME_QueryResetVars(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief update contents of Reset Variables
+ */
+void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Report diagnostics data
+ */
+void CFE_TIME_GetDiagData(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Report local housekeeping data
+ */
+void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief get reference data (time at "tone")
+ */
 void CFE_TIME_GetReference(CFE_TIME_Reference_t *Reference);
 
-/*
-** Function prototypes (calculate TAI/UTC)...
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief calculate TAI from reference data
+ */
 CFE_TIME_SysTime_t CFE_TIME_CalculateTAI(const CFE_TIME_Reference_t *Reference);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief calculate UTC from reference data
+ */
 CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief determine current time state (per API)
+ */
 int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference);
 
-/*
-** Function prototypes (set time globals)...
-*/
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief set clock state
+ */
 void CFE_TIME_SetState(int16 NewState);
+
 #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  set clock source
+ */
 void CFE_TIME_SetSource(int16 NewSource);
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief set tone signal (pri vs red)
+ */
 void CFE_TIME_SetSignal(int16 NewSignal);
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief set tone delay (time client only)
+ */
 void CFE_TIME_SetDelay(CFE_TIME_SysTime_t NewDelay, int16 Direction);
 #endif
+
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief set time (time server only)
+ */
 void CFE_TIME_SetTime(CFE_TIME_SysTime_t NewTime);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief set MET (time server only)
+ */
 void CFE_TIME_SetMET(CFE_TIME_SysTime_t NewMET);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief set STCF (time server only)
+ */
 void CFE_TIME_SetSTCF(CFE_TIME_SysTime_t NewSTCF);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief set leap seconds (time server only)
+ */
 void CFE_TIME_SetLeapSeconds(int16 NewLeaps);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief one time STCF adjustment (server only)
+ */
 void CFE_TIME_SetAdjust(CFE_TIME_SysTime_t NewAdjust, int16 Direction);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief 1Hz STCF adjustment (time server only)
+ */
 void CFE_TIME_Set1HzAdj(CFE_TIME_SysTime_t NewAdjust, int16 Direction);
 #endif
 
@@ -383,6 +473,15 @@ void CFE_TIME_Set1HzAdj(CFE_TIME_SysTime_t NewAdjust, int16 Direction);
 ** Function prototypes (send time at tone data packet -- local MET)...
 */
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Send "time at the tone" (local time)
+ *
+ * the appropriate time (relative to the tone) such that the
+ * "time at the tone" data command will arrive within the
+ * specified window for tone and data packet verification.
+ */
 void CFE_TIME_ToneSend(void); /* signal to send time at tone packet */
 #endif
 
@@ -390,24 +489,57 @@ void CFE_TIME_ToneSend(void); /* signal to send time at tone packet */
 ** Function prototypes (send time at tone data packet -- external time)...
 */
 #if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Send "time at tone" (external MET)
+ *
+ * the appropriate time (relative to the tone) such that the
+ * "time at the tone" data command will arrive within the
+ * specified window for tone and data packet verification.
+ */
 int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET);
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Send "time at tone" (external GPS)
+ *
+ * the appropriate time (relative to the tone) such that the
+ * "time at the tone" data command will arrive within the
+ * specified window for tone and data packet verification.
+ */
 int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Send "time at tone" (external time)
+ *
+ * the appropriate time (relative to the tone) such that the
+ * "time at the tone" data command will arrive within the
+ * specified window for tone and data packet verification.
+ */
 int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime);
 #endif
 
-/*
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Initiate an update to the global time reference data
+ *
  * Helper function for updating the "Reference" value
  * This is the local replacement for "OS_IntLock()"
  */
 volatile CFE_TIME_ReferenceState_t *CFE_TIME_StartReferenceUpdate(void);
 
-/*
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Complete an update to the global time reference data
+ *
  * Helper function for updating the "Reference" value
  * This is the local replacement for "OS_IntUnlock()"
  */
@@ -416,7 +548,10 @@ static inline void CFE_TIME_FinishReferenceUpdate(volatile CFE_TIME_ReferenceSta
     CFE_TIME_Global.LastVersionCounter = NextState->StateVersion;
 }
 
-/*
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Get a pointer to the global time reference data
+ *
  * Helper function for getting the "Reference" value
  * This is the replacement for direct memory reads of
  * the state info from the global data structure.
@@ -429,23 +564,319 @@ static inline volatile CFE_TIME_ReferenceState_t *CFE_TIME_GetReferenceState(voi
 /*
 ** Function prototypes (process time at the tone signal and data packet)...
 */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief "tone signal" occurred recently
+ *
+ * This function is called upon receipt of a command indicating
+ * that a time at the tone signal was detected.  The mission
+ * dependent h/w or s/w that detected the tone signal latched
+ * the local clock and generated this command.  The use of a
+ * command announcing the tone signal ensures that this code
+ * is not called from within an interrupt handler.
+ *
+ * It is not a concern that some amount of time has elapsed since
+ * the tone actually occurred.  We are currently computing
+ * time as a delta (as measured on our local clock) from a
+ * previously latched tone.  It just doesn't matter if the
+ * size of the delta slightly exceeds a second.  The quality
+ * of our local clock will always be sufficient to measure
+ * time for a couple of seconds.
+ */
 void CFE_TIME_ToneSignal(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief process "time at tone" data packet
+ */
 void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief validate tone and data packet
+ *
+ * If the data packet is designed to arrive after the tone, then
+ *
+ *    Time1 = local clock latched at the detection of the tone
+ *    Time2 = local clock latched at the arrival of the packet
+ *
+ *
+ * If the data packet is designed to arrive before the tone, then
+ *
+ *    Time1 = local clock latched at the arrival of the packet
+ *    Time2 = local clock latched at the detection of the tone
+ *
+ * In either case, Time1 occurred before Time2
+ */
 void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief process "matching" tone & data packet
+ */
 void CFE_TIME_ToneUpdate(void);
 
 /*
 ** Function prototypes (tone 1Hz interrupt)...
 */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Tone signal ISR
+ */
 void CFE_TIME_Tone1HzISR(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Tone 1Hz task
+ *
+ * This task exists solely to generate the tone signal command.
+ */
 void CFE_TIME_Tone1HzTask(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Call App Synch Callback Funcs
+ */
 void CFE_TIME_NotifyTimeSynchApps(void);
 
 /*
 ** Function prototypes (local 1Hz interrupt)...
 */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Local 1Hz task (not the tone)
+ *
+ * This task exists solely to generate the 1Hz wakeup command.
+ *
+ * This is a temporary solution until a scheduler is implemented.
+ */
 void CFE_TIME_Local1HzTask(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Update the TIME state, should be called at 1Hz
+ */
 void CFE_TIME_Local1HzStateMachine(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  1Hz callback routine
+ *
+ * This is a wrapper around CFE_TIME_Local1HzISR that conforms to
+ * the prototype of an OSAL Timer callback routine.
+ */
 void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg);
+
+/*
+** Command handler for "HK request"...
+*/
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Onboard command (HK request)
+ */
+int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data);
+
+/*
+** Command handler for "tone signal detected"...
+*/
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time at tone command (signal)
+ */
+int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data);
+
+/*
+** Command handler for "time at the tone"...
+*/
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time at tone command (data)
+ */
+int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data);
+
+/*
+** Command handler for 1Hz signal...
+*/
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Execute state machine tasks required at 1Hz
+ *
+ * Service the "1Hz" notification message, and perform any state machine
+ * tasks that are intended to be executed at local 1Hz intervals.
+ *
+ * This also implements the "fake tone" functionality when that is enabled,
+ * as we do not need a separate MID for this job.
+ */
+int32 CFE_TIME_OneHzCmd(const CFE_TIME_1HzCmd_t *data);
+
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time at tone command (send data)
+ *
+ * Command handler for "request time at the tone"...
+ *
+ * @note This command (sent by the scheduler) is used to
+ *       signal that now is the right time (in relation
+ *       to the "real" tone signal) for a Time Server to
+ *       send the "time at the tone" data packet.  We do
+ *       not need (or want) this command if we are not a
+ *       Time Server.
+ *
+ *       In "fake tone" mode this command is locally generated
+ *       however it is still sent via the software bus, thereby
+ *       utilizing (mostly) the same code path as the
+ *       non-fake tone mode.
+ */
+int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data);
+#endif
+
+/*
+ * Ground command helper functions
+ */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (tone delay)
+ */
+void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (1Hz adjust)
+ */
+void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr,
+                         CFE_TIME_AdjustDirection_Enum_t              Direction);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (adjust STCF)
+ */
+void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction);
+
+/*
+** Ground command handlers...
+*/
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (1Hz adjust)
+ *
+ * This is a wrapper around CFE_TIME_1HzAdjImpl()
+ */
+int32 CFE_TIME_Add1HZAdjustmentCmd(const CFE_TIME_Add1HZAdjustmentCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (1Hz adjust)
+ *
+ * This is a wrapper around CFE_TIME_AdjustImpl()
+ */
+int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (tone delay)
+ *
+ * Wrapper around CFE_TIME_SetDelayImpl() for add/subtract operations
+ */
+int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (tone delay)
+ *
+ * Wrapper around CFE_TIME_SetDelayImpl() for add/subtract operations
+ */
+int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (diagnostics)
+ */
+int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (NOOP)
+ */
+int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (reset counters)
+ */
+int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (set leaps)
+ */
+int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (set MET)
+ *
+ * @note This command will not have lasting effect if configured
+ * to get external time of type MET.  Also, there cannot
+ * be a local h/w MET and an external MET since both would
+ * need to be synchronized to the same tone signal.
+ */
+int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task command (set tone source)
+ */
+int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task command (set time source)
+ */
+int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task command (set clock state)
+ */
+int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (set STCF)
+ */
+int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (calc STCF)
+ */
+int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (1Hz adjust)
+ *
+ * This is a wrapper around CFE_TIME_1HzAdjImpl()
+ */
+int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief  Time task ground command (1Hz adjust)
+ *
+ * This is a wrapper around CFE_TIME_AdjustImpl()
+ */
+int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data);
 
 #endif /* CFE_TIME_UTILS_H */

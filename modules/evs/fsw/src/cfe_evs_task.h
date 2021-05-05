@@ -132,31 +132,201 @@ extern CFE_EVS_Global_t CFE_EVS_Global;
 /*
  * Functions used within this module and by the unit test
  */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Task Initialization
+ *
+ * This function performs any necessary EVS task initialization.
+ */
 extern int32 CFE_EVS_TaskInit(void);
-extern void  CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Command Pipe Processing
+ *
+ * This function processes packets received on the EVS command pipe.
+ */
+extern void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr);
 
 /*
  * EVS Message Handler Functions
  */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * Request for housekeeping status telemetry packet.
+ */
 int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This function processes "noop" commands received on the EVS command pipe.
+ */
 int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This function processes "clear log" commands received on the EVS command pipe.
+ */
 int32 CFE_EVS_ClearLogCmd(const CFE_EVS_ClearLogCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This function resets all the global counter variables that are part of the task telemetry.
+ */
 int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the filter mask for the given event_id in the
+ * calling task's filter array
+ */
 int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the command given ports to an enabled state
+ * @note Shifting is done so the value not masked off is placed in the ones spot:
+ * necessary for comparing with true.
+ */
 int32 CFE_EVS_EnablePortsCmd(const CFE_EVS_EnablePortsCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the command given ports to a disabled state
+ * @note Shifting is done so the value not masked off is placed in the ones spot:
+ * necessary for comparing with true.
+ */
 int32 CFE_EVS_DisablePortsCmd(const CFE_EVS_DisablePortsCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the given event types to an enabled state across all
+ * registered applications
+ */
 int32 CFE_EVS_EnableEventTypeCmd(const CFE_EVS_EnableEventTypeCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the given event types to a disabled state across all
+ * registered applications
+ */
 int32 CFE_EVS_DisableEventTypeCmd(const CFE_EVS_DisableEventTypeCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the Event Format Mode
+ */
 int32 CFE_EVS_SetEventFormatModeCmd(const CFE_EVS_SetEventFormatModeCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the given event type for the given application identifier to an
+ * enabled state
+ */
 int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the given event type for the given application identifier to a
+ * disabled state
+ */
 int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine enables application events for the given application identifier
+ */
 int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine disables application events for the given application identifier
+ */
 int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the application event counter to zero for the given
+ * application identifier
+ */
 int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the application event filter counter to zero for the given
+ * application identifier and event identifier
+ */
 int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine adds the given event filter for the given application
+ * identifier and event identifier.
+ */
 int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine deletes the event filter for the given application
+ * identifer and event identifier
+ */
 int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine writes all application data to a file for all applications that
+ * have registered with the EVS.  The application data includes the Application ID,
+ * Active Flag, Event Count, Event Types Active Flag, and Filter Data.
+ */
 int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets all application event filter counters to zero for the given
+ * application identifier
+ */
 int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data);
 
 #endif /* CFE_EVS_TASK_H */

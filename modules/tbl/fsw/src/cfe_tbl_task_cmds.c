@@ -37,13 +37,14 @@
 
 #include <string.h>
 
-/*******************************************************************
-**
-** CFE_TBL_HousekeepingCmd() -- Process Housekeeping Request Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_HousekeepingCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 {
     int32                  Status;
@@ -132,16 +133,16 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     }
 
     return CFE_TBL_DONT_INC_CTR;
+}
 
-} /* End of CFE_TBL_HousekeepingCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_GetHkData() -- Collect data and store it into the Housekeeping Message
-**
-** NOTE: For complete prolog information, see prototype above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_GetHkData
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_GetHkData(void)
 {
     uint32                      i;
@@ -246,15 +247,16 @@ void CFE_TBL_GetHkData(void)
                                     sizeof(CFE_TBL_Global.Registry[CFE_TBL_Global.LastTblUpdated].Name));
         }
     }
-} /* End of CFE_TBL_GetHkData() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_GetTblRegData() -- Convert Table Registry Entry for a Table into a Message
-**
-** NOTE: For complete prolog information, see prototype above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_GetTblRegData
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_GetTblRegData(void)
 {
     CFE_TBL_RegistryRec_t *RegRecPtr;
@@ -305,31 +307,32 @@ void CFE_TBL_GetTblRegData(void)
                             sizeof(RegRecPtr->LastFileLoaded));
     CFE_ES_GetAppName(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName, RegRecPtr->OwnerAppId,
                       sizeof(CFE_TBL_Global.TblRegPacket.Payload.OwnerAppName));
-} /* End of CFE_TBL_GetTblRegData() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_NoopCmd() -- Process NO-Op Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_NoopCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
 {
     /* Acknowledge receipt of NOOP with Event Message */
     CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op command. %s", CFE_VERSION_STRING);
 
     return CFE_TBL_INC_CMD_CTR;
+}
 
-} /* End of CFE_TBL_NoopCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_ResetCountersCmd() -- Process Reset Counters Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ResetCountersCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
 {
     CFE_TBL_Global.CommandCounter      = 0;
@@ -342,16 +345,16 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
     CFE_EVS_SendEvent(CFE_TBL_RESET_INF_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
 
     return CFE_TBL_DONT_INC_CTR;
+}
 
-} /* End of CFE_TBL_ResetCountersCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_LoadCmd() -- Process Load Table File to Buffer Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_LoadCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t             ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
@@ -533,16 +536,16 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End of CFE_TBL_LoadCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_DumpCmd() -- Process Dump Table to File Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_DumpCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t             ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
@@ -679,16 +682,16 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End of CFE_TBL_DumpCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_DumpToFile() -- Write table data to a file
-**
-** NOTE: For complete prolog information, see prototype above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_DumpToFile
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *TableName, const void *DumpDataAddr,
                                         size_t TblSizeInBytes)
 {
@@ -805,15 +808,16 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
     }
 
     return ReturnCode;
-} /* End of CFE_TBL_DumpToFile() */
+}
 
-/*******************************************************************
-**
-** CFE_TBL_ValidateCmd() -- Process Validate Table Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ValidateCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t                 ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
@@ -947,16 +951,16 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End of CFE_TBL_ValidateCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_ActivateCmd() -- Process Activate Table Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_ActivateCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t                 ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
@@ -1027,15 +1031,16 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End of CFE_TBL_ActivateCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_DumpRegistryGetter() -- Helper function for dumping table registry
-**
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_DumpRegistryGetter
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_TBL_RegDumpStateInfo_t *StatePtr = (CFE_TBL_RegDumpStateInfo_t *)Meta;
@@ -1148,12 +1153,14 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
     return (RecordNum >= (CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1));
 }
 
-/*******************************************************************
-**
-** CFE_TBL_DumpRegistryEventHandler() -- Helper function for dumping table registry
-**
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_DumpRegistryEventHandler
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
                                       size_t BlockSize, size_t Position)
 {
@@ -1210,13 +1217,14 @@ void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event,
     }
 }
 
-/*******************************************************************
-**
-** CFE_TBL_DumpRegistryCmd() -- Process Dump Table Registry to file Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_DumpRegistryCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t                     ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
@@ -1270,16 +1278,16 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End of CFE_TBL_DumpRegistryCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_SendRegistryCmd() -- Process Telemeter Table Registry Entry Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_SendRegistryCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t                     ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
@@ -1311,16 +1319,16 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End of CFE_TBL_SendRegistryCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_DeleteCDSCmd() -- Process Delete Critical Table's CDS Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_DeleteCDSCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t               ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
@@ -1401,16 +1409,16 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
                           "'%s' found in Table Registry. CDS cannot be deleted until table is unregistered", TableName);
     }
     return ReturnCode;
+}
 
-} /* End of CFE_TBL_DeleteCDSCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_AbortLoadCmd() -- Process Abort Load Command Message
-**
-** NOTE: For complete prolog information, see 'cfe_tbl_task_cmds.h'
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_AbortLoadCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
 {
     CFE_TBL_CmdProcRet_t                  ReturnCode = CFE_TBL_INC_ERR_CTR; /* Assume failure */
@@ -1453,16 +1461,16 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
     }
 
     return ReturnCode;
+}
 
-} /* End of CFE_TBL_AbortLoadCmd() */
-
-/*******************************************************************
-**
-** CFE_TBL_AbortLoad() -- Abort load, free buffers, issue event message
-**
-** NOTE: For complete prolog information, see above
-********************************************************************/
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TBL_AbortLoad
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr)
 {
     /* The ground has aborted the load, free the working buffer for another attempt */
@@ -1480,8 +1488,4 @@ void CFE_TBL_AbortLoad(CFE_TBL_RegistryRec_t *RegRecPtr)
 
     CFE_EVS_SendEvent(CFE_TBL_LOAD_ABORT_INF_EID, CFE_EVS_EventType_INFORMATION, "Table Load Aborted for '%s'",
                       RegRecPtr->Name);
-} /* End of CFE_TBL_AbortLoad() */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

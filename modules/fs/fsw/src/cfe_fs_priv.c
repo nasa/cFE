@@ -42,20 +42,14 @@
 */
 CFE_FS_Global_t CFE_FS_Global;
 
-/******************************************************************************
-**  Function:  CFE_FS_EarlyInit()
-**
-**  Purpose:
-**    Initialize the FS data structures before the cFE runs.
-**
-**  Arguments:
-**
-**  Notes:
-**    This function MUST be called before any FS API's are called.
-**
-**  Return:
-**    CFE_SUCCESS
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_EarlyInit
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_FS_EarlyInit(void)
 {
     int32 Stat;
@@ -70,22 +64,16 @@ int32 CFE_FS_EarlyInit(void)
     } /* end if */
 
     return Stat;
+}
 
-} /* end CFE_FS_EarlyInit */
-
-/******************************************************************************
-**  Function:  CFE_FS_LockSharedData()
-**
-**  Purpose:
-**    FS internal function to handle a semaphore take failure for the FS
-**    Data Mutex
-**
-**  Arguments:
-**    FunctionName   - the Function Name of the code that generated the error.
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_LockSharedData
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_FS_LockSharedData(const char *FunctionName)
 {
     int32          Status;
@@ -102,22 +90,16 @@ void CFE_FS_LockSharedData(const char *FunctionName)
     } /* end if */
 
     return;
+}
 
-} /* end CFE_FS_LockSharedData */
-
-/******************************************************************************
-**  Function:  CFE_FS_UnlockSharedData()
-**
-**  Purpose:
-**    FS internal function to handle a semaphore give failure for the Shared
-**    Data Mutex
-**
-**  Arguments:
-**    FunctionName - the Function containing the code that generated the error.
-**
-**  Return:
-**    None
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_FS_UnlockSharedData
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_FS_UnlockSharedData(const char *FunctionName)
 {
     int32          Status;
@@ -132,9 +114,4 @@ void CFE_FS_UnlockSharedData(const char *FunctionName)
 
     } /* end if */
     return;
-
-} /* end CFE_FS_UnlockSharedData */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

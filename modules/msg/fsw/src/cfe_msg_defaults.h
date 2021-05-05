@@ -56,7 +56,7 @@
 #define CFE_PLATFORM_EDSVER 1 /**< \brief Default EDS version, cFS historically = 1 */
 #endif
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Set CCSDS Primary header defaults
  *
@@ -68,7 +68,7 @@
  */
 void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Set CCSDS Extended header defaults
  *

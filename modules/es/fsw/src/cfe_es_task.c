@@ -63,12 +63,14 @@
 */
 CFE_ES_TaskData_t CFE_ES_TaskData;
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_TaskMain() -- Task entry point and main process loop     */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_TaskMain
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_TaskMain(void)
 {
     int32            Status;
@@ -172,15 +174,17 @@ void CFE_ES_TaskMain(void)
     ** Exit the application, CFE_ES_ExitApp will not return.
     */
     CFE_ES_ExitApp(AppRunStatus);
+}
 
-} /* End of CFE_ES_TaskMain() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_FindConfigKeyValue() -- Find value for given config key  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_FindConfigKeyValue
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Find value for given config key
+ *
+ *-----------------------------------------------------------------*/
 const char *CFE_ES_FindConfigKeyValue(const CFE_ConfigKeyValue_t *ConfigList, const char *KeyName)
 {
     const char *ValuePtr;
@@ -203,12 +207,15 @@ const char *CFE_ES_FindConfigKeyValue(const CFE_ConfigKeyValue_t *ConfigList, co
     return ValuePtr;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                     */
-/* CFE_ES_GenerateSingleVersionEvent() -- Send CFE_ES_VERSION_INF_EID  */
-/*                                                                     */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenerateSingleVersionEvent
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Send a single CFE_ES_VERSION_INF_EID event for a component/module
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_GenerateSingleVersionEvent(const char *ModuleType, const char *ModuleName)
 {
     int32       Status;
@@ -232,12 +239,15 @@ int32 CFE_ES_GenerateSingleVersionEvent(const char *ModuleType, const char *Modu
     return Status;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_GenerateVersionEvents() -- Send CFE_ES_VERSION_INF_EID's */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenerateVersionEvents
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Send CFE_ES_VERSION_INF_EID events for all components/modules
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_GenerateVersionEvents(void)
 {
     int32                        Status;
@@ -289,12 +299,15 @@ void CFE_ES_GenerateVersionEvents(void)
     }
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_GenerateBuildInfoEvents() -- Send CFE_ES_BUILD_INF_EID   */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_GenerateBuildInfoEvents
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Sends the CFE_ES_BUILD_INF_EID event with build information
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_GenerateBuildInfoEvents(void)
 {
     int32       Status;
@@ -330,12 +343,14 @@ void CFE_ES_GenerateBuildInfoEvents(void)
     }
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_TaskInit() -- ES task initialization                     */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_TaskInit
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_TaskInit(void)
 {
     int32   Status;
@@ -495,15 +510,16 @@ int32 CFE_ES_TaskInit(void)
     }
 
     return (CFE_SUCCESS);
+}
 
-} /* End of CFE_ES_TaskInit() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_TaskPipe() -- Process command pipe message               */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_TaskPipe
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_SB_MsgId_t    MessageID   = CFE_SB_INVALID_MSG_ID;
@@ -711,15 +727,16 @@ void CFE_ES_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
             CFE_ES_Global.TaskData.CommandErrorCounter++;
             break;
     }
+}
 
-} /* End of CFE_ES_TaskPipe() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_HousekeepingCmd() -- On-board command (HK request)       */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_HousekeepingCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 {
     OS_heap_prop_t HeapProp;
@@ -824,14 +841,16 @@ int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     */
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_HousekeepingCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_NoopCmd() -- ES task ground command (NO-OP)              */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_NoopCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
 {
     /*
@@ -851,14 +870,16 @@ int32 CFE_ES_NoopCmd(const CFE_ES_NoopCmd_t *Cmd)
                       CFE_PSP_GetVersionString());
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_NoopCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_ResetCountersCmd() -- ES task ground command (reset counters)    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ResetCountersCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data)
 {
     CFE_ES_Global.TaskData.CommandCounter      = 0;
@@ -870,14 +891,16 @@ int32 CFE_ES_ResetCountersCmd(const CFE_ES_ResetCountersCmd_t *data)
     CFE_EVS_SendEvent(CFE_ES_RESET_INF_EID, CFE_EVS_EventType_INFORMATION, "Reset Counters command");
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_ResetCountersCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_RestartCmd() -- Restart cFE (may reset processor)        */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_RestartCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data)
 {
     const CFE_ES_RestartCmd_Payload_t *cmd = &data->Payload;
@@ -897,14 +920,16 @@ int32 CFE_ES_RestartCmd(const CFE_ES_RestartCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_RestartCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_StartAppCmd() -- Load (and start) single application     */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_StartAppCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
 {
     const CFE_ES_StartAppCmd_Payload_t *cmd = &data->Payload;
@@ -1000,14 +1025,16 @@ int32 CFE_ES_StartAppCmd(const CFE_ES_StartAppCmd_t *data)
     } /* End if -- command parameter validation */
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_StartAppCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_StopAppCmd() -- Stop single application                  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_StopAppCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
@@ -1049,14 +1076,16 @@ int32 CFE_ES_StopAppCmd(const CFE_ES_StopAppCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_StopAppCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_RestartAppCmd() -- Restart a single application            */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_RestartAppCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
@@ -1097,14 +1126,16 @@ int32 CFE_ES_RestartAppCmd(const CFE_ES_RestartAppCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_ResetAppCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_ReloadAppCmd() -- Reload a single application            */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ReloadAppCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
 {
     const CFE_ES_AppReloadCmd_Payload_t *cmd = &data->Payload;
@@ -1154,14 +1185,16 @@ int32 CFE_ES_ReloadAppCmd(const CFE_ES_ReloadAppCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_ReloadAppCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_QueryOneCmd() -- Request tlm packet with single app data */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_QueryOneCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
 {
     const CFE_ES_AppNameCmd_Payload_t *cmd = &data->Payload;
@@ -1219,14 +1252,16 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_QueryOneCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_QueryAllCmd() -- Write all app data to file              */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_QueryAllCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
 {
     CFE_FS_Header_t                     FileHeader;
@@ -1378,14 +1413,16 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_QueryAllCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_QueryAllTasksCmd() -- Write all Task Data to a file      */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_QueryAllTasksCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
 {
     CFE_FS_Header_t                     FileHeader;
@@ -1528,14 +1565,16 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_QueryAllTasksCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_ClearSysLogCmd() -- Clear executive services system log  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ClearSysLogCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data)
 {
     /*
@@ -1553,14 +1592,16 @@ int32 CFE_ES_ClearSysLogCmd(const CFE_ES_ClearSysLogCmd_t *data)
     CFE_EVS_SendEvent(CFE_ES_SYSLOG1_INF_EID, CFE_EVS_EventType_INFORMATION, "Cleared Executive Services log data");
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_ClearSysLogCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_OverWriteSysLogCmd() -- set syslog mode                  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_OverWriteSysLogCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data)
 {
     int32                                      Status;
@@ -1584,14 +1625,16 @@ int32 CFE_ES_OverWriteSysLogCmd(const CFE_ES_OverWriteSysLogCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End CFE_ES_OverWriteSysLogCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                       */
-/* CFE_ES_WriteSysLogCmd() -- Process Cmd to write ES System Log to file */
-/*                                                                       */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_WriteSysLogCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1629,14 +1672,16 @@ int32 CFE_ES_WriteSysLogCmd(const CFE_ES_WriteSysLogCmd_t *data)
     } /* end if */
 
     return CFE_SUCCESS;
-} /* end CFE_ES_WriteSysLogCmd */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_ClearERLogCmd() -- Clear The exception and reset log.    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ClearERLogCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
 {
     /*
@@ -1663,14 +1708,16 @@ int32 CFE_ES_ClearERLogCmd(const CFE_ES_ClearERLogCmd_t *data)
     CFE_EVS_SendEvent(CFE_ES_ERLOG1_INF_EID, CFE_EVS_EventType_INFORMATION, "Cleared ES Exception and Reset Log data");
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_ClearERLogCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_WriteERLogCmd() -- Process Cmd to write exception & reset*/
-/*                           log to a file.                        */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_WriteERLogCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
 {
     const CFE_ES_FileNameCmd_Payload_t *CmdPtr = &data->Payload;
@@ -1738,14 +1785,16 @@ int32 CFE_ES_WriteERLogCmd(const CFE_ES_WriteERLogCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* end CFE_ES_WriteERLogCmd */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_VerifyCmdLength() -- Verify command packet length        */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_VerifyCmdLength
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 {
     bool              result       = true;
@@ -1772,16 +1821,16 @@ bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
     }
 
     return (result);
+}
 
-} /* End of CFE_ES_VerifyCmdLength() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_ResetPRCountCmd() -- ES task ground command              */
-/*                              (Processor Reset Count)            */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ResetPRCountCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data)
 {
     /*
@@ -1797,14 +1846,16 @@ int32 CFE_ES_ResetPRCountCmd(const CFE_ES_ResetPRCountCmd_t *data)
     CFE_ES_Global.TaskData.CommandCounter++;
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_ResetPRCountCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_SetMaxPRCountCmd() -- Set Maximum Processor reset count  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SetMaxPRCountCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data)
 {
     const CFE_ES_SetMaxPRCountCmd_Payload_t *cmd = &data->Payload;
@@ -1823,14 +1874,16 @@ int32 CFE_ES_SetMaxPRCountCmd(const CFE_ES_SetMaxPRCountCmd_t *data)
     CFE_ES_Global.TaskData.CommandCounter++;
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_RestartCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_DeleteCDSCmd() -- Delete Specified Critical Data Store   */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_DeleteCDSCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data)
 {
     int32                                Status;
@@ -1879,17 +1932,16 @@ int32 CFE_ES_DeleteCDSCmd(const CFE_ES_DeleteCDSCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_DeleteCDSCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                   */
-/* CFE_ES_SendMemPoolStatsCmd() -- Telemeter Memory Pool Statistics  */
-/*                                                                   */
-/* Note: The "Application" parameter of the                          */
-/*       CFE_ES_TlmPoolStats_t structure is not used.                */
-/*                                                                   */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_SendMemPoolStatsCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
 {
     const CFE_ES_SendMemPoolStatsCmd_Payload_t *Cmd;
@@ -1930,14 +1982,16 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_SendMemPoolStatsCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_DumpCDSRegistryCmd() -- Dump CDS Registry to a file           */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_DumpCDSRegistryCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
 {
     CFE_FS_Header_t                            StdFileHeader;
@@ -2055,23 +2109,20 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
     }
 
     return CFE_SUCCESS;
-} /* End of CFE_ES_DumpCDSRegistryCmd() */
+}
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_ES_FileWriteByteCntErr() -- Send event to inform ground that*/
-/*                                a byte count discrepancy has been*/
-/*                                detected during the file write   */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_FileWriteByteCntErr
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_FileWriteByteCntErr(const char *Filename, size_t Requested, int32 Status)
 {
 
     CFE_EVS_SendEvent(CFE_ES_FILEWRITE_ERR_EID, CFE_EVS_EventType_ERROR,
                       "File write,byte cnt err,file %s,request=%u,status=0x%08x", Filename, (unsigned int)Requested,
                       (unsigned int)Status);
-
-} /* End of CFE_ES_FileWriteByteCntErr() */
-
-/************************/
-/*  End of File Comment */
-/************************/
+}

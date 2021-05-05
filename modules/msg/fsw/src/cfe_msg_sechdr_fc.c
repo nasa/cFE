@@ -26,10 +26,14 @@
 
 #define CFE_MSG_FC_MASK 0x7F /**< \brief Function code mask */
 
-/******************************************************************************
- * Get function code - See API and header file for details
- * cFS default secondary header implementation
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetFcnCode
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetFcnCode(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t *FcnCode)
 {
     uint32                   status;
@@ -57,10 +61,14 @@ int32 CFE_MSG_GetFcnCode(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t *Fcn
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set function code - See API and header file for details
- * cFS default secondary header implementation
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetFcnCode
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetFcnCode(CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t FcnCode)
 {
     uint32                   status;

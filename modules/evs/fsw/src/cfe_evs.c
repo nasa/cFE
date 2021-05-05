@@ -35,15 +35,14 @@
 #include <stdarg.h>
 #include <string.h>
 
-/* External Data */
-
-/* Local Function Prototypes */
-
-/* Function Definitions */
-
-/*
-** Function: CFE_EVS_Register - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_Register
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme)
 {
     uint16               FilterLimit;
@@ -112,12 +111,16 @@ int32 CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 Filte
     }
 
     return (Status);
+}
 
-} /* End CFE_EVS_Register */
-
-/*
-** Function: CFE_EVS_Unregister - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_Unregister
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_Unregister(void)
 {
     int32          Status;
@@ -132,12 +135,16 @@ int32 CFE_EVS_Unregister(void)
     }
 
     return (Status);
+}
 
-} /* End CFE_EVS_Unregister */
-
-/*
-** Function: CFE_EVS_SendEvent - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_SendEvent
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
     int32              Status;
@@ -173,12 +180,16 @@ int32 CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
     }
 
     return (Status);
+}
 
-} /* End CFE_EVS_SendEvent */
-
-/*
-** Function: CFE_EVS_SendEventWithAppID - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_SendEventWithAppID
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_t AppID, const char *Spec, ...)
 {
     int32              Status = CFE_SUCCESS;
@@ -213,12 +224,16 @@ int32 CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES_AppId_
     }
 
     return Status;
+}
 
-} /* End CFE_EVS_SendEventWithAppID */
-
-/*
-** Function: CFE_EVS_SendTimedEvent - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_SendTimedEvent
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 EventType, const char *Spec, ...)
 {
     int32          Status;
@@ -250,12 +265,16 @@ int32 CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uint16 Eve
     }
 
     return (Status);
+}
 
-} /* End CFE_EVS_SendTimedEvent */
-
-/*
-** Function: CFE_EVS_ResetFilter - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ResetFilter
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_ResetFilter(int16 EventID)
 {
     int32            Status;
@@ -287,12 +306,16 @@ int32 CFE_EVS_ResetFilter(int16 EventID)
     }
 
     return (Status);
+}
 
-} /* End CFE_EVS_ResetFilter */
-
-/*
-** Function: CFE_EVS_ResetAllFilters - See API and header file for details
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_EVS_ResetAllFilters
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_EVS_ResetAllFilters(void)
 {
     int32          Status;
@@ -318,7 +341,4 @@ int32 CFE_EVS_ResetAllFilters(void)
     }
 
     return (Status);
-
-} /* End CFE_EVS_ResetAllFilters */
-
-/* End CFE_EVS.C */
+}

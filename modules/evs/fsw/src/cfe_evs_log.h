@@ -52,9 +52,32 @@
 
 /* ==============   Section III: Function Prototypes =========== */
 
-void  EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr);
-void  EVS_ClearLog(void);
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief This routine adds an event packet to the internal event log.
+ */
+void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief This routine clears the contents of the internal event log.
+ */
+void EVS_ClearLog(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine writes the contents of the internal event log to a file
+ */
 int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Message Handler Function
+ *
+ * This routine sets the internal event log mode.
+ */
 int32 CFE_EVS_SetLogModeCmd(const CFE_EVS_SetLogModeCmd_t *data);
 
 #endif /* CFE_EVS_LOG_H */

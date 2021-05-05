@@ -65,9 +65,13 @@ typedef struct
 /** \brief Routing module shared data */
 cfe_sbr_route_data_t CFE_SBR_RDATA;
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_Init
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SBR_Init(void)
 {
     CFE_SB_RouteId_Atom_t routeidx;
@@ -85,9 +89,13 @@ void CFE_SBR_Init(void)
     CFE_SBR_Init_Map();
 }
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_AddRoute
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 CFE_SBR_RouteId_t CFE_SBR_AddRoute(CFE_SB_MsgId_t MsgId, uint32 *CollisionsPtr)
 {
     CFE_SBR_RouteId_t routeid    = CFE_SBR_INVALID_ROUTE_ID;
@@ -110,9 +118,13 @@ CFE_SBR_RouteId_t CFE_SBR_AddRoute(CFE_SB_MsgId_t MsgId, uint32 *CollisionsPtr)
     return routeid;
 }
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_GetMsgId
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 CFE_SB_MsgId_t CFE_SBR_GetMsgId(CFE_SBR_RouteId_t RouteId)
 {
     CFE_SB_MsgId_t msgid = CFE_SB_INVALID_MSG_ID;
@@ -125,9 +137,13 @@ CFE_SB_MsgId_t CFE_SBR_GetMsgId(CFE_SBR_RouteId_t RouteId)
     return msgid;
 }
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_GetDestListHeadPtr
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 CFE_SB_DestinationD_t *CFE_SBR_GetDestListHeadPtr(CFE_SBR_RouteId_t RouteId)
 {
 
@@ -141,9 +157,13 @@ CFE_SB_DestinationD_t *CFE_SBR_GetDestListHeadPtr(CFE_SBR_RouteId_t RouteId)
     return destptr;
 }
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_SetDestListHeadPtr
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SBR_SetDestListHeadPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr)
 {
 
@@ -153,9 +173,13 @@ void CFE_SBR_SetDestListHeadPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t
     }
 }
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_IncrementSequenceCounter
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SBR_IncrementSequenceCounter(CFE_SBR_RouteId_t RouteId)
 {
     if (CFE_SBR_IsValidRouteId(RouteId))
@@ -164,9 +188,13 @@ void CFE_SBR_IncrementSequenceCounter(CFE_SBR_RouteId_t RouteId)
     }
 }
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_GetSequenceCounter
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 CFE_MSG_SequenceCount_t CFE_SBR_GetSequenceCounter(CFE_SBR_RouteId_t RouteId)
 {
     uint32 seqcnt = 0;
@@ -179,9 +207,13 @@ CFE_MSG_SequenceCount_t CFE_SBR_GetSequenceCounter(CFE_SBR_RouteId_t RouteId)
     return seqcnt;
 }
 
-/******************************************************************************
- *  Interface function - see API for description
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SBR_ForEachRouteId
+ *
+ * Internal helper routine only, not part of API.
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SBR_ForEachRouteId(CFE_SBR_CallbackPtr_t CallbackPtr, void *ArgPtr, CFE_SBR_Throttle_t *ThrottlePtr)
 {
     CFE_SB_RouteId_Atom_t routeidx;

@@ -77,17 +77,27 @@ typedef struct
     CFE_SB_PipeId_t PipeId;   /* Pipe id to remove */
 } CFE_SB_RemovePipeCallback_t;
 
-/*
- *  Function: CFE_SB_PipeId_ToIndex - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_PipeId_ToIndex
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_PipeId_ToIndex(CFE_SB_PipeId_t PipeID, uint32 *Idx)
 {
     return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(PipeID), CFE_SB_PIPEID_BASE, CFE_PLATFORM_SB_MAX_PIPES, Idx);
 }
 
-/*
- * Function: CFE_SB_CreatePipe - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_CreatePipe
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const char *PipeName)
 {
     CFE_ES_AppId_t   AppId;
@@ -263,12 +273,16 @@ int32 CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const char *Pi
     }
 
     return Status;
+}
 
-} /* end CFE_SB_CreatePipe */
-
-/*
- *  Function: CFE_SB_DeletePipe - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_DeletePipe
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 {
     CFE_ES_AppId_t CallerId;
@@ -280,21 +294,16 @@ int32 CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
     Status = CFE_SB_DeletePipeFull(PipeId, CallerId);
 
     return Status;
+}
 
-} /* end CFE_SB_DeletePipe */
-
-/******************************************************************************
-**  Function:  CFE_SB_DeletePipeWithAppId()
-**
-**  Purpose:
-**
-**
-**  Arguments:
-**    PipeId - The ID of the pipe to delete.
-**
-**  Return:
-**    CFE_SUCCESS or cFE Error Code
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_DeletePipeWithAppId
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
     int32 Status = 0;
@@ -302,12 +311,17 @@ int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
     Status = CFE_SB_DeletePipeFull(PipeId, AppId);
 
     return Status;
+}
 
-} /* end CFE_SB_DeletePipeWithAppId */
-
-/******************************************************************************
- * Local callback helper for deleting a pipe from a route
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_RemovePipeFromRoute
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Callback for deleting a pipe from a route
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_RemovePipeFromRoute(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 {
     CFE_SB_DestinationD_t *      destptr;
@@ -323,21 +337,14 @@ void CFE_SB_RemovePipeFromRoute(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
     }
 }
 
-/******************************************************************************
-**  Function:  CFE_SB_DeletePipeFull()
-**
-**  Purpose:
-**    Will unsubscribe to all routes associated with the given pipe id, then remove
-**    pipe from the pipe table.
-**
-**  NOTE:This function cannot be called directly, it would not be semaphore protected
-**
-**  Arguments:
-**    PipeId - The ID of the pipe to delete.
-**
-**  Return:
-**    CFE_SUCCESS or cFE Error Code
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_DeletePipeFull
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
     CFE_SB_PipeD_t *            PipeDscPtr;
@@ -477,12 +484,16 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
     }
 
     return Status;
+}
 
-} /* end CFE_SB_DeletePipeFull */
-
-/*
- *  Function: CFE_SB_SetPipeOpts - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SetPipeOpts
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
 {
     CFE_SB_PipeD_t *PipeDscPtr;
@@ -562,11 +573,16 @@ int32 CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
     }
 
     return Status;
-} /* end CFE_SB_SetPipeOpts */
+}
 
-/*
- *  Function:  CFE_SB_GetPipeOpts - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_GetPipeOpts
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 {
     int32           Status;
@@ -634,11 +650,16 @@ int32 CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
     }
 
     return Status;
-} /* end CFE_SB_GetPipeOpts */
+}
 
-/*
- *  Function:  CFE_SB_GetPipeName - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_GetPipeName
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId)
 {
     int32           Status;
@@ -723,12 +744,16 @@ int32 CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t
     }
 
     return Status;
+}
 
-} /* end CFE_SB_GetPipeName */
-
-/*
- *  Function:  CFE_SB_GetPipeIdByName - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_GetPipeIdByName
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
 {
     int32           Status;
@@ -824,66 +849,56 @@ int32 CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
     }
 
     return Status;
+}
 
-} /* end CFE_SB_GetPipeIdByName */
-
-/*
- * Function: CFE_SB_SubscribeEx - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SubscribeEx
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_SubscribeEx(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim)
 {
     return CFE_SB_SubscribeFull(MsgId, PipeId, Quality, MsgLim, (uint8)CFE_SB_MSG_GLOBAL);
+}
 
-} /* end CFE_SB_SubscribeEx */
-
-/*
- * Function: CFE_SB_SubscribeLocal - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SubscribeLocal
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_SubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint16 MsgLim)
 {
     return CFE_SB_SubscribeFull(MsgId, PipeId, CFE_SB_DEFAULT_QOS, MsgLim, (uint8)CFE_SB_MSG_LOCAL);
+}
 
-} /* end CFE_SB_SubscribeLocal */
-
-/*
- * Function: CFE_SB_Subscribe - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_Subscribe
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_Subscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
     return CFE_SB_SubscribeFull(MsgId, PipeId, CFE_SB_DEFAULT_QOS, (uint16)CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT,
                                 (uint8)CFE_SB_MSG_GLOBAL);
+}
 
-} /* end CFE_SB_Subscribe */
-
-/******************************************************************************
-** Name:    CFE_SB_SubscribeFull
-**
-** Purpose: CFE Internal API used to subscribe to a message. Contains an input
-**          parameter for all possible subscription choices. This function is
-**          called by CFE_SB_SubscribeEx, CFE_SB_Subscribe and
-**          CFE_SB_SubscribeLocal.
-**
-** Assumptions, External Events, and Notes:
-**          Has the same typedef as the message Id
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgId - Mission unique identifier for the message being requested
-**          PipeId  - The Pipe ID to send the message to
-**          Quality - Quality of Service (Qos) - priority and reliability
-**          MsgLim  - Max number of messages, with this MsgId, allowed on the
-**                    pipe at any time.
-**          Scope   - Local subscription or broadcasted to peers
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_SubscribeFull
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim,
                            uint8 Scope)
 {
@@ -1115,12 +1130,16 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
     }
 
     return Status;
+}
 
-} /* end CFE_SB_SubscribeFull */
-
-/*
- * Function: CFE_SB_Unsubscribe - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_Unsubscribe
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
     CFE_ES_AppId_t CallerId;
@@ -1132,12 +1151,16 @@ int32 CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
     Status = CFE_SB_UnsubscribeFull(MsgId, PipeId, (uint8)CFE_SB_MSG_GLOBAL, CallerId);
 
     return Status;
+}
 
-} /* end CFE_SB_Unsubscribe */
-
-/*
- * Function: CFE_SB_UnsubscribeLocal - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_UnsubscribeLocal
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 {
     CFE_ES_AppId_t CallerId;
@@ -1149,31 +1172,16 @@ int32 CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
     Status = CFE_SB_UnsubscribeFull(MsgId, PipeId, (uint8)CFE_SB_MSG_LOCAL, CallerId);
 
     return Status;
+}
 
-} /* end CFE_SB_UnsubscribeLocal */
-
-/******************************************************************************
-** Name:    CFE_SB_UnsubscribeAppId
-**
-** Purpose: CFE Internal API intented to be called by CFE_ES when an applications
-**          SB resources need to be freed. The regular unsibscribe api won't work
-**          because it does a check to ensure the caller is the owner of the pipe.
-**
-** Date Written:
-**          03/15/2007
-**
-** Input Arguments:
-**          MsgId
-**          PipeId
-**          AppId
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_UnsubscribeWithAppId
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 {
     int32 Status = 0;
@@ -1181,37 +1189,16 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, 
     Status = CFE_SB_UnsubscribeFull(MsgId, PipeId, (uint8)CFE_SB_MSG_LOCAL, AppId);
 
     return Status;
+}
 
-} /* end CFE_SB_UnsubscribeWithAppId */
-
-/******************************************************************************
-** Name:    CFE_SB_UnsubscribeFull
-**
-** Purpose: CFE Internal API used to unsubscribe to a message.
-**
-** Assumptions, External Events, and Notes:
-**
-**
-** Notes:This function cannot be called directly,it would not be semaphore protected.
-**       Also,if more than one subscription is found, this function will remove all
-**       entries that match.
-**
-** Date Written:
-**          04/25/2005
-**
-** Input Arguments:
-**          MsgId
-**          PipeId
-**          Scope
-**          AppId
-**
-** Output Arguments:
-**          None
-**
-** Return Values:
-**          Status
-**
-******************************************************************************/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_UnsubscribeFull
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8 Scope, CFE_ES_AppId_t AppId)
 {
     int32                  Status;
@@ -1326,11 +1313,16 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
     }
 
     return Status;
-} /* end CFE_SB_UnsubscribeFull */
+}
 
-/*
- * Function CFE_SB_TransmitMsg - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_TransmitMsg
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount)
 {
     int32             Status;
@@ -1430,15 +1422,14 @@ int32 CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount)
     return Status;
 }
 
-/*****************************************************************************/
-/**
- * \brief Internal routine to validate a transmit message before sending
+/*----------------------------------------------------------------
  *
- * \param[in]  MsgPtr     Pointer to the message to validate
- * \param[out] MsgIdPtr   Message Id of message
- * \param[out] SizePtr    Size of message
- * \param[out] RouteIdPtr Route ID of the message (invalid if none)
- */
+ * Function: CFE_SB_TransmitMsgValidate
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
                                  CFE_SBR_RouteId_t *RouteIdPtr)
 {
@@ -1548,14 +1539,14 @@ int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgI
     return Status;
 }
 
-/*****************************************************************************/
-/**
- * \brief Internal routine implements full send logic
+/*----------------------------------------------------------------
  *
- * \param[in] BufDscPtr Pointer to the buffer description from the memory pool,
- *                      released prior to return
- * \param[in] RouteId   Route to send to
- */
+ * Function: CFE_SB_BroadcastBufferToRoute
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_t RouteId)
 {
     CFE_ES_AppId_t         AppId;
@@ -1773,9 +1764,14 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
     }
 }
 
-/*
- * Function: CFE_SB_ReceiveBuffer - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_ReceiveBuffer
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut)
 {
     int32                  Status;
@@ -2025,9 +2021,14 @@ int32 CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int
     return Status;
 }
 
-/*
- * Function: CFE_SB_AllocateMessageBuffer - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_AllocateMessageBuffer
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
 {
     CFE_ES_AppId_t    AppId;
@@ -2078,13 +2079,16 @@ CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
     }
 
     return BufPtr;
+}
 
-} /* CFE_SB_AllocateMessageBuffer */
-
-/*
- * Helper function to do sanity checks on the Zero Copy Buffer and
- * outputs the encapsulating descriptor if successful
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_ZeroCopyBufferValidate
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **BufDscPtr)
 {
     cpuaddr BufDscAddr;
@@ -2116,9 +2120,14 @@ int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **
     return CFE_SUCCESS;
 }
 
-/*
- * Function: CFE_SB_ReleaseMessageBuffer - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_ReleaseMessageBuffer
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
 {
     CFE_SB_BufferD_t *BufDscPtr;
@@ -2138,12 +2147,16 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
     return Status;
+}
 
-} /* end CFE_SB_ReleaseMessageBuffer */
-
-/*
- * Function CFE_SB_TransmitBuffer - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_TransmitBuffer
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequenceCount)
 {
     int32             Status;

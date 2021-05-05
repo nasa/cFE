@@ -40,79 +40,14 @@
 */
 CFE_TIME_Global_t CFE_TIME_Global;
 
-/*
-** Command handler for "HK request"...
-*/
-int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data);
-
-/*
-** Command handler for "tone signal detected"...
-*/
-int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data);
-
-/*
-** Command handler for "time at the tone"...
-*/
-int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data);
-
-/*
-** Command handler for 1Hz signal...
-*/
-int32 CFE_TIME_OneHzCmd(const CFE_TIME_1HzCmd_t *data);
-
-/*
-** Command handler for "request time at the tone"...
-**
-** Note: This command (sent by the scheduler) is used to
-**       signal that now is the right time (in relation
-**       to the "real" tone signal) for a Time Server to
-**       send the "time at the tone" data packet.  We do
-**       not need (or want) this command if we are not a
-**       Time Server.
-**
-**       In "fake tone" mode this command is locally generated
-**       however it is still sent via the software bus, thereby
-**       utilizing (mostly) the same code path as the
-**       non-fake tone mode.
-*/
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data);
-#endif
-
-/*
- * Ground command helper functions
- */
-void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction);
-void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr,
-                         CFE_TIME_AdjustDirection_Enum_t              Direction);
-void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction);
-
-/*
-** Ground command handlers...
-*/
-int32 CFE_TIME_Add1HZAdjustmentCmd(const CFE_TIME_Add1HZAdjustmentCmd_t *data);
-int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data);
-int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data);
-int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data);
-int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data);
-int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data);
-int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data);
-int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data);
-int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data);
-int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data);
-int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data);
-int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data);
-int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data);
-int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data);
-int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data);
-int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data);
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_EarlyInit() -- API initialization before any tasks     */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_EarlyInit
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_EarlyInit(void)
 {
     /*
@@ -121,15 +56,16 @@ int32 CFE_TIME_EarlyInit(void)
     CFE_TIME_InitData();
 
     return (CFE_SUCCESS);
+}
 
-} /* End of CFE_TIME_EarlyInit() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_TaskMain() -- Task entry point and main process loop   */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_TaskMain
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_TaskMain(void)
 {
     int32            Status;
@@ -183,15 +119,16 @@ void CFE_TIME_TaskMain(void)
 
     /* while loop exits only if CFE_SB_ReceiveBuffer returns error */
     CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
+}
 
-} /* end CFE_TIME_TaskMain */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_TaskInit() -- Time task initialization                 */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_TaskInit
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_TaskInit(void)
 {
     int32     Status;
@@ -368,21 +305,17 @@ int32 CFE_TIME_TaskInit(void)
     }
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_TaskInit() */
-
-/******************************************************************************
-**  Function:  CFE_TIME_VerifyCmdLength()
-**
-**  Purpose:
-**    Function to verify the length of incoming TIME command packets
-**
-**  Arguments:
-**    Message pointer and expected length
-**
-**  Return:
-**    true if length is acceptable
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_VerifyCmdLength
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Function to verify the length of incoming TIME command packets
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_TIME_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 {
     bool              result       = true;
@@ -409,15 +342,16 @@ bool CFE_TIME_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
     }
 
     return (result);
+}
 
-} /* End of CFE_TIME_VerifyCmdLength() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_TaskPipe() -- Process command pipe message             */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_TaskPipe
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
 {
     CFE_SB_MsgId_t    MessageID   = CFE_SB_INVALID_MSG_ID;
@@ -613,15 +547,16 @@ void CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
     } /* switch (message ID) */
 
     return;
+}
 
-} /* End of CFE_TIME_TaskPipe() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_HousekeepingCmd() -- On-board command (HK request)     */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_HousekeepingCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 {
     CFE_TIME_Reference_t Reference;
@@ -652,15 +587,16 @@ int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     **   processing CFE_TIME_CMD_MID commands...
     */
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_HousekeepingCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneSignalCmd() -- Time at tone command (signal)       */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneSignalCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data)
 {
     /*
@@ -673,15 +609,16 @@ int32 CFE_TIME_ToneSignalCmd(const CFE_TIME_ToneSignalCmd_t *data)
     **   processing CFE_TIME_CMD_MID commands...
     */
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_ToneSignalCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneDataCmd() -- Time at tone command (data)           */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneDataCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data)
 {
     /*
@@ -694,20 +631,16 @@ int32 CFE_TIME_ToneDataCmd(const CFE_TIME_ToneDataCmd_t *data)
     **   processing CFE_TIME_CMD_MID commands...
     */
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_ToneDataCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+/*----------------------------------------------------------------
  *
- * CFE_TIME_OneHzCmd() -- Execute state machine tasks required at 1Hz
+ * Function: CFE_TIME_OneHzCmd
  *
- * Service the "1Hz" notification message, and perform any state machine
- * tasks that are intended to be executed at local 1Hz intervals.
+ * Application-scope internal function
+ * See description in header file for argument/return detail
  *
- * This also implements the "fake tone" functionality when that is enabled,
- * as we do not need a separate MID for this job.
- *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_OneHzCmd(const CFE_TIME_1HzCmd_t *data)
 {
     /*
@@ -730,15 +663,16 @@ int32 CFE_TIME_OneHzCmd(const CFE_TIME_1HzCmd_t *data)
     **   processing CFE_TIME_CMD_MID commands...
     */
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_OneHzCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_ToneSendCmd() -- Time at tone command (send data)      */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ToneSendCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
 int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data)
 {
@@ -752,16 +686,17 @@ int32 CFE_TIME_ToneSendCmd(const CFE_TIME_FakeToneCmd_t *data)
     **   processing CFE_TIME_CMD_MID commands...
     */
     return CFE_SUCCESS;
-
-} /* End of CFE_TIME_SendCmd() */
+}
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_NoopCmd() -- Time task ground command (NO-OP)          */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_NoopCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 {
 
@@ -770,15 +705,16 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
     CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op command.%s", CFE_VERSION_STRING);
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_NoopCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_ResetCountersCmd() -- Time task ground command (reset counters)*/
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_ResetCountersCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
 {
 
@@ -810,15 +746,16 @@ int32 CFE_TIME_ResetCountersCmd(const CFE_TIME_ResetCountersCmd_t *data)
     CFE_EVS_SendEvent(CFE_TIME_RESET_EID, CFE_EVS_EventType_DEBUG, "Reset Counters command");
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_ResetCountersCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_DiagCmd() -- Time task ground command (diagnostics)    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SendDiagnosticTlm
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
 {
     CFE_TIME_Global.CommandCounter++;
@@ -837,15 +774,16 @@ int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
     CFE_EVS_SendEvent(CFE_TIME_DIAG_EID, CFE_EVS_EventType_DEBUG, "Request diagnostics command");
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_DiagCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetStateCmd() -- Time task command (set clock state)   */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetStateCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
 {
     const CFE_TIME_StateCmd_Payload_t *CommandPtr = &data->Payload;
@@ -887,15 +825,16 @@ int32 CFE_TIME_SetStateCmd(const CFE_TIME_SetStateCmd_t *data)
     }
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_SetStateCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetSourceCmd() -- Time task command (set time source)  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetSourceCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
 {
     const CFE_TIME_SourceCmd_Payload_t *CommandPtr = &data->Payload;
@@ -955,14 +894,16 @@ int32 CFE_TIME_SetSourceCmd(const CFE_TIME_SetSourceCmd_t *data)
     }
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_SetSourceCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetSignalCmd() -- Time task command (set tone source)  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetSignalCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
 {
     const CFE_TIME_SignalCmd_Payload_t *CommandPtr = &data->Payload;
@@ -1022,15 +963,16 @@ int32 CFE_TIME_SetSignalCmd(const CFE_TIME_SetSignalCmd_t *data)
     }
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_SetSignalCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetDelayImpl() -- Time task ground command (tone delay)*/
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetDelayImpl
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction)
 {
     /*
@@ -1071,33 +1013,44 @@ void CFE_TIME_SetDelayImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIM
                           "Invalid Tone Delay -- secs = %u, usecs = %u", (unsigned int)CommandPtr->Seconds,
                           (unsigned int)CommandPtr->MicroSeconds);
     }
+}
 
-} /* End of CFE_TIME_SetDelayImpl() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                     */
-/* CFE_TIME_AddSubDelayCmd() -- Time task ground command (tone delay)  */
-/*                                                                     */
-/* Wrapper around CFE_TIME_SetDelayImpl() for add/subtract operations  */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_AddDelayCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_AddDelayCmd(const CFE_TIME_AddDelayCmd_t *data)
 {
     CFE_TIME_SetDelayImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
     return CFE_SUCCESS;
 }
+
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SubDelayCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SubDelayCmd(const CFE_TIME_SubDelayCmd_t *data)
 {
     CFE_TIME_SetDelayImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
     return CFE_SUCCESS;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetTimeCmd() -- Time task ground command (calc STCF)   */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetTimeCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
 {
     const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
@@ -1141,20 +1094,16 @@ int32 CFE_TIME_SetTimeCmd(const CFE_TIME_SetTimeCmd_t *data)
     }
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_SetTimeCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetMETCmd() -- Time task ground command (set MET)      */
-/*                                                                 */
-/* Note: This command will not have lasting effect if configured   */
-/*       to get external time of type MET.  Also, there cannot     */
-/*       be a local h/w MET and an external MET since both would   */
-/*       need to be synchronized to the same tone signal.          */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetMETCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
 {
     const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
@@ -1198,15 +1147,16 @@ int32 CFE_TIME_SetMETCmd(const CFE_TIME_SetMETCmd_t *data)
     }
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_SetMETCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_SetSTCFCmd() -- Time task ground command (set STCF)    */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetSTCFCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
 {
     const CFE_TIME_TimeCmd_Payload_t *CommandPtr = &data->Payload;
@@ -1250,15 +1200,16 @@ int32 CFE_TIME_SetSTCFCmd(const CFE_TIME_SetSTCFCmd_t *data)
     }
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_SetSTCFCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                       */
-/* CFE_TIME_SetLeapSecondsCmd() -- Time task ground command (set leaps)  */
-/*                                                                       */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SetLeapSecondsCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
 {
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
@@ -1287,15 +1238,16 @@ int32 CFE_TIME_SetLeapSecondsCmd(const CFE_TIME_SetLeapSecondsCmd_t *data)
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
     return CFE_SUCCESS;
+}
 
-} /* End of CFE_TIME_SetLeapSecondsCmd() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_AdjustImpl() -- Time task ground command (adjust STCF) */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_AdjustImpl
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_AdjustDirection_Enum_t Direction)
 {
     /*
@@ -1336,43 +1288,44 @@ void CFE_TIME_AdjustImpl(const CFE_TIME_TimeCmd_Payload_t *CommandPtr, CFE_TIME_
                           "Invalid STCF Adjust -- secs = %u, usecs = %u, dir[1=Pos, 2=Neg] = %d",
                           (unsigned int)CommandPtr->Seconds, (unsigned int)CommandPtr->MicroSeconds, (int)Direction);
     }
+}
 
-} /* End of CFE_TIME_AdjustImpl() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                     */
-/* CFE_TIME_AddAdjustCmd() -- Time task ground command (1Hz adjust)    */
-/*                                                                     */
-/* This is a wrapper around CFE_TIME_AdjustImpl()                      */
-/*                                                                     */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_AddAdjustCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_AddAdjustCmd(const CFE_TIME_AddAdjustCmd_t *data)
 {
     CFE_TIME_AdjustImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
     return CFE_SUCCESS;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                     */
-/* CFE_TIME_SubAdjustCmd() -- Time task ground command (1Hz adjust)    */
-/*                                                                     */
-/* This is a wrapper around CFE_TIME_AdjustImpl()                      */
-/*                                                                     */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_SubAdjustCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_SubAdjustCmd(const CFE_TIME_SubAdjustCmd_t *data)
 {
     CFE_TIME_AdjustImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
     return CFE_SUCCESS;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                 */
-/* CFE_TIME_1HzAdjImpl() -- Time task ground command (1Hz adjust)  */
-/*                                                                 */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_1HzAdjImpl
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr,
                          CFE_TIME_AdjustDirection_Enum_t              Direction)
 {
@@ -1402,37 +1355,32 @@ void CFE_TIME_1HzAdjImpl(const CFE_TIME_OneHzAdjustmentCmd_Payload_t *CommandPtr
                       "1Hz Adjust commands invalid without CFE_PLATFORM_TIME_CFG_SERVER set to TRUE");
 
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
+}
 
-} /* End of CFE_TIME_1HzAdjImpl() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_Add1HZAdjustmentCmd() -- Time task ground command (1Hz adjust) */
-/*                                                                         */
-/* This is a wrapper around CFE_TIME_1HzAdjImpl()                          */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_Add1HZAdjustmentCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_Add1HZAdjustmentCmd(const CFE_TIME_Add1HZAdjustmentCmd_t *data)
 {
     CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_ADD);
     return CFE_SUCCESS;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                         */
-/* CFE_TIME_Sub1HZAdjustmentCmd() -- Time task ground command (1Hz adjust) */
-/*                                                                         */
-/* This is a wrapper around CFE_TIME_1HzAdjImpl()                          */
-/*                                                                         */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_TIME_Sub1HZAdjustmentCmd
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_TIME_Sub1HZAdjustmentCmd(const CFE_TIME_Sub1HZAdjustmentCmd_t *data)
 {
     CFE_TIME_1HzAdjImpl(&data->Payload, CFE_TIME_AdjustDirection_SUBTRACT);
     return CFE_SUCCESS;
 }
-
-/************************/
-/*  End of File Comment */
-/************************/

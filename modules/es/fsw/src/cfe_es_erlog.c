@@ -44,17 +44,14 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*
-** Function: CFE_ES_WriteToERLogWithContext
-**
-** Purpose:  Create an entry in the ES Exception and Reset Log.
-**           This log API accepts extra context information (AppID and ContextID)
-**           and is used when the app/task invoking this API is not the same app
-**           as where the event occurred.
-**
-*/
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_WriteToERLogWithContext
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
                                      const char *Description, CFE_ES_AppId_t AppId, uint32 PspContextId)
 {
@@ -148,34 +145,32 @@ int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint3
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
     return (CFE_SUCCESS);
+}
 
-} /* End of CFE_ES_WriteToERLogWithContext() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*
-** Function: CFE_ES_WriteToERLog
-**
-** Purpose:  Create an entry in the ES Exception and Reset Log.
-**           This log API is simplified for cases which do not have a separate context
-**
-*/
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_WriteToERLog
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType, uint32 ResetSubtype,
                           const char *Description)
 {
     /* passing 0xFFFFFFFF as the appid avoids confusion with actual appid 0 */
     return CFE_ES_WriteToERLogWithContext(EntryType, ResetType, ResetSubtype, Description, CFE_ES_APPID_UNDEFINED,
                                           CFE_ES_ERLOG_NO_CONTEXT);
+}
 
-} /* End of CFE_ES_WriteToERLog() */
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*  Function:  CFE_ES_BackgroundERLogFileDataGetter()                            */
-/*                                                                               */
-/*  Purpose:                                                                     */
-/*    Gets a single record from exception & reset log to write to a file.        */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_BackgroundERLogFileDataGetter
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
     CFE_ES_BackgroundLogDumpGlobal_t *BgFilePtr;
@@ -235,13 +230,14 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
     return (RecordNum >= (CFE_PLATFORM_ES_ER_LOG_ENTRIES - 1));
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*  Function:  CFE_ER_BackgroundERLogFileEventHandler()                          */
-/*                                                                               */
-/*  Purpose:                                                                     */
-/*    Report events during writing exception & reset log to a file.              */
-/*                                                                               */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_BackgroundERLogFileEventHandler
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
                                             size_t BlockSize, size_t Position)
 {
@@ -281,15 +277,14 @@ void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t 
     }
 }
 
-/*
-**---------------------------------------------------------------------------------------
-** Name: CFE_ES_RunExceptionScan
-**
-**   Purpose: This function pools the PSP to check if any exceptions have been logged
-**            since the last background cycle.  If an exception is present, retreive
-**            the details, add it to the ER log, and trigger the action (e.g. app restart).
-**---------------------------------------------------------------------------------------
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_RunExceptionScan
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
 {
     int32                      Status;
@@ -437,5 +432,3 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
 
     return true; /* returning true because there was an exception to deal with */
 }
-
-/* end of file */

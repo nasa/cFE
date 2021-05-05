@@ -40,9 +40,14 @@
 #define CFE_MSG_SEGFLG_UNSEG   0xC000 /**< \brief CCSDS Unsegmented flag */
 #define CFE_MSG_SEQCNT_MASK    0x3FFF /**< \brief CCSDS Sequence count mask */
 
-/******************************************************************************
- * CCSDS Primary header initialization - See header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetDefaultCCSDSPri
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr)
 {
 
@@ -59,9 +64,14 @@ void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr)
     CFE_MSG_SetSegmentationFlag(MsgPtr, CFE_MSG_SegFlag_Unsegmented);
 }
 
-/******************************************************************************
- * Get message header version - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetHeaderVersion
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetHeaderVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVersion_t *Version)
 {
 
@@ -76,9 +86,14 @@ int32 CFE_MSG_GetHeaderVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVe
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message header version - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetHeaderVersion
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetHeaderVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVersion_t Version)
 {
     if (MsgPtr == NULL || (Version > (CFE_MSG_CCSDSVER_MASK >> CFE_MSG_CCSDSVER_SHIFT)))
@@ -91,9 +106,14 @@ int32 CFE_MSG_SetHeaderVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVersion_
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Get message type - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetType
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Type)
 {
 
@@ -114,9 +134,14 @@ int32 CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Type)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message type - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetType
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type)
 {
     int32 status = CFE_SUCCESS;
@@ -142,9 +167,14 @@ int32 CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type)
     return status;
 }
 
-/******************************************************************************
- * Get message has secondary header flag - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetHasSecondaryHeader
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetHasSecondaryHeader(const CFE_MSG_Message_t *MsgPtr, bool *HasSecondary)
 {
 
@@ -158,9 +188,14 @@ int32 CFE_MSG_GetHasSecondaryHeader(const CFE_MSG_Message_t *MsgPtr, bool *HasSe
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message has secondary header flag - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetHasSecondaryHeader
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetHasSecondaryHeader(CFE_MSG_Message_t *MsgPtr, bool HasSecondary)
 {
     if (MsgPtr == NULL)
@@ -180,9 +215,14 @@ int32 CFE_MSG_SetHasSecondaryHeader(CFE_MSG_Message_t *MsgPtr, bool HasSecondary
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Get message application ID - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetApId
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetApId(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t *ApId)
 {
 
@@ -196,9 +236,14 @@ int32 CFE_MSG_GetApId(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t *ApId)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message application ID - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetApId
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetApId(CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t ApId)
 {
     if (MsgPtr == NULL || ((ApId & ~CFE_MSG_APID_MASK) != 0))
@@ -211,9 +256,14 @@ int32 CFE_MSG_SetApId(CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t ApId)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Get message segmentation flag - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetSegmentationFlag
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetSegmentationFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_SegmentationFlag_t *SegFlag)
 {
 
@@ -245,9 +295,14 @@ int32 CFE_MSG_GetSegmentationFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Segme
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message segmentation flag - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetSegmentationFlag
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetSegmentationFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SegmentationFlag_t SegFlag)
 {
     uint16 rawval = 0;
@@ -285,9 +340,14 @@ int32 CFE_MSG_SetSegmentationFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Segmentatio
     return status;
 }
 
-/******************************************************************************
- * Get message sequence count - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetSequenceCount
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetSequenceCount(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t *SeqCnt)
 {
 
@@ -301,9 +361,14 @@ int32 CFE_MSG_GetSequenceCount(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Sequence
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message sequence count - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetSequenceCount
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetSequenceCount(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t SeqCnt)
 {
     if (MsgPtr == NULL || ((SeqCnt & ~CFE_MSG_SEQCNT_MASK) != 0))
@@ -316,9 +381,14 @@ int32 CFE_MSG_SetSequenceCount(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Get message size - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_GetSize
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_GetSize(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t *Size)
 {
 
@@ -332,9 +402,14 @@ int32 CFE_MSG_GetSize(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t *Size)
     return CFE_SUCCESS;
 }
 
-/******************************************************************************
- * Set message size - See API and header file for details
- */
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_MSG_SetSize
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_MSG_SetSize(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t Size)
 {
     if (MsgPtr == NULL || Size < CFE_MSG_SIZE_OFFSET || Size > (0xFFFF + CFE_MSG_SIZE_OFFSET))

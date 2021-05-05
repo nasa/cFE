@@ -126,9 +126,16 @@ typedef struct
  */
 uint32 CFE_ES_GetPerfLogDumpRemaining(void);
 
-/*
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Write performance data to a file
+ *
  * Implementation of the background state machine for writing
  * performance log data.
+ *
+ * This is implemented as a state machine that is invoked in the background
+ * Each iteration should perform a limited amount of work, which will resume
+ * on the next iteration.  State is kept in a global structure.
  */
 bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg);
 

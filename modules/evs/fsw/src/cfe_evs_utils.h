@@ -54,6 +54,7 @@
 
 /* ==============   Section III: Function Prototypes =========== */
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Obtain the EVS app record for the given ID
  *
@@ -68,6 +69,7 @@
  */
 EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Obtain the context information for the currently running app
  *
@@ -79,6 +81,7 @@ EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID);
  */
 int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if an EVS app record is in use or free/empty
  *
@@ -95,6 +98,7 @@ static inline bool EVS_AppDataIsUsed(EVS_AppData_t *AppDataPtr)
     return CFE_RESOURCEID_TEST_DEFINED(AppDataPtr->AppID);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get the ID value from an EVS table entry
  *
@@ -112,6 +116,7 @@ static inline CFE_ES_AppId_t EVS_AppDataGetID(EVS_AppData_t *AppDataPtr)
     return (AppDataPtr->AppID);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Marks an EVS table entry as used (not free)
  *
@@ -129,6 +134,7 @@ static inline void EVS_AppDataSetUsed(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t 
     AppDataPtr->AppID = AppID;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Set an EVS table entry free (not used)
  *
@@ -142,6 +148,7 @@ static inline void EVS_AppDataSetFree(EVS_AppData_t *AppDataPtr)
     AppDataPtr->AppID = CFE_ES_APPID_UNDEFINED;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if an EVS record is a match for the given AppID
  *
@@ -157,20 +164,82 @@ static inline bool EVS_AppDataIsMatch(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t 
     return (AppDataPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(AppDataPtr->AppID, AppID));
 }
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Retrieve app details by app name
+ *
+ * This routine returns the application ID and
+ * status specifying the validity of the ID
+ */
 int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Generate "not registered" error event
+ *
+ * This routine sends one "not registered" event per application
+ * Assumptions and Notes:
+ */
 int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Check if event is filtered
+ *
+ * This routine returns true if the given event identifier and event type
+ * is filtered for the given application identifier.  Otherwise a value of
+ * false is returned.
+ */
 bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Find the filter record corresponding to the given event ID
+ *
+ * This routine searches and returns an index to the given Event ID with the
+ * given application filter array.
+ */
 EVS_BinFilter_t *EVS_FindEventID(int16 EventID, EVS_BinFilter_t *FilterArray);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Enable event types
+ *
+ * This routine enables event types selected in BitMask
+ */
 void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Disable event types
+ *
+ * This routine disables event types selected in BitMask
+ */
 void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Send all configured telemetry for an event
+ *
+ * This routine sends an EVS event message out the software bus and all
+ * enabled output ports
+ * @note This always generates a "long" style message for logging purposes.
+ * If configured for long events the same message is sent on the software bus as well.
+ * If configured for short events, a separate short message is generated using a subset
+ * of the information from the long message.
+ */
 void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType,
                                 const CFE_TIME_SysTime_t *Time, const char *MsgSpec, va_list ArgPtr);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Internal function to send an event
+ *
+ * This routine allows EVS to send events without having to verify
+ * that the caller has a valid AppID and has registered with EVS.
+ * This routine also does not need to acquire the mutex semaphore,
+ * which can be time consuming on some platforms.
+ */
 int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...);
 
 #endif /* CFE_EVS_UTILS_H */

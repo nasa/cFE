@@ -48,20 +48,14 @@ const size_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
     CFE_PLATFORM_SB_MEM_BLOCK_SIZE_05, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_04, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_03,
     CFE_PLATFORM_SB_MEM_BLOCK_SIZE_02, CFE_PLATFORM_SB_MEM_BLOCK_SIZE_01};
 
-/******************************************************************************
-**  Function:  CFE_SB_EarlyInit()
-**
-**  Purpose:
-**    Initialize the Software Bus routing tables.
-**
-**  Arguments:
-**
-**  Notes:
-**    This function MUST be called before any SB API's are called.
-**
-**  Return:
-**    CFE_SUCCESS
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_EarlyInit
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_EarlyInit(void)
 {
 
@@ -99,23 +93,16 @@ int32 CFE_SB_EarlyInit(void)
                  sizeof(CFE_SB_Global.StatTlmMsg));
 
     return Stat;
+}
 
-} /* end CFE_SB_EarlyInit */
-
-/******************************************************************************
-**  Function:  CFE_SB_InitBuffers()
-**
-**  Purpose:
-**    Initialize the Software Bus Buffer Pool.
-**
-**  Arguments:
-**
-**  Notes:
-**    This function MUST be called before any SB API's are called.
-**
-**  Return:
-**    none
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_InitBuffers
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 int32 CFE_SB_InitBuffers(void)
 {
 
@@ -140,27 +127,17 @@ int32 CFE_SB_InitBuffers(void)
     CFE_SB_TrackingListReset(&CFE_SB_Global.ZeroCopyList);
 
     return CFE_SUCCESS;
+}
 
-} /* end CFE_SB_InitBuffers */
-
-/******************************************************************************
-**  Function:  CFE_SB_InitPipeTbl()
-**
-**  Purpose:
-**    Initialize the Software Bus Pipe Table.
-**
-**  Arguments:
-**
-**  Notes:
-**    This function MUST be called before any SB API's are called.
-**
-**  Return:
-**    none
-*/
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_SB_InitPipeTbl
+ *
+ * Application-scope internal function
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
 void CFE_SB_InitPipeTbl(void)
 {
     CFE_SB_Global.LastPipeId = CFE_ResourceId_FromInteger(CFE_SB_PIPEID_BASE);
-
-} /* end CFE_SB_InitPipeTbl */
-
-/*****************************************************************************/
+}

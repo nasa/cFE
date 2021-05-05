@@ -292,42 +292,275 @@ typedef struct
 ** Software Bus Function Prototypes
 */
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Initialization routine for SB application.
+ *
+ * This routine is executed when  * the SB application is started by Executive Services.
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_AppInit(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Initialize the Software Bus Buffer Pool.
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_InitBuffers(void);
-void  CFE_SB_InitPipeTbl(void);
-void  CFE_SB_InitIdxStack(void);
-void  CFE_SB_ResetCounts(void);
-void  CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber);
-void  CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
-void  CFE_SB_ReleaseBuffer(CFE_SB_BufferD_t *bd, CFE_SB_DestinationD_t *dest);
-int32 CFE_SB_WriteQueue(CFE_SB_PipeD_t *pd, uint32 TskId, const CFE_SB_BufferD_t *bd, CFE_SB_MsgId_t MsgId);
-void  CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr);
-void  CFE_SB_ResetCounters(void);
-void  CFE_SB_SetMsgSeqCnt(CFE_MSG_Message_t *MsgPtr, uint32 Count);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Initialize the Software Bus Pipe Table.
+ *
+ * @note This function MUST be called before any SB API's are called.
+ */
+void CFE_SB_InitPipeTbl(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * SB internal function to obtain exclusive access to SB global data structures
+ *
+ * @param FuncName    the function name containing the code
+ * @param LineNumber  the line number of the calling code
+ */
+void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * SB internal function to release exclusive access to SB global data structures
+ *
+ * @param FuncName    the function name containing the code
+ * @param LineNumber  the line number of the calling code
+ */
+void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Processes a single message buffer that has been received from the command pipe
+ *
+ * @param SBBufPtr Software bus buffer pointer
+ */
+void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Function to reset the SB housekeeping counters.
+ * @note Command counter not incremented for this command
+ */
+void CFE_SB_ResetCounters(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * This function returns a pointer to the app.tsk name string
+ *
+ * @note With taskId, Parent App name and Child Task name can be queried from ES
+ *
+ * @param TaskId  the task id of the app.task name desired
+ * @param FullName  string buffer to store name
+ * @return Pointer to App.Tsk Name
+ */
 char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Deletes a pipe from SB owned by a specific app
+ *
+ * @param PipeId  The ID of the pipe to delete.
+ * @param AppId   The application that owns the pipe
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @copydoc CFE_SB_DeletePipeWithAppId
+ *
+ * Internal implementation of the pipe delete operation
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * CFE Internal API used to subscribe to a message
+ *
+ * This internal API exposes all subscription choices/parameters.  This function is
+ * called by CFE_SB_SubscribeEx, CFE_SB_Subscribe and CFE_SB_SubscribeLocal.
+ *
+ * @param MsgId    Mission unique identifier for the message being requested
+ * @param PipeId   The Pipe ID to send the message to
+ * @param Quality  Quality of Service (Qos)  priority and reliability
+ * @param MsgLim   Max number of messages, with this MsgId, allowed on the
+ *                 pipe at any time.
+ * @param Scope    Local subscription or broadcasted to peers
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality, uint16 MsgLim,
                            uint8 Scope);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Unsubscribe a Message ID from a pipe
+ *
+ * This internal API can be used to force unsubscribe when the calling context
+ * is not the owner of the pipe.
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId);
 
-int32  CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8 Scope, CFE_ES_AppId_t AppId);
-int32  CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
-                                  CFE_SBR_RouteId_t *RouteIdPtr);
-int32  CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId);
-void   CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
-void   CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
-int32  CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
-int32  CFE_SB_ValidatePipeId(CFE_SB_PipeId_t PipeId);
-void   CFE_SB_IncrCmdCtr(int32 status);
-void   CFE_SB_SetSubscriptionReporting(uint32 state);
-int32  CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality);
-uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
-void   CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
-CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void);
-int32                  CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest);
+/*---------------------------------------------------------------------------------------*/
+/**
+ * CFE Internal API used to unsubscribe to a message.
+ *
+ * This internal API exposes all available unsubscribe choices/parameters.
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8 Scope, CFE_ES_AppId_t AppId);
 
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Internal routine to validate a transmit message before sending
+ *
+ * \param[in]  MsgPtr     Pointer to the message to validate
+ * \param[out] MsgIdPtr   Message Id of message
+ * \param[out] SizePtr    Size of message
+ * \param[out] RouteIdPtr Route ID of the message (invalid if none)
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
+                                 CFE_SBR_RouteId_t *RouteIdPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Release all zero-copy buffers associated with the given app ID.
+ *
+ * API used for releasing all pointers to a buffers (for zero copy mode
+ * only) for a specific Application. This function is used for cleaning
+ * up when an application crashes.
+ *
+ * @param AppId  Application ID to clean up
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Increment the UseCount of a buffer
+ *
+ * UseCount is a variable in the CFE_SB_BufferD_t and is used to
+ * determine when a buffer may be returned to the memory pool.
+ *
+ * @note This must only be invoked while holding the SB global lock
+ *
+ * @param bd  Pointer to the buffer descriptor.
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Decrement the UseCount of a buffer
+ *
+ * UseCount is a variable in the CFE_SB_BufferD_t and is used to
+ * determine when a buffer may be returned to the memory pool.
+ *
+ * If the the UseCount is decremented to zero, it will return the buffer to
+ * the memory pool.
+ *
+ * @note This must only be invoked while holding the SB global lock
+ *
+ * @param bd  Pointer to the buffer descriptor.
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * SB internal function to validate a given MsgId.
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * Increment the command counter based on the status input.
+ *
+ * This small utility was written to eliminate duplicate code.
+ *
+ * @param status  typically #CFE_SUCCESS or an SB error code
+ */
+void CFE_SB_IncrCmdCtr(int32 status);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * SB internal function to enable and disable subscription reporting.
+ */
+void CFE_SB_SetSubscriptionReporting(uint32 state);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * SB internal function to generate the "ONESUB_TLM" message after a subscription.
+ *
+ * Arguments reflect the Payload of notification message - MsgId, PipeId, QOS
+ *
+ * @note this is a no-op when subscription reporting is disabled.
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * This function will test the given bit for the given task.
+ *
+ * This prevents recursive events from occurring.
+ *
+ * If the bit is set this function will return #CFE_SB_DENIED. If bit is not set, this
+ * function will set  the bit and return #CFE_SB_GRANTED.
+ *
+ * @returns grant/deny status
+ */
+uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * This function will clear the given bit for the given task.
+ *
+ * This should be called after a successful CFE_SB_RequestToSendEvent()
+ */
+void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * This function gets a destination descriptor from the SB memory pool.
+ *
+ * @note This must only be invoked while holding the SB global lock
+ * @return Pointer to the destination descriptor
+ */
+CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * This function returns a destination descriptor to the SB memory pool.
+ * @note This must only be invoked while holding the SB global lock
+ *
+ * @param Dest Pointer to the destination descriptor
+ *
+ * \return Execution status, see \ref CFEReturnCodes
+ */
+int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest);
+
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief For SB buffer tracking, get first/next position in a list
  */
@@ -336,6 +569,7 @@ static inline CFE_SB_BufferLink_t *CFE_SB_TrackingListGetNext(CFE_SB_BufferLink_
     return Node->Next;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief For SB buffer tracking, checks if this current position represents the end of the list
  */
@@ -345,6 +579,7 @@ static inline bool CFE_SB_TrackingListIsEnd(CFE_SB_BufferLink_t *List, CFE_SB_Bu
     return (Node == NULL || Node == List);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief For SB buffer tracking, reset link state to default
  *
@@ -353,6 +588,7 @@ static inline bool CFE_SB_TrackingListIsEnd(CFE_SB_BufferLink_t *List, CFE_SB_Bu
  */
 void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief For SB buffer tracking, removes a node from a tracking list
  *
@@ -362,6 +598,7 @@ void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link);
  */
 void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief For SB buffer tracking, adds a node to a tracking list
  *
@@ -371,21 +608,35 @@ void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node);
  */
 void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Allocates a new buffer descriptor from the SB memory pool.
+ *
+ * Requests a buffer from the SB buffer pool. The SB buffer pool is a
+ * preallocated block of memory of size #CFE_PLATFORM_SB_BUF_MEMORY_BYTES. It is used
+ * by the SB to dynamically allocate memory to hold the message and a buffer
+ * descriptor associated with the message during the sending of a message.
+ *
+ * @note This must only be invoked while holding the SB global lock
  *
  * \param[in] MaxMsgSize Maximum message content size that the buffer must be capable of holding
  * \returns Pointer to buffer descriptor, or NULL on failure.
  */
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Returns a buffer to SB memory pool
  *
- * \param[in] Pointer to descriptor to return
+ * This function will return a block of memory back to the SB memory pool,
+ * so it can be re-used for a future message
+ *
+ * @note This must only be invoked while holding the SB global lock
+ * \param[in] bd Pointer to descriptor to return
  */
 void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Broadcast a SB buffer descriptor to all destinations in route
  *
@@ -420,6 +671,7 @@ void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd);
  */
 void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_t RouteId);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Perform basic sanity check on the Zero Copy handle
  *
@@ -430,6 +682,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
  */
 int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **BufDscPtr);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Add a destination node
  *
@@ -442,6 +695,7 @@ int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **
  */
 int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Remove a destination node
  *
@@ -454,6 +708,7 @@ int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNo
  */
 void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NodeToRemove);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Remove a destination
  *
@@ -467,6 +722,7 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
  */
 void CFE_SB_RemoveDest(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * \brief Get destination pointer for PipeId from RouteId
  *
@@ -480,7 +736,7 @@ void CFE_SB_RemoveDest(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr
  */
 CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeId_t PipeId);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Get the size of a message header.
 **
@@ -508,19 +764,136 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr);
 /*
  * Software Bus Message Handler Function prototypes
  */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Function to send the SB housekeeping packet.
+ *
+ * @note Command counter not incremented for this command
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * SB internal function to enable a specific route.
+ * A route is defined as a MsgId/PipeId combination.
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * SB internal function to disable a specific route.
+ * A route is defined as a MsgId/PipeId combination.
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * SB internal function to send a Software Bus statistics packet
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * SB internal function to handle processing of 'Write Routing Info' Cmd
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * SB internal function to handle processing of 'Write Pipe Info' Cmd
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * SB internal function to handle processing of 'Write Map Info' Cmd
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * \brief Command Message Handler function
+ *
+ * SB function to build and send an SB packet containing a complete list of
+ * current subscriptions.Intended to be used primarily for the Software Bus
+ * Networking Application (SBN).
+ *
+ * \param[in] data Pointer to command structure
+ * \return Execution status, see \ref CFEReturnCodes
+ */
 int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Locate the Pipe table entry correlating with a given Pipe ID.
  *
@@ -548,6 +921,7 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
  */
 extern CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if an Pipe descriptor is in use or free/empty
  *
@@ -567,6 +941,7 @@ static inline bool CFE_SB_PipeDescIsUsed(const CFE_SB_PipeD_t *PipeDscPtr)
     return CFE_RESOURCEID_TEST_DEFINED(PipeDscPtr->PipeId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get the ID value from an Pipe table entry
  *
@@ -583,6 +958,7 @@ static inline CFE_SB_PipeId_t CFE_SB_PipeDescGetID(const CFE_SB_PipeD_t *PipeDsc
     return PipeDscPtr->PipeId;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Marks an Pipe table entry as used (not free)
  *
@@ -603,6 +979,7 @@ static inline void CFE_SB_PipeDescSetUsed(CFE_SB_PipeD_t *PipeDscPtr, CFE_Resour
     PipeDscPtr->PipeId = CFE_SB_PIPEID_C(PendingID);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Set an Pipe descriptor table entry free (not used)
  *
@@ -622,6 +999,7 @@ static inline void CFE_SB_PipeDescSetFree(CFE_SB_PipeD_t *PipeDscPtr)
     PipeDscPtr->PipeId = CFE_SB_INVALID_PIPE;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if an Pipe descriptor is a match for the given PipeID
  *
@@ -650,14 +1028,35 @@ static inline bool CFE_SB_PipeDescIsMatch(const CFE_SB_PipeD_t *PipeDscPtr, CFE_
     return (PipeDscPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->PipeId, PipeID));
 }
 
-/* Availability check functions used in conjunction with CFE_ResourceId_FindNext() */
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Checks if a table slot is used or not
+ *
+ * Helper for allocating IDs,
+ * Used in conjunction with CFE_ResourceId_FindNext().
+ *
+ * @param CheckId generic slot ID to test
+ * @returns true if slot is currently in use/unavailable
+ */
 bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId);
 
 /*
  * Helper functions for background file write requests (callbacks)
  */
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Local callback helper for writing map info to a file
+ * This retrieves a single record of information from the SB global state object(s)
+ */
 void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr);
 bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
+
+/*---------------------------------------------------------------------------------------*/
+/**
+ * @brief Local callback helper for writing routing info to a file
+ * This retrieves a single record of information from the SB global state object(s)
+ */
 void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr);
 bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);

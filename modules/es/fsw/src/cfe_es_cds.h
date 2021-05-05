@@ -194,6 +194,7 @@ typedef struct CFE_ES_CDS_PersistentTrailer
 ** Function prototypes
 */
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Fetch data from the non-volatile storage and store in RAM cache
  *
@@ -211,6 +212,7 @@ typedef struct CFE_ES_CDS_PersistentTrailer
  */
 int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size_t Size);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Write data from the RAM cache back to non-volatile storage
  *
@@ -227,6 +229,7 @@ int32 CFE_ES_CDS_CacheFetch(CFE_ES_CDS_AccessCache_t *Cache, size_t Offset, size
  */
 int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Preload the cache data from a local buffer
  *
@@ -251,6 +254,7 @@ int32 CFE_ES_CDS_CacheFlush(CFE_ES_CDS_AccessCache_t *Cache);
  */
 int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Source, size_t Offset, size_t Size);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get the registry array index correlating with a CDS block ID
  *
@@ -264,6 +268,7 @@ int32 CFE_ES_CDS_CachePreload(CFE_ES_CDS_AccessCache_t *Cache, const void *Sourc
  */
 int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get a registry record within the CDS, given a block ID/handle
  *
@@ -291,6 +296,7 @@ int32 CFE_ES_CDSHandle_ToIndex(CFE_ES_CDSHandle_t BlockID, uint32 *Idx);
  */
 CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByID(CFE_ES_CDSHandle_t BlockID);
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if a Memory Pool record is in use or free/empty
  *
@@ -310,6 +316,7 @@ static inline bool CFE_ES_CDSBlockRecordIsUsed(const CFE_ES_CDS_RegRec_t *CDSBlo
     return CFE_RESOURCEID_TEST_DEFINED(CDSBlockRecPtr->BlockID);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Get the ID value from a Memory Pool table entry
  *
@@ -326,6 +333,7 @@ static inline CFE_ES_CDSHandle_t CFE_ES_CDSBlockRecordGetID(const CFE_ES_CDS_Reg
     return (CDSBlockRecPtr->BlockID);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Marks a Memory Pool table entry as used (not free)
  *
@@ -343,6 +351,7 @@ static inline void CFE_ES_CDSBlockRecordSetUsed(CFE_ES_CDS_RegRec_t *CDSBlockRec
     CDSBlockRecPtr->BlockID = CFE_ES_CDSHANDLE_C(PendingId);
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Set a Memory Pool record table entry free (not used)
  *
@@ -359,6 +368,7 @@ static inline void CFE_ES_CDSBlockRecordSetFree(CFE_ES_CDS_RegRec_t *CDSBlockRec
     CDSBlockRecPtr->BlockID = CFE_ES_CDS_BAD_HANDLE;
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if a CDS block record is a match for the given BlockID
  *
@@ -387,6 +397,7 @@ static inline bool CFE_ES_CDSBlockRecordIsMatch(const CFE_ES_CDS_RegRec_t *CDSBl
     return (CDSBlockRecPtr != NULL && CFE_RESOURCEID_TEST_EQUAL(CDSBlockRecPtr->BlockID, BlockID));
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Gets the data size from a given registry record
  *
@@ -410,6 +421,7 @@ static inline size_t CFE_ES_CDSBlockRecordGetUserSize(const CFE_ES_CDS_RegRec_t 
     return (CDSBlockRecPtr->BlockSize - sizeof(CFE_ES_CDS_BlockHeader_t));
 }
 
+/*---------------------------------------------------------------------------------------*/
 /**
  * @brief Check if a CDS Block ID table slot is used
  *
@@ -425,7 +437,7 @@ static inline size_t CFE_ES_CDSBlockRecordGetUserSize(const CFE_ES_CDS_RegRec_t 
  */
 bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Initializes CDS data constructs
 **
@@ -443,7 +455,7 @@ bool CFE_ES_CheckCDSHandleSlotUsed(CFE_ResourceId_t CheckId);
 ******************************************************************************/
 int32 CFE_ES_CDS_EarlyInit(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Determines whether a CDS currently exists
 **
@@ -462,7 +474,7 @@ int32 CFE_ES_CDS_EarlyInit(void);
 ******************************************************************************/
 int32 CFE_ES_ValidateCDS(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Initializes the CDS Registry
 **
@@ -478,7 +490,7 @@ int32 CFE_ES_ValidateCDS(void);
 ******************************************************************************/
 int32 CFE_ES_InitCDSRegistry(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Rebuilds memory pool for CDS and recovers existing registry
 **
@@ -495,7 +507,7 @@ int32 CFE_ES_InitCDSRegistry(void);
 ******************************************************************************/
 int32 CFE_ES_RebuildCDS(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Copies the local version of the CDS Registry to the actual CDS
 **
@@ -511,7 +523,7 @@ int32 CFE_ES_RebuildCDS(void);
 ******************************************************************************/
 int32 CFE_ES_UpdateCDSRegistry(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Creates a Full CDS name from application name and CDS name
 **
@@ -535,7 +547,7 @@ int32 CFE_ES_UpdateCDSRegistry(void);
 ******************************************************************************/
 void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t ThisAppId);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Returns the Registry Record for the specified CDS Name
 **
@@ -554,7 +566,7 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
 ******************************************************************************/
 CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Locks access to the CDS
 **
@@ -571,7 +583,7 @@ CFE_ES_CDS_RegRec_t *CFE_ES_LocateCDSBlockRecordByName(const char *CDSName);
 ******************************************************************************/
 int32 CFE_ES_LockCDS(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Unlocks access to the CDS
 **
@@ -587,7 +599,7 @@ int32 CFE_ES_LockCDS(void);
 ******************************************************************************/
 int32 CFE_ES_UnlockCDS(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Rebuilds memory pool for CDS and recovers existing registry
 **
@@ -604,7 +616,7 @@ int32 CFE_ES_UnlockCDS(void);
 ******************************************************************************/
 int32 CFE_ES_RebuildCDS(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Initializes the CDS Registry
 **
@@ -620,7 +632,7 @@ int32 CFE_ES_RebuildCDS(void);
 ******************************************************************************/
 int32 CFE_ES_InitCDSRegistry(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Determines whether a CDS currently exists
 **
@@ -639,7 +651,7 @@ int32 CFE_ES_InitCDSRegistry(void);
 ******************************************************************************/
 int32 CFE_ES_ValidateCDS(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Clears the contents of the CDS
 **
@@ -658,7 +670,7 @@ int32 CFE_ES_ValidateCDS(void);
 ******************************************************************************/
 int32 CFE_ES_ClearCDS(void);
 
-/*****************************************************************************/
+/*---------------------------------------------------------------------------------------*/
 /**
 ** \brief Initializes the signatures of the CDS area
 **
