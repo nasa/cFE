@@ -37,3 +37,22 @@
 # continue, regardless of whether the privileged operation succeeded or not.
 #
 set(OSAL_CONFIG_DEBUG_PERMISSIVE_MODE TRUE)
+
+
+#
+# OSAL_CONFIG_UTILITYTASK_PRIORITY
+# --------------------------------
+#
+# Elevate the priority level of the console output helper task
+#
+# By default OSAL uses a low-priority utility task to write
+# "OS_printf" messages in a deferred manner. However this deferred
+# write can potentially cause the messages to appear on the console
+# out of sync with the events they are related to.
+#
+# Raising the priority of this task from its default to be _higher_
+# than the CFE core tasks means that OS_printf() messages should
+# appear on the console in a timely manner, which helps during debug.
+# However for a flight deployment this may cause undesired delays.
+#
+set(OSAL_CONFIG_UTILITYTASK_PRIORITY 10)
