@@ -10,8 +10,15 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
-### Development Build: v6.8.0-rc1+dev540
+### Development Build: v6.8.0-rc1+dev559
 
+- Adds tests for nominal use cases of the ES Critical Data Store API.
+- Adds functional tests for nominal uses of FS Header API.
+- Adds functional tests for Time Current API.
+- [docs] Makes comment blocks in source and header files more consistent for all internal, CFE core APIs. Moves information about the function behavior to its prototype in the header in doxygen format. Comment blocks on the function implementation refer back to the prototype, it does not duplicate the info. Local helper functions that are not separately prototyped, are exceptions to this pattern. Adds intended scope to all functions: global, application-internal, or file/local.
+- See <https://github.com/nasa/cFE/pull/1481> and <https://github.com/nasa/cFS/pull/252>
+
+### Development Build: v6.8.0-rc1+dev540
 
 - Changes the type of pointer for `MemPtr` in `CFE_ES_PoolCreateNoSem` API from uint8* to void* to be more consistent and easier to use. Should be backward compatible.
 Updates the doxygen documentation for this parameter, as it was incorrectly specifying a 32-bit alignment requirement.
