@@ -13,10 +13,10 @@
 # Create the generic stubs library
 #
 add_library(ut_core_private_stubs STATIC
-    src/cfe_es_core_internal_hooks.c
+    src/cfe_es_core_internal_handlers.c
     src/cfe_es_core_internal_stubs.c
     src/cfe_evs_core_internal_stubs.c
-    src/cfe_fs_core_internal_hooks.c
+    src/cfe_fs_core_internal_handlers.c
     src/cfe_fs_core_internal_stubs.c
     src/cfe_sb_core_internal_stubs.c
     src/cfe_tbl_core_internal_stubs.c
