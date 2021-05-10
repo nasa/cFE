@@ -2033,7 +2033,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    /* SAMPLE_AppData.BigPktBuf is no longer a valid pointer */
    ...
 }
-```c  
+```
 
 ## 6.9 Best Practices for using Software Bus
 
