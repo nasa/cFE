@@ -36,6 +36,7 @@
 #include <string.h>
 
 #include "cfe_es_module_all.h"
+#include "cfe_fs_core_internal.h"
 
 #define CFE_ES_BACKGROUND_SEM_NAME         "ES_BG_SEM"
 #define CFE_ES_BACKGROUND_CHILD_NAME       "ES_BG_TASK"
