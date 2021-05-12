@@ -115,12 +115,13 @@ void Test_SBR_Route_Unsort_General(void)
 void Test_SBR_Route_Unsort_GetSet(void)
 {
 
-    CFE_SB_RouteId_Atom_t routeidx;
-    CFE_SB_MsgId_t        msgid[3];
-    CFE_SBR_RouteId_t     routeid[3];
-    CFE_SB_DestinationD_t dest[2];
-    uint32                count;
-    uint32                i;
+    CFE_SB_RouteId_Atom_t   routeidx;
+    CFE_SB_MsgId_t          msgid[3];
+    CFE_SBR_RouteId_t       routeid[3];
+    CFE_SB_DestinationD_t   dest[2];
+    CFE_MSG_SequenceCount_t seqcntexpected[] = {1, 2};
+    uint32                  count;
+    uint32                  i;
 
     UtPrintf("Invalid route ID checks");
     routeid[0] = CFE_SBR_INVALID_ROUTE_ID;
@@ -167,20 +168,24 @@ void Test_SBR_Route_Unsort_GetSet(void)
     }
 
     /* Check the msgid matches and increment a sequence counter */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), seqcntexpected[0]);
     for (i = 0; i < 3; i++)
     {
         ASSERT_TRUE(CFE_SB_MsgId_Equal(msgid[i], CFE_SBR_GetMsgId(routeid[i])));
         CFE_SBR_IncrementSequenceCounter(routeid[0]);
     }
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 3);
 
     /* Increment route 1 once and set dest pointers */
+    UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), seqcntexpected[1]);
     CFE_SBR_IncrementSequenceCounter(routeid[1]);
+    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 4);
     CFE_SBR_SetDestListHeadPtr(routeid[1], &dest[1]);
     CFE_SBR_SetDestListHeadPtr(routeid[2], &dest[0]);
 
     UtPrintf("Verify remaining set values");
-    ASSERT_EQ(CFE_SBR_GetSequenceCounter(routeid[0]), 3);
-    ASSERT_EQ(CFE_SBR_GetSequenceCounter(routeid[1]), 1);
+    ASSERT_EQ(CFE_SBR_GetSequenceCounter(routeid[0]), seqcntexpected[0]);
+    ASSERT_EQ(CFE_SBR_GetSequenceCounter(routeid[1]), seqcntexpected[1]);
     ASSERT_EQ(CFE_SBR_GetSequenceCounter(routeid[2]), 0);
     UtAssert_ADDRESS_EQ(CFE_SBR_GetDestListHeadPtr(routeid[0]), NULL);
     UtAssert_ADDRESS_EQ(CFE_SBR_GetDestListHeadPtr(routeid[1]), &dest[1]);

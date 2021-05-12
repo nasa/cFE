@@ -292,6 +292,22 @@ CFE_Status_t CFE_MSG_SetSequenceCount(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Sequenc
 
 /*****************************************************************************/
 /**
+ * \brief Gets the next sequence count value (rolls over if appropriate)
+ *
+ * \par Description
+ *          Abstract method to get the next valid sequence count value.
+ *          Will roll over to zero for any input value greater than or
+ *          equal to the maximum possible sequence count value given
+ *          the field in the header.
+ *
+ * \param[in]       SeqCnt      Sequence count
+ *
+ * \return The next valid sequence count value
+ */
+CFE_MSG_SequenceCount_t CFE_MSG_GetNextSequenceCount(CFE_MSG_SequenceCount_t SeqCnt);
+
+/*****************************************************************************/
+/**
  * \brief Gets the message EDS version
  *
  * \par Description
