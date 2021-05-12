@@ -10,6 +10,19 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev575
+
+- Removes broken travis-ci script
+- Updates CFE core stub libraries to use stubs generated from new UT Assert script. Converts existing stub logic to
+a default handler routine.
+- Moves all of the internal API prototypes from "core_api" to the "core_private" interface lib.
+- Moves `CFE_FS_RunBackgroundFileDump` to internal API
+- Renames hook files to handler
+- [docs] Adds documentation and comments about how the configuration facility works and where to find information on the complete set of options available
+- Updates the configuration files in "sample_defs" to reflect only those parameters that are set to a non-default value along with information about why the configurable item is changed.
+- Removes --quiet option so files checked go to stdout
+
+
 ### Development Build: v6.8.0-rc1+dev559
 
 - Adds tests for nominal use cases of the ES Critical Data Store API.

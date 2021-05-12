@@ -16,14 +16,22 @@ include_directories(${osal_MISSION_DIR}/ut_assert/inc)
 # Create the generic stubs library
 #
 add_library(ut_core_api_stubs STATIC
-    src/ut_es_stubs.c
-    src/ut_evs_stubs.c
-    src/ut_msg_stubs.c
-    src/ut_resourceid_stubs.c
-    src/ut_sb_stubs.c
-    src/ut_tbl_stubs.c
-    src/ut_time_stubs.c
-    src/ut_fs_stubs.c
+    src/cfe_es_handlers.c
+    src/cfe_es_stubs.c
+    src/cfe_evs_handlers.c
+    src/cfe_evs_stubs.c
+    src/cfe_fs_handlers.c
+    src/cfe_fs_stubs.c
+    src/cfe_msg_handlers.c
+    src/cfe_msg_stubs.c
+    src/cfe_resourceid_handlers.c
+    src/cfe_resourceid_stubs.c
+    src/cfe_sb_handlers.c
+    src/cfe_sb_stubs.c
+    src/cfe_tbl_handlers.c
+    src/cfe_tbl_stubs.c
+    src/cfe_time_handlers.c
+    src/cfe_time_stubs.c
 )
 
 # Define _CFE_CORE_ within stubs to also reveal internal APIs in header

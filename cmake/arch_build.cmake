@@ -197,9 +197,6 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
       add_library(${TGT}_${TBLWE}-obj STATIC ${TBL_SRC})
       target_link_libraries(${TGT}_${TBLWE}-obj PRIVATE core_api)
 
-      get_filename_component(TBLOBJ ${TBL} NAME)
-      string(APPEND TBLOBJ ${CMAKE_C_OUTPUT_EXTENSION})
-
       # IMPORTANT: This rule assumes that the output filename of elf2cfetbl matches
       # the input file name but with a different extension (.o -> .tbl)
       # The actual output filename is embedded in the source file (.c), however
@@ -208,8 +205,11 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
       # current content of a dependency (rightfully so).
       add_custom_command(
         OUTPUT "${TABLE_DESTDIR}/${TBLWE}.tbl"
-        COMMAND ${CMAKE_AR} x $<TARGET_FILE:${TGT}_${TBLWE}-obj>
-        COMMAND ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl "${TBLOBJ}"
+        COMMAND ${CMAKE_COMMAND}
+            -DCMAKE_AR=${CMAKE_AR}
+            -DTBLTOOL=${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl
+            -DLIB=$<TARGET_FILE:${TGT}_${TBLWE}-obj>
+            -P ${CFE_SOURCE_DIR}/cmake/generate_table.cmake
         DEPENDS ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TGT}_${TBLWE}-obj
         WORKING_DIRECTORY ${TABLE_DESTDIR}
       )

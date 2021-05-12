@@ -36,6 +36,7 @@
 #include "cfe_sbr_api_typedefs.h"
 #include "cfe_msg_api_typedefs.h"
 #include "cfe_sb_destination_typedef.h"
+#include "cfe_sb_api_typedefs.h"
 
 #include "cfe_platform_cfg.h"
 
