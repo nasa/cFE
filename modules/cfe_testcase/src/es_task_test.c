@@ -86,7 +86,7 @@ void TestCreateChild(void)
 
     OS_TaskDelay(500);
 
-    UtAssert_True(countCopy == count || countCopy == count + 1, "countCopy (%d) == count (%d)", countCopy, count);
+    UtAssert_True(countCopy == count || countCopy == count + 1, "countCopy (%d) == count (%d)", (int)countCopy, (int)count);
 }
 
 void TestExitChild(void)
