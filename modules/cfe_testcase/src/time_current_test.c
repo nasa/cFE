@@ -86,7 +86,7 @@ void TestGetTime(void)
     OS_GetLocalTime(&end);
 
     CFE_TIME_Print(timeBuf1, Time);
-    UtPrintf("The current time is (%d) %s", Time.Seconds, timeBuf1);
+    UtPrintf("The current time is (%ld) %s", (long)Time.Seconds, timeBuf1);
 
     difference = OS_TimeSubtract(end, start);
 
