@@ -316,7 +316,7 @@ CFE_Status_t CFE_EVS_ResetFilter(int16 EventID)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_EVS_ResetAllFilters(void)
+CFE_Status_t CFE_EVS_ResetAllFilters(void)
 {
     int32          Status;
     CFE_ES_AppId_t AppID;

@@ -61,9 +61,9 @@ CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
+CFE_Status_t CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
 {
-    uint32                   status;
+    CFE_Status_t             status;
     CFE_MSG_Type_t           type;
     bool                     hassechdr = false;
     CFE_MSG_CommandHeader_t *cmd       = (CFE_MSG_CommandHeader_t *)MsgPtr;
@@ -100,10 +100,10 @@ int32 CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsValid)
+CFE_Status_t CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsValid)
 {
 
-    uint32         status;
+    CFE_Status_t   status;
     CFE_MSG_Type_t type;
     bool           hassechdr = false;
 

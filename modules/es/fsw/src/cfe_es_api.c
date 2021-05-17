@@ -1274,8 +1274,8 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
-                             CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr, CFE_ES_StackPointer_t StackPtr,
-                             size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority, uint32 Flags)
+                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr, CFE_ES_StackPointer_t StackPtr,
+                                    size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority, uint32 Flags)
 {
     int32                    ReturnCode;
     CFE_ES_AppRecord_t *     AppRecPtr;

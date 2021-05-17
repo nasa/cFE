@@ -183,11 +183,8 @@
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Share
 **/
-CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *        TblHandlePtr,          /* Returned Handle */
-                              const char *              Name,                  /* Application specific name  */
-                              size_t                    Size,                  /* Size, in bytes, of table   */
-                              uint16                    TblOptionFlags,        /* Tbl Options Settings     */
-                              CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr); /* Ptr to func that validates tbl */
+CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t Size, uint16 TblOptionFlags,
+                              CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr);
 
 /*****************************************************************************/
 /**

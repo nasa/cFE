@@ -203,7 +203,7 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
  *
  */
 CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
-                                                bool (*CheckFunc)(CFE_ResourceId_t));
+                                         bool (*CheckFunc)(CFE_ResourceId_t));
 
 /**
  * @brief Internal routine to aid in converting an ES resource ID to an array index
