@@ -494,7 +494,7 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Stauts_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
+CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
 {
     CFE_SB_PipeD_t *PipeDscPtr;
     CFE_ES_AppId_t  AppID;
