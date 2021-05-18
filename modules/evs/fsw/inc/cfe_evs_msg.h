@@ -907,10 +907,6 @@
 #define CFE_EVS_PORT3_BIT 0x0004
 #define CFE_EVS_PORT4_BIT 0x0008
 
-/* EVS Log Modes */
-#define CFE_EVS_LOG_OVERWRITE 0
-#define CFE_EVS_LOG_DISCARD   1
-
 /******************  Structure Definitions *********************/
 
 /**
