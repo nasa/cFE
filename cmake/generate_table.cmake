@@ -38,6 +38,7 @@ if (NOT RESULT EQUAL 0)
 endif()
 
 # Finally invoke the table tool (elf2cfetbl) on the object
+message("Executing Process: ${TBLTOOL} ${OBJNAME}")
 execute_process(COMMAND ${TBLTOOL} "${OBJNAME}"
     RESULT_VARIABLE RESULT
 )
