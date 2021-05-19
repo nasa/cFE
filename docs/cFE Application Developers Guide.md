@@ -1795,7 +1795,7 @@ one deployment to the next. By using these functions, Applications are
 guaranteed to work regardless of the structure of the Message Header.
 
 Although CFE_SB_SetUserDataLength APIs is available,
-it is based on assumptions about the defintion of "User Data" and is
+it is based on assumptions about the definition of "User Data" and is
 really just a best guess since the packet structure is dependent on implementation.
 The preference is to use CFE_MSG_SetSize and actual packet structure
 information when available.
@@ -1842,7 +1842,7 @@ CFE_MSG_ValidateChecksum() and it simply returns a success or failure
 indication.
 
 Although CFE_SB_GetUserDataLength and CFE_SB_GetUserData APIs are available,
-they are based on assumptions about the defintion of "User Data" and are
+they are based on assumptions about the definition of "User Data" and are
 really just a best guess since the packet structure is dependent on implementation.
 The preference is to use the actual packet structure when available.
 
@@ -3210,7 +3210,7 @@ paradigm that allows the Time Services on the processor that has access
 to the primary onboard time base to broadcast the current time to Time
 Clients. As long as the Time Server has a working communication path to
 all Time Clients, the time available to every Application is essentially
-the same with neglible errors. When a Time Server and Time Client become
+the same with negligible errors. When a Time Server and Time Client become
 disconnected from one another, they each do their best to maintain the
 current time with what information they have available.
 
