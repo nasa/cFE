@@ -115,11 +115,11 @@ CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
  * Generated stub function for CFE_ES_CounterID_ToIndex()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterID, uint32 *Idx)
+CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterId, uint32 *Idx)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_CounterID_ToIndex, CFE_Status_t);
 
-    UT_GenStub_AddParam(CFE_ES_CounterID_ToIndex, CFE_ES_CounterId_t, CounterID);
+    UT_GenStub_AddParam(CFE_ES_CounterID_ToIndex, CFE_ES_CounterId_t, CounterId);
     UT_GenStub_AddParam(CFE_ES_CounterID_ToIndex, uint32 *, Idx);
 
     UT_GenStub_Execute(CFE_ES_CounterID_ToIndex, Basic, NULL);
@@ -468,12 +468,12 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
  * Generated stub function for CFE_ES_GetPoolBuf()
  * ----------------------------------------------------
  */
-int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size)
+int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, size_t Size)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_GetPoolBuf, int32);
 
     UT_GenStub_AddParam(CFE_ES_GetPoolBuf, CFE_ES_MemPoolBuf_t *, BufPtr);
-    UT_GenStub_AddParam(CFE_ES_GetPoolBuf, CFE_ES_MemHandle_t, PoolID);
+    UT_GenStub_AddParam(CFE_ES_GetPoolBuf, CFE_ES_MemHandle_t, Handle);
     UT_GenStub_AddParam(CFE_ES_GetPoolBuf, size_t, Size);
 
     UT_GenStub_Execute(CFE_ES_GetPoolBuf, Basic, UT_DefaultHandler_CFE_ES_GetPoolBuf);
@@ -486,11 +486,11 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t PoolID, 
  * Generated stub function for CFE_ES_GetPoolBufInfo()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr)
+CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_GetPoolBufInfo, CFE_Status_t);
 
-    UT_GenStub_AddParam(CFE_ES_GetPoolBufInfo, CFE_ES_MemHandle_t, PoolID);
+    UT_GenStub_AddParam(CFE_ES_GetPoolBufInfo, CFE_ES_MemHandle_t, Handle);
     UT_GenStub_AddParam(CFE_ES_GetPoolBufInfo, CFE_ES_MemPoolBuf_t, BufPtr);
 
     UT_GenStub_Execute(CFE_ES_GetPoolBufInfo, Basic, NULL);
@@ -614,11 +614,11 @@ void CFE_ES_IncrementTaskCounter(void)
  * Generated stub function for CFE_ES_LibID_ToIndex()
  * ----------------------------------------------------
  */
-int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibID, uint32 *Idx)
+int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_LibID_ToIndex, int32);
 
-    UT_GenStub_AddParam(CFE_ES_LibID_ToIndex, CFE_ES_LibId_t, LibID);
+    UT_GenStub_AddParam(CFE_ES_LibID_ToIndex, CFE_ES_LibId_t, LibId);
     UT_GenStub_AddParam(CFE_ES_LibID_ToIndex, uint32 *, Idx);
 
     UT_GenStub_Execute(CFE_ES_LibID_ToIndex, Basic, NULL);
@@ -744,11 +744,11 @@ void CFE_ES_ProcessAsyncEvent(void)
  * Generated stub function for CFE_ES_PutPoolBuf()
  * ----------------------------------------------------
  */
-int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr)
+int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_PutPoolBuf, int32);
 
-    UT_GenStub_AddParam(CFE_ES_PutPoolBuf, CFE_ES_MemHandle_t, PoolID);
+    UT_GenStub_AddParam(CFE_ES_PutPoolBuf, CFE_ES_MemHandle_t, Handle);
     UT_GenStub_AddParam(CFE_ES_PutPoolBuf, CFE_ES_MemPoolBuf_t, BufPtr);
 
     UT_GenStub_Execute(CFE_ES_PutPoolBuf, Basic, NULL);
@@ -761,11 +761,11 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr)
  * Generated stub function for CFE_ES_RegisterCDS()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, size_t BlockSize, const char *Name)
+CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, const char *Name)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_RegisterCDS, CFE_Status_t);
 
-    UT_GenStub_AddParam(CFE_ES_RegisterCDS, CFE_ES_CDSHandle_t *, HandlePtr);
+    UT_GenStub_AddParam(CFE_ES_RegisterCDS, CFE_ES_CDSHandle_t *, CDSHandlePtr);
     UT_GenStub_AddParam(CFE_ES_RegisterCDS, size_t, BlockSize);
     UT_GenStub_AddParam(CFE_ES_RegisterCDS, const char *, Name);
 
@@ -862,11 +862,11 @@ CFE_Status_t CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Han
  * Generated stub function for CFE_ES_RunLoop()
  * ----------------------------------------------------
  */
-bool CFE_ES_RunLoop(uint32 *ExitStatus)
+bool CFE_ES_RunLoop(uint32 *RunStatus)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_RunLoop, bool);
 
-    UT_GenStub_AddParam(CFE_ES_RunLoop, uint32 *, ExitStatus);
+    UT_GenStub_AddParam(CFE_ES_RunLoop, uint32 *, RunStatus);
 
     UT_GenStub_Execute(CFE_ES_RunLoop, Basic, UT_DefaultHandler_CFE_ES_RunLoop);
 
