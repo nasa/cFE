@@ -10,6 +10,13 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev580
+
+- Adds `CFE_MSG_GetNextSequenceCount` so the auto-increment of the local sequence counter works when sending tlm (and increment is enabled). Updates unit tests and adds the old-style stub. The unit tests check for the correct rollover behavior.Sequence count will roll over based on the mask. Before the fix the sequence counter would "stick" in telemetry until the passed in value rolled over.
+- [docs] Correctly format code block section terminator so Markdown renders correctly
+- [docs] Fix typos in developer guide
+- See <https://github.com/nasa/cFE/pull/1508> and <https://github.com/nasa/cFS/pull/259>
+
 ### Development Build: v6.8.0-rc1+dev575
 
 - Removes broken travis-ci script
@@ -21,7 +28,7 @@ a default handler routine.
 - [docs] Adds documentation and comments about how the configuration facility works and where to find information on the complete set of options available
 - Updates the configuration files in "sample_defs" to reflect only those parameters that are set to a non-default value along with information about why the configurable item is changed.
 - Removes --quiet option so files checked go to stdout
-
+- See <https://github.com/nasa/cFE/pull/1492> and <https://github.com/nasa/cFS/pull/256>
 
 ### Development Build: v6.8.0-rc1+dev559
 

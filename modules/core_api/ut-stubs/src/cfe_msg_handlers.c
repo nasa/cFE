@@ -360,3 +360,21 @@ void UT_DefaultHandler_CFE_MSG_ValidateChecksum(void *UserObj, UT_EntryKey_t Fun
                          sizeof(*IsValid));
     }
 }
+
+/*------------------------------------------------------------
+ *
+ * Default handler for CFE_MSG_GetNextSequenceCount coverage stub function
+ *
+ *------------------------------------------------------------*/
+void UT_DefaultHandler_CFE_MSG_GetNextSequenceCount(void *UserObj, UT_EntryKey_t FuncKey,
+                                                    const UT_StubContext_t *Context)
+{
+    int32                   status;
+    CFE_MSG_SequenceCount_t return_value;
+
+    UT_Stub_GetInt32StatusCode(Context, &status);
+
+    return_value = status;
+
+    UT_Stub_SetReturnValue(FuncKey, return_value);
+}

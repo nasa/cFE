@@ -38,6 +38,7 @@
 #include <string.h>
 
 #include "cfe_sb.h"
+#include "cfe_msg.h"
 
 /******************************************************************************
  * Type Definitions
@@ -182,9 +183,12 @@ void CFE_SBR_SetDestListHeadPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t
  *-----------------------------------------------------------------*/
 void CFE_SBR_IncrementSequenceCounter(CFE_SBR_RouteId_t RouteId)
 {
+    CFE_MSG_SequenceCount_t *cnt;
+
     if (CFE_SBR_IsValidRouteId(RouteId))
     {
-        CFE_SBR_RDATA.RoutingTbl[CFE_SBR_RouteIdToValue(RouteId)].SeqCnt++;
+        cnt  = &CFE_SBR_RDATA.RoutingTbl[CFE_SBR_RouteIdToValue(RouteId)].SeqCnt;
+        *cnt = CFE_MSG_GetNextSequenceCount(*cnt);
     }
 }
 

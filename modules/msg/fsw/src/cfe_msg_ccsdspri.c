@@ -383,6 +383,26 @@ int32 CFE_MSG_SetSequenceCount(CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_
 
 /*----------------------------------------------------------------
  *
+ * Function: CFE_MSG_GetNextSequenceCount
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+CFE_MSG_SequenceCount_t CFE_MSG_GetNextSequenceCount(CFE_MSG_SequenceCount_t SeqCnt)
+{
+    SeqCnt++;
+
+    if (SeqCnt > CFE_MSG_SEQCNT_MASK)
+    {
+        SeqCnt = 0;
+    }
+
+    return SeqCnt;
+}
+
+/*----------------------------------------------------------------
+ *
  * Function: CFE_MSG_GetSize
  *
  * Implemented per public API
