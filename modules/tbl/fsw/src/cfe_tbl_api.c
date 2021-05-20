@@ -89,8 +89,7 @@ int32 CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t 
         }
         else
         {
-            /* Modify specified name to be processor specific name */
-            /* of the form "AppName.TableName"                     */
+            /* Generate application specific table name */
             CFE_TBL_FormTableName(TblName, Name, ThisAppId);
 
             /* Make sure the specified size is acceptable */
