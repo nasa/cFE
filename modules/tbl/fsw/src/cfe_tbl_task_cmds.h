@@ -124,7 +124,9 @@ extern void CFE_TBL_GetTblRegData(void);
 ** \brief Process Housekeeping Request Message
 **
 ** \par Description
-**        Constructs a Housekeeping Packet (#CFE_TBL_HousekeepingTlm_t) from task data and sends it out
+**        Constructs and sends a Housekeeping Packet (#CFE_TBL_HousekeepingTlm_t) from task data,
+**        sends the table registry packet if requested, and dumps any "dump-only" tables
+**        that are pending.
 **
 ** \par Assumptions, External Events, and Notes:
 **          The message pointed to by data has been identified as a Housekeeping Request Message
