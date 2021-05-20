@@ -33,6 +33,7 @@
 #include "cfe_sb_module_all.h"
 #include "cfe_version.h"
 #include "cfe_es_msg.h" /* needed for local use of CFE_ES_RestartCmd_t */
+#include "cfe_sb_verify.h"
 
 #include <string.h>
 

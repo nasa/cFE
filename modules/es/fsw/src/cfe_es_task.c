@@ -39,6 +39,7 @@
 
 #include "cfe_version.h"
 #include "target_config.h"
+#include "cfe_es_verify.h"
 
 #include <string.h>
 
