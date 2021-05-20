@@ -1254,8 +1254,10 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 ** \param[in]   Size           The size of the pool of memory.  Note that this must be an integral multiple of the
 **                             memory alignment of the processor architecture.
 **
-** \param[in]   NumBlockSizes  The number of different block sizes specified in the \c BlockSizes array. If set equal to
-**                             zero or if greater than 17, then default block sizes are used.
+** \param[in]   NumBlockSizes  The number of different block sizes specified in the \c BlockSizes array. If set
+**                             larger than #CFE_PLATFORM_ES_POOL_MAX_BUCKETS, #CFE_ES_BAD_ARGUMENT will be returned.
+**                             If BlockSizes is null and NumBlockSizes is 0, NubBlockSizes will be set to
+**                             #CFE_PLATFORM_ES_POOL_MAX_BUCKETS.
 **
 ** \param[in]   BlockSizes     Pointer to an array of sizes to be used instead of the default block sizes specified by
 **                             #CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01 through #CFE_PLATFORM_ES_MAX_BLOCK_SIZE.  If the
