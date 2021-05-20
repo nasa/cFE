@@ -16,6 +16,10 @@ ABBREVIATE_BRIEF       = "The $name class " \
                          the
 TAB_SIZE               = 8
 OPTIMIZE_OUTPUT_FOR_C  = YES
+ALIASES               +=  nonnull="(must not be null)"
+ALIASES               +=  nonzero="(must not be zero)"
+ALIASES               +=  covtest="(return value only verified in coverage test)"
+
 #---------------------------------------------------------------------------
 # Build related configuration options
 #---------------------------------------------------------------------------
