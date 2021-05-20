@@ -153,7 +153,6 @@ usersguide:
 
 osalguide:
 	$(MAKE) --no-print-directory -C "$(O)" osalguide
-	@/bin/echo -e "\n\nOsal Users Guide: \nfile://$(CURDIR)/$(O)/doc/osalguide/html/index.html\n"
 
 # Make all the commands that use the build tree depend on a flag file
 # that is used to indicate the prep step has been done.  This way
