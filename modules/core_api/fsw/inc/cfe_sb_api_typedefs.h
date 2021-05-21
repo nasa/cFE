@@ -130,31 +130,4 @@ typedef union CFE_SB_Msg
     long double       LongDouble; /**< \brief Align to support Long Double */
 } CFE_SB_Buffer_t;
 
-#ifndef CFE_OMIT_DEPRECATED_6_8
-
-/** \brief Deperecated type to minimize required changes */
-typedef CFE_SB_Buffer_t CFE_SB_Msg_t;
-
-/** \brief Deperecated type to minimize required changes */
-typedef CFE_MSG_CommandHeader_t CFE_SB_CmdHdr_t;
-
-/** \brief Deperecated type to minimize required changes */
-typedef CFE_MSG_TelemetryHeader_t CFE_SB_TlmHdr_t;
-
-#define CFE_SB_CMD_HDR_SIZE (sizeof(CFE_MSG_CommandHeader_t))   /**< \brief Size of command header */
-#define CFE_SB_TLM_HDR_SIZE (sizeof(CFE_MSG_TelemetryHeader_t)) /**< \brief Size of telemetry header */
-
-/** \brief  Pointer to an SB Message */
-typedef CFE_MSG_Message_t *CFE_SB_MsgPtr_t;
-
-/** \brief  CFE_SB_MsgPayloadPtr_t defined as an opaque pointer to a message Payload portion */
-typedef uint8 *CFE_SB_MsgPayloadPtr_t;
-
-#define CFE_SB_Default_Qos CFE_SB_DEFAULT_QOS /**< \deprecated use CFE_SB_DEFAULT_QOS */
-
-#define CFE_SB_CMD_HDR_SIZE (sizeof(CFE_MSG_CommandHeader_t))   /**< \brief Size of command header */
-#define CFE_SB_TLM_HDR_SIZE (sizeof(CFE_MSG_TelemetryHeader_t)) /**< \brief Size of telemetry header */
-
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
-
 #endif /* CFE_SB_API_TYPEDEFS_H */
