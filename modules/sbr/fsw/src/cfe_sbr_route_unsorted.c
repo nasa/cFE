@@ -201,7 +201,7 @@ void CFE_SBR_IncrementSequenceCounter(CFE_SBR_RouteId_t RouteId)
  *-----------------------------------------------------------------*/
 CFE_MSG_SequenceCount_t CFE_SBR_GetSequenceCounter(CFE_SBR_RouteId_t RouteId)
 {
-    uint32 seqcnt = 0;
+    CFE_MSG_SequenceCount_t seqcnt = 0;
 
     if (CFE_SBR_IsValidRouteId(RouteId))
     {
