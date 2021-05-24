@@ -305,7 +305,7 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
 ** \sa #CFE_EVS_ResetAllFilters
 **
 **/
-CFE_Status_t CFE_EVS_ResetFilter(int16 EventID);
+CFE_Status_t CFE_EVS_ResetFilter(uint16 EventID);
 
 /**
 ** \brief Resets all of the calling application's event filters.

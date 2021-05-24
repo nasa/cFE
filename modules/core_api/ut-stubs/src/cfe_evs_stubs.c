@@ -70,11 +70,11 @@ CFE_Status_t CFE_EVS_ResetAllFilters(void)
  * Generated stub function for CFE_EVS_ResetFilter()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_EVS_ResetFilter(int16 EventID)
+CFE_Status_t CFE_EVS_ResetFilter(uint16 EventID)
 {
     UT_GenStub_SetupReturnBuffer(CFE_EVS_ResetFilter, CFE_Status_t);
 
-    UT_GenStub_AddParam(CFE_EVS_ResetFilter, int16, EventID);
+    UT_GenStub_AddParam(CFE_EVS_ResetFilter, uint16, EventID);
 
     UT_GenStub_Execute(CFE_EVS_ResetFilter, Basic, NULL);
 

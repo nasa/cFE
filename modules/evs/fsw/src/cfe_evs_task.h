@@ -74,7 +74,7 @@
 
 typedef struct
 {
-    int16  EventID; /* Numerical event identifier */
+    uint16 EventID; /* Numerical event identifier */
     uint16 Mask;    /* Binary filter mask */
     uint16 Count;   /* Binary filter counter */
     uint16 Padding; /* Structure padding */

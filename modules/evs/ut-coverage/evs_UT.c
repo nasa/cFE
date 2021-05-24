@@ -666,9 +666,9 @@ void Test_FilterReset(void)
 */
 void Test_Format(void)
 {
-    int   i;
-    char  long_msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + 2];
-    int16 EventID[2];
+    int    i;
+    char   long_msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + 2];
+    uint16 EventID[2];
 
     CFE_TIME_SysTime_t              time = {0, 0};
     CFE_EVS_SetEventFormatModeCmd_t modecmd;
