@@ -150,19 +150,18 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
 
     if (TGTNAME)
         set (TABLE_TGTLIST ${TGTNAME})
-    else()
+    elseif (TARGET ${APP_NAME})
         set (TABLE_TGTLIST ${TGTLIST_${APP_NAME}})
-    endif()
-
-    # The first parameter should match the name of an app that was
-    # previously defined using "add_cfe_app".  If target-scope properties
-    # are used for include directories and compile definitions, this is needed
-    # to compile tables with the same include path/definitions as the app has.
-    # However historically this could have been any string, which still works
-    # if directory-scope properties are used for includes, so this is not
-    # an error.
-    if (NOT TARGET ${APP_NAME})
+    else()
+        # The first parameter should match the name of an app that was
+        # previously defined using "add_cfe_app".  If target-scope properties
+        # are used for include directories and compile definitions, this is needed
+        # to compile tables with the same include path/definitions as the app has.
+        # However historically this could have been any string, which still works
+        # if directory-scope properties are used for includes, so this is not
+        # an error.
         message("NOTE: \"${APP_NAME}\" passed to add_cfe_tables is not a previously-defined application target")
+        set (TABLE_TGTLIST ${APP_STATIC_TARGET_LIST} ${APP_DYNAMIC_TARGET_LIST})
     endif()
 
     # The table source must be compiled using the same "include_directories"
