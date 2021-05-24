@@ -50,7 +50,7 @@
 void CFE_SBR_Init(void);
 
 /**
- *  \brief Add a route for the given a message id
+ *  \brief Add a route for the given message id
  *
  *  Called for the first subscription to a message ID, uses up one
  *  element in the routing table.  Assumes check for existing

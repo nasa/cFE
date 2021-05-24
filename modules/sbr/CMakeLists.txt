@@ -30,7 +30,7 @@ elseif (MISSION_MSGMAP_IMPLEMENTATION STREQUAL "HASH")
         ${CMAKE_CURRENT_SOURCE_DIR}/fsw/src/cfe_sbr_map_hash.c
         ${CMAKE_CURRENT_SOURCE_DIR}/fsw/src/cfe_sbr_route_unsorted.c)
 else()
-    message(ERROR "Invalid software bush routing implementation selected:" MISSION_MSGMAP_IMPLEMENTATION)
+    message(ERROR "Invalid software bus routing implementation selected:" MISSION_MSGMAP_IMPLEMENTATION)
 endif()
 
 # Module library

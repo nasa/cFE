@@ -1244,11 +1244,11 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
         /* get routing id */
         RouteId = CFE_SBR_GetRouteId(MsgId);
 
-        /* if there have never been subscriptions for this message id... */
+        /* Status remains CFE_SUCCESS if route is valid or not */
         if (!CFE_SBR_IsValidRouteId(RouteId))
         {
+            /* If there are no subscriptions, simply report via event */
             PendingEventID = CFE_SB_UNSUB_NO_SUBS_EID;
-            /* Status stays CFE_SUCCESS here */
         }
         else
         {
