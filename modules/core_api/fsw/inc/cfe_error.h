@@ -780,15 +780,6 @@ typedef int32 CFE_Status_t;
 #define CFE_SB_MAX_DESTS_MET ((CFE_Status_t)0xca00000a)
 
 /**
- * @brief No Subscribers
- *
- *  This error code is returned by the #CFE_SB_Unsubscribe API if there has
- *  not been an entry in the routing tables for the MsgId/PipeId given as
- *  parameters.
- */
-#define CFE_SB_NO_SUBSCRIBERS ((CFE_Status_t)0xca00000b)
-
-/**
  * @brief Internal Error
  *
  *  This error code will be returned by the #CFE_SB_Subscribe API if the
