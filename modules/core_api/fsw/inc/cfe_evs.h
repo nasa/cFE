@@ -288,8 +288,9 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
 ** \brief Resets the calling application's event filter for a single event ID.
 **
 ** \par Description
-**          The effect of resetting an event filter depends on the filter scheme.
-**          The #CFE_EVS_EventFilter_BINARY scheme resets the filter counter for the specified Event ID.
+**          Resets the filter such that the next event is treated like the first.
+**          For example, if the filter was set to only send the first event, the
+**          next event following the reset would be sent.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
