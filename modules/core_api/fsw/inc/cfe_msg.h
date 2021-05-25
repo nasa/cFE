@@ -607,7 +607,7 @@ CFE_Status_t CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTim
  *          - Note default implementation of command messages do not have a time field.
  *
  * \param[in, out]  MsgPtr      A pointer to the message.
- * \param[in]       Time        The time to include in the message.  This will usually be a time
+ * \param[in]       NewTime     The time to include in the message.  This will usually be a time
  *                              from #CFE_TIME_GetTime.
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -615,7 +615,7 @@ CFE_Status_t CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTim
  * \retval #CFE_MSG_BAD_ARGUMENT   \copybrief CFE_MSG_BAD_ARGUMENT
  * \retval #CFE_MSG_WRONG_MSG_TYPE \copybrief CFE_MSG_WRONG_MSG_TYPE
  */
-CFE_Status_t CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t Time);
+CFE_Status_t CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t NewTime);
 
 /**\}*/
 

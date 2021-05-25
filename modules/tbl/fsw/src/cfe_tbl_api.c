@@ -48,8 +48,8 @@
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t Size, uint16 TblOptionFlags,
-                       CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr)
+CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t Size, uint16 TblOptionFlags,
+                              CFE_TBL_CallbackFuncPtr_t TblValidationFuncPtr)
 {
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
     CFE_TBL_RegistryRec_t *     RegRecPtr     = NULL;
@@ -516,7 +516,7 @@ int32 CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, size_t 
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
+CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
 {
     int32                       Status;
     CFE_ES_AppId_t              ThisAppId;
@@ -619,7 +619,7 @@ int32 CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
+CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
     CFE_ES_AppId_t              ThisAppId;
@@ -684,7 +684,7 @@ int32 CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType, const void *SrcDataPtr)
+CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType, const void *SrcDataPtr)
 {
     int32                       Status;
     CFE_ES_AppId_t              ThisAppId;
@@ -915,7 +915,7 @@ int32 CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType, const 
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
+CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
     CFE_ES_AppId_t              ThisAppId;
@@ -992,7 +992,7 @@ int32 CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle)
+CFE_Status_t CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle)
 {
     int32          Status;
     CFE_ES_AppId_t ThisAppId;
@@ -1032,7 +1032,7 @@ int32 CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle)
+CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle)
 {
     int32          Status;
     CFE_ES_AppId_t ThisAppId;
@@ -1069,7 +1069,7 @@ int32 CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_TBL_Handle_t TblHandles[])
+CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_TBL_Handle_t TblHandles[])
 {
     uint16         i;
     int32          Status;
@@ -1122,10 +1122,10 @@ int32 CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_TBL_Han
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t TblHandles[])
+CFE_Status_t CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t TblHandles[])
 {
-    int32  Status = CFE_SUCCESS;
-    uint16 i;
+    CFE_Status_t Status = CFE_SUCCESS;
+    uint16       i;
 
     for (i = 0; i < NumTables; i++)
     {
@@ -1153,7 +1153,7 @@ int32 CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t TblHandl
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
+CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
     CFE_ES_AppId_t              ThisAppId;
@@ -1301,7 +1301,7 @@ int32 CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle)
+CFE_Status_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle)
 {
     int32 Status           = CFE_SUCCESS;
     bool  FinishedManaging = false;
@@ -1361,7 +1361,7 @@ int32 CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
+CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
     CFE_ES_AppId_t              ThisAppId;
@@ -1409,7 +1409,7 @@ int32 CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
+CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
 {
     int32                  Status = CFE_SUCCESS;
     int16                  RegIndx;
@@ -1473,7 +1473,7 @@ int32 CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
+CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
@@ -1517,7 +1517,7 @@ int32 CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
+CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
 {
     int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;
@@ -1588,8 +1588,8 @@ int32 CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode,
-                              uint32 Parameter)
+CFE_Status_t CFE_TBL_NotifyByMessage(CFE_TBL_Handle_t TblHandle, CFE_SB_MsgId_t MsgId, CFE_MSG_FcnCode_t CommandCode,
+                                     uint32 Parameter)
 {
     int32                       Status;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr = NULL;

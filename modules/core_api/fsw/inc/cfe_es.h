@@ -112,14 +112,14 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx);
  * back to the original LibID value.  The caller should retain the original ID
  * for future use.
  *
- * @param[in]   LibID  Library ID to convert
+ * @param[in]   LibId  Library ID to convert
  * @param[out]  Idx    Buffer where the calculated index will be stored
  *
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
-int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibID, uint32 *Idx);
+int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx);
 
 /**
  * @brief Obtain an index value correlating to an ES Task ID
@@ -162,14 +162,14 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx);
  * back to the original CounterID value.  The caller should retain the original ID
  * for future use.
  *
- * @param[in]   CounterID  Counter ID to convert
+ * @param[in]   CounterId  Counter ID to convert
  * @param[out]  Idx     Buffer where the calculated index will be stored
  *
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
-CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterID, uint32 *Idx);
+CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterId, uint32 *Idx);
 
 /** @} */
 
@@ -357,7 +357,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in]  ExitStatus   A pointer to a variable containing the Application's
+** \param[in]  RunStatus    A pointer to a variable containing the Application's
 **                          desired run status.  Acceptable values are:
 **                          \arg #CFE_ES_RunStatus_APP_RUN - \copybrief CFE_ES_RunStatus_APP_RUN
 **                          \arg #CFE_ES_RunStatus_APP_EXIT - \copybrief CFE_ES_RunStatus_APP_EXIT
@@ -370,7 +370,7 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 ** \sa #CFE_ES_ExitApp
 **
 ******************************************************************************/
-bool CFE_ES_RunLoop(uint32 *ExitStatus);
+bool CFE_ES_RunLoop(uint32 *RunStatus);
 
 /*****************************************************************************/
 /**
@@ -1029,9 +1029,9 @@ void CFE_ES_ProcessAsyncEvent(void);
 **        This is indicated by a #CFE_SUCCESS return code, and in this case the calling application should
 **        ensure that it also calls CFE_ES_CopyToCDS() to fill the block with valid data.
 **
-** \param[in, out]   HandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle.
-**                               HandlePtr is the handle of the CDS block that can be used in
-**                               #CFE_ES_CopyToCDS and #CFE_ES_RestoreFromCDS.
+** \param[in, out]   CDSHandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle.
+**                                  HandlePtr is the handle of the CDS block that can be used in
+**                                  #CFE_ES_CopyToCDS and #CFE_ES_RestoreFromCDS.
 **
 ** \param[in]   BlockSize   The number of bytes needed in the CDS.
 **
@@ -1050,7 +1050,7 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *HandlePtr, size_t BlockSize, const char *Name);
+CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, const char *Name);
 
 /*****************************************************************************/
 /**
@@ -1311,7 +1311,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 ** \param[in, out]   BufPtr      A pointer to the Application's pointer in which will be stored the address of the
 **                               allocated memory buffer. *BufPtr is the address of the requested buffer.
 **
-** \param[in]   PoolID   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
+** \param[in]   Handle      The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
 ** \param[in]   Size        The size of the buffer requested.  NOTE: The size allocated may be larger.
 **
@@ -1324,7 +1324,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 *#CFE_ES_GetPoolBufInfo
 **
 ******************************************************************************/
-int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t PoolID, size_t Size);
+int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, size_t Size);
 
 /*****************************************************************************/
 /**
@@ -1336,9 +1336,9 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t PoolID, 
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   PoolID   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
+** \param[in]   Handle  The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
-** \param[in]   BufPtr      A pointer to the memory buffer to provide status for.
+** \param[in]   BufPtr  A pointer to the memory buffer to provide status for.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
@@ -1350,7 +1350,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t PoolID, 
 *#CFE_ES_PutPoolBuf
 **
 ******************************************************************************/
-CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr);
+CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr);
 
 /*****************************************************************************/
 /**
@@ -1362,9 +1362,9 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   PoolID   The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
+** \param[in]   Handle The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
-** \param[in]   BufPtr      A pointer to the memory buffer to be released.
+** \param[in]   BufPtr A pointer to the memory buffer to be released.
 **
 ** \return Bytes released, or error code \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
@@ -1374,7 +1374,7 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_
 *#CFE_ES_GetPoolBufInfo
 **
 ******************************************************************************/
-int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t PoolID, CFE_ES_MemPoolBuf_t BufPtr);
+int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr);
 
 /*****************************************************************************/
 /**

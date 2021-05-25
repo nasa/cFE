@@ -68,7 +68,7 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ResetCFE(uint32 ResetType)
+CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
 {
     int32 ReturnCode;
 
@@ -165,7 +165,7 @@ int32 CFE_ES_ResetCFE(uint32 ResetType)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
+CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
 {
     int32               ReturnCode = CFE_SUCCESS;
     os_fstat_t          FileStatus;
@@ -234,7 +234,7 @@ int32 CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
+CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
 {
     int32               ReturnCode = CFE_SUCCESS;
     os_fstat_t          FileStatus;
@@ -297,7 +297,7 @@ int32 CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
+CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
 {
     int32               ReturnCode = CFE_SUCCESS;
     CFE_ES_AppRecord_t *AppRecPtr  = CFE_ES_LocateAppRecordByID(AppID);
@@ -568,7 +568,7 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMilliseconds)
+CFE_Status_t CFE_ES_WaitForSystemState(uint32 MinSystemState, uint32 TimeOutMilliseconds)
 {
     int32               Status = CFE_SUCCESS;
     CFE_ES_AppRecord_t *AppRecPtr;
@@ -685,7 +685,7 @@ void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName)
+CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
     int32               Result;
@@ -726,7 +726,7 @@ int32 CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName)
+CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName)
 {
     CFE_ES_LibRecord_t *LibRecPtr;
     int32               Result;
@@ -802,7 +802,7 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
+CFE_Status_t CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
 {
     CFE_ES_AppRecord_t *AppRecPtr;
     int32               Result;
@@ -840,7 +840,7 @@ int32 CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr)
+CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr)
 {
     int32                Result;
     CFE_ES_TaskRecord_t *TaskRecPtr;
@@ -874,7 +874,7 @@ int32 CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t BufferLength)
+CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t BufferLength)
 {
     int32               Result;
     CFE_ES_AppRecord_t *AppRecPtr;
@@ -920,7 +920,7 @@ int32 CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t BufferLength
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t BufferLength)
+CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t BufferLength)
 {
     int32               Result;
     CFE_ES_LibRecord_t *LibRecPtr;
@@ -966,7 +966,7 @@ int32 CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t BufferLength
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t BufferLength)
+CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t BufferLength)
 {
     int32     Result;
     osal_id_t OsalId;
@@ -1003,7 +1003,7 @@ int32 CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t BufferLe
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
+CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId)
 {
     CFE_ES_AppRecord_t * AppRecPtr;
     CFE_ES_TaskRecord_t *TaskRecPtr;
@@ -1197,7 +1197,7 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId)
+CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
     CFE_ES_AppRecord_t * AppRecPtr;
@@ -1273,9 +1273,9 @@ int32 CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t TaskId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
-                             CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr, CFE_ES_StackPointer_t StackPtr,
-                             size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority, uint32 Flags)
+CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName,
+                                    CFE_ES_ChildTaskMainFuncPtr_t FunctionPtr, CFE_ES_StackPointer_t StackPtr,
+                                    size_t StackSize, CFE_ES_TaskPriority_Atom_t Priority, uint32 Flags)
 {
     int32                    ReturnCode;
     CFE_ES_AppRecord_t *     AppRecPtr;
@@ -1403,7 +1403,7 @@ void CFE_ES_IncrementTaskCounter(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
+CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
     CFE_ES_AppRecord_t * AppRecPtr;
@@ -1578,7 +1578,7 @@ void CFE_ES_ExitChildTask(void)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
+CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 {
     char    TmpString[CFE_ES_MAX_SYSLOG_MSG_SIZE];
     int32   ReturnCode;
@@ -1693,7 +1693,7 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, const char *Name)
+CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSize, const char *Name)
 {
     int32          Status;
     size_t         NameLen;
@@ -1862,7 +1862,7 @@ CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId,
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
+CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
 {
     if (DataToCopy == NULL)
     {
@@ -1880,7 +1880,7 @@ int32 CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
+CFE_Status_t CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
 {
     if (RestoreToMemory == NULL)
     {
@@ -1898,7 +1898,7 @@ int32 CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Handle)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_RegisterGenCounter(CFE_ES_CounterId_t *CounterIdPtr, const char *CounterName)
+CFE_Status_t CFE_ES_RegisterGenCounter(CFE_ES_CounterId_t *CounterIdPtr, const char *CounterName)
 {
     CFE_ES_GenCounterRecord_t *CountRecPtr;
     CFE_ResourceId_t           PendingResourceId;
@@ -1963,7 +1963,7 @@ int32 CFE_ES_RegisterGenCounter(CFE_ES_CounterId_t *CounterIdPtr, const char *Co
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId)
+CFE_Status_t CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId)
 {
     CFE_ES_GenCounterRecord_t *CountRecPtr;
     int32                      Status = CFE_ES_BAD_ARGUMENT;
@@ -1992,7 +1992,7 @@ int32 CFE_ES_DeleteGenCounter(CFE_ES_CounterId_t CounterId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
+CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
 {
     int32                      Status = CFE_ES_BAD_ARGUMENT;
     CFE_ES_GenCounterRecord_t *CountRecPtr;
@@ -2014,7 +2014,7 @@ int32 CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count)
+CFE_Status_t CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count)
 {
     int32                      Status = CFE_ES_BAD_ARGUMENT;
     CFE_ES_GenCounterRecord_t *CountRecPtr;
@@ -2036,7 +2036,7 @@ int32 CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count)
+CFE_Status_t CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count)
 {
     int32                      Status = CFE_ES_BAD_ARGUMENT;
     CFE_ES_GenCounterRecord_t *CountRecPtr;
@@ -2058,7 +2058,7 @@ int32 CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, const char *CounterName)
+CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, const char *CounterName)
 {
     CFE_ES_GenCounterRecord_t *CounterRecPtr;
     int32                      Result;
@@ -2141,7 +2141,7 @@ CFE_Status_t CFE_ES_GetGenCounterName(char *CounterName, CFE_ES_CounterId_t Coun
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx)
+CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx)
 {
     return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(AppID), CFE_ES_APPID_BASE, CFE_PLATFORM_ES_MAX_APPLICATIONS,
                                   Idx);
@@ -2168,7 +2168,7 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
+CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
 {
     osal_id_t    OsalID;
     osal_index_t OsalIndex;
@@ -2197,7 +2197,7 @@ int32 CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterId, uint32 *Idx)
+CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterId, uint32 *Idx)
 {
     return CFE_ResourceId_ToIndex(CFE_RESOURCEID_UNWRAP(CounterId), CFE_ES_COUNTID_BASE,
                                   CFE_PLATFORM_ES_MAX_GEN_COUNTERS, Idx);
