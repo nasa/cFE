@@ -58,12 +58,11 @@
 **        -# The File has already been successfully opened using #OS_OpenCreate and
 **           the caller has a legitimate File Descriptor.
 **
-** \param[in] FileDes File Descriptor obtained from a previous call to #OS_OpenCreate
-**                    that is associated with the file whose header is to be read.
-**
 ** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
 **                         filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
 **                         Standard cFE File Header for the specified file.
+** \param[in] FileDes      File Descriptor obtained from a previous call to #OS_OpenCreate
+**                         that is associated with the file whose header is to be read.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 **

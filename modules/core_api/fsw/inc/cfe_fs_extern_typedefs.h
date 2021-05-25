@@ -213,7 +213,7 @@ typedef struct CFE_FS_Header
     uint32 SubType;       /**< \brief Type of \c ContentType, if necessary */
                           /**< Standard SubType definitions can be found
                                \link #CFE_FS_SubType_ES_ERLOG here \endlink */
-    uint32 Length;        /**< \brief Length of primary header */
+    uint32 Length;        /**< \brief Length of this header to support external processing */
     uint32 SpacecraftID;  /**< \brief Spacecraft that generated the file */
     uint32 ProcessorID;   /**< \brief Processor that generated the file */
     uint32 ApplicationID; /**< \brief Application that generated the file */
