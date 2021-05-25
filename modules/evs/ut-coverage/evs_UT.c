@@ -392,12 +392,6 @@ void Test_IllegalAppID(void)
     UT_Report(__FILE__, __LINE__, CFE_EVS_Register(NULL, 0, 0) == CFE_EVS_APP_ILLEGAL_APP_ID, "CFE_EVS_Register",
               "Illegal app ID");
 
-    /* Test unregistering an event using an illegal application ID */
-    UT_InitData();
-    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UT_Report(__FILE__, __LINE__, CFE_EVS_Unregister() == CFE_EVS_APP_ILLEGAL_APP_ID, "CFE_EVS_Unregister",
-              "Illegal app ID");
-
     /* Test sending an event using an illegal application ID */
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
@@ -458,10 +452,7 @@ void Test_UnregisteredApp(void)
     UT_InitData();
 
     /* Unregister the application (it was registered in CFE_EVS_TaskInit) */
-    CFE_EVS_Unregister();
-
-    /* Test unregistering an already unregistered application */
-    UT_Report(__FILE__, __LINE__, CFE_EVS_Unregister() == CFE_SUCCESS, "CFE_EVS_Unregister", "App not registered");
+    CFE_EVS_CleanUpApp(AppID);
 
     /* Test sending an event to an unregistered application */
     UT_InitData();
@@ -531,21 +522,14 @@ void Test_FilterRegistration(void)
     UT_Report(__FILE__, __LINE__, CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY) == CFE_SUCCESS,
               "CFE_EVS_Register", "Valid w/ no filters");
 
-    /* Test filter unregistration with failed ES_putPool */
-    UT_InitData();
-    UT_SetDefaultReturnValue(UT_KEY(CFE_ES_PutPoolBuf), -1);
-    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, -1);
-    UT_Report(__FILE__, __LINE__, CFE_EVS_Unregister() < 0, "CFE_EVS_Unregister",
-              "Unregistration with failed ES_putPool");
-
     /* Re-register to test valid unregistration */
     UT_InitData();
     UT_Report(__FILE__, __LINE__, CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY) == CFE_SUCCESS,
               "CFE_EVS_Register", "Valid with no filters (re-registration)");
 
-    /* Test successful filter unregistration */
+    /* Test successful app cleanup */
     UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_EVS_Unregister() == CFE_SUCCESS, "CFE_EVS_Unregister", "Valid unregistration");
+    UT_Report(__FILE__, __LINE__, CFE_EVS_CleanUpApp(AppID) == CFE_SUCCESS, "CFE_EVS_CleanUpApp", "Valid cleanup");
 
     /* Test successful filter registration with a valid filter */
     UT_InitData();

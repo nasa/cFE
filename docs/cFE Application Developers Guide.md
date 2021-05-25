@@ -2365,19 +2365,7 @@ consistent style of writing in all messages. One should consult, if
 possible, with members of the Flight Operations team and scientists to
 find what kind of messages are required and how they should be worded.
 
-## 7.6 Event Service Un-registration
-
-Applications that have registered with the EVS can un-register
-themselves. The cFE, however, will automatically un-register an
-Application when the Application is terminated. An example of the
-function call to perform un-registration from within an Application is
-shown below:
-
-```
-CFE_EVS_Unregister ();
-```
-
-## 7.7 Best Practices for using Event Services
+## 7.6 Best Practices for using Event Services
 
 The following are recommended "best practices" for applications using EVS.
 1. Event Message IDs should be unique across an application so that an
