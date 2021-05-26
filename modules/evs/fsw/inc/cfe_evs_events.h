@@ -21,30 +21,16 @@
 /**
  * @file
  *
- *  Purpose:
- *	           cFE Event Services (EVS) Event IDs
- *
- *  Design Notes:
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *
+ *  cFE Event Services Event IDs
  */
 
 #ifndef CFE_EVS_EVENTS_H
 #define CFE_EVS_EVENTS_H
 
-/* **************************
-** ****** Maximum EID. ******
-** **************************
-** The EID's below may not necessarily be in order, so it can be difficult to
-** determine what the next EID is to use. When you add EID's, start with MAX_EID + 1
-** and when you're done adding, set this to the highest EID you used. It may
-** be worthwhile to, on occasion, re-number the EID's to put them back in order.
-*/
-#define CFE_EVS_MAX_EID 43
-
-/* Event Service event ID's */
+/**
+ * \name EVS event IDs
+ */
+/**\{*/
 
 /** \brief  <tt> 'No-op command' </tt>
 **  \event  <tt> 'No-op command' </tt>
@@ -56,7 +42,7 @@
 **  This event message is always automatically issued in response
 **  to a cFE Event Services \link #CFE_EVS_NOOP_CC NO-OP command \endlink
 **/
-#define CFE_EVS_NOOP_EID 0 /* Noop event identifier */
+#define CFE_EVS_NOOP_EID 0
 
 /** \brief <tt> 'cFE EVS Initialized' </tt>
 **  \event <tt> 'cFE EVS Initialized' </tt>
@@ -638,5 +624,6 @@
 **  found in the message.
 **/
 #define CFE_EVS_LEN_ERR_EID 43
+/**\}*/
 
 #endif /* CFE_EVS_EVENTS_H */

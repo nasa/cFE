@@ -21,33 +21,16 @@
 /**
  * @file
  *
- *  Purpose:
- *  cFE Executive Services (ES) Event IDs
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *     cFE Flight Software Application Developers Guide
- *
- *  Notes:
- *
+ *  cFE Executive Services Event IDs
  */
 
 #ifndef CFE_ES_EVENTS_H
 #define CFE_ES_EVENTS_H
 
-/* **************************
-** ****** Maximum EID. ******
-** **************************
-** The EID's below may not necessarily be in order, so it can be difficult to
-** determine what the next EID is to use. When you add EID's, start with MAX_EID + 1
-** and when you're done adding, set this to the highest EID you used. It may
-** be worthwhile to, on occasion, re-number the EID's to put them back in order.
-*/
-#define CFE_ES_MAX_EID 92
-
-/*
-** ES task event message ID's.
-*/
+/**
+ * \name ES event IDs
+ */
+/**\{*/
 
 /** \brief <tt> 'cFE ES Initialized' </tt>
 **  \event <tt> 'cFE ES Initialized' </tt>
@@ -59,7 +42,7 @@
 **  This event message is always automatically issued when the Executive Services
 **  Task completes its Initialization.
 **/
-#define CFE_ES_INIT_INF_EID 1 /* start up message "informational" */
+#define CFE_ES_INIT_INF_EID 1
 
 /** \brief <tt> 'cFE Version \%d.\%d.\%d chksm \%d, OSAL Version \%d.\%d' </tt>
 **  \event <tt> 'cFE Version \%d.\%d.\%d chksm \%d, OSAL Version \%d.\%d' </tt>
@@ -87,7 +70,7 @@
 **  This event message is always automatically issued in response
 **  to a cFE Executive Services \link #CFE_ES_NOOP_CC NO-OP command \endlink
 **/
-#define CFE_ES_NOOP_INF_EID 3 /* processed command "informational" */
+#define CFE_ES_NOOP_INF_EID 3
 
 /** \brief <tt> 'Reset Counters command' </tt>
 **  \event <tt> 'Reset Counters command' </tt>
@@ -358,7 +341,7 @@
 **  The \c ID field in the event message identifies
 **  the message ID (in hex) that was found in the message.
 **/
-#define CFE_ES_MID_ERR_EID 21 /* invalid command packet "error" */
+#define CFE_ES_MID_ERR_EID 21
 
 /** \brief <tt> 'Invalid ground command code: ID = 0x\%X, CC = \%d' </tt>
 **  \event <tt> 'Invalid ground command code: ID = 0x\%X, CC = \%d' </tt>
@@ -414,7 +397,7 @@
 **  The 'd' field identifies the numeric, in decimal, of the restart type found
 **  in the received cFE Restart Command Packet.
 **/
-#define CFE_ES_BOOT_ERR_EID 24 /* command specific "error" */
+#define CFE_ES_BOOT_ERR_EID 24
 
 /** \brief <tt> 'Failed to start \%s from \%s, RC = \%08X' </tt>
 **  \event <tt> 'Failed to start \%s from \%s, RC = \%08X' </tt>
@@ -1447,5 +1430,6 @@
 **
 **/
 #define CFE_ES_ERLOG_PENDING_ERR_EID 93
+/**\}*/
 
 #endif /* CFE_ES_EVENTS_H */

@@ -21,34 +21,16 @@
 /**
  * @file
  *
- *  Purpose:
- *      cFE Software Bus (SB) Event IDs
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *     cFE Flight Software Application Developers Guide
- *
+ *  cFE Software Bus Services Event IDs
  */
 
 #ifndef CFE_SB_EVENTS_H
 #define CFE_SB_EVENTS_H
 
-/* **************************
-** ****** Maximum EID. ******
-** **************************
-** The EID's below are not necessarily in order, so it can be difficult to
-** determine what the next EID is to use. When you add EID's, start with MAX_EID + 1
-** and when you're done adding, set this to the highest EID you used. It may
-** be worthwhile to, on occasion, re-number the EID's to put them back in order.
-*/
-#define CFE_SB_MAX_EID 67
-
-/*
-** SB task event message ID's.
-*/
-/*
-** Event ID's
-*/
+/**
+ * \name SB event IDs
+ */
+/**\{*/
 
 /** \brief <tt> 'cFE SB Initialized' </tt>
 **  \event <tt> 'cFE SB Initialized' </tt>
@@ -112,144 +94,6 @@
 **  #CFE_SB_CreatePipe API.
 **/
 #define CFE_SB_PIPE_ADDED_EID 5
-
-/** \brief <tt> 'SetPipeOptsErr:Invalid pipe id (\%d).app \%s' </tt>
-**  \event <tt> 'SetPipeOptsErr:Invalid pipe id (\%d).app \%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This error event message is issued when the #CFE_SB_SetPipeOpts API is called and
-**  the PipeID is invalid.
-**/
-#define CFE_SB_SETPIPEOPTS_ID_ERR_EID 55
-
-/** \brief <tt> 'SetPipeOptsErr:Caller not owner (\%d).app \%s' </tt>
-**  \event <tt> 'SetPipeOptsErr:Caller not owner (\%d).app \%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This error event message is issued when the #CFE_SB_SetPipeOpts API is called and
-**  the pipe is owned by another app ID.
-**/
-#define CFE_SB_SETPIPEOPTS_OWNER_ERR_EID 56
-
-/** \brief <tt> 'SetPipeOpts: Options set (\%d). app \%s' </tt>
-** \event <tt> 'SetPipeOpts: Options set (\%d). app \%s' </tt>
-**
-**  \par Type: DEBUG
-**
-**  \par Cause:
-**
-**  This debug event is generated when options are set.
-**/
-#define CFE_SB_SETPIPEOPTS_EID 57
-
-/** \brief <tt> 'GetPipeOptsErr:Invalid pipe id (\%d).app \%s' </tt>
-**  \event <tt> 'GetPipeOptsErr:Invalid pipe id (\%d).app \%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This error event message is issued when the #CFE_SB_GetPipeOpts API is called and
-**  the PipeID is invalid.
-**/
-#define CFE_SB_GETPIPEOPTS_ID_ERR_EID 58
-
-/** \brief <tt> 'GetPipeOptsErr:Invalid opts ptr.app \%s' </tt>
-**  \event <tt> 'GetPipeOptsErr:Invalid opts ptr.app \%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This error event message is issued when the #CFE_SB_GetPipeOpts API is called and
-**  the pointer is invalid.
-**/
-#define CFE_SB_GETPIPEOPTS_PTR_ERR_EID 59
-
-/** \brief <tt> 'GetPipeOpts: Options retrieved. app \%s' </tt>
-** \event <tt> 'GetPipeOpts: Options retrieved. app \%s' </tt>
-**
-**  \par Type: DEBUG
-**
-**  \par Cause:
-**
-**  This debug event is generated when options are retrieved.
-**/
-#define CFE_SB_GETPIPEOPTS_EID 60
-
-/** \brief <tt> 'GetPipeName: Name retrieved. NameOut \%s,Id \%d, app \%s' </tt>
-** \event <tt> 'GetPipeName: Name retrieved. NameOut \%s,Id \%d, app \%s' </tt>
-**
-**  \par Type: DEBUG
-**
-**  \par Cause:
-**
-**  This debug event is generated when name is retrieved by id.
-**/
-#define CFE_SB_GETPIPENAME_EID 62
-
-/** \brief <tt> 'GetPipeName: Null ptr error. Id \%d, app \%s' </tt>
-** \event <tt> 'GetPipeName: Null ptr error. Id \%d, app \%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This debug event is generated when the name buffer ptr is null.
-**/
-#define CFE_SB_GETPIPENAME_NULL_PTR_EID 63
-
-/** \brief <tt> 'GetPipeName: Id error. NameOut \%s,Id \%d, app \%s' </tt>
-** \event <tt> 'GetPipeName: Id error. NameOut \%s,Id \%d, app \%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This debug event is generated when name is retrieved by id.
-**/
-#define CFE_SB_GETPIPENAME_ID_ERR_EID 64
-
-/** \brief <tt> 'GetPipeIdByName: ID retrieved. Name \%s,IdOut 0x\%x, app \%s' </tt>
-** \event <tt> 'GetPipeIdByName: ID retrieved. Name \%s,IdOut 0x\%x, app \%s' </tt>
-**
-**  \par Type: DEBUG
-**
-**  \par Cause:
-**
-**  This debug event is generated when id is retrieved by name.
-**/
-#define CFE_SB_GETPIPEIDBYNAME_EID 65
-
-/** \brief <tt> 'GetPipeIdByName Err:Bad input argument,Name 0x\%x,IdOut 0x%x,App \%s' </tt>
-**  \event <tt> 'GetPipeIdByName Err:Bad input argument,Name 0x\%x,IdOut 0x%x,App \%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This error event message is issued when the #CFE_SB_GetPipeIdByName API receives a
-**  NULL ptr as an argument.
-**/
-#define CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID 66
-
-/** \brief <tt> 'GetPipeIdByName Err:Name not found,Name \%s,IdOut 0x%x,App \%s' </tt>
-**  \event <tt> 'GetPipeIdByName Err:Name not found,Name \%s,IdOut 0x%x,App \%s' </tt>
-**
-**  \par Type: ERROR
-**
-**  \par Cause:
-**
-**  This error event message is issued when the #CFE_SB_GetPipeIdByName API receives an
-**  invalid name.
-**/
-#define CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID 67
 
 /** \brief <tt> 'Subscribe Err:Bad Arg,MsgId 0x\%x,PipeId \%d,app \%s,scope \%d' </tt>
 **  \event <tt> 'Subscribe Err:Bad Arg,MsgId 0x\%x,PipeId \%d,app \%s,scope \%d' </tt>
@@ -861,6 +705,144 @@
 **/
 #define CFE_SB_DEL_PIPE_ERR2_EID 54
 
+/** \brief <tt> 'SetPipeOptsErr:Invalid pipe id (\%d).app \%s' </tt>
+**  \event <tt> 'SetPipeOptsErr:Invalid pipe id (\%d).app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_SetPipeOpts API is called and
+**  the PipeID is invalid.
+**/
+#define CFE_SB_SETPIPEOPTS_ID_ERR_EID 55
+
+/** \brief <tt> 'SetPipeOptsErr:Caller not owner (\%d).app \%s' </tt>
+**  \event <tt> 'SetPipeOptsErr:Caller not owner (\%d).app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_SetPipeOpts API is called and
+**  the pipe is owned by another app ID.
+**/
+#define CFE_SB_SETPIPEOPTS_OWNER_ERR_EID 56
+
+/** \brief <tt> 'SetPipeOpts: Options set (\%d). app \%s' </tt>
+** \event <tt> 'SetPipeOpts: Options set (\%d). app \%s' </tt>
+**
+**  \par Type: DEBUG
+**
+**  \par Cause:
+**
+**  This debug event is generated when options are set.
+**/
+#define CFE_SB_SETPIPEOPTS_EID 57
+
+/** \brief <tt> 'GetPipeOptsErr:Invalid pipe id (\%d).app \%s' </tt>
+**  \event <tt> 'GetPipeOptsErr:Invalid pipe id (\%d).app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_GetPipeOpts API is called and
+**  the PipeID is invalid.
+**/
+#define CFE_SB_GETPIPEOPTS_ID_ERR_EID 58
+
+/** \brief <tt> 'GetPipeOptsErr:Invalid opts ptr.app \%s' </tt>
+**  \event <tt> 'GetPipeOptsErr:Invalid opts ptr.app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_GetPipeOpts API is called and
+**  the pointer is invalid.
+**/
+#define CFE_SB_GETPIPEOPTS_PTR_ERR_EID 59
+
+/** \brief <tt> 'GetPipeOpts: Options retrieved. app \%s' </tt>
+** \event <tt> 'GetPipeOpts: Options retrieved. app \%s' </tt>
+**
+**  \par Type: DEBUG
+**
+**  \par Cause:
+**
+**  This debug event is generated when options are retrieved.
+**/
+#define CFE_SB_GETPIPEOPTS_EID 60
+
+/** \brief <tt> 'GetPipeName: Name retrieved. NameOut \%s,Id \%d, app \%s' </tt>
+** \event <tt> 'GetPipeName: Name retrieved. NameOut \%s,Id \%d, app \%s' </tt>
+**
+**  \par Type: DEBUG
+**
+**  \par Cause:
+**
+**  This debug event is generated when name is retrieved by id.
+**/
+#define CFE_SB_GETPIPENAME_EID 62
+
+/** \brief <tt> 'GetPipeName: Null ptr error. Id \%d, app \%s' </tt>
+** \event <tt> 'GetPipeName: Null ptr error. Id \%d, app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This debug event is generated when the name buffer ptr is null.
+**/
+#define CFE_SB_GETPIPENAME_NULL_PTR_EID 63
+
+/** \brief <tt> 'GetPipeName: Id error. NameOut \%s,Id \%d, app \%s' </tt>
+** \event <tt> 'GetPipeName: Id error. NameOut \%s,Id \%d, app \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This debug event is generated when name is retrieved by id.
+**/
+#define CFE_SB_GETPIPENAME_ID_ERR_EID 64
+
+/** \brief <tt> 'GetPipeIdByName: ID retrieved. Name \%s,IdOut 0x\%x, app \%s' </tt>
+** \event <tt> 'GetPipeIdByName: ID retrieved. Name \%s,IdOut 0x\%x, app \%s' </tt>
+**
+**  \par Type: DEBUG
+**
+**  \par Cause:
+**
+**  This debug event is generated when id is retrieved by name.
+**/
+#define CFE_SB_GETPIPEIDBYNAME_EID 65
+
+/** \brief <tt> 'GetPipeIdByName Err:Bad input argument,Name 0x\%x,IdOut 0x%x,App \%s' </tt>
+**  \event <tt> 'GetPipeIdByName Err:Bad input argument,Name 0x\%x,IdOut 0x%x,App \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_GetPipeIdByName API receives a
+**  NULL ptr as an argument.
+**/
+#define CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID 66
+
+/** \brief <tt> 'GetPipeIdByName Err:Name not found,Name \%s,IdOut 0x%x,App \%s' </tt>
+**  \event <tt> 'GetPipeIdByName Err:Name not found,Name \%s,IdOut 0x%x,App \%s' </tt>
+**
+**  \par Type: ERROR
+**
+**  \par Cause:
+**
+**  This error event message is issued when the #CFE_SB_GetPipeIdByName API receives an
+**  invalid name.
+**/
+#define CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID 67
+
 /** \brief <tt> 'Invalid cmd length: ID = 0x\%X, CC = \%d, Exp Len = \%d, Len = \%d' </tt>
 **  \event <tt> 'Invalid cmd length: ID = 0x\%X, CC = \%d, Exp Len = \%d, Len = \%d' </tt>
 **
@@ -877,7 +859,7 @@
 **  Length (in decimal ), and \c Len specifies the message Length (in decimal)
 **  found in the message.
 **/
-#define CFE_SB_LEN_ERR_EID 61
+#define CFE_SB_LEN_ERR_EID 68
 
 /** \brief <tt> 'CreatePipeErr:Name Taken:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
 **  \event <tt> 'CreatePipeErr:Name Taken:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
@@ -889,7 +871,7 @@
 **  This error event message is issued when the #CFE_SB_CreatePipe API tries to create
 **  a pipe with a name that is in use.
 **/
-#define CFE_SB_CR_PIPE_NAME_TAKEN_EID 62
+#define CFE_SB_CR_PIPE_NAME_TAKEN_EID 69
 
 /** \brief <tt> 'CreatePipeErr:No Free:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
 **  \event <tt> 'CreatePipeErr:No Free:app=\%s,ptr=0x\%x,depth=\%d,maxdepth=\%d' </tt>
@@ -901,6 +883,7 @@
 **  This error event message is issued when the #CFE_SB_CreatePipe API is unable to
 **  create a queue because there are no queues free.
 **/
-#define CFE_SB_CR_PIPE_NO_FREE_EID 63
+#define CFE_SB_CR_PIPE_NO_FREE_EID 70
+/**\}*/
 
 #endif /* CFE_SB_EVENTS_H */

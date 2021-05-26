@@ -21,40 +21,17 @@
 /**
  * @file
  *
- *  Title:   Table Services API Event ID Header File
- *
- *  Purpose:
- *     Identifies event codes for event messages issued by Table Services.
- *
- *  Design Notes:
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *
- *  Notes:
- *
+ *  cFE Table Services Event IDs
  */
 
 #ifndef CFE_TBL_EVENTS_H
 #define CFE_TBL_EVENTS_H
 
-/* **************************
-** ****** Maximum EID. ******
-** **************************
-** The EID's below may not necessarily be in order, so it can be difficult to
-** determine what the next EID is to use. When you add EID's, start with MAX_EID + 1
-** and when you're done adding, set this to the highest EID you used. It may
-** be worthwhile to, on occasion, re-number the EID's to put them back in order.
-*/
-#define CFE_TBL_MAX_EID 103
+/**
+ * \name TBL event IDs
+ */
+/**\{*/
 
-/******************* Macro Definitions ***********************/
-/*
-** Event message ID's
-*/
-
-/** \name Informational Event Message IDs */
-/** \{ */
 /** \brief <tt> 'Task Initialized' </tt>
 **  \event <tt> 'Task Initialized' </tt>
 **
@@ -66,10 +43,6 @@
 **  Task completes its Initialization.
 **/
 #define CFE_TBL_INIT_INF_EID 1
-/** \} */
-
-/** \name Command Response Informational Event Message IDs */
-/** \{ */
 
 /** \brief <tt> 'No-op command' </tt>
 **  \event <tt> 'No-op command' </tt>
@@ -238,10 +211,56 @@
 **  #CFE_TBL_Register API.
 **/
 #define CFE_TBL_ASSUMED_VALID_INF_EID 23
-/** \} */
 
-/** \name Command Error Event Message IDs */
-/** \{ */
+/** \brief <tt> 'Successfully loaded '\%s' from '\%s'' </tt>
+**  \event <tt> 'Successfully loaded '\%s' from '\%s'' </tt>
+**
+**  \par Type: DEBUG (the first time) and INFORMATION (normally)
+**
+**  \par Cause:
+**
+**  This event message is generated when a Table is successfully updated by its owning Application
+**  with the contents of the Application specified file or memory area.  This Event Message only
+**  appears when an Application successfully calls the #CFE_TBL_Load API.
+**/
+#define CFE_TBL_LOAD_SUCCESS_INF_EID 35
+
+/** \brief <tt> '\%s validation successful for Inactive '\%s'' </tt>
+**  \event <tt> '\%s validation successful for Inactive '\%s'' </tt>
+**
+**  \par Type: INFORMATION
+**
+**  \par Cause:
+**
+**  This event message is generated when a Table Image is successfully validated by its owning
+**  Application via the Validation function specified by the owning Application when the table
+**  was first registered.
+**/
+#define CFE_TBL_VALIDATION_INF_EID 36
+
+/** \brief <tt> '\%s Successfully Updated '\%s'' </tt>
+**  \event <tt> '\%s Successfully Updated '\%s'' </tt>
+**
+**  \par Type: INFORMATION
+**
+**  \par Cause:
+**
+**  This event message is generated when a Table's Active Buffer is successfully updated with the contents
+**  of its Inactive Buffer.
+**/
+#define CFE_TBL_UPDATE_SUCCESS_INF_EID 37
+
+/** \brief <tt> 'Successfully removed '\%s' from CDS' </tt>
+**  \event <tt> 'Successfully removed '\%s' from CDS' </tt>
+**
+**  \par Type: INFORMATION
+**
+**  \par Cause:
+**
+**  This event message is generated when a Critical Table's CDS has been successfully deleted.
+**/
+#define CFE_TBL_CDS_DELETED_INFO_EID 38
+
 /** \brief <tt> 'Invalid message ID -- ID = 0x\%X' </tt>
 **  \event <tt> 'Invalid message ID -- ID = 0x\%X' </tt>
 **
@@ -839,63 +858,7 @@
 **  is the error code returned.
 **/
 #define CFE_TBL_FAIL_NOTIFY_SEND_ERR_EID 89
-/** \} */
 
-/** \name API Informational Event Message IDs */
-/** \{ */
-
-/** \brief <tt> 'Successfully loaded '\%s' from '\%s'' </tt>
-**  \event <tt> 'Successfully loaded '\%s' from '\%s'' </tt>
-**
-**  \par Type: DEBUG (the first time) and INFORMATION (normally)
-**
-**  \par Cause:
-**
-**  This event message is generated when a Table is successfully updated by its owning Application
-**  with the contents of the Application specified file or memory area.  This Event Message only
-**  appears when an Application successfully calls the #CFE_TBL_Load API.
-**/
-#define CFE_TBL_LOAD_SUCCESS_INF_EID 35
-
-/** \brief <tt> '\%s validation successful for Inactive '\%s'' </tt>
-**  \event <tt> '\%s validation successful for Inactive '\%s'' </tt>
-**
-**  \par Type: INFORMATION
-**
-**  \par Cause:
-**
-**  This event message is generated when a Table Image is successfully validated by its owning
-**  Application via the Validation function specified by the owning Application when the table
-**  was first registered.
-**/
-#define CFE_TBL_VALIDATION_INF_EID 36
-
-/** \brief <tt> '\%s Successfully Updated '\%s'' </tt>
-**  \event <tt> '\%s Successfully Updated '\%s'' </tt>
-**
-**  \par Type: INFORMATION
-**
-**  \par Cause:
-**
-**  This event message is generated when a Table's Active Buffer is successfully updated with the contents
-**  of its Inactive Buffer.
-**/
-#define CFE_TBL_UPDATE_SUCCESS_INF_EID 37
-
-/** \brief <tt> 'Successfully removed '\%s' from CDS' </tt>
-**  \event <tt> 'Successfully removed '\%s' from CDS' </tt>
-**
-**  \par Type: INFORMATION
-**
-**  \par Cause:
-**
-**  This event message is generated when a Critical Table's CDS has been successfully deleted.
-**/
-#define CFE_TBL_CDS_DELETED_INFO_EID 38
-/** \} */
-
-/** \name API Error Event Message IDs */
-/** \{ */
 /** \brief <tt> '\%s Failed to Register '\%s', Status=0x\%08X' </tt>
 **  \event <tt> '\%s Failed to Register '\%s', Status=0x\%08X' </tt>
 **
@@ -1094,7 +1057,6 @@
 **  The application ID does not have access to the table handle.
 **/
 #define CFE_TBL_HANDLE_ACCESS_ERR_EID 103
-
-/** \} */
+/**\}*/
 
 #endif /* CFE_TBL_EVENTS_H */

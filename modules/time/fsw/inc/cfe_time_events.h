@@ -21,32 +21,17 @@
 /**
  * @file
  *
- *  Purpose:
- *	           cFE Time Services (Time) Event IDs
- *
- *  Design Notes:
- *
- *  References:
- *     Flight Software Branch C Coding Standard Version 1.0a
- *
+ *  cFE Time Services Event IDs
  */
 
 #ifndef CFE_TIME_EVENTS_H
 #define CFE_TIME_EVENTS_H
 
-/* **************************
-** ****** Maximum EID. ******
-** **************************
-** The EID's below may not necessarily be in order, so it can be difficult to
-** determine what the next EID is to use. When you add EID's, start with MAX_EID + 1
-** and when you're done adding, set this to the highest EID you used. It may
-** be worthwhile to, on occasion, re-number the EID's to put them back in order.
-*/
-#define CFE_TIME_MAX_EID 49
+/**
+ * \name TIME event IDs
+ */
+/**\{*/
 
-/*
-** Event message ID's...
-*/
 /** \brief <tt> 'cFE TIME Initialized' </tt>
 **  \event <tt> 'cFE TIME Initialized' </tt>
 **
@@ -57,7 +42,7 @@
 **  This event message is always automatically issued when the Time Services
 **  Task completes its Initialization.
 **/
-#define CFE_TIME_INIT_EID 1 /* start up message "informational" */
+#define CFE_TIME_INIT_EID 1
 
 /** \brief <tt> 'No-op command' </tt>
 **  \event <tt> 'No-op command' </tt>
@@ -69,7 +54,7 @@
 **  This event message is always automatically issued in response
 **  to a cFE Time Services \link #CFE_TIME_NOOP_CC NO-OP command \endlink
 **/
-#define CFE_TIME_NOOP_EID 4 /* processed command "informational" */
+#define CFE_TIME_NOOP_EID 4
 
 /** \brief <tt> 'Reset Counters command' </tt>
 **  \event <tt> 'Reset Counters command' </tt>
@@ -273,7 +258,7 @@
 **
 **  This event message is generated whenever the Time Services enters FLYWHEEL mode.
 **/
-#define CFE_TIME_FLY_ON_EID 20 /* flywheel state "informational" */
+#define CFE_TIME_FLY_ON_EID 20
 
 /** \brief <tt> 'Stop FLYWHEEL' </tt>
 **  \event <tt> 'Stop FLYWHEEL' </tt>
@@ -286,7 +271,7 @@
 **/
 #define CFE_TIME_FLY_OFF_EID 21
 
-#define CFE_TIME_EXIT_ERR_EID 25 /* task termination "error" */
+#define CFE_TIME_EXIT_ERR_EID 25
 
 /** \brief <tt> 'Invalid message ID -- ID = 0x\%X' </tt>
 **  \event <tt> 'Invalid message ID -- ID = 0x\%X' </tt>
@@ -302,7 +287,7 @@
 **  The \c ID field specifies, in hex, the message ID of the inappropriately
 **  received message.
 **/
-#define CFE_TIME_ID_ERR_EID 26 /* invalid command packet "error" */
+#define CFE_TIME_ID_ERR_EID 26
 
 /** \brief <tt> 'Invalid command code -- ID = 0x\%X, CC = \%d' </tt>
 **  \event <tt> 'Invalid command code -- ID = 0x\%X, CC = \%d' </tt>
@@ -337,7 +322,7 @@
 **  The \c State field specifies, in hex, the state value received
 **  in the command message.
 **/
-#define CFE_TIME_STATE_ERR_EID 30 /* processed command "error" */
+#define CFE_TIME_STATE_ERR_EID 30
 
 /** \brief <tt> 'Invalid Time Source = 0x\%X' </tt>
 **  \event <tt> 'Invalid Time Source = 0x\%X' </tt>
@@ -468,10 +453,6 @@
 **/
 #define CFE_TIME_DELTA_ERR_EID 37
 
-/** (obsolete - unused)
- **/
-#define CFE_TIME_1HZ_ERR_EID 38
-
 /** \brief <tt> 'Set Source commands invalid without CFE_PLATFORM_TIME_CFG_SOURCE set to true' </tt>
 **  \event <tt> 'Set Source commands invalid without CFE_PLATFORM_TIME_CFG_SOURCE set to true' </tt>
 **
@@ -484,7 +465,7 @@
 **  and the Time Services configuration parameter #CFE_PLATFORM_TIME_CFG_SOURCE has
 **  not been set to true in the cfe_platform_cfg.h file.
 **/
-#define CFE_TIME_SOURCE_CFG_EID 40 /* cmd disabled per cfg "error" */
+#define CFE_TIME_SOURCE_CFG_EID 40
 
 /** \brief <tt> 'Set Signal commands invalid without CFE_PLATFORM_TIME_CFG_SIGNAL set to true' </tt>
 **  \event <tt> 'Set Signal commands invalid without CFE_PLATFORM_TIME_CFG_SIGNAL set to true' </tt>
@@ -618,5 +599,6 @@
 **  found in the message.
 **/
 #define CFE_TIME_LEN_ERR_EID 49
+/**\}*/
 
 #endif /* CFE_TIME_EVENTS_H */
