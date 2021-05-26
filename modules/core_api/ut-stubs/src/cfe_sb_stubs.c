@@ -133,12 +133,12 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
  * Generated stub function for CFE_SB_GetPipeOpts()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptPtr)
+CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 {
     UT_GenStub_SetupReturnBuffer(CFE_SB_GetPipeOpts, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_SB_GetPipeOpts, CFE_SB_PipeId_t, PipeId);
-    UT_GenStub_AddParam(CFE_SB_GetPipeOpts, uint8 *, OptPtr);
+    UT_GenStub_AddParam(CFE_SB_GetPipeOpts, uint8 *, OptsPtr);
 
     UT_GenStub_Execute(CFE_SB_GetPipeOpts, Basic, NULL);
 

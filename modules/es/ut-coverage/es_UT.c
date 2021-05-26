@@ -1848,6 +1848,23 @@ void TestLibs(void)
     Return = CFE_ES_LoadLibrary(&Id, "TST_LIB", &LoadParams);
     UtAssert_INT32_EQ(Return, CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
+    /*
+     * Test shared library loading and initialization where the library
+     * entry point symbol is the special string "NULL".  This should skip
+     * symbol lookup.
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupModuleLoadParams(&LoadParams, "nullep", "NULL");
+    Return = CFE_ES_LoadLibrary(&Id, "TST_LIB1", &LoadParams);
+    UtAssert_INT32_EQ(Return, CFE_SUCCESS);
+    UtAssert_STUB_COUNT(OS_ModuleSymbolLookup, 0); /* should NOT have been called */
+
+    /* Likewise for a entry point where the string is empty */
+    LoadParams.InitSymbolName[0] = 0;
+    Return                       = CFE_ES_LoadLibrary(&Id, "TST_LIB2", &LoadParams);
+    UtAssert_INT32_EQ(Return, CFE_SUCCESS);
+    UtAssert_STUB_COUNT(OS_ModuleSymbolLookup, 0); /* should NOT have been called */
+
     /* Test shared library loading and initialization where the library
      * initialization function fails and then must be cleaned up
      */

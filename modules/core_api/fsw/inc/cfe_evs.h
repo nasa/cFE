@@ -89,9 +89,9 @@
 **                               The structure of an event message filter depends on the FilterScheme selected.
 **                               (see Filter Schemes mentioned above)
 **
-** \param[in] NumFilteredEvents  The number of event message filters included in this call.  This must be less than
+** \param[in] NumEventFilters    The number of event message filters included in this call.  This must be less than
 **                               or equal to the maximum number of events allowed per application
-*(#CFE_PLATFORM_EVS_MAX_EVENT_FILTERS).
+**                               (#CFE_PLATFORM_EVS_MAX_EVENT_FILTERS).
 **
 ** \param[in] FilterScheme       The event filtering scheme that this application will use.  For the first
 **                               implementation of the event services, only filter type #CFE_EVS_EventFilter_BINARY
@@ -106,9 +106,7 @@
 ** \sa #CFE_EVS_Unregister
 **
 **/
-CFE_Status_t CFE_EVS_Register(const void *Filters,           /* Pointer to an array of filters */
-                              uint16      NumFilteredEvents, /* How many elements in the array? */
-                              uint16      FilterScheme);          /* Filtering Algorithm to be implemented */
+CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme);
 
 /**
 ** \brief Cleanup internal structures used by the event manager for the calling Application.

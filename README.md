@@ -10,6 +10,17 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev593
+
+- Uses `int` with %d conversions inUtAssert_True and UtPrintf for platform portability.
+- Specifying the special string NULL as the entry point in a startup script results in no entry point being called for the library. Equivalent to leaving the field empty.
+- [build system] Adds a hook for an `install_custom.cmake` script that can added to a CPU-specific subdirectory under the "defs" directory. This hook can perform extra installation steps for custom implementations. Tweaks the `add_cfe_tables` function so it can be called from the `install_custom.cmake` script to generate additional table binaries for that CPU.
+- [build system] `add_cfe_tables` now uses the "APP_NAME" parameter to associate the table files with the app library, so the same set of include files can be used. Still allows any unique string to be used as "APP_NAME" for backward compatibility. The script will now generate a "Note" message to the user if it does not match an application name.
+- If the multiple table feature is used, it actually needs to match the application name, or else the include paths may be incomplete.
+- Removes discrepancies (return type, parameter names, etc) between function prototypes and implementation. Also fixes some but not all use of CFE_Status_t in the implementations. Updates ut-stubs accordingly.
+- See <>https://github.com/nasa/cFE/pull/1568> and <https://github.com/nasa/cFS/pull/260>
+
+
 ### Development Build: v6.8.0-rc1+dev580
 
 - Adds `CFE_MSG_GetNextSequenceCount` so the auto-increment of the local sequence counter works when sending tlm (and increment is enabled). Updates unit tests and adds the old-style stub. The unit tests check for the correct rollover behavior.Sequence count will roll over based on the mask. Before the fix the sequence counter would "stick" in telemetry until the passed in value rolled over.

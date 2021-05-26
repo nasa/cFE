@@ -172,7 +172,7 @@ static inline bool CFE_ResourceId_IsDefined(CFE_ResourceId_t id)
  * @param[in]   ResourceId   the resource ID to decode
  * @returns     The base value associated with that ID
  */
-extern uint32 CFE_ResourceId_GetBase(CFE_ResourceId_t ResourceId);
+uint32 CFE_ResourceId_GetBase(CFE_ResourceId_t ResourceId);
 
 /**
  * @brief Get the Serial Number (sequential ID) from a resource ID value
@@ -183,7 +183,7 @@ extern uint32 CFE_ResourceId_GetBase(CFE_ResourceId_t ResourceId);
  * @param[in]   ResourceId   the resource ID to decode
  * @returns     The serial number associated with that ID
  */
-extern uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
+uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
 
 /**
  * @brief Locate the next resource ID which does not map to an in-use table entry
@@ -202,8 +202,8 @@ extern uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
  * @retval      #CFE_RESOURCEID_UNDEFINED if no open slots.
  *
  */
-extern CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
-                                                bool (*CheckFunc)(CFE_ResourceId_t));
+CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
+                                         bool (*CheckFunc)(CFE_ResourceId_t));
 
 /**
  * @brief Internal routine to aid in converting an ES resource ID to an array index
@@ -214,6 +214,6 @@ extern CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32
  * @param[out] Idx       The output index
  * @returns Status code, CFE_SUCCESS if successful.
  */
-extern int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx);
+int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx);
 
 #endif /* CFE_RESOURCEID_H */

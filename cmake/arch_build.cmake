@@ -148,80 +148,99 @@ endfunction(add_cfe_app_dependency)
 #
 function(add_cfe_tables APP_NAME TBL_SRC_FILES)
 
-  # The table source must be compiled using the same "include_directories"
-  # as any other target, but it uses the "add_custom_command" so there is
-  # no automatic way to do this (at least in the older cmakes)
+    if (TGTNAME)
+        set (TABLE_TGTLIST ${TGTNAME})
+    elseif (TARGET ${APP_NAME})
+        set (TABLE_TGTLIST ${TGTLIST_${APP_NAME}})
+    else()
+        # The first parameter should match the name of an app that was
+        # previously defined using "add_cfe_app".  If target-scope properties
+        # are used for include directories and compile definitions, this is needed
+        # to compile tables with the same include path/definitions as the app has.
+        # However historically this could have been any string, which still works
+        # if directory-scope properties are used for includes, so this is not
+        # an error.
+        message("NOTE: \"${APP_NAME}\" passed to add_cfe_tables is not a previously-defined application target")
+        set (TABLE_TGTLIST ${APP_STATIC_TARGET_LIST} ${APP_DYNAMIC_TARGET_LIST})
+    endif()
 
-  # Create the intermediate table objects using the target compiler,
-  # then use "elf2cfetbl" to convert to a .tbl file
-  set(TBL_LIST)
-  foreach(TBL ${TBL_SRC_FILES} ${ARGN})
+    # The table source must be compiled using the same "include_directories"
+    # as any other target, but it uses the "add_custom_command" so there is
+    # no automatic way to do this (at least in the older cmakes)
 
-    # Get name without extension (NAME_WE) and append to list of tables
-    get_filename_component(TBLWE ${TBL} NAME_WE)
+    # Create the intermediate table objects using the target compiler,
+    # then use "elf2cfetbl" to convert to a .tbl file
+    foreach(TBL ${TBL_SRC_FILES} ${ARGN})
 
-    foreach(TGT ${APP_STATIC_TARGET_LIST} ${APP_DYNAMIC_TARGET_LIST})
-      set(TABLE_DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/tables_${TGT}")
-      file(MAKE_DIRECTORY ${TABLE_DESTDIR})
-      list(APPEND TBL_LIST "${TABLE_DESTDIR}/${TBLWE}.tbl")
+        # Get name without extension (NAME_WE) and append to list of tables
+        get_filename_component(TBLWE ${TBL} NAME_WE)
 
-      # Check if an override exists at the mission level (recommended practice)
-      # This allows a mission to implement a customized table without modifying
-      # the original - this also makes for easier merging/updating if needed.
-      if (EXISTS "${MISSION_DEFS}/tables/${TGT}_${TBLWE}.c")
-        set(TBL_SRC "${MISSION_DEFS}/tables/${TGT}_${TBLWE}.c")
-      elseif (EXISTS "${MISSION_SOURCE_DIR}/tables/${TGT}_${TBLWE}.c")
-        set(TBL_SRC "${MISSION_SOURCE_DIR}/tables/${TGT}_${TBLWE}.c")
-      elseif (EXISTS "${MISSION_DEFS}/tables/${TBLWE}.c")
-        set(TBL_SRC "${MISSION_DEFS}/tables/${TBLWE}.c")
-      elseif (EXISTS "${MISSION_SOURCE_DIR}/tables/${TBLWE}.c")
-        set(TBL_SRC "${MISSION_SOURCE_DIR}/tables/${TBLWE}.c")
-      elseif (EXISTS "${MISSION_DEFS}/${TGT}/tables/${TBLWE}.c")
-        set(TBL_SRC "${MISSION_DEFS}/${TGT}/tables/${TBLWE}.c")
-      elseif (IS_ABSOLUTE "${TBL}")
-        set(TBL_SRC "${TBL}")
-      else()
-        set(TBL_SRC "${CMAKE_CURRENT_SOURCE_DIR}/${TBL}")
-      endif()
+        foreach(TGT ${TABLE_TGTLIST})
+            set(TABLE_LIBNAME "${TGT}_${APP_NAME}_${TBLWE}")
+            set(TABLE_DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/${TABLE_LIBNAME}")
+            set(TABLE_BINARY  "${TABLE_DESTDIR}/${TBLWE}.tbl")
+            file(MAKE_DIRECTORY ${TABLE_DESTDIR})
 
-      if (NOT EXISTS "${TBL_SRC}")
-         message(FATAL_ERROR "ERROR: No source file for table ${TBLWE}")
-      else()
-        message("NOTE: Selected ${TBL_SRC} as source for ${TBLWE}")
-      endif()
+            # Check if an override exists at the mission level (recommended practice)
+            # This allows a mission to implement a customized table without modifying
+            # the original - this also makes for easier merging/updating if needed.
+            if (EXISTS "${MISSION_DEFS}/tables/${TGT}_${TBLWE}.c")
+                set(TBL_SRC "${MISSION_DEFS}/tables/${TGT}_${TBLWE}.c")
+            elseif (EXISTS "${MISSION_SOURCE_DIR}/tables/${TGT}_${TBLWE}.c")
+                set(TBL_SRC "${MISSION_SOURCE_DIR}/tables/${TGT}_${TBLWE}.c")
+            elseif (EXISTS "${MISSION_DEFS}/${TGT}/tables/${TBLWE}.c")
+                set(TBL_SRC "${MISSION_DEFS}/${TGT}/tables/${TBLWE}.c")
+            elseif (EXISTS "${MISSION_DEFS}/tables/${TBLWE}.c")
+                set(TBL_SRC "${MISSION_DEFS}/tables/${TBLWE}.c")
+            elseif (EXISTS "${MISSION_SOURCE_DIR}/tables/${TBLWE}.c")
+                set(TBL_SRC "${MISSION_SOURCE_DIR}/tables/${TBLWE}.c")
+            elseif (IS_ABSOLUTE "${TBL}")
+                set(TBL_SRC "${TBL}")
+            else()
+                set(TBL_SRC "${CMAKE_CURRENT_SOURCE_DIR}/${TBL}")
+            endif()
 
-      # NOTE: On newer CMake versions this should become an OBJECT library which makes this simpler.
-      # On older versions one may not referece the TARGET_OBJECTS property from the custom command.
-      # As a workaround this is built into a static library, and then the desired object is extracted
-      # before passing to elf2cfetbl.  It is roundabout but it works.
-      add_library(${TGT}_${TBLWE}-obj STATIC ${TBL_SRC})
-      target_link_libraries(${TGT}_${TBLWE}-obj PRIVATE core_api)
+            if (NOT EXISTS "${TBL_SRC}")
+                message(FATAL_ERROR "ERROR: No source file for table ${TBLWE}")
+            else()
+                message("NOTE: Selected ${TBL_SRC} as source for ${APP_NAME}.${TBLWE} on ${TGT}")
 
-      # IMPORTANT: This rule assumes that the output filename of elf2cfetbl matches
-      # the input file name but with a different extension (.o -> .tbl)
-      # The actual output filename is embedded in the source file (.c), however
-      # this must match and if it does not the build will break.  That's just the
-      # way it is, because NO make system supports changing rules based on the
-      # current content of a dependency (rightfully so).
-      add_custom_command(
-        OUTPUT "${TABLE_DESTDIR}/${TBLWE}.tbl"
-        COMMAND ${CMAKE_COMMAND}
-            -DCMAKE_AR=${CMAKE_AR}
-            -DTBLTOOL=${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl
-            -DLIB=$<TARGET_FILE:${TGT}_${TBLWE}-obj>
-            -P ${CFE_SOURCE_DIR}/cmake/generate_table.cmake
-        DEPENDS ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TGT}_${TBLWE}-obj
-        WORKING_DIRECTORY ${TABLE_DESTDIR}
-      )
-      # Create the install targets for all the tables
-      install(FILES ${TABLE_DESTDIR}/${TBLWE}.tbl DESTINATION ${TGT}/${INSTALL_SUBDIR})
-    endforeach(TGT ${APP_STATIC_TARGET_LIST} ${APP_DYNAMIC_TARGET_LIST})
+                # NOTE: On newer CMake versions this should become an OBJECT library which makes this simpler.
+                # On older versions one may not referece the TARGET_OBJECTS property from the custom command.
+                # As a workaround this is built into a static library, and then the desired object is extracted
+                # before passing to elf2cfetbl.  It is roundabout but it works.
+                add_library(${TABLE_LIBNAME} STATIC ${TBL_SRC})
+                target_link_libraries(${TABLE_LIBNAME} PRIVATE core_api)
+                if (TARGET ${APP_NAME})
+                    target_include_directories(${TABLE_LIBNAME} PRIVATE $<TARGET_PROPERTY:${APP_NAME},INCLUDE_DIRECTORIES>)
+                    target_compile_definitions(${TABLE_LIBNAME} PRIVATE $<TARGET_PROPERTY:${APP_NAME},COMPILE_DEFINITIONS>)
+                endif()
 
+                # IMPORTANT: This rule assumes that the output filename of elf2cfetbl matches
+                # the input file name but with a different extension (.o -> .tbl)
+                # The actual output filename is embedded in the source file (.c), however
+                # this must match and if it does not the build will break.  That's just the
+                # way it is, because NO make system supports changing rules based on the
+                # current content of a dependency (rightfully so).
+                add_custom_command(
+                    OUTPUT ${TABLE_BINARY}
+                    COMMAND ${CMAKE_COMMAND}
+                        -DCMAKE_AR=${CMAKE_AR}
+                        -DTBLTOOL=${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl
+                        -DLIB=$<TARGET_FILE:${TABLE_LIBNAME}>
+                        -P ${CFE_SOURCE_DIR}/cmake/generate_table.cmake
+                    DEPENDS ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TABLE_LIBNAME}
+                    WORKING_DIRECTORY ${TABLE_DESTDIR}
+                )
 
-  endforeach(TBL ${TBL_SRC_FILES} ${ARGN})
+                # Add a custom target to invoke the elf2cfetbl tool to generate the tbl file,
+                # and install that binary file to the staging area.
+                add_custom_target(${TABLE_LIBNAME}_tbl ALL DEPENDS ${TABLE_BINARY})
+                install(FILES ${TABLE_BINARY} DESTINATION ${TGT}/${INSTALL_SUBDIR})
+            endif()
+        endforeach()
+    endforeach()
 
-  # Make a custom target that depends on all the tables
-  add_custom_target(${APP_NAME}_tables ALL DEPENDS ${TBL_LIST})
 
 endfunction(add_cfe_tables)
 
@@ -688,6 +707,8 @@ function(process_arch SYSVAR)
 
     # Target to generate the actual executable file
     add_subdirectory(cmake/target ${TGTNAME})
+
+    include(${MISSION_DEFS}/${TGTNAME}/install_custom.cmake OPTIONAL)
 
     foreach(INSTFILE ${${TGTNAME}_FILELIST})
       if(EXISTS ${MISSION_DEFS}/${TGTNAME}/${INSTFILE})

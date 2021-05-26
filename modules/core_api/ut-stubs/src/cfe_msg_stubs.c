@@ -492,12 +492,12 @@ CFE_Status_t CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId)
  * Generated stub function for CFE_MSG_SetMsgTime()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t Time)
+CFE_Status_t CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t NewTime)
 {
     UT_GenStub_SetupReturnBuffer(CFE_MSG_SetMsgTime, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_MSG_SetMsgTime, CFE_MSG_Message_t *, MsgPtr);
-    UT_GenStub_AddParam(CFE_MSG_SetMsgTime, CFE_TIME_SysTime_t, Time);
+    UT_GenStub_AddParam(CFE_MSG_SetMsgTime, CFE_TIME_SysTime_t, NewTime);
 
     UT_GenStub_Execute(CFE_MSG_SetMsgTime, Basic, NULL);
 
