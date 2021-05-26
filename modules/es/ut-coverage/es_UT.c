@@ -3151,14 +3151,6 @@ void TestTask(void)
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_LEN_ERR_EID), "CFE_ES_QueryAllAppCmd",
               "Query all applications command; invalid command length");
 
-    /* Test write of all app data to file with a file open failure */
-    ES_ResetUnitTest();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllCmd), UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_ALL_APPS_EID), "CFE_ES_QueryAllCmd",
-              "Write application information file fail; file open");
-
     /* Test sending a write request for all tasks with an
      * invalid command length
      */
@@ -3166,15 +3158,6 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, 0, UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_LEN_ERR_EID), "CFE_ES_QueryAllAppCmd",
               "Query all tasks command; invalid command length");
-
-    /* Test write of all task data to file with a file open failure */
-    ES_ResetUnitTest();
-    memset(&CmdBuf, 0, sizeof(CmdBuf));
-    UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
-    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllTasksCmd),
-                    UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_ES_TASKINFO_EID), "CFE_ES_QueryAllCmd",
-              "Write task information file fail; file open");
 
     /* Test sending a request to clear the system log with an
      * invalid command length
