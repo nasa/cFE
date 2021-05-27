@@ -39,7 +39,9 @@
 #include "common_types.h" /* Basic data types */
 #include "cfe_evs_extern_typedefs.h"
 
-/** \name Common Event Filter Mask Values  */
+/** \name Common Event Filter Mask Values
+ * Message is sent if (previous event count) & MASK == 0
+ */
 /** \{ */
 #define CFE_EVS_NO_FILTER        0x0000 /**< \brief Stops any filtering.  All messages are sent. */
 #define CFE_EVS_FIRST_ONE_STOP   0xFFFF /**< \brief Sends the first event.  All remaining messages are filtered. */
