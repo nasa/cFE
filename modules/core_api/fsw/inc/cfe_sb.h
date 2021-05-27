@@ -154,7 +154,7 @@ CFE_Status_t CFE_SB_PipeId_ToIndex(CFE_SB_PipeId_t PipeID, uint32 *Idx);
 **
 ** \param[in]  PipeId       The pipe ID of the pipe to set options on.
 **
-** \param[in]  Opts         A bit field of options.
+** \param[in]  Opts         A bit field of options: \ref CFESBPipeOptions
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -173,7 +173,7 @@ CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts);
 **
 ** \param[in]  PipeId       The pipe ID of the pipe to get options from.
 **
-** \param[out] *OptsPtr     A bit field of options.
+** \param[out] *OptsPtr     A bit field of options: \ref CFESBPipeOptions
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -312,8 +312,9 @@ CFE_Status_t CFE_SB_Subscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 **          the specified message ID.  This is similar to #CFE_SB_SubscribeEx
 **          with the Quality field set to #CFE_SB_DEFAULT_QOS and MsgLim set
 **          to #CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, but will not report the subscription.
-**          Subscription Reporting is enabled for interprocessor communication
-**          by way of the Software Bus Network (SBN) Application.
+**
+**          Software Bus Network (SBN) application is an example use case,
+**          where local subscriptions should not be reported to peers.
 **
 ** \par Assumptions, External Events, and Notes:
 **          - This API is typically only used by Software Bus Network (SBN) Application
@@ -346,7 +347,8 @@ CFE_Status_t CFE_SB_SubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
 **          list for the specified message ID.
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**          If the Pipe is not subscribed to MsgId, the CFE_SB_UNSUB_NO_SUBS_EID
+**          event will be generated and #CFE_SUCCESS will be returned
 **
 ** \param[in]  MsgId        The message ID of the message to be unsubscribed.
 **
@@ -355,7 +357,6 @@ CFE_Status_t CFE_SB_SubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
-** \retval #CFE_SB_NO_SUBSCRIBERS \copybrief CFE_SB_NO_SUBSCRIBERS
 ** \retval #CFE_SB_INTERNAL_ERR   \copybrief CFE_SB_INTERNAL_ERR
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeEx, #CFE_SB_SubscribeLocal, #CFE_SB_UnsubscribeLocal
@@ -371,7 +372,9 @@ CFE_Status_t CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 **          list for the specified message ID on the current CPU.
 **
 ** \par Assumptions, External Events, and Notes:
-**          - This API is typically only used by Software Bus Network (SBN) Application
+**          This API is typically only used by Software Bus Network (SBN) Application.
+**          If the Pipe is not subscribed to MsgId, the CFE_SB_UNSUB_NO_SUBS_EID
+**          event will be generated and #CFE_SUCCESS will be returned
 **
 ** \param[in]  MsgId        The message ID of the message to be unsubscribed.
 **
@@ -380,7 +383,6 @@ CFE_Status_t CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
-** \retval #CFE_SB_NO_SUBSCRIBERS \copybrief CFE_SB_NO_SUBSCRIBERS
 ** \retval #CFE_SB_INTERNAL_ERR   \copybrief CFE_SB_INTERNAL_ERR
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeEx, #CFE_SB_SubscribeLocal, #CFE_SB_Unsubscribe
@@ -489,6 +491,7 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
 **             It will automatically be freed by SB once all recipients have finished reading it.
 **          -# Applications must not de-reference the message pointer (for reading
 **             or writing) after the call to CFE_SB_TransmitBuffer().
+**          -# If #CFE_SB_ReleaseMessageBuffer should be used only if a message is not transmitted
 **
 ** \param[in]  MsgSize  The size of the SB message buffer the caller wants
 **                      (including the SB message header).
