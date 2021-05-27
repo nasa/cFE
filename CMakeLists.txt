@@ -122,5 +122,5 @@ prepare()
 # Call the process_arch macro for each architecture
 foreach(SYSVAR ${TGTSYS_LIST})
   process_arch(${SYSVAR})
-endforeach(SYSVAR IN LISTS TGTSYS_LIST)
+endforeach(SYSVAR ${TGTSYS_LIST})
 
