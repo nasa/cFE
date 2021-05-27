@@ -223,7 +223,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
         Hdr->Length = sizeof(CFE_FS_Header_t);
 
         /* put the header, 'cfe1' in hex, in to the content type */
-        Hdr->ContentType = 0x63464531;
+        Hdr->ContentType = CFE_FS_FILE_CONTENT_ID;
 
         /*
         ** Fill in the timestamp fields...
