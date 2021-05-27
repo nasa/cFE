@@ -269,9 +269,6 @@ function(prepare)
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/cfe-common.doxyfile")
 
-  configure_file("${CFE_SOURCE_DIR}/cmake/osal-common.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/doc/osal-common.doxyfile")
-
   configure_file("${CFE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/mission-detaildesign.doxyfile")
 
@@ -298,17 +295,8 @@ function(prepare)
 
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}")
 
-  # OSAL API GUIDE include PUBLIC API
-  file(GLOB MISSION_OSAL_HEADERFILES
-    "${osal_MISSION_DIR}/src/os/inc/*.h"
-    "${CMAKE_BINARY_DIR}/doc/osconfig-example.h")
-  string(REPLACE ";" " \\\n" MISSION_OSAL_HEADERFILES "${MISSION_OSAL_HEADERFILES}")
-
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
     "${CMAKE_BINARY_DIR}/doc/cfe-usersguide.doxyfile")
-
-  configure_file("${CFE_SOURCE_DIR}/cmake/osalguide.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/doc/osalguide.doxyfile")
 
   add_custom_target(mission-doc
     doxygen mission-detaildesign.doxyfile
@@ -318,9 +306,14 @@ function(prepare)
     doxygen cfe-usersguide.doxyfile
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc")
 
-  add_custom_target(osalguide
-    doxygen osalguide.doxyfile
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc")
+  # OSAL API GUIDE include PUBLIC API
+  set(OSAL_API_INCLUDE_DIRECTORIES
+    "${osal_MISSION_DIR}/src/os/inc"
+    "${CMAKE_BINARY_DIR}/doc"
+  )
+  add_subdirectory(${osal_MISSION_DIR}/doc/src ${CMAKE_BINARY_DIR}/doc/osalguide)
+  add_custom_target(osalguide)
+  add_dependencies(osalguide osal-apiguide)
 
   # Pull in any application-specific mission-scope configuration
   # This may include user configuration files such as cfe_mission_cfg.h,
