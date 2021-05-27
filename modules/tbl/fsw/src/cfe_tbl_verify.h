@@ -73,13 +73,6 @@
 #error CFE_PLATFORM_TBL_START_TASK_STACK_SIZE must be greater than or equal to 2048
 #endif
 
-/* the following check is removed because some compilers cannot handle the sizeof operator in a #if statement */
-/*
-#if sizeof(CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE) > OS_MAX_PATH_LEN
-    #error The length (including NULL terminator) of CFE_PLATFORM_TBL_DEFAULT_REG_DUMP_FILE cannot be greater than
-OS_MAX_PATH_LEN #endif
-*/
-
 /*
  * For configuration values that should be multiples of 4
  * as noted in the documentation, this confirms that they are.
