@@ -718,10 +718,7 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
     EVS_AppData_t *                                AppDataPtr;
     char                                           LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retreive application data */
@@ -1011,10 +1008,7 @@ int32 CFE_EVS_EnableAppEventTypeCmd(const CFE_EVS_EnableAppEventTypeCmd_t *data)
     int32                                      Status;
     char                                       LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retrieve application data */
@@ -1079,10 +1073,7 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
     int32                                      Status;
     char                                       LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retreive application data */
@@ -1147,10 +1138,7 @@ int32 CFE_EVS_EnableAppEventsCmd(const CFE_EVS_EnableAppEventsCmd_t *data)
     int32                               Status;
     char                                LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retrieve application data */
@@ -1199,10 +1187,7 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
     int32                               Status;
     char                                LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retreive application data */
@@ -1251,10 +1236,7 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
     int32                               Status;
     char                                LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retreive application data */
@@ -1304,10 +1286,7 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
     EVS_AppData_t *                            AppDataPtr;
     char                                       LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retreive application data */
@@ -1371,10 +1350,7 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
     uint32                              i;
     char                                LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retreive application data */
@@ -1427,10 +1403,7 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
     EVS_AppData_t *                                AppDataPtr;
     char                                           LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retreive application data */
@@ -1514,10 +1487,7 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
     EVS_AppData_t *                            AppDataPtr;
     char                                       LocalName[OS_MAX_API_NAME];
 
-    /*
-     * Althgouh EVS_GetApplicationInfo() does not require a null terminated argument,
-     * the value is passed to EVS_SendEvent which does require termination (normal C string)
-     */
+    /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
     /* Retreive application data */
