@@ -244,22 +244,18 @@ CFE_TBL_Handle_t CFE_TBL_FindFreeHandle(void);
 ** \brief Creates a Full Table name from application name and table name
 **
 ** \par Description
-**        Takes a given Table Name and combines it with the calling
-**        Application's name to make a processor specific name of the
-**        form: "AppName.TblName"
+**        Takes a given raw table name and combines it with the calling
+**        Application's name to make the application specific name of the
+**        form: "AppName.RawTableName"
 **
 ** \par Assumptions, External Events, and Notes:
-**        Note: AppName portion will be truncated to OS_MAX_API_NAME.
+**        AppName portion will be truncated to OS_MAX_API_NAME.
 **
-** \param[in, out]  FullTblName pointer to character buffer of #CFE_TBL_MAX_FULL_NAME_LEN size that will be filled with
-**                  the processor specific Table Name. *FullTblName is the processor specific Table Name of the form
-**                  "AppName.TblName".
-**
-** \param[in]  TblName pointer to character string containing the Application's local name for
-**                     the Table.
-**
-** \param[in]  ThisAppId the Application ID of the Application making the call.
-**
+** \param[in, out] FullTblName  Pointer to character buffer of #CFE_TBL_MAX_FULL_NAME_LEN
+**                              size that will be filled with the application specific name
+**                              of the form "AppName.RawTableName"
+** \param[in] TblName           Pointer to character string containing the raw table name.
+** \param[in] ThisAppId         Application ID of the Application making the call.
 */
 void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_t ThisAppId);
 

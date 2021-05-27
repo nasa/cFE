@@ -70,9 +70,9 @@
 **                                 when performing Table operations. This value is returned at  ddress specified by
 **                                 TblHandlePtr.
 **
-** \param[in] Name                 The application-specific name.  This name will be combined with the name of the
-**                                 application to produce a processor specific name of the form
-**                                 "ApplicationName.TableName".  The processor specific name will be used in commands
+** \param[in] Name                 The raw table name.  This name will be combined with the name of the
+**                                 application to produce a name of the form "AppName.RawTableName".
+**                                 This application specific name will be used in commands
 **                                 for modifying or viewing the contents of the table.
 **
 ** \param[in] Size                 The size, in bytes, of the table to be created.  This is the size that will be
@@ -206,12 +206,9 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
 **                           identify table to cFE when performing Table operations.
 **                           This value is returned at the address specified by TblHandlePtr.
 **
-** \param[in]  TblName       The processor specific name of the table.  It is important to note
-**                           that the processor specific table name is different from the table
-**                           name specified in the #CFE_TBL_Register API call.  The processor
-**                           specific table name includes the name of the application that created
-**                           the table.  The name would be of the form "ApplicationName.TableName".
-**                           An example of this would be "ACS.TamParams" for a table called "TamParams"
+** \param[in]  TblName       The application specific name of the table of the form "AppName.RawTableName",
+**                           where RawTableName is the name specified in the #CFE_TBL_Register API call.
+**                           Example: "ACS.TamParams" for a table called "TamParams"
 **                           that was registered by the application called "ACS".
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -666,13 +663,9 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle);
 **                           with table characteristics and information. *TblInfoPtr is the description of the tables
 **                           characteristics and registry information stored in the #CFE_TBL_Info_t data structure
 **                           format.
-**
-** \param[in]  TblName       The processor specific name of the table.  It is important to note
-**                           that the processor specific table name is different from the table
-**                           name specified in the #CFE_TBL_Register API call.  The processor
-**                           specific table name includes the name of the application that created
-**                           the table.  The name would be of the form "ApplicationName.TableName".
-**                           An example of this would be "ACS.TamParams" for a table called "TamParams"
+** \param[in]  TblName       The application specific name of the table of the form "AppName.RawTableName",
+**                           where RawTableName is the name specified in the #CFE_TBL_Register API call.
+**                           Example: "ACS.TamParams" for a table called "TamParams"
 **                           that was registered by the application called "ACS".
 **
 ** \return Execution status, see \ref CFEReturnCodes
