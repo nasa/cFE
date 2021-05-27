@@ -1317,17 +1317,7 @@ int32 CFE_ES_QueryAllCmd(const CFE_ES_QueryAllCmd_t *data)
     if (Result == CFE_SUCCESS)
     {
         /*
-        ** Check to see if the file already exists
-        */
-        Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-        if (Result >= 0)
-        {
-            OS_close(FileDescriptor);
-            OS_remove(QueryAllFilename);
-        }
-
-        /*
-        ** Create ES task log data file
+        ** Create (or truncate) ES task log data file
         */
         Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE,
                                OS_WRITE_ONLY);
@@ -1469,17 +1459,7 @@ int32 CFE_ES_QueryAllTasksCmd(const CFE_ES_QueryAllTasksCmd_t *data)
     if (Result == CFE_SUCCESS)
     {
         /*
-        ** Check to see if the file already exists
-        */
-        Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-        if (Result >= 0)
-        {
-            OS_close(FileDescriptor);
-            OS_remove(QueryAllFilename);
-        }
-
-        /*
-        ** Create ES task log data file
+        ** Create (or truncate) ES task log data file
         */
         Result = OS_OpenCreate(&FileDescriptor, QueryAllFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE,
                                OS_WRITE_ONLY);
