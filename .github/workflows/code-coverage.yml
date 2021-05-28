@@ -17,6 +17,9 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Install coverage tools
+        run: sudo apt-get install lcov -y
+
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout bundle
         uses: actions/checkout@v2
