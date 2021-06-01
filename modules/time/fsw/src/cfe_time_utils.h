@@ -257,9 +257,9 @@ typedef struct
     bool IsToneGood;
 
     /*
-    ** Spare byte for alignment
+    ** Flag that indicates if "CFE_TIME_GetReference()" ever failed to get a valid time
     */
-    bool Spare;
+    bool GetReferenceFail;
 
     /*
     ** Local 1Hz wake-up command packet (not related to time at tone)...

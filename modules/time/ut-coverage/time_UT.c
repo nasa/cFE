@@ -124,6 +124,36 @@ int32 ut_time_CallbackCalled;
 void OS_SelectTone(int16 Signal) {}
 #endif
 
+/*
+ * A hook functions for CFE_PSP_GetTime that updates the Reference State.
+ * This mimmics what would happen if a time update occurred at the moment
+ * another task was reading the time.
+ */
+int32 UT_TimeRefUpdateHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
+{
+    volatile CFE_TIME_ReferenceState_t *RefState;
+    uint32 *                            UpdateCount = UserObj;
+    uint32                              i;
+
+    /*
+     * NOTE: in order to trigger a read retry, this actually needs to do CFE_TIME_REFERENCE_BUF_DEPTH
+     * updates, such that the buffer being read is overwritten.
+     */
+    if (*UpdateCount > 0)
+    {
+        for (i = 0; i < CFE_TIME_REFERENCE_BUF_DEPTH; ++i)
+        {
+            RefState                      = CFE_TIME_StartReferenceUpdate();
+            RefState->AtToneLatch.Seconds = 1 + CallCount;
+            RefState->ClockSetState       = CFE_TIME_SetState_WAS_SET;
+            CFE_TIME_FinishReferenceUpdate(RefState);
+        }
+        --(*UpdateCount);
+    }
+
+    return StubRetcode;
+}
+
 void UtTest_Setup(void)
 {
     /* Initialize unit test */
@@ -492,6 +522,7 @@ void Test_GetTime(void)
     CFE_TIME_Global.OneHzDirection   = CFE_TIME_AdjustDirection_SUBTRACT;
     RefState->DelayDirection         = CFE_TIME_AdjustDirection_SUBTRACT;
     CFE_TIME_Global.IsToneGood       = false;
+    CFE_TIME_Global.GetReferenceFail = false;
     CFE_TIME_FinishReferenceUpdate(RefState);
     ActFlags   = CFE_TIME_GetClockInfo();
     StateFlags = 0;
@@ -517,10 +548,11 @@ void Test_GetTime(void)
     CFE_TIME_Global.OneTimeDirection = CFE_TIME_AdjustDirection_ADD;
     CFE_TIME_Global.OneHzDirection   = CFE_TIME_AdjustDirection_ADD;
     CFE_TIME_Global.IsToneGood       = true;
+    CFE_TIME_Global.GetReferenceFail = true;
 
     StateFlags = CFE_TIME_FLAG_CLKSET | CFE_TIME_FLAG_FLYING | CFE_TIME_FLAG_SRCINT | CFE_TIME_FLAG_SIGPRI |
                  CFE_TIME_FLAG_SRVFLY | CFE_TIME_FLAG_CMDFLY | CFE_TIME_FLAG_ADD1HZ | CFE_TIME_FLAG_ADDADJ |
-                 CFE_TIME_FLAG_ADDTCL | CFE_TIME_FLAG_GDTONE;
+                 CFE_TIME_FLAG_ADDTCL | CFE_TIME_FLAG_GDTONE | CFE_TIME_FLAG_REFERR;
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     StateFlags |= CFE_TIME_FLAG_SERVER;
@@ -529,6 +561,8 @@ void Test_GetTime(void)
     ActFlags = CFE_TIME_GetClockInfo();
     snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = 0x%04X, actual = 0x%04X", StateFlags, ActFlags);
     UT_Report(__FILE__, __LINE__, ActFlags == StateFlags, "CFE_TIME_GetClockInfo", testDesc);
+
+    CFE_TIME_Global.GetReferenceFail = false;
 }
 
 /*
@@ -2009,6 +2043,7 @@ void Test_GetReference(void)
 {
     CFE_TIME_Reference_t                Reference;
     volatile CFE_TIME_ReferenceState_t *RefState;
+    uint32                              UpdateCount;
 
     UtPrintf("Begin Test Get Reference");
 
@@ -2050,6 +2085,35 @@ void Test_GetReference(void)
      */
     UT_Report(__FILE__, __LINE__, Reference.CurrentMET.Seconds == 25 && Reference.CurrentMET.Subseconds == 0,
               "CFE_TIME_GetReference", "Local clock > latch at tone time");
+
+    /* Use a hook function to test the behavior when the read needs to be retried */
+    /* This just causes a single retry, the process should still succeed */
+    UT_InitData();
+    memset((void *)CFE_TIME_Global.ReferenceState, 0, sizeof(CFE_TIME_Global.ReferenceState));
+    CFE_TIME_Global.GetReferenceFail = false;
+    UpdateCount                      = 1;
+    UT_SetHookFunction(UT_KEY(CFE_PSP_GetTime), UT_TimeRefUpdateHook, &UpdateCount);
+    UT_SetBSP_Time(20, 0);
+    UT_SetBSP_Time(20, 100);
+    CFE_TIME_GetReference(&Reference);
+
+    /* This should not have set the flag, and the output should be valid*/
+    UtAssert_UINT32_EQ(CFE_TIME_Global.GetReferenceFail, false);
+    UtAssert_UINT32_EQ(Reference.CurrentMET.Seconds, 19);
+    UtAssert_UINT32_EQ(Reference.CurrentMET.Subseconds, 429497);
+    UtAssert_UINT32_EQ(Reference.ClockSetState, CFE_TIME_SetState_WAS_SET);
+
+    /* With multiple retries, it should fail */
+    UpdateCount = 1000000;
+    CFE_TIME_GetReference(&Reference);
+
+    /* This should have set the flag, and the output should be all zero */
+    UtAssert_UINT32_EQ(CFE_TIME_Global.GetReferenceFail, true);
+    UtAssert_UINT32_EQ(Reference.CurrentMET.Seconds, 0);
+    UtAssert_UINT32_EQ(Reference.CurrentMET.Subseconds, 0);
+    UtAssert_UINT32_EQ(Reference.ClockSetState, CFE_TIME_SetState_NOT_SET);
+
+    CFE_TIME_Global.GetReferenceFail = false;
 }
 
 /*

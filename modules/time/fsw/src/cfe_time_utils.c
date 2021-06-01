@@ -620,6 +620,27 @@ void CFE_TIME_GetReference(CFE_TIME_Reference_t *Reference)
     }
 
     /*
+     * This should really never happen: if RetryCount reaches its limit, it means something is
+     * continously changing the time structure to the point where this task was not able to
+     * get a consistent copy.  The only way this could happen is if some update task got into
+     * a continuous loop, or if the memory itself has gone bad and reads inconsistently.  But
+     * if the latter is the case, the whole system has undefined behavior.
+     */
+    if (RetryCount == 0)
+    {
+        /* set the flag that indicates this failed */
+        CFE_TIME_Global.GetReferenceFail = true;
+
+        /*
+         * Zeroing out the structure produces an identifiable output, in particular
+         * this sets the ClockSetState to CFE_TIME_SetState_NOT_SET, which the CFE_TIME_CalculateState()
+         * will in turn translate to CFE_TIME_ClockState_INVALID in TLM.
+         */
+        memset(Reference, 0, sizeof(*Reference));
+        return;
+    }
+
+    /*
     ** Compute the amount of time "since" the tone...
     */
     if (CFE_TIME_Compare(Reference->CurrentLatch, Reference->AtToneLatch) == CFE_TIME_A_LT_B)
