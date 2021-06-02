@@ -102,33 +102,8 @@
 ** \retval #CFE_EVS_APP_FILTER_OVERLOAD \copybrief CFE_EVS_APP_FILTER_OVERLOAD
 ** \retval #CFE_EVS_UNKNOWN_FILTER      \copybrief CFE_EVS_UNKNOWN_FILTER
 ** \retval #CFE_EVS_APP_ILLEGAL_APP_ID  \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
-**
-** \sa #CFE_EVS_Unregister
-**
 **/
 CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme);
-
-/**
-** \brief Cleanup internal structures used by the event manager for the calling Application.
-**
-** \par Description
-**          This routine un-registers the calling application from receiving event services
-**          and removes and deletes the calling applications filters and counters from the
-**          internal event service filter and counter tables if registered.  Applications
-**          must call this routine as part of their orderly shutdown process.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \return Execution status below or from #CFE_ES_GetAppID/#CFE_ES_PutPoolBuf, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
-** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
-**
-** \sa #CFE_EVS_Register
-**
-**/
-CFE_Status_t CFE_EVS_Unregister(void);
 /**@}*/
 
 /** @defgroup CFEAPIEVSSend cFE Send Event APIs

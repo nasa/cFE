@@ -148,17 +148,3 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
 
     return UT_GenStub_GetReturnValue(CFE_EVS_SendTimedEvent, CFE_Status_t);
 }
-
-/*
- * ----------------------------------------------------
- * Generated stub function for CFE_EVS_Unregister()
- * ----------------------------------------------------
- */
-CFE_Status_t CFE_EVS_Unregister(void)
-{
-    UT_GenStub_SetupReturnBuffer(CFE_EVS_Unregister, CFE_Status_t);
-
-    UT_GenStub_Execute(CFE_EVS_Unregister, Basic, NULL);
-
-    return UT_GenStub_GetReturnValue(CFE_EVS_Unregister, CFE_Status_t);
-}

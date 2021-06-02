@@ -80,7 +80,6 @@
     <LI> \ref CFEAPIEVSReg
     <UL>
       <LI> #CFE_EVS_Register - \copybrief CFE_EVS_Register
-      <LI> #CFE_EVS_Unregister - \copybrief CFE_EVS_Unregister
     </UL>
     <LI> \ref CFEAPIEVSSend
     <UL>

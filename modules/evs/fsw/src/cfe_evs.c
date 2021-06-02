@@ -115,30 +115,6 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_Unregister
- *
- * Implemented per public API
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-CFE_Status_t CFE_EVS_Unregister(void)
-{
-    int32          Status;
-    CFE_ES_AppId_t AppID;
-    EVS_AppData_t *AppDataPtr;
-
-    /* Query and verify the caller's AppID */
-    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
-    if (Status == CFE_SUCCESS && EVS_AppDataIsMatch(AppDataPtr, AppID))
-    {
-        EVS_AppDataSetFree(AppDataPtr);
-    }
-
-    return (Status);
-}
-
-/*----------------------------------------------------------------
- *
  * Function: CFE_EVS_SendEvent
  *
  * Implemented per public API

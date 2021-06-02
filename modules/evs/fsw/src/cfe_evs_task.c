@@ -185,7 +185,6 @@ int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppID)
     }
     else if (EVS_AppDataIsMatch(AppDataPtr, AppID))
     {
-        /* Same cleanup as CFE_EVS_Unregister() */
         EVS_AppDataSetFree(AppDataPtr);
     }
 
