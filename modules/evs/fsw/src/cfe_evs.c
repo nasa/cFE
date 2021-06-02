@@ -275,7 +275,7 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_EVS_ResetFilter(int16 EventID)
+int32 CFE_EVS_ResetFilter(uint16 EventID)
 {
     int32            Status;
     EVS_BinFilter_t *FilterPtr = NULL;

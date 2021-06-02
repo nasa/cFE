@@ -297,7 +297,7 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-EVS_BinFilter_t *EVS_FindEventID(int16 EventID, EVS_BinFilter_t *FilterArray)
+EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray)
 {
     uint32 i;
 
