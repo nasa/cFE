@@ -8,7 +8,7 @@ env:
   SIMULATION: native
   ENABLE_UNIT_TESTS: true
   OMIT_DEPRECATED: true
-  BUILDTYPE: release
+  BUILDTYPE: debug
 
 jobs:
 
