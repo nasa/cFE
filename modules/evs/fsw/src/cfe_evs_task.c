@@ -32,6 +32,7 @@
 /* Include Files */
 #include "cfe_evs_module_all.h" /* All EVS internal definitions and API */
 #include "cfe_version.h"        /* cFE version definitions */
+#include "cfe_evs_verify.h"
 
 #include <string.h>
 
