@@ -355,7 +355,9 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 **         the system.
 **
 ** \par Assumptions, External Events, and Notes:
-**          None
+**        This API updates the internal task counter tracked by ES for the calling task.
+**        For ES to report application counters correctly this API should be called
+**        from the main app task as part of it's main processing loop.
 **
 ** \param[in]  RunStatus    A pointer to a variable containing the Application's
 **                          desired run status.  Acceptable values are:
