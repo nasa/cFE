@@ -227,14 +227,25 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName);
 
 /*****************************************************************************/
 /**
-** \brief Unregister a previously registered table and free associated resources
+** \brief Unregister a table
 **
 ** \par Description
-**        When an application is being removed from the system, it should
-**        unregister those tables that it created.  The application should
-**        call this function as a part of its cleanup process.  The table
-**        will be removed from memory once all table addresses referencing
-**        it have been released.
+**        When an application is being removed from the system, ES will
+**        clean up/free all the application related resources including tables
+**        so apps are not required to call this function.
+**
+**        A valid use-case for this API is to unregister a shared table if
+**        access is no longer needed or the owning application was removed from
+**        the system (CS app is an example).
+**
+**        Typically apps should only register tables during initialization and
+**        registration/unregistration by the owning application during operation
+**        should be avoided. If unavoidable, special care needs to be taken
+**        (especially for shared tables) to avoid race conditions due to
+**        competing requests from mutiple tasks.
+**
+**        Note the table will not be removed from memory until all table access
+**        links have been removed (registration and all shared access).
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
