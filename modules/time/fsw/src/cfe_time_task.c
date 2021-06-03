@@ -263,7 +263,8 @@ int32 CFE_TIME_TaskInit(void)
         return Status;
     } /* end if */
 
-    Status = CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized");
+    Status = CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s",
+                               CFE_VERSION_STRING);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("TIME:Error sending init event:RC=0x%08X\n", (unsigned int)Status);
@@ -703,7 +704,7 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 
     CFE_TIME_Global.CommandCounter++;
 
-    CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op command.%s", CFE_VERSION_STRING);
+    CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
 
     return CFE_SUCCESS;
 }

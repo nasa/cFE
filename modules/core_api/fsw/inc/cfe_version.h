@@ -21,41 +21,40 @@
 /**
  * @file
  *
- * Provide version identifiers for the cFE core.
+ * Provide version identifiers for the cFE core. See @ref cfsversions for further details.
  */
 
 #ifndef CFE_VERSION_H
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER 642 /*!< Development Build: Number of commits since baseline */
-#define CFE_BUILD_BASELINE                                                                    \
-    "v6.8.0-rc1" /*!< Development Build: git tag that is the base for the current development \
-                  */
+#define CFE_BUILD_NUMBER   642          /**< @brief Development: Number of development commits since baseline */
+#define CFE_BUILD_BASELINE "v6.8.0-rc1" /**< @brief Development: Reference git tag for build number */
 
-/* Version Macro Definitions */
-#define CFE_MAJOR_VERSION 6 /*!< @brief ONLY APPLY for OFFICIAL releases. Major version number. */
-#define CFE_MINOR_VERSION 7 /*!< @brief ONLY APPLY for OFFICIAL releases. Minor version number. */
-#define CFE_REVISION                                                                                                  \
-    99 /*!< @brief ONLY APPLY for OFFICIAL releases. Revision version number. A value of "99" indicates a development \
-          version.  */
-#define CFE_MISSION_REV 0 /*!< @brief ONLY USED by MISSION Implementations. Mission revision */
+/* Version Macro Definitions updated for official releases only */
+#define CFE_MAJOR_VERSION 6  /**< @brief Major release version (Former for Revision == 99) */
+#define CFE_MINOR_VERSION 7  /**< @brief Minor release version (Former for Revision == 99) */
+#define CFE_REVISION      99 /**< @brief Revision, 99 indicates development */
+#define CFE_MISSION_REV   0  /**< @brief Mission revision, reserved for mission use */
 
-#define CFE_STR_HELPER(x) #x                /*!< @brief Helper function to concatenate strings from integer macros */
-#define CFE_STR(x)        CFE_STR_HELPER(x) /*!< @brief Helper function to concatenate strings from integer macros */
+#define CFE_STR_HELPER(x) #x                /**< @brief Convert agrument to string */
+#define CFE_STR(x)        CFE_STR_HELPER(x) /**< @brief Expand macro before conversion */
 
-/*! @brief Development Build Version Number.
- * @details Baseline git tag + Number of commits since baseline. @n
- * See @ref cfsversions for format differences between development and release versions.
+/**
+ * @brief Short Build Version String
+ *
+ * Short string identifying the build, see @ref cfsversions for suggested format for development
+ * and official releases.
  */
 #define CFE_SRC_VERSION CFE_BUILD_BASELINE "+dev" CFE_STR(CFE_BUILD_NUMBER)
 
-/*! @brief Development Build Version String.
- * @details Reports the current development build's baseline, number, and name. Also includes a note about the latest
- * official version. @n See @ref cfsversions for format differences between development and release versions.
+/**
+ * @brief Long Build Version String
+ *
+ * Long freeform string identifying the build, see @ref cfsversions for suggested format for development
+ * and official releases.
  */
-#define CFE_VERSION_STRING                                                                                 \
-    " cFE DEVELOPMENT BUILD " CFE_SRC_VERSION " (Codename: Bootes)" /* Codename for current development */ \
-    ", Last Official Release: cfe v6.7.0"                           /* For full support please use this version */
+#define CFE_VERSION_STRING \
+    " cFE DEVELOPMENT BUILD " CFE_SRC_VERSION " (Codename: Bootes), Last Official Release: cfe v6.7.0"
 
 #endif /* CFE_VERSION_H */

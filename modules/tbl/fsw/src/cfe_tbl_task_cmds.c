@@ -320,7 +320,7 @@ void CFE_TBL_GetTblRegData(void)
 int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
 {
     /* Acknowledge receipt of NOOP with Event Message */
-    CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op command. %s", CFE_VERSION_STRING);
+    CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
 
     return CFE_TBL_INC_CMD_CTR;
 }

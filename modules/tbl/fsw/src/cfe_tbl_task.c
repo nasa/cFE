@@ -211,7 +211,7 @@ int32 CFE_TBL_TaskInit(void)
     /*
     ** Task startup event message
     */
-    Status = CFE_EVS_SendEvent(CFE_TBL_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE TBL Initialized.%s",
+    Status = CFE_EVS_SendEvent(CFE_TBL_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE TBL Initialized: %s",
                                CFE_VERSION_STRING);
 
     if (Status != CFE_SUCCESS)

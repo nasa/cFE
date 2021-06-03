@@ -474,7 +474,8 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Task startup event message.
     */
-    Status = CFE_EVS_SendEvent(CFE_ES_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE ES Initialized");
+    Status = CFE_EVS_SendEvent(CFE_ES_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE ES Initialized: %s",
+                               CFE_VERSION_STRING);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("ES:Error sending init event:RC=0x%08X\n", (unsigned int)Status);
