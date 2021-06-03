@@ -35,6 +35,11 @@ ALIASES               += "event=\xrefitem cfeevents \"Event Message\" \"cFE Even
                          "cfetimetlm=\xrefitem cfetimetlm \"Name\" \"cFE Time Services Telemetry\" " \
                          "cfecmdmnemonic=\xrefitem cfecmdmnems \"Command Mnemonic(s)\" \"cFE Command Mnemonic Cross Reference\" " \
                          "cfetlmmnemonic=\xrefitem cfetlmmnems \"Telemetry Mnemonic(s)\" \"cFE Telemetry Mnemonic Cross Reference\" "
+
+ALIASES               +=  nonnull="(must not be null)"
+ALIASES               +=  nonzero="(must not be zero)"
+ALIASES               +=  covtest="(return value only verified in coverage test)"
+
 OPTIMIZE_OUTPUT_FOR_C  = YES
 #---------------------------------------------------------------------------
 # Build related configuration options
