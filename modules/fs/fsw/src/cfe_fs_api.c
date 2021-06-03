@@ -293,25 +293,17 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
             CFE_FS_ByteSwapUint32(&OutTimestamp.Subseconds);
         }
 
-        Result = OS_write(FileDes, &OutTimestamp.Seconds, sizeof(OutTimestamp.Seconds));
+        Result = OS_write(FileDes, &OutTimestamp, sizeof(OutTimestamp));
 
         /* On a good write, the value returned will equal the number of bytes written */
-        if (Result == sizeof(OutTimestamp.Seconds))
+        if (Result == sizeof(OutTimestamp))
         {
-            Result = OS_write(FileDes, &OutTimestamp.Subseconds, sizeof(OutTimestamp.Subseconds));
-
-            if (Result == sizeof(OutTimestamp.Subseconds))
-            {
-                Result = OS_SUCCESS;
-            }
-            else
-            {
-                CFE_ES_WriteToSysLog("CFE_FS:SetTime-Failed to write Seconds (Status=0x%08X)\n", (unsigned int)Result);
-            }
+            Result = CFE_SUCCESS;
         }
         else
         {
-            CFE_ES_WriteToSysLog("CFE_FS:SetTime-Failed to write Seconds (Status=0x%08X)\n", (unsigned int)Result);
+            CFE_ES_WriteToSysLog("%s(): Failed to write timestamp (Status=0x%08X)\n", __func__, (unsigned int)Result);
+            Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
     }
     else
