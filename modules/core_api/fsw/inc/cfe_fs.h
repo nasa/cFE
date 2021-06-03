@@ -65,7 +65,7 @@
 **                         filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
 **                         Standard cFE File Header for the specified file.
 **
-** \return Execution status, see \ref CFEReturnCodes
+** \return Bytes read or error status, see \ref CFEReturnCodes
 **
 ** \sa #CFE_FS_WriteHeader
 **
@@ -125,7 +125,7 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **                         filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
 **                         Standard cFE File Header for the specified file.
 **
-** \return Execution status, see \ref CFEReturnCodes
+** \return Bytes written or error status, see \ref CFEReturnCodes
 **
 ** \sa #CFE_FS_ReadHeader
 **
