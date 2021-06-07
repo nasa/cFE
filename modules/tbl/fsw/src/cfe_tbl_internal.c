@@ -155,7 +155,7 @@ int32 CFE_TBL_EarlyInit(void)
         if (Status != CFE_SUCCESS)
         {
             /* Note if we were unable to recover error free Critical Table Registry from the CDS */
-            CFE_ES_WriteToSysLog("CFE_TBL:EarlyInit-Failed to recover Critical Table Registry (Err=0x%08X)\n",
+            CFE_ES_WriteToSysLog("%s: Failed to recover Critical Table Registry (Err=0x%08X)\n", __func__,
                                  (unsigned int)Status);
         }
 
@@ -166,7 +166,7 @@ int32 CFE_TBL_EarlyInit(void)
     {
         /* Not being able to support Critical Tables is not the end of the world */
         /* Note the problem and move on */
-        CFE_ES_WriteToSysLog("CFE_TBL:EarlyInit-Failed to create Critical Table Registry (Err=0x%08X)\n",
+        CFE_ES_WriteToSysLog("%s: Failed to create Critical Table Registry (Err=0x%08X)\n", __func__,
                              (unsigned int)Status);
 
         /* Failure to support critical tables is not a good enough reason to exit the cFE on start up */
@@ -181,7 +181,7 @@ int32 CFE_TBL_EarlyInit(void)
         {
             /* Not being able to support Critical Tables is not the end of the world */
             /* Note the problem and move on */
-            CFE_ES_WriteToSysLog("CFE_TBL:EarlyInit-Failed to save Critical Table Registry (Err=0x%08X)\n",
+            CFE_ES_WriteToSysLog("%s: Failed to save Critical Table Registry (Err=0x%08X)\n", __func__,
                                  (unsigned int)Status);
 
             /* Failure to support critical tables is not a good enough reason to exit the cFE on start up */
@@ -355,10 +355,9 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
 
             if (Status < 0)
             {
-                CFE_ES_WriteToSysLog(
-                    "CFE_TBL:RemoveAccessLink-PutPoolBuf[0] Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n",
-                    (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
-                    (unsigned long)RegRecPtr->Buffers[0].BufferPtr);
+                CFE_ES_WriteToSysLog("%s: PutPoolBuf[0] Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n", __func__,
+                                     (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
+                                     (unsigned long)RegRecPtr->Buffers[0].BufferPtr);
             }
 
             /* If a double buffered table, then free the second buffer as well */
@@ -369,10 +368,9 @@ int32 CFE_TBL_RemoveAccessLink(CFE_TBL_Handle_t TblHandle)
 
                 if (Status < 0)
                 {
-                    CFE_ES_WriteToSysLog(
-                        "CFE_TBL:RemoveAccessLink-PutPoolBuf[1] Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n",
-                        (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
-                        (unsigned long)RegRecPtr->Buffers[1].BufferPtr);
+                    CFE_ES_WriteToSysLog("%s: PutPoolBuf[1] Fail Stat=0x%08X, Hndl=0x%08lX, Buf=0x%08lX\n", __func__,
+                                         (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Buf.PoolHdl),
+                                         (unsigned long)RegRecPtr->Buffers[1].BufferPtr);
                 }
             }
             else
@@ -429,7 +427,7 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_
             {
                 Status = CFE_TBL_ERR_UNREGISTERED;
 
-                CFE_ES_WriteToSysLog("CFE_TBL:GetAddressInternal-App(%lu) attempt to access unowned Tbl Handle=%d\n",
+                CFE_ES_WriteToSysLog("%s: App(%lu) attempt to access unowned Tbl Handle=%d\n", __func__,
                                      CFE_RESOURCEID_TO_ULONG(ThisAppId), (int)TblHandle);
             }
             else /* Table Registry Entry is valid */
@@ -453,14 +451,14 @@ int32 CFE_TBL_GetAddressInternal(void **TblPtr, CFE_TBL_Handle_t TblHandle, CFE_
         }
         else
         {
-            CFE_ES_WriteToSysLog("CFE_TBL:GetAddressInternal-App(%lu) does not have access to Tbl Handle=%d\n",
+            CFE_ES_WriteToSysLog("%s: App(%lu) does not have access to Tbl Handle=%d\n", __func__,
                                  CFE_RESOURCEID_TO_ULONG(ThisAppId), (int)TblHandle);
         }
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:GetAddressInternal-App(%lu) using invalid Tbl Handle=%d\n",
-                             CFE_RESOURCEID_TO_ULONG(ThisAppId), (int)TblHandle);
+        CFE_ES_WriteToSysLog("%s: App(%lu) using invalid Tbl Handle=%d\n", __func__, CFE_RESOURCEID_TO_ULONG(ThisAppId),
+                             (int)TblHandle);
     }
 
     return Status;
@@ -719,9 +717,9 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
                     {
                         Status = CFE_TBL_ERR_NO_BUFFER_AVAIL;
 
-                        CFE_ES_WriteToSysLog(
-                            "CFE_TBL:GetWorkingBuffer-Inactive Dbl Buff Locked for '%s' by AppId=%lu\n",
-                            RegRecPtr->Name, CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Handles[AccessIterator].AppId));
+                        CFE_ES_WriteToSysLog("%s: Inactive Dbl Buff Locked for '%s' by AppId=%lu\n", __func__,
+                                             RegRecPtr->Name,
+                                             CFE_RESOURCEID_TO_ULONG(CFE_TBL_Global.Handles[AccessIterator].AppId));
                     }
 
                     /* Move to next access descriptor in linked list */
@@ -744,7 +742,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
                 /* Make note of any errors but continue and hope for the best */
                 if (Status != OS_SUCCESS)
                 {
-                    CFE_ES_WriteToSysLog("CFE_TBL:GetWorkBuf-Internal error taking WorkBuf Mutex (Status=0x%08X)\n",
+                    CFE_ES_WriteToSysLog("%s: Internal error taking WorkBuf Mutex (Status=0x%08X)\n", __func__,
                                          (unsigned int)Status);
                 }
 
@@ -769,7 +767,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
                 {
                     Status = CFE_TBL_ERR_NO_BUFFER_AVAIL;
 
-                    CFE_ES_WriteToSysLog("CFE_TBL:GetWorkingBuffer-All shared buffers are locked\n");
+                    CFE_ES_WriteToSysLog("%s: All shared buffers are locked\n", __func__);
                 }
 
                 /* Allow others to obtain a shared working buffer */
@@ -974,7 +972,7 @@ int32 CFE_TBL_UpdateInternal(CFE_TBL_Handle_t TblHandle, CFE_TBL_RegistryRec_t *
             {
                 Status = CFE_TBL_INFO_TABLE_LOCKED;
 
-                CFE_ES_WriteToSysLog("CFE_TBL:UpdateInternal-Unable to update locked table Handle=%d\n", TblHandle);
+                CFE_ES_WriteToSysLog("%s: Unable to update locked table Handle=%d\n", __func__, TblHandle);
             }
             else
             {
@@ -1342,7 +1340,7 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_TBL:UpdateCritTbl-Unable to update Critical Table '%s' in CDS (Err=0x%08X)\n",
+        CFE_ES_WriteToSysLog("%s: Unable to update Critical Table '%s' in CDS (Err=0x%08X)\n", __func__,
                              RegRecPtr->Name, (unsigned int)Status);
     }
     else
@@ -1366,15 +1364,13 @@ void CFE_TBL_UpdateCriticalTblCDS(CFE_TBL_RegistryRec_t *RegRecPtr)
 
             if (Status != CFE_SUCCESS)
             {
-                CFE_ES_WriteToSysLog(
-                    "CFE_TBL:UpdateCritTbl-Unable to update Critical Table Registry in CDS (Err=0x%08X)\n",
-                    (unsigned int)Status);
+                CFE_ES_WriteToSysLog("%s: Unable to update Critical Table Registry in CDS (Err=0x%08X)\n", __func__,
+                                     (unsigned int)Status);
             }
         }
         else
         {
-            CFE_ES_WriteToSysLog("CFE_TBL:UpdateCritTbl-Error finding '%s' in Critical Table Registry\n",
-                                 RegRecPtr->Name);
+            CFE_ES_WriteToSysLog("%s: Error finding '%s' in Critical Table Registry\n", __func__, RegRecPtr->Name);
         }
     }
 

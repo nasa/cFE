@@ -92,7 +92,7 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr)
 
     if (MsgPtr == NULL)
     {
-        CFE_ES_WriteToSysLog("CFE_SB:GetUserData-Failed invalid arguments\n");
+        CFE_ES_WriteToSysLog("%s: Failed invalid arguments\n", __func__);
         return 0;
     }
 
@@ -141,7 +141,7 @@ void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
 
     if (MsgPtr == NULL)
     {
-        CFE_ES_WriteToSysLog("CFE_SB:SetUserDataLength-Failed invalid arguments\n");
+        CFE_ES_WriteToSysLog("%s: Failed invalid arguments\n", __func__);
     }
     else
     {
@@ -154,7 +154,7 @@ void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength)
         }
         else
         {
-            CFE_ES_WriteToSysLog("CFE_SB:SetUserDataLength-Failed TotalMsgSize too large\n");
+            CFE_ES_WriteToSysLog("%s: Failed TotalMsgSize too large\n", __func__);
         }
     }
 }

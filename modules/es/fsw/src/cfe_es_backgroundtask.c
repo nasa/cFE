@@ -157,7 +157,7 @@ void CFE_ES_BackgroundTask(void)
         if (status != OS_SUCCESS && status != OS_SEM_TIMEOUT)
         {
             /* should never occur */
-            CFE_ES_WriteToSysLog("CFE_ES: Failed to take background sem: %08lx\n", (unsigned long)status);
+            CFE_ES_WriteToSysLog("%s: Failed to take background sem: %08lx\n", __func__, (unsigned long)status);
             break;
         }
     }
@@ -178,7 +178,7 @@ int32 CFE_ES_BackgroundInit(void)
     status = OS_BinSemCreate(&CFE_ES_Global.BackgroundTask.WorkSem, CFE_ES_BACKGROUND_SEM_NAME, 0, 0);
     if (status != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_ES: Failed to create background sem: %08lx\n", (unsigned long)status);
+        CFE_ES_WriteToSysLog("%s: Failed to create background sem: %08lx\n", __func__, (unsigned long)status);
         return status;
     }
 
@@ -190,7 +190,7 @@ int32 CFE_ES_BackgroundInit(void)
 
     if (status != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_ES: Failed to create background task: %08lx\n", (unsigned long)status);
+        CFE_ES_WriteToSysLog("%s: Failed to create background task: %08lx\n", __func__, (unsigned long)status);
         return status;
     }
 

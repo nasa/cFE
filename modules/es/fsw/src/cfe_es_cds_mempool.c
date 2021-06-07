@@ -122,7 +122,7 @@ int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
     if (ActualSize < SizeCheck)
     {
         /* Must be able make Pool verification, block descriptor and at least one of the smallest blocks  */
-        CFE_ES_SysLogWrite_Unsync("CFE_ES:CreateCDSPool-Pool size(%lu) too small for one CDS Block, need >=%lu\n",
+        CFE_ES_SysLogWrite_Unsync("%s: Pool size(%lu) too small for one CDS Block, need >=%lu\n", __func__,
                                   (unsigned long)ActualSize, (unsigned long)SizeCheck);
         return CFE_ES_CDS_INVALID_SIZE;
     }
@@ -163,7 +163,7 @@ int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_SysLogWrite_Unsync("CFE_ES:RebuildCDS-Err rebuilding CDS (Stat=0x%08x)\n", (unsigned int)Status);
+        CFE_ES_SysLogWrite_Unsync("%s: Err rebuilding CDS (Stat=0x%08x)\n", __func__, (unsigned int)Status);
         Status = CFE_ES_CDS_ACCESS_ERROR;
     }
 
@@ -259,7 +259,7 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
     /* Do the actual syslog if something went wrong */
     if (LogMessage[0] != 0)
     {
-        CFE_ES_WriteToSysLog("%s(): %s", __func__, LogMessage);
+        CFE_ES_WriteToSysLog("%s: %s", __func__, LogMessage);
     }
 
     return Status;

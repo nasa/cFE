@@ -614,7 +614,7 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 
     if (PrintBuffer == NULL)
     {
-        CFE_ES_WriteToSysLog("CFE_TIME:Print-Failed invalid arguments\n");
+        CFE_ES_WriteToSysLog("%s: Failed invalid arguments\n", __func__);
         return;
     }
 
