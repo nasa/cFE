@@ -387,13 +387,12 @@ bool CFE_ES_RunLoop(uint32 *RunStatus);
 **        to satisfy the global system state it is waiting for, and the apps own
 **        state will be updated accordingly.
 **
+** \param[in]  MinSystemState        Determine the state of the App
 ** \param[in]  TimeOutMilliseconds   The timeout value in Milliseconds.
 **                                   This parameter must be at least 1000. Lower values
 **                                   will be rounded up. There is not an option to
 **                                   wait indefinitely to avoid hanging a critical
 **                                   application because a non-critical app did not start.
-**
-** \param[in]  MinSystemState        Determine the state of the App
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                State successfully achieved
@@ -794,8 +793,7 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 ** \param[in]   StackSize     The number of bytes to allocate for the new task's stack.
 **
 ** \param[in]   Priority      The priority for the new task.  Lower numbers are higher priority, with 0 being
-**                            the highest priority.  Applications cannot create tasks with a higher priority
-**                            (lower number) than their own priority.
+**                            the highest priority.
 **
 ** \param[in]   Flags         Reserved for future expansion.
 **
@@ -1491,7 +1489,8 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit);
 ** \brief Register a generic counter
 **
 ** \par Description
-**        This routine registers a generic counter.
+**        This routine registers a generic thread-safe counter which
+**        can be used for inter-task management.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None.

@@ -65,6 +65,7 @@ endfunction(generate_c_headerfile)
 # source file for the wrapper.
 #
 # This function now accepts named parameters:
+#   OUTPUT_DIRECTORY - non-default directory to write the file to (optional)
 #   FILE_NAME - the name of the file to write
 #   FALLBACK_FILE - if no files are found in "defs" using the name match, this file will be used instead.
 #   MATCH_SUFFIX - the suffix to match in the "defs" directory (optional)
@@ -130,18 +131,24 @@ endfunction(generate_config_includefile)
 # FUNCTION: read_targetconfig
 #
 # Scan the list of targets and organize by target system type.
-# This function sets up the following variables in the global scope:
+#
+# If the historical TGT<x> variables are defined, they are translated to name
+# based list of MISSION_CPUNAMES (from TGT<x>_NAMEs).  The historical settings
+# are then translated to the new cpuname based settings as defined in the
+# sample_defs/targets.cmake and sets them as global scope.
+#
+# This function then sets up the following variables in the global scope:
 #   TGTSYS_LIST: list of CPU architectures used in the build.  Note this
 #       will always contain a "native" target (for tools at least) which 
 #       is forced to be last.
-#   MISSION_APPS: full list of applications specified in the whole mission
-#   SYSID_<arch>: set for each entry of TGTSYS_LIST, and indicates the
-#       toolchain specified in the target file for that CPU arch.
-#   TGTSYS_<arch>: set to a list of CPU numbers that utilize the same arch 
-#   TGTSYS_<arch>_APPS: set for each entry of TGTSYS_LIST, and indicates the
-#       full set of applications that need to built for that target architecture
-#   TGTSYS_<arch>_DRIVERS: set for each entry of TGTSYS_LIST, and indicates the
-#       full set of device drivers that need to built for that target architecture
+#   MISSION_APPS: list of all applications in this build
+#   MISSION_PSPMODULES: list of all psp modules in this build
+#
+# Additionally for each architechture in TGTSYS_LIST:
+#   TGTSYS_<arch>: list of CPU names that utilize the same architecture
+#   TGTSYS_<arch>_APPS: list of apps for the architecture
+#   TGTSYS_<arch>_STATICAPPS: list of static apps for the architecture
+#   TGTSYS_<arch>_PSPMODULES: list of psp modules for the architecture
 #
 function(read_targetconfig)
 
