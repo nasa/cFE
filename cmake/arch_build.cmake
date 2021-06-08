@@ -611,21 +611,11 @@ function(process_arch SYSVAR)
   # This can help with debugging if things go wrong.
   message(STATUS "PSP Selection: ${CFE_SYSTEM_PSPNAME}")
 
-  # Append the PSP and OSAL selections to the Doxyfile so it will be included
-  # in the generated documentation automatically.
-  # Also extract the "-D" options within CFLAGS and inform Doxygen about these
-  string(REGEX MATCHALL "-D[A-Za-z0-9_=]+" DOXYGEN_DEFINED_MACROS "${CMAKE_C_FLAGS}")
-  string(REGEX REPLACE "-D" " " DOXYGEN_DEFINED_MACROS "${DOXYGEN_DEFINED_MACROS}")
-  file(APPEND "${MISSION_BINARY_DIR}/doc/mission-content.doxyfile"
-    "PREDEFINED += ${DOXYGEN_DEFINED_MACROS}\n"
-    "INPUT += ${MISSION_SOURCE_DIR}/osal/src/os/${OSAL_SYSTEM_OSTYPE}\n"
-    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}\n"
-    "INPUT += ${CMAKE_BINARY_DIR}/inc")
-
-  # Append to usersguide.doxyfile
-  file(APPEND "${MISSION_BINARY_DIR}/doc/cfe-usersguide.doxyfile"
-    "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/src\n"
-    "INPUT += ${CMAKE_BINARY_DIR}/inc")
+  # Create a documentation content file, with any system-specific doxygen info
+  # this is done here in arch_build where the CFE_SYSTEM_PSPNAME is known
+  file(WRITE "${MISSION_BINARY_DIR}/doc/tgtsystem-content-${SYSVAR}.doxyfile"
+    "INPUT += ${CMAKE_BINARY_DIR}/inc\n"
+  )
 
   # The PSP and/or OSAL should have defined where to install the binaries.
   # If not, just install them in /cf as a default (this can be modified
