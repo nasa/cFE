@@ -42,8 +42,8 @@
 
 #include "target_config.h"
 
-const char *FS_SYSLOG_MSGS[] = {NULL, "FS SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n",
-                                "FS SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n"};
+const char *FS_SYSLOG_MSGS[] = {NULL, "%s: SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n",
+                                "%s: SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n"};
 
 /* counts the number of times UT_FS_OnEvent() was invoked (below) */
 uint32 UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_MAX];

@@ -43,9 +43,9 @@
 /*
 ** External global variables
 */
-const char *TIME_SYSLOG_MSGS[] = {NULL, "TIME:Error reading cmd pipe,RC=0x%08X\n",
-                                  "TIME:Application Init Failed,RC=0x%08X\n", "TIME:1Hz OS_TimerAdd failed:RC=0x%08X\n",
-                                  "TIME:1Hz OS_TimerSet failed:RC=0x%08X\n"};
+const char *TIME_SYSLOG_MSGS[] = {NULL, "%s: Error reading cmd pipe,RC=0x%08X\n",
+                                  "%s: Application Init Failed,RC=0x%08X\n", "%s: 1Hz OS_TimerAdd failed:RC=0x%08X\n",
+                                  "%s: 1Hz OS_TimerSet failed:RC=0x%08X\n"};
 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SEND_HK  = {.MsgId =
                                                                      CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_SEND_HK_MID)};

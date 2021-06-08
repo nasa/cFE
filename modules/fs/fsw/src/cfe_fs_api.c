@@ -308,8 +308,7 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: Failed to lseek time fields (Status=0x%08X)\n", __func__,
-                             (unsigned int)Result);
+        CFE_ES_WriteToSysLog("%s: Failed to lseek time fields (Status=0x%08X)\n", __func__, (unsigned int)Result);
     }
 
     return (Result);

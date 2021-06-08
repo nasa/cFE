@@ -222,16 +222,6 @@ void CFE_Assert_ExecuteTest(void)
     /* unregister the callback and unset the appid */
     UT_BSP_Lock();
     CFE_Assert_RegisterCallback(NULL);
-<<<<<<< HEAD
     CFE_Assert_Global.OwnerAppId = CFE_ES_APPID_UNDEFINED;
     UT_BSP_Unlock();
-=======
-
-    /* Release the access mutex so the next test program can run */
-    rc = OS_MutSemGive(CFE_Assert_Global.AccessMutex);
-    if (rc != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("%s: Error from OS_MutSemGive(): %d\n", __func__, (int)rc);
-    }
->>>>>>> Fix #1325, Prepend system log writes with function name
 }
