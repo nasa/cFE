@@ -10,6 +10,32 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev642
+
+- Update ES verify errors to match
+- Ensures error messages in `cfe_es_verify.h` match test logic.
+- Resolve mismatched `endforeach` of `CMakeList.txt`
+- Improve event filter documentation
+- Adds documentation for the behavior of CFE_EVS_ResetFilter and explains how Event Filter Mask Values work.
+- EVS/FS documentation cleanup
+- Remove shell file subtype and clarify scope
+- Removes CFE_FS_SubType_ES_SHELL and clarifies the scope of CFE_FS_SubType_Enum_t so that it only includes the cFE-defined file types
+- Simplify CFE_ES_QueryAllCmd file open logic
+- Removes the obsolete OS_OpenCreate and file-remove-on-success logic from `CFE_ES_QueryAllCmd`
+- Remove deprecated elements
+- Replace Header Content Type magic number
+- Remove unused EVS LogMode defines
+- Clean up SB, MSG, and SBR documentation and remove unused `CFE_SB_NO_SUBSCRIBERS`
+- Add `CFE_SB_DestinationD` tag and use for pointers
+- Use `CFE_MSG_SequenceCount_t` for seqcnt type
+- Document `CFE_ES_PoolCreateEx` NumBlockSizes error handling
+- Documentation cleanup in TBL/TIME
+- Document `TblName` as app specific
+- Use OSAL script to generate API guide
+- Include verify headers to validate config
+- Add doxygen aliases for OSAL parameter/retvals
+- See <https://github.com/nasa/cFE/pull/1584> and <https://github.com/nasa/cFS/pull/263/> 
+
 ### Development Build: v6.8.0-rc1+dev593
 
 - Uses `int` with %d conversions inUtAssert_True and UtPrintf for platform portability.

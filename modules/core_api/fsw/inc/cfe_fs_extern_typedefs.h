@@ -53,7 +53,12 @@
 #define CFE_FS_FILE_CONTENT_ID 0x63464531 /**< \brief Magic Number for cFE compliant files (= 'cFE1') */
 
 /**
- * @brief Label definitions associated with CFE_FS_SubType_Enum_t
+ * @brief File subtypes used within cFE
+ *
+ * This defines all the file subtypes used by cFE.
+ * Note apps can extend as needed but need to
+ * avoid conflicts (app context not currently included
+ * in the file header).
  */
 enum CFE_FS_SubType
 {
@@ -97,15 +102,6 @@ enum CFE_FS_SubType
      *
      */
     CFE_FS_SubType_ES_PERFDATA = 4,
-
-    /**
-     * @brief Executive Services Shell Response File
-     *
-     * Executive Services Shell Response Data File which is generated in response to a
-     * shell command.
-     *
-     */
-    CFE_FS_SubType_ES_SHELL = 5,
 
     /**
      * @brief Executive Services Critical Data Store Registry Dump File
@@ -213,7 +209,7 @@ typedef struct CFE_FS_Header
     uint32 SubType;       /**< \brief Type of \c ContentType, if necessary */
                           /**< Standard SubType definitions can be found
                                \link #CFE_FS_SubType_ES_ERLOG here \endlink */
-    uint32 Length;        /**< \brief Length of primary header */
+    uint32 Length;        /**< \brief Length of this header to support external processing */
     uint32 SpacecraftID;  /**< \brief Spacecraft that generated the file */
     uint32 ProcessorID;   /**< \brief Processor that generated the file */
     uint32 ApplicationID; /**< \brief Application that generated the file */

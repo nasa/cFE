@@ -1263,7 +1263,7 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
             /*
              * Before submitting the background request, use OS_stat() to check if the file exists already.
              *
-             * This is because TBL services issued a different event ID in some cases if
+             * This is needed because TBL services issues a different event ID in some cases if
              * it is overwriting a file vs. creating a new file.
              */
             StatePtr->FileExisted = (OS_stat(StatePtr->FileWrite.FileName, &FileStat) == OS_SUCCESS);

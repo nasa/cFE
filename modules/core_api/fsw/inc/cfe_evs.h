@@ -102,33 +102,8 @@
 ** \retval #CFE_EVS_APP_FILTER_OVERLOAD \copybrief CFE_EVS_APP_FILTER_OVERLOAD
 ** \retval #CFE_EVS_UNKNOWN_FILTER      \copybrief CFE_EVS_UNKNOWN_FILTER
 ** \retval #CFE_EVS_APP_ILLEGAL_APP_ID  \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
-**
-** \sa #CFE_EVS_Unregister
-**
 **/
 CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme);
-
-/**
-** \brief Cleanup internal structures used by the event manager for the calling Application.
-**
-** \par Description
-**          This routine un-registers the calling application from receiving event services
-**          and removes and deletes the calling applications filters and counters from the
-**          internal event service filter and counter tables if registered.  Applications
-**          must call this routine as part of their orderly shutdown process.
-**
-** \par Assumptions, External Events, and Notes:
-**          None
-**
-** \return Execution status below or from #CFE_ES_GetAppID/#CFE_ES_PutPoolBuf, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
-** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
-**
-** \sa #CFE_EVS_Register
-**
-**/
-CFE_Status_t CFE_EVS_Unregister(void);
 /**@}*/
 
 /** @defgroup CFEAPIEVSSend cFE Send Event APIs
@@ -286,8 +261,9 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
 ** \brief Resets the calling application's event filter for a single event ID.
 **
 ** \par Description
-**          The effect of resetting an event filter depends on the filter scheme.
-**          The #CFE_EVS_EventFilter_BINARY scheme resets the filter counter for the specified Event ID.
+**          Resets the filter such that the next event is treated like the first.
+**          For example, if the filter was set to only send the first event, the
+**          next event following the reset would be sent.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -303,7 +279,7 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
 ** \sa #CFE_EVS_ResetAllFilters
 **
 **/
-CFE_Status_t CFE_EVS_ResetFilter(int16 EventID);
+CFE_Status_t CFE_EVS_ResetFilter(uint16 EventID);
 
 /**
 ** \brief Resets all of the calling application's event filters.

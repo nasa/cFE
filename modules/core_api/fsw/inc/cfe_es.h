@@ -984,7 +984,9 @@ CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...) OS_PRINTF(1, 2
 **                                  XorOut: 0x0000
 **                          \arg \c CFE_MISSION_ES_CRC_32 - (not currently implemented)
 **
-** \return The result of the CRC calculation on the specified memory block, or error code \ref CFEReturnCodes
+** \return The result of the CRC calculation on the specified memory block.
+**         If the TypeCRC is unimplemented will return 0.
+**         If DataPtr is null or DataLength is 0, will return InputCRC
 **
 ******************************************************************************/
 uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputCRC, uint32 TypeCRC);
@@ -1044,7 +1046,6 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \retval #CFE_ES_CDS_ALREADY_EXISTS \copybrief CFE_ES_CDS_ALREADY_EXISTS
 ** \retval #CFE_ES_CDS_INVALID_SIZE   \copybrief CFE_ES_CDS_INVALID_SIZE
 ** \retval #CFE_ES_CDS_INVALID_NAME   \copybrief CFE_ES_CDS_INVALID_NAME
-** \retval #CFE_ES_CDS_REGISTRY_FULL  \copybrief CFE_ES_CDS_REGISTRY_FULL
 ** \retval #CFE_ES_BAD_ARGUMENT       \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
@@ -1254,8 +1255,10 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 ** \param[in]   Size           The size of the pool of memory.  Note that this must be an integral multiple of the
 **                             memory alignment of the processor architecture.
 **
-** \param[in]   NumBlockSizes  The number of different block sizes specified in the \c BlockSizes array. If set equal to
-**                             zero or if greater than 17, then default block sizes are used.
+** \param[in]   NumBlockSizes  The number of different block sizes specified in the \c BlockSizes array. If set
+**                             larger than #CFE_PLATFORM_ES_POOL_MAX_BUCKETS, #CFE_ES_BAD_ARGUMENT will be returned.
+**                             If BlockSizes is null and NumBlockSizes is 0, NubBlockSizes will be set to
+**                             #CFE_PLATFORM_ES_POOL_MAX_BUCKETS.
 **
 ** \param[in]   BlockSizes     Pointer to an array of sizes to be used instead of the default block sizes specified by
 **                             #CFE_PLATFORM_ES_MEM_BLOCK_SIZE_01 through #CFE_PLATFORM_ES_MAX_BLOCK_SIZE.  If the

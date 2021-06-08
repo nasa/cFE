@@ -110,11 +110,13 @@
  */
 #define CFE_SB_INVALID_PIPE CFE_SB_PIPEID_C(CFE_RESOURCEID_UNDEFINED)
 
-/*
-** Pipe option bit fields.
-*/
+/**
+ * @defgroup CFESBPipeOptions cFE SB Pipe options
+ * @{
+ */
 #define CFE_SB_PIPEOPTS_IGNOREMINE \
     0x00000001 /**< \brief Messages sent by the app that owns this pipe will not be sent to this pipe. */
+/**@}*/
 
 #define CFE_SB_DEFAULT_QOS ((CFE_SB_Qos_t) {0}) /**< \brief Default Qos macro */
 
@@ -129,32 +131,5 @@ typedef union CFE_SB_Msg
     long long int     LongInt;    /**< \brief Align to support Long Integer */
     long double       LongDouble; /**< \brief Align to support Long Double */
 } CFE_SB_Buffer_t;
-
-#ifndef CFE_OMIT_DEPRECATED_6_8
-
-/** \brief Deperecated type to minimize required changes */
-typedef CFE_SB_Buffer_t CFE_SB_Msg_t;
-
-/** \brief Deperecated type to minimize required changes */
-typedef CFE_MSG_CommandHeader_t CFE_SB_CmdHdr_t;
-
-/** \brief Deperecated type to minimize required changes */
-typedef CFE_MSG_TelemetryHeader_t CFE_SB_TlmHdr_t;
-
-#define CFE_SB_CMD_HDR_SIZE (sizeof(CFE_MSG_CommandHeader_t))   /**< \brief Size of command header */
-#define CFE_SB_TLM_HDR_SIZE (sizeof(CFE_MSG_TelemetryHeader_t)) /**< \brief Size of telemetry header */
-
-/** \brief  Pointer to an SB Message */
-typedef CFE_MSG_Message_t *CFE_SB_MsgPtr_t;
-
-/** \brief  CFE_SB_MsgPayloadPtr_t defined as an opaque pointer to a message Payload portion */
-typedef uint8 *CFE_SB_MsgPayloadPtr_t;
-
-#define CFE_SB_Default_Qos CFE_SB_DEFAULT_QOS /**< \deprecated use CFE_SB_DEFAULT_QOS */
-
-#define CFE_SB_CMD_HDR_SIZE (sizeof(CFE_MSG_CommandHeader_t))   /**< \brief Size of command header */
-#define CFE_SB_TLM_HDR_SIZE (sizeof(CFE_MSG_TelemetryHeader_t)) /**< \brief Size of telemetry header */
-
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 #endif /* CFE_SB_API_TYPEDEFS_H */

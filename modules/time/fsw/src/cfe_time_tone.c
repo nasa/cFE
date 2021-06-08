@@ -711,9 +711,6 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
     static CFE_TIME_SysTime_t PrevTime1 = {0, 0};
     static CFE_TIME_SysTime_t PrevTime2 = {0, 0};
 
-    /*
-    ** It is possible to call this func with static time value...
-    */
     result = CFE_TIME_Compare(PrevTime1, Time1);
     if (result == CFE_TIME_EQUAL)
     {

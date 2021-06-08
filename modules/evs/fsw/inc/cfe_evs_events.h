@@ -561,7 +561,7 @@
 **  This event message is generated when a "Set Log Mode" command is completed successfully.
 **
 **  The event text identifies the Log Mode command argument.  Valid Log Mode command
-**  arguments are: #CFE_EVS_LOG_OVERWRITE or #CFE_EVS_LOG_DISCARD.
+**  arguments are: #CFE_EVS_LogMode_OVERWRITE or #CFE_EVS_LogMode_DISCARD.
 **/
 #define CFE_EVS_LOGMODE_EID 38
 
@@ -576,7 +576,7 @@
 **  an invalid Log Mode command argument.
 **
 **  The event text identifies the invalid Log Mode command argument.  Valid Log Mode command
-**  arguments are: #CFE_EVS_LOG_OVERWRITE or #CFE_EVS_LOG_DISCARD.
+**  arguments are: #CFE_EVS_LogMode_OVERWRITE or #CFE_EVS_LogMode_DISCARD.
 **/
 #define CFE_EVS_ERR_LOGMODE_EID 39
 

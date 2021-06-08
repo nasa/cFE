@@ -199,7 +199,7 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
  * This routine searches and returns an index to the given Event ID with the
  * given application filter array.
  */
-EVS_BinFilter_t *EVS_FindEventID(int16 EventID, EVS_BinFilter_t *FilterArray);
+EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray);
 
 /*---------------------------------------------------------------------------------------*/
 /**

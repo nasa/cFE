@@ -259,14 +259,6 @@ EVS: Register App,cEVS3100,"Upon receipt of Request, the cFE shall register an A
 EVS: Register App - Create Filter Counter,cEVS3100.1,"Upon receipt of Request to register an Application for event service, the cFE shall create one Application Binary Filter Counter per registered Event ID.",Supports the cFE's Binary Filtering Algorithm.
 EVS: Register App - Create Sent Message Counter,cEVS3100.2,"Upon receipt of Request to register an Application for event service, the cFE shall create an Application Event Message Sent Counter.",Supports the cFE's dynamic Application model.
 EVS: Register App - Default Event Enable Status,cEVS3100.3,"Upon receipt of Request to register an Application for event service, the cFE shall use the `<PLATFORM_DEFINED>` Application Event Type Enable Statuses for each event.","By default each platform should have a standard configuration for each event message type (eg. DEBUGs disable.  INFO, ERROR and CRITICAL events DISABLED) that should be applied to all events.  Commands are available to modify the settings."
-EVS: Unregister App,cEVS3101,"Upon receipt of Request, the cFE shall un-register an Application from using event services, deleting the following Application data:
-
-- Application Event Message Sent Counter
-- Application Event Service Enable Status
-- Application Event Type Enable Statuses (one for each Event Type)
-- Application Filtered Event IDs
-- Application Binary Filter Masks (one per registered Event ID)
-- Application Binary Filter Counters (one per registered Event ID)",Supports the cFE's dynamic Application model allowing applications to clean up after themselves.
 EVS: Message Types,cEVS3102,The cFE shall support the following Event Message Types: Debug Informational Error Critical.,Supports cFE event services.
 EVS: Create Message,cEVS3103,"Upon receipt of a Request to send an Event Message, the cFE shall create a Short or Long Event Message, as specified by the SB Event Format Mode, ONLY if the following cFE conditions are met:
 

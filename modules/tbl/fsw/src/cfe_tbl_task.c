@@ -34,6 +34,7 @@
 */
 #include "cfe_tbl_module_all.h"
 #include "cfe_version.h"
+#include "cfe_tbl_verify.h"
 
 #include <string.h>
 

@@ -67,12 +67,13 @@
 ** \brief Get the current spacecraft time
 **
 ** \par Description
-**        This routine returns the current spacecraft time.  The time returned
+**        This routine returns the current spacecraft time, which is the amount of
+**        time elapsed since the epoch as set in mission configuration.  The time returned
 **        is either TAI (no leap seconds) or UTC (including leap seconds).  This choice
 **        is made in the mission configuration file by defining either #CFE_MISSION_TIME_CFG_DEFAULT_TAI
 **        or #CFE_MISSION_TIME_CFG_DEFAULT_UTC as true at compile time.  To maintain re-usability
 **        across missions, most applications should be using this function
-**        (or #CFE_TIME_GetTime) rather than the specific routines for getting UTC/TAI directly.
+**        rather than the specific routines for getting UTC/TAI directly.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -215,10 +216,10 @@ uint32 CFE_TIME_GetMETsubsecs(void);
 ** \par Description
 **        This routine returns the current value of the spacecraft time correction
 **        factor.  This is the delta time between the MET and the TAI time.
-**        Applications cannot set or adjust the STCF; that can only be done
-**        through ground commands.  However, science applications may want to
-**        include the STCF in their data products to aid in time correlation
-**        during downstream science data processing.
+**        There is no API provided to set or adjust leap seconds or SCTF, those
+**        actions should be done by command only.  This API is provided for
+**        applications to be able to include STCF in their data products to
+**        aid in time correlation during downstream science data processing.
 **
 ** \par Assumptions, External Events, and Notes:
 **        Does not include leap seconds
@@ -237,11 +238,12 @@ CFE_TIME_SysTime_t CFE_TIME_GetSTCF(void);
 ** \par Description
 **        This routine returns the current value of the leap seconds counter.
 **        This is the delta seconds between international atomic time (TAI)
-**        and universal coordinated time (UTC).  Applications cannot set or
-**        adjust the leap seconds; that can only be done through ground commands.
-**        However, science applications may want to include the leap seconds
-**        counter in their data products to aid in time correlation during
-**        downstream science data processing.  Note that some mission operations
+**        and universal coordinated time (UTC).
+**        There is no API provided to set or adjust leap seconds or SCTF, those
+**        actions should be done by command only.  This API is provided for
+**        applications to be able to include leap seconds in their data products to
+**        aid in time correlation during downstream science data processing.
+**        Note that some mission operations
 **        teams do not maintain the leap seconds count, preferring to adjust the
 **        STCF instead.  Users of this function should check with their mission
 **        ops team to see how they are planning to handle leap seconds.
@@ -705,7 +707,8 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint);
 
 /*****************************************************************************/
 /**
-** \brief This function should be called from the system PSP layer once per second
+** \brief This function is called via a timer callback set up at initialization
+**        of the TIME service.
 **
 ** \par Description
 **        Drives the time processing logic from the system PSP layer.  This must be called

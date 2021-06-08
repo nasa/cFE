@@ -34,6 +34,7 @@
 */
 #include "cfe_time_module_all.h"
 #include "cfe_version.h"
+#include "cfe_time_verify.h"
 
 /*
 ** Time task global data...

@@ -88,7 +88,8 @@ struct CFE_MSG_TelemetryHeader
 {
     CFE_MSG_Message_t                  Msg;      /**< \brief Base message */
     CFE_MSG_TelemetrySecondaryHeader_t Sec;      /**< \brief Secondary header */
-    uint8                              Spare[4]; /**< \brief Padding to end on 64 bit boundary */
+    uint8                              Spare[4]; /**< \brief Pad to avoid compiler padding if payload
+                                                             requires 64 bit alignment */
 };
 
 #endif /* DEFAULT_CFE_MSG_HDR_PRI_H */

@@ -70,9 +70,9 @@
 **                                 when performing Table operations. This value is returned at  ddress specified by
 **                                 TblHandlePtr.
 **
-** \param[in] Name                 The application-specific name.  This name will be combined with the name of the
-**                                 application to produce a processor specific name of the form
-**                                 "ApplicationName.TableName".  The processor specific name will be used in commands
+** \param[in] Name                 The raw table name.  This name will be combined with the name of the
+**                                 application to produce a name of the form "AppName.RawTableName".
+**                                 This application specific name will be used in commands
 **                                 for modifying or viewing the contents of the table.
 **
 ** \param[in] Size                 The size, in bytes, of the table to be created.  This is the size that will be
@@ -206,12 +206,9 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
 **                           identify table to cFE when performing Table operations.
 **                           This value is returned at the address specified by TblHandlePtr.
 **
-** \param[in]  TblName       The processor specific name of the table.  It is important to note
-**                           that the processor specific table name is different from the table
-**                           name specified in the #CFE_TBL_Register API call.  The processor
-**                           specific table name includes the name of the application that created
-**                           the table.  The name would be of the form "ApplicationName.TableName".
-**                           An example of this would be "ACS.TamParams" for a table called "TamParams"
+** \param[in]  TblName       The application specific name of the table of the form "AppName.RawTableName",
+**                           where RawTableName is the name specified in the #CFE_TBL_Register API call.
+**                           Example: "ACS.TamParams" for a table called "TamParams"
 **                           that was registered by the application called "ACS".
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -313,13 +310,10 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 ** \brief Update contents of a specified table, if an update is pending
 **
 ** \par Description
-**        An application is \b required to perform a periodic check for an update
-**        for all the tables that it creates.  Typically, the application that
-**        created the table would call this function at the start or conclusion
-**        of any routine processing cycle or at regular intervals.  To determine
-**        whether an update is pending prior to making this call, the Application
-**        can use the #CFE_TBL_GetStatus API first.  If a table update is pending,
-**        it will take place during this function call.
+**        Typically, apps should just call #CFE_TBL_Manage as part
+**        of routine processing which will perform validation, update, or dump
+**        if pending. This API is provided for the case where just an
+**        update should be performed.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -344,13 +338,10 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle);
 ** \brief Perform steps to validate the contents of a table image.
 **
 ** \par Description
-**        An application is \b required to perform a periodic check for an update
-**        or a validation request for all the tables that it creates.  Typically,
-**        the application that created the table would call this function at the
-**        start or conclusion of any routine processing cycle.  To determine whether
-**        a validation request is pending prior to making this call, the Application
-**        can use the #CFE_TBL_GetStatus API first.  If a table validation is pending,
-**        the Application would call this function to perform the necessary actions.
+**        Typically, apps should just call #CFE_TBL_Manage as part
+**        of routine processing which will perform validation, update, or dump
+**        if pending. This API is provided for the case where just a
+**        validation should be performed.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -375,12 +366,10 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle);
 ** \brief Perform standard operations to maintain a table.
 **
 ** \par Description
-**        An application is \b required to perform a periodic check for an update
-**        or a validation request for all the tables that it creates.  Typically,
+**        Applications should call this API periodically to process pending
+**        requests for update, validation, or dump to buffer.  Typically,
 **        the application that created the table would call this function at the
-**        start or conclusion of any routine processing cycle.  If a table update
-**        or validation request is pending, this function would perform either or
-**        both before returning.
+**        start or conclusion of any routine processing cycle.
 **
 ** \par Assumptions, External Events, and Notes:
 **          None
@@ -405,14 +394,13 @@ CFE_Status_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle);
 ** \brief Copies the contents of a Dump Only Table to a shared buffer
 **
 ** \par Description
-**        Copies contents of a Dump Only table to a shared buffer so that it
-**        can be written to a file by the Table Services routine.  This function
-**        is called by the Application that owns the table in response to a #CFE_TBL_INFO_DUMP_PENDING
-**        status obtained via #CFE_TBL_GetStatus.
+**        Typically, apps should just call #CFE_TBL_Manage as part
+**        of routine processing which will perform validation, update, or dump
+**        if pending. This API is provided for the case where just a
+**        dump should be performed.
 **
 ** \par Assumptions, External Events, and Notes:
-**        -# If the table does not have a dump pending status, nothing will occur (no error, no dump)
-**        -# Applications may wish to use this function in lieu of #CFE_TBL_Manage for their Dump Only tables
+**        If the table does not have a dump pending status, nothing will occur (no error, no dump)
 **
 ** \param[in]  TblHandle      Handle of Table to be dumped.
 **
@@ -545,7 +533,7 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle);
 **        When a table has been created and initialized, it is available to
 **        any application that can identify it with its unique handle.  In
 **        order to view the data contained in the table, an application must
-**        call this function or #CFE_TBL_GetAddresses.
+**        call this function or #CFE_TBL_GetAddress.
 **
 ** \par Assumptions, External Events, and Notes:
 **        -# This call can be a blocking call when the table is not double buffered
@@ -675,13 +663,9 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle);
 **                           with table characteristics and information. *TblInfoPtr is the description of the tables
 **                           characteristics and registry information stored in the #CFE_TBL_Info_t data structure
 **                           format.
-**
-** \param[in]  TblName       The processor specific name of the table.  It is important to note
-**                           that the processor specific table name is different from the table
-**                           name specified in the #CFE_TBL_Register API call.  The processor
-**                           specific table name includes the name of the application that created
-**                           the table.  The name would be of the form "ApplicationName.TableName".
-**                           An example of this would be "ACS.TamParams" for a table called "TamParams"
+** \param[in]  TblName       The application specific name of the table of the form "AppName.RawTableName",
+**                           where RawTableName is the name specified in the #CFE_TBL_Register API call.
+**                           Example: "ACS.TamParams" for a table called "TamParams"
 **                           that was registered by the application called "ACS".
 **
 ** \return Execution status, see \ref CFEReturnCodes

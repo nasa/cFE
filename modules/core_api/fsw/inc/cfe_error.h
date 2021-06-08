@@ -780,15 +780,6 @@ typedef int32 CFE_Status_t;
 #define CFE_SB_MAX_DESTS_MET ((CFE_Status_t)0xca00000a)
 
 /**
- * @brief No Subscribers
- *
- *  This error code is returned by the #CFE_SB_Unsubscribe API if there has
- *  not been an entry in the routing tables for the MsgId/PipeId given as
- *  parameters.
- */
-#define CFE_SB_NO_SUBSCRIBERS ((CFE_Status_t)0xca00000b)
-
-/**
  * @brief Internal Error
  *
  *  This error code will be returned by the #CFE_SB_Subscribe API if the
@@ -1337,15 +1328,5 @@ typedef int32 CFE_Status_t;
  */
 #define CFE_TIME_BAD_ARGUMENT ((CFE_Status_t)0xce000005)
 /**@}*/
-
-/* Compatibility for error names which have been updated */
-#ifndef CFE_OMIT_DEPRECATED_6_8
-#define CFE_ES_ERR_TASKID        CFE_ES_ERR_RESOURCEID_NOT_VALID
-#define CFE_ES_ERR_APPID         CFE_ES_ERR_RESOURCEID_NOT_VALID
-#define CFE_ES_ERR_MEM_HANDLE    CFE_ES_ERR_RESOURCEID_NOT_VALID
-#define CFE_ES_ERR_APPNAME       CFE_ES_ERR_NAME_NOT_FOUND
-#define CFE_ES_CDS_NOT_FOUND_ERR CFE_ES_ERR_NAME_NOT_FOUND
-#define CFE_ES_CDS_REGISTRY_FULL CFE_ES_NO_RESOURCE_IDS_AVAILABLE
-#endif /* CFE_OMIT_DEPRECATED_6_8 */
 
 #endif /* CFE_ERROR_H */
