@@ -7,6 +7,7 @@
 PROJECT_NAME           = "@MISSION_NAME@"
 PROJECT_BRIEF          = "Core Flight System project built using \"@MISSIONCONFIG@\" configuration"
 OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/doc/detaildesign
+WARN_LOGFILE           = @CMAKE_BINARY_DIR@/doc/detaildesign-warnings.log
 
 INPUT                 += @MISSION_DEFS@
 STRIP_FROM_PATH       += @MISSION_DEFS@

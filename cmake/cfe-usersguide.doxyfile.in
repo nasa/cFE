@@ -9,6 +9,7 @@ INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/main.dox
 @INCLUDE               = @MISSION_BINARY_DIR@/doc/cfe-common.doxyfile
 PROJECT_NAME           = "Core Flight Executive Users Guide"
 OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/doc/users_guide
+WARN_LOGFILE           = @CMAKE_BINARY_DIR@/doc/cfe-usersguide-warnings.log
 GENERATE_LATEX         = YES
 
 # For purposes of the user guide, reference the "stock" mission configuration
