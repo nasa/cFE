@@ -234,7 +234,7 @@ function(prepare)
 
   # Doxygen-based documentation generation targets
   # Create a directory for documentation output
-  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/doc")
+  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/docs")
 
   # Generate a customized Doxyfile file for the Doxygen docs.
   # This file must be present in the directory where "doxygen" is executed
@@ -242,9 +242,9 @@ function(prepare)
   # then assume they have also set PROJECT_NAME and PROJECT_BRIEF in that.
   # Otherwise, generate reasonable strings for these values.
   set(MISSION_DOXYFILE_USER_CONTENT)
-  if (EXISTS "${MISSION_SOURCE_DIR}/doc/Doxyfile")
-    list(APPEND MISSION_DOXYFILE_USER_CONTENT "@INCLUDE = ${MISSION_SOURCE_DIR}/doc/Doxyfile\n")
-  endif (EXISTS "${MISSION_SOURCE_DIR}/doc/Doxyfile")
+  if (EXISTS "${MISSION_SOURCE_DIR}/docs/Doxyfile")
+    list(APPEND MISSION_DOXYFILE_USER_CONTENT "@INCLUDE = ${MISSION_SOURCE_DIR}/docs/Doxyfile\n")
+  endif (EXISTS "${MISSION_SOURCE_DIR}/docs/Doxyfile")
 
   foreach(APP ${MISSION_DEPS})
     # OSAL is handled specially, as only part of it is used
@@ -253,8 +253,8 @@ function(prepare)
         # If the module provides its own doxyfile, then include it directly
         # This allows for app-specific fine-tuning of the sources, based on its own source tree
         configure_file("${${APP}_MISSION_DIR}/docs/${APP}.doxyfile.in"
-            "${CMAKE_BINARY_DIR}/doc/${APP}.doxyfile")
-        list(APPEND MISSION_DOXYFILE_USER_CONTENT "@INCLUDE = ${CMAKE_BINARY_DIR}/doc/${APP}.doxyfile\n")
+            "${CMAKE_BINARY_DIR}/docs/${APP}.doxyfile")
+        list(APPEND MISSION_DOXYFILE_USER_CONTENT "@INCLUDE = ${CMAKE_BINARY_DIR}/docs/${APP}.doxyfile\n")
       else()
         # Otherwise just add this entire directory to the "INPUT" list
         list(APPEND MISSION_DOXYFILE_USER_CONTENT "INPUT += ${${APP}_MISSION_DIR}\n")
@@ -263,20 +263,20 @@ function(prepare)
   endforeach()
 
   # In all cases it is assumed to include the CFE documentation as well (could be configurable?)
-  file(WRITE "${CMAKE_BINARY_DIR}/doc/mission-content.doxyfile"
+  file(WRITE "${CMAKE_BINARY_DIR}/docs/mission-content.doxyfile"
       ${MISSION_DOXYFILE_USER_CONTENT})
 
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/doc/cfe-common.doxyfile")
+    "${CMAKE_BINARY_DIR}/docs/cfe-common.doxyfile")
 
   configure_file("${CFE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/doc/mission-detaildesign.doxyfile")
+    "${CMAKE_BINARY_DIR}/docs/mission-detaildesign.doxyfile")
 
   # Generate an "empty" osconfig.h file for doxygen purposes
   # this does not have the actual user-defined values, but will
   # have the documentation associated with each macro definition.
   configure_file("${osal_MISSION_DIR}/osconfig.h.in"
-    "${CMAKE_BINARY_DIR}/doc/osconfig-example.h")
+    "${CMAKE_BINARY_DIR}/docs/osconfig-example.h")
 
   # The user guide should include the doxygen from the _public_ API files from CFE + OSAL
   # NOTE: the userguide is built against the headers of the default core apps. Even if
@@ -290,28 +290,28 @@ function(prepare)
   endforeach()
   file(GLOB MISSION_USERGUIDE_HEADERFILES
     ${SUBMODULE_HEADER_PATHS}
-    "${CMAKE_BINARY_DIR}/doc/osconfig-example.h"
+    "${CMAKE_BINARY_DIR}/docs/osconfig-example.h"
   )
 
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}")
 
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/doc/cfe-usersguide.doxyfile")
+    "${CMAKE_BINARY_DIR}/docs/cfe-usersguide.doxyfile")
 
   add_custom_target(mission-doc
     doxygen mission-detaildesign.doxyfile
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc")
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs")
 
   add_custom_target(cfe-usersguide
     doxygen cfe-usersguide.doxyfile
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/doc")
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs")
 
   # OSAL API GUIDE include PUBLIC API
   set(OSAL_API_INCLUDE_DIRECTORIES
     "${osal_MISSION_DIR}/src/os/inc"
-    "${CMAKE_BINARY_DIR}/doc"
+    "${CMAKE_BINARY_DIR}/docs"
   )
-  add_subdirectory(${osal_MISSION_DIR}/doc/src ${CMAKE_BINARY_DIR}/doc/osalguide)
+  add_subdirectory(${osal_MISSION_DIR}/docs/src ${CMAKE_BINARY_DIR}/docs/osalguide)
   add_custom_target(osalguide)
   add_dependencies(osalguide osal-apiguide)
 

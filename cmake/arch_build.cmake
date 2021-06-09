@@ -616,14 +616,14 @@ function(process_arch SYSVAR)
   # Also extract the "-D" options within CFLAGS and inform Doxygen about these
   string(REGEX MATCHALL "-D[A-Za-z0-9_=]+" DOXYGEN_DEFINED_MACROS "${CMAKE_C_FLAGS}")
   string(REGEX REPLACE "-D" " " DOXYGEN_DEFINED_MACROS "${DOXYGEN_DEFINED_MACROS}")
-  file(APPEND "${MISSION_BINARY_DIR}/doc/mission-content.doxyfile"
+  file(APPEND "${MISSION_BINARY_DIR}/docs/mission-content.doxyfile"
     "PREDEFINED += ${DOXYGEN_DEFINED_MACROS}\n"
     "INPUT += ${MISSION_SOURCE_DIR}/osal/src/os/${OSAL_SYSTEM_OSTYPE}\n"
     "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}\n"
     "INPUT += ${CMAKE_BINARY_DIR}/inc")
 
   # Append to usersguide.doxyfile
-  file(APPEND "${MISSION_BINARY_DIR}/doc/cfe-usersguide.doxyfile"
+  file(APPEND "${MISSION_BINARY_DIR}/docs/cfe-usersguide.doxyfile"
     "INPUT += ${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/src\n"
     "INPUT += ${CMAKE_BINARY_DIR}/inc")
 
