@@ -57,6 +57,7 @@ void ESInfoTestSetup(void);
 void ESTaskTestSetup(void);
 void ESCDSTestSetup(void);
 void ESMiscTestSetup(void);
+void ESMemPoolTestSetup(void);
 void FSHeaderTestSetup(void);
 void TimeCurrentTestSetup(void);
 

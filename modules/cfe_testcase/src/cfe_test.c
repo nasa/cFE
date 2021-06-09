@@ -54,6 +54,7 @@ void CFE_TestMain(void)
     ESTaskTestSetup();
     ESCDSTestSetup();
     ESMiscTestSetup();
+    ESMemPoolTestSetup();
     FSHeaderTestSetup();
     TimeCurrentTestSetup();
 
