@@ -262,11 +262,7 @@ function(add_cfe_coverage_dependency MODULE_NAME UNIT_NAME DEPENDENCY_MODULE)
     # (assuming it was added by the add_cfe_coverage_stubs above)
     set(DEP_LIST)
     foreach(DEP ${DEPENDENCY_MODULE} ${ARGN})
-        if (TARGET coverage-${DEP}-stubs)
-            list(APPEND DEP_LIST "coverage-${DEP}-stubs")
-        else()
-            list(APPEND DEP_LIST "${DEP}")
-        endif()
+        list(APPEND DEP_LIST "coverage-${DEP}-stubs")
     endforeach()
 
     target_link_libraries(coverage-${MODULE_NAME}-${UNIT_NAME}-testrunner
