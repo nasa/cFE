@@ -38,6 +38,28 @@
 
 CFE_Assert_Global_t CFE_Assert_Global;
 
+void UT_BSP_Lock(void)
+{
+    int32 rc;
+
+    rc = OS_MutSemTake(CFE_Assert_Global.AccessMutex);
+    if (rc != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemTake(): %d\n", __func__, (int)rc);
+    }
+}
+
+void UT_BSP_Unlock(void)
+{
+    int32 rc;
+
+    rc = OS_MutSemGive(CFE_Assert_Global.AccessMutex);
+    if (rc != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemTake(): %d\n", __func__, (int)rc);
+    }
+}
+
 void UT_BSP_Setup(void)
 {
     CFE_Assert_Global.CurrVerbosity = (2 << UTASSERT_CASETYPE_PASS) - 1;
