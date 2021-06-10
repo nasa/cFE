@@ -6,7 +6,7 @@
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/main.dox
 
 # Common definitions, some of which are extended or overridden here.
-@INCLUDE               = @MISSION_BINARY_DIR@/doc/cfe-common.doxyfile
+@INCLUDE               = @MISSION_BINARY_DIR@/docs/cfe-common.doxyfile
 PROJECT_NAME           = "Core Flight Executive Users Guide"
 OUTPUT_DIRECTORY       = users_guide
 GENERATE_LATEX         = YES
