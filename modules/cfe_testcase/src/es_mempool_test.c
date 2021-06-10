@@ -33,37 +33,98 @@
 
 #include "cfe_test.h"
 
-void TestMemPool(void)
+void TestMemPoolCreate(void)
 {
-    CFE_ES_MemHandle_t  PoolID1; /* Poo1 1 handle, no mutex */
-    CFE_ES_MemHandle_t  PoolID2; /* Poo1 2 handle, with mutex */
-    size_t              Buffer1 = 256;
-    size_t              Buffer2 = 512;
-    int8                Pool1[512];
-    int8                Pool2[1024];
-    CFE_ES_MemPoolBuf_t addressp1 = CFE_ES_MEMPOOLBUF_C(0); /* Pool 1 buffer address */
-    CFE_ES_MemPoolBuf_t addressp2 = CFE_ES_MEMPOOLBUF_C(0); /* Pool 2 buffer address */
+    CFE_ES_MemHandle_t PoolID;
+    int8               Pool[1024];
 
-    UtPrintf("Testing: CFE_ES_PoolCreateNoSem, CFE_ES_PoolCreate, CFE_ES_GetPoolBuf, CFE_ES_GetPoolBufInfo, "
-             "CFE_ES_PutPoolBuf");
+    UtPrintf("Testing: CFE_ES_PoolCreateNoSem, CFE_ES_PoolCreate, CFE_ES_PoolCreateEx");
 
-    UtAssert_INT32_EQ(CFE_ES_PoolCreateNoSem(&PoolID1, Pool1, sizeof(Pool1)), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID2, Pool2, sizeof(Pool2)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreateNoSem(&PoolID, Pool, sizeof(Pool)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreateNoSem(NULL, Pool, sizeof(Pool)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreateNoSem(&PoolID, NULL, sizeof(Pool)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreateNoSem(&PoolID, Pool, 0), CFE_ES_BAD_ARGUMENT);
 
-    UtAssert_UINT32_EQ(CFE_ES_GetPoolBuf(&addressp1, PoolID1, Buffer1), Buffer1);
-    UtAssert_UINT32_EQ(CFE_ES_GetPoolBuf(&addressp2, PoolID2, Buffer2), Buffer2);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID, Pool, sizeof(Pool)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreate(NULL, Pool, sizeof(Pool)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID, NULL, sizeof(Pool)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID, Pool, 0), CFE_ES_BAD_ARGUMENT);
 
-    UtAssert_UINT32_EQ(CFE_ES_GetPoolBufInfo(PoolID1, addressp1), Buffer1);
-    UtAssert_UINT32_EQ(CFE_ES_GetPoolBufInfo(PoolID2, addressp2), Buffer2);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreateEx(&PoolID, Pool, sizeof(Pool), 0, NULL, CFE_ES_NO_MUTEX), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreateEx(NULL, Pool, sizeof(Pool), 0, NULL, CFE_ES_NO_MUTEX), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreateEx(&PoolID, NULL, sizeof(Pool), 0, NULL, CFE_ES_NO_MUTEX), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_PoolCreateEx(&PoolID, Pool, 0, 0, NULL, CFE_ES_NO_MUTEX), CFE_ES_BAD_ARGUMENT);
 
-    UtAssert_UINT32_EQ(CFE_ES_PutPoolBuf(PoolID1, addressp1), Buffer1);
-    UtAssert_UINT32_EQ(CFE_ES_PutPoolBuf(PoolID2, addressp2), Buffer2);
+    UtAssert_INT32_EQ(CFE_ES_PoolDelete(PoolID), CFE_SUCCESS);
+}
 
-    UtAssert_UINT32_EQ(CFE_ES_GetPoolBuf(&addressp1, PoolID1, Buffer1), Buffer1);
-    UtAssert_UINT32_EQ(CFE_ES_GetPoolBuf(&addressp2, PoolID2, Buffer2), Buffer2);
+void TestMemPoolGetBuf(void)
+{
+    CFE_ES_MemHandle_t  PoolID;
+    int8                Pool[1024];
+    size_t              Buffer    = 512;
+    size_t              BufferBig = 2048;
+    CFE_ES_MemPoolBuf_t addressp  = CFE_ES_MEMPOOLBUF_C(0);
 
-    UtAssert_INT32_EQ(CFE_ES_PoolDelete(PoolID1), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_ES_PoolDelete(PoolID2), CFE_SUCCESS);
+    UtPrintf("Testing: TestMemPoolGetBuf");
+
+    UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID, Pool, sizeof(Pool)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp, PoolID, Buffer), Buffer);
+
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(NULL, PoolID, Buffer), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp, CFE_ES_MEMHANDLE_UNDEFINED, Buffer),
+                      CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp, PoolID, Buffer), CFE_ES_ERR_MEM_BLOCK_SIZE);
+    UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(PoolID, addressp), Buffer);
+
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp, PoolID, BufferBig), CFE_ES_ERR_MEM_BLOCK_SIZE);
+
+    UtAssert_INT32_EQ(CFE_ES_PoolDelete(PoolID), CFE_SUCCESS);
+}
+
+void TestMemPoolBufInfo(void)
+{
+    CFE_ES_MemHandle_t  PoolID;
+    int8                Pool[1024];
+    size_t              Buffer   = 512;
+    CFE_ES_MemPoolBuf_t addressp = CFE_ES_MEMPOOLBUF_C(0);
+
+    UtPrintf("Testing: CFE_ES_GetPoolBufInfo");
+
+    UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID, Pool, sizeof(Pool)), CFE_SUCCESS);
+
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(PoolID, addressp), CFE_ES_BAD_ARGUMENT);
+
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp, PoolID, Buffer), Buffer);
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(PoolID, addressp), Buffer);
+
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(CFE_ES_MEMHANDLE_UNDEFINED, addressp), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(PoolID, NULL), CFE_ES_BAD_ARGUMENT);
+
+    UtAssert_INT32_EQ(CFE_ES_PoolDelete(PoolID), CFE_SUCCESS);
+}
+
+void TestMemPoolPutBuf(void)
+{
+    CFE_ES_MemHandle_t  PoolID;
+    int8                Pool[1024];
+    size_t              Buffer   = 512;
+    CFE_ES_MemPoolBuf_t addressp = CFE_ES_MEMPOOLBUF_C(0);
+
+    UtPrintf("Testing: CFE_ES_PutPoolBuf");
+
+    UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID, Pool, sizeof(Pool)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp, PoolID, Buffer), Buffer);
+    UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(PoolID, addressp), Buffer);
+
+    UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(PoolID, addressp), CFE_ES_POOL_BLOCK_INVALID);
+    UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(CFE_ES_MEMHANDLE_UNDEFINED, addressp), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(PoolID, NULL), CFE_ES_BAD_ARGUMENT);
+
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp, PoolID, Buffer), Buffer);
+
+    UtAssert_INT32_EQ(CFE_ES_PoolDelete(PoolID), CFE_SUCCESS);
 }
 
 void TestMemPoolDelete(void)
@@ -88,6 +149,9 @@ void TestMemPoolDelete(void)
 
 void ESMemPoolTestSetup(void)
 {
-    UtTest_Add(TestMemPool, NULL, NULL, "Test Mem Pool");
+    UtTest_Add(TestMemPoolCreate, NULL, NULL, "Test Mem Pool Create");
+    UtTest_Add(TestMemPoolGetBuf, NULL, NULL, "Test Mem Pool Get Buf");
+    UtTest_Add(TestMemPoolBufInfo, NULL, NULL, "Test Mem Pool Buf Info");
+    UtTest_Add(TestMemPoolPutBuf, NULL, NULL, "Test Mem Pool Put Buf");
     UtTest_Add(TestMemPoolDelete, NULL, NULL, "Test Mem Pool Delete");
 }
