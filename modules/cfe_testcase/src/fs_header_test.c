@@ -93,7 +93,7 @@ void TestTimeStamp(void)
 
     CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG);
     UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, &Header), sizeof(CFE_FS_Header_t));
-    UtAssert_INT32_EQ(CFE_FS_SetTimestamp(fd, NewTimestamp), OS_SUCCESS);
+    UtAssert_INT32_EQ(CFE_FS_SetTimestamp(fd, NewTimestamp), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(&ReadHeader, fd), sizeof(CFE_FS_Header_t));
 
     UtAssert_INT32_EQ(10, ReadHeader.TimeSeconds);

@@ -108,7 +108,7 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
                 {
                     Status = CFE_FS_SetTimestamp(FileDescriptor, DumpTime);
 
-                    if (Status != OS_SUCCESS)
+                    if (Status != CFE_SUCCESS)
                     {
                         CFE_ES_WriteToSysLog("CFE_TBL:HkCmd-Unable to update timestamp in dump file '%s'\n",
                                              DumpCtrlPtr->DumpBufferPtr->DataSource);
