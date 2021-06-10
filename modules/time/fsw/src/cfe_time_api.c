@@ -284,6 +284,14 @@ uint16 CFE_TIME_GetClockInfo(void)
         StateFlags |= CFE_TIME_FLAG_GDTONE;
     }
 
+    /*
+    ** Check if CFE_TIME_GetReference ever failed to get a good value
+    */
+    if (CFE_TIME_Global.GetReferenceFail)
+    {
+        StateFlags |= CFE_TIME_FLAG_REFERR;
+    }
+
     return (StateFlags);
 }
 

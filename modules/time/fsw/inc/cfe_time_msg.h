@@ -717,7 +717,9 @@
 #define CFE_TIME_FLAG_ADDTCL 0x0080 /**< \brief Time Client Latency is applied in a positive direction */
 #define CFE_TIME_FLAG_SERVER 0x0040 /**< \brief This instance of Time Services is a Time Server */
 #define CFE_TIME_FLAG_GDTONE 0x0020 /**< \brief The tone received is good compared to the last tone received */
-#define CFE_TIME_FLAG_UNUSED 0x001F /**< \brief Reserved flags - should be zero */
+#define CFE_TIME_FLAG_REFERR \
+    0x0010 /**< \brief GetReference read error, will be set if unable to get a consistent ref value */
+#define CFE_TIME_FLAG_UNUSED 0x000F /**< \brief Reserved flags - should be zero */
 /** \} */
 
 /*************************************************************************/
