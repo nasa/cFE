@@ -124,7 +124,7 @@ void TestAppInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppIdByName, INVALID_APP_NAME), CFE_ES_ERR_NAME_NOT_FOUND);
     UtAssert_ResourceID_Undefined(AppIdByName);
     UtAssert_INT32_EQ(CFE_ES_GetAppID(NULL), CFE_ES_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(NULL, TEST_EXPECTED_APP_NAME), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(NULL, TEST_EXPECTED_APP_NAME), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppNameBuf, CFE_ES_APPID_UNDEFINED, sizeof(AppNameBuf)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(NULL, TestAppId, sizeof(AppNameBuf)), CFE_ES_BAD_ARGUMENT);
