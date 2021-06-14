@@ -78,7 +78,6 @@ void TestGetTime(void)
     TAI           = CFE_TIME_GetTAI();
     UTC           = CFE_TIME_GetUTC();
     MET           = CFE_TIME_GetMET();
-    OS_TaskDelay(300000);
     METSeconds    = CFE_TIME_GetMETseconds();
     METSubSeconds = CFE_TIME_GetMETsubsecs();
     STCF          = CFE_TIME_GetSTCF();
