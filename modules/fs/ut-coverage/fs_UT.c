@@ -98,6 +98,10 @@ void Test_CFE_FS_InitHeader(void)
     UT_InitData();
     CFE_FS_InitHeader(&Hdr, "description", 123);
     UtAssert_INT32_EQ(Hdr.SubType, 123);
+
+    /* Test calling with NULL pointer argument (no return codes) */
+    CFE_FS_InitHeader(NULL, "description", 123);
+    CFE_FS_InitHeader(&Hdr, NULL, 123);
 }
 
 /*
@@ -120,6 +124,9 @@ void Test_CFE_FS_ReadHeader(void)
     UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_read), OS_ERROR);
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), OS_ERROR);
+
+    /* Test calling with NULL pointer argument */
+    UtAssert_INT32_EQ(CFE_FS_ReadHeader(NULL, FileDes), CFE_FS_BAD_ARGUMENT);
 }
 
 /*
@@ -142,6 +149,9 @@ void Test_CFE_FS_WriteHeader(void)
     UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_SUCCESS);
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_SUCCESS);
     UtAssert_INT32_EQ(CFE_FS_WriteHeader(FileDes, &Hdr), OS_SUCCESS);
+
+    /* Test calling with NULL pointer argument */
+    UtAssert_INT32_EQ(CFE_FS_WriteHeader(FileDes, NULL), CFE_FS_BAD_ARGUMENT);
 }
 
 /*
@@ -238,6 +248,7 @@ void Test_CFE_FS_ParseInputFileNameEx(void)
     const char TEST_INPUT_NO_EXTENSION[]    = "/path/to/file";
     const char TEST_INPUT_BASENAME[]        = "file";
     const char TEST_XTRA_SEPARATOR_PATH[]   = "//xtra//sep///file.log";
+    const char TEST_XTRA_SEPARATOR_EXT[]    = "/xtra/sep/file..log";
     const char TEST_NO_SEPARATOR[]          = "nosep";
     const char TEST_DEFAULT_INPUT[]         = "/dpath_in/dfile_in.dext_in";
     const char TEST_DEFAULT_PATH[]          = "/dflpath";
@@ -252,8 +263,21 @@ void Test_CFE_FS_ParseInputFileNameEx(void)
                                                      TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION));
     UtAssert_StrCmp(OutBuffer, TEST_INPUT_FULLY_QUALIFIED, "Fully-qualified pass thru -> %s", OutBuffer);
 
+    CFE_UtAssert_SUCCESS(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_XTRA_SEPARATOR_EXT, sizeof(OutBuffer),
+                                                     sizeof(TEST_XTRA_SEPARATOR_EXT) - 5, TEST_DEFAULT_INPUT,
+                                                     TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION));
+    CFE_UtAssert_STRINGBUF_EQ(OutBuffer, sizeof(OutBuffer), TEST_XTRA_SEPARATOR_EXT,
+                              sizeof(TEST_XTRA_SEPARATOR_EXT) - 5);
+
     /* Same but as a default input, rather than in the buffer */
-    CFE_UtAssert_SUCCESS(CFE_FS_ParseInputFileNameEx(OutBuffer, NULL, sizeof(OutBuffer), 0, TEST_DEFAULT_INPUT,
+    /* tests 3 variations of "no input" - null ptr, zero size, empty string */
+    CFE_UtAssert_SUCCESS(CFE_FS_ParseInputFileNameEx(OutBuffer, NULL, sizeof(OutBuffer), 1, TEST_DEFAULT_INPUT,
+                                                     TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION));
+    UtAssert_StrCmp(OutBuffer, TEST_DEFAULT_INPUT, "Fully-qualified pass thru -> %s", OutBuffer);
+    CFE_UtAssert_SUCCESS(CFE_FS_ParseInputFileNameEx(OutBuffer, "", sizeof(OutBuffer), 0, TEST_DEFAULT_INPUT,
+                                                     TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION));
+    UtAssert_StrCmp(OutBuffer, TEST_DEFAULT_INPUT, "Fully-qualified pass thru -> %s", OutBuffer);
+    CFE_UtAssert_SUCCESS(CFE_FS_ParseInputFileNameEx(OutBuffer, "", sizeof(OutBuffer), 1, TEST_DEFAULT_INPUT,
                                                      TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION));
     UtAssert_StrCmp(OutBuffer, TEST_DEFAULT_INPUT, "Fully-qualified pass thru -> %s", OutBuffer);
 
@@ -346,6 +370,12 @@ void Test_CFE_FS_ParseInputFileNameEx(void)
     UtAssert_INT32_EQ(OutBuffer[1], 0x7F);
 
     /* test case for where input is not terminated */
+    /* Test w/input truncated via size argument (not null char) */
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_INPUT_FULLY_QUALIFIED, sizeof(OutBuffer),
+                                                  sizeof(TEST_INPUT_FULLY_QUALIFIED) - 9, TEST_DEFAULT_INPUT,
+                                                  TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION),
+                      CFE_FS_INVALID_PATH);
+
     /* only the specified number of chars should be used from input */
     memset(OutBuffer, 0x7F, sizeof(OutBuffer));
     CFE_UtAssert_SUCCESS(CFE_FS_ParseInputFileNameEx(OutBuffer, "abcdefgh", sizeof(OutBuffer), 4, NULL,
@@ -508,7 +538,16 @@ void Test_CFE_FS_BackgroundFileDump(void)
     UtAssert_INT32_EQ(CFE_FS_Global.FileDump.Current.Credit, CFE_FS_BACKGROUND_MAX_CREDIT);
 
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(NULL), CFE_FS_BAD_ARGUMENT);
+
+    /* Set each of the callback args individually NULL */
+    State.GetData = UT_FS_DataGetter;
+    State.OnEvent = NULL;
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&State), CFE_FS_BAD_ARGUMENT);
+
+    State.GetData = NULL;
+    State.OnEvent = UT_FS_OnEvent;
+    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&State), CFE_FS_BAD_ARGUMENT);
+
     CFE_UtAssert_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
     UtAssert_STUB_COUNT(CFE_ES_BackgroundWakeup, 0); /* confirm CFE_ES_BackgroundWakeup() was not invoked */
 
@@ -597,10 +636,21 @@ void Test_CFE_FS_BackgroundFileDump(void)
         CFE_UtAssert_SETUP(CFE_FS_BackgroundFileDumpRequest(&State));
     }
 
+    State.IsPending = false;
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&State), CFE_STATUS_REQUEST_ALREADY_PENDING);
     UtAssert_UINT32_EQ(CFE_FS_Global.FileDump.RequestCount,
                        (CFE_FS_Global.FileDump.CompleteCount + CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1));
 
     /* Confirm null arg handling in CFE_FS_BackgroundFileDumpIsPending() */
     CFE_UtAssert_FALSE(CFE_FS_BackgroundFileDumpIsPending(NULL));
+
+    /* this catches the branch where Meta->IsPending is false */
+    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    CFE_UtAssert_FALSE(CFE_FS_RunBackgroundFileDump(100, NULL));
+
+    CFE_UtAssert_SETUP(CFE_FS_BackgroundFileDumpRequest(&State));
+    UT_SetDeferredRetcode(UT_KEY(UT_FS_DataGetter), 2, true); /* avoid infinite loop */
+    CFE_UtAssert_FALSE(CFE_FS_RunBackgroundFileDump(100, NULL));
 }
