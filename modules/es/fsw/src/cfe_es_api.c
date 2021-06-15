@@ -702,7 +702,7 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName
     {
         /*
          * ensure the output value is set to a safe value,
-         * in case the does not check the return code.
+         * in case the caller does not check the return code.
          */
         Result    = CFE_ES_ERR_NAME_NOT_FOUND;
         *AppIdPtr = CFE_ES_APPID_UNDEFINED;
@@ -743,7 +743,7 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName
     {
         /*
          * ensure the output value is set to a safe value,
-         * in case the does not check the return code.
+         * in case the caller does not check the return code.
          */
         Result    = CFE_ES_ERR_NAME_NOT_FOUND;
         *LibIdPtr = CFE_ES_LIBID_UNDEFINED;
@@ -1168,6 +1168,7 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 {
     int32 Status;
 
+    /* Note - ModuleInfo NULL pointer check is perfromed by CFE_ES_GetAppInfo or CFE_ES_GetLibInfo */
     switch (CFE_ResourceId_GetBase(ResourceId))
     {
         case CFE_ES_APPID_BASE:
@@ -2078,7 +2079,7 @@ CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, cons
     {
         /*
          * ensure the output value is set to a safe value,
-         * in case the does not check the return code.
+         * in case the caller does not check the return code.
          */
         Result        = CFE_ES_ERR_NAME_NOT_FOUND;
         *CounterIdPtr = CFE_ES_COUNTERID_UNDEFINED;

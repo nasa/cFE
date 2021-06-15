@@ -23,7 +23,7 @@
 **    cfe_es_objtab.c
 **
 **   Purpose:
-**     This file contains the OS_object_table for MAP Build1.
+**     This file contains the OS_object_table for system initialization/startup.
 **
 **  References:
 **     Flight Software Branch C Coding Standard Version 1.0a

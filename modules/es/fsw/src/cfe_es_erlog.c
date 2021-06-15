@@ -245,13 +245,7 @@ void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t 
 
     BgFilePtr = (CFE_ES_BackgroundLogDumpGlobal_t *)Meta;
 
-    /*
-     * Note that this runs in the context of ES background task (file writer background job)
-     * It does NOT run in the context of the CFE_TBL app task.
-     *
-     * Events should use CFE_EVS_SendEventWithAppID() rather than CFE_EVS_SendEvent()
-     * to get proper association with TBL task.
-     */
+    /* Note that this runs in the context of ES background task (file writer background job) */
     switch (Event)
     {
         case CFE_FS_FileWriteEvent_COMPLETE:

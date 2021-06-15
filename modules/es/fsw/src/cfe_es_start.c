@@ -101,7 +101,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
                   (unsigned int)ReturnCode);
 
         /*
-        ** Delay to allow the message to be read
+        ** Delay to allow the message to be printed
         */
         OS_TaskDelay(CFE_ES_PANIC_DELAY);
 
