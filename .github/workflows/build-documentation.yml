@@ -1,0 +1,139 @@
+name: "Build cFE Documentation"
+
+on:
+  push:
+  pull_request:
+
+env:
+  SIMULATION: native
+  BUILDTYPE: debug
+
+jobs:
+
+  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  check-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+
+  build-docs:
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: check-for-duplicates
+    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-18.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Install Dependencies
+        run: sudo apt-get install doxygen graphviz -y
+
+      # Check out the cfs bundle
+      - name: Checkout bundle
+        uses: actions/checkout@v2
+        with:
+          repository: nasa/cFS
+          submodules: true
+
+      - name: Checkout submodule
+        uses: actions/checkout@v2
+        with:
+          path: cfe
+
+      - name: Check versions
+        run: git submodule
+
+      # Setup the build system
+      - name: Set up for build
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+          make prep
+
+      - name: Build Docs
+        run: |
+          make doc > make_doc_stdout.txt 2> make_doc_stderr.txt
+
+      # Upload documentation logs as artifacts
+      - name: Archive Documentation Build Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: cFS Docs Artifacts
+          path: |
+            make_doc_stdout.txt
+            make_doc_stderr.txt
+
+      - name: Error Check
+        run: |
+          if [[ -s make_doc_stderr.txt ]]; then
+            cat make_doc_stderr.txt
+            exit -1
+          fi
+
+  build-usersguide:
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: check-for-duplicates
+    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-18.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Install Dependencies
+        run: sudo apt-get install doxygen graphviz -y
+
+      # Check out the cfs bundle
+      - name: Checkout bundle
+        uses: actions/checkout@v2
+        with:
+          repository: nasa/cFS
+          submodules: true
+
+      - name: Checkout submodule
+        uses: actions/checkout@v2
+        with:
+          path: cfe
+
+      - name: Check versions
+        run: git submodule
+
+      # Setup the build system
+      - name: Set up for build
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+          make prep
+
+      - name: Build Usersguide
+        run: |
+          make usersguide > make_usersguide_stdout.txt 2> make_usersguide_stderr.txt
+          mv build/doc/warnings.log usersguide_warnings.log
+
+      - name: Archive Users Guide Build Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: Users Guide Artifacts
+          path: |
+            make_usersguide_stdout.txt
+            make_usersguide_stderr.txt
+            usersguide_warnings.log
+
+      - name: Error Check
+        run: |
+          if [[ -s make_usersguide_stderr.txt ]]; then
+            cat make_usersguide_stderr.txt
+            exit -1
+          fi
+
+      - name: Warning Check
+        run: |
+          if [[ -s usersguide_warnings.log ]]; then
+            cat usersguide_warnings.log
+            exit -1
+          fi
