@@ -98,6 +98,10 @@ void Test_CFE_FS_InitHeader(void)
     UT_InitData();
     CFE_FS_InitHeader(&Hdr, "description", 123);
     UT_Report(__FILE__, __LINE__, Hdr.SubType == 123, "CFE_FS_InitHeader", "Initialize header - successful");
+
+    /* Test calling with NULL pointer argument (no return codes) */
+    CFE_FS_InitHeader(NULL, "description", 123);
+    CFE_FS_InitHeader(&Hdr, NULL, 123);
 }
 
 /*
@@ -122,6 +126,9 @@ void Test_CFE_FS_ReadHeader(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_read), OS_ERROR);
     UT_Report(__FILE__, __LINE__, CFE_FS_ReadHeader(&Hdr, FileDes) != sizeof(CFE_FS_Header_t), "CFE_FS_ReadHeader",
               "Header read - successful");
+
+    /* Test calling with NULL pointer argument */
+    UtAssert_INT32_EQ(CFE_FS_ReadHeader(NULL, FileDes), CFE_FS_BAD_ARGUMENT);
 }
 
 /*
@@ -146,6 +153,9 @@ void Test_CFE_FS_WriteHeader(void)
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_SUCCESS);
     UT_Report(__FILE__, __LINE__, CFE_FS_WriteHeader(FileDes, &Hdr) == OS_SUCCESS, "CFE_FS_WriteHeader",
               "Header write - successful");
+
+    /* Test calling with NULL pointer argument */
+    UtAssert_INT32_EQ(CFE_FS_WriteHeader(FileDes, NULL), CFE_FS_BAD_ARGUMENT);
 }
 
 /*
