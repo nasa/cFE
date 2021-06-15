@@ -110,7 +110,7 @@ int32 CFE_Assert_RegisterTest(const char *TestName)
                           CFE_EVS_EventFilter_BINARY);
     if (rc != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("Error from CFE_EVS_Register: %08lx\n", (unsigned long)rc);
+        CFE_ES_WriteToSysLog("%s: Error from CFE_EVS_Register: %08lx\n", __func__, (unsigned long)rc);
         return rc;
     }
 
@@ -124,7 +124,7 @@ int32 CFE_Assert_RegisterTest(const char *TestName)
     rc = CFE_ES_WaitForSystemState(CFE_ES_SystemState_OPERATIONAL, CFE_TESTRUNNER_MAX_STARTUP_WAIT);
     if (rc != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("Error while waiting for OPERATIONAL state: %08lx\n", (unsigned long)rc);
+        CFE_ES_WriteToSysLog("%s: Error while waiting for OPERATIONAL state: %08lx\n", __func__, (unsigned long)rc);
         return rc;
     }
 
@@ -206,7 +206,7 @@ void CFE_Assert_ExecuteTest(void)
     rc = CFE_ES_GetAppID(&AppId);
     if (rc != CFE_SUCCESS || !CFE_RESOURCEID_TEST_EQUAL(AppId, CFE_Assert_Global.OwnerAppId))
     {
-        CFE_ES_WriteToSysLog("%s(): Invalid calling context, CFE_ES_GetAppId() rc=%08x AppId=%lx, OwnerAppId=%lx\n",
+        CFE_ES_WriteToSysLog("%s: Invalid calling context, CFE_ES_GetAppId() rc=%08x AppId=%lx, OwnerAppId=%lx\n",
                              __func__, (unsigned int)rc, CFE_RESOURCEID_TO_ULONG(AppId),
                              CFE_RESOURCEID_TO_ULONG(CFE_Assert_Global.OwnerAppId));
         return;

@@ -144,8 +144,8 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
 
         CFE_ES_GetAppID(&AppId);
 
-        CFE_ES_WriteToSysLog("SB SharedData Mutex Take Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n", (unsigned int)Status,
-                             CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
+        CFE_ES_WriteToSysLog("%s: SharedData Mutex Take Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n", __func__,
+                             (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
 
     } /* end if */
 
@@ -172,8 +172,8 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber)
 
         CFE_ES_GetAppID(&AppId);
 
-        CFE_ES_WriteToSysLog("SB SharedData Mutex Give Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n", (unsigned int)Status,
-                             CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
+        CFE_ES_WriteToSysLog("%s: SharedData Mutex Give Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n", __func__,
+                             (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
 
     } /* end if */
 

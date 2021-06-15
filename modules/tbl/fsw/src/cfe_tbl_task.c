@@ -105,7 +105,7 @@ void CFE_TBL_TaskMain(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TBL:Application Init Failed,RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Application Init Failed,RC=0x%08X\n", __func__, (unsigned int)Status);
         CFE_ES_PerfLogExit(CFE_MISSION_TBL_MAIN_PERF_ID);
         /* Note: CFE_ES_ExitApp will not return */
         CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
@@ -139,7 +139,7 @@ void CFE_TBL_TaskMain(void)
         }
         else
         {
-            CFE_ES_WriteToSysLog("TBL:Error reading cmd pipe,RC=0x%08X\n", (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: Error reading cmd pipe,RC=0x%08X\n", __func__, (unsigned int)Status);
         } /* end if */
 
     } /* end while */
@@ -172,7 +172,7 @@ int32 CFE_TBL_TaskInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TBL:Call to CFE_EVS_Register Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -182,7 +182,7 @@ int32 CFE_TBL_TaskInit(void)
     Status = CFE_SB_CreatePipe(&CFE_TBL_Global.CmdPipe, CFE_TBL_TASK_PIPE_DEPTH, CFE_TBL_TASK_PIPE_NAME);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TBL:Error creating cmd pipe:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error creating cmd pipe:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -193,7 +193,7 @@ int32 CFE_TBL_TaskInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TBL:Error subscribing to HK Request:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to HK Request:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -204,7 +204,7 @@ int32 CFE_TBL_TaskInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TBL:Error subscribing to gnd cmds:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to gnd cmds:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -216,7 +216,7 @@ int32 CFE_TBL_TaskInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TBL:Error sending init event:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 

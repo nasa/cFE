@@ -92,7 +92,7 @@ void CFE_ES_TaskMain(void)
         /*
         ** Create a syslog entry
         */
-        CFE_ES_WriteToSysLog("ES:Application Init Failed,RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Application Init Failed,RC=0x%08X\n", __func__, (unsigned int)Status);
 
         /*
         ** Allow Core App to Exit
@@ -155,7 +155,7 @@ void CFE_ES_TaskMain(void)
             /*
             ** SB Error: Write a SysLog Message
             */
-            CFE_ES_WriteToSysLog("ES:Error reading cmd pipe,RC=0x%08X\n", (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: Error reading cmd pipe,RC=0x%08X\n", __func__, (unsigned int)Status);
 
             /*
             ** Allow Core App to Exit
@@ -261,7 +261,7 @@ void CFE_ES_GenerateVersionEvents(void)
     Status = CFE_ES_GenerateSingleVersionEvent("Mission", GLOBAL_CONFIGDATA.MissionName);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("ES:Error sending mission version event:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error sending mission version event:RC=0x%08X\n", __func__, (unsigned int)Status);
     }
 
     /*
@@ -276,7 +276,8 @@ void CFE_ES_GenerateVersionEvents(void)
             Status = CFE_ES_GenerateSingleVersionEvent("Core Module", ModuleNamePtr->Name);
             if (Status != CFE_SUCCESS)
             {
-                CFE_ES_WriteToSysLog("ES:Error sending core module version event:RC=0x%08X\n", (unsigned int)Status);
+                CFE_ES_WriteToSysLog("%s: Error sending core module version event:RC=0x%08X\n", __func__,
+                                     (unsigned int)Status);
             }
             ++ModuleNamePtr;
         }
@@ -293,7 +294,8 @@ void CFE_ES_GenerateVersionEvents(void)
             Status = CFE_ES_GenerateSingleVersionEvent("PSP Module", StaticModulePtr->Name);
             if (Status != CFE_SUCCESS)
             {
-                CFE_ES_WriteToSysLog("ES:Error sending PSP module version event:RC=0x%08X\n", (unsigned int)Status);
+                CFE_ES_WriteToSysLog("%s: Error sending PSP module version event:RC=0x%08X\n", __func__,
+                                     (unsigned int)Status);
             }
             ++StaticModulePtr;
         }
@@ -340,7 +342,7 @@ void CFE_ES_GenerateBuildInfoEvents(void)
                                BuildDate, BuildUser, BuildHost, GLOBAL_CONFIGDATA.Config);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("ES:Error sending build info event:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error sending build info event:RC=0x%08X\n", __func__, (unsigned int)Status);
     }
 }
 
@@ -383,7 +385,7 @@ int32 CFE_ES_TaskInit(void)
     Status = CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("ES:Call to CFE_EVS_Register Failed, RC = 0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed, RC = 0x%08X\n", __func__, (unsigned int)Status);
         return (Status);
     }
 
@@ -411,7 +413,7 @@ int32 CFE_ES_TaskInit(void)
     Status = CFE_SB_CreatePipe(&CFE_ES_Global.TaskData.CmdPipe, CFE_ES_PIPE_DEPTH, CFE_ES_PIPE_NAME);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("ES:Cannot Create SB Pipe, RC = 0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Cannot Create SB Pipe, RC = 0x%08X\n", __func__, (unsigned int)Status);
         return (Status);
     }
 
@@ -421,7 +423,7 @@ int32 CFE_ES_TaskInit(void)
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_ES_SEND_HK_MID), CFE_ES_Global.TaskData.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("ES:Cannot Subscribe to HK packet, RC = 0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Cannot Subscribe to HK packet, RC = 0x%08X\n", __func__, (unsigned int)Status);
         return (Status);
     }
 
@@ -431,7 +433,8 @@ int32 CFE_ES_TaskInit(void)
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_ES_CMD_MID), CFE_ES_Global.TaskData.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("ES:Cannot Subscribe to ES ground commands, RC = 0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Cannot Subscribe to ES ground commands, RC = 0x%08X\n", __func__,
+                             (unsigned int)Status);
         return (Status);
     }
 
@@ -478,7 +481,7 @@ int32 CFE_ES_TaskInit(void)
                                CFE_VERSION_STRING);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("ES:Error sending init event:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
         return (Status);
     }
 
@@ -489,7 +492,7 @@ int32 CFE_ES_TaskInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("ES:Error sending init stats event:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error sending init stats event:RC=0x%08X\n", __func__, (unsigned int)Status);
         return (Status);
     }
 
@@ -507,7 +510,7 @@ int32 CFE_ES_TaskInit(void)
     Status = CFE_ES_BackgroundInit();
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("ES:Error initializing background task:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error initializing background task:RC=0x%08X\n", __func__, (unsigned int)Status);
         return (Status);
     }
 

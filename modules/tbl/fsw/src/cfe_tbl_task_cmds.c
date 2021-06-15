@@ -110,7 +110,7 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 
                     if (Status != CFE_SUCCESS)
                     {
-                        CFE_ES_WriteToSysLog("CFE_TBL:HkCmd-Unable to update timestamp in dump file '%s'\n",
+                        CFE_ES_WriteToSysLog("%s: Unable to update timestamp in dump file '%s'\n", __func__,
                                              DumpCtrlPtr->DumpBufferPtr->DataSource);
                     }
 
@@ -118,7 +118,7 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
                 }
                 else
                 {
-                    CFE_ES_WriteToSysLog("CFE_TBL:HkCmd-Unable to open dump file '%s' to update timestamp\n",
+                    CFE_ES_WriteToSysLog("%s: Unable to open dump file '%s' to update timestamp\n", __func__,
                                          DumpCtrlPtr->DumpBufferPtr->DataSource);
                 }
             }

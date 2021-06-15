@@ -69,7 +69,7 @@ void CFE_SB_TaskMain(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SB:Application Init Failed,RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Application Init Failed,RC=0x%08X\n", __func__, (unsigned int)Status);
         CFE_ES_PerfLogExit(CFE_MISSION_SB_MAIN_PERF_ID);
         /* Note: CFE_ES_ExitApp will not return */
         CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
@@ -103,7 +103,7 @@ void CFE_SB_TaskMain(void)
         }
         else
         {
-            CFE_ES_WriteToSysLog("SB:Error reading cmd pipe,RC=0x%08X\n", (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: Error reading cmd pipe,RC=0x%08X\n", __func__, (unsigned int)Status);
         } /* end if */
 
     } /* end while */
@@ -198,11 +198,11 @@ int32 CFE_SB_AppInit(void)
     Status = CFE_EVS_Register(CFE_SB_Global.EventFilters, CfgFileEventsToFilter, CFE_EVS_EventFilter_BINARY);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SB:Call to CFE_EVS_Register Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
-    CFE_ES_WriteToSysLog("SB:Registered %d events for filtering\n", (int)CfgFileEventsToFilter);
+    CFE_ES_WriteToSysLog("%s: Registered %d events for filtering\n", __func__, (int)CfgFileEventsToFilter);
 
     CFE_MSG_Init(&CFE_SB_Global.HKTlmMsg.Hdr.Msg, CFE_SB_ValueToMsgId(CFE_SB_HK_TLM_MID),
                  sizeof(CFE_SB_Global.HKTlmMsg));
@@ -224,7 +224,7 @@ int32 CFE_SB_AppInit(void)
     Status = CFE_SB_CreatePipe(&CFE_SB_Global.CmdPipe, CFE_SB_CMD_PIPE_DEPTH, CFE_SB_CMD_PIPE_NAME);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SB:Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -232,7 +232,7 @@ int32 CFE_SB_AppInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SB:Subscribe to Cmds Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Subscribe to Cmds Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -240,7 +240,7 @@ int32 CFE_SB_AppInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SB:Subscribe to HK Request Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Subscribe to HK Request Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -248,7 +248,8 @@ int32 CFE_SB_AppInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SB:Subscribe to Subscription Report Request Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Subscribe to Subscription Report Request Failed:RC=0x%08X\n", __func__,
+                             (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -258,7 +259,7 @@ int32 CFE_SB_AppInit(void)
 
     if (Status < 0)
     {
-        CFE_ES_WriteToSysLog("SB:Init error, GetPool Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Init error, GetPool Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -268,7 +269,7 @@ int32 CFE_SB_AppInit(void)
 
     if (Status < 0)
     {
-        CFE_ES_WriteToSysLog("SB:Init error, PutPool Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Init error, PutPool Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -276,7 +277,7 @@ int32 CFE_SB_AppInit(void)
         CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", CFE_VERSION_STRING);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SB:Error sending init event:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 

@@ -315,7 +315,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
      * Note that writes to the ES ER log actually do not get propagated to the debug console.
      * so by writing to SysLog here it becomes visible in both places.
      */
-    CFE_ES_WriteToSysLog("ExceptionID 0x%lx in TaskID %lu: %s\n", (unsigned long)PspContextId,
+    CFE_ES_WriteToSysLog("%s: ExceptionID 0x%lx in TaskID %lu: %s\n", __func__, (unsigned long)PspContextId,
                          OS_ObjectIdToInteger(ExceptionTaskID), ReasonString);
 
     /*
@@ -370,14 +370,14 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
             if (CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount >=
                 CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount)
             {
-                CFE_ES_WriteToSysLog("Maximum Processor Reset count reached (%u)",
+                CFE_ES_WriteToSysLog("%s: Maximum Processor Reset count reached (%u)", __func__,
                                      (unsigned int)CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount);
 
                 ResetType = CFE_PSP_RST_TYPE_POWERON;
             }
             else
             {
-                CFE_ES_WriteToSysLog("Processor Reset count not reached (%u/%u)",
+                CFE_ES_WriteToSysLog("%s: Processor Reset count not reached (%u/%u)", __func__,
                                      (unsigned int)CFE_ES_Global.ResetDataPtr->ResetVars.ProcessorResetCount,
                                      (unsigned int)CFE_ES_Global.ResetDataPtr->ResetVars.MaxProcessorResetCount);
 

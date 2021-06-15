@@ -42,20 +42,20 @@
 
 static const char *EVS_SYSLOG_MSGS[] = {
     NULL,
-    "EVS call to CFE_PSP_GetResetArea failed, RC=0x%08x\n",
-    "Unexpected size from CFE_PSP_GetResetArea: expected = 0x%08lX, actual = 0x%08lX\n",
-    "EVS call to OS_MutSemCreate failed, RC=0x%08x\n",
-    "Event Log cleared following power-on reset\n",
-    "Event Log cleared, n=%d, c=%d, f=%d, m=%d, o=%d\n",
-    "Event Log restored, n=%d, c=%d, f=%d, m=%d, o=%d\n",
-    "EVS:Application Init Failed,RC=0x%08X\n",
-    "EVS:Error reading cmd pipe,RC=0x%08X\n",
+    "%s: Call to CFE_PSP_GetResetArea failed, RC=0x%08x\n",
+    "%s: Unexpected size from CFE_PSP_GetResetArea: expected = 0x%08lX, actual = 0x%08lX\n",
+    "%s: OS_MutSemCreate failed, RC=0x%08x\n",
+    "%s: Event Log cleared following power-on reset\n",
+    "%s: Event Log cleared, n=%d, c=%d, f=%d, m=%d, o=%d\n",
+    "%s: Event Log restored, n=%d, c=%d, f=%d, m=%d, o=%d\n",
+    "%s: Application Init Failed,RC=0x%08X\n",
+    "%s: Error reading cmd pipe,RC=0x%08X\n",
     NULL, /* old message removed - placeholder to maintain indices */
-    "EVS:Call to CFE_ES_GetAppID Failed:RC=0x%08X\n",
-    "EVS:Call to CFE_EVS_Register Failed:RC=0x%08X\n",
-    "EVS:Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n",
-    "EVS:Subscribing to Cmds Failed:RC=0x%08X\n",
-    "EVS:Subscribing to HK Request Failed:RC=0x%08X\n"};
+    "%s: Call to CFE_ES_GetAppID Failed:RC=0x%08X\n",
+    "%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n",
+    "%s: Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n",
+    "%s: Subscribing to Cmds Failed:RC=0x%08X\n",
+    "%s: Subscribing to HK Request Failed:RC=0x%08X\n"};
 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_EVS_CMD_NOOP_CC = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_CMD_MID),
                                                                     .CommandCode = CFE_EVS_NOOP_CC};
