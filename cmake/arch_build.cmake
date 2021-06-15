@@ -301,7 +301,7 @@ function(add_cfe_coverage_test MODULE_NAME UNIT_NAME TESTCASE_SRC UT_SRCS)
     # Compile the source unit(s) under test as a separate library
     # This is done so that special coverage-specific compile flags can be used on these files
     add_library(${OBJECT_TARGET} OBJECT
-        ${UT_SRCS}
+        ${UT_SRCS} ${ARGN}
     )
 
     # Apply the UT_COVERAGE_COMPILE_FLAGS to the units under test
