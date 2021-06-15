@@ -21,7 +21,7 @@
 ** File: es_task_test.c
 **
 ** Purpose:
-**   Functional test of basic ES Child Tasks APIs
+**   Functional test of ES Child Tasks APIs
 **
 **   Demonstration of how to register and use the UT assert functions.
 **
@@ -57,17 +57,52 @@ void TaskExitFunction(void)
 
 void TestCreateChild(void)
 {
-    UtPrintf("Testing: CFE_ES_CreateChildTask, CFE_ES_GetTaskIDByName, CFE_ES_GetTaskName, CFE_ES_DeleteChildTask");
+    UtPrintf("Testing: CFE_ES_CreateChildTask");
 
     CFE_ES_TaskId_t            TaskId;
-    const char *               TaskName = "CHILD_TASK_1";
+    CFE_ES_TaskId_t            TaskId2;
+    const char *               TaskName      = "CHILD_TASK_1";
+    CFE_ES_StackPointer_t      StackPointer  = CFE_ES_TASK_STACK_ALLOCATE;
+    size_t                     StackSize     = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
+    CFE_ES_TaskPriority_Atom_t Priority      = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
+    uint32                     Flags         = 0;
+    int                        ExpectedCount = 5;
+
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
+                      CFE_SUCCESS);
+    OS_TaskDelay(500);
+
+    UtAssert_True(ExpectedCount >= count - 1 && ExpectedCount <= count + 1, "countCopy (%d) == count (%d)",
+                  (int)ExpectedCount, (int)count);
+
+    UtAssert_INT32_EQ(
+        CFE_ES_CreateChildTask(&TaskId2, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
+        CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(TaskId), CFE_SUCCESS);
+
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(NULL, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
+                      CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, NULL, TaskFunction, StackPointer, StackSize, Priority, Flags),
+                      CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, NULL, StackPointer, StackSize, Priority, Flags),
+                      CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunction, StackPointer, 0, Priority, Flags),
+                      CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+}
+
+void TestChildTaskName(void)
+{
+    UtPrintf("Testing: CFE_ES_GetTaskIDByName, CFE_ES_GetTaskName");
+
+    CFE_ES_TaskId_t            TaskId;
+    const char *               TaskName            = "CHILD_TASK_1";
+    const char                 INVALID_TASK_NAME[] = "INVALID_NAME";
     CFE_ES_TaskId_t            TaskIdByName;
     char                       TaskNameBuf[OS_MAX_API_NAME + 4];
     CFE_ES_StackPointer_t      StackPointer = CFE_ES_TASK_STACK_ALLOCATE;
     size_t                     StackSize    = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
     CFE_ES_TaskPriority_Atom_t Priority     = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
     uint32                     Flags        = 0;
-    int                        countCopy;
 
     UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
                       CFE_SUCCESS);
@@ -78,16 +113,48 @@ void TestCreateChild(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskNameBuf)), CFE_SUCCESS);
     UtAssert_StrCmp(TaskNameBuf, TaskName, "CFE_ES_GetTaskName() = %s", TaskNameBuf);
 
+    UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(NULL, TaskName), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskIdByName, INVALID_TASK_NAME), CFE_ES_ERR_NAME_NOT_FOUND);
+    UtAssert_ResourceID_Undefined(TaskIdByName);
+
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(NULL, TaskId, sizeof(TaskNameBuf)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, CFE_ES_TASKID_UNDEFINED, sizeof(TaskNameBuf)),
+                      CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskName) - 4), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(TaskId), CFE_SUCCESS);
+}
+
+void TestChildTaskDelete(void)
+{
+    UtPrintf("Testing: CFE_ES_DeleteChildTask");
+
+    CFE_ES_TaskId_t            TaskId;
+    const char *               TaskName     = "CHILD_TASK_1";
+    CFE_ES_StackPointer_t      StackPointer = CFE_ES_TASK_STACK_ALLOCATE;
+    size_t                     StackSize    = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
+    CFE_ES_TaskPriority_Atom_t Priority     = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
+    uint32                     Flags        = 0;
+    count                                   = 0;
+    int ExpectedCount                       = 5;
+
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
+                      CFE_SUCCESS);
     OS_TaskDelay(500);
 
-    countCopy = count;
+    UtAssert_True(ExpectedCount >= count - 1 && ExpectedCount <= count + 1, "countCopy (%d) == count (%d)",
+                  (int)ExpectedCount, (int)count);
+
+    ExpectedCount = count;
 
     UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(TaskId), CFE_SUCCESS);
 
     OS_TaskDelay(500);
 
-    UtAssert_True(countCopy == count || countCopy == count + 1, "countCopy (%d) == count (%d)", (int)countCopy,
-                  (int)count);
+    UtAssert_True(ExpectedCount == count || ExpectedCount == count + 1, "ExpectedCount (%d) == count (%d)",
+                  (int)ExpectedCount, (int)count);
+
+    UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(CFE_ES_TASKID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 }
 
 void TestExitChild(void)
@@ -101,16 +168,19 @@ void TestExitChild(void)
     CFE_ES_TaskPriority_Atom_t Priority     = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
     uint32                     Flags        = 0;
     count                                   = 0;
+    int ExpectedCount                       = 1;
 
     UtAssert_INT32_EQ(
         CFE_ES_CreateChildTask(&TaskId, TaskName, TaskExitFunction, StackPointer, StackSize, Priority, Flags),
         CFE_SUCCESS);
     OS_TaskDelay(500);
-    UtAssert_INT32_EQ(count, 1);
+    UtAssert_INT32_EQ(ExpectedCount, 1);
 }
 
 void ESTaskTestSetup(void)
 {
     UtTest_Add(TestCreateChild, NULL, NULL, "Test Create Child");
+    UtTest_Add(TestChildTaskName, NULL, NULL, "Test Child Task Name");
+    UtTest_Add(TestChildTaskDelete, NULL, NULL, "Test Child Tasks Delete");
     UtTest_Add(TestExitChild, NULL, NULL, "Test Exit Child");
 }
