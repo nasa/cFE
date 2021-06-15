@@ -241,36 +241,48 @@ function(prepare)
   # If the user has provided a "Doxyfile" in their top level documentation directory,
   # then assume they have also set PROJECT_NAME and PROJECT_BRIEF in that.
   # Otherwise, generate reasonable strings for these values.
-  set(MISSION_DOXYFILE_USER_CONTENT)
+  set(DETAILDESIGN_DOXYFILE_USER_CONTENT)
   if (EXISTS "${MISSION_SOURCE_DIR}/docs/Doxyfile")
-    list(APPEND MISSION_DOXYFILE_USER_CONTENT "@INCLUDE = ${MISSION_SOURCE_DIR}/docs/Doxyfile\n")
+    list(APPEND DETAILDESIGN_DOXYFILE_USER_CONTENT "@INCLUDE = ${MISSION_SOURCE_DIR}/docs/Doxyfile\n")
   endif (EXISTS "${MISSION_SOURCE_DIR}/docs/Doxyfile")
 
+  # Add any detail design information from each app/module
   foreach(APP ${MISSION_DEPS})
-    # OSAL is handled specially, as only part of it is used
-    if (NOT APP STREQUAL "osal")
-      if (EXISTS "${${APP}_MISSION_DIR}/docs/${APP}.doxyfile.in")
-        # If the module provides its own doxyfile, then include it directly
-        # This allows for app-specific fine-tuning of the sources, based on its own source tree
-        configure_file("${${APP}_MISSION_DIR}/docs/${APP}.doxyfile.in"
-            "${CMAKE_BINARY_DIR}/docs/${APP}.doxyfile")
-        list(APPEND MISSION_DOXYFILE_USER_CONTENT "@INCLUDE = ${CMAKE_BINARY_DIR}/docs/${APP}.doxyfile\n")
-      else()
-        # Otherwise just add this entire directory to the "INPUT" list
-        list(APPEND MISSION_DOXYFILE_USER_CONTENT "INPUT += ${${APP}_MISSION_DIR}\n")
-      endif()
+
+    set(APP_DOC_DIR "${${APP}_MISSION_DIR}/docs")
+
+    # Now add the app-specific documentation to the detail design input set.
+    # This depends on whether the app has provided any guidance on this.
+    # The "doxyfile.in" should provide specific directives for what to include.  If
+    # not specified, then the entire app source tree will be used as a catch-all.
+    if (EXISTS "${APP_DOC_DIR}/${APP}-detaildesign.doxyfile.in")
+
+      # a "doxyfile.in" is a template that should be passed through configure_file()
+      # (which will expand any variable refs) then the result of this is included in the doxyfile
+      configure_file("${APP_DOC_DIR}/${APP}-detaildesign.doxyfile.in"
+        "${CMAKE_BINARY_DIR}/docs/${APP}-detaildesign.doxyfile")
+
+      list(APPEND DETAILDESIGN_DOXYFILE_USER_CONTENT "@INCLUDE = ${CMAKE_BINARY_DIR}/docs/${APP}-detaildesign.doxyfile\n")
+    else()
+
+      # Otherwise just add this entire directory to the "INPUT" list
+      list(APPEND DETAILDESIGN_DOXYFILE_USER_CONTENT "INPUT += ${${APP}_MISSION_DIR}\n")
     endif()
+
   endforeach()
 
-  # In all cases it is assumed to include the CFE documentation as well (could be configurable?)
-  file(WRITE "${CMAKE_BINARY_DIR}/docs/mission-content.doxyfile"
-      ${MISSION_DOXYFILE_USER_CONTENT})
+  set(TGTSYSTEM_DOXYFILE_USER_CONTENT)
+  foreach(SYSVAR ${TGTSYS_LIST})
+    list(APPEND TGTSYSTEM_DOXYFILE_USER_CONTENT "@INCLUDE = ${CMAKE_BINARY_DIR}/docs/tgtsystem-content-${SYSVAR}.doxyfile\n")
+  endforeach()
+
+  # Create single/unified strings from the lists
+  string(CONCAT DETAILDESIGN_DOXYFILE_USER_CONTENT ${DETAILDESIGN_DOXYFILE_USER_CONTENT})
+  string(CONCAT TGTSYSTEM_DOXYFILE_USER_CONTENT ${TGTSYSTEM_DOXYFILE_USER_CONTENT})
 
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/docs/cfe-common.doxyfile")
-
-  configure_file("${CFE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/docs/mission-detaildesign.doxyfile")
+    "${CMAKE_BINARY_DIR}/docs/cfe-common.doxyfile"
+    @ONLY)
 
   # Generate an "empty" osconfig.h file for doxygen purposes
   # this does not have the actual user-defined values, but will
@@ -295,16 +307,21 @@ function(prepare)
 
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}")
 
+  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/docs/detaildesign")
+  configure_file("${CFE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"
+    "${CMAKE_BINARY_DIR}/docs/detaildesign/Doxyfile"
+    @ONLY)
+  add_custom_target(mission-doc doxygen
+    COMMAND echo "Detail Design: file://${CMAKE_BINARY_DIR}/docs/detaildesign/html/index.html"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs/detaildesign")
+
+  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/docs/users_guide")
   configure_file("${CFE_SOURCE_DIR}/cmake/cfe-usersguide.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/docs/cfe-usersguide.doxyfile")
-
-  add_custom_target(mission-doc
-    doxygen mission-detaildesign.doxyfile
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs")
-
-  add_custom_target(cfe-usersguide
-    doxygen cfe-usersguide.doxyfile
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs")
+    "${CMAKE_BINARY_DIR}/docs/users_guide/Doxyfile"
+    @ONLY)
+  add_custom_target(cfe-usersguide doxygen
+    COMMAND echo "Users Guide: file://${CMAKE_BINARY_DIR}/docs/users_guide/html/index.html"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/docs/users_guide")
 
   # OSAL API GUIDE include PUBLIC API
   set(OSAL_API_INCLUDE_DIRECTORIES
