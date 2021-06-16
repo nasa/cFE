@@ -67,7 +67,7 @@ int32 CFE_SB_EarlyInit(void)
     Stat = OS_MutSemCreate(&CFE_SB_Global.SharedDataMutexId, "CFE_SB_DataMutex", 0);
     if (Stat != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("SB shared data mutex creation failed! RC=0x%08x\n", (unsigned int)Stat);
+        CFE_ES_WriteToSysLog("%s: Shared data mutex creation failed! RC=0x%08x\n", __func__, (unsigned int)Stat);
         return Stat;
     } /* end if */
 
@@ -114,7 +114,7 @@ int32 CFE_SB_InitBuffers(void)
 
     if (Stat != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("PoolCreate failed for SB Buffers, gave adr 0x%lx,size %d,stat=0x%x\n",
+        CFE_ES_WriteToSysLog("%s: PoolCreate failed for SB Buffers, gave adr 0x%lx,size %d,stat=0x%x\n", __func__,
                              (unsigned long)CFE_SB_Global.Mem.Partition.Data, CFE_PLATFORM_SB_BUF_MEMORY_BYTES,
                              (unsigned int)Stat);
         return Stat;

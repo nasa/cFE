@@ -10,6 +10,7 @@
 #
 #  MISSION_CPUNAMES : list of user-friendly cpu names.  Should be simple
 #       words with no punctuation.  This MUST be specified.
+#  <cpuname>_PROCESSORID : numerical identifier for the processor
 #  <cpuname>_APPLIST : list of applications to build and install on the CPU.
 #       These are built as dynamically-loaded applications and installed
 #       as files in the non-volatile storage of the target, and loaded

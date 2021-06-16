@@ -173,7 +173,7 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 {
     if (Hdr == NULL || Description == NULL)
     {
-        CFE_ES_WriteToSysLog("CFE_FS:InitHeader-Failed invalid arguments\n");
+        CFE_ES_WriteToSysLog("%s: Failed invalid arguments\n", __func__);
     }
     else
     {
@@ -293,30 +293,22 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
             CFE_FS_ByteSwapUint32(&OutTimestamp.Subseconds);
         }
 
-        Result = OS_write(FileDes, &OutTimestamp.Seconds, sizeof(OutTimestamp.Seconds));
+        Result = OS_write(FileDes, &OutTimestamp, sizeof(OutTimestamp));
 
         /* On a good write, the value returned will equal the number of bytes written */
-        if (Result == sizeof(OutTimestamp.Seconds))
+        if (Result == sizeof(OutTimestamp))
         {
-            Result = OS_write(FileDes, &OutTimestamp.Subseconds, sizeof(OutTimestamp.Subseconds));
-
-            if (Result == sizeof(OutTimestamp.Subseconds))
-            {
-                Result = OS_SUCCESS;
-            }
-            else
-            {
-                CFE_ES_WriteToSysLog("CFE_FS:SetTime-Failed to write Seconds (Status=0x%08X)\n", (unsigned int)Result);
-            }
+            Result = CFE_SUCCESS;
         }
         else
         {
-            CFE_ES_WriteToSysLog("CFE_FS:SetTime-Failed to write Seconds (Status=0x%08X)\n", (unsigned int)Result);
+            CFE_ES_WriteToSysLog("%s: Failed to write timestamp (Status=0x%08X)\n", __func__, (unsigned int)Result);
+            Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_FS:SetTime-Failed to lseek time fields (Status=0x%08X)\n", (unsigned int)Result);
+        CFE_ES_WriteToSysLog("%s: Failed to lseek time fields (Status=0x%08X)\n", __func__, (unsigned int)Result);
     }
 
     return (Result);

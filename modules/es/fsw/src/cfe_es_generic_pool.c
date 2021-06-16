@@ -277,7 +277,7 @@ int32 CFE_ES_GenPoolInitialize(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t StartO
      */
     if ((AlignMask & AlignSize) != 0)
     {
-        CFE_ES_WriteToSysLog("%s(): invalid alignment for pool: %lu\n", __func__, (unsigned long)AlignSize);
+        CFE_ES_WriteToSysLog("%s: invalid alignment for pool: %lu\n", __func__, (unsigned long)AlignSize);
         return CFE_ES_BAD_ARGUMENT;
     }
 
@@ -380,7 +380,7 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
     BucketId = CFE_ES_GenPoolFindBucket(PoolRecPtr, ReqSize);
     if (BucketId == 0)
     {
-        CFE_ES_WriteToSysLog("CFE_ES:getPoolBlock err:size(%lu) > max(%lu).\n", (unsigned long)ReqSize,
+        CFE_ES_WriteToSysLog("%s: Err:size(%lu) > max(%lu)\n", __func__, (unsigned long)ReqSize,
                              (unsigned long)PoolRecPtr->Buckets[PoolRecPtr->NumBuckets - 1].BlockSize);
         return (CFE_ES_ERR_MEM_BLOCK_SIZE);
     }

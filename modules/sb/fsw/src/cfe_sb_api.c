@@ -2041,7 +2041,7 @@ CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
 
     if (MsgSize > CFE_MISSION_SB_MAX_SB_MSG_SIZE)
     {
-        CFE_ES_WriteToSysLog(" CFE_SB:ZeroCopyGetPtr-Failed, MsgSize is too large\n");
+        CFE_ES_WriteToSysLog("%s: ZeroCopyGetPtr-Failed, MsgSize is too large\n", __func__);
         return NULL;
     }
 

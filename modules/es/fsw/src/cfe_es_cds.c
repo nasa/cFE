@@ -65,7 +65,7 @@ int32 CFE_ES_CDS_EarlyInit(void)
     Status = OS_MutSemCreate(&CDS->GenMutex, CFE_ES_CDS_MUT_REG_NAME, CFE_ES_CDS_MUT_REG_VALUE);
     if (Status != OS_SUCCESS)
     {
-        CFE_ES_SysLogWrite_Unsync("CFE_ES_CDS_EarlyInit: Failed to create mutex with error %d\n", (int)Status);
+        CFE_ES_SysLogWrite_Unsync("%s: Failed to create mutex with error %d\n", __func__, (int)Status);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
@@ -77,8 +77,7 @@ int32 CFE_ES_CDS_EarlyInit(void)
     if (Status != CFE_PSP_SUCCESS)
     {
         /* Error getting the size of the CDS from the BSP */
-        CFE_ES_WriteToSysLog("CFE_CDS:EarlyInit-Unable to obtain CDS Size from BSP (Err=0x%08X)\n",
-                             (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Unable to obtain CDS Size from BSP (Err=0x%08X)\n", __func__, (unsigned int)Status);
         return Status;
     }
 
@@ -91,8 +90,8 @@ int32 CFE_ES_CDS_EarlyInit(void)
 
     if (CDS->TotalSize < MinRequiredSize)
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:EarlyInit-CDS Size (%lu) less than required (%lu)\n",
-                             (unsigned long)CDS->TotalSize, (unsigned long)MinRequiredSize);
+        CFE_ES_WriteToSysLog("%s: CDS Size (%lu) less than required (%lu)\n", __func__, (unsigned long)CDS->TotalSize,
+                             (unsigned long)MinRequiredSize);
         Status = CFE_SUCCESS;
     }
     else
@@ -135,8 +134,7 @@ int32 CFE_ES_CDS_EarlyInit(void)
         if (Status != CFE_SUCCESS)
         {
             /* Unrecoverable error while reading the CDS */
-            CFE_ES_WriteToSysLog("CFE_CDS:EarlyInit-error validating/initializing CDS (0x%08lX)\n",
-                                 (unsigned long)Status);
+            CFE_ES_WriteToSysLog("%s: Error validating/initializing CDS (0x%08lX)\n", __func__, (unsigned long)Status);
         }
         else
         {
@@ -441,7 +439,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
     /* Log any failures AFTER releasing the lock */
     if (RegUpdateStatus != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:RegCDS-Failed to update CDS Registry (Stat=0x%08X)\n",
+        CFE_ES_WriteToSysLog("%s: Failed to update CDS Registry (Stat=0x%08X)\n", __func__,
                              (unsigned int)RegUpdateStatus);
 
         /*
@@ -492,7 +490,7 @@ int32 CFE_ES_ValidateCDS(void)
     Status = CFE_ES_CDS_CacheFetch(&CDS->Cache, CDS_SIG_BEGIN_OFFSET, SIG_CDS_SIZE);
     if (Status != CFE_PSP_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:Validate-1st ReadFromCDS Failed. Status=0x%X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: 1st ReadFromCDS Failed. Status=0x%X\n", __func__, (unsigned int)Status);
         return Status;
     }
 
@@ -509,7 +507,7 @@ int32 CFE_ES_ValidateCDS(void)
     if (Status != CFE_PSP_SUCCESS)
     {
         /* BSP reported an error reading from CDS */
-        CFE_ES_WriteToSysLog("CFE_CDS:Validate-2nd ReadFromCDS Failed. Status=0x%X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: 2nd ReadFromCDS Failed. Status=0x%X\n", __func__, (unsigned int)Status);
         return Status;
     }
 
@@ -563,7 +561,7 @@ int32 CFE_ES_ClearCDS(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:Init-Clear CDS failed @ Offset=%lu Status=0x%08X\n",
+        CFE_ES_WriteToSysLog("%s: Clear CDS failed @ Offset=%lu Status=0x%08X\n", __func__,
                              (unsigned long)CDS->Cache.Offset, (unsigned int)CDS->Cache.AccessStatus);
     }
 
@@ -591,7 +589,7 @@ int32 CFE_ES_InitCDSSignatures(void)
     if (Status != CFE_SUCCESS)
     {
         /* BSP reported an error writing to CDS */
-        CFE_ES_WriteToSysLog("CFE_CDS:Init-'_CDSBeg_' write failed. Status=0x%08X\n",
+        CFE_ES_WriteToSysLog("%s: '_CDSBeg_' write failed. Status=0x%08X\n", __func__,
                              (unsigned int)CDS->Cache.AccessStatus);
         return Status;
     }
@@ -603,7 +601,7 @@ int32 CFE_ES_InitCDSSignatures(void)
     Status = CFE_ES_CDS_CacheFlush(&CDS->Cache);
     if (Status != CFE_PSP_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:Init-'_CDSEnd_' write failed. Status=0x%08X\n",
+        CFE_ES_WriteToSysLog("%s: '_CDSEnd_' write failed. Status=0x%08X\n", __func__,
                              (unsigned int)CDS->Cache.AccessStatus);
         return Status;
     }
@@ -638,7 +636,7 @@ int32 CFE_ES_InitCDSRegistry(void)
     }
     else
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:InitReg-Failed to write Reg Size. Status=0x%08X\n",
+        CFE_ES_WriteToSysLog("%s: Failed to write Reg Size. Status=0x%08X\n", __func__,
                              (unsigned int)CDS->Cache.AccessStatus);
     }
 
@@ -663,7 +661,7 @@ int32 CFE_ES_UpdateCDSRegistry(void)
 
     if (Status != CFE_PSP_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:UpdateReg-Failed to write CDS Registry. Status=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Failed to write CDS Registry. Status=0x%08X\n", __func__, (unsigned int)Status);
         Status = CFE_ES_CDS_ACCESS_ERROR;
     }
 
@@ -809,7 +807,7 @@ int32 CFE_ES_RebuildCDS(void)
     Status = CFE_ES_CDS_CacheFetch(&CDS->Cache, CDS_REG_SIZE_OFFSET, sizeof(CDS->Cache.Data.RegistrySize));
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("CFE_CDS:Rebuild-PSP Error reading Registry size (%lx)\n",
+        CFE_ES_WriteToSysLog("%s: PSP Error reading Registry size (%lx)\n", __func__,
                              (unsigned long)CDS->Cache.AccessStatus);
         return CFE_ES_CDS_INVALID;
     }
@@ -817,7 +815,7 @@ int32 CFE_ES_RebuildCDS(void)
     if (CDS->Cache.Data.RegistrySize != CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES)
     {
         /* Registry in CDS is incompatible size to recover */
-        CFE_ES_WriteToSysLog("CFE_CDS:Rebuild-Registry in CDS incorrect size (%lu)\n",
+        CFE_ES_WriteToSysLog("%s: Registry in CDS incorrect size (%lu)\n", __func__,
                              (unsigned long)CDS->Cache.Data.RegistrySize);
         return CFE_ES_CDS_INVALID;
     }
@@ -832,7 +830,7 @@ int32 CFE_ES_RebuildCDS(void)
     else
     {
         /* Registry in CDS is unreadable */
-        CFE_ES_WriteToSysLog("CFE_CDS:Rebuild-Registry in CDS is unreadable, PSP error %lx\n", (unsigned long)Status);
+        CFE_ES_WriteToSysLog("%s: Registry in CDS is unreadable, PSP error %lx\n", __func__, (unsigned long)Status);
         Status = CFE_ES_CDS_INVALID;
     }
 
@@ -937,7 +935,7 @@ int32 CFE_ES_DeleteCDS(const char *CDSName, bool CalledByTblServices)
     /* Output the message to syslog once the CDS registry resource is unlocked */
     if (LogMessage[0] != 0)
     {
-        CFE_ES_WriteToSysLog("%s(): %s", __func__, LogMessage);
+        CFE_ES_WriteToSysLog("%s: %s", __func__, LogMessage);
     }
 
     return Status;

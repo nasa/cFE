@@ -183,7 +183,8 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
                       "App %s not registered with Event Services. Unable to send event.", AppName);
 
         /* Write the "not registered" info to the system log */
-        CFE_ES_WriteToSysLog("App %s not registered with Event Services. Unable to send event.\n", AppName);
+        CFE_ES_WriteToSysLog("%s: App %s not registered with Event Services. Unable to send event.\n", __func__,
+                             AppName);
     }
 
     return (CFE_EVS_APP_NOT_REGISTERED);

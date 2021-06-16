@@ -78,7 +78,7 @@ void CFE_TIME_TaskMain(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Application Init Failed,RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Application Init Failed,RC=0x%08X\n", __func__, (unsigned int)Status);
         CFE_ES_PerfLogExit(CFE_MISSION_TIME_MAIN_PERF_ID);
         /* Note: CFE_ES_ExitApp will not return */
         CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
@@ -113,7 +113,7 @@ void CFE_TIME_TaskMain(void)
         }
         else
         {
-            CFE_ES_WriteToSysLog("TIME:Error reading cmd pipe,RC=0x%08X\n", (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: Error reading cmd pipe,RC=0x%08X\n", __func__, (unsigned int)Status);
         } /* end if */
 
     } /* end while */
@@ -139,7 +139,7 @@ int32 CFE_TIME_TaskInit(void)
     Status = CFE_EVS_Register(NULL, 0, 0);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Call to CFE_EVS_Register Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -147,7 +147,7 @@ int32 CFE_TIME_TaskInit(void)
                              CFE_TIME_SEM_OPTIONS);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error creating tone semaphore:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error creating tone semaphore:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -155,7 +155,7 @@ int32 CFE_TIME_TaskInit(void)
                              CFE_TIME_SEM_OPTIONS);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error creating local semaphore:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error creating local semaphore:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -164,7 +164,7 @@ int32 CFE_TIME_TaskInit(void)
                                     CFE_PLATFORM_TIME_TONE_TASK_PRIORITY, CFE_TIME_TASK_FLAGS);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error creating tone 1Hz child task:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error creating tone 1Hz child task:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -173,21 +173,21 @@ int32 CFE_TIME_TaskInit(void)
                                     CFE_PLATFORM_TIME_1HZ_TASK_PRIORITY, CFE_TIME_TASK_FLAGS);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error creating local 1Hz child task:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error creating local 1Hz child task:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
     Status = CFE_SB_CreatePipe(&CFE_TIME_Global.CmdPipe, CFE_TIME_TASK_PIPE_DEPTH, CFE_TIME_TASK_PIPE_NAME);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error creating cmd pipe:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error creating cmd pipe:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_SEND_HK_MID), CFE_TIME_Global.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error subscribing to HK Request:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to HK Request:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -203,7 +203,7 @@ int32 CFE_TIME_TaskInit(void)
 #endif
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error subscribing to tone cmd:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to tone cmd:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -219,7 +219,7 @@ int32 CFE_TIME_TaskInit(void)
 #endif
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error subscribing to time data cmd:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to time data cmd:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -236,7 +236,8 @@ int32 CFE_TIME_TaskInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error subscribing to fake tone signal cmds:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to fake tone signal cmds:RC=0x%08X\n", __func__,
+                             (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -247,7 +248,7 @@ int32 CFE_TIME_TaskInit(void)
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID), CFE_TIME_Global.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error subscribing to time at the tone request data cmds:RC=0x%08X\n",
+        CFE_ES_WriteToSysLog("%s: Error subscribing to time at the tone request data cmds:RC=0x%08X\n", __func__,
                              (unsigned int)Status);
         return Status;
     } /* end if */
@@ -259,14 +260,15 @@ int32 CFE_TIME_TaskInit(void)
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_TIME_CMD_MID), CFE_TIME_Global.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error subscribing to time task gnd cmds:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error subscribing to time task gnd cmds:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
-    Status = CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized");
+    Status = CFE_EVS_SendEvent(CFE_TIME_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE TIME Initialized: %s",
+                               CFE_VERSION_STRING);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("TIME:Error sending init event:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     } /* end if */
 
@@ -296,12 +298,12 @@ int32 CFE_TIME_TaskInit(void)
             Status = OS_TimerSet(TimerId, 500000, 1000000);
             if (Status != OS_SUCCESS)
             {
-                CFE_ES_WriteToSysLog("TIME:1Hz OS_TimerSet failed:RC=0x%08X\n", (unsigned int)Status);
+                CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerSet failed:RC=0x%08X\n", __func__, (unsigned int)Status);
             }
         }
         else
         {
-            CFE_ES_WriteToSysLog("TIME:1Hz OS_TimerAdd failed:RC=0x%08X\n", (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerAdd failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         }
     }
 
@@ -703,7 +705,7 @@ int32 CFE_TIME_NoopCmd(const CFE_TIME_NoopCmd_t *data)
 
     CFE_TIME_Global.CommandCounter++;
 
-    CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op command.%s", CFE_VERSION_STRING);
+    CFE_EVS_SendEvent(CFE_TIME_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
 
     return CFE_SUCCESS;
 }

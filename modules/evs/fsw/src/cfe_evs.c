@@ -82,7 +82,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
             else
             {
                 FilterLimit = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
-                CFE_ES_WriteToSysLog("CFE_EVS_Register: Filter limit truncated to %d\n", (int)FilterLimit);
+                CFE_ES_WriteToSysLog("%s: Filter limit truncated to %d\n", __func__, (int)FilterLimit);
             }
 
             if (Filters != NULL)

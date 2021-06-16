@@ -1,0 +1,97 @@
+name: "Code Coverage Analysis"
+
+on:
+  push:
+  pull_request:
+
+env:
+  SIMULATION: native
+  ENABLE_UNIT_TESTS: true
+  OMIT_DEPRECATED: true
+  BUILDTYPE: debug
+
+jobs:
+
+  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  check-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+
+  Local-Test-Build:
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: check-for-duplicates
+    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-18.04
+    timeout-minutes: 15
+
+    steps:
+      - name: Install coverage tools
+        run: sudo apt-get install lcov -y
+
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout bundle
+        uses: actions/checkout@v2
+        with:
+          repository: nasa/cFS
+          submodules: true
+
+      - name: Checkout submodule
+        uses: actions/checkout@v2
+        with:
+          path: cfe
+
+      - name: Check versions
+        run: git submodule
+
+      # Setup the build system
+      - name: Set up for build
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+          make prep
+
+      # Build the code
+      - name: Build
+        run: |
+          make -C build/native/default_cpu1/core_api
+          make -C build/native/default_cpu1/core_private
+          make -C build/native/default_cpu1/es
+          make -C build/native/default_cpu1/evs
+          make -C build/native/default_cpu1/fs
+          make -C build/native/default_cpu1/msg
+          make -C build/native/default_cpu1/resourceid
+          make -C build/native/default_cpu1/sb
+          make -C build/native/default_cpu1/sbr
+          make -C build/native/default_cpu1/tbl
+          make -C build/native/default_cpu1/time
+  
+      # Initialize lcov and test the code 
+      - name: Test
+        run: |
+          lcov --capture --initial --directory build --output-file coverage_base.info
+          make -C build/native/default_cpu1/core_api test
+          make -C build/native/default_cpu1/core_private test
+          make -C build/native/default_cpu1/es test
+          make -C build/native/default_cpu1/evs test
+          make -C build/native/default_cpu1/fs test
+          make -C build/native/default_cpu1/msg test
+          make -C build/native/default_cpu1/resourceid test
+          make -C build/native/default_cpu1/sb test
+          make -C build/native/default_cpu1/sbr test
+          make -C build/native/default_cpu1/tbl test
+          make -C build/native/default_cpu1/time test
+
+      - name: Calculate Coverage
+        run: |
+          lcov --capture --rc lcov_branch_coverage=1 --directory build --output-file coverage_test.info
+          lcov --rc lcov_branch_coverage=1 --add-tracefile coverage_base.info --add-tracefile coverage_test.info --output-file coverage_total.info
+          genhtml coverage_total.info --branch-coverage --output-directory lcov

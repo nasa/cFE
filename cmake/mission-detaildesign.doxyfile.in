@@ -3,31 +3,17 @@
 #---------------------------------------------------------------------------
 
 # Start with the common definitions, some of which are extended or overridden here.
-@INCLUDE               = @MISSION_BINARY_DIR@/doc/cfe-common.doxyfile
+@INCLUDE               = @MISSION_BINARY_DIR@/docs/cfe-common.doxyfile
 PROJECT_NAME           = "@MISSION_NAME@"
 PROJECT_BRIEF          = "Core Flight System project built using \"@MISSIONCONFIG@\" configuration"
-OUTPUT_DIRECTORY       = detaildesign
+OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/docs/detaildesign
+WARN_LOGFILE           = @CMAKE_BINARY_DIR@/docs/detaildesign-warnings.log
 
-INPUT                 += @MISSION_DEFS@  \
-                         @MISSION_SOURCE_DIR@/osal/src/os/inc \
-                         @MISSION_SOURCE_DIR@/osal/src/os/shared \
-                         @MISSION_SOURCE_DIR@/psp/fsw/inc \
-                         @MISSION_SOURCE_DIR@/psp/fsw/shared \
-                         @MISSION_SOURCE_DIR@/cfe/modules/core_api/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/core_private/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/es/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/evs/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/fs/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/msg/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/resourceid/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/sb/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/sbr/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/tbl/fsw \
-                         @MISSION_SOURCE_DIR@/cfe/modules/time/fsw
-
+INPUT                 += @MISSION_DEFS@
 STRIP_FROM_PATH       += @MISSION_DEFS@
 
 #---------------------------------------------------------------------------
 # The user content doxyfile contains paths to the mission-specific applications
 #---------------------------------------------------------------------------
-@INCLUDE               = @CMAKE_BINARY_DIR@/doc/mission-content.doxyfile
+@DETAILDESIGN_DOXYFILE_USER_CONTENT@
+@TGTSYSTEM_DOXYFILE_USER_CONTENT@

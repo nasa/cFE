@@ -59,7 +59,7 @@ int32 CFE_Assert_LibInit(CFE_ES_LibId_t LibId)
     status = OS_MutSemCreate(&CFE_Assert_Global.AccessMutex, "CFE_Assert", 0);
     if (status != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s(): OS_MutSemCreate failed, rc=%d\n", __func__, (int)status);
+        CFE_ES_WriteToSysLog("%s: OS_MutSemCreate failed, rc=%d\n", __func__, (int)status);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 

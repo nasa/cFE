@@ -217,7 +217,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
     /* If too many sizes are specified, return an error */
     if (NumBlockSizes > CFE_PLATFORM_ES_POOL_MAX_BUCKETS)
     {
-        CFE_ES_WriteToSysLog("CFE_ES:poolCreate Num Block Sizes (%d) greater than max (%d)\n", (int)NumBlockSizes,
+        CFE_ES_WriteToSysLog("%s: Num Block Sizes (%d) greater than max (%d)\n", __func__, (int)NumBlockSizes,
                              CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
         return (CFE_ES_BAD_ARGUMENT);
     }
@@ -240,7 +240,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
     MinimumSize = CFE_ES_GenPoolCalcMinSize(NumBlockSizes, BlockSizes, 1);
     if (Size < MinimumSize)
     {
-        CFE_ES_WriteToSysLog("CFE_ES:poolCreate Pool size(%lu) too small, need >=%lu bytes\n", (unsigned long)Size,
+        CFE_ES_WriteToSysLog("%s: Pool size(%lu) too small, need >=%lu bytes\n", __func__, (unsigned long)Size,
                              (unsigned long)MinimumSize);
         return CFE_ES_BAD_ARGUMENT;
     }
@@ -254,7 +254,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
 
     if (PoolRecPtr == NULL)
     {
-        CFE_ES_SysLogWrite_Unsync("ES Startup: No free MemPoolrary slots available\n");
+        CFE_ES_SysLogWrite_Unsync("%s: No free MemPoolrary slots available\n", __func__);
         Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
     }
     else
@@ -315,7 +315,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
         if (Status != OS_SUCCESS)
         {
             /* log error and rewrite to CFE status code */
-            CFE_ES_WriteToSysLog("CFE_ES:poolCreate OSAL error %d while creating mutex\n", (int)Status);
+            CFE_ES_WriteToSysLog("%s: OSAL error %d while creating mutex\n", __func__, (int)Status);
 
             Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
@@ -352,7 +352,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
 
         if (Status == CFE_ES_POOL_BOUNDS_ERROR)
         {
-            CFE_ES_WriteToSysLog("CFE_ES:poolCreate Pool size(%lu) too small\n", (unsigned long)Size);
+            CFE_ES_WriteToSysLog("%s: Pool size(%lu) too small\n", __func__, (unsigned long)Size);
         }
     }
 
@@ -412,7 +412,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
              * The MemPool entry has already been deleted, so this
              * function should not return an error at this point.
              */
-            CFE_ES_WriteToSysLog("CFE_ES:poolDelete error %d deleting mutex\n", (int)MutDeleteStatus);
+            CFE_ES_WriteToSysLog("%s: Error %d deleting mutex\n", __func__, (int)MutDeleteStatus);
         }
     }
 
@@ -445,7 +445,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
         CFE_ES_GetAppID(&AppId);
-        CFE_ES_WriteToSysLog("CFE_ES:getPoolBuf err:Bad handle(0x%08lX) AppId=%lu\n", CFE_RESOURCEID_TO_ULONG(Handle),
+        CFE_ES_WriteToSysLog("%s: Err:Bad handle(0x%08lX) AppId=%lu\n", __func__, CFE_RESOURCEID_TO_ULONG(Handle),
                              CFE_RESOURCEID_TO_ULONG(AppId));
         return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
@@ -575,8 +575,7 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
     /* basic sanity check */
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
-        CFE_ES_WriteToSysLog("CFE_ES:putPoolBuf err:Invalid Memory Handle (0x%08lX).\n",
-                             CFE_RESOURCEID_TO_ULONG(Handle));
+        CFE_ES_WriteToSysLog("%s: Err:Invalid Memory Handle (0x%08lX).\n", __func__, CFE_RESOURCEID_TO_ULONG(Handle));
 
         return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
@@ -621,13 +620,12 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
     }
     else if (Status == CFE_ES_POOL_BLOCK_INVALID)
     {
-        CFE_ES_WriteToSysLog("CFE_ES:putPoolBuf err:Deallocating invalid or corrupt memory block @ 0x%08lX\n",
+        CFE_ES_WriteToSysLog("%s: Err:Deallocating invalid or corrupt memory block @ 0x%08lX\n", __func__,
                              (unsigned long)BufPtr);
     }
     else if (Status == CFE_ES_BUFFER_NOT_IN_POOL)
     {
-        CFE_ES_WriteToSysLog("CFE_ES_GenPoolPutBlock err:Bad offset(%lu) outside pool boundary\n",
-                             (unsigned long)DataOffset);
+        CFE_ES_WriteToSysLog("%s: Err:Bad offset(%lu) outside pool boundary\n", __func__, (unsigned long)DataOffset);
     }
 
     return Status;
@@ -659,8 +657,8 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
         CFE_ES_GetAppID(&AppId);
-        CFE_ES_WriteToSysLog("CFE_ES:getMemPoolStats err:Bad handle(0x%08lX) AppId=%lu\n",
-                             CFE_RESOURCEID_TO_ULONG(Handle), CFE_RESOURCEID_TO_ULONG(AppId));
+        CFE_ES_WriteToSysLog("%s: Err:Bad handle(0x%08lX) AppId=%lu\n", __func__, CFE_RESOURCEID_TO_ULONG(Handle),
+                             CFE_RESOURCEID_TO_ULONG(AppId));
         return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
     }
 

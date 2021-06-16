@@ -284,6 +284,14 @@ uint16 CFE_TIME_GetClockInfo(void)
         StateFlags |= CFE_TIME_FLAG_GDTONE;
     }
 
+    /*
+    ** Check if CFE_TIME_GetReference ever failed to get a good value
+    */
+    if (CFE_TIME_Global.GetReferenceFail)
+    {
+        StateFlags |= CFE_TIME_FLAG_REFERR;
+    }
+
     return (StateFlags);
 }
 
@@ -606,7 +614,7 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
 
     if (PrintBuffer == NULL)
     {
-        CFE_ES_WriteToSysLog("CFE_TIME:Print-Failed invalid arguments\n");
+        CFE_ES_WriteToSysLog("%s: Failed invalid arguments\n", __func__);
         return;
     }
 

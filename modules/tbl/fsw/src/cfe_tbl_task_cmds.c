@@ -108,9 +108,9 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
                 {
                     Status = CFE_FS_SetTimestamp(FileDescriptor, DumpTime);
 
-                    if (Status != OS_SUCCESS)
+                    if (Status != CFE_SUCCESS)
                     {
-                        CFE_ES_WriteToSysLog("CFE_TBL:HkCmd-Unable to update timestamp in dump file '%s'\n",
+                        CFE_ES_WriteToSysLog("%s: Unable to update timestamp in dump file '%s'\n", __func__,
                                              DumpCtrlPtr->DumpBufferPtr->DataSource);
                     }
 
@@ -118,7 +118,7 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
                 }
                 else
                 {
-                    CFE_ES_WriteToSysLog("CFE_TBL:HkCmd-Unable to open dump file '%s' to update timestamp\n",
+                    CFE_ES_WriteToSysLog("%s: Unable to open dump file '%s' to update timestamp\n", __func__,
                                          DumpCtrlPtr->DumpBufferPtr->DataSource);
                 }
             }
@@ -320,7 +320,7 @@ void CFE_TBL_GetTblRegData(void)
 int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
 {
     /* Acknowledge receipt of NOOP with Event Message */
-    CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op command. %s", CFE_VERSION_STRING);
+    CFE_EVS_SendEvent(CFE_TBL_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
 
     return CFE_TBL_INC_CMD_CTR;
 }

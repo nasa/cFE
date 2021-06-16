@@ -86,7 +86,7 @@ int32 CFE_EVS_EarlyInit(void)
     if (Status != CFE_PSP_SUCCESS)
     {
         /* Can't log evs messages without the reset area */
-        CFE_ES_WriteToSysLog("EVS call to CFE_PSP_GetResetArea failed, RC=0x%08x\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_PSP_GetResetArea failed, RC=0x%08x\n", __func__, (unsigned int)Status);
 
         /* Delay to allow message to be read */
         OS_TaskDelay(CFE_EVS_PANIC_DELAY);
@@ -97,8 +97,8 @@ int32 CFE_EVS_EarlyInit(void)
     {
         /* Got the pointer but the size is wrong */
         Status = CFE_EVS_RESET_AREA_POINTER;
-        CFE_ES_WriteToSysLog("Unexpected size from CFE_PSP_GetResetArea: expected = 0x%08lX, actual = 0x%08lX\n",
-                             (unsigned long)sizeof(CFE_ES_ResetData_t), (unsigned long)resetAreaSize);
+        CFE_ES_WriteToSysLog("%s: Unexpected size from CFE_PSP_GetResetArea: expected = 0x%08lX, actual = 0x%08lX\n",
+                             __func__, (unsigned long)sizeof(CFE_ES_ResetData_t), (unsigned long)resetAreaSize);
 
         /* Delay to allow message to be read */
         OS_TaskDelay(CFE_EVS_PANIC_DELAY);
@@ -116,7 +116,7 @@ int32 CFE_EVS_EarlyInit(void)
 
         if (Status != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("EVS call to OS_MutSemCreate failed, RC=0x%08x\n", (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: OS_MutSemCreate failed, RC=0x%08x\n", __func__, (unsigned int)Status);
 
             /* Delay to allow message to be read */
             OS_TaskDelay(CFE_EVS_PANIC_DELAY);
@@ -135,7 +135,7 @@ int32 CFE_EVS_EarlyInit(void)
         /* Clear event log if power-on reset or bad contents */
         if (CFE_ES_GetResetType(NULL) == CFE_PSP_RST_TYPE_POWERON)
         {
-            CFE_ES_WriteToSysLog("Event Log cleared following power-on reset\n");
+            CFE_ES_WriteToSysLog("%s: Event Log cleared following power-on reset\n", __func__);
             EVS_ClearLog();
             CFE_EVS_Global.EVS_LogPtr->LogMode = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
         }
@@ -145,7 +145,7 @@ int32 CFE_EVS_EarlyInit(void)
                   (CFE_EVS_Global.EVS_LogPtr->LogFullFlag != true)) ||
                  (CFE_EVS_Global.EVS_LogPtr->Next >= CFE_PLATFORM_EVS_LOG_MAX))
         {
-            CFE_ES_WriteToSysLog("Event Log cleared, n=%d, c=%d, f=%d, m=%d, o=%d\n",
+            CFE_ES_WriteToSysLog("%s: Event Log cleared, n=%d, c=%d, f=%d, m=%d, o=%d\n", __func__,
                                  (int)CFE_EVS_Global.EVS_LogPtr->Next, (int)CFE_EVS_Global.EVS_LogPtr->LogCount,
                                  (int)CFE_EVS_Global.EVS_LogPtr->LogFullFlag, (int)CFE_EVS_Global.EVS_LogPtr->LogMode,
                                  (int)CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter);
@@ -154,7 +154,7 @@ int32 CFE_EVS_EarlyInit(void)
         }
         else
         {
-            CFE_ES_WriteToSysLog("Event Log restored, n=%d, c=%d, f=%d, m=%d, o=%d\n",
+            CFE_ES_WriteToSysLog("%s: Event Log restored, n=%d, c=%d, f=%d, m=%d, o=%d\n", __func__,
                                  (int)CFE_EVS_Global.EVS_LogPtr->Next, (int)CFE_EVS_Global.EVS_LogPtr->LogCount,
                                  (int)CFE_EVS_Global.EVS_LogPtr->LogFullFlag, (int)CFE_EVS_Global.EVS_LogPtr->LogMode,
                                  (int)CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter);
@@ -210,7 +210,7 @@ void CFE_EVS_TaskMain(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("EVS:Application Init Failed,RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Application Init Failed,RC=0x%08X\n", __func__, (unsigned int)Status);
         CFE_ES_PerfLogExit(CFE_MISSION_EVS_MAIN_PERF_ID);
         /* Note: CFE_ES_ExitApp will not return */
         CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
@@ -244,7 +244,7 @@ void CFE_EVS_TaskMain(void)
         }
         else
         {
-            CFE_ES_WriteToSysLog("EVS:Error reading cmd pipe,RC=0x%08X\n", (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: Error reading cmd pipe,RC=0x%08X\n", __func__, (unsigned int)Status);
         } /* end if */
 
     } /* end while */
@@ -270,7 +270,7 @@ int32 CFE_EVS_TaskInit(void)
     Status = CFE_ES_GetAppID(&AppID);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("EVS:Call to CFE_ES_GetAppID Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_ES_GetAppID Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     }
 
@@ -278,7 +278,7 @@ int32 CFE_EVS_TaskInit(void)
     Status = CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("EVS:Call to CFE_EVS_Register Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     }
 
@@ -286,7 +286,7 @@ int32 CFE_EVS_TaskInit(void)
     Status = CFE_SB_CreatePipe(&CFE_EVS_Global.EVS_CommandPipe, CFE_EVS_PIPE_DEPTH, CFE_EVS_PIPE_NAME);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("EVS:Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     }
 
@@ -294,20 +294,20 @@ int32 CFE_EVS_TaskInit(void)
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_EVS_CMD_MID), CFE_EVS_Global.EVS_CommandPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("EVS:Subscribing to Cmds Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Subscribing to Cmds Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     }
 
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_EVS_SEND_HK_MID), CFE_EVS_Global.EVS_CommandPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("EVS:Subscribing to HK Request Failed:RC=0x%08X\n", (unsigned int)Status);
+        CFE_ES_WriteToSysLog("%s: Subscribing to HK Request Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
     }
 
     /* Write the AppID to the global location, now that the rest of initialization is done */
     CFE_EVS_Global.EVS_AppID = AppID;
-    EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized.%s", CFE_VERSION_STRING);
+    EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", CFE_VERSION_STRING);
 
     return CFE_SUCCESS;
 }
@@ -608,7 +608,7 @@ bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 {
-    EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op command. %s", CFE_VERSION_STRING);
+    EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
     return CFE_SUCCESS;
 }
 

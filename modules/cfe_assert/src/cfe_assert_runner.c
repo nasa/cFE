@@ -102,14 +102,15 @@ void CFE_Assert_StatusReport(uint8 MessageType, const char *Prefix, const char *
 
 int32 CFE_Assert_RegisterTest(const char *TestName)
 {
-    int32 rc;
-    char  SetupSegmentName[64];
+    int32          rc;
+    char           SetupSegmentName[64];
+    CFE_ES_AppId_t SelfId;
 
     rc = CFE_EVS_Register(CFE_TR_EventFilters, sizeof(CFE_TR_EventFilters) / sizeof(CFE_EVS_BinFilter_t),
                           CFE_EVS_EventFilter_BINARY);
     if (rc != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("Error from CFE_EVS_Register: %08lx\n", (unsigned long)rc);
+        CFE_ES_WriteToSysLog("%s: Error from CFE_EVS_Register: %08lx\n", __func__, (unsigned long)rc);
         return rc;
     }
 
@@ -123,7 +124,14 @@ int32 CFE_Assert_RegisterTest(const char *TestName)
     rc = CFE_ES_WaitForSystemState(CFE_ES_SystemState_OPERATIONAL, CFE_TESTRUNNER_MAX_STARTUP_WAIT);
     if (rc != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("Error while waiting for OPERATIONAL state: %08lx\n", (unsigned long)rc);
+        CFE_ES_WriteToSysLog("%s: Error while waiting for OPERATIONAL state: %08lx\n", __func__, (unsigned long)rc);
+        return rc;
+    }
+
+    rc = CFE_ES_GetAppID(&SelfId);
+    if (rc != CFE_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s(): Error from CFE_ES_GetAppId(): %08x\n", __func__, (unsigned int)rc);
         return rc;
     }
 
@@ -131,23 +139,24 @@ int32 CFE_Assert_RegisterTest(const char *TestName)
      * Acquire the mutex.  This is needed because UtAssert and its data structures are not thread-safe.
      * Only one test app should use UtAssert facilities at a given time.
      */
-    rc = OS_MutSemTake(CFE_Assert_Global.AccessMutex);
-    if (rc != CFE_SUCCESS)
+    UT_BSP_Lock();
+
+    /*
+     * Wait here until "OwnerAppId" is available/undefined
+     */
+    while (CFE_RESOURCEID_TEST_DEFINED(CFE_Assert_Global.OwnerAppId))
     {
-        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemTake(): %d\n", __func__, (int)rc);
-        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+        UT_BSP_Unlock();
+        OS_TaskDelay(100);
+        UT_BSP_Lock();
     }
 
     /*
-     * After acquiring mutex, record the fact that this app now "owns" the assert functions
+     * After acquiring mutex, record the fact that this app now owns the assert functions
      */
-    rc = CFE_ES_GetAppID(&CFE_Assert_Global.OwnerAppId);
-    if (rc != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("%s(): Error from CFE_ES_GetAppId(): %08x\n", __func__, (unsigned int)rc);
-        OS_MutSemGive(CFE_Assert_Global.AccessMutex);
-        return rc;
-    }
+    CFE_Assert_Global.OwnerAppId = SelfId;
+
+    UT_BSP_Unlock();
 
     /*
      * This means the system is operational and at least one app needs to run tests.
@@ -197,7 +206,7 @@ void CFE_Assert_ExecuteTest(void)
     rc = CFE_ES_GetAppID(&AppId);
     if (rc != CFE_SUCCESS || !CFE_RESOURCEID_TEST_EQUAL(AppId, CFE_Assert_Global.OwnerAppId))
     {
-        CFE_ES_WriteToSysLog("%s(): Invalid calling context, CFE_ES_GetAppId() rc=%08x AppId=%lx, OwnerAppId=%lx\n",
+        CFE_ES_WriteToSysLog("%s: Invalid calling context, CFE_ES_GetAppId() rc=%08x AppId=%lx, OwnerAppId=%lx\n",
                              __func__, (unsigned int)rc, CFE_RESOURCEID_TO_ULONG(AppId),
                              CFE_RESOURCEID_TO_ULONG(CFE_Assert_Global.OwnerAppId));
         return;
@@ -211,12 +220,8 @@ void CFE_Assert_ExecuteTest(void)
     UtTest_Run();
 
     /* unregister the callback and unset the appid */
+    UT_BSP_Lock();
     CFE_Assert_RegisterCallback(NULL);
-
-    /* Release the access mutex so the next test program can run */
-    rc = OS_MutSemGive(CFE_Assert_Global.AccessMutex);
-    if (rc != CFE_SUCCESS)
-    {
-        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemGive(): %d\n", __func__, (int)rc);
-    }
+    CFE_Assert_Global.OwnerAppId = CFE_ES_APPID_UNDEFINED;
+    UT_BSP_Unlock();
 }

@@ -42,8 +42,8 @@
 
 #include "target_config.h"
 
-const char *FS_SYSLOG_MSGS[] = {NULL, "FS SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n",
-                                "FS SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n"};
+const char *FS_SYSLOG_MSGS[] = {NULL, "%s: SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n",
+                                "%s: SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n"};
 
 /* counts the number of times UT_FS_OnEvent() was invoked (below) */
 uint32 UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_MAX];
@@ -167,18 +167,18 @@ void Test_CFE_FS_SetTimestamp(void)
     /* Test setting the time stamp with a seconds write failure */
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
-    UT_Report(__FILE__, __LINE__, CFE_FS_SetTimestamp(FileDes, NewTimestamp) != OS_SUCCESS, "CFE_FS_SetTimestamp",
+    UT_Report(__FILE__, __LINE__, CFE_FS_SetTimestamp(FileDes, NewTimestamp) != CFE_SUCCESS, "CFE_FS_SetTimestamp",
               "Failed to write seconds");
 
     /* Test setting the time stamp with a subeconds write failure */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(OS_write), 2, 0);
-    UT_Report(__FILE__, __LINE__, CFE_FS_SetTimestamp(FileDes, NewTimestamp) == OS_SUCCESS, "CFE_FS_SetTimestamp",
+    UT_SetDeferredRetcode(UT_KEY(OS_write), 1, 0);
+    UT_Report(__FILE__, __LINE__, CFE_FS_SetTimestamp(FileDes, NewTimestamp) != CFE_SUCCESS, "CFE_FS_SetTimestamp",
               "Failed to write subseconds");
 
     /* Test successfully setting the time stamp */
     UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_FS_SetTimestamp(FileDes, NewTimestamp) == OS_SUCCESS, "CFE_FS_SetTimestamp",
+    UT_Report(__FILE__, __LINE__, CFE_FS_SetTimestamp(FileDes, NewTimestamp) == CFE_SUCCESS, "CFE_FS_SetTimestamp",
               "Write time stamp - successful");
 }
 

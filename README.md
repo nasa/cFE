@@ -10,6 +10,29 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev693
+
+- Add CI workflow to run cFE coverage tests
+- Updated FS Read/WriteHeader API return documentation
+- Document CFE_ES_RunLoop increment task counter behavior
+- standardize on "docs" subdirectory
+- Update version description per current design
+- Document CFE_TBL_Unregister use-case
+- provide CFE assert lock/unlock
+- Simplify CFE_FS_SetTimestamp and fix syslog typo
+- Removed redundant check/set of CFE_CPU_ID_VALUE
+- add time get reference error bit
+- Add workflow to build cFE documentation
+- Requirements updates
+- ES/ResourceID documentation cleanup
+- allow multiple sources in add_cfe_coverage_test
+- add ES Misc Functional test
+- add Mempool functional tests
+- Clean/simplify version header and reporting
+- doxygen cleanup
+- Prepend system log messages with function name
+- See <https://github.com/nasa/cFE/pull/1619> and <https://github.com/nasa/cFS/pull/265>
+
 ### Development Build: v6.8.0-rc1+dev642
 
 - Update ES verify errors to match
@@ -34,7 +57,7 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 - Use OSAL script to generate API guide
 - Include verify headers to validate config
 - Add doxygen aliases for OSAL parameter/retvals
-- See <https://github.com/nasa/cFE/pull/1584> and <https://github.com/nasa/cFS/pull/263/> 
+- See <https://github.com/nasa/cFE/pull/1584> and <https://github.com/nasa/cFS/pull/263/>
 
 ### Development Build: v6.8.0-rc1+dev593
 

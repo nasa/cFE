@@ -2,7 +2,6 @@
 # Project related configuration options, shared for all cFE doxygen outputs
 #---------------------------------------------------------------------------
 @INCLUDE_PATH          = @MISSION_SOURCE_DIR@
-OUTPUT_DIRECTORY       = .
 ABBREVIATE_BRIEF       = "The $name class " \
                          "The $name widget " \
                          "The $name file " \
@@ -55,7 +54,6 @@ GENERATE_DEPRECATEDLIST= YES
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
 WARN_NO_PARAMDOC       = YES
-WARN_LOGFILE           = @CMAKE_BINARY_DIR@/doc/warnings.log
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
@@ -77,6 +75,12 @@ INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_xref.dox
 FILE_PATTERNS          = *.c *.cpp *.cc *.C *.h *.hh *.hpp *.H *.dox *.md
 RECURSIVE              = YES
 EXAMPLE_PATTERNS       = *
+
+# Exclude coverage tests, stubs and associated framework from the documentation
+EXCLUDE_PATTERNS       += "*/ut-stubs/*"
+EXCLUDE_PATTERNS       += "*/ut-coverage/*"
+EXCLUDE_PATTERNS       += "*/unit-test*/*"
+
 #---------------------------------------------------------------------------
 # configuration options related to source browsing
 #---------------------------------------------------------------------------
