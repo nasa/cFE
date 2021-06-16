@@ -41,8 +41,8 @@ void Test_SBR_Map_Direct(void)
     uint32              i;
 
     UtPrintf("Invalid msg checks");
-    ASSERT_EQ(CFE_SBR_SetRouteId(CFE_SB_ValueToMsgId(0), CFE_SBR_ValueToRouteId(0)), 0);
-    ASSERT_EQ(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(0))), false);
+    CFE_UtAssert_EQUAL(CFE_SBR_SetRouteId(CFE_SB_ValueToMsgId(0), CFE_SBR_ValueToRouteId(0)), 0);
+    CFE_UtAssert_EQUAL(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(0))), false);
 
     UtPrintf("Initialize map");
     CFE_SBR_Init_Map();
@@ -59,18 +59,18 @@ void Test_SBR_Map_Direct(void)
             count++;
         }
     }
-    ASSERT_EQ(count, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1);
+    CFE_UtAssert_EQUAL(count, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1);
 
     UtPrintf("Set/Get a range of ids ");
     routeid = CFE_SBR_ValueToRouteId(CFE_PLATFORM_SB_MAX_MSG_IDS + 1);
     msgid   = CFE_SB_ValueToMsgId(0);
-    ASSERT_EQ(CFE_SBR_SetRouteId(msgid, routeid), 0);
-    ASSERT_EQ(CFE_SBR_GetRouteId(msgid).RouteId, routeid.RouteId);
+    CFE_UtAssert_EQUAL(CFE_SBR_SetRouteId(msgid, routeid), 0);
+    CFE_UtAssert_EQUAL(CFE_SBR_GetRouteId(msgid).RouteId, routeid.RouteId);
 
     routeid = CFE_SBR_ValueToRouteId(0);
     msgid   = CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
-    ASSERT_EQ(CFE_SBR_SetRouteId(msgid, routeid), 0);
-    ASSERT_EQ(CFE_SBR_GetRouteId(msgid).RouteId, routeid.RouteId);
+    CFE_UtAssert_EQUAL(CFE_SBR_SetRouteId(msgid, routeid), 0);
+    CFE_UtAssert_EQUAL(CFE_SBR_GetRouteId(msgid).RouteId, routeid.RouteId);
 
     UtPrintf("Check there is now 1 valid entry in map");
     count = 0;
@@ -81,13 +81,13 @@ void Test_SBR_Map_Direct(void)
             count++;
         }
     }
-    ASSERT_EQ(count, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
+    CFE_UtAssert_EQUAL(count, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
 
     UtPrintf("Set back to invalid and check again");
     routeid = CFE_SBR_INVALID_ROUTE_ID;
-    ASSERT_EQ(CFE_SBR_SetRouteId(msgid, routeid), 0);
-    ASSERT_EQ(CFE_SBR_GetRouteId(msgid).RouteId, routeid.RouteId);
-    ASSERT_EQ(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(msgid)), false);
+    CFE_UtAssert_EQUAL(CFE_SBR_SetRouteId(msgid, routeid), 0);
+    CFE_UtAssert_EQUAL(CFE_SBR_GetRouteId(msgid).RouteId, routeid.RouteId);
+    CFE_UtAssert_EQUAL(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(msgid)), false);
 
     /* Performance check, 0xFFFFFF on 3.2GHz linux box is around 8-9 seconds */
     count = 0;

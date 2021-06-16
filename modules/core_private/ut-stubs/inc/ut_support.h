@@ -138,6 +138,27 @@ typedef struct
 
 } UT_TaskPipeDispatchId_t;
 
+/**
+ * \brief Comparison types for generic value asserts
+ *
+ * These constants are used with the generic value assert functions
+ *
+ * \sa CFE_UtAssert_GenericSignedCompare_Impl
+ * \sa CFE_UtAssert_GenericUnsignedCompare_Impl
+ */
+typedef enum
+{
+    CFE_UtAssert_Compare_NONE, /**< invalid/not used, always false */
+    CFE_UtAssert_Compare_EQ,   /**< actual equals reference value */
+    CFE_UtAssert_Compare_NEQ,  /**< actual does not non equal reference value */
+    CFE_UtAssert_Compare_LT,   /**< actual less than reference (exclusive) */
+    CFE_UtAssert_Compare_GT,   /**< actual greater than reference (exclusive)  */
+    CFE_UtAssert_Compare_LTEQ, /**< actual less than or equal to reference (inclusive) */
+    CFE_UtAssert_Compare_GTEQ, /**< actual greater than reference (inclusive) */
+    CFE_UtAssert_Compare_BOOL, /**< interpret as logical boolean values (0=false, nonzero=true) */
+    CFE_UtAssert_Compare_MAX   /**< placeholder, not used */
+} CFE_UtAssert_Compare_t;
+
 /*
 ** Functions
 */
@@ -596,8 +617,76 @@ CFE_ES_ResetData_t *UT_GetResetDataPtr(void);
 void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void), const char *GroupName,
                    const char *TestName);
 
-/** \brief Function to be called by the SETUP() macro */
-void UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
+/*
+** Assert Helper Functions
+** Wrappers around the UtAssert functions to tune them for CFE use.
+** These should all return a generalized pass/fail status (bool)
+*/
+
+/*****************************************************************************/
+/**
+** \brief Helper function for nominal CFE calls
+**
+** \par Description
+**        This helper function wraps the normal UtAssert function, intended for verifying
+**        CFE API calls that are expected to return successfully (#CFE_SUCCESS typically).
+**
+**        This can also be used to confirm setup and teardown operations by passing the CaseType
+**        parameter appropriately (UTASSERT_CASETYPE_TSF or UTASSERT_CASETYPE_TTF, respectively).
+**
+** \par Assumptions, External Events, and Notes:
+**        When used for setup (TSF) or teardown (TTF) then the test case is only logged to
+**        the output if it fails.  This is to keep logs more concise, by not including
+**        test cases that are not related to the main focus of the code under test.
+**
+**        Note this will accept any non-negative value as logical "success", so it
+**        also works with functions that return a size or other non-error status.
+**
+** \returns Test pass status, returns true if status was successful, false if it failed.
+**
+******************************************************************************/
+bool CFE_UtAssert_SuccessCheck_Impl(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
+                                    const char *Text);
+
+/*****************************************************************************/
+/**
+** \brief Helper function for generic unsigned integer value checks
+**
+** \par Description
+**        This helper function wraps the normal UtAssertEx() function, to compare two
+**        integer values in an unsigned context.  The comparison is performed as two
+**        32 bit unsigned integers and the numeric values are printed to the test log
+**        in hexadecimal notation (base-16).
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns Test pass status, returns true if status was successful, false if it failed.
+**
+******************************************************************************/
+bool CFE_UtAssert_GenericUnsignedCompare_Impl(uint32 ActualValue, CFE_UtAssert_Compare_t CompareType,
+                                              uint32 ReferenceValue, const char *File, uint32 Line, const char *Desc,
+                                              const char *ActualText, const char *ReferenceText);
+
+/*****************************************************************************/
+/**
+** \brief Helper function for generic signed integer value checks
+**
+** \par Description
+**        This helper function wraps the normal UtAssertEx() function, to compare two
+**        integer values in a signed context.  The comparison is performed as two
+**        32 bit signed integers and the numeric values are printed to the test log
+**        in standard decimal notation (base-10).
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns Test pass status, returns true if status was successful, false if it failed.
+**
+******************************************************************************/
+bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Compare_t CompareType, int32 ReferenceValue,
+                                            const char *File, uint32 Line, const char *Desc, const char *ActualText,
+                                            const char *ReferenceText);
 
 /*****************************************************************************/
 /**
@@ -609,15 +698,10 @@ void UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, cons
 **        result in a text message and the test being considered failed.
 **
 ** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \sa #START, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
+**        To keep logs clean, this only generates a log message if it fails
 **
 ******************************************************************************/
-#define SETUP(FN) (UT_SETUP_impl(__FILE__, __LINE__, __func__, (#FN), (FN)))
-
-/** \brief Function to be called by the ASSERT() macro */
-void UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
+#define CFE_UtAssert_SETUP(FN) CFE_UtAssert_SuccessCheck_Impl(FN, UTASSERT_CASETYPE_TSF, __FILE__, __LINE__, #FN)
 
 /*****************************************************************************/
 /**
@@ -631,56 +715,84 @@ void UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, con
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \sa #START, #SETUP, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
-**
 ******************************************************************************/
-#define ASSERT(FN) (UT_ASSERT_impl(__FILE__, __LINE__, __func__, (#FN), (FN)))
-
-/** \brief Function to be called by the ASSERT_EQ() macro */
-void UT_ASSERT_EQ_impl(const char *FileName, int LineNum, const char *FnName, int32 FnRet, const char *ExpName,
-                       int32 Exp);
+#define CFE_UtAssert_SUCCESS(FN) CFE_UtAssert_SuccessCheck_Impl(FN, UTASSERT_CASETYPE_FAILURE, __FILE__, __LINE__, #FN)
 
 /*****************************************************************************/
 /**
-** \brief Asserts the expected execution of the function being tested.
+** \brief Asserts the specific status code from the function being tested.
 **
 ** \par Description
 **        The core of each unit test is the execution of the function being tested.
-**        This function and macro should be used to test the execution of the function
-**        and comparing the return status against the expected return status specified,
-**        when the return status expected is not CFE_SUCCESS.
+**        This function and macro should be used to test for a specific status code
+**        from a function (typically an error case).
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \sa #START, #SETUP, #ASSERT, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
-**
 ******************************************************************************/
-#define ASSERT_EQ(FN, EXP) (UT_ASSERT_EQ_impl(__FILE__, __LINE__, (#FN), (FN), (#EXP), (EXP)))
-
-/** \brief Function to be called by the ASSERT_EQ() macro */
-void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName, const char *ExpName, bool Exp);
+#define CFE_UtAssert_EQUAL(FN, EXP) \
+    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_EQ, EXP, __FILE__, __LINE__, "", #FN, #EXP)
 
 /*****************************************************************************/
 /**
-** \brief Asserts the expected execution of the function being tested.
+** \brief Asserts the expression/function evaluates as logically true
 **
 ** \par Description
 **        The core of each unit test is the execution of the function being tested.
-**        This function and macro should be used to test the execution of the function
-**        and comparing the return status against the expected return status specified,
-**        when the return status expected is not CFE_SUCCESS.
+**        This function and macro should be used to test for a function or value/expression
+**        that should evaluate as logically true
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \sa #START, #SETUP, #ASSERT, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT, #TEARDOWN
+******************************************************************************/
+#define CFE_UtAssert_TRUE(FN) \
+    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_BOOL, true, __FILE__, __LINE__, "", #FN, "true")
+
+/*****************************************************************************/
+/**
+** \brief Asserts the expression/function evaluates as logically false
+**
+** \par Description
+**        The core of each unit test is the execution of the function being tested.
+**        This function and macro should be used to test for a function or value/expression
+**        that should evaluate as logically false
+**
+** \par Assumptions, External Events, and Notes:
+**        None
 **
 ******************************************************************************/
-#define ASSERT_TRUE(EXP) (UT_ASSERT_TRUE_impl(__FILE__, __LINE__, __func__, (#EXP), (EXP)))
+#define CFE_UtAssert_FALSE(FN) \
+    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_BOOL, false, __FILE__, __LINE__, "", #FN, "false")
 
-/** \brief Function to be called by the EVTCNT() macro */
-void UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int32 CntExp);
+/*****************************************************************************/
+/**
+** \brief Asserts the minimum value of a given function or expression
+**
+** \par Description
+**        This macro confirms that the given expression is at least the minimum value (inclusive)
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+******************************************************************************/
+#define CFE_UtAssert_ATLEAST(FN, MIN) \
+    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_GTEQ, MIN, __FILE__, __LINE__, "", #FN, #MIN)
+
+/*****************************************************************************/
+/**
+** \brief Asserts the maximum value of a given function or expression
+**
+** \par Description
+**        This macro confirms that the given expression is at most the maximum value (inclusive)
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+******************************************************************************/
+#define CFE_UtAssert_ATMOST(FN, MAX) \
+    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_LTEQ, MAX, __FILE__, __LINE__, "", #FN, #MAX)
 
 /*****************************************************************************/
 /**
@@ -694,17 +806,14 @@ void UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTSENT, #REPORT, #TEARDOWN
-**
 ******************************************************************************/
-#define EVTCNT(EXP) (UT_EVTCNT_impl(__FILE__, __LINE__, __func__, (EXP)))
-
-/** \brief Function to be called by the EVTSENT() macro */
-void UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, const char *EvtName, int32 EvtId);
+#define CFE_UtAssert_EVENTCOUNT(EXP)                                                                                \
+    CFE_UtAssert_GenericSignedCompare_Impl(UT_GetNumEventsSent(), CFE_UtAssert_Compare_EQ, EXP, __FILE__, __LINE__, \
+                                           "Event Count: ", "Sent", "Expected")
 
 /*****************************************************************************/
 /**
-** \brief Ensures that the test generated the expected event.
+** \brief Ensures that the code under test generated an expected event.
 **
 ** \par Description
 **        Most tests will generate a number of events, and this function and macro check whether an
@@ -713,13 +822,64 @@ void UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, co
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #REPORT, #TEARDOWN
+** \sa #CFE_UtAssert_EVENTNOTSENT
 **
 ******************************************************************************/
-#define EVTSENT(EVT) (UT_EVTSENT_impl(__FILE__, __LINE__, __func__, (#EVT), (EVT)))
+#define CFE_UtAssert_EVENTSENT(EVT)                                                                                  \
+    CFE_UtAssert_GenericSignedCompare_Impl(UT_EventIsInHistory(EVT), CFE_UtAssert_Compare_GT, 0, __FILE__, __LINE__, \
+                                           "Event Generated: ", #EVT, "")
 
-/** \brief Function to be called by the TEARDOWN() macro */
-void UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet);
+/*****************************************************************************/
+/**
+** \brief Ensures that the code under test did not generate an unexpected event.
+**
+** \par Description
+**        Most tests will generate a number of events, and this function and macro check whether an
+**        event was generated.  This is the inverse of #CFE_UtAssert_EVENTSENT, and asserts that the
+**        code under test did NOT generate the given event ID.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \sa #CFE_UtAssert_EVENTSENT
+**
+******************************************************************************/
+#define CFE_UtAssert_EVENTNOTSENT(EVT)                                                                               \
+    CFE_UtAssert_GenericSignedCompare_Impl(UT_EventIsInHistory(EVT), CFE_UtAssert_Compare_EQ, 0, __FILE__, __LINE__, \
+                                           "Event Not Generated: ", #EVT, "")
+
+/*****************************************************************************/
+/**
+** \brief Checks if the code under test invoked CFE_ES_WriteToSysLog with the specified format string
+**
+** \par Description
+**        Confirms that the code followed a path which invoked a specific syslog call
+**
+** \par Assumptions, External Events, and Notes:
+**        SysLog messages are typically not relevant to requirements/correctness, but this
+**        is potentially useful to confirm a specific code path was followed.
+**
+******************************************************************************/
+#define CFE_UtAssert_SYSLOG(str)                                                                                      \
+    CFE_UtAssert_GenericSignedCompare_Impl(UT_SyslogIsInHistory(str), CFE_UtAssert_Compare_GT, 0, __FILE__, __LINE__, \
+                                           "Syslog generated: ", #str, "")
+
+/*****************************************************************************/
+/**
+** \brief Checks if the code under test invoked OS_printf with the specified format string
+**
+** \par Description
+**        Confirms that the code followed a path which invoked a specific OS_printf call
+**
+** \par Assumptions, External Events, and Notes:
+**        OS_printf messages are typically not relevant to requirements/correctness, but this
+**        is potentially useful to confirm a specific code path was followed.
+**
+******************************************************************************/
+#define CFE_UtAssert_PRINTF(str)                                                                                      \
+    CFE_UtAssert_GenericSignedCompare_Impl(UT_PrintfIsInHistory(str), CFE_UtAssert_Compare_GT, 0, __FILE__, __LINE__, \
+                                           "Printf generated: ", #str, "")
+
 /*****************************************************************************/
 /**
 ** \brief Checks the successful execution of a teardown function.
@@ -730,11 +890,41 @@ void UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, c
 **        of any teardown steps result in a text message and the test being considered failed.
 **
 ** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \sa #START, #SETUP, #ASSERT, #ASSERT_EQ, #ASSERT_TRUE, #EVTCNT, #EVTSENT, #REPORT
+**        To keep logs clean, this only generates a log message if it fails
 **
 ******************************************************************************/
-#define TEARDOWN(FN) (UT_TEARDOWN_impl(__FILE__, __LINE__, __func__, (#FN), (FN)))
+#define CFE_UtAssert_TEARDOWN(FN) CFE_UtAssert_SuccessCheck_Impl(FN, UTASSERT_CASETYPE_TTF, __FILE__, __LINE__, #FN)
+
+/*****************************************************************************/
+/**
+** \brief Macro for logging calls to a "void" function
+**
+** \par Description
+**        A macro that invokes a function with no return value.  This should be used when
+**        no actual condition/result to check for/assert on, but the call should still be
+**        logged to the output to record the fact that the function was invoked.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+******************************************************************************/
+#define CFE_UtAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
+
+/*****************************************************************************/
+/**
+** \brief Macro to check CFE resource ID for equality
+**
+** \par Description
+**        A macro that checks two resource ID values for equality.
+**
+** \par Assumptions, External Events, and Notes:
+**        The generic #UtAssert_UINT32_EQ check should not be used, as ID values
+**        and integers may not be interchangable with strict type checking.
+**
+******************************************************************************/
+#define CFE_UtAssert_RESOURCEID_EQ(id1, id2)                                                        \
+    CFE_UtAssert_GenericUnsignedCompare_Impl(CFE_RESOURCEID_TO_ULONG(id1), CFE_UtAssert_Compare_EQ, \
+                                             CFE_RESOURCEID_TO_ULONG(id2), __FILE__, __LINE__,      \
+                                             "Resource ID Check: ", #id1, #id2)
 
 #endif /* UT_SUPPORT_H */

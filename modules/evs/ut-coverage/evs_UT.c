@@ -245,8 +245,8 @@ void Test_Init(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &msgid, sizeof(msgid), false);
 
     UT_EVS_DoGenericCheckEvents(CFE_EVS_TaskMain, &UT_EVS_EventBuf);
-    ASSERT_TRUE(UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[8]));
-    ASSERT_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_ERR_MSGID_EID);
+    CFE_UtAssert_TRUE(UT_SyslogIsInHistory(EVS_SYSLOG_MSGS[8]));
+    CFE_UtAssert_EQUAL(UT_EVS_EventBuf.EventID, CFE_EVS_ERR_MSGID_EID);
 
     /* Test early initialization with a get reset area failure */
     UT_InitData();
@@ -716,13 +716,13 @@ void Test_Format(void)
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Short format check 1");
 
     /* Note implementation initializes both short and long message */
-    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 2);
-    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 1);
-    ASSERT_TRUE(CFE_SB_MsgId_Equal(MsgData.MsgId, ShortFmtSnapshotData.MsgId));
-    ASSERT_TRUE(!CFE_SB_MsgId_Equal(MsgData.MsgId, LongFmtSnapshotData.MsgId));
+    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 2);
+    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 1);
+    CFE_UtAssert_TRUE(CFE_SB_MsgId_Equal(MsgData.MsgId, ShortFmtSnapshotData.MsgId));
+    CFE_UtAssert_TRUE(!CFE_SB_MsgId_Equal(MsgData.MsgId, LongFmtSnapshotData.MsgId));
 
     /* Confirm the right message was sent */
-    ASSERT_TRUE(MsgSend == MsgData.MsgPtr);
+    CFE_UtAssert_TRUE(MsgSend == MsgData.MsgPtr);
 
     /* Test set event format mode command using a valid command to set long
      * format, reports implicitly via event

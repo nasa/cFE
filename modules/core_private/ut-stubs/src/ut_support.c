@@ -694,46 +694,135 @@ void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(voi
     UtTest_Add(Test, Setup, Teardown, strdup(CompleteTestName));
 }
 
-void UT_SETUP_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
+const char *CFE_UtAssert_GetOpText(CFE_UtAssert_Compare_t CompareType)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TSF, FileName, LineNum, "%s - Setup - %s returned 0x%lx",
-               TestName, FnName, (long int)FnRet);
+    const char *OpText;
+
+    switch (CompareType)
+    {
+        case CFE_UtAssert_Compare_EQ:   /* actual equals reference value */
+        case CFE_UtAssert_Compare_BOOL: /* actual and reference are logical boolean values */
+            OpText = "==";
+            break;
+        case CFE_UtAssert_Compare_NEQ: /* actual does not non equal reference value */
+            OpText = "!=";
+            break;
+        case CFE_UtAssert_Compare_LT: /* actual less than reference (exclusive) */
+            OpText = "<";
+            break;
+        case CFE_UtAssert_Compare_GT: /* actual greater than reference (exclusive)  */
+            OpText = ">";
+            break;
+        case CFE_UtAssert_Compare_LTEQ: /* actual less than or equal to reference (inclusive) */
+            OpText = "<=";
+            break;
+        case CFE_UtAssert_Compare_GTEQ: /* actual greater than reference (inclusive) */
+            OpText = ">=";
+            break;
+        default: /* should never happen */
+            OpText = "??";
+            break;
+    }
+
+    return OpText;
 }
 
-void UT_ASSERT_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
+bool CFE_UtAssert_SuccessCheck_Impl(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
+                                    const char *Text)
 {
-    UtAssertEx(FnRet == CFE_SUCCESS, UtAssert_GetContext(), FileName, LineNum,
-               "%s - %s returned 0x%lx, expected CFE_SUCCESS", TestName, FnName, (long int)FnRet);
+    bool Result = (Status >= CFE_SUCCESS);
+
+    if (!Result || (CaseType != UTASSERT_CASETYPE_TSF && CaseType != UTASSERT_CASETYPE_TTF))
+    {
+        UtAssertEx(Result, CaseType, File, Line, "%s (0x%lx) == CFE_SUCCESS", Text, (unsigned long)Status);
+    }
+
+    return Result;
 }
 
-void UT_ASSERT_EQ_impl(const char *FileName, int LineNum, const char *FnName, int32 FnRet, const char *ExpName,
-                       int32 Exp)
+bool CFE_UtAssert_GenericUnsignedCompare_Impl(uint32 ActualValue, CFE_UtAssert_Compare_t CompareType,
+                                              uint32 ReferenceValue, const char *File, uint32 Line, const char *Desc,
+                                              const char *ActualText, const char *ReferenceText)
 {
-    UtAssertEx(FnRet == Exp, UtAssert_GetContext(), FileName, LineNum, "%s - value %ld 0x%lx, expected %s[%ld 0x%lx]",
-               FnName, (long)FnRet, (long)FnRet, ExpName, (long)Exp, (long)Exp);
+    bool Result;
+
+    switch (CompareType)
+    {
+        case CFE_UtAssert_Compare_EQ: /* actual equals reference value */
+            Result = (ActualValue == ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_NEQ: /* actual does not non equal reference value */
+            Result = (ActualValue != ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_LT: /* actual less than reference (exclusive) */
+            Result = (ActualValue < ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_GT: /* actual greater than reference (exclusive)  */
+            Result = (ActualValue > ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_LTEQ: /* actual less than or equal to reference (inclusive) */
+            Result = (ActualValue <= ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_GTEQ: /* actual greater than reference (inclusive) */
+            Result = (ActualValue >= ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_BOOL: /* actual and reference are logical boolean values */
+            Result = ActualValue;
+            if (!ReferenceValue)
+            {
+                /* Invert the result if reference is false */
+                Result = !Result;
+            }
+            break;
+        default: /* should never happen */
+            Result = false;
+            break;
+    }
+
+    return UtAssertEx(Result, UTASSERT_CASETYPE_FAILURE, File, Line, "%s%s (0x%lx) %s %s (0x%lx)", Desc, ActualText,
+                      (unsigned long)ActualValue, CFE_UtAssert_GetOpText(CompareType), ReferenceText,
+                      (unsigned long)ReferenceValue);
 }
 
-void UT_ASSERT_TRUE_impl(const char *FileName, int LineNum, const char *TestName, const char *ExpName, bool Exp)
+bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Compare_t CompareType, int32 ReferenceValue,
+                                            const char *File, uint32 Line, const char *Desc, const char *ActualText,
+                                            const char *ReferenceText)
 {
-    UtAssertEx(Exp, UtAssert_GetContext(), FileName, LineNum, "%s - %s", TestName, ExpName);
-}
+    bool Result;
 
-void UT_EVTCNT_impl(const char *FileName, int LineNum, const char *TestName, int32 CntExp)
-{
-    int32 CntSent = UT_GetNumEventsSent();
+    switch (CompareType)
+    {
+        case CFE_UtAssert_Compare_EQ: /* actual equals reference value */
+            Result = (ActualValue == ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_NEQ: /* actual does not non equal reference value */
+            Result = (ActualValue != ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_LT: /* actual less than reference (exclusive) */
+            Result = (ActualValue < ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_GT: /* actual greater than reference (exclusive)  */
+            Result = (ActualValue > ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_LTEQ: /* actual less than or equal to reference (inclusive) */
+            Result = (ActualValue <= ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_GTEQ: /* actual greater than reference (inclusive) */
+            Result = (ActualValue >= ReferenceValue);
+            break;
+        case CFE_UtAssert_Compare_BOOL: /* actual and reference are logical boolean values */
+            Result = ActualValue;
+            if (!ReferenceValue)
+            {
+                /* Invert the result if reference is false */
+                Result = !Result;
+            }
+            break;
+        default: /* should never happen */
+            Result = false;
+            break;
+    }
 
-    UtAssertEx(CntSent == CntExp, UtAssert_GetContext(), FileName, LineNum, "%s - event count (sent %ld, expected %ld)",
-               TestName, (long int)CntSent, (long int)CntExp);
-}
-
-void UT_EVTSENT_impl(const char *FileName, int LineNum, const char *TestName, const char *EvtName, int32 EvtId)
-{
-    UtAssertEx(UT_EventIsInHistory(EvtId), UtAssert_GetContext(), FileName, LineNum, "%s - sent event %s [%ld]",
-               TestName, EvtName, (long int)EvtId);
-}
-
-void UT_TEARDOWN_impl(const char *FileName, int LineNum, const char *TestName, const char *FnName, int32 FnRet)
-{
-    UtAssertEx(FnRet == CFE_SUCCESS, UTASSERT_CASETYPE_TTF, FileName, LineNum,
-               "%s - Teardown failed (%s returned 0x%lx)", TestName, FnName, (long int)FnRet);
+    return UtAssertEx(Result, UTASSERT_CASETYPE_FAILURE, File, Line, "%s%s (%ld) %s %s (%ld)", Desc, ActualText,
+                      (long)ActualValue, CFE_UtAssert_GetOpText(CompareType), ReferenceText, (long)ReferenceValue);
 }
