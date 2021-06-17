@@ -1,0 +1,106 @@
+name: "Functional Test"
+
+on:
+  push:
+  pull_request:
+
+env:
+  SIMULATION: native
+  ENABLE_UNIT_TESTS: true
+  OMIT_DEPRECATED: true
+  BUILDTYPE: release
+
+jobs:
+
+  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
+  check-for-duplicates:
+    runs-on: ubuntu-latest
+    # Map a step output to a job output
+    outputs:
+      should_skip: ${{ steps.skip_check.outputs.should_skip }}
+    steps:
+      - id: skip_check
+        uses: fkirc/skip-duplicate-actions@master
+        with:
+          concurrent_skipping: 'same_content'
+          skip_after_successful_duplicate: 'true'
+          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+
+  Local-Test-Build:
+    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
+    needs: check-for-duplicates
+    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-18.04
+    timeout-minutes: 15
+
+    steps:      
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout bundle
+        uses: actions/checkout@v2
+        with:
+          repository: nasa/cFS
+          submodules: true    
+
+      - name: Checkout submodule
+        uses: actions/checkout@v2
+        with:
+          path: cfe
+
+      - name: Check versions
+        run: git submodule
+
+      # Setup the build system
+      - name: Set up for build
+        run: |
+          cp ./cfe/cmake/Makefile.sample Makefile
+          cp -r ./cfe/cmake/sample_defs sample_defs
+          make prep
+
+      # Setup the build system
+      - name: Make Install
+        run: make install
+
+      - name: List cpu1
+        run: ls build/exe/cpu1/
+
+      - name: Run cFS
+        run: |
+          ./core-cpu1 | tee cFS_startup_cpu1.txt &
+          sleep 10
+          ../host/cmdUtil --pktid=0x1806 --cmdcode=4 --endian=LE --string="20:CFE_TEST_APP" --string="20:CFE_TestMain" --string="64:cfe_testcase" --uint32=16384 --uint8=0 --uint8=0 --uint16=100 &
+
+          sleep 30
+          counter=$(grep -c "CFE_TEST_APP" cFS_startup_cpu1.txt) &
+
+          while [[ -z $(grep -i "SUMMARY" cFS_startup_cpu1.txt) ]]; do
+            echo "Waiting for CFE Tests"
+            sleep 60
+
+            temp=$(grep -c "CFE_TEST_APP" cFS_startup_cpu1.txt) &
+              
+            if [ $temp -eq $counter ]; then
+              echo "Test is frozen. Quiting"
+              break
+            fi
+
+            counter=$(grep -c "CFE_TEST_APP" cFS_startup_cpu1.txt) &              
+          done
+          
+          ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
+        working-directory: ./build/exe/cpu1/
+
+      - name: Archive cFS Startup Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: cFS-startup-log-deprecate-true-${{ matrix.buildtype }}
+          path: ./build/exe/cpu1/cFS_startup_cpu1.txt
+
+      - name: Check for cFS Warnings
+        run: |  
+          if [[ -z $(grep -i "SUMMARY.*FAIL::0.*TSF::0.*TTF::0" cFS_startup_cpu1.txt) ]]; then
+                  echo "Must resolve Test Failures in cFS Test App before submitting a pull request"
+                  echo ""
+                  grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cFS_startup_cpu1.txt
+                  exit -1
+          fi
+        working-directory: ./build/exe/cpu1/  
