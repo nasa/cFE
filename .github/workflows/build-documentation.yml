@@ -113,7 +113,7 @@ jobs:
       - name: Build Usersguide
         run: |
           make usersguide > make_usersguide_stdout.txt 2> make_usersguide_stderr.txt
-          mv build/doc/warnings.log usersguide_warnings.log
+          mv build/docs/cfe-usersguide-warnings.log usersguide_warnings.log
 
       - name: Archive Users Guide Build Logs
         uses: actions/upload-artifact@v2
