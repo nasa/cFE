@@ -50,37 +50,37 @@ void Test_MSG_Size(void)
 
     UtPrintf("Bad parameter tests, Null pointers and invalid (0, min valid - 1, max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetSize(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(actual, 0);
-    ASSERT_EQ(CFE_MSG_GetSize(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetSize(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_SetSize(&msg, 0), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetSize(&msg, TEST_MSG_SIZE_OFFSET - 1), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetSize(&msg, 0xFFFF + TEST_MSG_SIZE_OFFSET + 1), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetSize(&msg, 0xFFFFFFFF), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetSize(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(actual, 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetSize(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSize(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSize(&msg, 0), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSize(&msg, TEST_MSG_SIZE_OFFSET - 1), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSize(&msg, 0xFFFF + TEST_MSG_SIZE_OFFSET + 1), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSize(&msg, 0xFFFFFFFF), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, 0xFFFF + TEST_MSG_SIZE_OFFSET);
-        ASSERT_EQ(CFE_MSG_SetSize(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, 0xFFFF + TEST_MSG_SIZE_OFFSET);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetSize(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == 0xFFFF + TEST_MSG_SIZE_OFFSET)
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), MSG_LENGTH_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), MSG_LENGTH_FLAG);
         }
     }
 
@@ -88,19 +88,19 @@ void Test_MSG_Size(void)
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, TEST_MSG_SIZE_OFFSET);
-        ASSERT_EQ(CFE_MSG_SetSize(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, TEST_MSG_SIZE_OFFSET);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetSize(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSize(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == TEST_MSG_SIZE_OFFSET)
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_LENGTH_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), MSG_LENGTH_FLAG);
         }
     }
 }
@@ -114,33 +114,33 @@ void Test_MSG_Type(void)
 
     UtPrintf("Bad parameter tests, Null pointers and invalid (CFE_MSG_Type_Invalid, CFE_MSG_Type_Tlm + 1");
     memset(&msg, 0, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetType(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(actual, 0);
-    ASSERT_EQ(CFE_MSG_GetType(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetType(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_SetType(&msg, CFE_MSG_Type_Invalid), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetType(&msg, CFE_MSG_Type_Tlm + 1), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetType(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(actual, 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetType(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetType(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetType(&msg, CFE_MSG_Type_Invalid), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetType(&msg, CFE_MSG_Type_Tlm + 1), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, CFE_MSG_Type_Cmd);
-        ASSERT_EQ(CFE_MSG_SetType(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, CFE_MSG_Type_Cmd);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetType(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == CFE_MSG_Type_Cmd)
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), MSG_TYPE_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), MSG_TYPE_FLAG);
         }
     }
 
@@ -148,19 +148,19 @@ void Test_MSG_Type(void)
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, CFE_MSG_Type_Tlm);
-        ASSERT_EQ(CFE_MSG_SetType(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, CFE_MSG_Type_Tlm);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetType(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetType(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == CFE_MSG_Type_Tlm)
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_TYPE_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), MSG_TYPE_FLAG);
         }
     }
 }
@@ -174,33 +174,33 @@ void Test_MSG_HeaderVersion(void)
 
     UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetHeaderVersion(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(actual, TEST_CCSDSVER_MAX);
-    ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetHeaderVersion(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_SetHeaderVersion(&msg, TEST_CCSDSVER_MAX + 1), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetHeaderVersion(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHeaderVersion(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(actual, TEST_CCSDSVER_MAX);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHeaderVersion(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetHeaderVersion(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetHeaderVersion(&msg, TEST_CCSDSVER_MAX + 1), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetHeaderVersion(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, TEST_CCSDSVER_MAX);
-        ASSERT_EQ(CFE_MSG_SetHeaderVersion(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, TEST_CCSDSVER_MAX);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetHeaderVersion(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == TEST_CCSDSVER_MAX)
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), MSG_HDRVER_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), MSG_HDRVER_FLAG);
         }
     }
 
@@ -208,19 +208,19 @@ void Test_MSG_HeaderVersion(void)
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, 0);
-        ASSERT_EQ(CFE_MSG_SetHeaderVersion(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, 0);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetHeaderVersion(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetHeaderVersion(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == 0)
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_HDRVER_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), MSG_HDRVER_FLAG);
         }
     }
 }
@@ -232,45 +232,45 @@ void Test_MSG_HasSecondaryHeader(void)
 
     UtPrintf("Bad parameter tests, Null pointers");
     memset(&msg, 0, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(actual, true);
-    ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(NULL, false), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHasSecondaryHeader(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(actual, true);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHasSecondaryHeader(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetHasSecondaryHeader(NULL, false), CFE_MSG_BAD_ARGUMENT);
 
     UtPrintf("Set to all F's, true and false inputs");
     memset(&msg, 0xFF, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
-    ASSERT_EQ(actual, true);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(actual, true);
 
-    ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(&msg, true), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetHasSecondaryHeader(&msg, true), CFE_SUCCESS);
     UT_DisplayPkt(&msg, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
-    ASSERT_EQ(actual, true);
-    ASSERT_EQ(Test_MSG_NotF(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(actual, true);
+    CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), 0);
 
-    ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(&msg, false), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetHasSecondaryHeader(&msg, false), CFE_SUCCESS);
     UT_DisplayPkt(&msg, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
-    ASSERT_EQ(actual, false);
-    ASSERT_EQ(Test_MSG_NotF(&msg), MSG_HASSEC_FLAG);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(actual, false);
+    CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), MSG_HASSEC_FLAG);
 
     UtPrintf("Set to all 0, true and false inputs");
     memset(&msg, 0, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
-    ASSERT_EQ(actual, false);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(actual, false);
 
-    ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(&msg, false), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetHasSecondaryHeader(&msg, false), CFE_SUCCESS);
     UT_DisplayPkt(&msg, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
-    ASSERT_EQ(actual, false);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(actual, false);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
 
-    ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(&msg, true), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetHasSecondaryHeader(&msg, true), CFE_SUCCESS);
     UT_DisplayPkt(&msg, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
-    ASSERT_EQ(actual, true);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_HASSEC_FLAG);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetHasSecondaryHeader(&msg, &actual), CFE_SUCCESS);
+    CFE_UtAssert_EQUAL(actual, true);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), MSG_HASSEC_FLAG);
 }
 
 void Test_MSG_ApId(void)
@@ -282,33 +282,33 @@ void Test_MSG_ApId(void)
 
     UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetApId(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(actual, TEST_APID_MAX);
-    ASSERT_EQ(CFE_MSG_GetApId(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetApId(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_SetApId(&msg, TEST_APID_MAX + 1), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetApId(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetApId(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(actual, TEST_APID_MAX);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetApId(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetApId(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetApId(&msg, TEST_APID_MAX + 1), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetApId(&msg, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, TEST_APID_MAX);
-        ASSERT_EQ(CFE_MSG_SetApId(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, TEST_APID_MAX);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetApId(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == TEST_APID_MAX)
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), MSG_APID_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), MSG_APID_FLAG);
         }
     }
 
@@ -316,19 +316,19 @@ void Test_MSG_ApId(void)
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, 0);
-        ASSERT_EQ(CFE_MSG_SetApId(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, 0);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetApId(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetApId(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == 0)
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_APID_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), MSG_APID_FLAG);
         }
     }
 }
@@ -343,33 +343,33 @@ void Test_MSG_SegmentationFlag(void)
 
     UtPrintf("Bad parameter tests, Null pointers and invalid (*_Invalid, max valid + 1");
     memset(&msg, 0, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetSegmentationFlag(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(actual, CFE_MSG_SegFlag_Invalid);
-    ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetSegmentationFlag(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_SetSegmentationFlag(&msg, CFE_MSG_SegFlag_Invalid), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetSegmentationFlag(&msg, CFE_MSG_SegFlag_Unsegmented + 1), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetSegmentationFlag(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(actual, CFE_MSG_SegFlag_Invalid);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetSegmentationFlag(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSegmentationFlag(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSegmentationFlag(&msg, CFE_MSG_SegFlag_Invalid), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSegmentationFlag(&msg, CFE_MSG_SegFlag_Unsegmented + 1), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, CFE_MSG_SegFlag_Unsegmented);
-        ASSERT_EQ(CFE_MSG_SetSegmentationFlag(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, CFE_MSG_SegFlag_Unsegmented);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetSegmentationFlag(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == CFE_MSG_SegFlag_Unsegmented)
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), MSG_SEGMENT_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), MSG_SEGMENT_FLAG);
         }
     }
 
@@ -377,19 +377,19 @@ void Test_MSG_SegmentationFlag(void)
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, CFE_MSG_SegFlag_Continue);
-        ASSERT_EQ(CFE_MSG_SetSegmentationFlag(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, CFE_MSG_SegFlag_Continue);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetSegmentationFlag(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSegmentationFlag(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == CFE_MSG_SegFlag_Continue)
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_SEGMENT_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), MSG_SEGMENT_FLAG);
         }
     }
 }
@@ -406,33 +406,33 @@ void Test_MSG_SequenceCount(void)
 
     UtPrintf("Bad parameter tests, Null pointers and invalid (max valid + 1, max)");
     memset(&msg, 0, sizeof(msg));
-    ASSERT_EQ(CFE_MSG_GetSequenceCount(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(actual, TEST_SEQUENCE_MAX);
-    ASSERT_EQ(CFE_MSG_GetSequenceCount(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetSequenceCount(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, TEST_SEQUENCE_MAX + 1), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
-    ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, maxsc), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetSequenceCount(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(actual, TEST_SEQUENCE_MAX);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetSequenceCount(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSequenceCount(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSequenceCount(&msg, TEST_SEQUENCE_MAX + 1), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_SetSequenceCount(&msg, maxsc), CFE_MSG_BAD_ARGUMENT);
+    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0xFF, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, TEST_SEQUENCE_MAX);
-        ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, TEST_SEQUENCE_MAX);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetSequenceCount(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == TEST_SEQUENCE_MAX)
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotF(&msg), MSG_SEQUENCE_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotF(&msg), MSG_SEQUENCE_FLAG);
         }
     }
 
@@ -440,27 +440,27 @@ void Test_MSG_SequenceCount(void)
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&msg, 0, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, 0);
-        ASSERT_EQ(CFE_MSG_SetSequenceCount(&msg, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, 0);
+        CFE_UtAssert_EQUAL(CFE_MSG_SetSequenceCount(&msg, input[i]), CFE_SUCCESS);
         UT_DisplayPkt(&msg, sizeof(msg));
-        ASSERT_EQ(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
+        CFE_UtAssert_EQUAL(CFE_MSG_GetSequenceCount(&msg, &actual), CFE_SUCCESS);
+        CFE_UtAssert_EQUAL(actual, input[i]);
         if (input[i] == 0)
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), 0);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
         }
         else
         {
-            ASSERT_EQ(Test_MSG_NotZero(&msg), MSG_SEQUENCE_FLAG);
+            CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), MSG_SEQUENCE_FLAG);
         }
     }
 
     UtPrintf("Fully exercise getting next sequence count");
-    ASSERT_EQ(CFE_MSG_GetNextSequenceCount(0), 1);
-    ASSERT_EQ(CFE_MSG_GetNextSequenceCount(TEST_SEQUENCE_MAX / 2), (TEST_SEQUENCE_MAX / 2) + 1);
-    ASSERT_EQ(CFE_MSG_GetNextSequenceCount(TEST_SEQUENCE_MAX), 0);
-    ASSERT_EQ(CFE_MSG_GetNextSequenceCount(maxsc), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetNextSequenceCount(0), 1);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetNextSequenceCount(TEST_SEQUENCE_MAX / 2), (TEST_SEQUENCE_MAX / 2) + 1);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetNextSequenceCount(TEST_SEQUENCE_MAX), 0);
+    CFE_UtAssert_EQUAL(CFE_MSG_GetNextSequenceCount(maxsc), 0);
 }
 
 /*

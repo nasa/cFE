@@ -329,7 +329,7 @@ void Test_CFE_TBL_InitData(void)
     /* This function has only one possible path with no return code */
     UT_InitData();
     CFE_TBL_InitData();
-    ASSERT_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 3);
+    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 3);
 }
 
 /*
@@ -3210,14 +3210,14 @@ void Test_CFE_TBL_TblMod(void)
     }
     MyFilename[sizeof(MyFilename) - 1] = '\0';
 
-    ASSERT(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, MyFilename));
-    ASSERT_EQ(UT_GetNumEventsSent(), 1);
-    ASSERT_TRUE(UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID));
+    CFE_UtAssert_SUCCESS(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_FILE, MyFilename));
+    CFE_UtAssert_EQUAL(UT_GetNumEventsSent(), 1);
+    CFE_UtAssert_TRUE(UT_EventIsInHistory(CFE_TBL_LOAD_SUCCESS_INF_EID));
 
     /* Notify Table Services that the table has been modified */
-    ASSERT(CFE_TBL_Modified(App1TblHandle1));
-    ASSERT(CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table2"));
-    ASSERT_EQ(TblInfo1.TimeOfLastUpdate.Seconds, TblInfo1.TimeOfLastUpdate.Subseconds);
+    CFE_UtAssert_SUCCESS(CFE_TBL_Modified(App1TblHandle1));
+    CFE_UtAssert_SUCCESS(CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table2"));
+    CFE_UtAssert_EQUAL(TblInfo1.TimeOfLastUpdate.Seconds, TblInfo1.TimeOfLastUpdate.Subseconds);
 
     /*
      * LastFileLoaded (limited by mission) can be bigger than MyFilename (limited by osal),

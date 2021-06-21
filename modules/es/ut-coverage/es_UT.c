@@ -1030,7 +1030,7 @@ void TestStartupErrorPaths(void)
     /* This prep is necessary so GetAppId works */
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppType_CORE, NULL, &AppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
-    ASSERT(CFE_ES_WaitForSystemState(CFE_ES_SystemState_CORE_READY, 0));
+    CFE_UtAssert_SUCCESS(CFE_ES_WaitForSystemState(CFE_ES_SystemState_CORE_READY, 0));
 }
 
 void TestApps(void)
