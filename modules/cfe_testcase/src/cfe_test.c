@@ -46,6 +46,7 @@ void CFE_TestMain(void)
      * state and gets ownership of the UtAssert subsystem
      */
     CFE_Assert_RegisterTest("CFE API");
+    CFE_Assert_OpenLogFile(CFE_ASSERT_LOG_FILE_NAME);
 
     /*
      * Register test cases in UtAssert

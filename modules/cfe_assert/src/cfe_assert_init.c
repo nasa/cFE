@@ -45,6 +45,66 @@ void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback)
 }
 
 /*
+ * Opens a log file to "tee" the test output to
+ */
+int32 CFE_Assert_OpenLogFile(const char *Filename)
+{
+    int32  Status;
+    char * Ext;
+    size_t NameLen;
+
+    strncpy(CFE_Assert_Global.LogFileFinal, Filename, sizeof(CFE_Assert_Global.LogFileFinal) - 1);
+    CFE_Assert_Global.LogFileFinal[sizeof(CFE_Assert_Global.LogFileFinal) - 1] = 0;
+
+    strncpy(CFE_Assert_Global.LogFileTemp, Filename, sizeof(CFE_Assert_Global.LogFileTemp) - 1);
+    CFE_Assert_Global.LogFileTemp[sizeof(CFE_Assert_Global.LogFileTemp) - 1] = 0;
+
+    Ext = strrchr(CFE_Assert_Global.LogFileTemp, '.');
+    if (Ext == NULL)
+    {
+        NameLen = strlen(CFE_Assert_Global.LogFileTemp);
+    }
+    else
+    {
+        NameLen = Ext - CFE_Assert_Global.LogFileTemp;
+    }
+
+    /* Use a ".tmp" file while actively writing, will rename at the end */
+    if (NameLen > (sizeof(CFE_Assert_Global.LogFileTemp) - 5))
+    {
+        NameLen = sizeof(CFE_Assert_Global.LogFileTemp) - 5;
+    }
+    strcpy(&CFE_Assert_Global.LogFileTemp[NameLen], ".tmp");
+
+    Status = OS_OpenCreate(&CFE_Assert_Global.LogFileDesc, CFE_Assert_Global.LogFileTemp,
+                           OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+    if (Status != OS_SUCCESS)
+    {
+        CFE_ES_WriteToSysLog("%s: Failed to open %s, rc=%d\n", __func__, CFE_Assert_Global.LogFileTemp, (int)Status);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
+    }
+
+    return CFE_SUCCESS;
+}
+
+/*
+ * Closes the log file
+ * This also renames the intermediate log file to its final name
+ */
+void CFE_Assert_CloseLogFile(void)
+{
+    if (OS_ObjectIdDefined(CFE_Assert_Global.LogFileDesc))
+    {
+        OS_close(CFE_Assert_Global.LogFileDesc);
+        OS_rename(CFE_Assert_Global.LogFileTemp, CFE_Assert_Global.LogFileFinal);
+    }
+
+    CFE_Assert_Global.LogFileDesc     = OS_OBJECT_ID_UNDEFINED;
+    CFE_Assert_Global.LogFileTemp[0]  = 0;
+    CFE_Assert_Global.LogFileFinal[0] = 0;
+}
+
+/*
  * Initialization Function for this library
  */
 int32 CFE_Assert_LibInit(CFE_ES_LibId_t LibId)
