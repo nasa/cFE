@@ -826,3 +826,132 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
     return UtAssertEx(Result, UTASSERT_CASETYPE_FAILURE, File, Line, "%s%s (%ld) %s %s (%ld)", Desc, ActualText,
                       (long)ActualValue, CFE_UtAssert_GetOpText(CompareType), ReferenceText, (long)ReferenceValue);
 }
+
+bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, const char *Desc,
+                                    const char *FormatString)
+{
+    char        ScrubbedFormat[256];
+    const char *EndPtr;
+    size_t      FormatLen;
+
+    /* Locate the actual end of the string, but limited to length of local buffer */
+    /* Reserve two extra chars for quotes */
+    EndPtr = memchr(FormatString, 0, sizeof(ScrubbedFormat) - 2);
+    if (EndPtr != NULL)
+    {
+        FormatLen = EndPtr - FormatString;
+    }
+    else
+    {
+        FormatLen = sizeof(ScrubbedFormat) - 3;
+    }
+
+    /* Check for a newline within that range, and if present, end the string there instead */
+    EndPtr = memchr(FormatString, '\n', FormatLen);
+    if (EndPtr != NULL)
+    {
+        FormatLen = EndPtr - FormatString;
+    }
+
+    /* Need to make a copy, as the input string is "const" */
+    ScrubbedFormat[0] = '\'';
+    memcpy(&ScrubbedFormat[1], FormatString, FormatLen);
+    ScrubbedFormat[FormatLen]     = '\'';
+    ScrubbedFormat[FormatLen + 1] = 0;
+
+    return CFE_UtAssert_GenericSignedCompare_Impl(Status, CFE_UtAssert_Compare_GT, 0, File, Line, Desc, ScrubbedFormat,
+                                                  "");
+}
+
+bool CFE_UtAssert_StringBufCheck_Impl(const char *String1, size_t String1Max, const char *String2, size_t String2Max,
+                                      const char *File, uint32 Line)
+{
+    char        ScrubbedString1[256];
+    char        ScrubbedString2[256];
+    const char *EndPtr1;
+    const char *EndPtr2;
+    size_t      FormatLen1;
+    size_t      FormatLen2;
+    bool        Result;
+
+    /* Locate the actual end of both strings */
+    if (String1 == NULL)
+    {
+        EndPtr1 = NULL;
+    }
+    else
+    {
+        EndPtr1 = memchr(String1, 0, String1Max);
+    }
+
+    if (EndPtr1 != NULL)
+    {
+        FormatLen1 = EndPtr1 - String1;
+    }
+    else
+    {
+        FormatLen1 = String1Max;
+    }
+
+    if (String2 == NULL)
+    {
+        EndPtr2 = NULL;
+    }
+    else
+    {
+        EndPtr2 = memchr(String2, 0, String2Max);
+    }
+
+    if (EndPtr2 != NULL)
+    {
+        FormatLen2 = EndPtr2 - String2;
+    }
+    else
+    {
+        FormatLen2 = String2Max;
+    }
+
+    if (FormatLen1 != FormatLen2)
+    {
+        /* This means the strings have different termination/length, and therefore must not be equal (content doesn't
+         * matter) */
+        Result = false;
+    }
+    else if (FormatLen1 == 0)
+    {
+        /* Two empty strings are considered equal */
+        Result = true;
+    }
+    else
+    {
+        /* If the effective lengths are the same, use memcmp to check content */
+        Result = (memcmp(String1, String2, FormatLen1) == 0);
+    }
+
+    /* Now make "safe" copies of the strings */
+    /* Check for a newline within the string, and if present, end the string there instead */
+    if (FormatLen1 > 0)
+    {
+        EndPtr1 = memchr(String1, '\n', FormatLen1);
+        if (EndPtr1 != NULL)
+        {
+            FormatLen1 = EndPtr1 - String1;
+        }
+        memcpy(ScrubbedString1, String1, FormatLen1);
+    }
+    ScrubbedString1[FormatLen1] = 0;
+
+    if (FormatLen2 > 0)
+    {
+        EndPtr2 = memchr(String2, '\n', FormatLen2);
+        if (EndPtr2 != NULL)
+        {
+            FormatLen2 = EndPtr2 - String2;
+        }
+        memcpy(ScrubbedString2, String2, FormatLen2);
+    }
+    ScrubbedString2[FormatLen2] = 0;
+
+    return UtAssertEx(Result, UTASSERT_CASETYPE_FAILURE, File, Line, "String: \'%s\' == \'%s\'", ScrubbedString1,
+                      ScrubbedString2);
+}
