@@ -980,6 +980,23 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 
 /*****************************************************************************/
 /**
+** \brief Macro to check CFE message ID for equality
+**
+** \par Description
+**        A macro that checks two message ID values for equality.
+**
+** \par Assumptions, External Events, and Notes:
+**        The generic #UtAssert_UINT32_EQ check should not be used, as CFE_SB_MsgId_t values
+**        and integers may not be interchangable with strict type checking.
+**
+******************************************************************************/
+#define CFE_UtAssert_MSGID_EQ(mid1, mid2)                                                                           \
+    CFE_UtAssert_GenericUnsignedCompare_Impl(CFE_SB_MsgIdToValue(mid1), CFE_UtAssert_Compare_EQ,                    \
+                                             CFE_SB_MsgIdToValue(mid2), __FILE__, __LINE__, "MsgId Check: ", #mid1, \
+                                             #mid2)
+
+/*****************************************************************************/
+/**
 ** \brief Macro to check string buffers for equality
 **
 ** \par Description

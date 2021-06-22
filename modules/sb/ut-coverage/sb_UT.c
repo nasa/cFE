@@ -201,7 +201,7 @@ void Test_SB_AppInit_EVSRegFail(void)
     int32 ForcedRtnVal = -1;
 
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_Register), 1, ForcedRtnVal);
-    CFE_UtAssert_EQUAL(CFE_SB_AppInit(), ForcedRtnVal);
+    UtAssert_INT32_EQ(CFE_SB_AppInit(), ForcedRtnVal);
 
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -228,7 +228,7 @@ void Test_SB_AppInit_EVSSendEvtFail(void)
      * (The others use SendEventWithAppID which is a different counter).
      */
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 1, ForcedRtnVal);
-    CFE_UtAssert_EQUAL(CFE_SB_AppInit(), ForcedRtnVal);
+    UtAssert_INT32_EQ(CFE_SB_AppInit(), ForcedRtnVal);
 
     CFE_UtAssert_EVENTCOUNT(4);
 
@@ -245,7 +245,7 @@ void Test_SB_AppInit_CrPipeFail(void)
      * type of error code.
      */
     UT_SetDeferredRetcode(UT_KEY(OS_QueueCreate), 1, OS_ERROR);
-    CFE_UtAssert_EQUAL(CFE_SB_AppInit(), CFE_SB_PIPE_CR_ERR);
+    UtAssert_INT32_EQ(CFE_SB_AppInit(), CFE_SB_PIPE_CR_ERR);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -259,7 +259,7 @@ void Test_SB_AppInit_CrPipeFail(void)
 void Test_SB_AppInit_Sub1Fail(void)
 {
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, -1);
-    CFE_UtAssert_EQUAL(CFE_SB_AppInit(), CFE_SB_BUF_ALOC_ERR);
+    UtAssert_INT32_EQ(CFE_SB_AppInit(), CFE_SB_BUF_ALOC_ERR);
 
     CFE_UtAssert_EVENTCOUNT(3);
 
@@ -275,7 +275,7 @@ void Test_SB_AppInit_Sub1Fail(void)
 void Test_SB_AppInit_Sub2Fail(void)
 {
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 2, -1);
-    CFE_UtAssert_EQUAL(CFE_SB_AppInit(), CFE_SB_BUF_ALOC_ERR);
+    UtAssert_INT32_EQ(CFE_SB_AppInit(), CFE_SB_BUF_ALOC_ERR);
 
     CFE_UtAssert_EVENTCOUNT(4);
 
@@ -294,7 +294,7 @@ void Test_SB_AppInit_GetPoolFail(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 4, ForcedRtnVal);
 
-    CFE_UtAssert_EQUAL(CFE_SB_AppInit(), ForcedRtnVal);
+    UtAssert_INT32_EQ(CFE_SB_AppInit(), ForcedRtnVal);
 
     CFE_UtAssert_EVENTCOUNT(4);
 
@@ -311,7 +311,7 @@ void Test_SB_AppInit_PutPoolFail(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, ForcedRtnVal);
 
-    CFE_UtAssert_EQUAL(CFE_SB_AppInit(), ForcedRtnVal);
+    UtAssert_INT32_EQ(CFE_SB_AppInit(), ForcedRtnVal);
 
     CFE_UtAssert_EVENTCOUNT(4);
 
@@ -592,7 +592,7 @@ void Test_SB_Cmds_RoutingInfoDataGetter(void)
     LocalBuffer  = NULL;
     LocalBufSize = 0;
 
-    CFE_UtAssert_TRUE(!CFE_SB_WriteRouteInfoDataGetter(&State, 0, &LocalBuffer, &LocalBufSize));
+    CFE_UtAssert_FALSE(CFE_SB_WriteRouteInfoDataGetter(&State, 0, &LocalBuffer, &LocalBufSize));
     UtAssert_NOT_NULL(LocalBuffer);
     UtAssert_NONZERO(LocalBufSize);
 
@@ -705,10 +705,10 @@ void Test_SB_Cmds_PipeInfoDataGetter(void)
     LocalBufSize = 0;
 
     /* Note that CFE_SB_CreatePipe() fills entry 1 first, so entry 0 is unused */
-    CFE_UtAssert_TRUE(!CFE_SB_WritePipeInfoDataGetter(&State, 0, &LocalBuffer, &LocalBufSize));
+    CFE_UtAssert_FALSE(CFE_SB_WritePipeInfoDataGetter(&State, 0, &LocalBuffer, &LocalBufSize));
     UtAssert_ZERO(LocalBufSize);
 
-    CFE_UtAssert_TRUE(!CFE_SB_WritePipeInfoDataGetter(&State, 1, &LocalBuffer, &LocalBufSize));
+    CFE_UtAssert_FALSE(CFE_SB_WritePipeInfoDataGetter(&State, 1, &LocalBuffer, &LocalBufSize));
     UtAssert_NOT_NULL(LocalBuffer);
     UtAssert_NONZERO(LocalBufSize);
 
@@ -789,7 +789,7 @@ void Test_SB_Cmds_MapInfoDataGetter(void)
     LocalBuffer  = NULL;
     LocalBufSize = 0;
 
-    CFE_UtAssert_TRUE(!CFE_SB_WriteMsgMapInfoDataGetter(&State, 0, &LocalBuffer, &LocalBufSize));
+    CFE_UtAssert_FALSE(CFE_SB_WriteMsgMapInfoDataGetter(&State, 0, &LocalBuffer, &LocalBufSize));
     UtAssert_NOT_NULL(LocalBuffer);
     UtAssert_NONZERO(LocalBufSize);
 
@@ -1335,7 +1335,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
     /* Event count is only exact if there were no collisions */
     if (UT_EventIsInHistory(CFE_SB_HASHCOLLISION_EID))
     {
-        CFE_UtAssert_TRUE(UT_GetNumEventsSent() > NumEvts);
+        CFE_UtAssert_ATLEAST(UT_GetNumEventsSent(), NumEvts + 1);
     }
     else
     {
@@ -1377,7 +1377,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
     /* Event count is only exact if there were no collisions */
     if (UT_EventIsInHistory(CFE_SB_HASHCOLLISION_EID))
     {
-        CFE_UtAssert_TRUE(UT_GetNumEventsSent() > NumEvts);
+        CFE_UtAssert_ATLEAST(UT_GetNumEventsSent(), NumEvts + 1);
     }
     else
     {
@@ -1521,8 +1521,7 @@ void Test_SB_EarlyInit(void)
 void Test_SB_EarlyInit_SemCreateError(void)
 {
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERR_NO_FREE_IDS);
-    UT_Report(__FILE__, __LINE__, CFE_SB_EarlyInit() == OS_ERR_NO_FREE_IDS, "CFE_SB_EarlyInit",
-              "Sem Create error logic");
+    UtAssert_INT32_EQ(CFE_SB_EarlyInit(), OS_ERR_NO_FREE_IDS);
 } /* end Test_SB_EarlyInit_SemCreateError */
 
 /*
@@ -1531,8 +1530,7 @@ void Test_SB_EarlyInit_SemCreateError(void)
 void Test_SB_EarlyInit_PoolCreateError(void)
 {
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_PoolCreateEx), 1, CFE_ES_BAD_ARGUMENT);
-    UT_Report(__FILE__, __LINE__, CFE_SB_EarlyInit() == CFE_ES_BAD_ARGUMENT, "CFE_SB_EarlyInit",
-              "PoolCreateEx error logic");
+    UtAssert_INT32_EQ(CFE_SB_EarlyInit(), CFE_ES_BAD_ARGUMENT);
 } /* end Test_SB_EarlyInit_PoolCreateError */
 
 /*
@@ -1541,7 +1539,7 @@ void Test_SB_EarlyInit_PoolCreateError(void)
 void Test_SB_EarlyInit_NoErrors(void)
 {
     CFE_SB_EarlyInit();
-    UT_Report(__FILE__, __LINE__, CFE_SB_EarlyInit() == CFE_SUCCESS, "CFE_SB_EarlyInit", "No errors test");
+    CFE_UtAssert_SUCCESS(CFE_SB_EarlyInit());
 } /* end Test_SB_EarlyInit_NoErrors */
 
 /*
@@ -1567,7 +1565,7 @@ void Test_CreatePipe_NullPtr(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetTaskInfo), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
     UT_SetDeferredRetcode(UT_KEY(OS_QueueCreate), 1, OS_SUCCESS); /* Avoids creating socket */
-    CFE_UtAssert_EQUAL(CFE_SB_CreatePipe(NULL, PipeDepth, "TestPipe"), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(NULL, PipeDepth, "TestPipe"), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -1602,12 +1600,12 @@ void Test_CreatePipe_InvalPipeDepth(void)
     CFE_SB_PipeId_t PipeIdReturned[3];
 
     UT_SetDeferredRetcode(UT_KEY(OS_QueueCreate), 1, OS_SUCCESS); /* Avoid creating socket */
-    CFE_UtAssert_EQUAL(CFE_SB_CreatePipe(&PipeIdReturned[0], 0, "TestPipe1"), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeIdReturned[0], 0, "TestPipe1"), CFE_SB_BAD_ARGUMENT);
     UT_SetDeferredRetcode(UT_KEY(OS_QueueCreate), 1, OS_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_SB_CreatePipe(&PipeIdReturned[1], OS_QUEUE_MAX_DEPTH + 1, "TestPipeMaxDepPlus1"),
-                       CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeIdReturned[1], OS_QUEUE_MAX_DEPTH + 1, "TestPipeMaxDepPlus1"),
+                      CFE_SB_BAD_ARGUMENT);
     UT_SetDeferredRetcode(UT_KEY(OS_QueueCreate), 1, OS_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_SB_CreatePipe(&PipeIdReturned[2], 0xffff, "TestPipeffff"), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeIdReturned[2], 0xffff, "TestPipeffff"), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(3);
 
@@ -1639,7 +1637,7 @@ void Test_CreatePipe_MaxPipes(void)
         }
         else
         {
-            CFE_UtAssert_EQUAL(CFE_SB_CreatePipe(&PipeIdReturned[i], PipeDepth, PipeName), CFE_SB_MAX_PIPES_MET);
+            UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeIdReturned[i], PipeDepth, PipeName), CFE_SB_MAX_PIPES_MET);
         }
     }
 
@@ -1658,7 +1656,7 @@ void Test_CreatePipe_MaxPipes(void)
     CFE_SB_Global.PipeTbl[1].PipeId = CFE_SB_PIPEID_C(UT_SB_MakePipeIdForIndex(1));
     CFE_SB_Global.PipeTbl[2].PipeId = CFE_SB_INVALID_PIPE;
     CFE_UtAssert_TRUE(CFE_SB_CheckPipeDescSlotUsed(UT_SB_MakePipeIdForIndex(1)));
-    CFE_UtAssert_TRUE(!CFE_SB_CheckPipeDescSlotUsed(UT_SB_MakePipeIdForIndex(2)));
+    CFE_UtAssert_FALSE(CFE_SB_CheckPipeDescSlotUsed(UT_SB_MakePipeIdForIndex(2)));
 
 } /* end Test_CreatePipe_MaxPipes */
 
@@ -1682,9 +1680,9 @@ void Test_CreatePipe_SamePipeName(void)
     FirstPipeId = PipeId;
 
     /* Second call to CFE_SB_CreatePipe with same PipeName should fail */
-    CFE_UtAssert_EQUAL(CFE_SB_CreatePipe(&PipeId, PipeDepth, PipeName), CFE_SB_PIPE_CR_ERR);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId, PipeDepth, PipeName), CFE_SB_PIPE_CR_ERR);
 
-    CFE_UtAssert_TRUE(CFE_RESOURCEID_TEST_EQUAL(PipeId, FirstPipeId));
+    CFE_UtAssert_RESOURCEID_EQ(PipeId, FirstPipeId);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -1757,7 +1755,7 @@ void Test_DeletePipe_InvalidPipeId(void)
 {
     CFE_SB_PipeId_t PipeId = SB_UT_ALTERNATE_INVALID_PIPEID;
 
-    CFE_UtAssert_EQUAL(CFE_SB_DeletePipe(PipeId), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -1783,7 +1781,7 @@ void Test_DeletePipe_InvalidPipeOwner(void)
 
     /* Choose a value that is sure not to be owner */
     PipeDscPtr->AppId = UT_SB_AppID_Modify(RealOwner, 1);
-    CFE_UtAssert_EQUAL(CFE_SB_DeletePipe(PipedId), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipedId), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -1848,7 +1846,7 @@ void Test_GetPipeName_NullPtr(void)
     CFE_SB_PipeId_t PipeId;
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 4, "TestPipe"));
-    CFE_UtAssert_EQUAL(CFE_SB_GetPipeName(NULL, OS_MAX_API_NAME, PipeId), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_GetPipeName(NULL, OS_MAX_API_NAME, PipeId), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_NULL_PTR_EID);
 
@@ -1867,7 +1865,7 @@ void Test_GetPipeName_InvalidId(void)
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, 4, "TestPipe"));
 
     UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERROR);
-    CFE_UtAssert_EQUAL(CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_GetPipeName(PipeName, sizeof(PipeName), PipeId), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPENAME_ID_ERR_EID);
 
@@ -1914,11 +1912,11 @@ void Test_GetPipeIdByName_NullPtrs(void)
 {
     CFE_SB_PipeId_t PipeIDOut;
 
-    CFE_UtAssert_EQUAL(CFE_SB_GetPipeIdByName(&PipeIDOut, NULL), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_GetPipeIdByName(&PipeIDOut, NULL), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID);
 
-    CFE_UtAssert_EQUAL(CFE_SB_GetPipeIdByName(NULL, "invalid"), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_GetPipeIdByName(NULL, "invalid"), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPEIDBYNAME_NULL_ERR_EID);
 
@@ -1932,7 +1930,7 @@ void Test_GetPipeIdByName_InvalidName(void)
     CFE_SB_PipeId_t PipeIdOut;
 
     UT_SetDeferredRetcode(UT_KEY(OS_QueueGetIdByName), 1, OS_ERR_NAME_NOT_FOUND);
-    CFE_UtAssert_EQUAL(CFE_SB_GetPipeIdByName(&PipeIdOut, "invalid"), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_GetPipeIdByName(&PipeIdOut, "invalid"), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID);
 
@@ -1964,7 +1962,7 @@ void Test_GetPipeIdByName(void)
 */
 void Test_SetPipeOpts_BadID(void)
 {
-    CFE_UtAssert_EQUAL(CFE_SB_SetPipeOpts(SB_UT_ALTERNATE_INVALID_PIPEID, 0), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_SetPipeOpts(SB_UT_ALTERNATE_INVALID_PIPEID, 0), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_SETPIPEOPTS_ID_ERR_EID);
 
@@ -1986,7 +1984,7 @@ void Test_SetPipeOpts_NotOwner(void)
     OrigOwner         = PipeDscPtr->AppId;
     PipeDscPtr->AppId = UT_SB_AppID_Modify(OrigOwner, 1);
 
-    CFE_UtAssert_EQUAL(CFE_SB_SetPipeOpts(PipeID, 0), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_SetPipeOpts(PipeID, 0), CFE_SB_BAD_ARGUMENT);
 
     PipeDscPtr->AppId = OrigOwner;
 
@@ -2020,7 +2018,7 @@ void Test_GetPipeOpts_BadID(void)
 {
     uint8 Opts = 0;
 
-    CFE_UtAssert_EQUAL(CFE_SB_GetPipeOpts(SB_UT_ALTERNATE_INVALID_PIPEID, &Opts), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_GetPipeOpts(SB_UT_ALTERNATE_INVALID_PIPEID, &Opts), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPEOPTS_ID_ERR_EID);
 
@@ -2035,7 +2033,7 @@ void Test_GetPipeOpts_BadPtr(void)
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeID, 4, "TestPipe1"));
 
-    CFE_UtAssert_EQUAL(CFE_SB_GetPipeOpts(PipeID, NULL), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_GetPipeOpts(PipeID, NULL), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_GETPIPEOPTS_PTR_ERR_EID);
 
@@ -2112,7 +2110,7 @@ void Test_Subscribe_InvalidPipeId(void)
     CFE_SB_PipeId_t PipeId = SB_UT_PIPEID_2;
     CFE_SB_MsgId_t  MsgId  = SB_UT_ALTERNATE_INVALID_MID;
 
-    CFE_UtAssert_EQUAL(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -2131,7 +2129,7 @@ void Test_Subscribe_InvalidMsgId(void)
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
 
-    CFE_UtAssert_EQUAL(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(3);
 
@@ -2238,7 +2236,7 @@ void Test_Subscribe_MaxDestCount(void)
         }
         else
         {
-            CFE_UtAssert_EQUAL(CFE_SB_Subscribe(MsgId, PipeId[i]), CFE_SB_MAX_DESTS_MET);
+            UtAssert_INT32_EQ(CFE_SB_Subscribe(MsgId, PipeId[i]), CFE_SB_MAX_DESTS_MET);
         }
     }
 
@@ -2278,7 +2276,7 @@ void Test_Subscribe_MaxMsgIdCount(void)
         }
         else
         {
-            CFE_UtAssert_EQUAL(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(i), PipeId2), CFE_SB_MAX_MSGS_MET);
+            UtAssert_INT32_EQ(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(i), PipeId2), CFE_SB_MAX_MSGS_MET);
         }
     }
 
@@ -2347,7 +2345,7 @@ void Test_Subscribe_PipeNonexistent(void)
     CFE_SB_MsgId_t  MsgId  = SB_UT_CMD_MID;
     CFE_SB_PipeId_t PipeId = SB_UT_ALTERNATE_INVALID_PIPEID;
 
-    CFE_UtAssert_EQUAL(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -2510,14 +2508,14 @@ void Test_Unsubscribe_InvalParam(void)
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe"));
 
     /* Perform test using a bad message ID */
-    CFE_UtAssert_EQUAL(CFE_SB_Unsubscribe(SB_UT_ALTERNATE_INVALID_MID, TestPipe), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_Unsubscribe(SB_UT_ALTERNATE_INVALID_MID, TestPipe), CFE_SB_BAD_ARGUMENT);
 
     /* Get the caller's Application ID */
     CFE_UtAssert_SUCCESS(CFE_ES_GetAppID(&CallerId));
 
     /* Perform test using a bad scope value */
-    CFE_UtAssert_EQUAL(CFE_SB_UnsubscribeFull(SB_UT_FIRST_VALID_MID, TestPipe, CFE_SB_MSG_LOCAL + 1, CallerId),
-                       CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_UnsubscribeFull(SB_UT_FIRST_VALID_MID, TestPipe, CFE_SB_MSG_LOCAL + 1, CallerId),
+                      CFE_SB_BAD_ARGUMENT);
 
     /* Perform test using an invalid pipe ID for branch path coverage.
      * This situation cannot happen in normal circumstances since the
@@ -2527,7 +2525,7 @@ void Test_Unsubscribe_InvalParam(void)
     PipeDscPtr         = CFE_SB_LocatePipeDescByID(TestPipe);
     SavedPipeId        = CFE_SB_PipeDescGetID(PipeDscPtr);
     PipeDscPtr->PipeId = SB_UT_ALTERNATE_INVALID_PIPEID;
-    CFE_UtAssert_EQUAL(CFE_SB_Unsubscribe(SB_UT_FIRST_VALID_MID, TestPipe), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_Unsubscribe(SB_UT_FIRST_VALID_MID, TestPipe), CFE_SB_BAD_ARGUMENT);
 
     /* We must restore the old value so CFE_SB_DeletePipe() works */
     PipeDscPtr->PipeId = SavedPipeId;
@@ -2581,7 +2579,7 @@ void Test_Unsubscribe_InvalidPipe(void)
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&TestPipe, PipeDepth, "TestPipe"));
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, TestPipe));
 
-    CFE_UtAssert_EQUAL(CFE_SB_Unsubscribe(MsgId, SB_UT_ALTERNATE_INVALID_PIPEID), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_Unsubscribe(MsgId, SB_UT_ALTERNATE_INVALID_PIPEID), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(3);
 
@@ -2612,7 +2610,7 @@ void Test_Unsubscribe_InvalidPipeOwner(void)
 
     /* Choose a value that is sure not be owner */
     PipeDscPtr->AppId = UT_SB_AppID_Modify(RealOwner, 1);
-    CFE_UtAssert_EQUAL(CFE_SB_Unsubscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_Unsubscribe(MsgId, PipeId), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(3);
 
@@ -2708,7 +2706,7 @@ void Test_Unsubscribe_GetDestPtr(void)
 
     /* For now just get route id and use it, will need update when stubbed */
     RouteId = CFE_SBR_GetRouteId(MsgId);
-    CFE_UtAssert_TRUE(CFE_SB_GetDestPtr(RouteId, TestPipe2) == NULL);
+    UtAssert_NULL(CFE_SB_GetDestPtr(RouteId, TestPipe2));
 
     CFE_UtAssert_EVENTCOUNT(5);
 
@@ -2750,7 +2748,7 @@ void Test_TransmitMsg_API(void)
 */
 void Test_TransmitMsg_NullPtr(void)
 {
-    CFE_UtAssert_EQUAL(CFE_SB_TransmitMsg(NULL, true), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(NULL, true), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -2790,7 +2788,7 @@ void Test_TransmitMsg_MaxMsgSizePlusOne(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
-    CFE_UtAssert_EQUAL(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true), CFE_SB_MSG_TOO_BIG);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true), CFE_SB_MSG_TOO_BIG);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -2863,18 +2861,18 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 1);
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 1);
-    CFE_UtAssert_EQUAL(SeqCnt, SeqCntExpected);
+    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 1);
+    UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 1);
+    UtAssert_INT32_EQ(SeqCnt, SeqCntExpected);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, false));
 
-    /* CFE_UtAssert_SUCCESS sequence count wasn't set */
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 1);
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 1);
+    /* Assert sequence count wasn't set */
+    UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 1);
+    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 1);
 
     SeqCntExpected = 2;
     UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), SeqCntExpected);
@@ -2882,9 +2880,9 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
-    CFE_UtAssert_EQUAL(SeqCnt, SeqCntExpected);
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 2);
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 2);
+    UtAssert_INT32_EQ(SeqCnt, SeqCntExpected);
+    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 2);
+    UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 2);
 
     CFE_UtAssert_EVENTCOUNT(2);
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
@@ -2897,8 +2895,8 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true)); /* increment to 3 */
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 3);
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 3);
+    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 3);
+    UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 3);
 
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId)); /* resubscribe so we can receive a msg */
 
@@ -2908,9 +2906,9 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true)); /* increment to 4 */
-    CFE_UtAssert_EQUAL(SeqCnt, SeqCntExpected);
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_SetSequenceCount)), 4);
-    CFE_UtAssert_EQUAL(UT_GetStubCount(UT_KEY(CFE_MSG_GetNextSequenceCount)), 4);
+    UtAssert_INT32_EQ(SeqCnt, SeqCntExpected);
+    UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 4);
+    UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 4);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
@@ -3046,7 +3044,7 @@ void Test_TransmitMsg_GetPoolBufErr(void)
      * allocation failed)
      */
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
-    CFE_UtAssert_EQUAL(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true), CFE_SB_BUF_ALOC_ERR);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true), CFE_SB_BUF_ALOC_ERR);
 
     CFE_UtAssert_EVENTCOUNT(3);
 
@@ -3069,7 +3067,7 @@ void Test_AllocateMessageBuffer(void)
      * allocation failed)
      */
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
-    CFE_UtAssert_TRUE(CFE_SB_AllocateMessageBuffer(MsgSize) == NULL);
+    UtAssert_NULL(CFE_SB_AllocateMessageBuffer(MsgSize));
 
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -3082,13 +3080,13 @@ void Test_AllocateMessageBuffer(void)
     CFE_SB_Global.StatTlmMsg.Payload.MemInUse           = 0;
     CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse       = MemUse + 10;
     CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse = CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse + 2;
-    CFE_UtAssert_TRUE(CFE_SB_AllocateMessageBuffer(MsgSize) != NULL);
+    UtAssert_NOT_NULL(CFE_SB_AllocateMessageBuffer(MsgSize));
 
-    CFE_UtAssert_EQUAL(CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse, MemUse + 10); /* unchanged */
-    CFE_UtAssert_EQUAL(CFE_SB_Global.StatTlmMsg.Payload.MemInUse, MemUse);          /* predicted value */
+    UtAssert_INT32_EQ(CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse, MemUse + 10); /* unchanged */
+    UtAssert_INT32_EQ(CFE_SB_Global.StatTlmMsg.Payload.MemInUse, MemUse);          /* predicted value */
 
-    CFE_UtAssert_EQUAL(CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse,
-                       CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse + 1);
+    UtAssert_INT32_EQ(CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse,
+                      CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse + 1);
 
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -3112,16 +3110,16 @@ void Test_TransmitMsg_ZeroCopyBufferValidate(void)
     memset(&BadZeroCpyBuf, 0, sizeof(BadZeroCpyBuf));
 
     /* Null Buffer => BAD_ARGUMENT */
-    CFE_UtAssert_EQUAL(CFE_SB_ZeroCopyBufferValidate(NULL, &BufDscPtr), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_ZeroCopyBufferValidate(NULL, &BufDscPtr), CFE_SB_BAD_ARGUMENT);
 
     /* Non-null buffer pointer but Non Zero-Copy => CFE_SB_BUFFER_INVALID */
-    CFE_UtAssert_EQUAL(CFE_SB_ZeroCopyBufferValidate(&BadZeroCpyBuf.Content, &BufDscPtr), CFE_SB_BUFFER_INVALID);
+    UtAssert_INT32_EQ(CFE_SB_ZeroCopyBufferValidate(&BadZeroCpyBuf.Content, &BufDscPtr), CFE_SB_BUFFER_INVALID);
 
     /* Good buffer pointer + Good Handle => SUCCESS */
-    CFE_UtAssert_EQUAL(CFE_SB_ZeroCopyBufferValidate(SendPtr, &BufDscPtr), CFE_SUCCESS);
+    CFE_UtAssert_SUCCESS(CFE_SB_ZeroCopyBufferValidate(SendPtr, &BufDscPtr));
 
     /* Confirm that the computed pointer was correct */
-    CFE_UtAssert_TRUE(&BufDscPtr->Content == SendPtr);
+    UtAssert_ADDRESS_EQ(&BufDscPtr->Content, SendPtr);
 
     /* Clean-up */
     CFE_SB_ReleaseMessageBuffer(SendPtr);
@@ -3166,9 +3164,9 @@ void Test_TransmitBuffer_IncrementSeqCnt(void)
 
     CFE_UtAssert_SUCCESS(CFE_SB_ReceiveBuffer(&ReceivePtr, PipeId, CFE_SB_PEND_FOREVER));
 
-    CFE_UtAssert_TRUE(SendPtr == ReceivePtr);
+    UtAssert_ADDRESS_EQ(SendPtr, ReceivePtr);
 
-    CFE_UtAssert_EQUAL(SeqCnt, 1);
+    UtAssert_INT32_EQ(SeqCnt, 1);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -3213,8 +3211,8 @@ void Test_TransmitBuffer_NoIncrement(void)
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitBuffer(SendPtr, false));
     CFE_UtAssert_SUCCESS(CFE_SB_ReceiveBuffer(&ReceivePtr, PipeId, CFE_SB_PEND_FOREVER));
 
-    CFE_UtAssert_TRUE(SendPtr == ReceivePtr);
-    CFE_UtAssert_EQUAL(SeqCnt, 22);
+    UtAssert_ADDRESS_EQ(SendPtr, ReceivePtr);
+    UtAssert_INT32_EQ(SeqCnt, 22);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -3240,14 +3238,14 @@ void Test_ReleaseMessageBuffer(void)
     CFE_UtAssert_SETUP(CFE_SB_ReleaseMessageBuffer(ZeroCpyMsgPtr2));
 
     /* Test response to an invalid buffer (has been released already) */
-    CFE_UtAssert_EQUAL(CFE_SB_ReleaseMessageBuffer(ZeroCpyMsgPtr2), CFE_SB_BUFFER_INVALID);
+    UtAssert_INT32_EQ(CFE_SB_ReleaseMessageBuffer(ZeroCpyMsgPtr2), CFE_SB_BUFFER_INVALID);
 
     /* Test response to a null message pointer */
-    CFE_UtAssert_EQUAL(CFE_SB_ReleaseMessageBuffer(NULL), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_ReleaseMessageBuffer(NULL), CFE_SB_BAD_ARGUMENT);
 
     /* Test response to an invalid message pointer */
     memset(&BadBufferDesc, 0, sizeof(BadBufferDesc));
-    CFE_UtAssert_EQUAL(CFE_SB_ReleaseMessageBuffer(&BadBufferDesc.Content), CFE_SB_BUFFER_INVALID);
+    UtAssert_INT32_EQ(CFE_SB_ReleaseMessageBuffer(&BadBufferDesc.Content), CFE_SB_BUFFER_INVALID);
 
     /* Test successful release of the second buffer */
     CFE_UtAssert_SUCCESS(CFE_SB_ReleaseMessageBuffer(ZeroCpyMsgPtr3));
@@ -3341,10 +3339,10 @@ void Test_TransmitMsgValidate_MaxMsgSizePlusOne(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
-    CFE_UtAssert_EQUAL(CFE_SB_TransmitMsgValidate(&TlmPkt.Hdr.Msg, &MsgIdRtn, &SizeRtn, &RouteIdRtn),
-                       CFE_SB_MSG_TOO_BIG);
-    CFE_UtAssert_EQUAL(CFE_SB_MsgIdToValue(MsgIdRtn), CFE_SB_MsgIdToValue(MsgId));
-    CFE_UtAssert_EQUAL(SizeRtn, Size);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsgValidate(&TlmPkt.Hdr.Msg, &MsgIdRtn, &SizeRtn, &RouteIdRtn),
+                      CFE_SB_MSG_TOO_BIG);
+    CFE_UtAssert_MSGID_EQ(MsgIdRtn, MsgId);
+    UtAssert_INT32_EQ(SizeRtn, Size);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -3367,9 +3365,9 @@ void Test_TransmitMsgValidate_NoSubscribers(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsgValidate(&TlmPkt.Hdr.Msg, &MsgIdRtn, &SizeRtn, &RouteIdRtn));
-    CFE_UtAssert_EQUAL(CFE_SB_MsgIdToValue(MsgIdRtn), CFE_SB_MsgIdToValue(MsgId));
-    CFE_UtAssert_EQUAL(SizeRtn, Size);
-    CFE_UtAssert_TRUE(!CFE_SBR_IsValidRouteId(RouteIdRtn));
+    CFE_UtAssert_MSGID_EQ(MsgIdRtn, MsgId);
+    UtAssert_INT32_EQ(SizeRtn, Size);
+    CFE_UtAssert_FALSE(CFE_SBR_IsValidRouteId(RouteIdRtn));
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -3398,7 +3396,7 @@ void Test_ReceiveBuffer_InvalidPipeId(void)
     CFE_SB_Buffer_t *SBBufPtr;
     CFE_SB_PipeId_t  InvalidPipeId = SB_UT_ALTERNATE_INVALID_PIPEID;
 
-    CFE_UtAssert_EQUAL(CFE_SB_ReceiveBuffer(&SBBufPtr, InvalidPipeId, CFE_SB_POLL), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, InvalidPipeId, CFE_SB_POLL), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -3418,7 +3416,7 @@ void Test_ReceiveBuffer_InvalidTimeout(void)
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvTestPipe"));
 
-    CFE_UtAssert_EQUAL(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, TimeOut), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, TimeOut), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -3439,7 +3437,7 @@ void Test_ReceiveBuffer_Poll(void)
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvTestPipe"));
 
-    CFE_UtAssert_EQUAL(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -3462,7 +3460,7 @@ void Test_ReceiveBuffer_Timeout(void)
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvTestPipe"));
     UT_SetDeferredRetcode(UT_KEY(OS_QueueGet), 1, OS_QUEUE_TIMEOUT);
 
-    CFE_UtAssert_EQUAL(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, TimeOut), CFE_SB_TIME_OUT);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, TimeOut), CFE_SB_TIME_OUT);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -3483,7 +3481,7 @@ void Test_ReceiveBuffer_PipeReadError(void)
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvTestPipe"));
     UT_SetDeferredRetcode(UT_KEY(OS_QueueGet), 1, OS_ERROR);
-    CFE_UtAssert_EQUAL(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER), CFE_SB_PIPE_RD_ERR);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER), CFE_SB_PIPE_RD_ERR);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -3515,7 +3513,7 @@ void Test_ReceiveBuffer_PendForever(void)
 
     CFE_UtAssert_SUCCESS(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER));
 
-    CFE_UtAssert_TRUE(SBBufPtr != NULL);
+    UtAssert_NOT_NULL(SBBufPtr);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -3597,7 +3595,7 @@ void Test_ReceiveBuffer_InvalidBufferPtr(void)
 
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "RcvTestPipe"));
 
-    CFE_UtAssert_EQUAL(CFE_SB_ReceiveBuffer(NULL, PipeId, CFE_SB_PEND_FOREVER), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(NULL, PipeId, CFE_SB_PEND_FOREVER), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -3632,26 +3630,26 @@ void Test_CFE_SB_MsgHdrSize(void)
     type   = CFE_MSG_Type_Invalid;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    CFE_UtAssert_EQUAL(CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_Message_t));
+    CFE_UtAssert_MEMOFFSET_EQ(CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_Message_t));
 
     /* Has secondary, tlm type */
     hassec = true;
     type   = CFE_MSG_Type_Tlm;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    CFE_UtAssert_EQUAL(CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_TelemetryHeader_t));
+    CFE_UtAssert_MEMOFFSET_EQ(CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_TelemetryHeader_t));
 
     /* Has secondary, cmd type */
     type = CFE_MSG_Type_Cmd;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    CFE_UtAssert_EQUAL(CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_CommandHeader_t));
+    CFE_UtAssert_MEMOFFSET_EQ(CFE_SB_MsgHdrSize(&msg), sizeof(CFE_MSG_CommandHeader_t));
 
     /* Has secondary, invalid type */
     type = CFE_MSG_Type_Invalid;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    CFE_UtAssert_EQUAL(CFE_SB_MsgHdrSize(&msg), 0);
+    CFE_UtAssert_MEMOFFSET_EQ(CFE_SB_MsgHdrSize(&msg), 0);
 
 } /* end Test_CFE_SB_MsgHdrSize */
 
@@ -3761,7 +3759,7 @@ void Test_CFE_SB_SetGetUserDataLength(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &size, sizeof(size), false);
-    CFE_UtAssert_EQUAL(CFE_SB_GetUserDataLength(&msg), size - sizeof(CCSDS_SpacePacket_t));
+    UtAssert_INT32_EQ(CFE_SB_GetUserDataLength(&msg), size - sizeof(CCSDS_SpacePacket_t));
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
@@ -3778,11 +3776,11 @@ void Test_CFE_SB_ValidateMsgId(void)
 
     /* Validate Msg Id */
     MsgId = SB_UT_LAST_VALID_MID;
-    CFE_UtAssert_EQUAL(CFE_SB_ValidateMsgId(MsgId), CFE_SUCCESS);
+    CFE_UtAssert_SUCCESS(CFE_SB_ValidateMsgId(MsgId));
 
     /* Test for invalid msg id */
     MsgId = SB_UT_ALTERNATE_INVALID_MID;
-    CFE_UtAssert_EQUAL(CFE_SB_ValidateMsgId(MsgId), CFE_SB_FAILED);
+    UtAssert_INT32_EQ(CFE_SB_ValidateMsgId(MsgId), CFE_SB_FAILED);
 }
 
 /*
@@ -3841,12 +3839,12 @@ void Test_ReqToSendEvent_ErrLogic(void)
      */
     CFE_ES_GetTaskID(&TaskId);
     CFE_SB_Global.StopRecurseFlags[0] = 0x0000;
-    CFE_UtAssert_EQUAL(CFE_SB_RequestToSendEvent(TaskId, Bit), CFE_SB_GRANTED);
+    UtAssert_INT32_EQ(CFE_SB_RequestToSendEvent(TaskId, Bit), CFE_SB_GRANTED);
 
     /* Call the function a second time; the result should indicate that the
      * bit is already set
      */
-    CFE_UtAssert_EQUAL(CFE_SB_RequestToSendEvent(TaskId, Bit), CFE_SB_DENIED);
+    UtAssert_INT32_EQ(CFE_SB_RequestToSendEvent(TaskId, Bit), CFE_SB_DENIED);
 
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -3858,7 +3856,7 @@ void Test_ReqToSendEvent_ErrLogic(void)
 */
 void Test_PutDestBlk_ErrLogic(void)
 {
-    CFE_UtAssert_EQUAL(CFE_SB_PutDestinationBlk(NULL), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_PutDestinationBlk(NULL), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -3877,7 +3875,7 @@ void Test_CFE_SB_Buffers(void)
     CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = sizeof(CFE_SB_BufferD_t) * 4;
     bd                                            = CFE_SB_GetBufferFromPool(0);
 
-    CFE_UtAssert_EQUAL(CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse, sizeof(CFE_SB_BufferD_t) * 4);
+    UtAssert_INT32_EQ(CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse, sizeof(CFE_SB_BufferD_t) * 4);
 
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -3888,13 +3886,13 @@ void Test_CFE_SB_Buffers(void)
     ExpRtn = CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse - 1;
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_PutPoolBuf), 1, -1);
     CFE_SB_ReturnBufferToPool(bd);
-    CFE_UtAssert_EQUAL(CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse, ExpRtn);
+    UtAssert_INT32_EQ(CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse, ExpRtn);
 
     CFE_UtAssert_EVENTCOUNT(0);
 
     bd->UseCount = 0;
     CFE_SB_DecrBufUseCnt(bd);
-    CFE_UtAssert_EQUAL(bd->UseCount, 0);
+    UtAssert_INT32_EQ(bd->UseCount, 0);
 
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -3902,7 +3900,7 @@ void Test_CFE_SB_Buffers(void)
     CFE_SB_Global.StatTlmMsg.Payload.MemInUse = 0;
     CFE_SB_PutDestinationBlk((CFE_SB_DestinationD_t *)bd);
 
-    CFE_UtAssert_EQUAL(CFE_SB_Global.StatTlmMsg.Payload.MemInUse, 0);
+    UtAssert_INT32_EQ(CFE_SB_Global.StatTlmMsg.Payload.MemInUse, 0);
 
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -3924,14 +3922,14 @@ void Test_CFE_SB_BadPipeInfo(void)
     PipeDscPtr         = CFE_SB_LocatePipeDescByID(PipeId);
     PipeDscPtr->PipeId = SB_UT_PIPEID_1;
     CFE_ES_GetAppID(&AppID);
-    CFE_UtAssert_EQUAL(CFE_SB_DeletePipeFull(SB_UT_PIPEID_0, AppID), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipeFull(SB_UT_PIPEID_0, AppID), CFE_SB_BAD_ARGUMENT);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
     /* Reset the pipe ID and delete the pipe */
     PipeDscPtr->PipeId = PipeId;
 
-    CFE_UtAssert_EQUAL(
+    UtAssert_INT32_EQ(
         CFE_SB_SubscribeFull(SB_UT_FIRST_VALID_MID, PipeId, CFE_SB_DEFAULT_QOS, CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT, 2),
         CFE_SB_BAD_ARGUMENT);
 
@@ -3974,8 +3972,8 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     CFE_SB_ProcessCmdPipePkt(&Housekeeping.SBBuf);
 
     /* The no subs event should not be in history but count should increment */
-    CFE_UtAssert_TRUE(!UT_EventIsInHistory(CFE_SB_SEND_NO_SUBS_EID));
-    CFE_UtAssert_EQUAL(CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter, 1);
+    CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_NO_SUBS_EID);
+    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter, 1);
 
     /* Repress get buffer error */
     CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
@@ -3993,9 +3991,9 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
 
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
     CFE_SB_ProcessCmdPipePkt(&Housekeeping.SBBuf);
-    CFE_UtAssert_EQUAL(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 0);
+    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 0);
 
-    CFE_UtAssert_TRUE(!UT_EventIsInHistory(CFE_SB_GET_BUF_ERR_EID));
+    CFE_UtAssert_EVENTNOTSENT(CFE_SB_GET_BUF_ERR_EID);
 
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -4008,7 +4006,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     CFE_UtAssert_SETUP(CFE_SB_CreatePipe(&PipeId, PipeDepth, "TestPipe"));
 
     /* Will fail because of deferred CFE_ES_GetPoolBuf failure return */
-    CFE_UtAssert_EQUAL(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BUF_ALOC_ERR);
+    UtAssert_INT32_EQ(CFE_SB_Subscribe(MsgId, PipeId), CFE_SB_BUF_ALOC_ERR);
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
@@ -4052,7 +4050,7 @@ void Test_SB_TransmitMsgPaths_LimitErr(void)
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
     CFE_SB_Global.StopRecurseFlags[1] = 0;
 
-    CFE_UtAssert_TRUE(!UT_EventIsInHistory(CFE_SB_MSGID_LIM_ERR_EID));
+    CFE_UtAssert_EVENTNOTSENT(CFE_SB_MSGID_LIM_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
@@ -4089,7 +4087,7 @@ void Test_SB_TransmitMsgPaths_FullErr(void)
     CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
     CFE_SB_Global.StopRecurseFlags[1] = 0;
 
-    CFE_UtAssert_TRUE(!UT_EventIsInHistory(CFE_SB_Q_FULL_ERR_EID_BIT));
+    CFE_UtAssert_EVENTNOTSENT(CFE_SB_Q_FULL_ERR_EID_BIT);
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -4127,7 +4125,7 @@ void Test_SB_TransmitMsgPaths_WriteErr(void)
 
     CFE_UtAssert_EVENTCOUNT(2);
 
-    CFE_UtAssert_TRUE(!UT_EventIsInHistory(CFE_SB_Q_WR_ERR_EID));
+    CFE_UtAssert_EVENTNOTSENT(CFE_SB_Q_WR_ERR_EID);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
@@ -4185,7 +4183,7 @@ void Test_ReceiveBuffer_UnsubResubPath(void)
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
     CFE_UtAssert_SUCCESS(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER));
 
-    CFE_UtAssert_TRUE(SBBufPtr != NULL);
+    UtAssert_NOT_NULL(SBBufPtr);
 
     CFE_UtAssert_EVENTCOUNT(4);
 
@@ -4201,49 +4199,54 @@ void Test_ReceiveBuffer_UnsubResubPath(void)
 */
 void Test_MessageString(void)
 {
-    const char *SrcString = "abcdefg";
-    char        DestString[20];
-    char *      DestStringPtr = DestString;
-    const char *DefString     = "default";
+    char       SrcString[12];
+    char       DestString[12];
+    const char DefString[] = "default";
+
+    strcpy(SrcString, "abcdefg");
+    memset(DestString, 'q', sizeof(DestString));
 
     /* Test setting string where the destination size > source string size */
-    CFE_SB_MessageStringSet(DestStringPtr, SrcString, sizeof(DestString), strlen(SrcString));
-    UT_Report(__FILE__, __LINE__, strcmp(DestString, SrcString) == 0, "CFE_SB_MessageStringSet",
-              "Destination size > source string size");
+    CFE_SB_MessageStringSet(DestString, SrcString, sizeof(DestString), sizeof(SrcString));
+    CFE_UtAssert_STRINGBUF_EQ(DestString, sizeof(DestString), SrcString, sizeof(SrcString));
 
     /* Test setting string where the source string is empty */
-    CFE_SB_MessageStringSet(DestStringPtr, "", sizeof(DestString), strlen(SrcString));
-    UT_Report(__FILE__, __LINE__, strcmp(DestString, SrcString) != 0, "CFE_SB_MessageStringSet", "Empty source string");
+    memset(SrcString, 0, sizeof(SrcString));
+    memset(DestString, 'q', sizeof(DestString));
+    CFE_SB_MessageStringSet(DestString, SrcString, sizeof(DestString), sizeof(SrcString));
+    CFE_UtAssert_STRINGBUF_EQ(DestString, sizeof(DestString), SrcString, sizeof(SrcString));
 
     /* Test setting string where the destination size < source string size */
-    CFE_SB_MessageStringSet(DestStringPtr, SrcString, strlen(SrcString) - 1, strlen(SrcString));
-    UT_Report(__FILE__, __LINE__, strncmp(DestString, SrcString, strlen(SrcString) - 1) == 0, "CFE_SB_MessageStringSet",
-              "Destination size < source string size");
+    strcpy(SrcString, "abcdefg");
+    memset(DestString, 'q', sizeof(DestString));
+    CFE_SB_MessageStringSet(DestString, SrcString, 4, sizeof(SrcString));
+    CFE_UtAssert_STRINGBUF_EQ(DestString, 4, SrcString, 4);
 
     /* Test getting string where the destination size > source string size */
-    CFE_SB_MessageStringGet(DestStringPtr, SrcString, DefString, sizeof(DestString), strlen(SrcString));
-    UT_Report(__FILE__, __LINE__, strcmp(DestString, SrcString) == 0, "CFE_SB_MessageStringGet",
-              "Destination size > source string size");
+    strcpy(SrcString, "abcdefg");
+    memset(DestString, 'q', sizeof(DestString));
+    CFE_SB_MessageStringGet(DestString, SrcString, DefString, sizeof(DestString), 5);
+    CFE_UtAssert_STRINGBUF_EQ(DestString, sizeof(DestString), SrcString, 5);
 
     /* Test getting string where the destination size is zero */
-    DestString[0] = '\0';
-    CFE_SB_MessageStringGet(DestStringPtr, SrcString, DefString, 0, strlen(SrcString));
-    UT_Report(__FILE__, __LINE__, strcmp(DestString, SrcString) != 0, "CFE_SB_MessageStringGet",
-              "Destination size = 0");
+    memset(DestString, 'q', sizeof(DestString));
+    memset(SrcString, 'k', sizeof(SrcString));
+    CFE_SB_MessageStringGet(DestString, SrcString, DefString, 0, sizeof(SrcString));
+    memset(SrcString, 'q', sizeof(SrcString));
+    CFE_UtAssert_STRINGBUF_EQ(DestString, sizeof(DestString), SrcString, sizeof(SrcString));
 
     /* Test getting string where the default string is NULL */
-    CFE_SB_MessageStringGet(DestStringPtr, SrcString, NULL, sizeof(DestString), 0);
-    UT_Report(__FILE__, __LINE__, strcmp(DefString, SrcString) != 0, "CFE_SB_MessageStringGet",
-              "Default string = NULL");
+    memset(DestString, 'q', sizeof(DestString));
+    CFE_SB_MessageStringGet(DestString, SrcString, NULL, sizeof(DestString), 0);
+    CFE_UtAssert_STRINGBUF_EQ(DestString, sizeof(DestString), "", 0);
 
     /* Test getting string where the source string size is zero */
-    CFE_SB_MessageStringGet(DestStringPtr, SrcString, DefString, sizeof(DestString), 0);
-    UT_Report(__FILE__, __LINE__, strcmp(DestString, SrcString) != 0, "CFE_SB_MessageStringGet",
-              "Source string size = 0");
+    CFE_SB_MessageStringGet(DestString, SrcString, DefString, sizeof(DestString), 0);
+    CFE_UtAssert_STRINGBUF_EQ(DestString, sizeof(DestString), DefString, sizeof(DefString));
 
     /* Test getting string where the destination size < source string size */
-    DestString[0] = '\0';
-    CFE_SB_MessageStringGet(DestStringPtr, SrcString, DefString, strlen(SrcString) - 1, strlen(SrcString));
-    UT_Report(__FILE__, __LINE__, strncmp(DestString, SrcString, strlen(DestString)) == 0, "CFE_SB_MessageStringGet",
-              "Destination size < source string size");
+    strcpy(SrcString, "abcdefg");
+    memset(DestString, 'q', sizeof(DestString));
+    CFE_SB_MessageStringGet(DestString, SrcString, DefString, 4, sizeof(SrcString));
+    CFE_UtAssert_STRINGBUF_EQ(DestString, 4, SrcString, 3);
 } /* end Test_MessageString */
