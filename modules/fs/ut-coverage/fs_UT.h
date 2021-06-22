@@ -77,7 +77,7 @@ void Test_CFE_FS_API(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_Report, #CFE_FS_InitHeader
+** \sa #CFE_FS_InitHeader
 **
 ******************************************************************************/
 void Test_CFE_FS_InitHeader(void);
@@ -95,7 +95,7 @@ void Test_CFE_FS_InitHeader(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_FS_ReadHeader,
+** \sa #UT_InitData, #UT_SetOSFail, #CFE_FS_ReadHeader,
 ** \sa #UT_SetRtnCode
 **
 ******************************************************************************/
@@ -114,7 +114,7 @@ void Test_CFE_FS_ReadHeader(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_FS_WriteHeader,
+** \sa #UT_InitData, #UT_SetOSFail, #CFE_FS_WriteHeader,
 ** \sa #UT_SetRtnCode
 **
 ******************************************************************************/
@@ -149,7 +149,7 @@ void Test_CFE_FS_DefaultFileStrings(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_FS_SetTimestamp,
+** \sa #UT_InitData, #UT_SetOSFail, #CFE_FS_SetTimestamp,
 ** \sa #UT_SetRtnCode
 **
 ******************************************************************************/
@@ -168,7 +168,7 @@ void Test_CFE_FS_SetTimestamp(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #CFE_FS_ByteSwapCFEHeader, #UT_Report
+** \sa #UT_InitData, #CFE_FS_ByteSwapCFEHeader
 **
 ******************************************************************************/
 void Test_CFE_FS_ByteSwapCFEHeader(void);
@@ -186,7 +186,7 @@ void Test_CFE_FS_ByteSwapCFEHeader(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #CFE_FS_ByteSwapUint32, #UT_Report
+** \sa #UT_InitData, #CFE_FS_ByteSwapUint32
 **
 ******************************************************************************/
 void Test_CFE_FS_ByteSwapUint32(void);
@@ -204,7 +204,7 @@ void Test_CFE_FS_ByteSwapUint32(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #UT_Report, #CFE_FS_IsGzFile
+** \sa #UT_InitData, #CFE_FS_IsGzFile
 **
 ******************************************************************************/
 void Test_CFE_FS_IsGzFile(void);
@@ -222,7 +222,7 @@ void Test_CFE_FS_IsGzFile(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #UT_Report, #CFE_FS_ParseInputFileName
+** \sa #UT_InitData, #CFE_FS_ParseInputFileName
 **
 ******************************************************************************/
 void Test_CFE_FS_ParseInputFileNameEx(void);
@@ -240,7 +240,7 @@ void Test_CFE_FS_ParseInputFileNameEx(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #UT_Report, #CFE_FS_ExtractFilenameFromPath
+** \sa #UT_InitData, #CFE_FS_ExtractFilenameFromPath
 **
 ******************************************************************************/
 void Test_CFE_FS_ExtractFileNameFromPath(void);
@@ -258,7 +258,7 @@ void Test_CFE_FS_ExtractFileNameFromPath(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #UT_Report, #CFE_FS_EarlyInit,
+** \sa #UT_InitData, #CFE_FS_EarlyInit,
 ** \sa #CFE_FS_LockSharedData, #UT_SetRtnCode, #CFE_FS_UnlockSharedData
 **
 ******************************************************************************/
@@ -278,7 +278,7 @@ void Test_CFE_FS_Private(void);
 ** \returns
 **        This function does not return a value.
 **
-** \sa #UT_InitData, #UT_SetOSFail, #UT_Report, #CFE_FS_Decompress,
+** \sa #UT_InitData, #UT_SetOSFail, #CFE_FS_Decompress,
 ** \sa #UT_SetReadBuffer, #FS_gz_inflate_fixed, #FS_gz_inflate_stored,
 ** \sa #FS_gz_fill_inbuf, #FS_gz_flush_window
 **

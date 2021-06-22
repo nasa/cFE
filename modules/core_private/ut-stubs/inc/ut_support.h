@@ -237,43 +237,6 @@ void UT_ResetPoolBufferIndex(void);
 
 /*****************************************************************************/
 /**
-** \brief Output single test's pass/fail status
-**
-** \par Description
-**        Out the results and description for a single test, and update the
-**        pass/fail counters.
-**
-** \par Assumptions, External Events, and Notes:
-**
-** \param[in] test      Equals 0 if the test failed; non-zero if the
-**                      test passed
-**
-** \param[in] fun_name  Character string pointer to the name of the function
-**                      being tested
-**
-** \param[in] info      Character string pointer to the description of the test
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-void UT_Report(const char *file, uint32 line, bool test, const char *fun_name, const char *info);
-
-/*****************************************************************************/
-/**
-** \brief Test pass/fail summary
-**
-** \par Description
-**        Output total number of tests passed and failed.
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-void UT_ReportFailures(void);
-
-/*****************************************************************************/
-/**
 ** \brief Send a message via the software bus
 **
 ** \par Description
@@ -755,22 +718,6 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 **
 ******************************************************************************/
 #define CFE_UtAssert_SUCCESS(FN) CFE_UtAssert_SuccessCheck_Impl(FN, UTASSERT_CASETYPE_FAILURE, __FILE__, __LINE__, #FN)
-
-/*****************************************************************************/
-/**
-** \brief Asserts the specific status code from the function being tested.
-**
-** \par Description
-**        The core of each unit test is the execution of the function being tested.
-**        This function and macro should be used to test for a specific status code
-**        from a function (typically an error case).
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-******************************************************************************/
-#define CFE_UtAssert_EQUAL(FN, EXP) \
-    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_EQ, EXP, __FILE__, __LINE__, "", #FN, #EXP)
 
 /*****************************************************************************/
 /**

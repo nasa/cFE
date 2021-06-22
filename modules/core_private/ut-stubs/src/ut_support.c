@@ -198,14 +198,6 @@ void UT_ResetPoolBufferIndex(void)
 }
 
 /*
-** Output single test's pass/fail status
-*/
-void UT_Report(const char *file, uint32 line, bool test, const char *fun_name, const char *info)
-{
-    UtAssertEx(test, UtAssert_GetContext(), file, line, "%s - %s", fun_name, info);
-}
-
-/*
 ** Calls the specified "task pipe" function
 **
 ** This first sets up the various stubs according to the test case,
