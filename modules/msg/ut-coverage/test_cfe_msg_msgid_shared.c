@@ -42,32 +42,32 @@ void Test_MSG_GetTypeFromMsgId(void)
 
     UtPrintf("Bad parameter tests, Null pointer");
     memset(&msg, 0, sizeof(msg));
-    CFE_UtAssert_EQUAL(CFE_MSG_GetTypeFromMsgId(msgid, NULL), CFE_MSG_BAD_ARGUMENT);
-    CFE_UtAssert_EQUAL(Test_MSG_NotZero(&msg), 0);
+    UtAssert_INT32_EQ(CFE_MSG_GetTypeFromMsgId(msgid, NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Set to all F's, test cmd and tlm");
     memset(&msg, 0xFF, sizeof(msg));
-    CFE_UtAssert_EQUAL(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID)), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_MSG_SetType(&msg, CFE_MSG_Type_Tlm), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_MSG_GetTypeFromMsgId(msgid, &actual), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(actual, CFE_MSG_Type_Tlm);
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID)));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetType(&msg, CFE_MSG_Type_Tlm));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetTypeFromMsgId(msgid, &actual));
+    UtAssert_INT32_EQ(actual, CFE_MSG_Type_Tlm);
 
-    CFE_UtAssert_EQUAL(CFE_MSG_SetType(&msg, CFE_MSG_Type_Cmd), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_MSG_GetTypeFromMsgId(msgid, &actual), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(actual, CFE_MSG_Type_Cmd);
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetType(&msg, CFE_MSG_Type_Cmd));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetTypeFromMsgId(msgid, &actual));
+    UtAssert_INT32_EQ(actual, CFE_MSG_Type_Cmd);
 
     UtPrintf("Set to all 0, test cmd and tlm");
-    CFE_UtAssert_EQUAL(CFE_MSG_SetType(&msg, CFE_MSG_Type_Cmd), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_MSG_GetTypeFromMsgId(msgid, &actual), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(actual, CFE_MSG_Type_Cmd);
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetType(&msg, CFE_MSG_Type_Cmd));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetTypeFromMsgId(msgid, &actual));
+    UtAssert_INT32_EQ(actual, CFE_MSG_Type_Cmd);
 
-    CFE_UtAssert_EQUAL(CFE_MSG_SetType(&msg, CFE_MSG_Type_Tlm), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(CFE_MSG_GetTypeFromMsgId(msgid, &actual), CFE_SUCCESS);
-    CFE_UtAssert_EQUAL(actual, CFE_MSG_Type_Tlm);
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetType(&msg, CFE_MSG_Type_Tlm));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetTypeFromMsgId(msgid, &actual));
+    UtAssert_INT32_EQ(actual, CFE_MSG_Type_Tlm);
 }
 
 /*

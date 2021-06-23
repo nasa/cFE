@@ -195,8 +195,7 @@ void Test_Main(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
 
     CFE_TIME_TaskMain();
-    UT_Report(__FILE__, __LINE__, UT_SyslogIsInHistory(TIME_SYSLOG_MSGS[1]), "CFE_TIME_TaskMain",
-              "Command pipe read error");
+    CFE_UtAssert_SYSLOG(TIME_SYSLOG_MSGS[1]);
 }
 
 /*
@@ -228,33 +227,32 @@ void Test_Init(void)
     /* account for 1Hz command, which is always enabled */
     ExpRtn++;
     CFE_TIME_EarlyInit();
-    UT_Report(__FILE__, __LINE__, UT_GetStubCount(UT_KEY(CFE_MSG_Init)) == ExpRtn, "CFE_TIME_EarlyInit", "Successful");
+    UtAssert_STUB_COUNT(CFE_MSG_Init, ExpRtn);
 
     /* Test successful time task initialization */
     UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == CFE_SUCCESS, "CFE_TIME_Task_Init", "Successful");
+    CFE_UtAssert_SUCCESS(CFE_TIME_TaskInit());
 
     /* Test response to a failure creating the first child task */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_CreateChildTask), 1, -1);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == -1, "CFE_TIME_Task_Init", "Child task 1 create failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -1);
 
     /*  Test response to a failure creating the second child task */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_CreateChildTask), 2, -3);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == -3, "CFE_TIME_Task_Init", "Child task 2 create failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -3);
 
     /* Test response to an error creating a command pipe */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_CreatePipe), 1, -1);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == -1, "CFE_TIME_Task_Init", "Create pipe failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -1);
 
     /* Test response to failure of the HK request subscription */
     UT_InitData();
     SubErrCnt++;
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), SubErrCnt, -SubErrCnt);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == -SubErrCnt, "CFE_TIME_Task_Init",
-              "HK request subscription failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -SubErrCnt);
 
     /* Test response to failure of the tone commands subscription */
     UT_InitData();
@@ -272,8 +270,7 @@ void Test_Init(void)
     ExpRtn = -SubLocalErrCnt;
 #endif
 
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == ExpRtn, "CFE_TIME_Task_Init",
-              "Tone commands subscription failure (client)");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), ExpRtn);
 
     /* Test response to failure of the time at the tone "data" commands
      * subscription
@@ -293,8 +290,7 @@ void Test_Init(void)
     ExpRtn = -SubLocalErrCnt;
 #endif
 
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == ExpRtn, "CFE_TIME_Task_Init",
-              "Time data command subscription failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), ExpRtn);
 
     /* Test response to failure of the fake tone signal commands
      * subscription
@@ -315,11 +311,9 @@ void Test_Init(void)
     ExpRtn = -SubLocalErrCnt;
 #endif
 
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == ExpRtn, "CFE_TIME_Task_Init",
-              "Fake tone signal commands subscription failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), ExpRtn);
 #else
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_Task_Init",
-              "*Not tested* Fake tone signal commands subscription failure");
+    UtAssert_NA("*Not tested* Fake tone signal commands subscription failure");
 #endif
 
     /* Test response to failure of the time at tone signal commands
@@ -331,12 +325,10 @@ void Test_Init(void)
     SubErrCnt++;
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), SubErrCnt, -SubErrCnt);
     ExpRtn = -SubErrCnt;
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == ExpRtn, "CFE_TIME_Task_Init",
-              "Time at tone signal commands subscription failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), ExpRtn);
 #else
     SubErrCnt++;
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_Task_Init",
-              "*Not tested* Time at tone signal commands subscription failure");
+    UtAssert_NA("*Not tested* Time at tone signal commands subscription failure");
 #endif
 
     /* Test response to failure of the time task ground commands
@@ -346,35 +338,33 @@ void Test_Init(void)
     SubErrCnt++;
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), SubErrCnt, -SubErrCnt);
     ExpRtn = -SubErrCnt;
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == ExpRtn, "CFE_TIME_Task_Init",
-              "Time task ground commands subscription failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), ExpRtn);
 
     /* Test response to failure creating a tone semaphore */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 1, -1);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == -1, "CFE_TIME_Task_Init", "Tone semaphore create failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -1);
 
     /* Test response to failure creating a local semaphore */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 2, -2);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == -2, "CFE_TIME_Task_Init", "Local semaphore create failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -2);
 
     /* Test response to an EVS register failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_Register), 1, -1);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == -1, "CFE_TIME_Task_Init", "EVS register failure");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -1);
 
     /* Test response to an error sending an initialization event */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 1, -1);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_TaskInit() == -1, "CFE_TIME_Task_Init", "Send initialization event error");
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -1);
 
     /* Test response to a failure to get the ID by name */
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(OS_TimeBaseGetIdByName), OS_ERROR);
     CFE_TIME_TaskInit();
-    UT_Report(__FILE__, __LINE__, UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 0, "CFE_TIME_Task_Init",
-              "Get ID by name failure");
+    UtAssert_STUB_COUNT(CFE_ES_WriteToSysLog, 0);
 
     /* Test response to an error setting up the 1Hz callback.
      * Note that this is only a SysLog message, it does not return the
@@ -383,16 +373,14 @@ void Test_Init(void)
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(OS_TimerAdd), OS_ERROR);
     CFE_TIME_TaskInit();
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 1 && UT_SyslogIsInHistory(TIME_SYSLOG_MSGS[3]),
-              "CFE_TIME_Task_Init", "1Hz OS_TimerAdd failure");
+    UtAssert_STUB_COUNT(CFE_ES_WriteToSysLog, 1);
+    CFE_UtAssert_SYSLOG(TIME_SYSLOG_MSGS[3]);
 
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(OS_TimerSet), OS_ERROR);
     CFE_TIME_TaskInit();
-    UT_Report(__FILE__, __LINE__,
-              UT_GetStubCount(UT_KEY(CFE_ES_WriteToSysLog)) == 1 && UT_SyslogIsInHistory((TIME_SYSLOG_MSGS[4])),
-              "CFE_TIME_Task_Init", "1Hz OS_TimerSet failure");
+    UtAssert_STUB_COUNT(CFE_ES_WriteToSysLog, 1);
+    CFE_UtAssert_SYSLOG((TIME_SYSLOG_MSGS[4]));
 }
 
 /*
@@ -401,14 +389,12 @@ void Test_Init(void)
 void Test_GetTime(void)
 {
     int    result;
-    uint16 StateFlags, ActFlags;
-    char   testDesc[UT_MAX_MESSAGE_LENGTH];
+    uint16 StateFlags;
     char   timeBuf[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
     /* Note: Time is in seconds + microseconds since 1980-001-00:00:00:00000 */
     /* The time below equals 2013-001-02:03:04.56789 */
-    int                                 seconds   = 1041472984;
-    int                                 microsecs = 567890;
-    int                                 actual;
+    int                                 seconds      = 1041472984;
+    int                                 microsecs    = 567890;
     const char *                        expectedMET  = "2013-001-02:03:14.56789";
     const char *                        expectedTAI  = "2013-001-03:03:14.56789";
     const char *                        expectedUTC  = "2013-001-03:02:42.56789";
@@ -435,51 +421,39 @@ void Test_GetTime(void)
     RefState->ClockSetState          = CFE_TIME_SetState_NOT_SET; /* Force invalid time */
     CFE_TIME_FinishReferenceUpdate(RefState);
     CFE_TIME_Print(timeBuf, CFE_TIME_GetMET());
-    result = !strcmp(timeBuf, expectedMET);
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = %s, actual = %s", expectedMET, timeBuf);
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_GetMET", testDesc);
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedMET, strlen(expectedMET));
 
     /* Test successfully retrieving the mission elapsed time (seconds
      * portion)
      */
     UT_InitData();
     UT_SetBSP_Time(seconds, microsecs);
-    actual = CFE_TIME_GetMETseconds();
     result = seconds + RefState->AtToneMET.Seconds - RefState->AtToneLatch.Seconds;
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = %d, actual = %d", result, actual);
-    UT_Report(__FILE__, __LINE__, result == actual, "CFE_TIME_GetMETseconds", testDesc);
+    UtAssert_INT32_EQ(CFE_TIME_GetMETseconds(), result);
 
     /* Test successfully retrieving the mission elapsed time (sub-seconds
      * portion)
      */
     UT_InitData();
     UT_SetBSP_Time(seconds, microsecs);
-    actual = CFE_TIME_GetMETsubsecs();
     result = CFE_TIME_Micro2SubSecs(microsecs) + RefState->AtToneMET.Subseconds - RefState->AtToneLatch.Subseconds;
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = %d, actual = %d", result, actual);
-    UT_Report(__FILE__, __LINE__, result == actual, "CFE_TIME_GetMETsubsecs", testDesc);
+    UtAssert_INT32_EQ(CFE_TIME_GetMETsubsecs(), result);
 
     /* Test successfully retrieving the leap seconds */
     UT_InitData();
-    actual = CFE_TIME_GetLeapSeconds();
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = %d, actual = %d", RefState->AtToneLeapSeconds, actual);
-    UT_Report(__FILE__, __LINE__, actual == RefState->AtToneLeapSeconds, "CFE_TIME_GetLeapSeconds", testDesc);
+    UtAssert_INT32_EQ(CFE_TIME_GetLeapSeconds(), RefState->AtToneLeapSeconds);
 
     /* Test successfully retrieving the international atomic time (TAI) */
     UT_InitData();
     UT_SetBSP_Time(seconds, microsecs);
     CFE_TIME_Print(timeBuf, CFE_TIME_GetTAI());
-    result = !strcmp(timeBuf, expectedTAI);
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = %s, actual = %s", expectedTAI, timeBuf);
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_GetTAI", testDesc);
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedTAI, strlen(expectedTAI));
 
     /* Test successfully retrieving the coordinated universal time (UTC) */
     UT_InitData();
     UT_SetBSP_Time(seconds, microsecs);
     CFE_TIME_Print(timeBuf, CFE_TIME_GetUTC());
-    result = !strcmp(timeBuf, expectedUTC);
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = %s, actual = %s", expectedUTC, timeBuf);
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_GetUTC", testDesc);
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedUTC, strlen(expectedUTC));
 
     /* Test successfully retrieving the default time (UTC or TAI) */
     UT_InitData();
@@ -487,13 +461,10 @@ void Test_GetTime(void)
     CFE_TIME_Print(timeBuf, CFE_TIME_GetTime());
 
 #if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
-    result = !strcmp(timeBuf, expectedTAI);
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "(Default = TAI) Expected = %s, actual = %s", expectedTAI, timeBuf);
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedTAI, strlen(expectedTAI));
 #else
-    result = !strcmp(timeBuf, expectedUTC);
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "(Default = UTC) Expected = %s, actual = %s", expectedUTC, timeBuf);
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedUTC, strlen(expectedUTC));
 #endif
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_GetTime", testDesc);
 
     /* Test successfully retrieving the spacecraft time correlation
      * factor (SCTF)
@@ -501,14 +472,11 @@ void Test_GetTime(void)
     UT_InitData();
     UT_SetBSP_Time(seconds, microsecs);
     CFE_TIME_Print(timeBuf, CFE_TIME_GetSTCF());
-    result = !strcmp(timeBuf, expectedSTCF);
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = %s, actual = %s", expectedSTCF, timeBuf);
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_GetSTCF", testDesc);
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedSTCF, strlen(expectedSTCF));
 
     /* Test retrieving the time status (invalid time is expected) */
     UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_GetClockState() == CFE_TIME_ClockState_INVALID, "CFE_TIME_GetClockState",
-              "Invalid time");
+    UtAssert_INT32_EQ(CFE_TIME_GetClockState(), CFE_TIME_ClockState_INVALID);
 
     /* Test alternate flag values */
     RefState                         = CFE_TIME_StartReferenceUpdate();
@@ -524,15 +492,13 @@ void Test_GetTime(void)
     CFE_TIME_Global.IsToneGood       = false;
     CFE_TIME_Global.GetReferenceFail = false;
     CFE_TIME_FinishReferenceUpdate(RefState);
-    ActFlags   = CFE_TIME_GetClockInfo();
     StateFlags = 0;
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     StateFlags |= CFE_TIME_FLAG_SERVER;
 #endif
 
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = 0x%04X, actual = 0x%04X", StateFlags, ActFlags);
-    UT_Report(__FILE__, __LINE__, ActFlags == StateFlags, "CFE_TIME_GetClockInfo", testDesc);
+    UtAssert_UINT32_EQ(CFE_TIME_GetClockInfo(), StateFlags);
 
     /* Test successfully converting the clock state data to flag values */
     UT_InitData();
@@ -558,9 +524,7 @@ void Test_GetTime(void)
     StateFlags |= CFE_TIME_FLAG_SERVER;
 #endif
 
-    ActFlags = CFE_TIME_GetClockInfo();
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = 0x%04X, actual = 0x%04X", StateFlags, ActFlags);
-    UT_Report(__FILE__, __LINE__, ActFlags == StateFlags, "CFE_TIME_GetClockInfo", testDesc);
+    UtAssert_UINT32_EQ(CFE_TIME_GetClockInfo(), StateFlags);
 
     CFE_TIME_Global.GetReferenceFail = false;
 }
@@ -583,21 +547,17 @@ void Test_TimeOp(void)
     exp_result.Seconds    = 0;
 
     /* Test adding with both times equal zero */
-    UT_InitData();
     result = CFE_TIME_Add(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Add",
-              "Time A = time B = 0 seconds/subseconds");
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Add, Time A = time B = 0 seconds/subseconds");
 
     /* Test subtracting with both times equal zero */
-    UT_InitData();
     result = CFE_TIME_Subtract(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Subtract",
-              "Time A = time B = 0 seconds/subseconds");
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Subtract, Time A = time B = 0 seconds/subseconds");
 
     /* Test comparing with both times equal zero */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Compare(time1, time2) == CFE_TIME_EQUAL, "CFE_TIME_Compare",
-              "Time A = time B = 0 seconds/subseconds");
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_EQUAL);
 
     /* Initialize to maximum time values */
     time1.Subseconds = 0xffffffff;
@@ -606,25 +566,23 @@ void Test_TimeOp(void)
     time2.Seconds    = 0xffffffff;
 
     /* Test adding two maximum time values (extreme time rollover case) */
-    UT_InitData();
     exp_result.Subseconds = 0xfffffffe;
     exp_result.Seconds    = 0xffffffff;
-    result                = CFE_TIME_Add(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Add",
-              "Time A = time B = maximum seconds/subseconds (rollover)");
+
+    result = CFE_TIME_Add(time1, time2);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Add, Time A = time B = maximum seconds/subseconds (rollover)");
 
     /* Test subtracting two maximum time values (zero result) */
-    UT_InitData();
     exp_result.Subseconds = 0;
     exp_result.Seconds    = 0;
-    result                = CFE_TIME_Subtract(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Subtract",
-              "Time A = time B = maximum seconds/subseconds (zero result)");
+
+    result = CFE_TIME_Subtract(time1, time2);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Subtract, Time A = time B = maximum seconds/subseconds (zero result)");
 
     /* Test comparing two maximum time values */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Compare(time1, time2) == CFE_TIME_EQUAL, "CFE_TIME_Compare",
-              "Time A = time B = maximum seconds/subseconds");
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_EQUAL);
 
     /* Initialize to single time value at maximum subseconds */
     time1.Subseconds = 0xffffffff;
@@ -635,50 +593,42 @@ void Test_TimeOp(void)
     /* Test adding two time values; time A > time B (minimal time
      * rollover case)
      */
-    UT_InitData();
     exp_result.Subseconds = 0;
     exp_result.Seconds    = 0;
-    result                = CFE_TIME_Add(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Add",
-              "Time A > time B (rollover)");
+
+    result = CFE_TIME_Add(time1, time2);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Add, Time A > time B (rollover)");
 
     /* Test subtracting two time values; time A > time B */
-    UT_InitData();
     exp_result.Subseconds = 0xfffffffe;
     exp_result.Seconds    = 0xfffe0001;
-    result                = CFE_TIME_Subtract(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Subtract",
-              "Time A > time B");
+
+    result = CFE_TIME_Subtract(time1, time2);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Subtract, Time A > time B");
 
     /* Test comparing two time values; time A > time B (assumes time has
      * rolled over)
      */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Compare(time1, time2) == CFE_TIME_A_LT_B, "CFE_TIME_Compare",
-              "Time A > time B");
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_A_LT_B);
 
     /* Test adding two time values; time A < time B */
-    UT_InitData();
     exp_result.Subseconds = 0;
     exp_result.Seconds    = 0;
-    result                = CFE_TIME_Add(time2, time1);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Add",
-              "Time A < time B");
+
+    result = CFE_TIME_Add(time2, time1);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Add, Time A < time B");
 
     /* Test subtracting two time values; time A < time B (rollover) */
-    UT_InitData();
     exp_result.Subseconds = 0x00000002;
     exp_result.Seconds    = 0x0001fffe;
-    result                = CFE_TIME_Subtract(time2, time1);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Subtract",
-              "Time A < time B (rollover)");
+
+    result = CFE_TIME_Subtract(time2, time1);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t), "CFE_TIME_Subtract, Time A < time B (rollover)");
 
     /* Test comparing two time values; time A < time B (assumes time has
      * rolled over)
      */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Compare(time2, time1) == CFE_TIME_A_GT_B, "CFE_TIME_Compare",
-              "Time A < time B");
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_A_GT_B);
 
     /* Initialize so that only subseconds are different; seconds are
      * the same
@@ -690,56 +640,52 @@ void Test_TimeOp(void)
 
     /* Test adding two time values; time A subseconds > time B subseconds
      * (seconds same) */
-    UT_InitData();
     exp_result.Subseconds = 59;
     exp_result.Seconds    = 6;
-    result                = CFE_TIME_Add(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Add",
-              "Time A subseconds > time B subseconds (seconds same)");
+
+    result = CFE_TIME_Add(time1, time2);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Add, Time A subseconds > time B subseconds (seconds same)");
 
     /* Test subtracting two time values; time A subseconds > time B
      * subseconds (seconds same)
      */
-    UT_InitData();
     exp_result.Subseconds = 1;
     exp_result.Seconds    = 0;
-    result                = CFE_TIME_Subtract(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Subtract",
-              "Time A subseconds > time B subseconds (seconds same)");
+
+    result = CFE_TIME_Subtract(time1, time2);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Subtract, Time A subseconds > time B subseconds (seconds same)");
 
     /* Test comparing two time values; time A subseconds > time B subseconds
      * (seconds same)
      */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Compare(time1, time2) == CFE_TIME_A_GT_B, "CFE_TIME_Compare",
-              "Time A subseconds > time B subseconds (seconds same)");
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_A_GT_B);
 
     /* Test adding two time values; time A subseconds < time B subseconds
      * (seconds same)
      */
-    UT_InitData();
     exp_result.Subseconds = 59;
     exp_result.Seconds    = 6;
-    result                = CFE_TIME_Add(time2, time1);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Add",
-              "Time A subseconds < time B subseconds (seconds same)");
+
+    result = CFE_TIME_Add(time2, time1);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Add, Time A subseconds < time B subseconds (seconds same)");
 
     /* Test subtracting two time values; time A subseconds < time B
      * subseconds (seconds same)
      */
-    UT_InitData();
     exp_result.Subseconds = 0xffffffff;
     exp_result.Seconds    = 0xffffffff;
-    result                = CFE_TIME_Subtract(time2, time1);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Subtract",
-              "Time A subseconds < time B subseconds (seconds same)");
+
+    result = CFE_TIME_Subtract(time2, time1);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Subtract, Time A subseconds < time B subseconds (seconds same)");
 
     /* Test comparing two time values; time A subseconds < time B subseconds
      * (seconds same)
      */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Compare(time2, time1) == CFE_TIME_A_LT_B, "CFE_TIME_Compare",
-              "Time A subseconds < time B subseconds (seconds same)");
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_A_LT_B);
 
     /* Initialize so that only seconds are different; subseconds are
      * the same
@@ -752,56 +698,53 @@ void Test_TimeOp(void)
     /* Test adding two time values; time A seconds > time B seconds
      * (subseconds same)
      */
-    UT_InitData();
     exp_result.Subseconds = 36;
     exp_result.Seconds    = 15;
-    result                = CFE_TIME_Add(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Add",
-              "Time A seconds > time B seconds (subseconds same)");
+
+    result = CFE_TIME_Add(time1, time2);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Add, Time A seconds > time B seconds (subseconds same)");
 
     /* Test subtracting two time values; time A seconds > time B seconds
      * (subseconds same)
      */
-    UT_InitData();
     exp_result.Subseconds = 0;
     exp_result.Seconds    = 1;
-    result                = CFE_TIME_Subtract(time1, time2);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Subtract",
-              "Time A seconds > time B seconds (subseconds same)");
+
+    result = CFE_TIME_Subtract(time1, time2);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Subtract, Time A seconds > time B seconds (subseconds same)");
 
     /* Test comparing two time values; time A seconds > time B seconds
      * (subseconds same)
      */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Compare(time1, time2) == CFE_TIME_A_GT_B, "CFE_TIME_Compare",
-              "Time A seconds > time B seconds (subseconds same)");
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_A_GT_B);
 
     /* Test adding two time values; time A seconds < time B seconds
      * (subseconds same)
      */
-    UT_InitData();
     exp_result.Subseconds = 36;
     exp_result.Seconds    = 15;
-    result                = CFE_TIME_Add(time2, time1);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Add",
-              "Time A seconds < time B seconds (subseconds same)");
+
+    result = CFE_TIME_Add(time2, time1);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Add, Time A seconds < time B seconds (subseconds same)");
 
     /* Test subtracting two time values; time A seconds < time B seconds
      * (subseconds same)
      */
-    UT_InitData();
     exp_result.Subseconds = 0;
     exp_result.Seconds    = 0xffffffff;
-    result                = CFE_TIME_Subtract(time2, time1);
-    UT_Report(__FILE__, __LINE__, memcmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t)) == 0, "CFE_TIME_Subtract",
-              "Time A seconds < time B seconds (subseconds same)");
+
+    result = CFE_TIME_Subtract(time2, time1);
+    UtAssert_MemCmp(&result, &exp_result, sizeof(CFE_TIME_SysTime_t),
+                    "CFE_TIME_Subtract, Time A seconds < time B seconds (subseconds same)");
 
     /* Test comparing two time values; time A seconds < time B seconds
      * (subseconds same)
      */
     UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Compare(time2, time1) == CFE_TIME_A_LT_B, "CFE_TIME_Compare",
-              "Time A seconds < time B seconds (subseconds same)");
+    UtAssert_INT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_A_LT_B);
 }
 
 /*
@@ -809,8 +752,6 @@ void Test_TimeOp(void)
 */
 void Test_ConvertTime(void)
 {
-    int                                 result;
-    char                                testDesc[UT_MAX_MESSAGE_LENGTH];
     char                                timeBuf[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
     CFE_TIME_SysTime_t                  METTime;
     volatile CFE_TIME_ReferenceState_t *RefState;
@@ -824,9 +765,9 @@ void Test_ConvertTime(void)
 #endif
 
     UtPrintf("Begin Test Convert Time");
+    UT_InitData();
 
     /* Test MET to SCTF conversion */
-    UT_InitData();
     METTime.Seconds                 = 0;
     METTime.Subseconds              = 0;
     RefState                        = CFE_TIME_StartReferenceUpdate();
@@ -837,9 +778,7 @@ void Test_ConvertTime(void)
     CFE_TIME_Print(timeBuf, CFE_TIME_MET2SCTime(METTime));
 
     /* SC = MET + SCTF [- Leaps for UTC] */
-    result = !strcmp(timeBuf, expectedSCTime);
-    snprintf(testDesc, UT_MAX_MESSAGE_LENGTH, "Expected = %s, actual = %s", expectedSCTime, timeBuf);
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_MET2SCTime", testDesc);
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedSCTime, strlen(expectedSCTime));
 
     /* NOTE: Microseconds <-> Subseconds conversion routines are implemented
      * as part of OS_time_t in OSAL, and are coverage tested there.  CFE time
@@ -850,33 +789,23 @@ void Test_ConvertTime(void)
      * OSAL coverage test. */
 
     /* Test subseconds to microseconds conversion; zero subsecond value */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Sub2MicroSecs(0) == 0, "CFE_TIME_Sub2MicroSecs",
-              "Convert 0 subsecond value");
+    UtAssert_UINT32_EQ(CFE_TIME_Sub2MicroSecs(0), 0);
 
     /* Test subseconds to microseconds conversion; half second */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Sub2MicroSecs(0x80000000) == 500000, "CFE_TIME_Sub2MicroSecs",
-              "No microsecond adjustment");
+    UtAssert_UINT32_EQ(CFE_TIME_Sub2MicroSecs(0x80000000), 500000);
 
     /* Test subseconds to microseconds conversion; subseconds exceeds
      * microseconds limit
      */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Sub2MicroSecs(0xffffffff) == 999999, "CFE_TIME_Sub2MicroSecs",
-              "Subseconds exceeds maximum microseconds value (limit ms)");
+    UtAssert_UINT32_EQ(CFE_TIME_Sub2MicroSecs(0xffffffff), 999999);
 
     /* Test microseconds to subseconds conversion; zero microsecond value */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Micro2SubSecs(0) == 0, "CFE_TIME_Micro2SubSecs",
-              "Convert 0 microseconds to 0 subseconds");
+    UtAssert_UINT32_EQ(CFE_TIME_Micro2SubSecs(0), 0);
 
     /* Test microseconds to subseconds conversion; microseconds exceeds
      * maximum limit
      */
-    UT_InitData();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Micro2SubSecs(0xffffffff) == 0xffffffff, "CFE_TIME_Micro2SubSecs",
-              "Microseconds exceeds maximum; set maximum subseconds value");
+    UtAssert_UINT32_EQ(CFE_TIME_Micro2SubSecs(0xffffffff), 0xffffffff);
 }
 
 /*
@@ -888,50 +817,45 @@ void Test_ConvertTime(void)
 */
 void Test_Print(void)
 {
-    int                result;
-    char               testDesc[1 + UT_MAX_MESSAGE_LENGTH];
+    char               timeBuf[CFE_TIME_PRINTED_STRING_SIZE];
+    char               expectedBuf[CFE_TIME_PRINTED_STRING_SIZE];
     CFE_TIME_SysTime_t time;
 
     UtPrintf("Begin Test Print");
 
     /* Test with zero time value */
-    UT_InitData();
     time.Subseconds = 0;
     time.Seconds    = 0;
-    CFE_TIME_Print(testDesc, time);
-    result = !strcmp(testDesc, "1980-001-00:00:00.00000");
-    strncat(testDesc, " Zero time value", UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_Print", testDesc);
+
+    CFE_TIME_Print(timeBuf, time);
+    strcpy(expectedBuf, "1980-001-00:00:00.00000");
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
 
     /* Test with a time value that causes seconds >= 60 when
      * CFE_MISSION_TIME_EPOCH_SECOND > 0
      */
-    UT_InitData();
     time.Subseconds = 0;
     time.Seconds    = 59;
-    CFE_TIME_Print(testDesc, time);
-    result = !strcmp(testDesc, "1980-001-00:00:59.00000");
-    strncat(testDesc, " Seconds overflow if CFE_MISSION_TIME_EPOCH_SECOND > 0",
-            UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_Print", testDesc);
+
+    CFE_TIME_Print(timeBuf, time);
+    strcpy(expectedBuf, "1980-001-00:00:59.00000");
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
 
     /* Test with mission representative time values */
-    UT_InitData();
     time.Subseconds = 215000;
     time.Seconds    = 1041472984;
-    CFE_TIME_Print(testDesc, time);
-    result = !strcmp(testDesc, "2013-001-02:03:04.00005");
-    strncat(testDesc, " Mission representative time", UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_Print", testDesc);
+
+    CFE_TIME_Print(timeBuf, time);
+    strcpy(expectedBuf, "2013-001-02:03:04.00005");
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
 
     /* Test with maximum seconds and subseconds values */
-    UT_InitData();
     time.Subseconds = 0xffffffff;
     time.Seconds    = 0xffffffff;
-    CFE_TIME_Print(testDesc, time);
-    result = !strcmp(testDesc, "2116-038-06:28:15.99999");
-    strncat(testDesc, " Maximum seconds/subseconds values", UT_MAX_MESSAGE_LENGTH - strlen(testDesc));
-    UT_Report(__FILE__, __LINE__, result, "CFE_TIME_Print", testDesc);
+
+    CFE_TIME_Print(timeBuf, time);
+    strcpy(expectedBuf, "2116-038-06:28:15.99999");
+    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
 }
 
 /*
@@ -948,10 +872,10 @@ int32 ut_time_MyCallbackFunc(void)
 */
 void Test_RegisterSyncCallbackTrue(void)
 {
-    int32  Result;
     uint32 AppIndex;
 
     UtPrintf("Begin Test Register Synch Callback");
+    UT_InitData();
 
     /*
      * One callback per application is allowed; the first should succeed,
@@ -962,8 +886,7 @@ void Test_RegisterSyncCallbackTrue(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, -1);
     CFE_TIME_Global.SynchCallback[0].Ptr = NULL;
 
-    Result = CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_Report(__FILE__, __LINE__, Result == -1, "CFE_TIME_RegisterSynchCallback", "Bad App ID");
+    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc), -1);
 
     /* Test registering the callback function the maximum number of times,
      * then attempt registering one more time
@@ -974,20 +897,14 @@ void Test_RegisterSyncCallbackTrue(void)
      * One callback per application is allowed; the first should succeed,
      * the second should fail.
      */
-    Result = CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_Report(__FILE__, __LINE__, Result == CFE_SUCCESS, "CFE_TIME_RegisterSynchCallback",
-              "Successfully registered callbacks");
+    CFE_UtAssert_SUCCESS(CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc));
 
-    Result = CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_Report(__FILE__, __LINE__, Result == CFE_TIME_TOO_MANY_SYNCH_CALLBACKS, "CFE_TIME_RegisterSynchCallback",
-              "Too Many registered callbacks");
+    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc), CFE_TIME_TOO_MANY_SYNCH_CALLBACKS);
 
     AppIndex = 2;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
 
-    Result = CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_Report(__FILE__, __LINE__, Result == CFE_SUCCESS, "CFE_TIME_RegisterSynchCallback",
-              "Successfully registered callbacks");
+    CFE_UtAssert_SUCCESS(CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc));
 
     /*
      * This test case should not be possible in real flight as ES should never
@@ -996,9 +913,7 @@ void Test_RegisterSyncCallbackTrue(void)
      */
     AppIndex = 99999;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    Result = CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_Report(__FILE__, __LINE__, Result == CFE_TIME_TOO_MANY_SYNCH_CALLBACKS, "CFE_TIME_RegisterSynchCallback",
-              "App ID out of range");
+    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(&ut_time_MyCallbackFunc), CFE_TIME_TOO_MANY_SYNCH_CALLBACKS);
 }
 
 /*
@@ -1007,15 +922,16 @@ void Test_RegisterSyncCallbackTrue(void)
 void Test_ExternalTone(void)
 {
     UtPrintf("Begin Test External Tone");
-
     UT_InitData();
+
     UT_SetBSP_Time(123, 0);
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
+
     CFE_TIME_ExternalTone();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Global.ToneSignalLatch.Seconds == 123 && CFE_TIME_Global.ToneSignalLatch.Subseconds == 0,
-              "CFE_TIME_ExternalTone", "External tone");
+
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneSignalLatch.Seconds, 123);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneSignalLatch.Subseconds, 0);
 }
 
 /*
@@ -1042,8 +958,7 @@ void Test_External(void)
     settime.Seconds               = 0;
     settime.Subseconds            = 0;
     CFE_TIME_ExternalMET(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ExternalCount == 1, "CFE_TIME_ExternalMET",
-              "External MET - external source and clock state not set");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ExternalCount, 1);
 
     /* Test setting time data from MET using an external source with the clock
      * state set and time less than the minimum
@@ -1066,8 +981,7 @@ void Test_External(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalMET(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.InternalCount == 1, "CFE_TIME_ExternalMET",
-              "External MET - external source and time out of range (low)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 1);
 
     /* Test setting time data from MET using an external source with the clock
      * state set and time greater than the maximum
@@ -1090,8 +1004,7 @@ void Test_External(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalMET(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.InternalCount == 1, "CFE_TIME_ExternalMET",
-              "External MET - external source and time out of range (high)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 1);
 
     /* Test setting time data from MET (external source, state set) */
     UT_InitData();
@@ -1112,33 +1025,20 @@ void Test_External(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalMET(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ExternalCount == 1, "CFE_TIME_ExternalMET",
-              "External MET - external source and time in range");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ExternalCount, 1);
 
     /* Test setting time data from MET (internal source) */
     UT_InitData();
     CFE_TIME_Global.ClockSource   = CFE_TIME_SourceSelect_INTERNAL;
     CFE_TIME_Global.InternalCount = 0;
     CFE_TIME_ExternalMET(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.InternalCount == 1, "CFE_TIME_ExternalMET",
-              "External MET (internal source)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 1);
 #else
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalMET",
-              "*Not tested* External MET - external source and clock state "
-              "not set");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalMET",
-              "*Not tested* External MET - external source and time out of "
-              "range (low)");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalMET",
-              "*Not tested* External MET - external source and time out of "
-              "range (high)");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalMET",
-              "*Not tested* External MET - external source and time in range");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalMET", "*Not tested* External MET (internal source)");
+    UtAssert_NA("*Not tested* External MET - external source and clock state not set");
+    UtAssert_NA("*Not tested* External MET - external source and time out of range (low)");
+    UtAssert_NA("*Not tested* External MET - external source and time out of range (high)");
+    UtAssert_NA("*Not tested* External MET - external source and time in range");
+    UtAssert_NA("*Not tested* External MET (internal source)");
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SRC_GPS == true)
@@ -1152,8 +1052,7 @@ void Test_External(void)
     settime.Seconds               = 0;
     settime.Subseconds            = 0;
     CFE_TIME_ExternalGPS(settime, 0);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ExternalCount == 1, "CFE_TIME_ExternalGPS",
-              "External GPS - external source and clock state not set");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ExternalCount, 1);
 
     /* Test setting time data from GPS using an external source with the clock
      * state set and time less than the minimum
@@ -1178,8 +1077,7 @@ void Test_External(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalGPS(settime, 0);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.InternalCount == 1, "CFE_TIME_ExternalGPS",
-              "External GPS - external source and time out of range (low)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 1);
 
     /* Test setting time data from GPS using an external source with the clock
      * state set and time greater than the maximum
@@ -1204,8 +1102,7 @@ void Test_External(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalGPS(settime, 0);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.InternalCount == 1, "CFE_TIME_ExternalGPS",
-              "External GPS - external source and time out of range (high)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 1);
 
     /* Test setting time data from GPS (external source, state set) */
     UT_InitData();
@@ -1228,33 +1125,20 @@ void Test_External(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalGPS(settime, 0);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ExternalCount == 1, "CFE_TIME_ExternalGPS",
-              "External GPS - external source and time in range");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ExternalCount, 1);
 
     /* Test setting time data from GPS (internal source) */
     UT_InitData();
     CFE_TIME_Global.ClockSource   = CFE_TIME_SourceSelect_INTERNAL;
     CFE_TIME_Global.InternalCount = 0;
     CFE_TIME_ExternalGPS(settime, 0);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.InternalCount == 1, "CFE_TIME_ExternalGPS",
-              "External GPS (internal source)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 1);
 #else
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalGPS",
-              "*Not tested* External GPS - external source and clock state "
-              "not set");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalGPS",
-              "Not tested* External GPS - external source and time out of "
-              "range (low)");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalGPS",
-              "*Not tested* External GPS - external source and time out of "
-              "range (high)");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalGPS",
-              "*Not tested* External GPS - external source and time in range");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalGPS", "*Not tested* External GPS (internal source)");
+    UtAssert_NA("*Not tested* External GPS - external source and clock state not set");
+    UtAssert_NA("*Not tested* External GPS - external source and time out of range (low)");
+    UtAssert_NA("*Not tested* External GPS - external source and time out of range (high)");
+    UtAssert_NA("*Not tested* External GPS - external source and time in range");
+    UtAssert_NA("*Not tested* External GPS (internal source)");
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SRC_TIME == true)
@@ -1268,8 +1152,7 @@ void Test_External(void)
     settime.Seconds               = 0;
     settime.Subseconds            = 0;
     CFE_TIME_ExternalTime(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ExternalCount == 1, "CFE_TIME_ExternalTime",
-              "External Time - external source and clock state not set");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ExternalCount, 1);
 
     /* Test setting time data from Time using an external source with the clock
      * state set and time less than the minimum
@@ -1294,8 +1177,7 @@ void Test_External(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalTime(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.InternalCount == 1, "CFE_TIME_ExternalTime",
-              "External Time - external source and time out of range (low)");
+    UtAssert_INT32_EQ(CFE_TIME_Global.InternalCount, 1);
 
     /* Test setting time data from Time using an external source with the clock
      * state set and time greater than the maximum
@@ -1320,8 +1202,7 @@ void Test_External(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalTime(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.InternalCount == 1, "CFE_TIME_ExternalTime",
-              "External Time - external source and time out of range (high)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 1);
 
     /* Test setting time data from Time (external source, state set) */
     UT_InitData();
@@ -1344,33 +1225,20 @@ void Test_External(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     UT_SetBSP_Time(0, 0);
     CFE_TIME_ExternalTime(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ExternalCount == 1, "CFE_TIME_ExternalTime",
-              "External Time - external source and time in range");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ExternalCount, 1);
 
     /* Test setting time data from Time (internal source) */
     UT_InitData();
     CFE_TIME_Global.ClockSource   = CFE_TIME_SourceSelect_INTERNAL;
     CFE_TIME_Global.InternalCount = 0;
     CFE_TIME_ExternalTime(settime);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.InternalCount == 1, "CFE_TIME_ExternalTime",
-              "External Time (internal source)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, 1);
 #else
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalTime",
-              "*Not tested* External Time - external source and clock state "
-              "not set");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalTime",
-              "Not tested* External Time - external source and time out of "
-              "range (low)");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalTime",
-              "*Not tested* External Time - external source and time out of "
-              "range (high)");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalTime",
-              "*Not tested* External Time - external source and time in range");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ExternalTime", "*Not tested* External Time (internal source)");
+    UtAssert_NA("*Not tested* External Time - external source and clock state not set");
+    UtAssert_NA("*Not tested* External Time - external source and time out of range (low)");
+    UtAssert_NA("*Not tested* External Time - external source and time out of range (high)");
+    UtAssert_NA("*Not tested* External Time - external source and time in range");
+    UtAssert_NA("*Not tested* External Time (internal source)");
 #endif
 
     /* Reset to normal value for subsequent tests */
@@ -1419,23 +1287,21 @@ void Test_PipeCmds(void)
     UT_InitData();
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &LocalSnapshotData);
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_SEND_HK);
-    UT_Report(__FILE__, __LINE__, LocalSnapshotData.Count == 1, "CFE_TIME_HousekeepingCmd",
-              "Housekeeping telemetry request");
+    UtAssert_INT32_EQ(LocalSnapshotData.Count, 1);
 
     /* Test sending the time at the tone "signal" command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CFE_TIME_Global.ToneSignalCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_TONE_CMD);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ToneSignalCounter == 1, "CFE_TIME_ToneSignalCmd",
-              "Time at tone signal");
+    UtAssert_INT32_EQ(CFE_TIME_Global.ToneSignalCounter, 1);
 
     /* Test sending the time at the tone "data" command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CFE_TIME_Global.ToneDataCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.tonedatacmd), UT_TPID_CFE_TIME_DATA_CMD);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ToneDataCounter == 1, "CFE_TIME_ToneDataCmd", "Time at tone data");
+    UtAssert_INT32_EQ(CFE_TIME_Global.ToneDataCounter, 1);
 
     /* Test sending the simulate time at the tone "signal" command */
     UT_InitData();
@@ -1444,9 +1310,8 @@ void Test_PipeCmds(void)
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
     CFE_TIME_Tone1HzISR();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Global.ToneSignalLatch.Seconds == 123 && CFE_TIME_Global.ToneSignalLatch.Subseconds == 0,
-              "CFE_TIME_FakeToneCmd", "Simulated time at tone signal");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneSignalLatch.Seconds, 123);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneSignalLatch.Subseconds, 0);
 
     /* Test sending the request time at the tone "data" command */
     UT_InitData();
@@ -1459,56 +1324,50 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_SEND_CMD);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    UT_Report(__FILE__, __LINE__,
-              !UT_EventIsInHistory(CFE_TIME_ID_ERR_EID) && CFE_TIME_Global.InternalCount == count + 1,
-              "CFE_TIME_ToneSendCmd", "Request time at tone data");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.InternalCount, count + 1);
+    CFE_UtAssert_EVENTNOTSENT(CFE_TIME_ID_ERR_EID);
 #else
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_ID_ERR_EID), "CFE_TIME_ToneSendCmd",
-              "*Command not available* Request time at tone data");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_ID_ERR_EID);
 #endif
 
     /* Test sending the no-op command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_CMD_NOOP_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_NOOP_EID), "CFE_TIME_NoopCmd", "No-op");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_NOOP_EID);
 
     /* Test sending the reset counters command */
     UT_InitData();
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_RESET_EID), "CFE_TIME_ResetCountersCmd",
-              "Reset counters");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_RESET_EID);
 
     /* Test sending the request diagnostics command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd),
                     UT_TPID_CFE_TIME_CMD_SEND_DIAGNOSTIC_TLM_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_DIAG_EID), "CFE_TIME_DiagCmd", "Request diagnostics");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DIAG_EID);
 
     /* Test sending a clock state = invalid command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.statecmd.Payload.ClockState = CFE_TIME_ClockState_INVALID;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.statecmd), UT_TPID_CFE_TIME_CMD_SET_STATE_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_STATE_EID), "CFE_TIME_SetStateCmd",
-              "Set clock state = invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_STATE_EID);
 
     /* Test sending a clock state = valid command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.statecmd.Payload.ClockState = CFE_TIME_ClockState_VALID;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.statecmd), UT_TPID_CFE_TIME_CMD_SET_STATE_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_STATE_EID), "CFE_TIME_SetStateCmd",
-              "Set clock state = valid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_STATE_EID);
 
     /* Test sending a clock state = flywheel command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.statecmd.Payload.ClockState = CFE_TIME_ClockState_FLYWHEEL;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.statecmd), UT_TPID_CFE_TIME_CMD_SET_STATE_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_STATE_EID), "CFE_TIME_SetStateCmd",
-              "Set clock state = flywheel");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_STATE_EID);
 
     /* Test response to sending a clock state command using an
      * invalid state
@@ -1517,8 +1376,7 @@ void Test_PipeCmds(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.statecmd.Payload.ClockState = 99;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.statecmd), UT_TPID_CFE_TIME_CMD_SET_STATE_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_STATE_ERR_EID), "CFE_TIME_SetStateCmd",
-              "Invalid clock state");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_STATE_ERR_EID);
 
     /* Test sending the set time source = internal command */
     UT_InitData();
@@ -1527,11 +1385,9 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.sourcecmd), UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_SOURCE_EID), "CFE_TIME_SetSourceCmd",
-              "Set internal source");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SOURCE_EID);
 #else
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_SOURCE_CFG_EID), "CFE_TIME_SetSourceCmd",
-              "Set internal source invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SOURCE_CFG_EID);
 #endif
 
     /* Test sending the set time source = external command */
@@ -1541,11 +1397,9 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.sourcecmd), UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_SOURCE_EID), "CFE_TIME_SetSourceCmd",
-              "Set external source");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SOURCE_EID);
 #else
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_SOURCE_CFG_EID), "CFE_TIME_SetSourceCmd",
-              "Set external source invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SOURCE_CFG_EID);
 #endif
 
     /* Test response to sending a set time source command using an
@@ -1555,8 +1409,7 @@ void Test_PipeCmds(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.sourcecmd.Payload.TimeSource = -1;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.sourcecmd), UT_TPID_CFE_TIME_CMD_SET_SOURCE_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_SOURCE_ERR_EID), "CFE_TIME_SetSourceCmd",
-              "Invalid time source");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SOURCE_ERR_EID);
 
     /* Test sending a set tone signal source = primary command */
     UT_InitData();
@@ -1567,14 +1420,13 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.signalcmd), UT_TPID_CFE_TIME_CMD_SET_SIGNAL_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_SIGNAL_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_SetSignalCmd", "Set tone signal source = primary");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SIGNAL_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_SIGNAL_CFG_EID) && CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_SetSignalCmd", "Set tone source = primary invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SIGNAL_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test sending a set tone signal source = redundant command */
@@ -1586,14 +1438,13 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.signalcmd), UT_TPID_CFE_TIME_CMD_SET_SIGNAL_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SIGNAL == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_SIGNAL_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_SetSignalCmd", "Set tone signal source = redundant");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SIGNAL_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_SIGNAL_CFG_EID) && CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_SetSignalCmd", "Set tone signal source = redundant invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SIGNAL_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test response to sending a set tone signal source command using an
@@ -1604,9 +1455,8 @@ void Test_PipeCmds(void)
     CmdBuf.signalcmd.Payload.ToneSource = -1;
     CFE_TIME_Global.CommandErrorCounter = 0;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.signalcmd), UT_TPID_CFE_TIME_CMD_SET_SIGNAL_CC);
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_SIGNAL_ERR_EID) && CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_SetSignalCmd", "Invalid tone source");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_SIGNAL_ERR_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 
     /* Test sending a time tone add delay command */
     UT_InitData();
@@ -1618,15 +1468,13 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.adddelaycmd), UT_TPID_CFE_TIME_CMD_ADD_DELAY_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_DELAY_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_SetDelayCmd", "Set tone add delay");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELAY_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_DELAY_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_SetDelayCmd", "Set tone add delay invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELAY_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test sending a time tone subtract delay command */
@@ -1637,15 +1485,13 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.subdelaycmd), UT_TPID_CFE_TIME_CMD_SUB_DELAY_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_DELAY_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_SetDelayCmd", "Set tone subtract delay");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELAY_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_DELAY_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_SetDelayCmd", "Set subtract delay invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELAY_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test sending a set time command */
@@ -1656,15 +1502,13 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.settimecmd), UT_TPID_CFE_TIME_CMD_SET_TIME_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_TIME_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_SetTimeCmd", "Set time");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_TIME_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_TIME_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_SetTimeCmd", "Set time invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_TIME_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test sending a set MET command */
@@ -1675,15 +1519,13 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.setmetcmd), UT_TPID_CFE_TIME_CMD_SET_MET_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_MET_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_SetMETCmd", "Set MET");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_MET_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_MET_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_SetMETCmd", "Set MET invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_MET_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test sending a set STCF command */
@@ -1694,15 +1536,13 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.setstcfcmd), UT_TPID_CFE_TIME_CMD_SET_STCF_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_STCF_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_SetSTCFCmd", "Set STCF");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_STCF_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_STCF_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_SetSTCFCmd", "Set STCF invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_STCF_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test sending an adjust STCF positive command */
@@ -1713,15 +1553,13 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.addadjcmd), UT_TPID_CFE_TIME_CMD_ADD_ADJUST_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_DELTA_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_AdjustCmd", "Set STCF adjust positive");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELTA_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_DELTA_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_AdjustCmd", "Set STCF adjust positive invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELTA_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test sending an adjust STCF negative command */
@@ -1732,15 +1570,13 @@ void Test_PipeCmds(void)
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.subadjcmd), UT_TPID_CFE_TIME_CMD_SUB_ADJUST_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_DELTA_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_AdjustCmd", "Set STCF adjust negative");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELTA_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_DELTA_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_AdjustCmd", "Set STCF adjust negative invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELTA_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test sending an adjust STCF 1 Hz positive command */
@@ -1752,15 +1588,13 @@ void Test_PipeCmds(void)
                     UT_TPID_CFE_TIME_CMD_ADD_1HZ_ADJUSTMENT_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_1HZ_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_1HzAdjCmd", "Set STCF 1Hz adjust positive");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_1HZ_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_1HZ_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_1HzAdjCmd", "Set STCF 1Hz adjust positive invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_1HZ_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test sending an adjust STCF 1 Hz negative command */
@@ -1772,15 +1606,13 @@ void Test_PipeCmds(void)
                     UT_TPID_CFE_TIME_CMD_SUB_1HZ_ADJUSTMENT_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_1HZ_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_1HzAdjCmd", "Set STCF 1Hz adjust negative");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_1HZ_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_1HZ_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_1HzAdjCmd", "Set STCF 1Hz adjust negative invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_1HZ_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test response to sending a tone delay command using an invalid time */
@@ -1788,37 +1620,35 @@ void Test_PipeCmds(void)
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.adddelaycmd.Payload.MicroSeconds = 1000001;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.adddelaycmd), UT_TPID_CFE_TIME_CMD_ADD_DELAY_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_DELAY_ERR_EID), "CFE_TIME_SetDelayCmd",
-              "Invalid tone delay");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELAY_ERR_EID);
 
     /* Test response to sending a set time command using an invalid time */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.settimecmd.Payload.MicroSeconds = 1000001;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.settimecmd), UT_TPID_CFE_TIME_CMD_SET_TIME_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_TIME_ERR_EID), "CFE_TIME_SetTimeCmd", "Invalid time");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_TIME_ERR_EID);
 
     /* Test response to sending a set MET command using an invalid time */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.setmetcmd.Payload.MicroSeconds = 1000001;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.setmetcmd), UT_TPID_CFE_TIME_CMD_SET_MET_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_MET_ERR_EID), "CFE_TIME_SetMETCmd", "Invalid MET");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_MET_ERR_EID);
 
     /* Test response to sending a set STCF command using an invalid time */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.setstcfcmd.Payload.MicroSeconds = 1000001;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.setstcfcmd), UT_TPID_CFE_TIME_CMD_SET_STCF_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_STCF_ERR_EID), "CFE_TIME_SetSTCFCmd", "Invalid STCF");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_STCF_ERR_EID);
 
     /* Test response to sending an adjust STCF command using an invalid time */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.setstcfcmd.Payload.MicroSeconds = 1000001;
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.addadjcmd), UT_TPID_CFE_TIME_CMD_ADD_ADJUST_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_DELTA_ERR_EID), "CFE_TIME_AdjustCmd",
-              "Invalid STCF adjust");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_DELTA_ERR_EID);
 
     /* Test sending a set leap seconds commands */
     UT_InitData();
@@ -1830,42 +1660,38 @@ void Test_PipeCmds(void)
                     UT_TPID_CFE_TIME_CMD_SET_LEAP_SECONDS_CC);
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_LEAPS_EID) && CFE_TIME_Global.CommandCounter == 1 &&
-                  CFE_TIME_Global.CommandErrorCounter == 0,
-              "CFE_TIME_SetLeapSecondsCmd", "Set leap seconds");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_LEAPS_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 0);
 #else
-    UT_Report(__FILE__, __LINE__,
-              UT_EventIsInHistory(CFE_TIME_LEAPS_CFG_EID) && CFE_TIME_Global.CommandCounter == 0 &&
-                  CFE_TIME_Global.CommandErrorCounter == 1,
-              "CFE_TIME_SetLeapSecondsCmd", "Set leap seconds invalid");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_LEAPS_CFG_EID);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandCounter, 0);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.CommandErrorCounter, 1);
 #endif
 
     /* Test response to sending an invalid command */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_CMD_INVALID_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_CC_ERR_EID), "CFE_TIME_TaskPipe",
-              "Invalid command code");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_CC_ERR_EID);
 
     /* Test response to sending a command using an invalid message ID */
     UT_InitData();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_INVALID_MID);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_ID_ERR_EID), "CFE_TIME_TaskPipe", "Invalid message ID");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_ID_ERR_EID);
 
     /* Test response to sending a command with a bad length */
     UT_InitData();
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, 0, UT_TPID_CFE_TIME_CMD_SET_LEAP_SECONDS_CC);
-    UT_Report(__FILE__, __LINE__, UT_EventIsInHistory(CFE_TIME_LEN_ERR_EID), "CFE_TIME_TaskPipe", "Invalid message ID");
+    CFE_UtAssert_EVENTSENT(CFE_TIME_LEN_ERR_EID);
 
     /* Call the Task Pipe with the 1Hz command. */
     /* In the 1Hz state machine it should call PSP GetTime as part,
         of latching the clock.  This is tested only to see that the latch executed. */
     UT_InitData();
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_1HZ_CMD);
-    UT_Report(__FILE__, __LINE__, UT_GetStubCount(UT_KEY(CFE_PSP_GetTime)) > 0, "CFE_TIME_TaskPipe",
-              "Invoke 1Hz state machine via SB");
+    UtAssert_NONZERO(UT_GetStubCount(UT_KEY(CFE_PSP_GetTime)));
 }
 
 /*
@@ -1883,43 +1709,37 @@ void Test_ResetArea(void)
     CFE_TIME_Global.ClockSignal                     = CFE_TIME_ToneSignalSelect_PRIMARY;
     UT_GetResetDataPtr()->TimeResetVars.ClockSignal = CFE_TIME_ToneSignalSelect_REDUNDANT;
     CFE_TIME_UpdateResetVars(&Reference);
-    UT_Report(__FILE__, __LINE__, UT_GetResetDataPtr()->TimeResetVars.ClockSignal == CFE_TIME_Global.ClockSignal,
-              "CFE_TIME_UpdateResetVars", "Successful update");
+    UtAssert_INT32_EQ(UT_GetResetDataPtr()->TimeResetVars.ClockSignal, CFE_TIME_Global.ClockSignal);
 
     /* Tests existing and good Reset Area */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_SUCCESS, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_PRIMARY);
     CFE_TIME_QueryResetVars();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.DataStoreStatus == CFE_TIME_RESET_AREA_EXISTING,
-              "CFE_TIME_QueryResetVars", "Initialize times using an existing reset area; time tone PRI");
+    UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_EXISTING);
 
     /* Tests existing and good Reset Area */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_SUCCESS, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_REDUNDANT);
     CFE_TIME_QueryResetVars();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.DataStoreStatus == CFE_TIME_RESET_AREA_EXISTING,
-              "CFE_TIME_QueryResetVars", "Initialize times using an existing reset area; time tone RED");
+    UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_EXISTING);
 
     /* Test response to a bad reset area */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_ERROR, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_PRIMARY);
     CFE_TIME_QueryResetVars();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.DataStoreStatus == CFE_TIME_RESET_AREA_BAD, "CFE_TIME_QueryResetVars",
-              "Reset area error");
+    UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_BAD);
 
     /* Test initializing to default time values */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_SUCCESS, CFE_TIME_RESET_SIGNATURE + 1, CFE_TIME_ToneSignalSelect_PRIMARY);
     CFE_TIME_QueryResetVars();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.DataStoreStatus == CFE_TIME_RESET_AREA_NEW, "CFE_TIME_QueryResetVars",
-              "Initialize to default values");
+    UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_NEW);
 
     /* Test response to a bad clock signal selection parameter */
     UT_InitData();
     UT_SetStatusBSPResetArea(OS_SUCCESS, CFE_TIME_RESET_SIGNATURE, CFE_TIME_ToneSignalSelect_REDUNDANT + 1);
     CFE_TIME_QueryResetVars();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.DataStoreStatus == CFE_TIME_RESET_AREA_NEW, "CFE_TIME_QueryResetVars",
-              "Bad clock signal selection");
+    UtAssert_INT32_EQ(CFE_TIME_Global.DataStoreStatus, CFE_TIME_RESET_AREA_NEW);
 
     /* Test response to a reset area error */
     UT_InitData();
@@ -1927,8 +1747,7 @@ void Test_ResetArea(void)
     CFE_TIME_Global.ClockSignal                     = CFE_TIME_ToneSignalSelect_PRIMARY;
     UT_GetResetDataPtr()->TimeResetVars.ClockSignal = CFE_TIME_ToneSignalSelect_REDUNDANT;
     CFE_TIME_UpdateResetVars(&Reference);
-    UT_Report(__FILE__, __LINE__, UT_GetResetDataPtr()->TimeResetVars.ClockSignal != CFE_TIME_Global.ClockSignal,
-              "CFE_TIME_UpdateResetVars", "Reset area error");
+    UtAssert_INT32_EQ(UT_GetResetDataPtr()->TimeResetVars.ClockSignal, CFE_TIME_ToneSignalSelect_REDUNDANT);
 
     /* Test failure to get reset area updating the reset area */
     UT_InitData();
@@ -1937,8 +1756,7 @@ void Test_ResetArea(void)
     CFE_TIME_Global.ClockSignal                     = CFE_TIME_ToneSignalSelect_PRIMARY;
     UT_GetResetDataPtr()->TimeResetVars.ClockSignal = CFE_TIME_ToneSignalSelect_REDUNDANT;
     CFE_TIME_UpdateResetVars(&Reference);
-    UT_Report(__FILE__, __LINE__, UT_GetResetDataPtr()->TimeResetVars.ClockSignal != CFE_TIME_Global.ClockSignal,
-              "CFE_TIME_UpdateResetVars", "Get reset area fail");
+    UtAssert_INT32_EQ(UT_GetResetDataPtr()->TimeResetVars.ClockSignal, CFE_TIME_ToneSignalSelect_REDUNDANT);
 }
 
 /*
@@ -1947,7 +1765,6 @@ void Test_ResetArea(void)
 void Test_State(void)
 {
     uint16                              flag;
-    int16                               ExpState;
     CFE_TIME_Reference_t                Reference;
     volatile CFE_TIME_ReferenceState_t *RefState;
 
@@ -1960,9 +1777,7 @@ void Test_State(void)
     Reference.ClockSetState        = CFE_TIME_SetState_WAS_SET;
     Reference.ClockFlyState        = CFE_TIME_FlywheelState_NO_FLY;
     CFE_TIME_Global.ServerFlyState = CFE_TIME_FlywheelState_NO_FLY;
-    ExpState                       = CFE_TIME_ClockState_VALID;
-    UT_Report(__FILE__, __LINE__, CFE_TIME_CalculateState(&Reference) == ExpState, "CFE_TIME_CalculateState",
-              "Valid time state; server state - no flywheel");
+    UtAssert_INT32_EQ(CFE_TIME_CalculateState(&Reference), CFE_TIME_ClockState_VALID);
 
     /* Test determining if the clock state is valid with the server state
      * in "flywheel"
@@ -1972,24 +1787,20 @@ void Test_State(void)
     Reference.ClockFlyState        = CFE_TIME_FlywheelState_NO_FLY;
     CFE_TIME_Global.ServerFlyState = CFE_TIME_FlywheelState_IS_FLY;
 #if (CFE_PLATFORM_TIME_CFG_CLIENT == true)
-    ExpState = CFE_TIME_ClockState_FLYWHEEL;
+    UtAssert_INT32_EQ(CFE_TIME_CalculateState(&Reference), CFE_TIME_ClockState_FLYWHEEL);
 #else
-    ExpState = CFE_TIME_ClockState_VALID;
+    UtAssert_INT32_EQ(CFE_TIME_CalculateState(&Reference), CFE_TIME_ClockState_VALID);
 #endif
-    UT_Report(__FILE__, __LINE__, CFE_TIME_CalculateState(&Reference) == ExpState, "CFE_TIME_CalculateState",
-              "Valid time state; server state - flywheel");
 
     /* Test determining if the clock state = flywheel */
     UT_InitData();
     Reference.ClockFlyState = CFE_TIME_FlywheelState_IS_FLY;
-    UT_Report(__FILE__, __LINE__, CFE_TIME_CalculateState(&Reference) == CFE_TIME_ClockState_FLYWHEEL,
-              "CFE_TIME_CalculateState", "Flywheel time state");
+    UtAssert_INT32_EQ(CFE_TIME_CalculateState(&Reference), CFE_TIME_ClockState_FLYWHEEL);
 
     /* Test determining if the clock state = invalid */
     UT_InitData();
     Reference.ClockSetState = CFE_TIME_ClockState_INVALID;
-    UT_Report(__FILE__, __LINE__, CFE_TIME_CalculateState(&Reference) == CFE_TIME_ClockState_INVALID,
-              "CFE_TIME_CalculateState", "Invalid time state");
+    UtAssert_INT32_EQ(CFE_TIME_CalculateState(&Reference), CFE_TIME_ClockState_INVALID);
 
     /* Test alternate flag values */
     UT_InitData();
@@ -2010,14 +1821,15 @@ void Test_State(void)
      * The function should return the same flags as the previous call, even though
      * the global data has been updated with new values.
      */
-    UT_Report(__FILE__, __LINE__, CFE_TIME_GetClockInfo() == flag, "CFE_TIME_GetStateFlags",
-              "State data atomic update before finish");
+    UtAssert_INT32_EQ(CFE_TIME_GetClockInfo(), flag);
 
     /* Now finish the update and the flags should be different */
     CFE_TIME_FinishReferenceUpdate(RefState);
 
-    UT_Report(__FILE__, __LINE__, CFE_TIME_GetClockInfo() != flag, "CFE_TIME_GetStateFlags",
-              "State data atomic update after finish");
+    flag &= ~CFE_TIME_FLAG_CLKSET;
+    flag &= ~CFE_TIME_FLAG_FLYING;
+    flag &= ~CFE_TIME_FLAG_ADDTCL;
+    UtAssert_INT32_EQ(CFE_TIME_GetClockInfo(), flag);
 
     CFE_TIME_Global.ClockSource      = CFE_TIME_SourceSelect_EXTERNAL;
     CFE_TIME_Global.ClockSignal      = CFE_TIME_ToneSignalSelect_REDUNDANT;
@@ -2027,11 +1839,12 @@ void Test_State(void)
     CFE_TIME_Global.OneHzDirection   = CFE_TIME_AdjustDirection_SUBTRACT;
 
     flag = CFE_TIME_GetClockInfo();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_GetClockInfo() == flag, "CFE_TIME_GetStateFlags",
-              "State data with alternate flags");
 
     RefState                = CFE_TIME_StartReferenceUpdate();
     RefState->ClockFlyState = CFE_TIME_FlywheelState_IS_FLY;
+
+    UtAssert_INT32_EQ(CFE_TIME_GetClockInfo(), flag);
+
     CFE_TIME_FinishReferenceUpdate(RefState);
     CFE_TIME_Global.ClockSource = CFE_TIME_SourceSelect_INTERNAL;
 }
@@ -2064,8 +1877,8 @@ void Test_GetReference(void)
     /* CurrentMET = AtToneMET + MaxLocalClock - AtToneLatch +
      *              BSP_Time [+ or - AtToneDelay]
      */
-    UT_Report(__FILE__, __LINE__, Reference.CurrentMET.Seconds == 1010 && Reference.CurrentMET.Subseconds == 0,
-              "CFE_TIME_GetReference", "Local clock < latch at tone time");
+    UtAssert_UINT32_EQ(Reference.CurrentMET.Seconds, 1010);
+    UtAssert_UINT32_EQ(Reference.CurrentMET.Subseconds, 0);
 
     /* Test without local clock rollover */
     UT_InitData();
@@ -2083,8 +1896,8 @@ void Test_GetReference(void)
     CFE_TIME_GetReference(&Reference);
     /* CurrentMET = AtToneMET + BSP_Time - AtToneLatch [+ or - AtToneDelay]
      */
-    UT_Report(__FILE__, __LINE__, Reference.CurrentMET.Seconds == 25 && Reference.CurrentMET.Subseconds == 0,
-              "CFE_TIME_GetReference", "Local clock > latch at tone time");
+    UtAssert_UINT32_EQ(Reference.CurrentMET.Seconds, 25);
+    UtAssert_UINT32_EQ(Reference.CurrentMET.Subseconds, 0);
 
     /* Use a hook function to test the behavior when the read needs to be retried */
     /* This just causes a single retry, the process should still succeed */
@@ -2161,16 +1974,11 @@ void Test_Tone(void)
 #endif
 
 #ifdef CFE_PLATFORM_TIME_CFG_BIGENDIAN
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Seconds == CFE_MAKE_BIG32(seconds) &&
-                  CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds ==
-                      CFE_MAKE_BIG32(0), /* yes, I know, 0 is 0 in all endians */
-              "CFE_TIME_ToneSend", "Send tone, flywheel ON");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Seconds, CFE_MAKE_BIG32(seconds));
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds, CFE_MAKE_BIG32(0));
 #else  /* !CFE_PLATFORM_TIME_CFG_BIGENDIAN */
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Seconds == seconds &&
-                  CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds == 0,
-              "CFE_TIME_ToneSend", "Send tone, flywheel ON");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Seconds, seconds);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds, 0);
 #endif /* CFE_PLATFORM_TIME_CFG_BIGENDIAN */
 
     /* Test time at the tone when not in flywheel mode */
@@ -2186,28 +1994,17 @@ void Test_Tone(void)
 #endif
 
 #ifdef CFE_PLATFORM_TIME_CFG_BIGENDIAN
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Seconds == CFE_MAKE_BIG32(virtualSeconds) &&
-                  CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds ==
-                      CFE_MAKE_BIG32(0), /* yes, I know, 0 is 0 in all endians */
-              "CFE_TIME_ToneSend", "Send tone, flywheel OFF");
-
-#else /* !CFE_PLATFORM_TIME_CFG_BIGENDIAN */
-
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Seconds == virtualSeconds &&
-                  CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds == 0,
-              "CFE_TIME_ToneSend", "Send tone, flywheel OFF");
-
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Seconds, CFE_MAKE_BIG32(virtualSeconds));
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds, CFE_MAKE_BIG32(0));
+#else  /* !CFE_PLATFORM_TIME_CFG_BIGENDIAN */
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Seconds, virtualSeconds);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneDataCmd.Payload.AtToneMET.Subseconds, 0);
 #endif /* CFE_PLATFORM_TIME_CFG_BIGENDIAN */
 
 #else
     /* Added to prevent a missing test */
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ToneSend", "*Not tested* Send tone, flywheel ON");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ToneSend",
-              "*Not tested* Send tone, flywheel OFF"); /* Added to prevent a missing test # */
+    UtAssert_NA("*Not tested* Send tone, flywheel ON");
+    UtAssert_NA("*Not tested* Send tone, flywheel OFF");
 #endif
 
     time1.Seconds           = 10;
@@ -2227,23 +2024,20 @@ void Test_Tone(void)
     CFE_TIME_Global.ToneMatchCounter = 0;
     CFE_TIME_Global.Forced2Fly       = false; /* Exercises '!ForcedToFly' path */
     CFE_TIME_ToneVerify(time1, time2);
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Global.LastVersionCounter > VersionSave && CFE_TIME_Global.ToneMatchCounter == 1,
-              "CFE_TIME_ToneVerify", "Time 1 < time 2, Forced2Fly false");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.LastVersionCounter, VersionSave + 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchCounter, 1);
 
     /* Test tone validation when time 1 equals the previous time 1 value */
     UT_InitData();
     CFE_TIME_Global.ToneMatchErrorCounter = 0;
     CFE_TIME_ToneVerify(time1, time1);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ToneMatchErrorCounter == 1, "CFE_TIME_ToneVerify",
-              "Time 1 same as previous time 1");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchErrorCounter, 1);
 
     /* Test tone validation when time 2 equals the previous time 2 value */
     UT_InitData();
     CFE_TIME_Global.ToneMatchErrorCounter = 0;
     CFE_TIME_ToneVerify(time2, time1);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ToneMatchErrorCounter == 1, "CFE_TIME_ToneVerify",
-              "Time 2 same as previous time 2");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchErrorCounter, 1);
 
     /* Test tone validation with time 1 > time 2 value (clock rollover) */
     UT_InitData();
@@ -2255,8 +2049,7 @@ void Test_Tone(void)
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     CFE_TIME_Global.ToneMatchCounter         = 0;
     CFE_TIME_ToneVerify(time1, time2);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ToneMatchCounter == 1, "CFE_TIME_ToneVerify",
-              "Time 1 > time 2 (clock rollover)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchCounter, 1);
 
     /* Test tone validation when time between packet and tone is out of
      * limits (seconds)
@@ -2268,8 +2061,7 @@ void Test_Tone(void)
     time2.Subseconds                      = 0;
     CFE_TIME_Global.ToneMatchErrorCounter = 0;
     CFE_TIME_ToneVerify(time2, time1);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ToneMatchErrorCounter == 1, "CFE_TIME_ToneVerify",
-              "Elapsed time out of limits (seconds)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchErrorCounter, 1);
 
     /* Test tone validation when time between packet and tone is out of
      * limits (subseconds low)
@@ -2283,8 +2075,7 @@ void Test_Tone(void)
     CFE_TIME_Global.MaxElapsed            = 30;
     CFE_TIME_Global.ToneMatchErrorCounter = 0;
     CFE_TIME_ToneVerify(time1, time2);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ToneMatchErrorCounter == 1, "CFE_TIME_ToneVerify",
-              "Elapsed time out of limits (subseconds low)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchErrorCounter, 1);
 
     /* Test tone validation when time between packet and tone is out of
      * limits (subseconds high)
@@ -2298,8 +2089,7 @@ void Test_Tone(void)
     CFE_TIME_Global.MaxElapsed            = 30;
     CFE_TIME_Global.ToneMatchErrorCounter = 0;
     CFE_TIME_ToneVerify(time1, time2);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ToneMatchErrorCounter == 1, "CFE_TIME_ToneVerify",
-              "Elapsed time out of limits (subseconds high)");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchErrorCounter, 1);
 
     CFE_TIME_Global.MinElapsed = MinElapsed;
     CFE_TIME_Global.MaxElapsed = MaxElapsed;
@@ -2320,10 +2110,9 @@ void Test_Tone(void)
     CFE_TIME_Global.VirtualMET         = 5;
     CFE_TIME_Global.PendingMET.Seconds = CFE_TIME_Global.VirtualMET;
     CFE_TIME_ToneVerify(time1, time2);
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Global.LastVersionCounter > VersionSave && CFE_TIME_Global.ToneMatchCounter == 1 &&
-                  CFE_TIME_Global.VirtualMET == 5,
-              "CFE_TIME_ToneVerify", "Time 1 < time 2, Forced2Fly false, Clock EXTERN");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.LastVersionCounter, VersionSave + 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchCounter, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.VirtualMET, 5);
 
     CFE_TIME_Global.ClockSource = CFE_TIME_SourceSelect_INTERNAL;
 
@@ -2334,23 +2123,19 @@ void Test_Tone(void)
     CFE_TIME_Global.ClockSetState  = CFE_TIME_SetState_WAS_SET;
     CFE_TIME_Global.ServerFlyState = CFE_TIME_FlywheelState_IS_FLY;
     CFE_TIME_ToneUpdate();
-    UT_Report(__FILE__, __LINE__,
-              CFE_TIME_Global.ClockSetState == CFE_TIME_SetState_NOT_SET &&
-                  CFE_TIME_Global.ServerFlyState == CFE_TIME_FlywheelState_NO_FLY,
-              "CFE_TIME_ToneUpdate", "Invalid pending state");
+    UtAssert_INT32_EQ(CFE_TIME_Global.ClockSetState, CFE_TIME_SetState_NOT_SET);
+    UtAssert_INT32_EQ(CFE_TIME_Global.ServerFlyState, CFE_TIME_FlywheelState_NO_FLY);
 
     /* Test tone update using FLYWHEEL as the pending state */
     UT_InitData();
     CFE_TIME_Global.PendingState   = CFE_TIME_ClockState_FLYWHEEL;
     CFE_TIME_Global.ServerFlyState = CFE_TIME_FlywheelState_NO_FLY;
     CFE_TIME_ToneUpdate();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ServerFlyState == CFE_TIME_FlywheelState_IS_FLY,
-              "CFE_TIME_ToneUpdate", "Pending state is FLYWHEEL");
+    UtAssert_INT32_EQ(CFE_TIME_Global.ServerFlyState, CFE_TIME_FlywheelState_IS_FLY);
 
 #else
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ToneUpdate", "*Not tested* Invalid pending state");
-
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_ToneUpdate", "*Not tested* Pending state is FLYWHEEL");
+    UtAssert_NA("*Not tested* Invalid pending state");
+    UtAssert_NA("*Not tested* Pending state is FLYWHEEL");
 #endif
 }
 
@@ -2379,20 +2164,20 @@ void Test_1Hz(void)
     CFE_TIME_Set1HzAdj(time1, CFE_TIME_AdjustDirection_ADD);
     CFE_TIME_Local1HzStateMachine();
     RefState = CFE_TIME_GetReferenceState();
-    UT_Report(__FILE__, __LINE__, RefState->AtToneSTCF.Seconds == 30 && RefState->AtToneSTCF.Subseconds == 90,
-              "CFE_TIME_Set1HzAdj", "Positive adjustment");
+    UtAssert_UINT32_EQ(RefState->AtToneSTCF.Seconds, 30);
+    UtAssert_UINT32_EQ(RefState->AtToneSTCF.Subseconds, 90);
 
     /* Test 1Hz STCF adjustment in negative direction */
     UT_InitData();
     CFE_TIME_Set1HzAdj(time1, CFE_TIME_AdjustDirection_SUBTRACT);
     CFE_TIME_Local1HzStateMachine();
     RefState = CFE_TIME_GetReferenceState();
-    UT_Report(__FILE__, __LINE__, RefState->AtToneSTCF.Seconds == 20 && RefState->AtToneSTCF.Subseconds == 60,
-              "CFE_TIME_Set1HzAdj", "Negative adjustment");
+    UtAssert_UINT32_EQ(RefState->AtToneSTCF.Seconds, 20);
+    UtAssert_UINT32_EQ(RefState->AtToneSTCF.Subseconds, 60);
 #else
     /* These prevent missing tests when CFE_PLATFORM_TIME_CFG_SERVER is false */
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_Local1HzISR", "(*Not tested*) Positive adjustment");
-    UT_Report(__FILE__, __LINE__, true, "CFE_TIME_Local1HzISR", "(*Not tested*) Negative adjustment");
+    UtAssert_NA("(*Not tested*) Positive adjustment");
+    UtAssert_NA("(*Not tested*) Negative adjustment");
 #endif
 
     /* Test local 1Hz interrupt when enough time has elapsed (seconds) since
@@ -2411,8 +2196,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.MaxLocalClock.Seconds    = CFE_PLATFORM_TIME_CFG_LATCH_FLY - 1;
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     CFE_TIME_Local1HzStateMachine();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.AutoStartFly == true, "CFE_TIME_Local1HzISR",
-              "Auto start flywheel (seconds)");
+    CFE_UtAssert_TRUE(CFE_TIME_Global.AutoStartFly);
 
     /* Test local 1Hz interrupt when enough time has elapsed since receiving a
      * time update to automatically update the MET
@@ -2436,10 +2220,9 @@ void Test_1Hz(void)
     CFE_TIME_FinishReferenceUpdate(RefState);
     CFE_TIME_Local1HzStateMachine();
     RefState = CFE_TIME_GetReferenceState();
-    UT_Report(__FILE__, __LINE__,
-              RefState->AtToneMET.Seconds == time1.Seconds + CFE_PLATFORM_TIME_CFG_LATCH_FLY + delSec - time2.Seconds &&
-                  RefState->AtToneLatch.Seconds == 0,
-              "CFE_TIME_Local1HzISR", "Auto update MET");
+    UtAssert_UINT32_EQ(RefState->AtToneMET.Seconds,
+                       time1.Seconds + CFE_PLATFORM_TIME_CFG_LATCH_FLY + delSec - time2.Seconds);
+    UtAssert_UINT32_EQ(RefState->AtToneLatch.Seconds, 0);
 
     /* Test the tone signal ISR when the tone doesn't occur ~1 second after
      * the previous one
@@ -2450,8 +2233,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 1;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
     CFE_TIME_Tone1HzISR();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.IsToneGood == false, "CFE_TIME_Tone1HzISR",
-              "Invalid tone signal interrupt");
+    CFE_UtAssert_FALSE(CFE_TIME_Global.IsToneGood);
 
     /* Test the tone signal ISR call to the application synch callback
      * function by verifying the number of callbacks made matches the number
@@ -2473,8 +2255,7 @@ void Test_1Hz(void)
     }
     ut_time_CallbackCalled = 0;
     CFE_TIME_Tone1HzISR();
-    UT_Report(__FILE__, __LINE__, ut_time_CallbackCalled == 3, "CFE_TIME_Tone1HzISR",
-              "Proper number of callbacks made");
+    UtAssert_INT32_EQ(ut_time_CallbackCalled, 3);
 
     /* Test the local 1Hz task where the binary semaphore take fails on the
      * second call
@@ -2484,8 +2265,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.LocalTaskCounter = 0;
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemTake), 2, OS_ERROR);
     CFE_TIME_Local1HzTask();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.LocalTaskCounter == 1, "CFE_TIME_Local1HzTask",
-              "Semaphore creation pass, then fail");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.LocalTaskCounter, 1);
 
     /* Test the tone 1Hz task where the binary semaphore take fails on the
      * second call
@@ -2494,8 +2274,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.ToneTaskCounter = 0;
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemTake), 2, OS_ERROR);
     CFE_TIME_Tone1HzTask();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.ToneTaskCounter == 1, "CFE_TIME_Tone1HzTask",
-              "Semaphore creation pass, then fail");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneTaskCounter, 1);
 
     /* Test the tone 1Hz task with the tone signal over the time limit */
     UT_InitData();
@@ -2506,8 +2285,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
     CFE_TIME_Tone1HzISR();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.IsToneGood == false, "CFE_TIME_Tone1HzISR",
-              "Invalid tone signal interrupt; tolerance over limit");
+    CFE_UtAssert_FALSE(CFE_TIME_Global.IsToneGood);
 
     /* Test the tone 1Hz task with the tone signal within the time limits */
     UT_InitData();
@@ -2516,8 +2294,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
     CFE_TIME_Tone1HzISR();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.IsToneGood == true, "CFE_TIME_Tone1HzISR",
-              "Valid tone signal interrupt, tolerance in limits");
+    CFE_UtAssert_TRUE(CFE_TIME_Global.IsToneGood);
 
     /* Test the tone 1Hz task with the tone signal under the time limit */
     UT_InitData();
@@ -2526,8 +2303,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
     CFE_TIME_Tone1HzISR();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.IsToneGood == false, "CFE_TIME_Tone1HzISR",
-              "Valid tone signal interrupt, tolerance under limits");
+    CFE_UtAssert_FALSE(CFE_TIME_Global.IsToneGood);
 
     /* Test local 1Hz interrupt when enough time has elapsed (subseconds) since
      * receiving a time update to automatically change the state to flywheel
@@ -2543,8 +2319,7 @@ void Test_1Hz(void)
     CFE_TIME_FinishReferenceUpdate(RefState);
     UT_SetBSP_Time(0, 0);
     CFE_TIME_Local1HzStateMachine();
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.AutoStartFly == true, "CFE_TIME_Local1HzISR",
-              "Auto start flywheel (subseconds)");
+    CFE_UtAssert_TRUE(CFE_TIME_Global.AutoStartFly);
 
     /* Test local 1Hz interrupt when enough time has not elapsed since
      * receiving a time update to automatically change the state to flywheel
@@ -2558,8 +2333,7 @@ void Test_1Hz(void)
     UT_SetBSP_Time(1, 0);
     CFE_TIME_Local1HzStateMachine();
     RefState = CFE_TIME_GetReferenceState();
-    UT_Report(__FILE__, __LINE__, RefState->ClockFlyState == CFE_TIME_FlywheelState_NO_FLY, "CFE_TIME_Local1HzISR",
-              "Do not auto start flywheel");
+    UtAssert_INT32_EQ(RefState->ClockFlyState, CFE_TIME_FlywheelState_NO_FLY);
 
     /* Test the local 1Hz task where auto start flywheel is disabled */
     UT_InitData();
@@ -2568,9 +2342,8 @@ void Test_1Hz(void)
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemTake), 2, OS_ERROR);
     CFE_TIME_Local1HzTask();
     RefState = CFE_TIME_GetReferenceState();
-    UT_Report(__FILE__, __LINE__,
-              RefState->ClockFlyState == CFE_TIME_FlywheelState_NO_FLY && !UT_EventIsInHistory(CFE_TIME_FLY_ON_EID),
-              "CFE_TIME_Local1HzTask", "Do not auto start flywheel");
+    UtAssert_INT32_EQ(RefState->ClockFlyState, CFE_TIME_FlywheelState_NO_FLY);
+    CFE_UtAssert_EVENTNOTSENT(CFE_TIME_FLY_ON_EID);
 
     /* Test the CFE_TIME_Local1HzTimerCallback function */
     UT_InitData();
@@ -2582,8 +2355,7 @@ void Test_1Hz(void)
     CFE_TIME_FinishReferenceUpdate(RefState);
     UT_SetBSP_Time(0, 0);
     CFE_TIME_Local1HzTimerCallback(OS_ObjectIdFromInteger(123), &Arg);
-    UT_Report(__FILE__, __LINE__, CFE_TIME_Global.LocalIntCounter == 2, "CFE_TIME_Local1HzTimerCallback",
-              "Pass through to CFE_TIME_Local1HzISR");
+    UtAssert_UINT32_EQ(CFE_TIME_Global.LocalIntCounter, 2);
 }
 
 /*
@@ -2592,7 +2364,6 @@ void Test_1Hz(void)
 void Test_UnregisterSynchCallback(void)
 {
     uint32 i = 0;
-    int32  Result;
     uint32 AppIndex;
 
     ut_time_CallbackCalled = 0;
@@ -2620,10 +2391,7 @@ void Test_UnregisterSynchCallback(void)
     /* App ID 4 should not have a callback */
     AppIndex = 4;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-
-    Result = CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_Report(__FILE__, __LINE__, Result == CFE_TIME_CALLBACK_NOT_REGISTERED, "CFE_TIME_UnregisterSynchCallback",
-              "Unregistered result with no callback");
+    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc), CFE_TIME_CALLBACK_NOT_REGISTERED);
 
     /*
      * One callback per application is allowed; the first should succeed,
@@ -2633,20 +2401,15 @@ void Test_UnregisterSynchCallback(void)
     AppIndex = 2;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
 
-    Result = CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_Report(__FILE__, __LINE__, Result == CFE_SUCCESS, "CFE_TIME_UnregisterSynchCallback",
-              "Successfully unregister callback");
+    CFE_UtAssert_SUCCESS(CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc));
 
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    Result = CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_Report(__FILE__, __LINE__, Result == CFE_TIME_CALLBACK_NOT_REGISTERED, "CFE_TIME_UnregisterSynchCallback",
-              "Unregistered result after successful unregister");
+    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc), CFE_TIME_CALLBACK_NOT_REGISTERED);
 
     /* Test unregistering the callback function with a bad application ID */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, -1);
-    Result = CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc);
-    UT_Report(__FILE__, __LINE__, Result == -1, "CFE_TIME_UnregisterSynchCallback", "Bad application ID");
+    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(&ut_time_MyCallbackFunc), -1);
 
     /* Test tone notification with an invalid time synch application */
     UT_InitData();
@@ -2656,8 +2419,7 @@ void Test_UnregisterSynchCallback(void)
         CFE_TIME_Global.SynchCallback[i].Ptr = NULL;
     }
     CFE_TIME_NotifyTimeSynchApps();
-    UT_Report(__FILE__, __LINE__, ut_time_CallbackCalled == 0, "CFE_TIME_NotifyTimeSynchApps",
-              "Invalid time synch application");
+    UtAssert_INT32_EQ(ut_time_CallbackCalled, 0);
 }
 
 /*
@@ -2667,7 +2429,6 @@ void Test_CleanUpApp(void)
 {
     uint16         i;
     uint16         Count;
-    int32          Status = CFE_SUCCESS;
     uint32         AppIndex;
     CFE_ES_AppId_t TestAppId;
 
@@ -2696,8 +2457,7 @@ void Test_CleanUpApp(void)
     /* Clean up an app which did not have a callback */
     AppIndex = 4;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    Status = CFE_TIME_CleanUpApp(TestAppId);
-    UT_Report(__FILE__, __LINE__, Status == CFE_SUCCESS, "CFE_TIME_CleanUpApp", "Successful result");
+    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(TestAppId));
 
     Count = 0;
     for (i = 0; i < (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])); i++)
@@ -2709,13 +2469,12 @@ void Test_CleanUpApp(void)
     }
 
     /* should not have affected the callback table */
-    UT_Report(__FILE__, __LINE__, Count == 3, "CFE_TIME_CleanUpApp", "No Sync Callback entry cleared");
+    UtAssert_UINT32_EQ(Count, 3);
 
     /* Clean up an app which did have a callback */
     AppIndex = 2;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    Status = CFE_TIME_CleanUpApp(TestAppId);
-    UT_Report(__FILE__, __LINE__, Status == CFE_SUCCESS, "CFE_TIME_CleanUpApp", "Successful result");
+    CFE_UtAssert_SUCCESS(CFE_TIME_CleanUpApp(TestAppId));
 
     Count = 0;
     for (i = 0; i < (sizeof(CFE_TIME_Global.SynchCallback) / sizeof(CFE_TIME_Global.SynchCallback[0])); i++)
@@ -2726,13 +2485,11 @@ void Test_CleanUpApp(void)
         }
     }
 
-    UT_Report(__FILE__, __LINE__, Count == 2, "CFE_TIME_CleanUpApp", "Sync Callback entry cleared");
+    UtAssert_UINT32_EQ(Count, 2);
 
     /* Test response to a bad application ID -
      * This is effectively a no-op but here for coverage */
     AppIndex = 99999;
     UT_SetDataBuffer(UT_KEY(CFE_ES_AppID_ToIndex), &AppIndex, sizeof(AppIndex), false);
-    Status = CFE_TIME_CleanUpApp(CFE_ES_APPID_UNDEFINED);
-    UT_Report(__FILE__, __LINE__, Status == CFE_TIME_CALLBACK_NOT_REGISTERED, "CFE_TIME_CleanUpApp",
-              "Bad application ID");
+    UtAssert_INT32_EQ(CFE_TIME_CleanUpApp(CFE_ES_APPID_UNDEFINED), CFE_TIME_CALLBACK_NOT_REGISTERED);
 }

@@ -237,43 +237,6 @@ void UT_ResetPoolBufferIndex(void);
 
 /*****************************************************************************/
 /**
-** \brief Output single test's pass/fail status
-**
-** \par Description
-**        Out the results and description for a single test, and update the
-**        pass/fail counters.
-**
-** \par Assumptions, External Events, and Notes:
-**
-** \param[in] test      Equals 0 if the test failed; non-zero if the
-**                      test passed
-**
-** \param[in] fun_name  Character string pointer to the name of the function
-**                      being tested
-**
-** \param[in] info      Character string pointer to the description of the test
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-void UT_Report(const char *file, uint32 line, bool test, const char *fun_name, const char *info);
-
-/*****************************************************************************/
-/**
-** \brief Test pass/fail summary
-**
-** \par Description
-**        Output total number of tests passed and failed.
-**
-** \returns
-**        This function does not return a value.
-**
-******************************************************************************/
-void UT_ReportFailures(void);
-
-/*****************************************************************************/
-/**
 ** \brief Send a message via the software bus
 **
 ** \par Description
@@ -650,6 +613,44 @@ bool CFE_UtAssert_SuccessCheck_Impl(CFE_Status_t Status, UtAssert_CaseType_t Cas
 
 /*****************************************************************************/
 /**
+** \brief Helper function for message check (printf/syslog) verifications
+**
+** \par Description
+**        This helper function wraps the normal UtAssert function, intended for verifying
+**        CFE API calls that are expected to generate printf or syslog messages.  This
+**        includes the actual message in the log, but scrubs it for newlines and other
+**        items that may affect the ability to parse the log file via a script.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns Test pass status, returns true if status was successful, false if it failed.
+**
+******************************************************************************/
+bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, const char *Desc,
+                                    const char *FormatString);
+
+/*****************************************************************************/
+/**
+** \brief Helper function for string buffer check verifications
+**
+** \par Description
+**        This helper function wraps the normal UtAssert function, intended for verifying
+**        the contents of string buffer(s).  This also includes the actual message in the log,
+**        but scrubs it for newlines and other items that may affect the ability to parse
+**        the log file via a script.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns Test pass status, returns true if status was successful, false if it failed.
+**
+******************************************************************************/
+bool CFE_UtAssert_StringBufCheck_Impl(const char *String1, size_t String1Max, const char *String2, size_t String2Max,
+                                      const char *File, uint32 Line);
+
+/*****************************************************************************/
+/**
 ** \brief Helper function for generic unsigned integer value checks
 **
 ** \par Description
@@ -717,22 +718,6 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 **
 ******************************************************************************/
 #define CFE_UtAssert_SUCCESS(FN) CFE_UtAssert_SuccessCheck_Impl(FN, UTASSERT_CASETYPE_FAILURE, __FILE__, __LINE__, #FN)
-
-/*****************************************************************************/
-/**
-** \brief Asserts the specific status code from the function being tested.
-**
-** \par Description
-**        The core of each unit test is the execution of the function being tested.
-**        This function and macro should be used to test for a specific status code
-**        from a function (typically an error case).
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-******************************************************************************/
-#define CFE_UtAssert_EQUAL(FN, EXP) \
-    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_EQ, EXP, __FILE__, __LINE__, "", #FN, #EXP)
 
 /*****************************************************************************/
 /**
@@ -860,9 +845,8 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 **        is potentially useful to confirm a specific code path was followed.
 **
 ******************************************************************************/
-#define CFE_UtAssert_SYSLOG(str)                                                                                      \
-    CFE_UtAssert_GenericSignedCompare_Impl(UT_SyslogIsInHistory(str), CFE_UtAssert_Compare_GT, 0, __FILE__, __LINE__, \
-                                           "Syslog generated: ", #str, "")
+#define CFE_UtAssert_SYSLOG(str) \
+    CFE_UtAssert_MessageCheck_Impl(UT_SyslogIsInHistory(str), __FILE__, __LINE__, "Syslog generated: ", str)
 
 /*****************************************************************************/
 /**
@@ -876,9 +860,8 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 **        is potentially useful to confirm a specific code path was followed.
 **
 ******************************************************************************/
-#define CFE_UtAssert_PRINTF(str)                                                                                      \
-    CFE_UtAssert_GenericSignedCompare_Impl(UT_PrintfIsInHistory(str), CFE_UtAssert_Compare_GT, 0, __FILE__, __LINE__, \
-                                           "Printf generated: ", #str, "")
+#define CFE_UtAssert_PRINTF(str) \
+    CFE_UtAssert_MessageCheck_Impl(UT_PrintfIsInHistory(str), __FILE__, __LINE__, "Printf generated: ", str)
 
 /*****************************************************************************/
 /**
@@ -926,5 +909,57 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
     CFE_UtAssert_GenericUnsignedCompare_Impl(CFE_RESOURCEID_TO_ULONG(id1), CFE_UtAssert_Compare_EQ, \
                                              CFE_RESOURCEID_TO_ULONG(id2), __FILE__, __LINE__,      \
                                              "Resource ID Check: ", #id1, #id2)
+
+/*****************************************************************************/
+/**
+** \brief Macro to check CFE memory size/offset for equality
+**
+** \par Description
+**        A macro that checks two memory offset/size values for equality.
+**
+** \par Assumptions, External Events, and Notes:
+**        This is a simple unsigned comparison which logs the values as hexadecimal
+**
+******************************************************************************/
+#define CFE_UtAssert_MEMOFFSET_EQ(off1, off2)                                                         \
+    CFE_UtAssert_GenericUnsignedCompare_Impl(off1, CFE_UtAssert_Compare_EQ, off2, __FILE__, __LINE__, \
+                                             "Offset Check: ", #off1, #off2)
+
+/*****************************************************************************/
+/**
+** \brief Macro to check CFE message ID for equality
+**
+** \par Description
+**        A macro that checks two message ID values for equality.
+**
+** \par Assumptions, External Events, and Notes:
+**        The generic #UtAssert_UINT32_EQ check should not be used, as CFE_SB_MsgId_t values
+**        and integers may not be interchangable with strict type checking.
+**
+******************************************************************************/
+#define CFE_UtAssert_MSGID_EQ(mid1, mid2)                                                                           \
+    CFE_UtAssert_GenericUnsignedCompare_Impl(CFE_SB_MsgIdToValue(mid1), CFE_UtAssert_Compare_EQ,                    \
+                                             CFE_SB_MsgIdToValue(mid2), __FILE__, __LINE__, "MsgId Check: ", #mid1, \
+                                             #mid2)
+
+/*****************************************************************************/
+/**
+** \brief Macro to check string buffers for equality
+**
+** \par Description
+**        A macro that checks two string buffers for equality.  Both buffer maximum sizes are explicitly
+**        specified, so that strings may reside in a fixed length buffer.  The function will never
+**        check beyond the specified length, regardless of termination.
+**
+** \par Assumptions, External Events, and Notes:
+**        The generic #UtAssert_StrCmp macro requires both arguments to be NULL terminated.  This also
+**        includes the actual string in the log, but filters embedded newlines to keep the log clean.
+**
+**        If the string arguments are guaranteed to be NULL terminated and/or the max size is
+**        not known, then the SIZE_MAX constant may be passed for the respective string.
+**
+******************************************************************************/
+#define CFE_UtAssert_STRINGBUF_EQ(str1, size1, str2, size2) \
+    CFE_UtAssert_StringBufCheck_Impl(str1, size1, str2, size2, __FILE__, __LINE__)
 
 #endif /* UT_SUPPORT_H */
