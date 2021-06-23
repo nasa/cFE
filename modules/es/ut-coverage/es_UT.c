@@ -4844,6 +4844,18 @@ void TestSysLog(void)
     CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.BlockSize, 1);
     UtAssert_ZERO(SysLogBuffer.SizeLeft);
 
+    /* Test case where calculated blocksize results in 0 */
+    ES_ResetUnitTest();
+    SysLogBuffer.EndIdx   = 0;
+    SysLogBuffer.SizeLeft = 1;
+
+    CFE_ES_SysLogReadData(&SysLogBuffer);
+
+    UtAssert_UINT32_EQ(SysLogBuffer.EndIdx, 0);
+    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.LastOffset, 0);
+    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.BlockSize, 0);
+    UtAssert_INT32_EQ(SysLogBuffer.SizeLeft, 1);
+
     /* Test nominal flow through CFE_ES_SysLogDump
      * with multiple reads and writes  */
     ES_ResetUnitTest();
