@@ -33,17 +33,17 @@
 
 #include "cfe_test.h"
 
-void TestCDS(void)
+void TestRegisterCDS(void)
 {
     CFE_ES_CDSHandle_t CDSHandlePtr;
-    size_t             BlockSize = 10;
-    const char *       Name      = "CDS_Test";
-    const char *       CDSName   = "CFE_TEST_APP.CDS_Test";
-    CFE_ES_CDSHandle_t IdByName;
-    char               CDSNameBuf[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
-    CFE_Status_t       status;
+    CFE_ES_CDSHandle_t CDSHandlePtr2;
 
-    UtPrintf("Testing: CFE_ES_RegisterCDS, CFE_ES_GetCDSBlockIDByName, CFE_ES_GetCDSBlockName");
+    size_t       BlockSize = 10;
+    const char * Name      = "CDS_Test";
+    const char * LongName  = "VERY_LONG_NAME_CDS_Test";
+    CFE_Status_t status;
+
+    UtPrintf("Testing: CFE_ES_RegisterCDS");
 
     status = CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, Name);
 
@@ -56,10 +56,42 @@ void TestCDS(void)
         UtAssert_INT32_EQ(status, CFE_SUCCESS);
     }
 
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr2, BlockSize, Name), CFE_ES_CDS_ALREADY_EXISTS);
+
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(NULL, BlockSize, Name), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr, 0, Name), CFE_ES_CDS_INVALID_SIZE);
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, NULL), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, LongName), CFE_ES_CDS_INVALID_NAME);
+}
+
+void TestCDSName(void)
+{
+    CFE_ES_CDSHandle_t CDSHandlePtr;
+    size_t             BlockSize    = 10;
+    const char *       Name         = "CDS_Test";
+    const char *       CDSName      = "CFE_TEST_APP.CDS_Test";
+    const char *       INVALID_NAME = "INVALID_NAME";
+
+    CFE_ES_CDSHandle_t IdByName;
+    char               CDSNameBuf[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
+
+    UtPrintf("Testing: CFE_ES_GetCDSBlockIDByName, CFE_ES_GetCDSBlockName");
+
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, Name), CFE_ES_CDS_ALREADY_EXISTS);
+
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSNameBuf, CDSHandlePtr, sizeof(CDSNameBuf)), CFE_SUCCESS);
     UtAssert_StrCmp(CDSNameBuf, CDSName, "CFE_ES_GetCDSBlockName() = %s", CDSNameBuf);
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&IdByName, CDSNameBuf), CFE_SUCCESS);
     UtAssert_ResourceID_EQ(CDSHandlePtr, IdByName);
+
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(NULL, CDSHandlePtr, sizeof(CDSNameBuf)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSNameBuf, CFE_ES_CDS_BAD_HANDLE, sizeof(CDSNameBuf)),
+                      CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSNameBuf, CDSHandlePtr, 0), CFE_ES_BAD_ARGUMENT);
+
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(NULL, CDSNameBuf), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&IdByName, NULL), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&IdByName, INVALID_NAME), CFE_ES_ERR_NAME_NOT_FOUND);
 }
 
 void TestCopyRestoreCDS(void)
@@ -74,17 +106,25 @@ void TestCopyRestoreCDS(void)
     UtPrintf("Testing: CFE_ES_CopyToCDS, CFE_ES_RestoreFromCDS");
 
     snprintf(Data, BlockSize, "Test Data");
-    status = CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, Name);
 
+    status = CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, Name);
     UtAssert_True(status == CFE_SUCCESS || status == CFE_ES_CDS_ALREADY_EXISTS, "Register CDS status = %d",
                   (int)status);
+
     UtAssert_INT32_EQ(CFE_ES_CopyToCDS(CDSHandlePtr, Data), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_RestoreFromCDS(DataBuff, CDSHandlePtr), CFE_SUCCESS);
     UtAssert_StrCmp(Data, DataBuff, "RestoreFromCDS = %s", DataBuff);
+
+    UtAssert_INT32_EQ(CFE_ES_CopyToCDS(CFE_ES_CDS_BAD_HANDLE, Data), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_CopyToCDS(CDSHandlePtr, NULL), CFE_ES_BAD_ARGUMENT);
+
+    UtAssert_INT32_EQ(CFE_ES_RestoreFromCDS(DataBuff, CFE_ES_CDS_BAD_HANDLE), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_RestoreFromCDS(NULL, CDSHandlePtr), CFE_ES_BAD_ARGUMENT);
 }
 
 void ESCDSTestSetup(void)
 {
-    UtTest_Add(TestCDS, NULL, NULL, "Test CDS");
+    UtTest_Add(TestRegisterCDS, NULL, NULL, "Test Register CDS");
+    UtTest_Add(TestCDSName, NULL, NULL, "Test CDS Name");
     UtTest_Add(TestCopyRestoreCDS, NULL, NULL, "Test Copy Restore CDS");
 }
