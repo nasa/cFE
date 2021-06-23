@@ -3738,12 +3738,34 @@ void TestAPI(void)
     UT_Report(__FILE__, __LINE__, CFE_ES_RestartApp(AppId) == CFE_ES_ERR_RESOURCEID_NOT_VALID, "CFE_ES_RestartApp",
               "Application ID too large");
 
-    /* Test reloading an app that doesn't exist */
+    /* Test CFE_ES_ReloadApp with bad AppID argument */
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_ReloadApp(CFE_ES_APPID_UNDEFINED, "filename"), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* Test reloading a core app */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_INT32_EQ(CFE_ES_ReloadApp(AppId, "filename"), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* Test reloading an app that is currently not running */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    UT_Report(__FILE__, __LINE__, CFE_ES_ReloadApp(AppId, "filename") == CFE_ES_ERR_RESOURCEID_NOT_VALID,
-              "CFE_ES_ReloadApp", "Bad application ID");
+    UtAssert_INT32_EQ(CFE_ES_ReloadApp(AppId, "filename"), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* Test success initiating an app reload */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_INT32_EQ(CFE_ES_ReloadApp(AppId, "filename"), CFE_SUCCESS);
+
+    /* Test Reload app: file doesn't exist*/
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(OS_stat), OS_ERROR);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_INT32_EQ(CFE_ES_ReloadApp(AppId, "missingfile"), CFE_ES_FILE_IO_ERR);
 
     /* Test deleting an app that doesn't exist */
     ES_ResetUnitTest();
@@ -3854,6 +3876,19 @@ void TestAPI(void)
               "Get application ID by context successful");
     UT_Report(__FILE__, __LINE__, CFE_ES_GetTaskID(&TaskId) == CFE_SUCCESS, "CFE_ES_GetTaskID",
               "Get task ID by context successful");
+
+    /* Test CFE_ES_GetAppID error with null pointer parameter */
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_GetAppID(NULL), CFE_ES_BAD_ARGUMENT);
+
+    /* Test CFE_ES_GetAppIDByName error with null AppID pointer and valid name */
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(NULL, "UT"), CFE_ES_BAD_ARGUMENT);
+
+    /* Test CFE_ES_GetAppIDByName error with valid AppID and NULL name */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
+    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppId, NULL), CFE_ES_BAD_ARGUMENT);
 
     /* Test getting the app name with a bad app ID */
     ES_ResetUnitTest();
@@ -3986,6 +4021,13 @@ void TestAPI(void)
     UtTaskRecPtr->EntryFunc = ES_UT_TaskFunction;
     CFE_ES_TaskEntryPoint();
     UtAssert_STUB_COUNT(ES_UT_TaskFunction, 1);
+
+    /* Test deleting a child task when task is not active/valid */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, &UtTaskRecPtr);
+    TaskId               = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UtTaskRecPtr->TaskId = CFE_ES_TASKID_UNDEFINED; /* UtTaskRecPtr->TaskId shouldn't match the Child Task ID */
+    UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(TaskId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
     /* Test deleting a child task using a main task's ID */
     ES_ResetUnitTest();
@@ -4410,6 +4452,14 @@ void TestCDS()
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, OS_ERROR);
     UT_Report(__FILE__, __LINE__, CFE_ES_CDS_CacheFlush(&CFE_ES_Global.CDSVars.Cache) == CFE_ES_CDS_ACCESS_ERROR,
               "CFE_ES_CDS_CacheFlush", "Access Error");
+
+    /* Test CDS registering with null Handle pointer */
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(NULL, 4, "Name3"), CFE_ES_BAD_ARGUMENT);
+
+    /* Test CDS registering with null name */
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandle, 4, NULL), CFE_ES_BAD_ARGUMENT);
 
     /* Test CDS registering with a write CDS failure */
     ES_ResetUnitTest();
