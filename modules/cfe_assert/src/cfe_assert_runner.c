@@ -222,6 +222,7 @@ void CFE_Assert_ExecuteTest(void)
     /* unregister the callback and unset the appid */
     UT_BSP_Lock();
     CFE_Assert_RegisterCallback(NULL);
+    CFE_Assert_CloseLogFile();
     CFE_Assert_Global.OwnerAppId = CFE_ES_APPID_UNDEFINED;
     UT_BSP_Unlock();
 }

@@ -39,7 +39,16 @@
 *************************************************************************/
 #include "common_types.h"
 #include "cfe_assert.h"
+#include "osconfig.h"
 #include "cfe_mission_cfg.h"
+
+/**
+ * Maximum length of a single line in the test log file
+ *
+ * Note this only applies to the log file.  The user callback
+ * may have other limitations.
+ */
+#define CFE_ASSERT_MAX_LOG_LINE_LENGTH 512
 
 /**
  * State of the CFE assert library.
@@ -76,6 +85,27 @@ typedef struct
      * Function to invoke to report test status
      */
     CFE_Assert_StatusCallback_t StatusCallback;
+
+    /**
+     * Name of final log file for test results
+     *
+     * The temporary file will be renamed to this at the end of testing
+     */
+    char LogFileFinal[OS_MAX_PATH_LEN];
+
+    /**
+     * Name of temporary log file for test results
+     *
+     * This is the file name that is actively written during the test
+     */
+    char LogFileTemp[OS_MAX_PATH_LEN];
+
+    /**
+     * Log File descriptor
+     *
+     * Should be set to OS_OBJECT_ID_UNDEFINED if no log file is open
+     */
+    osal_id_t LogFileDesc;
 
     /**
      * Mutex to control access to UtAssert structures.
