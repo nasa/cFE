@@ -10,6 +10,19 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev726
+
+- correct path to users guide warning log
+- add additional test cases for Child Tasks
+- Add cfe functional tests to CI
+- rename/clean CFE coverage assert macros
+- Added UT tests for cFE ES Api
+- Expand CDS Functional Tests.
+- Event ID updates
+- add test log file
+- scrub all UT_Report calls
+- See <https://github.com/nasa/cFE/pull/1632> and <https://github.com/nasa/cfs/pull/270>
+
 ### Development Build: v6.8.0-rc1+dev693
 
 - Add CI workflow to run cFE coverage tests
