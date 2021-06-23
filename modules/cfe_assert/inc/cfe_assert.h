@@ -109,4 +109,40 @@ void CFE_Assert_ExecuteTest(void);
  */
 void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback);
 
+/************************************************************************/
+/** \brief Start a test log file
+ *
+ *  \par Description
+ *        Sets the name of a file which will store the results of all tests
+ *        The output is saved to the log file in addition to the normal callback
+ *        function provided in CFE_Assert_RegisterCallback().
+ *
+ *  \par Assumptions, External Events, and Notes:
+ *        Only the test outputs are saved to this log file, thereby providing
+ *        a file that can be checked by a script.  During test operation, the
+ *        file is first created with a "tmp" extension, and then will be renamed
+ *        to the name given here once the test is complete.
+ *
+ * \param[in] Filename  Name of log file to write
+ *
+ * \return CFE Status code
+ * \retval #CFE_SUCCESS if file was opened successfully
+ *
+ */
+int32 CFE_Assert_OpenLogFile(const char *Filename);
+
+/************************************************************************/
+/** \brief Complete a test log file
+ *
+ *  \par Description
+ *        Closes the test log file that was previously opened via CFE_Assert_OpenLogFile
+ *
+ *  \par Assumptions, External Events, and Notes:
+ *        This should be called once test cases have completed
+ *
+ * \return None
+ *
+ */
+void CFE_Assert_CloseLogFile(void);
+
 #endif /* CFE_ASSERT_H */

@@ -14,8 +14,7 @@ ABBREVIATE_BRIEF       = "The $name class " \
                          an \
                          the
 TAB_SIZE               = 8
-ALIASES               += "event=\xrefitem cfeevents \"Event Message\" \"cFE Event Message Cross Reference\" " \
-                         "cfeescfg=\xrefitem cfeescfg \"Purpose\" \"cFE Executive Services Configuration Parameters\" " \
+ALIASES               += "cfeescfg=\xrefitem cfeescfg \"Purpose\" \"cFE Executive Services Configuration Parameters\" " \
                          "cfeevscfg=\xrefitem cfeevscfg \"Purpose\" \"cFE Event Services Configuration Parameters\" " \
                          "cfetblcfg=\xrefitem cfetblcfg \"Purpose\" \"cFE Table Services Configuration Parameters\" " \
                          "cfetimecfg=\xrefitem cfetimecfg \"Purpose\" \"cFE Time Services Configuration Parameters\" " \

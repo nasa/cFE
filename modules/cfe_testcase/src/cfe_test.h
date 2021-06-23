@@ -43,6 +43,15 @@
 #include "uttest.h"
 #include "utassert.h"
 
+/**
+ * Name of log file to write
+ *
+ * This file captures all of the test results, independently of the
+ * events generated during the test run.  The file can be used as part
+ * of scripted tests and/or capturing test artifacts.
+ */
+#define CFE_ASSERT_LOG_FILE_NAME "/cf/cfe_test.log"
+
 /* Compare two Resource IDs */
 #define UtAssert_ResourceID_EQ(actual, expect)                                                \
     UtAssert_True(CFE_RESOURCEID_TEST_EQUAL(actual, expect), "%s (%lu) == %s (%lu)", #actual, \

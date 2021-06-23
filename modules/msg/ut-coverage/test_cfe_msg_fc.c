@@ -49,57 +49,57 @@ void Test_MSG_FcnCode(void)
 
     UtPrintf("Bad parameter tests, Null pointers, invalid (max valid + 1, max)");
     memset(&cmd, 0, sizeof(cmd));
-    ASSERT_EQ(CFE_MSG_GetFcnCode(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(actual, TEST_FCNCODE_MAX);
-    ASSERT_EQ(CFE_MSG_GetFcnCode(msgptr, NULL), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(msgptr), 0);
-    ASSERT_EQ(CFE_MSG_SetFcnCode(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_SetFcnCode(msgptr, TEST_FCNCODE_MAX + 1), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(msgptr), 0);
-    ASSERT_EQ(CFE_MSG_SetFcnCode(msgptr, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(msgptr), 0);
+    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(actual, TEST_FCNCODE_MAX);
+    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(msgptr, NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), 0);
+    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(msgptr, TEST_FCNCODE_MAX + 1), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), 0);
+    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(msgptr, 0xFFFF), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), 0);
 
     UtPrintf("Bad message, no secondary header");
-    ASSERT_EQ(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd), CFE_SUCCESS);
-    ASSERT_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
-    ASSERT_EQ(actual, 0);
-    ASSERT_EQ(CFE_MSG_SetFcnCode(msgptr, 0), CFE_MSG_WRONG_MSG_TYPE);
-    ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_TYPE_FLAG);
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd));
+    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(actual, 0);
+    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(msgptr, 0), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_TYPE_FLAG);
 
     UtPrintf("Bad message, wrong type (telemetry)");
     memset(&cmd, 0, sizeof(cmd));
     actual = TEST_FCNCODE_MAX;
-    ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(msgptr, true), CFE_SUCCESS);
-    ASSERT_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
-    ASSERT_EQ(actual, 0);
-    ASSERT_EQ(CFE_MSG_SetFcnCode(msgptr, 0), CFE_MSG_WRONG_MSG_TYPE);
-    ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG);
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
+    UtAssert_INT32_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(actual, 0);
+    UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(msgptr, 0), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG);
 
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&cmd, 0xFF, sizeof(cmd));
-        ASSERT_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, TEST_FCNCODE_MAX);
-        ASSERT_EQ(CFE_MSG_SetFcnCode(msgptr, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
+        UtAssert_INT32_EQ(actual, TEST_FCNCODE_MAX);
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetFcnCode(msgptr, input[i]));
         UT_DisplayPkt(msgptr, sizeof(cmd));
-        ASSERT_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
-        ASSERT_EQ(Test_MSG_NotF(msgptr), 0);
+        CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
+        UtAssert_INT32_EQ(actual, input[i]);
+        UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), 0);
     }
 
     UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&cmd, 0, sizeof(cmd));
-        ASSERT_EQ(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd), CFE_SUCCESS);
-        ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(msgptr, true), CFE_SUCCESS);
-        ASSERT_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, 0);
-        ASSERT_EQ(CFE_MSG_SetFcnCode(msgptr, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd));
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
+        CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
+        UtAssert_INT32_EQ(actual, 0);
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetFcnCode(msgptr, input[i]));
         UT_DisplayPkt(msgptr, sizeof(cmd));
-        ASSERT_EQ(CFE_MSG_GetFcnCode(msgptr, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual, input[i]);
-        ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG | MSG_TYPE_FLAG);
+        CFE_UtAssert_SUCCESS(CFE_MSG_GetFcnCode(msgptr, &actual));
+        UtAssert_INT32_EQ(actual, input[i]);
+        UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG | MSG_TYPE_FLAG);
     }
 }

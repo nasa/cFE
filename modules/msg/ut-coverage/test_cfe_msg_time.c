@@ -44,55 +44,55 @@ void Test_MSG_Time(void)
 
     UtPrintf("Bad parameter tests, Null pointers, no secondary header");
     memset(&tlm, 0, sizeof(tlm));
-    ASSERT_EQ(CFE_MSG_GetMsgTime(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(actual.Seconds, 0xFFFFFFFF);
-    ASSERT_EQ(actual.Subseconds, 0xFFFFFFFF);
-    ASSERT_EQ(CFE_MSG_GetMsgTime(msgptr, NULL), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(Test_MSG_NotZero(msgptr), 0);
-    ASSERT_EQ(CFE_MSG_SetMsgTime(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
-    ASSERT_EQ(CFE_MSG_SetMsgTime(msgptr, actual), CFE_MSG_WRONG_MSG_TYPE);
-    ASSERT_EQ(Test_MSG_NotZero(msgptr), 0);
-    ASSERT_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
-    ASSERT_EQ(actual.Seconds, 0);
-    ASSERT_EQ(actual.Subseconds, 0);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(actual.Seconds, 0xFFFFFFFF);
+    UtAssert_INT32_EQ(actual.Subseconds, 0xFFFFFFFF);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(msgptr, NULL), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), 0);
+    UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(NULL, input[0]), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(msgptr, actual), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), 0);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(actual.Seconds, 0);
+    UtAssert_INT32_EQ(actual.Subseconds, 0);
 
     UtPrintf("Bad <F2>message, wrong type (command)");
-    ASSERT_EQ(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd), CFE_SUCCESS);
-    ASSERT_EQ(CFE_MSG_SetMsgTime(msgptr, actual), CFE_MSG_WRONG_MSG_TYPE);
-    ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_TYPE_FLAG);
-    ASSERT_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
-    ASSERT_EQ(actual.Seconds, 0);
-    ASSERT_EQ(actual.Subseconds, 0);
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd));
+    UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(msgptr, actual), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_TYPE_FLAG);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
+    UtAssert_INT32_EQ(actual.Seconds, 0);
+    UtAssert_INT32_EQ(actual.Subseconds, 0);
 
     UtPrintf("Set to all F's, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&tlm, 0xFF, sizeof(tlm));
-        ASSERT_EQ(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Tlm), CFE_SUCCESS);
-        ASSERT_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual.Seconds, 0xFFFFFFFF);
-        ASSERT_EQ(actual.Subseconds, 0xFFFF0000);
-        ASSERT_EQ(CFE_MSG_SetMsgTime(msgptr, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Tlm));
+        CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgTime(msgptr, &actual));
+        UtAssert_INT32_EQ(actual.Seconds, 0xFFFFFFFF);
+        UtAssert_INT32_EQ(actual.Subseconds, 0xFFFF0000);
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgTime(msgptr, input[i]));
         UT_DisplayPkt(msgptr, sizeof(tlm));
-        ASSERT_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual.Seconds, input[i].Seconds);
-        ASSERT_EQ(actual.Subseconds, input[i].Subseconds & 0xFFFF0000);
-        ASSERT_EQ(Test_MSG_NotF(msgptr), MSG_TYPE_FLAG);
+        CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgTime(msgptr, &actual));
+        UtAssert_INT32_EQ(actual.Seconds, input[i].Seconds);
+        UtAssert_INT32_EQ(actual.Subseconds, input[i].Subseconds & 0xFFFF0000);
+        UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), MSG_TYPE_FLAG);
     }
 
     UtPrintf("Set to all 0, various valid inputs");
     for (i = 0; i < sizeof(input) / sizeof(input[0]); i++)
     {
         memset(&tlm, 0, sizeof(tlm));
-        ASSERT_EQ(CFE_MSG_SetHasSecondaryHeader(msgptr, true), CFE_SUCCESS);
-        ASSERT_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual.Seconds, 0);
-        ASSERT_EQ(actual.Subseconds, 0);
-        ASSERT_EQ(CFE_MSG_SetMsgTime(msgptr, input[i]), CFE_SUCCESS);
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
+        CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgTime(msgptr, &actual));
+        UtAssert_INT32_EQ(actual.Seconds, 0);
+        UtAssert_INT32_EQ(actual.Subseconds, 0);
+        CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgTime(msgptr, input[i]));
         UT_DisplayPkt(msgptr, sizeof(tlm));
-        ASSERT_EQ(CFE_MSG_GetMsgTime(msgptr, &actual), CFE_SUCCESS);
-        ASSERT_EQ(actual.Seconds, input[i].Seconds);
-        ASSERT_EQ(actual.Subseconds, input[i].Subseconds & 0xFFFF0000);
-        ASSERT_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG);
+        CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgTime(msgptr, &actual));
+        UtAssert_INT32_EQ(actual.Seconds, input[i].Seconds);
+        UtAssert_INT32_EQ(actual.Subseconds, input[i].Subseconds & 0xFFFF0000);
+        UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG);
     }
 }

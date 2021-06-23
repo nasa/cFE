@@ -84,6 +84,14 @@ void UT_BSP_SysLogStatusReport(uint8 MessageType, const char *Prefix, const char
     }
 }
 
+void UT_BSP_WriteLogFile(osal_id_t FileDesc, uint8 MessageType, const char *Prefix, const char *OutputMessage)
+{
+    char LogFileBuffer[CFE_ASSERT_MAX_LOG_LINE_LENGTH];
+
+    snprintf(LogFileBuffer, sizeof(LogFileBuffer), "[%5s] %s\n", Prefix, OutputMessage);
+    OS_write(FileDesc, LogFileBuffer, strlen(LogFileBuffer));
+}
+
 void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
 {
     const char *                Prefix;
@@ -138,6 +146,11 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
     }
 
     StatusCallback(MessageType, Prefix, OutputMessage);
+
+    if (OS_ObjectIdDefined(CFE_Assert_Global.LogFileDesc))
+    {
+        UT_BSP_WriteLogFile(CFE_Assert_Global.LogFileDesc, MessageType, Prefix, OutputMessage);
+    }
 
     /*
      * If any ABORT (major failure) message is thrown,
