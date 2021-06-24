@@ -61,6 +61,17 @@
 #define UtAssert_ResourceID_Undefined(id) \
     UtAssert_True(!CFE_RESOURCEID_TEST_DEFINED(id), "%s (%lu) not defined", #id, CFE_RESOURCEID_TO_ULONG(id))
 
+/* Assert a return code is not equal to cfe_success */
+#define UtAssert_NOT_CFE_SUCCESS(actual)                                          \
+    do                                                                            \
+    {                                                                             \
+        int32 rcact = (int32)(actual);                                            \
+        UtAssert_True(rcact < CFE_SUCCESS, "%s == (%ld) ", #actual, (long)rcact); \
+    } while (0)
+
+/* Log calls to void functions */
+#define UtAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
+
 void CFE_TestMain(void);
 void ESInfoTestSetup(void);
 void ESTaskTestSetup(void);
