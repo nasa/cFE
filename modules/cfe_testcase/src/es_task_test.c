@@ -108,14 +108,14 @@ void TestChildTaskName(void)
                       CFE_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskIdByName, TaskName), CFE_SUCCESS);
-    UtAssert_ResourceID_EQ(TaskIdByName, TaskId);
+    cFE_FTAssert_ResourceID_EQ(TaskIdByName, TaskId);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskNameBuf)), CFE_SUCCESS);
     UtAssert_StrCmp(TaskNameBuf, TaskName, "CFE_ES_GetTaskName() = %s", TaskNameBuf);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(NULL, TaskName), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskIdByName, INVALID_TASK_NAME), CFE_ES_ERR_NAME_NOT_FOUND);
-    UtAssert_ResourceID_Undefined(TaskIdByName);
+    cFE_FTAssert_ResourceID_Undefined(TaskIdByName);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(NULL, TaskId, sizeof(TaskNameBuf)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, CFE_ES_TASKID_UNDEFINED, sizeof(TaskNameBuf)),

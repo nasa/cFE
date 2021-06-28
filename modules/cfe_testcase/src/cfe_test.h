@@ -53,16 +53,16 @@
 #define CFE_ASSERT_LOG_FILE_NAME "/cf/cfe_test.log"
 
 /* Compare two Resource IDs */
-#define UtAssert_ResourceID_EQ(actual, expect)                                                \
+#define cFE_FTAssert_ResourceID_EQ(actual, expect)                                            \
     UtAssert_True(CFE_RESOURCEID_TEST_EQUAL(actual, expect), "%s (%lu) == %s (%lu)", #actual, \
                   CFE_RESOURCEID_TO_ULONG(actual), #expect, CFE_RESOURCEID_TO_ULONG(expect))
 
 /* Check if a Resource ID is Undefined */
-#define UtAssert_ResourceID_Undefined(id) \
+#define cFE_FTAssert_ResourceID_Undefined(id) \
     UtAssert_True(!CFE_RESOURCEID_TEST_DEFINED(id), "%s (%lu) not defined", #id, CFE_RESOURCEID_TO_ULONG(id))
 
 /* Assert a return code is not equal to cfe_success */
-#define UtAssert_NOT_CFE_SUCCESS(actual)                                          \
+#define cFE_FTAssert_NOT_CFE_SUCCESS(actual)                                      \
     do                                                                            \
     {                                                                             \
         int32 rcact = (int32)(actual);                                            \
@@ -70,7 +70,7 @@
     } while (0)
 
 /* Log calls to void functions */
-#define UtAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
+#define cFE_FTAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
 
 void CFE_TestMain(void);
 void ESInfoTestSetup(void);

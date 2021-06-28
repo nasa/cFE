@@ -82,7 +82,7 @@ void TestCDSName(void)
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSNameBuf, CDSHandlePtr, sizeof(CDSNameBuf)), CFE_SUCCESS);
     UtAssert_StrCmp(CDSNameBuf, CDSName, "CFE_ES_GetCDSBlockName() = %s", CDSNameBuf);
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&IdByName, CDSNameBuf), CFE_SUCCESS);
-    UtAssert_ResourceID_EQ(CDSHandlePtr, IdByName);
+    cFE_FTAssert_ResourceID_EQ(CDSHandlePtr, IdByName);
 
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(NULL, CDSHandlePtr, sizeof(CDSNameBuf)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSNameBuf, CFE_ES_CDS_BAD_HANDLE, sizeof(CDSNameBuf)),
