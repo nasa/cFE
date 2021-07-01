@@ -265,23 +265,6 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * \brief Format a message intended for output to the system log
- *
- * Identical to the CFE_ES_SysLog_vsnprintf() call but with a variable argument set,
- * for use in functions that need to directly handle a log message string.
- *
- * Similar in definition to the "snprintf()" C library call.
- *
- * \param Buffer        User supplied buffer to output formatted sting into
- * \param BufferSize    Size of "Buffer" parameter.  Should be greater than (CFE_TIME_PRINTED_STRING_SIZE+2)
- * \param SpecStringPtr Printf-style format string
- *
- * \sa CFE_ES_SysLogAppend_Unsync()
- */
-void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...) OS_PRINTF(3, 4);
-
-/*---------------------------------------------------------------------------------------*/
-/**
  * \brief Write the contents of the syslog to a disk file
  *
  * Writes the current contents of the syslog buffer to a file specified

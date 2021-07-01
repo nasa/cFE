@@ -696,7 +696,15 @@ void TestStartupErrorPaths(void)
     UtAssert_STUB_COUNT(CFE_PSP_Panic, 1);
     UtAssert_UINT32_EQ(PanicStatus, CFE_PSP_PANIC_STARTUP_SEM);
 
-    /* Perform ES main startup with a file open failure */
+    /* Perform ES main startup with a ES Perf Data mutex creation failure */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 2, OS_ERROR);
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Panic), &PanicStatus, sizeof(PanicStatus), false);
+    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1, "ut_startup");
+    UtAssert_UINT32_EQ(PanicStatus, CFE_PSP_PANIC_STARTUP_SEM);
+    UtAssert_UINT32_EQ(UT_GetStubCount(UT_KEY(CFE_PSP_Panic)), 1);
+
+    /* Perform ES main startup with a ES Shared Data mutex creation failure */
     ES_ResetUnitTest();
     UT_SetDummyFuncRtn(OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
@@ -925,6 +933,13 @@ void TestStartupErrorPaths(void)
     CFE_ES_CreateObjects();
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_FUNCTION_POINTER]);
+
+    /* Test reading the object table with unknown object type */
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), OS_ERROR);
+    CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE - 1].ObjectType = -1;
+    CFE_ES_CreateObjects();
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]);
 
     /* Test response to an invalid startup type */
     ES_ResetUnitTest();
@@ -4857,6 +4872,18 @@ void TestSysLog(void)
     CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.LastOffset, 1);
     CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.BlockSize, 1);
     UtAssert_ZERO(SysLogBuffer.SizeLeft);
+
+    /* Test case where calculated blocksize results in 0 */
+    ES_ResetUnitTest();
+    SysLogBuffer.EndIdx   = 0;
+    SysLogBuffer.SizeLeft = 1;
+
+    CFE_ES_SysLogReadData(&SysLogBuffer);
+
+    UtAssert_UINT32_EQ(SysLogBuffer.EndIdx, 0);
+    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.LastOffset, 0);
+    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.BlockSize, 0);
+    UtAssert_INT32_EQ(SysLogBuffer.SizeLeft, 1);
 
     /* Test nominal flow through CFE_ES_SysLogDump
      * with multiple reads and writes  */
