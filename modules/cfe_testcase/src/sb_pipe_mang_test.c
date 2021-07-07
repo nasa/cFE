@@ -65,8 +65,6 @@ void TestPipeIndex(void)
 
     UtAssert_INT32_EQ(CFE_SB_PipeId_ToIndex(PipeId, &Idx), CFE_SUCCESS);
 
-    UtAssert_UINT32_EQ(Idx, 13);
-
     UtAssert_INT32_EQ(CFE_SB_PipeId_ToIndex(CFE_SB_INVALID_PIPE, &Idx), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_SB_PipeId_ToIndex(PipeId, NULL), CFE_ES_BAD_ARGUMENT);
 
