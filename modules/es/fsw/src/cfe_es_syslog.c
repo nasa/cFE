@@ -444,23 +444,6 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_SysLog_snprintf
- *
- * Application-scope internal function
- * See description in header file for argument/return detail
- *
- *-----------------------------------------------------------------*/
-void CFE_ES_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...)
-{
-    va_list ArgPtr;
-
-    va_start(ArgPtr, SpecStringPtr);
-    CFE_ES_SysLog_vsnprintf(Buffer, BufferSize, SpecStringPtr, ArgPtr);
-    va_end(ArgPtr);
-}
-
-/*----------------------------------------------------------------
- *
  * Function: CFE_ES_SysLogDump
  *
  * Application-scope internal function

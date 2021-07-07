@@ -696,7 +696,15 @@ void TestStartupErrorPaths(void)
     UtAssert_STUB_COUNT(CFE_PSP_Panic, 1);
     UtAssert_UINT32_EQ(PanicStatus, CFE_PSP_PANIC_STARTUP_SEM);
 
-    /* Perform ES main startup with a file open failure */
+    /* Perform ES main startup with a ES Perf Data mutex creation failure */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 2, OS_ERROR);
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Panic), &PanicStatus, sizeof(PanicStatus), false);
+    CFE_ES_Main(CFE_PSP_RST_TYPE_POWERON, 1, 1, "ut_startup");
+    UtAssert_UINT32_EQ(PanicStatus, CFE_PSP_PANIC_STARTUP_SEM);
+    UtAssert_UINT32_EQ(UT_GetStubCount(UT_KEY(CFE_PSP_Panic)), 1);
+
+    /* Perform ES main startup with a ES Shared Data mutex creation failure */
     ES_ResetUnitTest();
     UT_SetDummyFuncRtn(OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
@@ -925,6 +933,13 @@ void TestStartupErrorPaths(void)
     CFE_ES_CreateObjects();
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_FUNCTION_POINTER]);
+
+    /* Test reading the object table with unknown object type */
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), OS_ERROR);
+    CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE - 1].ObjectType = -1;
+    CFE_ES_CreateObjects();
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_NO_FREE_CORE_APP_SLOTS]);
 
     /* Test response to an invalid startup type */
     ES_ResetUnitTest();
@@ -2104,8 +2119,14 @@ void TestTask(void)
 
     /* Set up buffer for first cycle, pipe failure is on 2nd */
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    CFE_ES_TaskMain();
+    CFE_UtAssert_VOIDCALL(CFE_ES_TaskMain());
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]);
+
+    /* Test task main process with a CFE_ES_TaskInit() error */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_Register), 1, -1);
+    CFE_UtAssert_VOIDCALL(CFE_ES_TaskMain());
+    CFE_UtAssert_PRINTF("Application Init Failed");
 
     /* Test task main process loop with bad checksum information */
     ES_ResetUnitTest();
@@ -2474,6 +2495,14 @@ void TestTask(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
     strncpy(CmdBuf.QueryAllCmd.Payload.FileName, "AllFilename", sizeof(CmdBuf.QueryAllCmd.Payload.FileName) - 1);
     CmdBuf.QueryAllCmd.Payload.FileName[sizeof(CmdBuf.QueryAllCmd.Payload.FileName) - 1] = '\0';
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllCmd), UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
+    CFE_UtAssert_EVENTSENT(CFE_ES_ALL_APPS_EID);
+
+    /* Test Query tasks command with valid lib ID */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
+    CFE_ES_Global.LibTable[0].LibId = CFE_ES_LIBID_C(ES_UT_MakeLibIdForIndex(1));
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllCmd), UT_TPID_CFE_ES_CMD_QUERY_ALL_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_ALL_APPS_EID);
 
@@ -2997,6 +3026,21 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.DumpCDSRegistryCmd),
                     UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_CDS_REG_DUMP_INF_EID);
+
+    /* Test error when sending Build Info event */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 1, CFE_EVS_INVALID_PARAMETER);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_CMD_NOOP_CC);
+    CFE_UtAssert_PRINTF("Error sending build info event");
+
+    /* Test CFE_ES_GenerateVersionEvents error when sending mission event */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
+    CFE_ES_Global.ResetDataPtr->ResetVars.ResetType = 1;
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 3, CFE_EVS_INVALID_PARAMETER);
+    CFE_UtAssert_VOIDCALL(CFE_ES_TaskInit());
+    CFE_UtAssert_PRINTF("Error sending mission version event");
+
 } /* end TestTask */
 
 void TestPerf(void)
@@ -4828,6 +4872,18 @@ void TestSysLog(void)
     CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.LastOffset, 1);
     CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.BlockSize, 1);
     UtAssert_ZERO(SysLogBuffer.SizeLeft);
+
+    /* Test case where calculated blocksize results in 0 */
+    ES_ResetUnitTest();
+    SysLogBuffer.EndIdx   = 0;
+    SysLogBuffer.SizeLeft = 1;
+
+    CFE_ES_SysLogReadData(&SysLogBuffer);
+
+    UtAssert_UINT32_EQ(SysLogBuffer.EndIdx, 0);
+    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.LastOffset, 0);
+    CFE_UtAssert_MEMOFFSET_EQ(SysLogBuffer.BlockSize, 0);
+    UtAssert_INT32_EQ(SysLogBuffer.SizeLeft, 1);
 
     /* Test nominal flow through CFE_ES_SysLogDump
      * with multiple reads and writes  */
