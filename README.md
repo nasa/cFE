@@ -10,6 +10,12 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev746
+
+- Size unit test table load buffer based on config
+- Add SB Pipe Management Functional Tests
+- See <https://github.com/nasa/cFE/pull/1661> and <https://github.com/nasa/cFS/pull/297>
+
 ### Development Build: v6.8.0-rc1+dev739
 
 - Change index type to resolve infinite loop warning
