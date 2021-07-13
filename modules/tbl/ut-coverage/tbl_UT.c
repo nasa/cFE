@@ -61,6 +61,15 @@ CFE_TBL_Handle_t ArrayOfHandles[2];
 #define UT_TBL_APPID_3  CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE + 3))
 #define UT_TBL_APPID_10 CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_ES_APPID_BASE + 10))
 
+/* Set up buffer to provide to CFE_ES_GetPoolBuf handler */
+#define UT_TBL_LOAD_BUFFER_SIZE \
+    (CFE_PLATFORM_TBL_MAX_SIMULTANEOUS_LOADS * (CFE_PLATFORM_TBL_MAX_SNGL_TABLE_SIZE + sizeof(CFE_ES_PoolAlign_t)))
+static union
+{
+    CFE_ES_PoolAlign_t Align;
+    uint8              Bytes[UT_TBL_LOAD_BUFFER_SIZE];
+} UT_TBL_LoadBuffer;
+
 void * Tbl1Ptr = NULL;
 void * Tbl2Ptr = NULL;
 void **ArrayOfPtrsToTblPtrs[2];
@@ -1350,7 +1359,13 @@ void Test_CFE_TBL_HousekeepingCmd(void)
 */
 void Test_CFE_TBL_ApiInit(void)
 {
+
     UT_ResetCDS();
+
+    /* Provide a big enough pool for the load buffers */
+    UT_ResetState(UT_KEY(CFE_ES_GetPoolBuf));
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), &UT_TBL_LoadBuffer, sizeof(UT_TBL_LoadBuffer), false);
+
     CFE_TBL_EarlyInit();
     CFE_TBL_Global.TableTaskAppId = UT_TBL_APPID_10;
 }
@@ -3163,12 +3178,16 @@ void Test_CFE_TBL_Internal(void)
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RestoreFromCDS), 1, CFE_ES_CDS_BLOCK_CRC_ERR);
+    UT_ResetState(UT_KEY(CFE_ES_GetPoolBuf));
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), &UT_TBL_LoadBuffer, sizeof(UT_TBL_LoadBuffer), false);
     CFE_UtAssert_SUCCESS(CFE_TBL_EarlyInit());
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_EarlyInit response when no CDS is available */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_NOT_IMPLEMENTED);
+    UT_ResetState(UT_KEY(CFE_ES_GetPoolBuf));
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), &UT_TBL_LoadBuffer, sizeof(UT_TBL_LoadBuffer), false);
     CFE_UtAssert_SUCCESS(CFE_TBL_EarlyInit());
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -3177,6 +3196,8 @@ void Test_CFE_TBL_Internal(void)
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_CopyToCDS), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_ResetState(UT_KEY(CFE_ES_GetPoolBuf));
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), &UT_TBL_LoadBuffer, sizeof(UT_TBL_LoadBuffer), false);
     CFE_UtAssert_SUCCESS(CFE_TBL_EarlyInit());
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -3184,6 +3205,8 @@ void Test_CFE_TBL_Internal(void)
     /* a. Reset tables */
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_1);
+    UT_ResetState(UT_KEY(CFE_ES_GetPoolBuf));
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), &UT_TBL_LoadBuffer, sizeof(UT_TBL_LoadBuffer), false);
     CFE_UtAssert_SUCCESS(CFE_TBL_EarlyInit());
 
     /* b. Register critical single buffered table */
@@ -3418,6 +3441,8 @@ void Test_CFE_TBL_Internal(void)
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_RegisterCDSEx), 1, CFE_ES_CDS_ALREADY_EXISTS);
+    UT_ResetState(UT_KEY(CFE_ES_GetPoolBuf));
+    UT_SetDataBuffer(UT_KEY(CFE_ES_GetPoolBuf), &UT_TBL_LoadBuffer, sizeof(UT_TBL_LoadBuffer), false);
     CFE_UtAssert_SUCCESS(CFE_TBL_EarlyInit());
     CFE_UtAssert_EVENTCOUNT(0);
 

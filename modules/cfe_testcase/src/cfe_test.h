@@ -79,6 +79,7 @@ void ESCDSTestSetup(void);
 void ESMiscTestSetup(void);
 void ESMemPoolTestSetup(void);
 void FSHeaderTestSetup(void);
+void SBPipeMangSetup(void);
 void TimeCurrentTestSetup(void);
 
 #endif /* CFE_TEST_H */
