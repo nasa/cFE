@@ -407,7 +407,7 @@ void Test_CFE_FS_DefaultFileStrings(void)
     UtAssert_NULL(CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_UNKNOWN));
     UtAssert_ADDRESS_EQ(CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_DYNAMIC_MODULE),
                         GLOBAL_CONFIGDATA.Default_ModuleExtension);
-    UtAssert_NOT_NULL(CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
+    UtAssert_NULL(CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
     UtAssert_NOT_NULL(CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_TEXT_LOG));
     UtAssert_NOT_NULL(CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_SCRIPT));
     UtAssert_NOT_NULL(CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_TEMP));
