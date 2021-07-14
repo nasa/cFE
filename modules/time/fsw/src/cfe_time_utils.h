@@ -186,10 +186,10 @@ typedef struct
     /*
     ** Pending data values (from "time at tone" command data)...
     */
-    CFE_TIME_SysTime_t PendingMET;
-    CFE_TIME_SysTime_t PendingSTCF;
-    int16              PendingLeaps;
-    int16              PendingState;
+    CFE_TIME_SysTime_t         PendingMET;
+    CFE_TIME_SysTime_t         PendingSTCF;
+    int16                      PendingLeaps;
+    CFE_TIME_ClockState_Enum_t PendingState;
 
     /*
     ** STCF adjustment values...
@@ -395,13 +395,13 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference);
 /**
  * @brief determine current time state (per API)
  */
-int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference);
+CFE_TIME_ClockState_Enum_t CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference);
 
 /*---------------------------------------------------------------------------------------*/
 /**
  * @brief set clock state
  */
-void CFE_TIME_SetState(int16 NewState);
+void CFE_TIME_SetState(CFE_TIME_ClockState_Enum_t NewState);
 
 #if (CFE_PLATFORM_TIME_CFG_SOURCE == true)
 
