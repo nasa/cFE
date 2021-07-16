@@ -1343,8 +1343,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
 **
 ** \param[in]   BufPtr  A pointer to the memory buffer to provide status for.
 **
-** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
+** \return Size of the buffer if successful, or status code if not successful, see \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_ES_BUFFER_NOT_IN_POOL         \copybrief CFE_ES_BUFFER_NOT_IN_POOL
 ** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
