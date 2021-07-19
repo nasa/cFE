@@ -53,7 +53,7 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
 
     if (MsgPtr == NULL)
     {
-        return CFE_SB_BAD_ARGUMENT;
+        return size;
     }
 
     CFE_MSG_GetHasSecondaryHeader(MsgPtr, &hassechdr);
@@ -117,7 +117,7 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr)
 
     if (MsgPtr == NULL)
     {
-        return CFE_SB_BAD_ARGUMENT;
+        return TotalMsgSize;
     }
 
     CFE_MSG_GetSize(MsgPtr, &TotalMsgSize);

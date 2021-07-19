@@ -685,7 +685,7 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr);
 ** \param[in]  MsgPtr  A pointer to the buffer that contains the software bus message.
 **                     This must point to the first byte of the message header.
 **
-** \return The size (in bytes) of the user data in the software bus message.
+** \return The size (in bytes) of the user data in the software bus message, returns 0 if *MsgPtr is Null
 **/
 size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr);
 
