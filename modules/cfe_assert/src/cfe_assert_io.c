@@ -56,7 +56,7 @@ void UT_BSP_Unlock(void)
     rc = OS_MutSemGive(CFE_Assert_Global.AccessMutex);
     if (rc != CFE_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemTake(): %d\n", __func__, (int)rc);
+        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemGive(): %d\n", __func__, (int)rc);
     }
 }
 
