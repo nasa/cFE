@@ -64,7 +64,11 @@
 ** \param[in] FileDes      File Descriptor obtained from a previous call to #OS_OpenCreate
 **                         that is associated with the file whose header is to be read.
 **
-** \return Bytes read or error status, see \ref CFEReturnCodes
+** \return Bytes read or error status from OSAL
+**
+** \note This function invokes OSAL API routines and the current implementation may return
+**       OSAL error codes to the caller if failure occurs.  In a future version of CFE, the
+**       status codes will be converted to a value in \ref CFEReturnCodes.
 **
 ** \sa #CFE_FS_WriteHeader
 **
@@ -124,7 +128,11 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **                         filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
 **                         Standard cFE File Header for the specified file.
 **
-** \return Bytes written or error status, see \ref CFEReturnCodes
+** \return Bytes read or error status from OSAL
+**
+** \note This function invokes OSAL API routines and the current implementation may return
+**       OSAL error codes to the caller if failure occurs.  In a future version of CFE, the
+**       status codes will be converted to a value in \ref CFEReturnCodes.
 **
 ** \sa #CFE_FS_ReadHeader
 **
@@ -151,7 +159,11 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr);
 ** \param[in] NewTimestamp A #CFE_TIME_SysTime_t data structure containing the desired time
 **                         to be put into the file's Standard cFE File Header.
 **
-** \return Execution status, see \ref CFEReturnCodes
+** \return Execution status, see \ref CFEReturnCodes, or OSAL status
+**
+** \note This function invokes OSAL API routines and the current implementation may return
+**       OSAL error codes to the caller if failure occurs.  In a future version of CFE, the
+**       status codes will be converted to a value in \ref CFEReturnCodes.
 **
 ******************************************************************************/
 CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp);
