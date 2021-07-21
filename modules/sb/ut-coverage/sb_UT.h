@@ -213,6 +213,22 @@ void Test_SB_AppInit_Sub2Fail(void);
 
 /*****************************************************************************/
 /**
+** \brief Test task init with a failure on third subscription request
+**
+** \par Description
+**        This function tests task init with a failure on third subscription
+**        request.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_SB_AppInit_Sub3Fail(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test task init with a GetPool failure
 **
 ** \par Description
@@ -286,6 +302,21 @@ void Test_SB_Main_RcvErr(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_SB_Main_InitErr(void);
+
+/*****************************************************************************/
+/**
+** \brief Test main task nominal path
+**
+** \par Description
+**        This function tests main task that gets a command successfully
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_SB_Main_Nominal(void);
 
 /*****************************************************************************/
 /**
@@ -1579,6 +1610,23 @@ void Test_Unsubscribe_Local(void);
 
 /*****************************************************************************/
 /**
+** \brief Test CFE internal API used to unsubscribe to a message with AppId
+**        (successful)
+**
+** \par Description
+**        This function tests locally unsubscribing to a message
+**        (successful).
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_Unsubscribe_AppId(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test message unsubscription response to an invalid message ID
 **
 ** \par Description
@@ -2017,6 +2065,22 @@ void Test_TransmitMsgValidate_NoSubscribers(void);
 
 /*****************************************************************************/
 /**
+** \brief Test response to sending a message which has an invalid Msg ID
+**
+** \par Description
+**        This function tests the response to sending a message which has an
+**        invalid Message ID
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_TransmitMsgValidate_InvalidMsgId(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test response to sending a message with the message size larger
 **        than allowed
 **
@@ -2254,6 +2318,21 @@ void Test_CFE_SB_SetGetUserDataLength(void);
 **        This function does not return a value.
 ******************************************************************************/
 void Test_CFE_SB_ValidateMsgId(void);
+
+/*****************************************************************************/
+/**
+** \brief Test Tracking List functions
+**
+** \par Description
+**        Test tracking list functions (some of which are inline)
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_CFE_SB_ZeroCopyReleaseAppId(void);
 
 /*****************************************************************************/
 /**

@@ -757,7 +757,8 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
 **                     if SB messages are implemented as CCSDS packets, the size of the header
 **                     is different for command vs. telemetry packets.
 **
-** \returns Estimated number of bytes in the message header for the given message
+** \returns Estimated number of bytes in the message header for the given message.
+** \retval 0 if an error occurs, such as if the MsgPtr argument is not valid or header type cannot be identified.
 **/
 size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr);
 

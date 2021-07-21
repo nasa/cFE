@@ -10,6 +10,17 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev762
+
+- Change CI to use Test Log.
+- remove default .dat extension
+- Update API doxygen list
+- update documentation for CFE_ES_GetPoolBufInfo
+- CFE_SB_MsgHdrSize returns size_t
+- improve SB coverage test
+- correct function name in UT_BSP_Unlock
+- See <https://github.com/nasa/cfe/pull/1665> and <https://github.com/nasa/cfs/pull/311>
+
 ### Development Build: v6.8.0-rc1+dev746
 
 - Size unit test table load buffer based on config

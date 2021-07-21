@@ -65,25 +65,24 @@ jobs:
 
       - name: Run cFS
         run: |
-          ./core-cpu1 | tee cFS_startup_cpu1.txt &
+          ./core-cpu1 &
           sleep 10
           ../host/cmdUtil --pktid=0x1806 --cmdcode=4 --endian=LE --string="20:CFE_TEST_APP" --string="20:CFE_TestMain" --string="64:cfe_testcase" --uint32=16384 --uint8=0 --uint8=0 --uint16=100 &
 
           sleep 30
-          counter=$(grep -c "CFE_TEST_APP" cFS_startup_cpu1.txt) &
+          counter=0 
 
-          while [[ -z $(grep -i "SUMMARY" cFS_startup_cpu1.txt) ]]; do
-            echo "Waiting for CFE Tests"
-            sleep 60
-
-            temp=$(grep -c "CFE_TEST_APP" cFS_startup_cpu1.txt) &
+          while [[ ! -f cf/cfe_test.log ]]; do 
+            temp=$(grep -c "BEGIN" cf/cfe_test.tmp) 
               
             if [ $temp -eq $counter ]; then
               echo "Test is frozen. Quiting"
               break
             fi
 
-            counter=$(grep -c "CFE_TEST_APP" cFS_startup_cpu1.txt) &              
+            counter=$(grep -c "BEGIN" cf/cfe_test.tmp)            
+            echo "Waiting for CFE Tests"
+            sleep 60
           done
           
           ../host/cmdUtil --endian=LE --pktid=0x1806 --cmdcode=2 --half=0x0002
@@ -93,14 +92,14 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: cFS-startup-log-deprecate-true-${{ matrix.buildtype }}
-          path: ./build/exe/cpu1/cFS_startup_cpu1.txt
+          path: ./build/exe/cpu1/cf/cfe_test.log
 
       - name: Check for cFS Warnings
         run: |  
-          if [[ -z $(grep -i "SUMMARY.*FAIL::0.*TSF::0.*TTF::0" cFS_startup_cpu1.txt) ]]; then
+          if [[ -z $(grep -i "SUMMARY.*FAIL::0.*TSF::0.*TTF::0" cf/cfe_test.log) ]]; then
                   echo "Must resolve Test Failures in cFS Test App before submitting a pull request"
                   echo ""
-                  grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cFS_startup_cpu1.txt
+                  grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cf/cfe_test.log
                   exit -1
           fi
         working-directory: ./build/exe/cpu1/  

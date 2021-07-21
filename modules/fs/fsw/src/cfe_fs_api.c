@@ -43,7 +43,6 @@
  * Fixed default file system extensions (not platform dependent)
  */
 const char CFE_FS_DEFAULT_SCRIPT_EXTENSION[]    = ".scr";
-const char CFE_FS_DEFAULT_DUMP_FILE_EXTENSION[] = ".dat";
 const char CFE_FS_DEFAULT_TEMP_FILE_EXTENSION[] = ".tmp";
 const char CFE_FS_DEFAULT_LOG_FILE_EXTENSION[]  = ".log";
 
@@ -104,9 +103,6 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
             break;
         case CFE_FS_FileCategory_TEMP:
             Result = CFE_FS_DEFAULT_TEMP_FILE_EXTENSION;
-            break;
-        case CFE_FS_FileCategory_BINARY_DATA_DUMP:
-            Result = CFE_FS_DEFAULT_DUMP_FILE_EXTENSION;
             break;
         case CFE_FS_FileCategory_TEXT_LOG:
             Result = CFE_FS_DEFAULT_LOG_FILE_EXTENSION;

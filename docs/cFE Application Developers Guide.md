@@ -971,10 +971,30 @@ ensure that sufficient memory is provided to store the mempool
 management structures in addition to the memory needed by the
 application. After initialization, mempool allocates fixed size blocks
 as requested from the application memory block. As each block is
-requested mempool creates a 12 byte block descriptor with management
+requested mempool creates a block descriptor with management
 structures as well as space for the user application data (see Figure
 5.1). The space for user data will be fixed in size and greater than or
 equal to the requested block size.
+
+The specific size of the management structure depends on the platform
+architecture word size and alignment requirements, and padding may be
+added as necessary to meet the system requirements.  For illustrative
+purposes, the examples below use sizes that are respresentative of a
+32-bit CPU with 32-bit buffer alignment with no extra alignment padding 
+added.  The pool overhead will increase on a 64-bit CPU with 64-bit
+alignment, or if pool alignment configured greater than 32 bits.  For
+more information on pool buffer alignment, see the description of 
+the `CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN` configuration parameter.
+
+It should also be noted that while 64-bit CPU architectures are fully
+supported by the memory pool internal implementation in current CFE 
+versions, the API is carried over from older CFE versions in order to
+be backward compatible.  Some memory pool API functions (e.g.
+`CFE_ES_GetPoolBufInfo`, `CFE_ES_PutPoolBuf`, etc) return a buffer size
+on success, which is encoded into an `int32` return type.  As a result,
+individual memory pools should not exceed 2GB in size, even on 64-bit
+platforms, to avoid exceeding the representable range of an `int32` data
+type.
 
 ![](.//media/cFE_Application_Developers_Guide_image13.png)
 
