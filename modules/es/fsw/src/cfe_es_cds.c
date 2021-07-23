@@ -488,7 +488,7 @@ int32 CFE_ES_ValidateCDS(void)
     /* Perform 2 checks to validate the CDS Memory Pool */
     /* First, determine if the first validity check field is correct */
     Status = CFE_ES_CDS_CacheFetch(&CDS->Cache, CDS_SIG_BEGIN_OFFSET, SIG_CDS_SIZE);
-    if (Status != CFE_PSP_SUCCESS)
+    if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: 1st ReadFromCDS Failed. Status=0x%X\n", __func__, (unsigned int)Status);
         return Status;
@@ -504,7 +504,7 @@ int32 CFE_ES_ValidateCDS(void)
     TrailerOffset -= sizeof(CFE_ES_CDS_PersistentTrailer_t);
 
     Status = CFE_ES_CDS_CacheFetch(&CDS->Cache, TrailerOffset, SIG_CDS_SIZE);
-    if (Status != CFE_PSP_SUCCESS)
+    if (Status != CFE_SUCCESS)
     {
         /* BSP reported an error reading from CDS */
         CFE_ES_WriteToSysLog("%s: 2nd ReadFromCDS Failed. Status=0x%X\n", __func__, (unsigned int)Status);
@@ -599,7 +599,7 @@ int32 CFE_ES_InitCDSSignatures(void)
 
     CFE_ES_CDS_CachePreload(&CDS->Cache, CFE_ES_CDS_SIGNATURE_END, SigOffset, CFE_ES_CDS_SIGNATURE_LEN);
     Status = CFE_ES_CDS_CacheFlush(&CDS->Cache);
-    if (Status != CFE_PSP_SUCCESS)
+    if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: '_CDSEnd_' write failed. Status=0x%08X\n", __func__,
                              (unsigned int)CDS->Cache.AccessStatus);

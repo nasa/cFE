@@ -188,7 +188,7 @@ int32 CFE_ES_BackgroundInit(void)
                                     CFE_ES_BACKGROUND_CHILD_STACK_SIZE, CFE_ES_BACKGROUND_CHILD_PRIORITY,
                                     CFE_ES_BACKGROUND_CHILD_FLAGS);
 
-    if (status != OS_SUCCESS)
+    if (status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Failed to create background task: %08lx\n", __func__, (unsigned long)status);
         return status;
