@@ -291,8 +291,8 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
 **        Puts the previously-initialized metadata into the pending request queue
 **
 ** \par Assumptions, External Events, and Notes:
-**        Metadata structure should be stored in a static memory area (not on heap) as it
-**        must persist and be accessible by the file writer task throughout the asynchronous
+**        Metadata structure should be stored in a persistent memory area (not on stack) as
+**        it must remain accessible by the file writer task throughout the asynchronous
 **        job operation.
 **
 ** \param[inout] Meta        The background file write persistent state object
