@@ -110,6 +110,8 @@ void TestFileName(void)
 /* FT helper stub compatible with background file write DataGetter */
 bool FS_DataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 {
+    *Buffer  = NULL;
+    *BufSize = 0;
     return true;
 }
 
@@ -118,6 +120,8 @@ void FS_OnEvent(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 
                 size_t Position)
 {
 }
+
+CFE_FS_FileWriteMetaData_t State;
 
 void TestFileDump(void)
 {
@@ -128,24 +132,24 @@ void TestFileDump(void)
     State.OnEvent     = FS_OnEvent;
     strncpy(State.FileName, "/ram/FT.bin", sizeof(State.FileName));
     strncpy(State.Description, "FT", sizeof(State.Description));
+    int count   = 0;
+    int MaxWait = 20;
 
     UtPrintf("Testing: CFE_FS_BackgroundFileDumpRequest, CFE_FS_BackgroundFileDumpIsPending");
 
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&State), false);
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&State), CFE_SUCCESS);
-
-    State.IsPending = true;
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&State), true);
 
     /* Wait for background task to complete */
-    while(CFE_FS_BackgroundFileDumpIsPending(&State))
+    while (CFE_FS_BackgroundFileDumpIsPending(&State) && count < MaxWait)
     {
         OS_TaskDelay(100);
+        count++;
     }
 
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(NULL), CFE_FS_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(NULL), false);
-
 }
 
 void FSUtilTestSetup(void)
