@@ -137,8 +137,15 @@ void TestFileDump(void)
     State.IsPending = true;
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&State), true);
 
+    /* Wait for background task to complete */
+    while(CFE_FS_BackgroundFileDumpIsPending(&State))
+    {
+        OS_TaskDelay(100);
+    }
+
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(NULL), CFE_FS_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(NULL), false);
+
 }
 
 void FSUtilTestSetup(void)
