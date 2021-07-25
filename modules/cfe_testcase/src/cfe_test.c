@@ -59,6 +59,7 @@ void CFE_TestMain(void)
     FSHeaderTestSetup();
     SBPipeMangSetup();
     TimeCurrentTestSetup();
+    TimeConversionTestSetup();
 
     /*
      * Execute the tests

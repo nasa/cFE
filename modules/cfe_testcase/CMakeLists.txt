@@ -10,6 +10,7 @@ add_cfe_app(cfe_testcase
     src/fs_header_test.c
     src/sb_pipe_mang_test.c
     src/time_current_test.c
+    src/time_conversion_test.c
 )
 
 # register the dependency on cfe_assert
