@@ -43,6 +43,11 @@
 #include "uttest.h"
 #include "utassert.h"
 
+typedef struct
+{
+    CFE_FS_FileWriteMetaData_t FuncTestState;
+} CFE_FT_Global_t;
+
 /**
  * Name of log file to write
  *
@@ -73,12 +78,13 @@
 #define cFE_FTAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
 
 void CFE_TestMain(void);
-void ESInfoTestSetup(void);
-void ESTaskTestSetup(void);
 void ESCDSTestSetup(void);
-void ESMiscTestSetup(void);
+void ESInfoTestSetup(void);
 void ESMemPoolTestSetup(void);
+void ESMiscTestSetup(void);
+void ESTaskTestSetup(void);
 void FSHeaderTestSetup(void);
+void FSUtilTestSetup(void);
 void SBPipeMangSetup(void);
 void TimeCurrentTestSetup(void);
 
