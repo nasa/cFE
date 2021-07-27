@@ -33,6 +33,8 @@
 
 #include "cfe_test.h"
 
+CFE_FT_Global_t CFE_FT_Global;
+
 void TestFileCategory(void)
 {
     UtPrintf("Testing: CFE_FS_GetDefaultMountPoint, CFE_FS_GetDefaultExtension");
@@ -121,32 +123,31 @@ void FS_OnEvent(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 
 {
 }
 
-CFE_FS_FileWriteMetaData_t State;
-
 void TestFileDump(void)
 {
-    CFE_FS_FileWriteMetaData_t State;
-    memset(&State, 0, sizeof(State));
-    State.FileSubType = 2;
-    State.GetData     = FS_DataGetter;
-    State.OnEvent     = FS_OnEvent;
-    strncpy(State.FileName, "/ram/FT.bin", sizeof(State.FileName));
-    strncpy(State.Description, "FT", sizeof(State.Description));
+    memset(&CFE_FT_Global.FuncTestState, 0, sizeof(CFE_FT_Global.FuncTestState));
+    CFE_FT_Global.FuncTestState.FileSubType = 2;
+    CFE_FT_Global.FuncTestState.GetData     = FS_DataGetter;
+    CFE_FT_Global.FuncTestState.OnEvent     = FS_OnEvent;
+    strncpy(CFE_FT_Global.FuncTestState.FileName, "/ram/FT.bin", sizeof(CFE_FT_Global.FuncTestState.FileName));
+    strncpy(CFE_FT_Global.FuncTestState.Description, "FT", sizeof(CFE_FT_Global.FuncTestState.Description));
     int count   = 0;
     int MaxWait = 20;
 
     UtPrintf("Testing: CFE_FS_BackgroundFileDumpRequest, CFE_FS_BackgroundFileDumpIsPending");
 
-    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&State), false);
-    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&State), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&State), true);
+    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&CFE_FT_Global.FuncTestState), false);
+    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&CFE_FT_Global.FuncTestState), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&CFE_FT_Global.FuncTestState), true);
 
     /* Wait for background task to complete */
-    while (CFE_FS_BackgroundFileDumpIsPending(&State) && count < MaxWait)
+    while (CFE_FS_BackgroundFileDumpIsPending(&CFE_FT_Global.FuncTestState) && count < MaxWait)
     {
         OS_TaskDelay(100);
         count++;
     }
+
+    UtAssert_True(count < MaxWait, "count (%i) < MaxWait (%i)", count, MaxWait);
 
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(NULL), CFE_FS_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(NULL), false);

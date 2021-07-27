@@ -43,6 +43,11 @@
 #include "uttest.h"
 #include "utassert.h"
 
+typedef struct
+{
+    CFE_FS_FileWriteMetaData_t FuncTestState;
+} CFE_FT_Global_t;
+
 /**
  * Name of log file to write
  *
