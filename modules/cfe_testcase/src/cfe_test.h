@@ -78,6 +78,7 @@ typedef struct
 #define cFE_FTAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
 
 void CFE_TestMain(void);
+void ESApplicationControlTestSetup(void);
 void ESCDSTestSetup(void);
 void ESInfoTestSetup(void);
 void ESMemPoolTestSetup(void);
