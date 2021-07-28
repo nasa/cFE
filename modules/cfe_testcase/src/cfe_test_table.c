@@ -30,46 +30,23 @@
  * Includes
  */
 
-#include "cfe_assert.h"
 #include "cfe_test.h"
+#include "cfe_test_table.h"
 
-/*
- * Test main function
- * Register this test routine with CFE Assert
- */
-void CFE_TestMain(void)
+/* Constant Table information used by all table tests */
+CFE_FT_Global_t CFE_FT_Global = {
+    .TblName = "TestTable", .RegisteredTblName = "CFE_TEST_APP.TestTable", .TblFilename = "test_tbl.tbl"};
+
+/* Setup function to register a table */
+void RegisterTestTable(void)
 {
-    /*
-     * Register this test app with CFE assert
-     *
-     * Note this also waits for the appropriate overall system
-     * state and gets ownership of the UtAssert subsystem
-     */
-    CFE_Assert_RegisterTest("CFE API");
-    CFE_Assert_OpenLogFile(CFE_ASSERT_LOG_FILE_NAME);
+    UtAssert_INT32_EQ(CFE_TBL_Register(&CFE_FT_Global.TblHandle, CFE_FT_Global.TblName, sizeof(TBL_TEST_Table_t),
+                                       CFE_TBL_OPT_DEFAULT, NULL),
+                      CFE_SUCCESS);
+}
 
-    /*
-     * Register test cases in UtAssert
-     */
-    ESCDSTestSetup();
-    ESInfoTestSetup();
-    ESMemPoolTestSetup();
-    ESMiscTestSetup();
-    ESTaskTestSetup();
-    FSHeaderTestSetup();
-    FSUtilTestSetup();
-    SBPipeMangSetup();
-    TBLRegistrationTestSetup();
-    // TimeArithmeticTestSetup();
-    // TimeCurrentTestSetup();
-
-    /*
-     * Execute the tests
-     *
-     * Note this also releases ownership of the UtAssert subsystem when complete
-     */
-    CFE_Assert_ExecuteTest();
-
-    /* Nothing more for this app to do */
-    CFE_ES_ExitApp(CFE_ES_RunStatus_APP_EXIT);
+/* Teardown function to unregister a table */
+void UnregisterTestTable(void)
+{
+    UtAssert_INT32_EQ(CFE_TBL_Unregister(CFE_FT_Global.TblHandle), CFE_SUCCESS);
 }

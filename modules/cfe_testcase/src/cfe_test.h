@@ -46,6 +46,11 @@
 typedef struct
 {
     CFE_FS_FileWriteMetaData_t FuncTestState;
+    /* Table information used by all table tests */
+    CFE_TBL_Handle_t TblHandle;
+    const char *     TblName;
+    const char *     RegisteredTblName;
+    const char *     TblFilename;
 } CFE_FT_Global_t;
 
 /**
@@ -86,6 +91,7 @@ void ESTaskTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void SBPipeMangSetup(void);
+void TBLRegistrationTestSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
 

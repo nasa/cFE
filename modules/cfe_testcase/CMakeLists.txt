@@ -1,6 +1,7 @@
 # Filenames based on doxygen groups.
 # Create the app module
 add_cfe_app(cfe_testcase
+    src/cfe_test_table.c
     src/cfe_test.c
     src/es_info_test.c
     src/es_task_test.c
@@ -10,6 +11,7 @@ add_cfe_app(cfe_testcase
     src/fs_header_test.c
     src/fs_util_test.c
     src/sb_pipe_mang_test.c
+    src/tbl_registration_test.c
     src/time_arithmetic_test.c
     src/time_current_test.c
 )
