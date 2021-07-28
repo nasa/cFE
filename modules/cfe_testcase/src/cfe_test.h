@@ -86,6 +86,7 @@ void ESTaskTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void SBPipeMangSetup(void);
+void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
 
 #endif /* CFE_TEST_H */
