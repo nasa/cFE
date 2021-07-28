@@ -106,13 +106,14 @@
 **  \par Command Verification
 **       Successful execution of this command may be verified with the
 **       following telemetry:
-**       - \b \c \TIME_CMDPC - command execution counter will increment
+**       - \b \c \TIME_CMDPC - command execution counter will reset to 0
+**       - \b \c \TIME_CMDEC - command error counter will reset to 0
 **       - The #CFE_TIME_RESET_EID informational event message will be generated
 **
 **  \par Error Conditions
 **       There are no error conditions for this command. If the Time
 **       Services receives the command, the event is sent (although it
-**       may be filtered by EVS) and the counter is incremented
+**       may be filtered by EVS) and the counter is reset
 **       unconditionally.
 **
 **  \par Criticality
@@ -238,7 +239,7 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \TIME_CMDPC - command execution counter will increment
-**       - \b \c \TIME_STATEFLG - Housekeeping Telemetry point "may"l indicate the
+**       - \b \c \TIME_STATEFLG - Housekeeping Telemetry point "may" indicate the
 **         command specified value (see above)
 **       - The #CFE_TIME_STATE_EID informational event message will be generated
 **

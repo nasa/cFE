@@ -108,7 +108,7 @@
   EVS can be configured to control the Local Event Log to either discard or overwrite
   the contents of the log when it becomes full.  If the mode is set to overwrite, the
   log is treated like a circular buffer, overwriting the oldest event message contained
-  in the log first.  This control is configured by default in the cfe_platform_cfg.h 
+  in the log first.  This control is configured by default in the cfe_platform_cfg.h
   file but can be modified by \link #CFE_EVS_SET_LOG_MODE_CC a command \endlink.
 
 
@@ -170,7 +170,7 @@
   the events that it wants to register for filtering along with the
   \ref cfeevsugmsgfilter (only the Binary Filtering Scheme
   exists currently).   Note that applications are limited in the number of events that
-  they can register for filtering (see #CFE_PLATFORM_EVS_MAX_EVENT_FILTERS in cfe_platform_cfg.h 
+  they can register for filtering (see #CFE_PLATFORM_EVS_MAX_EVENT_FILTERS in cfe_platform_cfg.h
   for the mission defined limit).  The filtering method uses a mask to determine if the
   message is forwarded to the software bus, making it available in telemetry (see
   \ref cfeevsugmsgfilter for a description on filtering).  Commands are available to
@@ -500,6 +500,13 @@
 /**
 **  \page cfeevscmds cFE Event Services Commands
 **
+**  Upon receipt of any command, the Event Services application will confirm that the
+**  message length embedded within the header (from `CFE_MSG_GetSize()`) matches the expected
+**  length of that message, based on the size of the C structure defining that command.
+**  If there is any discrepancy between the expected and actual message size, EVS will generate
+**  the #CFE_EVS_LEN_ERR_EID event, increment the command error counter (\EVS_CMDEC), and the
+**  command will _not_ be accepted for processing.
+**
 **  The following is a list of commands that are processed by the cFE Event Services Task.
 **/
 
@@ -515,4 +522,3 @@
 **  The following are configuration parameters used to configure the cFE Event Services
 **  either for each platform or for a mission as a whole.
 **/
-

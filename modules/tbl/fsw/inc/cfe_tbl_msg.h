@@ -91,6 +91,7 @@
 **       - Successful Table Validations Counter (\TBL_VALSUCCESSCTR)
 **       - Failed Table Validations Counter (\TBL_VALFAILEDCTR)
 **       - Number of Table Validations Requested (\TBL_VALREQCTR)
+**       - Number of completed table validations (\TBL_VALCOMPLTDCTR)
 **
 **  \cfecmdmnemonic \TBL_RESETCTRS
 **
@@ -101,7 +102,7 @@
 **       Successful execution of this command may be verified with
 **       the following telemetry:
 **       - \b \c \TBL_CMDPC - command execution counter will
-**         increment
+**         be reset to 0
 **       - The #CFE_TBL_RESET_INF_EID debug event message will be
 **         generated
 **
@@ -145,16 +146,12 @@
 **       - Table name found in table image file's table header is not found
 **         in table registry (ie - The table associated with the table image
 **         in the file has not been registered by an application).
-**       - The table image file's header indicates the file contains 'x'
-**         number of bytes of data but the file contains less.
+**       - The table image file has an invalid or incorrect size.  The size of
+**         the image file must match the size field within in the header, and
+**         must also match the expected size of the table indicated in the registry.
 **       - No working buffers are available for the load.  This would indicate
 **         that too many single-buffered table loads are in progress at the same
 **         time.
-**       - The table image file's header indicates the data to be loaded is
-**         beyond the size of the table.  Either the number of bytes in the
-**         file are too many or the starting offset into the table is too high.
-**       - The table image file's header indicates there is no data in the
-**         file (ie - Number of bytes to load is zero).
 **       - An attempt is being made to load an uninitialized table with a file
 **         containing only a partial table image.
 **       - The table image file was unable to be opened.  Either the file does
@@ -254,7 +251,7 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - A single buffered table's inactive buffer was requested to be dumped
+**       - A single buffered table's inactive buffer was requested to be validated
 **         and no such buffer is currently allocated.
 **       - Too many validations have been requested simultaneously.  The operator
 **         must wait for one or more applications to perform their table validation
@@ -298,9 +295,9 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - A single buffered table's inactive buffer was requested to be
-**         dumped and no such buffer is currently allocated.
 **       - The specified table name was not found in the table registry.
+**       - The table was registered as a "dump only" type and thus cannot be activated
+**       - The table buffer has not been validated.
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \TBL_CMDEC - command error counter will increment
@@ -340,6 +337,8 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
+**       - A table registry dump is already in progress, not yet completed
+**       - The specified DumpFilename could not be parsed
 **       - Error occurred during write operation to file. Possible
 **         causes might be insufficient space in the file system
 **         or the filename or file path is improperly specified.

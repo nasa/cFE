@@ -980,14 +980,14 @@ The specific size of the management structure depends on the platform
 architecture word size and alignment requirements, and padding may be
 added as necessary to meet the system requirements.  For illustrative
 purposes, the examples below use sizes that are respresentative of a
-32-bit CPU with 32-bit buffer alignment with no extra alignment padding 
+32-bit CPU with 32-bit buffer alignment with no extra alignment padding
 added.  The pool overhead will increase on a 64-bit CPU with 64-bit
 alignment, or if pool alignment configured greater than 32 bits.  For
-more information on pool buffer alignment, see the description of 
+more information on pool buffer alignment, see the description of
 the `CFE_PLATFORM_ES_MEMPOOL_ALIGN_SIZE_MIN` configuration parameter.
 
 It should also be noted that while 64-bit CPU architectures are fully
-supported by the memory pool internal implementation in current CFE 
+supported by the memory pool internal implementation in current CFE
 versions, the API is carried over from older CFE versions in order to
 be backward compatible.  Some memory pool API functions (e.g.
 `CFE_ES_GetPoolBufInfo`, `CFE_ES_PutPoolBuf`, etc) return a buffer size
@@ -1893,7 +1893,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
     CFE_SB_TransmitMsg(&SAMPLE_APP_Data.HkTlm.TlmHeader.Msg, true);
    ...
 }
-```  
+```
 
 ## 6.7 Receiving Software Bus Messages
 
@@ -2057,7 +2057,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 
 ## 6.9 Best Practices for using Software Bus
 
-The following are recommended "best practices" for applications using EVS.
+The following are recommended "best practices" for applications using SB.
 1. Applications should use the Software Bus for all communication with other
    applications.
 2. Pipe depth and message limits are dependent on the entire software system.

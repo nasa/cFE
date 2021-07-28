@@ -94,8 +94,10 @@
 **  \par Command Verification
 **       Successful execution of this command may be verified with
 **       the following telemetry:
-**       - \b \c \EVS_CMDPC - command execution counter will
-**         increment
+**       - \b \c \EVS_CMDPC - command execution counter
+**         will be reset to 0
+**       - \b \c \EVS_CMDEC - command error counter
+**         will be reset to 0
 **       - The #CFE_EVS_RSTCNT_EID debug event message will be
 **         generated
 **
@@ -146,8 +148,7 @@
 **
 **  \par Error Conditions
 **        This command may fail for the following reason(s):
-**
-**    	Invalid Event Type selection
+**    	 - BitMask field invalid - mask cannot be zero, and only bits 0-3 may be set
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -195,9 +196,8 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
+**    	 - BitMask field invalid - mask cannot be zero, and only bits 0-3 may be set
 **
-**       - Invalid Event Type selection
-
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
 **       - An Error specific event message
@@ -245,9 +245,8 @@
 **       - The generation of #CFE_EVS_SETEVTFMTMOD_EID debug message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**  	Invalid SB message (command) length
-**  	Invalid MODE selection
+**       This command may fail for the following reason(s):
+**  	 - Invalid MsgFormat mode selection
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -295,8 +294,9 @@
 **       - The generation of #CFE_EVS_ENAAPPEVTTYPE_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid Event Type Selection
+**       This command may fail for the following reason(s):
+**    	 - BitMask field invalid - mask cannot be zero, and only bits 0-3 may be set
+**       - Application name is not valid or not registered with event services
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -346,8 +346,9 @@
 **       - The clearing of the Event Type Active Flag in The Event Type Active Flag in EVS App Data File
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid Event Type Selection
+**       This command may fail for the following reason(s):
+**    	 - BitMask field invalid - mask cannot be zero, and only bits 0-3 may be set
+**       - Application name is not valid or not registered with event services
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -386,10 +387,8 @@
 **       - The setting of the Active Flag in The Active Flag in EVS App Data File
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Application selected is not registered to receive Event Service
-**      - Application ID is out of range
+**       This command may fail for the following reason(s):
+**       - Application name is not valid or not registered with event services
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -426,10 +425,8 @@
 **       - The generation of #CFE_EVS_DISAPPEVT_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Application selected is not registered to receive Event Service
-**      - Application ID is out of range
+**       This command may fail for the following reason(s):
+**       - Application name is not valid or not registered with event services
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -467,10 +464,8 @@
 **       - The generation of #CFE_EVS_RSTEVTCNT_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Application selected is not registered to receive Event Service
-**      - Application ID is out of range
+**       This command may fail for the following reason(s):
+**       - Application name is not valid or not registered with event services
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -506,10 +501,9 @@
 **       - The generation of #CFE_EVS_SETFILTERMSK_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Application selected is not registered to receive Event Service
-**      - Application ID is out of range
+**       This command may fail for the following reason(s):
+**       - Application name is not valid or not registered with event services
+**       - Specified event ID is not found in the application event filter
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -553,9 +547,8 @@
 **       - The generation of #CFE_EVS_ENAPORT_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Invalid PORT selection
+**       This command may fail for the following reason(s):
+**    	 - BitMask field invalid - mask cannot be zero, and only bits 0-3 may be set
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -593,9 +586,8 @@
 **       - The generation of #CFE_EVS_DISPORT_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Invalid PORT selection
+**       This command may fail for the following reason(s):
+**    	 - BitMask field invalid - mask cannot be zero, and only bits 0-3 may be set
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -628,10 +620,9 @@
 **       - The generation of #CFE_EVS_RSTFILTER_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Application selected is not registered to receive Event Service
-**      - Application ID is out of range
+**       This command may fail for the following reason(s):
+**       - Application name is not valid or not registered with event services
+**       - Specified event ID is not found in the application event filter
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -665,10 +656,8 @@
 **       - The generation of #CFE_EVS_RSTALLFILTER_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Application selected is not registered to receive Event Service
-**      - Application ID is out of range
+**       This command may fail for the following reason(s):
+**       - Application name is not valid or not registered with event services
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -701,10 +690,10 @@
 **       - The generation of #CFE_EVS_ADDFILTER_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Application selected is not registered to receive Event Service
-**      - Application ID is out of range
+**       This command may fail for the following reason(s):
+**       - Application name is not valid or not registered with event services
+**       - Specified event ID is already added to the application event filter
+**       - Maximum number of event IDs already added to filter
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -737,10 +726,9 @@
 **       - The generation of #CFE_EVS_DELFILTER_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Application selected is not registered to receive Event Service
-**      - Application ID is out of range
+**       This command may fail for the following reason(s):
+**       - Application name is not valid or not registered with event services
+**       - Specified event ID is not found in the application event filter
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -771,11 +759,14 @@
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
 **       - The generation of #CFE_EVS_WRDAT_EID debug event message
-**       - The generation of the file written to
+**       - The file specified in the command (or the default specified
+**         by the #CFE_PLATFORM_EVS_DEFAULT_APP_DATA_FILE configuration parameter) will be
+**         updated with the lastest information.
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
+**       This command may fail for the following reason(s):
+**       - The specified FileName cannot be parsed
+**       - An Error occurs while trying to write to the file
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -808,8 +799,9 @@
 **       - The generation of #CFE_EVS_WRLOG_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
+**       This command may fail for the following reason(s):
+**       - The specified FileName cannot be parsed
+**       - An Error occurs while trying to write to the file
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -841,9 +833,9 @@
 **       - The generation of #CFE_EVS_LOGMODE_EID debug event message
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**      - Invalid MODE selected
+**       This command may fail for the following reason(s):
+**       - Invalid LogMode selected - must be either #CFE_EVS_LogMode_OVERWRITE
+**         or #CFE_EVS_LogMode_DISCARD
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \EVS_CMDEC - command error counter will increment
@@ -874,21 +866,21 @@
 **       the following telemetry:
 **       - \b \c \EVS_CMDPC - command execution counter will
 **       increment
+**       - \b \c \EVS_LOGFULL - The LogFullFlag in the Housekeeping
+**       telemetry will be cleared
+**       - \b \c \EVS_LOGOVERFLOWC - The LogOverflowCounter in the
+**       Housekeeping telemetry will be reset to 0
 **
 **  \par Error Conditions
-**      This command may fail for the following reason(s):
-**      - Invalid SB message (command) length
-**
-**       Evidence of failure may be found in the following telemetry:
-**       - \b \c \EVS_CMDEC - command error counter will increment
-**       - An Error specific event message
+**       There are no error conditions for this command. If the Event
+**       Services receives the command, the log is cleared.
 **
 **  \par Criticality
 **       Clearing the local event log is not particularly hazardous, as the
-**      result may be making available space to record valuable event data.
-**      However, inappropriately clearing the local event log could result
-**      in a loss of critical information.  Note: the event log is a back-up
-**      log to the on-board recorder.
+**       result may be making available space to record valuable event data.
+**       However, inappropriately clearing the local event log could result
+**       in a loss of critical information.  Note: the event log is a back-up
+**       log to the on-board recorder.
 **
 **  \sa #CFE_EVS_WRITE_LOG_DATA_FILE_CC, #CFE_EVS_SET_LOG_MODE_CC
 */

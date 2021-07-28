@@ -404,7 +404,7 @@
 
   Or the #CFE_ES_QUERY_ALL_CC command can be used to get information about
   all the applications that are currently registered with ES. This command
-  writes the application data to a file and has a one parameter which 
+  writes the application data to a file and has a one parameter which
   specifies the path and filename of the output file.
 
   For either command, the following Application information is made available:
@@ -824,6 +824,13 @@
 
 /**
   \page cfeescmds cFE Executive Services Commands
+
+  Upon receipt of any command, the Executive Services application will confirm that the
+  message length embedded within the header (from `CFE_MSG_GetSize()`) matches the expected
+  length of that message, based on the size of the C structure defining that command.
+  If there is any discrepancy between the expected and actual message size, ES will generate
+  the #CFE_ES_LEN_ERR_EID event, increment the command error counter (\ES_CMDEC), and the
+  command will _not_ be accepted for processing.
 
   The following is a list of commands that are processed by the cFE Executive Services Task.
 **/
