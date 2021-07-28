@@ -2174,6 +2174,11 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
         return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
+    if (Idx == NULL)
+    {
+        return CFE_ES_BAD_ARGUMENT;
+    }
+
     OsalID = CFE_ES_TaskId_ToOSAL(TaskID);
     if (OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_TASK, OsalID, &OsalIndex) != OS_SUCCESS)
     {
