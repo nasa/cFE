@@ -86,7 +86,17 @@ void ESTaskTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void SBPipeMangSetup(void);
+void TBLRegistrationTestSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
+
+/*
+ * Test table structure
+ */
+typedef struct
+{
+    uint16 Int1;
+    uint16 Int2;
+} TBL_TEST_Table_t;
 
 #endif /* CFE_TEST_H */
