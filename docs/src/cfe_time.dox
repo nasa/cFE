@@ -215,7 +215,7 @@
   In the third system, the MET is located on hardware connected via spacewire.  When MET seconds
   increment, a spacewire time tick triggers a local processor interrupt to signal the tone.
   Shortly after announcing the tone, the hardware containing the MET also generates a spacewire
-  data packet containing the MET value corresponding to the tone.  TIME must wait until both 
+  data packet containing the MET value corresponding to the tone.  TIME must wait until both
   the tone and data packet have been received before validating the tone.  The tone must have
   occurred approximately one second after the previous tone signal and the data packet must
   have been received within a specified window in time following the tone.
@@ -766,7 +766,7 @@
   that can be made to the STCF to compensate for oscillator drift.
   Mission specific ground correlation should be used to assist in
   determining the proper values to use. The Leap Seconds should be
-  set to the current TAI-UTC. Note that the International Earth 
+  set to the current TAI-UTC. Note that the International Earth
   Rotation and Reference Systems Service Bulletin C, which defines
   the current difference, reports it as UTC-TAI, and thus that value
   must be negated. <B>The Leap Seconds value will always be a positive
@@ -825,6 +825,13 @@
 /**
 **  \page cfetimecmds cFE Time Services Commands
 **
+**  Upon receipt of any command, the Time Services application will confirm that the
+**  message length embedded within the header (from `CFE_MSG_GetSize()`) matches the expected
+**  length of that message, based on the size of the C structure defining that command.
+**  If there is any discrepancy between the expected and actual message size, TIME will generate
+**  the #CFE_TIME_LEN_ERR_EID event, increment the command error counter (\TIME_CMDEC), and the
+**  command will _not_ be accepted for processing.
+**
 **  The following is a list of commands that are processed by the cFE Time Services Task.
 **/
 
@@ -840,4 +847,3 @@
 **  The following are configuration parameters used to configure the cFE Time Services
 **  either for each platform or for a mission as a whole.
 **/
-
