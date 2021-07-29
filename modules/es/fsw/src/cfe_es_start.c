@@ -794,7 +794,7 @@ void CFE_ES_CreateObjects(void)
                      */
                     CFE_ES_LockSharedData(__func__, __LINE__);
 
-                    if (ReturnCode == OS_SUCCESS)
+                    if (ReturnCode == CFE_SUCCESS)
                     {
                         CFE_ES_AppRecordSetUsed(AppRecPtr, PendingAppId);
 
@@ -802,7 +802,6 @@ void CFE_ES_CreateObjects(void)
                         ** Increment the Core App counter.
                         */
                         CFE_ES_Global.RegisteredCoreApps++;
-                        ReturnCode = CFE_SUCCESS;
                     }
                     else
                     {

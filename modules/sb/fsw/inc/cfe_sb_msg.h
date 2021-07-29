@@ -84,6 +84,15 @@
 **       Bus housekeeping telemetry:
 **       - Command Execution Counter (\SB_CMDPC)
 **       - Command Error Counter (\SB_CMDEC)
+**       - No Subscribers Counter (\SB_NOSUBEC)
+**       - Duplicate Subscriptions Counter (\SB_DUPSUBCNT)
+**       - Msg Send Error Counter (\SB_MSGSNDEC)
+**       - Msg Receive Error Counter (\SB_MSGRECEC)
+**       - Internal Error Counter (\SB_INTERNALEC)
+**       - Create Pipe Error Counter (\SB_NEWPIPEEC)
+**       - Subscribe Error Counter (\SB_SUBSCREC)
+**       - Pipe Overflow Error Counter (\SB_PIPEOVREC)
+**       - Msg Limit Error Counter (\SB_MSGLIMEC)
 **
 **  \cfecmdmnemonic \SB_RESETCTRS
 **
@@ -94,7 +103,8 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will
-**         increment
+**         be reset to 0
+**       - All other counters listed in description will be reset to 0
 **       - The #CFE_SB_CMD1_RCVD_EID informational event message will
 **         be generated
 **
@@ -132,8 +142,7 @@
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will increment
 **       - Receipt of statistics packet with MsgId #CFE_SB_STATS_TLM_MID
-**       - The #CFE_SB_SND_STATS_EID debug event message will be generated. All
-**         debug events are filtered by default.
+**       - The #CFE_SB_SND_STATS_EID debug event message will be generated
 **
 **  \par Error Conditions
 **       There are no error conditions for this command. If the Software
@@ -170,14 +179,17 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will increment.
-**       - Specified filename created at specified location. See description.
-**       - The #CFE_SB_SND_RTG_EID debug event message will be generated. All
-**         debug events are filtered by default.
+**         NOTE: the command counter is incremented when the request is accepted,
+**         before writing the file, which is performed as a background task.
+**       - The file specified in the command (or the default specified
+**         by the #CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME configuration parameter) will be
+**         updated with the lastest information.
+**       - The #CFE_SB_SND_RTG_EID debug event message will be generated
 **
 **  \par Error Conditions
-**       - Errors may occur during write operations to the file. Possible
-**         causes might be insufficient space in the file system or the
-**         filename or file path is improperly specified.
+**       This command may fail for the following reason(s):
+**       - A previous request to write a software bus information file has not yet completed
+**       - The specified FileName cannot be parsed
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment
@@ -211,14 +223,14 @@
 **       - \b \c \SB_CMDPC - command execution counter will increment
 **       - View routing information #CFE_SB_WRITE_ROUTING_INFO_CC to verify
 **         enable/disable state change
-**       - The #CFE_SB_ENBL_RTE2_EID debug event message will be generated. All
-**         debug events are filtered by default.
-**       - Destination will begin receiving messages.
+**       - The #CFE_SB_ENBL_RTE2_EID debug event message will be generated
+**       - Destination will begin receiving messages
 **
 **  \par Error Conditions
-**       An Error may occur if the MsgId or PipeId parmaters do not pass
-**       validation or the destination does not exist.
-
+**       This command may fail for the following reason(s):
+**       - the MsgId or PipeId parmaters do not pass validation
+**       - the destination does not exist.
+**
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment
 **       - A command specific error event message is issued for all error
@@ -247,14 +259,14 @@
 **       - \b \c \SB_CMDPC - command execution counter will increment
 **       - View routing information #CFE_SB_WRITE_ROUTING_INFO_CC to verify
 **         enable/disable state change
-**       - The #CFE_SB_DSBL_RTE2_EID debug event message will be generated. All
-**         debug events are filtered by default.
-**       - Destination will stop receiving messages.
+**       - The #CFE_SB_DSBL_RTE2_EID debug event message will be generated
+**       - Destination will stop receiving messages
 **
 **  \par Error Conditions
-**       An Error may occur if the MsgId or PipeId parmaters do not pass
-**       validation or the destination does not exist.
-
+**       This command may fail for the following reason(s):
+**       - the MsgId or PipeId parmaters do not pass validation
+**       - the destination does not exist.
+**
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment
 **       - A command specific error event message is issued for all error
@@ -291,14 +303,17 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will increment.
-**       - Specified filename created at specified location. See description.
-**       - The #CFE_SB_SND_RTG_EID debug event message will be generated. All
-**         debug events are filtered by default.
+**         NOTE: the command counter is incremented when the request is accepted,
+**         before writing the file, which is performed as a background task.
+**       - The file specified in the command (or the default specified
+**         by the #CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME configuration parameter) will be
+**         updated with the lastest information.
+**       - The #CFE_SB_SND_RTG_EID debug event message will be generated
 **
 **  \par Error Conditions
-**       - Errors may occur during write operations to the file. Possible
-**         causes might be insufficient space in the file system or the
-**         filename or file path is improperly specified.
+**       This command may fail for the following reason(s):
+**       - A previous request to write a software bus information file has not yet completed
+**       - The specified FileName cannot be parsed
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment
@@ -334,14 +349,17 @@
 **       Successful execution of this command may be verified with the
 **       following telemetry:
 **       - \b \c \SB_CMDPC - command execution counter will increment.
-**       - Specified filename created at specified location. See description.
-**       - The #CFE_SB_SND_RTG_EID debug event message will be generated. All
-**         debug events are filtered by default.
+**         NOTE: the command counter is incremented when the request is accepted,
+**         before writing the file, which is performed as a background task.
+**       - The file specified in the command (or the default specified
+**         by the #CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME configuration parameter) will be
+**         updated with the lastest information.
+**       - The #CFE_SB_SND_RTG_EID debug event message will be generated
 **
 **  \par Error Conditions
-**       - Errors may occur during write operations to the file. Possible
-**         causes might be insufficient space in the file system or the
-**         filename or file path is improperly specified.
+**       This command may fail for the following reason(s):
+**       - A previous request to write a software bus information file has not yet completed
+**       - The specified FileName cannot be parsed
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \SB_CMDEC - command error counter will increment

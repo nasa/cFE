@@ -388,18 +388,17 @@ void Test_Init(void)
 */
 void Test_GetTime(void)
 {
-    int    result;
-    uint16 StateFlags;
-    char   timeBuf[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
-    /* Note: Time is in seconds + microseconds since 1980-001-00:00:00:00000 */
-    /* The time below equals 2013-001-02:03:04.56789 */
-    int                                 seconds      = 1041472984;
-    int                                 microsecs    = 567890;
-    const char *                        expectedMET  = "2013-001-02:03:14.56789";
-    const char *                        expectedTAI  = "2013-001-03:03:14.56789";
-    const char *                        expectedUTC  = "2013-001-03:02:42.56789";
-    const char *                        expectedSTCF = "1980-001-01:00:00.00000";
+    unsigned int result;
+    uint16       StateFlags;
+    /* Note: Time is in seconds + microseconds since epoch */
+    unsigned int                        seconds   = 1041472984;
+    unsigned int                        microsecs = 567890;
     volatile CFE_TIME_ReferenceState_t *RefState;
+    CFE_TIME_SysTime_t                  time;
+    CFE_TIME_SysTime_t                  expectedMET  = {.Seconds = 1041472994, .Subseconds = 2439068978};
+    CFE_TIME_SysTime_t                  expectedTAI  = {.Seconds = 1041476594, .Subseconds = 2439068978};
+    CFE_TIME_SysTime_t                  expectedUTC  = {.Seconds = 1041476562, .Subseconds = 2439068978};
+    CFE_TIME_SysTime_t                  expectedSTCF = {.Seconds = 3600, .Subseconds = 0};
 
     UtPrintf("Begin Test Get Time");
 
@@ -420,8 +419,9 @@ void Test_GetTime(void)
     RefState->AtToneLatch.Subseconds = 0;
     RefState->ClockSetState          = CFE_TIME_SetState_NOT_SET; /* Force invalid time */
     CFE_TIME_FinishReferenceUpdate(RefState);
-    CFE_TIME_Print(timeBuf, CFE_TIME_GetMET());
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedMET, strlen(expectedMET));
+    time = CFE_TIME_GetMET();
+    UtAssert_UINT32_EQ(time.Seconds, expectedMET.Seconds);
+    UtAssert_UINT32_EQ(time.Subseconds, expectedMET.Subseconds);
 
     /* Test successfully retrieving the mission elapsed time (seconds
      * portion)
@@ -446,24 +446,28 @@ void Test_GetTime(void)
     /* Test successfully retrieving the international atomic time (TAI) */
     UT_InitData();
     UT_SetBSP_Time(seconds, microsecs);
-    CFE_TIME_Print(timeBuf, CFE_TIME_GetTAI());
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedTAI, strlen(expectedTAI));
+    time = CFE_TIME_GetTAI();
+    UtAssert_UINT32_EQ(time.Seconds, expectedTAI.Seconds);
+    UtAssert_UINT32_EQ(time.Subseconds, expectedTAI.Subseconds);
 
     /* Test successfully retrieving the coordinated universal time (UTC) */
     UT_InitData();
     UT_SetBSP_Time(seconds, microsecs);
-    CFE_TIME_Print(timeBuf, CFE_TIME_GetUTC());
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedUTC, strlen(expectedUTC));
+    time = CFE_TIME_GetUTC();
+    UtAssert_UINT32_EQ(time.Seconds, expectedUTC.Seconds);
+    UtAssert_UINT32_EQ(time.Subseconds, expectedUTC.Subseconds);
 
     /* Test successfully retrieving the default time (UTC or TAI) */
     UT_InitData();
     UT_SetBSP_Time(seconds, microsecs);
-    CFE_TIME_Print(timeBuf, CFE_TIME_GetTime());
+    time = CFE_TIME_GetTime();
 
 #if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedTAI, strlen(expectedTAI));
+    UtAssert_UINT32_EQ(time.Seconds, expectedTAI.Seconds);
+    UtAssert_UINT32_EQ(time.Subseconds, expectedTAI.Subseconds);
 #else
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedUTC, strlen(expectedUTC));
+    UtAssert_UINT32_EQ(time.Seconds, expectedUTC.Seconds);
+    UtAssert_UINT32_EQ(time.Subseconds, expectedUTC.Subseconds);
 #endif
 
     /* Test successfully retrieving the spacecraft time correlation
@@ -471,8 +475,9 @@ void Test_GetTime(void)
      */
     UT_InitData();
     UT_SetBSP_Time(seconds, microsecs);
-    CFE_TIME_Print(timeBuf, CFE_TIME_GetSTCF());
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedSTCF, strlen(expectedSTCF));
+    time = CFE_TIME_GetSTCF();
+    UtAssert_UINT32_EQ(time.Seconds, expectedSTCF.Seconds);
+    UtAssert_UINT32_EQ(time.Subseconds, expectedSTCF.Subseconds);
 
     /* Test retrieving the time status (invalid time is expected) */
     UT_InitData();
@@ -752,17 +757,10 @@ void Test_TimeOp(void)
 */
 void Test_ConvertTime(void)
 {
-    char                                timeBuf[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
     CFE_TIME_SysTime_t                  METTime;
+    CFE_TIME_SysTime_t                  resultTime;
+    CFE_TIME_SysTime_t                  expectedMET2SCTime;
     volatile CFE_TIME_ReferenceState_t *RefState;
-
-#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
-    /* TAI time derived = MET + STCF */
-    const char *expectedSCTime = "1980-001-02:00:40.00000";
-#else
-    /* UTC time derived = MET + STCF - Leaps */
-    const char *expectedSCTime = "1980-001-02:00:08.00000";
-#endif
 
     UtPrintf("Begin Test Convert Time");
     UT_InitData();
@@ -772,13 +770,20 @@ void Test_ConvertTime(void)
     METTime.Subseconds              = 0;
     RefState                        = CFE_TIME_StartReferenceUpdate();
     RefState->AtToneSTCF.Seconds    = 7240; /* 01:00:00.00000 */
-    RefState->AtToneSTCF.Subseconds = 0;
+    RefState->AtToneSTCF.Subseconds = 45;
     RefState->AtToneLeapSeconds     = 32;
+#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
+    /* TAI time derived = MET + STCF */
+    expectedMET2SCTime.Seconds = 7240;
+#else
+    /* UTC time derived = MET + STCF - Leaps */
+    expectedMET2SCTime.Seconds = 7208;
+#endif
+    expectedMET2SCTime.Subseconds = 45;
     CFE_TIME_FinishReferenceUpdate(RefState);
-    CFE_TIME_Print(timeBuf, CFE_TIME_MET2SCTime(METTime));
-
-    /* SC = MET + SCTF [- Leaps for UTC] */
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedSCTime, strlen(expectedSCTime));
+    resultTime = CFE_TIME_MET2SCTime(METTime);
+    UtAssert_UINT32_EQ(resultTime.Seconds, expectedMET2SCTime.Seconds);
+    UtAssert_UINT32_EQ(resultTime.Subseconds, expectedMET2SCTime.Subseconds);
 
     /* NOTE: Microseconds <-> Subseconds conversion routines are implemented
      * as part of OS_time_t in OSAL, and are coverage tested there.  CFE time
@@ -820,16 +825,33 @@ void Test_Print(void)
     char               timeBuf[CFE_TIME_PRINTED_STRING_SIZE];
     char               expectedBuf[CFE_TIME_PRINTED_STRING_SIZE];
     CFE_TIME_SysTime_t time;
+    bool               usingDefaultEpoch = true;
 
     UtPrintf("Begin Test Print");
+
+    if (CFE_MISSION_TIME_EPOCH_YEAR != 1980 || CFE_MISSION_TIME_EPOCH_DAY != 1 || CFE_MISSION_TIME_EPOCH_HOUR != 0 ||
+        CFE_MISSION_TIME_EPOCH_MINUTE != 0 || CFE_MISSION_TIME_EPOCH_SECOND != 0)
+    {
+        UtPrintf("Custom epoch time requires manual inspection for CFE_TIME_Print");
+        usingDefaultEpoch = false;
+    }
 
     /* Test with zero time value */
     time.Subseconds = 0;
     time.Seconds    = 0;
 
     CFE_TIME_Print(timeBuf, time);
-    strcpy(expectedBuf, "1980-001-00:00:00.00000");
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "1980-001-00:00:00.00000");
+        CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssertEx(false, UTASSERT_CASETYPE_MIR, __FILE__, __LINE__,
+                   "Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s", time.Seconds,
+                   time.Subseconds, timeBuf);
+    }
 
     /* Test with a time value that causes seconds >= 60 when
      * CFE_MISSION_TIME_EPOCH_SECOND > 0
@@ -838,24 +860,51 @@ void Test_Print(void)
     time.Seconds    = 59;
 
     CFE_TIME_Print(timeBuf, time);
-    strcpy(expectedBuf, "1980-001-00:00:59.00000");
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "1980-001-00:00:59.00000");
+        CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssertEx(false, UTASSERT_CASETYPE_MIR, __FILE__, __LINE__,
+                   "Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s", time.Seconds,
+                   time.Subseconds, timeBuf);
+    }
 
     /* Test with mission representative time values */
     time.Subseconds = 215000;
     time.Seconds    = 1041472984;
 
     CFE_TIME_Print(timeBuf, time);
-    strcpy(expectedBuf, "2013-001-02:03:04.00005");
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "2013-001-02:03:04.00005");
+        CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssertEx(false, UTASSERT_CASETYPE_MIR, __FILE__, __LINE__,
+                   "Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s", time.Seconds,
+                   time.Subseconds, timeBuf);
+    }
 
     /* Test with maximum seconds and subseconds values */
     time.Subseconds = 0xffffffff;
     time.Seconds    = 0xffffffff;
 
     CFE_TIME_Print(timeBuf, time);
-    strcpy(expectedBuf, "2116-038-06:28:15.99999");
-    CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    if (usingDefaultEpoch)
+    {
+        strcpy(expectedBuf, "2116-038-06:28:15.99999");
+        CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+    }
+    else
+    {
+        UtAssertEx(false, UTASSERT_CASETYPE_MIR, __FILE__, __LINE__,
+                   "Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s", time.Seconds,
+                   time.Subseconds, timeBuf);
+    }
 }
 
 /*

@@ -84,6 +84,18 @@ typedef enum
  * Data Getter routine provided by requester
  *
  * Outputs a data block.  Should return true if the file is complete (last record/EOF), otherwise return false.
+ *
+ * \param[inout] Meta       Pointer to the metadata object
+ * \param[in]    RecordNum  Incrementing record number counter
+ * \param[out]   Buffer     Pointer to buffer data block, should be set by implementation
+ * \param[out]   BufSize    Pointer to buffer data size, should be set by implementation
+ *
+ * \returns End of file status
+ * \retval  true if at last data record, and output file should be closed
+ * \retval  false if not at last record, more data records to write
+ *
+ * \note The implementation of this function must always set the "Buffer" and "BufSize" outputs.  If
+ *       no data is avaliable, they may be set to NULL and 0, respectively.
  */
 typedef bool (*CFE_FS_FileWriteGetData_t)(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 
@@ -92,6 +104,14 @@ typedef bool (*CFE_FS_FileWriteGetData_t)(void *Meta, uint32 RecordNum, void **B
  *
  * Invoked from certain points in the file write process.  Implementation may invoke CFE_EVS_SendEvent() appropriately
  * to inform of progress.
+ *
+ * \param[inout] Meta       Pointer to the metadata object
+ * \param[in]    Event      Generalized type of event to report (not actual event ID)
+ * \param[in]    Status     Generalized status code (may be from OSAL or CFE)
+ * \param[in]    RecordNum  Record number counter at which event occurred
+ * \param[in]    BlockSize  Size of record being processed when event occured (if applicable)
+ * \param[in]    Position   File position/size when event occurred
+ *
  */
 typedef void (*CFE_FS_FileWriteOnEvent_t)(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum,
                                           size_t BlockSize, size_t Position);

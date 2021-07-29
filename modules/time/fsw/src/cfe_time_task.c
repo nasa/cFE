@@ -145,7 +145,7 @@ int32 CFE_TIME_TaskInit(void)
 
     Status = OS_BinSemCreate(&CFE_TIME_Global.ToneSemaphore, CFE_TIME_SEM_TONE_NAME, CFE_TIME_SEM_VALUE,
                              CFE_TIME_SEM_OPTIONS);
-    if (Status != CFE_SUCCESS)
+    if (Status != OS_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error creating tone semaphore:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
@@ -153,7 +153,7 @@ int32 CFE_TIME_TaskInit(void)
 
     Status = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore, CFE_TIME_SEM_1HZ_NAME, CFE_TIME_SEM_VALUE,
                              CFE_TIME_SEM_OPTIONS);
-    if (Status != CFE_SUCCESS)
+    if (Status != OS_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error creating local semaphore:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;

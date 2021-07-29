@@ -39,7 +39,7 @@
   updated (or in the case of dump-only tables, dumped).  Most Applications perform this periodic
   management at the same time as housekeeping requests are processed.  This table management is
   performed by the cFE Application that "owns" a table (ie - the cFE Application that registered
-  the table with cFE Table Services).  It is possible for cFE Applications to "share" a table with 
+  the table with cFE Table Services).  It is possible for cFE Applications to "share" a table with
   other cFE Applications.  An Application that shares a table does not typically perform any of the
   management duties associated with that table.
 
@@ -414,6 +414,13 @@
 /**
 **  \page cfetblcmds cFE Table Services Commands
 **
+**  Upon receipt of any command, the Table Services application will confirm that the
+**  message length embedded within the header (from `CFE_MSG_GetSize()`) matches the expected
+**  length of that message, based on the size of the C structure defining that command.
+**  If there is any discrepancy between the expected and actual message size, TBL will generate
+**  the #CFE_TBL_LEN_ERR_EID event, increment the command error counter (\TBL_CMDEC), and the
+**  command will _not_ be accepted for processing.
+**
 **  The following is a list of commands that are processed by the cFE Table Services Task.
 **/
 
@@ -429,4 +436,3 @@
 **  The following are configuration parameters used to configure the cFE Table Services
 **  either for each platform or for a mission as a whole.
 **/
-

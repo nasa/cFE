@@ -51,13 +51,15 @@ void CFE_TestMain(void)
     /*
      * Register test cases in UtAssert
      */
-    ESInfoTestSetup();
-    ESTaskTestSetup();
     ESCDSTestSetup();
-    ESMiscTestSetup();
+    ESInfoTestSetup();
     ESMemPoolTestSetup();
+    ESMiscTestSetup();
+    ESTaskTestSetup();
     FSHeaderTestSetup();
+    FSUtilTestSetup();
     SBPipeMangSetup();
+    TimeArithmeticTestSetup();
     TimeCurrentTestSetup();
 
     /*

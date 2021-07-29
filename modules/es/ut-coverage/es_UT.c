@@ -520,7 +520,7 @@ void ES_UT_SetupSingleCDSRegistry(const char *CDSName, size_t BlockSize, bool Is
 
 int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)
 {
-    osal_id_t ObjList[7];
+    osal_id_t ObjList[8];
 
     /* On the first call, Use the stub functions to generate one object of
      * each type
@@ -534,6 +534,7 @@ int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode, uint32 CallCoun
         OS_CountSemCreate(&ObjList[4], NULL, 0, 0);
         OS_TimerCreate(&ObjList[5], NULL, NULL, NULL);
         OS_OpenCreate(&ObjList[6], NULL, 0, 0);
+        OS_ModuleLoad(&ObjList[7], NULL, NULL, 0);
 
         UT_SetDataBuffer((UT_EntryKey_t)&OS_ForEachObject, ObjList, sizeof(ObjList), true);
     }
@@ -1209,6 +1210,17 @@ void TestApps(void)
     CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
 
     /* Test scanning and acting on the application table where the application
+     * is running and is ready to exit
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
+    UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
+    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
+    UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec,
+                      CFE_PLATFORM_ES_APP_KILL_TIMEOUT * CFE_PLATFORM_ES_APP_SCAN_RATE);
+
+    /* Test scanning and acting on the application table where the application
      * has stopped and is ready to be acted on
      */
     ES_ResetUnitTest();
@@ -1418,6 +1430,11 @@ void TestApps(void)
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UtAssert_INT32_EQ(CFE_ES_CleanUpApp(AppId), CFE_ES_APP_CLEANUP_ERR);
 
+    /* Test deleting an application when AppId and Record don't match */
+    ES_ResetUnitTest();
+    ES_UT_SetupForOSCleanup();
+    UtAssert_INT32_EQ(CFE_ES_CleanUpApp(CFE_ES_APPID_UNDEFINED), CFE_ES_APP_CLEANUP_ERR);
+
     /* Test deleting an application and cleaning up its resources with a
      * mutex delete failure
      */
@@ -1511,6 +1528,16 @@ void TestApps(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_close), OS_ERROR);
     UtAssert_INT32_EQ(CFE_ES_CleanupTaskResources(TaskId), CFE_ES_APP_CLEANUP_ERR);
 
+    /* Test cleaning up the OS resources for an unidentified object */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    ES_UT_SetupForOSCleanup();
+    UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
+    UT_SetDefaultReturnValue(UT_KEY(OS_IdentifyObject), OS_OBJECT_TYPE_UNDEFINED);
+    /* Since object is invalid, no need to delete it so function returns success */
+    CFE_UtAssert_SUCCESS(CFE_ES_CleanupTaskResources(TaskId));
+
     /* Test cleaning up the OS resources for a task with a failure
      * to delete the task
      */
@@ -1534,6 +1561,16 @@ void TestApps(void)
     ES_ResetUnitTest();
     {
         const char *TokenList[] = {"CFE_APP", "/cf/apps/tst_lib.bundle", "TST_LIB_Init", "TST_LIB", "0", "0", "0x0",
+                                   "0"};
+        CFE_UtAssert_SUCCESS(CFE_ES_ParseFileEntry(TokenList, 8));
+    }
+
+    /* Test parsing the startup script for a cFE application with a priority
+     * number greater than MAX
+     */
+    ES_ResetUnitTest();
+    {
+        const char *TokenList[] = {"CFE_APP", "/cf/apps/tst_lib.bundle", "TST_LIB_Init", "TST_LIB", "999", "0", "0x0",
                                    "0"};
         CFE_UtAssert_SUCCESS(CFE_ES_ParseFileEntry(TokenList, 8));
     }
@@ -1574,6 +1611,19 @@ void TestApps(void)
     CFE_UtAssert_SUCCESS(CFE_ES_CleanUpApp(AppId));
     CFE_UtAssert_TRUE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
     CFE_UtAssert_FALSE(CFE_ES_MemPoolRecordIsUsed(UtPoolRecPtr));
+
+    /* Test deleting an application and cleaning up its resources where the
+     * main task and child task need to be swapped
+     */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    ES_UT_SetupMemPoolId(&UtPoolRecPtr);
+    UtPoolRecPtr->OwnerAppID = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    /* Set MainTask to Child task's ID. Cleanup code will swap the order. */
+    UtAppRecPtr->MainTaskId = UtTaskRecPtr->TaskId;
+    CFE_UtAssert_SUCCESS(CFE_ES_CleanUpApp(AppId));
 
     /* Test deleting an application and cleaning up its resources where the
      * memory pool deletion fails
@@ -1768,6 +1818,11 @@ void TestLibs(void)
     UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_FindNext), OS_ERROR);
     UtAssert_INT32_EQ(CFE_ES_LoadLibrary(&Id, "LibName", &LoadParams), CFE_ES_NO_RESOURCE_IDS_AVAILABLE);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_LIBRARY_SLOTS]);
+
+    /* Test loading module with a base different than APP or LIB */
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_ResourceId_GetBase), CFE_ES_CDSBLOCKID_BASE);
+    CFE_UtAssert_SUCCESS(CFE_ES_LoadLibrary(&Id, "TST_LIB", &LoadParams));
 
     /* check operation of the CFE_ES_CheckLibIdSlotUsed() function */
     CFE_ES_Global.LibTable[1].LibId = CFE_ES_LIBID_C(ES_UT_MakeLibIdForIndex(1));

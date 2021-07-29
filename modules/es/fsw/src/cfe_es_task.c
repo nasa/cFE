@@ -1998,7 +1998,7 @@ int32 CFE_ES_DumpCDSRegistryCmd(const CFE_ES_DumpCDSRegistryCmd_t *data)
                                          CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
                                          CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
-    if (Status != OS_SUCCESS)
+    if (Status != CFE_SUCCESS)
     {
         CFE_EVS_SendEvent(CFE_ES_CREATING_CDS_DUMP_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error parsing CDS dump filename, Status=0x%08X", (unsigned int)Status);

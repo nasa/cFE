@@ -64,6 +64,8 @@
 **       following telemetry:
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
+**       - The #CFE_ES_BUILD_INF_EID informational event message will
+**         be generated
 **       - The #CFE_ES_NOOP_INF_EID informational event message will
 **         be generated
 **
@@ -98,18 +100,16 @@
 **  \par Command Verification
 **       Successful execution of this command may be verified with
 **       the following telemetry:
-**       - \b \c \ES_CMDPC - command execution counter will
-**         increment
+**       - \b \c \ES_CMDPC - command execution counter and error counter will
+**         be reset to zero
 **       - The #CFE_ES_RESET_INF_EID informational event message will be
 **         generated
 **
 **  \par Error Conditions
-**       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**
-**       Evidence of failure may be found in the following telemetry:
-**       - \b \c \ES_CMDEC - command error counter will increment
-**       - the #CFE_ES_LEN_ERR_EID error event message will be generated
+**       There are no error conditions for this command. If the Executive
+**       Services receives the command, the event is sent (although it
+**       may be filtered by EVS) and the counter is incremented
+**       unconditionally.
 **
 **  \par Criticality
 **       This command is not inherently dangerous.  However, it is
@@ -140,9 +140,12 @@
 **       #CFE_ES_RestartCmd_t
 **
 **  \par Command Verification
-**       Successful execution of this command (as a Processor Reset)
-**       may be verified with the following telemetry:
-**       - \b \c \ES_PROCRESETCNT - processor reset counter will increment
+**       Successful execution of this command may be verified with the
+**       following telemetry:
+**       - \b \c \ES_PROCRESETCNT - processor reset counter will increment (processor
+**               reset) or reset to zero (power-on reset)
+**       - \b \c \ES_RESETTYPE - processor reset type will be updated
+**       - \b \c \ES_RESETSUBTYPE - processor reset subtype will be updated
 **       - New entries in the Exception Reset Log and System Log can be found<BR>
 **       NOTE: Verification of a Power-On Reset is shown through the loss of
 **       data nominally retained through a Processor Reset<BR>
@@ -152,7 +155,6 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
 **       - The \link #CFE_ES_RestartCmd_Payload_t Restart Type \endlink was
 **         not a recognized value.
 **
@@ -192,13 +194,10 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**       - The specified application filename string is either a NULL string
-**         or less than four characters in length
-**       - The specified application entry point is a NULL string
-**       - The specified application name is a NULL string
-**       - The specified stack size is less than #CFE_PLATFORM_ES_DEFAULT_STACK_SIZE
-**       - The specified priority is greater than MAX_PRIORITY (as defined in osapi.c)
+**       - The specified application filename string cannot be parsed
+**       - The specified application entry point is an empty string
+**       - The specified application name is an empty string
+**       - The specified priority is greater than 255
 **       - The specified exception action is neither #CFE_ES_ExceptionAction_RESTART_APP (0) or
 **         #CFE_ES_ExceptionAction_PROC_RESTART (1)
 **       - The Operating System was unable to load the specified application file
@@ -239,15 +238,18 @@
 **         increment
 **       - The #CFE_ES_STOP_DBG_EID debug event message will be
 **         generated. NOTE: This event message only identifies that the
-**         stop has been started, not that is has completed.
+**         stop request has been initiated, not that is has completed.
 **       - Once the stop has successfully completed, the list of Applications
 **         and Tasks created in response to the \b \c \ES_WRITEAPPINFO2FILE,
 **         \b \c \ES_WRITETASKINFO2FILE should no longer contain the
 **         specified application.
+**       - \b \c \ES_REGTASKS - number of tasks will decrease after tasks
+**         associated with app (main task and any child tasks) are stopped
+**       - \b \c \ES_REGEXTAPPS - external application counter will decrement
+**         after app is cleaned up
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
 **       - The specified application name is not recognized as an active application
 **       - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
 **
@@ -289,11 +291,10 @@
 **         increment
 **       - The #CFE_ES_RESTART_APP_DBG_EID debug event message will be
 **         generated. NOTE: This event message only identifies that the
-**         act of stopping the application has begun, not that is has completed.
+**         restart process has been initiated, not that is has completed.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
 **       - The original file is missing
 **       - The specified application name is not recognized as an active application
 **       - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
@@ -336,12 +337,11 @@
 **         increment
 **       - The #CFE_ES_RELOAD_APP_DBG_EID debug event message will be
 **         generated. NOTE: This event message only identifies that the
-**         act of stopping the application has begun, not that is has completed.
+**         reload process has been initiated, not that is has completed.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**       - The reload file is missing
+**       - The specified application filename string cannot be parsed
 **       - The specified application name is not recognized as an active application
 **       - The specified application is one of the cFE's Core applications (ES, EVS, SB, TBL, TIME)
 **
@@ -361,11 +361,11 @@
 */
 #define CFE_ES_RELOAD_APP_CC 7
 
-/** \cfeescmd Request Executive Services Information on a Specified Application
+/** \cfeescmd Request Executive Services Information on a specified module
 **
 **  \par Description
 **       This command takes the information kept by Executive Services on the
-**       specified application and telemeters it to the ground.
+**       specified application or library and telemeters it to the ground.
 **
 **  \cfecmdmnemonic \ES_QUERYAPP
 **
@@ -378,14 +378,12 @@
 **       - \b \c \ES_CMDPC - command execution counter will
 **         increment
 **       - The #CFE_ES_ONE_APP_EID debug event message will be
-**         generated. NOTE: This event message only identifies that the
-**         act of stopping the application has begun, not that is has completed.
+**         generated.
 **       - Receipt of the #CFE_ES_OneAppTlm_t telemetry packet
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**       - The specified application name is not recognized as an active application
+**       - The specified name is not recognized as an active application or library
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \ES_CMDEC - command error counter will increment
@@ -399,11 +397,11 @@
 */
 #define CFE_ES_QUERY_ONE_CC 8
 
-/** \cfeescmd Writes all Executive Services Information on All Applications to a File
+/** \cfeescmd Writes all Executive Services Information on all loaded modules to a File
 **
 **  \par Description
 **       This command takes the information kept by Executive Services on all of the
-**       registered applications and writes it to the specified file.
+**       registered applications and libraries and writes it to the specified file.
 **
 **  \cfecmdmnemonic \ES_WRITEAPPINFO2FILE
 **
@@ -423,7 +421,7 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
+**       - The specified FileName cannot be parsed
 **       - An Error occurs while trying to write to the file
 **
 **       Evidence of failure may be found in the following telemetry:
@@ -462,13 +460,10 @@
 **       - \b \c \ES_SYSLOGENTRIES - Number of System Log Entries will go to zero
 **
 **  \par Error Conditions
-**       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**
-**       Evidence of failure may be found in the following telemetry:
-**       - \b \c \ES_CMDEC - command error counter will increment
-**       - A command specific error event message is issued for all error
-**         cases
+**       There are no error conditions for this command. If the Executive
+**       Services receives the command, the event is sent (although it
+**       may be filtered by EVS) and the counter is incremented
+**       unconditionally.
 **
 **  \par Criticality
 **       This command is not dangerous.  However, any previously logged data
@@ -503,7 +498,7 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
+**       - The specified FileName cannot be parsed
 **       - An Error occurs while trying to write to the file
 **
 **       Evidence of failure may be found in the following telemetry:
@@ -543,13 +538,10 @@
 **       - \b \c \ES_ERLOGINDEX - Index into Exception Reset Log goes to zero
 **
 **  \par Error Conditions
-**       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**
-**       Evidence of failure may be found in the following telemetry:
-**       - \b \c \ES_CMDEC - command error counter will increment
-**       - A command specific error event message is issued for all error
-**         cases
+**       There are no error conditions for this command. If the Executive
+**       Services receives the command, the event is sent (although it
+**       may be filtered by EVS) and the counter is incremented
+**       unconditionally.
 **
 **  \par Criticality
 **       This command is not dangerous.  However, any previously logged data
@@ -583,7 +575,8 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
+**       - A previous request to write the ER log has not yet completed
+**       - The specified FileName cannot be parsed
 **       - An Error occurs while trying to write to the file
 **
 **       Evidence of failure may be found in the following telemetry:
@@ -630,7 +623,6 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
 **       - A previous #CFE_ES_STOP_PERF_DATA_CC command has not completely finished.
 **       - An invalid trigger mode is requested.
 **
@@ -647,10 +639,11 @@
 */
 #define CFE_ES_START_PERF_DATA_CC 14
 
-/** \cfeescmd Stop Performance Analyzer
+/** \cfeescmd Stop Performance Analyzer and write data file
 **
 **  \par Description
-**       This command stops the Performance Analyzer from collecting any more data.
+**       This command stops the Performance Analyzer from collecting any more data,
+**       and writes all previously collected performance data to a log file.
 **
 **  \cfecmdmnemonic \ES_STOPLADATA
 **
@@ -665,26 +658,32 @@
 **       - \b \c \ES_PERFSTATE - Current performance analyzer state will change to
 **         IDLE.
 **       - The #CFE_ES_PERF_STOPCMD_EID debug event message will be
-**         generated.
+**         generated to indicate that data collection has been stopped.
+**         NOTE: Performance log data is written to the file as a background job.
+**         This event indicates that the file write process is initiated, not that
+**         it has completed.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME configuration parameter) will be
 **         updated with the lastest information.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**       - A previous Stop Performance Analyzer command is still in process
-**       - An error occurred while spawning the child task responsible for
-**         dumping the Performance Analyzer data to a file
+**       - The file name specified could not be parsed
+**       - Log data from a previous Stop Performance Analyzer command is still
+**         being written to a file.
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \ES_CMDEC - command error counter will increment
 **       - A command specific error event message is issued for all error
 **         cases
 **
+**       NOTE: The performance analyzer data collection will still be stopped
+**       in the event of an error parsing the log file name or writing the log file.
+**
 **  \par Criticality
-**       This command is not inherently dangerous.  An additional low priority child
-**       task will be spawned, however, to dump the performance analyzer data to a file.
+**       This command is not inherently dangerous.  However, depending on configuration,
+**       performance data log files may be large in size and thus may fill the available
+**       storage.
 **
 **  \sa #CFE_ES_START_PERF_DATA_CC, #CFE_ES_SET_PERF_FILTER_MASK_CC, #CFE_ES_SET_PERF_TRIGGER_MASK_CC
 */
@@ -712,7 +711,6 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
 **       - The Filter Mask ID number is out of range
 **
 **       Evidence of failure may be found in the following telemetry:
@@ -750,7 +748,6 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
 **       - The Trigger Mask ID number is out of range
 **
 **       Evidence of failure may be found in the following telemetry:
@@ -790,7 +787,6 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
 **       - The desired mode is neither #CFE_ES_LogMode_OVERWRITE or #CFE_ES_LogMode_DISCARD
 **
 **       Evidence of failure may be found in the following telemetry:
@@ -830,13 +826,10 @@
 **         generated.
 **
 **  \par Error Conditions
-**       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**
-**       Evidence of failure may be found in the following telemetry:
-**       - \b \c \ES_CMDEC - command error counter will increment
-**       - A command specific error event message is issued for all error
-**         cases
+**       There are no error conditions for this command. If the Executive
+**       Services receives the command, the event is sent (although it
+**       may be filtered by EVS) and the counter is incremented
+**       unconditionally.
 **
 **  \par Criticality
 **       This command is not critical.  The only impact would be that the system
@@ -869,13 +862,10 @@
 **         generated.
 **
 **  \par Error Conditions
-**       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**
-**       Evidence of failure may be found in the following telemetry:
-**       - \b \c \ES_CMDEC - command error counter will increment
-**       - A command specific error event message is issued for all error
-**         cases
+**       There are no error conditions for this command. If the Executive
+**       Services receives the command, the event is sent (although it
+**       may be filtered by EVS) and the counter is incremented
+**       unconditionally.
 **
 **  \par Criticality
 **       If the operator were to set the Maximum Processor Reset Count to too high a value,
@@ -911,8 +901,7 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
-**       - The specified CDS is the CDS portion of a Critical Table. See #CFE_TBL_DELETE_CDS_CC.
+**       - The specified CDS is the CDS portion of a Critical Table
 **       - The specified CDS is not found in the CDS Registry
 **       - The specified CDS is associated with an Application that is still active
 **       - An error occurred while accessing the CDS memory (see the System Log for more details)
@@ -954,10 +943,7 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
 **       - The specified handle is not associated with a known memory pool
-**       - The specified handle caused a processor exception because it improperly
-**         identified a segment of memory
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \ES_CMDEC - command error counter will increment
@@ -997,7 +983,8 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - Error occurred while trying to create the dump file
+**       - The file name specified could not be parsed
+**       - Error occurred while creating or writing to the dump file
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \ES_CMDEC - command error counter will increment
@@ -1038,7 +1025,7 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - The command packet length is incorrect
+**       - The file name specified could not be parsed
 **       - An Error occurs while trying to write to the file
 **
 **       Evidence of failure may be found in the following telemetry:
@@ -1204,7 +1191,7 @@ typedef struct CFE_ES_StartApp
 **/
 typedef struct CFE_ES_AppNameCmd_Payload
 {
-    char Application[CFE_MISSION_MAX_API_LEN]; /**< \brief ASCII text string containing Application Name */
+    char Application[CFE_MISSION_MAX_API_LEN]; /**< \brief ASCII text string containing Application or Library Name */
 } CFE_ES_AppNameCmd_Payload_t;
 
 /**
