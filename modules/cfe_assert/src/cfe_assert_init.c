@@ -18,7 +18,7 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_assert_main.c
+** File: cfe_assert_init.c
 **
 ** Purpose:
 **   Implementation of the CFE assert (UT assert wrapper) functions.

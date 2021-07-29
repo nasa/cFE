@@ -18,7 +18,7 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_assert.h
+** File: cfe_assert_priv.h
 **
 ** Purpose:
 **   Specification for the CFE assert (UT assert wrapper) functions.

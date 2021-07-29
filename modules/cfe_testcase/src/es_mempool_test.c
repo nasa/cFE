@@ -18,7 +18,7 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: es_info_test.c
+** File: es_mempool_test.c
 **
 ** Purpose:
 **   Functional test of basic ES Mempool APIs

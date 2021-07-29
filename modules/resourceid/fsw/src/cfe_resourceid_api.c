@@ -20,7 +20,7 @@
 
 /*
 **  File:
-**  cfe_resource_api.c
+**      cfe_resource_api.c
 **
 **  Purpose:
 **      Function definitions related to CFE resource management
