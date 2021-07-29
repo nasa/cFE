@@ -10,6 +10,21 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev789
+
+- Correct return code check
+- Documentation for FS APIs that return OSAL codes
+- Adding coverage tests for cfe_es_apps.c
+- Add File Utility Functional Tests.
+- Add custom epoch support to TIME UT
+- Requirements update for Caelum
+- Add null check to CFE_ES_TaskID_ToIndex.
+- Scrub command documentation
+- Add time arithmetic functional tests
+- Update docs for CFE_FS_BackgroundFileDumpRequest
+- Correct return code mismatches
+- See <https://github.com/nasa/cFE/pull/1701> and <https://github.com/nasa/cFS/pull/313>
+
 ### Development Build: v6.8.0-rc1+dev762
 
 - Change CI to use Test Log.
