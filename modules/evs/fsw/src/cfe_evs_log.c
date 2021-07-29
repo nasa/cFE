@@ -144,7 +144,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
                                          CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP),
                                          CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP));
 
-    if (Result != OS_SUCCESS)
+    if (Result != CFE_SUCCESS)
     {
         EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID, CFE_EVS_EventType_ERROR,
                       "Write Log File Command Error: CFE_FS_ParseInputFileNameEx() = 0x%08X", (unsigned int)Result);
