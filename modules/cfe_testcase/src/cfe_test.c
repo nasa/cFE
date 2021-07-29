@@ -59,6 +59,7 @@ void CFE_TestMain(void)
     FSHeaderTestSetup();
     FSUtilTestSetup();
     SBPipeMangSetup();
+    TBLInformationTestSetup();
     TBLRegistrationTestSetup();
     // TimeArithmeticTestSetup();
     // TimeCurrentTestSetup();

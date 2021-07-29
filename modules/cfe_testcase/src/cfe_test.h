@@ -91,6 +91,7 @@ void ESTaskTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void SBPipeMangSetup(void);
+void TBLInformationTestSetup(void);
 void TBLRegistrationTestSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
