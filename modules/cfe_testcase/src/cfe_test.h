@@ -79,6 +79,7 @@ typedef struct
 
 void CFE_TestMain(void);
 void ESCDSTestSetup(void);
+void ESCounterTestSetup(void);
 void ESInfoTestSetup(void);
 void ESMemPoolTestSetup(void);
 void ESMiscTestSetup(void);
