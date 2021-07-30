@@ -233,7 +233,7 @@ void Test_MSG_HasSecondaryHeader(void)
     UtPrintf("Bad parameter tests, Null pointers");
     memset(&msg, 0, sizeof(msg));
     UtAssert_INT32_EQ(CFE_MSG_GetHasSecondaryHeader(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    CFE_UtAssert_TRUE(actual);
+    UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(CFE_MSG_GetHasSecondaryHeader(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
     UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(NULL, false), CFE_MSG_BAD_ARGUMENT);
@@ -241,35 +241,35 @@ void Test_MSG_HasSecondaryHeader(void)
     UtPrintf("Set to all F's, true and false inputs");
     memset(&msg, 0xFF, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
-    CFE_UtAssert_TRUE(actual);
+    UtAssert_BOOL_TRUE(actual);
 
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(&msg, true));
     UT_DisplayPkt(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
-    CFE_UtAssert_TRUE(actual);
+    UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotF(&msg), 0);
 
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(&msg, false));
     UT_DisplayPkt(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
-    CFE_UtAssert_FALSE(actual);
+    UtAssert_BOOL_FALSE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotF(&msg), MSG_HASSEC_FLAG);
 
     UtPrintf("Set to all 0, true and false inputs");
     memset(&msg, 0, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
-    CFE_UtAssert_FALSE(actual);
+    UtAssert_BOOL_FALSE(actual);
 
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(&msg, false));
     UT_DisplayPkt(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
-    CFE_UtAssert_FALSE(actual);
+    UtAssert_BOOL_FALSE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
 
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(&msg, true));
     UT_DisplayPkt(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &actual));
-    CFE_UtAssert_TRUE(actual);
+    UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), MSG_HASSEC_FLAG);
 }
 

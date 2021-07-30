@@ -138,27 +138,6 @@ typedef struct
 
 } UT_TaskPipeDispatchId_t;
 
-/**
- * \brief Comparison types for generic value asserts
- *
- * These constants are used with the generic value assert functions
- *
- * \sa CFE_UtAssert_GenericSignedCompare_Impl
- * \sa CFE_UtAssert_GenericUnsignedCompare_Impl
- */
-typedef enum
-{
-    CFE_UtAssert_Compare_NONE, /**< invalid/not used, always false */
-    CFE_UtAssert_Compare_EQ,   /**< actual equals reference value */
-    CFE_UtAssert_Compare_NEQ,  /**< actual does not non equal reference value */
-    CFE_UtAssert_Compare_LT,   /**< actual less than reference (exclusive) */
-    CFE_UtAssert_Compare_GT,   /**< actual greater than reference (exclusive)  */
-    CFE_UtAssert_Compare_LTEQ, /**< actual less than or equal to reference (inclusive) */
-    CFE_UtAssert_Compare_GTEQ, /**< actual greater than reference (inclusive) */
-    CFE_UtAssert_Compare_BOOL, /**< interpret as logical boolean values (0=false, nonzero=true) */
-    CFE_UtAssert_Compare_MAX   /**< placeholder, not used */
-} CFE_UtAssert_Compare_t;
-
 /*
 ** Functions
 */
@@ -561,25 +540,6 @@ void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size);
 ******************************************************************************/
 CFE_ES_ResetData_t *UT_GetResetDataPtr(void);
 
-/*****************************************************************************/
-/**
-** \brief Add a test as a member of a subgroup.
-**
-** \par Description
-**        Allow tests to be grouped together
-**
-**        This is just a wrapper around UtTest_Add() that registers
-**        a test with a "GroupName.TestName" convention.  Purely an
-**        organizational/identification helper for units which have
-**        lots of tests.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-******************************************************************************/
-void UT_AddSubTest(void (*Test)(void), void (*Setup)(void), void (*Teardown)(void), const char *GroupName,
-                   const char *TestName);
-
 /*
 ** Assert Helper Functions
 ** Wrappers around the UtAssert functions to tune them for CFE use.
@@ -632,65 +592,6 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 
 /*****************************************************************************/
 /**
-** \brief Helper function for string buffer check verifications
-**
-** \par Description
-**        This helper function wraps the normal UtAssert function, intended for verifying
-**        the contents of string buffer(s).  This also includes the actual message in the log,
-**        but scrubs it for newlines and other items that may affect the ability to parse
-**        the log file via a script.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns Test pass status, returns true if status was successful, false if it failed.
-**
-******************************************************************************/
-bool CFE_UtAssert_StringBufCheck_Impl(const char *String1, size_t String1Max, const char *String2, size_t String2Max,
-                                      const char *File, uint32 Line);
-
-/*****************************************************************************/
-/**
-** \brief Helper function for generic unsigned integer value checks
-**
-** \par Description
-**        This helper function wraps the normal UtAssertEx() function, to compare two
-**        integer values in an unsigned context.  The comparison is performed as two
-**        32 bit unsigned integers and the numeric values are printed to the test log
-**        in hexadecimal notation (base-16).
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns Test pass status, returns true if status was successful, false if it failed.
-**
-******************************************************************************/
-bool CFE_UtAssert_GenericUnsignedCompare_Impl(uint32 ActualValue, CFE_UtAssert_Compare_t CompareType,
-                                              uint32 ReferenceValue, const char *File, uint32 Line, const char *Desc,
-                                              const char *ActualText, const char *ReferenceText);
-
-/*****************************************************************************/
-/**
-** \brief Helper function for generic signed integer value checks
-**
-** \par Description
-**        This helper function wraps the normal UtAssertEx() function, to compare two
-**        integer values in a signed context.  The comparison is performed as two
-**        32 bit signed integers and the numeric values are printed to the test log
-**        in standard decimal notation (base-10).
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-** \returns Test pass status, returns true if status was successful, false if it failed.
-**
-******************************************************************************/
-bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Compare_t CompareType, int32 ReferenceValue,
-                                            const char *File, uint32 Line, const char *Desc, const char *ActualText,
-                                            const char *ReferenceText);
-
-/*****************************************************************************/
-/**
 ** \brief Checks the successful execution of a setup function.
 **
 ** \par Description
@@ -721,66 +622,6 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 
 /*****************************************************************************/
 /**
-** \brief Asserts the expression/function evaluates as logically true
-**
-** \par Description
-**        The core of each unit test is the execution of the function being tested.
-**        This function and macro should be used to test for a function or value/expression
-**        that should evaluate as logically true
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-******************************************************************************/
-#define CFE_UtAssert_TRUE(FN) \
-    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_BOOL, true, __FILE__, __LINE__, "", #FN, "true")
-
-/*****************************************************************************/
-/**
-** \brief Asserts the expression/function evaluates as logically false
-**
-** \par Description
-**        The core of each unit test is the execution of the function being tested.
-**        This function and macro should be used to test for a function or value/expression
-**        that should evaluate as logically false
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-******************************************************************************/
-#define CFE_UtAssert_FALSE(FN) \
-    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_BOOL, false, __FILE__, __LINE__, "", #FN, "false")
-
-/*****************************************************************************/
-/**
-** \brief Asserts the minimum value of a given function or expression
-**
-** \par Description
-**        This macro confirms that the given expression is at least the minimum value (inclusive)
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-******************************************************************************/
-#define CFE_UtAssert_ATLEAST(FN, MIN) \
-    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_GTEQ, MIN, __FILE__, __LINE__, "", #FN, #MIN)
-
-/*****************************************************************************/
-/**
-** \brief Asserts the maximum value of a given function or expression
-**
-** \par Description
-**        This macro confirms that the given expression is at most the maximum value (inclusive)
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-******************************************************************************/
-#define CFE_UtAssert_ATMOST(FN, MAX) \
-    CFE_UtAssert_GenericSignedCompare_Impl(FN, CFE_UtAssert_Compare_LTEQ, MAX, __FILE__, __LINE__, "", #FN, #MAX)
-
-/*****************************************************************************/
-/**
 ** \brief Ensures that the test generated the expected number of events.
 **
 ** \par Description
@@ -792,9 +633,9 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 **        None
 **
 ******************************************************************************/
-#define CFE_UtAssert_EVENTCOUNT(EXP)                                                                                \
-    CFE_UtAssert_GenericSignedCompare_Impl(UT_GetNumEventsSent(), CFE_UtAssert_Compare_EQ, EXP, __FILE__, __LINE__, \
-                                           "Event Count: ", "Sent", "Expected")
+#define CFE_UtAssert_EVENTCOUNT(EXP)                                                                                   \
+    UtAssert_GenericUnsignedCompare(UT_GetNumEventsSent(), UtAssert_Compare_EQ, EXP, UtAssert_Radix_DECIMAL, __FILE__, \
+                                    __LINE__, "Event Count: ", "Sent", "Expected")
 
 /*****************************************************************************/
 /**
@@ -810,9 +651,9 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 ** \sa #CFE_UtAssert_EVENTNOTSENT
 **
 ******************************************************************************/
-#define CFE_UtAssert_EVENTSENT(EVT)                                                                                  \
-    CFE_UtAssert_GenericSignedCompare_Impl(UT_EventIsInHistory(EVT), CFE_UtAssert_Compare_GT, 0, __FILE__, __LINE__, \
-                                           "Event Generated: ", #EVT, "")
+#define CFE_UtAssert_EVENTSENT(EVT)                                                                            \
+    UtAssert_GenericUnsignedCompare(UT_EventIsInHistory(EVT), UtAssert_Compare_NEQ, 0, UtAssert_Radix_DECIMAL, \
+                                    __FILE__, __LINE__, "Event Generated: ", #EVT, "")
 
 /*****************************************************************************/
 /**
@@ -829,9 +670,9 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 ** \sa #CFE_UtAssert_EVENTSENT
 **
 ******************************************************************************/
-#define CFE_UtAssert_EVENTNOTSENT(EVT)                                                                               \
-    CFE_UtAssert_GenericSignedCompare_Impl(UT_EventIsInHistory(EVT), CFE_UtAssert_Compare_EQ, 0, __FILE__, __LINE__, \
-                                           "Event Not Generated: ", #EVT, "")
+#define CFE_UtAssert_EVENTNOTSENT(EVT)                                                                        \
+    UtAssert_GenericUnsignedCompare(UT_EventIsInHistory(EVT), UtAssert_Compare_EQ, 0, UtAssert_Radix_DECIMAL, \
+                                    __FILE__, __LINE__, "Event Not Generated: ", #EVT, "")
 
 /*****************************************************************************/
 /**
@@ -880,21 +721,6 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 
 /*****************************************************************************/
 /**
-** \brief Macro for logging calls to a "void" function
-**
-** \par Description
-**        A macro that invokes a function with no return value.  This should be used when
-**        no actual condition/result to check for/assert on, but the call should still be
-**        logged to the output to record the fact that the function was invoked.
-**
-** \par Assumptions, External Events, and Notes:
-**        None
-**
-******************************************************************************/
-#define CFE_UtAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
-
-/*****************************************************************************/
-/**
 ** \brief Macro to check CFE resource ID for equality
 **
 ** \par Description
@@ -905,10 +731,9 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 **        and integers may not be interchangable with strict type checking.
 **
 ******************************************************************************/
-#define CFE_UtAssert_RESOURCEID_EQ(id1, id2)                                                        \
-    CFE_UtAssert_GenericUnsignedCompare_Impl(CFE_RESOURCEID_TO_ULONG(id1), CFE_UtAssert_Compare_EQ, \
-                                             CFE_RESOURCEID_TO_ULONG(id2), __FILE__, __LINE__,      \
-                                             "Resource ID Check: ", #id1, #id2)
+#define CFE_UtAssert_RESOURCEID_EQ(id1, id2)                                                                         \
+    UtAssert_GenericUnsignedCompare(CFE_RESOURCEID_TO_ULONG(id1), UtAssert_Compare_EQ, CFE_RESOURCEID_TO_ULONG(id2), \
+                                    UtAssert_Radix_HEX, __FILE__, __LINE__, "Resource ID Check: ", #id1, #id2)
 
 /*****************************************************************************/
 /**
@@ -921,9 +746,9 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 **        This is a simple unsigned comparison which logs the values as hexadecimal
 **
 ******************************************************************************/
-#define CFE_UtAssert_MEMOFFSET_EQ(off1, off2)                                                         \
-    CFE_UtAssert_GenericUnsignedCompare_Impl(off1, CFE_UtAssert_Compare_EQ, off2, __FILE__, __LINE__, \
-                                             "Offset Check: ", #off1, #off2)
+#define CFE_UtAssert_MEMOFFSET_EQ(off1, off2)                                                                \
+    UtAssert_GenericUnsignedCompare(off1, UtAssert_Compare_EQ, off2, UtAssert_Radix_HEX, __FILE__, __LINE__, \
+                                    "Offset Check: ", #off1, #off2)
 
 /*****************************************************************************/
 /**
@@ -937,29 +762,8 @@ bool CFE_UtAssert_GenericSignedCompare_Impl(int32 ActualValue, CFE_UtAssert_Comp
 **        and integers may not be interchangable with strict type checking.
 **
 ******************************************************************************/
-#define CFE_UtAssert_MSGID_EQ(mid1, mid2)                                                                           \
-    CFE_UtAssert_GenericUnsignedCompare_Impl(CFE_SB_MsgIdToValue(mid1), CFE_UtAssert_Compare_EQ,                    \
-                                             CFE_SB_MsgIdToValue(mid2), __FILE__, __LINE__, "MsgId Check: ", #mid1, \
-                                             #mid2)
-
-/*****************************************************************************/
-/**
-** \brief Macro to check string buffers for equality
-**
-** \par Description
-**        A macro that checks two string buffers for equality.  Both buffer maximum sizes are explicitly
-**        specified, so that strings may reside in a fixed length buffer.  The function will never
-**        check beyond the specified length, regardless of termination.
-**
-** \par Assumptions, External Events, and Notes:
-**        The generic #UtAssert_StrCmp macro requires both arguments to be NULL terminated.  This also
-**        includes the actual string in the log, but filters embedded newlines to keep the log clean.
-**
-**        If the string arguments are guaranteed to be NULL terminated and/or the max size is
-**        not known, then the SIZE_MAX constant may be passed for the respective string.
-**
-******************************************************************************/
-#define CFE_UtAssert_STRINGBUF_EQ(str1, size1, str2, size2) \
-    CFE_UtAssert_StringBufCheck_Impl(str1, size1, str2, size2, __FILE__, __LINE__)
+#define CFE_UtAssert_MSGID_EQ(mid1, mid2)                                                                      \
+    UtAssert_GenericUnsignedCompare(CFE_SB_MsgIdToValue(mid1), UtAssert_Compare_EQ, CFE_SB_MsgIdToValue(mid2), \
+                                    UtAssert_Radix_HEX, __FILE__, __LINE__, "MsgId Check: ", #mid1, #mid2)
 
 #endif /* UT_SUPPORT_H */

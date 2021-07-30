@@ -61,7 +61,7 @@ void Test_SBR_Map_Hash(void)
 
     UtPrintf("Invalid msg checks");
     UtAssert_INT32_EQ(CFE_SBR_SetRouteId(CFE_SB_ValueToMsgId(0), CFE_SBR_ValueToRouteId(0)), 0);
-    CFE_UtAssert_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(0))));
+    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(0))));
 
     UtPrintf("Initialize routing and map");
     CFE_SBR_Init();

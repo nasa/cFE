@@ -45,14 +45,14 @@ void Test_MSG_Checksum(void)
     actual = true;
     UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(NULL, &actual), CFE_MSG_BAD_ARGUMENT);
-    CFE_UtAssert_TRUE(actual);
+    UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(msgptr, NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), 0);
 
     UtPrintf("Bad message, no secondary header");
     CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd));
     UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
-    CFE_UtAssert_TRUE(actual);
+    UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(msgptr), CFE_MSG_WRONG_MSG_TYPE);
     UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_TYPE_FLAG);
 
@@ -60,7 +60,7 @@ void Test_MSG_Checksum(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Tlm));
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
     UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(msgptr, &actual), CFE_MSG_WRONG_MSG_TYPE);
-    CFE_UtAssert_TRUE(actual);
+    UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(msgptr), CFE_MSG_WRONG_MSG_TYPE);
     UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_HASSEC_FLAG);
 
@@ -68,11 +68,11 @@ void Test_MSG_Checksum(void)
     memset(&cmd, 0xFF, sizeof(cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_SetSize(msgptr, sizeof(cmd)));
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
-    CFE_UtAssert_FALSE(actual);
+    UtAssert_BOOL_FALSE(actual);
     CFE_UtAssert_SUCCESS(CFE_MSG_GenerateChecksum(msgptr));
     UT_DisplayPkt(msgptr, sizeof(cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
-    CFE_UtAssert_TRUE(actual);
+    UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotF(msgptr), MSG_LENGTH_FLAG);
 
     UtPrintf("Set to all 0 except secheader and type, validate/generate/validate");
@@ -81,10 +81,10 @@ void Test_MSG_Checksum(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_SetType(msgptr, CFE_MSG_Type_Cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_SetHasSecondaryHeader(msgptr, true));
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
-    CFE_UtAssert_FALSE(actual);
+    UtAssert_BOOL_FALSE(actual);
     CFE_UtAssert_SUCCESS(CFE_MSG_GenerateChecksum(msgptr));
     UT_DisplayPkt(msgptr, sizeof(cmd));
     CFE_UtAssert_SUCCESS(CFE_MSG_ValidateChecksum(msgptr, &actual));
-    CFE_UtAssert_TRUE(actual);
+    UtAssert_BOOL_TRUE(actual);
     UtAssert_INT32_EQ(Test_MSG_NotZero(msgptr), MSG_LENGTH_FLAG | MSG_HASSEC_FLAG | MSG_TYPE_FLAG);
 }

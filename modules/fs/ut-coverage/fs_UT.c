@@ -266,8 +266,7 @@ void Test_CFE_FS_ParseInputFileNameEx(void)
     CFE_UtAssert_SUCCESS(CFE_FS_ParseInputFileNameEx(OutBuffer, TEST_XTRA_SEPARATOR_EXT, sizeof(OutBuffer),
                                                      sizeof(TEST_XTRA_SEPARATOR_EXT) - 5, TEST_DEFAULT_INPUT,
                                                      TEST_DEFAULT_PATH, TEST_DEFAULT_EXTENSION));
-    CFE_UtAssert_STRINGBUF_EQ(OutBuffer, sizeof(OutBuffer), TEST_XTRA_SEPARATOR_EXT,
-                              sizeof(TEST_XTRA_SEPARATOR_EXT) - 5);
+    UtAssert_STRINGBUF_EQ(OutBuffer, sizeof(OutBuffer), TEST_XTRA_SEPARATOR_EXT, sizeof(TEST_XTRA_SEPARATOR_EXT) - 5);
 
     /* Same but as a default input, rather than in the buffer */
     /* tests 3 variations of "no input" - null ptr, zero size, empty string */
@@ -530,11 +529,11 @@ void Test_CFE_FS_BackgroundFileDump(void)
     memset(&CFE_FS_Global.FileDump, 0, sizeof(CFE_FS_Global.FileDump));
 
     /* Nominal with nothing pending - should accumulate credit */
-    CFE_UtAssert_FALSE(CFE_FS_RunBackgroundFileDump(1, NULL));
-    CFE_UtAssert_ATLEAST(CFE_FS_Global.FileDump.Current.Credit, 1);
-    CFE_UtAssert_ATMOST(CFE_FS_Global.FileDump.Current.Credit, CFE_FS_BACKGROUND_MAX_CREDIT);
+    UtAssert_BOOL_FALSE(CFE_FS_RunBackgroundFileDump(1, NULL));
+    UtAssert_INT32_GTEQ(CFE_FS_Global.FileDump.Current.Credit, 1);
+    UtAssert_INT32_LTEQ(CFE_FS_Global.FileDump.Current.Credit, CFE_FS_BACKGROUND_MAX_CREDIT);
 
-    CFE_UtAssert_FALSE(CFE_FS_RunBackgroundFileDump(100000, NULL));
+    UtAssert_BOOL_FALSE(CFE_FS_RunBackgroundFileDump(100000, NULL));
     UtAssert_INT32_EQ(CFE_FS_Global.FileDump.Current.Credit, CFE_FS_BACKGROUND_MAX_CREDIT);
 
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(NULL), CFE_FS_BAD_ARGUMENT);
@@ -548,7 +547,7 @@ void Test_CFE_FS_BackgroundFileDump(void)
     State.OnEvent = UT_FS_OnEvent;
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&State), CFE_FS_BAD_ARGUMENT);
 
-    CFE_UtAssert_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
+    UtAssert_BOOL_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
     UtAssert_STUB_COUNT(CFE_ES_BackgroundWakeup, 0); /* confirm CFE_ES_BackgroundWakeup() was not invoked */
 
     /* Set the data except file name and description */
@@ -556,7 +555,7 @@ void Test_CFE_FS_BackgroundFileDump(void)
     State.GetData     = UT_FS_DataGetter;
     State.OnEvent     = UT_FS_OnEvent;
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&State), CFE_FS_INVALID_PATH);
-    CFE_UtAssert_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
+    UtAssert_BOOL_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
     UtAssert_STUB_COUNT(CFE_ES_BackgroundWakeup, 0); /* confirm CFE_ES_BackgroundWakeup() was not invoked */
 
     /* Set up remainder of fields, so entry is valid */
@@ -564,7 +563,7 @@ void Test_CFE_FS_BackgroundFileDump(void)
     strncpy(State.Description, "UT", sizeof(State.Description));
 
     CFE_UtAssert_SUCCESS(CFE_FS_BackgroundFileDumpRequest(&State));
-    CFE_UtAssert_TRUE(CFE_FS_BackgroundFileDumpIsPending(&State));
+    UtAssert_BOOL_TRUE(CFE_FS_BackgroundFileDumpIsPending(&State));
     UtAssert_STUB_COUNT(CFE_ES_BackgroundWakeup, 1); /* confirm CFE_ES_BackgroundWakeup() was invoked */
 
     /*
@@ -574,20 +573,20 @@ void Test_CFE_FS_BackgroundFileDump(void)
     MyBuffer[0] = 10;
     MyBuffer[1] = 20;
     UT_SetDataBuffer(UT_KEY(UT_FS_DataGetter), MyBuffer, sizeof(MyBuffer), false);
-    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(1, NULL));
+    UtAssert_BOOL_TRUE(CFE_FS_RunBackgroundFileDump(1, NULL));
     UtAssert_STUB_COUNT(OS_OpenCreate, 1); /* confirm OS_open() was invoked */
-    CFE_UtAssert_ATMOST(CFE_FS_Global.FileDump.Current.Credit, 0);
+    UtAssert_INT32_LTEQ(CFE_FS_Global.FileDump.Current.Credit, 0);
     UtAssert_STUB_COUNT(OS_close, 0); /* confirm OS_close() was not invoked */
 
     UT_SetDeferredRetcode(UT_KEY(UT_FS_DataGetter), 2, true); /* return EOF */
-    CFE_UtAssert_FALSE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    UtAssert_BOOL_FALSE(CFE_FS_RunBackgroundFileDump(100, NULL));
     UtAssert_STUB_COUNT(OS_OpenCreate, 1); /* confirm OS_open() was not invoked again */
     UtAssert_STUB_COUNT(OS_close, 1);      /* confirm OS_close() was invoked */
     /* No more pending requests */
     UtAssert_UINT32_EQ(CFE_FS_Global.FileDump.CompleteCount, CFE_FS_Global.FileDump.RequestCount);
     /* complete event was sent */
     UtAssert_UINT32_EQ(UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_COMPLETE], 1);
-    CFE_UtAssert_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
+    UtAssert_BOOL_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
 
     UT_ResetState(UT_KEY(UT_FS_DataGetter));
 
@@ -595,10 +594,10 @@ void Test_CFE_FS_BackgroundFileDump(void)
     CFE_UtAssert_SETUP(CFE_FS_BackgroundFileDumpRequest(&State));
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
 
-    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    UtAssert_BOOL_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
     UtAssert_UINT32_EQ(UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_CREATE_ERROR],
                        1); /* create error event was sent */
-    CFE_UtAssert_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
+    UtAssert_BOOL_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
     /* No more pending requests */
     UtAssert_UINT32_EQ(CFE_FS_Global.FileDump.CompleteCount, CFE_FS_Global.FileDump.RequestCount);
 
@@ -606,10 +605,10 @@ void Test_CFE_FS_BackgroundFileDump(void)
     CFE_UtAssert_SETUP(CFE_FS_BackgroundFileDumpRequest(&State));
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_ERROR);
 
-    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    UtAssert_BOOL_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
     UtAssert_UINT32_EQ(UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_HEADER_WRITE_ERROR],
                        1); /* header error event was sent */
-    CFE_UtAssert_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
+    UtAssert_BOOL_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
     /* No more pending requests */
     UtAssert_UINT32_EQ(CFE_FS_Global.FileDump.CompleteCount, CFE_FS_Global.FileDump.RequestCount);
 
@@ -617,10 +616,10 @@ void Test_CFE_FS_BackgroundFileDump(void)
     CFE_UtAssert_SETUP(CFE_FS_BackgroundFileDumpRequest(&State));
     UT_SetDeferredRetcode(UT_KEY(OS_write), 2, OS_ERROR);
     UT_SetDataBuffer(UT_KEY(UT_FS_DataGetter), MyBuffer, sizeof(MyBuffer), false);
-    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    UtAssert_BOOL_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
     /* record error event was sent */
     UtAssert_UINT32_EQ(UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR], 1);
-    CFE_UtAssert_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
+    UtAssert_BOOL_FALSE(CFE_FS_BackgroundFileDumpIsPending(&State));
     /* No more pending requests */
     UtAssert_UINT32_EQ(CFE_FS_Global.FileDump.CompleteCount, CFE_FS_Global.FileDump.RequestCount);
 
@@ -642,15 +641,15 @@ void Test_CFE_FS_BackgroundFileDump(void)
                        (CFE_FS_Global.FileDump.CompleteCount + CFE_FS_MAX_BACKGROUND_FILE_WRITES - 1));
 
     /* Confirm null arg handling in CFE_FS_BackgroundFileDumpIsPending() */
-    CFE_UtAssert_FALSE(CFE_FS_BackgroundFileDumpIsPending(NULL));
+    UtAssert_BOOL_FALSE(CFE_FS_BackgroundFileDumpIsPending(NULL));
 
     /* this catches the branch where Meta->IsPending is false */
-    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
-    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
-    CFE_UtAssert_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
-    CFE_UtAssert_FALSE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    UtAssert_BOOL_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    UtAssert_BOOL_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    UtAssert_BOOL_TRUE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    UtAssert_BOOL_FALSE(CFE_FS_RunBackgroundFileDump(100, NULL));
 
     CFE_UtAssert_SETUP(CFE_FS_BackgroundFileDumpRequest(&State));
     UT_SetDeferredRetcode(UT_KEY(UT_FS_DataGetter), 2, true); /* avoid infinite loop */
-    CFE_UtAssert_FALSE(CFE_FS_RunBackgroundFileDump(100, NULL));
+    UtAssert_BOOL_FALSE(CFE_FS_RunBackgroundFileDump(100, NULL));
 }

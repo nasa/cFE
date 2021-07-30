@@ -504,7 +504,7 @@ void Test_CFE_TBL_AbortLoadCmd(void)
     CFE_TBL_Global.Registry[0].DoubleBuffered = true;
     CFE_TBL_Global.LoadBuffs[0].Taken         = true;
     CFE_TBL_AbortLoad(&CFE_TBL_Global.Registry[0]);
-    CFE_UtAssert_TRUE(CFE_TBL_Global.LoadBuffs[0].Taken);
+    UtAssert_BOOL_TRUE(CFE_TBL_Global.LoadBuffs[0].Taken);
 
     /* Restore values for subsequent tests */
     CFE_TBL_Global.Registry[0].LoadInProgress = load;
@@ -940,7 +940,7 @@ void Test_CFE_TBL_DumpRegCmd(void)
     CFE_TBL_Global.Registry[0].DoubleBuffered   = true;
     LocalBuf                                    = NULL;
     LocalSize                                   = 0;
-    CFE_UtAssert_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
+    UtAssert_BOOL_FALSE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, 0, &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
 
@@ -949,14 +949,14 @@ void Test_CFE_TBL_DumpRegCmd(void)
     CFE_TBL_Global.Handles[2].NextLink                                            = CFE_TBL_END_OF_LIST;
     LocalBuf                                                                      = NULL;
     LocalSize                                                                     = 0;
-    CFE_UtAssert_TRUE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1,
-                                                 &LocalBuf, &LocalSize));
+    UtAssert_BOOL_TRUE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, CFE_PLATFORM_TBL_MAX_NUM_TABLES - 1,
+                                                  &LocalBuf, &LocalSize));
     UtAssert_NOT_NULL(LocalBuf);
     UtAssert_NONZERO(LocalSize);
 
     /* Test with record numb beyond EOF (should be ignored, return null) */
-    CFE_UtAssert_TRUE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, CFE_PLATFORM_TBL_MAX_NUM_TABLES + 1,
-                                                 &LocalBuf, &LocalSize));
+    UtAssert_BOOL_TRUE(CFE_TBL_DumpRegistryGetter(&CFE_TBL_Global.RegDumpState, CFE_PLATFORM_TBL_MAX_NUM_TABLES + 1,
+                                                  &LocalBuf, &LocalSize));
     UtAssert_NULL(LocalBuf);
     UtAssert_ZERO(LocalSize);
 }
@@ -1813,7 +1813,7 @@ void Test_CFE_TBL_Register(void)
                       CFE_SEVERITY_ERROR);
     AccessDescPtr = &CFE_TBL_Global.Handles[TblHandle2];
     RegRecPtr     = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
-    CFE_UtAssert_FALSE(RegRecPtr->DoubleBuffered);
+    UtAssert_BOOL_FALSE(RegRecPtr->DoubleBuffered);
     UtAssert_ZERO(RegRecPtr->ActiveBufferIndex);
     CFE_TBL_Global.Handles[0].UsedFlag = true;
 }
@@ -3417,7 +3417,7 @@ void Test_CFE_TBL_Internal(void)
     CFE_TBL_CleanUpApp(UT_TBL_APPID_1);
     UtAssert_INT32_EQ(CFE_TBL_Global.DumpControlBlocks[3].State, CFE_TBL_DUMP_FREE);
     CFE_UtAssert_RESOURCEID_EQ(RegRecPtr->OwnerAppId, CFE_TBL_NOT_OWNED);
-    CFE_UtAssert_FALSE(CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Taken);
+    UtAssert_BOOL_FALSE(CFE_TBL_Global.LoadBuffs[RegRecPtr->LoadInProgress].Taken);
     UtAssert_INT32_EQ(RegRecPtr->LoadInProgress, CFE_TBL_NO_LOAD_IN_PROGRESS);
 
     /* Test response to an attempt to use an invalid table handle */

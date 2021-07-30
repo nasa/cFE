@@ -1143,8 +1143,8 @@ void TestApps(void)
     /* Check operation of the CFE_ES_CheckAppIdSlotUsed() helper function */
     CFE_ES_Global.AppTable[1].AppId = CFE_ES_APPID_C(ES_UT_MakeAppIdForIndex(1));
     CFE_ES_Global.AppTable[2].AppId = CFE_ES_APPID_UNDEFINED;
-    CFE_UtAssert_TRUE(CFE_ES_CheckAppIdSlotUsed(ES_UT_MakeAppIdForIndex(1)));
-    CFE_UtAssert_FALSE(CFE_ES_CheckAppIdSlotUsed(ES_UT_MakeAppIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckAppIdSlotUsed(ES_UT_MakeAppIdForIndex(1)));
+    UtAssert_BOOL_FALSE(CFE_ES_CheckAppIdSlotUsed(ES_UT_MakeAppIdForIndex(2)));
 
     /* Test application loading and creation where the entry point symbol
      * cannot be found
@@ -1237,7 +1237,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = 0x12345;
     AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
 
     /* Test a successful control action request to exit an application */
@@ -1246,7 +1246,7 @@ void TestApps(void)
     ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams, "/ram/Filename", "NotNULL", 8192, 255, 0);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_EXIT_APP_INF_EID);
 
     /* Test a control action request to exit an application where the
@@ -1257,7 +1257,7 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_EXIT_APP_ERR_EID);
 
     /* Test a control action request to stop an application where the
@@ -1268,7 +1268,7 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_DELETE;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_STOP_ERR3_EID);
 
     /* Test a control action request to restart an application where the
@@ -1279,7 +1279,7 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RESTART;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_RESTART_APP_ERR4_EID);
 
     /* Test a control action request to restart an application where the
@@ -1291,7 +1291,7 @@ void TestApps(void)
     OS_ModuleLoad(&UtAppRecPtr->LoadStatus.ModuleId, NULL, NULL, 0);
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_RESTART_APP_ERR3_EID);
 
     /* Test a control action request to reload an application where the
@@ -1302,7 +1302,7 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RELOAD;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_RELOAD_APP_ERR4_EID);
 
     /* Test a control action request to reload an application where the
@@ -1314,7 +1314,7 @@ void TestApps(void)
     OS_ModuleLoad(&UtAppRecPtr->LoadStatus.ModuleId, NULL, NULL, 0);
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_RELOAD_APP_ERR3_EID);
 
     /* Test a successful control action request to exit an application that
@@ -1326,7 +1326,7 @@ void TestApps(void)
 
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_ERROR;
     AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_ERREXIT_APP_INF_EID);
 
     /* Test a control action request to exit an application that
@@ -1337,7 +1337,7 @@ void TestApps(void)
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_CleanUpApp), 1, -1);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_ERROR;
     AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_ERREXIT_APP_ERR_EID);
 
     /* Test a successful control action request to stop an application */
@@ -1346,7 +1346,7 @@ void TestApps(void)
     ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams, "/ram/FileName", "NULL", 8192, 255, 0);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_DELETE;
     AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_STOP_INF_EID);
 
     /* Test a successful control action request to restart an application */
@@ -1355,7 +1355,7 @@ void TestApps(void)
     ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams, "/ram/FileName", "NULL", 8192, 255, 0);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RESTART;
     AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_RESTART_APP_INF_EID);
 
     /* Test a successful control action request to reload an application */
@@ -1364,7 +1364,7 @@ void TestApps(void)
     ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams, "/ram/FileName", "NULL", 8192, 255, 0);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RELOAD;
     AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_RELOAD_APP_INF_EID);
 
     /* Test a control action request for an application that has an invalid
@@ -1375,7 +1375,7 @@ void TestApps(void)
     ES_UT_SetupAppStartParams(&UtAppRecPtr->StartParams, "/ram/FileName", "NULL", 8192, 255, 0);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_EXCEPTION;
     AppId                                     = CFE_ES_AppRecordGetID(UtAppRecPtr);
-    CFE_UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR1_EID);
 
     /* Test populating the application information structure with data */
@@ -1609,8 +1609,8 @@ void TestApps(void)
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_UtAssert_SUCCESS(CFE_ES_CleanUpApp(AppId));
-    CFE_UtAssert_TRUE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
-    CFE_UtAssert_FALSE(CFE_ES_MemPoolRecordIsUsed(UtPoolRecPtr));
+    UtAssert_BOOL_TRUE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
+    UtAssert_BOOL_FALSE(CFE_ES_MemPoolRecordIsUsed(UtPoolRecPtr));
 
     /* Test deleting an application and cleaning up its resources where the
      * main task and child task need to be swapped
@@ -1636,7 +1636,7 @@ void TestApps(void)
     UtPoolRecPtr->PoolID     = CFE_ES_MEMHANDLE_C(CFE_ResourceId_FromInteger(99999)); /* Mismatch */
     AppId                    = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UtAssert_INT32_EQ(CFE_ES_CleanUpApp(AppId), CFE_ES_APP_CLEANUP_ERR);
-    CFE_UtAssert_TRUE(CFE_ES_MemPoolRecordIsUsed(UtPoolRecPtr));
+    UtAssert_BOOL_TRUE(CFE_ES_MemPoolRecordIsUsed(UtPoolRecPtr));
 
     /* Test deleting an application and cleaning up its resources where the
      * application ID doesn't match the main task ID
@@ -1656,7 +1656,7 @@ void TestApps(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskDelete), OS_ERROR);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UtAssert_INT32_EQ(CFE_ES_CleanUpApp(AppId), CFE_ES_APP_CLEANUP_ERR);
-    CFE_UtAssert_TRUE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
+    UtAssert_BOOL_TRUE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
 
     /* Test deleting an application and cleaning up its resources where the
      * application ID doesn't match and the application is a core application
@@ -1675,7 +1675,7 @@ void TestApps(void)
 
     CFE_UtAssert_SUCCESS(CFE_ES_CleanUpApp(AppId));
 
-    CFE_UtAssert_TRUE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
+    UtAssert_BOOL_TRUE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
     UtAssert_UINT32_EQ(CFE_ES_Global.RegisteredExternalApps, 1);
 
     /* Test successfully deleting an application and cleaning up its resources
@@ -1687,7 +1687,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_UtAssert_SUCCESS(CFE_ES_CleanUpApp(AppId));
-    CFE_UtAssert_FALSE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
+    UtAssert_BOOL_FALSE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
     UtAssert_UINT32_EQ(CFE_ES_Global.RegisteredExternalApps, 0);
 
     /* Test cleaning up the OS resources for a task with failure to
@@ -1767,7 +1767,7 @@ void TestLibs(void)
 
     UtLibRecPtr = CFE_ES_LocateLibRecordByID(Id);
     UtAssert_NOT_NULL(UtLibRecPtr);
-    CFE_UtAssert_TRUE(CFE_ES_LibRecordIsUsed(UtLibRecPtr));
+    UtAssert_BOOL_TRUE(CFE_ES_LibRecordIsUsed(UtLibRecPtr));
 
     /* Try loading same library again, should return the DUPLICATE code */
     UtAssert_INT32_EQ(CFE_ES_LoadLibrary(&Id, "TST_LIB", &LoadParams), CFE_ES_ERR_DUPLICATE_NAME);
@@ -1827,8 +1827,8 @@ void TestLibs(void)
     /* check operation of the CFE_ES_CheckLibIdSlotUsed() function */
     CFE_ES_Global.LibTable[1].LibId = CFE_ES_LIBID_C(ES_UT_MakeLibIdForIndex(1));
     CFE_ES_Global.LibTable[2].LibId = CFE_ES_LIBID_UNDEFINED;
-    CFE_UtAssert_TRUE(CFE_ES_CheckLibIdSlotUsed(ES_UT_MakeLibIdForIndex(1)));
-    CFE_UtAssert_FALSE(CFE_ES_CheckLibIdSlotUsed(ES_UT_MakeLibIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckLibIdSlotUsed(ES_UT_MakeLibIdForIndex(1)));
+    UtAssert_BOOL_FALSE(CFE_ES_CheckLibIdSlotUsed(ES_UT_MakeLibIdForIndex(2)));
     /*
      * Test public Name+ID query/lookup API
      */
@@ -1861,9 +1861,9 @@ void TestERLog(void)
     CFE_ES_Global.ResetDataPtr->ERLogIndex = CFE_PLATFORM_ES_ER_LOG_ENTRIES + 1;
     CFE_UtAssert_SUCCESS(CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, 1, NULL));
     UtAssert_UINT32_EQ(CFE_ES_Global.ResetDataPtr->ERLogIndex, 1);
-    CFE_UtAssert_STRINGBUF_EQ(CFE_ES_Global.ResetDataPtr->ERLog[0].BaseInfo.Description,
-                              sizeof(CFE_ES_Global.ResetDataPtr->ERLog[0].BaseInfo.Description),
-                              "No Description String Given.", SIZE_MAX);
+    UtAssert_STRINGBUF_EQ(CFE_ES_Global.ResetDataPtr->ERLog[0].BaseInfo.Description,
+                          sizeof(CFE_ES_Global.ResetDataPtr->ERLog[0].BaseInfo.Description),
+                          "No Description String Given.", SIZE_MAX);
 
     /* Test non-rolling over log entry,
      * null description,
@@ -1880,18 +1880,18 @@ void TestERLog(void)
     LocalBufSize = 0;
 
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_Exception_CopyContext), 1, 128);
-    CFE_UtAssert_FALSE(CFE_ES_BackgroundERLogFileDataGetter(&State, 0, &LocalBuffer, &LocalBufSize));
+    UtAssert_BOOL_FALSE(CFE_ES_BackgroundERLogFileDataGetter(&State, 0, &LocalBuffer, &LocalBufSize));
     CFE_UtAssert_MEMOFFSET_EQ(State.EntryBuffer.ContextSize, 128);
     UtAssert_NOT_NULL(LocalBuffer);
     UtAssert_NONZERO(LocalBufSize);
 
     memset(&State.EntryBuffer, 0xEE, sizeof(State.EntryBuffer));
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_Exception_CopyContext), 1, -1);
-    CFE_UtAssert_TRUE(
+    UtAssert_BOOL_TRUE(
         CFE_ES_BackgroundERLogFileDataGetter(&State, CFE_PLATFORM_ES_ER_LOG_ENTRIES - 1, &LocalBuffer, &LocalBufSize));
     UtAssert_ZERO(State.EntryBuffer.ContextSize);
 
-    CFE_UtAssert_TRUE(
+    UtAssert_BOOL_TRUE(
         CFE_ES_BackgroundERLogFileDataGetter(&State, CFE_PLATFORM_ES_ER_LOG_ENTRIES, &LocalBuffer, &LocalBufSize));
     UtAssert_NULL(LocalBuffer);
     UtAssert_ZERO(LocalBufSize);
@@ -1962,19 +1962,19 @@ void TestGenericPool(void)
     /* Allocate buffers until no space left */
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, 44));
     UtAssert_NONZERO(Offset1);
-    CFE_UtAssert_ATMOST(Offset1, OffsetEnd - 44);
+    UtAssert_UINT32_LTEQ(Offset1, OffsetEnd - 44);
     UtAssert_True((Offset1 & 0x1F) == 0, "Offset1(%lu) 32 byte alignment", (unsigned long)Offset1);
 
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool1, &Offset2, 72));
-    CFE_UtAssert_ATLEAST(Offset2, Offset1 + 44);
-    CFE_UtAssert_ATMOST(Offset2, OffsetEnd - 72);
+    UtAssert_UINT32_GTEQ(Offset2, Offset1 + 44);
+    UtAssert_UINT32_LTEQ(Offset2, OffsetEnd - 72);
     UtAssert_True((Offset2 & 0x1F) == 0, "Offset2(%lu) 32 byte alignment", (unsigned long)Offset2);
 
     UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset3, 72), CFE_ES_ERR_MEM_BLOCK_SIZE);
 
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool1, &Offset3, 6));
-    CFE_UtAssert_ATLEAST(Offset3, Offset2 + 72);
-    CFE_UtAssert_ATMOST(Offset3, OffsetEnd - 6);
+    UtAssert_UINT32_GTEQ(Offset3, Offset2 + 72);
+    UtAssert_UINT32_LTEQ(Offset3, OffsetEnd - 6);
     UtAssert_True((Offset3 & 0x1F) == 0, "Offset3(%lu) 32 byte alignment", (unsigned long)Offset3);
 
     /* Free a buffer and attempt to reallocate */
@@ -2118,10 +2118,10 @@ void TestGenericPool(void)
      * Check other validation
      */
     UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, 0), CFE_ES_BUFFER_NOT_IN_POOL);
-    CFE_UtAssert_TRUE(CFE_ES_GenPoolValidateState(&Pool1));
+    UtAssert_BOOL_TRUE(CFE_ES_GenPoolValidateState(&Pool1));
 
     Pool1.TailPosition = 0xFFFFFF;
-    CFE_UtAssert_FALSE(CFE_ES_GenPoolValidateState(&Pool1));
+    UtAssert_BOOL_FALSE(CFE_ES_GenPoolValidateState(&Pool1));
 }
 
 void TestTask(void)
@@ -2174,13 +2174,13 @@ void TestTask(void)
 
     /* Set up buffer for first cycle, pipe failure is on 2nd */
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
-    CFE_UtAssert_VOIDCALL(CFE_ES_TaskMain());
+    UtAssert_VOIDCALL(CFE_ES_TaskMain());
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_COMMAND_PIPE]);
 
     /* Test task main process with a CFE_ES_TaskInit() error */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_Register), 1, -1);
-    CFE_UtAssert_VOIDCALL(CFE_ES_TaskMain());
+    UtAssert_VOIDCALL(CFE_ES_TaskMain());
     CFE_UtAssert_PRINTF("Application Init Failed");
 
     /* Test task main process loop with bad checksum information */
@@ -3093,7 +3093,7 @@ void TestTask(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     CFE_ES_Global.ResetDataPtr->ResetVars.ResetType = 1;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 3, CFE_EVS_INVALID_PARAMETER);
-    CFE_UtAssert_VOIDCALL(CFE_ES_TaskInit());
+    UtAssert_VOIDCALL(CFE_ES_TaskInit());
     CFE_UtAssert_PRINTF("Error sending mission version event");
 
 } /* end TestTask */
@@ -3599,21 +3599,21 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     RunStatus                                 = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_UtAssert_TRUE(CFE_ES_RunLoop(&RunStatus));
+    UtAssert_BOOL_TRUE(CFE_ES_RunLoop(&RunStatus));
 
     /* Test successful run loop app stop request */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     RunStatus                                 = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
-    CFE_UtAssert_FALSE(CFE_ES_RunLoop(&RunStatus));
+    UtAssert_BOOL_FALSE(CFE_ES_RunLoop(&RunStatus));
 
     /* Test successful run loop app exit request */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     RunStatus                                 = CFE_ES_RunStatus_APP_EXIT;
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
-    CFE_UtAssert_FALSE(CFE_ES_RunLoop(&RunStatus));
+    UtAssert_BOOL_FALSE(CFE_ES_RunLoop(&RunStatus));
 
     /* Test run loop with bad app ID */
     ES_ResetUnitTest();
@@ -3621,27 +3621,27 @@ void TestAPI(void)
     RunStatus                                 = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     CFE_ES_TaskRecordSetFree(UtTaskRecPtr); /* make it so task ID is bad */
-    CFE_UtAssert_FALSE(CFE_ES_RunLoop(&RunStatus));
+    UtAssert_BOOL_FALSE(CFE_ES_RunLoop(&RunStatus));
 
     /* Test run loop with an invalid run status */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     RunStatus                                 = 1000;
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
-    CFE_UtAssert_FALSE(CFE_ES_RunLoop(&RunStatus));
+    UtAssert_BOOL_FALSE(CFE_ES_RunLoop(&RunStatus));
 
     /* Test run loop with a NULL run status */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_UtAssert_TRUE(CFE_ES_RunLoop(NULL));
+    UtAssert_BOOL_TRUE(CFE_ES_RunLoop(NULL));
 
     /* Test run loop with startup sync code */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_LATE_INIT, NULL, &UtAppRecPtr, NULL);
     RunStatus                                 = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    CFE_UtAssert_TRUE(CFE_ES_RunLoop(&RunStatus));
+    UtAssert_BOOL_TRUE(CFE_ES_RunLoop(&RunStatus));
     UtAssert_UINT32_EQ(UtAppRecPtr->AppState, CFE_ES_AppState_RUNNING);
 
     /* Test getting the cFE application and task ID by context */
@@ -3921,7 +3921,7 @@ void TestAPI(void)
     /* Note - CFE_ES_WaitForStartupSync() returns void, nothing to check for
      * here.  This is for code coverage
      */
-    CFE_UtAssert_VOIDCALL(CFE_ES_WaitForStartupSync(99));
+    UtAssert_VOIDCALL(CFE_ES_WaitForStartupSync(99));
 
     /* Test waiting for apps to initialize as an external app
      */
@@ -3932,7 +3932,7 @@ void TestAPI(void)
     /* Note - CFE_ES_WaitForStartupSync() returns void, nothing to check for
      * here.  This is for code coverage
      */
-    CFE_UtAssert_VOIDCALL(CFE_ES_WaitForStartupSync(99));
+    UtAssert_VOIDCALL(CFE_ES_WaitForStartupSync(99));
 
     /* Test adding a time-stamped message to the system log using an invalid
      * log mode
@@ -3958,14 +3958,14 @@ void TestAPI(void)
     CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx;
     CFE_ES_Global.ResetDataPtr->SystemLogMode     = CFE_ES_LogMode_OVERWRITE;
     CFE_UtAssert_SUCCESS(CFE_ES_WriteToSysLog("SysLogText"));
-    CFE_UtAssert_ATMOST(CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx, CFE_PLATFORM_ES_SYSTEM_LOG_SIZE - 1);
+    UtAssert_UINT32_LTEQ(CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx, CFE_PLATFORM_ES_SYSTEM_LOG_SIZE - 1);
 
     /* Test run loop with an application error status */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
     RunStatus                                 = CFE_ES_RunStatus_APP_ERROR;
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_ERROR;
-    CFE_UtAssert_FALSE(CFE_ES_RunLoop(&RunStatus));
+    UtAssert_BOOL_FALSE(CFE_ES_RunLoop(&RunStatus));
 
     /*
      * Test public Name+ID query/lookup API for tasks
@@ -4023,8 +4023,8 @@ void TestGenericCounterAPI(void)
     /* Check operation of the CFE_ES_CheckCounterIdSlotUsed() helper function */
     CFE_ES_Global.CounterTable[1].CounterId = CFE_ES_COUNTERID_C(ES_UT_MakeCounterIdForIndex(1));
     CFE_ES_Global.CounterTable[2].CounterId = CFE_ES_COUNTERID_UNDEFINED;
-    CFE_UtAssert_TRUE(CFE_ES_CheckCounterIdSlotUsed(ES_UT_MakeCounterIdForIndex(1)));
-    CFE_UtAssert_FALSE(CFE_ES_CheckCounterIdSlotUsed(ES_UT_MakeCounterIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckCounterIdSlotUsed(ES_UT_MakeCounterIdForIndex(1)));
+    UtAssert_BOOL_FALSE(CFE_ES_CheckCounterIdSlotUsed(ES_UT_MakeCounterIdForIndex(2)));
 
     /* Test getting a registered generic counter that doesn't exist */
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CounterId, "Counter999"), CFE_ES_ERR_NAME_NOT_FOUND);
@@ -4206,8 +4206,8 @@ void TestCDS()
     /* Check operation of the CFE_ES_CheckCDSHandleSlotUsed() helper function */
     CFE_ES_Global.CDSVars.Registry[1].BlockID = CFE_ES_CDSHANDLE_C(ES_UT_MakeCDSIdForIndex(1));
     CFE_ES_Global.CDSVars.Registry[2].BlockID = CFE_ES_CDS_BAD_HANDLE;
-    CFE_UtAssert_TRUE(CFE_ES_CheckCDSHandleSlotUsed(ES_UT_MakeCDSIdForIndex(1)));
-    CFE_UtAssert_FALSE(CFE_ES_CheckCDSHandleSlotUsed(ES_UT_MakeCDSIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckCDSHandleSlotUsed(ES_UT_MakeCDSIdForIndex(1)));
+    UtAssert_BOOL_FALSE(CFE_ES_CheckCDSHandleSlotUsed(ES_UT_MakeCDSIdForIndex(2)));
 
     /* Test CDS registering using a bad app ID */
     ES_ResetUnitTest();
@@ -4593,7 +4593,7 @@ void TestESMempool(void)
 
     /* Test handle validation using a handle with an invalid memory address */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_MemValidateRange), 1, -1);
-    CFE_UtAssert_FALSE(CFE_ES_ValidateHandle(PoolID2));
+    UtAssert_BOOL_FALSE(CFE_ES_ValidateHandle(PoolID2));
 
     /* Test handle validation using a handle where the first pool structure
      * field is not the pool start address
@@ -4607,7 +4607,7 @@ void TestESMempool(void)
      */
     *((uint32 *)&PoolPtr->PoolID) ^= 10; /* cause it to fail validation */
 
-    CFE_UtAssert_FALSE(CFE_ES_ValidateHandle(PoolID2));
+    UtAssert_BOOL_FALSE(CFE_ES_ValidateHandle(PoolID2));
 
     /* Test allocating a pool buffer where the memory handle is not the pool
      * start address
@@ -4678,8 +4678,8 @@ void TestESMempool(void)
     /* Check operation of the CFE_ES_CheckCounterIdSlotUsed() helper function */
     CFE_ES_Global.MemPoolTable[1].PoolID = CFE_ES_MEMHANDLE_C(ES_UT_MakePoolIdForIndex(1));
     CFE_ES_Global.MemPoolTable[2].PoolID = CFE_ES_MEMHANDLE_UNDEFINED;
-    CFE_UtAssert_TRUE(CFE_ES_CheckMemPoolSlotUsed(ES_UT_MakePoolIdForIndex(1)));
-    CFE_UtAssert_FALSE(CFE_ES_CheckMemPoolSlotUsed(ES_UT_MakePoolIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckMemPoolSlotUsed(ES_UT_MakePoolIdForIndex(1)));
+    UtAssert_BOOL_FALSE(CFE_ES_CheckMemPoolSlotUsed(ES_UT_MakePoolIdForIndex(2)));
 
     /*
      * Test creating a memory pool with a semaphore error
@@ -4820,7 +4820,7 @@ void TestESMempool(void)
     UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp2, PoolID1, 99000), CFE_ES_ERR_MEM_BLOCK_SIZE);
 
     /* Test handle validation using a null handle */
-    CFE_UtAssert_FALSE(CFE_ES_ValidateHandle(CFE_ES_MEMHANDLE_UNDEFINED));
+    UtAssert_BOOL_FALSE(CFE_ES_ValidateHandle(CFE_ES_MEMHANDLE_UNDEFINED));
 
     /* Test returning a pool buffer using a null handle */
     UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(CFE_ES_MEMHANDLE_UNDEFINED, addressp2), CFE_ES_ERR_RESOURCEID_NOT_VALID);
@@ -4865,7 +4865,7 @@ void TestESMempool(void)
     }
 
     UtAssert_NONZERO(i);
-    CFE_UtAssert_ATMOST(i, 20);
+    UtAssert_UINT32_LTEQ(i, 20);
 
     /* Test getting the size of a pool buffer that is not in the pool */
     UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(PoolID1, CFE_ES_MEMPOOLBUF_C((cpuaddr)addressp1 + 400)),
@@ -4946,7 +4946,7 @@ void TestSysLog(void)
     CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx = 0;
     CFE_ES_Global.ResetDataPtr->SystemLogEndIdx   = sizeof(CFE_ES_Global.ResetDataPtr->SystemLog) - 1;
 
-    CFE_UtAssert_VOIDCALL(CFE_ES_SysLogDump("fakefilename"));
+    UtAssert_VOIDCALL(CFE_ES_SysLogDump("fakefilename"));
 
     /* Test "message got truncated"  */
     ES_ResetUnitTest();

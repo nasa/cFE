@@ -51,8 +51,8 @@ void Test_SBR_Route_Unsort_General(void)
     CFE_SBR_Init();
 
     UtPrintf("Invalid msg checks");
-    CFE_UtAssert_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_ValueToMsgId(0), NULL)));
-    CFE_UtAssert_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_ValueToMsgId(0), &collisions)));
+    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_ValueToMsgId(0), NULL)));
+    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_ValueToMsgId(0), &collisions)));
     UtAssert_INT32_EQ(collisions, 0);
 
     /*
@@ -71,7 +71,7 @@ void Test_SBR_Route_Unsort_General(void)
     msgid   = CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
     routeid = CFE_SBR_AddRoute(msgid, &collisions);
     UtAssert_INT32_EQ(collisions, 0);
-    CFE_UtAssert_TRUE(CFE_SBR_IsValidRouteId(routeid));
+    UtAssert_BOOL_TRUE(CFE_SBR_IsValidRouteId(routeid));
 
     UtPrintf("Callback test with one route");
     count = 0;
@@ -89,7 +89,7 @@ void Test_SBR_Route_Unsort_General(void)
     UtAssert_INT32_EQ(count + 1, CFE_PLATFORM_SB_MAX_MSG_IDS);
 
     /* Try one more for good luck */
-    CFE_UtAssert_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_ValueToMsgId(count), NULL)));
+    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_ValueToMsgId(count), NULL)));
 
     /* Check that maximum msgid is still in the table */
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(CFE_SBR_GetMsgId(routeid)), CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
@@ -128,7 +128,7 @@ void Test_SBR_Route_Unsort_GetSet(void)
     routeid[1] = CFE_SBR_ValueToRouteId(CFE_PLATFORM_SB_MAX_MSG_IDS);
     for (i = 0; i < 2; i++)
     {
-        CFE_UtAssert_TRUE(CFE_SB_MsgId_Equal(CFE_SBR_GetMsgId(routeid[i]), CFE_SB_INVALID_MSG_ID));
+        UtAssert_BOOL_TRUE(CFE_SB_MsgId_Equal(CFE_SBR_GetMsgId(routeid[i]), CFE_SB_INVALID_MSG_ID));
         UtAssert_ADDRESS_EQ(CFE_SBR_GetDestListHeadPtr(routeid[i]), NULL);
         UtAssert_INT32_EQ(CFE_SBR_GetSequenceCounter(routeid[i]), 0);
     }
@@ -171,7 +171,7 @@ void Test_SBR_Route_Unsort_GetSet(void)
     UT_SetDefaultReturnValue(UT_KEY(CFE_MSG_GetNextSequenceCount), seqcntexpected[0]);
     for (i = 0; i < 3; i++)
     {
-        CFE_UtAssert_TRUE(CFE_SB_MsgId_Equal(msgid[i], CFE_SBR_GetMsgId(routeid[i])));
+        UtAssert_BOOL_TRUE(CFE_SB_MsgId_Equal(msgid[i], CFE_SBR_GetMsgId(routeid[i])));
         CFE_SBR_IncrementSequenceCounter(routeid[0]);
     }
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 3);

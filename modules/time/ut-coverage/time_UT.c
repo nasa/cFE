@@ -844,7 +844,7 @@ void Test_Print(void)
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "1980-001-00:00:00.00000");
-        CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
     }
     else
     {
@@ -863,7 +863,7 @@ void Test_Print(void)
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "1980-001-00:00:59.00000");
-        CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
     }
     else
     {
@@ -880,7 +880,7 @@ void Test_Print(void)
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "2013-001-02:03:04.00005");
-        CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
     }
     else
     {
@@ -897,7 +897,7 @@ void Test_Print(void)
     if (usingDefaultEpoch)
     {
         strcpy(expectedBuf, "2116-038-06:28:15.99999");
-        CFE_UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
+        UtAssert_STRINGBUF_EQ(timeBuf, sizeof(timeBuf), expectedBuf, sizeof(expectedBuf));
     }
     else
     {
@@ -2245,7 +2245,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.MaxLocalClock.Seconds    = CFE_PLATFORM_TIME_CFG_LATCH_FLY - 1;
     CFE_TIME_Global.MaxLocalClock.Subseconds = 0;
     CFE_TIME_Local1HzStateMachine();
-    CFE_UtAssert_TRUE(CFE_TIME_Global.AutoStartFly);
+    UtAssert_BOOL_TRUE(CFE_TIME_Global.AutoStartFly);
 
     /* Test local 1Hz interrupt when enough time has elapsed since receiving a
      * time update to automatically update the MET
@@ -2282,7 +2282,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 1;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
     CFE_TIME_Tone1HzISR();
-    CFE_UtAssert_FALSE(CFE_TIME_Global.IsToneGood);
+    UtAssert_BOOL_FALSE(CFE_TIME_Global.IsToneGood);
 
     /* Test the tone signal ISR call to the application synch callback
      * function by verifying the number of callbacks made matches the number
@@ -2334,7 +2334,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
     CFE_TIME_Tone1HzISR();
-    CFE_UtAssert_FALSE(CFE_TIME_Global.IsToneGood);
+    UtAssert_BOOL_FALSE(CFE_TIME_Global.IsToneGood);
 
     /* Test the tone 1Hz task with the tone signal within the time limits */
     UT_InitData();
@@ -2343,7 +2343,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
     CFE_TIME_Tone1HzISR();
-    CFE_UtAssert_TRUE(CFE_TIME_Global.IsToneGood);
+    UtAssert_BOOL_TRUE(CFE_TIME_Global.IsToneGood);
 
     /* Test the tone 1Hz task with the tone signal under the time limit */
     UT_InitData();
@@ -2352,7 +2352,7 @@ void Test_1Hz(void)
     CFE_TIME_Global.ToneSignalLatch.Seconds    = 0;
     CFE_TIME_Global.ToneSignalLatch.Subseconds = 0;
     CFE_TIME_Tone1HzISR();
-    CFE_UtAssert_FALSE(CFE_TIME_Global.IsToneGood);
+    UtAssert_BOOL_FALSE(CFE_TIME_Global.IsToneGood);
 
     /* Test local 1Hz interrupt when enough time has elapsed (subseconds) since
      * receiving a time update to automatically change the state to flywheel
@@ -2368,7 +2368,7 @@ void Test_1Hz(void)
     CFE_TIME_FinishReferenceUpdate(RefState);
     UT_SetBSP_Time(0, 0);
     CFE_TIME_Local1HzStateMachine();
-    CFE_UtAssert_TRUE(CFE_TIME_Global.AutoStartFly);
+    UtAssert_BOOL_TRUE(CFE_TIME_Global.AutoStartFly);
 
     /* Test local 1Hz interrupt when enough time has not elapsed since
      * receiving a time update to automatically change the state to flywheel

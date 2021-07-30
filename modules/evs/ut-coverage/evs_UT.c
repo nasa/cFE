@@ -663,8 +663,8 @@ void Test_Format(void)
     /* Note implementation initializes both short and long message */
     UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_MSG_Init)), 2);
     UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 1);
-    CFE_UtAssert_TRUE(CFE_SB_MsgId_Equal(MsgData.MsgId, ShortFmtSnapshotData.MsgId));
-    CFE_UtAssert_FALSE(CFE_SB_MsgId_Equal(MsgData.MsgId, LongFmtSnapshotData.MsgId));
+    UtAssert_BOOL_TRUE(CFE_SB_MsgId_Equal(MsgData.MsgId, ShortFmtSnapshotData.MsgId));
+    UtAssert_BOOL_FALSE(CFE_SB_MsgId_Equal(MsgData.MsgId, LongFmtSnapshotData.MsgId));
 
     /* Confirm the right message was sent */
     UtAssert_ADDRESS_EQ(MsgSend, MsgData.MsgPtr);
@@ -868,7 +868,7 @@ void Test_Logging(void)
     }
 
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Log overfill event discard");
-    CFE_UtAssert_TRUE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
+    UtAssert_BOOL_TRUE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogMode, CFE_EVS_LogMode_DISCARD);
 
     /* Test setting the logging mode to overwrite */
@@ -877,7 +877,7 @@ void Test_Logging(void)
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.modecmd, sizeof(CmdBuf.modecmd), UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC,
                                  &UT_EVS_EventBuf);
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Log overfill event overwrite");
-    CFE_UtAssert_TRUE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
+    UtAssert_BOOL_TRUE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogMode, CFE_EVS_LogMode_OVERWRITE);
 
     /* Test sending a no op command */
@@ -890,7 +890,7 @@ void Test_Logging(void)
     UT_InitData();
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.cmd, sizeof(CmdBuf.cmd), UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC, &UT_EVS_EventBuf);
-    CFE_UtAssert_FALSE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
+    UtAssert_BOOL_FALSE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
 
     /* Test setting the logging mode to overwrite */
     UT_InitData();
