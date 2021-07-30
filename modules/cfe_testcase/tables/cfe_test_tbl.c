@@ -18,30 +18,19 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_test_table.h
+** File: cfe_test_tbl.c
 **
 ** Purpose:
-**   Declare global struct variable and function prototypes for table tests
+**   Create a file containing a CFE Test Table
 **
 *************************************************************************/
-
-/**
- * @file
- *
- * Declarations and prototypes for cfe_test module table tests
- */
-
-#ifndef CFE_TEST_TABLE_H
-#define CFE_TEST_TABLE_H
 
 /*
  * Includes
  */
-#include "cfe_test.h"
 
-CFE_FT_Global_t CFE_FT_Global;
+#include "cfe_tbl_filedef.h"
+#include "cfe_test_tbl.h"
 
-void RegisterTestTable(void);
-void UnregisterTestTable(void);
-
-#endif /* CFE_TEST_TABLE_H */
+TBL_TEST_Table_t TestTable = {1, 2};
+CFE_TBL_FILEDEF(TestTable, CFE_TEST_APP.TestTable, Table Test Table, cfe_test_tbl.tbl)

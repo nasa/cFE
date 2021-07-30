@@ -21,27 +21,26 @@
 ** File: cfe_test_table.h
 **
 ** Purpose:
-**   Declare global struct variable and function prototypes for table tests
+**     CFE Test Table struct definition
 **
 *************************************************************************/
 
 /**
  * @file
  *
- * Declarations and prototypes for cfe_test module table tests
+ * CFE Test Table struct definition
  */
 
-#ifndef CFE_TEST_TABLE_H
-#define CFE_TEST_TABLE_H
+#ifndef CFE_TEST_TBL_H
+#define CFE_TEST_TBL_H
 
 /*
- * Includes
+ * Test table structure
  */
-#include "cfe_test.h"
+typedef struct
+{
+    uint16 Int1;
+    uint16 Int2;
+} TBL_TEST_Table_t;
 
-CFE_FT_Global_t CFE_FT_Global;
-
-void RegisterTestTable(void);
-void UnregisterTestTable(void);
-
-#endif /* CFE_TEST_TABLE_H */
+#endif /* CFE_TEST_TBL_H */

@@ -39,6 +39,7 @@
  * Includes
  */
 #include "cfe.h"
+#include "cfe_test_tbl.h"
 
 #include "uttest.h"
 #include "utassert.h"
@@ -91,6 +92,7 @@ void ESTaskTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void SBPipeMangSetup(void);
+void TBLContentMangTestSetup(void);
 void TBLInformationTestSetup(void);
 void TBLRegistrationTestSetup(void);
 void TimeArithmeticTestSetup(void);

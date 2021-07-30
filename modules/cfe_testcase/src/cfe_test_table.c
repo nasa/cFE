@@ -18,11 +18,11 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_test.c
+** File: cfe_test_table.c
 **
 ** Purpose:
-**   Initialization routine for CFE functional test
-**   Demonstration of how to register and use the UT assert functions.
+**   Initialization of variables used by table functional tests and
+**   function definitions for setup and teardown table functions
 **
 *************************************************************************/
 

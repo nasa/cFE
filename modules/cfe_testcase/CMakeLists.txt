@@ -1,3 +1,5 @@
+include_directories(inc)
+
 # Filenames based on doxygen groups.
 # Create the app module
 add_cfe_app(cfe_testcase
@@ -11,6 +13,7 @@ add_cfe_app(cfe_testcase
     src/fs_header_test.c
     src/fs_util_test.c
     src/sb_pipe_mang_test.c
+    src/tbl_content_mang_test.c
     src/tbl_information_test.c
     src/tbl_registration_test.c
     src/time_arithmetic_test.c
@@ -19,3 +22,4 @@ add_cfe_app(cfe_testcase
 
 # register the dependency on cfe_assert
 add_cfe_app_dependency(cfe_testcase cfe_assert)
+add_cfe_tables(cfeTestAppTable tables/cfe_test_tbl.c)
