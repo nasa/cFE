@@ -107,7 +107,7 @@ void TestTimeStamp(void)
     cFE_FTAssert_VOIDCALL(CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG));
     UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, &Header), sizeof(CFE_FS_Header_t));
     UtAssert_INT32_EQ(CFE_FS_SetTimestamp(fd, NewTimestamp), CFE_SUCCESS);
-    UtAssert_INT32_EQ(OS_lseek(fd, sizeof(Header.Description), OS_SEEK_CUR), sizeof(CFE_FS_Header_t));
+    UtAssert_INT32_EQ(OS_lseek(fd, 0, OS_SEEK_CUR), (offsetof(CFE_FS_Header_t, TimeSeconds) + sizeof(NewTimestamp)));
 
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(&ReadHeader, fd), sizeof(CFE_FS_Header_t));
 
