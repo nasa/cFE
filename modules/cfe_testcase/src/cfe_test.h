@@ -46,6 +46,7 @@
 typedef struct
 {
     CFE_FS_FileWriteMetaData_t FuncTestState;
+    int                        count;
 } CFE_FT_Global_t;
 
 /**
