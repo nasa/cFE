@@ -52,24 +52,24 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
     CFE_EVS_BinFilter_t *AppFilters;
     EVS_AppData_t *      AppDataPtr;
 
-    /* Query and verify the caller's AppID */
-    Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
-    if (Status == CFE_SUCCESS)
+    /* Verify filter arguments */
+    if (FilterScheme != CFE_EVS_EventFilter_BINARY)
     {
-        /* Clear and configure entry */
-        memset(AppDataPtr, 0, sizeof(EVS_AppData_t));
+        Status = CFE_EVS_UNKNOWN_FILTER;
+    }
+    else if ((NumEventFilters != 0) && (Filters == NULL))
+    {
+        Status = CFE_ES_BAD_ARGUMENT;
+    }
+    else
+    {
+        /* Query and verify the caller's AppID */
+        Status = EVS_GetCurrentContext(&AppDataPtr, &AppID);
+        if (Status == CFE_SUCCESS)
+        {
+            /* Clear and configure entry */
+            memset(AppDataPtr, 0, sizeof(EVS_AppData_t));
 
-        /* Verify filter arguments */
-        if (FilterScheme != CFE_EVS_EventFilter_BINARY)
-        {
-            Status = CFE_EVS_UNKNOWN_FILTER;
-        }
-        else if ((NumEventFilters != 0) && (Filters == NULL))
-        {
-            Status = CFE_ES_BAD_ARGUMENT;
-        }
-        else
-        {
             /* Initialize application event data */
             AppDataPtr->ActiveFlag           = true;
             AppDataPtr->EventTypesActiveFlag = CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG;
