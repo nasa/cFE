@@ -56,6 +56,7 @@ void CFE_TestMain(void)
     ESMemPoolTestSetup();
     ESMiscTestSetup();
     ESTaskTestSetup();
+    EVSSendTestSetup();
     FSHeaderTestSetup();
     FSUtilTestSetup();
     SBPipeMangSetup();
