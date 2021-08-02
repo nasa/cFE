@@ -92,6 +92,7 @@ void ESTaskTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void SBPipeMangSetup(void);
+void TBLContentAccessTestSetup(void);
 void TBLContentMangTestSetup(void);
 void TBLInformationTestSetup(void);
 void TBLRegistrationTestSetup(void);
