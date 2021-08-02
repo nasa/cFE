@@ -18,10 +18,11 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_test.c
+** File: evs_filters_test.c
 **
 ** Purpose:
-**   Initialization routine for CFE functional test
+**   Functional test of basic EVS Reset Filters APIs
+**
 **   Demonstration of how to register and use the UT assert functions.
 **
 *************************************************************************/
@@ -30,49 +31,19 @@
  * Includes
  */
 
-#include "cfe_assert.h"
 #include "cfe_test.h"
 
-/*
- * Test main function
- * Register this test routine with CFE Assert
- */
-void CFE_TestMain(void)
+void TestResetFilters(void)
 {
-    /*
-     * Register this test app with CFE assert
-     *
-     * Note this also waits for the appropriate overall system
-     * state and gets ownership of the UtAssert subsystem
-     */
-    CFE_Assert_RegisterTest("CFE API");
-    CFE_Assert_OpenLogFile(CFE_ASSERT_LOG_FILE_NAME);
+    UtPrintf("Testing: CFE_EVS_ResetFilter, CFE_EVS_ResetAllFilters");
 
-    /*
-     * Register test cases in UtAssert
-     */
-    ESCDSTestSetup();
-    ESInfoTestSetup();
-    ESMemPoolTestSetup();
-    ESMiscTestSetup();
-    ESTaskTestSetup();
-    EVSFiltersTestSetup();
-    EVSSendTestSetup();
-    FSHeaderTestSetup();
-    FSUtilTestSetup();
-    MessageIdTestSetup();
-    SBPipeMangSetup();
-    TimeArithmeticTestSetup();
-    TimeCurrentTestSetup();
-    TimeConversionTestSetup();
+    UtAssert_INT32_EQ(CFE_EVS_ResetFilter(1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_ResetAllFilters(), CFE_SUCCESS);
 
-    /*
-     * Execute the tests
-     *
-     * Note this also releases ownership of the UtAssert subsystem when complete
-     */
-    CFE_Assert_ExecuteTest();
+    UtAssert_INT32_EQ(CFE_EVS_ResetFilter(0), CFE_EVS_EVT_NOT_REGISTERED);
+}
 
-    /* Nothing more for this app to do */
-    CFE_ES_ExitApp(CFE_ES_RunStatus_APP_EXIT);
+void EVSFiltersTestSetup(void)
+{
+    UtTest_Add(TestResetFilters, NULL, NULL, "Test Reset Filters");
 }
