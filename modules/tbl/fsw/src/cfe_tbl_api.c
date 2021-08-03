@@ -1068,7 +1068,7 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
     int32          Status;
     CFE_ES_AppId_t ThisAppId;
 
-    if (TblPtrs == NULL)
+    if (TblPtrs == NULL || TblHandles == NULL)
     {
         return CFE_TBL_BAD_ARGUMENT;
     }
@@ -1119,6 +1119,11 @@ CFE_Status_t CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t T
 {
     CFE_Status_t Status = CFE_SUCCESS;
     uint16       i;
+
+    if (TblHandles == NULL)
+    {
+        return CFE_TBL_BAD_ARGUMENT;
+    }
 
     for (i = 0; i < NumTables; i++)
     {
