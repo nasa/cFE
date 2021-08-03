@@ -1103,7 +1103,7 @@ void CFE_TIME_Tone1HzISR(void)
  *-----------------------------------------------------------------*/
 void CFE_TIME_Tone1HzTask(void)
 {
-    int32 Result;
+    int32 OsStatus;
 
     while (true)
     {
@@ -1113,8 +1113,8 @@ void CFE_TIME_Tone1HzTask(void)
         /*
         ** Pend on semaphore given by tone ISR (above)...
         */
-        Result = OS_BinSemTake(CFE_TIME_Global.ToneSemaphore);
-        if (Result != OS_SUCCESS)
+        OsStatus = OS_BinSemTake(CFE_TIME_Global.ToneSemaphore);
+        if (OsStatus != OS_SUCCESS)
         {
             break;
         }
@@ -1301,7 +1301,7 @@ void CFE_TIME_Local1HzISR(void)
  *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzTask(void)
 {
-    int32 Result;
+    int32 OsStatus;
 
     while (true)
     {
@@ -1312,8 +1312,8 @@ void CFE_TIME_Local1HzTask(void)
         /*
         ** Pend on the 1HZ semaphore (given by local 1Hz ISR)...
         */
-        Result = OS_BinSemTake(CFE_TIME_Global.LocalSemaphore);
-        if (Result != OS_SUCCESS)
+        OsStatus = OS_BinSemTake(CFE_TIME_Global.LocalSemaphore);
+        if (OsStatus != OS_SUCCESS)
         {
             break;
         }

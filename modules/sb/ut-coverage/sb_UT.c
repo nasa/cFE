@@ -1720,7 +1720,7 @@ void Test_SB_EarlyInit(void)
 void Test_SB_EarlyInit_SemCreateError(void)
 {
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERR_NO_FREE_IDS);
-    UtAssert_INT32_EQ(CFE_SB_EarlyInit(), OS_ERR_NO_FREE_IDS);
+    UtAssert_INT32_EQ(CFE_SB_EarlyInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 } /* end Test_SB_EarlyInit_SemCreateError */
 
 /*

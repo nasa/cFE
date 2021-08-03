@@ -42,8 +42,8 @@
 
 #include "target_config.h"
 
-const char *FS_SYSLOG_MSGS[] = {NULL, "%s: SharedData Mutex Take Err Stat=0x%x,App=%lu,Function=%s\n",
-                                "%s: SharedData Mutex Give Err Stat=0x%x,App=%lu,Function=%s\n"};
+const char *FS_SYSLOG_MSGS[] = {NULL, "%s: SharedData Mutex Take Err Stat=%ld,App=%lu,Function=%s\n",
+                                "%s: SharedData Mutex Give Err Stat=%ld,App=%lu,Function=%s\n"};
 
 /* counts the number of times UT_FS_OnEvent() was invoked (below) */
 uint32 UT_FS_FileWriteEventCount[CFE_FS_FileWriteEvent_MAX];
@@ -117,13 +117,13 @@ void Test_CFE_FS_ReadHeader(void)
     /* Test reading the header with a lseek failure */
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(OS_lseek), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test successfully reading the header */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_read), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test calling with NULL pointer argument */
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(NULL, FileDes), CFE_FS_BAD_ARGUMENT);
@@ -142,13 +142,13 @@ void Test_CFE_FS_WriteHeader(void)
     /* Test writing the header with a lseek failure */
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(OS_lseek), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_FS_WriteHeader(FileDes, &Hdr), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeader(FileDes, &Hdr), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test successfully writing the header */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_SUCCESS);
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, OS_SUCCESS);
-    UtAssert_INT32_EQ(CFE_FS_WriteHeader(FileDes, &Hdr), OS_SUCCESS);
+    UtAssert_INT32_EQ(CFE_FS_WriteHeader(FileDes, &Hdr), CFE_SUCCESS);
 
     /* Test calling with NULL pointer argument */
     UtAssert_INT32_EQ(CFE_FS_WriteHeader(FileDes, NULL), CFE_FS_BAD_ARGUMENT);
@@ -167,7 +167,7 @@ void Test_CFE_FS_SetTimestamp(void)
     /* Test setting the time stamp with a lseek failure */
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(OS_lseek), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_FS_SetTimestamp(FileDes, NewTimestamp), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_FS_SetTimestamp(FileDes, NewTimestamp), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test setting the time stamp with a seconds write failure */
     UT_InitData();
@@ -485,7 +485,7 @@ void Test_CFE_FS_Private(void)
     /* Test FS initialization with a mutex creation failure */
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(OS_MutSemCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_FS_EarlyInit(), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_FS_EarlyInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test successful locking of shared data */
     UT_InitData();

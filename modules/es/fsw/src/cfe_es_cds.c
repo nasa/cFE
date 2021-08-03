@@ -57,15 +57,16 @@ int32 CFE_ES_CDS_EarlyInit(void)
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     uint32                 PlatformSize;
     size_t                 MinRequiredSize;
+    int32                  OsStatus;
     int32                  Status;
 
     CFE_ES_Global.CDSIsAvailable = false;
 
     /* Create CDS general access mutex */
-    Status = OS_MutSemCreate(&CDS->GenMutex, CFE_ES_CDS_MUT_REG_NAME, CFE_ES_CDS_MUT_REG_VALUE);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_MutSemCreate(&CDS->GenMutex, CFE_ES_CDS_MUT_REG_NAME, CFE_ES_CDS_MUT_REG_VALUE);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_SysLogWrite_Unsync("%s: Failed to create mutex with error %d\n", __func__, (int)Status);
+        CFE_ES_SysLogWrite_Unsync("%s: Failed to create mutex with error %ld\n", __func__, (long)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
@@ -702,12 +703,13 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
 int32 CFE_ES_LockCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    int32                  OsStatus;
     int32                  Status;
 
-    Status = OS_MutSemTake(CDS->GenMutex);
+    OsStatus = OS_MutSemTake(CDS->GenMutex);
 
     /* Convert to CFE return code */
-    if (Status == OS_SUCCESS)
+    if (OsStatus == OS_SUCCESS)
     {
         Status = CFE_SUCCESS;
     }
@@ -730,12 +732,13 @@ int32 CFE_ES_LockCDS(void)
 int32 CFE_ES_UnlockCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    int32                  OsStatus;
     int32                  Status;
 
-    Status = OS_MutSemGive(CDS->GenMutex);
+    OsStatus = OS_MutSemGive(CDS->GenMutex);
 
     /* Convert to CFE return code */
-    if (Status == OS_SUCCESS)
+    if (OsStatus == OS_SUCCESS)
     {
         Status = CFE_SUCCESS;
     }

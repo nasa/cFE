@@ -453,6 +453,7 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
 int32 CFE_ES_SysLogDump(const char *Filename)
 {
     osal_id_t fd;
+    int32     OsStatus;
     int32     Status;
     size_t    WritePos;
     size_t    TotalSize;
@@ -463,11 +464,11 @@ int32 CFE_ES_SysLogDump(const char *Filename)
         CFE_FS_Header_t           FileHdr;
     } Buffer;
 
-    Status = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-    if (Status < 0)
+    OsStatus = OS_OpenCreate(&fd, Filename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_EVS_SendEvent(CFE_ES_SYSLOG2_ERR_EID, CFE_EVS_EventType_ERROR, "Error creating file %s, RC = 0x%08X",
-                          Filename, (unsigned int)Status);
+        CFE_EVS_SendEvent(CFE_ES_SYSLOG2_ERR_EID, CFE_EVS_EventType_ERROR, "Error creating file %s, RC = %ld", Filename,
+                          (long)OsStatus);
         return CFE_ES_FILE_IO_ERR;
     } /* end if */
 
@@ -496,18 +497,21 @@ int32 CFE_ES_SysLogDump(const char *Filename)
             while (WritePos < Buffer.LogData.BlockSize)
             {
                 LastReqSize = Buffer.LogData.BlockSize - WritePos;
-                Status      = OS_write(fd, &Buffer.LogData.Data[WritePos], LastReqSize);
-                if (Status <= 0)
+                OsStatus    = OS_write(fd, &Buffer.LogData.Data[WritePos], LastReqSize);
+
+                /* NOTE: this stops for errors or EOF code (0) */
+                if (OsStatus <= 0)
                 {
                     break;
                 } /* end if */
 
-                WritePos += Status;
-                TotalSize += Status;
+                WritePos += (long)OsStatus;
+                TotalSize += (long)OsStatus;
             }
 
-            if (Status <= 0)
+            if (OsStatus <= 0)
             {
+                Status = (long)OsStatus;
                 break;
             }
 

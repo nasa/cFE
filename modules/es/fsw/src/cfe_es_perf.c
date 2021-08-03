@@ -281,6 +281,7 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
 bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 {
     CFE_ES_PerfDumpGlobal_t *State = (CFE_ES_PerfDumpGlobal_t *)Arg;
+    int32                    OsStatus;
     int32                    Status;
     CFE_FS_Header_t          FileHdr;
     size_t                   BlockSize;
@@ -325,13 +326,13 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
             {
                 case CFE_ES_PerfDumpState_OPEN_FILE:
                     /* Create the file to dump to */
-                    Status = OS_OpenCreate(&State->FileDesc, State->DataFileName,
-                                           OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-                    if (Status < 0)
+                    OsStatus = OS_OpenCreate(&State->FileDesc, State->DataFileName,
+                                             OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+                    if (OsStatus != OS_SUCCESS)
                     {
                         State->FileDesc = OS_OBJECT_ID_UNDEFINED;
                         CFE_EVS_SendEvent(CFE_ES_PERF_LOG_ERR_EID, CFE_EVS_EventType_ERROR,
-                                          "Error creating file %s, RC = %d", State->DataFileName, (int)Status);
+                                          "Error creating file %s, RC = %ld", State->DataFileName, (long)OsStatus);
                     }
                     State->FileSize = 0;
                     break;
@@ -450,12 +451,14 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
                 case CFE_ES_PerfDumpState_WRITE_PERF_METADATA:
                     /* write the performance metadata to the file */
                     BlockSize = sizeof(CFE_ES_PerfMetaData_t);
-                    Status    = OS_write(State->FileDesc, &Perf->MetaData, BlockSize);
+                    OsStatus  = OS_write(State->FileDesc, &Perf->MetaData, BlockSize);
+                    Status    = (long)OsStatus; /* status type conversion (size) */
                     break;
 
                 case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
                     BlockSize = sizeof(CFE_ES_PerfDataEntry_t);
-                    Status    = OS_write(State->FileDesc, &Perf->DataBuffer[State->DataPos], BlockSize);
+                    OsStatus  = OS_write(State->FileDesc, &Perf->DataBuffer[State->DataPos], BlockSize);
+                    Status    = (long)OsStatus; /* status type conversion (size) */
 
                     ++State->DataPos;
                     if (State->DataPos >= CFE_PLATFORM_ES_PERF_DATA_BUFFER_SIZE)

@@ -62,7 +62,7 @@ bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength);
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_EarlyInit(void)
 {
-
+    int32               OsStatus;
     int32               Status;
     uint32              resetAreaSize = 0;
     cpuaddr             resetAreaAddr;
@@ -112,16 +112,17 @@ int32 CFE_EVS_EarlyInit(void)
         CFE_EVS_Global.EVS_LogPtr = &CFE_EVS_ResetDataPtr->EVS_Log;
 
         /* Create semaphore to serialize access to event log */
-        Status = OS_MutSemCreate(&CFE_EVS_Global.EVS_SharedDataMutexID, "CFE_EVS_DataMutex", 0);
+        OsStatus = OS_MutSemCreate(&CFE_EVS_Global.EVS_SharedDataMutexID, "CFE_EVS_DataMutex", 0);
 
-        if (Status != OS_SUCCESS)
+        if (OsStatus != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: OS_MutSemCreate failed, RC=0x%08x\n", __func__, (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: OS_MutSemCreate failed, RC=%ld\n", __func__, (long)OsStatus);
 
             /* Delay to allow message to be read */
             OS_TaskDelay(CFE_EVS_PANIC_DELAY);
 
             CFE_PSP_Panic(CFE_PSP_PANIC_STARTUP_SEM);
+            Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
         else
         {
@@ -1549,6 +1550,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
 {
     int32                               Result;
     osal_id_t                           FileHandle = OS_OBJECT_ID_UNDEFINED;
+    int32                               OsStatus;
     int32                               BytesWritten;
     uint32                              EntryCount = 0;
     uint32                              i;
@@ -1574,13 +1576,14 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
     else
     {
         /* Create Application Data File */
-        Result = OS_OpenCreate(&FileHandle, LocalName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+        OsStatus = OS_OpenCreate(&FileHandle, LocalName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
 
-        if (Result != OS_SUCCESS)
+        if (OsStatus != OS_SUCCESS)
         {
             EVS_SendEvent(CFE_EVS_ERR_CRDATFILE_EID, CFE_EVS_EventType_ERROR,
-                          "Write App Data Command Error: OS_OpenCreate = 0x%08X, filename = %s", (unsigned int)Result,
+                          "Write App Data Command Error: OS_OpenCreate = %ld, filename = %s", (long)OsStatus,
                           LocalName);
+            Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
     }
 
@@ -1617,17 +1620,17 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
                            CFE_PLATFORM_EVS_MAX_EVENT_FILTERS * sizeof(EVS_BinFilter_t));
 
                     /* Write application data record to file */
-                    BytesWritten = OS_write(FileHandle, &AppDataFile, sizeof(CFE_EVS_AppDataFile_t));
+                    OsStatus = OS_write(FileHandle, &AppDataFile, sizeof(CFE_EVS_AppDataFile_t));
 
-                    if (BytesWritten == sizeof(CFE_EVS_AppDataFile_t))
+                    if (OsStatus == sizeof(CFE_EVS_AppDataFile_t))
                     {
                         EntryCount++;
                     }
                     else
                     {
                         EVS_SendEvent(CFE_EVS_ERR_WRDATFILE_EID, CFE_EVS_EventType_ERROR,
-                                      "Write App Data Command Error: OS_write = 0x%08X, filename = %s",
-                                      (unsigned int)BytesWritten, LocalName);
+                                      "Write App Data Command Error: OS_write = %ld, filename = %s", (long)OsStatus,
+                                      LocalName);
                         break;
                     }
                 }

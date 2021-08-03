@@ -2242,7 +2242,7 @@ void TestTask(void)
     /* Test task init with background init fail */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 1, -7);
-    UtAssert_INT32_EQ(CFE_ES_TaskInit(), -7);
+    UtAssert_INT32_EQ(CFE_ES_TaskInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Set the log mode to OVERWRITE; CFE_ES_TaskInit() sets SystemLogMode to
      * DISCARD, which can result in a log overflow depending on the value that
@@ -4300,7 +4300,7 @@ void TestCDS()
     /* Test CDS initialization with size not obtainable */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_GetCDSSize), -1);
-    UtAssert_INT32_EQ(CFE_ES_CDS_EarlyInit(), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_CDS_EarlyInit(), -1);
 
     /* Reset back to a sufficient CDS size */
     UT_SetCDSSize(128 * 1024);
