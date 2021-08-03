@@ -248,25 +248,24 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
  *-----------------------------------------------------------------*/
 void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource)
 {
-
-    int32   status;
+    int32   PspStatus;
     uint32  resetAreaSize;
     cpuaddr ResetDataAddr;
 
     /*
     ** Get the pointer to the Reset area from the BSP
     */
-    status = CFE_PSP_GetResetArea(&ResetDataAddr, &resetAreaSize);
+    PspStatus = CFE_PSP_GetResetArea(&ResetDataAddr, &resetAreaSize);
 
     /*
     ** Make sure the status is OK or size is big enough
     */
-    if (status != CFE_PSP_SUCCESS)
+    if (PspStatus != CFE_PSP_SUCCESS)
     {
         /*
         ** Cannot use the ES System log without the Reset Area
         */
-        OS_printf("ES Startup: CFE_PSP_GetResetArea call Failed (0x%08x)!\n", (unsigned int)status);
+        OS_printf("ES Startup: CFE_PSP_GetResetArea call Failed (0x%08x)!\n", (unsigned int)PspStatus);
 
         /*
         ** Delay to allow the message to be read
@@ -477,7 +476,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
 void CFE_ES_InitializeFileSystems(uint32 StartType)
 {
     int32        OsStatus;
-    int32        RetStatus;
+    int32        PspStatus;
     cpuaddr      RamDiskMemoryAddress;
     uint32       RamDiskMemorySize;
     int32        PercentFree;
@@ -486,12 +485,12 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
     /*
     ** Get the memory area for the RAM disk
     */
-    RetStatus = CFE_PSP_GetVolatileDiskMem(&(RamDiskMemoryAddress), &(RamDiskMemorySize));
+    PspStatus = CFE_PSP_GetVolatileDiskMem(&(RamDiskMemoryAddress), &(RamDiskMemorySize));
 
-    if (RetStatus != CFE_PSP_SUCCESS)
+    if (PspStatus != CFE_PSP_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Cannot Get Memory for Volatile Disk. EC = 0x%08X\n", __func__,
-                             (unsigned int)RetStatus);
+                             (unsigned int)PspStatus);
 
         /*
         ** Delay to allow the message to be read

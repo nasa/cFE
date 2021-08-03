@@ -357,6 +357,7 @@ void CFE_ES_GenerateBuildInfoEvents(void)
 int32 CFE_ES_TaskInit(void)
 {
     int32   Status;
+    int32   PspStatus;
     uint32  SizeofCfeSegment;
     cpuaddr CfeSegmentAddr;
     uint8   VersionNumber[4];
@@ -442,9 +443,9 @@ int32 CFE_ES_TaskInit(void)
     ** Compute the CRC for the cfe core code segment and place
     ** in ES Housekeeping pkt.
     */
-    Status = CFE_PSP_GetCFETextSegmentInfo(&CfeSegmentAddr, &SizeofCfeSegment);
+    PspStatus = CFE_PSP_GetCFETextSegmentInfo(&CfeSegmentAddr, &SizeofCfeSegment);
 
-    if (Status == CFE_PSP_SUCCESS)
+    if (PspStatus == CFE_PSP_SUCCESS)
     {
         CFE_ES_Global.TaskData.HkPacket.Payload.CFECoreChecksum =
             CFE_ES_CalculateCRC((void *)(CfeSegmentAddr), SizeofCfeSegment, 0, CFE_MISSION_ES_DEFAULT_CRC);

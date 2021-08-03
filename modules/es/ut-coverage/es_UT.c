@@ -4300,7 +4300,7 @@ void TestCDS()
     /* Test CDS initialization with size not obtainable */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_GetCDSSize), -1);
-    UtAssert_INT32_EQ(CFE_ES_CDS_EarlyInit(), -1);
+    UtAssert_INT32_EQ(CFE_ES_CDS_EarlyInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Reset back to a sufficient CDS size */
     UT_SetCDSSize(128 * 1024);
@@ -4539,11 +4539,11 @@ void TestCDSMempool(void)
 
     /* Test CDS block write with a CDS write error (data content) */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_ES_CDSBlockWrite(BlockHandle, &Data), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_CDSBlockWrite(BlockHandle, &Data), CFE_ES_CDS_ACCESS_ERROR);
 
     /* Test CDS block read with a CDS read error (data content) */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 3, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_ES_CDSBlockRead(&Data, BlockHandle), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_CDSBlockRead(&Data, BlockHandle), CFE_ES_CDS_ACCESS_ERROR);
 
     /* Corrupt the data as to cause a CRC mismatch */
     UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void **)&CdsPtr, NULL, NULL);

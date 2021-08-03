@@ -64,6 +64,7 @@ int32 CFE_EVS_EarlyInit(void)
 {
     int32               OsStatus;
     int32               Status;
+    int32               PspStatus;
     uint32              resetAreaSize = 0;
     cpuaddr             resetAreaAddr;
     CFE_ES_ResetData_t *CFE_EVS_ResetDataPtr = (CFE_ES_ResetData_t *)NULL;
@@ -80,13 +81,14 @@ int32 CFE_EVS_EarlyInit(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogMode           = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
 
     /* Get a pointer to the CFE reset area from the BSP */
-    Status = CFE_PSP_GetResetArea(&resetAreaAddr, &resetAreaSize);
+    PspStatus = CFE_PSP_GetResetArea(&resetAreaAddr, &resetAreaSize);
 
     /* Panic on error */
-    if (Status != CFE_PSP_SUCCESS)
+    if (PspStatus != CFE_PSP_SUCCESS)
     {
         /* Can't log evs messages without the reset area */
-        CFE_ES_WriteToSysLog("%s: Call to CFE_PSP_GetResetArea failed, RC=0x%08x\n", __func__, (unsigned int)Status);
+        Status = CFE_EVS_RESET_AREA_POINTER;
+        CFE_ES_WriteToSysLog("%s: Call to CFE_PSP_GetResetArea failed, RC=0x%08x\n", __func__, (unsigned int)PspStatus);
 
         /* Delay to allow message to be read */
         OS_TaskDelay(CFE_EVS_PANIC_DELAY);
