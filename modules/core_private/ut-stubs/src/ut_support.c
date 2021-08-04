@@ -828,7 +828,7 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 
     /* Locate the actual end of the string, but limited to length of local buffer */
     /* Reserve two extra chars for quotes */
-    EndPtr = memchr(FormatString, 0, sizeof(ScrubbedFormat) - 2);
+    EndPtr = memchr(FormatString, 0, sizeof(ScrubbedFormat) - 3);
     if (EndPtr != NULL)
     {
         FormatLen = EndPtr - FormatString;
@@ -848,8 +848,8 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
     /* Need to make a copy, as the input string is "const" */
     ScrubbedFormat[0] = '\'';
     memcpy(&ScrubbedFormat[1], FormatString, FormatLen);
-    ScrubbedFormat[FormatLen]     = '\'';
-    ScrubbedFormat[FormatLen + 1] = 0;
+    ScrubbedFormat[FormatLen + 1] = '\'';
+    ScrubbedFormat[FormatLen + 2] = 0;
 
     return CFE_UtAssert_GenericSignedCompare_Impl(Status, CFE_UtAssert_Compare_GT, 0, File, Line, Desc, ScrubbedFormat,
                                                   "");
