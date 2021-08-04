@@ -57,6 +57,8 @@
 ** \par Assumptions, External Events, and Notes:
 **        -# The File has already been successfully opened using #OS_OpenCreate and
 **           the caller has a legitimate File Descriptor.
+**        -# File offset behavior: Agnostic on entry since it will move the offset to the start of the file,
+**           on success the offset will be at the end of the header, undefined offset behavior for error cases.
 **
 ** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
 **                         filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
@@ -120,6 +122,8 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 **           the caller has a legitimate File Descriptor.
 **        -# The \c SubType field has been filled appropriately by the Application.
 **        -# The \c Description field has been filled appropriately by the Application.
+**        -# File offset behavior: Agnostic on entry since it will move the offset to the start of the file,
+**           on success the offset will be at the end of the header, undefined offset behavior for error cases.
 **
 ** \param[in] FileDes File Descriptor obtained from a previous call to #OS_OpenCreate
 **                    that is associated with the file whose header is to be read.
@@ -152,6 +156,8 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr);
 **        -# The File has already been successfully opened using #OS_OpenCreate and
 **           the caller has a legitimate File Descriptor.
 **        -# The \c NewTimestamp field has been filled appropriately by the Application.
+**        -# File offset behavior: Agnostic on entry since it will move the offset,
+**           on success the offset will be at the end of the time stamp, undefined offset behavior for error cases.
 **
 ** \param[in] FileDes File Descriptor obtained from a previous call to #OS_OpenCreate
 **                    that is associated with the file whose header is to be read.
