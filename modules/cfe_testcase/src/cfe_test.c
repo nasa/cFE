@@ -59,6 +59,7 @@ void CFE_TestMain(void)
     EVSSendTestSetup();
     FSHeaderTestSetup();
     FSUtilTestSetup();
+    MessageIdTestSetup();
     SBPipeMangSetup();
     TimeArithmeticTestSetup();
     TimeCurrentTestSetup();

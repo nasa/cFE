@@ -86,6 +86,7 @@ void ESTaskTestSetup(void);
 void EVSSendTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
+void MessageIdTestSetup(void);
 void SBPipeMangSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
