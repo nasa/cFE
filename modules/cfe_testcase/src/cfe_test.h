@@ -46,8 +46,11 @@
 typedef struct
 {
     CFE_FS_FileWriteMetaData_t FuncTestState;
-    int                        count;
+    /* Generic utility counter */
+    int Count;
 } CFE_FT_Global_t;
+
+extern CFE_FT_Global_t CFE_FT_Global;
 
 /**
  * Name of log file to write

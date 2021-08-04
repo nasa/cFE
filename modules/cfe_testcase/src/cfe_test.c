@@ -33,6 +33,8 @@
 #include "cfe_assert.h"
 #include "cfe_test.h"
 
+CFE_FT_Global_t CFE_FT_Global;
+
 /*
  * Test main function
  * Register this test routine with CFE Assert

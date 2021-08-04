@@ -33,13 +33,11 @@
 
 #include "cfe_test.h"
 
-CFE_FT_Global_t CFE_FT_Global;
-
 void TaskFunction(void)
 {
-    while (CFE_FT_Global.count < 200)
+    while (CFE_FT_Global.Count < 200)
     {
-        CFE_FT_Global.count += 1;
+        CFE_FT_Global.Count += 1;
         OS_TaskDelay(100);
     }
     return;
@@ -47,9 +45,9 @@ void TaskFunction(void)
 
 void TaskExitFunction(void)
 {
-    while (CFE_FT_Global.count < 200)
+    while (CFE_FT_Global.Count < 200)
     {
-        CFE_FT_Global.count += 1;
+        CFE_FT_Global.Count += 1;
         CFE_ES_ExitChildTask();
     }
     return;
@@ -67,14 +65,15 @@ void TestCreateChild(void)
     CFE_ES_TaskPriority_Atom_t Priority      = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
     uint32                     Flags         = 0;
     int                        ExpectedCount = 5;
-    CFE_FT_Global.count                      = 0;
+
+    CFE_FT_Global.Count = 0;
 
     UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
                       CFE_SUCCESS);
     OS_TaskDelay(500);
 
-    UtAssert_True(ExpectedCount >= CFE_FT_Global.count - 1 && ExpectedCount <= CFE_FT_Global.count + 1,
-                  "countCopy (%d) == count (%d)", (int)ExpectedCount, (int)CFE_FT_Global.count);
+    UtAssert_True(ExpectedCount >= CFE_FT_Global.Count - 1 && ExpectedCount <= CFE_FT_Global.Count + 1,
+                  "countCopy (%d) == count (%d)", (int)ExpectedCount, (int)CFE_FT_Global.Count);
 
     UtAssert_INT32_EQ(
         CFE_ES_CreateChildTask(&TaskId2, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
@@ -131,29 +130,30 @@ void TestChildTaskDelete(void)
     UtPrintf("Testing: CFE_ES_DeleteChildTask");
 
     CFE_ES_TaskId_t            TaskId;
-    const char *               TaskName     = "CHILD_TASK_1";
-    CFE_ES_StackPointer_t      StackPointer = CFE_ES_TASK_STACK_ALLOCATE;
-    size_t                     StackSize    = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
-    CFE_ES_TaskPriority_Atom_t Priority     = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
-    uint32                     Flags        = 0;
-    CFE_FT_Global.count                     = 0;
-    int ExpectedCount                       = 5;
+    const char *               TaskName      = "CHILD_TASK_1";
+    CFE_ES_StackPointer_t      StackPointer  = CFE_ES_TASK_STACK_ALLOCATE;
+    size_t                     StackSize     = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
+    CFE_ES_TaskPriority_Atom_t Priority      = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
+    uint32                     Flags         = 0;
+    int                        ExpectedCount = 5;
+
+    CFE_FT_Global.Count = 0;
 
     UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
                       CFE_SUCCESS);
     OS_TaskDelay(500);
 
-    UtAssert_True(ExpectedCount >= CFE_FT_Global.count - 1 && ExpectedCount <= CFE_FT_Global.count + 1,
-                  "countCopy (%d) == count (%d)", (int)ExpectedCount, (int)CFE_FT_Global.count);
+    UtAssert_True(ExpectedCount >= CFE_FT_Global.Count - 1 && ExpectedCount <= CFE_FT_Global.Count + 1,
+                  "countCopy (%d) == count (%d)", (int)ExpectedCount, (int)CFE_FT_Global.Count);
 
-    ExpectedCount = CFE_FT_Global.count;
+    ExpectedCount = CFE_FT_Global.Count;
 
     UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(TaskId), CFE_SUCCESS);
 
     OS_TaskDelay(500);
 
-    UtAssert_True(ExpectedCount == CFE_FT_Global.count || ExpectedCount == CFE_FT_Global.count + 1,
-                  "ExpectedCount (%d) == count (%d)", (int)ExpectedCount, (int)CFE_FT_Global.count);
+    UtAssert_True(ExpectedCount == CFE_FT_Global.Count || ExpectedCount == CFE_FT_Global.Count + 1,
+                  "ExpectedCount (%d) == count (%d)", (int)ExpectedCount, (int)CFE_FT_Global.Count);
 
     UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(CFE_ES_TASKID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 }
