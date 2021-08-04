@@ -63,6 +63,7 @@ void CFE_TestMain(void)
     SBPipeMangSetup();
     TimeArithmeticTestSetup();
     TimeCurrentTestSetup();
+    TimeConversionTestSetup();
 
     /*
      * Execute the tests
