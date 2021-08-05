@@ -42,6 +42,7 @@ void TestAppIDToIndex(void)
     UtAssert_INT32_EQ(CFE_ES_GetAppID(&TestAppId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_AppID_ToIndex(TestAppId, &TestAppIdx), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_AppID_ToIndex(TestAppId, &idx), CFE_SUCCESS);
+    UtAssert_INT32_LTEQ(TestAppIdx, CFE_PLATFORM_ES_MAX_APPLICATIONS);
     UtAssert_UINT32_EQ(idx, TestAppIdx);
 
     UtAssert_INT32_EQ(CFE_ES_AppID_ToIndex(TestAppId, NULL), CFE_ES_BAD_ARGUMENT);
@@ -58,6 +59,7 @@ void TestLibIDToIndex(void)
     UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&LibId, LibName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_LibID_ToIndex(LibId, &LibIdx), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_LibID_ToIndex(LibId, &idx), CFE_SUCCESS);
+    UtAssert_INT32_LTEQ(LibIdx, CFE_PLATFORM_ES_MAX_LIBRARIES);
     UtAssert_UINT32_EQ(idx, LibIdx);
 
     UtAssert_INT32_EQ(CFE_ES_LibID_ToIndex(LibId, NULL), CFE_ES_BAD_ARGUMENT);
@@ -73,6 +75,7 @@ void TestTaskIDToIndex(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_TaskID_ToIndex(TaskId, &TaskIdx), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_TaskID_ToIndex(TaskId, &idx), CFE_SUCCESS);
+    UtAssert_INT32_LTEQ(TaskIdx, OS_MAX_TASKS);
     UtAssert_UINT32_EQ(idx, TaskIdx);
 
     UtAssert_INT32_EQ(CFE_ES_TaskID_ToIndex(TaskId, NULL), CFE_ES_BAD_ARGUMENT);
@@ -89,11 +92,15 @@ void TestCounterIDToIndex(void)
     UtAssert_UINT32_EQ(CFE_ES_RegisterGenCounter(&CounterId, CounterName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_CounterID_ToIndex(CounterId, &CounterIdx), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_CounterID_ToIndex(CounterId, &idx), CFE_SUCCESS);
+    UtAssert_INT32_LTEQ(CounterIdx, CFE_PLATFORM_ES_MAX_GEN_COUNTERS);
     UtAssert_UINT32_EQ(idx, CounterIdx);
 
     UtAssert_INT32_EQ(CFE_ES_CounterID_ToIndex(CounterId, NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_CounterID_ToIndex(CFE_ES_COUNTERID_UNDEFINED, &CounterIdx),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* Unregister Counter */
+    UtAssert_INT32_EQ(CFE_ES_DeleteGenCounter(CounterId), CFE_SUCCESS);
 }
 
 void ESResourceIDTestSetup(void)
