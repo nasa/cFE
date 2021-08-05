@@ -1858,7 +1858,7 @@ CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId,
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
+CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, const void *DataToCopy)
 {
     if (DataToCopy == NULL)
     {

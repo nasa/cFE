@@ -434,7 +434,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
  *
  * \return Execution status, see \ref CFEReturnCodes
  */
-int32 CFE_SB_TransmitMsgValidate(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
+int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgIdPtr, CFE_MSG_Size_t *SizePtr,
                                  CFE_SBR_RouteId_t *RouteIdPtr);
 
 /*---------------------------------------------------------------------------------------*/
