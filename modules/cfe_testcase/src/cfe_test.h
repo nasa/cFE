@@ -93,5 +93,6 @@ void SBPipeMangSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
 void TimeConversionTestSetup(void);
+void TimeMiscTestSetup(void);
 
 #endif /* CFE_TEST_H */

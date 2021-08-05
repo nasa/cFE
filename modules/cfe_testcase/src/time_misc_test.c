@@ -18,10 +18,11 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_test.c
+** File: time_misc_test.c
 **
 ** Purpose:
-**   Initialization routine for CFE functional test
+**   Functional test of miscelaneous Time APIs
+**
 **   Demonstration of how to register and use the UT assert functions.
 **
 *************************************************************************/
@@ -30,49 +31,28 @@
  * Includes
  */
 
-#include "cfe_assert.h"
 #include "cfe_test.h"
 
-/*
- * Test main function
- * Register this test routine with CFE Assert
- */
-void CFE_TestMain(void)
+void TestTimePrint(void)
 {
-    /*
-     * Register this test app with CFE assert
-     *
-     * Note this also waits for the appropriate overall system
-     * state and gets ownership of the UtAssert subsystem
-     */
-    CFE_Assert_RegisterTest("CFE API");
-    CFE_Assert_OpenLogFile(CFE_ASSERT_LOG_FILE_NAME);
+    UtPrintf("Testing: CFE_TIME_Print");
+    char               timeBuf1[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
+    CFE_TIME_SysTime_t time1 = {0, 0};
+    /* 365 days */
+    CFE_TIME_SysTime_t time2 = {31536000, 0};
+    /* 366 days */
+    CFE_TIME_SysTime_t time3 = {31622400, 0};
 
-    /*
-     * Register test cases in UtAssert
-     */
-    ESCDSTestSetup();
-    ESInfoTestSetup();
-    ESMemPoolTestSetup();
-    ESMiscTestSetup();
-    ESTaskTestSetup();
-    EVSSendTestSetup();
-    FSHeaderTestSetup();
-    FSUtilTestSetup();
-    MessageIdTestSetup();
-    SBPipeMangSetup();
-    TimeArithmeticTestSetup();
-    TimeCurrentTestSetup();
-    TimeConversionTestSetup();
-    TimeMiscTestSetup();
+    UtAssert_VOIDCALL(CFE_TIME_Print(NULL, time1));
+    UtAssert_VOIDCALL(CFE_TIME_Print(timeBuf1, time1));
+    UtPrintf("%s", timeBuf1);
+    UtAssert_VOIDCALL(CFE_TIME_Print(timeBuf1, time2));
+    UtPrintf("%s", timeBuf1);
+    UtAssert_VOIDCALL(CFE_TIME_Print(timeBuf1, time3));
+    UtPrintf("%s", timeBuf1);
+}
 
-    /*
-     * Execute the tests
-     *
-     * Note this also releases ownership of the UtAssert subsystem when complete
-     */
-    CFE_Assert_ExecuteTest();
-
-    /* Nothing more for this app to do */
-    CFE_ES_ExitApp(CFE_ES_RunStatus_APP_EXIT);
+void TimeMiscTestSetup(void)
+{
+    UtTest_Add(TestTimePrint, NULL, NULL, "Test Time Print");
 }
