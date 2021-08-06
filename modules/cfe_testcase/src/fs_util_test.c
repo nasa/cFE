@@ -33,8 +33,6 @@
 
 #include "cfe_test.h"
 
-CFE_FT_Global_t CFE_FT_Global;
-
 void TestFileCategory(void)
 {
     UtPrintf("Testing: CFE_FS_GetDefaultMountPoint, CFE_FS_GetDefaultExtension");
@@ -138,7 +136,6 @@ void TestFileDump(void)
 
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&CFE_FT_Global.FuncTestState), false);
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&CFE_FT_Global.FuncTestState), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&CFE_FT_Global.FuncTestState), true);
 
     /* Wait for background task to complete */
     while (CFE_FS_BackgroundFileDumpIsPending(&CFE_FT_Global.FuncTestState) && count < MaxWait)
