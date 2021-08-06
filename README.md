@@ -10,6 +10,18 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev810
+
+- Add null pointer check to table GetAddresses and ReleaseAddresses
+- Explain FS Header offset & add offset functional tests.
+- Handle fail status in GetTypeFromMsgId
+- Add Functional Test for EVS Send Event API
+- Remove SB get last message sender info requirement
+- Update UTs to use UtAssert_MIR
+- Add Functional Tests cFE Message ID
+- Add Time Conversion Functional Test
+- See <https://github.com/nasa/cFE/pull/1759> and <https://github.com/nasa/cFS/pull/328>
+
 ### Development Build: v6.8.0-rc1+dev789
 
 - Correct return code check
