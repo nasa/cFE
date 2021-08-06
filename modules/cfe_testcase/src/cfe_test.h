@@ -84,6 +84,7 @@ extern CFE_FT_Global_t CFE_FT_Global;
 bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference);
 
 void CFE_TestMain(void);
+void ESApplicationControlTestSetup(void);
 void ESCDSTestSetup(void);
 void ESInfoTestSetup(void);
 void ESMemPoolTestSetup(void);
