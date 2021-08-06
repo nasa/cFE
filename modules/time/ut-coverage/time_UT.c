@@ -848,9 +848,8 @@ void Test_Print(void)
     }
     else
     {
-        UtAssertEx(false, UTASSERT_CASETYPE_MIR, __FILE__, __LINE__,
-                   "Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
-                   (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
     }
 
     /* Test with a time value that causes seconds >= 60 when
@@ -867,9 +866,8 @@ void Test_Print(void)
     }
     else
     {
-        UtAssertEx(false, UTASSERT_CASETYPE_MIR, __FILE__, __LINE__,
-                   "Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
-                   (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
     }
 
     /* Test with mission representative time values */
@@ -884,9 +882,8 @@ void Test_Print(void)
     }
     else
     {
-        UtAssertEx(false, UTASSERT_CASETYPE_MIR, __FILE__, __LINE__,
-                   "Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
-                   (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
     }
 
     /* Test with maximum seconds and subseconds values */
@@ -901,9 +898,8 @@ void Test_Print(void)
     }
     else
     {
-        UtAssertEx(false, UTASSERT_CASETYPE_MIR, __FILE__, __LINE__,
-                   "Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
-                   (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
+        UtAssert_MIR("Confirm adding seconds = %u, subseconds = %u to configured EPOCH results in time %s",
+                     (unsigned int)time.Seconds, (unsigned int)time.Subseconds, timeBuf);
     }
 }
 

@@ -56,11 +56,14 @@ void CFE_TestMain(void)
     ESMemPoolTestSetup();
     ESMiscTestSetup();
     ESTaskTestSetup();
+    EVSSendTestSetup();
     FSHeaderTestSetup();
     FSUtilTestSetup();
+    MessageIdTestSetup();
     SBPipeMangSetup();
     TimeArithmeticTestSetup();
     TimeCurrentTestSetup();
+    TimeConversionTestSetup();
 
     /*
      * Execute the tests

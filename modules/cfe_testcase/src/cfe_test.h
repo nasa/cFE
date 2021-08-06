@@ -77,16 +77,21 @@ typedef struct
 /* Log calls to void functions */
 #define cFE_FTAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
 
+bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference);
+
 void CFE_TestMain(void);
 void ESCDSTestSetup(void);
 void ESInfoTestSetup(void);
 void ESMemPoolTestSetup(void);
 void ESMiscTestSetup(void);
 void ESTaskTestSetup(void);
+void EVSSendTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
+void MessageIdTestSetup(void);
 void SBPipeMangSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
+void TimeConversionTestSetup(void);
 
 #endif /* CFE_TEST_H */

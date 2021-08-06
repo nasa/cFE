@@ -64,8 +64,7 @@ void TestWriteToSysLog(void)
     CFE_ES_WriteToSysLog(NULL);
     CFE_ES_WriteToSysLog("%s", TestString);
 
-    UtAssertEx(false, UTASSERT_CASETYPE_MIR, __FILE__, __LINE__, "%s",
-               "MIR (Manual Inspection Required) for CFE_ES_WriteToSysLog");
+    UtAssert_MIR("MIR (Manual Inspection Required) for CFE_ES_WriteToSysLog");
 }
 
 void ESMiscTestSetup(void)
