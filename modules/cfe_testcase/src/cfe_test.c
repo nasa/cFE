@@ -55,6 +55,7 @@ void CFE_TestMain(void)
      */
     ESApplicationControlTestSetup();
     ESCDSTestSetup();
+    ESCounterTestSetup();
     ESInfoTestSetup();
     ESMemPoolTestSetup();
     ESMiscTestSetup();

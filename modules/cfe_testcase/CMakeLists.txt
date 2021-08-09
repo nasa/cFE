@@ -9,6 +9,7 @@ add_cfe_app(cfe_testcase
     src/es_info_test.c
     src/es_task_test.c
     src/es_cds_test.c
+    src/es_counter_test.c
     src/es_misc_test.c
     src/es_mempool_test.c
     src/evs_send_test.c

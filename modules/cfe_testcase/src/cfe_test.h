@@ -94,6 +94,7 @@ bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t d
 void CFE_TestMain(void);
 void ESApplicationControlTestSetup(void);
 void ESCDSTestSetup(void);
+void ESCounterTestSetup(void);
 void ESInfoTestSetup(void);
 void ESMemPoolTestSetup(void);
 void ESMiscTestSetup(void);
