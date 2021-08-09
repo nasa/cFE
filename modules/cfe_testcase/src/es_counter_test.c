@@ -39,6 +39,8 @@ void TestCounterCreateDelete(void)
     uint32             NumCounters;
     uint32             Idx;
 
+    UtPrintf("Testing: CFE_ES_RegisterGenCounter");
+
     snprintf(CounterName, sizeof(CounterName), "ut");
 
     /* Confirm proper bad argument rejection */
@@ -67,6 +69,8 @@ void TestCounterCreateDelete(void)
     TestId = Ids[NumCounters / 2];
     snprintf(CounterName, sizeof(CounterName), "C%u", (unsigned int)NumCounters / 2);
 
+    UtPrintf("Testing: CFE_ES_CounterID_ToIndex");
+
     /* Confirm CFE_ES_CounterID_ToIndex works (nominal) */
     Idx = UINT32_MAX;
     UtAssert_INT32_EQ(CFE_ES_CounterID_ToIndex(TestId, &Idx), CFE_SUCCESS);
@@ -75,6 +79,8 @@ void TestCounterCreateDelete(void)
     /* Confirm proper rejection of bad args in CFE_ES_CounterID_ToIndex */
     UtAssert_INT32_EQ(CFE_ES_CounterID_ToIndex(CFE_ES_COUNTERID_UNDEFINED, &Idx), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_CounterID_ToIndex(TestId, NULL), CFE_ES_BAD_ARGUMENT);
+
+    UtPrintf("Testing: CFE_ES_GetGenCounterIDByName, CFE_ES_GetGenCounterName");
 
     /* Confirm conversion To/From Name */
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CheckId, CounterName), CFE_SUCCESS);
@@ -91,6 +97,8 @@ void TestCounterCreateDelete(void)
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterName(CheckName, TestId, 0), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterName(NULL, TestId, sizeof(CounterName)), CFE_ES_BAD_ARGUMENT);
+
+    UtPrintf("Testing: CFE_ES_DeleteGenCounter");
 
     /* Confirm proper rejection of bad args in CFE_ES_DeleteGenCounter (this returns CFE_ES_BAD_ARGUMENT instead) */
     UtAssert_INT32_EQ(CFE_ES_DeleteGenCounter(CFE_ES_COUNTERID_UNDEFINED), CFE_ES_BAD_ARGUMENT);
@@ -120,6 +128,8 @@ void TestCounterGetSet(void)
 {
     CFE_ES_CounterId_t TestId;
     uint32             CountVal;
+
+    UtPrintf("Testing: CFE_ES_GetGenCount, CFE_ES_SetGenCount, CFE_ES_IncrementGenCounter");
 
     /* Setup - create a single counter */
     UtAssert_INT32_EQ(CFE_ES_RegisterGenCounter(&TestId, "ut"), CFE_SUCCESS);
