@@ -59,6 +59,7 @@ void CFE_TestMain(void)
      * Register test cases in UtAssert
      */
     ESApplicationControlTestSetup();
+    ESBehaviorestSetup();
     ESCDSTestSetup();
     ESCounterTestSetup();
     ESInfoTestSetup();
@@ -77,8 +78,8 @@ void CFE_TestMain(void)
     TBLInformationTestSetup();
     TBLRegistrationTestSetup();
     TimeArithmeticTestSetup();
-    TimeCurrentTestSetup();
     TimeConversionTestSetup();
+    TimeCurrentTestSetup();
     TimeMiscTestSetup();
 
     /*

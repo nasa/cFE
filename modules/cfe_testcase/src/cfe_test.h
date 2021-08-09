@@ -90,6 +90,7 @@ bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t d
 
 void CFE_TestMain(void);
 void ESApplicationControlTestSetup(void);
+void ESBehaviorestSetup(void);
 void ESCDSTestSetup(void);
 void ESCounterTestSetup(void);
 void ESInfoTestSetup(void);
@@ -108,8 +109,8 @@ void TBLContentMangTestSetup(void);
 void TBLInformationTestSetup(void);
 void TBLRegistrationTestSetup(void);
 void TimeArithmeticTestSetup(void);
-void TimeCurrentTestSetup(void);
 void TimeConversionTestSetup(void);
+void TimeCurrentTestSetup(void);
 void TimeMiscTestSetup(void);
 
 #endif /* CFE_TEST_H */
