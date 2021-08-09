@@ -820,6 +820,8 @@ void TestStartupErrorPaths(void)
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_INIT_VOLATILE]);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_MOUNT_VOLATILE]);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_REFORMAT_VOLATILE]);
+    /* Verify requirement to report formatting */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_FORMAT_VOLATILE]);
 
     /* Test initialization of the file systems specifying a processor reset
      * following failure to get the volatile disk memory
@@ -1105,6 +1107,7 @@ void TestApps(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     ES_UT_SetupAppStartParams(&StartParams, "ut/filename", "EntryPoint", 170, 4096, 1);
     UtAssert_INT32_EQ(CFE_ES_AppCreate(&AppId, "AppName", &StartParams), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    /* Verify requirement to report error */
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_APP_CREATE]);
 
     /* Test application creation with NULL parameters */
@@ -1131,6 +1134,7 @@ void TestApps(void)
     UT_SetDeferredRetcode(UT_KEY(OS_ModuleLoad), 1, -1);
     ES_UT_SetupAppStartParams(&StartParams, "ut/filename.x", "EntryPoint", 170, 8192, 1);
     UtAssert_INT32_EQ(CFE_ES_AppCreate(&AppId, "AppName2", &StartParams), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    /* Verify requirement to report error */
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_EXTRACT_FILENAME_UT55]);
 
     /* Test application loading and creation where all app slots are taken */
@@ -3525,6 +3529,8 @@ void TestAPI(void)
     /* Test CFE_ES_ReloadApp with bad AppID argument */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_ReloadApp(CFE_ES_APPID_UNDEFINED, "filename"), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_INVALID_ID]);
 
     /* Test reloading a core app */
     ES_ResetUnitTest();
@@ -3550,12 +3556,19 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UtAssert_INT32_EQ(CFE_ES_ReloadApp(AppId, "missingfile"), CFE_ES_FILE_IO_ERR);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_RELOAD_NO_FILE]);
 
     /* Test deleting an app that doesn't exist */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     UtAssert_INT32_EQ(CFE_ES_DeleteApp(AppId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* Delete app with undefined ID */
+    UtAssert_INT32_EQ(CFE_ES_DeleteApp(CFE_ES_APPID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_INVALID_ID]);
 
     /* Test exiting an app with an init error */
     ES_ResetUnitTest();
@@ -3727,6 +3740,8 @@ void TestAPI(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskCreate), OS_ERROR);
     UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, "TaskName", TestAPI, StackBuf, sizeof(StackBuf), 400, 0),
                       CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_APP_CREATE]);
 
     /* Test creating a child task with a null task ID */
     ES_ResetUnitTest();
@@ -3756,6 +3771,8 @@ void TestAPI(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskGetId), OS_ObjectIdToInteger(TestObjId)); /* Set context to that of child */
     UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, "TaskName", TestAPI, StackBuf, sizeof(StackBuf), 400, 0),
                       CFE_ES_ERR_CHILD_TASK_CREATE);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CREATECHILD_FROM_CHILD]);
 
     /* Test successfully creating a child task */
     ES_ResetUnitTest();
@@ -3794,6 +3811,8 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, &UtTaskRecPtr);
     TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(TaskId), CFE_ES_ERR_CHILD_TASK_DELETE_MAIN_TASK);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_DELETECHID_MAIN_TASK]);
 
     /* Test deleting a child task with an invalid task ID */
     UT_SetDefaultReturnValue(UT_KEY(OS_ObjectIdToArrayIndex), OS_ERROR);
@@ -3839,6 +3858,7 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
     CFE_ES_ExitChildTask();
+    /* Verify requirement to report error */
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CANNOT_CALL_APP_MAIN]);
 
     /* Test exiting a child task with an error retrieving the app ID */
@@ -4555,12 +4575,16 @@ void TestESMempool(void)
      */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_PoolCreateNoSem(&PoolID1, Buffer1, 0), CFE_ES_BAD_ARGUMENT);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_POOLCREATE_TOO_SMALL]);
 
     /* Test successfully creating memory pool without using a mutex */
     CFE_UtAssert_SUCCESS(CFE_ES_PoolCreateNoSem(&PoolID1, Buffer1, sizeof(Buffer1)));
 
     /* Test creating memory pool using a mutex with the pool size too small */
     UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID2, Buffer2, 0), CFE_ES_BAD_ARGUMENT);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_POOLCREATE_TOO_SMALL]);
 
     /* Test successfully creating memory pool using a mutex */
     CFE_UtAssert_SUCCESS(CFE_ES_PoolCreate(&PoolID2, Buffer2, sizeof(Buffer2)));
@@ -4613,6 +4637,8 @@ void TestESMempool(void)
      * start address
      */
     UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp2, PoolID2, 256), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_GETPOOL_BAD_HANDLE]);
 
     /* Test getting memory pool statistics where the memory handle is not
      * the pool start address
@@ -4824,10 +4850,14 @@ void TestESMempool(void)
 
     /* Test returning a pool buffer using a null handle */
     UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(CFE_ES_MEMHANDLE_UNDEFINED, addressp2), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_PUTPOOL_BAD_HANDLE]);
 
     /* Test allocating a pool buffer using a null handle */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp2, CFE_ES_MEMHANDLE_UNDEFINED, 256), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    /* Verify requirement to report error */
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_GETPOOL_BAD_HANDLE]);
 
     /* Test getting the size of an existing pool buffer using a null handle */
     UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(CFE_ES_MEMHANDLE_UNDEFINED, addressp1), CFE_ES_ERR_RESOURCEID_NOT_VALID);
