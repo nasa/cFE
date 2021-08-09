@@ -42,7 +42,7 @@ void Test_SBR_Map_Direct(void)
 
     UtPrintf("Invalid msg checks");
     UtAssert_INT32_EQ(CFE_SBR_SetRouteId(CFE_SB_ValueToMsgId(0), CFE_SBR_ValueToRouteId(0)), 0);
-    CFE_UtAssert_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(0))));
+    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(0))));
 
     UtPrintf("Initialize map");
     CFE_SBR_Init_Map();
@@ -87,7 +87,7 @@ void Test_SBR_Map_Direct(void)
     routeid = CFE_SBR_INVALID_ROUTE_ID;
     UtAssert_INT32_EQ(CFE_SBR_SetRouteId(msgid, routeid), 0);
     UtAssert_INT32_EQ(CFE_SBR_GetRouteId(msgid).RouteId, routeid.RouteId);
-    CFE_UtAssert_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(msgid)));
+    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(msgid)));
 
     /* Performance check, 0xFFFFFF on 3.2GHz linux box is around 8-9 seconds */
     count = 0;

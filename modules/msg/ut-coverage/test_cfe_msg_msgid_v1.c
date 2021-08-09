@@ -79,7 +79,7 @@ void Test_MSG_MsgId(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_GetType(&msg, &type));
     UtAssert_INT32_EQ(type, CFE_MSG_Type_Cmd);
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &hassec));
-    CFE_UtAssert_TRUE(hassec);
+    UtAssert_BOOL_TRUE(hassec);
 
     UtPrintf("Set ApId msgid bits only and verify");
     CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(TEST_MAX_APID)));
@@ -93,7 +93,7 @@ void Test_MSG_MsgId(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), MSG_HASSEC_FLAG);
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &hassec));
-    CFE_UtAssert_TRUE(hassec);
+    UtAssert_BOOL_TRUE(hassec);
 
     UtPrintf("Set type msgid bit only and verify");
     CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0x1000)));
