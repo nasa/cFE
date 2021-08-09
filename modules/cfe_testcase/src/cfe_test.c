@@ -61,6 +61,7 @@ void CFE_TestMain(void)
     FSUtilTestSetup();
     MessageIdTestSetup();
     SBPipeMangSetup();
+    SBTaskTestSetup();
     TimeArithmeticTestSetup();
     TimeCurrentTestSetup();
     TimeConversionTestSetup();
