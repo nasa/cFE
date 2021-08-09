@@ -39,6 +39,7 @@
  * Includes
  */
 #include "cfe.h"
+#include "cfe_test_tbl.h"
 
 #include "uttest.h"
 #include "utassert.h"
@@ -46,8 +47,15 @@
 typedef struct
 {
     CFE_FS_FileWriteMetaData_t FuncTestState;
+
     /* Generic utility counter */
     int Count;
+
+    /* Table information used by all table tests */
+    CFE_TBL_Handle_t TblHandle;
+    const char *     TblName;
+    const char *     RegisteredTblName;
+    const char *     TblFilename;
 } CFE_FT_Global_t;
 
 extern CFE_FT_Global_t CFE_FT_Global;
@@ -95,6 +103,10 @@ void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void MessageIdTestSetup(void);
 void SBPipeMangSetup(void);
+void TBLContentAccessTestSetup(void);
+void TBLContentMangTestSetup(void);
+void TBLInformationTestSetup(void);
+void TBLRegistrationTestSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
 void TimeConversionTestSetup(void);

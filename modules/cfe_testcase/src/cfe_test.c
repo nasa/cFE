@@ -64,6 +64,10 @@ void CFE_TestMain(void)
     FSUtilTestSetup();
     MessageIdTestSetup();
     SBPipeMangSetup();
+    TBLContentAccessTestSetup();
+    TBLContentMangTestSetup();
+    TBLInformationTestSetup();
+    TBLRegistrationTestSetup();
     TimeArithmeticTestSetup();
     TimeCurrentTestSetup();
     TimeConversionTestSetup();
