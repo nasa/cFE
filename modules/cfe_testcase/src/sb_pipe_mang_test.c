@@ -18,7 +18,7 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: es_info_test.c
+** File: sb_pipe_mang_test.c
 **
 ** Purpose:
 **   Functional test of Sb Pipe Managment APIs

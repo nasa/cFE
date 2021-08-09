@@ -18,7 +18,7 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_testrunner_main.c
+** File: cfe_assert_runner.c
 **
 ** Purpose:
 **   Implementation of the CFE testrunner (UT testrunner wrapper) functions.
