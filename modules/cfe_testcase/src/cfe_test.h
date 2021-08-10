@@ -109,6 +109,7 @@ void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void MessageIdTestSetup(void);
 void MsgApiTestSetup(void);
+void ResourceIdMiscTestSetup(void);
 void SBPipeMangSetup(void);
 void TBLContentAccessTestSetup(void);
 void TBLContentMangTestSetup(void);
