@@ -86,9 +86,6 @@ extern CFE_FT_Global_t CFE_FT_Global;
         UtAssert_True(rcact < CFE_SUCCESS, "%s == (%ld) ", #actual, (long)rcact); \
     } while (0)
 
-/* Log calls to void functions */
-#define cFE_FTAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
-
 bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference);
 
 void CFE_TestMain(void);
