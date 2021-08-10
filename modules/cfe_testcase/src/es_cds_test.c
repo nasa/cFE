@@ -38,14 +38,15 @@ void TestRegisterCDS(void)
     CFE_ES_CDSHandle_t CDSHandlePtr;
     CFE_ES_CDSHandle_t CDSHandlePtr2;
 
-    size_t       BlockSize = 10;
-    const char * Name      = "CDS_Test";
-    const char * LongName  = "VERY_LONG_NAME_CDS_Test";
+    size_t       BlockSize  = 10;
+    size_t       BlockSize2 = 15;
+    const char * Name       = "CDS_Test";
+    const char * LongName   = "VERY_LONG_NAME_CDS_Test";
     CFE_Status_t status;
 
     UtPrintf("Testing: CFE_ES_RegisterCDS");
 
-    status = CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, Name);
+    status = CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize2, Name);
 
     if (status == CFE_ES_CDS_ALREADY_EXISTS)
     {
@@ -56,7 +57,8 @@ void TestRegisterCDS(void)
         UtAssert_INT32_EQ(status, CFE_SUCCESS);
     }
 
-    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr2, BlockSize, Name), CFE_ES_CDS_ALREADY_EXISTS);
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr2, BlockSize2, Name), CFE_ES_CDS_ALREADY_EXISTS);
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr2, BlockSize, Name), CFE_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_ES_RegisterCDS(NULL, BlockSize, Name), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr, 0, Name), CFE_ES_CDS_INVALID_SIZE);
