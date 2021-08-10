@@ -52,7 +52,7 @@ void TestAppInfo(void)
 
     UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppIdByName, TEST_EXPECTED_APP_NAME), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetAppID(&TestAppId), CFE_SUCCESS);
-    cFE_FTAssert_ResourceID_EQ(TestAppId, AppIdByName);
+    CFE_UtAssert_RESOURCEID_EQ(TestAppId, AppIdByName);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppNameBuf, TestAppId, sizeof(AppNameBuf)), CFE_SUCCESS);
     UtAssert_StrCmp(AppNameBuf, TEST_EXPECTED_APP_NAME, "CFE_ES_GetAppName() = %s", AppNameBuf);
 
@@ -122,7 +122,7 @@ void TestAppInfo(void)
     UtAssert_True(ESAppInfo.NumOfChildTasks > 0, "ES App Info -> Child Tasks  = %d", (int)ESAppInfo.NumOfChildTasks);
 
     UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppIdByName, INVALID_APP_NAME), CFE_ES_ERR_NAME_NOT_FOUND);
-    cFE_FTAssert_ResourceID_Undefined(AppIdByName);
+    CFE_UtAssert_RESOURCEID_UNDEFINED(AppIdByName);
     UtAssert_INT32_EQ(CFE_ES_GetAppID(NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(NULL, TEST_EXPECTED_APP_NAME), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppNameBuf, CFE_ES_APPID_UNDEFINED, sizeof(AppNameBuf)),
@@ -146,15 +146,15 @@ void TestTaskInfo(void)
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskInfo(&TaskInfo, AppInfo.MainTaskId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_SUCCESS);
-    cFE_FTAssert_ResourceID_EQ(TaskId, AppInfo.MainTaskId);
+    CFE_UtAssert_RESOURCEID_EQ(TaskId, AppInfo.MainTaskId);
 
     UtAssert_StrCmp(TaskInfo.AppName, AppInfo.Name, "TaskInfo.AppName (%s) = AppInfo.name (%s)", TaskInfo.AppName,
                     AppInfo.Name);
     UtAssert_StrCmp(TaskInfo.TaskName, AppInfo.MainTaskName, "TaskInfo.TaskName (%s) = AppInfo.MainTaskName (%s)",
                     TaskInfo.TaskName, AppInfo.MainTaskName);
 
-    cFE_FTAssert_ResourceID_EQ(TaskInfo.TaskId, AppInfo.MainTaskId);
-    cFE_FTAssert_ResourceID_EQ(TaskInfo.AppId, AppId);
+    CFE_UtAssert_RESOURCEID_EQ(TaskInfo.TaskId, AppInfo.MainTaskId);
+    CFE_UtAssert_RESOURCEID_EQ(TaskInfo.AppId, AppId);
     UtAssert_INT32_EQ(TaskInfo.ExecutionCounter, AppInfo.ExecutionCounter);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskInfo(&TaskInfo, CFE_ES_TASKID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
@@ -205,7 +205,7 @@ void TestLibInfo(void)
 
     UtAssert_INT32_EQ(LibInfo.ExceptionAction, 0);
     UtAssert_True(LibInfo.Priority == 0, "Lib Info -> Priority  = %d", (int)LibInfo.Priority);
-    cFE_FTAssert_ResourceID_Undefined(LibInfo.MainTaskId);
+    CFE_UtAssert_RESOURCEID_UNDEFINED(LibInfo.MainTaskId);
     UtAssert_True(LibInfo.ExecutionCounter == 0, "Lib Info -> ExecutionCounter  = %d", (int)LibInfo.ExecutionCounter);
     UtAssert_True(strlen(LibInfo.MainTaskName) == 0, "Lib Info -> Task Name  = %s", LibInfo.MainTaskName);
     UtAssert_True(LibInfo.NumOfChildTasks == 0, "Lib Info -> Child Tasks  = %d", (int)LibInfo.NumOfChildTasks);

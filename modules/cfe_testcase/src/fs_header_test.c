@@ -59,7 +59,7 @@ void TestCreateHeader(void)
     UtAssert_INT32_EQ(OS_lseek(fd, 0, OS_SEEK_CUR), sizeof(CFE_FS_Header_t));
 
     UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, NULL), CFE_FS_BAD_ARGUMENT);
-    cFE_FTAssert_NOT_CFE_SUCCESS(CFE_FS_WriteHeader(OS_OBJECT_ID_UNDEFINED, &Header));
+    CFE_UtAssert_STATUS_ERROR(CFE_FS_WriteHeader(OS_OBJECT_ID_UNDEFINED, &Header));
 
     UtAssert_VOIDCALL(CFE_FS_InitHeader(NULL, TestDescription, CFE_FS_SubType_ES_ERLOG));
     UtAssert_VOIDCALL(CFE_FS_InitHeader(&HeaderFail, NULL, CFE_FS_SubType_ES_ERLOG));
@@ -88,7 +88,7 @@ void TestReadHeader(void)
     UtAssert_StrCmp(TestDescription, ReadHeader.Description, "ReadHeader.Description = %s", ReadHeader.Description);
 
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(NULL, fd), CFE_FS_BAD_ARGUMENT);
-    cFE_FTAssert_NOT_CFE_SUCCESS(CFE_FS_ReadHeader(&ReadHeader, OS_OBJECT_ID_UNDEFINED));
+    CFE_UtAssert_STATUS_ERROR(CFE_FS_ReadHeader(&ReadHeader, OS_OBJECT_ID_UNDEFINED));
 
     OS_close(fd);
     OS_remove(OS_TEST_HEADER_FILENAME);
@@ -114,7 +114,7 @@ void TestTimeStamp(void)
     UtAssert_UINT32_EQ(0xFFFFFFFF, ReadHeader.TimeSeconds);
     UtAssert_UINT32_EQ(0xFFFFFFFF, ReadHeader.TimeSubSeconds);
 
-    cFE_FTAssert_NOT_CFE_SUCCESS(CFE_FS_SetTimestamp(OS_OBJECT_ID_UNDEFINED, NewTimestamp));
+    CFE_UtAssert_STATUS_ERROR(CFE_FS_SetTimestamp(OS_OBJECT_ID_UNDEFINED, NewTimestamp));
 
     OS_close(fd);
     OS_remove(OS_TEST_HEADER_FILENAME);

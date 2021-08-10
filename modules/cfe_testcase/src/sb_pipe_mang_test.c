@@ -112,7 +112,7 @@ void TestPipeName(void)
     UtAssert_StrCmp(PipeNameBuf, PipeName, "CFE_SB_GetPipeName() = %s", PipeNameBuf);
 
     UtAssert_INT32_EQ(CFE_SB_GetPipeIdByName(&PipeIdBuff, PipeName), CFE_SUCCESS);
-    cFE_FTAssert_ResourceID_EQ(PipeId, PipeIdBuff);
+    CFE_UtAssert_RESOURCEID_EQ(PipeId, PipeIdBuff);
 
     UtAssert_INT32_EQ(CFE_SB_GetPipeName(NULL, sizeof(PipeNameBuf), PipeId), CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_GetPipeName(PipeNameBuf, 0, PipeId), CFE_SB_BAD_ARGUMENT);
