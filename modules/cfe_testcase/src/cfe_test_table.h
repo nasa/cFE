@@ -39,8 +39,6 @@
  */
 #include "cfe_test.h"
 
-CFE_FT_Global_t CFE_FT_Global;
-
 void RegisterTestTable(void);
 void UnregisterTestTable(void);
 

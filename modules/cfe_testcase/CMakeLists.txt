@@ -2,9 +2,9 @@ include_directories(inc)
 
 # Filenames based on doxygen groups.
 # Create the app module
-add_cfe_app(cfe_testcase
-    src/cfe_test_table.c
+add_cfe_app(cfe_testcase    
     src/cfe_test.c
+    src/cfe_test_table.c
     src/es_application_control_test.c
     src/es_info_test.c
     src/es_task_test.c
