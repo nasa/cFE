@@ -61,6 +61,7 @@ void CFE_TestMain(void)
     ESMiscTestSetup();
     ESResourceIDTestSetup();
     ESTaskTestSetup();
+    EVSFiltersTestSetup();
     EVSSendTestSetup();
     FSHeaderTestSetup();
     FSUtilTestSetup();

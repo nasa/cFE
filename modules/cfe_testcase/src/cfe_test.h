@@ -100,6 +100,7 @@ void ESMemPoolTestSetup(void);
 void ESMiscTestSetup(void);
 void ESResourceIDTestSetup(void);
 void ESTaskTestSetup(void);
+void EVSFiltersTestSetup(void);
 void EVSSendTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
