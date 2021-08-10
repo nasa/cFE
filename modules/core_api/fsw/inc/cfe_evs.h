@@ -102,6 +102,7 @@
 ** \retval #CFE_EVS_APP_FILTER_OVERLOAD \copybrief CFE_EVS_APP_FILTER_OVERLOAD
 ** \retval #CFE_EVS_UNKNOWN_FILTER      \copybrief CFE_EVS_UNKNOWN_FILTER
 ** \retval #CFE_EVS_APP_ILLEGAL_APP_ID  \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
+** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
 **/
 CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint16 FilterScheme);
 /**@}*/
@@ -133,7 +134,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
 **                                   \arg #CFE_EVS_EventType_ERROR
 **                                   \arg #CFE_EVS_EventType_CRITICAL
 **
-** \param[in] Spec               A pointer to a null terminated text string describing the output format
+** \param[in] Spec               A pointer to a null terminated text string @nonnull describing the output format
 **                               for the event.  This is the same type of format string used for the ANSI
 **                               \c printf function.  Nominally the post-conversion string is limited to 80
 **                               characters, but this limit is configurable through the parameter
@@ -148,6 +149,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
 ** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
 ** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
+** \retval #CFE_EVS_INVALID_PARAMETER  \copybrief CFE_EVS_INVALID_PARAMETER
 **
 ** \sa #CFE_EVS_SendEventWithAppID, #CFE_EVS_SendTimedEvent
 **
@@ -181,7 +183,7 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
 **
 ** \param[in] AppID              The Application ID from which the event message should appear.
 **
-** \param[in] Spec               A pointer to a null terminated text string describing the output format
+** \param[in] Spec               A pointer to a null terminated text string @nonnull describing the output format
 **                               for the event.  This is the same type of format string used for the ANSI
 **                               \c printf function.  Nominally the post-conversion string is limited to 80
 **                               characters, but this limit is configurable through the parameter
@@ -196,6 +198,7 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
 ** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
 ** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
+** \retval #CFE_EVS_INVALID_PARAMETER  \copybrief CFE_EVS_INVALID_PARAMETER
 **
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendTimedEvent
 **
@@ -230,7 +233,7 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
 **                                   \arg #CFE_EVS_EventType_ERROR
 **                                   \arg #CFE_EVS_EventType_CRITICAL
 **
-** \param[in] Spec               A pointer to a null terminated text string describing the output format
+** \param[in] Spec               A pointer to a null terminated text string @nonnull describing the output format
 **                               for the event.  This is the same type of format string used for the ANSI
 **                               \c printf function.  Nominally the post-conversion string is limited to 80
 **                               characters, but this limit is configurable through the parameter
@@ -245,6 +248,7 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
 ** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
 ** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
+** \retval #CFE_EVS_INVALID_PARAMETER  \copybrief CFE_EVS_INVALID_PARAMETER
 **
 ** \sa #CFE_EVS_SendEvent, #CFE_EVS_SendEventWithAppID
 **
@@ -275,6 +279,7 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
 ** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
 ** \retval #CFE_EVS_APP_NOT_REGISTERED \copybrief CFE_EVS_APP_NOT_REGISTERED
 ** \retval #CFE_EVS_APP_ILLEGAL_APP_ID \copybrief CFE_EVS_APP_ILLEGAL_APP_ID
+** \retval #CFE_EVS_EVT_NOT_REGISTERED \copybrief CFE_EVS_EVT_NOT_REGISTERED
 **
 ** \sa #CFE_EVS_ResetAllFilters
 **

@@ -64,7 +64,7 @@
 **                their own tables.  An application should create any table(s) and provide the handle(s)
 **                to the interrupt service routine.
 **
-** \param[in, out] TblHandlePtr    a pointer to a #CFE_TBL_Handle_t type variable that will be assigned the table's
+** \param[out] TblHandlePtr    a pointer to a #CFE_TBL_Handle_t type variable @nonnull that will be assigned the table's
 **                                 handle.  The table handle is required for other API calls when accessing the data
 **                                 contained in the table. *TblHandlePtr is the handle used to identify table to cFE
 **                                 when performing Table operations. This value is returned at  ddress specified by
@@ -75,7 +75,8 @@
 **                                 This application specific name will be used in commands
 **                                 for modifying or viewing the contents of the table.
 **
-** \param[in] Size                 The size, in bytes, of the table to be created.  This is the size that will be
+** \param[in] Size                 The size, in bytes, of the table to be created @nonzero.  This is the size that will
+*be
 **                                 allocated as a shared memory resource between the Table Management Service and
 **                                 the calling application.
 **
@@ -180,6 +181,10 @@
 ** \retval #CFE_TBL_ERR_INVALID_SIZE         \copybrief CFE_TBL_ERR_INVALID_SIZE
 ** \retval #CFE_TBL_ERR_INVALID_NAME         \copybrief CFE_TBL_ERR_INVALID_NAME
 ** \retval #CFE_TBL_ERR_BAD_APP_ID           \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_BAD_ARGUMENT             \copybrief CFE_TBL_BAD_ARGUMENT
+** \retval #CFE_TBL_ERR_INVALID_OPTIONS      \copybrief CFE_TBL_ERR_INVALID_OPTIONS
+** \retval #CFE_TBL_WARN_DUPLICATE           \copybrief CFE_TBL_WARN_DUPLICATE
+** \retval #CFE_TBL_WARN_NOT_CRITICAL        \copybrief CFE_TBL_WARN_NOT_CRITICAL
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Share
 **/
@@ -199,7 +204,7 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in, out]  TblHandlePtr  A pointer to a #CFE_TBL_Handle_t type variable
+** \param[out]  TblHandlePtr  A pointer to a #CFE_TBL_Handle_t type variable @nonnull
 **                           that will be assigned the table's handle.  The
 **                           table handle is required for other API calls
 **                           when accessing the data contained in the table. *TblHandlePtr is the handle used to
@@ -216,6 +221,7 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
 ** \retval #CFE_TBL_ERR_HANDLES_FULL \copybrief CFE_TBL_ERR_HANDLES_FULL
 ** \retval #CFE_TBL_ERR_INVALID_NAME \copybrief CFE_TBL_ERR_INVALID_NAME
 ** \retval #CFE_TBL_ERR_BAD_APP_ID   \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_BAD_ARGUMENT     \copybrief CFE_TBL_BAD_ARGUMENT
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Register
 **
@@ -290,7 +296,7 @@ CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle);
 **                          \arg #CFE_TBL_SRC_FILE    - \copybrief CFE_TBL_SRC_FILE
 **                          \arg #CFE_TBL_SRC_ADDRESS - \copybrief CFE_TBL_SRC_ADDRESS
 **
-** \param[in] SrcDataPtr Pointer to either a character string specifying a filename or
+** \param[in] SrcDataPtr Pointer @nonnull to either a character string specifying a filename or
 **                       a memory address of a block of binary data to be loaded into a table or,
 **                       if the table was registered with the #CFE_TBL_OPT_USR_DEF_ADDR option,
 **                       the address of the active table buffer.
@@ -310,6 +316,8 @@ CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_FILE_TOO_LARGE    \copybrief CFE_TBL_ERR_FILE_TOO_LARGE
 ** \retval #CFE_TBL_ERR_BAD_CONTENT_ID    \copybrief CFE_TBL_ERR_BAD_CONTENT_ID
 ** \retval #CFE_TBL_ERR_PARTIAL_LOAD      \copybrief CFE_TBL_ERR_PARTIAL_LOAD
+** \retval #CFE_TBL_BAD_ARGUMENT          \copybrief CFE_TBL_BAD_ARGUMENT
+** \retval #CFE_TBL_WARN_PARTIAL_LOAD     \copybrief CFE_TBL_WARN_PARTIAL_LOAD
 **
 ** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Manage
 **
@@ -389,11 +397,14 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle);
 **                       identifies the Table to be managed.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
-** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED            \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_TBL_ERR_BAD_APP_ID          \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_TBL_INFO_DUMP_PENDING       \copybrief CFE_TBL_INFO_DUMP_PENDING
+** \retval #CFE_TBL_INFO_UPDATE_PENDING     \copybrief CFE_TBL_INFO_UPDATE_PENDING
+** \retval #CFE_TBL_INFO_VALIDATION_PENDING \copybrief CFE_TBL_INFO_VALIDATION_PENDING
 **
 ** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Load, #CFE_TBL_DumpToBuffer
 **
@@ -420,6 +431,7 @@ CFE_Status_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_TBL_INFO_DUMP_PENDING  \copybrief CFE_TBL_INFO_DUMP_PENDING
 **
 ** \sa #CFE_TBL_Manage
 **
@@ -484,7 +496,7 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
 **           This pointer mush be released with the #CFE_TBL_ReleaseAddress API before
 **           the table can be loaded with data.
 **
-** \param[in, out]  TblPtr     The address of a pointer that will be loaded with the address of
+** \param[out]  TblPtr    The address of a pointer @nonnull that will be loaded with the address of
 **                        the first byte of the table.  This pointer can then be typecast
 **                        by the calling application to the appropriate table data structure. *TblPtr is the address of
 **                        the first byte of data associated with the specified table.
@@ -500,6 +512,7 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
 ** \retval #CFE_TBL_ERR_UNREGISTERED   \copybrief CFE_TBL_ERR_UNREGISTERED
 ** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
+** \retval #CFE_TBL_BAD_ARGUMENT       \copybrief CFE_TBL_BAD_ARGUMENT
 **
 ** \sa #CFE_TBL_ReleaseAddress, #CFE_TBL_GetAddresses, #CFE_TBL_ReleaseAddresses
 **
@@ -563,7 +576,7 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle);
 **           This pointer mush be released with the #CFE_TBL_ReleaseAddress API before
 **           the table can be loaded with data.
 **
-** \param[in, out] TblPtrs    Array of Pointers to variables that calling Application
+** \param[out] TblPtrs   Array of Pointers @nonnull to variables that calling Application
 **                       wishes to hold the start addresses of the Tables. *TblPtrs is an array of addresses of the
 **                       first byte of data associated with the specified tables.
 **
@@ -580,6 +593,7 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
 ** \retval #CFE_TBL_ERR_UNREGISTERED   \copybrief CFE_TBL_ERR_UNREGISTERED
 ** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
+** \retval #CFE_TBL_BAD_ARGUMENT       \copybrief CFE_TBL_BAD_ARGUMENT
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_ReleaseAddress, #CFE_TBL_ReleaseAddresses
 **
@@ -602,7 +616,7 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
 **
 ** \param[in] NumTables  Size of TblHandles array.
 **
-** \param[in] TblHandles Array of Table Handles, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share,
+** \param[in] TblHandles Array of Table Handles @nonnull, previously obtained from #CFE_TBL_Register or #CFE_TBL_Share,
 **                       of those tables whose start addresses are to be released.
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -612,6 +626,7 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
 ** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
 ** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
+** \retval #CFE_TBL_BAD_ARGUMENT       \copybrief CFE_TBL_BAD_ARGUMENT
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_ReleaseAddress, #CFE_TBL_GetAddresses
 **
@@ -670,11 +685,11 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in, out]  TblInfoPtr    A pointer to a CFE_TBL_Info_t data structure that is to be populated
+** \param[out]  TblInfoPtr   A pointer to a CFE_TBL_Info_t data structure @nonnull that is to be populated
 **                           with table characteristics and information. *TblInfoPtr is the description of the tables
 **                           characteristics and registry information stored in the #CFE_TBL_Info_t data structure
 **                           format.
-** \param[in]  TblName       The application specific name of the table of the form "AppName.RawTableName",
+** \param[in]  TblName       The application specific name @nonnull of the table of the form "AppName.RawTableName",
 **                           where RawTableName is the name specified in the #CFE_TBL_Register API call.
 **                           Example: "ACS.TamParams" for a table called "TamParams"
 **                           that was registered by the application called "ACS".
@@ -682,6 +697,7 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS              \copybrief CFE_SUCCESS
 ** \retval #CFE_TBL_ERR_INVALID_NAME \copybrief CFE_TBL_ERR_INVALID_NAME
+** \retval #CFE_TBL_BAD_ARGUMENT     \copybrief CFE_TBL_BAD_ARGUMENT
 **
 ** \sa #CFE_TBL_GetStatus
 **

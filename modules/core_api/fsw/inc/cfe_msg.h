@@ -52,7 +52,7 @@
  *          set to zero (based on size), defaults are set, then the
  *          size and bits from MsgId are set.
  *
- * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message.
+ * \param[out]      MsgPtr      A pointer to the buffer that contains the message @nonnull.
  * \param[in]       MsgId       MsgId that corresponds to message
  * \param[in]       Size        Total size of the mesage (used to set length field)
  *
@@ -69,8 +69,8 @@ CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_M
  * \par Description
  *          This routine gets the total size of the message.
  *
- * \param[in]  MsgPtr      A pointer to the buffer that contains the message.
- * \param[out] Size        Total message size
+ * \param[in]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out] Size        Total message size @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -85,7 +85,7 @@ CFE_Status_t CFE_MSG_GetSize(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t *Si
  * \par Description
  *          This routine sets the total size of the message.
  *
- * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
  * \param[in]       Size        Total message size
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -101,8 +101,8 @@ CFE_Status_t CFE_MSG_SetSize(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t Size);
  * \par Description
  *          This routine gets the message type.
  *
- * \param[in]  MsgPtr      A pointer to the buffer that contains the message.
- * \param[out] Type        Message type
+ * \param[in]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out] Type        Message type @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -117,7 +117,7 @@ CFE_Status_t CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Ty
  * \par Description
  *          This routine sets the message type.
  *
- * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
  * \param[in]       Type        Message type
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -133,8 +133,8 @@ CFE_Status_t CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type);
  * \par Description
  *          This routine gets the message header version.
  *
- * \param[in]  MsgPtr      A pointer to the buffer that contains the message.
- * \param[out] Version     Header version
+ * \param[in]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out] Version     Header version  @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -166,8 +166,8 @@ CFE_Status_t CFE_MSG_SetHeaderVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderV
  * \par Description
  *          This routine gets the message secondary header boolean.
  *
- * \param[in]  MsgPtr       A pointer to the buffer that contains the message.
- * \param[out] HasSecondary Has secondary header flag
+ * \param[in]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
+ * \param[out] HasSecondary Has secondary header flag @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -183,7 +183,7 @@ CFE_Status_t CFE_MSG_GetHasSecondaryHeader(const CFE_MSG_Message_t *MsgPtr, bool
  *          This routine sets the message has secondary header boolean. Typically only
  *          set within message initialization and not used by APPs.
  *
- * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
  * \param[in]       HasSecondary Has secondary header flag
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -199,8 +199,8 @@ CFE_Status_t CFE_MSG_SetHasSecondaryHeader(CFE_MSG_Message_t *MsgPtr, bool HasSe
  * \par Description
  *          This routine gets the message application ID.
  *
- * \param[in]  MsgPtr       A pointer to the buffer that contains the message.
- * \param[out] ApId         Application ID
+ * \param[in]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
+ * \param[out] ApId         Application ID @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -217,7 +217,7 @@ CFE_Status_t CFE_MSG_GetApId(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t *Ap
  *          at initialization using the MsgId, but API available to set
  *          bits that may not be included in MsgId.
  *
- * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
  * \param[in]       ApId         Application ID
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -233,8 +233,8 @@ CFE_Status_t CFE_MSG_SetApId(CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t ApId);
  * \par Description
  *          This routine gets the message segmentation flag
  *
- * \param[in]  MsgPtr       A pointer to the buffer that contains the message.
- * \param[out] SegFlag      Segmentation flag
+ * \param[in]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
+ * \param[out] SegFlag      Segmentation flag @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -249,7 +249,7 @@ CFE_Status_t CFE_MSG_GetSegmentationFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MS
  * \par Description
  *          This routine sets the message segmentation flag.
  *
- * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
  * \param[in]       SegFlag      Segmentation flag
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -265,8 +265,8 @@ CFE_Status_t CFE_MSG_SetSegmentationFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Segm
  * \par Description
  *          This routine gets the message sequence count.
  *
- * \param[in]    MsgPtr      A pointer to the buffer that contains the message.
- * \param[out]   SeqCnt      Sequence count
+ * \param[in]    MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out]   SeqCnt      Sequence count @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -281,7 +281,7 @@ CFE_Status_t CFE_MSG_GetSequenceCount(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_S
  * \par Description
  *          This routine sets the message sequence count.
  *
- * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
  * \param[in]       SeqCnt      Sequence count
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -313,8 +313,8 @@ CFE_MSG_SequenceCount_t CFE_MSG_GetNextSequenceCount(CFE_MSG_SequenceCount_t Seq
  * \par Description
  *          This routine gets the message EDS version.
  *
- * \param[in]    MsgPtr      A pointer to the buffer that contains the message.
- * \param[out]   Version     EDS Version
+ * \param[in]    MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out]   Version     EDS Version @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -329,7 +329,7 @@ CFE_Status_t CFE_MSG_GetEDSVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSV
  * \par Description
  *          This routine sets the message EDS version.
  *
- * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
  * \param[in]       Version     EDS Version
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -345,8 +345,8 @@ CFE_Status_t CFE_MSG_SetEDSVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_EDSVersion
  * \par Description
  *          This routine gets the message endian.
  *
- * \param[in]    MsgPtr      A pointer to the buffer that contains the message.
- * \param[out]   Endian      Endian
+ * \param[in]    MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out]   Endian      Endian @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -362,7 +362,7 @@ CFE_Status_t CFE_MSG_GetEndian(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t
  *          This routine sets the message endian.  Invalid endian selection
  *          will set big endian.
  *
- * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
  * \param[in]       Endian      Endian
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -378,8 +378,8 @@ CFE_Status_t CFE_MSG_SetEndian(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Endian_t Endia
  * \par Description
  *          This routine gets the message playback flag.
  *
- * \param[in]    MsgPtr      A pointer to the buffer that contains the message.
- * \param[out]   PlayFlag    Playback Flag
+ * \param[in]    MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out]   PlayFlag    Playback Flag @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -394,7 +394,7 @@ CFE_Status_t CFE_MSG_GetPlaybackFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Pl
  * \par Description
  *          This routine sets the message playback flag.
  *
- * \param[in, out]    MsgPtr      A pointer to the buffer that contains the message.
+ * \param[in, out]    MsgPtr      A pointer to the buffer that contains the message @nonnull.
  * \param[in]         PlayFlag    Playback Flag
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -410,8 +410,8 @@ CFE_Status_t CFE_MSG_SetPlaybackFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Playback
  * \par Description
  *          This routine gets the message subsystem
  *
- * \param[in]  MsgPtr       A pointer to the buffer that contains the message.
- * \param[out] Subsystem    Subsystem
+ * \param[in]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
+ * \param[out] Subsystem    Subsystem @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -428,7 +428,7 @@ CFE_Status_t CFE_MSG_GetSubsystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsy
  *          be set at initialization using the MsgId, but API available to set
  *          bits that may not be included in MsgId.
  *
- * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
  * \param[in]       Subsystem    Subsystem
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -444,8 +444,8 @@ CFE_Status_t CFE_MSG_SetSubsystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Subsystem_t
  * \par Description
  *          This routine gets the message system id
  *
- * \param[in]  MsgPtr       A pointer to the buffer that contains the message.
- * \param[out] System       System
+ * \param[in]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
+ * \param[out] System       System @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -462,7 +462,7 @@ CFE_Status_t CFE_MSG_GetSystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t
  *          be set at initialization using the MsgId, but API available to set
  *          bits that may not be included in MsgId.
  *
- * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message @nonnull.
  * \param[in]       System       System
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -487,7 +487,7 @@ CFE_Status_t CFE_MSG_SetSystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t Syste
  *            include a checksum field, then this routine will return
  *            #CFE_MSG_WRONG_MSG_TYPE
  *
- * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -509,9 +509,9 @@ CFE_Status_t CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr);
  *            include a checksum field, then this routine will return
  *            #CFE_MSG_WRONG_MSG_TYPE and set the IsValid parameter false.
  *
- * \param[in]  MsgPtr      A pointer to the buffer that contains the message.
+ * \param[in]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
  *                         This must point to the first byte of the message header.
- * \param[out] IsValid     Checksum validation result
+ * \param[out] IsValid     Checksum validation result @nonnull
  *                         \arg true - valid
  *                         \arg false - invalid or not supported/implemented
  *
@@ -534,7 +534,7 @@ CFE_Status_t CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsV
  *            include a function code field, then this routine will do nothing to
  *            the message contents and will return #CFE_MSG_WRONG_MSG_TYPE.
  *
- * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message.
+ * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
  * \param[in]       FcnCode     The function code to include in the message.
  *
  * \return Execution status, see \ref CFEReturnCodes
@@ -557,8 +557,8 @@ CFE_Status_t CFE_MSG_SetFcnCode(CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode_t Fcn
  *            include a function code field, then this routine will
  *            set FcnCode to zero and return #CFE_MSG_WRONG_MSG_TYPE
  *
- * \param[in]  MsgPtr      A pointer to the buffer that contains the message.
- * \param[out] FcnCode     The function code from the message
+ * \param[in]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out] FcnCode     The function code from the message @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
@@ -580,8 +580,8 @@ CFE_Status_t CFE_MSG_GetFcnCode(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode
  *            to zero and return #CFE_MSG_WRONG_MSG_TYPE
  *          - Note default implementation of command messages do not have a time field.
  *
- * \param[in]  MsgPtr      A pointer to the buffer that contains the message.
- * \param[out] Time        Time from the message
+ * \param[in]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out] Time        Time from the message @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
@@ -606,7 +606,7 @@ CFE_Status_t CFE_MSG_GetMsgTime(const CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTim
  *            and will return #CFE_MSG_WRONG_MSG_TYPE.
  *          - Note default implementation of command messages do not have a time field.
  *
- * \param[in, out]  MsgPtr      A pointer to the message.
+ * \param[in, out]  MsgPtr      A pointer to the message @nonnull.
  * \param[in]       NewTime     The time to include in the message.  This will usually be a time
  *                              from #CFE_TIME_GetTime.
  *
@@ -633,8 +633,8 @@ CFE_Status_t CFE_MSG_SetMsgTime(CFE_MSG_Message_t *MsgPtr, CFE_TIME_SysTime_t Ne
  *        routing.  Message id needs to be unique for each endpoint
  *        in the system.
  *
- * \param[in]  MsgPtr      A pointer to the buffer that contains the message.
- * \param[out] MsgId       Message id
+ * \param[in]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[out] MsgId       Message id @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
@@ -655,8 +655,8 @@ CFE_Status_t CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *M
  *        This API only sets the bits in the header that make up the message ID.
  *        No other values in the header are modified.
  *
- * \param[in]  MsgPtr      A pointer to the buffer that contains the message.
- * \param[out] MsgId       Message id
+ * \param[in, out]  MsgPtr      A pointer to the buffer that contains the message @nonnull.
+ * \param[in]       MsgId       Message id
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
@@ -672,7 +672,7 @@ CFE_Status_t CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId);
  *        This routine gets the message type using the message ID
  *
  * \param[in]  MsgId       Message id
- * \param[out] Type        Message type
+ * \param[out] Type        Message type @nonnull
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
