@@ -90,6 +90,7 @@ void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void MessageIdTestSetup(void);
 void SBPipeMangSetup(void);
+void SBTaskTestSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
 void TimeConversionTestSetup(void);
