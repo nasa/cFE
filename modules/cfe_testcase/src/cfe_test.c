@@ -79,6 +79,7 @@ void CFE_TestMain(void)
     TimeArithmeticTestSetup();
     TimeCurrentTestSetup();
     TimeConversionTestSetup();
+    TimeExternalTestSetup();
     TimeMiscTestSetup();
 
     /*

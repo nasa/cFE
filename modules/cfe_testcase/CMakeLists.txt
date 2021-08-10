@@ -26,6 +26,7 @@ add_cfe_app(cfe_testcase
     src/time_arithmetic_test.c
     src/time_current_test.c
     src/time_conversion_test.c
+    src/time_external_test.c
     src/time_misc_test.c
 )
 
