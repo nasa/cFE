@@ -67,8 +67,15 @@ void TestWriteToSysLog(void)
     UtAssert_MIR("MIR (Manual Inspection Required) for CFE_ES_WriteToSysLog");
 }
 
+void TestProcessAsyncEvent(void)
+{
+    UtPrintf("Testing: CFE_ES_ProcessAsyncEvent");
+    UtAssert_VOIDCALL(CFE_ES_ProcessAsyncEvent());
+}
+
 void ESMiscTestSetup(void)
 {
     UtTest_Add(TestCalculateCRC, NULL, NULL, "Test Calculate CRC");
     UtTest_Add(TestWriteToSysLog, NULL, NULL, "Test Write To Sys Log");
+    UtTest_Add(TestProcessAsyncEvent, NULL, NULL, "Test Process Async Event");
 }

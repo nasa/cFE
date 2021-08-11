@@ -111,7 +111,7 @@ void Test_MSG_Init(void)
     CFE_UtAssert_SUCCESS(CFE_MSG_GetApId(&cmd.Msg, &apid));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHeaderVersion(&cmd.Msg, &hdrver));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&cmd.Msg, &hassec));
-    CFE_UtAssert_TRUE(hassec);
+    UtAssert_BOOL_TRUE(hassec);
     if (!is_v1)
     {
         UtAssert_INT32_EQ(apid & TEST_DEFAULT_APID_MASK, CFE_PLATFORM_DEFAULT_APID & TEST_DEFAULT_APID_MASK);

@@ -19,7 +19,7 @@
 */
 
 /*
-** File: ut_es_stubs.c
+** File: cfe_fs_core_internal_handlers.c
 **
 ** Purpose:
 ** Unit test stubs for Executive Service routines

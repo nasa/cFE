@@ -163,7 +163,7 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx);
  * for future use.
  *
  * @param[in]   CounterId  Counter ID to convert
- * @param[out]  Idx     Buffer where the calculated index will be stored
+ * @param[out]  Idx     Buffer where the calculated index will be stored @nonnull
  *
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
@@ -1494,15 +1494,16 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit);
 **        can be used for inter-task management.
 **
 ** \par Assumptions, External Events, and Notes:
-**        None.
+**        The initial value of all newly registered counters is 0.
 **
-** \param[in]  *CounterName   The Name of the generic counter.
+** \param[out] CounterIdPtr  Buffer to store the Counter Id of the newly created counter @nonnull.
+** \param[in]  CounterName   The Name of the generic counter @nonnull.
 **
-** \param[out] *CounterIdPtr  The Counter Id of the newly created counter.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
-** \retval #CFE_ES_BAD_ARGUMENT  \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_SUCCESS               \copybrief CFE_SUCCESS
+** \retval #CFE_ES_BAD_ARGUMENT       \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_ES_ERR_DUPLICATE_NAME \copybrief CFE_ES_ERR_DUPLICATE_NAME
 **
 ** \sa #CFE_ES_IncrementGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount,
 *#CFE_ES_GetGenCounterIDByName
@@ -1588,9 +1589,9 @@ CFE_Status_t CFE_ES_SetGenCount(CFE_ES_CounterId_t CounterId, uint32 Count);
 ** \par Assumptions, External Events, and Notes:
 **        None.
 **
-** \param[in]   CounterId    The Counter to get the value from.
+** \param[in]   CounterId   The Counter to get the value from.
 **
-** \param[in]   *Count     The value of the Counter.
+** \param[out]  Count       Buffer to store value of the Counter @nonnull.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
@@ -1612,8 +1613,8 @@ CFE_Status_t CFE_ES_GetGenCount(CFE_ES_CounterId_t CounterId, uint32 *Count);
 ** \par Assumptions, External Events, and Notes:
 **        None.
 **
-** \param[out]  CounterIdPtr       Pointer to variable that is to receive the Counter's ID.
-** \param[in]   CounterName        Pointer to null terminated character string containing a Counter name.
+** \param[out]  CounterIdPtr       Pointer to variable that is to receive the Counter's ID @nonnull.
+** \param[in]   CounterName        Pointer to null terminated character string containing a Counter name @nonnull.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
@@ -1636,12 +1637,12 @@ CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, cons
 ** \par Assumptions, External Events, and Notes:
 **        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
 **
-** \param[out]  CounterName   Pointer to a character array of at least \c BufferLength in size that will
+** \param[out]  CounterName   Pointer to a character array @nonnull of at least \c BufferLength in size that will
 **                            be filled with the Counter name.
 **
 ** \param[in]   CounterId     ID of Counter whose name is being requested.
 **
-** \param[in]   BufferLength  The maximum number of characters, including the null terminator, that can be put
+** \param[in]   BufferLength  The maximum number of characters, including the null terminator @nonzero, that can be put
 **                            into the \c CounterName buffer.  This routine will truncate the name to this length,
 **                            if necessary.
 **

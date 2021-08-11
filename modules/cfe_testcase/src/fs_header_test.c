@@ -18,7 +18,7 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: es_info_test.c
+** File: fs_header_test.c
 **
 ** Purpose:
 **   Functional test of basic FS Header APIs
@@ -54,16 +54,16 @@ void TestCreateHeader(void)
 
     UtPrintf("Testing: CFE_FS_InitHeader, CFE_FS_WriteHeader");
 
-    cFE_FTAssert_VOIDCALL(CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG));
+    UtAssert_VOIDCALL(CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG));
     UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, &Header), sizeof(CFE_FS_Header_t));
     UtAssert_INT32_EQ(OS_lseek(fd, 0, OS_SEEK_CUR), sizeof(CFE_FS_Header_t));
 
     UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, NULL), CFE_FS_BAD_ARGUMENT);
     cFE_FTAssert_NOT_CFE_SUCCESS(CFE_FS_WriteHeader(OS_OBJECT_ID_UNDEFINED, &Header));
 
-    cFE_FTAssert_VOIDCALL(CFE_FS_InitHeader(NULL, TestDescription, CFE_FS_SubType_ES_ERLOG));
-    cFE_FTAssert_VOIDCALL(CFE_FS_InitHeader(&HeaderFail, NULL, CFE_FS_SubType_ES_ERLOG));
-    cFE_FTAssert_VOIDCALL(CFE_FS_InitHeader(&HeaderFail, TestDescription, 256));
+    UtAssert_VOIDCALL(CFE_FS_InitHeader(NULL, TestDescription, CFE_FS_SubType_ES_ERLOG));
+    UtAssert_VOIDCALL(CFE_FS_InitHeader(&HeaderFail, NULL, CFE_FS_SubType_ES_ERLOG));
+    UtAssert_VOIDCALL(CFE_FS_InitHeader(&HeaderFail, TestDescription, 256));
 
     OS_close(fd);
     OS_remove(OS_TEST_HEADER_FILENAME);
@@ -78,7 +78,7 @@ void TestReadHeader(void)
 
     UtPrintf("Testing: CFE_FS_ReadHeader");
 
-    cFE_FTAssert_VOIDCALL(CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG));
+    UtAssert_VOIDCALL(CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG));
     UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, &Header), sizeof(CFE_FS_Header_t));
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(&ReadHeader, fd), sizeof(CFE_FS_Header_t));
     UtAssert_INT32_EQ(OS_lseek(fd, 0, OS_SEEK_CUR), sizeof(CFE_FS_Header_t));
@@ -104,7 +104,7 @@ void TestTimeStamp(void)
 
     UtPrintf("Testing: CFE_FS_SetTimestamp");
 
-    cFE_FTAssert_VOIDCALL(CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG));
+    UtAssert_VOIDCALL(CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG));
     UtAssert_INT32_EQ(CFE_FS_WriteHeader(fd, &Header), sizeof(CFE_FS_Header_t));
     UtAssert_INT32_EQ(CFE_FS_SetTimestamp(fd, NewTimestamp), CFE_SUCCESS);
     UtAssert_INT32_EQ(OS_lseek(fd, 0, OS_SEEK_CUR), (offsetof(CFE_FS_Header_t, TimeSeconds) + sizeof(NewTimestamp)));

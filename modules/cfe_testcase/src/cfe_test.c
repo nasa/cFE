@@ -33,12 +33,19 @@
 #include "cfe_assert.h"
 #include "cfe_test.h"
 
+CFE_FT_Global_t CFE_FT_Global;
+
 /*
  * Test main function
  * Register this test routine with CFE Assert
  */
 void CFE_TestMain(void)
 {
+    /* Constant Table information used by all table tests */
+    CFE_FT_Global.TblName           = "TestTable";
+    CFE_FT_Global.RegisteredTblName = "CFE_TEST_APP.TestTable";
+    CFE_FT_Global.TblFilename       = "test_tbl.tbl";
+
     /*
      * Register this test app with CFE assert
      *
@@ -51,19 +58,28 @@ void CFE_TestMain(void)
     /*
      * Register test cases in UtAssert
      */
+    ESApplicationControlTestSetup();
     ESCDSTestSetup();
+    ESCounterTestSetup();
     ESInfoTestSetup();
     ESMemPoolTestSetup();
     ESMiscTestSetup();
+    ESResourceIDTestSetup();
     ESTaskTestSetup();
+    EVSFiltersTestSetup();
     EVSSendTestSetup();
     FSHeaderTestSetup();
     FSUtilTestSetup();
     MessageIdTestSetup();
     SBPipeMangSetup();
+    TBLContentAccessTestSetup();
+    TBLContentMangTestSetup();
+    TBLInformationTestSetup();
+    TBLRegistrationTestSetup();
     TimeArithmeticTestSetup();
     TimeCurrentTestSetup();
     TimeConversionTestSetup();
+    TimeMiscTestSetup();
 
     /*
      * Execute the tests

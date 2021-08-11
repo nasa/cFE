@@ -18,7 +18,7 @@
 **      See the License for the specific language governing permissions and
 **      limitations under the License.
 **
-** File: cfe_test.c
+** File: cfe_test.h
 **
 ** Purpose:
 **   Initialization routine for CFE functional test
@@ -39,6 +39,7 @@
  * Includes
  */
 #include "cfe.h"
+#include "cfe_test_tbl.h"
 
 #include "uttest.h"
 #include "utassert.h"
@@ -46,7 +47,18 @@
 typedef struct
 {
     CFE_FS_FileWriteMetaData_t FuncTestState;
+
+    /* Generic utility counter */
+    int Count;
+
+    /* Table information used by all table tests */
+    CFE_TBL_Handle_t TblHandle;
+    const char *     TblName;
+    const char *     RegisteredTblName;
+    const char *     TblFilename;
 } CFE_FT_Global_t;
+
+extern CFE_FT_Global_t CFE_FT_Global;
 
 /**
  * Name of log file to write
@@ -74,24 +86,30 @@ typedef struct
         UtAssert_True(rcact < CFE_SUCCESS, "%s == (%ld) ", #actual, (long)rcact); \
     } while (0)
 
-/* Log calls to void functions */
-#define cFE_FTAssert_VOIDCALL(func) (func, UtAssert(true, #func, __FILE__, __LINE__))
-
 bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference);
 
 void CFE_TestMain(void);
+void ESApplicationControlTestSetup(void);
 void ESCDSTestSetup(void);
+void ESCounterTestSetup(void);
 void ESInfoTestSetup(void);
 void ESMemPoolTestSetup(void);
 void ESMiscTestSetup(void);
+void ESResourceIDTestSetup(void);
 void ESTaskTestSetup(void);
+void EVSFiltersTestSetup(void);
 void EVSSendTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void MessageIdTestSetup(void);
 void SBPipeMangSetup(void);
+void TBLContentAccessTestSetup(void);
+void TBLContentMangTestSetup(void);
+void TBLInformationTestSetup(void);
+void TBLRegistrationTestSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeCurrentTestSetup(void);
 void TimeConversionTestSetup(void);
+void TimeMiscTestSetup(void);
 
 #endif /* CFE_TEST_H */

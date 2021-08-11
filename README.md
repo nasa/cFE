@@ -10,6 +10,22 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev844
+
+- Move global count into test global struct
+- Add ES application control API functional tests 
+- Add null pointer check to CFE_ES_ReloadApp functional test 
+- Add Generic Counter API test 
+- Update coverage test to use UtAssert macros 
+- Add resource ID API functional tests 
+- Fix last char truncated in coverage log output 
+- Fix typos in some copyright headers 
+- Add misc time api functional test 
+- Add Functional Test for EVS Reset Filters API
+- Replace cFE_FTAssert_VOIDCALL with new UtAssert_VOIDCALL
+- Remove multiple instantiations of CFE_FT_Global
+- Add functional tests for cFE Table APIs
+
 ### Development Build: v6.8.0-rc1+dev810
 
 - Add null pointer check to table GetAddresses and ReleaseAddresses
@@ -252,19 +268,19 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 ### Development Build: v6.8.0-rc1+dev402
 
 - HOTFIX 20210312, updates to work with older CMake
-- Fix #972, reorganize directory structure
+- reorganize directory structure
 - HOTFIX IC 2021-03-05: Correct static app build issue
 - See <https://github.com/nasa/cFE/pull/1222>
 
 ### Development Build: v6.8.0-rc1+dev392
 
-- Fix #665, update pipe name documentation.
-- Fix #1165, remove configs about shells
-- Fix #1094, Update CRC documentation
-- Fix #979, add stack size and priority to task info …
-- Fix #1170, refactor target config objects …
-- Fix #1207, Add wrapper targets to simplify app builds …
-- Fix #1211, Add Testing Tools to the Security Policy
+- update pipe name documentation.
+- remove configs about shells
+- Update CRC documentation
+- add stack size and priority to task info …
+- refactor target config objects …
+- Add wrapper targets to simplify app builds …
+- Add Testing Tools to the Security Policy
 - See <https://github.com/nasa/cFE/pull/1213>
 
 ### Development Build: v6.8.0-rc1+dev382

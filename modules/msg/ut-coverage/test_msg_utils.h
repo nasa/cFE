@@ -37,6 +37,6 @@
  */
 
 /* Subtest macro */
-#define MSG_UT_ADD_SUBTEST(Func) UT_AddSubTest(Func, NULL, NULL, __func__, #Func)
+#define MSG_UT_ADD_SUBTEST(Func) UtTest_AddSubTest(Func, NULL, NULL, __func__, #Func)
 
 #endif /* TEST_MSG_UTILS_H */
