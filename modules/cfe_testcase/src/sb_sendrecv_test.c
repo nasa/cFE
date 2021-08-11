@@ -26,6 +26,9 @@
  * Functional test of SB transmit/receive APIs
  * CFE_SB_TransmitMsg - Transmit a message.
  * CFE_SB_ReceiveBuffer - Receive a message from a software bus pipe.
+ * CFE_SB_AllocateMessageBuffer - Get a buffer pointer to use for "zero copy" SB sends.
+ * CFE_SB_ReleaseMessageBuffer - Release an unused "zero copy" buffer pointer.
+ * CFE_SB_TransmitBuffer - Transmit a buffer.
  */
 
 #include "cfe_test.h"
@@ -197,7 +200,84 @@ void TestBasicTransmitRecv(void)
     UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId2), CFE_SUCCESS);
 }
 
+/* This is a variant of the message transmit API that does not copy */
+void TestZeroCopyTransmitRecv(void)
+{
+    CFE_SB_PipeId_t  PipeId1;
+    CFE_SB_PipeId_t  PipeId2;
+    CFE_SB_Buffer_t *CmdBuf;
+    CFE_SB_Buffer_t *TlmBuf;
+    CFE_SB_Buffer_t *MsgBuf;
+    CFE_SB_MsgId_t   MsgId;
+
+    /* Setup, create a pipe and subscribe (one cmd, one tlm) */
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, 5, "TestPipe1"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId2, 5, "TestPipe2"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, PipeId1, CFE_SB_DEFAULT_QOS, 3), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_TLM_MSGID, PipeId2, CFE_SB_DEFAULT_QOS, 3), CFE_SUCCESS);
+
+    UtPrintf("Testing: CFE_SB_AllocateMessageBuffer");
+
+    /* Confirm bad size rejection */
+    UtAssert_NULL(CFE_SB_AllocateMessageBuffer(CFE_MISSION_SB_MAX_SB_MSG_SIZE + 1));
+
+    /* Nominal */
+    UtAssert_NOT_NULL(CmdBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestCmdMessage_t)));
+    UtAssert_NOT_NULL(TlmBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestTlmMessage_t)));
+
+    UtPrintf("Testing: CFE_SB_ReleaseMessageBuffer");
+
+    /* allocate a buffer but then discard it without sending */
+    UtAssert_NOT_NULL(MsgBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_MSG_Message_t) + 4));
+    UtAssert_INT32_EQ(CFE_SB_ReleaseMessageBuffer(MsgBuf), CFE_SUCCESS);
+
+    /* Attempt to double-release, should fail validation */
+    UtAssert_INT32_EQ(CFE_SB_ReleaseMessageBuffer(MsgBuf), CFE_SB_BUFFER_INVALID);
+
+    /* Other bad input checking */
+    UtAssert_INT32_EQ(CFE_SB_ReleaseMessageBuffer(NULL), CFE_SB_BAD_ARGUMENT);
+
+    UtPrintf("Testing: CFE_SB_TransmitBuffer");
+
+    /* Initialize the message content */
+    UtAssert_INT32_EQ(CFE_MSG_Init(&CmdBuf->Msg, CFE_FT_CMD_MSGID, sizeof(CFE_FT_TestCmdMessage_t)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&TlmBuf->Msg, CFE_FT_TLM_MSGID, sizeof(CFE_FT_TestTlmMessage_t)), CFE_SUCCESS);
+
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(CmdBuf, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(TlmBuf, true), CFE_SUCCESS);
+
+    /* Attempt to send a buffer which has been released */
+    UtAssert_NOT_NULL(MsgBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_MSG_Message_t) + 4));
+    UtAssert_INT32_EQ(CFE_MSG_Init(&MsgBuf->Msg, CFE_FT_CMD_MSGID, sizeof(CFE_MSG_Message_t) + 4), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReleaseMessageBuffer(MsgBuf), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(MsgBuf, true), CFE_SB_BUFFER_INVALID);
+
+    /* Attempt to send a NULL buffer */
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(NULL, true), CFE_SB_BAD_ARGUMENT);
+
+    UtPrintf("Testing: CFE_SB_ReceiveBuffer");
+
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, 100), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf->Msg, &MsgId), CFE_SUCCESS);
+    CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
+    UtAssert_ADDRESS_EQ(MsgBuf, CmdBuf); /* should be the same actual buffer (not a copy) */
+
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, 100), CFE_SB_TIME_OUT);
+
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId2, 100), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf->Msg, &MsgId), CFE_SUCCESS);
+    CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_TLM_MSGID);
+    UtAssert_ADDRESS_EQ(MsgBuf, TlmBuf); /* should be the same actual buffer (not a copy) */
+
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId2, 100), CFE_SB_TIME_OUT);
+
+    /* Cleanup */
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId2), CFE_SUCCESS);
+}
+
 void SBSendRecvTestSetup(void)
 {
     UtTest_Add(TestBasicTransmitRecv, NULL, NULL, "Test Basic Transmit/Receive");
+    UtTest_Add(TestZeroCopyTransmitRecv, NULL, NULL, "Test Zero Copy Transmit/Receive");
 }
