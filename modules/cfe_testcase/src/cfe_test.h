@@ -110,6 +110,7 @@ void FSUtilTestSetup(void);
 void MessageIdTestSetup(void);
 void MsgApiTestSetup(void);
 void SBPipeMangSetup(void);
+void SBSendRecvTestSetup(void);
 void SBSubscriptionTestSetup(void);
 void TBLContentAccessTestSetup(void);
 void TBLContentMangTestSetup(void);
