@@ -99,7 +99,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
 **          associated with the pipe.  All subscriptions made for this pipe by
 **          calls to #CFE_SB_Subscribe will be automatically removed from the
 **          SB routing tables.  Any messages in the pipe will be discarded.
-**          
+**
 **          If this routine is called from one task while execution of another
 **          task is blocked by a call to CFE_SB_ReceiveBuffer() with TimeOut
 **          #CFE_SB_PEND_FOREVER, there is no guarantee that
