@@ -99,6 +99,11 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
 **          associated with the pipe.  All subscriptions made for this pipe by
 **          calls to #CFE_SB_Subscribe will be automatically removed from the
 **          SB routing tables.  Any messages in the pipe will be discarded.
+**          
+**          If this routine is called from one task while execution of another
+**          task is blocked by a call to CFE_SB_ReceiveBuffer() with TimeOut
+**          #CFE_SB_PEND_FOREVER, there is no guarantee that
+**          CFE_SB_ReceiveBuffer() will return.
 **
 **          Applications should not call this routine for all of their
 **          SB pipes as part of their orderly shutdown process, as the
@@ -433,6 +438,10 @@ CFE_Status_t CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenc
 **          This routine retrieves the next message from the specified pipe.
 **          If the pipe is empty, this routine will block until either a new
 **          message comes in or the timeout value is reached.
+**
+**          There is no guarantee that this routine will return if
+**          CFE_SB_DeletePipe() is called from another task while this routine
+**          is blocking with TimeOut #CFE_SB_PEND_FOREVER.
 **
 ** \par Assumptions, External Events, and Notes:
 **          Note - If an error occurs in this API, the *BufPtr value may be NULL or
