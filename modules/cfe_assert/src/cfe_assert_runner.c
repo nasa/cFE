@@ -69,6 +69,26 @@ static CFE_EVS_BinFilter_t CFE_TR_EventFilters[] = {
     {UTASSERT_CASETYPE_DEBUG, CFE_EVS_NO_FILTER},
 };
 
+bool CFE_UtAssert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_CaseType_t CaseType, const char *File,
+                              uint32 Line, const char *Text)
+{
+    bool        Result = (Status >= CFE_SUCCESS);
+    const char *MatchText;
+
+    if (ExpectSuccess)
+    {
+        MatchText = "OK";
+    }
+    else
+    {
+        /* expecting non-success; result should be inverted */
+        Result    = !Result;
+        MatchText = "ERROR";
+    }
+
+    return UtAssertEx(Result, CaseType, File, Line, "%s (0x%lx) is %s", Text, (unsigned long)Status, MatchText);
+}
+
 void CFE_Assert_StatusReport(uint8 MessageType, const char *Prefix, const char *OutputMessage)
 {
     uint16 EventType;
