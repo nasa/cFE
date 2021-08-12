@@ -35,12 +35,41 @@
 
 int32 TestCallbackFunction(void)
 {
+    CFE_FT_Global.Count += 1;
     return CFE_SUCCESS;
 }
 
 int32 TestCallbackFunction2(void)
 {
+    CFE_FT_Global.Count = 0;
     return CFE_SUCCESS;
+}
+
+void TestCallback(void)
+{
+    CFE_FT_Global.Count = 1;
+
+    UtPrintf("Testing: CFE_TIME_RegisterSynchCallback, CFE_TIME_UnregisterSynchCallback");
+
+    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(&TestCallbackFunction), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(&TestCallbackFunction2), CFE_TIME_TOO_MANY_SYNCH_CALLBACKS);
+
+    OS_TaskDelay(2500);
+    if (CFE_FT_Global.Count < 2)
+    {
+        UtAssert_MIR("CFE_TIME_RegisterSynchCallback requires manual inspection to determine if failure is with the "
+                     "API or due to an insufficient timing performance of this machine");
+    }
+
+    CFE_FT_Global.Count = 1;
+    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(&TestCallbackFunction), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(&TestCallbackFunction), CFE_TIME_CALLBACK_NOT_REGISTERED);
+
+    OS_TaskDelay(2500);
+    UtAssert_INT32_LTEQ(CFE_FT_Global.Count, 2);
+
+    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(NULL), CFE_TIME_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(NULL), CFE_TIME_BAD_ARGUMENT);
 }
 
 void TestExternal(void)
@@ -51,7 +80,8 @@ void TestExternal(void)
 #endif
 
     UtPrintf("Testing: CFE_TIME_ExternalTone, CFE_TIME_ExternalMET, CFE_TIME_ExternalGPS, CFE_TIME_ExternalTime");
-
+    /* These time calls could impact the system timekeeping. Likely impact is incorrect time for one update cycle, a
+     * rejected external time update, multiple tone's or external updates detected, or similar. */
     UtAssert_VOIDCALL(CFE_TIME_ExternalTone());
 
 #if (CFE_PLATFORM_TIME_CFG_SRC_MET == true)
@@ -67,22 +97,8 @@ void TestExternal(void)
 #endif
 }
 
-void TestCallback(void)
-{
-    UtPrintf("Testing: CFE_TIME_RegisterSynchCallback, CFE_TIME_UnregisterSynchCallback");
-
-    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(&TestCallbackFunction), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(&TestCallbackFunction2), CFE_TIME_TOO_MANY_SYNCH_CALLBACKS);
-
-    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(&TestCallbackFunction), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(&TestCallbackFunction), CFE_TIME_CALLBACK_NOT_REGISTERED);
-
-    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(NULL), CFE_TIME_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(NULL), CFE_TIME_BAD_ARGUMENT);
-}
-
 void TimeExternalTestSetup(void)
 {
-    UtTest_Add(TestExternal, NULL, NULL, "Test External Sources");
     UtTest_Add(TestCallback, NULL, NULL, "Test Time Synch Callbacks");
+    UtTest_Add(TestExternal, NULL, NULL, "Test External Sources");
 }
