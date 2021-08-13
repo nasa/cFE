@@ -4619,6 +4619,10 @@ void TestESMempool(void)
      */
     UtAssert_INT32_EQ(CFE_ES_GetMemPoolStats(&Stats, CFE_ES_MEMHANDLE_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
+    /* Test successfully getting memory pool statistics
+     */
+    CFE_UtAssert_SUCCESS(CFE_ES_GetMemPoolStats(&Stats, PoolID1));
+
     /* Test allocating a pool buffer where the memory block doesn't fit within
      * the remaining memory
      */
