@@ -352,18 +352,32 @@ void CFE_ES_ExitApp(uint32 ExitStatus);
 **
 ** \par Description
 **        This is the API that allows an app to check for exit requests from
-**         the system.
+**        the system, or request shutdown from the system.
 **
 ** \par Assumptions, External Events, and Notes:
 **        This API updates the internal task counter tracked by ES for the calling task.
 **        For ES to report application counters correctly this API should be called
 **        from the main app task as part of it's main processing loop.
 **
-** \param[in]  RunStatus    A pointer to a variable containing the Application's
-**                          desired run status.  Acceptable values are:
-**                          \arg #CFE_ES_RunStatus_APP_RUN - \copybrief CFE_ES_RunStatus_APP_RUN
-**                          \arg #CFE_ES_RunStatus_APP_EXIT - \copybrief CFE_ES_RunStatus_APP_EXIT
-**                          \arg #CFE_ES_RunStatus_APP_ERROR - \copybrief CFE_ES_RunStatus_APP_ERROR
+**        In the event of a externally initiated app shutdown request (such as the APP_STOP,
+**        APP_RELOAD, and APP_RESTART commands) or if a system error occurs requiring the app
+**        to be shut down administratively, this function returns "false" and optionally sets
+**        the "RunStatus" output to further indicate the specific application state.
+**
+**        If "RunStatus" is passed as non-NULL, it should point to a local status variable
+**        containing the requested status to ES.  Normally, this should be initialized to
+**        #CFE_ES_RunStatus_APP_RUN during application start up, and should remain as this value
+**        during normal operation.
+**
+**        If "RunStatus" is set to #CFE_ES_RunStatus_APP_EXIT or #CFE_ES_RunStatus_APP_ERROR on input,
+**        this acts as a shutdown request - CFE_ES_RunLoop() function will return "false", and a shutdown
+**        will be initiated similar to if ES had been externally commanded to shut down the app.
+**
+**        If "RunStatus" is not used, it should be passed as NULL.  In this mode, only the boolean
+**        return value is relevant, which will indicate if an externally-initiated shutdown request
+**        is pending.
+**
+** \param[inout] RunStatus  Optional pointer to a variable containing the desired run status
 **
 ** \return Boolean indicating application should continue running
 ** \retval true  Application should continue running
