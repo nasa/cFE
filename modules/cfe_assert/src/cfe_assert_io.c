@@ -86,10 +86,14 @@ void UT_BSP_SysLogStatusReport(uint8 MessageType, const char *Prefix, const char
 
 void UT_BSP_WriteLogFile(osal_id_t FileDesc, uint8 MessageType, const char *Prefix, const char *OutputMessage)
 {
-    char LogFileBuffer[CFE_ASSERT_MAX_LOG_LINE_LENGTH];
+    char   LogFileBuffer[CFE_ASSERT_MAX_LOG_LINE_LENGTH];
+    uint32 MsgEnabled = CFE_Assert_Global.CurrVerbosity >> MessageType;
 
-    snprintf(LogFileBuffer, sizeof(LogFileBuffer), "[%5s] %s\n", Prefix, OutputMessage);
-    OS_write(FileDesc, LogFileBuffer, strlen(LogFileBuffer));
+    if (MsgEnabled & 1)
+    {
+        snprintf(LogFileBuffer, sizeof(LogFileBuffer), "[%5s] %s\n", Prefix, OutputMessage);
+        OS_write(FileDesc, LogFileBuffer, strlen(LogFileBuffer));
+    }
 }
 
 void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
@@ -97,45 +101,7 @@ void UT_BSP_DoText(uint8 MessageType, const char *OutputMessage)
     const char *                Prefix;
     CFE_Assert_StatusCallback_t StatusCallback;
 
-    switch (MessageType)
-    {
-        case UTASSERT_CASETYPE_ABORT:
-            Prefix = "ABORT";
-            break;
-        case UTASSERT_CASETYPE_FAILURE:
-            Prefix = "FAIL";
-            break;
-        case UTASSERT_CASETYPE_MIR:
-            Prefix = "MIR";
-            break;
-        case UTASSERT_CASETYPE_TSF:
-            Prefix = "TSF";
-            break;
-        case UTASSERT_CASETYPE_TTF:
-            Prefix = "TTF";
-            break;
-        case UTASSERT_CASETYPE_NA:
-            Prefix = "N/A";
-            break;
-        case UTASSERT_CASETYPE_BEGIN:
-            Prefix = "BEGIN";
-            break;
-        case UTASSERT_CASETYPE_END:
-            Prefix = "END";
-            break;
-        case UTASSERT_CASETYPE_PASS:
-            Prefix = "PASS";
-            break;
-        case UTASSERT_CASETYPE_INFO:
-            Prefix = "INFO";
-            break;
-        case UTASSERT_CASETYPE_DEBUG:
-            Prefix = "DEBUG";
-            break;
-        default:
-            Prefix = "OTHER";
-            break;
-    }
+    Prefix = UtAssert_GetCaseTypeAbbrev(MessageType);
 
     StatusCallback = CFE_Assert_Global.StatusCallback;
 
