@@ -2436,6 +2436,12 @@ void Test_Subscribe_LocalSubscription(void)
     CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
+    /* Test_Subscribe_LocalSubscription with message
+     * limit greater than CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT
+     */
+    CFE_UtAssert_SUCCESS(CFE_SB_Unsubscribe(MsgId, PipeId));
+    UtAssert_INT32_EQ(CFE_SB_SubscribeLocal(MsgId, PipeId, UINT16_MAX), CFE_SUCCESS);
+
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
 } /* end Test_Subscribe_LocalSubscription */
