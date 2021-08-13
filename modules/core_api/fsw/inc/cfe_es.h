@@ -391,10 +391,9 @@ bool CFE_ES_RunLoop(uint32 *RunStatus);
 **
 ** \param[in]  MinSystemState        Determine the state of the App
 ** \param[in]  TimeOutMilliseconds   The timeout value in Milliseconds.
-**                                   This parameter must be at least 1000. Lower values
-**                                   will be rounded up. There is not an option to
-**                                   wait indefinitely to avoid hanging a critical
-**                                   application because a non-critical app did not start.
+**                                   There is not an option to wait indefinitely to
+**                                   avoid hanging a critical application because a
+**                                   non-critical app did not start.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                State successfully achieved
