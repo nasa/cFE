@@ -168,7 +168,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr);
 **                         to be put into the file's Standard cFE File Header.
 **
 ** \return Execution status, see \ref CFEReturnCodes, or OSAL status
-** \retval #CFE_STATUS_EXTERNAL_RESOURCE_FAIL  \copybrief CFE_STATUS_EXTERNAL_RESOURCE_FAIL
+** \retval #CFE_STATUS_EXTERNAL_RESOURCE_FAIL  \covtest \copybrief CFE_STATUS_EXTERNAL_RESOURCE_FAIL
 ** \retval #CFE_SUCCESS                        \copybrief CFE_SUCCESS
 **
 ** \note This function invokes OSAL API routines and the current implementation may return
