@@ -259,10 +259,10 @@ CFE_Status_t CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *Pipe
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
-** \retval #CFE_SB_MAX_MSGS_MET  \copybrief CFE_SB_MAX_MSGS_MET
+** \retval #CFE_SB_MAX_MSGS_MET  \covtest \copybrief CFE_SB_MAX_MSGS_MET
 ** \retval #CFE_SB_MAX_DESTS_MET \copybrief CFE_SB_MAX_DESTS_MET
 ** \retval #CFE_SB_BAD_ARGUMENT  \copybrief CFE_SB_BAD_ARGUMENT
-** \retval #CFE_SB_BUF_ALOC_ERR  \copybrief CFE_SB_BUF_ALOC_ERR
+** \retval #CFE_SB_BUF_ALOC_ERR  \covtest \copybrief CFE_SB_BUF_ALOC_ERR
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeLocal, #CFE_SB_Unsubscribe, #CFE_SB_UnsubscribeLocal
 **/
@@ -294,10 +294,10 @@ CFE_Status_t CFE_SB_SubscribeEx(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CF
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
-** \retval #CFE_SB_MAX_MSGS_MET  \copybrief CFE_SB_MAX_MSGS_MET
+** \retval #CFE_SB_MAX_MSGS_MET  \covtest \copybrief CFE_SB_MAX_MSGS_MET
 ** \retval #CFE_SB_MAX_DESTS_MET \copybrief CFE_SB_MAX_DESTS_MET
 ** \retval #CFE_SB_BAD_ARGUMENT  \copybrief CFE_SB_BAD_ARGUMENT
-** \retval #CFE_SB_BUF_ALOC_ERR  \copybrief CFE_SB_BUF_ALOC_ERR
+** \retval #CFE_SB_BUF_ALOC_ERR  \covtest \copybrief CFE_SB_BUF_ALOC_ERR
 **
 ** \sa #CFE_SB_SubscribeEx, #CFE_SB_SubscribeLocal, #CFE_SB_Unsubscribe, #CFE_SB_UnsubscribeLocal
 **/
@@ -329,10 +329,10 @@ CFE_Status_t CFE_SB_Subscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS          \copybrief CFE_SUCCESS
-** \retval #CFE_SB_MAX_MSGS_MET  \copybrief CFE_SB_MAX_MSGS_MET
+** \retval #CFE_SB_MAX_MSGS_MET  \covtest \copybrief CFE_SB_MAX_MSGS_MET
 ** \retval #CFE_SB_MAX_DESTS_MET \copybrief CFE_SB_MAX_DESTS_MET
 ** \retval #CFE_SB_BAD_ARGUMENT  \copybrief CFE_SB_BAD_ARGUMENT
-** \retval #CFE_SB_BUF_ALOC_ERR  \copybrief CFE_SB_BUF_ALOC_ERR
+** \retval #CFE_SB_BUF_ALOC_ERR  \covtest \copybrief CFE_SB_BUF_ALOC_ERR
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeEx, #CFE_SB_Unsubscribe, #CFE_SB_UnsubscribeLocal
 **/
@@ -357,7 +357,7 @@ CFE_Status_t CFE_SB_SubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
-** \retval #CFE_SB_INTERNAL_ERR   \copybrief CFE_SB_INTERNAL_ERR
+** \retval #CFE_SB_BAD_ARGUMENT   \copybrief CFE_SB_BAD_ARGUMENT
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeEx, #CFE_SB_SubscribeLocal, #CFE_SB_UnsubscribeLocal
 **/
@@ -383,7 +383,7 @@ CFE_Status_t CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId);
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
-** \retval #CFE_SB_INTERNAL_ERR   \copybrief CFE_SB_INTERNAL_ERR
+** \retval #CFE_SB_BAD_ARGUMENT   \copybrief CFE_SB_BAD_ARGUMENT
 **
 ** \sa #CFE_SB_Subscribe, #CFE_SB_SubscribeEx, #CFE_SB_SubscribeLocal, #CFE_SB_Unsubscribe
 **/
@@ -421,7 +421,7 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
 ** \retval #CFE_SB_BAD_ARGUMENT \copybrief CFE_SB_BAD_ARGUMENT
 ** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
-** \retval #CFE_SB_BUF_ALOC_ERR \copybrief CFE_SB_BUF_ALOC_ERR
+** \retval #CFE_SB_BUF_ALOC_ERR \covtest \copybrief CFE_SB_BUF_ALOC_ERR
 **/
 CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount);
 
@@ -461,7 +461,7 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementS
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
 ** \retval #CFE_SB_BAD_ARGUMENT \copybrief CFE_SB_BAD_ARGUMENT
 ** \retval #CFE_SB_TIME_OUT     \copybrief CFE_SB_TIME_OUT
-** \retval #CFE_SB_PIPE_RD_ERR  \copybrief CFE_SB_PIPE_RD_ERR
+** \retval #CFE_SB_PIPE_RD_ERR  \covtest \copybrief CFE_SB_PIPE_RD_ERR
 ** \retval #CFE_SB_NO_MESSAGE   \copybrief CFE_SB_NO_MESSAGE
 **/
 CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut);
@@ -717,9 +717,9 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr);
 **    truncated, but it will still be null terminated.
 **
 ** \param[out] DestStringPtr    Pointer to destination buffer @nonnull
-** \param[in]  SourceStringPtr  Pointer to source buffer (component of SB message definition) @nonnull
+** \param[in]  SourceStringPtr  Pointer to source buffer (component of SB message definition)
 ** \param[in]  DefaultString    Default string to use if source is empty
-** \param[in]  DestMaxSize      Size of destination storage buffer (must be at least 2)
+** \param[in]  DestMaxSize      Size of destination storage buffer @nonzero
 ** \param[in]  SourceMaxSize    Size of source buffer as defined by the message definition
 **
 ** \return Number of characters copied or error code, see \ref CFEReturnCodes
