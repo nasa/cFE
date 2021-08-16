@@ -1386,6 +1386,13 @@ void Test_CFE_TBL_Register(void)
 
     UtPrintf("Begin Test Register");
 
+    /* Test response to a null table handle and null table name */
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TBL_Register(NULL, "UT_Table1", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL),
+                      CFE_TBL_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_TBL_Register(&TblHandle1, NULL, sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL),
+                      CFE_TBL_BAD_ARGUMENT);
+
     /* Test response to an invalid application ID */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
@@ -1732,6 +1739,23 @@ void Test_CFE_TBL_Register(void)
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(0);
 
+    /* Test registering a critical table with no space in the critical table registry */
+    /* a. Setup test */
+    UT_InitData();
+    for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
+    {
+        CFE_TBL_Global.CritReg[i].CDSHandle = CFE_TBL_BAD_TABLE_HANDLE - 1;
+    }
+    /* b. Perform test */
+    CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "NOTABLE", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
+    CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
+    CFE_UtAssert_EVENTCOUNT(0);
+
+    /* c. Test cleanup: unregister table */
+    UT_ClearEventHistory();
+    CFE_UtAssert_SUCCESS(CFE_TBL_Unregister(TblHandle1));
+    CFE_UtAssert_EVENTCOUNT(0);
+
     /* Test response to no available handles */
     /* a. Test setup */
     UT_InitData();
@@ -1831,6 +1855,11 @@ void Test_CFE_TBL_Share(void)
 
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
     StdFileHeader.ProcessorID  = CFE_PLATFORM_TBL_VALID_PRID_1;
+
+    /* Test response to a null table handle and null table name */
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TBL_Share(NULL, "ut_cfe_tbl.UT_Table2"), CFE_TBL_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_TBL_Share(&App2TblHandle1, NULL), CFE_TBL_BAD_ARGUMENT);
 
     /* Test response to an invalid application ID */
     UT_InitData();
@@ -1988,6 +2017,10 @@ void Test_CFE_TBL_Load(void)
                                           Test_CFE_TBL_ValidationFunc));
     CFE_UtAssert_EVENTNOTSENT(CFE_TBL_REGISTER_ERR_EID);
     CFE_UtAssert_EVENTCOUNT(0);
+
+    /* Test response to a null source data pointer */
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TBL_Load(App1TblHandle1, CFE_TBL_SRC_ADDRESS, NULL), CFE_TBL_BAD_ARGUMENT);
 
     /* Test attempt to perform partial INITIAL load */
     UT_InitData();
@@ -2185,6 +2218,10 @@ void Test_CFE_TBL_GetAddress(void)
 
     UtPrintf("Begin Test Get Address");
 
+    /* Test response to a null table pointer */
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(NULL, App1TblHandle1), CFE_TBL_BAD_ARGUMENT);
+
     /* Test attempt to get the address of a table for which the application
      * does not have access
      */
@@ -2274,12 +2311,23 @@ void Test_CFE_TBL_GetAddresses(void)
     UtAssert_NOT_NULL(Tbl1Ptr);
     UtAssert_NOT_NULL(Tbl2Ptr);
 
+    /* Test response to a null table pointer and null table handle */
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TBL_GetAddresses(NULL, 2, ArrayOfHandles), CFE_TBL_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddresses(ArrayOfPtrsToTblPtrs, 2, NULL), CFE_TBL_BAD_ARGUMENT);
+
     /* Test attempt to get addresses of tables that the application is not
      * allowed to see
      */
     UT_InitData();
     UT_SetAppID(CFE_ES_APPID_UNDEFINED);
     UtAssert_INT32_EQ(CFE_TBL_GetAddresses(ArrayOfPtrsToTblPtrs, 2, ArrayOfHandles), CFE_TBL_ERR_NO_ACCESS);
+    CFE_UtAssert_EVENTCOUNT(0);
+
+    /* Test attempt to get addresses of tables with a bad app ID */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddresses(ArrayOfPtrsToTblPtrs, 2, ArrayOfHandles), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     CFE_UtAssert_EVENTCOUNT(0);
 }
 
@@ -2290,6 +2338,11 @@ void Test_CFE_TBL_GetAddresses(void)
 void Test_CFE_TBL_ReleaseAddresses(void)
 {
     UtPrintf("Begin Test Release Addresses");
+
+    /* Test response to a null table handle pointer */
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TBL_ReleaseAddresses(2, NULL), CFE_TBL_BAD_ARGUMENT);
+    CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test response to releasing two tables that have not been loaded */
     UT_InitData();
@@ -2728,6 +2781,12 @@ void Test_CFE_TBL_GetInfo(void)
     CFE_TBL_Info_t TblInfo;
 
     UtPrintf("Begin Test Get Info");
+
+    /* Test response to a null table info and null table name */
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TBL_GetInfo(NULL, "ut_cfe_tbl.UT_Table1"), CFE_TBL_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_TBL_GetInfo(&TblInfo, NULL), CFE_TBL_BAD_ARGUMENT);
+    CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test successfully getting information on a table */
     UT_InitData();
