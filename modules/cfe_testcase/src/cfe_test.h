@@ -116,6 +116,7 @@ void TBLRegistrationTestSetup(void);
 void TimeArithmeticTestSetup(void);
 void TimeConversionTestSetup(void);
 void TimeCurrentTestSetup(void);
+void TimeExternalTestSetup(void);
 void TimeMiscTestSetup(void);
 
 #endif /* CFE_TEST_H */
