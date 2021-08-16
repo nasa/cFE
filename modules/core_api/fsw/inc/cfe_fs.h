@@ -60,13 +60,14 @@
 **        -# File offset behavior: Agnostic on entry since it will move the offset to the start of the file,
 **           on success the offset will be at the end of the header, undefined offset behavior for error cases.
 **
-** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
+** \param[out] Hdr         Pointer to a variable of type #CFE_FS_Header_t @nonnull that will be
 **                         filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
 **                         Standard cFE File Header for the specified file.
 ** \param[in] FileDes      File Descriptor obtained from a previous call to #OS_OpenCreate
 **                         that is associated with the file whose header is to be read.
 **
 ** \return Bytes read or error status from OSAL
+** \retval #CFE_FS_BAD_ARGUMENT  \copybrief CFE_FS_BAD_ARGUMENT
 **
 ** \note This function invokes OSAL API routines and the current implementation may return
 **       OSAL error codes to the caller if failure occurs.  In a future version of CFE, the
@@ -88,7 +89,7 @@ CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes);
 ** \param[in] Hdr          Pointer to a variable of type #CFE_FS_Header_t that will be
 **                         cleared and initialized
 **
-** \param[in] *Description Initializes Header's Description
+** \param[in]  Description Initializes Header's Description @nonnull
 **
 ** \param[in]  SubType     Initializes Header's SubType
 **
@@ -128,11 +129,12 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 ** \param[in] FileDes File Descriptor obtained from a previous call to #OS_OpenCreate
 **                    that is associated with the file whose header is to be read.
 **
-** \param[in, out] Hdr     Pointer to a variable of type #CFE_FS_Header_t that will be
-**                         filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
-**                         Standard cFE File Header for the specified file.
+** \param[out] Hdr    Pointer to a variable of type #CFE_FS_Header_t @nonnull that will be
+**                    filled with the contents of the Standard cFE File Header. *Hdr is the contents of the
+**                    Standard cFE File Header for the specified file.
 **
 ** \return Bytes read or error status from OSAL
+** \retval #CFE_FS_BAD_ARGUMENT  \copybrief CFE_FS_BAD_ARGUMENT
 **
 ** \note This function invokes OSAL API routines and the current implementation may return
 **       OSAL error codes to the caller if failure occurs.  In a future version of CFE, the
@@ -166,6 +168,8 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr);
 **                         to be put into the file's Standard cFE File Header.
 **
 ** \return Execution status, see \ref CFEReturnCodes, or OSAL status
+** \retval #CFE_STATUS_EXTERNAL_RESOURCE_FAIL  \copybrief CFE_STATUS_EXTERNAL_RESOURCE_FAIL
+** \retval #CFE_SUCCESS                        \copybrief CFE_SUCCESS
 **
 ** \note This function invokes OSAL API routines and the current implementation may return
 **       OSAL error codes to the caller if failure occurs.  In a future version of CFE, the
@@ -192,7 +196,8 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
 ** This returns the expected directory for a given class of files in the form
 ** of a virtual OSAL mount point string.
 **
-** \returns String containing the mount point, or NULL if unkown/invalid
+** \returns String containing the mount point
+** \retval  NULL if no mount point is known for the given file category
 */
 const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory);
 
@@ -208,7 +213,8 @@ const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory);
 ** build environment to get the default/expected extension for a given file
 ** category.
 **
-** \returns String containing the extension, or NULL if unkown/invalid
+** \returns String containing the extension
+** \retval  NULL if no default extension is known for the given file category
 */
 const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory);
 
@@ -235,15 +241,19 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory);
 **            and does not need to be null terminated.  However parsing will stop
 **            at the first null char, when the input is shorter than the maximum.
 **
-** \param[out] OutputBuffer     Buffer to store result.
-** \param[in]  InputBuffer      A input buffer that may contain a file name (e.g. from command).
-** \param[in]  OutputBufSize    Maximum Size of output buffer.
+** \param[out] OutputBuffer     Buffer to store result @nonnull.
+** \param[in]  InputBuffer      A input buffer that may contain a file name (e.g. from command) @nonnull.
+** \param[in]  OutputBufSize    Maximum Size of output buffer @nonzero.
 ** \param[in]  InputBufSize     Maximum Size of input buffer.
 ** \param[in]  DefaultInput     Default value to use for input if InputBffer is empty
 ** \param[in]  DefaultPath      Default value to use for pathname if omitted from input
 ** \param[in]  DefaultExtension Default value to use for extension if omitted from input
 **
 ** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_FS_BAD_ARGUMENT    \copybrief CFE_FS_BAD_ARGUMENT
+** \retval #CFE_FS_FNAME_TOO_LONG  \copybrief CFE_FS_FNAME_TOO_LONG
+** \retval #CFE_FS_INVALID_PATH    \copybrief CFE_FS_INVALID_PATH
+** \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
 **
 ******************************************************************************/
 int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, size_t OutputBufSize,
@@ -267,9 +277,9 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
 **
 ** \sa CFE_FS_ParseInputFileNameEx()
 **
-** \param[out] OutputBuffer     Buffer to store result.
-** \param[in]  InputName        A null terminated input string
-** \param[in]  OutputBufSize    Maximum Size of output buffer.
+** \param[out] OutputBuffer     Buffer to store result @nonnull.
+** \param[in]  InputName        A null terminated input string @nonnull.
+** \param[in]  OutputBufSize    Maximum Size of output buffer @nonzero.
 ** \param[in]  FileCategory     The generalized category of file (implies default path/extension)
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -293,10 +303,14 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
 **            filenames separated by "/" characters.
 **        -# The extracted filename (including terminator) is no longer than #OS_MAX_PATH_LEN
 **
-** \param[in] OriginalPath The original path.
-** \param[out] FileNameOnly The filename that is extracted from the path.
+** \param[in] OriginalPath The original path @nonnull
+** \param[out] FileNameOnly The filename that is extracted from the path @nonnull
 **
 ** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_FS_BAD_ARGUMENT    \copybrief CFE_FS_BAD_ARGUMENT
+** \retval #CFE_FS_FNAME_TOO_LONG  \copybrief CFE_FS_FNAME_TOO_LONG
+** \retval #CFE_FS_INVALID_PATH    \copybrief CFE_FS_INVALID_PATH
+** \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
 **
 ******************************************************************************/
 CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *FileNameOnly);
@@ -313,9 +327,13 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
 **        it must remain accessible by the file writer task throughout the asynchronous
 **        job operation.
 **
-** \param[inout] Meta        The background file write persistent state object
+** \param[inout] Meta        The background file write persistent state object @nonnull
 **
 ** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_FS_BAD_ARGUMENT                 \copybrief CFE_FS_BAD_ARGUMENT
+** \retval #CFE_FS_INVALID_PATH                 \copybrief CFE_FS_INVALID_PATH
+** \retval #CFE_STATUS_REQUEST_ALREADY_PENDING  \copybrief CFE_STATUS_REQUEST_ALREADY_PENDING
+** \retval #CFE_SUCCESS                         \copybrief CFE_SUCCESS
 **
 ******************************************************************************/
 int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta);
@@ -331,9 +349,11 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[inout] Meta        The background file write persistent state object
+** \param[inout] Meta        The background file write persistent state object @nonnull
 **
-** \return true if request is already pending, false if not
+** \return boolean value indicating if request is already pending
+** \retval true if request is pending
+** \retval false if request is not pending
 **
 ******************************************************************************/
 bool CFE_FS_BackgroundFileDumpIsPending(const CFE_FS_FileWriteMetaData_t *Meta);

@@ -633,9 +633,12 @@ void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime);
 **        If an application requires triggering multiple child tasks at 1Hz, it should distribute
 **        the timing signal internally, rather than registering for multiple callbacks.
 **
+** \param[in]  CallbackFuncPtr   Function to call at synchronization interval @nonnull
+**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_TIME_TOO_MANY_SYNCH_CALLBACKS \copybrief CFE_TIME_TOO_MANY_SYNCH_CALLBACKS
+** \retval #CFE_TIME_BAD_ARGUMENT             \copybrief CFE_TIME_BAD_ARGUMENT
 **
 ** \sa #CFE_TIME_UnregisterSynchCallback
 **
@@ -655,9 +658,12 @@ CFE_Status_t CFE_TIME_RegisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callback
 **        Only a single callback per application is supported, and this function should only
 **        be called from a single thread within each application (typically the apps main thread).
 **
+** \param[in]  CallbackFuncPtr   Function to remove from synchronization call list @nonnull
+**
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_TIME_CALLBACK_NOT_REGISTERED \copybrief CFE_TIME_CALLBACK_NOT_REGISTERED
+** \retval #CFE_TIME_BAD_ARGUMENT            \copybrief CFE_TIME_BAD_ARGUMENT
 **
 ** \sa #CFE_TIME_RegisterSynchCallback
 **
@@ -696,7 +702,7 @@ CFE_Status_t CFE_TIME_UnregisterSynchCallback(CFE_TIME_SynchCallbackPtr_t Callba
 **          the maximum amount of time represented by a CFE_TIME_SysTime
 **          structure is approximately 136 years.
 **
-** \param[in, out]  PrintBuffer   Pointer to a character array of at least
+** \param[out]  PrintBuffer   Pointer to a character array @nonnull of at least
 **                           #CFE_TIME_PRINTED_STRING_SIZE characters in length. *PrintBuffer is the time as a
 **                           character string as described above.
 **

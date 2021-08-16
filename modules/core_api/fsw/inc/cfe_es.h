@@ -88,7 +88,7 @@
  * for future use.
  *
  * @param[in]   AppID  Application ID to convert
- * @param[out]  Idx    Buffer where the calculated index will be stored
+ * @param[out]  Idx    Buffer where the calculated index will be stored @nonnull
  *
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
@@ -113,7 +113,7 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx);
  * for future use.
  *
  * @param[in]   LibId  Library ID to convert
- * @param[out]  Idx    Buffer where the calculated index will be stored
+ * @param[out]  Idx    Buffer where the calculated index will be stored @nonnull
  *
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
@@ -138,11 +138,12 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx);
  * for future use.
  *
  * @param[in]   TaskID  Task ID to convert
- * @param[out]  Idx     Buffer where the calculated index will be stored
+ * @param[out]  Idx     Buffer where the calculated index will be stored @nonnull
  *
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
  * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+ * @retval #CFE_ES_BAD_ARGUMENT              @copybrief CFE_ES_BAD_ARGUMENT
  */
 CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx);
 
@@ -262,6 +263,9 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType);
 ** \param[in]  AppID       Identifies the application to be reset.
 **
 ** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_ES_FILE_IO_ERR              \copybrief CFE_ES_FILE_IO_ERR
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
 **
 ** \sa #CFE_ES_ReloadApp, #CFE_ES_DeleteApp
 **
@@ -292,9 +296,12 @@ CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID);
 **
 ** \param[in]  AppID       Identifies the application to be reset.
 **
-** \param[in]  AppFileName Identifies the new file to start.
+** \param[in]  AppFileName Identifies the new file to start @nonnull
 **
 ** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_ES_FILE_IO_ERR              \copybrief CFE_ES_FILE_IO_ERR
 **
 ** \sa #CFE_ES_RestartApp, #CFE_ES_DeleteApp, #CFE_ES_START_APP_CC
 **
@@ -314,6 +321,8 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName);
 ** \param[in]  AppID       Identifies the application to be reset.
 **
 ** \return Execution status, see \ref CFEReturnCodes
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
 **
 ** \sa #CFE_ES_RestartApp, #CFE_ES_ReloadApp
 **
@@ -512,7 +521,7 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr);
 ** \par Assumptions, External Events, and Notes:
 **        NOTE: \b All tasks associated with the Application would return the same Application ID.
 **
-** \param[out]   AppIdPtr       Pointer to variable that is to receive the Application's ID.
+** \param[out]   AppIdPtr       Pointer to variable that is to receive the Application's ID @nonnull.
 **                              *AppIdPtr will be set to the application ID of the calling Application.
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -537,7 +546,7 @@ CFE_Status_t CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr);
 **        CFE_ES_TaskGetInfo() should use this API rather than getting the ID
 **        from OSAL directly via OS_TaskGetId().
 **
-** \param[out]   TaskIdPtr      Pointer to variable that is to receive the ID.
+** \param[out]   TaskIdPtr      Pointer to variable that is to receive the ID @nonnull.
 **                              Will be set to the ID of the calling task.
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -559,8 +568,8 @@ CFE_Status_t CFE_ES_GetTaskID(CFE_ES_TaskId_t *TaskIdPtr);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[out]  AppIdPtr       Pointer to variable that is to receive the Application's ID.
-** \param[in]   AppName        Pointer to null terminated character string containing an Application name.
+** \param[out]  AppIdPtr       Pointer to variable that is to receive the Application's ID @nonnull.
+** \param[in]   AppName        Pointer to null terminated character string containing an Application name @nonnull.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
@@ -583,8 +592,8 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[out]  LibIdPtr       Pointer to variable that is to receive the Library's ID.
-** \param[in]   LibName        Pointer to null terminated character string containing a Library name.
+** \param[out]  LibIdPtr       Pointer to variable that is to receive the Library's ID @nonnull.
+** \param[in]   LibName        Pointer to null terminated character string containing a Library name @nonnull.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
@@ -607,7 +616,7 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName
 ** \par Assumptions, External Events, and Notes:
 **        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
 **
-** \param[out]  AppName       Pointer to a character array of at least \c BufferLength in size that will
+** \param[out]  AppName       Pointer to a character array @nonnull of at least \c BufferLength in size that will
 **                            be filled with the appropriate Application name.
 **
 ** \param[in]   AppId         Application ID of Application whose name is being requested.
@@ -637,7 +646,7 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t Buffe
 ** \par Assumptions, External Events, and Notes:
 **        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
 **
-** \param[out]  LibName       Pointer to a character array of at least \c BufferLength in size that will
+** \param[out]  LibName       Pointer to a character array @nonnull of at least \c BufferLength in size that will
 **                            be filled with the Library name.
 **
 ** \param[in]   LibId         Library ID of Library whose name is being requested.
@@ -668,7 +677,7 @@ CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t Buffe
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[out]  AppInfo      Pointer to a structure that will be filled with
+** \param[out]  AppInfo      Pointer to a structure @nonnull that will be filled with
 **                           resource name and memory addresses information.
 ** \param[in]   AppId        ID of application to obtain information about
 **
@@ -694,7 +703,7 @@ CFE_Status_t CFE_ES_GetAppInfo(CFE_ES_AppInfo_t *AppInfo, CFE_ES_AppId_t AppId);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[out]   TaskInfo     Pointer to a \c CFE_ES_TaskInfo_t structure that holds the specific
+** \param[out]   TaskInfo     Pointer to a \c CFE_ES_TaskInfo_t structure @nonnull that holds the specific
 **                            task information. *TaskInfo is the filled out \c CFE_ES_TaskInfo_t structure containing
 **                            the Task Name, Parent App Name, Parent App ID among other fields.
 **
@@ -728,7 +737,7 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[out]  LibInfo      Pointer to a structure that will be filled with
+** \param[out]  LibInfo      Pointer to a structure @nonnull that will be filled with
 **                           resource name and memory addresses information.
 ** \param[in]   LibId        ID of application to obtain information about
 **
@@ -760,7 +769,7 @@ int32 CFE_ES_GetLibInfo(CFE_ES_AppInfo_t *LibInfo, CFE_ES_LibId_t LibId);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[out]  ModuleInfo   Pointer to a structure that will be filled with
+** \param[out]  ModuleInfo   Pointer to a structure @nonnull that will be filled with
 **                           resource name and memory addresses information.
 ** \param[in]   ResourceId   ID of application or library to obtain information about
 **
@@ -790,22 +799,21 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in, out]   TaskIdPtr     A pointer to a variable that will be filled in with the new task's ID. *TaskIdPtr is
+** \param[out]   TaskIdPtr     A pointer to a variable that will be filled in with the new task's ID @nonnull.
+**TaskIdPtr is
 **                                 the Task ID of the newly created child task.
 **
-** \param[in]   TaskName      A pointer to a string containing the desired name of the new task.
+** \param[in]   TaskName      A pointer to a string containing the desired name of the new task @nonnull.
 **                            This can be up to #OS_MAX_API_NAME characters, including the trailing null.
 **
-** \param[in]   FunctionPtr   A pointer to the function that will be spawned as a new task.  This function
-**                            must have the following signature: uint32 function(void).  Input parameters
-**                            for the new task are not supported.
+** \param[in]   FunctionPtr   A pointer to the function that will be spawned as a new task @nonnull.
 **
 ** \param[in]   StackPtr      A pointer to the location where the child task's stack pointer should start.
 **                            NOTE: Not all underlying operating systems support this parameter.
 **                            The CFE_ES_TASK_STACK_ALLOCATE constant may be passed to indicate that the
 **                            stack should be dynamically allocated.
 **
-** \param[in]   StackSize     The number of bytes to allocate for the new task's stack.
+** \param[in]   StackSize     The number of bytes to allocate for the new task's stack @nonzero.
 **
 ** \param[in]   Priority      The priority for the new task.  Lower numbers are higher priority, with 0 being
 **                            the highest priority.
@@ -813,9 +821,10 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 ** \param[in]   Flags         Reserved for future expansion.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                  \copybrief CFE_SUCCESS
-** \retval #CFE_ES_ERR_CHILD_TASK_CREATE \copybrief CFE_ES_ERR_CHILD_TASK_CREATE
-** \retval #CFE_ES_BAD_ARGUMENT          \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_CHILD_TASK_CREATE     \copybrief CFE_ES_ERR_CHILD_TASK_CREATE
+** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 **
 ** \sa #CFE_ES_DeleteChildTask, #CFE_ES_ExitChildTask
 **
@@ -835,8 +844,8 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[out]  TaskIdPtr       Pointer to variable that is to receive the Task's ID.
-** \param[in]   TaskName        Pointer to null terminated character string containing an Task name.
+** \param[out]  TaskIdPtr       Pointer to variable that is to receive the Task's ID @nonnull.
+** \param[in]   TaskName        Pointer to null terminated character string containing an Task name @nonnull.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
@@ -859,7 +868,7 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
 ** \par Assumptions, External Events, and Notes:
 **        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
 **
-** \param[out]  TaskName      Pointer to a character array of at least \c BufferLength in size that will
+** \param[out]  TaskName      Pointer to a character array @nonnull of at least \c BufferLength in size that will
 **                            be filled with the Task name.
 **
 ** \param[in]   TaskId        Task ID of Task whose name is being requested.
@@ -893,8 +902,11 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t B
 *#CFE_ES_CreateChildTask API.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS            \copybrief CFE_SUCCESS
-** \retval #CFE_ES_NOT_IMPLEMENTED \copybrief CFE_ES_NOT_IMPLEMENTED
+** \retval #CFE_SUCCESS                             \copybrief CFE_SUCCESS
+** \retval #CFE_ES_NOT_IMPLEMENTED                  \copybrief CFE_ES_NOT_IMPLEMENTED
+** \retval #CFE_ES_ERR_CHILD_TASK_DELETE            \copybrief CFE_ES_ERR_CHILD_TASK_DELETE
+** \retval #CFE_ES_ERR_CHILD_TASK_DELETE_MAIN_TASK  \copybrief CFE_ES_ERR_CHILD_TASK_DELETE_MAIN_TASK
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID         \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 **
 ** \sa #CFE_ES_CreateChildTask, #CFE_ES_ExitChildTask
 **
@@ -958,7 +970,7 @@ void CFE_ES_BackgroundWakeup(void);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in]   SpecStringPtr     The format string for the log message.
+** \param[in]   SpecStringPtr     The format string for the log message @nonnull.
 **                                This is similar to the format string for a printf() call.
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -1044,13 +1056,13 @@ void CFE_ES_ProcessAsyncEvent(void);
 **        This is indicated by a #CFE_SUCCESS return code, and in this case the calling application should
 **        ensure that it also calls CFE_ES_CopyToCDS() to fill the block with valid data.
 **
-** \param[in, out]   CDSHandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle.
+** \param[out]   CDSHandlePtr   Pointer Application's variable that will contain the CDS Memory Block Handle @nonnull.
 **                                  HandlePtr is the handle of the CDS block that can be used in
 **                                  #CFE_ES_CopyToCDS and #CFE_ES_RestoreFromCDS.
 **
-** \param[in]   BlockSize   The number of bytes needed in the CDS.
+** \param[in]   BlockSize   The number of bytes needed in the CDS @nonzero.
 **
-** \param[in]   Name        A pointer to a character string containing an application
+** \param[in]   Name        A pointer to a character string @nonnull containing an application
 **                          unique name of #CFE_MISSION_ES_CDS_MAX_NAME_LENGTH characters or less.
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -1060,6 +1072,7 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \retval #CFE_ES_CDS_INVALID_SIZE   \copybrief CFE_ES_CDS_INVALID_SIZE
 ** \retval #CFE_ES_CDS_INVALID_NAME   \copybrief CFE_ES_CDS_INVALID_NAME
 ** \retval #CFE_ES_BAD_ARGUMENT       \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_ES_CDS_INVALID        \copybrief CFE_ES_CDS_INVALID
 **
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
 **
@@ -1077,13 +1090,14 @@ CFE_Status_t CFE_ES_RegisterCDS(CFE_ES_CDSHandle_t *CDSHandlePtr, size_t BlockSi
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[out]  BlockIdPtr       Pointer to variable that is to receive the CDS Block ID.
-** \param[in]   BlockName        Pointer to null terminated character string containing a CDS Block name.
+** \param[out]  BlockIdPtr       Pointer to variable that is to receive the CDS Block ID @nonnull.
+** \param[in]   BlockName        Pointer to null terminated character string containing a CDS Block name @nonnull.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_NAME_NOT_FOUND   \copybrief CFE_ES_ERR_NAME_NOT_FOUND
 ** \retval #CFE_ES_BAD_ARGUMENT         \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_ES_NOT_IMPLEMENTED      The processor does not support a Critical Data Store.
 **
 ** \sa #CFE_ES_GetCDSBlockName
 **
@@ -1101,7 +1115,7 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_CDSHandle_t *BlockIdPtr, const ch
 ** \par Assumptions, External Events, and Notes:
 **        In the case of a failure (#CFE_ES_ERR_RESOURCEID_NOT_VALID), an empty string is returned.
 **
-** \param[out]  BlockName     Pointer to a character array of at least \c BufferLength in size that will
+** \param[out]  BlockName     Pointer to a character array @nonnull of at least \c BufferLength in size that will
 **                            be filled with the CDS Block name.
 **
 ** \param[in]   BlockId       Block ID/Handle of CDS registry entry whose name is being requested.
@@ -1114,6 +1128,7 @@ CFE_Status_t CFE_ES_GetCDSBlockIDByName(CFE_ES_CDSHandle_t *BlockIdPtr, const ch
 ** \retval #CFE_SUCCESS                      \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_ES_NOT_IMPLEMENTED           The processor does not support a Critical Data Store.
 **
 ** \sa #CFE_ES_GetCDSBlockIDByName
 **
@@ -1134,7 +1149,7 @@ CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId,
 **
 ** \param[in]   Handle       The handle of the CDS block that was previously obtained from #CFE_ES_RegisterCDS.
 **
-** \param[in]   DataToCopy   A Pointer to the block of memory to be copied into the CDS.
+** \param[in]   DataToCopy   A Pointer to the block of memory to be copied into the CDS @nonnull.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
@@ -1163,7 +1178,8 @@ CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, const void *DataToCopy)
 **
 ** \param[in]   Handle             The handle of the CDS block that was previously obtained from #CFE_ES_RegisterCDS.
 **
-** \param[in, out]   RestoreToMemory    A Pointer to the block of memory that is to be restored with the contents of
+** \param[out]   RestoreToMemory    A Pointer to the block of memory @nonnull that is to be restored with the contents
+*of
 **                                      the CDS. *RestoreToMemory is the contents of the specified CDS.
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -1195,14 +1211,17 @@ CFE_Status_t CFE_ES_RestoreFromCDS(void *RestoreToMemory, CFE_ES_CDSHandle_t Han
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in, out]   PoolID   A pointer to the variable the caller wishes to have the memory pool handle kept in.
+** \param[out]   PoolID       A pointer to the variable the caller wishes to have the memory pool handle kept in
+*@nonnull.
 **                            PoolID is the memory pool handle.
 **
-** \param[in]   MemPtr        A Pointer to the pool of memory created by the calling application. This address must
+** \param[in]   MemPtr        A Pointer to the pool of memory created by the calling application @nonnull. This address
+*must
 **                            be aligned suitably for the processor architecture.  The #CFE_ES_STATIC_POOL_TYPE
 **                            macro may be used to assist in creating properly aligned memory pools.
 **
-** \param[in]   Size          The size of the pool of memory.  Note that this must be an integral multiple of the
+** \param[in]   Size          The size of the pool of memory @nonzero.  Note that this must be an integral multiple of
+*the
 **                            memory alignment of the processor architecture.
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -1227,14 +1246,17 @@ CFE_Status_t CFE_ES_PoolCreateNoSem(CFE_ES_MemHandle_t *PoolID, void *MemPtr, si
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in, out]   PoolID   A pointer to the variable the caller wishes to have the memory pool handle kept in.
+** \param[out]   PoolID       A pointer to the variable the caller wishes to have the memory pool handle kept in
+*@nonnull.
 **                            PoolID is the memory pool handle.
 **
-** \param[in]   MemPtr        A Pointer to the pool of memory created by the calling application. This address must
+** \param[in]   MemPtr        A Pointer to the pool of memory created by the calling application @nonnull. This address
+*must
 **                            be aligned suitably for the processor architecture.  The #CFE_ES_STATIC_POOL_TYPE
 **                            macro may be used to assist in creating properly aligned memory pools.
 **
-** \param[in]   Size          The size of the pool of memory.  Note that this must be an integral multiple of the
+** \param[in]   Size          The size of the pool of memory @nonzero.  Note that this must be an integral multiple of
+*the
 **                            memory alignment of the processor architecture.
 **
 ** \return Execution status, see \ref CFEReturnCodes
@@ -1258,14 +1280,17 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 **        -# The start address of the pool must be 32-bit aligned
 **        -# 168 bytes are used for internal bookkeeping, therefore, they will not be available for allocation.
 **
-** \param[in, out]   PoolID    A pointer to the variable the caller wishes to have the memory pool handle kept in.
+** \param[out]   PoolID        A pointer to the variable the caller wishes to have the memory pool handle kept in
+*@nonnull.
 **                             PoolID is the memory pool handle.
 **
-** \param[in]   MemPtr         A Pointer to the pool of memory created by the calling application. This address must
+** \param[in]   MemPtr         A Pointer to the pool of memory created by the calling application @nonnull. This address
+*must
 **                             be aligned suitably for the processor architecture.  The #CFE_ES_STATIC_POOL_TYPE
 **                             macro may be used to assist in creating properly aligned memory pools.
 **
-** \param[in]   Size           The size of the pool of memory.  Note that this must be an integral multiple of the
+** \param[in]   Size           The size of the pool of memory @nonzero.  Note that this must be an integral multiple of
+*the
 **                             memory alignment of the processor architecture.
 **
 ** \param[in]   NumBlockSizes  The number of different block sizes specified in the \c BlockSizes array. If set
@@ -1281,8 +1306,11 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 **                             not. Valid parameter values are #CFE_ES_USE_MUTEX and #CFE_ES_NO_MUTEX
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS           \copybrief CFE_SUCCESS
-** \retval #CFE_ES_BAD_ARGUMENT   \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_ES_NO_RESOURCE_IDS_AVAILABLE  \copybrief CFE_ES_NO_RESOURCE_IDS_AVAILABLE
+** \retval #CFE_ES_POOL_BOUNDS_ERROR          \copybrief CFE_ES_POOL_BOUNDS_ERROR
+** \retval #CFE_STATUS_EXTERNAL_RESOURCE_FAIL \copybrief CFE_STATUS_EXTERNAL_RESOURCE_FAIL
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
@@ -1324,12 +1352,12 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 ** \par Assumptions, External Events, and Notes:
 **        -# The size allocated from the memory pool is, at a minimum, 12 bytes more than requested.
 **
-** \param[in, out]   BufPtr      A pointer to the Application's pointer in which will be stored the address of the
-**                               allocated memory buffer. *BufPtr is the address of the requested buffer.
+** \param[out]   BufPtr     A pointer to the Application's pointer @nonnull in which will be stored the address of the
+**                          allocated memory buffer. *BufPtr is the address of the requested buffer.
 **
 ** \param[in]   Handle      The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
-** \param[in]   Size        The size of the buffer requested.  NOTE: The size allocated may be larger.
+** \param[in]   Size        The size of the buffer requested @nonzero.  NOTE: The size allocated may be larger.
 **
 ** \return Bytes Allocated, or error code \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
@@ -1354,7 +1382,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
 **
 ** \param[in]   Handle  The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
-** \param[in]   BufPtr  A pointer to the memory buffer to provide status for.
+** \param[in]   BufPtr  A pointer to the memory buffer to provide status for @nonnull.
 **
 ** \return Size of the buffer if successful, or status code if not successful, see \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
@@ -1379,11 +1407,13 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_
 **
 ** \param[in]   Handle The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
-** \param[in]   BufPtr A pointer to the memory buffer to be released.
+** \param[in]   BufPtr A pointer to the memory buffer to be released @nonnull.
 **
 ** \return Bytes released, or error code \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_ES_BAD_ARGUMENT              \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_ES_BUFFER_NOT_IN_POOL        \copybrief CFE_ES_BUFFER_NOT_IN_POOL
+** \retval #CFE_ES_POOL_BLOCK_INVALID        \copybrief CFE_ES_POOL_BLOCK_INVALID
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_PoolCreateEx, #CFE_ES_GetPoolBuf, #CFE_ES_GetMemPoolStats,
 *#CFE_ES_GetPoolBufInfo
@@ -1403,9 +1433,9 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr);
 ** \par Assumptions, External Events, and Notes:
 **        None
 **
-** \param[in, out]   BufPtr      Pointer to #CFE_ES_MemPoolStats_t data structure to be
-**                               filled with memory statistics. *BufPtr is the Memory Pool Statistics stored in given
-**                               data structure.
+** \param[out]   BufPtr      Pointer to #CFE_ES_MemPoolStats_t data structure @nonnull to be
+**                           filled with memory statistics. *BufPtr is the Memory Pool Statistics stored in given
+**                           data structure.
 **
 ** \param[in]   Handle      The handle to the memory pool whose statistics are desired.
 **
@@ -1514,9 +1544,10 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit);
 **
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS               \copybrief CFE_SUCCESS
-** \retval #CFE_ES_BAD_ARGUMENT       \copybrief CFE_ES_BAD_ARGUMENT
-** \retval #CFE_ES_ERR_DUPLICATE_NAME \copybrief CFE_ES_ERR_DUPLICATE_NAME
+** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
+** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
+** \retval #CFE_ES_ERR_DUPLICATE_NAME         \copybrief CFE_ES_ERR_DUPLICATE_NAME
+** \retval #CFE_ES_NO_RESOURCE_IDS_AVAILABLE  \copybrief CFE_ES_NO_RESOURCE_IDS_AVAILABLE
 **
 ** \sa #CFE_ES_IncrementGenCounter, #CFE_ES_DeleteGenCounter, #CFE_ES_SetGenCount, #CFE_ES_GetGenCount,
 *#CFE_ES_GetGenCounterIDByName
