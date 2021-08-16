@@ -13,6 +13,7 @@ add_cfe_app(cfe_testcase
     src/es_counter_test.c
     src/es_misc_test.c
     src/es_mempool_test.c
+    src/es_perf_test.c
     src/es_resource_id_test.c
     src/evs_filters_test.c
     src/evs_send_test.c
