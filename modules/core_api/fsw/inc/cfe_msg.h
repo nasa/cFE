@@ -39,7 +39,7 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_time_api_typedefs.h"
 
-/** \defgroup CFEAPIMSGHeader cFE Message header APIs
+/** \defgroup CFEAPIMSGHeader cFE Generic Message APIs
  * \{
  */
 
@@ -61,6 +61,11 @@
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
 CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size);
+/**\}*/
+
+/** \defgroup CFEAPIMSGHeaderPri cFE Message Primary Header APIs
+ * \{
+ */
 
 /*****************************************************************************/
 /**
@@ -305,6 +310,11 @@ CFE_Status_t CFE_MSG_SetSequenceCount(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Sequenc
  * \return The next valid sequence count value
  */
 CFE_MSG_SequenceCount_t CFE_MSG_GetNextSequenceCount(CFE_MSG_SequenceCount_t SeqCnt);
+/**\}*/
+
+/** \defgroup CFEAPIMSGHeaderExt cFE Message Extended Header APIs
+ * \{
+ */
 
 /*****************************************************************************/
 /**
@@ -470,6 +480,11 @@ CFE_Status_t CFE_MSG_GetSystem(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t
  * \retval #CFE_MSG_BAD_ARGUMENT    \copybrief CFE_MSG_BAD_ARGUMENT
  */
 CFE_Status_t CFE_MSG_SetSystem(CFE_MSG_Message_t *MsgPtr, CFE_MSG_System_t System);
+/**\}*/
+
+/** \defgroup CFEAPIMSGHeaderSec cFE Message Secondary Header APIs
+ * \{
+ */
 
 /*****************************************************************************/
 /**
