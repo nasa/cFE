@@ -19,6 +19,7 @@ add_cfe_app(cfe_testcase
     src/fs_header_test.c
     src/fs_util_test.c
     src/message_id_test.c
+    src/msg_api_test.c
     src/sb_pipe_mang_test.c
     src/tbl_content_access_test.c
     src/tbl_content_mang_test.c

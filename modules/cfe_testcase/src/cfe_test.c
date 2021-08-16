@@ -72,6 +72,7 @@ void CFE_TestMain(void)
     FSHeaderTestSetup();
     FSUtilTestSetup();
     MessageIdTestSetup();
+    MsgApiTestSetup();
     SBPipeMangSetup();
     TBLContentAccessTestSetup();
     TBLContentMangTestSetup();
