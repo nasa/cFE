@@ -2452,6 +2452,27 @@ void Test_CFE_TBL_Manage(void)
     CFE_UtAssert_EVENTCOUNT(1);
     UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, 1);
 
+    /* Test response to processing an unsuccessful validation request;
+     * CFE_TBL_Validate does not return CFE_SUCCESS
+     */
+    UT_InitData();
+
+    /* Configure table for validation */
+    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
+    CFE_TBL_Global.ValidationResults[0].Result = 0;
+    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
+    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
+    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
+    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
+    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+
+    /* Perform validation via manage call */
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 2, CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_TBL_Manage(App1TblHandle1), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    CFE_UtAssert_EVENTCOUNT(0);
+    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, 0);
+
     /* Test response to processing a successful validation request on an
      * inactive buffer
      */
@@ -2722,7 +2743,29 @@ void Test_CFE_TBL_Manage(void)
 */
 void Test_CFE_TBL_Update(void)
 {
+    int16                       RegIndex;
+    CFE_TBL_LoadBuff_t *        WorkingBufferPtr;
+    CFE_TBL_AccessDescriptor_t *AccessDescPtr;
+    CFE_TBL_RegistryRec_t *     RegRecPtr;
+    AccessDescPtr = &CFE_TBL_Global.Handles[App1TblHandle1];
+    RegRecPtr     = &CFE_TBL_Global.Registry[AccessDescPtr->RegIndex];
+
     UtPrintf("Begin Test Update");
+
+    /* Test a successful update */
+    UT_InitData();
+
+    /* a. Configure table for update */
+    RegIndex  = CFE_TBL_FindTableInRegistry("ut_cfe_tbl.UT_Table1");
+    RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
+    CFE_UtAssert_SUCCESS(CFE_TBL_GetWorkingBuffer(&WorkingBufferPtr, RegRecPtr, false));
+    UT_SetAppID(UT_TBL_APPID_1);
+    RegRecPtr->LoadPending = true;
+
+    /* b. Perform update test */
+    UtAssert_INT32_EQ(CFE_TBL_Update(App1TblHandle1), CFE_SUCCESS);
+    CFE_UtAssert_EVENTSENT(CFE_TBL_UPDATE_SUCCESS_INF_EID);
+    CFE_UtAssert_EVENTCOUNT(1);
 
     /* Test processing an update on a single buffered table without
      * privileges
@@ -2747,6 +2790,9 @@ void Test_CFE_TBL_Update(void)
     UT_SetAppID(CFE_ES_APPID_UNDEFINED);
     UtAssert_INT32_EQ(CFE_TBL_Update(App1TblHandle1), CFE_TBL_ERR_NO_ACCESS);
     CFE_UtAssert_EVENTCOUNT(1);
+
+    /* Successfully process an update */
+    UT_InitData();
 }
 
 /*
