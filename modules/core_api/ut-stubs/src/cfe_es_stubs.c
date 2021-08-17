@@ -98,12 +98,12 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
  * Generated stub function for CFE_ES_CopyToCDS()
  * ----------------------------------------------------
  */
-CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
+CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, const void *DataToCopy)
 {
     UT_GenStub_SetupReturnBuffer(CFE_ES_CopyToCDS, CFE_Status_t);
 
     UT_GenStub_AddParam(CFE_ES_CopyToCDS, CFE_ES_CDSHandle_t, Handle);
-    UT_GenStub_AddParam(CFE_ES_CopyToCDS, void *, DataToCopy);
+    UT_GenStub_AddParam(CFE_ES_CopyToCDS, const void *, DataToCopy);
 
     UT_GenStub_Execute(CFE_ES_CopyToCDS, Basic, UT_DefaultHandler_CFE_ES_CopyToCDS);
 

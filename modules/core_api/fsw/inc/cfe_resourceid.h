@@ -212,7 +212,11 @@ CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableS
  * @param[in]  BaseValue The respective ID base value corresponding to the ID type
  * @param[in]  TableSize The actual size of the internal table (MAX index value + 1)
  * @param[out] Idx       The output index
- * @returns Status code, CFE_SUCCESS if successful.
+ *
+ * @return Execution status, see @ref CFEReturnCodes
+ * @retval #CFE_SUCCESS                     @copybrief CFE_SUCCESS
+ * @retval #CFE_ES_BAD_ARGUMENT             @copybrief CFE_ES_BAD_ARGUMENT
+ * @retval #CFE_ES_ERR_RESOURCEID_NOT_VALID @copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
  */
 int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 TableSize, uint32 *Idx);
 

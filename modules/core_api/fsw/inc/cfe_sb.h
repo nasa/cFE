@@ -68,14 +68,14 @@
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in, out]  PipeIdPtr    A pointer to a variable of type #CFE_SB_PipeId_t,
+** \param[out]  PipeIdPtr   A pointer to a variable of type #CFE_SB_PipeId_t @nonnull,
 **                          which will be filled in with the pipe ID information
 **                          by the #CFE_SB_CreatePipe routine. *PipeIdPtr is the identifier for the created pipe.
 **
 ** \param[in]  Depth        The maximum number of messages that will be allowed on
 **                          this pipe at one time.
 **
-** \param[in]  PipeName     A string to be used to identify this pipe in error messages
+** \param[in]  PipeName     A string @nonnull to be used to identify this pipe in error messages
 **                          and routing information telemetry.  The string must be no
 **                          longer than #OS_MAX_API_NAME (including terminator).
 **                          Longer strings will be truncated.
@@ -136,7 +136,7 @@ CFE_Status_t CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId);
  * for future use.
  *
  * @param[in]   PipeID  Pipe ID to convert
- * @param[out]  Idx    Buffer where the calculated index will be stored
+ * @param[out]  Idx    Buffer where the calculated index will be stored @nonnull
  *
  * @return Execution status, see @ref CFEReturnCodes
  * @retval #CFE_SUCCESS                      @copybrief CFE_SUCCESS
@@ -173,7 +173,7 @@ CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts);
 **
 ** \param[in]  PipeId       The pipe ID of the pipe to get options from.
 **
-** \param[out] *OptsPtr     A bit field of options: \ref CFESBPipeOptions
+** \param[out] OptsPtr     A bit field of options: \ref CFESBPipeOptions  @nonnull
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -190,9 +190,9 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr);
 ** \par Description
 **          This routine finds the pipe name for a pipe id.
 **
-** \param[out] PipeNameBuf  The buffer to receive the pipe name.
+** \param[out] PipeNameBuf  The buffer to receive the pipe name @nonnull.
 **
-** \param[in] PipeNameSize  The size (in chars) of the PipeName buffer.
+** \param[in] PipeNameSize  The size (in chars) of the PipeName buffer @nonzero.
 **
 ** \param[in] PipeId        The PipeId for that name.
 **
@@ -211,9 +211,9 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
 ** \par Description
 **          This routine finds the pipe id for a pipe name.
 **
-** \param[in]  PipeName     The name of the pipe.
+** \param[in]  PipeName     The name of the pipe @nonnull.
 **
-** \param[out] PipeIdPtr    The PipeId for that name.
+** \param[out] PipeIdPtr    The PipeId for that name @nonnull.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS         \copybrief CFE_SUCCESS
@@ -411,7 +411,7 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 **            this message, that task may get to run before returning
 **            control to the caller.
 **
-** \param[in]  MsgPtr       A pointer to the message to be sent.  This must point
+** \param[in]  MsgPtr       A pointer to the message to be sent @nonnull.  This must point
 **                          to the first byte of the message header.
 ** \param[in] IncrementSequenceCount Boolean to increment the internally tracked
 **                                   sequence count and update the message if the
@@ -423,7 +423,7 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 ** \retval #CFE_SB_MSG_TOO_BIG  \copybrief CFE_SB_MSG_TOO_BIG
 ** \retval #CFE_SB_BUF_ALOC_ERR \copybrief CFE_SB_BUF_ALOC_ERR
 **/
-CFE_Status_t CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount);
+CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementSequenceCount);
 
 /*****************************************************************************/
 /**
@@ -439,7 +439,7 @@ CFE_Status_t CFE_SB_TransmitMsg(CFE_MSG_Message_t *MsgPtr, bool IncrementSequenc
 **          random. Therefore, it is recommended that the return code be tested
 **          for CFE_SUCCESS before processing the message.
 **
-** \param[in, out] BufPtr   A pointer to the software bus buffer to receive to.
+** \param[in, out] BufPtr   A pointer to the software bus buffer to receive to @nonnull.
 **                          Typically a caller declares a ptr of type CFE_SB_Buffer_t
 **                          (i.e. CFE_SB_Buffer_t *Ptr) then gives the address of that
 **                          pointer (&Ptr) as this parmeter. After a successful
@@ -515,7 +515,7 @@ CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize);
 **             CFE_SB_AllocateMessageBuffer(), but (due to some error condition) never
 **             uses that pointer in a call to CFE_SB_TransmitBuffer().
 **
-** \param[in]  BufPtr  A pointer to the SB internal buffer.  This must be a
+** \param[in]  BufPtr  A pointer to the SB internal buffer @nonnull.  This must be a
 **                     pointer returned by a call to CFE_SB_AllocateMessageBuffer(),
 **                     but never used in a call to CFE_SB_TransmitBuffer().
 **
@@ -555,7 +555,7 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 **          -# This function will increment and apply the internally tracked
 **             sequence counter if set to do so.
 **
-** \param[in] BufPtr                 A pointer to the buffer to be sent.
+** \param[in] BufPtr                 A pointer to the buffer to be sent @nonnull.
 ** \param[in] IncrementSequenceCount Boolean to increment the internally tracked
 **                                   sequence count and update the message if the
 **                                   buffer contains a telemetry message
@@ -588,7 +588,7 @@ CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequen
 **          - You must set a valid message ID in the SB message header before
 **            calling this function.
 **
-** \param[in]  MsgPtr      A pointer to the buffer that contains the software bus message.
+** \param[in]  MsgPtr      A pointer to the buffer that contains the software bus message @nonnull.
 **                         This must point to the first byte of the message header.
 **
 ** \param[in]  DataLength  The length to set (size of the user data, in bytes).
@@ -608,7 +608,7 @@ void CFE_SB_SetUserDataLength(CFE_MSG_Message_t *MsgPtr, size_t DataLength);
 **          - If the underlying implementation of software bus messages does not
 **            include a time field, then this routine will do nothing.
 **
-** \param[in]  MsgPtr      A pointer to the buffer that contains the software bus message.
+** \param[in]  MsgPtr      A pointer to the buffer that contains the software bus message @nonnull.
 **                         This must point to the first byte of the message header.
 **/
 void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr);
@@ -637,12 +637,13 @@ void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr);
 **    implementation.  It is only necessary to use this when termination of the source
 **    buffer is not guaranteed.
 **
-** \param[out] DestStringPtr    Pointer to destination buffer (component of SB message definition)
-** \param[in]  SourceStringPtr  Pointer to source buffer
+** \param[out] DestStringPtr    Pointer to destination buffer (component of SB message definition) @nonnull
+** \param[in]  SourceStringPtr  Pointer to source buffer @nonnull
 ** \param[in]  DestMaxSize      Size of destination buffer as defined by the message definition
 ** \param[in]  SourceMaxSize    Size of source buffer
 **
 ** \return Number of characters copied or error code, see \ref CFEReturnCodes
+** \retval #CFE_SB_BAD_ARGUMENT  \copybrief CFE_SB_BAD_ARGUMENT
 **
 */
 int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
@@ -666,7 +667,7 @@ int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, 
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in]  MsgPtr  A pointer to the buffer that contains the software bus message.
+** \param[in]  MsgPtr  A pointer to the buffer that contains the software bus message @nonnull.
 **
 ** \return A pointer to the first byte of user data within the software bus message.
 **/
@@ -682,7 +683,7 @@ void *CFE_SB_GetUserData(CFE_MSG_Message_t *MsgPtr);
 ** \par Assumptions, External Events, and Notes:
 **          None
 **
-** \param[in]  MsgPtr  A pointer to the buffer that contains the software bus message.
+** \param[in]  MsgPtr  A pointer to the buffer that contains the software bus message @nonnull.
 **                     This must point to the first byte of the message header.
 **
 ** \return The size (in bytes) of the user data in the software bus message.
@@ -720,13 +721,14 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr);
 **    If the destination buffer is too small to store the entire string, it will be
 **    truncated, but it will still be null terminated.
 **
-** \param[out] DestStringPtr    Pointer to destination buffer
-** \param[in]  SourceStringPtr  Pointer to source buffer (component of SB message definition)
+** \param[out] DestStringPtr    Pointer to destination buffer @nonnull
+** \param[in]  SourceStringPtr  Pointer to source buffer (component of SB message definition) @nonnull
 ** \param[in]  DefaultString    Default string to use if source is empty
 ** \param[in]  DestMaxSize      Size of destination storage buffer (must be at least 2)
 ** \param[in]  SourceMaxSize    Size of source buffer as defined by the message definition
 **
 ** \return Number of characters copied or error code, see \ref CFEReturnCodes
+** \retval #CFE_SB_BAD_ARGUMENT  \copybrief CFE_SB_BAD_ARGUMENT
 **
 */
 int32 CFE_SB_MessageStringGet(char *DestStringPtr, const char *SourceStringPtr, const char *DefaultString,

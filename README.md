@@ -10,6 +10,20 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev873
+
+- Add CFE assert macros to functional test
+- Adds invalid id syslog to for CFE_ES_DeleteApp and CFE_ES_ReloadApp and verifies required reporting 
+- Stop memory leak & add cds size test. 
+- Mark read only inputs as const 
+- Check resource ID idx is less than max 
+- Update CFE_ES_RunLoop documentation 
+- Add Message Api Functional Test
+- Partial #1724, update in/out status and nonnull/nonzero tags
+- Add External Time Source Functional Tests
+- Add Perf API functional tests 
+See <https://github.com/nasa/cFE/pull/1808> and <https://github.com/nasa/cFS/pull/337> 
+
 ### Development Build: v6.8.0-rc1+dev844
 
 - Move global count into test global struct
@@ -25,6 +39,7 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 - Replace cFE_FTAssert_VOIDCALL with new UtAssert_VOIDCALL
 - Remove multiple instantiations of CFE_FT_Global
 - Add functional tests for cFE Table APIs
+- See <https://github.com/nasa/cFE/pull/1759> and <https://github.com/nasa/cFS/pull/328>
 
 ### Development Build: v6.8.0-rc1+dev810
 

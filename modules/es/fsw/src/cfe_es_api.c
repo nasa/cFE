@@ -240,51 +240,57 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
     os_fstat_t          FileStatus;
     CFE_ES_AppRecord_t *AppRecPtr = CFE_ES_LocateAppRecordByID(AppID);
 
-    if (AppRecPtr == NULL)
+    if (AppRecPtr != NULL)
     {
-        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
-    }
 
-    CFE_ES_LockSharedData(__func__, __LINE__);
+        CFE_ES_LockSharedData(__func__, __LINE__);
 
-    /*
-    ** Check to see if the App is an external cFE App.
-    */
-    if (AppRecPtr->Type == CFE_ES_AppType_CORE)
-    {
-        CFE_ES_SysLogWrite_Unsync("%s: Cannot Reload a CORE Application: %s.\n", __func__,
-                                  CFE_ES_AppRecordGetName(AppRecPtr));
-        ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-    }
-    else if (AppRecPtr->AppState != CFE_ES_AppState_RUNNING)
-    {
-        CFE_ES_SysLogWrite_Unsync("%s: Cannot Reload Application %s, It is not running.\n", __func__,
-                                  CFE_ES_AppRecordGetName(AppRecPtr));
-        ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-    }
-    else
-    {
         /*
-        ** Check to see if the file exists
+        ** Check to see if the App is an external cFE App.
         */
-        if (OS_stat(AppFileName, &FileStatus) == OS_SUCCESS)
+        if (AppRecPtr->Type == CFE_ES_AppType_CORE)
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Reload Application %s Initiated. New filename = %s\n", __func__,
-                                      CFE_ES_AppRecordGetName(AppRecPtr), AppFileName);
-            strncpy(AppRecPtr->StartParams.BasicInfo.FileName, AppFileName,
-                    sizeof(AppRecPtr->StartParams.BasicInfo.FileName) - 1);
-            AppRecPtr->StartParams.BasicInfo.FileName[sizeof(AppRecPtr->StartParams.BasicInfo.FileName) - 1] = 0;
-            AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RELOAD;
+            CFE_ES_SysLogWrite_Unsync("%s: Cannot Reload a CORE Application: %s.\n", __func__,
+                                      CFE_ES_AppRecordGetName(AppRecPtr));
+            ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        }
+        else if (AppRecPtr->AppState != CFE_ES_AppState_RUNNING)
+        {
+            CFE_ES_SysLogWrite_Unsync("%s: Cannot Reload Application %s, It is not running.\n", __func__,
+                                      CFE_ES_AppRecordGetName(AppRecPtr));
+            ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
         }
         else
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Cannot Reload Application %s, File %s does not exist.\n", __func__,
-                                      CFE_ES_AppRecordGetName(AppRecPtr), AppFileName);
-            ReturnCode = CFE_ES_FILE_IO_ERR;
+            /*
+            ** Check to see if the file exists
+            */
+            if (OS_stat(AppFileName, &FileStatus) == OS_SUCCESS)
+            {
+                CFE_ES_SysLogWrite_Unsync("%s: Reload Application %s Initiated. New filename = %s\n", __func__,
+                                          CFE_ES_AppRecordGetName(AppRecPtr), AppFileName);
+                strncpy(AppRecPtr->StartParams.BasicInfo.FileName, AppFileName,
+                        sizeof(AppRecPtr->StartParams.BasicInfo.FileName) - 1);
+                AppRecPtr->StartParams.BasicInfo.FileName[sizeof(AppRecPtr->StartParams.BasicInfo.FileName) - 1] = 0;
+                AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_RELOAD;
+            }
+            else
+            {
+                CFE_ES_SysLogWrite_Unsync("%s: Cannot Reload Application %s, File %s does not exist.\n", __func__,
+                                          CFE_ES_AppRecordGetName(AppRecPtr), AppFileName);
+                ReturnCode = CFE_ES_FILE_IO_ERR;
+            }
         }
-    }
 
-    CFE_ES_UnlockSharedData(__func__, __LINE__);
+        CFE_ES_UnlockSharedData(__func__, __LINE__);
+    }
+    else /* App ID is not valid */
+    {
+        ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+
+        CFE_ES_WriteToSysLog("%s: Invalid Application ID received, AppID = %lu\n", __func__,
+                             CFE_RESOURCEID_TO_ULONG(AppID));
+    }
 
     return (ReturnCode);
 }
@@ -302,36 +308,42 @@ CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
     int32               ReturnCode = CFE_SUCCESS;
     CFE_ES_AppRecord_t *AppRecPtr  = CFE_ES_LocateAppRecordByID(AppID);
 
-    if (AppRecPtr == NULL)
+    if (AppRecPtr != NULL)
     {
-        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
+
+        CFE_ES_LockSharedData(__func__, __LINE__);
+
+        /*
+        ** Check to see if the App is an external cFE App.
+        */
+        if (AppRecPtr->Type == CFE_ES_AppType_CORE)
+        {
+            CFE_ES_SysLogWrite_Unsync("%s: Cannot Delete a CORE Application: %s.\n", __func__,
+                                      CFE_ES_AppRecordGetName(AppRecPtr));
+            ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        }
+        else if (AppRecPtr->AppState != CFE_ES_AppState_RUNNING)
+        {
+            CFE_ES_SysLogWrite_Unsync("%s: Cannot Delete Application %s, It is not running.\n", __func__,
+                                      CFE_ES_AppRecordGetName(AppRecPtr));
+            ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        }
+        else
+        {
+            CFE_ES_SysLogWrite_Unsync("%s: Delete Application %s Initiated\n", __func__,
+                                      CFE_ES_AppRecordGetName(AppRecPtr));
+            AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_DELETE;
+        }
+
+        CFE_ES_UnlockSharedData(__func__, __LINE__);
     }
-
-    CFE_ES_LockSharedData(__func__, __LINE__);
-
-    /*
-    ** Check to see if the App is an external cFE App.
-    */
-    if (AppRecPtr->Type == CFE_ES_AppType_CORE)
+    else /* App ID is not valid */
     {
-        CFE_ES_SysLogWrite_Unsync("%s: Cannot Delete a CORE Application: %s.\n", __func__,
-                                  CFE_ES_AppRecordGetName(AppRecPtr));
         ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-    }
-    else if (AppRecPtr->AppState != CFE_ES_AppState_RUNNING)
-    {
-        CFE_ES_SysLogWrite_Unsync("%s: Cannot Delete Application %s, It is not running.\n", __func__,
-                                  CFE_ES_AppRecordGetName(AppRecPtr));
-        ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
-    }
-    else
-    {
-        CFE_ES_SysLogWrite_Unsync("%s: Delete Application %s Initiated\n", __func__,
-                                  CFE_ES_AppRecordGetName(AppRecPtr));
-        AppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_SYS_DELETE;
-    }
 
-    CFE_ES_UnlockSharedData(__func__, __LINE__);
+        CFE_ES_WriteToSysLog("%s: Invalid Application ID received, AppID = %lu\n", __func__,
+                             CFE_RESOURCEID_TO_ULONG(AppID));
+    }
 
     return (ReturnCode);
 }
@@ -1858,7 +1870,7 @@ CFE_Status_t CFE_ES_GetCDSBlockName(char *BlockName, CFE_ES_CDSHandle_t BlockId,
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, void *DataToCopy)
+CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, const void *DataToCopy)
 {
     if (DataToCopy == NULL)
     {

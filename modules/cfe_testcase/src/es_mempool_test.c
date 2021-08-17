@@ -44,11 +44,13 @@ void TestMemPoolCreate(void)
     UtAssert_INT32_EQ(CFE_ES_PoolCreateNoSem(NULL, Pool, sizeof(Pool)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_PoolCreateNoSem(&PoolID, NULL, sizeof(Pool)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_PoolCreateNoSem(&PoolID, Pool, 0), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_PoolDelete(PoolID), CFE_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID, Pool, sizeof(Pool)), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_PoolCreate(NULL, Pool, sizeof(Pool)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID, NULL, sizeof(Pool)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_PoolCreate(&PoolID, Pool, 0), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_PoolDelete(PoolID), CFE_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_ES_PoolCreateEx(&PoolID, Pool, sizeof(Pool), 0, NULL, CFE_ES_NO_MUTEX), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_PoolCreateEx(NULL, Pool, sizeof(Pool), 0, NULL, CFE_ES_NO_MUTEX), CFE_ES_BAD_ARGUMENT);

@@ -95,6 +95,15 @@
 #define UT_OSP_STARTUP_SYNC_FAIL_2        67
 #define UT_OSP_MODULE_UNLOAD_FAILED       68
 #define UT_OSP_TASKEXIT_BAD_CONTEXT       69
-#define UT_OSP_BACKGROUND_TAKE            71
+#define UT_OSP_BACKGROUND_TAKE            70
+#define UT_OSP_INVALID_ID                 71
+#define UT_OSP_RESTART_NO_FILE            72
+#define UT_OSP_CREATECHILD_FROM_CHILD     73
+#define UT_OSP_DELETECHID_MAIN_TASK       74
+#define UT_OSP_POOLCREATE_TOO_SMALL       75
+#define UT_OSP_GETPOOL_BAD_HANDLE         76
+#define UT_OSP_PUTPOOL_BAD_HANDLE         77
+#define UT_OSP_FORMAT_VOLATILE            78
+#define UT_OSP_RELOAD_NO_FILE             79
 
 #endif /* UT_OSPRINTF_STUBS_H */

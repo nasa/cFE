@@ -43,6 +43,7 @@
 
 #include "uttest.h"
 #include "utassert.h"
+#include "cfe_assert.h"
 
 typedef struct
 {
@@ -86,15 +87,20 @@ extern CFE_FT_Global_t CFE_FT_Global;
         UtAssert_True(rcact < CFE_SUCCESS, "%s == (%ld) ", #actual, (long)rcact); \
     } while (0)
 
+/* Assert if status is CFE_SUCCESS */
+#define cFE_FTAssert_SUCCESS(status) UtAssert_INT32_EQ(status, CFE_SUCCESS)
+
 bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference);
 
 void CFE_TestMain(void);
 void ESApplicationControlTestSetup(void);
+void ESBehaviorestSetup(void);
 void ESCDSTestSetup(void);
 void ESCounterTestSetup(void);
 void ESInfoTestSetup(void);
 void ESMemPoolTestSetup(void);
 void ESMiscTestSetup(void);
+void ESPerfTestSetup(void);
 void ESResourceIDTestSetup(void);
 void ESTaskTestSetup(void);
 void EVSFiltersTestSetup(void);
@@ -102,14 +108,16 @@ void EVSSendTestSetup(void);
 void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void MessageIdTestSetup(void);
+void MsgApiTestSetup(void);
 void SBPipeMangSetup(void);
 void TBLContentAccessTestSetup(void);
 void TBLContentMangTestSetup(void);
 void TBLInformationTestSetup(void);
 void TBLRegistrationTestSetup(void);
 void TimeArithmeticTestSetup(void);
-void TimeCurrentTestSetup(void);
 void TimeConversionTestSetup(void);
+void TimeCurrentTestSetup(void);
+void TimeExternalTestSetup(void);
 void TimeMiscTestSetup(void);
 
 #endif /* CFE_TEST_H */
