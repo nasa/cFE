@@ -225,14 +225,11 @@
       <LI> #CFE_SB_ReleaseMessageBuffer - \copybrief CFE_SB_ReleaseMessageBuffer
       <LI> #CFE_SB_TransmitBuffer - \copybrief CFE_SB_TransmitBuffer
     </UL>
-    <LI> \ref CFEAPISBSetMessage
+    <LI> \ref CFEAPISBMessageCharacteristics
     <UL>
       <LI> #CFE_SB_SetUserDataLength - \copybrief CFE_SB_SetUserDataLength
       <LI> #CFE_SB_TimeStampMsg - \copybrief CFE_SB_TimeStampMsg
       <LI> #CFE_SB_MessageStringSet - \copybrief CFE_SB_MessageStringSet
-    </UL>
-    <LI> \ref CFEAPIGetMessage
-    <UL>
       <LI> #CFE_SB_GetUserData - \copybrief CFE_SB_GetUserData
       <LI> #CFE_SB_GetUserDataLength - \copybrief CFE_SB_GetUserDataLength
       <LI> #CFE_SB_MessageStringGet - \copybrief CFE_SB_MessageStringGet

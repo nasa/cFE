@@ -569,7 +569,7 @@ CFE_Status_t CFE_SB_TransmitBuffer(CFE_SB_Buffer_t *BufPtr, bool IncrementSequen
 
 /** @} */
 
-/** @defgroup CFEAPISBSetMessage cFE Setting Message Characteristics APIs
+/** @defgroup CFEAPISBMessageCharacteristics cFE Message Characteristics APIs
  * @{
  */
 
@@ -647,11 +647,6 @@ void CFE_SB_TimeStampMsg(CFE_MSG_Message_t *MsgPtr);
 */
 int32 CFE_SB_MessageStringSet(char *DestStringPtr, const char *SourceStringPtr, size_t DestMaxSize,
                               size_t SourceMaxSize);
-/** @} */
-
-/** @defgroup CFEAPIGetMessage cFE Getting Message Characteristics APIs
- * @{
- */
 
 /*****************************************************************************/
 /**
