@@ -69,8 +69,8 @@ static CFE_EVS_BinFilter_t CFE_TR_EventFilters[] = {
     {UTASSERT_CASETYPE_DEBUG, CFE_EVS_NO_FILTER},
 };
 
-bool CFE_UtAssert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_CaseType_t CaseType, const char *File,
-                              uint32 Line, const char *Text)
+bool CFE_Assert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_CaseType_t CaseType, const char *File,
+                            uint32 Line, const char *Text)
 {
     bool        Result = (Status >= CFE_SUCCESS);
     const char *MatchText;
