@@ -2356,7 +2356,13 @@ void Test_CFE_TBL_ReleaseAddresses(void)
 */
 void Test_CFE_TBL_Validate(void)
 {
+    int16                  RegIndex;
+    CFE_TBL_RegistryRec_t *RegRecPtr;
     UtPrintf("Begin Test Validate");
+
+    /* Test setup */
+    RegIndex  = CFE_TBL_FindTableInRegistry("ut_cfe_tbl.UT_Table1");
+    RegRecPtr = &CFE_TBL_Global.Registry[RegIndex];
 
     /* Test response to attempt to validate a table that an application is
      * not allowed to see
@@ -2373,6 +2379,44 @@ void Test_CFE_TBL_Validate(void)
     UT_SetAppID(UT_TBL_APPID_1);
     UtAssert_INT32_EQ(CFE_TBL_Validate(App1TblHandle1), CFE_TBL_INFO_NO_VALIDATION_PENDING);
     CFE_UtAssert_EVENTCOUNT(0);
+
+    /* Test failed validation */
+    UT_InitData();
+
+    /* a. Configure table for validation */
+    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
+    CFE_TBL_Global.ValidationResults[0].Result = 0;
+    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
+    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
+    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
+    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
+    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+
+    /* b. Perform failed validation */
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, -1);
+    CFE_UtAssert_SUCCESS(CFE_TBL_Validate(App1TblHandle1));
+    CFE_UtAssert_EVENTSENT(CFE_TBL_VALIDATION_ERR_EID);
+    CFE_UtAssert_EVENTCOUNT(1);
+    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, -1);
+
+    /* Test successful validation */
+    UT_InitData();
+
+    /* a. Configure table for validation */
+    CFE_TBL_Global.ValidationResults[0].State  = CFE_TBL_VALIDATION_PENDING;
+    CFE_TBL_Global.ValidationResults[0].Result = 0;
+    strncpy(CFE_TBL_Global.ValidationResults[0].TableName, "ut_cfe_tbl.UT_Table1",
+            sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1);
+    CFE_TBL_Global.ValidationResults[0].TableName[sizeof(CFE_TBL_Global.ValidationResults[0].TableName) - 1] = '\0';
+    CFE_TBL_Global.ValidationResults[0].CrcOfTable                                                           = 0;
+    CFE_TBL_Global.ValidationResults[0].ActiveBuffer                                                         = false;
+    RegRecPtr->ValidateInactiveIndex                                                                         = 0;
+
+    /* b. Perform failed validation */
+    UT_SetDeferredRetcode(UT_KEY(Test_CFE_TBL_ValidationFunc), 1, CFE_SUCCESS);
+    CFE_UtAssert_SUCCESS(CFE_TBL_Validate(App1TblHandle1));
+    UtAssert_INT32_EQ(CFE_TBL_Global.ValidationResults[0].Result, CFE_SUCCESS);
 }
 
 /*
