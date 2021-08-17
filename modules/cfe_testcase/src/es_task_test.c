@@ -43,6 +43,49 @@ void TaskFunction(void)
     return;
 }
 
+/* A task function that verifies the behavior of other APIs when those are called from a child task */
+void TaskFunctionCheckChildTaskContext(void)
+{
+    CFE_ES_TaskId_t  TaskId;
+    CFE_ES_AppId_t   AppId;
+    CFE_ES_AppInfo_t AppInfo;
+
+    /* extra startup delay before first assert, to make sure parent task has reached its wait loop */
+    OS_TaskDelay(100);
+
+    /* If invoked from the context of a child task, this should return an error */
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, "Test", TaskFunction, OSAL_TASK_STACK_ALLOCATE, 4096, 150, 0),
+                      CFE_ES_ERR_CHILD_TASK_CREATE);
+
+    /* Likewise attempting to delete the main task of the app from a child task should fail */
+    UtAssert_INT32_EQ(CFE_ES_GetAppID(&AppId), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetAppInfo(&AppInfo, AppId), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(AppInfo.MainTaskId), CFE_ES_ERR_CHILD_TASK_DELETE_MAIN_TASK);
+
+    UtAssert_True(true, "CFE_ES_ExitChildTask() called");
+    CFE_ES_ExitChildTask();
+}
+
+/* A task function that verifies the behavior of other APIs when those are called from a non-CFE app task */
+void TaskFunctionCheckNonAppContext(void)
+{
+    CFE_ES_TaskId_t TaskId;
+    CFE_ES_AppId_t  AppId;
+
+    /* extra startup delay before first assert, to make sure parent task has reached its wait loop */
+    OS_TaskDelay(100);
+
+    UtAssert_INT32_EQ(CFE_ES_GetAppID(&AppId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    UtAssert_INT32_EQ(
+        CFE_ES_CreateChildTask(&TaskId, "TaskName", TaskFunction, CFE_ES_TASK_STACK_ALLOCATE, 4096, 200, 0),
+        CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    UtAssert_True(true, "OS_TaskExit() called");
+    OS_TaskExit();
+}
+
 void TaskExitFunction(void)
 {
     while (CFE_FT_Global.Count < 200)
@@ -64,21 +107,75 @@ void TestCreateChild(void)
     size_t                     StackSize     = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
     CFE_ES_TaskPriority_Atom_t Priority      = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
     uint32                     Flags         = 0;
-    int                        ExpectedCount = 5;
+    int32                      ExpectedCount = 5;
+    int32                      RetryCount;
+    char                       TaskNameBuf[16];
+    osal_id_t                  OtherTaskId;
+    OS_task_prop_t             task_prop;
 
     CFE_FT_Global.Count = 0;
-
     UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
                       CFE_SUCCESS);
     OS_TaskDelay(500);
 
-    UtAssert_True(ExpectedCount >= CFE_FT_Global.Count - 1 && ExpectedCount <= CFE_FT_Global.Count + 1,
-                  "countCopy (%d) == count (%d)", (int)ExpectedCount, (int)CFE_FT_Global.Count);
+    UtAssert_INT32_GT(CFE_FT_Global.Count, ExpectedCount - 1);
+    UtAssert_INT32_LT(CFE_FT_Global.Count, ExpectedCount + 1);
 
+    /* Create task with same name - note the name conflict is detected by OSAL, not CFE here, and the error code is
+     * translated */
     UtAssert_INT32_EQ(
         CFE_ES_CreateChildTask(&TaskId2, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
         CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(TaskId), CFE_SUCCESS);
+
+    /* Also Confirm behavior of child task create/delete when called from a child task */
+    CFE_FT_Global.Count = 0;
+    UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunctionCheckChildTaskContext, StackPointer,
+                                             StackSize, Priority, Flags),
+                      CFE_SUCCESS);
+
+    /* wait for task to exit itself */
+    RetryCount = 0;
+    while (RetryCount < 10)
+    {
+        /*
+         * poll until CFE_ES_GetTaskName() returns an error, then the task has exited
+         *
+         * NOTE: this intentionally does not Assert the status here, because the child task is
+         * also doing asserts at the time this loop is running.  Once the child task finishes,
+         * it is OK to do asserts from this task again
+         */
+        if (CFE_Assert_STATUS_STORE(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskNameBuf))) != CFE_SUCCESS)
+        {
+            break;
+        }
+        OS_TaskDelay(100);
+        ++RetryCount;
+    }
+
+    /* Retroactively confirm that the previous call to CFE_ES_GetTaskName() returned RESOURCEID_NOT_VALID */
+    CFE_Assert_STATUS_MUST_BE(CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* Now do the same but instead of a CFE child task, make an OSAL task that is not associated with a CFE app */
+    UtAssert_INT32_EQ(OS_TaskCreate(&OtherTaskId, "NonCfe", TaskFunctionCheckNonAppContext, OSAL_TASK_STACK_ALLOCATE,
+                                    4096, OSAL_PRIORITY_C(200), 0),
+                      OS_SUCCESS);
+
+    /* wait for task to exit itself */
+    RetryCount = 0;
+    while (RetryCount < 10)
+    {
+        /*
+         * poll until OS_TaskGetInfo() returns an error, then the task has exited
+         */
+        if (OS_TaskGetInfo(OtherTaskId, &task_prop) != OS_SUCCESS)
+        {
+            break;
+        }
+
+        OS_TaskDelay(100);
+        ++RetryCount;
+    }
 
     UtAssert_INT32_EQ(CFE_ES_CreateChildTask(NULL, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
                       CFE_ES_BAD_ARGUMENT);
@@ -114,6 +211,7 @@ void TestChildTaskName(void)
     UtAssert_StrCmp(TaskNameBuf, TaskName, "CFE_ES_GetTaskName() = %s", TaskNameBuf);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(NULL, TaskName), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskIdByName, NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskIdByName, INVALID_TASK_NAME), CFE_ES_ERR_NAME_NOT_FOUND);
     CFE_UtAssert_RESOURCEID_UNDEFINED(TaskIdByName);
 
