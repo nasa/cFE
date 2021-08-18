@@ -123,7 +123,7 @@ CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableS
 
     if (CheckFunc == NULL)
     {
-        return CFE_ES_BAD_ARGUMENT;
+        return CFE_RESOURCEID_UNDEFINED;
     }
 
     ResourceType = CFE_ResourceId_GetBase(StartId);
