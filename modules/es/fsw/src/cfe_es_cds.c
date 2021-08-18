@@ -57,15 +57,17 @@ int32 CFE_ES_CDS_EarlyInit(void)
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     uint32                 PlatformSize;
     size_t                 MinRequiredSize;
+    int32                  OsStatus;
     int32                  Status;
+    int32                  PspStatus;
 
     CFE_ES_Global.CDSIsAvailable = false;
 
     /* Create CDS general access mutex */
-    Status = OS_MutSemCreate(&CDS->GenMutex, CFE_ES_CDS_MUT_REG_NAME, CFE_ES_CDS_MUT_REG_VALUE);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_MutSemCreate(&CDS->GenMutex, CFE_ES_CDS_MUT_REG_NAME, CFE_ES_CDS_MUT_REG_VALUE);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_SysLogWrite_Unsync("%s: Failed to create mutex with error %d\n", __func__, (int)Status);
+        CFE_ES_SysLogWrite_Unsync("%s: Failed to create mutex with error %ld\n", __func__, (long)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
@@ -73,12 +75,13 @@ int32 CFE_ES_CDS_EarlyInit(void)
 
     /* Get CDS size from PSP.  Note that the PSP interface
      * uses "uint32" for size here. */
-    Status = CFE_PSP_GetCDSSize(&PlatformSize);
-    if (Status != CFE_PSP_SUCCESS)
+    PspStatus = CFE_PSP_GetCDSSize(&PlatformSize);
+    if (PspStatus != CFE_PSP_SUCCESS)
     {
         /* Error getting the size of the CDS from the BSP */
-        CFE_ES_WriteToSysLog("%s: Unable to obtain CDS Size from BSP (Err=0x%08X)\n", __func__, (unsigned int)Status);
-        return Status;
+        CFE_ES_WriteToSysLog("%s: Unable to obtain CDS Size from BSP (Err=0x%08X)\n", __func__,
+                             (unsigned int)PspStatus);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     /* Always truncate the size to the nearest 4 byte boundary */
@@ -654,18 +657,18 @@ int32 CFE_ES_InitCDSRegistry(void)
 int32 CFE_ES_UpdateCDSRegistry(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
-    int32                  Status;
+    int32                  PspStatus;
 
     /* Copy the contents of the local registry to the CDS */
-    Status = CFE_PSP_WriteToCDS(CDS->Registry, CDS_REG_OFFSET, sizeof(CDS->Registry));
+    PspStatus = CFE_PSP_WriteToCDS(CDS->Registry, CDS_REG_OFFSET, sizeof(CDS->Registry));
 
-    if (Status != CFE_PSP_SUCCESS)
+    if (PspStatus != CFE_PSP_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Failed to write CDS Registry. Status=0x%08X\n", __func__, (unsigned int)Status);
-        Status = CFE_ES_CDS_ACCESS_ERROR;
+        CFE_ES_WriteToSysLog("%s: Failed to write CDS Registry. Status=0x%08X\n", __func__, (unsigned int)PspStatus);
+        return CFE_ES_CDS_ACCESS_ERROR;
     }
 
-    return Status;
+    return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
@@ -702,12 +705,13 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
 int32 CFE_ES_LockCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    int32                  OsStatus;
     int32                  Status;
 
-    Status = OS_MutSemTake(CDS->GenMutex);
+    OsStatus = OS_MutSemTake(CDS->GenMutex);
 
     /* Convert to CFE return code */
-    if (Status == OS_SUCCESS)
+    if (OsStatus == OS_SUCCESS)
     {
         Status = CFE_SUCCESS;
     }
@@ -730,12 +734,13 @@ int32 CFE_ES_LockCDS(void)
 int32 CFE_ES_UnlockCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
+    int32                  OsStatus;
     int32                  Status;
 
-    Status = OS_MutSemGive(CDS->GenMutex);
+    OsStatus = OS_MutSemGive(CDS->GenMutex);
 
     /* Convert to CFE return code */
-    if (Status == OS_SUCCESS)
+    if (OsStatus == OS_SUCCESS)
     {
         Status = CFE_SUCCESS;
     }
@@ -800,6 +805,7 @@ int32 CFE_ES_RebuildCDS(void)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32                  Status;
+    int32                  PspStatus;
 
     /* First, determine if the CDS registry stored in the CDS is smaller or equal */
     /* in size to the CDS registry we are currently configured for                */
@@ -820,9 +826,9 @@ int32 CFE_ES_RebuildCDS(void)
         return CFE_ES_CDS_INVALID;
     }
 
-    Status = CFE_PSP_ReadFromCDS(&CDS->Registry, CDS_REG_OFFSET, sizeof(CDS->Registry));
+    PspStatus = CFE_PSP_ReadFromCDS(&CDS->Registry, CDS_REG_OFFSET, sizeof(CDS->Registry));
 
-    if (Status == CFE_PSP_SUCCESS)
+    if (PspStatus == CFE_PSP_SUCCESS)
     {
         /* Scan the memory pool and identify the created but currently unused memory blocks */
         Status = CFE_ES_RebuildCDSPool(CDS->DataSize, CDS_POOL_OFFSET);
@@ -830,7 +836,7 @@ int32 CFE_ES_RebuildCDS(void)
     else
     {
         /* Registry in CDS is unreadable */
-        CFE_ES_WriteToSysLog("%s: Registry in CDS is unreadable, PSP error %lx\n", __func__, (unsigned long)Status);
+        CFE_ES_WriteToSysLog("%s: Registry in CDS is unreadable, PSP error %lx\n", __func__, (unsigned long)PspStatus);
         Status = CFE_ES_CDS_INVALID;
     }
 

@@ -130,6 +130,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
     const CFE_EVS_LogFileCmd_Payload_t *CmdPtr = &data->Payload;
     int32                               Result;
     int32                               LogIndex;
+    int32                               OsStatus;
     int32                               BytesWritten;
     osal_id_t                           LogFileHandle = OS_OBJECT_ID_UNDEFINED;
     uint32                              i;
@@ -152,12 +153,14 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
     else
     {
         /* Create the log file */
-        Result = OS_OpenCreate(&LogFileHandle, LogFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-        if (Result != OS_SUCCESS)
+        OsStatus =
+            OS_OpenCreate(&LogFileHandle, LogFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+        if (OsStatus != OS_SUCCESS)
         {
             EVS_SendEvent(CFE_EVS_ERR_CRLOGFILE_EID, CFE_EVS_EventType_ERROR,
-                          "Write Log File Command Error: OS_OpenCreate = 0x%08X, filename = %s", (unsigned int)Result,
+                          "Write Log File Command Error: OS_OpenCreate = %ld, filename = %s", (long)OsStatus,
                           LogFilename);
+            Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
     }
 
@@ -192,10 +195,10 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
             /* Write all the "in-use" event log entries to the file */
             for (i = 0; i < CFE_EVS_Global.EVS_LogPtr->LogCount; i++)
             {
-                BytesWritten = OS_write(LogFileHandle, &CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex],
-                                        sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex]));
+                OsStatus = OS_write(LogFileHandle, &CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex],
+                                    sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex]));
 
-                if (BytesWritten == sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex]))
+                if (OsStatus == sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry[LogIndex]))
                 {
                     LogIndex++;
 
@@ -223,8 +226,8 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
             else
             {
                 EVS_SendEvent(CFE_EVS_ERR_WRLOGFILE_EID, CFE_EVS_EventType_ERROR,
-                              "Write Log File Command Error: OS_write = 0x%08X, filename = %s",
-                              (unsigned int)BytesWritten, LogFilename);
+                              "Write Log File Command Error: OS_write = %ld, filename = %s", (long)OsStatus,
+                              LogFilename);
             }
         }
 

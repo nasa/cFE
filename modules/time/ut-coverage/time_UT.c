@@ -44,8 +44,8 @@
 ** External global variables
 */
 const char *TIME_SYSLOG_MSGS[] = {NULL, "%s: Error reading cmd pipe,RC=0x%08X\n",
-                                  "%s: Application Init Failed,RC=0x%08X\n", "%s: 1Hz OS_TimerAdd failed:RC=0x%08X\n",
-                                  "%s: 1Hz OS_TimerSet failed:RC=0x%08X\n"};
+                                  "%s: Application Init Failed,RC=0x%08X\n", "%s: 1Hz OS_TimerAdd failed:RC=%ld\n",
+                                  "%s: 1Hz OS_TimerSet failed:RC=%ld\n"};
 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SEND_HK  = {.MsgId =
                                                                      CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_SEND_HK_MID)};
@@ -343,12 +343,12 @@ void Test_Init(void)
     /* Test response to failure creating a tone semaphore */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 1, -1);
-    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -1);
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test response to failure creating a local semaphore */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 2, -2);
-    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -2);
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test response to an EVS register failure */
     UT_InitData();

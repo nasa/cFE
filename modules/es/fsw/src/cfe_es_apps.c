@@ -82,6 +82,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     uint32      BuffLen; /* Length of the current buffer */
     osal_id_t   AppFile = OS_OBJECT_ID_UNDEFINED;
     int32       Status;
+    int32       OsStatus;
     char        c;
     bool        LineTooLong = false;
     bool        FileOpened  = false;
@@ -100,17 +101,22 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
 
         if (Status == CFE_SUCCESS)
         {
-            Status = OS_OpenCreate(&AppFile, ScriptFileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-        }
-
-        if (Status >= 0)
-        {
-            CFE_ES_WriteToSysLog("%s: Opened ES App Startup file: %s\n", __func__, ScriptFileName);
-            FileOpened = true;
+            OsStatus = OS_OpenCreate(&AppFile, ScriptFileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+            if (OsStatus == OS_SUCCESS)
+            {
+                FileOpened = true;
+            }
+            else
+            {
+                CFE_ES_WriteToSysLog("%s: Cannot Open Volatile Startup file: %s, Trying Nonvolatile.\n", __func__,
+                                     ScriptFileName);
+            }
         }
         else
         {
-            CFE_ES_WriteToSysLog("%s: Cannot Open Volatile Startup file, Trying Nonvolatile.\n", __func__);
+            /* not expected -- likely a misconfiguration in CFE_PLATFORM_ES_VOLATILE_STARTUP_FILE setting */
+            CFE_ES_WriteToSysLog("%s: CFE_FS_ParseInputFileName() RC=%08x parsing volatile script file name.\n",
+                                 __func__, (unsigned int)Status);
         }
 
     } /* end if */
@@ -129,17 +135,21 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
 
         if (Status == CFE_SUCCESS)
         {
-            Status = OS_OpenCreate(&AppFile, ScriptFileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
-        }
-
-        if (Status >= 0)
-        {
-            CFE_ES_WriteToSysLog("%s: Opened ES App Startup file: %s\n", __func__, ScriptFileName);
-            FileOpened = true;
+            OsStatus = OS_OpenCreate(&AppFile, ScriptFileName, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+            if (OsStatus == OS_SUCCESS)
+            {
+                FileOpened = true;
+            }
+            else
+            {
+                CFE_ES_WriteToSysLog("%s: Error, Can't Open ES App Startup file: %s, EC = %ld\n", __func__,
+                                     ScriptFileName, (long)OsStatus);
+            }
         }
         else
         {
-            CFE_ES_WriteToSysLog("%s: Error, Can't Open ES App Startup file: %s EC = 0x%08X\n", __func__, StartFilePath,
+            /* not expected -- likely a misconfiguration in the user-supplied StartFilePath */
+            CFE_ES_WriteToSysLog("%s: CFE_FS_ParseInputFileName() RC=%08x parsing StartFilePath.\n", __func__,
                                  (unsigned int)Status);
         }
     }
@@ -149,6 +159,8 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     */
     if (FileOpened == true)
     {
+        CFE_ES_WriteToSysLog("%s: Opened ES App Startup file: %s\n", __func__, ScriptFileName);
+
         memset(ES_AppLoadBuffer, 0x0, ES_START_BUFF_SIZE);
         BuffLen      = 0;
         NumTokens    = 0;
@@ -161,13 +173,13 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
         */
         while (1)
         {
-            Status = OS_read(AppFile, &c, 1);
-            if (Status < 0)
+            OsStatus = OS_read(AppFile, &c, 1);
+            if (OsStatus < OS_SUCCESS)
             {
-                CFE_ES_WriteToSysLog("%s: Error Reading Startup file. EC = 0x%08X\n", __func__, (unsigned int)Status);
+                CFE_ES_WriteToSysLog("%s: Error Reading Startup file. EC = %ld\n", __func__, (long)OsStatus);
                 break;
             }
-            else if (Status == 0)
+            else if (OsStatus == 0)
             {
                 /*
                 ** EOF Reached
@@ -394,7 +406,7 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
     osal_id_t ModuleId;
     cpuaddr   InitSymbolAddress;
     int32     ReturnCode;
-    int32     StatusCode;
+    int32     OsStatus;
     uint32    LoadFlags;
 
     LoadFlags         = 0;
@@ -432,12 +444,12 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
         /*
          * Load the module via OSAL.
          */
-        StatusCode = OS_ModuleLoad(&ModuleId, ModuleName, LoadParams->FileName, LoadFlags);
+        OsStatus = OS_ModuleLoad(&ModuleId, ModuleName, LoadParams->FileName, LoadFlags);
 
-        if (StatusCode != OS_SUCCESS)
+        if (OsStatus != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Could not load file:%s. EC = 0x%08X\n", __func__, LoadParams->FileName,
-                                 (unsigned int)StatusCode);
+            CFE_ES_WriteToSysLog("%s: Could not load file:%s. EC = %ld\n", __func__, LoadParams->FileName,
+                                 (long)OsStatus);
             ModuleId   = OS_OBJECT_ID_UNDEFINED;
             ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
@@ -453,11 +465,11 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
     if (ReturnCode == CFE_SUCCESS && LoadParams->InitSymbolName[0] != 0 &&
         strcmp(LoadParams->InitSymbolName, "NULL") != 0)
     {
-        StatusCode = OS_ModuleSymbolLookup(ModuleId, &InitSymbolAddress, LoadParams->InitSymbolName);
-        if (StatusCode != OS_SUCCESS)
+        OsStatus = OS_ModuleSymbolLookup(ModuleId, &InitSymbolAddress, LoadParams->InitSymbolName);
+        if (OsStatus != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Could not find symbol:%s. EC = 0x%08X\n", __func__, LoadParams->InitSymbolName,
-                                 (unsigned int)StatusCode);
+            CFE_ES_WriteToSysLog("%s: Could not find symbol:%s. EC = %ld\n", __func__, LoadParams->InitSymbolName,
+                                 (long)OsStatus);
             ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
     }
@@ -472,11 +484,10 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
     {
         /* If the module had been successfully loaded, then unload it,
          * so that it does not consume resources */
-        StatusCode = OS_ModuleUnload(ModuleId);
-        if (StatusCode != OS_SUCCESS) /* There's not much we can do except notify */
+        OsStatus = OS_ModuleUnload(ModuleId);
+        if (OsStatus != OS_SUCCESS) /* There's not much we can do except notify */
         {
-            CFE_ES_WriteToSysLog("%s: Failed to unload: %s. EC = 0x%08X\n", __func__, ModuleName,
-                                 (unsigned int)StatusCode);
+            CFE_ES_WriteToSysLog("%s: Failed to unload: %s. EC = %ld\n", __func__, ModuleName, (long)OsStatus);
         }
     }
 
@@ -583,23 +594,23 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
     CFE_ES_TaskRecord_t *TaskRecPtr;
     osal_id_t            OsalTaskId;
     CFE_ES_TaskId_t      LocalTaskId;
-    int32                StatusCode;
+    int32                OsStatus;
     int32                ReturnCode;
 
     /*
      * Create the primary task for the newly loaded task
      */
-    StatusCode = OS_TaskCreate(&OsalTaskId,              /* task id */
-                               TaskName,                 /* task name matches app name for main task */
-                               CFE_ES_TaskEntryPoint,    /* task function pointer */
-                               OSAL_TASK_STACK_ALLOCATE, /* stack pointer (allocate) */
-                               Params->StackSize,        /* stack size */
-                               Params->Priority,         /* task priority */
-                               OS_FP_ENABLED);           /* task options */
+    OsStatus = OS_TaskCreate(&OsalTaskId,              /* task id */
+                             TaskName,                 /* task name matches app name for main task */
+                             CFE_ES_TaskEntryPoint,    /* task function pointer */
+                             OSAL_TASK_STACK_ALLOCATE, /* stack pointer (allocate) */
+                             Params->StackSize,        /* stack size */
+                             Params->Priority,         /* task priority */
+                             OS_FP_ENABLED);           /* task options */
 
     CFE_ES_LockSharedData(__func__, __LINE__);
 
-    if (StatusCode == OS_SUCCESS)
+    if (OsStatus == OS_SUCCESS)
     {
         /*
          * As this is a newly-created task, this shouldn't fail.
@@ -638,8 +649,8 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
     }
     else
     {
-        CFE_ES_SysLogWrite_Unsync("%s: AppCreate Error: TaskCreate %s Failed. EC = 0x%08X!\n", __func__, TaskName,
-                                  (unsigned int)StatusCode);
+        CFE_ES_SysLogWrite_Unsync("%s: AppCreate Error: TaskCreate %s Failed. EC = %ld!\n", __func__, TaskName,
+                                  (long)OsStatus);
         ReturnCode = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         *TaskIdPtr = CFE_ES_TASKID_UNDEFINED;
     }
@@ -1330,6 +1341,7 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
 int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
 {
     uint32                  i;
+    int32                   OsStatus;
     int32                   Status;
     int32                   ReturnCode;
     CFE_ES_TaskId_t         TaskList[OS_MAX_TASKS];
@@ -1509,11 +1521,11 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
         /*
          ** Unload the module only if it is an external app
          */
-        Status = OS_ModuleUnload(ModuleId);
-        if (Status != OS_SUCCESS)
+        OsStatus = OS_ModuleUnload(ModuleId);
+        if (OsStatus != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=0x%08X\n", __func__,
-                                 OS_ObjectIdToInteger(ModuleId), (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: Module (ID:0x%08lX) Unload failed. RC=%ld\n", __func__,
+                                 OS_ObjectIdToInteger(ModuleId), (long)OsStatus);
             ReturnCode = CFE_ES_APP_CLEANUP_ERR;
         }
     }
@@ -1576,7 +1588,7 @@ typedef struct
 void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
 {
     CFE_ES_CleanupState_t *CleanState;
-    int32                  Status;
+    int32                  OsStatus;
     osal_objtype_t         ObjType;
     bool                   ObjIsValid;
 
@@ -1587,46 +1599,46 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
     switch (ObjType)
     {
         case OS_OBJECT_TYPE_OS_TASK:
-            Status = OS_TaskDelete(ObjectId);
+            OsStatus = OS_TaskDelete(ObjectId);
             break;
         case OS_OBJECT_TYPE_OS_QUEUE:
-            Status = OS_QueueDelete(ObjectId);
+            OsStatus = OS_QueueDelete(ObjectId);
             break;
         case OS_OBJECT_TYPE_OS_BINSEM:
-            Status = OS_BinSemDelete(ObjectId);
+            OsStatus = OS_BinSemDelete(ObjectId);
             break;
         case OS_OBJECT_TYPE_OS_COUNTSEM:
-            Status = OS_CountSemDelete(ObjectId);
+            OsStatus = OS_CountSemDelete(ObjectId);
             break;
         case OS_OBJECT_TYPE_OS_MUTEX:
-            Status = OS_MutSemDelete(ObjectId);
+            OsStatus = OS_MutSemDelete(ObjectId);
             break;
         case OS_OBJECT_TYPE_OS_TIMECB:
-            Status = OS_TimerDelete(ObjectId);
+            OsStatus = OS_TimerDelete(ObjectId);
             break;
         case OS_OBJECT_TYPE_OS_STREAM:
-            Status = OS_close(ObjectId);
+            OsStatus = OS_close(ObjectId);
             break;
         case OS_OBJECT_TYPE_OS_MODULE:
-            Status = OS_ModuleUnload(ObjectId);
+            OsStatus = OS_ModuleUnload(ObjectId);
             break;
         default:
             ObjIsValid = false;
-            Status     = OS_ERROR;
+            OsStatus   = OS_ERROR;
             break;
     }
 
     if (ObjIsValid)
     {
         ++CleanState->FoundObjects;
-        if (Status == OS_SUCCESS)
+        if (OsStatus == OS_SUCCESS)
         {
             ++CleanState->DeletedObjects;
         }
         else
         {
-            CFE_ES_SysLogWrite_Unsync("%s: Call to OSAL Delete Object (ID:%lu) failed. RC=0x%08X\n", __func__,
-                                      OS_ObjectIdToInteger(ObjectId), (unsigned int)Status);
+            CFE_ES_SysLogWrite_Unsync("%s: Call to OSAL Delete Object (ID:%lu) failed. RC=%ld\n", __func__,
+                                      OS_ObjectIdToInteger(ObjectId), (long)OsStatus);
             if (CleanState->OverallStatus == CFE_SUCCESS)
             {
                 /*
@@ -1675,6 +1687,7 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
 int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
 {
     CFE_ES_CleanupState_t CleanState;
+    int32                 OsStatus;
     int32                 Result;
     osal_id_t             OsalId;
 
@@ -1713,8 +1726,8 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
     ** In this case the OS_ERR_INVALID_ID status is returned, but
     ** that is OK, there is nothing else needed to do.
     */
-    Result = OS_TaskDelete(OsalId);
-    if (Result == OS_SUCCESS || Result == OS_ERR_INVALID_ID)
+    OsStatus = OS_TaskDelete(OsalId);
+    if (OsStatus == OS_SUCCESS || OsStatus == OS_ERR_INVALID_ID)
     {
         Result = CleanState.OverallStatus;
         if (Result == CFE_SUCCESS && CleanState.FoundObjects > 0)
@@ -1772,10 +1785,10 @@ void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE
 void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoPtr)
 {
     OS_module_prop_t ModuleInfo;
-    int32            ReturnCode;
+    int32            OsStatus;
 
-    ReturnCode = OS_ModuleInfo(ModuleId, &ModuleInfo);
-    if (ReturnCode == OS_SUCCESS)
+    OsStatus = OS_ModuleInfo(ModuleId, &ModuleInfo);
+    if (OsStatus == OS_SUCCESS)
     {
         AppInfoPtr->AddressesAreValid =
             (sizeof(ModuleInfo.addr.code_address) <= sizeof(AppInfoPtr->CodeAddress)) && ModuleInfo.addr.valid;

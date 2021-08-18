@@ -272,7 +272,7 @@ typedef struct
 typedef struct
 {
     uint32          EventId;
-    int32           ErrStat;
+    int32           OsStatus;
     CFE_SB_PipeId_t PipeId;
 } CFE_SB_SendErrEventBuf_t;
 

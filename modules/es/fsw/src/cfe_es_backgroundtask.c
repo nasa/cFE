@@ -99,7 +99,7 @@ const CFE_ES_BackgroundJobEntry_t CFE_ES_BACKGROUND_JOB_TABLE[] = {
  *-----------------------------------------------------------------*/
 void CFE_ES_BackgroundTask(void)
 {
-    int32                              status;
+    int32                              OsStatus;
     uint32                             JobTotal;
     uint32                             NumJobsRunning;
     uint32                             NextDelay;
@@ -153,11 +153,11 @@ void CFE_ES_BackgroundTask(void)
 
         CFE_ES_Global.BackgroundTask.NumJobsRunning = NumJobsRunning;
 
-        status = OS_BinSemTimedWait(CFE_ES_Global.BackgroundTask.WorkSem, NextDelay);
-        if (status != OS_SUCCESS && status != OS_SEM_TIMEOUT)
+        OsStatus = OS_BinSemTimedWait(CFE_ES_Global.BackgroundTask.WorkSem, NextDelay);
+        if (OsStatus != OS_SUCCESS && OsStatus != OS_SEM_TIMEOUT)
         {
             /* should never occur */
-            CFE_ES_WriteToSysLog("%s: Failed to take background sem: %08lx\n", __func__, (unsigned long)status);
+            CFE_ES_WriteToSysLog("%s: Failed to take background sem: %ld\n", __func__, (long)OsStatus);
             break;
         }
     }
@@ -174,12 +174,13 @@ void CFE_ES_BackgroundTask(void)
 int32 CFE_ES_BackgroundInit(void)
 {
     int32 status;
+    int32 OsStatus;
 
-    status = OS_BinSemCreate(&CFE_ES_Global.BackgroundTask.WorkSem, CFE_ES_BACKGROUND_SEM_NAME, 0, 0);
-    if (status != OS_SUCCESS)
+    OsStatus = OS_BinSemCreate(&CFE_ES_Global.BackgroundTask.WorkSem, CFE_ES_BACKGROUND_SEM_NAME, 0, 0);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Failed to create background sem: %08lx\n", __func__, (unsigned long)status);
-        return status;
+        CFE_ES_WriteToSysLog("%s: Failed to create background sem: %ld\n", __func__, (long)OsStatus);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     /* Spawn a task to write the performance data to a file */

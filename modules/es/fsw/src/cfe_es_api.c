@@ -783,7 +783,7 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName
 CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName)
 {
     osal_id_t    OsalId;
-    int32        Status;
+    int32        OsStatus;
     CFE_Status_t Result;
 
     if (TaskName == NULL || TaskIdPtr == NULL)
@@ -792,8 +792,8 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
     }
 
     /* For tasks IDs, defer to OSAL for name lookup */
-    Status = OS_TaskGetIdByName(&OsalId, TaskName);
-    if (Status == OS_SUCCESS)
+    OsStatus = OS_TaskGetIdByName(&OsalId, TaskName);
+    if (OsStatus == OS_SUCCESS)
     {
         Result     = CFE_SUCCESS;
         *TaskIdPtr = CFE_ES_TaskId_FromOSAL(OsalId);
@@ -981,7 +981,7 @@ CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t Buffe
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t BufferLength)
 {
-    int32     Result;
+    int32     OsStatus;
     osal_id_t OsalId;
 
     if (BufferLength == 0 || TaskName == NULL)
@@ -997,10 +997,10 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t B
     /*
      * Query OSAL to get the task name
      */
-    OsalId = CFE_ES_TaskId_ToOSAL(TaskId);
-    Result = OS_GetResourceName(OsalId, TaskName, BufferLength);
+    OsalId   = CFE_ES_TaskId_ToOSAL(TaskId);
+    OsStatus = OS_GetResourceName(OsalId, TaskName, BufferLength);
 
-    if (Result != OS_SUCCESS)
+    if (OsStatus != OS_SUCCESS)
     {
         return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
@@ -1421,7 +1421,7 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
     uint32               i;
     bool                 TaskIsMain;
     int32                ReturnCode = CFE_SUCCESS;
-    int32                OSReturnCode;
+    int32                OsStatus;
     osal_id_t            OsalId;
 
     /*
@@ -1464,9 +1464,9 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
                 /*
                 ** Can delete the Task
                 */
-                OsalId       = CFE_ES_TaskId_ToOSAL(TaskId);
-                OSReturnCode = OS_TaskDelete(OsalId);
-                if (OSReturnCode == OS_SUCCESS)
+                OsalId   = CFE_ES_TaskId_ToOSAL(TaskId);
+                OsStatus = OS_TaskDelete(OsalId);
+                if (OsStatus == OS_SUCCESS)
                 {
                     /*
                     ** Invalidate the task table entry
@@ -1482,8 +1482,8 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
                 }
                 else
                 {
-                    CFE_ES_SysLogWrite_Unsync("%s: Error Calling OS_TaskDelete: Task %lu, RC = 0x%08X\n", __func__,
-                                              CFE_RESOURCEID_TO_ULONG(TaskId), (unsigned int)OSReturnCode);
+                    CFE_ES_SysLogWrite_Unsync("%s: Error Calling OS_TaskDelete: Task %lu, RC = %ld\n", __func__,
+                                              CFE_RESOURCEID_TO_ULONG(TaskId), (long)OsStatus);
                     ReturnCode = CFE_ES_ERR_CHILD_TASK_DELETE;
                 }
             }
@@ -2180,6 +2180,7 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
 {
     osal_id_t    OsalID;
     osal_index_t OsalIndex;
+    int32        OsStatus;
 
     if (!CFE_RESOURCEID_TEST_DEFINED(TaskID))
     {
@@ -2191,8 +2192,9 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
         return CFE_ES_BAD_ARGUMENT;
     }
 
-    OsalID = CFE_ES_TaskId_ToOSAL(TaskID);
-    if (OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_TASK, OsalID, &OsalIndex) != OS_SUCCESS)
+    OsalID   = CFE_ES_TaskId_ToOSAL(TaskID);
+    OsStatus = OS_ObjectIdToArrayIndex(OS_OBJECT_TYPE_OS_TASK, OsalID, &OsalIndex);
+    if (OsStatus != OS_SUCCESS)
     {
         return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
@@ -2230,17 +2232,17 @@ CFE_Status_t CFE_ES_CounterID_ToIndex(CFE_ES_CounterId_t CounterId, uint32 *Idx)
  *-----------------------------------------------------------------*/
 void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber)
 {
-    int32 Status;
+    int32 OsStatus;
 
-    Status = OS_MutSemTake(CFE_ES_Global.SharedDataMutex);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_MutSemTake(CFE_ES_Global.SharedDataMutex);
+    if (OsStatus != OS_SUCCESS)
     {
         /*
          * NOTE: this is going to write into a buffer that itself
          * is _supposed_ to be protected by this same mutex.
          */
-        CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Take Err Stat=0x%x,Func=%s,Line=%d\n", __func__,
-                                  (unsigned int)Status, FunctionName, (int)LineNumber);
+        CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Take Err Stat=%ld,Func=%s,Line=%d\n", __func__, (long)OsStatus,
+                                  FunctionName, (int)LineNumber);
 
     } /* end if */
 
@@ -2257,17 +2259,17 @@ void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber)
  *-----------------------------------------------------------------*/
 void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber)
 {
-    int32 Status;
+    int32 OsStatus;
 
-    Status = OS_MutSemGive(CFE_ES_Global.SharedDataMutex);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_MutSemGive(CFE_ES_Global.SharedDataMutex);
+    if (OsStatus != OS_SUCCESS)
     {
         /*
          * NOTE: this is going to write into a buffer that itself
          * is _supposed_ to be protected by this same mutex.
          */
-        CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Give Err Stat=0x%x,Func=%s,Line=%d\n", __func__,
-                                  (unsigned int)Status, FunctionName, (int)LineNumber);
+        CFE_ES_SysLogWrite_Unsync("%s: SharedData Mutex Give Err Stat=%ld,Func=%s,Line=%d\n", __func__, (long)OsStatus,
+                                  FunctionName, (int)LineNumber);
 
     } /* end if */
 

@@ -103,6 +103,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
     CFE_ES_AppId_t   AppId;
     CFE_ES_TaskId_t  TskId;
     osal_id_t        SysQueueId;
+    int32            OsStatus;
     int32            Status;
     CFE_SB_PipeD_t * PipeDscPtr;
     CFE_ResourceId_t PendingPipeId = CFE_RESOURCEID_UNDEFINED;
@@ -113,6 +114,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
     SysQueueId     = OS_OBJECT_ID_UNDEFINED;
     PendingEventId = 0;
     PipeDscPtr     = NULL;
+    OsStatus       = OS_SUCCESS;
 
     /*
      * Get caller AppId.
@@ -163,19 +165,19 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
     if (Status == CFE_SUCCESS)
     {
         /* create the queue */
-        Status = OS_QueueCreate(&SysQueueId, PipeName, Depth, sizeof(CFE_SB_BufferD_t *), 0);
-        if (Status == OS_SUCCESS)
+        OsStatus = OS_QueueCreate(&SysQueueId, PipeName, Depth, sizeof(CFE_SB_BufferD_t *), 0);
+        if (OsStatus == OS_SUCCESS)
         {
             /* just translate the RC to CFE */
             Status = CFE_SUCCESS;
         }
         else
         {
-            if (Status == OS_ERR_NAME_TAKEN)
+            if (OsStatus == OS_ERR_NAME_TAKEN)
             {
                 PendingEventId = CFE_SB_CR_PIPE_NAME_TAKEN_EID;
             }
-            else if (Status == OS_ERR_NO_FREE_IDS)
+            else if (OsStatus == OS_ERR_NO_FREE_IDS)
             {
                 PendingEventId = CFE_SB_CR_PIPE_NO_FREE_EID;
             }
@@ -266,7 +268,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
                 break;
             case CFE_SB_CR_PIPE_ERR_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "CreatePipeErr:OS_QueueCreate returned %d,app %s", (int)Status,
+                                           "CreatePipeErr:OS_QueueCreate returned %ld,app %s", (long)OsStatus,
                                            CFE_SB_GetAppTskName(TskId, FullName));
                 break;
         }
@@ -662,6 +664,7 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_PipeId_t PipeId)
 {
+    int32           OsStatus;
     int32           Status;
     CFE_ES_TaskId_t TskId;
     char            FullName[(OS_MAX_API_NAME * 2)];
@@ -699,9 +702,9 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
         }
         else
         {
-            Status = OS_GetResourceName(SysQueueId, PipeNameBuf, PipeNameSize);
+            OsStatus = OS_GetResourceName(SysQueueId, PipeNameBuf, PipeNameSize);
 
-            if (Status == OS_SUCCESS)
+            if (OsStatus == OS_SUCCESS)
             {
                 Status = CFE_SUCCESS;
             }
@@ -756,6 +759,7 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *PipeName)
 {
+    int32           OsStatus;
     int32           Status;
     CFE_ES_TaskId_t TskId;
     uint32          Idx;
@@ -775,8 +779,8 @@ CFE_Status_t CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *Pipe
     else
     {
         /* Get QueueID from OSAL */
-        Status = OS_QueueGetIdByName(&SysQueueId, PipeName);
-        if (Status == OS_SUCCESS)
+        OsStatus = OS_QueueGetIdByName(&SysQueueId, PipeName);
+        if (OsStatus == OS_SUCCESS)
         {
             Status = CFE_SUCCESS;
         }
@@ -1554,7 +1558,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
     CFE_SB_DestinationD_t *DestPtr;
     CFE_SB_PipeD_t *       PipeDscPtr;
     CFE_SB_EventBuf_t      SBSndErr;
-    int32                  Status;
+    int32                  OsStatus;
     uint32                 i;
     char                   FullName[(OS_MAX_API_NAME * 2)];
     char                   PipeName[OS_MAX_API_NAME];
@@ -1623,9 +1627,9 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
             ** Write the buffer descriptor to the queue of the pipe.  If the write
             ** failed, log info and increment the pipe's error counter.
             */
-            Status = OS_QueuePut(PipeDscPtr->SysQueueId, &BufDscPtr, sizeof(BufDscPtr), 0);
+            OsStatus = OS_QueuePut(PipeDscPtr->SysQueueId, &BufDscPtr, sizeof(BufDscPtr), 0);
 
-            if (Status == OS_SUCCESS)
+            if (OsStatus == OS_SUCCESS)
             {
                 /* The queue now holds a ref to the buffer, so increment its ref count. */
                 CFE_SB_IncrBufUseCnt(BufDscPtr);
@@ -1638,7 +1642,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
                     PipeDscPtr->PeakQueueDepth = PipeDscPtr->CurrentQueueDepth;
                 }
             }
-            else if (Status == OS_QUEUE_FULL)
+            else if (OsStatus == OS_QUEUE_FULL)
             {
                 SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId  = DestPtr->PipeId;
                 SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId = CFE_SB_Q_FULL_ERR_EID;
@@ -1649,9 +1653,9 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
             else
             {
                 /* Unexpected error while writing to queue. */
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId  = DestPtr->PipeId;
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId = CFE_SB_Q_WR_ERR_EID;
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].ErrStat = Status;
+                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId   = DestPtr->PipeId;
+                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId  = CFE_SB_Q_WR_ERR_EID;
+                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].OsStatus = OsStatus;
                 SBSndErr.EvtsToSnd++;
                 CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter++;
                 PipeDscPtr->SendErrors++;
@@ -1751,10 +1755,9 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
                 CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
 
                 CFE_EVS_SendEventWithAppID(CFE_SB_Q_WR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Write Err,MsgId 0x%x,pipe %s,sender %s,stat 0x%x",
+                                           "Pipe Write Err,MsgId 0x%x,pipe %s,sender %s,stat %ld",
                                            (unsigned int)CFE_SB_MsgIdToValue(BufDscPtr->MsgId), PipeName,
-                                           CFE_SB_GetAppTskName(TskId, FullName),
-                                           (unsigned int)SBSndErr.EvtBuf[i].ErrStat);
+                                           CFE_SB_GetAppTskName(TskId, FullName), (long)(SBSndErr.EvtBuf[i].OsStatus));
 
                 /* clear the bit so the task may send this event again */
                 CFE_SB_FinishSendEvent(TskId, CFE_SB_Q_WR_ERR_EID_BIT);
@@ -1775,7 +1778,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
 CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t PipeId, int32 TimeOut)
 {
     int32                  Status;
-    int32                  RcvStatus;
+    int32                  OsStatus;
     CFE_SB_BufferD_t *     BufDscPtr;
     size_t                 BufDscSize;
     CFE_SB_PipeD_t *       PipeDscPtr;
@@ -1795,7 +1798,7 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
     BufDscPtr      = NULL;
     DestPtr        = NULL;
     BufDscSize     = 0;
-    RcvStatus      = OS_SUCCESS;
+    OsStatus       = OS_SUCCESS;
 
     /*
      * Check input args and see if any are bad, which require
@@ -1880,7 +1883,7 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
     if (Status == CFE_SUCCESS)
     {
         /* Read the buffer descriptor address from the queue.  */
-        RcvStatus = OS_QueueGet(SysQueueId, &BufDscPtr, sizeof(BufDscPtr), &BufDscSize, SysTimeout);
+        OsStatus = OS_QueueGet(SysQueueId, &BufDscPtr, sizeof(BufDscPtr), &BufDscSize, SysTimeout);
 
         /*
          * translate the return value -
@@ -1888,16 +1891,16 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
          * CFE functions have their own set of RC values should not directly return OSAL codes
          * The size should always match.  If it does not, then generate CFE_SB_Q_RD_ERR_EID.
          */
-        if (RcvStatus == OS_SUCCESS && BufDscPtr != NULL && BufDscSize == sizeof(BufDscPtr))
+        if (OsStatus == OS_SUCCESS && BufDscPtr != NULL && BufDscSize == sizeof(BufDscPtr))
         {
             /* Pass through */
         }
-        else if (RcvStatus == OS_QUEUE_EMPTY)
+        else if (OsStatus == OS_QUEUE_EMPTY)
         {
             /* normal if using CFE_SB_POLL */
             Status = CFE_SB_NO_MESSAGE;
         }
-        else if (RcvStatus == OS_QUEUE_TIMEOUT)
+        else if (OsStatus == OS_QUEUE_TIMEOUT)
         {
             /* normal if using a nonzero timeout */
             Status = CFE_SB_TIME_OUT;
@@ -1995,8 +1998,8 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
         {
             case CFE_SB_Q_RD_ERR_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_Q_RD_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Pipe Read Err,pipe %lu,app %s,stat 0x%x", CFE_RESOURCEID_TO_ULONG(PipeId),
-                                           CFE_SB_GetAppTskName(TskId, FullName), (unsigned int)RcvStatus);
+                                           "Pipe Read Err,pipe %lu,app %s,stat %ld", CFE_RESOURCEID_TO_ULONG(PipeId),
+                                           CFE_SB_GetAppTskName(TskId, FullName), (long)OsStatus);
                 break;
             case CFE_SB_RCV_BAD_ARG_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_RCV_BAD_ARG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,

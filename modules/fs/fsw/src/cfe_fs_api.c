@@ -125,6 +125,7 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 {
+    int32 OsStatus;
     int32 Result;
     int32 EndianCheck = 0x01020304;
 
@@ -136,14 +137,14 @@ CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
     /*
     ** Ensure that we are at the start of the file...
     */
-    Result = OS_lseek(FileDes, 0, OS_SEEK_SET);
+    OsStatus = OS_lseek(FileDes, 0, OS_SEEK_SET);
 
-    if (Result == OS_SUCCESS)
+    if (OsStatus >= OS_SUCCESS)
     {
         /*
         ** Read header structure into callers buffer...
         */
-        Result = OS_read(FileDes, Hdr, sizeof(CFE_FS_Header_t));
+        OsStatus = OS_read(FileDes, Hdr, sizeof(CFE_FS_Header_t));
 
         /* Determine if this processor is a little endian processor */
         if ((*(char *)(&EndianCheck)) == 0x04)
@@ -152,6 +153,16 @@ CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
             /* its standard big-endian format into a little endian format to ease user access    */
             CFE_FS_ByteSwapCFEHeader(Hdr);
         }
+    }
+
+    if (OsStatus >= OS_SUCCESS)
+    {
+        /* The "OsStatus" reflects size actually read */
+        Result = (long)OsStatus;
+    }
+    else
+    {
+        Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     return (Result);
@@ -190,6 +201,7 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 {
     CFE_TIME_SysTime_t Time;
+    int32              OsStatus;
     int32              Result;
     int32              EndianCheck = 0x01020304;
     CFE_ES_AppId_t     AppID;
@@ -202,9 +214,9 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
     /*
     ** Ensure that we are at the start of the file...
     */
-    Result = OS_lseek(FileDes, 0, OS_SEEK_SET);
+    OsStatus = OS_lseek(FileDes, 0, OS_SEEK_SET);
 
-    if (Result == OS_SUCCESS)
+    if (OsStatus >= OS_SUCCESS)
     {
         /*
         ** Fill in the ID fields...
@@ -241,7 +253,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
         /*
         ** Write header structure from callers buffer...
         */
-        Result = OS_write(FileDes, Hdr, sizeof(CFE_FS_Header_t));
+        OsStatus = OS_write(FileDes, Hdr, sizeof(CFE_FS_Header_t));
 
         /*
         ** Determine if this is a little endian processor
@@ -252,6 +264,16 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
             /* from the required CFE standard big endian format to the little endian format      */
             CFE_FS_ByteSwapCFEHeader(Hdr);
         }
+    }
+
+    if (OsStatus >= OS_SUCCESS)
+    {
+        /* The "OsStatus" reflects size actually written */
+        Result = (long)OsStatus;
+    }
+    else
+    {
+        Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     return (Result);
@@ -267,6 +289,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimestamp)
 {
+    int32              OsStatus;
     int32              Result;
     CFE_FS_Header_t    TempHdr;
     int32              EndianCheck  = 0x01020304;
@@ -274,9 +297,9 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
     int32              FileOffset   = 0;
 
     FileOffset = ((char *)&TempHdr.TimeSeconds - (char *)&TempHdr.ContentType);
-    Result     = OS_lseek(FileDes, FileOffset, OS_SEEK_SET);
+    OsStatus   = OS_lseek(FileDes, FileOffset, OS_SEEK_SET);
 
-    if (Result == FileOffset)
+    if (OsStatus == FileOffset)
     {
         /*
         **  Determine if this is a little endian processor
@@ -289,22 +312,23 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
             CFE_FS_ByteSwapUint32(&OutTimestamp.Subseconds);
         }
 
-        Result = OS_write(FileDes, &OutTimestamp, sizeof(OutTimestamp));
+        OsStatus = OS_write(FileDes, &OutTimestamp, sizeof(OutTimestamp));
 
         /* On a good write, the value returned will equal the number of bytes written */
-        if (Result == sizeof(OutTimestamp))
+        if (OsStatus == sizeof(OutTimestamp))
         {
             Result = CFE_SUCCESS;
         }
         else
         {
-            CFE_ES_WriteToSysLog("%s: Failed to write timestamp (Status=0x%08X)\n", __func__, (unsigned int)Result);
+            CFE_ES_WriteToSysLog("%s: Failed to write timestamp (Status=%ld)\n", __func__, (long)OsStatus);
             Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
     }
     else
     {
-        CFE_ES_WriteToSysLog("%s: Failed to lseek time fields (Status=0x%08X)\n", __func__, (unsigned int)Result);
+        CFE_ES_WriteToSysLog("%s: Failed to lseek time fields (Status=%ld)\n", __func__, (long)OsStatus);
+        Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     return (Result);
@@ -674,6 +698,7 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
     CFE_FS_CurrentFileState_t *       State;
     CFE_FS_BackgroundFileDumpEntry_t *Curr;
     CFE_FS_FileWriteMetaData_t *      Meta;
+    int32                             OsStatus;
     int32                             Status;
     CFE_FS_Header_t                   FileHdr;
     void *                            RecordPtr;
@@ -717,11 +742,13 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
     if (!OS_ObjectIdDefined(State->Fd) && Meta->IsPending)
     {
         /* First time processing this entry - open the file */
-        Status = OS_OpenCreate(&State->Fd, Meta->FileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
-        if (Status < 0)
+        OsStatus =
+            OS_OpenCreate(&State->Fd, Meta->FileName, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+        if (OsStatus != OS_SUCCESS)
         {
             State->Fd = OS_OBJECT_ID_UNDEFINED;
-            Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_CREATE_ERROR, Status, 0, 0, 0);
+            /* NOTE: This converts the OSAL status directly into a CFE status for logging */
+            Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_CREATE_ERROR, (long)OsStatus, 0, 0, 0);
         }
         else
         {
@@ -764,17 +791,18 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
             /*
              * Now write to file
              */
-            Status = OS_write(State->Fd, RecordPtr, RecordSize);
+            OsStatus = OS_write(State->Fd, RecordPtr, RecordSize);
 
-            if (Status != RecordSize)
+            if (OsStatus != RecordSize)
             {
                 /* end the file early (cannot set "IsEOF" as this would cause the complete event to be generated too) */
                 OS_close(State->Fd);
                 State->Fd = OS_OBJECT_ID_UNDEFINED;
 
                 /* generate write error event */
-                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, Status, State->RecordNum, RecordSize,
-                              State->FileSize);
+                /* NOTE: This converts the OSAL status directly into a CFE status for logging */
+                Meta->OnEvent(Meta, CFE_FS_FileWriteEvent_RECORD_WRITE_ERROR, (long)OsStatus, State->RecordNum,
+                              RecordSize, State->FileSize);
                 break;
             }
             else

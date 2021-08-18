@@ -116,7 +116,7 @@ void CFE_TIME_QueryResetVars(void)
     CFE_TIME_ResetVars_t                LocalResetVars;
     uint32                              DefSubsMET;
     uint32                              DefSubsSTCF;
-    int32                               status;
+    int32                               PspStatus;
     volatile CFE_TIME_ReferenceState_t *RefState;
     uint32                              resetAreaSize;
     cpuaddr                             resetAreaAddr;
@@ -127,9 +127,9 @@ void CFE_TIME_QueryResetVars(void)
     /*
     ** Get the pointer to the Reset area from the BSP
     */
-    status = CFE_PSP_GetResetArea(&(resetAreaAddr), &(resetAreaSize));
+    PspStatus = CFE_PSP_GetResetArea(&(resetAreaAddr), &(resetAreaSize));
 
-    if (status != CFE_PSP_SUCCESS)
+    if (PspStatus != CFE_PSP_SUCCESS)
     {
         /* There is something wrong with the Reset Area */
         CFE_TIME_Global.DataStoreStatus = CFE_TIME_RESET_AREA_BAD;

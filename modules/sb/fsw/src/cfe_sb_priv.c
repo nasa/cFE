@@ -134,18 +134,15 @@ int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
  *-----------------------------------------------------------------*/
 void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
 {
-
-    int32          Status;
+    int32          OsStatus;
     CFE_ES_AppId_t AppId;
 
-    Status = OS_MutSemTake(CFE_SB_Global.SharedDataMutexId);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_MutSemTake(CFE_SB_Global.SharedDataMutexId);
+    if (OsStatus != OS_SUCCESS)
     {
-
         CFE_ES_GetAppID(&AppId);
-
-        CFE_ES_WriteToSysLog("%s: SharedData Mutex Take Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n", __func__,
-                             (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
+        CFE_ES_WriteToSysLog("%s: SharedData Mutex Take Err Stat=%ld,App=%lu,Func=%s,Line=%d\n", __func__,
+                             (long)OsStatus, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
 
     } /* end if */
 
@@ -162,18 +159,15 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
  *-----------------------------------------------------------------*/
 void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber)
 {
-
-    int32          Status;
+    int32          OsStatus;
     CFE_ES_AppId_t AppId;
 
-    Status = OS_MutSemGive(CFE_SB_Global.SharedDataMutexId);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_MutSemGive(CFE_SB_Global.SharedDataMutexId);
+    if (OsStatus != OS_SUCCESS)
     {
-
         CFE_ES_GetAppID(&AppId);
-
-        CFE_ES_WriteToSysLog("%s: SharedData Mutex Give Err Stat=0x%x,App=%lu,Func=%s,Line=%d\n", __func__,
-                             (unsigned int)Status, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
+        CFE_ES_WriteToSysLog("%s: SharedData Mutex Give Err Stat=%ld,App=%lu,Func=%s,Line=%d\n", __func__,
+                             (long)OsStatus, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
 
     } /* end if */
 

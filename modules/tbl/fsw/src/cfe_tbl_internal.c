@@ -49,6 +49,7 @@ int32 CFE_TBL_EarlyInit(void)
 {
     uint16 i;
     uint32 j;
+    int32  OsStatus;
     int32  Status;
 
     /* Clear task global */
@@ -89,19 +90,19 @@ int32 CFE_TBL_EarlyInit(void)
     /*
     ** Create table registry access mutex
     */
-    Status = OS_MutSemCreate(&CFE_TBL_Global.RegistryMutex, CFE_TBL_MUT_REG_NAME, CFE_TBL_MUT_REG_VALUE);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_MutSemCreate(&CFE_TBL_Global.RegistryMutex, CFE_TBL_MUT_REG_NAME, CFE_TBL_MUT_REG_VALUE);
+    if (OsStatus != OS_SUCCESS)
     {
-        return Status;
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     } /* end if */
 
     /*
     ** Create working buffer access mutex
     */
-    Status = OS_MutSemCreate(&CFE_TBL_Global.WorkBufMutex, CFE_TBL_MUT_WORK_NAME, CFE_TBL_MUT_WORK_VALUE);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_MutSemCreate(&CFE_TBL_Global.WorkBufMutex, CFE_TBL_MUT_WORK_NAME, CFE_TBL_MUT_WORK_VALUE);
+    if (OsStatus != OS_SUCCESS)
     {
-        return Status;
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     } /* end if */
 
     /* Initialize memory partition and allocate shared table buffers. */
@@ -617,13 +618,18 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_LockRegistry(void)
 {
+    int32 OsStatus;
     int32 Status;
 
-    Status = OS_MutSemTake(CFE_TBL_Global.RegistryMutex);
+    OsStatus = OS_MutSemTake(CFE_TBL_Global.RegistryMutex);
 
-    if (Status == OS_SUCCESS)
+    if (OsStatus == OS_SUCCESS)
     {
         Status = CFE_SUCCESS;
+    }
+    else
+    {
+        Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     return Status;
@@ -639,13 +645,18 @@ int32 CFE_TBL_LockRegistry(void)
  *-----------------------------------------------------------------*/
 int32 CFE_TBL_UnlockRegistry(void)
 {
+    int32 OsStatus;
     int32 Status;
 
-    Status = OS_MutSemGive(CFE_TBL_Global.RegistryMutex);
+    OsStatus = OS_MutSemGive(CFE_TBL_Global.RegistryMutex);
 
-    if (Status == OS_SUCCESS)
+    if (OsStatus == OS_SUCCESS)
     {
         Status = CFE_SUCCESS;
+    }
+    else
+    {
+        Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     return Status;
@@ -663,6 +674,7 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
                                bool CalledByApp)
 {
     int32            Status = CFE_SUCCESS;
+    int32            OsStatus;
     int32            i;
     int32            InactiveBufferIndex;
     CFE_TBL_Handle_t AccessIterator;
@@ -737,13 +749,13 @@ int32 CFE_TBL_GetWorkingBuffer(CFE_TBL_LoadBuff_t **WorkingBufferPtr, CFE_TBL_Re
             {
                 /* Take Mutex to make sure we are not trying to grab a working buffer that some */
                 /* other application is also trying to grab. */
-                Status = OS_MutSemTake(CFE_TBL_Global.WorkBufMutex);
+                OsStatus = OS_MutSemTake(CFE_TBL_Global.WorkBufMutex);
 
                 /* Make note of any errors but continue and hope for the best */
-                if (Status != OS_SUCCESS)
+                if (OsStatus != OS_SUCCESS)
                 {
-                    CFE_ES_WriteToSysLog("%s: Internal error taking WorkBuf Mutex (Status=0x%08X)\n", __func__,
-                                         (unsigned int)Status);
+                    CFE_ES_WriteToSysLog("%s: Internal error taking WorkBuf Mutex (Status=%ld)\n", __func__,
+                                         (long)OsStatus);
                 }
 
                 /* Determine if there are any common buffers available */
@@ -799,6 +811,7 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
                            const char *Filename)
 {
     int32              Status = CFE_SUCCESS;
+    int32              OsStatus;
     CFE_FS_Header_t    StdFileHeader;
     CFE_TBL_File_Hdr_t TblFileHeader;
     osal_id_t          FileDescriptor;
@@ -817,12 +830,12 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     }
 
     /* Try to open the specified table file */
-    Status = OS_OpenCreate(&FileDescriptor, Filename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+    OsStatus = OS_OpenCreate(&FileDescriptor, Filename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
 
-    if (Status < 0)
+    if (OsStatus != OS_SUCCESS)
     {
         CFE_EVS_SendEventWithAppID(CFE_TBL_FILE_ACCESS_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                                   "%s: Unable to open file (FileDescriptor=%d)", AppName, (int)Status);
+                                   "%s: Unable to open file (Status=%ld)", AppName, (long)OsStatus);
 
         return CFE_TBL_ERR_ACCESS;
     }
@@ -871,8 +884,16 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
         Status = CFE_TBL_WARN_SHORT_FILE;
     }
 
-    NumBytes =
+    OsStatus =
         OS_read(FileDescriptor, ((uint8 *)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset, TblFileHeader.NumBytes);
+    if (OsStatus >= OS_SUCCESS)
+    {
+        NumBytes = (long)OsStatus; /* status code conversion (size) */
+    }
+    else
+    {
+        NumBytes = 0;
+    }
 
     if (NumBytes != TblFileHeader.NumBytes)
     {
@@ -885,7 +906,15 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     }
 
     /* Check to see if the file is too large (ie - more data than header claims) */
-    NumBytes = OS_read(FileDescriptor, &ExtraByte, 1);
+    OsStatus = OS_read(FileDescriptor, &ExtraByte, 1);
+    if (OsStatus >= OS_SUCCESS)
+    {
+        NumBytes = (long)OsStatus; /* status code conversion (size) */
+    }
+    else
+    {
+        NumBytes = 0;
+    }
 
     /* If successfully read another byte, then file must have too much data */
     if (NumBytes == 1)
@@ -1058,6 +1087,7 @@ int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHead
                           CFE_TBL_File_Hdr_t *TblFileHeaderPtr, const char *LoadFilename)
 {
     int32 Status;
+    int32 OsStatus;
     int32 EndianCheck = 0x01020304;
 
 #if (CFE_PLATFORM_TBL_VALID_SCID_COUNT > 0)
@@ -1109,14 +1139,14 @@ int32 CFE_TBL_ReadHeaders(osal_id_t FileDescriptor, CFE_FS_Header_t *StdFileHead
             }
             else
             {
-                Status = OS_read(FileDescriptor, TblFileHeaderPtr, sizeof(CFE_TBL_File_Hdr_t));
+                OsStatus = OS_read(FileDescriptor, TblFileHeaderPtr, sizeof(CFE_TBL_File_Hdr_t));
 
                 /* Verify successful read of cFE Table File Header */
-                if (Status != sizeof(CFE_TBL_File_Hdr_t))
+                if (OsStatus != sizeof(CFE_TBL_File_Hdr_t))
                 {
                     CFE_EVS_SendEventWithAppID(
                         CFE_TBL_FILE_TBL_HDR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_TBL_Global.TableTaskAppId,
-                        "Unable to read tbl header for '%s', Status = 0x%08X", LoadFilename, (unsigned int)Status);
+                        "Unable to read tbl header for '%s', Status = %ld", LoadFilename, (long)OsStatus);
 
                     Status = CFE_TBL_ERR_NO_TBL_HEADER;
                 }

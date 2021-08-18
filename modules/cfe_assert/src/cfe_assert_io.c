@@ -40,23 +40,23 @@ CFE_Assert_Global_t CFE_Assert_Global;
 
 void UT_BSP_Lock(void)
 {
-    int32 rc;
+    int32 OsStatus;
 
-    rc = OS_MutSemTake(CFE_Assert_Global.AccessMutex);
-    if (rc != OS_SUCCESS)
+    OsStatus = OS_MutSemTake(CFE_Assert_Global.AccessMutex);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemTake(): %d\n", __func__, (int)rc);
+        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemTake(): %ld\n", __func__, (long)OsStatus);
     }
 }
 
 void UT_BSP_Unlock(void)
 {
-    int32 rc;
+    int32 OsStatus;
 
-    rc = OS_MutSemGive(CFE_Assert_Global.AccessMutex);
-    if (rc != OS_SUCCESS)
+    OsStatus = OS_MutSemGive(CFE_Assert_Global.AccessMutex);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemGive(): %d\n", __func__, (int)rc);
+        CFE_ES_WriteToSysLog("%s(): Error from OS_MutSemGive(): %ld\n", __func__, (long)OsStatus);
     }
 }
 

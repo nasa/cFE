@@ -183,6 +183,7 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     char                   LogMessage[CFE_ES_MAX_SYSLOG_MSG_SIZE];
     int32                  Status;
+    int32                  PspStatus;
     size_t                 BlockSize;
     size_t                 UserDataSize;
     size_t                 UserDataOffset;
@@ -239,12 +240,14 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
             }
             else
             {
-                Status = CFE_PSP_WriteToCDS(DataToWrite, UserDataOffset, UserDataSize);
-                if (Status != CFE_PSP_SUCCESS)
+                PspStatus = CFE_PSP_WriteToCDS(DataToWrite, UserDataOffset, UserDataSize);
+                if (PspStatus != CFE_PSP_SUCCESS)
                 {
                     snprintf(LogMessage, sizeof(LogMessage),
-                             "Err writing user data to CDS (Stat=0x%08x) @Offset=0x%08lx\n", (unsigned int)Status,
+                             "Err writing user data to CDS (Stat=0x%08x) @Offset=0x%08lx\n", (unsigned int)PspStatus,
                              (unsigned long)UserDataOffset);
+
+                    Status = CFE_ES_CDS_ACCESS_ERROR;
                 }
             }
         }
@@ -277,6 +280,7 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
 {
     CFE_ES_CDS_Instance_t *CDS = &CFE_ES_Global.CDSVars;
     int32                  Status;
+    int32                  PspStatus;
     uint32                 CrcOfCDSData;
     size_t                 BlockSize;
     size_t                 UserDataSize;
@@ -319,8 +323,8 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
                 if (Status == CFE_SUCCESS)
                 {
                     /* Read the data block */
-                    Status = CFE_PSP_ReadFromCDS(DataRead, UserDataOffset, UserDataSize);
-                    if (Status == CFE_PSP_SUCCESS)
+                    PspStatus = CFE_PSP_ReadFromCDS(DataRead, UserDataOffset, UserDataSize);
+                    if (PspStatus == CFE_PSP_SUCCESS)
                     {
                         /* Compute the CRC for the data read from the CDS and determine if the data is still valid */
                         CrcOfCDSData = CFE_ES_CalculateCRC(DataRead, UserDataSize, 0, CFE_MISSION_ES_DEFAULT_CRC);
@@ -334,6 +338,10 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
                         {
                             Status = CFE_SUCCESS;
                         }
+                    }
+                    else
+                    {
+                        Status = CFE_ES_CDS_ACCESS_ERROR;
                     }
                 }
             }

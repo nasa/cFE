@@ -58,17 +58,17 @@ const size_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
  *-----------------------------------------------------------------*/
 int32 CFE_SB_EarlyInit(void)
 {
-
+    int32 OsStatus;
     int32 Stat;
 
     /* Clear task global */
     memset(&CFE_SB_Global, 0, sizeof(CFE_SB_Global));
 
-    Stat = OS_MutSemCreate(&CFE_SB_Global.SharedDataMutexId, "CFE_SB_DataMutex", 0);
-    if (Stat != OS_SUCCESS)
+    OsStatus = OS_MutSemCreate(&CFE_SB_Global.SharedDataMutexId, "CFE_SB_DataMutex", 0);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Shared data mutex creation failed! RC=0x%08x\n", __func__, (unsigned int)Stat);
-        return Stat;
+        CFE_ES_WriteToSysLog("%s: Shared data mutex creation failed! RC=%ld\n", __func__, (long)OsStatus);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     } /* end if */
 
     /* Initialize the state of susbcription reporting */

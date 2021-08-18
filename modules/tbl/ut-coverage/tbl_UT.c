@@ -3151,13 +3151,13 @@ void Test_CFE_TBL_Internal(void)
     /* EarlyInit - Table Registry Mutex Create Failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_EarlyInit(), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_TBL_EarlyInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_EarlyInit response to a work buffer mutex create failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 2, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_EarlyInit(), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_TBL_EarlyInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_EarlyInit response to a memory pool create failure */
@@ -3467,7 +3467,7 @@ void Test_CFE_TBL_Internal(void)
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemTake), 1, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_LockRegistry(), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_TBL_LockRegistry(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_UnlockRegistry response when an error occurs giving the
@@ -3475,7 +3475,7 @@ void Test_CFE_TBL_Internal(void)
      */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemGive), 1, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_TBL_UnlockRegistry(), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_TBL_UnlockRegistry(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test CFE_TBL_LoadFromFile response to an invalid header length */
