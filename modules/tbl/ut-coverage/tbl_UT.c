@@ -2311,6 +2311,9 @@ void Test_CFE_TBL_GetAddresses(void)
     UtAssert_NOT_NULL(Tbl1Ptr);
     UtAssert_NOT_NULL(Tbl2Ptr);
 
+    /* Test getting the addresses of zero tables */
+    CFE_UtAssert_SUCCESS(CFE_TBL_GetAddresses(ArrayOfPtrsToTblPtrs, 0, ArrayOfHandles));
+
     /* Test response to a null table pointer and null table handle */
     UT_InitData();
     UtAssert_INT32_EQ(CFE_TBL_GetAddresses(NULL, 2, ArrayOfHandles), CFE_TBL_BAD_ARGUMENT);
