@@ -144,6 +144,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(Test_CFE_TBL_ReleaseAddresses);
     UT_ADD_TEST(Test_CFE_TBL_Validate);
     UT_ADD_TEST(Test_CFE_TBL_Manage);
+    UT_ADD_TEST(Test_CFE_TBL_DumpToBuffer);
     UT_ADD_TEST(Test_CFE_TBL_Update);
     UT_ADD_TEST(Test_CFE_TBL_GetStatus);
     UT_ADD_TEST(Test_CFE_TBL_GetInfo);
@@ -2837,6 +2838,32 @@ void Test_CFE_TBL_Manage(void)
 }
 
 /*
+** Test function for dumping to a buffer
+*/
+void Test_CFE_TBL_DumpToBuffer(void)
+{
+    UtPrintf("Begin Test Dump To Buffer");
+
+    /* Test successfully dumping to a buffer */
+    UT_InitData();
+    CFE_UtAssert_SUCCESS(CFE_TBL_DumpToBuffer(App1TblHandle1));
+
+    /* Test response to an attempt to dump the buffer on a table that the
+     * application is not allowed to see
+     */
+    UT_InitData();
+    UT_SetAppID(CFE_ES_APPID_UNDEFINED);
+    UtAssert_INT32_EQ(CFE_TBL_DumpToBuffer(App1TblHandle1), CFE_TBL_ERR_NO_ACCESS);
+    CFE_UtAssert_EVENTCOUNT(0);
+
+    /* Test response to an attempt to dump the buffer on a bad table handle */
+    UT_InitData();
+    UT_SetAppID(CFE_ES_APPID_UNDEFINED);
+    UtAssert_INT32_EQ(CFE_TBL_DumpToBuffer(CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);
+    CFE_UtAssert_EVENTCOUNT(0);
+}
+
+/*
 ** Test function that updates the contents of a table if an update is pending
 */
 void Test_CFE_TBL_Update(void)
@@ -2911,14 +2938,6 @@ void Test_CFE_TBL_GetStatus(void)
     UT_InitData();
     UT_SetAppID(CFE_ES_APPID_UNDEFINED);
     UtAssert_INT32_EQ(CFE_TBL_GetStatus(App1TblHandle1), CFE_TBL_ERR_NO_ACCESS);
-    CFE_UtAssert_EVENTCOUNT(0);
-
-    /* Test response to an attempt to dump the buffer on a table that the
-     * application is not allowed to see
-     */
-    UT_InitData();
-    UT_SetAppID(CFE_ES_APPID_UNDEFINED);
-    UtAssert_INT32_EQ(CFE_TBL_DumpToBuffer(App1TblHandle1), CFE_TBL_ERR_NO_ACCESS);
     CFE_UtAssert_EVENTCOUNT(0);
 }
 
