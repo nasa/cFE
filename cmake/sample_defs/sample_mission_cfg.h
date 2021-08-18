@@ -307,8 +307,8 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_EVS_CMD_MSG 1
-/* Offset 2 is available */
+#define CFE_MISSION_EVS_CMD_MSG  1
+#define CFE_MISSION_TEST_CMD_MSG 2
 #define CFE_MISSION_SB_CMD_MSG   3
 #define CFE_MISSION_TBL_CMD_MSG  4
 #define CFE_MISSION_TIME_CMD_MSG 5
@@ -351,9 +351,9 @@
 **  \par Limits
 **      Not Applicable
 */
-#define CFE_MISSION_ES_HK_TLM_MSG  0
-#define CFE_MISSION_EVS_HK_TLM_MSG 1
-/* Offset 2 is available */
+#define CFE_MISSION_ES_HK_TLM_MSG     0
+#define CFE_MISSION_EVS_HK_TLM_MSG    1
+#define CFE_MISSION_TEST_HK_TLM_MSG   2
 #define CFE_MISSION_SB_HK_TLM_MSG     3
 #define CFE_MISSION_TBL_HK_TLM_MSG    4
 #define CFE_MISSION_TIME_HK_TLM_MSG   5
@@ -417,6 +417,7 @@
 **       Must be at least one.  No specific upper limit, but the number is
 **       anticipated to be reasonably small (i.e. tens, not hundreds).  Large
 **       values have not been tested.
+**
 **
 */
 #define CFE_MISSION_ES_POOL_MAX_BUCKETS 17
