@@ -2900,6 +2900,11 @@ void Test_CFE_TBL_GetStatus(void)
 {
     UtPrintf("Begin Test Get Status");
 
+    /* Test response to successfully getting status of a table */
+    UT_InitData();
+    CFE_UtAssert_SUCCESS(CFE_TBL_GetStatus(App1TblHandle1));
+    CFE_UtAssert_EVENTCOUNT(0);
+
     /* Test response to an attempt to get the status on a table that the
      * application is not allowed to see
      */
