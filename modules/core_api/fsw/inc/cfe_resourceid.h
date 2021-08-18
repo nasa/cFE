@@ -200,6 +200,7 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId);
  * @param[in]   CheckFunc a function to check if the given ID is available
  * @returns     Next ID value which does not map to a valid entry
  * @retval      #CFE_RESOURCEID_UNDEFINED if no open slots.
+ * @retval      #CFE_ES_BAD_ARGUMENT    @copybrief CFE_ES_BAD_ARGUMENT
  *
  */
 CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableSize,
