@@ -2340,6 +2340,9 @@ void Test_CFE_TBL_GetAddresses(void)
 */
 void Test_CFE_TBL_ReleaseAddresses(void)
 {
+    CFE_FS_Header_t  FileHeader;
+    UT_TempFile_t    File;
+    CFE_TBL_Handle_t TblHandle1;
     UtPrintf("Begin Test Release Addresses");
 
     /* Test response to a null table handle pointer */
@@ -2351,6 +2354,54 @@ void Test_CFE_TBL_ReleaseAddresses(void)
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_1);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddresses(2, ArrayOfHandles), CFE_TBL_ERR_NEVER_LOADED);
+    CFE_UtAssert_EVENTCOUNT(0);
+
+    /* Test releasing 0 then 1 addresses */
+    UT_InitData();
+
+    /* a. Configure for successful file read to initialize table */
+    strncpy(FileHeader.Description, "FS header description", sizeof(FileHeader.Description) - 1);
+    FileHeader.Description[sizeof(FileHeader.Description) - 1] = '\0';
+    FileHeader.ContentType                                     = CFE_FS_FILE_CONTENT_ID;
+    FileHeader.SubType                                         = CFE_FS_SubType_TBL_IMG;
+    FileHeader.TimeSeconds                                     = 1704;
+    FileHeader.TimeSubSeconds                                  = 104;
+    strncpy(File.TblHeader.TableName, "ut_cfe_tbl.UT_RELEASE_TEST", sizeof(File.TblHeader.TableName) - 1);
+    File.TblHeader.TableName[sizeof(File.TblHeader.TableName) - 1] = '\0';
+    UT_TBL_SetupHeader(&File.TblHeader, 0, sizeof(UT_Table1_t));
+
+    if (UT_Endianess == UT_LITTLE_ENDIAN)
+    {
+        File.TblData.TblElement1 = 0x04030201;
+        File.TblData.TblElement2 = 0x08070605;
+    }
+    else
+    {
+        File.TblData.TblElement1 = 0x01020304;
+        File.TblData.TblElement2 = 0x05060708;
+    }
+
+    UT_SetReadBuffer(&File, sizeof(File));
+    UT_SetReadHeader(&FileHeader, sizeof(FileHeader));
+    UT_SetDeferredRetcode(UT_KEY(OS_read), 3, 0);
+
+    /* b. Perform load */
+    CFE_UtAssert_SUCCESS(
+        CFE_TBL_Register(&TblHandle1, "UT_RELEASE_TEST", sizeof(UT_Table1_t), CFE_TBL_OPT_DEFAULT, NULL));
+    CFE_UtAssert_SUCCESS(CFE_TBL_Load(TblHandle1, CFE_TBL_SRC_FILE, "MyInputFile"));
+
+    /* c. Get addresses */
+    ArrayOfHandles[0]       = TblHandle1;
+    ArrayOfPtrsToTblPtrs[0] = &Tbl1Ptr;
+    CFE_UtAssert_SUCCESS(CFE_TBL_GetAddresses(ArrayOfPtrsToTblPtrs, 1, ArrayOfHandles));
+    UT_ClearEventHistory();
+
+    /* d. Release 0 addresses */
+    CFE_UtAssert_SUCCESS(CFE_TBL_ReleaseAddresses(0, ArrayOfHandles));
+    CFE_UtAssert_EVENTCOUNT(0);
+
+    /* e. Release 1 addresses */
+    CFE_UtAssert_SUCCESS(CFE_TBL_ReleaseAddresses(1, ArrayOfHandles));
     CFE_UtAssert_EVENTCOUNT(0);
 }
 
