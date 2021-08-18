@@ -280,7 +280,7 @@ function(prepare)
   )
 
   # Generate the tools for the native (host) arch
-  add_subdirectory(${MISSION_SOURCE_DIR}/tools tools)
+  add_subdirectory(${MISSION_SOURCE_DIR}/tools ${MISSION_BINARY_DIR}/tools)
 
   # Add a dependency on the table generator tool as this is required for table builds
   # The "elf2cfetbl" target should have been added by the "tools" above
