@@ -3049,12 +3049,14 @@ void Test_TransmitMsg_MaxMsgSizePlusOne(void)
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
 
     UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true), CFE_SB_MSG_TOO_BIG);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_MSG_TOO_BIG_EID);
+    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
 
 } /* end Test_TransmitMsg_MaxMsgSizePlusOne */
 
