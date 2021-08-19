@@ -254,7 +254,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
 
     if (PoolRecPtr == NULL)
     {
-        CFE_ES_SysLogWrite_Unsync("%s: No free MemPoolrary slots available\n", __func__);
+        CFE_ES_SysLogWrite_Unsync("%s: No free MemPool slots available\n", __func__);
         Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
     }
     else
