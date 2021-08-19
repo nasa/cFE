@@ -33,6 +33,7 @@
 
 #include "cfe_test.h"
 #include "cfe_test_table.h"
+#include "cfe_msgids.h"
 
 void TestGetStatus(void)
 {
@@ -53,6 +54,7 @@ void TestGetInfo(void)
     UtAssert_INT32_EQ(CFE_TBL_GetInfo(&TblInfo, CFE_FT_Global.RegisteredTblName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_TBL_GetInfo(NULL, CFE_FT_Global.TblName), CFE_TBL_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_TBL_GetInfo(&TblInfo, BadTblName), CFE_TBL_ERR_INVALID_NAME);
+    UtAssert_INT32_EQ(CFE_TBL_GetInfo(&TblInfo, NULL), CFE_TBL_BAD_ARGUMENT);
 
     /* This is only checking some parts of the TblInfo struct */
     size_t expectedSize        = sizeof(TBL_TEST_Table_t);
@@ -76,9 +78,13 @@ void TestNotifyByMessage(void)
     UtPrintf("Testing: CFE_TBL_NotifyByMessage");
     CFE_TBL_Handle_t  SharedTblHandle;
     const char *      SharedTblName = "SAMPLE_APP.SampleAppTable";
-    CFE_SB_MsgId_t    TestMsgId     = 0x9999;
-    CFE_MSG_FcnCode_t TestCmdCode   = 0x9999;
+    CFE_SB_MsgId_t    TestMsgId     = CFE_TEST_CMD_MID;
+    CFE_MSG_FcnCode_t TestCmdCode   = 0;
     uint32            TestParameter = 0;
+
+    UtAssert_INT32_EQ(CFE_TBL_NotifyByMessage(CFE_TBL_BAD_TABLE_HANDLE, TestMsgId, TestCmdCode, TestParameter),
+                      CFE_TBL_ERR_INVALID_HANDLE);
+
     UtAssert_INT32_EQ(CFE_TBL_NotifyByMessage(CFE_FT_Global.TblHandle, TestMsgId, TestCmdCode, TestParameter),
                       CFE_SUCCESS);
 
