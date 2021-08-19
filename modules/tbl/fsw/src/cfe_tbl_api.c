@@ -939,7 +939,7 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
                              CFE_RESOURCEID_TO_ULONG(ThisAppId), (int)TblHandle);
     }
 
-    if (Status != CFE_TBL_ERR_BAD_APP_ID)
+    if (Status != CFE_ES_ERR_RESOURCEID_NOT_VALID)
     {
         /* Translate AppID of caller into App Name */
         CFE_ES_GetAppName(AppName, ThisAppId, sizeof(AppName));
