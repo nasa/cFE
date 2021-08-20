@@ -73,9 +73,16 @@ void TestProcessAsyncEvent(void)
     UtAssert_VOIDCALL(CFE_ES_ProcessAsyncEvent());
 }
 
+void TestBackgroundWakeup(void)
+{
+    UtPrintf("Testing: CFE_ES_BackgroundWakeup");
+    UtAssert_VOIDCALL(CFE_ES_BackgroundWakeup());
+}
+
 void ESMiscTestSetup(void)
 {
     UtTest_Add(TestCalculateCRC, NULL, NULL, "Test Calculate CRC");
     UtTest_Add(TestWriteToSysLog, NULL, NULL, "Test Write To Sys Log");
     UtTest_Add(TestProcessAsyncEvent, NULL, NULL, "Test Process Async Event");
+    UtTest_Add(TestBackgroundWakeup, NULL, NULL, "Test Background Wakeup");
 }
