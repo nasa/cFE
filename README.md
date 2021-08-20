@@ -10,6 +10,36 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev933
+
+- Add software bus tests 
+- Separate variable for OSAL status 
+- Increase SB pool max size bucket 
+- Add Null check for CFE_ResourceId_FindNext 
+- Improve tbl coverage tests 
+- Add missing cases for msg id func tests 
+- Consolidate msg get/set doxygen group 
+- Adding coverage tests to cFE TIME 
+- Enable strict resource id w/OMIT_DEPRECATED
+- Hotfix for strict resource IDs. 
+- HOTFIX IC-20210819, type correction TBL coverage test
+- Consolidate msg get/set doxygen group
+- Add test for ES BackgroundWakeup
+- Success Test for CFE_ES_RestartApp
+- Success Test for CFE_ES_GetMemPoolStats
+- Subscribe to Message Limit Greater Than CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT
+- Group MSG APIs documentation by header type
+- Add retroactive CFE status asserts
+- Correct syslog message in pool create
+- Check error ctr to TransmitMsg test
+- End Child Task requirement remove error code
+- Add functional tests for resource misc
+- Remove unused CFE_TBL_ERR_BAD_APP_ID
+- Remove unused CFE_ES_POOL_BOUNDS_ERROR
+- Remove unused CFE_TBL_ERR_FILE_NOT_FOUND
+- Remove comment referencing CFE_TBL_ERR_FILE_NOT_FOUND
+- See <https://github.com/nasa/cFE/pull/1839> and <https://github.com/nasa/cFS/pull/340> 
+
 ### Development Build: v6.8.0-rc1+dev873
 
 - Add CFE assert macros to functional test
@@ -22,7 +52,7 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 - Partial #1724, update in/out status and nonnull/nonzero tags
 - Add External Time Source Functional Tests
 - Add Perf API functional tests 
-See <https://github.com/nasa/cFE/pull/1808> and <https://github.com/nasa/cFS/pull/337> 
+- See <https://github.com/nasa/cFE/pull/1808> and <https://github.com/nasa/cFS/pull/337> 
 
 ### Development Build: v6.8.0-rc1+dev844
 
