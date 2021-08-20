@@ -991,14 +991,6 @@ typedef int32 CFE_Status_t;
 #define CFE_TBL_ERR_LOAD_IN_PROGRESS ((CFE_Status_t)0xcc000012)
 
 /**
- * @brief File Not Found
- *
- *  The calling Application called #CFE_TBL_Load with a bad filename.
- *
- */
-#define CFE_TBL_ERR_FILE_NOT_FOUND ((CFE_Status_t)0xcc000013)
-
-/**
  * @brief File Too Large
  *
  *  The calling Application called #CFE_TBL_Load with a filename that specified a file
