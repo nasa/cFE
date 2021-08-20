@@ -20,6 +20,8 @@ set(OMIT_DEPRECATED $ENV{OMIT_DEPRECATED} CACHE STRING "Omit deprecated elements
 if (OMIT_DEPRECATED)
   message (STATUS "OMIT_DEPRECATED=true: Not including deprecated elements in build")
   add_definitions(-DCFE_OMIT_DEPRECATED_6_8 -DCFE_OMIT_DEPRECATED_6_7 -DCFE_OMIT_DEPRECATED_6_6 -DOSAL_OMIT_DEPRECATED)
+  set(MISSION_RESOURCEID_MODE "STRICT") # more type safe, but less backward compatible
 else()
   message (STATUS "OMIT_DEPRECATED=false: Deprecated elements included in build")
+  set(MISSION_RESOURCEID_MODE "SIMPLE") # less type safe, but more backward compatible
 endif (OMIT_DEPRECATED)
