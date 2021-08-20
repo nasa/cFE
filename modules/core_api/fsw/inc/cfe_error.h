@@ -908,13 +908,6 @@ typedef int32 CFE_Status_t;
 #define CFE_TBL_ERR_UNREGISTERED ((CFE_Status_t)0xcc000009)
 
 /**
- * @brief Bad Application ID
- *
- *  The calling application does not have a legitimate Application ID.
- */
-#define CFE_TBL_ERR_BAD_APP_ID ((CFE_Status_t)0xcc00000A)
-
-/**
  * @brief Handles Full
  *
  *   An application attempted to create a table and the Table

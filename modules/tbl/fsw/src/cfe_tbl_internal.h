@@ -93,7 +93,7 @@ int32 CFE_TBL_ValidateHandle(CFE_TBL_Handle_t TblHandle);
 *#CFE_ES_GetAppID
 **
 ** \retval #CFE_SUCCESS                     \copydoc CFE_SUCCESS
-** \retval #CFE_TBL_ERR_BAD_APP_ID          \copydoc CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copydoc CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copydoc CFE_TBL_ERR_INVALID_HANDLE
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copydoc CFE_TBL_ERR_NO_ACCESS
 **
