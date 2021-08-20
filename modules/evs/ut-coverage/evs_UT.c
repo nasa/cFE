@@ -828,7 +828,8 @@ void Test_Ports(void)
 void Test_Logging(void)
 {
     int    i;
-    uint32 resetAreaSize = 0;
+    uint32 resetAreaSize              = 0;
+    uint16 LogOverflowCounterExpected = 1;
     char   tmpString[100];
     union
     {
@@ -872,6 +873,7 @@ void Test_Logging(void)
 
     /* Test overfilling the log in discard mode */
     UT_InitData();
+    UtAssert_VOIDCALL(EVS_ClearLog());
 
     /* Ensure log is filled, then add one more, implicitly testing
      * EVS_AddLog
@@ -885,15 +887,18 @@ void Test_Logging(void)
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Log overfill event discard");
     UtAssert_BOOL_TRUE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogMode, CFE_EVS_LogMode_DISCARD);
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter, LogOverflowCounterExpected);
 
     /* Test setting the logging mode to overwrite */
     UT_InitData();
     CmdBuf.modecmd.Payload.LogMode = CFE_EVS_LogMode_OVERWRITE;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.modecmd, sizeof(CmdBuf.modecmd), UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC,
                                  &UT_EVS_EventBuf);
+    LogOverflowCounterExpected = CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter + 1;
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Log overfill event overwrite");
     UtAssert_BOOL_TRUE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogMode, CFE_EVS_LogMode_OVERWRITE);
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter, LogOverflowCounterExpected);
 
     /* Test sending a no op command */
     UT_InitData();
@@ -906,6 +911,7 @@ void Test_Logging(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.cmd, sizeof(CmdBuf.cmd), UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC, &UT_EVS_EventBuf);
     UtAssert_BOOL_FALSE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter, 0);
 
     /* Test setting the logging mode to overwrite */
     UT_InitData();
