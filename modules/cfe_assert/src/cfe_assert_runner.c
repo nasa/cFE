@@ -89,6 +89,68 @@ bool CFE_UtAssert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_
     return UtAssertEx(Result, CaseType, File, Line, "%s (0x%lx) is %s", Text, (unsigned long)Status, MatchText);
 }
 
+CFE_Status_t CFE_Assert_Status_Store(CFE_Status_t Status, const char *File, uint32 Line, const char *Text)
+{
+    const char *BaseName;
+
+    /* All this needs to do is save the code+text, will assert later */
+    CFE_Assert_Global.StoredStatus = Status;
+    strncpy(CFE_Assert_Global.StoredText, Text, sizeof(CFE_Assert_Global.StoredText) - 1);
+    CFE_Assert_Global.StoredText[sizeof(CFE_Assert_Global.StoredText) - 1] = 0;
+
+    BaseName = strrchr(File, '/');
+    if (BaseName == NULL)
+    {
+        BaseName = File;
+    }
+    else
+    {
+        ++BaseName;
+    }
+    strncpy(CFE_Assert_Global.StoredFile, BaseName, sizeof(CFE_Assert_Global.StoredFile) - 1);
+    CFE_Assert_Global.StoredFile[sizeof(CFE_Assert_Global.StoredFile) - 1] = 0;
+    CFE_Assert_Global.StoredLine                                           = Line;
+
+    /* Status code is just passed thru so the test case can check it however it needs to */
+    return Status;
+}
+
+bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
+                                     const char *Text)
+{
+    bool        Result;
+    const char *ExtraTag;
+
+    if (CFE_Assert_Global.StoredText[0] == 0)
+    {
+        /* If no status was stored, then this is a bug in the test program (need to store a result first) */
+        UtAssertEx(false, UTASSERT_CASETYPE_FAILURE, File, Line, "TEST BUG: No stored status to assert (%s)", Text);
+        Result = false;
+    }
+    else
+    {
+        Result = (Status == CFE_Assert_Global.StoredStatus);
+        if (Result)
+        {
+            /* no extra tag added to "true" conditions */
+            ExtraTag = "";
+        }
+        else
+        {
+            /* if condition was false add an exta marker so user does not necessarily need to decode the string */
+            ExtraTag = " [false]";
+        }
+
+        /* This produces a log message similar to what UtAssert_INT32_EQ would produce.
+         * Note the file/line will reflect where the call was made, not where this assertion was done */
+        Result = UtAssertEx(Result, CaseType, CFE_Assert_Global.StoredFile, CFE_Assert_Global.StoredLine,
+                            "%s (%ld) == %s (%ld)%s", CFE_Assert_Global.StoredText,
+                            (long)CFE_Assert_Global.StoredStatus, Text, (long)Status, ExtraTag);
+    }
+
+    return Result;
+}
+
 void CFE_Assert_StatusReport(uint8 MessageType, const char *Prefix, const char *OutputMessage)
 {
     uint16 EventType;

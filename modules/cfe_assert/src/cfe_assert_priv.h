@@ -136,6 +136,28 @@ typedef struct
      */
     char CurrentTestName[CFE_MISSION_MAX_API_LEN];
 
+    /* The following members support the "Deferred" assert feature */
+
+    /**
+     * Actual CFE status value from a previous function call
+     */
+    CFE_Status_t StoredStatus;
+
+    /**
+     * Full text of previous function call that produced "StoredStatus"
+     */
+    char StoredText[CFE_ASSERT_MAX_LOG_LINE_LENGTH];
+
+    /**
+     * File name of source file that produced "StoredStatus"
+     */
+    char StoredFile[CFE_MISSION_MAX_PATH_LEN];
+
+    /**
+     * Line number of source file that produced "StoredStatus"
+     */
+    uint32 StoredLine;
+
 } CFE_Assert_Global_t;
 
 extern CFE_Assert_Global_t CFE_Assert_Global;
