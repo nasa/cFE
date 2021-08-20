@@ -1745,7 +1745,7 @@ void Test_CFE_TBL_Register(void)
     UT_InitData();
     for (i = 0; i < CFE_PLATFORM_TBL_MAX_CRITICAL_TABLES; i++)
     {
-        CFE_TBL_Global.CritReg[i].CDSHandle = CFE_TBL_BAD_TABLE_HANDLE - 1;
+        CFE_TBL_Global.CritReg[i].CDSHandle = CFE_ES_CDSHANDLE_C(CFE_ResourceId_FromInteger(i + 1));
     }
     /* b. Perform test */
     CFE_UtAssert_SUCCESS(CFE_TBL_Register(&TblHandle1, "NOTABLE", sizeof(UT_Table1_t), CFE_TBL_OPT_CRITICAL, NULL));
