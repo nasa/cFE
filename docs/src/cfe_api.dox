@@ -139,6 +139,9 @@
     <LI> \ref CFEAPIMSGHeader
     <UL>
       <LI> #CFE_MSG_Init - \copybrief CFE_MSG_Init
+    </UL>
+    <LI> \ref CFEAPIMSGHeaderPri
+    <UL>
       <LI> #CFE_MSG_GetSize - \copybrief CFE_MSG_GetSize
       <LI> #CFE_MSG_SetSize - \copybrief CFE_MSG_SetSize
       <LI> #CFE_MSG_GetType - \copybrief CFE_MSG_GetType
@@ -154,6 +157,9 @@
       <LI> #CFE_MSG_GetSequenceCount - \copybrief CFE_MSG_GetSequenceCount
       <LI> #CFE_MSG_SetSequenceCount - \copybrief CFE_MSG_SetSequenceCount
       <LI> #CFE_MSG_GetNextSequenceCount - \copybrief CFE_MSG_GetNextSequenceCount
+    </UL>
+    <LI> \ref CFEAPIMSGHeaderExt
+    <UL>
       <LI> #CFE_MSG_GetEDSVersion - \copybrief CFE_MSG_GetEDSVersion
       <LI> #CFE_MSG_SetEDSVersion - \copybrief CFE_MSG_SetEDSVersion
       <LI> #CFE_MSG_GetEndian - \copybrief CFE_MSG_GetEndian
@@ -164,6 +170,9 @@
       <LI> #CFE_MSG_SetSubsystem - \copybrief CFE_MSG_SetSubsystem
       <LI> #CFE_MSG_GetSystem - \copybrief CFE_MSG_GetSystem
       <LI> #CFE_MSG_SetSystem - \copybrief CFE_MSG_SetSystem
+    </UL>
+    <LI> \ref CFEAPIMSGHeaderSec
+    <UL>
       <LI> #CFE_MSG_GenerateChecksum - \copybrief CFE_MSG_GenerateChecksum
       <LI> #CFE_MSG_ValidateChecksum - \copybrief CFE_MSG_ValidateChecksum
       <LI> #CFE_MSG_SetFcnCode - \copybrief CFE_MSG_SetFcnCode
