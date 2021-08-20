@@ -53,7 +53,6 @@ void TestLoad(void)
                       CFE_TBL_ERR_FILE_FOR_WRONG_TABLE);
     UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, "/cf/sample_app_tbl.tbl"),
                       CFE_TBL_ERR_FILE_FOR_WRONG_TABLE);
-    /* This is a very unintuitive error message. CFE_TBL_ERR_FILE_NOT_FOUND would be more accurate */
     UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, "/cf/not_cfe_test_tbl.tbl"),
                       CFE_TBL_ERR_ACCESS);
 

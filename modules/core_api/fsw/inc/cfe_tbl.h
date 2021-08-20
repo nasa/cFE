@@ -312,7 +312,7 @@ CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle);
 ** \retval #CFE_TBL_ERR_ILLEGAL_SRC_TYPE    \copybrief CFE_TBL_ERR_ILLEGAL_SRC_TYPE
 ** \retval #CFE_TBL_ERR_LOAD_IN_PROGRESS    \copybrief CFE_TBL_ERR_LOAD_IN_PROGRESS
 ** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copybrief CFE_TBL_ERR_NO_BUFFER_AVAIL
-** \retval #CFE_TBL_ERR_FILE_NOT_FOUND      \copybrief CFE_TBL_ERR_FILE_NOT_FOUND
+** \retval #CFE_TBL_ERR_ACCESS              \copybrief CFE_TBL_ERR_ACCESS
 ** \retval #CFE_TBL_ERR_FILE_TOO_LARGE      \copybrief CFE_TBL_ERR_FILE_TOO_LARGE
 ** \retval #CFE_TBL_ERR_BAD_CONTENT_ID      \copybrief CFE_TBL_ERR_BAD_CONTENT_ID
 ** \retval #CFE_TBL_ERR_PARTIAL_LOAD        \copybrief CFE_TBL_ERR_PARTIAL_LOAD
