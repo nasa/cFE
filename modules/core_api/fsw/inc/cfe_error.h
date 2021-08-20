@@ -601,15 +601,6 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_POOL_BLOCK_INVALID ((CFE_Status_t)0xc400002C)
 
 /**
- * @brief Invalid pool size or buffer address
- *
- *  A specified pool address or size is outside the acceptable
- *  bounds for that pool configuration.
- *
- */
-#define CFE_ES_POOL_BOUNDS_ERROR ((CFE_Status_t)0xc400002D)
-
-/**
  * @brief Duplicate Name Error
  *
  *  Resource creation failed due to the name already existing in the system.

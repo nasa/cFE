@@ -350,11 +350,6 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
          */
         CFE_ES_MemPoolRecordSetFree(PoolRecPtr);
         PendingID = CFE_RESOURCEID_UNDEFINED;
-
-        if (Status == CFE_ES_POOL_BOUNDS_ERROR)
-        {
-            CFE_ES_WriteToSysLog("%s: Pool size(%lu) too small\n", __func__, (unsigned long)Size);
-        }
     }
 
     /*
