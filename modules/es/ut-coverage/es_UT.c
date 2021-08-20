@@ -3526,6 +3526,12 @@ void TestAPI(void)
     AppId = CFE_ES_APPID_C(ES_UT_MakeAppIdForIndex(99999));
     UtAssert_INT32_EQ(CFE_ES_RestartApp(AppId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
+    /* Test successfully restarting an app */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_INT32_EQ(CFE_ES_RestartApp(AppId), CFE_SUCCESS);
+
     /* Test CFE_ES_ReloadApp with bad AppID argument */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_ReloadApp(CFE_ES_APPID_UNDEFINED, "filename"), CFE_ES_ERR_RESOURCEID_NOT_VALID);
