@@ -515,27 +515,42 @@ void Test_FilterRegistration(void)
 
     CFE_UtAssert_SUCCESS(CFE_EVS_Register(filter, CFE_PLATFORM_EVS_MAX_EVENT_FILTERS + 1, CFE_EVS_EventFilter_BINARY));
 
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter = 0;
+
     /* Send 1st information message, should get through */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 1);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 1);
 
     /* Send 2nd information message, should be filtered */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "FAILED"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 1);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 0);
 
     /* Send last information message, which should cause filtering to lock */
     UT_InitData();
     FilterPtr        = EVS_FindEventID(0, (EVS_BinFilter_t *)AppDataPtr->BinFilters);
     FilterPtr->Count = CFE_EVS_MAX_FILTER_COUNT - 1;
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 3);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 2);
+    UtAssert_UINT32_EQ(FilterPtr->Count, CFE_EVS_MAX_FILTER_COUNT);
 
     /* Test that filter lock is applied */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "FAILED"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 3);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 0);
+    UtAssert_UINT32_EQ(FilterPtr->Count, CFE_EVS_MAX_FILTER_COUNT);
 
     /* Test that filter lock is (still) applied */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "FAILED"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 3);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 0);
+    UtAssert_UINT32_EQ(FilterPtr->Count, CFE_EVS_MAX_FILTER_COUNT);
 
     /* Return application to original state: re-register application */
     UT_InitData();
