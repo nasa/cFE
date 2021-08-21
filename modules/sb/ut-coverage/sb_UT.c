@@ -1720,7 +1720,7 @@ void Test_SB_EarlyInit(void)
 void Test_SB_EarlyInit_SemCreateError(void)
 {
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERR_NO_FREE_IDS);
-    UtAssert_INT32_EQ(CFE_SB_EarlyInit(), OS_ERR_NO_FREE_IDS);
+    UtAssert_INT32_EQ(CFE_SB_EarlyInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 } /* end Test_SB_EarlyInit_SemCreateError */
 
 /*
@@ -2436,6 +2436,12 @@ void Test_Subscribe_LocalSubscription(void)
     CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
     CFE_UtAssert_EVENTSENT(CFE_SB_SUBSCRIPTION_RCVD_EID);
 
+    /* Test_Subscribe_LocalSubscription with message
+     * limit greater than CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT
+     */
+    CFE_UtAssert_SUCCESS(CFE_SB_Unsubscribe(MsgId, PipeId));
+    UtAssert_INT32_EQ(CFE_SB_SubscribeLocal(MsgId, PipeId, UINT16_MAX), CFE_SUCCESS);
+
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
 } /* end Test_Subscribe_LocalSubscription */
@@ -3049,12 +3055,14 @@ void Test_TransmitMsg_MaxMsgSizePlusOne(void)
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
 
     UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true), CFE_SB_MSG_TOO_BIG);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_MSG_TOO_BIG_EID);
+    UtAssert_INT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
 
 } /* end Test_TransmitMsg_MaxMsgSizePlusOne */
 

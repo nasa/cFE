@@ -133,6 +133,7 @@ void CFE_TIME_TaskMain(void)
 int32 CFE_TIME_TaskInit(void)
 {
     int32     Status;
+    int32     OsStatus;
     osal_id_t TimeBaseId;
     osal_id_t TimerId;
 
@@ -143,20 +144,20 @@ int32 CFE_TIME_TaskInit(void)
         return Status;
     } /* end if */
 
-    Status = OS_BinSemCreate(&CFE_TIME_Global.ToneSemaphore, CFE_TIME_SEM_TONE_NAME, CFE_TIME_SEM_VALUE,
-                             CFE_TIME_SEM_OPTIONS);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.ToneSemaphore, CFE_TIME_SEM_TONE_NAME, CFE_TIME_SEM_VALUE,
+                               CFE_TIME_SEM_OPTIONS);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error creating tone semaphore:RC=0x%08X\n", __func__, (unsigned int)Status);
-        return Status;
+        CFE_ES_WriteToSysLog("%s: Error creating tone semaphore:RC=%ld\n", __func__, (long)OsStatus);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     } /* end if */
 
-    Status = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore, CFE_TIME_SEM_1HZ_NAME, CFE_TIME_SEM_VALUE,
-                             CFE_TIME_SEM_OPTIONS);
-    if (Status != OS_SUCCESS)
+    OsStatus = OS_BinSemCreate(&CFE_TIME_Global.LocalSemaphore, CFE_TIME_SEM_1HZ_NAME, CFE_TIME_SEM_VALUE,
+                               CFE_TIME_SEM_OPTIONS);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error creating local semaphore:RC=0x%08X\n", __func__, (unsigned int)Status);
-        return Status;
+        CFE_ES_WriteToSysLog("%s: Error creating local semaphore:RC=%ld\n", __func__, (long)OsStatus);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     } /* end if */
 
     Status = CFE_ES_CreateChildTask(&CFE_TIME_Global.ToneTaskID, CFE_TIME_TASK_TONE_NAME, CFE_TIME_Tone1HzTask,
@@ -288,22 +289,22 @@ int32 CFE_TIME_TaskInit(void)
      * way any error here means the PSP must use the "old way" and call
      * the 1hz function directly.
      */
-    Status = OS_TimeBaseGetIdByName(&TimeBaseId, "cFS-Master");
-    if (Status == OS_SUCCESS)
+    OsStatus = OS_TimeBaseGetIdByName(&TimeBaseId, "cFS-Master");
+    if (OsStatus == OS_SUCCESS)
     {
         /* Create the 1Hz callback */
-        Status = OS_TimerAdd(&TimerId, "cFS-1Hz", TimeBaseId, CFE_TIME_Local1HzTimerCallback, NULL);
-        if (Status == OS_SUCCESS)
+        OsStatus = OS_TimerAdd(&TimerId, "cFS-1Hz", TimeBaseId, CFE_TIME_Local1HzTimerCallback, NULL);
+        if (OsStatus == OS_SUCCESS)
         {
-            Status = OS_TimerSet(TimerId, 500000, 1000000);
-            if (Status != OS_SUCCESS)
+            OsStatus = OS_TimerSet(TimerId, 500000, 1000000);
+            if (OsStatus != OS_SUCCESS)
             {
-                CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerSet failed:RC=0x%08X\n", __func__, (unsigned int)Status);
+                CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerSet failed:RC=%ld\n", __func__, (long)OsStatus);
             }
         }
         else
         {
-            CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerAdd failed:RC=0x%08X\n", __func__, (unsigned int)Status);
+            CFE_ES_WriteToSysLog("%s: 1Hz OS_TimerAdd failed:RC=%ld\n", __func__, (long)OsStatus);
         }
     }
 

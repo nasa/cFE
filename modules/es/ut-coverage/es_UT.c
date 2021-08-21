@@ -2242,7 +2242,7 @@ void TestTask(void)
     /* Test task init with background init fail */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 1, -7);
-    UtAssert_INT32_EQ(CFE_ES_TaskInit(), -7);
+    UtAssert_INT32_EQ(CFE_ES_TaskInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Set the log mode to OVERWRITE; CFE_ES_TaskInit() sets SystemLogMode to
      * DISCARD, which can result in a log overflow depending on the value that
@@ -3526,6 +3526,12 @@ void TestAPI(void)
     AppId = CFE_ES_APPID_C(ES_UT_MakeAppIdForIndex(99999));
     UtAssert_INT32_EQ(CFE_ES_RestartApp(AppId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
+    /* Test successfully restarting an app */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtAssert_INT32_EQ(CFE_ES_RestartApp(AppId), CFE_SUCCESS);
+
     /* Test CFE_ES_ReloadApp with bad AppID argument */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_ReloadApp(CFE_ES_APPID_UNDEFINED, "filename"), CFE_ES_ERR_RESOURCEID_NOT_VALID);
@@ -4300,7 +4306,7 @@ void TestCDS()
     /* Test CDS initialization with size not obtainable */
     ES_ResetUnitTest();
     UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_GetCDSSize), -1);
-    UtAssert_INT32_EQ(CFE_ES_CDS_EarlyInit(), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_CDS_EarlyInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Reset back to a sufficient CDS size */
     UT_SetCDSSize(128 * 1024);
@@ -4539,11 +4545,11 @@ void TestCDSMempool(void)
 
     /* Test CDS block write with a CDS write error (data content) */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 2, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_ES_CDSBlockWrite(BlockHandle, &Data), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_CDSBlockWrite(BlockHandle, &Data), CFE_ES_CDS_ACCESS_ERROR);
 
     /* Test CDS block read with a CDS read error (data content) */
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 3, OS_ERROR);
-    UtAssert_INT32_EQ(CFE_ES_CDSBlockRead(&Data, BlockHandle), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_CDSBlockRead(&Data, BlockHandle), CFE_ES_CDS_ACCESS_ERROR);
 
     /* Corrupt the data as to cause a CRC mismatch */
     UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void **)&CdsPtr, NULL, NULL);
@@ -4644,6 +4650,10 @@ void TestESMempool(void)
      * the pool start address
      */
     UtAssert_INT32_EQ(CFE_ES_GetMemPoolStats(&Stats, CFE_ES_MEMHANDLE_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+
+    /* Test successfully getting memory pool statistics
+     */
+    CFE_UtAssert_SUCCESS(CFE_ES_GetMemPoolStats(&Stats, PoolID1));
 
     /* Test allocating a pool buffer where the memory block doesn't fit within
      * the remaining memory

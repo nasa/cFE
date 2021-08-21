@@ -75,7 +75,7 @@ CFE_ES_Global_t CFE_ES_Global;
  *-----------------------------------------------------------------*/
 void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const char *StartFilePath)
 {
-    int32 ReturnCode;
+    int32 OsStatus;
 
     /*
      * Clear the entire global data structure.
@@ -93,12 +93,11 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     ** Create the ES Shared Data Mutex
     ** This must be done before ANY calls to CFE_ES_WriteToSysLog(), since this uses the mutex
     */
-    ReturnCode = OS_MutSemCreate(&(CFE_ES_Global.SharedDataMutex), "ES_DATA_MUTEX", 0);
-    if (ReturnCode != OS_SUCCESS)
+    OsStatus = OS_MutSemCreate(&(CFE_ES_Global.SharedDataMutex), "ES_DATA_MUTEX", 0);
+    if (OsStatus != OS_SUCCESS)
     {
         /* Cannot use SysLog here, since that requires the reset area to be set up */
-        OS_printf("ES Startup: Error: ES Shared Data Mutex could not be created. RC=0x%08X\n",
-                  (unsigned int)ReturnCode);
+        OS_printf("ES Startup: Error: ES Shared Data Mutex could not be created. RC=%ld\n", (long)OsStatus);
 
         /*
         ** Delay to allow the message to be printed
@@ -134,11 +133,11 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
     ** Also Create the ES Performance Data Mutex
     ** This is to separately protect against concurrent writes to the global performance log data
     */
-    ReturnCode = OS_MutSemCreate(&CFE_ES_Global.PerfDataMutex, "ES_PERF_MUTEX", 0);
-    if (ReturnCode != OS_SUCCESS)
+    OsStatus = OS_MutSemCreate(&CFE_ES_Global.PerfDataMutex, "ES_PERF_MUTEX", 0);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_SysLogWrite_Unsync("%s: Error: ES Performance Data Mutex could not be created. RC=0x%08X\n", __func__,
-                                  (unsigned int)ReturnCode);
+        CFE_ES_SysLogWrite_Unsync("%s: Error: ES Performance Data Mutex could not be created. RC=%ld\n", __func__,
+                                  (long)OsStatus);
 
         /*
         ** Delay to allow the message to be read
@@ -249,25 +248,24 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
  *-----------------------------------------------------------------*/
 void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource)
 {
-
-    int32   status;
+    int32   PspStatus;
     uint32  resetAreaSize;
     cpuaddr ResetDataAddr;
 
     /*
     ** Get the pointer to the Reset area from the BSP
     */
-    status = CFE_PSP_GetResetArea(&ResetDataAddr, &resetAreaSize);
+    PspStatus = CFE_PSP_GetResetArea(&ResetDataAddr, &resetAreaSize);
 
     /*
     ** Make sure the status is OK or size is big enough
     */
-    if (status != CFE_PSP_SUCCESS)
+    if (PspStatus != CFE_PSP_SUCCESS)
     {
         /*
         ** Cannot use the ES System log without the Reset Area
         */
-        OS_printf("ES Startup: CFE_PSP_GetResetArea call Failed (0x%08x)!\n", (unsigned int)status);
+        OS_printf("ES Startup: CFE_PSP_GetResetArea call Failed (0x%08x)!\n", (unsigned int)PspStatus);
 
         /*
         ** Delay to allow the message to be read
@@ -477,7 +475,8 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
  *-----------------------------------------------------------------*/
 void CFE_ES_InitializeFileSystems(uint32 StartType)
 {
-    int32        RetStatus;
+    int32        OsStatus;
+    int32        PspStatus;
     cpuaddr      RamDiskMemoryAddress;
     uint32       RamDiskMemorySize;
     int32        PercentFree;
@@ -486,12 +485,12 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
     /*
     ** Get the memory area for the RAM disk
     */
-    RetStatus = CFE_PSP_GetVolatileDiskMem(&(RamDiskMemoryAddress), &(RamDiskMemorySize));
+    PspStatus = CFE_PSP_GetVolatileDiskMem(&(RamDiskMemoryAddress), &(RamDiskMemorySize));
 
-    if (RetStatus != CFE_PSP_SUCCESS)
+    if (PspStatus != CFE_PSP_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Cannot Get Memory for Volatile Disk. EC = 0x%08X\n", __func__,
-                             (unsigned int)RetStatus);
+                             (unsigned int)PspStatus);
 
         /*
         ** Delay to allow the message to be read
@@ -510,12 +509,11 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
     */
     if (StartType == CFE_PSP_RST_TYPE_POWERON)
     {
-        RetStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
-                            CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
-        if (RetStatus != OS_SUCCESS)
+        OsStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
+                           CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
+        if (OsStatus != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Error Creating Volatile(RAM) Volume. EC = 0x%08X\n", __func__,
-                                 (unsigned int)RetStatus);
+            CFE_ES_WriteToSysLog("%s: Error Creating Volatile(RAM) Volume. EC = %ld\n", __func__, (long)OsStatus);
 
             /*
             ** Delay to allow the message to be read
@@ -530,20 +528,18 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
     }
     else
     {
-        RetStatus = OS_initfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
-                              CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
-        if (RetStatus != OS_SUCCESS)
+        OsStatus = OS_initfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
+                             CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
+        if (OsStatus != OS_SUCCESS)
         {
-            CFE_ES_WriteToSysLog("%s: Error Initializing Volatile(RAM) Volume. EC = 0x%08X\n", __func__,
-                                 (unsigned int)RetStatus);
+            CFE_ES_WriteToSysLog("%s: Error Initializing Volatile(RAM) Volume. EC = %ld\n", __func__, (long)OsStatus);
             CFE_ES_WriteToSysLog("%s: Formatting Volatile(RAM) Volume.\n", __func__);
 
-            RetStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
-                                CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
-            if (RetStatus != OS_SUCCESS)
+            OsStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM", CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE,
+                               CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
+            if (OsStatus != OS_SUCCESS)
             {
-                CFE_ES_WriteToSysLog("%s: Error Creating Volatile(RAM) Volume. EC = 0x%08X\n", __func__,
-                                     (unsigned int)RetStatus);
+                CFE_ES_WriteToSysLog("%s: Error Creating Volatile(RAM) Volume. EC = %ld\n", __func__, (long)OsStatus);
 
                 /*
                 ** Delay to allow the message to be read
@@ -561,11 +557,10 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
     /*
     ** Now, mount the RAM disk
     */
-    RetStatus = OS_mount("/ramdev0", CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
-    if (RetStatus != OS_SUCCESS)
+    OsStatus = OS_mount("/ramdev0", CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
+    if (OsStatus != OS_SUCCESS)
     {
-        CFE_ES_WriteToSysLog("%s: Error Mounting Volatile(RAM) Volume. EC = 0x%08X\n", __func__,
-                             (unsigned int)RetStatus);
+        CFE_ES_WriteToSysLog("%s: Error Mounting Volatile(RAM) Volume. EC = %ld\n", __func__, (long)OsStatus);
         /*
         ** Delay to allow the message to be read
         */
@@ -589,8 +584,8 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
         /*
         ** See how many blocks are free in the RAM disk
         */
-        RetStatus = OS_FileSysStatVolume(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING, &StatBuf);
-        if (RetStatus == OS_SUCCESS && StatBuf.total_blocks > 0)
+        OsStatus = OS_FileSysStatVolume(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING, &StatBuf);
+        if (OsStatus == OS_SUCCESS && StatBuf.total_blocks > 0)
         {
             /*
             ** Determine if the disk is too full
@@ -605,32 +600,32 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                 /*
                 ** First, unmount the disk
                 */
-                RetStatus = OS_unmount(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
-                if (RetStatus == OS_SUCCESS)
+                OsStatus = OS_unmount(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
+                if (OsStatus == OS_SUCCESS)
                 {
 
                     /*
                     ** Remove the file system from the OSAL
                     */
-                    RetStatus = OS_rmfs("/ramdev0");
-                    if (RetStatus == OS_SUCCESS)
+                    OsStatus = OS_rmfs("/ramdev0");
+                    if (OsStatus == OS_SUCCESS)
                     {
 
                         /*
                         ** Next, make a new file system on the disk
                         */
-                        RetStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM",
-                                            CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE, CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
-                        if (RetStatus == OS_SUCCESS)
+                        OsStatus = OS_mkfs((void *)RamDiskMemoryAddress, "/ramdev0", "RAM",
+                                           CFE_PLATFORM_ES_RAM_DISK_SECTOR_SIZE, CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS);
+                        if (OsStatus == OS_SUCCESS)
                         {
                             /*
                             ** Last, remount the disk
                             */
-                            RetStatus = OS_mount("/ramdev0", CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
-                            if (RetStatus != OS_SUCCESS)
+                            OsStatus = OS_mount("/ramdev0", CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
+                            if (OsStatus != OS_SUCCESS)
                             {
-                                CFE_ES_WriteToSysLog("%s: Error Re-Mounting Volatile(RAM) Volume. EC = 0x%08X\n",
-                                                     __func__, (unsigned int)RetStatus);
+                                CFE_ES_WriteToSysLog("%s: Error Re-Mounting Volatile(RAM) Volume. EC = %ld\n", __func__,
+                                                     (long)OsStatus);
                                 /*
                                 ** Delay to allow the message to be read
                                 */
@@ -646,8 +641,8 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                         else
                         {
 
-                            CFE_ES_WriteToSysLog("%s: Error Re-Formating Volatile(RAM) Volume. EC = 0x%08X\n", __func__,
-                                                 (unsigned int)RetStatus);
+                            CFE_ES_WriteToSysLog("%s: Error Re-Formating Volatile(RAM) Volume. EC = %ld\n", __func__,
+                                                 (long)OsStatus);
                             /*
                             ** Delay to allow the message to be read
                             */
@@ -663,8 +658,8 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                     else /* could not Remove File system */
                     {
 
-                        CFE_ES_WriteToSysLog("%s: Error Removing Volatile(RAM) Volume. EC = 0x%08X\n", __func__,
-                                             (unsigned int)RetStatus);
+                        CFE_ES_WriteToSysLog("%s: Error Removing Volatile(RAM) Volume. EC = %ld\n", __func__,
+                                             (long)OsStatus);
                         /*
                         ** Delay to allow the message to be read
                         */
@@ -679,8 +674,8 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                 }
                 else /* could not un-mount disk */
                 {
-                    CFE_ES_WriteToSysLog("%s: Error Un-Mounting Volatile(RAM) Volume. EC = 0x%08X\n", __func__,
-                                         (unsigned int)RetStatus);
+                    CFE_ES_WriteToSysLog("%s: Error Un-Mounting Volatile(RAM) Volume. EC = %ld\n", __func__,
+                                         (long)OsStatus);
                     /*
                     ** Delay to allow the message to be read
                     */
@@ -697,8 +692,7 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
         else /* could not determine free blocks */
         {
             /* Log error message -- note that BlocksFree returns the error code in this case */
-            CFE_ES_WriteToSysLog("%s: Error Determining Blocks Free on Volume. EC = 0x%08X\n", __func__,
-                                 (unsigned int)RetStatus);
+            CFE_ES_WriteToSysLog("%s: Error Determining Blocks Free on Volume. EC = %ld\n", __func__, (long)OsStatus);
 
             /*
             ** Delay to allow the message to be read

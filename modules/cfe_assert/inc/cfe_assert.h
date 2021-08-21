@@ -151,6 +151,101 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
     UtAssert_GenericUnsignedCompare(CFE_SB_MsgIdToValue(mid1), UtAssert_Compare_EQ, CFE_SB_MsgIdToValue(mid2), \
                                     UtAssert_Radix_HEX, __FILE__, __LINE__, "MsgId Check: ", #mid1, #mid2)
 
+/*****************************************************************************/
+/**
+** \brief Calls a function that returns CFE_Status_t with deferred validation
+**
+** \par Description
+**        The typical method of using #UtAssert_INT32_EQ to validate the result of a CFE call
+**        will both invoke the function and check the result in a single macro.  However, this
+**        requires advance knowledge of what the result is supposed to be, before the call is made.
+**
+**        This macro does invokes the function like the other macros do, but does _not_ check the
+**        return value.  Rather, it  stores the return the value in a local buffer for later checking,
+**        using the #CFE_Assert_STATUS_MAY_BE or #CFE_Assert_STATUS_MUST_BE macros.
+**
+** \par Assumptions, External Events, and Notes:
+**        In some functional test circumstances, particularly where the test is not being run
+**        in a clean/isolated environment, it may not always be feasible to predict the correct
+**        return code from an API call.
+**
+**        In these cases, the test program will need to check the result of the call itself,
+**        typically by storing the result on the stack and checking it for correctness by
+**        reading system state as necessary.
+**
+**        While the normal UtAssert_INT32_EQ assertion macro can still be used to retroactively check
+**        any status variable value (including a value on the stack from a previous API call), this
+**        will not include the "full text" of the API call, and so the test log will not reflect the
+**        full call details.
+**
+**        The pair of macros (CFE_Assert_STATUS_STORE and CFE_Assert_STATUS_WAS) can be used in these
+**        circumstances, to call an API function and record the full text of the call, when the expected
+**        status is not fully known, but still confirm the status was correct once it is known.
+**
+** \sa #CFE_Assert_STATUS_MAY_BE, #CFE_Assert_STATUS_MUST_BE
+**
+** \returns Actual CFE_Status_t value from the call
+*/
+#define CFE_Assert_STATUS_STORE(FN) CFE_Assert_Status_Store(FN, __FILE__, __LINE__, #FN)
+
+/*****************************************************************************/
+/**
+** \brief Retroactively check for an acceptable status value from CFE_Assert_STATUS_STORE
+**
+** \par Description
+**        The typical method of using #UtAssert_INT32_EQ to validate the result of a CFE call
+**        will both invoke the function and check the result in a single macro.  However, this
+**        requires advance knowledge of what the result is supposed to be, before the call is made.
+**
+**        This retroactive macro does _not_ invoke any function, but rather checks the stored status
+**        from a previous call to #CFE_Assert_STATUS_STORE.  It should be used for each status
+**        code that should be considered acceptable from the previous function call.
+**
+** \par Assumptions, External Events, and Notes:
+**
+**        While the normal UtAssert_INT32_EQ assertion macro can still be used to check any
+**        status variable value (including a value on the stack from a previous API call), this
+**        will not include the "full text" of the API call.  This macro is intended for those cases
+**        where it is desired to log the full text (function + arguments) of the API call, but
+**        when the call has already been made and the status value is stored in a local variable.
+**
+** \sa #CFE_Assert_STATUS_STORE, #CFE_Assert_STATUS_MUST_BE
+**
+** \returns Boolean pass/fail status
+**
+******************************************************************************/
+#define CFE_Assert_STATUS_MAY_BE(expected) \
+    CFE_Assert_Status_DeferredCheck(expected, UTASSERT_CASETYPE_FLOW, __FILE__, __LINE__, #expected)
+
+/*****************************************************************************/
+/**
+** \brief Retroactively check for a required status value from CFE_Assert_STATUS_STORE
+**
+** \par Description
+**        The typical method of using #UtAssert_INT32_EQ to validate the result of a CFE call
+**        will both invoke the function and check the result in a single macro.  However, this
+**        requires advance knowledge of what the result is supposed to be, before the call is made.
+**
+**        This retroactive macro does _not_ invoke any function, but rather checks the stored status
+**        from a previous call to #CFE_Assert_STATUS_STORE.  This should be used as the final
+**        assertion, after checking for other acceptable values via #CFE_Assert_STATUS_MAY_BE.
+**
+** \par Assumptions, External Events, and Notes:
+**
+**        While the normal UtAssert_INT32_EQ assertion macro can still be used to check any
+**        status variable value (including a value on the stack from a previous API call), this
+**        will not include the "full text" of the API call.  This macro is intended for those cases
+**        where it is desired to log the full text (function + arguments) of the API call, but
+**        when the call has already been made and the status value is stored in a local variable.
+**
+** \sa #CFE_Assert_STATUS_STORE, #CFE_Assert_STATUS_MAY_BE
+**
+** \returns Boolean pass/fail status
+**
+******************************************************************************/
+#define CFE_Assert_STATUS_MUST_BE(expected) \
+    CFE_Assert_Status_DeferredCheck(expected, UTASSERT_CASETYPE_FAILURE, __FILE__, __LINE__, #expected)
+
 /*************************************************************************
 ** Exported Functions
 *************************************************************************/
@@ -275,5 +370,45 @@ void CFE_Assert_CloseLogFile(void);
 ******************************************************************************/
 bool CFE_UtAssert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_CaseType_t CaseType, const char *File,
                               uint32 Line, const char *Text);
+
+/*****************************************************************************/
+/**
+** \brief Helper function for nominal CFE calls with deferred check
+**
+** \par Description
+**        This helper function will store the status into a temporary holding area,
+**        but _not_ assert on any specific value.
+**
+** \par Assumptions, External Events, and Notes:
+**        This facility should only be used by one task at a time.  Normally tests
+**        are single-threaded, and CFE assert will serialize test apps, so this is
+**        not a concern in the typical test environment.
+**
+**        However, if a particular test case uses child tasks, then the programmer must
+**        explicitly ensure that only one task uses this facility at a time.
+**
+** \returns Status value (pass through)
+*/
+CFE_Status_t CFE_Assert_Status_Store(CFE_Status_t Status, const char *File, uint32 Line, const char *Text);
+
+/**
+** \brief Helper function for nominal CFE calls with deferred check
+**
+** \par Description
+**        This helper function will assert on the status previously stored to a
+**        temporary holding area.
+**
+** \par Assumptions, External Events, and Notes:
+**        This facility should only be used by one task at a time.  Normally tests
+**        are single-threaded, and CFE assert will serialize test apps, so this is
+**        not a concern in the typical test environment.
+**
+**        However, if a particular test case uses child tasks, then the programmer must
+**        explicitly ensure that only one task uses this facility at a time.
+**
+** \returns Test pass status, returns true if status was successful, false if it failed.
+*/
+bool CFE_Assert_Status_DeferredCheck(CFE_Status_t Status, UtAssert_CaseType_t CaseType, const char *File, uint32 Line,
+                                     const char *Text);
 
 #endif /* CFE_ASSERT_H */

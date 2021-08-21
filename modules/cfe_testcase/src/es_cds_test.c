@@ -38,26 +38,44 @@ void TestRegisterCDS(void)
     CFE_ES_CDSHandle_t CDSHandlePtr;
     CFE_ES_CDSHandle_t CDSHandlePtr2;
 
-    size_t       BlockSize  = 10;
-    size_t       BlockSize2 = 15;
-    const char * Name       = "CDS_Test";
-    const char * LongName   = "VERY_LONG_NAME_CDS_Test";
-    CFE_Status_t status;
+    size_t      BlockSize  = 10;
+    size_t      BlockSize2 = 15;
+    const char *Name       = "CDS_Test";
+    const char *LongName   = "VERY_LONG_NAME_CDS_Test";
 
     UtPrintf("Testing: CFE_ES_RegisterCDS");
 
-    status = CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize2, Name);
+    /*
+     * Since this test app may be executed multiple times, or the system may have
+     * been booted from a processor reset rather than a power-on reset, it is possible
+     * that the CDS already exists at the time this test is executed.  In this case
+     * the new CDS allocation path cannot be checked in functional test, but other CDS
+     * functions can still be called.
+     */
 
-    if (status == CFE_ES_CDS_ALREADY_EXISTS)
+    CFE_Assert_STATUS_STORE(CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize2, Name));
+
+    if (CFE_Assert_STATUS_MAY_BE(CFE_ES_CDS_ALREADY_EXISTS))
     {
-        UtAssert_NA("CDS already exists. CFE_ES_RegisterCDS new allocation could not be properly tested");
+        /*
+         * add an informational message that the functional test is incomplete here, due
+         * to preconditions beyond the control of this test app.  Need to clear the CDS
+         * memory and/or do a power-on reset to get full test.
+         */
+        UtAssert_WARN("CDS already exists. CFE_ES_RegisterCDS new allocation could not be properly tested");
     }
     else
     {
-        UtAssert_INT32_EQ(status, CFE_SUCCESS);
+        /*
+         * If not CFE_ES_CDS_ALREADY_EXISTS, then the only other acceptable status is CFE_SUCCESS,
+         * which indicates that the CDS was created and initialized from a clean slate.
+         */
+        CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+
+        /* In this case, calling CFE_ES_RegisterCDS() again should return the CFE_ES_CDS_ALREADY_EXISTS */
+        UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr2, BlockSize2, Name), CFE_ES_CDS_ALREADY_EXISTS);
     }
 
-    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr2, BlockSize2, Name), CFE_ES_CDS_ALREADY_EXISTS);
     UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr2, BlockSize, Name), CFE_SUCCESS);
 
     UtAssert_INT32_EQ(CFE_ES_RegisterCDS(NULL, BlockSize, Name), CFE_ES_BAD_ARGUMENT);

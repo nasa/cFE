@@ -180,7 +180,7 @@
 ** \retval #CFE_TBL_ERR_HANDLES_FULL         \copybrief CFE_TBL_ERR_HANDLES_FULL
 ** \retval #CFE_TBL_ERR_INVALID_SIZE         \copybrief CFE_TBL_ERR_INVALID_SIZE
 ** \retval #CFE_TBL_ERR_INVALID_NAME         \copybrief CFE_TBL_ERR_INVALID_NAME
-** \retval #CFE_TBL_ERR_BAD_APP_ID           \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID  \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_TBL_BAD_ARGUMENT             \copybrief CFE_TBL_BAD_ARGUMENT
 ** \retval #CFE_TBL_ERR_INVALID_OPTIONS      \copybrief CFE_TBL_ERR_INVALID_OPTIONS
 ** \retval #CFE_TBL_WARN_DUPLICATE           \copybrief CFE_TBL_WARN_DUPLICATE
@@ -217,11 +217,11 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
 **                           that was registered by the application called "ACS".
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS              \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_ERR_HANDLES_FULL \copybrief CFE_TBL_ERR_HANDLES_FULL
-** \retval #CFE_TBL_ERR_INVALID_NAME \copybrief CFE_TBL_ERR_INVALID_NAME
-** \retval #CFE_TBL_ERR_BAD_APP_ID   \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_BAD_ARGUMENT     \copybrief CFE_TBL_BAD_ARGUMENT
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_ERR_HANDLES_FULL        \copybrief CFE_TBL_ERR_HANDLES_FULL
+** \retval #CFE_TBL_ERR_INVALID_NAME        \copybrief CFE_TBL_ERR_INVALID_NAME
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_BAD_ARGUMENT            \copybrief CFE_TBL_BAD_ARGUMENT
 **
 ** \sa #CFE_TBL_Unregister, #CFE_TBL_Register
 **
@@ -257,10 +257,10 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName);
 **                      that identifies the Table to be unregistered.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
 **
 ** \sa #CFE_TBL_Share, #CFE_TBL_Register
 **
@@ -302,22 +302,22 @@ CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle);
 **                       the address of the active table buffer.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                   \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_WARN_SHORT_FILE       \copybrief CFE_TBL_WARN_SHORT_FILE
-** \retval #CFE_TBL_WARN_PARTIAL_LOAD     \copybrief CFE_TBL_WARN_PARTIAL_LOAD
-** \retval #CFE_TBL_ERR_BAD_APP_ID        \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS         \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE    \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_TBL_ERR_DUMP_ONLY         \copybrief CFE_TBL_ERR_DUMP_ONLY
-** \retval #CFE_TBL_ERR_ILLEGAL_SRC_TYPE  \copybrief CFE_TBL_ERR_ILLEGAL_SRC_TYPE
-** \retval #CFE_TBL_ERR_LOAD_IN_PROGRESS  \copybrief CFE_TBL_ERR_LOAD_IN_PROGRESS
-** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL   \copybrief CFE_TBL_ERR_NO_BUFFER_AVAIL
-** \retval #CFE_TBL_ERR_FILE_NOT_FOUND    \copybrief CFE_TBL_ERR_FILE_NOT_FOUND
-** \retval #CFE_TBL_ERR_FILE_TOO_LARGE    \copybrief CFE_TBL_ERR_FILE_TOO_LARGE
-** \retval #CFE_TBL_ERR_BAD_CONTENT_ID    \copybrief CFE_TBL_ERR_BAD_CONTENT_ID
-** \retval #CFE_TBL_ERR_PARTIAL_LOAD      \copybrief CFE_TBL_ERR_PARTIAL_LOAD
-** \retval #CFE_TBL_BAD_ARGUMENT          \copybrief CFE_TBL_BAD_ARGUMENT
-** \retval #CFE_TBL_WARN_PARTIAL_LOAD     \copybrief CFE_TBL_WARN_PARTIAL_LOAD
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_WARN_SHORT_FILE         \copybrief CFE_TBL_WARN_SHORT_FILE
+** \retval #CFE_TBL_WARN_PARTIAL_LOAD       \copybrief CFE_TBL_WARN_PARTIAL_LOAD
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_TBL_ERR_DUMP_ONLY           \copybrief CFE_TBL_ERR_DUMP_ONLY
+** \retval #CFE_TBL_ERR_ILLEGAL_SRC_TYPE    \copybrief CFE_TBL_ERR_ILLEGAL_SRC_TYPE
+** \retval #CFE_TBL_ERR_LOAD_IN_PROGRESS    \copybrief CFE_TBL_ERR_LOAD_IN_PROGRESS
+** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copybrief CFE_TBL_ERR_NO_BUFFER_AVAIL
+** \retval #CFE_TBL_ERR_ACCESS              \copybrief CFE_TBL_ERR_ACCESS
+** \retval #CFE_TBL_ERR_FILE_TOO_LARGE      \copybrief CFE_TBL_ERR_FILE_TOO_LARGE
+** \retval #CFE_TBL_ERR_BAD_CONTENT_ID      \copybrief CFE_TBL_ERR_BAD_CONTENT_ID
+** \retval #CFE_TBL_ERR_PARTIAL_LOAD        \copybrief CFE_TBL_ERR_PARTIAL_LOAD
+** \retval #CFE_TBL_BAD_ARGUMENT            \copybrief CFE_TBL_BAD_ARGUMENT
+** \retval #CFE_TBL_WARN_PARTIAL_LOAD       \copybrief CFE_TBL_WARN_PARTIAL_LOAD
 **
 ** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Manage
 **
@@ -341,11 +341,11 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 **                       identifies the Table to be updated.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                    \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_INFO_NO_UPDATE_PENDING \copybrief CFE_TBL_INFO_NO_UPDATE_PENDING
-** \retval #CFE_TBL_ERR_BAD_APP_ID         \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS          \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE     \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_NO_UPDATE_PENDING  \copybrief CFE_TBL_INFO_NO_UPDATE_PENDING
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
 **
 ** \sa #CFE_TBL_Load, #CFE_TBL_Validate, #CFE_TBL_Manage
 **
@@ -371,7 +371,7 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                        \copybrief CFE_SUCCESS
 ** \retval #CFE_TBL_INFO_NO_VALIDATION_PENDING \copybrief CFE_TBL_INFO_NO_VALIDATION_PENDING
-** \retval #CFE_TBL_ERR_BAD_APP_ID             \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID    \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_TBL_ERR_NO_ACCESS              \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE         \copybrief CFE_TBL_ERR_INVALID_HANDLE
 **
@@ -399,7 +399,7 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle);
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
 ** \retval #CFE_TBL_INFO_UPDATED            \copybrief CFE_TBL_INFO_UPDATED
-** \retval #CFE_TBL_ERR_BAD_APP_ID          \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
 ** \retval #CFE_TBL_INFO_DUMP_PENDING       \copybrief CFE_TBL_INFO_DUMP_PENDING
@@ -427,11 +427,11 @@ CFE_Status_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle);
 ** \param[in]  TblHandle      Handle of Table to be dumped.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_TBL_INFO_DUMP_PENDING  \copybrief CFE_TBL_INFO_DUMP_PENDING
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_TBL_INFO_DUMP_PENDING       \copybrief CFE_TBL_INFO_DUMP_PENDING
 **
 ** \sa #CFE_TBL_Manage
 **
@@ -454,10 +454,10 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle);
 ** \param[in]  TblHandle      Handle of Table that was modified.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
 **
 ** \sa #CFE_TBL_Manage
 **
@@ -505,14 +505,14 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
 **                        identifies the Table whose address is to be returned.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
-** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_TBL_ERR_UNREGISTERED   \copybrief CFE_TBL_ERR_UNREGISTERED
-** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
-** \retval #CFE_TBL_BAD_ARGUMENT       \copybrief CFE_TBL_BAD_ARGUMENT
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED            \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_TBL_ERR_UNREGISTERED        \copybrief CFE_TBL_ERR_UNREGISTERED
+** \retval #CFE_TBL_ERR_NEVER_LOADED        \copybrief CFE_TBL_ERR_NEVER_LOADED
+** \retval #CFE_TBL_BAD_ARGUMENT            \copybrief CFE_TBL_BAD_ARGUMENT
 **
 ** \sa #CFE_TBL_ReleaseAddress, #CFE_TBL_GetAddresses, #CFE_TBL_ReleaseAddresses
 **
@@ -537,12 +537,12 @@ CFE_Status_t CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle);
 **                       identifies the Table whose address is to be released.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
-** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED            \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_TBL_ERR_NEVER_LOADED        \copybrief CFE_TBL_ERR_NEVER_LOADED
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_GetAddresses, #CFE_TBL_ReleaseAddresses
 **
@@ -586,14 +586,14 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle);
 **                       of those tables whose start addresses are to be obtained.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
-** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_TBL_ERR_UNREGISTERED   \copybrief CFE_TBL_ERR_UNREGISTERED
-** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
-** \retval #CFE_TBL_BAD_ARGUMENT       \copybrief CFE_TBL_BAD_ARGUMENT
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED            \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_TBL_ERR_UNREGISTERED        \copybrief CFE_TBL_ERR_UNREGISTERED
+** \retval #CFE_TBL_ERR_NEVER_LOADED        \copybrief CFE_TBL_ERR_NEVER_LOADED
+** \retval #CFE_TBL_BAD_ARGUMENT            \copybrief CFE_TBL_BAD_ARGUMENT
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_ReleaseAddress, #CFE_TBL_ReleaseAddresses
 **
@@ -620,13 +620,13 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
 **                       of those tables whose start addresses are to be released.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_INFO_UPDATED       \copybrief CFE_TBL_INFO_UPDATED
-** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
-** \retval #CFE_TBL_ERR_NEVER_LOADED   \copybrief CFE_TBL_ERR_NEVER_LOADED
-** \retval #CFE_TBL_BAD_ARGUMENT       \copybrief CFE_TBL_BAD_ARGUMENT
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_TBL_INFO_UPDATED            \copybrief CFE_TBL_INFO_UPDATED
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_TBL_ERR_NEVER_LOADED        \copybrief CFE_TBL_ERR_NEVER_LOADED
+** \retval #CFE_TBL_BAD_ARGUMENT            \copybrief CFE_TBL_BAD_ARGUMENT
 **
 ** \sa #CFE_TBL_GetAddress, #CFE_TBL_ReleaseAddress, #CFE_TBL_GetAddresses
 **
@@ -661,7 +661,7 @@ CFE_Status_t CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t T
 ** \retval #CFE_TBL_INFO_UPDATE_PENDING     \copybrief CFE_TBL_INFO_UPDATE_PENDING
 ** \retval #CFE_TBL_INFO_VALIDATION_PENDING \copybrief CFE_TBL_INFO_VALIDATION_PENDING
 ** \retval #CFE_TBL_INFO_DUMP_PENDING       \copybrief CFE_TBL_INFO_DUMP_PENDING
-** \retval #CFE_TBL_ERR_BAD_APP_ID          \copybrief CFE_TBL_ERR_BAD_APP_ID
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
 **
@@ -735,10 +735,10 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName);
 **                            all table management notifications.
 **
 ** \return Execution status, see \ref CFEReturnCodes
-** \retval #CFE_SUCCESS                \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_ERR_BAD_APP_ID     \copybrief CFE_TBL_ERR_BAD_APP_ID
-** \retval #CFE_TBL_ERR_NO_ACCESS      \copybrief CFE_TBL_ERR_NO_ACCESS
-** \retval #CFE_TBL_ERR_INVALID_HANDLE \copybrief CFE_TBL_ERR_INVALID_HANDLE
+** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
+** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
+** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
+** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
 **
 ** \sa #CFE_TBL_Register
 **

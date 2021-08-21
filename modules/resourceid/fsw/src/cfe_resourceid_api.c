@@ -108,7 +108,7 @@ int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 Table
  *
  * Function: CFE_ResourceId_FindNext
  *
- * Application-scope internal function
+ * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
@@ -120,6 +120,11 @@ CFE_ResourceId_t CFE_ResourceId_FindNext(CFE_ResourceId_t StartId, uint32 TableS
     uint32           ResourceType;
     CFE_ResourceId_t CheckId;
     bool             IsTaken;
+
+    if (CheckFunc == NULL)
+    {
+        return CFE_RESOURCEID_UNDEFINED;
+    }
 
     ResourceType = CFE_ResourceId_GetBase(StartId);
     Serial       = CFE_ResourceId_GetSerial(StartId);

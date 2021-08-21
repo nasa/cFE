@@ -48,6 +48,7 @@
 int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 {
     int32                  Status;
+    int32                  OsStatus;
     uint32                 i;
     CFE_TBL_DumpControl_t *DumpCtrlPtr;
     CFE_TIME_SysTime_t     DumpTime;
@@ -101,10 +102,10 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
                 DumpTime.Seconds    = DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSecs;
                 DumpTime.Subseconds = DumpCtrlPtr->DumpBufferPtr->FileCreateTimeSubSecs;
 
-                Status = OS_OpenCreate(&FileDescriptor, DumpCtrlPtr->DumpBufferPtr->DataSource, OS_FILE_FLAG_NONE,
-                                       OS_READ_WRITE);
+                OsStatus = OS_OpenCreate(&FileDescriptor, DumpCtrlPtr->DumpBufferPtr->DataSource, OS_FILE_FLAG_NONE,
+                                         OS_READ_WRITE);
 
-                if (Status >= 0)
+                if (OsStatus == OS_SUCCESS)
                 {
                     Status = CFE_FS_SetTimestamp(FileDescriptor, DumpTime);
 
@@ -363,6 +364,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     CFE_TBL_File_Hdr_t               TblFileHeader;
     osal_id_t                        FileDescriptor;
     int32                            Status;
+    int32                            OsStatus;
     int16                            RegIndex;
     CFE_TBL_RegistryRec_t *          RegRecPtr;
     CFE_TBL_LoadBuff_t *             WorkingBufferPtr;
@@ -374,9 +376,9 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                             sizeof(CmdPtr->LoadFilename));
 
     /* Try to open the specified table file */
-    Status = OS_OpenCreate(&FileDescriptor, LoadFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+    OsStatus = OS_OpenCreate(&FileDescriptor, LoadFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
 
-    if (Status >= 0)
+    if (OsStatus == OS_SUCCESS)
     {
         Status = CFE_TBL_ReadHeaders(FileDescriptor, &StdFileHeader, &TblFileHeader, &LoadFilename[0]);
 
@@ -423,19 +425,19 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
                         if (Status == CFE_SUCCESS)
                         {
                             /* Copy data from file into working buffer */
-                            Status =
+                            OsStatus =
                                 OS_read(FileDescriptor, ((uint8 *)WorkingBufferPtr->BufferPtr) + TblFileHeader.Offset,
                                         TblFileHeader.NumBytes);
 
                             /* Make sure the appropriate number of bytes were read */
-                            if (Status == (int32)TblFileHeader.NumBytes)
+                            if ((long)OsStatus == TblFileHeader.NumBytes)
                             {
                                 /* Check to ensure the file does not have any extra data at the end */
-                                Status = OS_read(FileDescriptor, &ExtraByte, 1);
+                                OsStatus = OS_read(FileDescriptor, &ExtraByte, 1);
 
                                 /* If another byte was successfully read, then file contains more data than header
                                  * claims */
-                                if (Status == 1)
+                                if ((long)OsStatus == 1)
                                 {
                                     CFE_EVS_SendEvent(CFE_TBL_FILE_TOO_BIG_ERR_EID, CFE_EVS_EventType_ERROR,
                                                       "File '%s' has more data than Tbl Hdr indicates (%d)",
@@ -531,8 +533,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     {
         /* Error opening specified file */
         CFE_EVS_SendEvent(CFE_TBL_FILE_ACCESS_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Unable to open file '%s' for table load, Status = 0x%08X", LoadFilename,
-                          (unsigned int)Status);
+                          "Unable to open file '%s' for table load, Status = %ld", LoadFilename, (long)OsStatus);
     }
 
     return ReturnCode;
@@ -701,24 +702,25 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
     CFE_TBL_File_Hdr_t   TblFileHeader;
     osal_id_t            FileDescriptor;
     int32                Status;
+    int32                OsStatus;
     int32                EndianCheck = 0x01020304;
 
     /* Clear Header of any garbage before copying content */
     memset(&TblFileHeader, 0, sizeof(CFE_TBL_File_Hdr_t));
 
     /* Check to see if the dump file already exists */
-    Status = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
+    OsStatus = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_NONE, OS_READ_ONLY);
 
-    if (Status >= 0)
+    if (OsStatus == OS_SUCCESS)
     {
         FileExistedPrev = true;
         OS_close(FileDescriptor);
     }
 
     /* Create a new dump file, overwriting anything that may have existed previously */
-    Status = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
+    OsStatus = OS_OpenCreate(&FileDescriptor, DumpFilename, OS_FILE_FLAG_CREATE | OS_FILE_FLAG_TRUNCATE, OS_WRITE_ONLY);
 
-    if (Status >= OS_SUCCESS)
+    if (OsStatus == OS_SUCCESS)
     {
         /* Initialize the standard cFE File Header for the Dump File */
         CFE_FS_InitHeader(&StdFileHeader, "Table Dump Image", CFE_FS_SubType_TBL_IMG);
@@ -746,16 +748,16 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
             }
 
             /* Output the Table Image Header to the Dump File */
-            Status = OS_write(FileDescriptor, &TblFileHeader, sizeof(CFE_TBL_File_Hdr_t));
+            OsStatus = OS_write(FileDescriptor, &TblFileHeader, sizeof(CFE_TBL_File_Hdr_t));
 
             /* Make sure the header was output completely */
-            if (Status == sizeof(CFE_TBL_File_Hdr_t))
+            if ((long)OsStatus == sizeof(CFE_TBL_File_Hdr_t))
             {
                 /* Output the requested data to the dump file */
                 /* Output the active table image data to the dump file */
-                Status = OS_write(FileDescriptor, DumpDataAddr, TblSizeInBytes);
+                OsStatus = OS_write(FileDescriptor, DumpDataAddr, TblSizeInBytes);
 
-                if (Status == TblSizeInBytes)
+                if ((long)OsStatus == TblSizeInBytes)
                 {
                     if (FileExistedPrev)
                     {
@@ -780,15 +782,14 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
                 else
                 {
                     CFE_EVS_SendEvent(CFE_TBL_WRITE_TBL_IMG_ERR_EID, CFE_EVS_EventType_ERROR,
-                                      "Error writing Tbl image to '%s', Status=0x%08X", DumpFilename,
-                                      (unsigned int)Status);
+                                      "Error writing Tbl image to '%s', Status=%ld", DumpFilename, (long)OsStatus);
                 }
             }
             else
             {
                 CFE_EVS_SendEvent(CFE_TBL_WRITE_TBL_HDR_ERR_EID, CFE_EVS_EventType_ERROR,
-                                  "Error writing Tbl image File Header to '%s', Status=0x%08X", DumpFilename,
-                                  (unsigned int)Status);
+                                  "Error writing Tbl image File Header to '%s', Status=%ld", DumpFilename,
+                                  (long)OsStatus);
             }
         }
         else
@@ -804,7 +805,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
     else
     {
         CFE_EVS_SendEvent(CFE_TBL_CREATING_DUMP_FILE_ERR_EID, CFE_EVS_EventType_ERROR,
-                          "Error creating dump file '%s', Status=0x%08X", DumpFilename, (unsigned int)Status);
+                          "Error creating dump file '%s', Status=%ld", DumpFilename, (long)OsStatus);
     }
 
     return ReturnCode;

@@ -201,6 +201,7 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t Size, uint16 NumBlockSizes,
                                  const size_t *BlockSizes, bool UseMutex)
 {
+    int32                   OsStatus;
     int32                   Status;
     CFE_ResourceId_t        PendingID;
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
@@ -254,7 +255,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
 
     if (PoolRecPtr == NULL)
     {
-        CFE_ES_SysLogWrite_Unsync("%s: No free MemPoolrary slots available\n", __func__);
+        CFE_ES_SysLogWrite_Unsync("%s: No free MemPool slots available\n", __func__);
         Status = CFE_ES_NO_RESOURCE_IDS_AVAILABLE;
     }
     else
@@ -311,11 +312,11 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
         snprintf(MutexName, OS_MAX_API_NAME, "Pool%08lX", CFE_ResourceId_ToInteger(PendingID));
 
         /* create a mutex to protect this memory pool */
-        Status = OS_MutSemCreate(&PoolRecPtr->MutexId, MutexName, 0);
-        if (Status != OS_SUCCESS)
+        OsStatus = OS_MutSemCreate(&PoolRecPtr->MutexId, MutexName, 0);
+        if (OsStatus != OS_SUCCESS)
         {
             /* log error and rewrite to CFE status code */
-            CFE_ES_WriteToSysLog("%s: OSAL error %d while creating mutex\n", __func__, (int)Status);
+            CFE_ES_WriteToSysLog("%s: OSAL error %ld while creating mutex\n", __func__, (long)OsStatus);
 
             Status = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
         }
@@ -349,11 +350,6 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
          */
         CFE_ES_MemPoolRecordSetFree(PoolRecPtr);
         PendingID = CFE_RESOURCEID_UNDEFINED;
-
-        if (Status == CFE_ES_POOL_BOUNDS_ERROR)
-        {
-            CFE_ES_WriteToSysLog("%s: Pool size(%lu) too small\n", __func__, (unsigned long)Size);
-        }
     }
 
     /*
@@ -377,7 +373,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
     CFE_ES_MemPoolRecord_t *PoolRecPtr;
     osal_id_t               MutexId;
     int32                   Status;
-    int32                   MutDeleteStatus;
+    int32                   OsStatus;
 
     PoolRecPtr = CFE_ES_LocateMemPoolRecordByID(PoolID);
 
@@ -403,8 +399,8 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
      * potential conflict with holding two locks. */
     if (OS_ObjectIdDefined(MutexId))
     {
-        MutDeleteStatus = OS_MutSemDelete(MutexId);
-        if (MutDeleteStatus != OS_SUCCESS)
+        OsStatus = OS_MutSemDelete(MutexId);
+        if (OsStatus != OS_SUCCESS)
         {
             /*
              * Report to syslog for informational purposes only.
@@ -412,7 +408,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
              * The MemPool entry has already been deleted, so this
              * function should not return an error at this point.
              */
-            CFE_ES_WriteToSysLog("%s: Error %d deleting mutex\n", __func__, (int)MutDeleteStatus);
+            CFE_ES_WriteToSysLog("%s: Error %ld deleting mutex\n", __func__, (long)OsStatus);
         }
     }
 

@@ -43,9 +43,13 @@
 /*
 ** External global variables
 */
-const char *TIME_SYSLOG_MSGS[] = {NULL, "%s: Error reading cmd pipe,RC=0x%08X\n",
-                                  "%s: Application Init Failed,RC=0x%08X\n", "%s: 1Hz OS_TimerAdd failed:RC=0x%08X\n",
-                                  "%s: 1Hz OS_TimerSet failed:RC=0x%08X\n"};
+const char *TIME_SYSLOG_MSGS[] = {NULL,
+                                  "%s: Error reading cmd pipe,RC=0x%08X\n",
+                                  "%s: Application Init Failed,RC=0x%08X\n",
+                                  "%s: 1Hz OS_TimerAdd failed:RC=%ld\n",
+                                  "%s: 1Hz OS_TimerSet failed:RC=%ld\n",
+                                  "%s: Application Init Failed,RC=0x%08X\n",
+                                  "%s: Failed invalid arguments\n"};
 
 static const UT_TaskPipeDispatchId_t UT_TPID_CFE_TIME_SEND_HK  = {.MsgId =
                                                                      CFE_SB_MSGID_WRAP_VALUE(CFE_TIME_SEND_HK_MID)};
@@ -188,6 +192,12 @@ void Test_Main(void)
 
     UtPrintf("Begin Test Main");
 
+    /* Test error during Task Init */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(CFE_EVS_Register), 1, -1);
+    UtAssert_VOIDCALL(CFE_TIME_TaskMain());
+    CFE_UtAssert_SYSLOG(TIME_SYSLOG_MSGS[5]);
+
     /* Test successful run through (a pipe read error is expected) */
     UT_InitData();
 
@@ -320,8 +330,7 @@ void Test_Init(void)
      * subscription
      */
     UT_InitData();
-#if (CFE_PLATFORM_TIME_CFG_SERVER == true && CFE_PLATFORM_TIME_CFG_SOURCE != true && \
-     CFE_MISSION_TIME_CFG_FAKE_TONE != true)
+#if (CFE_PLATFORM_TIME_CFG_SERVER == true)
     SubErrCnt++;
     UT_SetDeferredRetcode(UT_KEY(CFE_SB_Subscribe), SubErrCnt, -SubErrCnt);
     ExpRtn = -SubErrCnt;
@@ -343,12 +352,12 @@ void Test_Init(void)
     /* Test response to failure creating a tone semaphore */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 1, -1);
-    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -1);
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test response to failure creating a local semaphore */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_BinSemCreate), 2, -2);
-    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), -2);
+    UtAssert_INT32_EQ(CFE_TIME_TaskInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test response to an EVS register failure */
     UT_InitData();
@@ -836,6 +845,11 @@ void Test_Print(void)
         usingDefaultEpoch = false;
     }
 
+    /* Test print with null print buffer argument */
+    UT_InitData();
+    UtAssert_VOIDCALL(CFE_TIME_Print(NULL, time));
+    CFE_UtAssert_SYSLOG(TIME_SYSLOG_MSGS[6]);
+
     /* Test with zero time value */
     time.Subseconds = 0;
     time.Seconds    = 0;
@@ -921,6 +935,13 @@ void Test_RegisterSyncCallbackTrue(void)
 
     UtPrintf("Begin Test Register Synch Callback");
     UT_InitData();
+
+    /*
+     * Test calling api function with NULL argument
+     */
+
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TIME_RegisterSynchCallback(NULL), CFE_TIME_BAD_ARGUMENT);
 
     /*
      * One callback per application is allowed; the first should succeed,
@@ -2072,6 +2093,17 @@ void Test_Tone(void)
     UtAssert_UINT32_EQ(CFE_TIME_Global.LastVersionCounter, VersionSave + 1);
     UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchCounter, 1);
 
+    /* Test tone validation when time 1 < time 2 and Forced2Fly is set to
+     * true (covers branch taken, and CFE_TIME_ToneUpdate not called).
+     */
+    UT_InitData();
+    VersionSave                      = CFE_TIME_Global.LastVersionCounter;
+    CFE_TIME_Global.ToneMatchCounter = 0;
+    CFE_TIME_Global.Forced2Fly       = true;
+    UtAssert_VOIDCALL(CFE_TIME_ToneVerify(time1, time2));
+    UtAssert_UINT32_EQ(CFE_TIME_Global.LastVersionCounter, VersionSave);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.ToneMatchCounter, 0);
+
     /* Test tone validation when time 1 equals the previous time 1 value */
     UT_InitData();
     CFE_TIME_Global.ToneMatchErrorCounter = 0;
@@ -2302,6 +2334,13 @@ void Test_1Hz(void)
     CFE_TIME_Tone1HzISR();
     UtAssert_INT32_EQ(ut_time_CallbackCalled, 3);
 
+    /* Test the local 1Hz ISR */
+    UT_InitData();
+    CFE_TIME_Global.LocalIntCounter = 1;
+    UtAssert_VOIDCALL(CFE_TIME_Local1HzISR());
+    UtAssert_STUB_COUNT(OS_BinSemGive, 1);
+    UtAssert_UINT32_EQ(CFE_TIME_Global.LocalIntCounter, 2);
+
     /* Test the local 1Hz task where the binary semaphore take fails on the
      * second call
      */
@@ -2414,6 +2453,10 @@ void Test_UnregisterSynchCallback(void)
     ut_time_CallbackCalled = 0;
 
     UtPrintf("Begin Test Unregister Callback");
+
+    /* Test unregistering the callback function with NULL argument */
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_TIME_UnregisterSynchCallback(NULL), CFE_TIME_BAD_ARGUMENT);
 
     /* Unregister callback function one too many times to test both valid and
      * invalid cases

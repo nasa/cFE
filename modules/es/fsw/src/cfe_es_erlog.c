@@ -282,6 +282,7 @@ void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t 
 bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
 {
     int32                      Status;
+    int32                      PspStatus;
     uint32                     PspContextId;
     char                       ReasonString[CFE_ES_ERLOG_DESCRIPTION_MAX_LENGTH];
     CFE_ES_TaskInfo_t          EsTaskInfo;
@@ -302,11 +303,12 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
      */
     ResetType = 0;
     memset(&EsTaskInfo, 0, sizeof(EsTaskInfo));
-    Status = CFE_PSP_Exception_GetSummary(&PspContextId, &ExceptionTaskID, ReasonString, sizeof(ReasonString));
-    if (Status != CFE_PSP_SUCCESS)
+    PspStatus = CFE_PSP_Exception_GetSummary(&PspContextId, &ExceptionTaskID, ReasonString, sizeof(ReasonString));
+    if (PspStatus != CFE_PSP_SUCCESS)
     {
-        /* reason string is not available - populate with something for the log */
-        snprintf(ReasonString, sizeof(ReasonString), "Unknown - CFE_PSP_ExceptionGetSummary() error %ld", (long)Status);
+        /* reason string is not available - populate with something for the PspStatus*/
+        snprintf(ReasonString, sizeof(ReasonString), "Unknown - CFE_PSP_ExceptionGetSummary() error %ld",
+                 (long)PspStatus);
         PspContextId    = 0;
         ExceptionTaskID = OS_OBJECT_ID_UNDEFINED;
     } /* end if */

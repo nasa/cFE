@@ -567,6 +567,21 @@ void Test_CFE_TBL_Manage(void);
 
 /*****************************************************************************/
 /**
+** \brief Test function for dumping to a buffer
+**
+** \par Description
+**        This function tests the function for dumping a table to a buffer
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_CFE_TBL_DumpToBuffer(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test function that updates the contents of a table if an update
 **        is pending
 **

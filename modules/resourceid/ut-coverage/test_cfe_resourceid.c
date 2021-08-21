@@ -164,7 +164,11 @@ void TestResourceID(void)
                   CFE_ResourceId_ToInteger(Id), (unsigned long)RefIndex, (unsigned long)TestIndex);
 
     /* Validate off-nominal inputs */
-    Id = CFE_ResourceId_FindNext(CFE_RESOURCEID_UNDEFINED, 0, NULL);
+    Id = CFE_ResourceId_FindNext(CFE_RESOURCEID_UNDEFINED, 0, UT_ResourceId_CheckIdSlotUsed);
+    UtAssert_True(CFE_ResourceId_Equal(Id, CFE_RESOURCEID_UNDEFINED), "CFE_ResourceId_FindNext() bad input: id=%lx",
+                  CFE_ResourceId_ToInteger(Id));
+
+    Id = CFE_ResourceId_FindNext(LastId, 0, NULL);
     UtAssert_True(CFE_ResourceId_Equal(Id, CFE_RESOURCEID_UNDEFINED), "CFE_ResourceId_FindNext() bad input: id=%lx",
                   CFE_ResourceId_ToInteger(Id));
 

@@ -44,7 +44,7 @@ static const char *EVS_SYSLOG_MSGS[] = {
     NULL,
     "%s: Call to CFE_PSP_GetResetArea failed, RC=0x%08x\n",
     "%s: Unexpected size from CFE_PSP_GetResetArea: expected = 0x%08lX, actual = 0x%08lX\n",
-    "%s: OS_MutSemCreate failed, RC=0x%08x\n",
+    "%s: OS_MutSemCreate failed, RC=%ld\n",
     "%s: Event Log cleared following power-on reset\n",
     "%s: Event Log cleared, n=%d, c=%d, f=%d, m=%d, o=%d\n",
     "%s: Event Log restored, n=%d, c=%d, f=%d, m=%d, o=%d\n",
@@ -922,7 +922,7 @@ void Test_Logging(void)
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
-    UtAssert_INT32_EQ(CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd), OS_ERROR);
+    UtAssert_INT32_EQ(CFE_EVS_WriteLogDataFileCmd(&CmdBuf.logfilecmd), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     /* Test successfully writing all log entries */
     UT_InitData();

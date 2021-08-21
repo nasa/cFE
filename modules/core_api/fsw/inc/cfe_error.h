@@ -601,15 +601,6 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_POOL_BLOCK_INVALID ((CFE_Status_t)0xc400002C)
 
 /**
- * @brief Invalid pool size or buffer address
- *
- *  A specified pool address or size is outside the acceptable
- *  bounds for that pool configuration.
- *
- */
-#define CFE_ES_POOL_BOUNDS_ERROR ((CFE_Status_t)0xc400002D)
-
-/**
  * @brief Duplicate Name Error
  *
  *  Resource creation failed due to the name already existing in the system.
@@ -908,13 +899,6 @@ typedef int32 CFE_Status_t;
 #define CFE_TBL_ERR_UNREGISTERED ((CFE_Status_t)0xcc000009)
 
 /**
- * @brief Bad Application ID
- *
- *  The calling application does not have a legitimate Application ID.
- */
-#define CFE_TBL_ERR_BAD_APP_ID ((CFE_Status_t)0xcc00000A)
-
-/**
  * @brief Handles Full
  *
  *   An application attempted to create a table and the Table
@@ -989,14 +973,6 @@ typedef int32 CFE_Status_t;
  *
  */
 #define CFE_TBL_ERR_LOAD_IN_PROGRESS ((CFE_Status_t)0xcc000012)
-
-/**
- * @brief File Not Found
- *
- *  The calling Application called #CFE_TBL_Load with a bad filename.
- *
- */
-#define CFE_TBL_ERR_FILE_NOT_FOUND ((CFE_Status_t)0xcc000013)
 
 /**
  * @brief File Too Large

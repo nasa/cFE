@@ -1309,7 +1309,6 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 ** \retval #CFE_ES_NO_RESOURCE_IDS_AVAILABLE  \copybrief CFE_ES_NO_RESOURCE_IDS_AVAILABLE
-** \retval #CFE_ES_POOL_BOUNDS_ERROR          \copybrief CFE_ES_POOL_BOUNDS_ERROR
 ** \retval #CFE_STATUS_EXTERNAL_RESOURCE_FAIL \copybrief CFE_STATUS_EXTERNAL_RESOURCE_FAIL
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats

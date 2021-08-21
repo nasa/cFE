@@ -70,26 +70,6 @@ extern CFE_FT_Global_t CFE_FT_Global;
  */
 #define CFE_ASSERT_LOG_FILE_NAME "/cf/cfe_test.log"
 
-/* Compare two Resource IDs */
-#define cFE_FTAssert_ResourceID_EQ(actual, expect)                                            \
-    UtAssert_True(CFE_RESOURCEID_TEST_EQUAL(actual, expect), "%s (%lu) == %s (%lu)", #actual, \
-                  CFE_RESOURCEID_TO_ULONG(actual), #expect, CFE_RESOURCEID_TO_ULONG(expect))
-
-/* Check if a Resource ID is Undefined */
-#define cFE_FTAssert_ResourceID_Undefined(id) \
-    UtAssert_True(!CFE_RESOURCEID_TEST_DEFINED(id), "%s (%lu) not defined", #id, CFE_RESOURCEID_TO_ULONG(id))
-
-/* Assert a return code is not equal to cfe_success */
-#define cFE_FTAssert_NOT_CFE_SUCCESS(actual)                                      \
-    do                                                                            \
-    {                                                                             \
-        int32 rcact = (int32)(actual);                                            \
-        UtAssert_True(rcact < CFE_SUCCESS, "%s == (%ld) ", #actual, (long)rcact); \
-    } while (0)
-
-/* Assert if status is CFE_SUCCESS */
-#define cFE_FTAssert_SUCCESS(status) UtAssert_INT32_EQ(status, CFE_SUCCESS)
-
 bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference);
 
 void CFE_TestMain(void);
@@ -109,7 +89,10 @@ void FSHeaderTestSetup(void);
 void FSUtilTestSetup(void);
 void MessageIdTestSetup(void);
 void MsgApiTestSetup(void);
+void ResourceIdMiscTestSetup(void);
 void SBPipeMangSetup(void);
+void SBSendRecvTestSetup(void);
+void SBSubscriptionTestSetup(void);
 void TBLContentAccessTestSetup(void);
 void TBLContentMangTestSetup(void);
 void TBLInformationTestSetup(void);

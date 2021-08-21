@@ -86,8 +86,8 @@
 /*
 ** cFE Command Message Id's
 */
-#define CFE_EVS_CMD_MID CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_EVS_CMD_MSG   /* 0x1801 */
-                                                                              /* Message ID 0x1802 is available  */
+#define CFE_EVS_CMD_MID  CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_EVS_CMD_MSG  /* 0x1801 */
+#define CFE_TEST_CMD_MID CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_TEST_CMD_MSG /* 0x1802 */
 #define CFE_SB_CMD_MID   CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_SB_CMD_MSG   /* 0x1803 */
 #define CFE_TBL_CMD_MID  CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_TBL_CMD_MSG  /* 0x1804 */
 #define CFE_TIME_CMD_MID CFE_PLATFORM_CMD_MID_BASE + CFE_MISSION_TIME_CMD_MSG /* 0x1805 */
@@ -114,9 +114,9 @@
 /*
 ** CFE Telemetry Message Id's
 */
-#define CFE_ES_HK_TLM_MID  CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_ES_HK_TLM_MSG  /* 0x0800 */
-#define CFE_EVS_HK_TLM_MID CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_EVS_HK_TLM_MSG /* 0x0801 */
-                                                                                  /* Message ID 0x0802 is available  */
+#define CFE_ES_HK_TLM_MID           CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_ES_HK_TLM_MSG           /* 0x0800 */
+#define CFE_EVS_HK_TLM_MID          CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_EVS_HK_TLM_MSG          /* 0x0801 */
+#define CFE_TEST_HK_TLM_MID         CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TEST_HK_TLM_MSG         /* 0x0802 */
 #define CFE_SB_HK_TLM_MID           CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_SB_HK_TLM_MSG           /* 0x0803 */
 #define CFE_TBL_HK_TLM_MID          CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TBL_HK_TLM_MSG          /* 0x0804 */
 #define CFE_TIME_HK_TLM_MID         CFE_PLATFORM_TLM_MID_BASE + CFE_MISSION_TIME_HK_TLM_MSG         /* 0x0805 */
