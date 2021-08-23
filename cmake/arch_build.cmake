@@ -585,7 +585,7 @@ function(process_arch SYSVAR)
   set(CFE_PSP_EXPECTED_OSAL_BSPTYPE ${CFE_SYSTEM_PSPNAME})
 
   # Include any specific compiler flags or config from the selected PSP
-  include(${MISSION_SOURCE_DIR}/psp/fsw/${CFE_SYSTEM_PSPNAME}/make/build_options.cmake)
+  include(${psp_MISSION_DIR}/fsw/${CFE_SYSTEM_PSPNAME}/make/build_options.cmake)
 
   if (NOT DEFINED OSAL_SYSTEM_BSPTYPE)
       # Implicitly use the OSAL BSP that corresponds with the CFE PSP
