@@ -372,12 +372,16 @@ void TestMsgBroadcast(void)
 /* This is a variant of the message transmit API that does not copy */
 void TestZeroCopyTransmitRecv(void)
 {
-    CFE_SB_PipeId_t  PipeId1;
-    CFE_SB_PipeId_t  PipeId2;
-    CFE_SB_Buffer_t *CmdBuf;
-    CFE_SB_Buffer_t *TlmBuf;
-    CFE_SB_Buffer_t *MsgBuf;
-    CFE_SB_MsgId_t   MsgId;
+    CFE_SB_PipeId_t         PipeId1;
+    CFE_SB_PipeId_t         PipeId2;
+    CFE_SB_Buffer_t *       CmdBuf;
+    CFE_SB_Buffer_t *       TlmBuf;
+    CFE_SB_Buffer_t *       MsgBuf;
+    CFE_SB_MsgId_t          MsgId;
+    CFE_MSG_SequenceCount_t SeqCmd1;
+    CFE_MSG_SequenceCount_t SeqTlm1;
+    CFE_MSG_SequenceCount_t SeqCmd2;
+    CFE_MSG_SequenceCount_t SeqTlm2;
 
     /* Setup, create a pipe and subscribe (one cmd, one tlm) */
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, 5, "TestPipe1"), CFE_SUCCESS);
@@ -453,6 +457,61 @@ void TestZeroCopyTransmitRecv(void)
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_POLL), CFE_SUCCESS);
     UtAssert_ADDRESS_EQ(MsgBuf, CmdBuf); /* should be the same actual buffer (not a copy) */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+
+    UtPrintf("Testing: CFE_SB_TransmitBuffer sequence number updates");
+
+    /* Send a set of messages with and without sequence number update flag */
+    UtAssert_NOT_NULL(CmdBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestCmdMessage_t)));
+    UtAssert_NOT_NULL(TlmBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestTlmMessage_t)));
+    UtAssert_INT32_EQ(CFE_MSG_Init(&CmdBuf->Msg, CFE_FT_CMD_MSGID, sizeof(CFE_FT_TestCmdMessage_t)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&TlmBuf->Msg, CFE_FT_TLM_MSGID, sizeof(CFE_FT_TestTlmMessage_t)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(&CmdBuf->Msg, 1234), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(&TlmBuf->Msg, 5678), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(CmdBuf, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(TlmBuf, true), CFE_SUCCESS);
+
+    /* Receive and get initial sequence count */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqCmd1), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(SeqCmd1, 1234); /* NOTE: commands currently do NOT honor "Increment" flag */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId2, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqTlm1), CFE_SUCCESS);
+
+    /* Send a second message also with increment = true and confirm value */
+    UtAssert_NOT_NULL(CmdBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestCmdMessage_t)));
+    UtAssert_NOT_NULL(TlmBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestTlmMessage_t)));
+    UtAssert_INT32_EQ(CFE_MSG_Init(&CmdBuf->Msg, CFE_FT_CMD_MSGID, sizeof(CFE_FT_TestCmdMessage_t)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&TlmBuf->Msg, CFE_FT_TLM_MSGID, sizeof(CFE_FT_TestTlmMessage_t)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(&CmdBuf->Msg, 1234), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(&TlmBuf->Msg, 5678), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(CmdBuf, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(TlmBuf, true), CFE_SUCCESS);
+
+    /* Receive and get current sequence count */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqCmd2), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(SeqCmd2, 1234); /* NOTE: commands currently do NOT honor "Increment" flag */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId2, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqTlm2), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(SeqTlm2, CFE_MSG_GetNextSequenceCount(SeqTlm1)); /* should be +1 from the previous */
+
+    /* Send a third message also with increment = false and confirm value */
+    UtAssert_NOT_NULL(CmdBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestCmdMessage_t)));
+    UtAssert_NOT_NULL(TlmBuf = CFE_SB_AllocateMessageBuffer(sizeof(CFE_FT_TestTlmMessage_t)));
+    UtAssert_INT32_EQ(CFE_MSG_Init(&CmdBuf->Msg, CFE_FT_CMD_MSGID, sizeof(CFE_FT_TestCmdMessage_t)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(&TlmBuf->Msg, CFE_FT_TLM_MSGID, sizeof(CFE_FT_TestTlmMessage_t)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(&CmdBuf->Msg, 1234), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_SetSequenceCount(&TlmBuf->Msg, 5678), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(CmdBuf, false), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitBuffer(TlmBuf, false), CFE_SUCCESS);
+
+    /* Receive and get sequence count, should NOT be incremented from previous */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqCmd1), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(SeqCmd1, 1234); /* should match initialized value */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId2, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &SeqTlm1), CFE_SUCCESS);
+    UtAssert_UINT32_EQ(SeqTlm1, 5678); /* should match initialized value */
 
     /* Cleanup */
     UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId1), CFE_SUCCESS);
