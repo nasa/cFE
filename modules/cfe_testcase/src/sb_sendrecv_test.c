@@ -142,8 +142,11 @@ void TestBasicTransmitRecv(void)
     /*
      * Note, the CFE_SB_TransmitMsg ignores the "IncrementSequence" flag for commands.
      * Thus, all the sequence numbers should come back with the original value set (11)
+     *
+     * Note this also utilizes the CFE_SB_PEND_FOREVER flag - if working correctly,
+     * there should be a message in the queue, so it should not block.
      */
-    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, 100), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_PEND_FOREVER), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf->Msg, &MsgId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &Seq1), CFE_SUCCESS);
     CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
@@ -151,7 +154,7 @@ void TestBasicTransmitRecv(void)
     UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0x0c0ffee);
     UtAssert_UINT32_EQ(Seq1, 11);
 
-    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, 100), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_PEND_FOREVER), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf->Msg, &MsgId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &Seq1), CFE_SUCCESS);
     CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
@@ -159,7 +162,7 @@ void TestBasicTransmitRecv(void)
     UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0x1c0ffee);
     UtAssert_UINT32_EQ(Seq1, 11);
 
-    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, 100), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, CFE_SB_PEND_FOREVER), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf->Msg, &MsgId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetSequenceCount(&MsgBuf->Msg, &Seq1), CFE_SUCCESS);
     CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
@@ -168,6 +171,7 @@ void TestBasicTransmitRecv(void)
     UtAssert_UINT32_EQ(Seq1, 11);
 
     /* Final should not be in the pipe, should have been rejected due to MsgLim */
+    /* Must not use CFE_SB_PEND_FOREVER here, as this will cause the test to block */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf, PipeId1, 100), CFE_SB_TIME_OUT);
 
     /*
