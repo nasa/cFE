@@ -175,6 +175,16 @@ void TestExitChild(void)
         CFE_SUCCESS);
     OS_TaskDelay(500);
     UtAssert_INT32_EQ(ExpectedCount, 1);
+
+    /*
+     * Invoking CFE_ES_ExitChildTask() from the context of a main task should _not_ actually exit.
+     * as this is a void function there is no return code to check here.  The fact that the test
+     * continues after this call is evidence that the test passed (i.e. it did not actually end the task).
+     */
+    UtAssert_VOIDCALL(CFE_ES_ExitChildTask());
+
+    /* If this message is printed, then the test passed.  If the test fails this will not be reached. */
+    UtAssert_True(true, "CFE_ES_ExitChildTask() called from main task (ignored; main task did not exit)");
 }
 
 void ESTaskTestSetup(void)
