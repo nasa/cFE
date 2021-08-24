@@ -51,7 +51,7 @@ void TestGetAddress(void)
     /* Never loaded */
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblPtr, CFE_FT_Global.TblHandle), CFE_TBL_ERR_NEVER_LOADED);
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblPtr, CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress(NULL, CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(NULL, CFE_FT_Global.TblHandle), CFE_TBL_BAD_ARGUMENT);
 
     /* Returns CFE_TBL_INFO_UPDATED since it was just loaded */
     LoadTable(&TestTable, CFE_SUCCESS);

@@ -303,21 +303,22 @@ CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle);
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                     \copybrief CFE_SUCCESS
-** \retval #CFE_TBL_WARN_SHORT_FILE         \copybrief CFE_TBL_WARN_SHORT_FILE
-** \retval #CFE_TBL_WARN_PARTIAL_LOAD       \copybrief CFE_TBL_WARN_PARTIAL_LOAD
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 ** \retval #CFE_TBL_ERR_NO_ACCESS           \copybrief CFE_TBL_ERR_NO_ACCESS
 ** \retval #CFE_TBL_ERR_INVALID_HANDLE      \copybrief CFE_TBL_ERR_INVALID_HANDLE
 ** \retval #CFE_TBL_ERR_DUMP_ONLY           \copybrief CFE_TBL_ERR_DUMP_ONLY
 ** \retval #CFE_TBL_ERR_ILLEGAL_SRC_TYPE    \copybrief CFE_TBL_ERR_ILLEGAL_SRC_TYPE
 ** \retval #CFE_TBL_ERR_LOAD_IN_PROGRESS    \copybrief CFE_TBL_ERR_LOAD_IN_PROGRESS
+** \retval #CFE_TBL_ERR_LOAD_INCOMPLETE     \copybrief CFE_TBL_ERR_LOAD_INCOMPLETE
 ** \retval #CFE_TBL_ERR_NO_BUFFER_AVAIL     \copybrief CFE_TBL_ERR_NO_BUFFER_AVAIL
 ** \retval #CFE_TBL_ERR_ACCESS              \copybrief CFE_TBL_ERR_ACCESS
 ** \retval #CFE_TBL_ERR_FILE_TOO_LARGE      \copybrief CFE_TBL_ERR_FILE_TOO_LARGE
 ** \retval #CFE_TBL_ERR_BAD_CONTENT_ID      \copybrief CFE_TBL_ERR_BAD_CONTENT_ID
+** \retval #CFE_TBL_ERR_BAD_SUBTYPE_ID      \copybrief CFE_TBL_ERR_BAD_SUBTYPE_ID
+** \retval #CFE_TBL_ERR_NO_STD_HEADER       \copybrief CFE_TBL_ERR_NO_STD_HEADER
+** \retval #CFE_TBL_ERR_NO_TBL_HEADER       \copybrief CFE_TBL_ERR_NO_TBL_HEADER
 ** \retval #CFE_TBL_ERR_PARTIAL_LOAD        \copybrief CFE_TBL_ERR_PARTIAL_LOAD
 ** \retval #CFE_TBL_BAD_ARGUMENT            \copybrief CFE_TBL_BAD_ARGUMENT
-** \retval #CFE_TBL_WARN_PARTIAL_LOAD       \copybrief CFE_TBL_WARN_PARTIAL_LOAD
 **
 ** \sa #CFE_TBL_Update, #CFE_TBL_Validate, #CFE_TBL_Manage
 **
