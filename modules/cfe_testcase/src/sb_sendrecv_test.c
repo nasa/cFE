@@ -314,6 +314,48 @@ void TestMsgBroadcast(void)
     CmdPtr = (const CFE_FT_TestCmdMessage_t *)MsgBuf4;
     UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0xbabb1e03);
 
+    UtPrintf("Testing: Unsubscribe single pipe");
+
+    /* Now unsubscribe only one of the pipes, and confirm no messages delivered to that pipe */
+    UtAssert_INT32_EQ(CFE_SB_Unsubscribe(CFE_FT_CMD_MSGID, PipeId2), CFE_SUCCESS);
+
+    /* Send two more messages */
+    CmdMsg.CmdPayload = 0xbabb1e04;
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    CmdMsg.CmdPayload = 0xbabb1e05;
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+
+    /* poll all pipes again, message should appear on all except PipeId2 (Unsubscribed) */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf2, PipeId2, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf3, PipeId3, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf4, PipeId4, CFE_SB_POLL), CFE_SUCCESS);
+
+    /* All pipes should have gotten the same actual buffer */
+    UtAssert_ADDRESS_EQ(MsgBuf1, MsgBuf3);
+    UtAssert_ADDRESS_EQ(MsgBuf1, MsgBuf4);
+
+    /* Confirm content */
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf1->Msg, &MsgId), CFE_SUCCESS);
+    CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
+    CmdPtr = (const CFE_FT_TestCmdMessage_t *)MsgBuf1;
+    UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0xbabb1e04);
+
+    /* poll all pipes again, message should appear on all except PipeId1 (MsgLim) or PipeId2 (Unsubscribed) */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf2, PipeId2, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf3, PipeId3, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf4, PipeId4, CFE_SB_POLL), CFE_SUCCESS);
+
+    /* All pipes should have gotten the same actual buffer */
+    UtAssert_ADDRESS_EQ(MsgBuf3, MsgBuf4);
+
+    /* Confirm content */
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf3->Msg, &MsgId), CFE_SUCCESS);
+    CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
+    CmdPtr = (const CFE_FT_TestCmdMessage_t *)MsgBuf3;
+    UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0xbabb1e05);
+
     /* poll all pipes again, all should be empty now */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf2, PipeId2, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
