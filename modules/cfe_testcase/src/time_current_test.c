@@ -32,6 +32,7 @@
  */
 
 #include "cfe_test.h"
+#include "cfe_time_msg.h"
 
 bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference)
 {
@@ -42,6 +43,18 @@ bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t d
     Max = OS_TimeAdd(TimeT, difference);
 
     if (TargetT.ticks >= TimeT.ticks && TargetT.ticks <= Max.ticks)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool ClockFlagCheck(uint16 info, int flag)
+{
+    if ((info & flag) == flag)
     {
         return true;
     }
@@ -120,7 +133,39 @@ void TestGetTime(void)
     UtAssert_True(TimeInRange(MET, Buf, difference), "MET (%s) = METSubSeconds (%s)", timeBuf1, timeBuf2);
 }
 
+void TestClock(void)
+{
+    UtPrintf("Testing: CFE_TIME_GetClockState, CFE_TIME_GetClockInfo");
+
+    CFE_TIME_ClockState_Enum_t state     = CFE_TIME_GetClockState();
+    uint16                     ClockInfo = CFE_TIME_GetClockInfo();
+
+    if (state >= 0)
+    {
+        UtAssert_BOOL_TRUE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_CLKSET));
+
+        if (state == 0)
+        {
+            UtAssert_BOOL_FALSE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_FLYING));
+        }
+        else
+        {
+            UtAssert_BOOL_TRUE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_FLYING));
+        }
+    }
+    else
+    {
+        UtAssert_BOOL_FALSE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_CLKSET));
+    }
+
+    UtAssert_BOOL_TRUE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_SRCINT));
+    UtAssert_BOOL_TRUE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_SIGPRI));
+    UtAssert_BOOL_FALSE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_REFERR));
+    UtAssert_BOOL_FALSE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_UNUSED));
+}
+
 void TimeCurrentTestSetup(void)
 {
     UtTest_Add(TestGetTime, NULL, NULL, "Test Current Time");
+    UtTest_Add(TestClock, NULL, NULL, "Test Clock");
 }
