@@ -209,6 +209,124 @@ void TestBasicTransmitRecv(void)
     UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId2), CFE_SUCCESS);
 }
 
+/*
+ * Test distribution/broadcasting features (MsgLimit/PipeDepth enforcement, etc)
+ *
+ * Important to verify that although some receive pipes may have errors/limits, it should not affect
+ * the transmit side nor should it affect delivery to pipes that do not have limit errors.
+ */
+void TestMsgBroadcast(void)
+{
+    CFE_SB_PipeId_t                PipeId1;
+    CFE_SB_PipeId_t                PipeId2;
+    CFE_SB_PipeId_t                PipeId3;
+    CFE_SB_PipeId_t                PipeId4;
+    CFE_FT_TestCmdMessage_t        CmdMsg;
+    CFE_SB_MsgId_t                 MsgId;
+    CFE_SB_Buffer_t *              MsgBuf1;
+    CFE_SB_Buffer_t *              MsgBuf2;
+    CFE_SB_Buffer_t *              MsgBuf3;
+    CFE_SB_Buffer_t *              MsgBuf4;
+    const CFE_FT_TestCmdMessage_t *CmdPtr;
+
+    UtPrintf("Testing: MsgLimit enforcement");
+
+    /* Setup - subscribe same MsgId to multiple different pipes with different limits */
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, 3, "TestPipe1"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId2, 3, "TestPipe2"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId3, 3, "TestPipe3"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId4, 5, "TestPipe4"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, PipeId1, CFE_SB_DEFAULT_QOS, 1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, PipeId2, CFE_SB_DEFAULT_QOS, 2), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, PipeId3, CFE_SB_DEFAULT_QOS, 4), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, PipeId4, CFE_SB_DEFAULT_QOS, 6), CFE_SUCCESS);
+
+    /* Initialize the message content */
+    UtAssert_INT32_EQ(CFE_MSG_Init(&CmdMsg.CmdHeader.Msg, CFE_FT_CMD_MSGID, sizeof(CmdMsg)), CFE_SUCCESS);
+
+    /* Make unique content in each message. Sending should always be successful. */
+    CmdMsg.CmdPayload = 0xbabb1e00;
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    CmdMsg.CmdPayload = 0xbabb1e01;
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    CmdMsg.CmdPayload = 0xbabb1e02;
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    CmdMsg.CmdPayload = 0xbabb1e03;
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+
+    /* Now receive 1st message from Pipes, actual msg should appear on all (no limit violations here) */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf2, PipeId2, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf3, PipeId3, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf4, PipeId4, CFE_SB_POLL), CFE_SUCCESS);
+
+    /* All pipes should have gotten the same actual buffer */
+    UtAssert_ADDRESS_EQ(MsgBuf1, MsgBuf2);
+    UtAssert_ADDRESS_EQ(MsgBuf1, MsgBuf3);
+    UtAssert_ADDRESS_EQ(MsgBuf1, MsgBuf4);
+
+    /* Confirm content */
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf1->Msg, &MsgId), CFE_SUCCESS);
+    CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
+    CmdPtr = (const CFE_FT_TestCmdMessage_t *)MsgBuf1;
+    UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0xbabb1e00);
+
+    /* Now receive 2nd message from Pipes, should not appear on PipeId 1 due to MsgLimit */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf2, PipeId2, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf3, PipeId3, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf4, PipeId4, CFE_SB_POLL), CFE_SUCCESS);
+
+    /* All pipes should have gotten the same actual buffer */
+    UtAssert_ADDRESS_EQ(MsgBuf2, MsgBuf3);
+    UtAssert_ADDRESS_EQ(MsgBuf2, MsgBuf4);
+
+    /* Confirm content */
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf2->Msg, &MsgId), CFE_SUCCESS);
+    CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
+    CmdPtr = (const CFE_FT_TestCmdMessage_t *)MsgBuf2;
+    UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0xbabb1e01);
+
+    /* Now receive 3rd message from Pipes, should not appear on PipeId 1 or 2 due to MsgLimit */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf2, PipeId2, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf3, PipeId3, CFE_SB_POLL), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf4, PipeId4, CFE_SB_POLL), CFE_SUCCESS);
+
+    /* All pipes should have gotten the same actual buffer */
+    UtAssert_ADDRESS_EQ(MsgBuf3, MsgBuf4);
+
+    /* Confirm content */
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf3->Msg, &MsgId), CFE_SUCCESS);
+    CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
+    CmdPtr = (const CFE_FT_TestCmdMessage_t *)MsgBuf3;
+    UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0xbabb1e02);
+
+    /* Now receive 4th message from Pipes, should only appear on PipeId4 due PipeDepth limit on 3  */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf2, PipeId2, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf3, PipeId3, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf4, PipeId4, CFE_SB_POLL), CFE_SUCCESS);
+
+    /* Confirm content */
+    UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&MsgBuf4->Msg, &MsgId), CFE_SUCCESS);
+    CFE_UtAssert_MSGID_EQ(MsgId, CFE_FT_CMD_MSGID);
+    CmdPtr = (const CFE_FT_TestCmdMessage_t *)MsgBuf4;
+    UtAssert_UINT32_EQ(CmdPtr->CmdPayload, 0xbabb1e03);
+
+    /* poll all pipes again, all should be empty now */
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf2, PipeId2, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf3, PipeId3, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+    UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf4, PipeId4, CFE_SB_POLL), CFE_SB_NO_MESSAGE);
+
+    /* Cleanup */
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId2), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId3), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId4), CFE_SUCCESS);
+}
+
 /* This is a variant of the message transmit API that does not copy */
 void TestZeroCopyTransmitRecv(void)
 {
@@ -375,5 +493,6 @@ void SBSendRecvTestSetup(void)
 {
     UtTest_Add(TestBasicTransmitRecv, NULL, NULL, "Test Basic Transmit/Receive");
     UtTest_Add(TestZeroCopyTransmitRecv, NULL, NULL, "Test Zero Copy Transmit/Receive");
+    UtTest_Add(TestMsgBroadcast, NULL, NULL, "Test Msg Broadcast");
     UtTest_Add(TestMiscMessageUtils, NULL, NULL, "Test Miscellaneous Message Utility APIs");
 }
