@@ -43,13 +43,63 @@ void TestPipeCreate(void)
 
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, PipeDepth, PipeName), CFE_SUCCESS);
 
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId1), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId1), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_DeletePipe(CFE_SB_INVALID_PIPE), CFE_SB_BAD_ARGUMENT);
+
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(NULL, PipeDepth, PipeName), CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, OS_QUEUE_MAX_DEPTH + 5, PipeName), CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, 0, PipeName), CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId1, PipeDepth, NULL), CFE_SB_PIPE_CR_ERR);
+}
 
-    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId1), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId1), CFE_SB_BAD_ARGUMENT);
+void TestPipeCreateMax(void)
+{
+    CFE_SB_PipeId_t PipeId[CFE_PLATFORM_SB_MAX_PIPES + 1];
+    char            PipeName[12];
+    uint32          NumPipes;
+
+    UtPrintf("Testing: CFE_SB_CreatePipe, maximum pipe limit");
+
+    /*
+     * NOTE: because any other running apps (including core apps) will likely have
+     * created some pipes already, it is not known how many more pipes can be created
+     * at this point.  So this cannot assert directly on the return code of
+     * CFE_SB_CreatePipe because we do not know which iteration will return error,
+     * but it will be less than CFE_PLATFORM_SB_MAX_PIPES.
+     */
+    NumPipes = 0;
+    while (NumPipes <= CFE_PLATFORM_SB_MAX_PIPES)
+    {
+        snprintf(PipeName, sizeof(PipeName), "TestPipe%u", (unsigned int)NumPipes);
+        CFE_Assert_STATUS_STORE(CFE_SB_CreatePipe(&PipeId[NumPipes], 10, PipeName));
+        /*
+         * Normally, this will return CFE_SUCCESS, until the max number of pipes is reached.
+         * Confirm that the last creation attempt returned CFE_SB_MAX_PIPES_MET
+         *
+         * NOTE: this also mimics the same format as UtAssert_INT32_EQ so that any post-procesing
+         * test log analysis tools will see this call as well.
+         */
+        if (CFE_Assert_STATUS_MAY_BE(CFE_SB_MAX_PIPES_MET))
+        {
+            break;
+        }
+
+        /* If not CFE_SB_MAX_PIPES_MET, then the only acceptable response is SUCCESS */
+        CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+
+        ++NumPipes;
+    }
+
+    /* should have gotten CFE_SB_MAX_PIPES_MET before CFE_PLATFORM_SB_MAX_PIPES reached */
+    UtAssert_UINT32_LT(NumPipes, CFE_PLATFORM_SB_MAX_PIPES);
+
+    /* Cleanup: delete all pipes created above */
+    while (NumPipes > 0)
+    {
+        --NumPipes;
+        UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId[NumPipes]), CFE_SUCCESS);
+    }
 }
 
 void TestPipeIndex(void)
@@ -119,6 +169,7 @@ void TestPipeName(void)
     UtAssert_INT32_EQ(CFE_SB_GetPipeName(PipeNameBuf, sizeof(PipeNameBuf), CFE_SB_INVALID_PIPE), CFE_SB_BAD_ARGUMENT);
 
     UtAssert_INT32_EQ(CFE_SB_GetPipeIdByName(NULL, PipeName), CFE_SB_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_SB_GetPipeIdByName(&PipeIdBuff, NULL), CFE_SB_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_SB_GetPipeIdByName(&PipeIdBuff, InvalidPipeName), CFE_SB_BAD_ARGUMENT);
 
     UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId), CFE_SUCCESS);
@@ -127,6 +178,7 @@ void TestPipeName(void)
 void SBPipeMangSetup(void)
 {
     UtTest_Add(TestPipeCreate, NULL, NULL, "Test Pipe Create");
+    UtTest_Add(TestPipeCreateMax, NULL, NULL, "Test Pipe Create Max Limit");
     UtTest_Add(TestPipeIndex, NULL, NULL, "Test Pipe Index");
     UtTest_Add(TestPipeOptions, NULL, NULL, "Test Pipe Options");
     UtTest_Add(TestPipeName, NULL, NULL, "Test Pipe Name");

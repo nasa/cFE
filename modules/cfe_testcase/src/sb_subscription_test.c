@@ -238,11 +238,56 @@ void TestSBMaxSubscriptions(void)
     UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId), CFE_SUCCESS);
 }
 
+/* This is a different flavor of the subscription limit - a single msgid can only
+ * have up to CFE_PLATFORM_SB_MAX_DEST_PER_PKT destinations */
+void TestSBMaxDestinations(void)
+{
+    CFE_SB_PipeId_t PipeId[CFE_PLATFORM_SB_MAX_DEST_PER_PKT + 1];
+    char            PipeName[CFE_MISSION_MAX_API_LEN];
+    uint32          NumDests;
+
+    UtPrintf("Testing: CFE_SB_Subscribe, max destination limit");
+
+    NumDests = 0;
+    while (NumDests <= CFE_PLATFORM_SB_MAX_DEST_PER_PKT)
+    {
+        snprintf(PipeName, sizeof(PipeName), "TestPipe%u", (unsigned int)NumDests);
+        if (!UtAssert_INT32_EQ(CFE_SB_CreatePipe(&PipeId[NumDests], 2, PipeName), CFE_SUCCESS))
+        {
+            break;
+        }
+
+        if (NumDests == CFE_PLATFORM_SB_MAX_DEST_PER_PKT)
+        {
+            /* All 3 variations of subscribe can be checked here, they should all fail identically */
+            UtAssert_INT32_EQ(CFE_SB_Subscribe(CFE_FT_CMD_MSGID, PipeId[NumDests]), CFE_SB_MAX_DESTS_MET);
+            UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, PipeId[NumDests], CFE_SB_DEFAULT_QOS, 2),
+                              CFE_SB_MAX_DESTS_MET);
+            UtAssert_INT32_EQ(CFE_SB_SubscribeLocal(CFE_FT_CMD_MSGID, PipeId[NumDests], 2), CFE_SB_MAX_DESTS_MET);
+        }
+        else
+        {
+            UtAssert_INT32_EQ(CFE_SB_Subscribe(CFE_FT_CMD_MSGID, PipeId[NumDests]), CFE_SUCCESS);
+        }
+
+        ++NumDests;
+    }
+
+    while (NumDests > 0)
+    {
+        --NumDests;
+
+        /* Note this should also remove any subscriptions from the above loop */
+        UtAssert_INT32_EQ(CFE_SB_DeletePipe(PipeId[NumDests]), CFE_SUCCESS);
+    }
+}
+
 void SBSubscriptionTestSetup(void)
 {
     UtTest_Add(TestSubscribeUnsubscribe, NULL, NULL, "Test SB Subscribe/Unsubscribe");
     UtTest_Add(TestSubscribeUnsubscribeLocal, NULL, NULL, "Test SB SubscribeLocal/UnsubscribeLocal");
     UtTest_Add(TestSubscribeEx, NULL, NULL, "Test SB SubscribeEx");
+    UtTest_Add(TestSBMaxDestinations, NULL, NULL, "Test SB Max Destinations");
 
     /*
      * NOTE: The TestSBMaxSubscriptions() is not included/added by default, as it will fill the
