@@ -52,18 +52,6 @@ bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t d
     }
 }
 
-bool ClockFlagCheck(uint16 info, int flag)
-{
-    if ((info & flag) == flag)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 void TestGetTime(void)
 {
     UtPrintf("Testing: CFE_TIME_GetTime, CFE_TIME_GetTAI, CFE_TIME_GetUTC, CFE_TIME_GetMET, CFE_TIME_GetSTCF, "
@@ -142,26 +130,26 @@ void TestClock(void)
 
     if (state >= 0)
     {
-        UtAssert_BOOL_TRUE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_CLKSET));
+        UtAssert_UINT32_EQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_CLKSET);
 
         if (state == 0)
         {
-            UtAssert_BOOL_FALSE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_FLYING));
+            UtAssert_UINT32_NEQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_FLYING);
         }
         else
         {
-            UtAssert_BOOL_TRUE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_FLYING));
+            UtAssert_UINT32_EQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_FLYING);
         }
     }
     else
     {
-        UtAssert_BOOL_FALSE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_CLKSET));
+        UtAssert_UINT32_NEQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_CLKSET);
     }
 
-    UtAssert_BOOL_TRUE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_SRCINT));
-    UtAssert_BOOL_TRUE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_SIGPRI));
-    UtAssert_BOOL_FALSE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_REFERR));
-    UtAssert_BOOL_FALSE(ClockFlagCheck(ClockInfo, CFE_TIME_FLAG_UNUSED));
+    UtAssert_UINT32_EQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_SRCINT);
+    UtAssert_UINT32_EQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_SIGPRI);
+    UtAssert_UINT32_NEQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_REFERR);
+    UtAssert_UINT32_NEQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_UNUSED);
 }
 
 void TimeCurrentTestSetup(void)
