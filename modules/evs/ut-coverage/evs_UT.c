@@ -234,6 +234,11 @@ void Test_Init(void)
     CFE_EVS_EarlyInit();
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[4]);
 
+    /* Task main with init failure */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, -1);
+    UtAssert_VOIDCALL(CFE_EVS_TaskMain());
+
     /* Test TaskMain with a command pipe read failure due to an
      * invalid command packet
      */
@@ -365,6 +370,7 @@ void Test_Init(void)
 void Test_IllegalAppID(void)
 {
     CFE_TIME_SysTime_t time = {0, 0};
+    CFE_ES_AppId_t     AppID;
 
     UtPrintf("Begin Test Illegal App ID");
 
@@ -374,6 +380,11 @@ void Test_IllegalAppID(void)
 
     /* Test registering an event using an illegal application ID */
     UtAssert_INT32_EQ(CFE_EVS_Register(NULL, 0, 0), CFE_EVS_APP_ILLEGAL_APP_ID);
+
+    /* Test sending events with a NULL spec */
+    UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, 0, NULL), CFE_EVS_INVALID_PARAMETER);
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, 0, CFE_ES_APPID_UNDEFINED, NULL), CFE_EVS_INVALID_PARAMETER);
+    UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(time, 0, 0, NULL), CFE_EVS_INVALID_PARAMETER);
 
     /* Test sending an event using an illegal application ID */
     UT_InitData();
@@ -409,6 +420,11 @@ void Test_IllegalAppID(void)
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_EVS_CleanUpApp(CFE_ES_APPID_UNDEFINED), CFE_EVS_APP_ILLEGAL_APP_ID);
+
+    /* Test with out of range AppID */
+    UT_InitData();
+    AppID = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_PLATFORM_ES_MAX_APPLICATIONS));
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, 0, AppID, "NULL"), CFE_EVS_APP_ILLEGAL_APP_ID);
 }
 
 /*
@@ -717,6 +733,10 @@ void Test_Format(void)
      * the maximum allowed
      */
     CFE_UtAssert_SUCCESS(CFE_EVS_SendTimedEvent(time, 0, CFE_EVS_EventType_INFORMATION, "%s", long_msg));
+
+    /* Force an invalid format and send for code coverage */
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG + 1;
+    CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "%s", long_msg));
 }
 
 /*
@@ -1786,7 +1806,9 @@ void Test_Misc(void)
     char                           msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + 2];
     UT_SoftwareBusSnapshot_Entry_t HK_SnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_HK_TLM_MID)};
 
-    EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    /* Cover null cases for EVS_GetCurrentContext */
+    EVS_GetCurrentContext(NULL, &AppID);
+    EVS_GetCurrentContext(&AppDataPtr, NULL);
 
     UtPrintf("Begin Test Miscellaneous");
 
@@ -1877,4 +1899,13 @@ void Test_Misc(void)
     AppDataPtr->EventTypesActiveFlag |= CFE_EVS_INFORMATION_BIT;
     EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, msg);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter, 1);
+
+    /* Use all AppData and report housekeeping to get branch coverage */
+    UT_InitData();
+    for (i = 0; i < sizeof(CFE_EVS_Global.AppData) / sizeof(CFE_EVS_Global.AppData[0]); i++)
+    {
+        /* Doesn't matter here that AppID is all the same... */
+        EVS_AppDataSetUsed(&CFE_EVS_Global.AppData[i], AppID);
+    }
+    UtAssert_UINT32_EQ(CFE_EVS_ReportHousekeepingCmd(NULL), CFE_STATUS_NO_COUNTER_INCREMENT);
 }
