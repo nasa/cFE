@@ -20,7 +20,7 @@
 
 /*
 ** File:
-**    fss_UT.c
+**    fs_UT.c
 **
 ** Purpose:
 **    File Services unit test
@@ -119,11 +119,14 @@ void Test_CFE_FS_ReadHeader(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_lseek), OS_ERROR);
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
-    /* Test successfully reading the header */
+    /* Test reading header with OS_read failure */
     UT_InitData();
-    UT_SetDeferredRetcode(UT_KEY(OS_lseek), 1, OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_read), OS_ERROR);
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
+
+    /* Test successfully reading the header */
+    UT_InitData();
+    UtAssert_INT32_EQ(CFE_FS_ReadHeader(&Hdr, FileDes), sizeof(Hdr));
 
     /* Test calling with NULL pointer argument */
     UtAssert_INT32_EQ(CFE_FS_ReadHeader(NULL, FileDes), CFE_FS_BAD_ARGUMENT);
