@@ -2984,6 +2984,7 @@ void Test_CFE_TBL_TblMod(void)
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_Handle_t            AccessIterator;
     uint8                       CDS_Data[sizeof(UT_Table1_t)];
+    uint32                      ExpectedCrc;
 
     UtPrintf("Begin Test Table Modified");
 
@@ -3104,10 +3105,19 @@ void Test_CFE_TBL_TblMod(void)
     CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_SUCCESS_INF_EID);
     CFE_UtAssert_EVENTCOUNT(1);
 
-    /* Notify Table Services that the table has been modified */
+    /*
+     * Notify Table Services that the table has been modified. Verify CRC has been
+     * calculated and table has been flagged as Updated
+     */
+    ExpectedCrc = 0x0000F00D;
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_CalculateCRC), 1, ExpectedCrc);
+    CFE_TBL_Global.Handles[AccessIterator].Updated = false;
     CFE_UtAssert_SUCCESS(CFE_TBL_Modified(App1TblHandle1));
+    UtAssert_BOOL_TRUE(CFE_TBL_Global.Handles[AccessIterator].Updated);
     CFE_UtAssert_SUCCESS(CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table2"));
     UtAssert_INT32_EQ(TblInfo1.TimeOfLastUpdate.Seconds, TblInfo1.TimeOfLastUpdate.Subseconds);
+    UtAssert_UINT32_EQ(TblInfo1.Crc, ExpectedCrc);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TblDataPtr, App1TblHandle1), CFE_TBL_INFO_UPDATED);
 
     /*
      * LastFileLoaded (limited by mission) can be bigger than MyFilename (limited by osal),
