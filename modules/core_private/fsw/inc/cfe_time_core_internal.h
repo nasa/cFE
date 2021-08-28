@@ -56,7 +56,7 @@
 **          None
 **
 ******************************************************************************/
-extern void CFE_TIME_TaskMain(void);
+void CFE_TIME_TaskMain(void);
 
 /*****************************************************************************/
 /**
@@ -69,7 +69,7 @@ extern void CFE_TIME_TaskMain(void);
 **        -# This function MUST be called before any module API's are called.
 **
 ******************************************************************************/
-extern int32 CFE_TIME_EarlyInit(void);
+int32 CFE_TIME_EarlyInit(void);
 
 /*****************************************************************************/
 /**
@@ -81,7 +81,7 @@ extern int32 CFE_TIME_EarlyInit(void);
 **        that have been allocated to the specified Application.
 **
 ******************************************************************************/
-extern int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId);
+int32 CFE_TIME_CleanUpApp(CFE_ES_AppId_t AppId);
 
 /**@}*/
 

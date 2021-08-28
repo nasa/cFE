@@ -27,7 +27,7 @@
 #include "cfe_fs_core_internal.h"
 #include "utgenstub.h"
 
-extern void UT_DefaultHandler_CFE_FS_RunBackgroundFileDump(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_FS_RunBackgroundFileDump(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
  * ----------------------------------------------------

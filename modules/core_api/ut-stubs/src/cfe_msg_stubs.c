@@ -27,24 +27,24 @@
 #include "cfe_msg.h"
 #include "utgenstub.h"
 
-extern void UT_DefaultHandler_CFE_MSG_GetApId(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetEDSVersion(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetEndian(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetFcnCode(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetHasSecondaryHeader(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetHeaderVersion(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetMsgTime(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetNextSequenceCount(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetPlaybackFlag(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetSegmentationFlag(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetSequenceCount(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetSize(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetSubsystem(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetSystem(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetType(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_GetTypeFromMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_MSG_ValidateChecksum(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetApId(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetEDSVersion(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetEndian(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetFcnCode(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetHasSecondaryHeader(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetHeaderVersion(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetMsgTime(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetNextSequenceCount(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetPlaybackFlag(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetSegmentationFlag(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetSequenceCount(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetSize(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetSubsystem(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetSystem(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetType(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_GetTypeFromMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_MSG_ValidateChecksum(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
  * ----------------------------------------------------
