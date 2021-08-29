@@ -70,6 +70,11 @@ function(initialize_globals)
     # Export values to parent level
     set(MISSION_DEFS ${MISSION_SOURCE_DIR}/${MISSIONCONFIG}_defs CACHE PATH "Full path to mission definitions directory")
 
+    # ... -DTABLETOOL_EXECUTABLE=/path/to/my/custom/tabletool
+    if (TABLETOOL_EXECUTABLE)
+        set(TABLETOOL_EXE ${TABLETOOL_EXECUTABLE} CACHE FILEPATH "Set executable used instead of default elf2cfetbl.")
+    endif()
+
 endfunction(initialize_globals)
 
 ##################################################################
@@ -386,9 +391,13 @@ function(prepare)
   )
   add_subdirectory(${MISSION_SOURCE_DIR}/tools tools)
 
-  # Add a dependency on the table generator tool as this is required for table builds
-  # The "elf2cfetbl" target should have been added by the "tools" above
-  add_dependencies(mission-prebuild elf2cfetbl)
+  # If no alternative table tool executable was set by cmake cache variable before, 
+  # ...add default tool as dependency
+  if (NOT DEFINED ${TABLETOOL_EXE})
+    # Add a dependency on the table generator tool as this is required for table builds
+    # The "elf2cfetbl" target should have been added by the "tools" above
+    add_dependencies(mission-prebuild elf2cfetbl)  
+  endif()
 
   # Build version information should be generated as part of the pre-build process
   add_dependencies(mission-prebuild mission-version)

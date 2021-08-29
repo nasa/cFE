@@ -169,7 +169,7 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
     # no automatic way to do this (at least in the older cmakes)
 
     # Create the intermediate table objects using the target compiler,
-    # then use "elf2cfetbl" to convert to a .tbl file
+    # then use "elf2cfetbl" or TABLETOOL_EXE to convert to a .tbl file
     foreach(TBL ${TBL_SRC_FILES} ${ARGN})
 
         # Get name without extension (NAME_WE) and append to list of tables
@@ -180,6 +180,13 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
             set(TABLE_DESTDIR "${CMAKE_CURRENT_BINARY_DIR}/${TABLE_LIBNAME}")
             set(TABLE_BINARY  "${TABLE_DESTDIR}/${TBLWE}.tbl")
             file(MAKE_DIRECTORY ${TABLE_DESTDIR})
+
+            # Get TBLTOOL executable location from cmake cache variable if available -> into local var
+            if (TABLETOOL_EXE)
+                set(TABLE_TOOL_EXECUTABLE ${TABLETOOL_EXE})
+            else() # else to default -> into local var
+                set(TABLE_TOOL_EXECUTABLE ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl)
+            endif()
 
             # Check if an override exists at the mission level (recommended practice)
             # This allows a mission to implement a customized table without modifying
@@ -226,10 +233,10 @@ function(add_cfe_tables APP_NAME TBL_SRC_FILES)
                     OUTPUT ${TABLE_BINARY}
                     COMMAND ${CMAKE_COMMAND}
                         -DCMAKE_AR=${CMAKE_AR}
-                        -DTBLTOOL=${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl
+                        -DTBLTOOL=${TABLE_TOOL_EXECUTABLE}
                         -DLIB=$<TARGET_FILE:${TABLE_LIBNAME}>
                         -P ${CFE_SOURCE_DIR}/cmake/generate_table.cmake
-                    DEPENDS ${MISSION_BINARY_DIR}/tools/elf2cfetbl/elf2cfetbl ${TABLE_LIBNAME}
+                    DEPENDS ${TABLE_TOOL_EXECUTABLE} ${TABLE_LIBNAME}
                     WORKING_DIRECTORY ${TABLE_DESTDIR}
                 )
 

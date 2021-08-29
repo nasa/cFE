@@ -11,7 +11,7 @@
 #
 # Required passed in values:
 #  CMAKE_AR => path to "ar" utility for working with static lib files
-#  TBLTOOL => path to "elf2cfetbl" utility
+#  TBLTOOL => path to "elf2cfetbl" utility or equivalent utility
 #  LIB => name of library file to convert
 #
 # This assumes/requires that the static library has a single object in it.
@@ -37,7 +37,7 @@ if (NOT RESULT EQUAL 0)
     message(FATAL_ERROR "Failure running ${CMAKE_AR} x ${LIB} ${OBJNAME}")
 endif()
 
-# Finally invoke the table tool (elf2cfetbl) on the object
+# Finally invoke the table tool (elf2cfetbl or other tool executable) on the object
 message("Executing Process: ${TBLTOOL} ${OBJNAME}")
 execute_process(COMMAND ${TBLTOOL} "${OBJNAME}"
     RESULT_VARIABLE RESULT
