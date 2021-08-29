@@ -152,7 +152,7 @@ static inline bool CFE_ResourceId_Equal(CFE_ResourceId_t id1, CFE_ResourceId_t i
  */
 static inline bool CFE_ResourceId_IsDefined(CFE_ResourceId_t id)
 {
-    return (CFE_RESOURCEID_UNWRAP(id) != 0);
+    return (!CFE_ResourceId_Equal(id, CFE_RESOURCEID_UNDEFINED));
 }
 
 /** \} */
