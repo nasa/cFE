@@ -1791,7 +1791,7 @@ void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoP
     if (OsStatus == OS_SUCCESS)
     {
         AppInfoPtr->AddressesAreValid =
-            (sizeof(ModuleInfo.addr.code_address) <= sizeof(AppInfoPtr->CodeAddress)) && ModuleInfo.addr.valid;
+            (sizeof(ModuleInfo.addr.code_address) <= sizeof(AppInfoPtr->Code.Address)) && ModuleInfo.addr.valid;
     }
     else
     {
@@ -1803,10 +1803,10 @@ void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoP
      * Convert the internal size and address to the telemetry format.
      * (The telemetry format may be a different bitwidth than the native processor)
      */
-    AppInfoPtr->CodeAddress = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.code_address);
-    AppInfoPtr->CodeSize    = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.code_size);
-    AppInfoPtr->DataAddress = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.data_address);
-    AppInfoPtr->DataSize    = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.data_size);
-    AppInfoPtr->BSSAddress  = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.bss_address);
-    AppInfoPtr->BSSSize     = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.bss_size);
+    AppInfoPtr->Code.Address = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.code_address);
+    AppInfoPtr->Code.Size    = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.code_size);
+    AppInfoPtr->Data.Address = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.data_address);
+    AppInfoPtr->Data.Size    = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.data_size);
+    AppInfoPtr->BSS.Address  = CFE_ES_MEMADDRESS_C(ModuleInfo.addr.bss_address);
+    AppInfoPtr->BSS.Size     = CFE_ES_MEMOFFSET_C(ModuleInfo.addr.bss_size);
 }
