@@ -433,12 +433,12 @@ typedef uint32 CFE_ES_MemAddress_t;
 typedef struct CFE_ES_MemAddOff 
 {
     /*
-     * See CFE_ES_MemAddress_t.
+     * See #CFE_ES_MemAddress_t.
      */
     CFE_ES_MemAddress_t Address;
 
     /*
-     * See CFE_ES_MemOffset_t. 
+     * See #CFE_ES_MemOffset_t. 
      */
     CFE_ES_MemOffset_t  Size;
 
@@ -476,18 +476,12 @@ typedef struct CFE_ES_AppInfo
                                                         \brief The Stack Size of the Application */
     uint32 AddressesAreValid;                      /**< \cfetlmmnemonic \ES_ADDRVALID
                                                         \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
-    CFE_ES_MemAddress_t CodeAddress;               /**< \cfetlmmnemonic \ES_CODEADDR
-                                                        \brief The Address of the Application Code Segment*/
-    CFE_ES_MemOffset_t CodeSize;                   /**< \cfetlmmnemonic \ES_CODESIZE
-                                                        \brief The Code Size of the Application */
-    CFE_ES_MemAddress_t DataAddress;               /**< \cfetlmmnemonic \ES_DATAADDR
-                                                        \brief The Address of the Application Data Segment*/
-    CFE_ES_MemOffset_t DataSize;                   /**< \cfetlmmnemonic \ES_DATASIZE
-                                                        \brief The Data Size of the Application */
-    CFE_ES_MemAddress_t BSSAddress;                /**< \cfetlmmnemonic \ES_BSSADDR
-                                                        \brief The Address of the Application BSS Segment*/
-    CFE_ES_MemOffset_t BSSSize;                    /**< \cfetlmmnemonic \ES_BSSSIZE
-                                                        \brief The BSS Size of the Application */
+    CFE_ES_MemAddOff_t Code;                       /**< \cfetlmmnemonic \ES_CODE
+                                                        \brief Contains the Address of the Application Code Segment and the Code Size of the Application*/
+    CFE_ES_MemAddOff_t Data;                       /**< \cfetlmmnemonic \ES_DATA
+                                                        \brief Contains the Address of the Application Data Segment and the Data Size of the Application*/
+    CFE_ES_MemAddOff_t BSS;                        /**< \cfetlmmnemonic \ES_BSS
+                                                        \brief Contains the Address of the Application BSS Segment and the BSS Size of the Application*/
     CFE_ES_MemAddress_t StartAddress;              /**< \cfetlmmnemonic \ES_STARTADDR
                                                         \brief The Start Address of the Application */
     CFE_ES_ExceptionAction_Enum_t ExceptionAction; /**< \cfetlmmnemonic \ES_EXCEPTNACTN
