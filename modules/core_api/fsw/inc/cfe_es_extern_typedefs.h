@@ -428,6 +428,23 @@ typedef uint32 CFE_ES_MemAddress_t;
 #define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
 
 /*
+ * A combination of CFE_ES_MemAddress_t and CFE_ES_MemOffset_t since they are often used together. 
+ */
+typedef struct CFE_ES_MemAddOff 
+{
+    /*
+     * See CFE_ES_MemAddress_t.
+     */
+    CFE_ES_MemAddress_t Address;
+
+    /*
+     * See CFE_ES_MemOffset_t. 
+     */
+    CFE_ES_MemOffset_t  Size;
+
+} CFE_ES_MemAddOff_t;
+
+/*
  * Data Sructures shared between API and Message (CMD/TLM) interfaces
  */
 
