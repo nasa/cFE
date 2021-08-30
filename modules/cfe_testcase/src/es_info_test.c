@@ -90,8 +90,9 @@ void TestAppInfo(void)
         UtAssert_True(TestAppInfo.Data.Size > 0, "Test App Info -> Data.Size  = %ld",
                       (unsigned long)TestAppInfo.Data.Size);
         UtAssert_True(TestAppInfo.BSS.Address > 0, "Test App Info -> BSS.Address  = %ld",
-                      (unsigned long)TestAppInfo.BSSAddress);
-        UtAssert_True(TestAppInfo.BSS.Size > 0, "Test App Info -> BSS.Size  = %ld", (unsigned long)TestAppInfo.BSS.Size);
+                      (unsigned long)TestAppInfo.BSS.Address);
+        UtAssert_True(TestAppInfo.BSS.Size > 0, "Test App Info -> BSS.Size  = %ld",
+                      (unsigned long)TestAppInfo.BSS.Size);
     }
     else
     {

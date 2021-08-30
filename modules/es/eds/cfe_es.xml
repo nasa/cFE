@@ -126,6 +126,25 @@
         </DimensionList>
       </ArrayDataType>
 
+      <ContainerDataType name="MemAddOff">
+        <LongDescription>
+          CFE_ES_MemAddOff_t is a structure used to store/group information 
+          about a memory address and a memory offset.
+        </LongDescription>
+        <EntryList>
+          <Entry name="Address" type="BASE_TYPES/CpuAddress" shortDescription="See #CFE_ES_MemAddress_t">
+            <LongDescription>
+              \cfetlmmnemonic  \ES_MEM_ADDR
+            </LongDescription>
+          </Entry>
+          <Entry name="Size" type="BASE_TYPES/CpuAddress" shortDescription="See #CFE_ES_MemOffset_t">
+            <LongDescription>
+              \cfetlmmnemonic  \ES_MEM_OFF
+            </LongDescription>
+          </Entry>
+        </EntryList>
+      </ContainerDataType>
+
       <ContainerDataType name="AppInfo">
         <LongDescription>
           CFE_ES_AppInfo_t is a structure that is used to provide
@@ -173,34 +192,19 @@
                \cfetlmmnemonic  \ES_ADDRVALID
             </LongDescription>
           </Entry>
-          <Entry name="CodeAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application Code Segment">
+          <Entry name="Code" type="" shortDescription="Struct containing the Address of the Application Code Segment and the Code Size of the Application">
             <LongDescription>
-               \cfetlmmnemonic  \ES_CODEADDR
+              \cfetlmmnemonic   \ES_CODE
             </LongDescription>
           </Entry>
-          <Entry name="CodeSize" type="BASE_TYPES/CpuAddress" shortDescription="The Code Size of the Application">
+          <Entry name="Data" type="" shortDescription="Struct containing the Address of the Application Data Segment and the Data Size of the Application">
             <LongDescription>
-               \cfetlmmnemonic  \ES_CODESIZE
+              \cfetlmmnemonic   \ES_DATA
             </LongDescription>
           </Entry>
-          <Entry name="DataAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application Data Segment">
+          <Entry name="BSS" type="" shortDescription="Struct containing the Address of the Application BSS Segment and the BSS Size of the Application">
             <LongDescription>
-               \cfetlmmnemonic  \ES_DATAADDR
-            </LongDescription>
-          </Entry>
-          <Entry name="DataSize" type="BASE_TYPES/CpuAddress" shortDescription="The Data Size of the Application">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_DATASIZE
-            </LongDescription>
-          </Entry>
-          <Entry name="BSSAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application BSS Segment">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_BSSADDR
-            </LongDescription>
-          </Entry>
-          <Entry name="BSSSize" type="BASE_TYPES/CpuAddress" shortDescription="The BSS Size of the Application">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_BSSSIZE
+              \cfetlmmnemonic   \ES_BSS
             </LongDescription>
           </Entry>
           <Entry name="StartAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Start Address of the Application">
