@@ -2351,6 +2351,22 @@ void Test_SB_SpecialCases(void);
 
 /*****************************************************************************/
 /**
+** \brief Test Use Count rollover protection
+**
+** \par Description
+**        This function tests a buffer descriptor with the max possible
+**        use count.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_UseCount_Rollover_Prevention(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test pipe creation with semaphore take and give failures
 **
 ** \par Description
