@@ -131,6 +131,8 @@ void Test_SBR_Route_Unsort_GetSet(void)
         UtAssert_BOOL_TRUE(CFE_SB_MsgId_Equal(CFE_SBR_GetMsgId(routeid[i]), CFE_SB_INVALID_MSG_ID));
         UtAssert_ADDRESS_EQ(CFE_SBR_GetDestListHeadPtr(routeid[i]), NULL);
         UtAssert_INT32_EQ(CFE_SBR_GetSequenceCounter(routeid[i]), 0);
+        UtAssert_VOIDCALL(CFE_SBR_SetDestListHeadPtr(routeid[i], NULL));
+        UtAssert_VOIDCALL(CFE_SBR_IncrementSequenceCounter(routeid[i]));
     }
 
     /*
