@@ -1000,9 +1000,21 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t B
     OsalId   = CFE_ES_TaskId_ToOSAL(TaskId);
     OsStatus = OS_GetResourceName(OsalId, TaskName, BufferLength);
 
+    if (OsStatus == OS_ERR_INVALID_ID)
+    {
+        /* Supplied ID is not a CFE task */
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
+    }
+    if (OsStatus == OS_ERR_NAME_TOO_LONG)
+    {
+        /* Name is too long to fit in supplied buffer */
+        return CFE_ES_BAD_ARGUMENT;
+    }
     if (OsStatus != OS_SUCCESS)
     {
-        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
+        /* Some other uncaught error */
+        CFE_ES_WriteToSysLog("%s(): Unexpected error from OS_GetResourceName(): %ld", __func__, (long)OsStatus);
+        return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
     return CFE_SUCCESS;
