@@ -105,5 +105,6 @@
 #define UT_OSP_PUTPOOL_BAD_HANDLE         77
 #define UT_OSP_FORMAT_VOLATILE            78
 #define UT_OSP_RELOAD_NO_FILE             79
+#define UT_OSP_EXTERNAL_APP_EXIT          80
 
 #endif /* UT_OSPRINTF_STUBS_H */
