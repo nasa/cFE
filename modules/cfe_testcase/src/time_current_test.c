@@ -125,31 +125,30 @@ void TestClock(void)
 {
     UtPrintf("Testing: CFE_TIME_GetClockState, CFE_TIME_GetClockInfo");
 
-    CFE_TIME_ClockState_Enum_t state     = CFE_TIME_GetClockState();
-    uint16                     ClockInfo = CFE_TIME_GetClockInfo();
+    CFE_TIME_ClockState_Enum_t state = CFE_TIME_GetClockState();
 
     if (state >= 0)
     {
-        UtAssert_UINT32_EQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_CLKSET);
+        UtAssert_BITMASK_SET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_CLKSET);
 
         if (state == 0)
         {
-            UtAssert_UINT32_NEQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_FLYING);
+            UtAssert_BITMASK_UNSET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_FLYING);
         }
         else
         {
-            UtAssert_UINT32_EQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_FLYING);
+            UtAssert_BITMASK_SET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_FLYING);
         }
     }
     else
     {
-        UtAssert_UINT32_NEQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_CLKSET);
+        UtAssert_BITMASK_UNSET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_CLKSET);
     }
 
-    UtAssert_UINT32_EQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_SRCINT);
-    UtAssert_UINT32_EQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_SIGPRI);
-    UtAssert_UINT32_NEQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_REFERR);
-    UtAssert_UINT32_NEQ(ClockInfo, ClockInfo | CFE_TIME_FLAG_UNUSED);
+    UtAssert_BITMASK_SET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_SRCINT);
+    UtAssert_BITMASK_SET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_SIGPRI);
+    UtAssert_BITMASK_UNSET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_REFERR);
+    UtAssert_BITMASK_UNSET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_UNUSED);
 }
 
 void TimeCurrentTestSetup(void)
