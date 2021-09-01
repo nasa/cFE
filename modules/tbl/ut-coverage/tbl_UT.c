@@ -1141,15 +1141,20 @@ void Test_CFE_TBL_DumpCmd(void)
 void Test_CFE_TBL_LoadCmd(void)
 {
     int                i;
-    CFE_TBL_File_Hdr_t TblFileHeader = {0};
-    CFE_FS_Header_t    StdFileHeader = {0};
+    CFE_TBL_File_Hdr_t TblFileHeader;
+    CFE_FS_Header_t    StdFileHeader;
     uint8              LoadBuffer[sizeof(UT_Table1_t)];
-    CFE_TBL_LoadCmd_t  LoadCmd = {0};
+    CFE_TBL_LoadCmd_t  LoadCmd;
     CFE_ES_AppId_t     AppID;
 
     CFE_ES_GetAppID(&AppID);
 
     UtPrintf("Begin Test Load Command");
+
+    /* Clear all local structures */
+    memset(&TblFileHeader, 0, sizeof(TblFileHeader));
+    memset(&StdFileHeader, 0, sizeof(StdFileHeader));
+    memset(&LoadCmd, 0, sizeof(LoadCmd));
 
     /* Start with a cleared global (no tables registered) */
     memset(&CFE_TBL_Global, 0, sizeof(CFE_TBL_Global));
