@@ -58,11 +58,33 @@ void TestCalculateCRC(void)
 void TestWriteToSysLog(void)
 {
     const char *TestString = "Test String for CFE_ES_WriteToSysLog Functional Test";
+    uint32      Iterations = CFE_PLATFORM_ES_SYSTEM_LOG_SIZE / 50;
 
     UtPrintf("Testing: CFE_ES_WriteToSysLog");
-    CFE_ES_WriteToSysLog("MIR (Manual Inspection Required) for CFE_ES_WriteToSysLog");
-    CFE_ES_WriteToSysLog(NULL);
-    CFE_ES_WriteToSysLog("%s", TestString);
+
+    UtAssert_INT32_EQ(CFE_ES_WriteToSysLog(NULL), CFE_ES_BAD_ARGUMENT);
+
+    CFE_Assert_STATUS_STORE(CFE_ES_WriteToSysLog("MIR (Manual Inspection Required) for CFE_ES_WriteToSysLog"));
+    if (!CFE_Assert_STATUS_MAY_BE(CFE_ES_ERR_SYS_LOG_FULL))
+    {
+        CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+    }
+
+    /* The test string is a little over 50 chars in length, so writing it repeatedly should fill it up. */
+    /* This does depend on whether the system is set to OVERWRITE or DISCARD mode, though -
+     * in OVERWRITE mode, the system log will never fill, and therefore CFE_ES_ERR_SYS_LOG_FULL cannot be tested */
+    Iterations = 1 + (CFE_PLATFORM_ES_SYSTEM_LOG_SIZE / strlen(TestString));
+
+    while (Iterations > 0)
+    {
+        --Iterations;
+        CFE_Assert_STATUS_STORE(CFE_ES_WriteToSysLog("%s", TestString));
+        if (CFE_Assert_STATUS_MAY_BE(CFE_ES_ERR_SYS_LOG_FULL))
+        {
+            break;
+        }
+        CFE_Assert_STATUS_MUST_BE(CFE_SUCCESS);
+    }
 
     UtAssert_MIR("MIR (Manual Inspection Required) for CFE_ES_WriteToSysLog");
 }

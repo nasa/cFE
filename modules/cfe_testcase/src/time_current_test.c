@@ -32,6 +32,7 @@
  */
 
 #include "cfe_test.h"
+#include "cfe_time_msg.h"
 
 bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference)
 {
@@ -120,7 +121,38 @@ void TestGetTime(void)
     UtAssert_True(TimeInRange(MET, Buf, difference), "MET (%s) = METSubSeconds (%s)", timeBuf1, timeBuf2);
 }
 
+void TestClock(void)
+{
+    UtPrintf("Testing: CFE_TIME_GetClockState, CFE_TIME_GetClockInfo");
+
+    CFE_TIME_ClockState_Enum_t state = CFE_TIME_GetClockState();
+
+    if (state >= 0)
+    {
+        UtAssert_BITMASK_SET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_CLKSET);
+
+        if (state == 0)
+        {
+            UtAssert_BITMASK_UNSET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_FLYING);
+        }
+        else
+        {
+            UtAssert_BITMASK_SET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_FLYING);
+        }
+    }
+    else
+    {
+        UtAssert_BITMASK_UNSET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_CLKSET);
+    }
+
+    UtAssert_BITMASK_SET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_SRCINT);
+    UtAssert_BITMASK_SET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_SIGPRI);
+    UtAssert_BITMASK_UNSET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_REFERR);
+    UtAssert_BITMASK_UNSET(CFE_TIME_GetClockInfo(), CFE_TIME_FLAG_UNUSED);
+}
+
 void TimeCurrentTestSetup(void)
 {
     UtTest_Add(TestGetTime, NULL, NULL, "Test Current Time");
+    UtTest_Add(TestClock, NULL, NULL, "Test Clock");
 }

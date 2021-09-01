@@ -82,7 +82,7 @@ SET(SPACECRAFT_ID 0x42)
 #list(APPEND MISSION_CORE_MODULES mymodule)
 
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built
-# for every defined and target.  These are built as dynamic modules
+# for every defined target.  These are built as dynamic modules
 # and must be loaded explicitly via startup script or command.
 # This list is effectively appended to every TGTx_APPLIST in targets.cmake.
 # Example:

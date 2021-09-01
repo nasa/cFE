@@ -234,6 +234,11 @@ void Test_Init(void)
     CFE_EVS_EarlyInit();
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[4]);
 
+    /* Task main with init failure */
+    UT_InitData();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, -1);
+    UtAssert_VOIDCALL(CFE_EVS_TaskMain());
+
     /* Test TaskMain with a command pipe read failure due to an
      * invalid command packet
      */
@@ -365,6 +370,7 @@ void Test_Init(void)
 void Test_IllegalAppID(void)
 {
     CFE_TIME_SysTime_t time = {0, 0};
+    CFE_ES_AppId_t     AppID;
 
     UtPrintf("Begin Test Illegal App ID");
 
@@ -374,6 +380,11 @@ void Test_IllegalAppID(void)
 
     /* Test registering an event using an illegal application ID */
     UtAssert_INT32_EQ(CFE_EVS_Register(NULL, 0, 0), CFE_EVS_APP_ILLEGAL_APP_ID);
+
+    /* Test sending events with a NULL spec */
+    UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, 0, NULL), CFE_EVS_INVALID_PARAMETER);
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, 0, CFE_ES_APPID_UNDEFINED, NULL), CFE_EVS_INVALID_PARAMETER);
+    UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(time, 0, 0, NULL), CFE_EVS_INVALID_PARAMETER);
 
     /* Test sending an event using an illegal application ID */
     UT_InitData();
@@ -409,6 +420,11 @@ void Test_IllegalAppID(void)
     UT_InitData();
     UT_SetDefaultReturnValue(UT_KEY(CFE_ES_AppID_ToIndex), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_EVS_CleanUpApp(CFE_ES_APPID_UNDEFINED), CFE_EVS_APP_ILLEGAL_APP_ID);
+
+    /* Test with out of range AppID */
+    UT_InitData();
+    AppID = CFE_ES_APPID_C(CFE_ResourceId_FromInteger(CFE_PLATFORM_ES_MAX_APPLICATIONS));
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, 0, AppID, "NULL"), CFE_EVS_APP_ILLEGAL_APP_ID);
 }
 
 /*
@@ -515,27 +531,42 @@ void Test_FilterRegistration(void)
 
     CFE_UtAssert_SUCCESS(CFE_EVS_Register(filter, CFE_PLATFORM_EVS_MAX_EVENT_FILTERS + 1, CFE_EVS_EventFilter_BINARY));
 
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter = 0;
+
     /* Send 1st information message, should get through */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 1);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 1);
 
     /* Send 2nd information message, should be filtered */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "FAILED"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 1);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 0);
 
     /* Send last information message, which should cause filtering to lock */
     UT_InitData();
     FilterPtr        = EVS_FindEventID(0, (EVS_BinFilter_t *)AppDataPtr->BinFilters);
     FilterPtr->Count = CFE_EVS_MAX_FILTER_COUNT - 1;
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 3);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 2);
+    UtAssert_UINT32_EQ(FilterPtr->Count, CFE_EVS_MAX_FILTER_COUNT);
 
     /* Test that filter lock is applied */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "FAILED"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 3);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 0);
+    UtAssert_UINT32_EQ(FilterPtr->Count, CFE_EVS_MAX_FILTER_COUNT);
 
     /* Test that filter lock is (still) applied */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "FAILED"));
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter, 3);
+    UtAssert_INT32_EQ(UT_GetStubCount(UT_KEY(CFE_SB_TransmitMsg)), 0);
+    UtAssert_UINT32_EQ(FilterPtr->Count, CFE_EVS_MAX_FILTER_COUNT);
 
     /* Return application to original state: re-register application */
     UT_InitData();
@@ -717,6 +748,10 @@ void Test_Format(void)
      * the maximum allowed
      */
     CFE_UtAssert_SUCCESS(CFE_EVS_SendTimedEvent(time, 0, CFE_EVS_EventType_INFORMATION, "%s", long_msg));
+
+    /* Force an invalid format and send for code coverage */
+    CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG + 1;
+    CFE_UtAssert_SUCCESS(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "%s", long_msg));
 }
 
 /*
@@ -813,7 +848,8 @@ void Test_Ports(void)
 void Test_Logging(void)
 {
     int    i;
-    uint32 resetAreaSize = 0;
+    uint32 resetAreaSize              = 0;
+    uint16 LogOverflowCounterExpected = 1;
     char   tmpString[100];
     union
     {
@@ -857,6 +893,7 @@ void Test_Logging(void)
 
     /* Test overfilling the log in discard mode */
     UT_InitData();
+    UtAssert_VOIDCALL(EVS_ClearLog());
 
     /* Ensure log is filled, then add one more, implicitly testing
      * EVS_AddLog
@@ -870,15 +907,18 @@ void Test_Logging(void)
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Log overfill event discard");
     UtAssert_BOOL_TRUE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogMode, CFE_EVS_LogMode_DISCARD);
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter, LogOverflowCounterExpected);
 
     /* Test setting the logging mode to overwrite */
     UT_InitData();
     CmdBuf.modecmd.Payload.LogMode = CFE_EVS_LogMode_OVERWRITE;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.modecmd, sizeof(CmdBuf.modecmd), UT_TPID_CFE_EVS_CMD_SET_LOG_MODE_CC,
                                  &UT_EVS_EventBuf);
+    LogOverflowCounterExpected = CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter + 1;
     CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "Log overfill event overwrite");
     UtAssert_BOOL_TRUE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogMode, CFE_EVS_LogMode_OVERWRITE);
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter, LogOverflowCounterExpected);
 
     /* Test sending a no op command */
     UT_InitData();
@@ -891,6 +931,7 @@ void Test_Logging(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogEnabled = true;
     UT_EVS_DoDispatchCheckEvents(&CmdBuf.cmd, sizeof(CmdBuf.cmd), UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC, &UT_EVS_EventBuf);
     UtAssert_BOOL_FALSE(CFE_EVS_Global.EVS_LogPtr->LogFullFlag);
+    UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_LogPtr->LogOverflowCounter, 0);
 
     /* Test setting the logging mode to overwrite */
     UT_InitData();
@@ -1786,7 +1827,9 @@ void Test_Misc(void)
     char                           msg[CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + 2];
     UT_SoftwareBusSnapshot_Entry_t HK_SnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_HK_TLM_MID)};
 
-    EVS_GetCurrentContext(&AppDataPtr, &AppID);
+    /* Cover null cases for EVS_GetCurrentContext */
+    EVS_GetCurrentContext(NULL, &AppID);
+    EVS_GetCurrentContext(&AppDataPtr, NULL);
 
     UtPrintf("Begin Test Miscellaneous");
 
@@ -1877,4 +1920,13 @@ void Test_Misc(void)
     AppDataPtr->EventTypesActiveFlag |= CFE_EVS_INFORMATION_BIT;
     EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, msg);
     UtAssert_UINT32_EQ(CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter, 1);
+
+    /* Use all AppData and report housekeeping to get branch coverage */
+    UT_InitData();
+    for (i = 0; i < sizeof(CFE_EVS_Global.AppData) / sizeof(CFE_EVS_Global.AppData[0]); i++)
+    {
+        /* Doesn't matter here that AppID is all the same... */
+        EVS_AppDataSetUsed(&CFE_EVS_Global.AppData[i], AppID);
+    }
+    UtAssert_UINT32_EQ(CFE_EVS_ReportHousekeepingCmd(NULL), CFE_STATUS_NO_COUNTER_INCREMENT);
 }

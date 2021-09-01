@@ -125,11 +125,12 @@ void TestAppInfo(void)
     CFE_UtAssert_RESOURCEID_UNDEFINED(AppIdByName);
     UtAssert_INT32_EQ(CFE_ES_GetAppID(NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(NULL, TEST_EXPECTED_APP_NAME), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetAppIDByName(&AppIdByName, NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(AppNameBuf, CFE_ES_APPID_UNDEFINED, sizeof(AppNameBuf)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetAppName(NULL, TestAppId, sizeof(AppNameBuf)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetAppInfo(&TestAppInfo, CFE_ES_APPID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UtAssert_INT32_EQ(CFE_ES_GetAppInfo(NULL, CFE_ES_APPID_UNDEFINED), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetAppInfo(NULL, TestAppId), CFE_ES_BAD_ARGUMENT);
 }
 
 void TestTaskInfo(void)
@@ -158,13 +159,14 @@ void TestTaskInfo(void)
     UtAssert_INT32_EQ(TaskInfo.ExecutionCounter, AppInfo.ExecutionCounter);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskInfo(&TaskInfo, CFE_ES_TASKID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UtAssert_INT32_EQ(CFE_ES_GetTaskInfo(NULL, CFE_ES_TASKID_UNDEFINED), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskInfo(NULL, TaskId), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(NULL), CFE_ES_BAD_ARGUMENT);
 }
 
 void TestLibInfo(void)
 {
-    CFE_ES_LibId_t   LibIdByName;
+    CFE_ES_LibId_t   LibId;
+    CFE_ES_LibId_t   CheckId;
     CFE_ES_AppInfo_t LibInfo;
     const char *     LibName     = "ASSERT_LIB";
     const char *     InvalidName = "INVALID_NAME";
@@ -172,9 +174,9 @@ void TestLibInfo(void)
 
     UtPrintf("Testing: CFE_ES_GetLibIDByName, CFE_ES_GetLibName, CFE_ES_GetLibInfo");
 
-    UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&LibIdByName, LibName), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_ES_GetLibInfo(&LibInfo, LibIdByName), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_ES_GetLibName(LibNameBuf, LibIdByName, sizeof(LibNameBuf)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&LibId, LibName), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetLibInfo(&LibInfo, LibId), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_ES_GetLibName(LibNameBuf, LibId, sizeof(LibNameBuf)), CFE_SUCCESS);
     UtAssert_StrCmp(LibNameBuf, LibName, "CFE_ES_GetLibName() = %s", LibNameBuf);
     UtAssert_True(LibInfo.Type == CFE_ES_AppType_LIBRARY, "Lib Info -> Type = %d", (int)LibInfo.Type);
     UtAssert_StrCmp(LibInfo.Name, LibName, "Lib Info -> Name = %s", LibInfo.Name);
@@ -210,13 +212,17 @@ void TestLibInfo(void)
     UtAssert_True(strlen(LibInfo.MainTaskName) == 0, "Lib Info -> Task Name  = %s", LibInfo.MainTaskName);
     UtAssert_True(LibInfo.NumOfChildTasks == 0, "Lib Info -> Child Tasks  = %d", (int)LibInfo.NumOfChildTasks);
 
-    UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&LibIdByName, InvalidName), CFE_ES_ERR_NAME_NOT_FOUND);
-    UtAssert_INT32_EQ(CFE_ES_GetLibInfo(&LibInfo, LibIdByName), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&CheckId, InvalidName), CFE_ES_ERR_NAME_NOT_FOUND);
+    CFE_UtAssert_RESOURCEID_UNDEFINED(CheckId);
+    UtAssert_INT32_EQ(CFE_ES_GetLibInfo(&LibInfo, CFE_ES_LIBID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetLibInfo(NULL, LibId), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(NULL, LibName), CFE_ES_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_ES_GetLibInfo(NULL, LibIdByName), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&CheckId, NULL), CFE_ES_BAD_ARGUMENT);
+    CFE_UtAssert_RESOURCEID_UNDEFINED(CheckId);
     UtAssert_INT32_EQ(CFE_ES_GetLibName(LibNameBuf, CFE_ES_LIBID_UNDEFINED, sizeof(LibNameBuf)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UtAssert_INT32_EQ(CFE_ES_GetLibName(NULL, LibIdByName, sizeof(LibNameBuf)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetLibName(LibNameBuf, LibId, 0), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetLibName(NULL, LibId, sizeof(LibNameBuf)), CFE_ES_BAD_ARGUMENT);
 }
 
 void TestResetType(void)

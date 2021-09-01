@@ -10,6 +10,33 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev980
+
+- Add SB API test cases
+- Add ES API test cases
+- Add TBL API test cases
+- Add FS API test cases
+- Add Time Clock Test
+- Add EVS coverage test for MessageSendCounter not incrementing when sending a filtered event.
+- SB test improvements: 
+  - unsubscribe of single pipe ID, confirms other subscriptions not changed
+  - Confirms that MsgLimit and PipeDepth are both honored and that delivery to other (open) pipes is not affected when some pipes have reached delivery limits
+  - Adds use of CFE_SB_PEND_FOREVER in some cases
+  - Adds a sequence number validation to the Zero copy test.
+- Verify that CFE_TBL_Modified calculates and sets the table CRC and the Updated flag
+- Add call to CFE_ES_ExitChildTask in es_task_test
+- Incorrect OSAL Format in Users Guide Reference
+- Improve EVS code coverage
+- Improve FS coverage
+- Improve MSG branch coverage
+- Improve resource ID branch coverage 
+- Improve SBR branch coverage
+- Improve TIME branch coverage
+- Improve TBL code coverage
+- Support custom PSP directory in build system
+- Update time tests to use bitmask check macros
+- See <https://github.com/nasa/cFE/pull/1885> and <https://github.com/nasa/cFS/pull/348>
+
 ### Development Build: v6.8.0-rc1+dev933
 
 - Add software bus tests 

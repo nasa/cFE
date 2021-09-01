@@ -50,7 +50,7 @@ typedef struct
     CFE_FS_FileWriteMetaData_t FuncTestState;
 
     /* Generic utility counter */
-    int Count;
+    int32 Count;
 
     /* Table information used by all table tests */
     CFE_TBL_Handle_t TblHandle;

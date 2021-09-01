@@ -90,21 +90,35 @@ void TestInputFile(void)
         CFE_FS_INVALID_PATH);
     UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutNameBuf, InNameBuf, sizeof(OutNameBuf), 0, NULL, Path, Ext),
                       CFE_FS_INVALID_PATH);
+
+    /* A short output buffer that is too small to fit the result */
+    UtAssert_INT32_EQ(CFE_FS_ParseInputFileNameEx(OutNameBuf, InNameBuf, 8, sizeof(InNameBuf), Name, Path, Ext),
+                      CFE_FS_FNAME_TOO_LONG);
 }
 
 void TestFileName(void)
 {
-    const char Path[] = "/func/FileName.test";
+    char       Path[OS_MAX_PATH_LEN + 4];
     char       Name[OS_MAX_FILE_NAME];
     const char ExpectedName[] = "FileName.test";
 
     UtPrintf("Testing: CFE_FS_ExtractFilenameFromPath");
 
+    snprintf(Path, sizeof(Path), "/func/FileName.test");
     UtAssert_INT32_EQ(CFE_FS_ExtractFilenameFromPath(Path, Name), CFE_SUCCESS);
     UtAssert_StrCmp(Name, ExpectedName, "Extract Filename: %s", Name);
 
     UtAssert_INT32_EQ(CFE_FS_ExtractFilenameFromPath(NULL, Name), CFE_FS_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_FS_ExtractFilenameFromPath(Path, NULL), CFE_FS_BAD_ARGUMENT);
+
+    memset(Path, 'x', sizeof(Path) - 1);
+    Path[sizeof(Path) - 1] = 0;
+    Path[0]                = '/';
+    UtAssert_INT32_EQ(CFE_FS_ExtractFilenameFromPath(Path, Name), CFE_FS_FNAME_TOO_LONG);
+
+    Path[0]                   = 'x';
+    Path[OS_MAX_PATH_LEN - 1] = 0;
+    UtAssert_INT32_EQ(CFE_FS_ExtractFilenameFromPath(Path, Name), CFE_FS_INVALID_PATH);
 }
 
 /* FT helper stub compatible with background file write DataGetter */
@@ -119,32 +133,54 @@ bool FS_DataGetter(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize)
 void FS_OnEvent(void *Meta, CFE_FS_FileWriteEvent_t Event, int32 Status, uint32 RecordNum, size_t BlockSize,
                 size_t Position)
 {
+    OS_TaskDelay(100);
 }
 
 void TestFileDump(void)
 {
+    int32 count;
+    int32 MaxWait = 20;
+
     memset(&CFE_FT_Global.FuncTestState, 0, sizeof(CFE_FT_Global.FuncTestState));
     CFE_FT_Global.FuncTestState.FileSubType = 2;
-    CFE_FT_Global.FuncTestState.GetData     = FS_DataGetter;
-    CFE_FT_Global.FuncTestState.OnEvent     = FS_OnEvent;
-    strncpy(CFE_FT_Global.FuncTestState.FileName, "/ram/FT.bin", sizeof(CFE_FT_Global.FuncTestState.FileName));
     strncpy(CFE_FT_Global.FuncTestState.Description, "FT", sizeof(CFE_FT_Global.FuncTestState.Description));
-    int count   = 0;
-    int MaxWait = 20;
 
     UtPrintf("Testing: CFE_FS_BackgroundFileDumpRequest, CFE_FS_BackgroundFileDumpIsPending");
 
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(&CFE_FT_Global.FuncTestState), false);
+
+    /* With an empty "FileName" field, it should fail path validation */
+    CFE_FT_Global.FuncTestState.GetData = FS_DataGetter;
+    CFE_FT_Global.FuncTestState.OnEvent = FS_OnEvent;
+    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&CFE_FT_Global.FuncTestState), CFE_FS_INVALID_PATH);
+    strncpy(CFE_FT_Global.FuncTestState.FileName, "/ram/FT.bin", sizeof(CFE_FT_Global.FuncTestState.FileName));
+
+    /* With an empty "GetData" field, it should fail validation */
+    CFE_FT_Global.FuncTestState.GetData = NULL;
+    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&CFE_FT_Global.FuncTestState), CFE_FS_BAD_ARGUMENT);
+    CFE_FT_Global.FuncTestState.GetData = FS_DataGetter;
+
+    /* With an empty "OnEvent" field, it should fail validation */
+    CFE_FT_Global.FuncTestState.OnEvent = NULL;
+    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&CFE_FT_Global.FuncTestState), CFE_FS_BAD_ARGUMENT);
+    CFE_FT_Global.FuncTestState.OnEvent = FS_OnEvent;
+
+    /* This should work */
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&CFE_FT_Global.FuncTestState), CFE_SUCCESS);
 
+    /* Duplicate request should get rejected */
+    UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&CFE_FT_Global.FuncTestState),
+                      CFE_STATUS_REQUEST_ALREADY_PENDING);
+
     /* Wait for background task to complete */
+    count = 0;
     while (CFE_FS_BackgroundFileDumpIsPending(&CFE_FT_Global.FuncTestState) && count < MaxWait)
     {
         OS_TaskDelay(100);
         count++;
     }
 
-    UtAssert_True(count < MaxWait, "count (%i) < MaxWait (%i)", count, MaxWait);
+    UtAssert_INT32_LT(count, MaxWait);
 
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(NULL), CFE_FS_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpIsPending(NULL), false);

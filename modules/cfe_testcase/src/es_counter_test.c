@@ -30,7 +30,7 @@
 
 void TestCounterCreateDelete(void)
 {
-    CFE_ES_CounterId_t Ids[CFE_PLATFORM_ES_MAX_GEN_COUNTERS];
+    CFE_ES_CounterId_t Ids[CFE_PLATFORM_ES_MAX_GEN_COUNTERS + 1];
     CFE_ES_CounterId_t TestId;
     CFE_ES_CounterId_t CheckId;
     char               CounterName[CFE_MISSION_MAX_API_LEN];
@@ -48,22 +48,26 @@ void TestCounterCreateDelete(void)
     UtAssert_INT32_EQ(CFE_ES_RegisterGenCounter(NULL, CounterName), CFE_ES_BAD_ARGUMENT);
 
     /* Create up to CFE_PLATFORM_ES_MAX_GEN_COUNTERS and confirm success */
-    for (NumCounters = 0; NumCounters < CFE_PLATFORM_ES_MAX_GEN_COUNTERS; ++NumCounters)
+    /* Note that this loop may execute fewer than CFE_PLATFORM_ES_MAX_GEN_COUNTERS times,
+     * if another unrelated app has already registered a counter.  Because this test
+     * cannot control for those pre-conditions, anything within range is acceptable */
+    for (NumCounters = 0; NumCounters <= CFE_PLATFORM_ES_MAX_GEN_COUNTERS; ++NumCounters)
     {
         snprintf(CounterName, sizeof(CounterName), "C%u", (unsigned int)NumCounters);
-        Status = CFE_ES_RegisterGenCounter(&Ids[NumCounters], CounterName);
-        if (Status != CFE_SUCCESS)
+        CFE_Assert_STATUS_STORE(CFE_ES_RegisterGenCounter(&Ids[NumCounters], CounterName));
+
+        /* When the max limit is reached, should return CFE_ES_NO_RESOURCE_IDS_AVAILABLE */
+        if (CFE_Assert_STATUS_MAY_BE(CFE_ES_NO_RESOURCE_IDS_AVAILABLE))
         {
             break;
         }
+
+        /* If max limit not reached, should return CFE_SUCCESS, anything else is a test fail */
+        CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS);
     }
 
     /* Confirm that the expected number of counters were created */
-    UtAssert_UINT32_EQ(NumCounters, CFE_PLATFORM_ES_MAX_GEN_COUNTERS);
-
-    /* Attempt to create one too many */
-    snprintf(CounterName, sizeof(CounterName), "extra");
-    UtAssert_INT32_EQ(CFE_ES_RegisterGenCounter(&TestId, CounterName), CFE_ES_NO_RESOURCE_IDS_AVAILABLE);
+    UtAssert_UINT32_LTEQ(NumCounters, CFE_PLATFORM_ES_MAX_GEN_COUNTERS);
 
     /* pick a single counter ID from the middle of the set for more detail testing of support APIs */
     TestId = Ids[NumCounters / 2];

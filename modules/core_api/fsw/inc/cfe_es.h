@@ -420,7 +420,7 @@ bool CFE_ES_RunLoop(uint32 *RunStatus);
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                State successfully achieved
-** \retval #CFE_ES_OPERATION_TIMED_OUT Timeout was reached
+** \retval #CFE_ES_OPERATION_TIMED_OUT \covtest Timeout was reached
 **
 ** \sa #CFE_ES_RunLoop
 **
@@ -651,7 +651,7 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t Buffe
 **
 ** \param[in]   LibId         Library ID of Library whose name is being requested.
 **
-** \param[in]   BufferLength  The maximum number of characters, including the null terminator, that can be put
+** \param[in]   BufferLength  The maximum number of characters @nonzero, including the null terminator, that can be put
 **                            into the \c LibName buffer.  This routine will truncate the name to this length,
 **                            if necessary.
 **
@@ -903,8 +903,7 @@ CFE_Status_t CFE_ES_GetTaskName(char *TaskName, CFE_ES_TaskId_t TaskId, size_t B
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                             \copybrief CFE_SUCCESS
-** \retval #CFE_ES_NOT_IMPLEMENTED                  \copybrief CFE_ES_NOT_IMPLEMENTED
-** \retval #CFE_ES_ERR_CHILD_TASK_DELETE            \copybrief CFE_ES_ERR_CHILD_TASK_DELETE
+** \retval #CFE_ES_ERR_CHILD_TASK_DELETE            \covtest \copybrief CFE_ES_ERR_CHILD_TASK_DELETE
 ** \retval #CFE_ES_ERR_CHILD_TASK_DELETE_MAIN_TASK  \copybrief CFE_ES_ERR_CHILD_TASK_DELETE_MAIN_TASK
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID         \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
 **
@@ -1072,7 +1071,7 @@ void CFE_ES_ProcessAsyncEvent(void);
 ** \retval #CFE_ES_CDS_INVALID_SIZE   \copybrief CFE_ES_CDS_INVALID_SIZE
 ** \retval #CFE_ES_CDS_INVALID_NAME   \copybrief CFE_ES_CDS_INVALID_NAME
 ** \retval #CFE_ES_BAD_ARGUMENT       \copybrief CFE_ES_BAD_ARGUMENT
-** \retval #CFE_ES_CDS_INVALID        \copybrief CFE_ES_CDS_INVALID
+** \retval #CFE_ES_CDS_INVALID        \covtest \copybrief CFE_ES_CDS_INVALID
 **
 ** \sa #CFE_ES_CopyToCDS, #CFE_ES_RestoreFromCDS
 **
@@ -1185,7 +1184,7 @@ CFE_Status_t CFE_ES_CopyToCDS(CFE_ES_CDSHandle_t Handle, const void *DataToCopy)
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
-** \retval #CFE_ES_CDS_BLOCK_CRC_ERR          \copybrief CFE_ES_CDS_BLOCK_CRC_ERR
+** \retval #CFE_ES_CDS_BLOCK_CRC_ERR          \covtest \copybrief CFE_ES_CDS_BLOCK_CRC_ERR
 ** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 **
 ** \sa #CFE_ES_RegisterCDS, #CFE_ES_CopyToCDS
@@ -1309,7 +1308,7 @@ CFE_Status_t CFE_ES_PoolCreate(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_t 
 ** \retval #CFE_SUCCESS                       \copybrief CFE_SUCCESS
 ** \retval #CFE_ES_BAD_ARGUMENT               \copybrief CFE_ES_BAD_ARGUMENT
 ** \retval #CFE_ES_NO_RESOURCE_IDS_AVAILABLE  \copybrief CFE_ES_NO_RESOURCE_IDS_AVAILABLE
-** \retval #CFE_STATUS_EXTERNAL_RESOURCE_FAIL \copybrief CFE_STATUS_EXTERNAL_RESOURCE_FAIL
+** \retval #CFE_STATUS_EXTERNAL_RESOURCE_FAIL \covtest \copybrief CFE_STATUS_EXTERNAL_RESOURCE_FAIL
 **
 ** \sa #CFE_ES_PoolCreate, #CFE_ES_PoolCreateNoSem, #CFE_ES_GetPoolBuf, #CFE_ES_PutPoolBuf, #CFE_ES_GetMemPoolStats
 **
@@ -1356,7 +1355,7 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID);
 **
 ** \param[in]   Handle      The handle to the memory pool as returned by #CFE_ES_PoolCreate or #CFE_ES_PoolCreateNoSem.
 **
-** \param[in]   Size        The size of the buffer requested @nonzero.  NOTE: The size allocated may be larger.
+** \param[in]   Size        The size of the buffer requested.  NOTE: The size allocated may be larger.
 **
 ** \return Bytes Allocated, or error code \ref CFEReturnCodes
 ** \retval #CFE_ES_ERR_RESOURCEID_NOT_VALID   \copybrief CFE_ES_ERR_RESOURCEID_NOT_VALID
