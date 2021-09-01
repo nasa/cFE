@@ -67,7 +67,7 @@ void Test_SBR_Route_Unsort_General(void)
     CFE_SBR_ForEachRouteId(Test_SBR_Callback, &count, NULL);
     UtAssert_INT32_EQ(count, 0);
 
-    UtPrintf("Add maximum mesage id value");
+    UtPrintf("Add maximum message id value");
     msgid   = CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
     routeid = CFE_SBR_AddRoute(msgid, &collisions);
     UtAssert_INT32_EQ(collisions, 0);
