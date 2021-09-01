@@ -67,7 +67,7 @@
 ** \param[out] TblHandlePtr    a pointer to a #CFE_TBL_Handle_t type variable @nonnull that will be assigned the table's
 **                                 handle.  The table handle is required for other API calls when accessing the data
 **                                 contained in the table. *TblHandlePtr is the handle used to identify table to cFE
-**                                 when performing Table operations. This value is returned at  ddress specified by
+**                                 when performing Table operations. This value is returned at address specified by
 **                                 TblHandlePtr.
 **
 ** \param[in] Name                 The raw table name.  This name will be combined with the name of the
@@ -142,7 +142,7 @@
 **                                                                 exclusive of the #CFE_TBL_OPT_DBL_BUFFER option.
 **                                 \arg #CFE_TBL_OPT_CRITICAL-     When this option is selected, the Table Service
 **                                                                 will automatically allocate space in the Critical
-**                                                                 Data Store (CDS) for the table and insure that the
+**                                                                 Data Store (CDS) for the table and ensure that the
 **                                                                 contents in the CDS are the same
 **                                                                 as the contents of the currently active buffer for
 **                                                                 the table. This option is mutually exclusive of the
@@ -245,7 +245,7 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName);
 **        registration/unregistration by the owning application during operation
 **        should be avoided. If unavoidable, special care needs to be taken
 **        (especially for shared tables) to avoid race conditions due to
-**        competing requests from mutiple tasks.
+**        competing requests from multiple tasks.
 **
 **        Note the table will not be removed from memory until all table access
 **        links have been removed (registration and all shared access).
@@ -493,7 +493,7 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle);
 **        -# #CFE_TBL_ERR_NEVER_LOADED will be returned if the table has never been
 **           loaded (either from file or from a block of memory), but the function
 **           will still return a valid table pointer to a table with all zero content.
-**           This pointer mush be released with the #CFE_TBL_ReleaseAddress API before
+**           This pointer must be released with the #CFE_TBL_ReleaseAddress API before
 **           the table can be loaded with data.
 **
 ** \param[out]  TblPtr    The address of a pointer @nonnull that will be loaded with the address of
@@ -573,7 +573,7 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle);
 **        -# #CFE_TBL_ERR_NEVER_LOADED will be returned if the table has never been
 **           loaded (either from file or from a block of memory), but the function
 **           will still return a valid table pointer to a table with all zero content.
-**           This pointer mush be released with the #CFE_TBL_ReleaseAddress API before
+**           This pointer must be released with the #CFE_TBL_ReleaseAddress API before
 **           the table can be loaded with data.
 **
 ** \param[out] TblPtrs   Array of Pointers @nonnull to variables that calling Application

@@ -118,7 +118,7 @@
  *
  *  \par Cause:
  *
- *  An EVS command handler failure retreiving the application data. OVERLOADED
+ *  An EVS command handler failure retrieving the application data. OVERLOADED
  */
 #define CFE_EVS_ERR_ILLAPPIDRANGE_EID 8
 
@@ -129,7 +129,7 @@
  *
  *  \par Cause:
  *
- *  An EVS command handler failure retreiving the application ID. OVERLOADED
+ *  An EVS command handler failure retrieving the application ID. OVERLOADED
  */
 #define CFE_EVS_ERR_NOAPPIDFOUND_EID 9
 

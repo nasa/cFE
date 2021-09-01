@@ -25,7 +25,7 @@
 #
 # When building with SIMULATION=native, enable the PERMISSIVE option,
 # which allows for easier testing.  This option causes the OSAL to
-# continue through certain privleged operations (ignores errors) when
+# continue through certain privileged operations (ignores errors) when
 # running as a standard/non-root user.
 #
 # Typically a regular user on a default Linux workstation configuration

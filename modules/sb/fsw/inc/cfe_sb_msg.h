@@ -164,7 +164,7 @@
 **       This command will create a file containing the software bus routing
 **       information. The routing information contains information about every
 **       subscription that has been received through the SB subscription APIs.
-**       An abosulte path and filename may be specified in the command.
+**       An absolute path and filename may be specified in the command.
 **       If this command field contains an empty string (NULL terminator as
 **       the first character) the default file path and name is used.
 **       The default file path and name is defined in the platform
@@ -183,7 +183,7 @@
 **         before writing the file, which is performed as a background task.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_SB_DEFAULT_ROUTING_FILENAME configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **       - The #CFE_SB_SND_RTG_EID debug event message will be generated
 **
 **  \par Error Conditions
@@ -208,7 +208,7 @@
 **  \par Description
 **       This command will enable a particular destination. The destination
 **       is specified in terms of MsgID and PipeID. The MsgId and PipeID are
-**       parmaters in the command. All destinations are enabled by default.
+**       parameters in the command. All destinations are enabled by default.
 **       This command is needed only after a #CFE_SB_DISABLE_ROUTE_CC command
 **       is used.
 **
@@ -228,7 +228,7 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - the MsgId or PipeId parmaters do not pass validation
+**       - the MsgId or PipeId parameters do not pass validation
 **       - the destination does not exist.
 **
 **       Evidence of failure may be found in the following telemetry:
@@ -246,7 +246,7 @@
 **  \par Description
 **       This command will disable a particular destination. The destination
 **       is specified in terms of MsgID and PipeID. The MsgId and PipeID are
-**       parmaters in the command. All destinations are enabled by default.
+**       parameters in the command. All destinations are enabled by default.
 **
 **  \cfecmdmnemonic \SB_DISROUTE
 **
@@ -264,7 +264,7 @@
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
-**       - the MsgId or PipeId parmaters do not pass validation
+**       - the MsgId or PipeId parameters do not pass validation
 **       - the destination does not exist.
 **
 **       Evidence of failure may be found in the following telemetry:
@@ -275,7 +275,7 @@
 **  \par Criticality
 **       This command is not intended to be used in nominal conditions. It is
 **       possible to get into a state where a destination cannot be re-enabled
-**       without reseting the processor. For instance, sending this command
+**       without resetting the processor. For instance, sending this command
 **       with #CFE_SB_CMD_MID and the SB_Cmd_Pipe would inhibit any ground
 **       commanding to the software bus until the processor was reset. There
 **       are similar problems that may occur when using this command.
@@ -288,7 +288,7 @@
 **       This command will create a file containing the software bus pipe
 **       information. The pipe information contains information about every
 **       pipe that has been created through the #CFE_SB_CreatePipe API. An
-**       abosulte path and filename may be specified in the command.
+**       absolute path and filename may be specified in the command.
 **       If this command field contains an empty string (NULL terminator as
 **       the first character) the default file path and name is used.
 **       The default file path and name is defined in the platform
@@ -307,7 +307,7 @@
 **         before writing the file, which is performed as a background task.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_SB_DEFAULT_PIPE_FILENAME configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **       - The #CFE_SB_SND_RTG_EID debug event message will be generated
 **
 **  \par Error Conditions
@@ -332,9 +332,9 @@
 **  \par This command will create a file containing the software bus message
 **       map information. The message map is a lookup table (an array of
 **       uint16s)that allows fast access to the correct routing table element
-**       during a softeware bus send operation. This is diasgnostic
+**       during a software bus send operation. This is diagnostic
 **       information that may be needed due to the dynamic nature of the
-**       cFE software bus. An abosulte path and filename may be specified
+**       cFE software bus. An absolute path and filename may be specified
 **       in the command. If this command field contains an empty string
 **       (NULL terminator as the first character) the default file path and
 **       name is used. The default file path and name is defined in the
@@ -353,7 +353,7 @@
 **         before writing the file, which is performed as a background task.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_SB_DEFAULT_MAP_FILENAME configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **       - The #CFE_SB_SND_RTG_EID debug event message will be generated
 **
 **  \par Error Conditions
@@ -383,7 +383,7 @@
 **       and send a software bus packet for each subscription received.
 **       The software bus packet that is sent contains the information
 **       received in the subscription API. This subscription report is
-**       neeeded by SBN if offboard routing is required.
+**       needed by SBN if offboard routing is required.
 *
 **  \cfecmdmnemonic \SB_ENASUBRPTG
 **
@@ -416,7 +416,7 @@
 **       and send a software bus packet for each subscription received.
 **       The software bus packet that is sent contains the information
 **       received in the subscription API. This subscription report is
-**       neeeded by SBN if offboard routing is required.
+**       needed by SBN if offboard routing is required.
 **
 **  \cfecmdmnemonic \SB_DISSUBRPTG
 **
@@ -479,7 +479,7 @@
  * SB Messages which have no payload are each
  * given unique typedefs to follow the command handler convention
  *
- * For the SB application these is mapped to the CFE_MSG_CommandHeader_t type,
+ * For the SB application these are mapped to the CFE_MSG_CommandHeader_t type,
  * as they contain only a primary + command header.
  */
 typedef CFE_MSG_CommandHeader_t CFE_SB_NoopCmd_t;

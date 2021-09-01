@@ -228,7 +228,7 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
         WriteIdx += MessageLen;
 
         /*
-         * Ensure the that last-written character is a newline.
+         * Ensure that the last-written character is a newline.
          * This would have been enforced already except in cases where
          * the message got truncated.
          */

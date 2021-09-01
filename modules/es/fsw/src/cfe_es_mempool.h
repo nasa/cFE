@@ -82,7 +82,7 @@ typedef struct
  *
  * Index values are only guaranteed to be unique for resources of the same
  * type.  For instance, the indices corresponding to two [valid] Memory Pool
- * IDs will never overlap, but the index of an Memory Pool and a library ID
+ * IDs will never overlap, but the index of a Memory Pool and a library ID
  * may be the same.  Furthermore, indices may be reused if a resource is
  * deleted and re-created.
  *
@@ -200,7 +200,7 @@ static inline void CFE_ES_MemPoolRecordSetFree(CFE_ES_MemPoolRecord_t *PoolRecPt
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Check if an Mem Pool record is a match for the given Pool ID
+ * @brief Check if a Mem Pool record is a match for the given Pool ID
  *
  * This routine confirms that the previously-located record is valid
  * and matches the expected Pool ID.

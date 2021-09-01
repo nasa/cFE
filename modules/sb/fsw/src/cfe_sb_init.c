@@ -71,7 +71,7 @@ int32 CFE_SB_EarlyInit(void)
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     } /* end if */
 
-    /* Initialize the state of susbcription reporting */
+    /* Initialize the state of subscription reporting */
     CFE_SB_Global.SubscriptionReporting = CFE_SB_DISABLE;
 
     /* Initialize memory partition. */

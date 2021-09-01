@@ -96,7 +96,7 @@ void TestReleaseAddress(void)
     /* Release and try again */
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
     /* It is necessary to call CFE_TBL_Manage because the table still thinks there is a load in progress from the failed
-    load while the table was locked. This call shouldn't be necesssary. */
+    load while the table was locked. This call shouldn't be necessary. */
     UtAssert_INT32_EQ(CFE_TBL_Manage(CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
     LoadTable(&TestTable, CFE_SUCCESS);
 

@@ -119,7 +119,7 @@ CFE_MSG_SequenceCount_t CFE_SBR_GetSequenceCounter(CFE_SBR_RouteId_t RouteId);
  * \brief Call the supplied callback function for all routes
  *
  * Invokes callback for each route in the table.  Message ID order
- * depends on the routing table implementation.  Possiblities include
+ * depends on the routing table implementation.  Possibilities include
  * in subscription order and in order if incrementing message ids.
  *
  * \param[in]     CallbackPtr Function to invoke for each matching ID

@@ -597,7 +597,7 @@ typedef struct CFE_TBL_ActivateCmd_Payload
 typedef struct CFE_TBL_ActivateCmd
 {
     CFE_MSG_CommandHeader_t       CmdHeader; /**< \brief Command header */
-    CFE_TBL_ActivateCmd_Payload_t Payload;   /**< \brief Command paylod */
+    CFE_TBL_ActivateCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_TBL_ActivateCmd_t;
 
 /**
@@ -686,7 +686,7 @@ typedef struct CFE_TBL_AbortLoadCmd_Payload
 typedef struct CFE_TBL_AbortLoadCmd
 {
     CFE_MSG_CommandHeader_t        CmdHeader; /**< \brief Command header */
-    CFE_TBL_AbortLoadCmd_Payload_t Payload;   /**< \brief Command paylod */
+    CFE_TBL_AbortLoadCmd_Payload_t Payload;   /**< \brief Command payload */
 } CFE_TBL_AbortLoadCmd_t;
 
 /*************************************************************************/

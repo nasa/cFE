@@ -254,7 +254,7 @@ int32 CFE_ES_SysLogSetMode(CFE_ES_LogMode_Enum_t Mode);
  * must be greater than (CFE_TIME_PRINTED_STRING_SIZE+2) to get a useful output.  Any user-specified
  * output string will be truncated to fit into the remaining space.
  *
- * \param Buffer        User supplied buffer to output formatted sting into
+ * \param Buffer        User supplied buffer to output formatted string into
  * \param BufferSize    Size of "Buffer" parameter.  Should be greater than (CFE_TIME_PRINTED_STRING_SIZE+2)
  * \param SpecStringPtr Printf-style format string
  * \param ArgPtr        Variable argument list as obtained by va_start() in the caller

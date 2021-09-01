@@ -540,7 +540,7 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
 
         /*
          * Check if the control request is also set to "RUN"
-         * Anything else should also return false, so the the loop will exit.
+         * Anything else should also return false, so the loop will exit.
          */
         if (AppRecPtr->ControlReq.AppControlRequest == CFE_ES_RunStatus_APP_RUN)
         {
@@ -1181,7 +1181,7 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
 {
     int32 Status;
 
-    /* Note - ModuleInfo NULL pointer check is perfromed by CFE_ES_GetAppInfo or CFE_ES_GetLibInfo */
+    /* Note - ModuleInfo NULL pointer check is performed by CFE_ES_GetAppInfo or CFE_ES_GetLibInfo */
     switch (CFE_ResourceId_GetBase(ResourceId))
     {
         case CFE_ES_APPID_BASE:

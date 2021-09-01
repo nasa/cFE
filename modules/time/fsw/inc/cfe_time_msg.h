@@ -289,7 +289,7 @@
 **
 **  \par Error Conditions
 **       - An invalid number of microseconds was specified (must be less than 1 million)
-**       - Platorm receiving the command is not a Time Client
+**       - Platform receiving the command is not a Time Client
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event messages will be issued (#CFE_TIME_DELAY_CFG_EID or #CFE_TIME_DELAY_ERR_EID)
@@ -327,7 +327,7 @@
 **
 **  \par Error Conditions
 **       - An invalid number of microseconds was specified (must be less than 1 million)
-**       - Platorm receiving the command is not a Time Client
+**       - Platform receiving the command is not a Time Client
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event messages will be issued (#CFE_TIME_DELAY_CFG_EID or #CFE_TIME_DELAY_ERR_EID)
@@ -355,7 +355,7 @@
 **       - <B> (current time) = (current MET) + STCF </B>
 **       <BR><BR>If Time Service is configured to compute current time as UTC
 **       - <B> STCF = ((new time) - (current MET)) + (Leap Seconds) </B>
-**       - <B> (current time) = ((curent MET) + STCF) - (Leap Seconds) </B>
+**       - <B> (current time) = ((current MET) + STCF) - (Leap Seconds) </B>
 **
 **  \cfecmdmnemonic \TIME_SETCLOCK
 **
@@ -372,7 +372,7 @@
 **
 **  \par Error Conditions
 **       - An invalid number of microseconds was specified (must be less than 1 million)
-**       - Platorm receiving the command is not a Time Server
+**       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event messages will be issued (#CFE_TIME_TIME_CFG_EID or #CFE_TIME_TIME_ERR_EID)
@@ -412,7 +412,7 @@
 **
 **  \par Error Conditions
 **       - An invalid number of microseconds was specified (must be less than 1 million)
-**       - Platorm receiving the command is not a Time Server
+**       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event messages will be issued (#CFE_TIME_MET_CFG_EID or #CFE_TIME_MET_ERR_EID)
@@ -449,7 +449,7 @@
 **
 **  \par Error Conditions
 **       - An invalid number of microseconds was specified (must be less than 1 million)
-**       - Platorm receiving the command is not a Time Server
+**       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event messages will be issued (#CFE_TIME_STCF_CFG_EID or #CFE_TIME_STCF_ERR_EID)
@@ -484,7 +484,7 @@
 **       - The #CFE_TIME_LEAPS_EID informational event message will be generated
 **
 **  \par Error Conditions
-**       - Platorm receiving the command is not a Time Server
+**       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event messages will be issued (#CFE_TIME_LEAPS_CFG_EID)
@@ -519,7 +519,7 @@
 **
 **  \par Error Conditions
 **       - An invalid number of microseconds was specified (must be less than 1 million)
-**       - Platorm receiving the command is not a Time Server
+**       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event messages will be issued (#CFE_TIME_DELTA_ERR_EID or #CFE_TIME_DELTA_CFG_EID)
@@ -554,7 +554,7 @@
 **
 **  \par Error Conditions
 **       - An invalid number of microseconds was specified (must be less than 1 million)
-**       - Platorm receiving the command is not a Time Server
+**       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event messages will be issued (#CFE_TIME_DELTA_ERR_EID or #CFE_TIME_DELTA_CFG_EID)
@@ -600,7 +600,7 @@
 **       - The #CFE_TIME_1HZ_EID informational event message will be generated
 **
 **  \par Error Conditions
-**       - Platorm receiving the command is not a Time Server
+**       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event message will be issued (#CFE_TIME_1HZ_CFG_EID)
@@ -648,7 +648,7 @@
 **       - The #CFE_TIME_1HZ_EID informational event message will be generated
 **
 **  \par Error Conditions
-**       - Platorm receiving the command is not a Time Server
+**       - Platform receiving the command is not a Time Server
 **       <BR><BR>Evidence of Failure may be found in the following telemetry:
 **       - \b \c \TIME_CMDEC - command error counter will increment
 **       - Error specific event message will be issued (#CFE_TIME_1HZ_CFG_EID)

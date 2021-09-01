@@ -505,7 +505,7 @@ int32 CFE_ES_TaskInit(void)
 
     /*
      * Initialize the "background task" which is a low priority child task
-     * devoted to maintence duties that do not need to execute on a
+     * devoted to maintenance duties that do not need to execute on a
      * strict/precise schedule.
      */
     Status = CFE_ES_BackgroundInit();

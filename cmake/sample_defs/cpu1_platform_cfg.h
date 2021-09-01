@@ -69,7 +69,7 @@
 **
 **  \par Description:
 **       Dictates the maximum number of unique MsgIds the SB routing table will hold.
-**       This constant has a direct affect on the size of SB's tables and arrays.
+**       This constant has a direct effect on the size of SB's tables and arrays.
 **       Keeping this count as low as possible will save memory.
 **       To see the run-time, high-water mark and the current utilization figures
 **       regarding this parameter, send an SB command to 'Send Statistics Pkt'.
@@ -89,7 +89,7 @@
 **
 **  \par Description:
 **       Dictates the maximum number of unique Pipes the SB routing table will hold.
-**       This constant has a direct affect on the size of SB's tables and arrays.
+**       This constant has a direct effect on the size of SB's tables and arrays.
 **       Keeping this count as low as possible will save memory.
 **       To see the run-time, high-water mark and the current utilization figures
 **       regarding this parameter, send an SB command to 'Send Statistics Pkt'.
@@ -161,12 +161,12 @@
 **       The value of this constant dictates the range of valid message ID's, from 0
 **       to CFE_PLATFORM_SB_HIGHEST_VALID_MSGID (inclusive).
 **
-**       Altough this can be defined differently across platforms, each platform can
+**       Although this can be defined differently across platforms, each platform can
 **       only publish/subscribe to message ids within their allowable range. Typically
 **       this value is set the same across all mission platforms to avoid this complexity.
 **
 **  \par Limits
-**       CFE_SB_INVALID_MSG is set to the maxumum representable number of type CFE_SB_MsgId_t.
+**       CFE_SB_INVALID_MSG is set to the maximum representable number of type CFE_SB_MsgId_t.
 **       CFE_PLATFORM_SB_HIGHEST_VALID_MSGID lower limit is 1, up to CFE_SB_INVALID_MSG_ID - 1.
 **
 **       When using the direct message map implementation for software bus routing, this
@@ -176,7 +176,7 @@
 **       When using the hash implementation for software bus routing, a multiple of the
 **       CFE_PLATFORM_SB_MAX_MSG_IDS is used to size the message map.  In that case
 **       the range selected here does not impact message map memory use, so it's
-**       resonable to use up to the full range supported by the message ID implementation.
+**       reasonable to use up to the full range supported by the message ID implementation.
 */
 #define CFE_PLATFORM_SB_HIGHEST_VALID_MSGID 0x1FFF
 
@@ -240,7 +240,7 @@
 **  \cfesbcfg SB Event Filtering
 **
 **  \par Description:
-**       This group of configuration paramters dictates what SB events will be
+**       This group of configuration parameters dictates what SB events will be
 **       filtered through EVS. The filtering will begin after the SB task initializes
 **       and stay in effect until a cmd to EVS changes it.
 **       This allows the operator to set limits on the number of event messages that
@@ -357,7 +357,7 @@
 **  \par Description:
 **       Depending on the specific hardware system configuration, it may be possible
 **       to switch between a primary and redundant tone signal.  If supported by
-**       hardware, this definitions will enable command interfaces to select the
+**       hardware, this definition will enable command interfaces to select the
 **       active tone signal. Both Time Clients and Time Servers support this feature.
 **       Note: Set the CFE_PLATFORM_TIME_CFG_SIGNAL define to true to enable tone signal commands.
 **
@@ -468,7 +468,7 @@
 **
 **  \par Description:
 **       Define Periodic Time to Update Local Clock Tone Latch. Applies only when
-**       in flywheel mode. This define dicates the period at which the simulated
+**       in flywheel mode. This define dictates the period at which the simulated
 **       'last tone' time is updated. Units are seconds.
 **
 **  \par Limits
@@ -588,7 +588,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 100 and an upper limit of 20000 on this
-**       configuration paramater. millisecond units.
+**       configuration parameter. millisecond units.
 */
 #define CFE_PLATFORM_ES_APP_SCAN_RATE 1000
 
@@ -601,7 +601,7 @@
 **      the signal Delete, Reload or Restart. The sequence works as follows:
 **      -# ES will set the control request for an App to Delete/Restart/Reload and
 **         set this kill timer to the value in this parameter.
-**      -# If the App is reponding and Calls it's RunLoop function, it will drop out
+**      -# If the App is responding and Calls it's RunLoop function, it will drop out
 **         of it's main loop and call CFE_ES_ExitApp. Once it calls Exit App, then
 **         ES can delete, restart, or reload the app the next time it scans the app
 **         table.
@@ -617,7 +617,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 1 and an upper limit of 100 on this configuration
-**       paramater. Units are number of #CFE_PLATFORM_ES_APP_SCAN_RATE cycles.
+**       parameter. Units are number of #CFE_PLATFORM_ES_APP_SCAN_RATE cycles.
 */
 #define CFE_PLATFORM_ES_APP_KILL_TIMEOUT 5
 
@@ -676,7 +676,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 0 and an upper limit of 75 on this configuration
-**       paramater.Units are percentage. A setting of zero will turn this feature
+**       parameter.Units are percentage. A setting of zero will turn this feature
 **       off.
 */
 #define CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED 30
@@ -694,7 +694,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 8192 and an upper limit of UINT_MAX (4 Gigabytes)
-**       on this configuration paramater.
+**       on this configuration parameter.
 */
 #define CFE_PLATFORM_ES_CDS_SIZE (128 * 1024)
 
@@ -714,7 +714,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 1024 and an upper limit of UINT_MAX (4 Gigabytes)
-**       on this configuration paramater.
+**       on this configuration parameter.
 */
 #define CFE_PLATFORM_ES_USER_RESERVED_SIZE (1024 * 1024)
 
@@ -728,7 +728,7 @@
 **       that are preserved during a processor reset.
 **       Note: This area must be sized large enough to hold all of the data
 **       structures. It should be automatically sized based on the CFE_ES_ResetData_t
-**       type, but circular dependancies in the headers prevent it from being defined
+**       type, but circular dependencies in the headers prevent it from being defined
 **       this way.
 **       NOTE: Changing this value changes memory allocation, and may
 **       require changes to platform specific values (in CFE_PSP) such as
@@ -737,7 +737,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 153600 (150KBytes) and an upper limit of UINT_MAX
-**       (4 Gigabytes) on this configuration paramater.
+**       (4 Gigabytes) on this configuration parameter.
 */
 #define CFE_PLATFORM_ES_RESET_AREA_SIZE (170 * 1024)
 
@@ -891,7 +891,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 0 and an upper limit of 1 on this configuration
-**       paramater.
+**       parameter.
 */
 #define CFE_PLATFORM_ES_DEFAULT_POR_SYSLOG_MODE 0
 
@@ -909,7 +909,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 0 and an upper limit of 1 on this configuration
-**       paramater.
+**       parameter.
 */
 #define CFE_PLATFORM_ES_DEFAULT_PR_SYSLOG_MODE 1
 
@@ -923,7 +923,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 1025.  There are no restrictions on the upper limit
-**       however, the maximum buffer size size is system dependent and should be verified.
+**       however, the maximum buffer size is system dependent and should be verified.
 **       The units are number of entries. An entry is defined by a 32 bit data word followed
 **       by a 64 bit time stamp.
 */
@@ -997,7 +997,7 @@
 **  \cfeescfg Define Performance Analyzer Child Task Priority
 **
 **  \par Description:
-**       This parameter defines the priority of the child task spawed by the
+**       This parameter defines the priority of the child task spawned by the
 **       Executive Services to write performance data to a file.  Lower numbers
 **       are higher priority, with 1 being the highest priority in the case of a
 **       child task.
@@ -1012,7 +1012,7 @@
 **  \cfeescfg Define Performance Analyzer Child Task Stack Size
 **
 **  \par Description:
-**       This parameter defines the stack size of the child task spawed by the
+**       This parameter defines the stack size of the child task spawned by the
 **       Executive Services to write performance data to a file.
 **
 **  \par Limits
@@ -1027,7 +1027,7 @@
 **
 **  \par Description:
 **       This parameter defines the delay time (in milliseconds) between performance
-**       data file writes performed by the Executive Services Performace Analyzer
+**       data file writes performed by the Executive Services Performance Analyzer
 **       Child Task.
 **
 **  \par Limits
@@ -1041,7 +1041,7 @@
 **  \cfeescfg Define Performance Analyzer Child Task Number of Entries Between Delay
 **
 **  \par Description:
-**       This parameter defines the number of performace analyzer entries the Performace
+**       This parameter defines the number of performance analyzer entries the Performance
 **       Analyzer Child Task will write to the file between delays.
 **
 */
@@ -1056,7 +1056,7 @@
 **
 **  \par Limits
 **       There is a lower limit of 2048.  There are no restrictions on the upper limit
-**       however, the maximum stack size size is system dependent and should be verified.
+**       however, the maximum stack size is system dependent and should be verified.
 **       Most operating systems provide tools for measuring the amount of stack used by a
 **       task during operation. It is always a good idea to verify that no more than 1/2
 **       of the stack is used.
@@ -1081,8 +1081,8 @@
 **       Defines the cFE_EVS Task Stack Size
 **
 **  \par Limits
-**       There is a lower limit of 2048 on this configuration paramater.  There
-**       are no restrictions on the upper limit however, the maximum stack size size
+**       There is a lower limit of 2048 on this configuration parameter.  There
+**       are no restrictions on the upper limit however, the maximum stack size
 **       is system dependent and should be verified.  Most operating systems provide
 **       tools for measuring the amount of stack used by a task during operation. It
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
@@ -1107,8 +1107,8 @@
 **       Defines the cFE_SB Task Stack Size
 **
 **  \par Limits
-**       There is a lower limit of 2048 on this configuration paramater.  There
-**       are no restrictions on the upper limit however, the maximum stack size size
+**       There is a lower limit of 2048 on this configuration parameter.  There
+**       are no restrictions on the upper limit however, the maximum stack size
 **       is system dependent and should be verified.  Most operating systems provide
 **       tools for measuring the amount of stack used by a task during operation. It
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
@@ -1133,8 +1133,8 @@
 **       Defines the cFE_ES Task Stack Size
 **
 **  \par Limits
-**       There is a lower limit of 2048 on this configuration paramater.  There
-**       are no restrictions on the upper limit however, the maximum stack size size
+**       There is a lower limit of 2048 on this configuration parameter.  There
+**       are no restrictions on the upper limit however, the maximum stack size
 **       is system dependent and should be verified.  Most operating systems provide
 **       tools for measuring the amount of stack used by a task during operation. It
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
@@ -1151,7 +1151,7 @@
 **
 **  \par Limits
 **       There is a lower limit of zero and an upper limit of 255 on these
-**       configuration paramaters.  Remember that the meaning of each task
+**       configuration parameters.  Remember that the meaning of each task
 **       priority is inverted -- a "lower" number has a "higher" priority.
 */
 #define CFE_PLATFORM_TIME_START_TASK_PRIORITY 60
@@ -1167,8 +1167,8 @@
 **       Defines the cFE_TIME 1HZ Task Stack Size
 **
 **  \par Limits
-**       There is a lower limit of 2048 on these configuration paramaters.  There
-**       are no restrictions on the upper limit however, the maximum stack size size
+**       There is a lower limit of 2048 on these configuration parameters.  There
+**       are no restrictions on the upper limit however, the maximum stack size
 **       is system dependent and should be verified.  Most operating systems provide
 **       tools for measuring the amount of stack used by a task during operation. It
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
@@ -1195,8 +1195,8 @@
 **       Defines the cFE_TBL Task Stack Size
 **
 **  \par Limits
-**       There is a lower limit of 2048 on this configuration paramater.  There
-**       are no restrictions on the upper limit however, the maximum stack size size
+**       There is a lower limit of 2048 on this configuration parameter.  There
+**       are no restrictions on the upper limit however, the maximum stack size
 **       is system dependent and should be verified.  Most operating systems provide
 **       tools for measuring the amount of stack used by a task during operation. It
 **       is always a good idea to verify that no more than 1/2 of the stack is used.
@@ -1249,7 +1249,7 @@
 /** \cfeescfg Maximum number of memory pools
 **
 **  \par Description:
-**      The upper limit for the number of memory pools than can concurrently
+**      The upper limit for the number of memory pools that can concurrently
 **      exist within the system.
 **
 **      The CFE_SB and CFE_TBL core subsystems each define a memory pool.
@@ -1384,7 +1384,7 @@
 **  \cfeevscfg Default EVS Output Port State
 **
 **  \par Description:
-**       Defines the default port state (enabled or deisabled) for the four output
+**       Defines the default port state (enabled or disabled) for the four output
 **       ports defined within the Event Service. Port 1 is usually the uart output
 **       terminal. To enable a port, set the proper bit to a 1. Bit 0 is port 1,
 **       bit 1 is port2 etc.
@@ -1670,7 +1670,7 @@
 **
 **  \par Description:
 **      The upper limit for the amount of time that the cFE core applications
-**      (ES, SB, EVS, TIME, TBL) are each alloted to reach their respective
+**      (ES, SB, EVS, TIME, TBL) are each allotted to reach their respective
 **      "ready" states.
 **
 **      The CFE "main" thread starts individual tasks for each of the core applications
@@ -1696,7 +1696,7 @@
 **      The upper limit for the total amount of time that all apps listed in the CFE ES startup
 **      script may take to all become ready.
 **
-**      Unlike the "core" app timeout, this is a soft limit; if the alloted time is exceeded,
+**      Unlike the "core" app timeout, this is a soft limit; if the allotted time is exceeded,
 **      it probably indicates an issue with one of the apps, but does not cause CFE ES to take
 **      any additional action other than logging the event to the syslog.
 **

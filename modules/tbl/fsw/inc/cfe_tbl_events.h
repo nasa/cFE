@@ -39,7 +39,7 @@
  *
  *  \par Cause:
  *
- *  Table Services Taks initialization complete.
+ *  Table Services Task initialization complete.
  */
 #define CFE_TBL_INIT_INF_EID 1
 
@@ -131,7 +131,7 @@
  *
  *  \par Cause:
  *
- *  TBL load table pending notification sucessfully sent.
+ *  TBL load table pending notification successfully sent.
  */
 #define CFE_TBL_LOAD_PEND_REQ_INF_EID 17
 
@@ -177,7 +177,7 @@
  *  \par Cause:
  *
  *  \link #CFE_TBL_VALIDATE_CC TBL Validate Table Command \endlink marking table
- *  as valid due to no validation functing being registered.
+ *  as valid due to no validation function being registered.
  */
 #define CFE_TBL_ASSUMED_VALID_INF_EID 23
 
@@ -188,7 +188,7 @@
  *
  *  \par Cause:
  *
- *  #CFE_TBL_Load API succes for dump only or normal table. OVERLOADED
+ *  #CFE_TBL_Load API success for dump only or normal table. OVERLOADED
  */
 #define CFE_TBL_LOAD_SUCCESS_INF_EID 35
 
@@ -199,7 +199,7 @@
  *
  *  \par Cause:
  *
- *  Table active or inactive image successfully validated by the registerd validation function. OVERLOADED
+ *  Table active or inactive image successfully validated by the registered validation function. OVERLOADED
  */
 #define CFE_TBL_VALIDATION_INF_EID 36
 
@@ -310,7 +310,7 @@
  *
  *  \par Cause:
  *
- *  TBL commamnd handler unable to find table name. OVERLOADED
+ *  TBL command handler unable to find table name. OVERLOADED
  */
 #define CFE_TBL_NO_SUCH_TABLE_ERR_EID 57
 
@@ -412,7 +412,7 @@
  *
  *  \link #CFE_TBL_VALIDATE_CC TBL Validate Table Command \endlink or
  *  \link #CFE_TBL_DUMP_CC TBL Write Table Command \endlink failure due
- *  to requesting non-existant inactive buffer. OVERLOADED
+ *  to requesting non-existent inactive buffer. OVERLOADED
  */
 #define CFE_TBL_NO_INACTIVE_BUFFER_ERR_EID 66
 

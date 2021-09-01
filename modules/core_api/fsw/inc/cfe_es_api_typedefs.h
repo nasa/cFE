@@ -86,7 +86,7 @@ typedef CFE_ES_TaskEntryFuncPtr_t CFE_ES_ChildTaskMainFuncPtr_t;
 typedef void *CFE_ES_StackPointer_t; /* aka osal_stackptr_t in proposed OSAL change */
 
 /**
- * \brief Pool Alignement
+ * \brief Pool Alignment
  *
  * Union that can be used for minimum memory alignment of ES memory pools on the target.
  * It contains the longest native data types such that the alignment of this structure
@@ -164,7 +164,7 @@ typedef void *CFE_ES_MemPoolBuf_t;
 
 /** \} */
 
-/** \name Type-specific initalizers for "undefined" resource IDs */
+/** \name Type-specific initializers for "undefined" resource IDs */
 /** \{ */
 
 #define CFE_ES_APPID_UNDEFINED     CFE_ES_APPID_C(CFE_RESOURCEID_UNDEFINED)

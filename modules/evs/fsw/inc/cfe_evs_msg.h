@@ -761,7 +761,7 @@
 **       - The generation of #CFE_EVS_WRDAT_EID debug event message
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_EVS_DEFAULT_APP_DATA_FILE configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -946,7 +946,7 @@ typedef struct CFE_EVS_WriteLogDataFileCmd
 **/
 typedef struct CFE_EVS_AppDataCmd_Payload
 {
-    char AppDataFilename[CFE_MISSION_MAX_PATH_LEN]; /**< \brief Filename where applicaton data is to be written */
+    char AppDataFilename[CFE_MISSION_MAX_PATH_LEN]; /**< \brief Filename where application data is to be written */
 } CFE_EVS_AppDataCmd_Payload_t;
 
 /**

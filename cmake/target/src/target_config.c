@@ -112,7 +112,7 @@ extern CFE_ConfigKeyValue_t CFE_BUILD_ENV_TABLE[];
  *
  * For dynamic modules, this means the version info can become outdated if/when
  * a single module is rebuilt/reloaded after the original CFE build.  The keys in
- * this table may be be checked against the CFE_STATIC_MODULE_LIST above to
+ * this table may be checked against the CFE_STATIC_MODULE_LIST above to
  * determine if static or dynamic linkage was used.  In the case of dynamic linkage,
  * then this table only represents the version of the module that was present at the
  * time CFE was built, not necessarily the version on the target filesystem.

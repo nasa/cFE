@@ -146,7 +146,7 @@ function(generate_build_version_templates)
         VERBATIM
     )
 
-    # Content for build info - these vars can be evaulated right now, no need to defer
+    # Content for build info - these vars can be evaluated right now, no need to defer
     set(GENERATED_FILE_HEADER "/* Automatically generated from CMake build system */")
     string(CONCAT GENERATED_FILE_CONTENT
         "const char CFE_MISSION_NAME[] = \"${MISSION_NAME}\";\n"
@@ -414,7 +414,7 @@ function(process_arch TARGETSYSTEM)
   set(BUILD_CONFIG ${BUILD_CONFIG_${TARGETSYSTEM}})
   list(GET BUILD_CONFIG 0 ARCH_TOOLCHAIN_NAME)
   list(REMOVE_AT BUILD_CONFIG 0)
-  # convert to a the string which is safe for a directory name
+  # convert to a string which is safe for a directory name
   string(REGEX REPLACE "[^A-Za-z0-9]" "_" ARCH_CONFIG_NAME "${BUILD_CONFIG}")
   set(ARCH_BINARY_DIR "${CMAKE_BINARY_DIR}/${ARCH_TOOLCHAIN_NAME}/${ARCH_CONFIG_NAME}")
   file(MAKE_DIRECTORY "${ARCH_BINARY_DIR}" "${ARCH_BINARY_DIR}/inc")
@@ -424,7 +424,7 @@ function(process_arch TARGETSYSTEM)
   # Note - A warning is issued if you pass CMAKE_TOOLCHAIN_FILE to an already-configured build area
   # so an extra check is added to see if this is an initial run or a re-run by checking for a CMakeCache file.
   if (NOT ARCH_TOOLCHAIN_NAME STREQUAL "native" AND NOT EXISTS "${ARCH_BINARY_DIR}/CMakeCache.txt")
-    # Find the toolchain file - allow a file in the mission defs dir to supercede one in the compile dir
+    # Find the toolchain file - allow a file in the mission defs dir to supersede one in the compile dir
     if (EXISTS "${MISSION_DEFS}/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
       set(TOOLCHAIN_FILE "${MISSION_DEFS}/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")
     elseif(EXISTS "${CFE_SOURCE_DIR}/cmake/toolchain-${ARCH_TOOLCHAIN_NAME}.cmake")

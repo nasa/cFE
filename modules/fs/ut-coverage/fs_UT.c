@@ -174,7 +174,7 @@ void Test_CFE_FS_SetTimestamp(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_write), OS_ERROR);
     UtAssert_INT32_EQ(CFE_FS_SetTimestamp(FileDes, NewTimestamp), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
-    /* Test setting the time stamp with a subeconds write failure */
+    /* Test setting the time stamp with a subseconds write failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(OS_write), 1, 0);
     UtAssert_INT32_EQ(CFE_FS_SetTimestamp(FileDes, NewTimestamp), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
@@ -625,7 +625,7 @@ void Test_CFE_FS_BackgroundFileDump(void)
 
     UT_ResetState(UT_KEY(UT_FS_DataGetter));
 
-    /* Request multiple file dumps, check queing logic */
+    /* Request multiple file dumps, check queuing logic */
     CFE_UtAssert_SETUP(CFE_FS_BackgroundFileDumpRequest(&State));
     UtAssert_INT32_EQ(CFE_FS_BackgroundFileDumpRequest(&State), CFE_STATUS_REQUEST_ALREADY_PENDING);
 

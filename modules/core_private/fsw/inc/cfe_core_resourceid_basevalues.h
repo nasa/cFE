@@ -44,7 +44,7 @@
  * Assign unique offsets per resource types used in CFE core apps.
  *
  * Applications should not use these values directly, but rather
- * in conjuction with the CFE_RESOURCEID_MAKE_BASE macro provided
+ * in conjunction with the CFE_RESOURCEID_MAKE_BASE macro provided
  * by the Resource ID module.  (see below)
  */
 enum
@@ -74,7 +74,7 @@ enum
 /*
  * Assign actual base values from the offsets above
  *
- * Using "enum" ensures these are resolved as integers now, as opposed at to the point of use like macros.
+ * Using "enum" ensures these are resolved as integers now, as opposed to at the point of use like macros.
  */
 enum
 {

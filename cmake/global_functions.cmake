@@ -144,7 +144,7 @@ endfunction(generate_config_includefile)
 #   MISSION_APPS: list of all applications in this build
 #   MISSION_PSPMODULES: list of all psp modules in this build
 #
-# Additionally for each architechture in TGTSYS_LIST:
+# Additionally for each architecture in TGTSYS_LIST:
 #   TGTSYS_<arch>: list of CPU names that utilize the same architecture
 #   TGTSYS_<arch>_APPS: list of apps for the architecture
 #   TGTSYS_<arch>_STATICAPPS: list of static apps for the architecture
@@ -211,7 +211,7 @@ function(read_targetconfig)
 
     set(BUILD_CONFIG ${TOOLCHAIN_NAME} ${${CPUNAME}_PLATFORM})
 
-    # convert to a the string which is safe for a variable name
+    # convert to a string which is safe for a variable name
     string(REGEX REPLACE "[^A-Za-z0-9]" "_" SYSVAR "${BUILD_CONFIG}")
 
     # save the unmodified name for future reference

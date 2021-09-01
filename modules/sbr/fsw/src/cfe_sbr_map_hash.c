@@ -83,7 +83,7 @@ CFE_SBR_RouteId_t CFE_SBR_MSGMAP[CFE_SBR_MSG_MAP_SIZE];
  * Hashes the message id
  *
  * Note: algorithm designed for a 32 bit int, changing the size of
- * CFE_SB_MsgId_Atom_t may require an update to this impelementation
+ * CFE_SB_MsgId_Atom_t may require an update to this implementation
  *
  *-----------------------------------------------------------------*/
 CFE_SB_MsgId_Atom_t CFE_SBR_MsgIdHash(CFE_SB_MsgId_t MsgId)

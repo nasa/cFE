@@ -332,7 +332,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
 
         /*
          * Get the calling context.
-         * If this not a valid CFE context, then AppID will be undefined.
+         * If this is not a valid CFE context, then AppID will be undefined.
          * We can still permit the creation of the pool but automatic cleanup
          * if an exception or other event occurs will not be possible.
          */

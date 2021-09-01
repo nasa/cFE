@@ -49,7 +49,7 @@
  * This allows each test routine to reported consistently as "GroupName.TestName"
  *
  * This also implicitly includes a call to SB_ResetUnitTest() as a setup function,
- * so the test routines do _not_ need to do this explictly on every test case.
+ * so the test routines do _not_ need to do this explicitly on every test case.
  */
 #define SB_UT_ADD_SUBTEST(Func) UtTest_AddSubTest(Func, SB_ResetUnitTest, NULL, __func__, #Func)
 
@@ -128,7 +128,7 @@ CFE_ResourceId_t UT_SB_MakePipeIdForIndex(uint32 ArrayIdx)
 }
 
 /*
- * Helper function to "corrupt" a resource ID value in a consistent/predicatble way,
+ * Helper function to "corrupt" a resource ID value in a consistent/predictable way,
  * which can also be un-done easily.
  */
 CFE_ES_AppId_t UT_SB_AppID_Modify(CFE_ES_AppId_t InitialID, int32 Modifier)
@@ -1456,7 +1456,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
         /* Skip subscribing to ALLSUBS mid. This is the one we are testing.
          * MsgID for this in CCSDS v.1 was 0x180d so this MID did not appear in the
          * SB sub list. This results in multiple NO_SUBS_EID sent which we are not
-         * testing here so it is irrelevent
+         * testing here so it is irrelevant
          * For CCSDS v.2 CFE_SB_ALLSUBS_TLM_MID (0x0d) now appears in the
          * SB subscription list and thus we must skip adding 0x0D to the list
          * as we were going from MSGID 0-45 (0x00-0x2D)
@@ -1885,7 +1885,7 @@ void Test_CreatePipe_SamePipeName(void)
     char            PipeName[]  = "Test_CFE_SB";
 
     /* Need to make sure OS_QueueCreate() stub fails on second call   */
-    /* to mimick the failure expected when passing the same pipe name */
+    /* to mimic the failure expected when passing the same pipe name */
     UT_SetDeferredRetcode(UT_KEY(OS_QueueCreate), 2, OS_ERR_NAME_TAKEN);
 
     /* First call to CFE_SB_CreatePipe() should succeed */
@@ -2826,7 +2826,7 @@ void Test_Unsubscribe_NoMatch(void)
     CFE_UtAssert_EVENTSENT(CFE_SB_UNSUB_NO_SUBS_EID);
     UT_ClearEventHistory();
 
-    /* Check that repeated unsubscribe to msgid that was subscribted reports error */
+    /* Check that repeated unsubscribe to msgid that was subscribed reports error */
     CFE_UtAssert_SUCCESS(CFE_SB_Unsubscribe(MsgId, TestPipe));
     CFE_UtAssert_EVENTSENT(CFE_SB_UNSUB_NO_SUBS_EID);
 
@@ -3729,7 +3729,7 @@ void Test_ReceiveBuffer_InvalidPipeId(void)
     /*
      * The internal call to OS_QueueGet is done with the SB global unlocked, as other tasks must be able
      * to access the SB global while another task is pending on a receive.  Because of this lock/unlock/relock
-     * pattern, the CFE_SB_RecieveBuffer() function validates the pipeID twice, after each time it obtains the
+     * pattern, the CFE_SB_ReceiveBuffer() function validates the pipeID twice, after each time it obtains the
      * global SB lock.  The second check is to cover the corner case that the pipeID was deleted or reconfigured
      * while it was pending.
      *
@@ -4588,7 +4588,7 @@ void Test_SB_TransmitMsgPaths_IgnoreOpt(void)
 } /* end Test_SB_TransmitMsgPaths */
 
 /*
-** Test receiving a message response to a unsubscribing to message, then
+** Test receiving a message response to an unsubscribing to message, then
 ** resubscribing to it while it's in the pipe
 */
 void Test_ReceiveBuffer_UnsubResubPath(void)

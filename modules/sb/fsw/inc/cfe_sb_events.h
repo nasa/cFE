@@ -174,7 +174,7 @@
  *
  *  \par Cause:
  *
- *  An SB Transmit API failed due to an invalid imput argument.
+ *  An SB Transmit API failed due to an invalid input argument.
  */
 #define CFE_SB_SEND_BAD_ARG_EID 13
 
@@ -241,7 +241,7 @@
  *
  *  \par Cause:
  *
- *  #CFE_SB_ReceiveBuffer API falure due to an invalid Pipe ID.
+ *  #CFE_SB_ReceiveBuffer API failure due to an invalid Pipe ID.
  */
 #define CFE_SB_BAD_PIPEID_EID 19
 
@@ -691,7 +691,7 @@
  *
  *  \par Cause:
  *
- *  #CFE_SB_GetPipeName failure due to invalid pipe ID or failure in retreiving resource name. OVERLOADED
+ *  #CFE_SB_GetPipeName failure due to invalid pipe ID or failure in retrieving resource name. OVERLOADED
  */
 #define CFE_SB_GETPIPENAME_ID_ERR_EID 64
 
@@ -724,7 +724,7 @@
  *
  *  \par Cause:
  *
- *  #CFE_SB_GetPipeIdByName faiure due to name not found or ID mismatch. OVERLOADED
+ *  #CFE_SB_GetPipeIdByName failure due to name not found or ID mismatch. OVERLOADED
  */
 #define CFE_SB_GETPIPEIDBYNAME_NAME_ERR_EID 67
 

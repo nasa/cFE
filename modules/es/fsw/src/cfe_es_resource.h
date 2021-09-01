@@ -398,7 +398,7 @@ static inline const char *CFE_ES_LibRecordGetName(const CFE_ES_LibRecord_t *LibR
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Get the ID value from an Task table entry
+ * @brief Get the ID value from a Task table entry
  *
  * This routine converts the table entry back to an abstract ID.
  *
@@ -438,7 +438,7 @@ static inline bool CFE_ES_TaskRecordIsUsed(const CFE_ES_TaskRecord_t *TaskRecPtr
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Marks an Task table entry as used (not free)
+ * @brief Marks a Task table entry as used (not free)
  *
  * This sets the internal field(s) within this entry, and marks
  * it as being associated with the given Task ID.
@@ -525,7 +525,7 @@ static inline const char *CFE_ES_TaskRecordGetName(const CFE_ES_TaskRecord_t *Ta
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Check if an Counter record is in use or free/empty
+ * @brief Check if a Counter record is in use or free/empty
  *
  * This routine checks if the Counter table entry is in use or if it is free
  *
@@ -545,7 +545,7 @@ static inline bool CFE_ES_CounterRecordIsUsed(const CFE_ES_GenCounterRecord_t *C
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Get the ID value from an Counter table entry
+ * @brief Get the ID value from a Counter table entry
  *
  * This routine converts the table entry back to an abstract ID.
  *
@@ -562,7 +562,7 @@ static inline CFE_ES_CounterId_t CFE_ES_CounterRecordGetID(const CFE_ES_GenCount
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Marks an Counter table entry as used (not free)
+ * @brief Marks a Counter table entry as used (not free)
  *
  * This sets the internal field(s) within this entry, and marks
  * it as being associated with the given Counter ID.
@@ -583,7 +583,7 @@ static inline void CFE_ES_CounterRecordSetUsed(CFE_ES_GenCounterRecord_t *Counte
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Set an Counter record table entry free (not used)
+ * @brief Set a Counter record table entry free (not used)
  *
  * This clears the internal field(s) within this entry, and allows the
  * memory to be re-used in the future.
@@ -603,7 +603,7 @@ static inline void CFE_ES_CounterRecordSetFree(CFE_ES_GenCounterRecord_t *Counte
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Check if an Counter record is a match for the given CounterID
+ * @brief Check if a Counter record is a match for the given CounterID
  *
  * This routine confirms that the previously-located record is valid
  * and matches the expected Counter ID.
