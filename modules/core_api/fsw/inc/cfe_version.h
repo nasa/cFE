@@ -37,7 +37,7 @@
 #define CFE_REVISION      99 /**< @brief Revision, 99 indicates development */
 #define CFE_MISSION_REV   0  /**< @brief Mission revision, reserved for mission use */
 
-#define CFE_STR_HELPER(x) #x                /**< @brief Convert agrument to string */
+#define CFE_STR_HELPER(x) #x                /**< @brief Convert argument to string */
 #define CFE_STR(x)        CFE_STR_HELPER(x) /**< @brief Expand macro before conversion */
 
 /**

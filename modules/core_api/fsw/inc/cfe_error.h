@@ -113,7 +113,7 @@ typedef int32 CFE_Status_t;
  */
 
 /**
- * @brief Sucessful execution
+ * @brief Successful execution
  *
  *  Operation was performed successfully
  */
@@ -342,7 +342,7 @@ typedef int32 CFE_Status_t;
 /**
  * @brief Child Task Register Error
  *
- *  Errors occured when trying to register a child task.
+ *  Errors occurred when trying to register a child task.
  *
  */
 #define CFE_ES_ERR_CHILD_TASK_REGISTER ((CFE_Status_t)0xc400000b)
@@ -468,7 +468,7 @@ typedef int32 CFE_Status_t;
 #define CFE_ES_BIN_SEM_DELETE_ERR ((CFE_Status_t)0xc400001C)
 
 /**
- * @brief Counte Semaphore Delete Error
+ * @brief Counting Semaphore Delete Error
  *
  *  Occurs when trying to delete a Counting Semaphore that belongs to a task that ES
  *  is cleaning up.
@@ -694,7 +694,7 @@ typedef int32 CFE_Status_t;
  * @brief Max Pipes Met
  *
  *  This error code will be returned from #CFE_SB_CreatePipe when the
- *  SB cannot accomodate the request to create a pipe because the maximum
+ *  SB cannot accommodate the request to create a pipe because the maximum
  *  number of pipes (#CFE_PLATFORM_SB_MAX_PIPES) are in use. This configuration
  *  parameter is defined in the cfe_platform_cfg.h file.
  *
@@ -752,7 +752,7 @@ typedef int32 CFE_Status_t;
  * @brief Max Messages Met
  *
  *  Will be returned when calling one of the SB subscription API's if the
- *  SB routing table cannot accomodate another unique message ID because
+ *  SB routing table cannot accommodate another unique message ID because
  *  the platform configuration parameter #CFE_PLATFORM_SB_MAX_MSG_IDS has been met.
  *
  */
@@ -762,7 +762,7 @@ typedef int32 CFE_Status_t;
  * @brief Max Destinations Met
  *
  *  Will be returned when calling one of the SB subscription API's if the
- *  SB routing table cannot accomodate another destination for a
+ *  SB routing table cannot accommodate another destination for a
  *  particular the given message ID. This occurs when the number of
  *  destinations in use meets the platform configuration parameter
  *  #CFE_PLATFORM_SB_MAX_DEST_PER_PKT.
@@ -918,7 +918,7 @@ typedef int32 CFE_Status_t;
 #define CFE_TBL_ERR_DUPLICATE_DIFF_SIZE ((CFE_Status_t)0xcc00000C)
 
 /**
- * @brief Dupicate Table And Not Owned
+ * @brief Duplicate Table And Not Owned
  *
  *  An application attempted to register a table with the same name
  *  as a table that is already in the registry.  The previously registered
@@ -1102,7 +1102,7 @@ typedef int32 CFE_Status_t;
  * @brief Partial Load Warning
  *
  *  The calling Application tried to load a table file whose header
- *  claimed the load did not start with the first byteIt should be noted
+ *  claimed the load did not start with the first byte. It should be noted
  *  that #CFE_TBL_WARN_SHORT_FILE also indicates a partial load.
  *
  */

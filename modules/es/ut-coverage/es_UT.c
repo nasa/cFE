@@ -626,7 +626,7 @@ void ES_ResetUnitTest(void)
      * This was formerly a separate global, but now part of CFE_ES_Global.
      *
      * Some unit tests assume/rely on it preserving its value across tests,
-     * so is must be re-initialized here every time CFE_ES_Global is reset.
+     * so it must be re-initialized here every time CFE_ES_Global is reset.
      */
     CFE_ES_Global.ResetDataPtr = ES_UT_PersistentResetData;
 
@@ -697,7 +697,7 @@ void TestStartupErrorPaths(void)
     UtAssert_STUB_COUNT(CFE_PSP_Panic, 1);
     UtAssert_UINT32_EQ(PanicStatus, CFE_PSP_PANIC_STARTUP_SEM);
 
-    /* Perform ES main startup with a ES Perf Data mutex creation failure */
+    /* Perform ES main startup with an ES Perf Data mutex creation failure */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 2, OS_ERROR);
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Panic), &PanicStatus, sizeof(PanicStatus), false);
@@ -705,7 +705,7 @@ void TestStartupErrorPaths(void)
     UtAssert_UINT32_EQ(PanicStatus, CFE_PSP_PANIC_STARTUP_SEM);
     UtAssert_UINT32_EQ(UT_GetStubCount(UT_KEY(CFE_PSP_Panic)), 1);
 
-    /* Perform ES main startup with a ES Shared Data mutex creation failure */
+    /* Perform ES main startup with an ES Shared Data mutex creation failure */
     ES_ResetUnitTest();
     UT_SetDummyFuncRtn(OS_SUCCESS);
     UT_SetDefaultReturnValue(UT_KEY(OS_OpenCreate), OS_ERROR);
@@ -765,7 +765,7 @@ void TestStartupErrorPaths(void)
     CFE_ES_SetupResetVariables(CFE_PSP_RST_TYPE_PROCESSOR, CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND, 1);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_POR_MAX_HW_SPECIAL]);
 
-    /* Perform a processor reset with an reset area failure */
+    /* Perform a processor reset with a reset area failure */
     ES_ResetUnitTest();
     UT_SetStatusBSPResetArea(OS_ERROR, 0, CFE_TIME_ToneSignalSelect_PRIMARY);
     UT_SetDataBuffer(UT_KEY(CFE_PSP_Panic), &PanicStatus, sizeof(PanicStatus), false);
@@ -1801,7 +1801,7 @@ void TestLibs(void)
     CFE_UtAssert_SUCCESS(CFE_ES_LoadLibrary(&Id, "TST_LIB1", &LoadParams));
     UtAssert_STUB_COUNT(OS_ModuleSymbolLookup, 0); /* should NOT have been called */
 
-    /* Likewise for a entry point where the string is empty */
+    /* Likewise for an entry point where the string is empty */
     LoadParams.InitSymbolName[0] = 0;
     CFE_UtAssert_SUCCESS(CFE_ES_LoadLibrary(&Id, "TST_LIB2", &LoadParams));
     UtAssert_STUB_COUNT(OS_ModuleSymbolLookup, 0); /* should NOT have been called */
@@ -2007,7 +2007,7 @@ void TestGenericPool(void)
     UtAssert_UINT32_EQ(CountBuf, 3);
     UtAssert_NONZERO(FreeSize);
 
-    /* put blocks so the pool has a mixture of allocated an deallocated blocks */
+    /* put blocks so the pool has a mixture of allocated and deallocated blocks */
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset1));
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset2));
 
@@ -3394,7 +3394,7 @@ void TestPerf(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, 0, UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
     CFE_UtAssert_EVENTNOTSENT(CFE_ES_PERF_STOPCMD_EID);
 
-    /* Test performance data filer mask with an invalid message length */
+    /* Test performance data filter mask with an invalid message length */
     ES_ResetUnitTest();
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, 0, UT_TPID_CFE_ES_CMD_SET_PERF_FILTER_MASK_CC);
     CFE_UtAssert_EVENTNOTSENT(CFE_ES_PERF_FILTMSKCMD_EID);

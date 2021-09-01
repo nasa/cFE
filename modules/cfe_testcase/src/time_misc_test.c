@@ -21,7 +21,7 @@
 ** File: time_misc_test.c
 **
 ** Purpose:
-**   Functional test of miscelaneous Time APIs
+**   Functional test of miscellaneous Time APIs
 **
 **   Demonstration of how to register and use the UT assert functions.
 **

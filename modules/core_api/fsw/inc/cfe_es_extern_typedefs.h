@@ -347,7 +347,7 @@ typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_LibId_t;
 /**
  * @brief A type for Counter IDs
  *
- * This is the type that is used for any API accepting or returning an Counter ID
+ * This is the type that is used for any API accepting or returning a Counter ID
  */
 typedef CFE_RESOURCEID_BASE_TYPE CFE_ES_CounterId_t;
 
@@ -391,7 +391,7 @@ typedef uint16 CFE_ES_TaskPriority_Atom_t;
 typedef uint32 CFE_ES_MemOffset_t;
 
 /*
- * A converter macro to use when initializing an CFE_ES_MemOffset_t
+ * A converter macro to use when initializing a CFE_ES_MemOffset_t
  * from an integer value of a different type.
  */
 #define CFE_ES_MEMOFFSET_C(x)  ((CFE_ES_MemOffset_t)(x))
@@ -418,7 +418,7 @@ typedef uint32 CFE_ES_MemOffset_t;
 typedef uint32 CFE_ES_MemAddress_t;
 
 /*
- * A converter macro to use when initializing an CFE_ES_MemAddress_t
+ * A converter macro to use when initializing a CFE_ES_MemAddress_t
  * from a pointer value of a different type.
  *
  * @note on a 64 bit platform, this macro will truncate the address such
@@ -428,7 +428,7 @@ typedef uint32 CFE_ES_MemAddress_t;
 #define CFE_ES_MEMADDRESS_C(x) ((CFE_ES_MemAddress_t)((cpuaddr)(x)&0xFFFFFFFF))
 
 /*
- * Data Sructures shared between API and Message (CMD/TLM) interfaces
+ * Data Structures shared between API and Message (CMD/TLM) interfaces
  */
 
 /**

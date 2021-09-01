@@ -621,7 +621,7 @@ void CFE_TIME_GetReference(CFE_TIME_Reference_t *Reference)
 
     /*
      * This should really never happen: if RetryCount reaches its limit, it means something is
-     * continously changing the time structure to the point where this task was not able to
+     * continuously changing the time structure to the point where this task was not able to
      * get a consistent copy.  The only way this could happen is if some update task got into
      * a continuous loop, or if the memory itself has gone bad and reads inconsistently.  But
      * if the latter is the case, the whole system has undefined behavior.

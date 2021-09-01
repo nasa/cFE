@@ -83,7 +83,7 @@ void TestInit(void);
 ** \par Description
 **        This function exercises the remaining (error condition) paths for the
 **        ES main startup that were not covered in TestInit.  The remaining
-**        functions in cfe_es_start.c for initializing the the ES reset
+**        functions in cfe_es_start.c for initializing the ES reset
 **        variables, the file system, and the application layer are then
 **        tested.
 **

@@ -238,7 +238,7 @@
 **         increment
 **       - The #CFE_ES_STOP_DBG_EID debug event message will be
 **         generated. NOTE: This event message only identifies that the
-**         stop request has been initiated, not that is has completed.
+**         stop request has been initiated, not that it has completed.
 **       - Once the stop has successfully completed, the list of Applications
 **         and Tasks created in response to the \b \c \ES_WRITEAPPINFO2FILE,
 **         \b \c \ES_WRITETASKINFO2FILE should no longer contain the
@@ -291,7 +291,7 @@
 **         increment
 **       - The #CFE_ES_RESTART_APP_DBG_EID debug event message will be
 **         generated. NOTE: This event message only identifies that the
-**         restart process has been initiated, not that is has completed.
+**         restart process has been initiated, not that it has completed.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -315,7 +315,7 @@
 */
 #define CFE_ES_RESTART_APP_CC 6
 
-/** \cfeescmd Stops, Unloads, Loads from the command specfied File and Restarts an Application
+/** \cfeescmd Stops, Unloads, Loads from the command specified File and Restarts an Application
 **
 **  \par Description
 **       This command halts and removes the specified Application
@@ -337,7 +337,7 @@
 **         increment
 **       - The #CFE_ES_RELOAD_APP_DBG_EID debug event message will be
 **         generated. NOTE: This event message only identifies that the
-**         reload process has been initiated, not that is has completed.
+**         reload process has been initiated, not that it has completed.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -417,7 +417,7 @@
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_APP_LOG_FILE configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -494,7 +494,7 @@
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_SYSLOG_FILE configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -517,7 +517,7 @@
 */
 #define CFE_ES_WRITE_SYSLOG_CC 11
 
-/** \cfeescmd Clears the contents of the Exeception and Reset Log
+/** \cfeescmd Clears the contents of the Exception and Reset Log
 **
 **  \par Description
 **       This command causes the contents of the Executive Services Exception
@@ -551,7 +551,7 @@
 */
 #define CFE_ES_CLEAR_ER_LOG_CC 12
 
-/** \cfeescmd Writes Exeception and Reset Log to a File
+/** \cfeescmd Writes Exception and Reset Log to a File
 **
 **  \par Description
 **       This command causes the contents of the Executive Services Exception
@@ -571,7 +571,7 @@
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_ER_LOG_FILE configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -664,7 +664,7 @@
 **         it has completed.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_PERF_DUMP_FILENAME configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -979,7 +979,7 @@
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_CDS_REG_DUMP_FILE configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -1021,7 +1021,7 @@
 **         generated.
 **       - The file specified in the command (or the default specified
 **         by the #CFE_PLATFORM_ES_DEFAULT_TASK_LOG_FILE configuration parameter) will be
-**         updated with the lastest information.
+**         updated with the latest information.
 **
 **  \par Error Conditions
 **       This command may fail for the following reason(s):
@@ -1524,7 +1524,7 @@ typedef struct CFE_ES_HousekeepingTlm_Payload
     uint32 PerfMode;                                         /**< \cfetlmmnemonic \ES_PERFMODE
                                                                   \brief Current mode of Performance Analyzer */
     uint32 PerfTriggerCount;                                 /**< \cfetlmmnemonic \ES_PERFTRIGCNT
-                                                                  \brief Number of Times Perfomance Analyzer has Triggered */
+                                                                  \brief Number of Times Performance Analyzer has Triggered */
     uint32 PerfFilterMask[CFE_MISSION_ES_PERF_MAX_IDS / 32]; /**< \cfetlmmnemonic \ES_PERFFLTRMASK
                                                           \brief Current Setting of Performance Analyzer Filter Masks */
     uint32

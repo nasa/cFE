@@ -12,7 +12,7 @@
 # a set of include directories and compile options for all modules,
 # including the ubiquitous "cfe.h" header file and all it depends on).
 # NOTE: these interfaces are really what defines "CFE core" - changing
-# this list is not recommend, as these interface names are important.
+# this list is not recommended, as these interface names are important.
 set(MISSION_CORE_INTERFACES
     core_api        # this is the "public" core API that apps use, includes cfe.h and all core headers
     core_private    # this is the "private" interface that core apps use, but not used by apps
@@ -21,7 +21,7 @@ set(MISSION_CORE_INTERFACES
 # The "MISSION_CORE_MODULES" will be built and statically linked as part
 # of the CFE core executable on every target.  These can be used to amend
 # or override parts of the CFE core on a mission-specific basis.
-# NOTE: Everthing in this list becomes part of the "core_api" interface above.
+# NOTE: Everything in this list becomes part of the "core_api" interface above.
 # Missions may add/remove/replace components in this list as needed.
 set(MISSION_CORE_MODULES
     "es"

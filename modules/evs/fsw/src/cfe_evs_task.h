@@ -306,7 +306,7 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data);
  * @brief Message Handler Function
  *
  * This routine deletes the event filter for the given application
- * identifer and event identifier
+ * identifier and event identifier
  */
 int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data);
 

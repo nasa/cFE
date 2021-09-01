@@ -68,7 +68,7 @@ typedef uint16 CFE_TBL_BufferSelect_Enum_t;
 /**
  * @brief The definition of the header fields that are included in CFE Table Data files.
  *
- * This header follows the CFE_FS header and precedes the the actual table data.
+ * This header follows the CFE_FS header and precedes the actual table data.
  */
 typedef struct CFE_TBL_File_Hdr
 {

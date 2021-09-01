@@ -1215,7 +1215,7 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
     Throttle.MaxLoop    = 1;
     Throttle.NextIndex  = 0;
 
-    /* Set the MsgId intially - will be overwritten with real info in CFE_SB_CollectMsgMapInfo */
+    /* Set the MsgId initially - will be overwritten with real info in CFE_SB_CollectMsgMapInfo */
     BgFilePtr->Buffer.MsgMapInfo.MsgId = CFE_SB_INVALID_MSG_ID;
 
     /* Collect info on the next route (limited to one per cycle via throttle) */
@@ -1377,7 +1377,7 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
     CFE_SB_Global.PrevSubMsg.Payload.PktSegment = 1;
     CFE_SB_Global.PrevSubMsg.Payload.Entries    = 0;
 
-    /* Send subcription for each route */
+    /* Send subscription for each route */
     CFE_SBR_ForEachRouteId(CFE_SB_SendRouteSub, NULL, NULL);
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);

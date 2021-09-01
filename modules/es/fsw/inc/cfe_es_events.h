@@ -314,7 +314,7 @@
  *
  *  \par Cause:
  *
- *  \link #CFE_ES_START_APP_CC ES Start Application Command \endlink falure due to
+ *  \link #CFE_ES_START_APP_CC ES Start Application Command \endlink failure due to
  *  invalid filename.
  */
 #define CFE_ES_START_INVALID_FILENAME_ERR_EID 27
@@ -381,7 +381,7 @@
 #define CFE_ES_ERREXIT_APP_ERR_EID 33
 
 /**
- * \brief ES Stop Application Commmand Request Failed Event ID
+ * \brief ES Stop Application Command Request Failed Event ID
  *
  *  \par Type: ERROR
  *
@@ -1015,7 +1015,7 @@
  *
  *  The version information reported in this event is derived from the source revision
  *  control system at build time, as opposed to manually-assigned semantic version numbers.
- *  It is intendended to uniquely identify the actual source code that is currently running,
+ *  It is intended to uniquely identify the actual source code that is currently running,
  *  to the extent this is possible.
  *
  *  The \c Mission version information also identifies the build configuration name, if available.

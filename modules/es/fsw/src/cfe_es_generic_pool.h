@@ -279,7 +279,7 @@ void CFE_ES_GenPoolGetBucketUsage(CFE_ES_GenPoolRecord_t *PoolRecPtr, uint16 Buc
  *
  * \note This is intended only as a sanity check on pool sizes, and does not
  * guarantee the ability to actually allocate buffers in a real pool. In particular,
- * alignment is not factored into the this size calculation, and this may require
+ * alignment is not factored into the size calculation, and this may require
  * some additional overhead.
  *
  * \param[in] NumBlockSizes     Number of entries in BlockSizeList

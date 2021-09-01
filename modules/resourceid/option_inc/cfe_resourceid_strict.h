@@ -71,7 +71,7 @@ typedef struct
  * @brief A fixed bit that should be set in all CFE resource ID values
  *
  * In strict mode this is nonzero so that OSAL IDs and CFE IDs will have
- * different values.  This means that CFE Task IDs will not be interchangable
+ * different values.  This means that CFE Task IDs will not be interchangeable
  * with OSAL task IDs, either in value or type.
  */
 #define CFE_RESOURCEID_MARK 0x02000000

@@ -121,7 +121,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
 **
 ** \par Assumptions, External Events, and Notes:
 **          This API only works within the context of a registered application or core service.
-**          For messages outside the context of a registered appliction (for example early
+**          For messages outside the context of a registered application (for example early
 **          in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
 **          for reporting.
 **
@@ -168,7 +168,7 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
 **
 ** \par Assumptions, External Events, and Notes:
 **          The Application ID must correspond to a registered application or core service.
-**          For messages outside the context of a registered appliction (for example early
+**          For messages outside the context of a registered application (for example early
 **          in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
 **          for reporting.
 **
@@ -217,7 +217,7 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
 **
 ** \par Assumptions, External Events, and Notes:
 **          This API only works within the context of a registered application or core service.
-**          For messages outside the context of a registered appliction (for example early
+**          For messages outside the context of a registered application (for example early
 **          in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
 **          for reporting.
 **

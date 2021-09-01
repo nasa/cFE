@@ -58,7 +58,7 @@ void Test_SBR_Route_Unsort_General(void)
     /*
      * Force valid msgid responses
      * Note from here on msgids must be in the valid range since validation is forced true
-     * and if the underlying map implentation is direct it needs to be a valid array index
+     * and if the underlying map implementation is direct it needs to be a valid array index
      */
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
 
@@ -136,7 +136,7 @@ void Test_SBR_Route_Unsort_GetSet(void)
     /*
      * Force valid msgid responses
      * Note from here on msgids must be in the valid range since validation is forced true
-     * and if the underlying map implentation is direct it needs to be a valid array index
+     * and if the underlying map implementation is direct it needs to be a valid array index
      */
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
 

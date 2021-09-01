@@ -206,7 +206,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens);
  *
  * Loads the module file via OSAL and stores all relevant info in the table entry as necessary.
  *
- * This only loads the code and looks up relevent runtime information.
+ * This only loads the code and looks up relevant runtime information.
  * It does not start any tasks.
  */
 int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
@@ -277,7 +277,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg);
  * Scan for new exceptions stored in the PSP
  *
  * This function pools the PSP to check if any exceptions have been logged
- * since the last background cycle.  If an exception is present, retreive
+ * since the last background cycle.  If an exception is present, retrieve
  * the details, add it to the ER log, and trigger the action (e.g. app restart).
  */
 bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg);

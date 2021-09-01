@@ -442,7 +442,7 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementS
 ** \param[in, out] BufPtr   A pointer to the software bus buffer to receive to @nonnull.
 **                          Typically a caller declares a ptr of type CFE_SB_Buffer_t
 **                          (i.e. CFE_SB_Buffer_t *Ptr) then gives the address of that
-**                          pointer (&Ptr) as this parmeter. After a successful
+**                          pointer (&Ptr) as this parameter. After a successful
 **                          receipt of a message, *BufPtr will point to the first
 **                          byte of the software bus buffer. This should be
 **                          used as a read-only pointer (in systems with an MMU,
@@ -544,7 +544,7 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr);
 **          -# If this function returns CFE_SUCCESS, this indicates the zero copy handle is
 **             now owned by software bus, and is no longer owned by the calling application,
 **             and should not be re-used.
-**          -# Howver if this function fails (returns any error status) it does not change
+**          -# However if this function fails (returns any error status) it does not change
 **             the state of the buffer at all, meaning the calling application still owns it.
 **             (a failure means the buffer is left in the same state it was before the call).
 **          -# Applications should be written as if #CFE_SB_AllocateMessageBuffer is
@@ -699,7 +699,7 @@ size_t CFE_SB_GetUserDataLength(const CFE_MSG_Message_t *MsgPtr);
 **    when copying strings out of software bus messages to local storage buffers.
 **
 **    Up to [SourceMaxSize] or [DestMaxSize-1] (whichever is smaller) characters will be
-**    coped from the source buffer to the destination buffer, and a NUL termination
+**    copied from the source buffer to the destination buffer, and a NUL termination
 **    character will be written to the destination buffer as the last character.
 **
 **    If the DefaultString pointer is non-NULL, it will be used in place of the source

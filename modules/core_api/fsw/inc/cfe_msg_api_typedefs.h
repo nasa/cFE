@@ -70,7 +70,7 @@ typedef enum CFE_MSG_SegmentationFlag
     CFE_MSG_SegFlag_Continue,   /**< \brief Continuation segment of User Data */
     CFE_MSG_SegFlag_First,      /**< \brief First segment of User Data */
     CFE_MSG_SegFlag_Last,       /**< \brief Last segment of User Data */
-    CFE_MSG_SegFlag_Unsegmented /**< \brief Unsegemented data */
+    CFE_MSG_SegFlag_Unsegmented /**< \brief Unsegmented data */
 } CFE_MSG_SegmentationFlag_t;
 
 /** \brief Endian flag */
@@ -93,7 +93,7 @@ typedef enum CFE_MSG_PlaybackFlag
  * Abstract Message Base Types
  *
  * The concrete definition of these is provided by "cfe_msg_hdr.h" which is
- * user-selectable depending on the actual desired message defintion.  These
+ * user-selectable depending on the actual desired message definition.  These
  * abstract types are used in the API definition; the API is defined based
  * on these abstract types, independent of the actual message definition.
  */

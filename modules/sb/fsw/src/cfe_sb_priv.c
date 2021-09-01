@@ -34,7 +34,7 @@
 **      StreamId - First 16 bits of CCSDS Space Packet Protocol (SPP) 133.0-B.1c2 Blue Book
 **                 packet primary header. It contains the 3 bit Version Number, 1 bit Packet Type ID,
 **                 1 bit Secondary Header flag, and 11 bit Application Process ID
-**                 It was used in earlier cFS implementaions and is defined here for historical reference
+**                 It was used in earlier cFS implementations and is defined here for historical reference
 **                 It is NOT exposed to user applications.
 **
 **      MsgId    - Unique numeric message identifier within a mission namespace. It is used by cFS

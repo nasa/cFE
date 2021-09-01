@@ -104,7 +104,7 @@ void TestMsgApiBasic(void)
     UtAssert_INT32_EQ(CFE_MSG_GetHeaderVersion(&cmd.Msg, &hdrVer), CFE_SUCCESS);
     UtAssert_True(hdrVer == 0, "hdrVer = 0");
 
-    /* test get-has-secondary-header and set-has-scondary-header*/
+    /* test get-has-secondary-header and set-has-secondary-header*/
     UtAssert_INT32_EQ(CFE_MSG_GetHasSecondaryHeader(NULL, &_expected), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_GetHasSecondaryHeader(&cmd.Msg, NULL), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_SetHasSecondaryHeader(NULL, _expected), CFE_MSG_BAD_ARGUMENT);

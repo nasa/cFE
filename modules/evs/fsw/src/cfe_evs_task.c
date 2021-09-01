@@ -724,7 +724,7 @@ int32 CFE_EVS_SetFilterCmd(const CFE_EVS_SetFilterCmd_t *data)
     /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
-    /* Retreive application data */
+    /* Retrieve application data */
     Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
     if (Status == CFE_SUCCESS)
@@ -1079,7 +1079,7 @@ int32 CFE_EVS_DisableAppEventTypeCmd(const CFE_EVS_DisableAppEventTypeCmd_t *dat
     /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
-    /* Retreive application data */
+    /* Retrieve application data */
     Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
     if (Status == CFE_SUCCESS)
@@ -1193,7 +1193,7 @@ int32 CFE_EVS_DisableAppEventsCmd(const CFE_EVS_DisableAppEventsCmd_t *data)
     /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
-    /* Retreive application data */
+    /* Retrieve application data */
     Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
     if (Status == CFE_SUCCESS)
@@ -1242,7 +1242,7 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
     /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
-    /* Retreive application data */
+    /* Retrieve application data */
     Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
     if (Status == CFE_SUCCESS)
@@ -1292,7 +1292,7 @@ int32 CFE_EVS_ResetFilterCmd(const CFE_EVS_ResetFilterCmd_t *data)
     /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
-    /* Retreive application data */
+    /* Retrieve application data */
     Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
     if (Status == CFE_SUCCESS)
@@ -1356,7 +1356,7 @@ int32 CFE_EVS_ResetAllFiltersCmd(const CFE_EVS_ResetAllFiltersCmd_t *data)
     /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
-    /* Retreive application data */
+    /* Retrieve application data */
     Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
     if (Status == CFE_SUCCESS)
@@ -1409,7 +1409,7 @@ int32 CFE_EVS_AddEventFilterCmd(const CFE_EVS_AddEventFilterCmd_t *data)
     /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
-    /* Retreive application data */
+    /* Retrieve application data */
     Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
     if (Status == CFE_SUCCESS)
@@ -1493,7 +1493,7 @@ int32 CFE_EVS_DeleteEventFilterCmd(const CFE_EVS_DeleteEventFilterCmd_t *data)
     /* Copy appname from command, ensures NULL termination */
     CFE_SB_MessageStringGet(LocalName, (char *)CmdPtr->AppName, NULL, sizeof(LocalName), sizeof(CmdPtr->AppName));
 
-    /* Retreive application data */
+    /* Retrieve application data */
     Status = EVS_GetApplicationInfo(&AppDataPtr, LocalName);
 
     if (Status == CFE_SUCCESS)

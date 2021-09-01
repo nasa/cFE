@@ -98,7 +98,7 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **
 ** \par Assumptions, External Events, and Notes:
 **        The generic #UtAssert_UINT32_EQ check should not be used, as ID values
-**        and integers may not be interchangable with strict type checking.
+**        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
 #define CFE_UtAssert_RESOURCEID_EQ(id1, id2)                                                                         \
@@ -144,7 +144,7 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **
 ** \par Assumptions, External Events, and Notes:
 **        The generic #UtAssert_UINT32_EQ check should not be used, as CFE_SB_MsgId_t values
-**        and integers may not be interchangable with strict type checking.
+**        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
 #define CFE_UtAssert_MSGID_EQ(mid1, mid2)                                                                      \

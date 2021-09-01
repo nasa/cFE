@@ -256,7 +256,7 @@ int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)
     Stat = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, Dest);
     if (Stat > 0)
     {
-        /* Substract the size of the destination block from the Memory in use ctr */
+        /* Subtract the size of the destination block from the Memory in use ctr */
         CFE_SB_Global.StatTlmMsg.Payload.MemInUse -= Stat;
     } /* end if */
 

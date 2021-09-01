@@ -618,7 +618,7 @@ void Test_CFE_TBL_DumpToFile(void)
     UT_SetDeferredRetcode(UT_KEY(OS_OpenCreate), 1, OS_ERROR);
     UtAssert_INT32_EQ(CFE_TBL_DumpToFile("filename", "tablename", "dumpaddress", TblSizeInBytes), CFE_TBL_INC_CMD_CTR);
 
-    /* Test where file already exists so data isoverwritten */
+    /* Test where file already exists so data is overwritten */
     UT_InitData();
     UtAssert_INT32_EQ(CFE_TBL_DumpToFile("filename", "tablename", "dumpaddress", TblSizeInBytes), CFE_TBL_INC_CMD_CTR);
 }
@@ -1405,7 +1405,7 @@ void Test_CFE_TBL_Register(void)
     /* Test response to a table name longer than the maximum allowed */
     UT_InitData();
 
-    /* Create a table name longer than alowed */
+    /* Create a table name longer than allowed */
     for (i = 0; i < CFE_MISSION_TBL_MAX_NAME_LENGTH + 1; i++)
     {
         TblName[i] = 'A';
@@ -3393,7 +3393,7 @@ void Test_CFE_TBL_Internal(void)
     UtAssert_INT32_EQ(CFE_TBL_EarlyInit(), CFE_ES_BAD_ARGUMENT);
     CFE_UtAssert_EVENTCOUNT(0);
 
-    /* Test CFE_TBL_EarlyInit reponse to a get pool buffer failure */
+    /* Test CFE_TBL_EarlyInit response to a get pool buffer failure */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_TBL_EarlyInit(), CFE_ES_ERR_RESOURCEID_NOT_VALID);
