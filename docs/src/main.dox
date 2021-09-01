@@ -164,8 +164,8 @@
   \page cfedependencies Dependencies
 
   The Core Flight Executive (cFE) is required to be built with the Operating System Abstraction Layer (OSAL) and Platform Support Package (PSP)
-  componenets of the Core Flight System (cFS).  It is always recommended to build with the latest versions of each of the components as
-  backward compatability may not be supported. <BR>
+  components of the Core Flight System (cFS).  It is always recommended to build with the latest versions of each of the components as
+  backward compatibility may not be supported. <BR>
 
   Several internal data structures within the cFE use the "char" data type.  This data type is typically 1 byte in storage size with a value
   range -128 to 127 or 0 to 255.  The size of the "char" data type and whether or not the type is signed or unsigned can change across

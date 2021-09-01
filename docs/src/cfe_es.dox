@@ -14,7 +14,7 @@
   through the Platform Support Package (PSP).
 
   The functionality provided by the ES task include Software Reset,
-  Application and Child Task Mangement, Basic File System, Performance Data
+  Application and Child Task Management, Basic File System, Performance Data
   Collection, Critical Data Store, Memory Pool, System Log, Shell Command.
 
   For additional detail on Executive Services, see the following sections:
@@ -385,7 +385,7 @@
   The #CFE_ES_RELOAD_APP_CC command is used to reload an application
   using a new file name.
 
-  This command performes
+  This command performs
   the same actions as #CFE_ES_RESTART_APP_CC only using the new file.
 
   Next: \ref cfeesugapplist <BR>
@@ -420,7 +420,7 @@
      <LI> <B>Load Address</B> - The starting address of memory where the Application was loaded <BR>
      <LI> <B>Load Size</B> - The size, in bytes, of the Application when loaded into memory <BR>
      <LI> <B>Start Address</B> - The physical address that maps to the Entry Point <BR>
-     <LI> <B>Exception Action</B> - A flag that identifies whether the the Processor should undergo
+     <LI> <B>Exception Action</B> - A flag that identifies whether the Processor should undergo
           a Restart or whether just the Application should restart upon an exception condition
           within the Application <BR>
      <LI> <B>Priority</B> - The assigned priority for the Application <BR>
@@ -754,7 +754,7 @@
   <UL>
     <LI> <B>Memory Pool Handle</B> - the handle, as provided by the operator in the
          \link #CFE_ES_SEND_MEM_POOL_STATS_CC Telemeter Memory Pool Statistics Command. \endlink
-         This repeating of the handle in telemetry insures the operator knows which Memory
+         This repeating of the handle in telemetry ensures the operator knows which Memory
          Pool Statistics are being viewed <BR>
     <LI> <B>Pool Size</B> - The total size of the memory pool (in bytes)<BR>
     <LI> <B>Number Blocks Requested</B> - The total number of memory blocks requested for allocation<BR>

@@ -294,7 +294,7 @@
 
   For a telemetry message, the behavior is controlled via API input parameters when sending.
   When enabled, the software bus will populate the packet sequence
-  counter using an internal counter that gets intialized upon the first subscription to the
+  counter using an internal counter that gets initialized upon the first subscription to the
   message (first message will have a packet sequence counter value of 1).  From that point on
   each send request will increment the counter by one, regardless of the number of destinations
   or if there is an active subscription.

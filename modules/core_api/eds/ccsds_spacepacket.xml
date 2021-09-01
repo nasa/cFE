@@ -24,11 +24,11 @@
 
     Purpose:
       This describes objects as defined by CCSDS book 133 Space Packet Protocol
-      and utilized by the Core Fligh System (cFS)
+      and utilized by the Core Flight System (cFS)
 
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
-<Package name="CCSDS" shortDescription="CCSDS Space Packet Protocol defintions">
+<Package name="CCSDS" shortDescription="CCSDS Space Packet Protocol definitions">
 
    <DataTypeSet>
       <IntegerDataType name="VersionId" shortDescription="The first 16 bits of a CCSDS Space Packet Header">
@@ -77,7 +77,7 @@
 
       <IntegerDataType name="CommandCode" shortDescription="The command ID contained within a command secondary header">
         <LongDescription>
-          Command codes in CFE range are 7 bits (0-127).  The most signficant bit (codes 128-255) are reserved.
+          Command codes in CFE range are 7 bits (0-127).  The most significant bit (codes 128-255) are reserved.
         </LongDescription>
         <IntegerDataEncoding sizeInBits="8" encoding="unsigned" />
         <Range>
@@ -160,7 +160,7 @@
 
       <!--
       The APID qualifier (aka Version 2) Primary Header:
-         This is the the same as the version 1 primary header but extended with APID qualifier data
+         This is the same as the version 1 primary header but extended with APID qualifier data
       -->
       <ContainerDataType name="APIDQHdr" baseType="BaseHdr" shortDescription="Space packet protocol v2 header">
          <LongDescription>

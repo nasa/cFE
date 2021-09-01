@@ -23,11 +23,11 @@
     as prescribed in CCSDS book 876.0.
 
     Purpose:
-      This describes stardard data types used throughout the Core Flight System
+      This describes standard data types used throughout the Core Flight System
 
 -->
 <PackageFile xmlns="http://www.ccsds.org/schema/sois/seds">
-<Package name="BASE_TYPES" shortDescription="Standard type defintions for Core Flight System">
+<Package name="BASE_TYPES" shortDescription="Standard type definitions for Core Flight System">
 
    <!-- Define "base" data types for which all other containers/interfaces/etc will use -->
    <DataTypeSet>
