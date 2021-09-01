@@ -188,7 +188,7 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 - Uses `int` with %d conversions inUtAssert_True and UtPrintf for platform portability.
 - Specifying the special string NULL as the entry point in a startup script results in no entry point being called for the library. Equivalent to leaving the field empty.
-- [build system] Adds a hook for an `install_custom.cmake` script that can added to a CPU-specific subdirectory under the "defs" directory. This hook can perform extra installation steps for custom implementations. Tweaks the `add_cfe_tables` function so it can be called from the `install_custom.cmake` script to generate additional table binaries for that CPU.
+- [build system] Adds a hook for an `install_custom.cmake` script that can be added to a CPU-specific subdirectory under the "defs" directory. This hook can perform extra installation steps for custom implementations. Tweaks the `add_cfe_tables` function so it can be called from the `install_custom.cmake` script to generate additional table binaries for that CPU.
 - [build system] `add_cfe_tables` now uses the "APP_NAME" parameter to associate the table files with the app library, so the same set of include files can be used. Still allows any unique string to be used as "APP_NAME" for backward compatibility. The script will now generate a "Note" message to the user if it does not match an application name.
 - If the multiple table feature is used, it actually needs to match the application name, or else the include paths may be incomplete.
 - Removes discrepancies (return type, parameter names, etc) between function prototypes and implementation. Also fixes some but not all use of CFE_Status_t in the implementations. Updates ut-stubs accordingly.
@@ -229,7 +229,7 @@ a default handler routine.
 Updates the doxygen documentation for this parameter, as it was incorrectly specifying a 32-bit alignment requirement.
 - Adds new functional tests for ES Child Task API. Does not check edge cases. Fixed spelling mistake in `UtAssert_ResourceID_Undifeined` name
 - Removes BUILDDIR reference and an old comment. No behavior changes
-- Moves and renames `cfe_resourceid_basevalue.h` to `cfe_resourceid_basevalue.h`. Since it is is assumed/required that resource IDs follow the "osal compatible" pattern. Perhaps in a future version this could change, but
+- Moves and renames `cfe_resourceid_basevalue.h` to `cfe_resourceid_basevalue.h`. Since it is assumed/required that resource IDs follow the "osal compatible" pattern. Perhaps in a future version this could change, but
 - Ensures that the `CFE_SUCCESS` constant is of the `CFE_Status_t` type. Since an explicit cast is required on all error codes that are expected to be negative values.
 - Removes unused error codes: `CFE_ES_ERR_SHELL_CMD` and `CFE_SB_NO_MSG_RECV`. No impact to behavior.
 - When a startup file has a line with too many tokens the build script will generate a concise warning including an indicator of which line is causing the problem.
@@ -330,7 +330,7 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 
 ### Development Build: v6.8.0-rc1+dev382
 
-- Refactors the SB buffer descriptor object `CFE_SB_BufferD_t` and simplify the zero-copy buffer paradigm. Combines the zero-copy and the normal CFE buffer descriptor into a single unified `CFE_SB_BufferD_t` object. Results in a simpler zero-copy design that is similarto the the standard, non-zero-copy message path. All message descriptor objects are now tracked in a list by SB. All changes are internal to SB. This does not affect API or behavior of any existing APIs (but see note). Corrects a minor issue where the `MsgSendErrorCounter` would get incremented if there were no subscribers, but only in the zero copy API.  
+- Refactors the SB buffer descriptor object `CFE_SB_BufferD_t` and simplify the zero-copy buffer paradigm. Combines the zero-copy and the normal CFE buffer descriptor into a single unified `CFE_SB_BufferD_t` object. Results in a simpler zero-copy design that is similar to the standard, non-zero-copy message path. All message descriptor objects are now tracked in a list by SB. All changes are internal to SB. This does not affect API or behavior of any existing APIs (but see note). Corrects a minor issue where the `MsgSendErrorCounter` would get incremented if there were no subscribers, but only in the zero copy API.  
 - Replaces `int_32` with `CFE_Status_t` for all error message codes  
 - Removes references to `cfeesugshellsrv` from user guide
 - Adds null pointer checks and size checks to validate method parameters. Returning the input instead of an error code
@@ -359,7 +359,7 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 
 ### Development Build: v6.8.0-rc1+dev348
 
-- Corrects reference to PSP header file location. Build now succesfully completes the build succeeds again when using `add_psp_module()` in custom CMakeLists file.
+- Corrects reference to PSP header file location. Build now successfully completes the build succeeds again when using `add_psp_module()` in custom CMakeLists file.
 - Replace "send" with "write" in names for commands that write files. For example, `CFE_SB_**SEND**_ROUTING_INFO_CC` is now `CFE_SB_**WRITE**_ROUTING_INFO_CC`. Updates function names, command code names and comments.
 - Removes incorrectly implemented deferred return code of `-1` for `CFE_SB_ReceiveBuffer` from software bus setup in `UT_InitData`.
 - Implements more informative **assert messages** by making `SETUP, TEARDOWN, ASSERT` print `0x%lx` while `ASSERT_EQ` now prints both `%lf` and `0x%lx` format for the inputs
@@ -380,7 +380,7 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - Removes the remnants of the table service exclusion logic and documentation: `EXCLUDE_CFE_TBL` no longer available, even if defined, table services will still start.
 - Set ES and EVS pipe message limit to defaults as opposed to the custom, unjustified, `CFE_SB_SubscribeEx`. This change might queue additional HK messages, but SCH loads after ES anyways.
 - Replaces `CFE_SB_Default_Qos` with `CFE_SB_DEFAULT_QOS` macro that avoids global variable exposure. Removes SB-internal defines that are not implemented nor used.
-- Explicity `memset` the task data to zero at the start of EarlyInit. Standardize the global typdef/variable names.
+- Explicitly `memset` the task data to zero at the start of EarlyInit. Standardize the global typedef/variable names.
 - Moves all functions, macros, types, and other definitions related to resource IDs and generic resource management into a separate module, like `CFE MSG`, `SBR`, etc. This allows a mission to elect "strict" implementations of these objects, where every ID type is unique, and assigning between them or `uint32` results in a compiler error. **API now has separate types for each resource type (Apps, Tasks, Libs, Counters, etc).** The user can elect at the mission level whether this is a simple typedef (all uint32, all interchangeable) or a wrapper type (separate/strict type, cannot be interchanged). The former is backward compatible but the latter is not - must use proper types.
 - Adds Code QL analysis to continuous integration workflow.
 - See <https://github.com/nasa/cFE/pull/1150>
@@ -400,7 +400,7 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - For primary-only header config: telemetry header required to 64 bit boundary (affects all receivers)
 - For primary and extended header config: command header required padding to 64 bit boundary (affects all senders)
 - Refactor `CFE_TIME_RegisterSynchCallback` to only have one return point and eliminates "possible uninitialized variable" static analysis warning
-- None of these changes are expected to cause problematic.
+- None of these changes are expected to be problematic.
 - Addresses message delivery issues due to inconsistent locking by reworking cFE-SB API implementation. Ensures all events are generated and counters are incremented consistently by avoiding early returns in functions and using the `PendingEventID` register to record what event ID should be sent per the current operation.
 - Employs the `CFE_ES_ResourceID_t` type and related patterns for managing the SB Pipe IDs.
 - Will break code which directly accessed these items without going through the lookup function.
@@ -439,7 +439,7 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 
 - Remove use of `osapi-os-loader.h` from ES UT.
 - Use volatile `sig_atomic_t` for system state to avoid race issue if uint32 isn't atomic on a system
-- Set the flags parameter on the OS_ModuleLoad() properly to allow an app to be properly unloaded, which in turn allows the reload command to work as expected. Fixes problem where unload comand resulted in continuous restarting of the same app code.
+- Set the flags parameter on the OS_ModuleLoad() properly to allow an app to be properly unloaded, which in turn allows the reload command to work as expected. Fixes problem where unload command resulted in continuous restarting of the same app code.
 - Replaced `Test_MSG_PrintMsg` with `UT_DisplayPkt`. Also removed unused `Test_MSG_Sum`.
 - See <https://github.com/nasa/cFE/pull/1047>
 
@@ -593,7 +593,7 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 ### Development Build: v6.8.0-rc1+dev13
 
 - Deprecates `CFE_SB_GetLastSenderId()` API by introducing new `CFE_OMIT_DEPRECATED_6_8` tag
-- Documentation update remove deleted requiremements
+- Documentation update remove deleted requirements
 - Add a new *cfe_assert* module for functional testing by making it possible to load the UT assert object code as a CFE library. These are compiled as separate, independent modules and only loaded on demand. Also includes a draft example for cFE testing, which calls some basic ES AppId functions.
 - See <https://github.com/nasa/cFE/pull/816>
 

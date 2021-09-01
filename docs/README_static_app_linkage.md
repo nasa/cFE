@@ -89,7 +89,7 @@ This allows symbol lookups to succeed even on systems that do not have any
 dynamic lookup capabilities.
 
 Each entry should be a comma-separated pair indicating a symbol name and the 
-module name that would define it in a dynamically-linked environement.
+module name that would define it in a dynamically-linked environment.
 
 **NOTE**: To be more portable this operates on the abstract module name as 
 opposed to the file name.  This corresponds to the 4th parameter on each line 

@@ -8,7 +8,7 @@
   application or core service.  EVS provides various ways to filter event
   messages in order to manage event message generation.
 
-  Note for messages outside the context of a registered appliction (for example early
+  Note for messages outside the context of a registered application (for example early
   in app initialization or if registration fails) #CFE_ES_WriteToSysLog can be used
   for reporting.
 
@@ -140,7 +140,7 @@
   When commands are sent to \link #CFE_EVS_ENABLE_EVENT_TYPE_CC enable \endlink
   or \link #CFE_EVS_DISABLE_EVENT_TYPE_CC disable \endlink a particular type of event
   message, ALL event messages of the specified type are affected.  Typically, event
-  meesages of type DEBUG are disabled on-orbit.  Note that EVS provides the capability
+  messages of type DEBUG are disabled on-orbit.  Note that EVS provides the capability
   to affect multiple types within one command using a bit mask.  Note also that the
   configuration parameter #CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG in the cfe_platform_cfg.h file
   specifies which event message types are enabled/disabled by default.
@@ -188,7 +188,7 @@
   for filtering.  Once an event is \link #CFE_EVS_ADD_EVENT_FILTER_CC registered for filtering \endlink,
   the filter can be modified (see above) or \link #CFE_EVS_DELETE_EVENT_FILTER_CC removed \endlink.
 
-  An on-orbit mission, for example, might be experiencing a problem resulting in a event
+  An on-orbit mission, for example, might be experiencing a problem resulting in an event
   message being repeatedly issued,  flooding the downlink. If the event message was not
   registered with EVS for filtering then the ground can add (i.e. register) the offending
   application's event for filtering (much like an application registers the event during

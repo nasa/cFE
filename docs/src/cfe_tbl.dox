@@ -229,7 +229,7 @@
   On occasion, cFE Applications require a segment of memory in which the Application writes data.  The typical
   cFE Table is not normally modified directly by an Application but only via Load and Activate commands from
   either the Ground or Stored Command Processor.  However, for those situations where an Application wishes to
-  modify the contents of a data structure and the Application is limited in its telemtry bandwidth so that the
+  modify the contents of a data structure and the Application is limited in its telemetry bandwidth so that the
   modified data cannot be telemetered, the Application can create a Dump-Only table.
 
   Dump-Only tables are not allowed to be modified via the Load/Validate/Activate process most other tables are.

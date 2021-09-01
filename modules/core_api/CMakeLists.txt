@@ -4,15 +4,15 @@
 #
 ##################################################################
 
-# NOTE: This module is shared headers and configuration only, it has has no
-# source files of its own.  It just defines the intefaces betwen the CFE core
+# NOTE: This module is shared headers and configuration only, it has no
+# source files of its own.  It just defines the interfaces between the CFE core
 # modules and other private headers that define CFE internal shared data objects.
 add_library(core_api INTERFACE)
 
 # The fsw/inc here defines global/shared structures and interfaces
 target_include_directories(core_api INTERFACE fsw/inc)
 
-# Propagate any INTERFACE-level include dirs and compile defintions from
+# Propagate any INTERFACE-level include dirs and compile definitions from
 # the modules into this abstract interface target
 foreach(MOD ${MISSION_CORE_MODULES})
     target_include_directories(core_api INTERFACE

@@ -617,7 +617,7 @@
                \cfetlmmnemonic  \ES_PERFMODE
             </LongDescription>
           </Entry>
-          <Entry name="PerfTriggerCount" type="BASE_TYPES/uint32" shortDescription="Number of Times Perfomance Analyzer has Triggered">
+          <Entry name="PerfTriggerCount" type="BASE_TYPES/uint32" shortDescription="Number of Times Performance Analyzer has Triggered">
             <LongDescription>
                \cfetlmmnemonic  \ES_PERFTRIGCNT
             </LongDescription>
@@ -996,7 +996,7 @@
           increment
           - The #CFE_ES_STOP_DBG_EID debug event message will be
           generated. NOTE: This event message only identifies that the
-          stop has been started, not that is has completed.
+          stop has been started, not that it has completed.
           - Once the stop has successfully completed, the list of Applications
           and Tasks created in response to the \b \c \ES_WRITEAPPINFO2FILE,
           \b \c \ES_WRITETASKINFO2FILE should no longer contain the
@@ -1011,7 +1011,7 @@
 
           Evidence of failure may be found in the following telemetry:
           - \b \c \ES_CMDEC - command error counter will increment
-          - A command specific error event message is issued forall error
+          - A command specific error event message is issued for all error
           cases
           - Additional information on the reason for command failure may be found
           in the System Log
@@ -1054,7 +1054,7 @@
           increment
           - The #CFE_ES_RESTART_APP_DBG_EID debug event message will be
           generated. NOTE: This event message only identifies that the
-          act of stopping the application has begun, not that is has completed.
+          act of stopping the application has begun, not that it has completed.
 
           \par  Error Conditions
 
@@ -1111,7 +1111,7 @@
           increment
           - The #CFE_ES_RELOAD_APP_DBG_EID debug event message will be
           generated. NOTE: This event message only identifies that the
-          act of stopping the application has begun, not that is has completed.
+          act of stopping the application has begun, not that it has completed.
 
           \par  Error Conditions
 
@@ -1164,7 +1164,7 @@
           increment
           - The #CFE_ES_ONE_APP_EID debug event message will be
           generated. NOTE: This event message only identifies that the
-          act of stopping the application has begun, not that is has completed.
+          act of stopping the application has begun, not that it has completed.
           - Receipt of the #CFE_ES_APP_TLM_t telemetry packet
 
           \par  Error Conditions
@@ -1214,7 +1214,7 @@
           generated.
           - The file specified in the command (or the default specified
           by the #CFE_ES_DEFAULT_APP_LOG_FILE configuration parameter) will be
-          updated with the lastest information.
+          updated with the latest information.
 
           \par  Error Conditions
 
@@ -1313,7 +1313,7 @@
           generated.
           - The file specified in the command (or the default specified
           by the #CFE_ES_DEFAULT_SYSLOG_FILE configuration parameter) will be
-          updated with the lastest information.
+          updated with the latest information.
 
           \par  Error Conditions
 
@@ -1346,7 +1346,7 @@
 
       <ContainerDataType name="ClearERLog" baseType="CommandBase">
         <LongDescription>
-          \cfeescmd  Clears the contents of the Exeception and Reset Log
+          \cfeescmd  Clears the contents of the Exception and Reset Log
 
           \par  Description
 
@@ -1391,7 +1391,7 @@
 
       <ContainerDataType name="WriteERLog" baseType="CommandBase">
         <LongDescription>
-          \cfeescmd  Writes Exeception and Reset Log to a File
+          \cfeescmd  Writes Exception and Reset Log to a File
 
           \par  Description
 
@@ -1412,7 +1412,7 @@
           generated.
           - The file specified in the command (or the default specified
           by the #CFE_ES_DEFAULT_ER_LOG_FILE configuration parameter) will be
-          updated with the lastest information.
+          updated with the latest information.
 
           \par  Error Conditions
 
@@ -1523,7 +1523,7 @@
           generated.
           - The file specified in the command (or the default specified
           by the #CFE_ES_DEFAULT_PERF_DUMP_FILENAME configuration parameter) will be
-          updated with the lastest information.
+          updated with the latest information.
 
           \par  Error Conditions
 
@@ -1930,7 +1930,7 @@
           generated.
           - The file specified in the command (or the default specified
           by the #CFE_ES_DEFAULT_CDS_REG_DUMP_FILE configuration parameter) will be
-          updated with the lastest information.
+          updated with the latest information.
 
           \par  Error Conditions
 
@@ -1982,7 +1982,7 @@
           generated.
           - The file specified in the command (or the default specified
           by the #CFE_ES_DEFAULT_TASK_LOG_FILE configuration parameter) will be
-          updated with the lastest information.
+          updated with the latest information.
 
           \par  Error Conditions
 
