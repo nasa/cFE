@@ -595,7 +595,7 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
 
             if (PercentFree < CFE_PLATFORM_ES_RAM_DISK_PERCENT_RESERVED)
             {
-                CFE_ES_WriteToSysLog("%s: Insufficent Free Space on Volatile Disk, Reformatting.\n", __func__);
+                CFE_ES_WriteToSysLog("%s: Insufficient Free Space on Volatile Disk, Reformatting.\n", __func__);
 
                 /*
                 ** First, unmount the disk
@@ -641,7 +641,7 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                         else
                         {
 
-                            CFE_ES_WriteToSysLog("%s: Error Re-Formating Volatile(RAM) Volume. EC = %ld\n", __func__,
+                            CFE_ES_WriteToSysLog("%s: Error Re-Formatting Volatile(RAM) Volume. EC = %ld\n", __func__,
                                                  (long)OsStatus);
                             /*
                             ** Delay to allow the message to be read

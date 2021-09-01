@@ -79,7 +79,7 @@ jobs:
             temp=$(grep -c "BEGIN" cf/cfe_test.tmp) 
               
             if [ $temp -eq $counter ]; then
-              echo "Test is frozen. Quiting"
+              echo "Test is frozen. Quitting"
               break
             fi
 
