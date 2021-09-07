@@ -302,21 +302,130 @@ a variation on this standard.
 
 ## 2.1 Directory Tree
 
-The following diagrams show the standard development and build directory
+The following shows the standard development and build directory
 tree or mission tree as it is often referred to. The purpose of each
 directory is described as a note under each folder.
-
-![](.//media/cFE_Application_Developers_Guide_image4.png)
-
-![](.//media/cFE_Application_Developers_Guide_image5.png)
-
-![](.//media/cFE_Application_Developers_Guide_image6.png)
-
+```
+-- missionxyz
+    |-- cfe
+    |   |-- Contains a copy of the cFE component
+    |-- osal
+    |   |-- Contains a copy of the OSAL component
+    |-- psp
+    |   |-- Contains the Platform Suport Package (PSP) library
+    |   |-- Can customize PSP implementation for each CPU and OS that the project needs
+    |-- build
+    |   |-- The flight software is all configured and built under this directory
+    |   |-- All mission and platform configuration files are placed here
+    |-- apps
+    |   |-- Contains application source code. 
+    |   |-- Application source code may be shared amoung multiple build CPUs
+    |-- libs
+    |   |-- Contains Core Flight System (cFS) Sample Library (sample_lib)
+    |-- tools
+    |   |-- Contains Core Flight System (cFS) tools
+``` 
+Module descriptions are provided in the table below. 
+```
+-- missionxyz/cfe
+   |-- cmake
+   |   |-- sample_defs
+   |   |    |-- Example target definitions folder (used for building the open source cFS bundle)
+   |   |-- target
+   |   |    |-- Templates and generic helper software used/included by the build toolchain
+   |-- docs
+   |-- modules
+   |   |-- cfe_assert
+   |   |-- cfe_testcase
+   |   |-- cfe_testrunner
+   |   |-- core_api
+   |   |-- core_private
+   |   |-- es
+   |   |-- evs
+   |   |-- fs
+   |   |-- msg
+   |   |-- resourceid
+   |   |-- sb
+   |   |-- sbr
+   |   |-- tbl
+   |   |-- time
+```
+```
+-- missionxyz/build
+   |-- CMakeFiles
+   |   |-- Cmake fore cfe core build and all apps
+   |-- cpu1
+   |   |-- Contains start up script "cfe_es_startup.scr"
+   |   |-- Where build.o and executable files, etc. are placed
+   |-- cpuN
+   |-- docs
+   |-- exe
+   |-- inc
+   |   |-- Where the cpu1 platform configuration include files go
+   |-- src
+   |-- tools
+```  
+```
+-- missionxyz/build/cpu1
+   |-- default_cpu1
+   |   |-- CMakeFiles
+   |   |   | Cmake fore cfe core build and all apps
+   |   |-- apps
+   |   |    |-- Where application makefiles go
+   |   |    |-- One directory per application
+   |   |-- core_api
+   |   |-- core_private
+   |   |-- cpu1
+   |   |   |-- Contains start up script "cfe_es_startup.scr"
+   |   |   |-- Where build.o and executable files, etc. are placed
+   |   |-- es
+   |   |-- evs
+   |   |-- fs
+   |   |-- inc
+   |   |   |-- Where the cpu1 platform configuration include files go
+   |   |-- msg
+   |   |-- osal
+   |   |-- psp
+   |   |-- resourceid
+   |   |-- sb
+   |   |-- sbr
+   |   |-- tbl
+   |   |-- time
+```
+``` 
+-- missionxyz/apps
+   |-- ci_lab
+   |-- sample_app
+   |-- sch_lab
+   |-- to_lab
+``` 
+``` 
+-- missionxyz/tools
+   |-- cFS-GroundSystem
+   |-- elf2cfetbl
+   |-- tblCRCTool
+``` 
+```
+-- missionxyz/cf/modules/es
+   |-- eds
+   |-- fsw
+   |   | Software tree
+   |   |-- inc
+   |   |-- src
+   |   |   |-- Application source code and private header files
+   |   |   |-- The build system is flexible enough to have multiple subdirectories under/src when building code
+   |   |   |-- For appls with ~ 10 files, keep it simple with just a "src" directory
+   |-- ut-coverage
+   |   | Test tree
+```
 Each cFE core component is itself a modular entity, all of which work together to form the
 complete cFE core executive.  These modules are all contained under the `modules` subdirectory:
 
 | **Directory**           | **Content**                                                                                                        |
 |:------------------------|:------------------------------------------------------------------------------------------------------------------ |
+| `modules/cfe_assert/`   | A CFE-compatible library wrapping the basic UT assert library. This is the same library that all other unit tests use, but configured to be dynamically loaded into the CFE environment, and using CFE syslog for its output. This must be the first library loaded for any functional test.     |
+| `modules/cfe_testcase/` | A CFE-compatible library implementing test cases for CFE core apps. This must be loaded after cfe_assert.     |
+| `modules/cfe_testrunner/` | A CFE application that actually executes the tests. This is a very simple app that waits for CFE startup to complete, then executes all registered test cases. It also must be loaded after cfe_assert.    |
 | `modules/core_api/`     | Contains the public interface definition of the complete CFE core - public API/headers only, no implementation     |
 | `modules/core_private/` | Contains the inter-module interface definition of the CFE core - internal API/headers only, no implementation      |
 | `modules/es/`           | Implementation of the Executive Services (ES) core module - provides app and task management                       |
@@ -342,15 +451,7 @@ Each module directory is in turn divided into subdirectories as follows:
 | _module_`/ut-coverage/` | Coverage tests to provide line/branch testing (correlates with internal implementation in `fsw/src`)         |
 | _module_`/eds/`         | Command & Telemetry interface description as a CCSDS book 876.0 Electronic Data Sheet                        |
 
-![](.//media/cFE_Application_Developers_Guide_image7.png)
 
-![](.//media/cFE_Application_Developers_Guide_image8.png)
-
-![](.//media/cFE_Application_Developers_Guide_image9.png)
-
-![](.//media/cFE_Application_Developers_Guide_image10.png)
-
-![](.//media/cFE_Application_Developers_Guide_image11.png)
 
 ## 2.2 Header Files
 
