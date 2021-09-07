@@ -110,4 +110,5 @@ const char *UT_OSP_MESSAGES[] = {
     [UT_OSP_PUTPOOL_BAD_HANDLE]         = "%s: Err:Invalid Memory Handle (0x%08lX).\n",
     [UT_OSP_FORMAT_VOLATILE]            = "%s: Formatting Volatile(RAM) Volume.\n",
     [UT_OSP_RELOAD_NO_FILE]             = "%s: Cannot Reload Application %s, File %s does not exist.\n",
+    [UT_OSP_EXTERNAL_APP_EXIT]          = "%s: Application %s called CFE_ES_ExitApp\n",
 };
