@@ -1490,29 +1490,35 @@ with timeout as well.
 
 ### 6.1.1 Software Bus Messages
 
-A Software Bus Message (SB Message) is a collection of data treated as a
-single entity. The format and the definition of the content is uniquely
-identified with a 16 bit Message ID. The Message ID is used to identify
-what the data is and who would like to receive it. Applications create
-SB Messages by allocating sufficient memory, calling the SB API to
-initialize the contents of the SB Message and then storing any
-appropriate data into the structure.
+A Software Bus Message is a collection of data treated as a single entity.
+Messages are identified and routed on the Software Bus using an abstracted
+Message ID.  Applications create SB Messages by allocating sufficient memory,
+initializing the message contents and filling in user data.
 
-The Message API hides the details of the message structure,
-providing routines such as CFE_MSG_GetMsgTime and CFE_MSG_SetMsgTime
-in order to get and set a message time. The current version of the cFE
+The Message API abstracts the details of the message header,
+and most importantly the Message ID.  The current version of the cFE
 supports only CCSDS, however, the implementation of the message
-structure can be changed without affecting cFS Applications.
+structure can be changed without affecting the rest of cFS as long
+as the APIs meet the required behavior identified in the related
+documentation.
 
-See the implementation documentation for specific formats,
-fields, and bit values.  The message ID (MsgId) is an abstract
-concept that is implementation depended, used for routing messages
-on the Software Bus.  Depending on the implementation, different
-ranges and values are supported, and the values effect the message
-header differently.
+See the message module implementation documentation for specific formats,
+fields, and bit values.  The message module provides a selection of two
+different implementations for Message ID (MISSION_MSG_V1 and MISSION_MSG_V2),
+which use different header information to interpret the Message ID.
+Applications and cFE services should always use the message module APIs
+for getting or setting information in the message headers to support
+portability between formats.  Message ID should always be treated as opaque,
+although they do need to be defined for applications to subscribe to messages.
+Message ID definition is typically managed by external database management
+systems and MUST match the implementation selected.
 
-If you are using the default, MsgID maps directly to the CCSDS Stream ID.
-When using the default, for commands use 0x18xx and telemetry use 0x08xx
+If you are using the default (MISSION_MSG_V1), MsgID maps directly to the CCSDS Stream ID.
+It is important enough to repeat, applications should NOT directly interpret
+the Message ID value since for different implementations the bits may have
+different meanings.  For example, default Message ID values for commands are of
+the format 0x18xx and telemetry is 0x08xx, whereas for MISSION_MSG_V2
+those bits have different meaning.
 
 ### 6.1.2 Pipes
 
@@ -1558,6 +1564,21 @@ its Routing Table to identify where the SB Message should be sent and
 performs the operations necessary to transfer the SB Message to the
 target pipe(s). Applications call the SB API to request specified SB
 Message IDs to be routed to their previously created pipes.
+
+Note there are two routing implementations provide by the
+Software Bus Routing (SBR) module.  If the MISSION_MSGMAP_IMPLEMENTATION
+is unset (the default) or set to DIRECT, a message map of size
+CFE_PLATFORM_SB_HIGHEST_VALID_MSGID is used to relate Message ID to routes.
+If set to HASH, a message map of size (4 * CFE_PLATFORM_SB_MAX_MSG_IDS)
+is used and a hash is performed on Message IDs to relate to routes.  Note
+the impact on memory footprint can be significant, since
+CFE_PLATFORM_SB_HIGHEST_VALID_MSGID is the maximum number of possible
+Message IDs, whereas CFE_PLATFORM_SB_MAX_MSG_IDS is the maximum number of
+routes supported (**used** Message IDs).  Hash collisions are reported
+during subscription and can be avoided by predetermining Message
+IDs that won't collide.  Note advanced users can replace SBR with a custom
+routing implementation (possibly sorting or a smart hash) to adapt to unique
+mission requirements/constraints.
 
 #### 6.1.3.1 Sending Applications
 
@@ -1680,7 +1701,7 @@ FILE: sample_msgids.h
 
 ...
 /* Define Message IDs */
-#define SAMPLE_CMDID_1        (0x0123)
+#define SAMPLE_CMDID_1        (0x0123)  /* CAUTION!!! This value depends on selected implementation */
 ...
 ```
 ```c
@@ -1840,15 +1861,14 @@ for the Developer to have used the CFE_MSG_CommandHeader_t macro
 instead.
 
 The CFE_MSG_Init API call formats the Message Header
-appropriately with the given SB Message ID, size and, in this case,
-clears the data portion of the SB Message (CFE_SB_CLEAR_DATA).
-Another option for the fourth parameter is CFE_SB_NO_CLEAR which
-would have retained the contents of the data structure and only updated
-the SB Message Header.
+appropriately with the given Message ID, size and clears the rest
+of the message.  Note this call is implementation dependent, in that
+bits in the Message ID may have additional meaning and may impact
+actual header fields in different ways.
 
-NOTE: SB Message IDs are defined in a separate header file from the rest
+NOTE: Message IDs are defined in a separate header file from the rest
 of the Application's interface. This makes it much simpler to port the
-Application to another mission where SB Message IDs may need to be
+Application to another mission where Message IDs may need to be
 renumbered.
 
 ### 6.5.1 Message Header Types
@@ -1900,7 +1920,7 @@ functions are only applicable to a specific header type.  Additional
 information on modifying specific header types is provided in the following
 subsections.
 
-| **SB Message Header Field** | **API for Modifying the Header Field** |
+| **Message Header Field** | **API for Modifying the Header Field** |
 | ---------------------------:| --------------------------------------:|
 | Message ID                  | CFE_MSG_SetMsgId                       |
 | Total Message Length        | CFE_MSG_SetSize                        |
@@ -1946,7 +1966,7 @@ Applications are portable to future missions. The following table
 identifies the fields of the Message Header and the appropriate API
 for extracting that field from the header:
 
-| **SB Message Header Field** | **API for Reading the Header Field** |
+| **Message Header Field** | **API for Reading the Header Field** |
 |:----------------------------|:-------------------------------------|
 | Message ID                  | CFE_MSG_GetMsgId                     |
 | Message Time                | CFE_MSG_GetTime                      |
@@ -1997,7 +2017,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 
 ## 6.7 Receiving Software Bus Messages
 
-To receive a SB Message, an application calls CFE_SB_ReceiveBuffer.  Since most
+To receive a Message, an application calls CFE_SB_ReceiveBuffer.  Since most
 applications are message-driven, this typically occurs in an application's
 main execution loop.  An example of this is shown below.
 
@@ -2039,7 +2059,7 @@ FILE: sample_app.c
 ```
 
 In the above example, the Application will pend on the
-SAMPLE_AppData.CmdPipe until an SB Message arrives. A pointer to the next SB
+SAMPLE_AppData.CmdPipe until a Message arrives. A pointer to the next SB
 message in the Pipe will be returned in SBBufPtr.
 
 Alternatively, the Application could have chosen to pend with a timeout (by
@@ -2047,12 +2067,12 @@ providing a numerical argument in place of CFE_SB_PEND_FOREVER) or to quickly
 poll the pipe to check for a message (by using CFE_SB_POLL in place of
 CFE_SB_PEND_FOREVER).
 
-If a SB Message fails to arrive within the specified timeout period, the
+If a Message fails to arrive within the specified timeout period, the
 cFE will return the CFE_SB_TIME_OUT status code. If the Pipe does not have
 any data present when the CFE_SB_ReceiveBuffer API is called, the cFE will return
 a CFE_SB_NO_MESSAGE status code.
 
-After a message is received, the SB Message Header accessor functions (as
+After a message is received, the Message Header accessor functions (as
 described in Section 6.5.3) should be used to identify the message so that
 the application can react to it appropriately.
 
@@ -2081,7 +2101,7 @@ assume the SB Buffer pointer is accessible once the buffer
 has been sent.
 
 If an Application has called the `CFE_SB_AllocateMessageBuffer` API call and
-then later determines that it is not going to send the SB Message, it
+then later determines that it is not going to send the Message, it
 shall free the allocated buffer by calling the
 `CFE_SB_ReleaseMessageBuffer` API.
 
@@ -2091,7 +2111,7 @@ An example of the "Zero Copy" protocol is shown below:
 FILE: app_msgids.h
 
 ...
-#define SAMPLE_BIG_TLM_MID        (0x0231)   /* Define SB Message ID for SAMPLE’s Big Pkt */
+#define SAMPLE_BIG_TLM_MID        (0x0231)   /* Define Message ID for SAMPLE’s Big Pkt */
 ...
 
 FILE: sample_app.h
@@ -2134,7 +2154,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
 {
    ...
    /*
-   ** Get a SB Message block of memory and initialize it
+   ** Get a Message block of memory and initialize it
    */
    SAMPLE_AppData.BigPktBuf = (SAMPLE_BigPkt_Buffer_t *)CFE_SB_AllocateMessageBuffer(sizeof(SAMPLE_BigPkt_t));
 
@@ -2146,7 +2166,7 @@ SAMPLE_AppData_t  SAMPLE_AppData;  /* Instantiate Task Data */
    */
 
    /*
-   ** Send SB Message after time tagging it with current time
+   ** Send Message after time tagging it with current time
    */
    CFE_SB_TimeStampMsg(&SAMPLE_AppData.BigPktBuf->Pkt.TlmHeader.Msg);
    CFE_SB_TransmitBuffer(SAMPLE_AppData.BigPktBuf, BufferHandle, true);
@@ -2163,7 +2183,7 @@ The following are recommended "best practices" for applications using SB.
 2. Pipe depth and message limits are dependent on the entire software system.
    Consider both the receiving application and any sending application(s) when
    choosing those limits.
-3. Applications shall always use AB API functions to read or manipulate the SB
+3. Applications shall always use API functions to read or manipulate the
    Message Header.
 4. Applications should maintain a command counter and a command error counter
    in housekeeping telemetry.
