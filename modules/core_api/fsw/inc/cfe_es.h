@@ -41,6 +41,7 @@
 #include "common_types.h"
 #include "cfe_error.h"
 #include "cfe_es_api_typedefs.h"
+#include "cfe_resourceid_api_typedefs.h"
 
 /*
 ** The OS_PRINTF macro may be defined by OSAL to enable
