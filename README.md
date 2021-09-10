@@ -10,6 +10,16 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev994
+
+- Update directory diagrams in cFE Application Developers Guide 
+- Improve SB coverage
+- Improve ES code coverage
+- Update cFE Application Developers Guide for message module
+- Update documentation for message map hash implementation 
+- Update SB/MSG tests to verify "Not Implemented" functions
+- See <https://github.com/nasa/cFE/pull/1939> and <https://github.com/nasa/cFS/pull/351>
+
 ### Development Build: v6.8.0-rc1+dev980
 
 - Add SB API test cases
