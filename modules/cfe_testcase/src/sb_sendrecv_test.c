@@ -122,7 +122,12 @@ void TestBasicTransmitRecv(void)
     /* Attempt to send a msg which does not have a valid msgid  */
     memset(&CFE_FT_BigMsg, 0xFF, sizeof(CFE_FT_BigMsg));
     CFE_MSG_SetSize(&CFE_FT_BigMsg.Hdr, sizeof(CFE_MSG_Message_t) + 4);
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CFE_FT_BigMsg.Hdr, true), CFE_SB_BAD_ARGUMENT);
+
+    CFE_Assert_STATUS_STORE(CFE_SB_TransmitMsg(&CFE_FT_BigMsg.Hdr, true));
+    if (!CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
+    {
+        CFE_Assert_STATUS_MUST_BE(CFE_SB_BAD_ARGUMENT);
+    }
 
     /* Attempt to send a msg which is too big */
     CFE_MSG_SetSize(&CFE_FT_BigMsg.Hdr, sizeof(CFE_FT_BigMsg));
