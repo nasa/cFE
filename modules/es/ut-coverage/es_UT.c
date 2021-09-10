@@ -39,6 +39,7 @@
 ** Includes
 */
 #include "es_UT.h"
+#include "target_config.h"
 
 #define ES_UT_CDS_BLOCK_SIZE 16
 
@@ -205,6 +206,25 @@ CFE_ResourceId_t ES_UT_MakeCDSIdForIndex(uint32 ArrayIdx)
 void ES_UT_TaskFunction(void)
 {
     UT_DEFAULT_IMPL(ES_UT_TaskFunction);
+}
+
+/* Local function to test CFE_ES_SysLog_vsnprintf */
+void ES_UT_SysLog_snprintf(char *Buffer, size_t BufferSize, const char *SpecStringPtr, ...)
+{
+    va_list ap;
+
+    va_start(ap, SpecStringPtr);
+    CFE_ES_SysLog_vsnprintf(Buffer, BufferSize, SpecStringPtr, ap);
+    va_end(ap);
+}
+
+void ES_UT_FillBuffer(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    char * PrintBuffer = UT_Hook_GetArgValueByName(Context, "PrintBuffer", char *);
+    uint32 Size        = *((uint32 *)UserObj);
+
+    memset(PrintBuffer, ' ', Size - 1);
+    PrintBuffer[Size - 1] = 0;
 }
 
 /*
@@ -399,6 +419,18 @@ int32 ES_UT_CDSPoolRetrieve(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, C
 int32 ES_UT_CDSPoolCommit(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
 {
     return CFE_PSP_WriteToCDS(BdPtr, Offset, sizeof(*BdPtr));
+}
+
+/* Commit failure routine for pool coverage testing */
+int32 ES_UT_PoolCommitFail(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, const CFE_ES_GenPoolBD_t *BdPtr)
+{
+    return CFE_ES_CDS_ACCESS_ERROR;
+}
+
+/* Retrieve failure routine for pool coverage testing */
+int32 ES_UT_PoolRetrieveFail(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t Offset, CFE_ES_GenPoolBD_t **BdPtr)
+{
+    return CFE_ES_CDS_ACCESS_ERROR;
 }
 
 void ES_UT_SetupMemPoolId(CFE_ES_MemPoolRecord_t **OutPoolRecPtr)
@@ -876,6 +908,22 @@ void TestStartupErrorPaths(void)
     CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_DETERMINE_BLOCKS]);
 
+    /* File system init with free space (no reformat) */
+    ES_ResetUnitTest();
+    StatBuf.blocks_free = StatBuf.total_blocks;
+    UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
+    CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
+    UtAssert_STUB_COUNT(OS_unmount, 0);
+    StatBuf.blocks_free = CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS / 100;
+
+    /* File system init with no blocks */
+    ES_ResetUnitTest();
+    StatBuf.total_blocks = 0;
+    UT_SetDataBuffer(UT_KEY(OS_FileSysStatVolume), &StatBuf, sizeof(StatBuf), false);
+    CFE_ES_InitializeFileSystems(CFE_PSP_RST_TYPE_PROCESSOR);
+    UtAssert_STUB_COUNT(CFE_PSP_Panic, 1);
+    StatBuf.total_blocks = CFE_PLATFORM_ES_RAM_DISK_NUM_SECTORS;
+
     /* Test reading the object table where a record used error occurs */
     ES_ResetUnitTest();
     TaskRecPtr = CFE_ES_Global.TaskTable;
@@ -967,7 +1015,7 @@ void TestStartupErrorPaths(void)
     /* Test application sync delay where the operation times out */
     ES_ResetUnitTest();
     /* This prep is necessary so GetAppId works */
-    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppType_CORE, NULL, &AppRecPtr, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, NULL, &AppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
     UtAssert_INT32_EQ(
         CFE_ES_WaitForSystemState(CFE_ES_SystemState_OPERATIONAL, CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC),
@@ -978,7 +1026,7 @@ void TestStartupErrorPaths(void)
      */
     ES_ResetUnitTest();
     /* This prep is necessary so GetAppId works */
-    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppType_CORE, NULL, &AppRecPtr, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, NULL, &AppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
     UtAssert_INT32_EQ(
         CFE_ES_WaitForSystemState(CFE_ES_SystemState_SHUTDOWN, CFE_PLATFORM_ES_STARTUP_SCRIPT_TIMEOUT_MSEC),
@@ -990,7 +1038,7 @@ void TestStartupErrorPaths(void)
      */
     ES_ResetUnitTest();
     /* This prep is necessary so GetAppId works */
-    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppType_CORE, NULL, &AppRecPtr, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, NULL, &AppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
 
     UtAssert_INT32_EQ(
@@ -1001,9 +1049,78 @@ void TestStartupErrorPaths(void)
     /* Test success */
     ES_ResetUnitTest();
     /* This prep is necessary so GetAppId works */
-    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppType_CORE, NULL, &AppRecPtr, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, NULL, &AppRecPtr, NULL);
     CFE_ES_Global.SystemState = CFE_ES_SystemState_CORE_READY;
     CFE_UtAssert_SUCCESS(CFE_ES_WaitForSystemState(CFE_ES_SystemState_CORE_READY, 0));
+
+    /* Core app wait for operational, already running */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_EARLY_INIT, NULL, &AppRecPtr, NULL);
+    CFE_ES_Global.SystemState = CFE_ES_SystemState_EARLY_INIT;
+    CFE_UtAssert_SUCCESS(CFE_ES_WaitForSystemState(CFE_ES_SystemState_EARLY_INIT, 0));
+}
+
+static void ES_UT_UnusedAppTask(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    CFE_ES_TaskId_t      TaskId = *((CFE_ES_TaskId_t *)UserObj);
+    CFE_ES_TaskRecord_t *UtTaskRecPtr;
+    CFE_ES_AppRecord_t * UtAppRecPtr;
+
+    UtTaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskId);
+    UtAppRecPtr  = CFE_ES_LocateAppRecordByID(UtTaskRecPtr->AppId);
+
+    /* Set the records back to there "used" values */
+    UtTaskRecPtr->TaskId = CFE_ES_TASKID_UNDEFINED;
+    UtAppRecPtr->AppId   = CFE_ES_APPID_UNDEFINED;
+}
+
+static void ES_UT_UsedAppTask(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    CFE_ES_TaskId_t      TaskId = *((CFE_ES_TaskId_t *)UserObj);
+    CFE_ES_TaskRecord_t *UtTaskRecPtr;
+    CFE_ES_AppRecord_t * UtAppRecPtr;
+
+    UtTaskRecPtr = CFE_ES_LocateTaskRecordByID(TaskId);
+    UtAppRecPtr  = CFE_ES_LocateAppRecordByID(UtTaskRecPtr->AppId);
+
+    /* Set the records back to there "used" values */
+    UtTaskRecPtr->TaskId = TaskId;
+    UtAppRecPtr->AppId   = UtTaskRecPtr->AppId;
+}
+
+static void ES_UT_SetPerfIdle(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    CFE_ES_Global.ResetDataPtr->Perf.MetaData.State = CFE_ES_PERF_IDLE;
+}
+
+static void ES_UT_ForEachObjectIncrease(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+
+    OS_ArgCallback_t callback_ptr = UT_Hook_GetArgValueByName(Context, "callback_ptr", OS_ArgCallback_t);
+    void *           callback_arg = UT_Hook_GetArgValueByName(Context, "callback_arg", void *);
+    int *            count        = (int *)UserObj;
+    int              i;
+    osal_id_t        id;
+
+    /* Increasing number of objects per call */
+    for (i = 0; i < *count; i++)
+    {
+        OS_OpenCreate(&id, NULL, 0, 0);
+        (*callback_ptr)(id, callback_arg);
+    }
+    (*count)++;
+}
+
+static void ES_UT_ForEachObjectFail(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+
+    OS_ArgCallback_t callback_ptr = UT_Hook_GetArgValueByName(Context, "callback_ptr", OS_ArgCallback_t);
+    void *           callback_arg = UT_Hook_GetArgValueByName(Context, "callback_arg", void *);
+    osal_id_t        id;
+
+    OS_OpenCreate(&id, NULL, 0, 0);
+    UT_SetDeferredRetcode(UT_KEY(OS_close), 1, -1);
+    (*callback_ptr)(id, callback_arg);
 }
 
 void TestApps(void)
@@ -1014,9 +1131,11 @@ void TestApps(void)
     CFE_ES_TaskId_t         TaskId;
     CFE_ES_TaskRecord_t *   UtTaskRecPtr;
     CFE_ES_AppRecord_t *    UtAppRecPtr;
+    CFE_ES_AppRecord_t *    UtAppRecPtr1;
     CFE_ES_MemPoolRecord_t *UtPoolRecPtr;
     char                    NameBuffer[OS_MAX_API_NAME + 5];
     CFE_ES_AppStartParams_t StartParams;
+    int                     ObjCount;
 
     UtPrintf("Begin Test Apps");
 
@@ -1079,6 +1198,12 @@ void TestApps(void)
     CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CANNOT_OPEN_ES_APP_STARTUP]);
 
+    /* Test with failing parse of filenames */
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_FS_ParseInputFileName), -1);
+    CFE_ES_StartApplications(CFE_PSP_RST_TYPE_PROCESSOR, "ut_startup");
+    UtAssert_STUB_COUNT(OS_OpenCreate, 0);
+
     /* Test successfully starting an application */
     ES_ResetUnitTest();
     UT_SetReadBuffer(StartupScript, NumBytes);
@@ -1110,9 +1235,10 @@ void TestApps(void)
     /* Verify requirement to report error */
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_APP_CREATE]);
 
-    /* Test application creation with NULL parameters */
+    /* Test application creation with NULL pointers */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_AppCreate(&AppId, "AppName", NULL), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_AppCreate(&AppId, NULL, &StartParams), CFE_ES_BAD_ARGUMENT);
 
     /* Test application creation with name too long */
     memset(NameBuffer, 'x', sizeof(NameBuffer) - 1);
@@ -1149,6 +1275,7 @@ void TestApps(void)
     CFE_ES_Global.AppTable[2].AppId = CFE_ES_APPID_UNDEFINED;
     UtAssert_BOOL_TRUE(CFE_ES_CheckAppIdSlotUsed(ES_UT_MakeAppIdForIndex(1)));
     UtAssert_BOOL_FALSE(CFE_ES_CheckAppIdSlotUsed(ES_UT_MakeAppIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckAppIdSlotUsed(CFE_RESOURCEID_UNDEFINED));
 
     /* Test application loading and creation where the entry point symbol
      * cannot be found
@@ -1187,7 +1314,7 @@ void TestApps(void)
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
     memset(&CFE_ES_Global.BackgroundAppScanState, 0, sizeof(CFE_ES_Global.BackgroundAppScanState));
-    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
+    UtAssert_BOOL_TRUE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 0);
     CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
 
@@ -1198,7 +1325,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 5000;
-    CFE_ES_RunAppTableScan(1000, &CFE_ES_Global.BackgroundAppScanState);
+    UtAssert_BOOL_TRUE(CFE_ES_RunAppTableScan(1000, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 4000);
     UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_EXIT);
 
@@ -1209,7 +1336,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
-    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
+    UtAssert_BOOL_TRUE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 0);
     CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
 
@@ -1220,7 +1347,7 @@ void TestApps(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
     UtAppRecPtr->ControlReq.AppTimerMsec      = 0;
-    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
+    UtAssert_BOOL_FALSE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec,
                       CFE_PLATFORM_ES_APP_KILL_TIMEOUT * CFE_PLATFORM_ES_APP_SCAN_RATE);
 
@@ -1229,8 +1356,9 @@ void TestApps(void)
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, NULL, &UtAppRecPtr, NULL);
-    UtAppRecPtr->ControlReq.AppTimerMsec = 5000;
-    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
+    UtAppRecPtr->ControlReq.AppTimerMsec                        = 5000;
+    CFE_ES_Global.BackgroundAppScanState.PendingAppStateChanges = 1;
+    UtAssert_BOOL_FALSE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 5000);
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -1382,11 +1510,28 @@ void TestApps(void)
     UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
     CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR1_EID);
 
+    /* Control action with mismatched ID */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->AppId = CFE_ES_APPID_UNDEFINED;
+    UtAssert_VOIDCALL(CFE_ES_ProcessControlRequest(AppId));
+    CFE_UtAssert_EVENTSENT(CFE_ES_PCR_ERR2_EID);
+
     /* Test populating the application information structure with data */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_UtAssert_SUCCESS(CFE_ES_GetAppInfo(&AppInfo, AppId));
+
+    /* Two main/child pairs, assert count of child tasks */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr1, NULL);
+    ES_UT_SetupChildTaskId(UtAppRecPtr1, NULL, NULL);
+    CFE_UtAssert_SUCCESS(CFE_ES_GetAppInfo(&AppInfo, AppId));
+    UtAssert_UINT32_EQ(AppInfo.NumOfChildTasks, 1);
 
     /* Test populating the application information structure with data using
      * a null application information pointer
@@ -1552,12 +1697,34 @@ void TestApps(void)
     UT_SetDefaultReturnValue(UT_KEY(OS_TaskDelete), OS_ERROR);
     UtAssert_INT32_EQ(CFE_ES_CleanupTaskResources(TaskId), CFE_ES_TASK_DELETE_ERR);
 
+    /* Clean up resources where task self exited */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_SetDefaultReturnValue(UT_KEY(OS_TaskDelete), OS_ERR_INVALID_ID);
+    CFE_UtAssert_SUCCESS(CFE_ES_CleanupTaskResources(TaskId));
+
     /* Test successfully cleaning up the OS resources for a task */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
     TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
     UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
     CFE_UtAssert_SUCCESS(CFE_ES_CleanupTaskResources(TaskId));
+
+    /* Override OS_ForEachObject to provide increasing number of objects */
+    ES_ResetUnitTest();
+    ObjCount = 1;
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_SetHandlerFunction(UT_KEY(OS_ForEachObject), ES_UT_ForEachObjectIncrease, &ObjCount);
+    UtAssert_INT32_EQ(CFE_ES_CleanupTaskResources(TaskId), CFE_ES_APP_CLEANUP_ERR);
+
+    /* Override OS_ForEachObject to get zero deleted (but nonzero objects )*/
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, NULL, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_SetHandlerFunction(UT_KEY(OS_ForEachObject), ES_UT_ForEachObjectFail, NULL);
+    UtAssert_INT32_EQ(CFE_ES_CleanupTaskResources(TaskId), CFE_ES_APP_CLEANUP_ERR);
 
     /* Test parsing the startup script for a cFE application and a restart
      * application exception action
@@ -1585,7 +1752,7 @@ void TestApps(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_WAITING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppTimerMsec = 0;
-    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
+    UtAssert_BOOL_FALSE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 0);
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -1595,7 +1762,16 @@ void TestApps(void)
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppTimerMsec = 0;
-    CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState);
+    UtAssert_BOOL_FALSE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
+    UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 0);
+    CFE_UtAssert_EVENTCOUNT(0);
+
+    /* Scan where command counter changed */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppTimerMsec                      = 0;
+    CFE_ES_Global.BackgroundAppScanState.LastScanCommandCount = CFE_ES_Global.TaskData.CommandCounter + 1;
+    UtAssert_BOOL_FALSE(CFE_ES_RunAppTableScan(0, &CFE_ES_Global.BackgroundAppScanState));
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppTimerMsec, 0);
     CFE_UtAssert_EVENTCOUNT(0);
 
@@ -1617,17 +1793,19 @@ void TestApps(void)
     UtAssert_BOOL_FALSE(CFE_ES_MemPoolRecordIsUsed(UtPoolRecPtr));
 
     /* Test deleting an application and cleaning up its resources where the
-     * main task and child task need to be swapped
+     * main task and child task need to be swapped and there is a mempool not owned by the app
      */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr1, NULL);
     ES_UT_SetupMemPoolId(&UtPoolRecPtr);
-    UtPoolRecPtr->OwnerAppID = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    UtPoolRecPtr->OwnerAppID = CFE_ES_AppRecordGetID(UtAppRecPtr1);
     ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     /* Set MainTask to Child task's ID. Cleanup code will swap the order. */
     UtAppRecPtr->MainTaskId = UtTaskRecPtr->TaskId;
     CFE_UtAssert_SUCCESS(CFE_ES_CleanUpApp(AppId));
+    UtAssert_BOOL_TRUE(CFE_ES_MemPoolRecordIsUsed(UtPoolRecPtr));
 
     /* Test deleting an application and cleaning up its resources where the
      * memory pool deletion fails
@@ -1708,6 +1886,17 @@ void TestApps(void)
     UT_SetDeferredRetcode(UT_KEY(OS_TimerGetInfo), 1, OS_ERROR);
     UT_SetDeferredRetcode(UT_KEY(OS_FDGetInfo), 1, OS_ERROR);
     CFE_UtAssert_SUCCESS(CFE_ES_CleanupTaskResources(TaskId));
+
+    /* Corrupt the App/Task records as part of cleanup for branch coverage */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    AppId  = CFE_ES_AppRecordGetID(UtAppRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    /* Register the handler to set records back to used */
+    UT_SetHandlerFunction(UT_KEY(CFE_SB_CleanUpApp), ES_UT_UsedAppTask, &TaskId);
+    CFE_UtAssert_SUCCESS(CFE_ES_CleanUpApp(AppId));
+    UtAssert_BOOL_TRUE(CFE_ES_TaskRecordIsUsed(UtTaskRecPtr));
+    UtAssert_BOOL_TRUE(CFE_ES_AppRecordIsUsed(UtAppRecPtr));
 }
 
 void TestResourceID(void)
@@ -1745,6 +1934,7 @@ void TestLibs(void)
     char                      LongLibraryName[sizeof(UtLibRecPtr->LibName) + 1];
     CFE_ES_LibId_t            Id;
     CFE_ES_ModuleLoadParams_t LoadParams;
+    CFE_ES_AppInfo_t          LibInfo;
 
     /* Test shared library loading and initialization where the initialization
      * routine returns an error
@@ -1776,6 +1966,10 @@ void TestLibs(void)
     /* Try loading same library again, should return the DUPLICATE code */
     UtAssert_INT32_EQ(CFE_ES_LoadLibrary(&Id, "TST_LIB", &LoadParams), CFE_ES_ERR_DUPLICATE_NAME);
     CFE_UtAssert_RESOURCEID_EQ(Id, CFE_ES_LibRecordGetID(UtLibRecPtr));
+
+    /* Add an app and exercise name conflict */
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_EARLY_INIT, "Conflict", NULL, NULL);
+    UtAssert_INT32_EQ(CFE_ES_LoadLibrary(&Id, "Conflict", &LoadParams), CFE_ES_ERR_DUPLICATE_NAME);
 
     /* Test shared library loading and initialization where the library
      * fails to load
@@ -1833,6 +2027,8 @@ void TestLibs(void)
     CFE_ES_Global.LibTable[2].LibId = CFE_ES_LIBID_UNDEFINED;
     UtAssert_BOOL_TRUE(CFE_ES_CheckLibIdSlotUsed(ES_UT_MakeLibIdForIndex(1)));
     UtAssert_BOOL_FALSE(CFE_ES_CheckLibIdSlotUsed(ES_UT_MakeLibIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckLibIdSlotUsed(CFE_RESOURCEID_UNDEFINED));
+
     /*
      * Test public Name+ID query/lookup API
      */
@@ -1846,7 +2042,13 @@ void TestLibs(void)
     UtAssert_INT32_EQ(CFE_ES_GetLibName(LongLibraryName, CFE_ES_LIBID_UNDEFINED, sizeof(LongLibraryName)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetLibName(NULL, Id, sizeof(LongLibraryName)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetLibName(LongLibraryName, Id, 0), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&Id, NULL), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(NULL, "NotNULL"), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetLibInfo(NULL, Id), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetLibInfo(&LibInfo, CFE_ES_LIBID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    CFE_UtAssert_SUCCESS(CFE_ES_GetLibInfo(&LibInfo, Id));
+    UtAssert_INT32_EQ(CFE_ES_GetModuleInfo(NULL, CFE_RESOURCEID_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 }
 
 void TestERLog(void)
@@ -1857,7 +2059,7 @@ void TestERLog(void)
 
     UtPrintf("Begin Test Exception and Reset Log");
 
-    /* Test initial rolling over log entry,
+    /* Test invalid log index,
      * null description,
      * and non-null context with small size
      */
@@ -1865,6 +2067,18 @@ void TestERLog(void)
     CFE_ES_Global.ResetDataPtr->ERLogIndex = CFE_PLATFORM_ES_ER_LOG_ENTRIES + 1;
     CFE_UtAssert_SUCCESS(CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, 1, NULL));
     UtAssert_UINT32_EQ(CFE_ES_Global.ResetDataPtr->ERLogIndex, 1);
+    UtAssert_STRINGBUF_EQ(CFE_ES_Global.ResetDataPtr->ERLog[0].BaseInfo.Description,
+                          sizeof(CFE_ES_Global.ResetDataPtr->ERLog[0].BaseInfo.Description),
+                          "No Description String Given.", SIZE_MAX);
+
+    /* Test rollover log index,
+     * null description,
+     * and non-null context with small size
+     */
+    ES_ResetUnitTest();
+    CFE_ES_Global.ResetDataPtr->ERLogIndex = CFE_PLATFORM_ES_ER_LOG_ENTRIES - 1;
+    CFE_UtAssert_SUCCESS(CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_POWERON, 1, NULL));
+    UtAssert_UINT32_EQ(CFE_ES_Global.ResetDataPtr->ERLogIndex, 0);
     UtAssert_STRINGBUF_EQ(CFE_ES_Global.ResetDataPtr->ERLog[0].BaseInfo.Description,
                           sizeof(CFE_ES_Global.ResetDataPtr->ERLog[0].BaseInfo.Description),
                           "No Description String Given.", SIZE_MAX);
@@ -1944,8 +2158,9 @@ void TestGenericPool(void)
          * so that the implementation will sort them.
          */
         16, 56, 60, 40, 44, 48, 64, 128, 20, 24, 28, 12, 52, 32, 4, 8, 36};
-    uint16 i;
-    uint32 ExpectedCount;
+    uint16              i;
+    uint32              ExpectedCount;
+    CFE_ES_GenPoolBD_t *BdPtr;
 
     ES_ResetUnitTest();
 
@@ -1998,9 +2213,16 @@ void TestGenericPool(void)
     UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, 1000), CFE_ES_ERR_MEM_BLOCK_SIZE);
 
     /* Call stats functions for coverage (no return code) */
-    CFE_ES_GenPoolGetUsage(&Pool1, &FreeSize, &TotalSize);
-    CFE_ES_GenPoolGetCounts(&Pool1, &NumBlocks, &CountBuf, &ErrBuf);
-    CFE_ES_GenPoolGetBucketUsage(&Pool1, 1, &BlockStats);
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetUsage(&Pool1, &FreeSize, &TotalSize));
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetUsage(&Pool1, NULL, &TotalSize));
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetUsage(&Pool1, &FreeSize, NULL));
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetCounts(&Pool1, &NumBlocks, &CountBuf, &ErrBuf));
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetCounts(&Pool1, &NumBlocks, &CountBuf, NULL));
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetCounts(&Pool1, &NumBlocks, NULL, &ErrBuf));
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetCounts(&Pool1, NULL, &CountBuf, &ErrBuf));
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetBucketUsage(&Pool1, 1, &BlockStats));
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetBucketUsage(&Pool1, 1, NULL));
+    UtAssert_VOIDCALL(CFE_ES_GenPoolGetBucketUsage(&Pool1, Pool1.NumBuckets + 1, &BlockStats));
 
     /* Check various outputs to ensure correctness */
     CFE_UtAssert_MEMOFFSET_EQ(TotalSize, OffsetEnd);
@@ -2087,7 +2309,7 @@ void TestGenericPool(void)
      * because its now fragmented. */
     UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset2, 12), CFE_ES_ERR_MEM_BLOCK_SIZE);
 
-    /* Put the buffer, then corrupt the memory and try to recycle */
+    /* Put the buffer, then corrupt the buffer descriptor and try to recycle */
     CFE_UtAssert_SUCCESS(CFE_ES_GenPoolPutBlock(&Pool2, &BlockSize, Offset3));
     memset(UT_MemPoolIndirectBuffer.Data, 0xee, sizeof(UT_MemPoolIndirectBuffer.Data));
     UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool2, &Offset3, 56), CFE_ES_ERR_MEM_BLOCK_SIZE);
@@ -2124,8 +2346,107 @@ void TestGenericPool(void)
     UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, 0), CFE_ES_BUFFER_NOT_IN_POOL);
     UtAssert_BOOL_TRUE(CFE_ES_GenPoolValidateState(&Pool1));
 
-    Pool1.TailPosition = 0xFFFFFF;
+    Pool1.NumBuckets = CFE_PLATFORM_ES_POOL_MAX_BUCKETS + 1;
     UtAssert_BOOL_FALSE(CFE_ES_GenPoolValidateState(&Pool1));
+
+    Pool1.NumBuckets = 0;
+    UtAssert_BOOL_FALSE(CFE_ES_GenPoolValidateState(&Pool1));
+    Pool1.NumBuckets = CFE_PLATFORM_ES_POOL_MAX_BUCKETS;
+
+    Pool1.TailPosition = Pool1.PoolMaxOffset + 1;
+    UtAssert_BOOL_FALSE(CFE_ES_GenPoolValidateState(&Pool1));
+    Pool1.TailPosition = Pool1.PoolMaxOffset;
+
+    Pool1.PoolTotalSize = 0;
+    UtAssert_BOOL_FALSE(CFE_ES_GenPoolValidateState(&Pool1));
+
+    /* Recycle pool bad firstoffset, note creating new will still pass */
+    ES_ResetUnitTest();
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolInitialize(&Pool1, 0, sizeof(UT_MemPoolIndirectBuffer.Data), 32,
+                                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS, UT_POOL_BLOCK_SIZES,
+                                                  ES_UT_PoolDirectRetrieve, ES_UT_PoolDirectCommit));
+    CFE_UtAssert_SETUP(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, Pool1.Buckets[0].BlockSize));
+    CFE_UtAssert_SETUP(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset1));
+    Pool1.Buckets[0].FirstOffset = 0;
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, Pool1.Buckets[0].BlockSize));
+
+    /* Recycle pool buf with bad allocation info */
+    ES_ResetUnitTest();
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolInitialize(&Pool1, 0, sizeof(UT_MemPoolIndirectBuffer.Data), 32,
+                                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS, UT_POOL_BLOCK_SIZES,
+                                                  ES_UT_PoolDirectRetrieve, ES_UT_PoolDirectCommit));
+    CFE_UtAssert_SETUP(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, Pool1.Buckets[0].BlockSize));
+    CFE_UtAssert_SETUP(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset1));
+    CFE_UtAssert_SETUP(ES_UT_PoolDirectRetrieve(&Pool1, Offset1 - CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE, &BdPtr));
+    BdPtr->Allocated = 0;
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, Pool1.Buckets[0].BlockSize));
+
+    /* Retrieve failures, need to manually set up buffer for recycle */
+    ES_ResetUnitTest();
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolInitialize(&Pool1, 0, sizeof(UT_MemPoolIndirectBuffer.Data), 32,
+                                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS, UT_POOL_BLOCK_SIZES,
+                                                  ES_UT_PoolRetrieveFail, ES_UT_PoolDirectCommit));
+    Pool1.Buckets[0].FirstOffset  = 2;
+    Pool1.Buckets[0].ReleaseCount = Pool1.Buckets[0].RecycleCount + 1;
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, Pool1.Buckets[0].BlockSize), CFE_ES_CDS_ACCESS_ERROR);
+
+    /* Commit failures */
+    ES_ResetUnitTest();
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolInitialize(&Pool1, 0, sizeof(UT_MemPoolIndirectBuffer.Data), 32,
+                                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS, UT_POOL_BLOCK_SIZES,
+                                                  ES_UT_PoolDirectRetrieve, ES_UT_PoolCommitFail));
+    Pool1.Buckets[0].FirstOffset  = CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE;
+    Pool1.Buckets[0].ReleaseCount = Pool1.Buckets[0].RecycleCount + 1;
+    CFE_UtAssert_SETUP(ES_UT_PoolDirectRetrieve(&Pool1, 0, &BdPtr));
+    BdPtr->CheckBits = CFE_ES_CHECK_PATTERN;
+    BdPtr->Allocated = Pool1.NumBuckets + CFE_ES_MEMORY_DEALLOCATED;
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, Pool1.Buckets[0].BlockSize), CFE_ES_CDS_ACCESS_ERROR);
+
+    /* Branch coverage for zero block sizes case */
+    UtAssert_ZERO(CFE_ES_GenPoolCalcMinSize(0, NULL, 0));
+
+    /* Branch coverage of error cases for getting block sizes */
+    ES_ResetUnitTest();
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolInitialize(&Pool1, 0, sizeof(UT_MemPoolIndirectBuffer.Data), 32,
+                                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS, UT_POOL_BLOCK_SIZES,
+                                                  ES_UT_PoolDirectRetrieve, ES_UT_PoolDirectCommit));
+    CFE_UtAssert_SETUP(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, Pool1.Buckets[0].BlockSize));
+    CFE_UtAssert_SETUP(ES_UT_PoolDirectRetrieve(&Pool1, Offset1 - CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE, &BdPtr));
+
+    BdPtr->ActualSize = Pool1.Buckets[0].BlockSize + 1;
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlockSize(&Pool1, &BlockSize, Offset1), CFE_ES_POOL_BLOCK_INVALID);
+
+    BdPtr->ActualSize = 0;
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlockSize(&Pool1, &BlockSize, Offset1), CFE_ES_POOL_BLOCK_INVALID);
+
+    UtAssert_INT32_EQ(CFE_ES_GenPoolGetBlockSize(&Pool1, NULL, 0), CFE_ES_BUFFER_NOT_IN_POOL);
+
+    /* Put pool block with bad allocation info */
+    ES_ResetUnitTest();
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolInitialize(&Pool1, 0, sizeof(UT_MemPoolIndirectBuffer.Data), 32,
+                                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS, UT_POOL_BLOCK_SIZES,
+                                                  ES_UT_PoolDirectRetrieve, ES_UT_PoolDirectCommit));
+    CFE_UtAssert_SETUP(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, Pool1.Buckets[0].BlockSize));
+    CFE_UtAssert_SETUP(ES_UT_PoolDirectRetrieve(&Pool1, Offset1 - CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE, &BdPtr));
+    BdPtr->CheckBits = ~CFE_ES_CHECK_PATTERN;
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset1), CFE_ES_POOL_BLOCK_INVALID);
+    BdPtr->CheckBits  = CFE_ES_CHECK_PATTERN;
+    BdPtr->ActualSize = 0;
+    UtAssert_INT32_EQ(CFE_ES_GenPoolPutBlock(&Pool1, &BlockSize, Offset1), CFE_ES_POOL_BLOCK_INVALID);
+
+    /* Rebuild generic pool actual size error cases */
+    ES_ResetUnitTest();
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolInitialize(&Pool1, 0, sizeof(UT_MemPoolIndirectBuffer.Data), 32,
+                                                  CFE_PLATFORM_ES_POOL_MAX_BUCKETS, UT_POOL_BLOCK_SIZES,
+                                                  ES_UT_PoolDirectRetrieve, ES_UT_PoolDirectCommit));
+    /* Create an entry */
+    CFE_UtAssert_SETUP(CFE_ES_GenPoolGetBlock(&Pool1, &Offset1, Pool1.Buckets[0].BlockSize));
+    CFE_UtAssert_SETUP(ES_UT_PoolDirectRetrieve(&Pool1, Offset1 - CFE_ES_GENERIC_POOL_DESCRIPTOR_SIZE, &BdPtr));
+    /* Corrupt the entry */
+    BdPtr->ActualSize = Pool1.Buckets[0].BlockSize + 1;
+    /* Reset the structure so it will rebuild */
+    Pool1.TailPosition = 0;
+    CFE_UtAssert_SUCCESS(CFE_ES_GenPoolRebuild(&Pool1));
 }
 
 void TestTask(void)
@@ -2156,10 +2477,14 @@ void TestTask(void)
         CFE_ES_QueryAllTasksCmd_t    QueryAllTasksCmd;
     } CmdBuf;
     CFE_ES_AppRecord_t *    UtAppRecPtr;
+    CFE_ES_AppRecord_t *    UtAppRecPtr1;
     CFE_ES_TaskRecord_t *   UtTaskRecPtr;
     CFE_ES_CDS_RegRec_t *   UtCDSRegRecPtr;
     CFE_ES_MemPoolRecord_t *UtPoolRecPtr;
     CFE_SB_MsgId_t          MsgId = CFE_SB_INVALID_MSG_ID;
+    CFE_ES_TaskId_t         TaskId;
+    uint32                  Idx;
+    uint32                  Idx1;
 
     UtPrintf("Begin Test Task");
 
@@ -2481,6 +2806,16 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ReloadAppCmd), UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_RELOAD_APP_DBG_EID);
 
+    /* Test app reload with filename parse error */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, NULL);
+    strncpy(CmdBuf.ReloadAppCmd.Payload.Application, "CFE_ES", sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1);
+    CmdBuf.ReloadAppCmd.Payload.Application[sizeof(CmdBuf.ReloadAppCmd.Payload.Application) - 1] = '\0';
+    UT_SetDeferredRetcode(UT_KEY(CFE_FS_ParseInputFileNameEx), 1, CFE_FS_INVALID_PATH);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ReloadAppCmd), UT_TPID_CFE_ES_CMD_RELOAD_APP_CC);
+    CFE_UtAssert_EVENTSENT(CFE_ES_RELOAD_APP_ERR1_EID);
+
     /* Test app reload with missing file */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
@@ -2609,6 +2944,17 @@ void TestTask(void)
                     UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_TASKINFO_EID);
 
+    /* Test write of all task data with a task that becomes unused after first scan */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "CFE_ES", NULL, &UtTaskRecPtr);
+    TaskId = CFE_ES_TaskRecordGetID(UtTaskRecPtr);
+    UT_SetHandlerFunction(UT_KEY(CFE_FS_InitHeader), ES_UT_UnusedAppTask, &TaskId);
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllTasksCmd),
+                    UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
+    CFE_UtAssert_EVENTSENT(CFE_ES_TASKINFO_EID);
+    /* TODO */
+
     /* Test write of all task data to a file with file name validation failure */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
@@ -2650,10 +2996,18 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.ClearSysLogCmd), UT_TPID_CFE_ES_CMD_CLEAR_SYSLOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOG1_INF_EID);
 
-    /* Test successful overwriting of the system log using discard mode */
+    /* Test successful overwriting of the system log using overwrite mode */
     ES_ResetUnitTest();
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     CmdBuf.OverwriteSysLogCmd.Payload.Mode = CFE_ES_LogMode_OVERWRITE;
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.OverwriteSysLogCmd),
+                    UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC);
+    CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOGMODE_EID);
+
+    /* Test successful overwriting of the system log using discard mode */
+    ES_ResetUnitTest();
+    memset(&CmdBuf, 0, sizeof(CmdBuf));
+    CmdBuf.OverwriteSysLogCmd.Payload.Mode = CFE_ES_LogMode_DISCARD;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.OverwriteSysLogCmd),
                     UT_TPID_CFE_ES_CMD_OVER_WRITE_SYSLOG_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_SYSLOGMODE_EID);
@@ -2782,6 +3136,53 @@ void TestTask(void)
      * and the call to CFE_PSP_Restart should NOT increment */
     UtAssert_INT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_SYS_RESTART);
     UtAssert_STUB_COUNT(CFE_PSP_Restart, 0);
+
+    /* app restart without the restart app exception action should do system restart */
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    UT_ContextTask = CFE_ES_TaskId_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextTask, sizeof(UT_ContextTask), false);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->StartParams.ExceptionAction  = CFE_ES_ExceptionAction_PROC_RESTART;
+    CFE_ES_RunExceptionScan(0, NULL);
+    UtAssert_STUB_COUNT(CFE_PSP_Restart, 1);
+
+    /* app out of sync restart with restart app request should do system restart */
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr1, NULL);
+    UT_ContextTask = CFE_ES_TaskId_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextTask, sizeof(UT_ContextTask), false);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->StartParams.ExceptionAction  = CFE_ES_ExceptionAction_RESTART_APP;
+    CFE_UtAssert_SETUP(CFE_ES_AppID_ToIndex(UtAppRecPtr->AppId, &Idx));
+    CFE_UtAssert_SETUP(CFE_ES_AppID_ToIndex(UtAppRecPtr1->AppId, &Idx1));
+
+    /* Match on the first conversion, corrupt for the second */
+    UT_SetDataBuffer(UT_KEY(CFE_ResourceId_ToIndex), &Idx, sizeof(Idx1), false);
+    UT_SetDataBuffer(UT_KEY(CFE_ResourceId_ToIndex), &Idx1, sizeof(Idx), false);
+    UtAppRecPtr1->StartParams.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
+    CFE_ES_RunExceptionScan(0, NULL);
+    UtAssert_STUB_COUNT(CFE_PSP_Restart, 1);
+
+    /* CFE_ES_GetTaskInfo failure */
+    ES_ResetUnitTest();
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_Exception_GetCount), 1);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, &UtTaskRecPtr);
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr1, NULL);
+    UT_ContextTask = CFE_ES_TaskId_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr));
+    UT_SetDataBuffer(UT_KEY(CFE_PSP_Exception_GetSummary), &UT_ContextTask, sizeof(UT_ContextTask), false);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    UtAppRecPtr->StartParams.ExceptionAction  = CFE_ES_ExceptionAction_RESTART_APP;
+    CFE_UtAssert_SETUP(CFE_ES_AppID_ToIndex(UtAppRecPtr->AppId, &Idx));
+    CFE_UtAssert_SETUP(CFE_ES_AppID_ToIndex(UtAppRecPtr1->AppId, &Idx1));
+
+    /* Corrupt first index */
+    UT_SetDataBuffer(UT_KEY(CFE_ResourceId_ToIndex), &Idx1, sizeof(Idx), false);
+    UtAppRecPtr1->StartParams.ExceptionAction = CFE_ES_ExceptionAction_RESTART_APP;
+    CFE_ES_RunExceptionScan(0, NULL);
 
     /* repeat, but for a CORE app, which cannot be restarted */
     ES_ResetUnitTest();
@@ -3086,6 +3487,11 @@ void TestTask(void)
                     UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_CDS_REG_DUMP_INF_EID);
 
+    /* Dump CDS command with invalid length */
+    ES_ResetUnitTest();
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, 0, UT_TPID_CFE_ES_CMD_DUMP_CDS_REGISTRY_CC);
+    CFE_UtAssert_EVENTSENT(CFE_ES_LEN_ERR_EID);
+
     /* Test error when sending Build Info event */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 1, CFE_EVS_INVALID_PARAMETER);
@@ -3185,6 +3591,12 @@ void TestPerf(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStartCmd), UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STARTCMD_ERR_EID);
 
+    /* Check again with pending state not idle */
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_IDLE;
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStartCmd), UT_TPID_CFE_ES_CMD_START_PERF_DATA_CC);
+    CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STARTCMD_ERR_EID);
+
     /* Test performance data collection by sending another valid
      * start command
      */
@@ -3224,6 +3636,12 @@ void TestPerf(void)
     /* Test performance data collection stop with a file write in progress */
     ES_ResetUnitTest();
     CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
+    UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd), UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
+    CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STOPCMD_ERR2_EID);
+
+    /* Repeat with pending state not IDLE */
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_IDLE;
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.PerfStopCmd), UT_TPID_CFE_ES_CMD_STOP_PERF_DATA_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_PERF_STOPCMD_ERR2_EID);
 
@@ -3314,6 +3732,12 @@ void TestPerf(void)
     CFE_ES_PerfLogAdd(1, 0);
     UtAssert_UINT32_EQ(Perf->MetaData.Mode, CFE_ES_PERF_TRIGGER_END);
     UtAssert_UINT32_EQ(Perf->MetaData.State, CFE_ES_PERF_IDLE);
+
+    /* Test addition where state goes to idle after first check */
+    ES_ResetUnitTest();
+    Perf->MetaData.State = CFE_ES_PERF_TRIGGERED;
+    UT_SetHandlerFunction(UT_KEY(OS_MutSemTake), ES_UT_SetPerfIdle, NULL);
+    CFE_ES_PerfLogAdd(1, 0);
 
     /* Test addition of a new entry to the performance log with an invalid
      * marker after an invalid marker has already been reported
@@ -3456,6 +3880,22 @@ void TestPerf(void)
     /* should have written 4 entries to the log */
     UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundPerfDumpState.FileSize, sizeof(CFE_ES_PerfDataEntry_t) * 4);
 
+    /* Cover close file branch with undefined file descriptor */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    CFE_ES_Global.BackgroundPerfDumpState.FileDesc     = OS_OBJECT_ID_UNDEFINED;
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_IDLE;
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_CLOSE_FILE;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
+
+    /* Cover default current state switch branch with nonzero statecounter */
+    ES_ResetUnitTest();
+    memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
+    CFE_ES_Global.BackgroundPerfDumpState.StateCounter = 1;
+    CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
+    CFE_ES_Global.BackgroundPerfDumpState.PendingState = CFE_ES_PerfDumpState_INIT;
+    CFE_ES_RunPerfLogDump(1000, &CFE_ES_Global.BackgroundPerfDumpState);
+
     /* Confirm that the "CFE_ES_GetPerfLogDumpRemaining" function works.
      * This requires that the state is not idle, in order to get nonzero results.
      */
@@ -3476,6 +3916,8 @@ void TestAPI(void)
 {
     osal_id_t            TestObjId;
     char                 AppName[OS_MAX_API_NAME + 12];
+    char                 SysLogBuf[CFE_TIME_PRINTED_STRING_SIZE + 20];
+    uint32               SysLogBufSize;
     uint32               StackBuf[8];
     uint8                Data[12];
     uint32               ResetType;
@@ -3488,6 +3930,9 @@ void TestAPI(void)
     CFE_ES_TaskRecord_t *UtTaskRecPtr;
 
     UtPrintf("Begin Test API");
+
+    /* Coverage for processing async event */
+    UtAssert_VOIDCALL(CFE_ES_ProcessAsyncEvent());
 
     /* Test resetting the cFE with a processor reset */
     ES_ResetUnitTest();
@@ -3523,6 +3968,7 @@ void TestAPI(void)
 
     /* Test restarting an app with an ID out of range (high) */
     ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_ResourceId_ToIndex), 1, -1);
     AppId = CFE_ES_APPID_C(ES_UT_MakeAppIdForIndex(99999));
     UtAssert_INT32_EQ(CFE_ES_RestartApp(AppId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
@@ -3600,17 +4046,22 @@ void TestAPI(void)
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EXIT]);
     UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_ERROR);
 
+    /* Exit app with undefined exit status and not a core app */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_STOPPED, "UT", &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    CFE_ES_ExitApp(CFE_ES_RunStatus_UNDEFINED);
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CORE_APP_EXIT]);
+    UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_ERROR);
+
 #if 0
-    /* Can't cover this path since it contains a while(1) (i.e.,
-     * infinite) loop
-     */
-    OS_TaskCreate(&TestObjId, "UT", NULL, NULL, 0, 0, 0);
-    Id = ES_UT_OSALID_TO_ARRAYIDX(TestObjId);
-    CFE_ES_TaskRecordSetUsed(TaskRecPtr);
-    TaskRecPtr->AppId = Id;
-    AppRecPtr->Type = CFE_ES_AppType_EXTERNAL;
-    AppRecPtr->AppState = CFE_ES_AppState_RUNNING;
-    CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_RUNTIME_ERROR);
+    /* Can't cover EXTERNAL CFE_ES_ExitApp since it contains a while(1) (infinte loop) */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, "UT", &UtAppRecPtr, NULL);
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
+    CFE_ES_ExitApp(CFE_ES_RunStatus_APP_EXIT);
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_EXTERNAL_APP_EXIT]);
+    UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_EXIT);
 #endif
 
     /* Test successful run loop app run request */
@@ -3652,8 +4103,8 @@ void TestAPI(void)
     /* Test run loop with a NULL run status */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
-    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;
-    UtAssert_BOOL_TRUE(CFE_ES_RunLoop(NULL));
+    UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_EXIT;
+    UtAssert_BOOL_FALSE(CFE_ES_RunLoop(NULL));
 
     /* Test run loop with startup sync code */
     ES_ResetUnitTest();
@@ -3663,11 +4114,19 @@ void TestAPI(void)
     UtAssert_BOOL_TRUE(CFE_ES_RunLoop(&RunStatus));
     UtAssert_UINT32_EQ(UtAppRecPtr->AppState, CFE_ES_AppState_RUNNING);
 
+    /* Hit NULL TaskRecPtr case */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(OS_ObjectIdToArrayIndex), 1, OS_ERROR);
+    UtAssert_VOIDCALL(CFE_ES_IncrementTaskCounter());
+
     /* Test getting the cFE application and task ID by context */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, NULL);
     CFE_UtAssert_SUCCESS(CFE_ES_GetAppID(&AppId));
     CFE_UtAssert_SUCCESS(CFE_ES_GetTaskID(&TaskId));
+
+    /* Convert task ID to index with NULL index */
+    UtAssert_INT32_EQ(CFE_ES_TaskID_ToIndex(TaskId, NULL), CFE_ES_BAD_ARGUMENT);
 
     /* Test CFE_ES_GetAppID error with null pointer parameter */
     ES_ResetUnitTest();
@@ -3698,6 +4157,10 @@ void TestAPI(void)
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
     AppId = CFE_ES_AppRecordGetID(UtAppRecPtr);
     CFE_UtAssert_SUCCESS(CFE_ES_GetAppName(AppName, AppId, sizeof(AppName)));
+
+    /* Bad arguement calls */
+    UtAssert_INT32_EQ(CFE_ES_GetAppName(NULL, AppId, sizeof(AppName)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetAppName(AppName, AppId, 0), CFE_ES_BAD_ARGUMENT);
 
     /* Test getting task information using the task ID - NULL buffer */
     ES_ResetUnitTest();
@@ -3805,6 +4268,14 @@ void TestAPI(void)
     CFE_ES_TaskEntryPoint();
     UtAssert_STUB_COUNT(ES_UT_TaskFunction, 1);
 
+    /* Case where not fully set up */
+    UtTaskRecPtr->AppId = CFE_ES_APPID_UNDEFINED;
+    CFE_ES_TaskEntryPoint();
+    UtAssert_STUB_COUNT(ES_UT_TaskFunction, 1);
+
+    /* NULL pointer protection logic coverage */
+    UtAssert_INT32_EQ(CFE_ES_GetTaskFunction(NULL), CFE_ES_ERR_APP_REGISTER);
+
     /* Test deleting a child task when task is not active/valid */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, "UT", NULL, &UtTaskRecPtr);
@@ -3867,6 +4338,15 @@ void TestAPI(void)
     /* Verify requirement to report error */
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CANNOT_CALL_APP_MAIN]);
 
+    /* Test with mismatched AppId */
+    ES_ResetUnitTest();
+    ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_RUNNING, NULL, &UtAppRecPtr, NULL);
+    ES_UT_SetupChildTaskId(UtAppRecPtr, NULL, &UtTaskRecPtr);
+    TestObjId          = CFE_ES_TaskId_ToOSAL(CFE_ES_TaskRecordGetID(UtTaskRecPtr)); /* Set context to that of child */
+    UtAppRecPtr->AppId = CFE_ES_APPID_UNDEFINED;
+    CFE_ES_ExitChildTask();
+    CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_CANNOT_CALL_APP_MAIN]);
+
     /* Test exiting a child task with an error retrieving the app ID */
     ES_ResetUnitTest();
     CFE_ES_ExitChildTask();
@@ -3897,12 +4377,6 @@ void TestAPI(void)
     ES_ResetUnitTest();
     UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, CFE_MISSION_ES_CRC_16), 2688);
 
-    /*
-     * CRC memory read failure test case removed in #322 -
-     * deprecated CFE_PSP_MemRead8, now the FSW code does a direct read
-     * which has no failure path.
-     */
-
     /* Test calculating a CRC on a range of memory using CRC type 32
      * NOTE: This capability is not currently implemented in cFE
      */
@@ -3913,6 +4387,11 @@ void TestAPI(void)
      */
     ES_ResetUnitTest();
     UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 12, 345353, -1), 0);
+
+    /* Test NULL and zero size */
+    ES_ResetUnitTest();
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, 12, 345353, CFE_MISSION_ES_CRC_16), 345353);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data, 0, 345353, CFE_MISSION_ES_CRC_16), 345353);
 
     /* Test shared mutex take with a take error */
     ES_ResetUnitTest();
@@ -3960,13 +4439,6 @@ void TestAPI(void)
      */
     UtAssert_VOIDCALL(CFE_ES_WaitForStartupSync(99));
 
-    /* Test adding a time-stamped message to the system log using an invalid
-     * log mode
-     *
-     * TEST CASE REMOVED as the invalid log mode follow the same path as Discard,
-     * this test case added nothing new
-     */
-
     /* Test successfully adding a time-stamped message to the system log that
      * causes the log index to be reset
      */
@@ -3986,6 +4458,27 @@ void TestAPI(void)
     CFE_UtAssert_SUCCESS(CFE_ES_WriteToSysLog("SysLogText"));
     UtAssert_UINT32_LTEQ(CFE_ES_Global.ResetDataPtr->SystemLogWriteIdx, CFE_PLATFORM_ES_SYSTEM_LOG_SIZE - 1);
 
+    /* Test NULL spec string */
+    ES_ResetUnitTest();
+    UtAssert_INT32_EQ(CFE_ES_WriteToSysLog(NULL), CFE_ES_BAD_ARGUMENT);
+
+    /* Invalid buffer size to CFE_ES_SysLog_vsnprintf */
+    ES_ResetUnitTest();
+    memset(SysLogBuf, 0, sizeof(SysLogBuf));
+    UtAssert_VOIDCALL(ES_UT_SysLog_snprintf(SysLogBuf, 0, "b"));
+    UtAssert_ZERO(strlen(SysLogBuf));
+
+    /* Fill buffer with time call for branch coverage */
+    ES_ResetUnitTest();
+    memset(SysLogBuf, 0, sizeof(SysLogBuf));
+    SysLogBufSize = sizeof(SysLogBuf);
+    UT_SetHandlerFunction(UT_KEY(CFE_TIME_Print), ES_UT_FillBuffer, &SysLogBufSize);
+    UtAssert_VOIDCALL(ES_UT_SysLog_snprintf(SysLogBuf, sizeof(SysLogBuf), "b"));
+
+    /* Force a vsnprintf failure */
+    ES_ResetUnitTest();
+    UtAssert_VOIDCALL(ES_UT_SysLog_snprintf(SysLogBuf, sizeof(SysLogBuf), NULL));
+
     /* Test run loop with an application error status */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, "UT", &UtAppRecPtr, NULL);
@@ -4003,19 +4496,27 @@ void TestAPI(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, CFE_ES_TASKID_UNDEFINED, sizeof(AppName)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(NULL, TaskId, sizeof(AppName)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, 0), CFE_ES_BAD_ARGUMENT);
     CFE_UtAssert_SUCCESS(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)));
     UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERROR);
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
+    UtAssert_INT32_EQ(CFE_ES_GetTaskID(NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskId, NULL), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(NULL, "NotNULL"), CFE_ES_BAD_ARGUMENT);
     CFE_UtAssert_SUCCESS(CFE_ES_GetTaskIDByName(&TaskId, AppName));
     UT_SetDeferredRetcode(UT_KEY(OS_TaskGetIdByName), 1, OS_ERROR);
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskId, "Nonexistent"), CFE_ES_ERR_NAME_NOT_FOUND);
+
+    /* Hit error case for NULL TaskRecPtr */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(OS_TaskGetId), 1, OS_OBJECT_ID_UNDEFINED);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 }
 
 void TestGenericCounterAPI(void)
 {
-    char               CounterName[11];
+    char               CounterName[OS_MAX_API_NAME + 1];
     CFE_ES_CounterId_t CounterId;
     CFE_ES_CounterId_t CounterId2;
     uint32             CounterCount;
@@ -4051,6 +4552,7 @@ void TestGenericCounterAPI(void)
     CFE_ES_Global.CounterTable[2].CounterId = CFE_ES_COUNTERID_UNDEFINED;
     UtAssert_BOOL_TRUE(CFE_ES_CheckCounterIdSlotUsed(ES_UT_MakeCounterIdForIndex(1)));
     UtAssert_BOOL_FALSE(CFE_ES_CheckCounterIdSlotUsed(ES_UT_MakeCounterIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckCounterIdSlotUsed(CFE_RESOURCEID_UNDEFINED));
 
     /* Test getting a registered generic counter that doesn't exist */
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CounterId, "Counter999"), CFE_ES_ERR_NAME_NOT_FOUND);
@@ -4091,14 +4593,22 @@ void TestGenericCounterAPI(void)
     CFE_ES_GetGenCount(CounterId, &CounterCount);
     UtAssert_INT32_EQ(CounterCount, 5);
 
+    /* Test getting a generic (valid) counter where the count is null */
+    UtAssert_INT32_EQ(CFE_ES_GetGenCount(CounterId, NULL), CFE_ES_BAD_ARGUMENT);
+
     /* Test registering a generic counter with a null counter ID pointer */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_RegisterGenCounter(NULL, "Counter1"), CFE_ES_BAD_ARGUMENT);
 
     /* Test registering a generic counter with a null counter name */
     ES_ResetUnitTest();
-
     UtAssert_INT32_EQ(CFE_ES_RegisterGenCounter(&CounterId, NULL), CFE_ES_BAD_ARGUMENT);
+
+    /* Register a generic counter with a name that is too long */
+    ES_ResetUnitTest();
+    memset(CounterName, 'a', sizeof(CounterName) - 1);
+    CounterName[sizeof(CounterName) - 1] = 0;
+    UtAssert_INT32_EQ(CFE_ES_RegisterGenCounter(&CounterId, CounterName), CFE_ES_BAD_ARGUMENT);
 
     /* Test incrementing a generic counter where the record is not in use */
     ES_ResetUnitTest();
@@ -4112,9 +4622,9 @@ void TestGenericCounterAPI(void)
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_GetGenCount(CounterId, &CounterCount), CFE_ES_BAD_ARGUMENT);
 
-    /* Test getting a generic counter where the count is null */
+    /* Test deleting a generic counter where the record is not in use */
     ES_ResetUnitTest();
-    UtAssert_INT32_EQ(CFE_ES_GetGenCount(CounterId, NULL), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_DeleteGenCounter(CounterId), CFE_ES_BAD_ARGUMENT);
 
     /* Test getting a registered generic counter ID using a null counter
      * pointer
@@ -4134,6 +4644,7 @@ void TestGenericCounterAPI(void)
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterName(CounterName, CFE_ES_COUNTERID_UNDEFINED, sizeof(CounterName)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterName(NULL, CounterId, sizeof(CounterName)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetGenCounterName(CounterName, CounterId, 0), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CounterId, NULL), CFE_ES_BAD_ARGUMENT);
 }
 
@@ -4168,9 +4679,19 @@ void TestCDS()
     /* Test the CDS Cache Fetch/Flush/Load routine error cases */
     ES_ResetUnitTest();
     UtAssert_INT32_EQ(CFE_ES_CDS_CacheFetch(&CFE_ES_Global.CDSVars.Cache, 4, 0), CFE_ES_CDS_INVALID_SIZE);
+    UtAssert_INT32_EQ(
+        CFE_ES_CDS_CacheFetch(&CFE_ES_Global.CDSVars.Cache, 4, sizeof(CFE_ES_Global.CDSVars.Cache.Data) + 1),
+        CFE_ES_CDS_INVALID_SIZE);
+    UtAssert_INT32_EQ(CFE_ES_CDS_CacheFlush(&CFE_ES_Global.CDSVars.Cache), CFE_ES_CDS_INVALID_SIZE);
+
+    /* Size too big */
+    CFE_ES_Global.CDSVars.Cache.Size = sizeof(CFE_ES_Global.CDSVars.Cache.Data) + 1;
     UtAssert_INT32_EQ(CFE_ES_CDS_CacheFlush(&CFE_ES_Global.CDSVars.Cache), CFE_ES_CDS_INVALID_SIZE);
 
     UtAssert_INT32_EQ(CFE_ES_CDS_CachePreload(&CFE_ES_Global.CDSVars.Cache, NULL, 4, 0), CFE_ES_CDS_INVALID_SIZE);
+    UtAssert_INT32_EQ(
+        CFE_ES_CDS_CachePreload(&CFE_ES_Global.CDSVars.Cache, NULL, 4, sizeof(CFE_ES_Global.CDSVars.Cache.Data) + 1),
+        CFE_ES_CDS_INVALID_SIZE);
     TempSize = 5;
     CFE_UtAssert_SUCCESS(CFE_ES_CDS_CachePreload(&CFE_ES_Global.CDSVars.Cache, &TempSize, 4, 4));
 
@@ -4209,6 +4730,10 @@ void TestCDS()
     /* No reset here -- just attempt to register the same name again */
     CFE_UtAssert_SUCCESS(CFE_ES_RegisterCDS(&CDSHandle, 6, "Name"));
 
+    /* Register a new size with a read CDS failure */
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 1, OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandle, 8, "Name"), CFE_ES_CDS_ACCESS_ERROR);
+
     /* Test CDS registering using a null name */
     UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandle, 4, ""), CFE_ES_CDS_INVALID_NAME);
 
@@ -4234,6 +4759,7 @@ void TestCDS()
     CFE_ES_Global.CDSVars.Registry[2].BlockID = CFE_ES_CDS_BAD_HANDLE;
     UtAssert_BOOL_TRUE(CFE_ES_CheckCDSHandleSlotUsed(ES_UT_MakeCDSIdForIndex(1)));
     UtAssert_BOOL_FALSE(CFE_ES_CheckCDSHandleSlotUsed(ES_UT_MakeCDSIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckCDSHandleSlotUsed(CFE_RESOURCEID_UNDEFINED));
 
     /* Test CDS registering using a bad app ID */
     ES_ResetUnitTest();
@@ -4253,8 +4779,14 @@ void TestCDS()
     CDSHandle = CFE_ES_CDSBlockRecordGetID(UtCDSRegRecPtr);
     CFE_UtAssert_SUCCESS(CFE_ES_CopyToCDS(CDSHandle, &BlockData));
 
+    /* Copy to CDS with NULL */
+    UtAssert_INT32_EQ(CFE_ES_CopyToCDS(CDSHandle, NULL), CFE_ES_BAD_ARGUMENT);
+
     /* Test successfully restoring from a CDS */
     CFE_UtAssert_SUCCESS(CFE_ES_RestoreFromCDS(&BlockData, CDSHandle));
+
+    /* Restore from CDS with NULL */
+    UtAssert_INT32_EQ(CFE_ES_RestoreFromCDS(NULL, CDSHandle), CFE_ES_BAD_ARGUMENT);
 
     /* Test CDS registering using a name longer than the maximum allowed */
     ES_ResetUnitTest();
@@ -4416,6 +4948,13 @@ void TestCDS()
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 3, OS_ERROR);
     CFE_UtAssert_SUCCESS(CFE_ES_CDS_EarlyInit());
 
+    /* Fail writing to CDS during CFE_ES_ClearCDS for branch coverage */
+    ES_ResetUnitTest();
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_ReadFromCDS), 3, OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_CDS_EarlyInit(), CFE_ES_CDS_ACCESS_ERROR);
+    UtAssert_STUB_COUNT(CFE_PSP_WriteToCDS, 1);
+
     /* Test CDS initialization where initializing the CDS registry fails */
     ES_ResetUnitTest();
     UT_SetDeferredRetcode(UT_KEY(CFE_PSP_WriteToCDS), 1, OS_ERROR);
@@ -4446,7 +4985,14 @@ void TestCDS()
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSName, CFE_ES_CDS_BAD_HANDLE, sizeof(CDSName)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(NULL, CDSHandle, sizeof(CDSName)), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSName, CDSHandle, 0), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&CDSHandle, NULL), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(NULL, "NotNULL"), CFE_ES_BAD_ARGUMENT);
+
+    /* Try to get block with CDS unavailable */
+    CFE_ES_Global.CDSIsAvailable = false;
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&CDSHandle, "NotNULL"), CFE_ES_NOT_IMPLEMENTED);
+    UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSName, CDSHandle, sizeof(CDSName)), CFE_ES_NOT_IMPLEMENTED);
 
 } /* End TestCDS */
 
@@ -4520,7 +5066,6 @@ void TestCDSMempool(void)
     --UtCdsRegRecPtr->BlockOffset;
     UtAssert_INT32_EQ(CFE_ES_CDSBlockWrite(BlockHandle, &Data), CFE_ES_POOL_BLOCK_INVALID);
     UtAssert_INT32_EQ(CFE_ES_CDSBlockRead(&Data, BlockHandle), CFE_ES_POOL_BLOCK_INVALID);
-
     ++UtCdsRegRecPtr->BlockOffset;
 
     /* Corrupt/change the block size, should trigger invalid size error */
@@ -4556,6 +5101,15 @@ void TestCDSMempool(void)
     CdsPtr[UtCdsRegRecPtr->BlockOffset] ^= 0x02; /* Bit flip */
     UtAssert_INT32_EQ(CFE_ES_CDSBlockRead(&Data, BlockHandle), CFE_ES_CDS_BLOCK_CRC_ERR);
     CdsPtr[UtCdsRegRecPtr->BlockOffset] ^= 0x02; /* Fix Bit */
+
+    /* Set up again with a CDS that is too small to get branch coverage */
+    /* Test CDS block access */
+    ES_ResetUnitTest();
+    ES_UT_SetupCDSGlobal(ES_UT_CDS_SMALL_TEST_SIZE);
+    ES_UT_SetupSingleCDSRegistry("UT", sizeof(CFE_ES_CDS_BlockHeader_t) - 2, false, &UtCdsRegRecPtr);
+    BlockHandle = CFE_ES_CDSBlockRecordGetID(UtCdsRegRecPtr);
+    UtAssert_INT32_EQ(CFE_ES_CDSBlockWrite(BlockHandle, &Data), CFE_ES_CDS_INVALID_SIZE);
+    UtAssert_INT32_EQ(CFE_ES_CDSBlockRead(&Data, BlockHandle), CFE_ES_CDS_INVALID_SIZE);
 }
 
 void TestESMempool(void)
@@ -4651,6 +5205,9 @@ void TestESMempool(void)
      */
     UtAssert_INT32_EQ(CFE_ES_GetMemPoolStats(&Stats, CFE_ES_MEMHANDLE_UNDEFINED), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
+    /* NULL pointer protection */
+    UtAssert_INT32_EQ(CFE_ES_GetMemPoolStats(NULL, PoolID2), CFE_ES_BAD_ARGUMENT);
+
     /* Test successfully getting memory pool statistics
      */
     CFE_UtAssert_SUCCESS(CFE_ES_GetMemPoolStats(&Stats, PoolID1));
@@ -4671,6 +5228,15 @@ void TestESMempool(void)
     /* Test returning a pool buffer using an invalid memory block */
     UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(PoolID2, CFE_ES_MEMPOOLBUF_C((cpuaddr)addressp2 - 40)),
                       CFE_ES_BUFFER_NOT_IN_POOL);
+
+    /* Allocate a buffer, corrupt retrieve function and put to get path coverage */
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(&addressp2, PoolID2, 256), 256);
+    PoolPtr->Pool.Retrieve = ES_UT_PoolRetrieveFail;
+    UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(PoolID2, addressp2), CFE_ES_CDS_ACCESS_ERROR);
+
+    /* Validate handle with a corrupt pool */
+    PoolPtr->Pool.PoolTotalSize = 0;
+    UtAssert_BOOL_FALSE(CFE_ES_ValidateHandle(PoolID2));
 
     /* Test initializing a pre-allocated pool specifying a number of block
      * sizes greater than the maximum
@@ -4701,6 +5267,8 @@ void TestESMempool(void)
      * Test to use default block sizes if none are given
      */
     CFE_UtAssert_SUCCESS(CFE_ES_PoolCreateEx(&PoolID1, Buffer1, sizeof(Buffer1), 0, NULL, CFE_ES_USE_MUTEX));
+    UtAssert_INT32_EQ(CFE_ES_PoolCreateEx(&PoolID1, Buffer1, sizeof(Buffer1), 1, NULL, CFE_ES_USE_MUTEX),
+                      CFE_ES_BAD_ARGUMENT);
 
     /*
      * Test creating a memory pool after the limit reached (no slots)
@@ -4716,6 +5284,7 @@ void TestESMempool(void)
     CFE_ES_Global.MemPoolTable[2].PoolID = CFE_ES_MEMHANDLE_UNDEFINED;
     UtAssert_BOOL_TRUE(CFE_ES_CheckMemPoolSlotUsed(ES_UT_MakePoolIdForIndex(1)));
     UtAssert_BOOL_FALSE(CFE_ES_CheckMemPoolSlotUsed(ES_UT_MakePoolIdForIndex(2)));
+    UtAssert_BOOL_TRUE(CFE_ES_CheckMemPoolSlotUsed(CFE_RESOURCEID_UNDEFINED));
 
     /*
      * Test creating a memory pool with a semaphore error
@@ -4869,8 +5438,12 @@ void TestESMempool(void)
     /* Verify requirement to report error */
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_GETPOOL_BAD_HANDLE]);
 
-    /* Test getting the size of an existing pool buffer using a null handle */
+    /* NULL protection */
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBuf(NULL, PoolID1, 256), CFE_ES_BAD_ARGUMENT);
+
+    /* Test getting the size of an existing pool buffer using undefined handle, NULL buff */
     UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(CFE_ES_MEMHANDLE_UNDEFINED, addressp1), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(PoolID1, NULL), CFE_ES_BAD_ARGUMENT);
 
     /* Test initializing a pre-allocated pool specifying a small block size */
     ES_ResetUnitTest();
@@ -4911,8 +5484,9 @@ void TestESMempool(void)
     UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(PoolID1, CFE_ES_MEMPOOLBUF_C((cpuaddr)addressp1 + 400)),
                       CFE_ES_BUFFER_NOT_IN_POOL);
 
-    /* Test getting the size of a pool buffer with an invalid memory handle */
+    /* Test getting the size of a pool buffer with an invalid memory handle, NULL buffer */
     UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(CFE_ES_MEMHANDLE_UNDEFINED, addressp1), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(PoolID1, NULL), CFE_ES_BAD_ARGUMENT);
 }
 
 /* Tests to fill gaps in coverage in SysLog */
@@ -5024,8 +5598,9 @@ void TestBackground(void)
     memset(&CFE_ES_Global.BackgroundPerfDumpState, 0, sizeof(CFE_ES_Global.BackgroundPerfDumpState));
     UT_SetDefaultReturnValue(UT_KEY(OS_write), -10);
     CFE_ES_Global.BackgroundPerfDumpState.CurrentState = CFE_ES_PerfDumpState_INIT;
-    UT_SetDeferredRetcode(UT_KEY(OS_BinSemTimedWait), 3, -4);
-    CFE_ES_BackgroundTask();
+    UT_SetDeferredRetcode(UT_KEY(OS_BinSemTimedWait), 2, OS_SEM_TIMEOUT);
+    UT_SetDeferredRetcode(UT_KEY(OS_BinSemTimedWait), 1, -4);
+    UtAssert_VOIDCALL(CFE_ES_BackgroundTask());
     CFE_UtAssert_PRINTF(UT_OSP_MESSAGES[UT_OSP_BACKGROUND_TAKE]);
 
     /* The number of jobs running should be 1 (perf log dump) */

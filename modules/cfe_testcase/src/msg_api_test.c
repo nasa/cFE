@@ -184,6 +184,7 @@ void TestMsgHeaderSecondaryApi(void)
     CFE_TIME_SysTime_t      msgTime;
     bool                    isValid     = true;
     CFE_TIME_SysTime_t      currentTime = {1000, 0xFFFF0000};
+    CFE_Status_t            status;
 
     memset(&cmd, 0, sizeof(cmd));
     memset(&cmdTlm, 0xFF, sizeof(cmdTlm));
@@ -203,17 +204,25 @@ void TestMsgHeaderSecondaryApi(void)
     UtAssert_INT32_EQ(CFE_MSG_SetType(&cmd2.Msg, CFE_MSG_Type_Cmd), CFE_SUCCESS);
 
     /* test generate-checksum */
-    UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(NULL), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(&cmdTlm.Msg), CFE_MSG_WRONG_MSG_TYPE);
-    UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmdTlm.Msg, &isValid), CFE_MSG_WRONG_MSG_TYPE);
-    UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(NULL, &isValid), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmdTlm.Msg, NULL), CFE_MSG_BAD_ARGUMENT);
+    status = CFE_MSG_GenerateChecksum(NULL);
+    if (status == CFE_MSG_NOT_IMPLEMENTED)
+    {
+        UtAssert_NA("CFE_MSG_GenerateChecksum not implemented");
+    }
+    else
+    {
+        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(NULL), CFE_MSG_BAD_ARGUMENT);
+        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(&cmdTlm.Msg), CFE_MSG_WRONG_MSG_TYPE);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmdTlm.Msg, &isValid), CFE_MSG_WRONG_MSG_TYPE);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(NULL, &isValid), CFE_MSG_BAD_ARGUMENT);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmdTlm.Msg, NULL), CFE_MSG_BAD_ARGUMENT);
 
-    UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmd.Msg, &isValid), CFE_SUCCESS);
-    UtAssert_True(!isValid, "Checksum isValid (%d) = false", isValid);
-    UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(&cmd.Msg), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmd.Msg, &isValid), CFE_SUCCESS);
-    UtAssert_True(isValid, "Checksum isValid (%d) = true", isValid);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmd.Msg, &isValid), CFE_SUCCESS);
+        UtAssert_True(!isValid, "Checksum isValid (%d) = false", isValid);
+        UtAssert_INT32_EQ(CFE_MSG_GenerateChecksum(&cmd.Msg), CFE_SUCCESS);
+        UtAssert_INT32_EQ(CFE_MSG_ValidateChecksum(&cmd.Msg, &isValid), CFE_SUCCESS);
+        UtAssert_True(isValid, "Checksum isValid (%d) = true", isValid);
+    }
 
     /* test get/set-fcn-code */
     UtAssert_INT32_EQ(CFE_MSG_SetFcnCode(NULL, 4), CFE_MSG_BAD_ARGUMENT);
@@ -232,10 +241,20 @@ void TestMsgHeaderSecondaryApi(void)
 
     UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(NULL, &msgTime), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(&cmd.Msg, NULL), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(&cmd2.Msg, &msgTime), CFE_MSG_WRONG_MSG_TYPE);
+
+    CFE_Assert_STATUS_STORE(CFE_MSG_GetMsgTime(&cmd2.Msg, &msgTime));
+    if (!CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
+    {
+        CFE_Assert_STATUS_MUST_BE(CFE_MSG_WRONG_MSG_TYPE);
+    }
 
     UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(NULL, currentTime), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(&cmd2.Msg, currentTime), CFE_MSG_WRONG_MSG_TYPE);
+
+    CFE_Assert_STATUS_STORE(CFE_MSG_SetMsgTime(&cmd2.Msg, currentTime));
+    if (!CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS))
+    {
+        CFE_Assert_STATUS_MUST_BE(CFE_MSG_WRONG_MSG_TYPE);
+    }
 
     UtAssert_INT32_EQ(CFE_MSG_SetMsgTime(&cmd.Msg, currentTime), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgTime(&cmd.Msg, &msgTime), CFE_SUCCESS);
