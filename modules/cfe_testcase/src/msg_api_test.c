@@ -53,9 +53,9 @@ void TestMsgApiBasic(void)
     msgId = CFE_SB_ValueToMsgId(0);
 
     /* test msg-init */
-    UtAssert_INT32_EQ(CFE_MSG_Init(NULL, CFE_SB_ValueToMsgId(0), sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(NULL, msgId, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.Msg, msgId, 0), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.Msg, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1, sizeof(cmd)),
+    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.Msg, CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), sizeof(cmd)),
                       CFE_MSG_BAD_ARGUMENT);
 
     UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.Msg, msgId, sizeof(cmd)), CFE_SUCCESS);

@@ -54,7 +54,6 @@ void TestSubscribeUnsubscribe(void)
 
     /* Subscribe - Confirm Bad MsgId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_Subscribe(CFE_SB_INVALID_MSG_ID, PipeId1), CFE_SB_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_SB_Subscribe(CFE_SB_MSGID_RESERVED, PipeId2), CFE_SB_BAD_ARGUMENT);
 
     /* Subscribe - Confirm Bad PipeId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_Subscribe(CFE_FT_CMD_MSGID, CFE_SB_INVALID_PIPE), CFE_SB_BAD_ARGUMENT);
@@ -73,7 +72,6 @@ void TestSubscribeUnsubscribe(void)
 
     /* Unsubscribe - Confirm Bad MsgId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_Unsubscribe(CFE_SB_INVALID_MSG_ID, PipeId1), CFE_SB_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_SB_Unsubscribe(CFE_SB_MSGID_RESERVED, PipeId2), CFE_SB_BAD_ARGUMENT);
 
     /* Unsubscribe - Confirm Bad PipeId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_Unsubscribe(CFE_FT_CMD_MSGID, CFE_SB_INVALID_PIPE), CFE_SB_BAD_ARGUMENT);
@@ -108,7 +106,6 @@ void TestSubscribeUnsubscribeLocal(void)
 
     /* Subscribe - Confirm Bad MsgId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_SubscribeLocal(CFE_SB_INVALID_MSG_ID, PipeId1, 2), CFE_SB_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_SB_SubscribeLocal(CFE_SB_MSGID_RESERVED, PipeId2, 2), CFE_SB_BAD_ARGUMENT);
 
     /* Subscribe - Confirm Bad PipeId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_SubscribeLocal(CFE_FT_CMD_MSGID, CFE_SB_INVALID_PIPE, 2), CFE_SB_BAD_ARGUMENT);
@@ -127,7 +124,6 @@ void TestSubscribeUnsubscribeLocal(void)
 
     /* Unsubscribe - Confirm Bad MsgId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_UnsubscribeLocal(CFE_SB_INVALID_MSG_ID, PipeId1), CFE_SB_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_SB_UnsubscribeLocal(CFE_SB_MSGID_RESERVED, PipeId2), CFE_SB_BAD_ARGUMENT);
 
     /* Unsubscribe - Confirm Bad PipeId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_UnsubscribeLocal(CFE_FT_CMD_MSGID, CFE_SB_INVALID_PIPE), CFE_SB_BAD_ARGUMENT);
@@ -174,7 +170,6 @@ void TestSubscribeEx(void)
 
     /* Subscribe - Confirm Bad MsgId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_SB_INVALID_MSG_ID, PipeId1, CFE_SB_DEFAULT_QOS, 2), CFE_SB_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_SB_MSGID_RESERVED, PipeId2, CFE_SB_DEFAULT_QOS, 2), CFE_SB_BAD_ARGUMENT);
 
     /* Subscribe - Confirm Bad PipeId Arg Rejection */
     UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, CFE_SB_INVALID_PIPE, CFE_SB_DEFAULT_QOS, 2),
@@ -214,7 +209,7 @@ void TestSBMaxSubscriptions(void)
     while (NumSubs <= CFE_PLATFORM_SB_MAX_MSG_IDS)
     {
         /* fabricate a msgid to subscribe to (this may overlap real msgids) */
-        TestMsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_PLATFORM_CMD_MID_BASE + NumSubs);
+        TestMsgId = CFE_SB_ValueToMsgId(CFE_PLATFORM_CMD_MID_BASE + NumSubs);
 
         Status = CFE_SB_Subscribe(TestMsgId, PipeId);
         if (Status != CFE_SUCCESS)
