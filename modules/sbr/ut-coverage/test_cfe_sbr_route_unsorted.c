@@ -58,7 +58,7 @@ void Test_SBR_Route_Unsort_General(void)
     /*
      * Force valid msgid responses
      * Note from here on msgids must be in the valid range since validation is forced true
-     * and if the underlying map implentation is direct it needs to be a valid array index
+     * and if the underlying map implementation is direct it needs to be a valid array index
      */
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
 
@@ -67,7 +67,7 @@ void Test_SBR_Route_Unsort_General(void)
     CFE_SBR_ForEachRouteId(Test_SBR_Callback, &count, NULL);
     UtAssert_INT32_EQ(count, 0);
 
-    UtPrintf("Add maximum mesage id value");
+    UtPrintf("Add maximum message id value");
     msgid   = CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
     routeid = CFE_SBR_AddRoute(msgid, &collisions);
     UtAssert_INT32_EQ(collisions, 0);
@@ -138,7 +138,7 @@ void Test_SBR_Route_Unsort_GetSet(void)
     /*
      * Force valid msgid responses
      * Note from here on msgids must be in the valid range since validation is forced true
-     * and if the underlying map implentation is direct it needs to be a valid array index
+     * and if the underlying map implementation is direct it needs to be a valid array index
      */
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
 

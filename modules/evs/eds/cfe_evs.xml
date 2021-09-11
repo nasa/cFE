@@ -90,7 +90,7 @@
           For command details, see #CFE_EVS_FILE_WRITE_APP_DATA_CC
         </LongDescription>
         <EntryList>
-          <Entry name="AppDataFilename" type="BASE_TYPES/PathName" shortDescription="Filename where applicaton data is to be written" />
+          <Entry name="AppDataFilename" type="BASE_TYPES/PathName" shortDescription="Filename where application data is to be written" />
         </EntryList>
       </ContainerDataType>
 
@@ -597,7 +597,7 @@
           - An Error specific event message
 
           \par  Criticality
-          Enabling an application¿s event type is not particularly hazardous, as
+          Enabling an application's event type is not particularly hazardous, as
           the result may be turning on necessary event messages and
           communication to the ground system.  However, inappropriately enabling
           an application's event type could result in flooding of the ground system.
@@ -701,7 +701,7 @@
           - An Error specific event message
 
           \par  Criticality
-          Enabling an application¿s events is not particularly hazardous,
+          Enabling an application's events is not particularly hazardous,
           as the result may be turning on necessary event messages and
           communication to the ground system.  However, inappropriately enabling
           an application's events could result in flooding of the ground system.

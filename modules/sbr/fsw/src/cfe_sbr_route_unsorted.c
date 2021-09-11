@@ -20,7 +20,7 @@
 
 /******************************************************************************
  * Purpose:
- *   Unsorted routing implemenation
+ *   Unsorted routing implementation
  *   Used with route map implementations where order of routes doesn't matter
  *
  * Notes:

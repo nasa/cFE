@@ -407,7 +407,7 @@ CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t
 **
 ** \par Description
 **        This function returns Spacecraft Time given MET.  Note that Spacecraft
-**        Time is returned as either UTC or TAI depeneding on whether the mission
+**        Time is returned as either UTC or TAI depending on whether the mission
 **        configuration parameter #CFE_MISSION_TIME_CFG_DEFAULT_UTC or #CFE_MISSION_TIME_CFG_DEFAULT_TAI
 **        was set to true at compile time.
 **
@@ -478,7 +478,7 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds);
 **
 ** \par Description
 **        This routine provides a method for cFE TIME software to be notified
-**        of the occurance of the 1Hz tone signal without knowledge of the
+**        of the occurrence of the 1Hz tone signal without knowledge of the
 **        specific hardware design.  Regardless of the source of the tone,
 **        this routine should be called as soon as possible after detection
 **        to allow cFE TIME software the opportunity to latch the local clock
@@ -603,7 +603,7 @@ void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps);
 ** \par Assumptions, External Events, and Notes:
 **          - This routine is included in the API only when 3 specific configuration
 **            parameters are set to true.  The first is #CFE_PLATFORM_TIME_CFG_SERVER which defines this
-**            instanciation of cFE TIME as a time server (not a client).  The second
+**            instantiation of cFE TIME as a time server (not a client).  The second
 **            required configuration parameter is #CFE_PLATFORM_TIME_CFG_SOURCE which enables
 **            time source selection commands to the cFE TIME task, and further enables
 **            configuration definitions for the selected type of external time data.

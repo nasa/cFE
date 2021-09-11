@@ -274,7 +274,7 @@
  *  \par Cause:
  *
  *  \link #CFE_TIME_ADD_DELAY_CC TIME Add Tone Delay Command \endlink OR
- *  \link #CFE_TIME_SUB_DELAY_CC TIME Subtract Tone Delay Command \endlink falure
+ *  \link #CFE_TIME_SUB_DELAY_CC TIME Subtract Tone Delay Command \endlink failure
  *  due to an invalid time value.
  */
 #define CFE_TIME_DELAY_ERR_EID 33
@@ -324,7 +324,7 @@
  *
  *  \link #CFE_TIME_ADD_ADJUST_CC TIME Add Single STCF Adjustment Command \endlink
  *  OR \link #CFE_TIME_SUB_ADJUST_CC TIME Subtract Single STCF Adjustment Command \endlink
- *  falure due to an invalid time value.
+ *  failure due to an invalid time value.
  */
 #define CFE_TIME_DELTA_ERR_EID 37
 

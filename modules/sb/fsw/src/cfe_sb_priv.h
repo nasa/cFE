@@ -140,9 +140,9 @@ typedef struct CFE_SB_BufferD
      * Current owner of the buffer, if owned by a single app.
      *
      * This is used to track "zero copy" buffer allocations - this will be set to
-     * the AppID that initally allocated it, before it is used to transmit a message.
+     * the AppID that initially allocated it, before it is used to transmit a message.
      *
-     * When the message is in transit, it may be queued to multiple applictions,
+     * When the message is in transit, it may be queued to multiple applications,
      * so this is unset.
      */
     CFE_ES_AppId_t AppId;
@@ -199,8 +199,8 @@ typedef struct
 /**
 ** \brief SB route info temporary structure
 **
-** This tracks the number of desinations along with destination data for 1 route.
-** Each route may contain zero or more desinations (variable length).
+** This tracks the number of destinations along with destination data for 1 route.
+** Each route may contain zero or more destinations (variable length).
 */
 typedef struct
 {
@@ -473,7 +473,7 @@ void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
  * UseCount is a variable in the CFE_SB_BufferD_t and is used to
  * determine when a buffer may be returned to the memory pool.
  *
- * If the the UseCount is decremented to zero, it will return the buffer to
+ * If the UseCount is decremented to zero, it will return the buffer to
  * the memory pool.
  *
  * @note This must only be invoked while holding the SB global lock
@@ -924,7 +924,7 @@ extern CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Check if an Pipe descriptor is in use or free/empty
+ * @brief Check if a Pipe descriptor is in use or free/empty
  *
  * This routine checks if the Pipe table entry is in use or if it is free
  *
@@ -944,7 +944,7 @@ static inline bool CFE_SB_PipeDescIsUsed(const CFE_SB_PipeD_t *PipeDscPtr)
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Get the ID value from an Pipe table entry
+ * @brief Get the ID value from a Pipe table entry
  *
  * This routine converts the table entry back to an abstract ID.
  *
@@ -961,7 +961,7 @@ static inline CFE_SB_PipeId_t CFE_SB_PipeDescGetID(const CFE_SB_PipeD_t *PipeDsc
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Marks an Pipe table entry as used (not free)
+ * @brief Marks a Pipe table entry as used (not free)
  *
  * This sets the internal field(s) within this entry, and marks
  * it as being associated with the given Pipe ID.
@@ -982,7 +982,7 @@ static inline void CFE_SB_PipeDescSetUsed(CFE_SB_PipeD_t *PipeDscPtr, CFE_Resour
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Set an Pipe descriptor table entry free (not used)
+ * @brief Set a Pipe descriptor table entry free (not used)
  *
  * This clears the internal field(s) within this entry, and allows the
  * memory to be re-used in the future.
@@ -1002,7 +1002,7 @@ static inline void CFE_SB_PipeDescSetFree(CFE_SB_PipeD_t *PipeDscPtr)
 
 /*---------------------------------------------------------------------------------------*/
 /**
- * @brief Check if an Pipe descriptor is a match for the given PipeID
+ * @brief Check if a Pipe descriptor is a match for the given PipeID
  *
  * This routine confirms that the previously-located descriptor is valid
  * and matches the expected Pipe ID.

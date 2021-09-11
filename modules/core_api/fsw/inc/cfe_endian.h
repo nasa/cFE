@@ -37,7 +37,7 @@
 /*
  * SOFTWARE_BIG/LITTLE_BIT_ORDER COMPATIBILITY MACRO -
  *
- * This is provided only for backward compatibilty.  Do not write any new code that
+ * This is provided only for backward compatibility.  Do not write any new code that
  * uses this macro.
  */
 #if !defined(SOFTWARE_BIG_BIT_ORDER) && !defined(SOFTWARE_LITTLE_BIT_ORDER)

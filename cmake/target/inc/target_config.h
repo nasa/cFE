@@ -154,7 +154,7 @@ extern Target_CfeConfigData GLOBAL_CFE_CONFIGDATA;
  */
 typedef const struct
 {
-    const char *MissionName; /**< The Mission Name from confguration */
+    const char *MissionName; /**< The Mission Name from configuration */
 
     /*
      * Note: the version strings in these fields should reflect the administratively-assigned

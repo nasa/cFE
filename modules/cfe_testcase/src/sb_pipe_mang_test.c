@@ -21,7 +21,7 @@
 ** File: sb_pipe_mang_test.c
 **
 ** Purpose:
-**   Functional test of Sb Pipe Managment APIs
+**   Functional test of Sb Pipe Management APIs
 **
 **   Demonstration of how to register and use the UT assert functions.
 **

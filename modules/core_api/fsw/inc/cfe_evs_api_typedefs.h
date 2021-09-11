@@ -58,7 +58,7 @@
 
 /******************  Structure Definitions *********************/
 
-/** \brief Event message filter defintion structure */
+/** \brief Event message filter definition structure */
 typedef struct CFE_EVS_BinFilter
 {
     uint16 EventID; /**< \brief Numerical event identifier */

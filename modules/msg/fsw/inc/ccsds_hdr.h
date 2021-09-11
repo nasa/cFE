@@ -43,7 +43,7 @@
  * Structure definitions for CCSDS headers.
  *
  * CCSDS headers must always be in network byte order per the standard.
- * MSB at the lowest address which is commonly refered to as "BIG Endian"
+ * MSB at the lowest address which is commonly referred to as "BIG Endian"
  *
  */
 

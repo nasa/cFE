@@ -215,7 +215,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
                     if (NumTokens < CFE_ES_STARTSCRIPT_MAX_TOKENS_PER_LINE)
                     {
                         /*
-                         * NOTE: pointer never deferenced unless "LineTooLong" is false.
+                         * NOTE: pointer never dereferenced unless "LineTooLong" is false.
                          */
                         TokenList[NumTokens] = &ES_AppLoadBuffer[BuffLen];
                     }
@@ -1014,7 +1014,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
     /*
      * Every time a scan is initiated (for any reason)
      * reset the background scan timer to the full value,
-     * and take a snapshot of the the command counter.
+     * and take a snapshot of the command counter.
      */
     NumAppTimeouts                = 0;
     State->BackgroundScanTimer    = CFE_PLATFORM_ES_APP_SCAN_RATE;

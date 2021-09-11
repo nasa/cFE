@@ -51,14 +51,14 @@ typedef uint32 CFE_ResourceId_t;
  *
  * In simple mode this is zero/disabled so that OSAL IDs and CFE IDs will
  * have the same underlying values.  This replicates historical behavior where
- * CFE Task IDs and OSAL task IDs are same thing and are interchangable.
+ * CFE Task IDs and OSAL task IDs are same thing and are interchangeable.
  */
 #define CFE_RESOURCEID_MARK 0
 
 /*
  * Wrap/Unwrap macros.
  *
- * In simple mode theese are a pass through/no-op as values are not
+ * In simple mode these are a pass through/no-op as values are not
  * wrapped/protected.
  */
 #define CFE_RESOURCEID_WRAP(x)   x

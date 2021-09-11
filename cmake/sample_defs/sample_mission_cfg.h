@@ -123,7 +123,7 @@
 **
 **      For example, if the data packet follows the tone, it might be valid for
 **      the data packet to arrive between zero and 100,000 micro-seconds after
-**      the tone.  But, if the tone follows the the packet, it might be valid
+**      the tone.  But, if the tone follows the packet, it might be valid
 **      only if the packet arrived between 200,000 and 700,000 micro-seconds
 **      before the tone.
 **
@@ -284,7 +284,7 @@
 **  \cfetblcfg Maximum Table Name Length
 **
 **  \par Description:
-**      Indicates the maximum length (in characers) of the table name
+**      Indicates the maximum length (in characters) of the table name
 **      ('TblName') portion of a Full Table Name of the following
 **      form: "ApplicationName.TblName"
 **
@@ -446,7 +446,7 @@
 **  \cfesbcfg Maximum Number of pipes that SB command/telemetry messages may hold
 **
 **  \par Description:
-**       Dictates the maximum number of unique Pipes the SB message defintions will hold.
+**       Dictates the maximum number of unique Pipes the SB message definitions will hold.
 **
 **       This affects the layout of command/telemetry messages but does not affect run
 **       time behavior or internal allocation.

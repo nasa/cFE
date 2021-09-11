@@ -1040,7 +1040,7 @@ void CFE_TIME_Tone1HzISR(void)
         */
         CFE_TIME_Global.ToneIntCounter++;
 
-        /* Since the tone occured ~1 seonds after the previous one, we
+        /* Since the tone occurred ~1 seconds after the previous one, we
         ** can mark this tone as 'good'
         */
         CFE_TIME_Global.IsToneGood = true;
@@ -1073,7 +1073,7 @@ void CFE_TIME_Tone1HzISR(void)
         */
         CFE_TIME_Global.ToneIntErrorCounter++;
 
-        /* Since the tone didn't occur ~1 seonds after the previous one, we
+        /* Since the tone didn't occur ~1 seconds after the previous one, we
         ** can mark this tone as 'not good'
         */
         CFE_TIME_Global.IsToneGood = false;

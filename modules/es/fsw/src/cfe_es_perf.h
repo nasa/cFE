@@ -109,7 +109,7 @@ typedef struct
     uint32    WorkCredit;                    /* accumulator based on the passage of time */
     uint32    StateCounter;                  /* number of blocks/items left in current state */
     uint32    DataPos;                       /* last position within the Perf Log */
-    size_t    FileSize;                      /* Total file size, for progress reporing in telemetry */
+    size_t    FileSize;                      /* Total file size, for progress reporting in telemetry */
 } CFE_ES_PerfDumpGlobal_t;
 
 /*

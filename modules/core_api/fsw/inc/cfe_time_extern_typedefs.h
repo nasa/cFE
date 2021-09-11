@@ -166,7 +166,7 @@ enum CFE_TIME_ClockState
  * \par Description
  * The #CFE_TIME_ClockState_Enum_t enumerations identify the three recognized states of the current time.
  * If the clock has never been successfully synchronized with the primary onboard clock source, the
- * time is conisdered to be #CFE_TIME_ClockState_INVALID.  If the time is currently synchronized (i.e. - the
+ * time is considered to be #CFE_TIME_ClockState_INVALID.  If the time is currently synchronized (i.e. - the
  * primary synchronization mechanism has not been dropped for any significant amount of time), then
  * the current time is considered to be #CFE_TIME_ClockState_VALID.  If the time had, at some point in the past,
  * been synchronized, but the synchronization with the primary onboard clock has since been lost, then

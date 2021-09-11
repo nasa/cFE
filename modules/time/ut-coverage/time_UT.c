@@ -129,8 +129,8 @@ void OS_SelectTone(int16 Signal) {}
 #endif
 
 /*
- * A hook functions for CFE_PSP_GetTime that updates the Reference State.
- * This mimmics what would happen if a time update occurred at the moment
+ * A hook function for CFE_PSP_GetTime that updates the Reference State.
+ * This mimics what would happen if a time update occurred at the moment
  * another task was reading the time.
  */
 int32 UT_TimeRefUpdateHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)

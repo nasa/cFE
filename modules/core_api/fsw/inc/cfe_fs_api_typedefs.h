@@ -95,7 +95,7 @@ typedef enum
  * \retval  false if not at last record, more data records to write
  *
  * \note The implementation of this function must always set the "Buffer" and "BufSize" outputs.  If
- *       no data is avaliable, they may be set to NULL and 0, respectively.
+ *       no data is available, they may be set to NULL and 0, respectively.
  */
 typedef bool (*CFE_FS_FileWriteGetData_t)(void *Meta, uint32 RecordNum, void **Buffer, size_t *BufSize);
 
@@ -109,7 +109,7 @@ typedef bool (*CFE_FS_FileWriteGetData_t)(void *Meta, uint32 RecordNum, void **B
  * \param[in]    Event      Generalized type of event to report (not actual event ID)
  * \param[in]    Status     Generalized status code (may be from OSAL or CFE)
  * \param[in]    RecordNum  Record number counter at which event occurred
- * \param[in]    BlockSize  Size of record being processed when event occured (if applicable)
+ * \param[in]    BlockSize  Size of record being processed when event occurred (if applicable)
  * \param[in]    Position   File position/size when event occurred
  *
  */

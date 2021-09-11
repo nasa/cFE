@@ -28,13 +28,13 @@
 #
 # prepare:
 #   Use the information in the target config to set up additional variables
-#   and satisfy any preequisites for targets.  Most importantly this stage
-#   is reposible for finding the actual location of all source files for apps
+#   and satisfy any prerequisites for targets.  Most importantly this stage
+#   is responsible for finding the actual location of all source files for apps
 #   listed in the mission configuration, along with collecting any supplemental
 #   sources, such as EDS files or additional compiler flags.
 #
 # process_arch:
-#   This is called multiple times, once for each CPU architecture specfied in
+#   This is called multiple times, once for each CPU architecture specified in
 #   the main targets.cmake file.  At the mission level, this creates a sub
 #   project target using the correct toolchain for cross compile.  In the arch
 #   specific level (inside the sub-project) it generates the actual library and

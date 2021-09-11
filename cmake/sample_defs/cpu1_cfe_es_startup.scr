@@ -9,7 +9,7 @@ CFE_APP, sch_lab,     SCH_Lab_AppMain,    SCH_LAB_APP,  80,   16384, 0x0, 0;
 ! 1. Object Type      -- CFE_APP for an Application, or CFE_LIB for a library.
 ! 2. Path/Filename    -- This is a cFE Virtual filename, not a vxWorks device/pathname
 ! 3. Entry Point      -- This is the "main" function for Apps.
-! 4. CFE Name         -- The cFE name for the the APP or Library
+! 4. CFE Name         -- The cFE name for the APP or Library
 ! 5. Priority         -- This is the Priority of the App, not used for Library
 ! 6. Stack Size       -- This is the Stack size for the App, not used for the Library
 ! 7. Load Address     -- This is the Optional Load Address for the App or Library. Currently not implemented

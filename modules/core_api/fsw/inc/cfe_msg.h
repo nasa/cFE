@@ -54,7 +54,7 @@
  *
  * \param[out]      MsgPtr      A pointer to the buffer that contains the message @nonnull.
  * \param[in]       MsgId       MsgId that corresponds to message
- * \param[in]       Size        Total size of the mesage (used to set length field)
+ * \param[in]       Size        Total size of the message (used to set length field)
  *
  * \return Execution status, see \ref CFEReturnCodes
  * \retval #CFE_SUCCESS             \copybrief CFE_SUCCESS
@@ -185,7 +185,7 @@ CFE_Status_t CFE_MSG_GetHasSecondaryHeader(const CFE_MSG_Message_t *MsgPtr, bool
  * \brief Sets the message secondary header boolean
  *
  * \par Description
- *          This routine sets the message has secondary header boolean. Typically only
+ *          This routine sets the message secondary header boolean. Typically only
  *          set within message initialization and not used by APPs.
  *
  * \param[in, out]  MsgPtr       A pointer to the buffer that contains the message @nonnull.

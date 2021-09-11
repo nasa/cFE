@@ -566,11 +566,11 @@ void Test_GetPipeName_NullPtr(void);
 
 /*****************************************************************************/
 /**
-** \brief Test get pipe name by id response to an non-existant pipe id
+** \brief Test get pipe name by id response to a non-existent pipe id
 **
 ** \par Description
 **        This function tests the get pipe name by id command when
-**        called with a id that doesn't exist.
+**        called with an id that doesn't exist.
 **
 ** \par Assumptions, External Events, and Notes:
 **        None
@@ -629,7 +629,7 @@ void Test_GetPipeIdByName_NullPtrs(void);
 
 /*****************************************************************************/
 /**
-** \brief Test get pipe id by name response to an non-existant pipe name
+** \brief Test get pipe id by name response to a non-existent pipe name
 **
 ** \par Description
 **        This function tests the get pipe id by name command when

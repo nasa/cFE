@@ -61,7 +61,7 @@ enum CFE_SB_QosPriority
 };
 
 /**
- * @brief Selects the priorty level for message routing
+ * @brief Selects the priority level for message routing
  *
  * @sa enum CFE_SB_QosPriority
  */

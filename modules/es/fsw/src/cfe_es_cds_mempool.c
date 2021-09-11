@@ -189,7 +189,7 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
     size_t                 UserDataOffset;
     CFE_ES_CDS_RegRec_t *  CDSRegRecPtr;
 
-    /* Ensure the the log message is an empty string in case it is never written to */
+    /* Ensure the log message is an empty string in case it is never written to */
     LogMessage[0] = 0;
 
     CDSRegRecPtr = CFE_ES_LocateCDSBlockRecordByID(Handle);

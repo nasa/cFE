@@ -245,7 +245,7 @@ if (DEFINED ${TGTNAME}_EMBED_FILELIST)
 
   endforeach(LISTENT ${${TGTNAME}_EMBED_FILELIST})
 
-  # Finally, generate a static library that contains all embeded binary files
+  # Finally, generate a static library that contains all embedded binary files
   # and add this to the list of libraries that the CFE will be linked with.
   # add a dependency so that the "inc" files are regenerated and the library
   # is rebuilt before the static library is built.

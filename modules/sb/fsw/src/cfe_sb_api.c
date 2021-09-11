@@ -29,7 +29,7 @@
 **      StreamId - First 16 bits of CCSDS Space Packet Protocol (SPP) 133.0-B.1c2 Blue Book
 **                 packet primary header. It contains the 3 bit Version Number, 1 bit Packet Type ID,
 **                 1 bit Secondary Header flag, and 11 bit Application Process ID
-**                 It was used in earlier cFS implementaions and is defined here for historical reference
+**                 It was used in earlier cFS implementations and is defined here for historical reference
 **                 It is NOT exposed to user applications.
 **
 **      MsgId    - Unique numeric message identifier within a mission namespace. It is used by cFS
@@ -1301,7 +1301,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
 
             case CFE_SB_UNSUB_ARG_ERR_EID:
                 CFE_EVS_SendEventWithAppID(CFE_SB_UNSUB_ARG_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "UnSubscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
+                                           "Unsubscribe Err:Bad Arg,MsgId 0x%x,PipeId %lu,app %s,scope %d",
                                            (unsigned int)CFE_SB_MsgIdToValue(MsgId), CFE_RESOURCEID_TO_ULONG(PipeId),
                                            CFE_SB_GetAppTskName(TskId, FullName), (int)Scope);
                 break;
@@ -1380,7 +1380,7 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementS
      * but there will be no buffer because CFE_SBR_IsValidRouteId() returned
      * false.
      *
-     * But if the desciptor is non-null it means the message is valid and
+     * But if the descriptor is non-null it means the message is valid and
      * there is a route to send it to.
      */
     if (BufDscPtr != NULL)
@@ -1395,7 +1395,7 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementS
         /*
          * This routine will use best-effort to send to all subscribers,
          * increment the buffer use count for every successful delivery,
-         * and send an event/increment counter for any unsucessful delivery.
+         * and send an event/increment counter for any unsuccessful delivery.
          */
         CFE_SB_BroadcastBufferToRoute(BufDscPtr, RouteId);
 
@@ -1574,7 +1574,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
     /* take semaphore to prevent a task switch during processing */
     CFE_SB_LockSharedData(__func__, __LINE__);
 
-    /* For an invalid route / no subsribers this whole logic can be skipped */
+    /* For an invalid route / no subscribers this whole logic can be skipped */
     if (CFE_SBR_IsValidRouteId(RouteId))
     {
         /* Set the seq count if requested (while locked) before actually sending */
@@ -1665,7 +1665,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
     }
 
     /*
-     * If any specific delivery issues occured, also increment the
+     * If any specific delivery issues occurred, also increment the
      * general error count before releasing the lock.
      */
     if (SBSndErr.EvtsToSnd > 0)
@@ -1832,7 +1832,7 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
         Status         = CFE_SB_BAD_ARGUMENT;
     }
 
-    /* If OK, then lock and pull relevent info from Pipe Descriptor */
+    /* If OK, then lock and pull relevant info from Pipe Descriptor */
     if (Status == CFE_SUCCESS)
     {
         CFE_SB_LockSharedData(__func__, __LINE__);

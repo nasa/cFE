@@ -129,7 +129,7 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx);
  *
  * Index values are only guaranteed to be unique for resources of the same
  * type.  For instance, the indices corresponding to two [valid] Task
- * IDs will never overlap, but the index of an Task and a library ID
+ * IDs will never overlap, but the index of a Task and a library ID
  * may be the same.  Furthermore, indices may be reused if a resource is
  * deleted and re-created.
  *
@@ -155,7 +155,7 @@ CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx);
  *
  * Index values are only guaranteed to be unique for resources of the same
  * type.  For instance, the indices corresponding to two [valid] Counter
- * IDs will never overlap, but the index of an Counter and a library ID
+ * IDs will never overlap, but the index of a Counter and a library ID
  * may be the same.  Furthermore, indices may be reused if a resource is
  * deleted and re-created.
  *
@@ -246,7 +246,7 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType);
 **        from the same file name as the last start.
 **
 ** \par Assumptions, External Events, and Notes:
-**        The filename is checked for existance prior to load.  A missing file
+**        The filename is checked for existence prior to load.  A missing file
 **        will be reported and the reload operation will be aborted prior
 **        to unloading the app.
 **
@@ -281,7 +281,7 @@ CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID);
 **        the specified file.
 **
 ** \par Assumptions, External Events, and Notes:
-**        The filename is checked for existance prior to load.  A missing file
+**        The filename is checked for existence prior to load.  A missing file
 **        will be reported and the reload operation will be aborted prior
 **        to unloading the app.
 **
@@ -471,7 +471,7 @@ void CFE_ES_WaitForStartupSync(uint32 TimeOutMilliseconds);
 **        the counter for the Application.
 **
 ** \par Assumptions, External Events, and Notes:
-**        NOTE: This API is not needed for Appplications that call the CFE_ES_RunLoop call.
+**        NOTE: This API is not needed for Applications that call the CFE_ES_RunLoop call.
 **
 ** \sa #CFE_ES_RunLoop
 **
@@ -845,7 +845,7 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
 **        None
 **
 ** \param[out]  TaskIdPtr       Pointer to variable that is to receive the Task's ID @nonnull.
-** \param[in]   TaskName        Pointer to null terminated character string containing an Task name @nonnull.
+** \param[in]   TaskName        Pointer to null terminated character string containing a Task name @nonnull.
 **
 ** \return Execution status, see \ref CFEReturnCodes
 ** \retval #CFE_SUCCESS                 \copybrief CFE_SUCCESS
@@ -1510,7 +1510,7 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
 **      depending on the value of the DataCount
 **
 **  Time is stored as 2 32 bit integers, (TimerLower32, TimerUpper32):
-**      TimerLower32 is the curent value of the hardware timer register.
+**      TimerLower32 is the current value of the hardware timer register.
 **      TimerUpper32 is the number of times the timer has rolled over.
 **
 ** \param[in]   Marker          Identifier of the specific event or marker.

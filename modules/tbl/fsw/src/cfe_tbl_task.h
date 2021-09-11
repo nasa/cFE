@@ -298,7 +298,7 @@ typedef struct
     /*
     ** Task housekeeping and diagnostics telemetry packets...
     */
-    CFE_TBL_HousekeepingTlm_t  HkPacket;     /**< \brief Housekeping Telemetry Packet */
+    CFE_TBL_HousekeepingTlm_t  HkPacket;     /**< \brief Housekeeping Telemetry Packet */
     CFE_TBL_TableRegistryTlm_t TblRegPacket; /**< \brief Table Registry Entry Telemetry Packet */
     CFE_TBL_NotifyCmd_t        NotifyMsg;    /**< \brief Table management notification command message */
 

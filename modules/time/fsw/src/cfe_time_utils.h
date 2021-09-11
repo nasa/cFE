@@ -72,7 +72,7 @@
 #define CFE_TIME_TASK_PIPE_DEPTH 12
 
 /*
-** Reset Area state state at startup...
+** Reset Area state at startup...
 */
 
 #define CFE_TIME_RESET_AREA_ERROR    1 /* no mem available */
@@ -112,7 +112,7 @@ typedef struct
     int16              AtToneLeapSeconds; /* Leap Seconds at time of tone */
     int16              ClockSetState;     /* Time has been "set" */
     int16              ClockFlyState;     /* Current fly-wheel state */
-    int16              DelayDirection;    /* Wheter "AtToneDelay" is add or subtract */
+    int16              DelayDirection;    /* Whether "AtToneDelay" is add or subtract */
     CFE_TIME_SysTime_t AtToneDelay;       /* Adjustment for slow tone detection */
     CFE_TIME_SysTime_t AtToneLatch;       /* Local clock latched at time of tone */
     CFE_TIME_SysTime_t CurrentLatch;      /* Local clock latched just "now" */

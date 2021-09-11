@@ -43,7 +43,7 @@
   The BUILD_NUMBER reflects the number of commits since the BUILD_BASELINE, a baseline git tag, for each particular
   component. The BUILD_NUMBER integer monotonically increases for a given baseline. The BUILD_BASELINE
   identifies the current development cycle and is a git tag with format vX.Y.Z. The Codename used in the version
-  string also refers to the current development cycle. When a new baseline tag and codename are created, the the
+  string also refers to the current development cycle. When a new baseline tag and codename are created, the
   BUILD_NUMBER resets to zero and begins increasing from a new baseline.
 
   <H2> Templates for the short and long version string </H2>
@@ -53,7 +53,7 @@
   name; for example, osal uses OS_, psp uses CFE_PSP_IMPL, and so on.
 
   Suggested pattern for development:
-  - XXX_SRC_VERSION: REFRENCE_GIT_TAG"+dev"BUILD_NUMBER
+  - XXX_SRC_VERSION: REFERENCE_GIT_TAG"+dev"BUILD_NUMBER
     - Example: "v6.8.0-rc1+dev123"
   - XXX_VERSION_STRING: "XXX DEVELOPMENT BUILD "XXX_SRC_VERSION" (Codename: YYY), Last Official Release: ZZZ"
     - Example: "cFE DEVELOPMENT BUILD v6.8.0-rc1+dev123 (Codename: Bootes), Last Official Release: cfe v6.7.0"

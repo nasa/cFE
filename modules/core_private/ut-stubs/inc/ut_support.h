@@ -67,7 +67,7 @@ extern const char *UT_OSP_MESSAGES[];
 #define UT_ADD_TEST(Func) UtTest_Add(Func, NULL, NULL, #Func)
 
 /* Required to be defined for GetMsgId and SetMsgId stubs
- * Actual macro defitiions are in cfe_sb_msg_id_utils.h
+ * Actual macro definitions are in cfe_sb_msg_id_utils.h
  * #ifndef so that the actual macros are used for unit
  * testing of SB
  * */
@@ -528,7 +528,7 @@ void UT_DisplayPkt(CFE_MSG_Message_t *MsgPtr, size_t size);
 ** \brief Gets a reference to the CFE ES Reset Data Object
 **
 ** \par Description
-**        Some CFE test casess may need to check or modify the reset data
+**        Some CFE test cases may need to check or modify the reset data
 **        that is maintained by CFE ES.
 **
 ** \par Assumptions, External Events, and Notes:
@@ -728,7 +728,7 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 **
 ** \par Assumptions, External Events, and Notes:
 **        The generic #UtAssert_UINT32_EQ check should not be used, as ID values
-**        and integers may not be interchangable with strict type checking.
+**        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
 #define CFE_UtAssert_RESOURCEID_EQ(id1, id2)                                                                         \
@@ -759,7 +759,7 @@ bool CFE_UtAssert_MessageCheck_Impl(bool Status, const char *File, uint32 Line, 
 **
 ** \par Assumptions, External Events, and Notes:
 **        The generic #UtAssert_UINT32_EQ check should not be used, as CFE_SB_MsgId_t values
-**        and integers may not be interchangable with strict type checking.
+**        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
 #define CFE_UtAssert_MSGID_EQ(mid1, mid2)                                                                      \

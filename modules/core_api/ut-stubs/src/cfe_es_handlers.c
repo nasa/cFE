@@ -375,7 +375,7 @@ void UT_DefaultHandler_CFE_ES_GetPoolBuf(void *UserObj, UT_EntryKey_t FuncKey, c
         else
         {
             /*
-             * This a a bug in the test case.
+             * This is a bug in the test case.
              *
              * The buffer is insufficient, so the test case must
              * use UT_SetDataBuffer() to register a pool buffer that is

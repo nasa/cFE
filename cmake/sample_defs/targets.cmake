@@ -26,7 +26,7 @@
 #           My_C_Function_Name,MY_APP
 #       The first item must be a publicly-exposed C symbol name available to
 #       the linker at static link time, generally the entry point/main function
-#       of the a module or library (see STATIC_APPLIST).  The second item is the
+#       of the module or library (see STATIC_APPLIST).  The second item is the
 #       module name that should match the name used in the CFE startup script
 #       (4th parameter).
 #       IMPORTANT:  For this to work, the OS_STATIC_LOADER configuration option

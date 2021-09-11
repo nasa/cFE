@@ -432,7 +432,7 @@ complete cFE core executive.  These modules are all contained under the `modules
 | `modules/evs/`          | Implementation of the Event Services (EVS) core module - manages sending of events on behalf of other apps         |
 | `modules/fs/`           | Implementation of the File Services (FS) core module - defines file-related functions                              |
 | `modules/msg/`          | Implementation of the Message (MSG) core module - defines message header manipulation/access routines              |
-| `modules/resourceid/`   | Implementation of the Resource ID core module - maniplation/access of system resource IDs (AppID, PipeID, etc.)    |
+| `modules/resourceid/`   | Implementation of the Resource ID core module - manipulation/access of system resource IDs (AppID, PipeID, etc.)   |
 | `modules/sb/`           | Implementation of the Software Bus (SB) core module - sends messages between applications                          |
 | `modules/tbl/`          | Implementation of the Table Services (TBL) core module - manages runtime tables                                    |
 | `modules/time/`         | Implementation of the Time Services (TIME) core module - manages timing and synchronization                        |
@@ -588,7 +588,7 @@ deciding on whether to create multiple Applications versus a single
 Application with multiple Tasks, the Application Developer should keep
 in mind these facts:
 
--   When the Application exits it is the responsiabilty of the
+-   When the Application exits it is the responsibility of the
     Main Task to safely stop all of its Child Tasks.
 
 -   If the Main Task of an Application is stopped, either through
@@ -997,7 +997,7 @@ to the OSAL Library API).
 ## 5.8 Interrupt Handling
 
 OSAL interrupt handling functions have been deprecated due to
-platform dependencies, incomplete testing, and incomplete implementaion
+platform dependencies, incomplete testing, and incomplete implementation
 
 No longer supporting abstracted interrupt handling API from OSAL.  Could
 consider at the PSP layer as future work but current dependencies should
@@ -1079,7 +1079,7 @@ equal to the requested block size.
 The specific size of the management structure depends on the platform
 architecture word size and alignment requirements, and padding may be
 added as necessary to meet the system requirements.  For illustrative
-purposes, the examples below use sizes that are respresentative of a
+purposes, the examples below use sizes that are representative of a
 32-bit CPU with 32-bit buffer alignment with no extra alignment padding
 added.  The pool overhead will increase on a 64-bit CPU with 64-bit
 alignment, or if pool alignment configured greater than 32 bits.  For
@@ -1135,8 +1135,8 @@ Figure 5.2 Example mempool allocations
 ### 5.10.2 Memory Read/Write Functions
 
 CFE provides a set of functions that read and write values of fixed sizes at
-specified physical addresses.  These functions are intended for accessing h
-ardware registers or memory devices with nonstandard properties.  The EEPROM
+specified physical addresses.  These functions are intended for accessing
+hardware registers or memory devices with nonstandard properties.  The EEPROM
 functions perform whatever operations are required for enabling the modification
 of EEPROM and then verify that the modification was successful.
 

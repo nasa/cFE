@@ -306,7 +306,7 @@ void Test_Init(void)
     CFE_EVS_EarlyInit();
     CFE_UtAssert_SYSLOG(EVS_SYSLOG_MSGS[2]);
 
-    /* Repeat sucessful initialization to configure log for later references */
+    /* Repeat successful initialization to configure log for later references */
     UT_InitData();
     UT_SetSizeofESResetArea(sizeof(CFE_ES_ResetData_t));
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_SUCCESS);
@@ -1667,7 +1667,7 @@ void Test_FilterCmd(void)
                                  &UT_EVS_EventBuf);
     UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_EVT_FILTERED_EID);
 
-    /* Test successful event filer deletion */
+    /* Test successful event filter deletion */
     UT_InitData();
     UT_EVS_DoDispatchCheckEvents(&appcmdcmd, sizeof(appcmdcmd), UT_TPID_CFE_EVS_CMD_DELETE_EVENT_FILTER_CC,
                                  &UT_EVS_EventBuf);
