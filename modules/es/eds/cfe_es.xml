@@ -173,36 +173,6 @@
                \cfetlmmnemonic  \ES_ADDRVALID
             </LongDescription>
           </Entry>
-          <Entry name="CodeAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application Code Segment">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_CODEADDR
-            </LongDescription>
-          </Entry>
-          <Entry name="CodeSize" type="BASE_TYPES/CpuAddress" shortDescription="The Code Size of the Application">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_CODESIZE
-            </LongDescription>
-          </Entry>
-          <Entry name="DataAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application Data Segment">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_DATAADDR
-            </LongDescription>
-          </Entry>
-          <Entry name="DataSize" type="BASE_TYPES/CpuAddress" shortDescription="The Data Size of the Application">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_DATASIZE
-            </LongDescription>
-          </Entry>
-          <Entry name="BSSAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Address of the Application BSS Segment">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_BSSADDR
-            </LongDescription>
-          </Entry>
-          <Entry name="BSSSize" type="BASE_TYPES/CpuAddress" shortDescription="The BSS Size of the Application">
-            <LongDescription>
-               \cfetlmmnemonic  \ES_BSSSIZE
-            </LongDescription>
-          </Entry>
           <Entry name="StartAddress" type="BASE_TYPES/CpuAddress" shortDescription="The Start Address of the Application">
             <LongDescription>
                \cfetlmmnemonic  \ES_STARTADDR
