@@ -56,14 +56,14 @@ void Test_MSG_MsgId(void)
     UtAssert_INT32_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0xFFFF)), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
 
-    UtPrintf("Set msg to all F's, set msgid to 0 and verify");
+    UtPrintf("Set msg to all F's, set msgid to 1 and verify");
     memset(&msg, 0xFF, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid), 0xFFFF);
-    CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0)));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(1)));
     UT_DisplayPkt(&msg, sizeof(msg));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&msg, &msgid));
-    UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid), 0);
+    UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid), 1);
     UtAssert_INT32_EQ(Test_MSG_NotF(&msg), MSG_HDRVER_FLAG | MSG_APID_FLAG | MSG_TYPE_FLAG | MSG_HASSEC_FLAG);
 
     UtPrintf("Set msg to all 0, set msgid to max and verify");

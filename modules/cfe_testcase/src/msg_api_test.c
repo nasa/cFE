@@ -50,7 +50,7 @@ void TestMsgApiBasic(void)
     bool                    _returned = false;
 
     memset(&cmd, 0xFF, sizeof(cmd));
-    msgId = CFE_SB_ValueToMsgId(0);
+    msgId = CFE_SB_ValueToMsgId(1);
 
     /* test msg-init */
     UtAssert_INT32_EQ(CFE_MSG_Init(NULL, msgId, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);

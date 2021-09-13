@@ -96,7 +96,7 @@
  * This rvalue macro can be used for static/compile-time data initialization to ensure that
  * the initialized value does not alias to a valid MsgId object.
  */
-#define CFE_SB_MSGID_RESERVED CFE_SB_MSGID_WRAP_VALUE(-1)
+#define CFE_SB_MSGID_RESERVED CFE_SB_MSGID_WRAP_VALUE(0)
 
 /**
  * \brief A literal of the CFE_SB_MsgId_t type representing an invalid ID
@@ -109,7 +109,7 @@
  * purposes (rvalue), #CFE_SB_MSGID_RESERVED should be used instead.
  * However, in the current implementation, they are equivalent.
  */
-#define CFE_SB_INVALID_MSG_ID CFE_SB_MSGID_C(-1)
+#define CFE_SB_INVALID_MSG_ID CFE_SB_MSGID_C(0)
 
 /**
  * \brief Cast/Convert a generic CFE_ResourceId_t to a CFE_SB_PipeId_t
