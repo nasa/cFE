@@ -45,7 +45,20 @@ void TestMsgId(void)
     UtAssert_UINT32_EQ(msgid, expectedmsgid);
 
     UtAssert_INT32_EQ(CFE_MSG_SetMsgId(NULL, msgid), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_INVALID_MSG_ID), CFE_MSG_BAD_ARGUMENT);
+
+    /*
+     * The purpose of this test is to attempt to set a MsgId beyond the set of values that can
+     * be stored in the MSG header. However the criteria for being "storable" depends on the
+     * actual MSG implementation, and may be different in other implementations.  Currently both
+     * "v1" and "v2" implementations do define a specific highest MsgId value, but another
+     * implementation might not have a highest number concept at all.
+     *
+     * By passing the value of -1, when converted to a an unsigned value (either 16 or 32 bit)
+     * it should translate to a MsgId value with all bits being set.  In theory, at least some of
+     * those bits will be not mappable to the packet header bits, and it should therefore elicit
+     * the CFE_MSG_BAD_ARGUMENT response.
+     */
+    UtAssert_INT32_EQ(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(-1)), CFE_MSG_BAD_ARGUMENT);
 
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(NULL, &msgid), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&msg, NULL), CFE_MSG_BAD_ARGUMENT);
