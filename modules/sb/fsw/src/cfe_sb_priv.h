@@ -90,12 +90,14 @@
 #define CFE_SB_FILE_IO_ERR   (-5)
 
 /* bit map for stopping recursive event problem */
-#define CFE_SB_SEND_NO_SUBS_EID_BIT  0
-#define CFE_SB_GET_BUF_ERR_EID_BIT   1
-#define CFE_SB_MSGID_LIM_ERR_EID_BIT 2
-#define CFE_SB_Q_FULL_ERR_EID_BIT    3
-#define CFE_SB_Q_WR_ERR_EID_BIT      4
-
+#define CFE_SB_SEND_NO_SUBS_EID_BIT   0
+#define CFE_SB_GET_BUF_ERR_EID_BIT    1
+#define CFE_SB_MSGID_LIM_ERR_EID_BIT  2
+#define CFE_SB_Q_FULL_ERR_EID_BIT     3
+#define CFE_SB_Q_WR_ERR_EID_BIT       4
+#define CFE_SB_SEND_BAD_ARG_EID_BIT   5
+#define CFE_SB_SEND_INV_MSGID_EID_BIT 6
+#define CFE_SB_MSG_TOO_BIG_EID_BIT    7
 /*
 ** Type Definitions
 */
