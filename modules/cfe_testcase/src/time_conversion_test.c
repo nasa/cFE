@@ -34,62 +34,25 @@ void TestConvertMET2SCTime(void)
 {
     UtPrintf("Testing: CFE_TIME_MET2SCTime");
 
-    /* Mission Elapsed Time */
-    CFE_TIME_SysTime_t MET;
-    /* MET + SCTF */
-    CFE_TIME_SysTime_t TAI;
-    /* MET + SCTF - Leap Seconds */
-    CFE_TIME_SysTime_t UTC;
-    /* Spacecraft Time */
+    CFE_TIME_SysTime_t METStart;
+    CFE_TIME_SysTime_t METEnd;
+    CFE_TIME_SysTime_t Time;
     CFE_TIME_SysTime_t SCTime;
 
-    OS_time_t start;
-    OS_time_t end;
-    OS_time_t difference;
-
-    /* Print buffers */
-    char timeBuf1[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
-    char timeBuf2[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
-
-    OS_GetLocalTime(&start);
+    CFE_TIME_SysTime_t Range;
 
     /* Get Times */
-    MET = CFE_TIME_GetMET();
-    TAI = CFE_TIME_GetTAI();
-    UTC = CFE_TIME_GetUTC();
+    METStart = CFE_TIME_GetMET();
+    Time     = CFE_TIME_GetTime();
+    METEnd   = CFE_TIME_GetMET();
 
-    OS_GetLocalTime(&end);
+    Range = CFE_TIME_Subtract(METEnd, METStart);
 
     /* Convert - should produce a TAI or UTC at the moment of GetMET() */
-    SCTime = CFE_TIME_MET2SCTime(MET);
-
-    /* write Spacecraft Time into second buffer */
-    CFE_TIME_Print(timeBuf2, SCTime);
-
-    difference = OS_TimeSubtract(end, start);
+    SCTime = CFE_TIME_MET2SCTime(METStart);
 
     /* Check conversion */
-#if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
-    /* SCTime is TAI format */
-
-    /* avoid unused compiler warning */
-    (void)UTC;
-
-    /* write TAI into first buffer */
-    CFE_TIME_Print(timeBuf1, TAI);
-
-    UtAssert_True(TimeInRange(SCTime, TAI, difference), "TAI (%s) = MET2SCTime (%s)", timeBuf1, timeBuf2);
-#else
-    /* SCTime is UTC format */
-
-    /* avoid unused compiler warning */
-    (void)TAI;
-
-    /* write UTC into first buffer */
-    CFE_TIME_Print(timeBuf1, UTC);
-
-    UtAssert_True(TimeInRange(SCTime, UTC, difference), "UTC (%s) = MET2SCTime (%s)", timeBuf1, timeBuf2);
-#endif
+    TimeInRange(SCTime, Time, Range, "MET to SC Time vs default time");
 }
 
 void TestConvertSubSeconds2MicroSeconds(void)

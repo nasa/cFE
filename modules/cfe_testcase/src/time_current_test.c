@@ -34,48 +34,45 @@
 #include "cfe_test.h"
 #include "cfe_time_msg.h"
 
-bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference)
+void TimeInRange(CFE_TIME_SysTime_t Start, CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Range, const char *Str)
 {
-    OS_time_t Max;
-    OS_time_t TimeT   = OS_TimeAssembleFromSubseconds(Time.Seconds, Time.Subseconds);
-    OS_time_t TargetT = OS_TimeAssembleFromSubseconds(Target.Seconds, Target.Subseconds);
+    char               StartStr[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
+    char               TimeStr[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
+    CFE_TIME_Compare_t Compare;
+    CFE_TIME_SysTime_t Delta;
 
-    Max = OS_TimeAdd(TimeT, difference);
+    CFE_TIME_Print(StartStr, Start);
+    CFE_TIME_Print(TimeStr, Time);
 
-    if (TargetT.ticks >= TimeT.ticks && TargetT.ticks <= Max.ticks)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    Compare = CFE_TIME_Compare(Start, Time);
+    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_A_LT_B), "%s: %lu %lu (%s) <= %lu %lu (%s)", Str,
+                  (long unsigned)Start.Seconds, (long unsigned)Start.Subseconds, StartStr, (long unsigned)Time.Seconds,
+                  (long unsigned)Time.Subseconds, TimeStr);
+
+    Delta   = CFE_TIME_Subtract(Time, Start);
+    Compare = CFE_TIME_Compare(Delta, Range);
+    UtAssert_True((Compare == CFE_TIME_EQUAL) || (Compare == CFE_TIME_A_LT_B), "%s: Delta %lu %lu <= Range %lu %lu",
+                  Str, (long unsigned)Delta.Seconds, (long unsigned)Delta.Subseconds, (long unsigned)Range.Seconds,
+                  (long unsigned)Range.Subseconds);
 }
 
 void TestGetTime(void)
 {
     UtPrintf("Testing: CFE_TIME_GetTime, CFE_TIME_GetTAI, CFE_TIME_GetUTC, CFE_TIME_GetMET, CFE_TIME_GetSTCF, "
              "CFE_TIME_GetLeapSeconds");
-    OS_time_t          start;
-    OS_time_t          end;
-    OS_time_t          difference;
-    CFE_TIME_SysTime_t Time;
+    CFE_TIME_SysTime_t Start;
+    CFE_TIME_SysTime_t End;
     CFE_TIME_SysTime_t TAI;
     CFE_TIME_SysTime_t UTC;
     CFE_TIME_SysTime_t MET;
     CFE_TIME_SysTime_t STCF;
+    CFE_TIME_SysTime_t Range;
     uint32             METSeconds;
     uint32             METSubSeconds;
-
     int16              LeapSeconds;
     CFE_TIME_SysTime_t Buf;
 
-    char timeBuf1[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
-    char timeBuf2[sizeof("yyyy-ddd-hh:mm:ss.xxxxx_")];
-
-    OS_GetLocalTime(&start);
-
-    Time          = CFE_TIME_GetTime();
+    Start         = CFE_TIME_GetTime();
     TAI           = CFE_TIME_GetTAI();
     UTC           = CFE_TIME_GetUTC();
     MET           = CFE_TIME_GetMET();
@@ -83,42 +80,35 @@ void TestGetTime(void)
     METSubSeconds = CFE_TIME_GetMETsubsecs();
     STCF          = CFE_TIME_GetSTCF();
     LeapSeconds   = CFE_TIME_GetLeapSeconds();
+    End           = CFE_TIME_GetTime();
 
-    OS_GetLocalTime(&end);
-
-    CFE_TIME_Print(timeBuf1, Time);
-    UtPrintf("The current time is (%ld) %s", (long)Time.Seconds, timeBuf1);
-
-    difference = OS_TimeSubtract(end, start);
+    Range = CFE_TIME_Subtract(End, Start);
 
 #if (CFE_MISSION_TIME_CFG_DEFAULT_TAI == true)
-    CFE_TIME_Print(timeBuf2, TAI);
-    UtAssert_True(TimeInRange(Time, TAI, difference), "Get Time (%s) = TAI (%s)", timeBuf1, timeBuf2);
+    TimeInRange(Start, TAI, Range, "default time vs TAI");
 #else
-    CFE_TIME_Print(timeBuf2, UTC);
-    UtAssert_True(TimeInRange(Time, UTC, difference), "Get Time (%s) = UTC(%s)", timeBuf1, timeBuf2);
+    TimeInRange(Start, UTC, Range, "default time vs UTC");
 #endif
 
-    CFE_TIME_Print(timeBuf1, TAI);
     Buf = CFE_TIME_Add(MET, STCF);
-    CFE_TIME_Print(timeBuf2, Buf);
-    UtAssert_True(TimeInRange(TAI, Buf, difference), "TAI (%s) = MET + STCF (%s)", timeBuf1, timeBuf2);
+    TimeInRange(TAI, Buf, Range, "TAI vs MET + STCF");
 
-    CFE_TIME_Print(timeBuf1, UTC);
     Buf.Seconds = Buf.Seconds - LeapSeconds;
-    CFE_TIME_Print(timeBuf2, Buf);
-    UtAssert_True(TimeInRange(UTC, Buf, difference), "UTC (%s) = MET + STCF - Leap Seconds (%s)", timeBuf1, timeBuf2);
+    TimeInRange(UTC, Buf, Range, "UTC vs MET + STCF - Leap Seconds");
 
-    CFE_TIME_Print(timeBuf1, MET);
-    Buf.Seconds    = METSeconds;
-    Buf.Subseconds = MET.Subseconds;
-    CFE_TIME_Print(timeBuf2, Buf);
-    UtAssert_True(TimeInRange(MET, Buf, difference), "MET (%s) = METSeconds (%s)", timeBuf1, timeBuf2);
-
-    Buf.Seconds    = MET.Seconds;
-    Buf.Subseconds = METSubSeconds;
-    CFE_TIME_Print(timeBuf2, Buf);
-    UtAssert_True(TimeInRange(MET, Buf, difference), "MET (%s) = METSubSeconds (%s)", timeBuf1, timeBuf2);
+    /* Handle rollover */
+    if (METSubSeconds < MET.Subseconds)
+    {
+        UtAssert_UINT32_EQ(MET.Seconds + 1, METSeconds);
+    }
+    else
+    {
+        UtAssert_UINT32_EQ(MET.Seconds, METSeconds);
+    }
+    UtAssert_UINT32_LTEQ(METSubSeconds - MET.Subseconds, Range.Subseconds);
+    UtPrintf("MET = %lu, %lu, METSeconds = %lu, METSubSeconds = %lu, Range.Subseconds = %lu",
+             (long unsigned)MET.Seconds, (long unsigned)MET.Subseconds, (long unsigned)METSeconds,
+             (long unsigned)METSubSeconds, (long unsigned)Range.Subseconds);
 }
 
 void TestClock(void)
