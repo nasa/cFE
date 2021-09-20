@@ -229,8 +229,8 @@ void Test_CFE_TBL_TaskInit(void)
     uint32 ExitCode;
     union
     {
-        CFE_TBL_NoArgsCmd_t NoArgsCmd;
-        CFE_MSG_Message_t   Msg;
+        CFE_MSG_CommandHeader_t NoArgsCmd;
+        CFE_MSG_Message_t       Msg;
     } CmdBuf;
     CFE_SB_MsgId_t    MsgId   = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_FcnCode_t FcnCode = 0;

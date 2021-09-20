@@ -63,7 +63,7 @@ size_t CFE_SB_MsgHdrSize(const CFE_MSG_Message_t *MsgPtr)
     /* Since all cFE messages must have a secondary hdr this check is not needed */
     if (!hassechdr)
     {
-        size = sizeof(CCSDS_SpacePacket_t);
+        size = sizeof(CFE_MSG_Message_t);
     }
     else if (type == CFE_MSG_Type_Cmd)
     {

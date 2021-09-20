@@ -3071,7 +3071,7 @@ void Test_TransmitMsg_NoSubscribers(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -3092,7 +3092,7 @@ void Test_TransmitMsg_MaxMsgSizePlusOne(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
 
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true), CFE_SB_MSG_TOO_BIG);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true), CFE_SB_MSG_TOO_BIG);
 
     CFE_UtAssert_EVENTCOUNT(1);
 
@@ -3119,7 +3119,7 @@ void Test_TransmitMsg_BasicSend(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -3165,7 +3165,7 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 1);
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 1);
     UtAssert_INT32_EQ(SeqCnt, SeqCntExpected);
@@ -3173,7 +3173,7 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, false));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), false));
 
     /* Assert sequence count wasn't set */
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 1);
@@ -3184,7 +3184,7 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     UtAssert_INT32_EQ(SeqCnt, SeqCntExpected);
     UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 2);
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 2);
@@ -3199,7 +3199,7 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true)); /* increment to 3 */
+    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true)); /* increment to 3 */
     UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 3);
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 3);
 
@@ -3210,7 +3210,7 @@ void Test_TransmitMsg_SequenceCount(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true)); /* increment to 4 */
+    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true)); /* increment to 4 */
     UtAssert_INT32_EQ(SeqCnt, SeqCntExpected);
     UtAssert_STUB_COUNT(CFE_MSG_SetSequenceCount, 4);
     UtAssert_STUB_COUNT(CFE_MSG_GetNextSequenceCount, 4);
@@ -3238,7 +3238,7 @@ void Test_TransmitMsg_QueuePutError(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_EVENTCOUNT(4);
 
@@ -3267,7 +3267,7 @@ void Test_TransmitMsg_PipeFull(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     /* This send should pass */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     /* Tell the QueuePut stub to return OS_QUEUE_FULL on its next call */
     UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_QUEUE_FULL);
@@ -3277,7 +3277,7 @@ void Test_TransmitMsg_PipeFull(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     /* Pipe overflow causes TransmitMsg to return CFE_SUCCESS */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_EVENTCOUNT(4);
 
@@ -3309,7 +3309,7 @@ void Test_TransmitMsg_MsgLimitExceeded(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     /* First send should pass */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
@@ -3318,7 +3318,7 @@ void Test_TransmitMsg_MsgLimitExceeded(void)
     /* This send should produce a MsgId to Pipe Limit Exceeded message, but
      * return success
      */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_EVENTCOUNT(4);
 
@@ -3349,7 +3349,7 @@ void Test_TransmitMsg_GetPoolBufErr(void)
      * allocation failed)
      */
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true), CFE_SB_BUF_ALOC_ERR);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true), CFE_SB_BUF_ALOC_ERR);
 
     CFE_UtAssert_EVENTCOUNT(3);
     CFE_UtAssert_EVENTSENT(CFE_SB_GET_BUF_ERR_EID);
@@ -3359,7 +3359,7 @@ void Test_TransmitMsg_GetPoolBufErr(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetPoolBuf), 1, CFE_ES_ERR_MEM_BLOCK_SIZE);
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_TaskID_ToIndex), 1, -1);
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true), CFE_SB_BUF_ALOC_ERR);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true), CFE_SB_BUF_ALOC_ERR);
 
     /* Confirm no additional events sent */
     CFE_UtAssert_EVENTCOUNT(3);
@@ -3621,7 +3621,7 @@ void Test_TransmitMsg_DisabledDestination(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -3680,7 +3680,7 @@ void Test_TransmitMsgValidate_MaxMsgSizePlusOne(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsgValidate(&TlmPkt.Hdr.Msg, &MsgIdRtn, &SizeRtn, &RouteIdRtn),
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsgValidate(CFE_MSG_PTR(TlmPkt.TelemetryHeader), &MsgIdRtn, &SizeRtn, &RouteIdRtn),
                       CFE_SB_MSG_TOO_BIG);
     CFE_UtAssert_MSGID_EQ(MsgIdRtn, MsgId);
     UtAssert_INT32_EQ(SizeRtn, Size);
@@ -3705,7 +3705,8 @@ void Test_TransmitMsgValidate_NoSubscribers(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
 
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsgValidate(&TlmPkt.Hdr.Msg, &MsgIdRtn, &SizeRtn, &RouteIdRtn));
+    CFE_UtAssert_SUCCESS(
+        CFE_SB_TransmitMsgValidate(CFE_MSG_PTR(TlmPkt.TelemetryHeader), &MsgIdRtn, &SizeRtn, &RouteIdRtn));
     CFE_UtAssert_MSGID_EQ(MsgIdRtn, MsgId);
     UtAssert_INT32_EQ(SizeRtn, Size);
     UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(RouteIdRtn));
@@ -3728,7 +3729,7 @@ void Test_TransmitMsgValidate_InvalidMsgId(void)
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
 
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsgValidate(&TlmPkt.Hdr.Msg, &MsgIdRtn, &SizeRtn, &RouteIdRtn),
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsgValidate(CFE_MSG_PTR(TlmPkt.TelemetryHeader), &MsgIdRtn, &SizeRtn, &RouteIdRtn),
                       CFE_SB_BAD_ARGUMENT);
     CFE_UtAssert_EVENTCOUNT(1);
     CFE_UtAssert_EVENTSENT(CFE_SB_SEND_INV_MSGID_EID);
@@ -3943,7 +3944,7 @@ void Test_ReceiveBuffer_PendForever(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));
-    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_SUCCESS(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER));
 
@@ -4114,42 +4115,42 @@ void Test_CFE_SB_GetUserData(void)
     CFE_MSG_Type_t    type = CFE_MSG_Type_Invalid;
     struct
     {
-        CFE_MSG_CommandHeader_t cmd;
+        CFE_MSG_CommandHeader_t CommandHeader;
         uint8                   payload;
     } cmd_uint8;
     struct
     {
-        CFE_MSG_CommandHeader_t cmd;
+        CFE_MSG_CommandHeader_t CommandHeader;
         uint16                  payload;
     } cmd_uint16;
     struct
     {
-        CFE_MSG_CommandHeader_t cmd;
+        CFE_MSG_CommandHeader_t CommandHeader;
         uint32                  payload;
     } cmd_uint32;
     struct
     {
-        CFE_MSG_CommandHeader_t cmd;
+        CFE_MSG_CommandHeader_t CommandHeader;
         uint64                  payload;
     } cmd_uint64;
     struct
     {
-        CFE_MSG_TelemetryHeader_t tlm;
+        CFE_MSG_TelemetryHeader_t TelemetryHeader;
         uint8                     payload;
     } tlm_uint8;
     struct
     {
-        CFE_MSG_TelemetryHeader_t tlm;
+        CFE_MSG_TelemetryHeader_t TelemetryHeader;
         uint16                    payload;
     } tlm_uint16;
     struct
     {
-        CFE_MSG_TelemetryHeader_t tlm;
+        CFE_MSG_TelemetryHeader_t TelemetryHeader;
         uint32                    payload;
     } tlm_uint32;
     struct
     {
-        CFE_MSG_TelemetryHeader_t tlm;
+        CFE_MSG_TelemetryHeader_t TelemetryHeader;
         uint64                    payload;
     } tlm_uint64;
 
@@ -4159,7 +4160,7 @@ void Test_CFE_SB_GetUserData(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
 
     /* Expected return */
-    expected = (uint8 *)&msg + sizeof(CCSDS_SpacePacket_t);
+    expected = (uint8 *)&msg + sizeof(CFE_MSG_Message_t);
     UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&msg), expected);
 
     /* Commands */
@@ -4167,31 +4168,31 @@ void Test_CFE_SB_GetUserData(void)
     type   = CFE_MSG_Type_Cmd;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&cmd_uint8.cmd.Msg), &(cmd_uint8.payload));
+    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(cmd_uint8.CommandHeader)), &(cmd_uint8.payload));
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&cmd_uint16.cmd.Msg), &(cmd_uint16.payload));
+    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(cmd_uint16.CommandHeader)), &(cmd_uint16.payload));
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&cmd_uint32.cmd.Msg), &(cmd_uint32.payload));
+    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(cmd_uint32.CommandHeader)), &(cmd_uint32.payload));
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&cmd_uint64.cmd.Msg), &(cmd_uint64.payload));
+    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(cmd_uint64.CommandHeader)), &(cmd_uint64.payload));
 
     /* Telemetry */
     type = CFE_MSG_Type_Tlm;
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&tlm_uint8.tlm.Msg), &(tlm_uint8.payload));
+    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(tlm_uint8.TelemetryHeader)), &(tlm_uint8.payload));
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&tlm_uint16.tlm.Msg), &(tlm_uint16.payload));
+    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(tlm_uint16.TelemetryHeader)), &(tlm_uint16.payload));
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&tlm_uint32.tlm.Msg), &(tlm_uint32.payload));
+    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(tlm_uint32.TelemetryHeader)), &(tlm_uint32.payload));
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
-    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(&tlm_uint64.tlm.Msg), &(tlm_uint64.payload));
+    UtAssert_ADDRESS_EQ(CFE_SB_GetUserData(CFE_MSG_PTR(tlm_uint64.TelemetryHeader)), &(tlm_uint64.payload));
 
     /* Bad inputs */
     UtAssert_NULL(CFE_SB_GetUserData(NULL));
@@ -4212,7 +4213,7 @@ void Test_CFE_SB_SetGetUserDataLength(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetHasSecondaryHeader), &hassec, sizeof(hassec), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &type, sizeof(type), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &size, sizeof(size), false);
-    UtAssert_INT32_EQ(CFE_SB_GetUserDataLength(&msg), size - sizeof(CCSDS_SpacePacket_t));
+    UtAssert_INT32_EQ(CFE_SB_GetUserDataLength(&msg), size - sizeof(CFE_MSG_Message_t));
 
     /*
      * Note, this function currently has a type mismatch - it attempts to
@@ -4541,7 +4542,7 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_EVENTCOUNT(3);
 
@@ -4569,14 +4570,14 @@ void Test_SB_TransmitMsgPaths_LimitErr(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     /* First send should pass */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSGID_LIM_ERR_EID_BIT);
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     CFE_SB_Global.StopRecurseFlags[1] = 0;
 
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_MSGID_LIM_ERR_EID);
@@ -4604,7 +4605,7 @@ void Test_SB_TransmitMsgPaths_FullErr(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     /* This send should pass */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
@@ -4613,7 +4614,7 @@ void Test_SB_TransmitMsgPaths_FullErr(void)
     /* Tell the QueuePut stub to return OS_QUEUE_FULL on its next call */
     UT_SetDeferredRetcode(UT_KEY(OS_QueuePut), 1, OS_QUEUE_FULL);
     CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_FULL_ERR_EID_BIT);
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     CFE_SB_Global.StopRecurseFlags[1] = 0;
 
     CFE_UtAssert_EVENTNOTSENT(CFE_SB_Q_FULL_ERR_EID_BIT);
@@ -4643,14 +4644,14 @@ void Test_SB_TransmitMsgPaths_WriteErr(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_Q_WR_ERR_EID_BIT);
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     CFE_SB_Global.StopRecurseFlags[1] = 0;
 
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_EVENTCOUNT(2);
 
@@ -4682,7 +4683,7 @@ void Test_SB_TransmitMsgPaths_IgnoreOpt(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
 
     /* Test skipping this pipe and the send should pass */
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     UtAssert_STUB_COUNT(OS_QueuePut, 0);
 
     /* Set up and send again without matching ApId and it should transmit */
@@ -4695,7 +4696,7 @@ void Test_SB_TransmitMsgPaths_IgnoreOpt(void)
 
     /* Also hit case where not the peak depth */
     PipeDscPtr->PeakQueueDepth += 2;
-    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SUCCESS(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
     UtAssert_STUB_COUNT(OS_QueuePut, 1);
 
     /* Set AppId back so it can be deleted */
@@ -4725,7 +4726,7 @@ void Test_ReceiveBuffer_UnsubResubPath(void)
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
     UT_SetDataBuffer(UT_KEY(CFE_MSG_GetType), &Type, sizeof(Type), false);
-    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(&TlmPkt.Hdr.Msg, true));
+    CFE_UtAssert_SETUP(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmPkt.TelemetryHeader), true));
 
     CFE_UtAssert_SETUP(CFE_SB_Unsubscribe(MsgId, PipeId));
     CFE_UtAssert_SETUP(CFE_SB_Subscribe(MsgId, PipeId));

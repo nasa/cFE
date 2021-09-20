@@ -49,7 +49,7 @@
 */
 typedef struct
 {
-    CFE_MSG_CommandHeader_t Hdr;
+    CFE_MSG_CommandHeader_t CommandHeader;
     uint32                  Cmd32Param1;
     uint16                  Cmd16Param1;
     uint16                  Cmd16Param2;
@@ -61,7 +61,7 @@ typedef struct
 
 typedef struct
 {
-    CFE_MSG_TelemetryHeader_t Hdr;
+    CFE_MSG_TelemetryHeader_t TelemetryHeader;
     uint32                    Tlm32Param1;
     uint16                    Tlm16Param1;
     uint16                    Tlm16Param2;
@@ -73,7 +73,7 @@ typedef struct
 
 typedef struct
 {
-    CFE_MSG_Message_t Pri;
+    CFE_MSG_Message_t Message;
     uint8             Tlm8Param1;
     uint8             Tlm8Param2;
     uint32            Tlm32Param1;

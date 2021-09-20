@@ -55,27 +55,28 @@ void Test_MSG_Init(void)
 
     UtPrintf("Bad parameter tests, Null pointer, invalid size, invalid msgid");
     UtAssert_INT32_EQ(CFE_MSG_Init(NULL, CFE_SB_ValueToMsgId(0), sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.Msg, CFE_SB_ValueToMsgId(0), 0), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.Msg, CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), sizeof(cmd)),
-                      CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_Init(&cmd.Msg, CFE_SB_ValueToMsgId(-1), sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(0), 0), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(
+        CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), sizeof(cmd)),
+        CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(-1), sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
 
     UtPrintf("Set to all F's, msgid value = 0");
     memset(&cmd, 0xFF, sizeof(cmd));
     msgidval_exp = 0;
 
-    CFE_UtAssert_SUCCESS(CFE_MSG_Init(&cmd.Msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(cmd)));
-    UT_DisplayPkt(&cmd.Msg, 0);
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&cmd.Msg, &msgid_act));
+    CFE_UtAssert_SUCCESS(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(msgidval_exp), sizeof(cmd)));
+    UT_DisplayPkt(CFE_MSG_PTR(cmd), 0);
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(CFE_MSG_PTR(cmd), &msgid_act));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(&cmd.Msg, &size));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(CFE_MSG_PTR(cmd), &size));
     CFE_UtAssert_MEMOFFSET_EQ(size, sizeof(cmd));
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetSegmentationFlag(&cmd.Msg, &segflag));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetSegmentationFlag(CFE_MSG_PTR(cmd), &segflag));
     UtAssert_INT32_EQ(segflag, CFE_MSG_SegFlag_Unsegmented);
 
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetApId(&cmd.Msg, &apid));
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetHeaderVersion(&cmd.Msg, &hdrver));
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&cmd.Msg, &hassec));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetApId(CFE_MSG_PTR(cmd), &apid));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetHeaderVersion(CFE_MSG_PTR(cmd), &hdrver));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(CFE_MSG_PTR(cmd), &hassec));
 
     /* A zero msgid will set hassec to false for v1 */
     is_v1 = !hassec;
@@ -92,25 +93,25 @@ void Test_MSG_Init(void)
     }
 
     /* Confirm the rest of the fields not already explicitly checked */
-    UtAssert_UINT32_EQ(Test_MSG_Pri_NotZero(&cmd.Msg) & ~(MSG_APID_FLAG | MSG_HDRVER_FLAG | MSG_HASSEC_FLAG),
+    UtAssert_UINT32_EQ(Test_MSG_Pri_NotZero(CFE_MSG_PTR(cmd)) & ~(MSG_APID_FLAG | MSG_HDRVER_FLAG | MSG_HASSEC_FLAG),
                        MSG_LENGTH_FLAG | MSG_SEGMENT_FLAG);
 
     UtPrintf("Set to all 0, max msgid value");
     memset(&cmd, 0, sizeof(cmd));
     msgidval_exp = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
 
-    CFE_UtAssert_SUCCESS(CFE_MSG_Init(&cmd.Msg, CFE_SB_ValueToMsgId(msgidval_exp), sizeof(cmd)));
-    UT_DisplayPkt(&cmd.Msg, 0);
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(&cmd.Msg, &msgid_act));
+    CFE_UtAssert_SUCCESS(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(msgidval_exp), sizeof(cmd)));
+    UT_DisplayPkt(CFE_MSG_PTR(cmd), 0);
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetMsgId(CFE_MSG_PTR(cmd), &msgid_act));
     UtAssert_INT32_EQ(CFE_SB_MsgIdToValue(msgid_act), msgidval_exp);
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(&cmd.Msg, &size));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetSize(CFE_MSG_PTR(cmd), &size));
     UtAssert_INT32_EQ(size, sizeof(cmd));
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetSegmentationFlag(&cmd.Msg, &segflag));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetSegmentationFlag(CFE_MSG_PTR(cmd), &segflag));
     UtAssert_INT32_EQ(segflag, CFE_MSG_SegFlag_Unsegmented);
 
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetApId(&cmd.Msg, &apid));
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetHeaderVersion(&cmd.Msg, &hdrver));
-    CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&cmd.Msg, &hassec));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetApId(CFE_MSG_PTR(cmd), &apid));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetHeaderVersion(CFE_MSG_PTR(cmd), &hdrver));
+    CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(CFE_MSG_PTR(cmd), &hassec));
     UtAssert_BOOL_TRUE(hassec);
     if (!is_v1)
     {
@@ -123,6 +124,6 @@ void Test_MSG_Init(void)
         UtAssert_INT32_EQ(hdrver, 0);
     }
 
-    UtAssert_UINT32_EQ(Test_MSG_Pri_NotZero(&cmd.Msg) & ~MSG_HDRVER_FLAG,
+    UtAssert_UINT32_EQ(Test_MSG_Pri_NotZero(CFE_MSG_PTR(cmd)) & ~MSG_HDRVER_FLAG,
                        MSG_APID_FLAG | MSG_HASSEC_FLAG | MSG_TYPE_FLAG | MSG_LENGTH_FLAG | MSG_SEGMENT_FLAG);
 }

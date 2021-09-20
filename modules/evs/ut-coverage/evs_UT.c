@@ -853,7 +853,7 @@ void Test_Logging(void)
     char   tmpString[100];
     union
     {
-        CFE_EVS_NoArgsCmd_t           cmd;
+        CFE_MSG_CommandHeader_t       cmd;
         CFE_EVS_SetLogModeCmd_t       modecmd;
         CFE_EVS_WriteLogDataFileCmd_t logfilecmd;
     } CmdBuf;
@@ -1003,7 +1003,7 @@ void Test_WriteApp(void)
 {
     union
     {
-        CFE_EVS_NoArgsCmd_t           cmd;
+        CFE_MSG_CommandHeader_t       cmd;
         CFE_EVS_WriteAppDataFileCmd_t AppDataCmd;
         CFE_EVS_AppNameBitMaskCmd_t   appbitcmd;
     } CmdBuf;
@@ -1683,7 +1683,7 @@ void Test_FilterCmd(void)
 */
 void Test_InvalidCmd(void)
 {
-    CFE_EVS_NoArgsCmd_t cmd;
+    CFE_MSG_CommandHeader_t cmd;
 
     UtPrintf("Begin Test Invalid Command");
 
@@ -1816,7 +1816,7 @@ void Test_Misc(void)
     union
     {
         CFE_MSG_Message_t             msg;
-        CFE_EVS_NoArgsCmd_t           cmd;
+        CFE_MSG_CommandHeader_t       cmd;
         CFE_EVS_SetLogModeCmd_t       modecmd;
         CFE_EVS_WriteLogDataFileCmd_t writelogdatacmd;
     } PktBuf;

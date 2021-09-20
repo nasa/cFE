@@ -39,15 +39,15 @@
 /* A simple command message */
 typedef struct
 {
-    CFE_MSG_CommandHeader_t CmdHeader;
-    uint32                  CmdPayload;
+    CFE_MSG_CommandHeader_t CommandHeader;
+    uint64                  CmdPayload;
 } CFE_FT_TestCmdMessage_t;
 
 /* A simple telemetry message */
 typedef struct
 {
-    CFE_MSG_TelemetryHeader_t TlmHeader;
-    uint32                    TlmPayload;
+    CFE_MSG_TelemetryHeader_t TelemetryHeader;
+    uint64                    TlmPayload;
 } CFE_FT_TestTlmMessage_t;
 
 /* A message intended to be (overall) larger than the CFE_MISSION_SB_MAX_SB_MSG_SIZE */
@@ -90,34 +90,34 @@ void TestBasicTransmitRecv(void)
     UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_TLM_MSGID, PipeId2, CFE_SB_DEFAULT_QOS, 3), CFE_SUCCESS);
 
     /* Initialize the message content */
-    UtAssert_INT32_EQ(CFE_MSG_Init(&CmdMsg.CmdHeader.Msg, CFE_FT_CMD_MSGID, sizeof(CmdMsg)), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_MSG_Init(&TlmMsg.TlmHeader.Msg, CFE_FT_TLM_MSGID, sizeof(TlmMsg)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(CmdMsg.CommandHeader), CFE_FT_CMD_MSGID, sizeof(CmdMsg)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(TlmMsg.TelemetryHeader), CFE_FT_TLM_MSGID, sizeof(TlmMsg)), CFE_SUCCESS);
 
-    CFE_MSG_SetSequenceCount(&CmdMsg.CmdHeader.Msg, 11);
-    CFE_MSG_SetSequenceCount(&TlmMsg.TlmHeader.Msg, 21);
+    CFE_MSG_SetSequenceCount(CFE_MSG_PTR(CmdMsg.CommandHeader), 11);
+    CFE_MSG_SetSequenceCount(CFE_MSG_PTR(TlmMsg.TelemetryHeader), 21);
 
     /* Sending with sequence update should ignore the sequence in the msg struct */
     CmdMsg.CmdPayload = 0x0c0ffee;
     TlmMsg.TlmPayload = 0x0d00d1e;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmMsg.TlmHeader.Msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmMsg.TelemetryHeader), true), CFE_SUCCESS);
 
     CmdMsg.CmdPayload = 0x1c0ffee;
     TlmMsg.TlmPayload = 0x1d00d1e;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmMsg.TlmHeader.Msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmMsg.TelemetryHeader), true), CFE_SUCCESS);
 
     /* Sending without sequence update should use the sequence in the msg struct */
     CmdMsg.CmdPayload = 0x2c0ffee;
     TlmMsg.TlmPayload = 0x2d00d1e;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, false), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmMsg.TlmHeader.Msg, false), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), false), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmMsg.TelemetryHeader), false), CFE_SUCCESS);
 
     /* Sending again should trigger MsgLimit errors on the pipe, however the call still returns CFE_SUCCESS */
     CmdMsg.CmdPayload = 0x3c0ffee;
     TlmMsg.TlmPayload = 0x3d00d1e;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&TlmMsg.TlmHeader.Msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(TlmMsg.TelemetryHeader), true), CFE_SUCCESS);
 
     /* Attempt to send a msg which does not have a valid msgid  */
     memset(&CFE_FT_BigMsg, 0xFF, sizeof(CFE_FT_BigMsg));
@@ -247,17 +247,17 @@ void TestMsgBroadcast(void)
     UtAssert_INT32_EQ(CFE_SB_SubscribeEx(CFE_FT_CMD_MSGID, PipeId4, CFE_SB_DEFAULT_QOS, 6), CFE_SUCCESS);
 
     /* Initialize the message content */
-    UtAssert_INT32_EQ(CFE_MSG_Init(&CmdMsg.CmdHeader.Msg, CFE_FT_CMD_MSGID, sizeof(CmdMsg)), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(CmdMsg.CommandHeader), CFE_FT_CMD_MSGID, sizeof(CmdMsg)), CFE_SUCCESS);
 
     /* Make unique content in each message. Sending should always be successful. */
     CmdMsg.CmdPayload = 0xbabb1e00;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true), CFE_SUCCESS);
     CmdMsg.CmdPayload = 0xbabb1e01;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true), CFE_SUCCESS);
     CmdMsg.CmdPayload = 0xbabb1e02;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true), CFE_SUCCESS);
     CmdMsg.CmdPayload = 0xbabb1e03;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true), CFE_SUCCESS);
 
     /* Now receive 1st message from Pipes, actual msg should appear on all (no limit violations here) */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SUCCESS);
@@ -326,9 +326,9 @@ void TestMsgBroadcast(void)
 
     /* Send two more messages */
     CmdMsg.CmdPayload = 0xbabb1e04;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true), CFE_SUCCESS);
     CmdMsg.CmdPayload = 0xbabb1e05;
-    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(&CmdMsg.CmdHeader.Msg, true), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_SB_TransmitMsg(CFE_MSG_PTR(CmdMsg.CommandHeader), true), CFE_SUCCESS);
 
     /* poll all pipes again, message should appear on all except PipeId2 (Unsubscribed) */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&MsgBuf1, PipeId1, CFE_SB_POLL), CFE_SUCCESS);

@@ -37,6 +37,21 @@
 #include "ccsds_hdr.h"
 #include "cfe_msg_sechdr.h"
 
+/*****************************************************************************/
+/**
+ * \brief Convert from a CFE_MSG_TelemetryHeader_t or CFE_MSG_CommandHeader_t to a CFE_MSG_Message_t
+ *
+ * \par Description
+ *       Given a pointer to a secondary header structure, return a pointer
+ *       to the CFE_MSG_Message_t (base header/primary header) object.
+ *
+ * \par Notes
+ *       Implemented as a macro, so it should work with both Command and Telemetry headers, as well as
+ *       both const and non-const headers.  The const-ness of the pointer type should be preserved.
+ *
+ */
+#define CFE_MSG_PTR(shdr) (&((shdr).Msg))
+
 /*
  * Type Definitions
  */

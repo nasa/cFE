@@ -393,20 +393,20 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Initialize housekeeping packet (clear user data area)
     */
-    CFE_MSG_Init(&CFE_ES_Global.TaskData.HkPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_ES_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_ES_Global.TaskData.HkPacket.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_ES_HK_TLM_MID),
                  sizeof(CFE_ES_Global.TaskData.HkPacket));
 
     /*
     ** Initialize single application telemetry packet
     */
-    CFE_MSG_Init(&CFE_ES_Global.TaskData.OneAppPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_ES_APP_TLM_MID),
-                 sizeof(CFE_ES_Global.TaskData.OneAppPacket));
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_ES_Global.TaskData.OneAppPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_ES_APP_TLM_MID), sizeof(CFE_ES_Global.TaskData.OneAppPacket));
 
     /*
     ** Initialize memory pool statistics telemetry packet
     */
-    CFE_MSG_Init(&CFE_ES_Global.TaskData.MemStatsPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_ES_MEMSTATS_TLM_MID),
-                 sizeof(CFE_ES_Global.TaskData.MemStatsPacket));
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_ES_Global.TaskData.MemStatsPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_ES_MEMSTATS_TLM_MID), sizeof(CFE_ES_Global.TaskData.MemStatsPacket));
 
     /*
     ** Create Software Bus message pipe
@@ -839,8 +839,8 @@ int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     /*
     ** Send housekeeping telemetry packet.
     */
-    CFE_SB_TimeStampMsg(&CFE_ES_Global.TaskData.HkPacket.TlmHeader.Msg);
-    CFE_SB_TransmitMsg(&CFE_ES_Global.TaskData.HkPacket.TlmHeader.Msg, true);
+    CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.HkPacket.TelemetryHeader));
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.HkPacket.TelemetryHeader), true);
 
     /*
     ** This command does not affect the command execution counter.
@@ -1235,8 +1235,8 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
         /*
         ** Send application status telemetry packet.
         */
-        CFE_SB_TimeStampMsg(&CFE_ES_Global.TaskData.OneAppPacket.TlmHeader.Msg);
-        Result = CFE_SB_TransmitMsg(&CFE_ES_Global.TaskData.OneAppPacket.TlmHeader.Msg, true);
+        CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.OneAppPacket.TelemetryHeader));
+        Result = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.OneAppPacket.TelemetryHeader), true);
         if (Result == CFE_SUCCESS)
         {
             CFE_ES_Global.TaskData.CommandCounter++;
@@ -1974,8 +1974,8 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
         /*
         ** Send memory statistics telemetry packet.
         */
-        CFE_SB_TimeStampMsg(&CFE_ES_Global.TaskData.MemStatsPacket.TlmHeader.Msg);
-        CFE_SB_TransmitMsg(&CFE_ES_Global.TaskData.MemStatsPacket.TlmHeader.Msg, true);
+        CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.MemStatsPacket.TelemetryHeader));
+        CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.MemStatsPacket.TelemetryHeader), true);
 
         CFE_ES_Global.TaskData.CommandCounter++;
         CFE_EVS_SendEvent(CFE_ES_TLM_POOL_STATS_INFO_EID, CFE_EVS_EventType_DEBUG,
