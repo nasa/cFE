@@ -1423,16 +1423,16 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr)
     if (RegRecPtr->NotifyByMsg)
     {
         /* Set the message ID */
-        CFE_MSG_SetMsgId((CFE_MSG_Message_t*)&CFE_TBL_Global.NotifyMsg, RegRecPtr->NotificationMsgId);
+        CFE_MSG_SetMsgId(CFE_MSG_PTR(&CFE_TBL_Global.NotifyMsg.CommandHeader), RegRecPtr->NotificationMsgId);
 
         /* Set the command code */
-        CFE_MSG_SetFcnCode((CFE_MSG_Message_t*)&CFE_TBL_Global.NotifyMsg, RegRecPtr->NotificationCC);
+        CFE_MSG_SetFcnCode(CFE_MSG_PTR(&CFE_TBL_Global.NotifyMsg.CommandHeader), RegRecPtr->NotificationCC);
 
         /* Set the command parameter */
         CFE_TBL_Global.NotifyMsg.Payload.Parameter = RegRecPtr->NotificationParam;
 
-        CFE_SB_TimeStampMsg((CFE_MSG_Message_t*)&CFE_TBL_Global.NotifyMsg);
-        Status = CFE_SB_TransmitMsg((CFE_MSG_Message_t*)&CFE_TBL_Global.NotifyMsg, false);
+        CFE_SB_TimeStampMsg(CFE_MSG_PTR(&CFE_TBL_Global.NotifyMsg.CommandHeader));
+        Status = CFE_SB_TransmitMsg(CFE_MSG_PTR(&CFE_TBL_Global.NotifyMsg.CommandHeader), false);
 
         if (Status != CFE_SUCCESS)
         {
