@@ -39,6 +39,27 @@
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_time_api_typedefs.h"
 
+/** \defgroup CFEAPIMSGConversion cFE Message type conversion
+ * \{
+ */
+
+/*****************************************************************************/
+/**
+ * \brief Convert from a CFE_MSG_TelemetryHeader_t or CFE_MSG_CommandHeader_t to a CFE_MSG_Message_t
+ *
+ * \par Description
+ *       Given a pointer to a secondary header structure, return a pointer
+ *       to the CFE_MSG_Message_t (base header/primary header) object.
+ *
+ * \par Notes
+ *       Implemented as a macro, so it should work with both Command and Telemetry headers, as well as
+ *       both const and non-const headers.  The const-ness of the pointer type should be preserved.
+ *
+ */
+#define CFE_MSG_PTR(shdr) (&((shdr)->Msg))
+
+/**\}*/
+
 /** \defgroup CFEAPIMSGHeader cFE Generic Message APIs
  * \{
  */

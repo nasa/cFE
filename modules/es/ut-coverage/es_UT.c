@@ -2456,7 +2456,7 @@ void TestTask(void)
     union
     {
         CFE_MSG_Message_t            Msg;
-        CFE_ES_NoArgsCmd_t           NoArgsCmd;
+        CFE_MSG_CommandHeader_t      NoArgsCmd;
         CFE_ES_ClearSysLogCmd_t      ClearSysLogCmd;
         CFE_ES_ClearERLogCmd_t       ClearERLogCmd;
         CFE_ES_ResetPRCountCmd_t     ResetPRCountCmd;
