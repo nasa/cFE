@@ -62,8 +62,8 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     /*
     ** Send housekeeping telemetry packet
     */
-    CFE_SB_TimeStampMsg(&CFE_TBL_Global.HkPacket.TlmHeader.Msg);
-    Status = CFE_SB_TransmitMsg(&CFE_TBL_Global.HkPacket.TlmHeader.Msg, true);
+    CFE_SB_TimeStampMsg((CFE_MSG_Message_t*)&CFE_TBL_Global.HkPacket);
+    Status = CFE_SB_TransmitMsg((CFE_MSG_Message_t*)&CFE_TBL_Global.HkPacket, true);
 
     if (Status != CFE_SUCCESS)
     {
@@ -79,8 +79,8 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
         /*
         ** Send Table Registry Info Packet
         */
-        CFE_SB_TimeStampMsg(&CFE_TBL_Global.TblRegPacket.TlmHeader.Msg);
-        CFE_SB_TransmitMsg(&CFE_TBL_Global.TblRegPacket.TlmHeader.Msg, true);
+        CFE_SB_TimeStampMsg((CFE_MSG_Message_t*)&CFE_TBL_Global.TblRegPacket);
+        CFE_SB_TransmitMsg((CFE_MSG_Message_t*)&CFE_TBL_Global.TblRegPacket, true);
 
         /* Once the data has been sent, clear the index so that we don't send it again and again */
         CFE_TBL_Global.HkTlmTblRegIndex = CFE_TBL_NOT_FOUND;

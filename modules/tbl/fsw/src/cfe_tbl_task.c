@@ -238,14 +238,14 @@ void CFE_TBL_InitData(void)
     CFE_ES_GetAppID(&CFE_TBL_Global.TableTaskAppId);
 
     /* Initialize Packet Headers */
-    CFE_MSG_Init(&CFE_TBL_Global.HkPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
+    CFE_MSG_Init((CFE_MSG_Message_t*)&CFE_TBL_Global.HkPacket, CFE_SB_ValueToMsgId(CFE_TBL_HK_TLM_MID),
                  sizeof(CFE_TBL_Global.HkPacket));
 
-    CFE_MSG_Init(&CFE_TBL_Global.TblRegPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
+    CFE_MSG_Init((CFE_MSG_Message_t*)&CFE_TBL_Global.TblRegPacket, CFE_SB_ValueToMsgId(CFE_TBL_REG_TLM_MID),
                  sizeof(CFE_TBL_Global.TblRegPacket));
 
     /* Message ID is set when sent, so OK as 0 here */
-    CFE_MSG_Init(&CFE_TBL_Global.NotifyMsg.CmdHeader.Msg, CFE_SB_ValueToMsgId(0), sizeof(CFE_TBL_Global.NotifyMsg));
+    CFE_MSG_Init((CFE_MSG_Message_t*)&CFE_TBL_Global.NotifyMsg, CFE_SB_ValueToMsgId(0), sizeof(CFE_TBL_Global.NotifyMsg));
 }
 
 /*----------------------------------------------------------------

@@ -583,8 +583,8 @@ int32 CFE_TIME_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     /*
     ** Send housekeeping telemetry packet...
     */
-    CFE_SB_TimeStampMsg(&CFE_TIME_Global.HkPacket.TlmHeader.Msg);
-    CFE_SB_TransmitMsg(&CFE_TIME_Global.HkPacket.TlmHeader.Msg, true);
+    CFE_SB_TimeStampMsg((CFE_MSG_Message_t*)&CFE_TIME_Global.HkPacket);
+    CFE_SB_TransmitMsg((CFE_MSG_Message_t*)&CFE_TIME_Global.HkPacket, true);
 
     /*
     ** Note: we only increment the command execution counter when
@@ -772,8 +772,8 @@ int32 CFE_TIME_SendDiagnosticTlm(const CFE_TIME_SendDiagnosticCmd_t *data)
     /*
     ** Send diagnostics telemetry packet...
     */
-    CFE_SB_TimeStampMsg(&CFE_TIME_Global.DiagPacket.TlmHeader.Msg);
-    CFE_SB_TransmitMsg(&CFE_TIME_Global.DiagPacket.TlmHeader.Msg, true);
+    CFE_SB_TimeStampMsg((CFE_MSG_Message_t*)&CFE_TIME_Global.DiagPacket);
+    CFE_SB_TransmitMsg((CFE_MSG_Message_t*)&CFE_TIME_Global.DiagPacket, true);
 
     CFE_EVS_SendEvent(CFE_TIME_DIAG_EID, CFE_EVS_EventType_DEBUG, "Request diagnostics command");
 
