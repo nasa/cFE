@@ -41,6 +41,9 @@ CFE_FT_Global_t CFE_FT_Global;
  */
 void CFE_TestMain(void)
 {
+    /* Static local so data section is not zero when checking app info */
+    static char TestName[] = "CFE API";
+
     /* Constant Table information used by all table tests */
     CFE_FT_Global.TblName           = "TestTable";
     CFE_FT_Global.RegisteredTblName = "CFE_TEST_APP.TestTable";
@@ -52,7 +55,7 @@ void CFE_TestMain(void)
      * Note this also waits for the appropriate overall system
      * state and gets ownership of the UtAssert subsystem
      */
-    CFE_Assert_RegisterTest("CFE API");
+    CFE_Assert_RegisterTest(TestName);
     CFE_Assert_OpenLogFile(CFE_ASSERT_LOG_FILE_NAME);
 
     /*
