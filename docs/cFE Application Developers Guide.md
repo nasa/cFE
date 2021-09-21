@@ -22,7 +22,7 @@ Table of Contents
        * [4.1.3 Multi-threaded Applications](#413-multi-threaded-applications)
      * [4.2 Best Practices](#42-best-practices)
        * [4.2.1 cFS Application Template](#421-cfs-application-template)
-       * [4.2.2 Avoid "Endian-ness" Dependencies](#422-avoid-endian-ess-dependencies)
+       * [4.2.2 Avoid "Endian-ness" Dependencies](#422-avoid-endian-ness-dependencies)
        * [4.2.3 Avoid Inter-Task Dependencies](#423-avoid-inter-task-dependencies)
        * [4.2.4 Consolidate Resource Allocations](#424-consolidate-resource-allocations)
    * [5. Executive Services Interface](#5-executive-services-interface)
