@@ -33,14 +33,12 @@
 
 #include "cfe_test.h"
 
-#define OS_TEST_HEADER_FILENAME "/drive0/header_test.txt"
+#define OS_TEST_HEADER_FILENAME "/ram/header_test.txt"
 char *fsAddrPtr = NULL;
 
 static osal_id_t setup_file(void)
 {
     osal_id_t id;
-    OS_mkfs(fsAddrPtr, "/ramdev1", "RAM", 512, 20);
-    OS_mount("/ramdev1", "/drive0");
     UtAssert_INT32_EQ(OS_OpenCreate(&id, OS_TEST_HEADER_FILENAME, OS_FILE_FLAG_CREATE, OS_READ_WRITE), OS_SUCCESS);
     return id;
 }
