@@ -27,21 +27,21 @@
 #include "cfe_sb.h"
 #include "utgenstub.h"
 
-extern void UT_DefaultHandler_CFE_SB_AllocateMessageBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_CreatePipe(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_DeletePipe(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_GetPipeIdByName(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_GetPipeName(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_GetUserData(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_GetUserDataLength(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_IsValidMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_MessageStringGet(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_MessageStringSet(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_ReceiveBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_SetUserDataLength(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_TimeStampMsg(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_TransmitBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_SB_TransmitMsg(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_AllocateMessageBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_CreatePipe(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_DeletePipe(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_GetPipeIdByName(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_GetPipeName(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_GetUserData(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_GetUserDataLength(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_IsValidMsgId(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_MessageStringGet(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_MessageStringSet(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_ReceiveBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_SetUserDataLength(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_TimeStampMsg(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_TransmitBuffer(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_SB_TransmitMsg(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
  * ----------------------------------------------------

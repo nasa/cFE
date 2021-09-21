@@ -550,7 +550,7 @@ int32 CFE_TBL_SendNotificationMsg(CFE_TBL_RegistryRec_t *RegRecPtr);
 ** \param[in, out]  Uint32ToSwapPtr Pointer to uint32 value to be swapped. *Uint32ToSwapPtr is the swapped uint32 value
 **
 */
-extern void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
+void CFE_TBL_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
 
 /*
  * Internal helper functions for Table Registry dump

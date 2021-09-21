@@ -154,7 +154,7 @@ extern CFE_FS_Global_t CFE_FS_Global;
  *
  * @param FunctionName The name of the calling function
  */
-extern void CFE_FS_LockSharedData(const char *FunctionName);
+void CFE_FS_LockSharedData(const char *FunctionName);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -162,7 +162,7 @@ extern void CFE_FS_LockSharedData(const char *FunctionName);
  *
  * @param FunctionName The name of the calling function
  */
-extern void CFE_FS_UnlockSharedData(const char *FunctionName);
+void CFE_FS_UnlockSharedData(const char *FunctionName);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -170,7 +170,7 @@ extern void CFE_FS_UnlockSharedData(const char *FunctionName);
  *
  * @param Hdr The object to byte swap
  */
-extern void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr);
+void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -178,6 +178,6 @@ extern void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr);
  *
  * @param Uint32ToSwapPtr The buffer to byte swap
  */
-extern void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
+void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr);
 
 #endif /* CFE_FS_PRIV_H */

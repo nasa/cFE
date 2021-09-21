@@ -29,9 +29,9 @@
 #include "cfe_evs.h"
 #include "utgenstub.h"
 
-extern void UT_DefaultHandler_CFE_EVS_SendEvent(void *, UT_EntryKey_t, const UT_StubContext_t *, va_list);
-extern void UT_DefaultHandler_CFE_EVS_SendEventWithAppID(void *, UT_EntryKey_t, const UT_StubContext_t *, va_list);
-extern void UT_DefaultHandler_CFE_EVS_SendTimedEvent(void *, UT_EntryKey_t, const UT_StubContext_t *, va_list);
+void UT_DefaultHandler_CFE_EVS_SendEvent(void *, UT_EntryKey_t, const UT_StubContext_t *, va_list);
+void UT_DefaultHandler_CFE_EVS_SendEventWithAppID(void *, UT_EntryKey_t, const UT_StubContext_t *, va_list);
+void UT_DefaultHandler_CFE_EVS_SendTimedEvent(void *, UT_EntryKey_t, const UT_StubContext_t *, va_list);
 
 /*
  * ----------------------------------------------------

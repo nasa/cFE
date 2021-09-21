@@ -53,7 +53,7 @@
 **        -# This function MUST be called before any module API's are called.
 **
 ******************************************************************************/
-extern int32 CFE_FS_EarlyInit(void);
+int32 CFE_FS_EarlyInit(void);
 
 /*****************************************************************************/
 /**

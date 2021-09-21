@@ -27,7 +27,7 @@
 #include "cfe_es_core_internal.h"
 #include "utgenstub.h"
 
-extern void UT_DefaultHandler_CFE_ES_RegisterCDSEx(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_ES_RegisterCDSEx(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
  * ----------------------------------------------------
