@@ -39,6 +39,15 @@ void TestSendEvent(void)
 
     UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK Send"), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, NULL), CFE_EVS_INVALID_PARAMETER);
+
+    UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_DEBUG, "OK (Debug) Send"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_DEBUG, NULL), CFE_EVS_INVALID_PARAMETER);
+
+    UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_ERROR, "OK (Error) Send"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_ERROR, NULL), CFE_EVS_INVALID_PARAMETER);
+
+    UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_CRITICAL, "OK (Critical) Send"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_CRITICAL, NULL), CFE_EVS_INVALID_PARAMETER);
 }
 
 void TestSendEventAppID(void)
@@ -55,6 +64,24 @@ void TestSendEventAppID(void)
                       CFE_EVS_INVALID_PARAMETER);
     UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_INFORMATION, CFE_ES_APPID_UNDEFINED, "OK"),
                       CFE_EVS_APP_ILLEGAL_APP_ID);
+
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_DEBUG, AppId, " OK (Debug) App ID"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_DEBUG, AppId, NULL), CFE_EVS_INVALID_PARAMETER);
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_DEBUG, CFE_ES_APPID_UNDEFINED, "OK (Debug)"),
+                      CFE_EVS_APP_ILLEGAL_APP_ID);
+
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_ERROR, AppId, "OK (Error) App ID"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_ERROR, AppId, NULL), CFE_EVS_INVALID_PARAMETER);
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_ERROR, CFE_ES_APPID_UNDEFINED, "OK (Error)"),
+                      CFE_EVS_APP_ILLEGAL_APP_ID);
+
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_CRITICAL, AppId, "OK (Critical) App ID"),
+                      CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_CRITICAL, AppId, NULL),
+                      CFE_EVS_INVALID_PARAMETER);
+    UtAssert_INT32_EQ(
+        CFE_EVS_SendEventWithAppID(0, CFE_EVS_EventType_CRITICAL, CFE_ES_APPID_UNDEFINED, "OK (Critical)"),
+        CFE_EVS_APP_ILLEGAL_APP_ID);
 }
 
 void TestSendTimedEvent(void)
@@ -64,6 +91,15 @@ void TestSendTimedEvent(void)
 
     UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_INFORMATION, "OK Time"), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_INFORMATION, NULL), CFE_EVS_INVALID_PARAMETER);
+
+    UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_DEBUG, "Ok (Debug) Time"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_DEBUG, NULL), CFE_EVS_INVALID_PARAMETER);
+
+    UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_ERROR, "Ok (Error) Time"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_ERROR, NULL), CFE_EVS_INVALID_PARAMETER);
+
+    UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_CRITICAL, "Ok (Critical) Time"), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_EVS_SendTimedEvent(Time, 0, CFE_EVS_EventType_CRITICAL, NULL), CFE_EVS_INVALID_PARAMETER);
 }
 
 void EVSSendTestSetup(void)
