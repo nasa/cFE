@@ -192,8 +192,7 @@ void TestChildTaskName(void)
     UtPrintf("Testing: CFE_ES_GetTaskIDByName, CFE_ES_GetTaskName");
 
     CFE_ES_TaskId_t            TaskId;
-    const char *               TaskName            = "CHILD_TASK_1";
-    const char                 INVALID_TASK_NAME[] = "INVALID_NAME";
+    const char                 TaskName[] = "CHILD_TASK_1";
     CFE_ES_TaskId_t            TaskIdByName;
     char                       TaskNameBuf[OS_MAX_API_NAME + 4];
     CFE_ES_StackPointer_t      StackPointer = CFE_ES_TASK_STACK_ALLOCATE;
@@ -212,13 +211,14 @@ void TestChildTaskName(void)
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(NULL, TaskName), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskIdByName, NULL), CFE_ES_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskIdByName, INVALID_TASK_NAME), CFE_ES_ERR_NAME_NOT_FOUND);
-    CFE_Assert_RESOURCEID_UNDEFINED(TaskIdByName);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskIdByName, "INVALID_NAME"), CFE_ES_ERR_NAME_NOT_FOUND);
+    CFE_UtAssert_RESOURCEID_UNDEFINED(TaskIdByName);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(NULL, TaskId, sizeof(TaskNameBuf)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, CFE_ES_TASKID_UNDEFINED, sizeof(TaskNameBuf)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskName) - 4), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, 0), CFE_ES_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskName) - 1), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
     UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(TaskId), CFE_SUCCESS);
 }
