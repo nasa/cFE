@@ -169,6 +169,7 @@ void TestLibInfo(void)
     CFE_ES_LibId_t   CheckId;
     CFE_ES_AppInfo_t LibInfo;
     const char *     LibName     = "ASSERT_LIB";
+    const char *     FileName    = "cfe_assert";
     const char *     InvalidName = "INVALID_NAME";
     char             LibNameBuf[OS_MAX_API_NAME + 4];
 
@@ -181,7 +182,8 @@ void TestLibInfo(void)
     UtAssert_True(LibInfo.Type == CFE_ES_AppType_LIBRARY, "Lib Info -> Type = %d", (int)LibInfo.Type);
     UtAssert_StrCmp(LibInfo.Name, LibName, "Lib Info -> Name = %s", LibInfo.Name);
     UtAssert_StrCmp(LibInfo.EntryPoint, "CFE_Assert_LibInit", "Lib Info -> EntryPt  = %s", LibInfo.EntryPoint);
-    UtAssert_StrCmp(LibInfo.FileName, "/cf/cfe_assert.so", "Lib Info -> FileName = %s", LibInfo.FileName);
+    UtAssert_True(strstr(LibInfo.FileName, FileName) != NULL, "Lib Info -> FileName = %s contains %s", LibInfo.FileName,
+                  FileName);
     UtAssert_True(LibInfo.StackSize == 0, "Lib Info -> StackSz  = %d", (int)LibInfo.StackSize);
 
     if (LibInfo.AddressesAreValid)
