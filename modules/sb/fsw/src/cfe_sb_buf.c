@@ -104,15 +104,16 @@ void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node
  *-----------------------------------------------------------------*/
 CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
 {
-    int32             stat1;
-    size_t            AllocSize;
-    CFE_SB_BufferD_t *bd = NULL;
+    int32               stat1;
+    size_t              AllocSize;
+    CFE_ES_MemPoolBuf_t addr = NULL;
+    CFE_SB_BufferD_t *  bd;
 
     /* The allocation needs to include enough space for the descriptor object */
     AllocSize = MaxMsgSize + CFE_SB_BUFFERD_CONTENT_OFFSET;
 
     /* Allocate a new buffer descriptor from the SB memory pool.*/
-    stat1 = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t *)&bd, CFE_SB_Global.Mem.PoolHdl, AllocSize);
+    stat1 = CFE_ES_GetPoolBuf(&addr, CFE_SB_Global.Mem.PoolHdl, AllocSize);
     if (stat1 < 0)
     {
         return NULL;
@@ -134,6 +135,7 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
     } /* end if */
 
     /* Initialize the buffer descriptor structure. */
+    bd = (CFE_SB_BufferD_t *)addr;
     memset(bd, 0, CFE_SB_BUFFERD_CONTENT_OFFSET);
 
     bd->MsgId         = CFE_SB_INVALID_MSG_ID;
@@ -214,11 +216,11 @@ void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
  *-----------------------------------------------------------------*/
 CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
 {
-    int32                  Stat;
-    CFE_SB_DestinationD_t *Dest = NULL;
+    int32               Stat;
+    CFE_ES_MemPoolBuf_t addr = NULL;
 
     /* Allocate a new destination descriptor from the SB memory pool.*/
-    Stat = CFE_ES_GetPoolBuf((CFE_ES_MemPoolBuf_t *)&Dest, CFE_SB_Global.Mem.PoolHdl, sizeof(CFE_SB_DestinationD_t));
+    Stat = CFE_ES_GetPoolBuf(&addr, CFE_SB_Global.Mem.PoolHdl, sizeof(CFE_SB_DestinationD_t));
     if (Stat < 0)
     {
         return NULL;
@@ -232,7 +234,7 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
         CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
     } /* end if */
 
-    return Dest;
+    return (CFE_SB_DestinationD_t *)addr;
 }
 
 /*----------------------------------------------------------------
