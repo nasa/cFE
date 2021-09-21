@@ -70,7 +70,7 @@ extern CFE_FT_Global_t CFE_FT_Global;
  */
 #define CFE_ASSERT_LOG_FILE_NAME "/cf/cfe_test.log"
 
-bool TimeInRange(CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Target, OS_time_t difference);
+void TimeInRange(CFE_TIME_SysTime_t Start, CFE_TIME_SysTime_t Time, CFE_TIME_SysTime_t Range, const char *Str);
 
 void CFE_TestMain(void);
 void ESApplicationControlTestSetup(void);
