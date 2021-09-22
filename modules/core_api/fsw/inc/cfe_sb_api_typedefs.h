@@ -63,7 +63,10 @@
  *
  * \sa CFE_SB_ValueToMsgId()
  */
-#define CFE_SB_MSGID_WRAP_VALUE(val) (val)
+#define CFE_SB_MSGID_WRAP_VALUE(val) \
+    {                                \
+        val                          \
+    }
 
 /**
  * \brief Translation macro to convert to MsgId integer values from a literal
@@ -88,7 +91,7 @@
  *
  * \sa CFE_SB_MsgIdToValue()
  */
-#define CFE_SB_MSGID_UNWRAP_VALUE(mid) ((CFE_SB_MsgId_Atom_t)(mid))
+#define CFE_SB_MSGID_UNWRAP_VALUE(mid) ((mid).Value)
 
 /**
  * \brief Reserved value for CFE_SB_MsgId_t that will not match any valid MsgId
