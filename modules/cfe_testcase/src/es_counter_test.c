@@ -88,7 +88,7 @@ void TestCounterCreateDelete(void)
 
     /* Confirm conversion To/From Name */
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterIDByName(&CheckId, CounterName), CFE_SUCCESS);
-    CFE_UtAssert_RESOURCEID_EQ(CheckId, TestId);
+    CFE_Assert_RESOURCEID_EQ(CheckId, TestId);
     UtAssert_INT32_EQ(CFE_ES_GetGenCounterName(CheckName, TestId, sizeof(CheckName)), CFE_SUCCESS);
     UtAssert_STRINGBUF_EQ(CheckName, sizeof(CheckName), CounterName, sizeof(CounterName));
 

@@ -10,6 +10,21 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev1024
+
+- CFE_Assert macro names
+- Update msgid testcase to match implementation 
+- Single time domain in functional time tests
+- Add missing inclusions in CFE API headers 
+- Use existing /ram for FS header test
+- Add static local to function test so data section is nonzero
+- Make invalid buffer length consistent in es task test
+- Only check base filename in library info functional
+- Confirm sb/time reset requirements in coverage test
+- Avoid alias warning on some compilers
+- Fix broken link in Application Developers Guide
+- See <https://github.com/nasa/cFE/pull/1967> and <https://github.com/nasa/cFS/pull/359>
+
 ### Development Build: v6.8.0-rc1+dev994
 
 - Update directory diagrams in cFE Application Developers Guide 

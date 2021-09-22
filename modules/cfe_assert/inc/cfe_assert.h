@@ -67,8 +67,7 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **        None
 **
 ******************************************************************************/
-#define CFE_UtAssert_STATUS_OK(FN) \
-    CFE_UtAssert_StatusCheck(FN, true, UTASSERT_CASETYPE_FAILURE, __FILE__, __LINE__, #FN)
+#define CFE_Assert_STATUS_OK(FN) CFE_Assert_StatusCheck(FN, true, UTASSERT_CASETYPE_FAILURE, __FILE__, __LINE__, #FN)
 
 /*****************************************************************************/
 /**
@@ -86,8 +85,8 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **        tests should check for that error instead of using this.
 **
 ******************************************************************************/
-#define CFE_UtAssert_STATUS_ERROR(FN) \
-    CFE_UtAssert_StatusCheck(FN, false, UTASSERT_CASETYPE_FAILURE, __FILE__, __LINE__, #FN)
+#define CFE_Assert_STATUS_ERROR(FN) \
+    CFE_Assert_StatusCheck(FN, false, UTASSERT_CASETYPE_FAILURE, __FILE__, __LINE__, #FN)
 
 /*****************************************************************************/
 /**
@@ -101,7 +100,7 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
-#define CFE_UtAssert_RESOURCEID_EQ(id1, id2)                                                                         \
+#define CFE_Assert_RESOURCEID_EQ(id1, id2)                                                                           \
     UtAssert_GenericUnsignedCompare(CFE_RESOURCEID_TO_ULONG(id1), UtAssert_Compare_EQ, CFE_RESOURCEID_TO_ULONG(id2), \
                                     UtAssert_Radix_HEX, __FILE__, __LINE__, "Resource ID Check: ", #id1, #id2)
 
@@ -117,7 +116,7 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **        set of undefined IDs is more than the single value of CFE_RESOURCEID_UNDEFINED.
 **
 ******************************************************************************/
-#define CFE_UtAssert_RESOURCEID_UNDEFINED(id) \
+#define CFE_Assert_RESOURCEID_UNDEFINED(id) \
     UtAssert_True(!CFE_RESOURCEID_TEST_DEFINED(id), "%s (0x%lx) not defined", #id, CFE_RESOURCEID_TO_ULONG(id))
 
 /*****************************************************************************/
@@ -131,7 +130,7 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **        This is a simple unsigned comparison which logs the values as hexadecimal
 **
 ******************************************************************************/
-#define CFE_UtAssert_MEMOFFSET_EQ(off1, off2)                                                                \
+#define CFE_Assert_MEMOFFSET_EQ(off1, off2)                                                                  \
     UtAssert_GenericUnsignedCompare(off1, UtAssert_Compare_EQ, off2, UtAssert_Radix_HEX, __FILE__, __LINE__, \
                                     "Offset Check: ", #off1, #off2)
 
@@ -147,7 +146,7 @@ typedef void (*CFE_Assert_StatusCallback_t)(uint8 MessageType, const char *Prefi
 **        and integers may not be interchangeable with strict type checking.
 **
 ******************************************************************************/
-#define CFE_UtAssert_MSGID_EQ(mid1, mid2)                                                                      \
+#define CFE_Assert_MSGID_EQ(mid1, mid2)                                                                        \
     UtAssert_GenericUnsignedCompare(CFE_SB_MsgIdToValue(mid1), UtAssert_Compare_EQ, CFE_SB_MsgIdToValue(mid2), \
                                     UtAssert_Radix_HEX, __FILE__, __LINE__, "MsgId Check: ", #mid1, #mid2)
 
@@ -368,8 +367,8 @@ void CFE_Assert_CloseLogFile(void);
 ** \returns Test pass status, returns true if status was successful, false if it failed.
 **
 ******************************************************************************/
-bool CFE_UtAssert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_CaseType_t CaseType, const char *File,
-                              uint32 Line, const char *Text);
+bool CFE_Assert_StatusCheck(CFE_Status_t Status, bool ExpectSuccess, UtAssert_CaseType_t CaseType, const char *File,
+                            uint32 Line, const char *Text);
 
 /*****************************************************************************/
 /**

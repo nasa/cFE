@@ -1767,8 +1767,35 @@ void Test_SB_EarlyInit_PoolCreateError(void)
 */
 void Test_SB_EarlyInit_NoErrors(void)
 {
+    /* Initialize global to nonzero to confirm resets */
+    memset(&CFE_SB_Global, 0xFF, sizeof(CFE_SB_Global));
     CFE_SB_EarlyInit();
     CFE_UtAssert_SUCCESS(CFE_SB_EarlyInit());
+
+    /* Confirm reset of values to cover reset requirements that are challenging operationaly */
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.CreatePipeErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.SubscribeErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.PipeOptsErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.DuplicateSubscriptionsCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.GetPipeIdByNameErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.PipeOverflowErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.HKTlmMsg.Payload.MsgLimitErrorCounter);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.MsgIdsInUse);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.PeakMsgIdsInUse);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.PipesInUse);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.PeakPipesInUse);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.MemInUse);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.SubscriptionsInUse);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.PeakSubscriptionsInUse);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse);
+    UtAssert_ZERO(CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse);
+
 } /* end Test_SB_EarlyInit_NoErrors */
 
 /*

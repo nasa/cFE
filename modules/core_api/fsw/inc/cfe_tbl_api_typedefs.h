@@ -40,6 +40,7 @@
 
 /********************* Include Files  ************************/
 #include "common_types.h" /* Basic Data Types */
+#include "cfe_mission_cfg.h"
 #include "cfe_tbl_extern_typedefs.h"
 #include "cfe_time_extern_typedefs.h"
 

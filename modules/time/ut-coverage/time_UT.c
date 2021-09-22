@@ -1413,9 +1413,29 @@ void Test_PipeCmds(void)
 
     /* Test sending the reset counters command */
     UT_InitData();
+    CFE_TIME_Global.ToneMatchCounter      = 1;
+    CFE_TIME_Global.ToneMatchErrorCounter = 1;
+    CFE_TIME_Global.ToneSignalCounter     = 1;
+    CFE_TIME_Global.ToneDataCounter       = 1;
+    CFE_TIME_Global.ToneIntCounter        = 1;
+    CFE_TIME_Global.ToneIntErrorCounter   = 1;
+    CFE_TIME_Global.ToneTaskCounter       = 1;
+    CFE_TIME_Global.LocalIntCounter       = 1;
+    CFE_TIME_Global.LocalTaskCounter      = 1;
     memset(&CmdBuf, 0, sizeof(CmdBuf));
     UT_CallTaskPipe(CFE_TIME_TaskPipe, &CmdBuf.message, sizeof(CmdBuf.cmd), UT_TPID_CFE_TIME_CMD_RESET_COUNTERS_CC);
     CFE_UtAssert_EVENTSENT(CFE_TIME_RESET_EID);
+
+    /* Confirm error counters get reset to help cover requirements that are difficult operationally */
+    UtAssert_ZERO(CFE_TIME_Global.ToneMatchCounter);
+    UtAssert_ZERO(CFE_TIME_Global.ToneMatchErrorCounter);
+    UtAssert_ZERO(CFE_TIME_Global.ToneSignalCounter);
+    UtAssert_ZERO(CFE_TIME_Global.ToneDataCounter);
+    UtAssert_ZERO(CFE_TIME_Global.ToneIntCounter);
+    UtAssert_ZERO(CFE_TIME_Global.ToneIntErrorCounter);
+    UtAssert_ZERO(CFE_TIME_Global.ToneTaskCounter);
+    UtAssert_ZERO(CFE_TIME_Global.LocalIntCounter);
+    UtAssert_ZERO(CFE_TIME_Global.LocalTaskCounter);
 
     /* Reset counters with bad size */
     UT_InitData();

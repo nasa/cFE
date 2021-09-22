@@ -35,24 +35,29 @@
 
 void TestCalculateCRC(void)
 {
-    const char *Data = "Random Stuff";
-    uint8       Data2[12];
-    uint32      expectedCrc      = 20824;
-    uint32      inputCrc         = 345353;
-    uint32      expectedBlockCrc = 2688;
+    const char *Data     = "Random Stuff";
+    uint32      inputCrc = 345353;
+    uint32      Result;
 
     UtPrintf("Testing: CFE_ES_CalculateCRC");
 
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_DEFAULT_CRC), expectedCrc);
+    /* CRC is implementation specific, functional just checks that a result is produced and reports */
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_DEFAULT_CRC));
+    UtAssert_MIR("Confirm mission default CRC of \"%s\" is %lu", Data, (unsigned long)Result);
 
-    memset(Data2, 1, sizeof(Data2));
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(&Data2, sizeof(Data2), inputCrc, CFE_MISSION_ES_CRC_16), expectedBlockCrc);
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), inputCrc, CFE_MISSION_ES_CRC_16));
+    UtAssert_MIR("Confirm CRC16 of \"%s\" with input CRC of %lu is %lu", Data, (unsigned long)inputCrc,
+                 (unsigned long)Result);
 
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_CRC_8), 0);
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_CRC_32), 0);
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_CRC_8));
+    UtAssert_MIR("Confirm CRC8 of \"%s\" is %lu", Data, (unsigned long)Result);
 
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, sizeof(Data), expectedCrc, CFE_MISSION_ES_CRC_16), expectedCrc);
-    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, 0, expectedBlockCrc, CFE_MISSION_ES_CRC_16), expectedBlockCrc);
+    UtAssert_VOIDCALL(Result = CFE_ES_CalculateCRC(Data, sizeof(Data), 0, CFE_MISSION_ES_CRC_32));
+    UtAssert_MIR("Confirm CRC32 of \"%s\" is %lu", Data, (unsigned long)Result);
+
+    /* NULL input or 0 size returns input crc */
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(NULL, sizeof(Data), inputCrc, CFE_MISSION_ES_CRC_16), inputCrc);
+    UtAssert_UINT32_EQ(CFE_ES_CalculateCRC(Data, 0, inputCrc, CFE_MISSION_ES_CRC_16), inputCrc);
 }
 
 void TestWriteToSysLog(void)
