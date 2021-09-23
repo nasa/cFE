@@ -63,7 +63,23 @@
  *
  * \sa CFE_SB_ValueToMsgId()
  */
-#define CFE_SB_MSGID_WRAP_VALUE(val) ((CFE_SB_MsgId_t)(val))
+#define CFE_SB_MSGID_WRAP_VALUE(val) \
+    {                                \
+        val                          \
+    }
+
+/**
+ * \brief Translation macro to convert to MsgId integer values from a literal
+ *
+ * This ensures that the literal is interpreted as the CFE_SB_MsgId_t type, rather
+ * than the default type associated with that literal (e.g. int/unsigned int).
+ *
+ * \note Due to constraints in C99 this style of initializer can only be used
+ * at runtime, not for static/compile-time initializers.
+ *
+ * \sa CFE_SB_ValueToMsgId()
+ */
+#define CFE_SB_MSGID_C(val) ((CFE_SB_MsgId_t)CFE_SB_MSGID_WRAP_VALUE(val))
 
 /**
  * \brief Translation macro to convert to MsgId integer values from opaque/abstract API values
@@ -75,7 +91,7 @@
  *
  * \sa CFE_SB_MsgIdToValue()
  */
-#define CFE_SB_MSGID_UNWRAP_VALUE(mid) ((CFE_SB_MsgId_Atom_t)(mid))
+#define CFE_SB_MSGID_UNWRAP_VALUE(mid) ((mid).Value)
 
 /**
  * \brief Reserved value for CFE_SB_MsgId_t that will not match any valid MsgId
@@ -83,7 +99,7 @@
  * This rvalue macro can be used for static/compile-time data initialization to ensure that
  * the initialized value does not alias to a valid MsgId object.
  */
-#define CFE_SB_MSGID_RESERVED CFE_SB_MSGID_WRAP_VALUE(-1)
+#define CFE_SB_MSGID_RESERVED CFE_SB_MSGID_WRAP_VALUE(0)
 
 /**
  * \brief A literal of the CFE_SB_MsgId_t type representing an invalid ID
@@ -96,7 +112,7 @@
  * purposes (rvalue), #CFE_SB_MSGID_RESERVED should be used instead.
  * However, in the current implementation, they are equivalent.
  */
-#define CFE_SB_INVALID_MSG_ID CFE_SB_MSGID_RESERVED
+#define CFE_SB_INVALID_MSG_ID CFE_SB_MSGID_C(0)
 
 /**
  * \brief Cast/Convert a generic CFE_ResourceId_t to a CFE_SB_PipeId_t

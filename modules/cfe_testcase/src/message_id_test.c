@@ -42,7 +42,7 @@ void TestMsgId(void)
 
     UtAssert_INT32_EQ(CFE_MSG_SetMsgId(&msg, expectedmsgid), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_MSG_GetMsgId(&msg, &msgid), CFE_SUCCESS);
-    UtAssert_UINT32_EQ(msgid, expectedmsgid);
+    CFE_Assert_MSGID_EQ(msgid, expectedmsgid);
 
     UtAssert_INT32_EQ(CFE_MSG_SetMsgId(NULL, msgid), CFE_MSG_BAD_ARGUMENT);
 

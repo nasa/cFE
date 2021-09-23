@@ -91,7 +91,7 @@ const CFE_SB_MsgId_t SB_UT_LAST_VALID_MID = CFE_SB_MSGID_WRAP_VALUE(CFE_PLATFORM
  * This is a  "borderline" value to test the limits of the validity checking
  * The specific value depends on how MsgId is actually defined internally
  */
-const CFE_SB_MsgId_t SB_UT_FIRST_VALID_MID = CFE_SB_MSGID_WRAP_VALUE(0);
+const CFE_SB_MsgId_t SB_UT_FIRST_VALID_MID = CFE_SB_MSGID_WRAP_VALUE(1);
 
 /*
  * A MsgId value which is in the middle of the valid range
@@ -1480,7 +1480,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
     NumEvts = 2; /* one for each pipe create */
 
     /* Two full pkts to be sent plus five entries in a partial pkt, skipping MSGID 0x0D */
-    for (i = 0; i < CFE_SB_SUB_ENTRIES_PER_PKT * 2 + 5; i++)
+    for (i = 1; i < (CFE_SB_SUB_ENTRIES_PER_PKT * 2) + 6; i++)
     {
         /* Skip subscribing to ALLSUBS mid. This is the one we are testing.
          * MsgID for this in CCSDS v.1 was 0x180d so this MID did not appear in the
@@ -1488,7 +1488,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
          * testing here so it is irrelevant
          * For CCSDS v.2 CFE_SB_ALLSUBS_TLM_MID (0x0d) now appears in the
          * SB subscription list and thus we must skip adding 0x0D to the list
-         * as we were going from MSGID 0-45 (0x00-0x2D)
+         * as we were going from MSGID 1-46 (0x01-0x2E)
          * */
         if (i != CFE_SB_ALLSUBS_TLM_MID)
         {
@@ -1533,7 +1533,7 @@ void Test_SB_Cmds_SendPrevSubs(void)
     /* Round out the number to three full pkts in order to test branch path
      * coverage, MSGID 0x0D was skipped in previous subscription loop
      */
-    for (; i < CFE_SB_SUB_ENTRIES_PER_PKT * 3; i++)
+    for (; i < (CFE_SB_SUB_ENTRIES_PER_PKT * 3) + 1; i++)
     {
         CFE_UtAssert_SETUP(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(i), PipeId1));
         NumEvts += 1;
@@ -2571,18 +2571,18 @@ void Test_Subscribe_MaxMsgIdCount(void)
     {
         if (i < CFE_PLATFORM_SB_MAX_MSG_IDS)
         {
-            CFE_UtAssert_SETUP(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(i), PipeId2));
+            CFE_UtAssert_SETUP(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(1 + i), PipeId2));
         }
         else
         {
-            UtAssert_INT32_EQ(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(i), PipeId2), CFE_SB_MAX_MSGS_MET);
+            UtAssert_INT32_EQ(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(1 + i), PipeId2), CFE_SB_MAX_MSGS_MET);
         }
     }
 
     UtAssert_UINT32_EQ(CFE_SB_Global.StatTlmMsg.Payload.PeakMsgIdsInUse, CFE_PLATFORM_SB_MAX_MSG_IDS);
     CFE_UtAssert_EVENTSENT(CFE_SB_MAX_MSGS_MET_EID);
 
-    CFE_UtAssert_SUCCESS(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(0), PipeId1));
+    CFE_UtAssert_SUCCESS(CFE_SB_Subscribe(CFE_SB_ValueToMsgId(1), PipeId1));
     UtAssert_UINT32_EQ(CFE_SB_Global.StatTlmMsg.Payload.PeakMsgIdsInUse, CFE_PLATFORM_SB_MAX_MSG_IDS);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId0));

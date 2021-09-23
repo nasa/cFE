@@ -46,7 +46,7 @@ void Test_MSG_GetTypeFromMsgId(void)
     UtAssert_INT32_EQ(Test_MSG_NotZero(&msg), 0);
 
     UtPrintf("Bad parameter tests, Invalid message ID");
-    UtAssert_INT32_EQ(CFE_MSG_GetTypeFromMsgId(CFE_SB_INVALID_MSG_ID, &actual), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_GetTypeFromMsgId(CFE_SB_ValueToMsgId(-1), &actual), CFE_MSG_BAD_ARGUMENT);
 
     UtPrintf("Set to all F's, test cmd and tlm");
     memset(&msg, 0xFF, sizeof(msg));
