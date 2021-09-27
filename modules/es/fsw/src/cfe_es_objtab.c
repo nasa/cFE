@@ -44,6 +44,7 @@
 #include "cfe_sb_core_internal.h"
 #include "cfe_tbl_core_internal.h"
 #include "cfe_time_core_internal.h"
+#include "cfe_config_core_internal.h"
 
 /*
 **
@@ -58,7 +59,9 @@ CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE] = {
     {.ObjectType = CFE_ES_NULL_ENTRY},
     {.ObjectType = CFE_ES_NULL_ENTRY},
     {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType = CFE_ES_NULL_ENTRY},
+
+    /* Initialize the configuration registry early, so it can be used by core apps */
+    {.ObjectType = CFE_ES_FUNCTION_CALL, .ObjectName = "CFE_Config_Init", .FuncPtrUnion.FunctionPtr = CFE_Config_Init},
 
     /*
     ** cFE core early initialization calls. These must be done before the tasks start
