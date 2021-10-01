@@ -133,12 +133,16 @@ CFE_ResourceId_t UT_SB_MakePipeIdForIndex(uint32 ArrayIdx)
  */
 CFE_ES_AppId_t UT_SB_AppID_Modify(CFE_ES_AppId_t InitialID, int32 Modifier)
 {
-    CFE_ES_AppId_t TempValue = InitialID;
+    CFE_ES_AppId_t OutValue;
+    uint32         InValue;
 
-    /* Underneath the wrapper(s) the IDs are 32-bit integer values, so it can be cast */
-    *((uint32 *)&TempValue) += Modifier;
+    InValue = CFE_RESOURCEID_TO_ULONG(InitialID);
+    InValue += Modifier;
 
-    return TempValue;
+    /* Underneath the wrapper(s) the IDs are 32-bit integer values, so it can be copied */
+    memcpy(&OutValue, &InValue, sizeof(OutValue));
+
+    return OutValue;
 }
 
 /*

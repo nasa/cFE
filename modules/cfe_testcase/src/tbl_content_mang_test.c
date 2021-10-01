@@ -68,6 +68,7 @@ void TestLoad(void)
     TBL_TEST_Table_t  TestTable     = {0xd00d, 0xdad};
     TBL_TEST_Table_t *TablePtr;
     CFE_TBL_Handle_t  OtherHandle;
+    void *            TempPtr;
 
     UtPrintf("Testing: CFE_TBL_Load");
 
@@ -107,7 +108,8 @@ void TestLoad(void)
     UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, TESTTBL_NOMINAL_FILE), CFE_SUCCESS);
 
     /* confirm content (football) */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TablePtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
+    TablePtr = TempPtr;
     UtAssert_UINT32_EQ(TablePtr->Int1, 0xf007);
     UtAssert_UINT32_EQ(TablePtr->Int2, 0xba11);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
@@ -117,7 +119,8 @@ void TestLoad(void)
                       CFE_TBL_ERR_FILE_TOO_LARGE);
 
     /* confirm content again (note content should not have been updated) */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TablePtr, CFE_FT_Global.TblHandle), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_SUCCESS);
+    TablePtr = TempPtr;
     UtAssert_UINT32_EQ(TablePtr->Int1, 0xf007);
     UtAssert_UINT32_EQ(TablePtr->Int2, 0xba11);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
@@ -126,7 +129,8 @@ void TestLoad(void)
     UtAssert_INT32_EQ(CFE_TBL_Load(CFE_FT_Global.TblHandle, CFE_TBL_SRC_FILE, TESTTBL_ALTERNATE_FILE), CFE_SUCCESS);
 
     /* confirm content again (changed to alternate data) */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TablePtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
+    TablePtr = TempPtr;
     UtAssert_UINT32_EQ(TablePtr->Int1, 0xdead);
     UtAssert_UINT32_EQ(TablePtr->Int2, 0xbeef);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
@@ -136,7 +140,8 @@ void TestLoad(void)
                       CFE_TBL_ERR_LOAD_INCOMPLETE);
 
     /* confirm content again (should not be changed) */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TablePtr, CFE_FT_Global.TblHandle), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_SUCCESS);
+    TablePtr = TempPtr;
     UtAssert_UINT32_EQ(TablePtr->Int1, 0xdead);
     UtAssert_UINT32_EQ(TablePtr->Int2, 0xbeef);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
@@ -145,13 +150,15 @@ void TestLoad(void)
     UtAssert_INT32_EQ(CFE_TBL_Load(OtherHandle, CFE_TBL_SRC_FILE, TESTTBL_OTHERTBL_FILE), CFE_SUCCESS);
 
     /* confirm content of first table again (should not be changed) */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TablePtr, CFE_FT_Global.TblHandle), CFE_SUCCESS);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_SUCCESS);
+    TablePtr = TempPtr;
     UtAssert_UINT32_EQ(TablePtr->Int1, 0xdead);
     UtAssert_UINT32_EQ(TablePtr->Int2, 0xbeef);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
 
     /* confirm content of other table (boatload) */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TablePtr, OtherHandle), CFE_TBL_INFO_UPDATED);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, OtherHandle), CFE_TBL_INFO_UPDATED);
+    TablePtr = TempPtr;
     UtAssert_UINT32_EQ(TablePtr->Int1, 0xb0a7);
     UtAssert_UINT32_EQ(TablePtr->Int2, 0x10ad);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(OtherHandle), CFE_SUCCESS);
@@ -161,7 +168,8 @@ void TestLoad(void)
 
     /* confirm content again (reported as updated from partial load) */
     /* Should have updated the first word only */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TablePtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
+    TablePtr = TempPtr;
     UtAssert_UINT32_EQ(TablePtr->Int1, 0x5555);
     UtAssert_UINT32_EQ(TablePtr->Int2, 0xbeef);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);
@@ -171,7 +179,8 @@ void TestLoad(void)
 
     /* confirm content again (reported as updated from partial load) */
     /* Should have updated the second word only */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TablePtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TempPtr, CFE_FT_Global.TblHandle), CFE_TBL_INFO_UPDATED);
+    TablePtr = TempPtr;
     UtAssert_UINT32_EQ(TablePtr->Int1, 0x5555);
     UtAssert_UINT32_EQ(TablePtr->Int2, 0x6666);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_SUCCESS);

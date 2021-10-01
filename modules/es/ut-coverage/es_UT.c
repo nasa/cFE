@@ -700,6 +700,7 @@ void TestStartupErrorPaths(void)
     OS_statvfs_t            StatBuf;
     CFE_ES_TaskRecord_t *   TaskRecPtr;
     CFE_ES_AppRecord_t *    AppRecPtr;
+    void *                  TempBuff;
 
     UtPrintf("Begin Test Startup Error Paths");
 
@@ -709,7 +710,8 @@ void TestStartupErrorPaths(void)
      * is part of CFE_ES_Global which is zeroed out as part of test reset.  Formerly
      * this was a separate global which was not cleared with the other globals.
      */
-    UT_GetDataBuffer(UT_KEY(CFE_PSP_GetResetArea), (void **)&ES_UT_PersistentResetData, NULL, NULL);
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_GetResetArea), &TempBuff, NULL, NULL);
+    ES_UT_PersistentResetData = TempBuff;
 
     /* Set up the startup script for reading */
     strncpy(StartupScript,
@@ -3522,11 +3524,14 @@ void TestPerf(void)
     UtPrintf("Begin Test Performance Log");
 
     CFE_ES_PerfData_t *Perf;
+    void *             TempBuff;
 
     /*
     ** Set the pointer to the data area
     */
-    UT_GetDataBuffer(UT_KEY(CFE_PSP_GetResetArea), (void **)&ES_UT_PersistentResetData, NULL, NULL);
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_GetResetArea), &TempBuff, NULL, NULL);
+    ES_UT_PersistentResetData = TempBuff;
+
     Perf = &ES_UT_PersistentResetData->Perf;
 
     /* Test successful performance mask and value initialization */
@@ -4651,7 +4656,7 @@ void TestGenericCounterAPI(void)
 void TestCDS()
 {
     size_t               CdsSize;
-    uint8 *              CdsPtr;
+    void *               CdsPtr;
     char                 CDSName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN + 4];
     CFE_ES_CDSHandle_t   CDSHandle;
     CFE_ES_CDS_RegRec_t *UtCDSRegRecPtr;
@@ -4842,7 +4847,7 @@ void TestCDS()
 
     /* Reset back to a sufficient CDS size */
     UT_SetCDSSize(128 * 1024);
-    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void **)&CdsPtr, &CdsSize, NULL);
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), &CdsPtr, &CdsSize, NULL);
 
     /* Test CDS initialization with rebuilding not possible */
     ES_ResetUnitTest();
@@ -4858,11 +4863,11 @@ void TestCDS()
     UtAssert_INT32_EQ(CFE_ES_ValidateCDS(), CFE_ES_CDS_ACCESS_ERROR);
 
     /* Test CDS validation with CDS read end check failure */
-    memset(CdsPtr + CdsSize - CFE_ES_CDS_SIGNATURE_LEN, 'x', CFE_ES_CDS_SIGNATURE_LEN);
+    memset((unsigned char *)CdsPtr + CdsSize - CFE_ES_CDS_SIGNATURE_LEN, 'x', CFE_ES_CDS_SIGNATURE_LEN);
     UtAssert_INT32_EQ(CFE_ES_ValidateCDS(), CFE_ES_CDS_INVALID);
 
     /* Test CDS validation with CDS read begin check failure */
-    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void **)&CdsPtr, &CdsSize, NULL);
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), &CdsPtr, &CdsSize, NULL);
     memset(CdsPtr, 'x', CFE_ES_CDS_SIGNATURE_LEN);
     UtAssert_INT32_EQ(CFE_ES_ValidateCDS(), CFE_ES_CDS_INVALID);
 
@@ -4880,9 +4885,9 @@ void TestCDS()
 
     /* Test rebuilding the CDS where the registry is not the same size */
     ES_ResetUnitTest();
-    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void **)&CdsPtr, &CdsSize, NULL);
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), &CdsPtr, &CdsSize, NULL);
     TempSize = CFE_PLATFORM_ES_CDS_MAX_NUM_ENTRIES + 1;
-    memcpy(CdsPtr + CDS_REG_SIZE_OFFSET, &TempSize, sizeof(TempSize));
+    memcpy((unsigned char *)CdsPtr + CDS_REG_SIZE_OFFSET, &TempSize, sizeof(TempSize));
     UtAssert_INT32_EQ(CFE_ES_RebuildCDS(), CFE_ES_CDS_INVALID);
 
     /* Test clearing CDS where size is an odd number (requires partial write) */
@@ -5003,7 +5008,7 @@ void TestCDSMempool(void)
     CFE_ES_CDSHandle_t   BlockHandle;
     size_t               SavedSize;
     size_t               SavedOffset;
-    uint8 *              CdsPtr;
+    void *               CdsPtr;
 
     UtPrintf("Begin Test CDS memory pool");
 
@@ -5097,10 +5102,10 @@ void TestCDSMempool(void)
     UtAssert_INT32_EQ(CFE_ES_CDSBlockRead(&Data, BlockHandle), CFE_ES_CDS_ACCESS_ERROR);
 
     /* Corrupt the data as to cause a CRC mismatch */
-    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), (void **)&CdsPtr, NULL, NULL);
-    CdsPtr[UtCdsRegRecPtr->BlockOffset] ^= 0x02; /* Bit flip */
+    UT_GetDataBuffer(UT_KEY(CFE_PSP_ReadFromCDS), &CdsPtr, NULL, NULL);
+    *((unsigned char *)CdsPtr + UtCdsRegRecPtr->BlockOffset) ^= 0x02; /* Bit flip */
     UtAssert_INT32_EQ(CFE_ES_CDSBlockRead(&Data, BlockHandle), CFE_ES_CDS_BLOCK_CRC_ERR);
-    CdsPtr[UtCdsRegRecPtr->BlockOffset] ^= 0x02; /* Fix Bit */
+    *((unsigned char *)CdsPtr + UtCdsRegRecPtr->BlockOffset) ^= 0x02; /* Fix Bit */
 
     /* Set up again with a CDS that is too small to get branch coverage */
     /* Test CDS block access */
@@ -5189,7 +5194,7 @@ void TestESMempool(void)
      * types are in use, underneath the wrapper(s) lies a uint32 eventually.
      * This is intentionally a type-UNSAFE access to this value.
      */
-    *((uint32 *)&PoolPtr->PoolID) ^= 10; /* cause it to fail validation */
+    *((unsigned char *)&PoolPtr->PoolID) ^= 10; /* cause it to fail validation */
 
     UtAssert_BOOL_FALSE(CFE_ES_ValidateHandle(PoolID2));
 
@@ -5223,7 +5228,7 @@ void TestESMempool(void)
     UtAssert_INT32_EQ(CFE_ES_GetPoolBufInfo(PoolID2, addressp2), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 
     /* Undo the previous memory corruption */
-    *((uint32 *)&PoolPtr->PoolID) ^= 10; /* Repair Pool2 ID */
+    *((unsigned char *)&PoolPtr->PoolID) ^= 10; /* Repair Pool2 ID */
 
     /* Test returning a pool buffer using an invalid memory block */
     UtAssert_INT32_EQ(CFE_ES_PutPoolBuf(PoolID2, CFE_ES_MEMPOOLBUF_C((cpuaddr)addressp2 - 40)),
