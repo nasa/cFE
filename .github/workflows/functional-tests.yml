@@ -27,11 +27,15 @@ jobs:
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
 
   Local-Test-Build:
+  
     #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
     needs: check-for-duplicates
     if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
     runs-on: ubuntu-18.04
     timeout-minutes: 15
+    strategy:
+      matrix:
+        ref: [main, integration-candidate]
 
     steps:      
       # Checks out a copy of your repository on the ubuntu-latest machine
@@ -39,7 +43,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: nasa/cFS
-          submodules: true    
+          submodules: true
+          ref: ${{ matrix.ref }}
 
       - name: Checkout submodule
         uses: actions/checkout@v2
@@ -105,4 +110,4 @@ jobs:
                   grep -i '\[ FAIL]\|\[  TSF]\|\[  TTF]' cf/cfe_test.log
                   exit -1
           fi
-        working-directory: ./build/exe/cpu1/  
+        working-directory: ./build/exe/cpu1/
