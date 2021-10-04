@@ -111,3 +111,25 @@ jobs:
                   exit -1
           fi
         working-directory: ./build/exe/cpu1/
+
+      - name: Merge-IC              
+        if: matrix.ref == 'integration-candidate' && github.event_name == 'pull'
+        run: | 
+          cd cfe
+          git push origin/integration-candidate
+
+  Rebase-IC:
+      # Anytime there's a push to main this rebases IC on top of main
+      if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
+      runs-on: ubuntu-18.04
+
+      steps:
+        - name: Checkout submodule
+          uses: actions/checkout@v2
+          with:
+            path: cfe
+
+        - name: Rebase IC
+          run: | 
+            git rebase main
+            git push origin/integration-candidate
