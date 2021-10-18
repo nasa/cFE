@@ -36,6 +36,7 @@
 #include "common_types.h"
 #include "ccsds_hdr.h"
 #include "cfe_msg_sechdr.h"
+#include "cfe_msg_api_typedefs.h"
 
 /*
  * Type Definitions
@@ -60,34 +61,30 @@ typedef struct
 /**
  * \brief cFS generic base message
  */
-typedef union
+union CFE_MSG_Message
 {
     CCSDS_SpacePacket_t CCSDS;                             /**< \brief CCSDS Header (Pri or Pri + Ext) */
     uint8               Byte[sizeof(CCSDS_SpacePacket_t)]; /**< \brief Byte level access */
-} CFE_MSG_Message_t;
+};
 
 /**
  * \brief cFS command header
  */
-typedef struct
+struct CFE_MSG_CommandHeader
 {
-
     CFE_MSG_Message_t                Msg;      /**< \brief Base message */
     CFE_MSG_CommandSecondaryHeader_t Sec;      /**< \brief Secondary header */
     uint8                            Spare[4]; /**< /brief Pad to avoid compiler padding if payload
                                                            requires 64 bit alignment */
-
-} CFE_MSG_CommandHeader_t;
+};
 
 /**
  * \brief cFS telemetry header
  */
-typedef struct
+struct CFE_MSG_TelemetryHeader
 {
-
     CFE_MSG_Message_t                  Msg; /**< \brief Base message */
     CFE_MSG_TelemetrySecondaryHeader_t Sec; /**< \brief Secondary header */
-
-} CFE_MSG_TelemetryHeader_t;
+};
 
 #endif /* DEFAULT_CFE_MSG_HDR_PRIEXT_H */

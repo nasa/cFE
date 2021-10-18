@@ -66,7 +66,7 @@ void Test_MSG_Init_Ext(void)
     is_v1 = !hassec;
 
     /* Set up return */
-    UT_SetForceFail(UT_KEY(CFE_PSP_GetSpacecraftId), sc_id);
+    UT_SetDefaultReturnValue(UT_KEY(CFE_PSP_GetSpacecraftId), sc_id);
 
     UtPrintf("Set to all F's, msgid value = 0");
     memset(&msg, 0xFF, sizeof(msg));

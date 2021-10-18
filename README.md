@@ -10,6 +10,12 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v6.8.0-rc1+dev1030
+
+- Grammatical cleanup of requirements
+- Fix extended header definitions and update tests
+- See <https://github.com/nasa/cFE/pull/1989> and <https://github.com/nasa/cFS/pull/371>
+
 ### Development Build: v6.8.0-rc1+dev1024
 
 - CFE_Assert macro names
