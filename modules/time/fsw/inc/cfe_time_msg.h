@@ -768,10 +768,11 @@ typedef struct CFE_TIME_SetLeapSecondsCmd
  */
 typedef struct CFE_TIME_StateCmd_Payload
 {
-    int16 ClockState; /**< \brief #CFE_TIME_ClockState_INVALID=Spacecraft time has not been accurately set,
-                                  #CFE_TIME_ClockState_VALID=Spacecraft clock has been accurately set,
-                                  #CFE_TIME_ClockState_FLYWHEEL=Force into FLYWHEEL mode   */
-                      /**< Selects the current clock state */
+    CFE_TIME_ClockState_Enum_t ClockState; /**< \brief #CFE_TIME_ClockState_INVALID=Spacecraft time has
+                                  not been accurately set, #CFE_TIME_ClockState_VALID=Spacecraft clock
+                                  has been accurately set, #CFE_TIME_ClockState_FLYWHEEL=Force into
+                                  FLYWHEEL mode   */
+                                           /**< Selects the current clock state */
 } CFE_TIME_StateCmd_Payload_t;
 
 /**
@@ -884,10 +885,10 @@ typedef CFE_TIME_OneHzAdjustmentCmd_t CFE_TIME_Sub1HZAdjustmentCmd_t;
  */
 typedef struct CFE_TIME_ToneDataCmd_Payload
 {
-    CFE_TIME_SysTime_t AtToneMET;         /**< \brief MET at time of tone */
-    CFE_TIME_SysTime_t AtToneSTCF;        /**< \brief STCF at time of tone */
-    int16              AtToneLeapSeconds; /**< \brief Leap Seconds at time of tone */
-    int16              AtToneState;       /**< \brief Clock state at time of tone */
+    CFE_TIME_SysTime_t         AtToneMET;         /**< \brief MET at time of tone */
+    CFE_TIME_SysTime_t         AtToneSTCF;        /**< \brief STCF at time of tone */
+    int16                      AtToneLeapSeconds; /**< \brief Leap Seconds at time of tone */
+    CFE_TIME_ClockState_Enum_t AtToneState;       /**< \brief Clock state at time of tone */
 } CFE_TIME_ToneDataCmd_Payload_t;
 
 /**
@@ -917,10 +918,10 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
     /*
     ** Clock state flags and "as calculated" clock state...
     */
-    uint16 ClockStateFlags; /**< \cfetlmmnemonic \TIME_STATEFLG
-                                 \brief State Flags */
-    int16 ClockStateAPI;    /**< \cfetlmmnemonic \TIME_APISTATE
-                                 \brief API State */
+    uint16 ClockStateFlags;                   /**< \cfetlmmnemonic \TIME_STATEFLG
+                                                   \brief State Flags */
+    CFE_TIME_ClockState_Enum_t ClockStateAPI; /**< \cfetlmmnemonic
+                              \TIME_APISTATE \brief API State */
 
     /*
     ** Leap Seconds...
@@ -988,10 +989,10 @@ typedef struct CFE_TIME_DiagnosticTlm_Payload
     CFE_TIME_SysTime_t AtToneLatch; /**< \cfetlmmnemonic \TIME_TVALIDS
                                                \brief Local clock latched at time of tone */
 
-    int16 AtToneLeapSeconds; /**< \cfetlmmnemonic \TIME_LEAPS
-                                  \brief Leap Seconds at time of tone */
-    int16 ClockStateAPI;     /**< \cfetlmmnemonic \TIME_APISTATE
-                                        \brief Clock state as per API */
+    int16 AtToneLeapSeconds;                  /**< \cfetlmmnemonic \TIME_LEAPS
+                                                   \brief Leap Seconds at time of tone */
+    CFE_TIME_ClockState_Enum_t ClockStateAPI; /**< \cfetlmmnemonic \TIME_APISTATE
+                                    \brief Clock state as per API */
 
     /*
      ** Data values that reflect the time (right now)...

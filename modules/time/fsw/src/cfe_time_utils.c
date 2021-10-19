@@ -393,7 +393,7 @@ void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference)
     /*
     ** Current "as calculated" clock state...
     */
-    CFE_TIME_Global.HkPacket.Payload.ClockStateAPI = (int16)CFE_TIME_CalculateState(Reference);
+    CFE_TIME_Global.HkPacket.Payload.ClockStateAPI = (CFE_TIME_ClockState_Enum_t)CFE_TIME_CalculateState(Reference);
 
     /*
     ** Current clock state flags...
@@ -728,9 +728,9 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference)
+CFE_TIME_ClockState_Enum_t CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference)
 {
-    int16 ClockState;
+    CFE_TIME_ClockState_Enum_t ClockState;
 
     /*
     ** Determine the current clock state...
@@ -782,7 +782,7 @@ int16 CFE_TIME_CalculateState(const CFE_TIME_Reference_t *Reference)
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
-void CFE_TIME_SetState(int16 NewState)
+void CFE_TIME_SetState(CFE_TIME_ClockState_Enum_t NewState)
 {
     volatile CFE_TIME_ReferenceState_t *RefState;
 
