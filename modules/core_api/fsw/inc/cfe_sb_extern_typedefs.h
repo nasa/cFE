@@ -115,7 +115,10 @@ typedef uint32 CFE_SB_MsgId_Atom_t;
  * @note In a future version it could become a type-safe wrapper similar to the route index,
  * to avoid message IDs getting mixed between other integer values.
  */
-typedef CFE_SB_MsgId_Atom_t CFE_SB_MsgId_t;
+typedef struct
+{
+    CFE_SB_MsgId_Atom_t Value;
+} CFE_SB_MsgId_t;
 
 /** \brief  CFE_SB_PipeId_t to primitive type definition
  *

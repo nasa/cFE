@@ -78,7 +78,7 @@ void TestNotifyByMessage(void)
     UtPrintf("Testing: CFE_TBL_NotifyByMessage");
     CFE_TBL_Handle_t  SharedTblHandle;
     const char *      SharedTblName = "SAMPLE_APP.SampleAppTable";
-    CFE_SB_MsgId_t    TestMsgId     = CFE_TEST_CMD_MID;
+    CFE_SB_MsgId_t    TestMsgId     = CFE_SB_ValueToMsgId(CFE_TEST_CMD_MID);
     CFE_MSG_FcnCode_t TestCmdCode   = 0;
     uint32            TestParameter = 0;
 
