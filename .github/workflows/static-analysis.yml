@@ -1,56 +1,13 @@
 name: Static Analysis
 
-# Run this workflow every time a new commit pushed to your repository
+# Run on all push and pull requests
 on:
   push:
-    branches:
-      - main
   pull_request:
 
 jobs:
-
   static-analysis:
     name: Run cppcheck
-    runs-on: ubuntu-18.04
-    timeout-minutes: 15
-
-    strategy:
-      fail-fast: false
-      matrix:
-        cppcheck: [all, cfe]
-
-    steps:
-
-      - name: Install cppcheck
-        run: sudo apt-get install cppcheck -y
-
-        # Checks out a copy of the cfs bundle
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Run bundle cppcheck
-        if: ${{matrix.cppcheck =='all'}}
-        run: cppcheck --force --inline-suppr . 2> ${{matrix.cppcheck}}_cppcheck_err.txt
-
-        # Run strict static analysis for embedded portions of cfe
-      - name: cfe strict cppcheck
-        if: ${{matrix.cppcheck =='cfe'}}
-        run: |
-          all_fsw_modules="core_api core_private es evs fs msg resourceid sb sbr tbl time"
-          /bin/bash ./.github/workflows/run_fsw_cppcheck.sh ${all_fsw_modules} 2> ${{matrix.cppcheck}}_cppcheck_err.txt
-
-      - name: Archive Static Analysis Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{matrix.cppcheck}}-cppcheck-err
-          path: ./*cppcheck_err.txt
-
-      - name: Check for errors
-        run: |
-          if [[ -s ${{matrix.cppcheck}}_cppcheck_err.txt ]];
-          then
-            cat ${{matrix.cppcheck}}_cppcheck_err.txt
-            exit -1
-          fi
+    uses: nasa/cFS/.github/workflows/static-analysis.yml@main
+    with:
+      strict-dir-list: './modules/core_api/fsw ./modules/core_private/fsw ./modules/es/fsw ./modules/evs/fsw ./modules/fs/fsw ./modules/msg/fsw ./modules/resourceid/fsw ./modules/sb/fsw ./modules/sbr/fsw ./modules/tbl/fsw ./modules/time/fsw -UCFE_PLATFORM_TIME_CFG_CLIENT -DCFE_PLATFORM_TIME_CFG_SERVER'
