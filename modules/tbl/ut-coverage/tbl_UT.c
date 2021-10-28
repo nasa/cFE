@@ -2045,7 +2045,7 @@ void Test_CFE_TBL_Load(void)
     UT_Table1_t                 TestTable1;
     CFE_FS_Header_t             StdFileHeader;
     CFE_TBL_File_Hdr_t          TblFileHeader;
-    UT_Table1_t *               App2TblPtr;
+    void *                      App2TblPtr;
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
@@ -2236,7 +2236,7 @@ void Test_CFE_TBL_Load(void)
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* a. Test setup part 2 */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&App2TblPtr, App2TblHandle1), CFE_TBL_INFO_UPDATED);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&App2TblPtr, App2TblHandle1), CFE_TBL_INFO_UPDATED);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* c. Perform test */
@@ -2258,8 +2258,8 @@ void Test_CFE_TBL_Load(void)
 */
 void Test_CFE_TBL_GetAddress(void)
 {
-    UT_Table1_t *App3TblPtr;
-    UT_Table1_t *App2TblPtr;
+    void *App3TblPtr;
+    void *App2TblPtr;
 
     UtPrintf("Begin Test Get Address");
 
@@ -2272,19 +2272,18 @@ void Test_CFE_TBL_GetAddress(void)
      */
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_3);
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&App3TblPtr, App2TblHandle1), CFE_TBL_ERR_NO_ACCESS);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&App3TblPtr, App2TblHandle1), CFE_TBL_ERR_NO_ACCESS);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test attempt to get the address with an invalid application ID */
     UT_InitData();
     UT_SetDeferredRetcode(UT_KEY(CFE_ES_GetAppID), 1, CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&App3TblPtr, App2TblHandle1), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&App3TblPtr, App2TblHandle1), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Test attempt to get the address with an invalid handle */
     UT_InitData();
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&App3TblPtr, CFE_PLATFORM_TBL_MAX_NUM_HANDLES),
-                      CFE_TBL_ERR_INVALID_HANDLE);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&App3TblPtr, CFE_PLATFORM_TBL_MAX_NUM_HANDLES), CFE_TBL_ERR_INVALID_HANDLE);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* Attempt to get the address of an unregistered (unowned) table */
@@ -2297,7 +2296,7 @@ void Test_CFE_TBL_GetAddress(void)
     /* b. Perform test */
     UT_InitData();
     UT_SetAppID(UT_TBL_APPID_2);
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&App2TblPtr, App2TblHandle1), CFE_TBL_ERR_UNREGISTERED);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&App2TblPtr, App2TblHandle1), CFE_TBL_ERR_UNREGISTERED);
     CFE_UtAssert_EVENTCOUNT(0);
 }
 
@@ -2528,7 +2527,7 @@ void Test_CFE_TBL_Manage(void)
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_LoadBuff_t *        WorkingBufferPtr;
     UT_Table1_t                 TestTable1;
-    UT_Table1_t *               App2TblPtr;
+    void *                      App2TblPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_Handle_t            AccessIterator;
 
@@ -2712,7 +2711,7 @@ void Test_CFE_TBL_Manage(void)
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* a. Test setup - part 2 */
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&App2TblPtr, App2TblHandle1), CFE_TBL_ERR_NEVER_LOADED);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&App2TblPtr, App2TblHandle1), CFE_TBL_ERR_NEVER_LOADED);
     CFE_UtAssert_EVENTCOUNT(0);
 
     /* c. Perform test */
@@ -3025,6 +3024,7 @@ void Test_CFE_TBL_TblMod(void)
     UT_TempFile_t               File;
     uint32                      Index;
     CFE_TBL_Info_t              TblInfo1;
+    void *                      TblDataAddr;
     UT_Table1_t *               TblDataPtr;
     char                        MyFilename[OS_MAX_PATH_LEN];
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
@@ -3087,7 +3087,8 @@ void Test_CFE_TBL_TblMod(void)
     CFE_UtAssert_EVENTSENT(CFE_TBL_LOAD_SUCCESS_INF_EID);
 
     /* Modify the contents of the table */
-    CFE_TBL_GetAddress((void **)&TblDataPtr, App1TblHandle1);
+    CFE_TBL_GetAddress(&TblDataAddr, App1TblHandle1);
+    TblDataPtr = TblDataAddr;
     TblDataPtr->TblElement1 ^= 0xFFFFFFFF;
     File.TblData.TblElement1 ^= 0xFFFFFFFF;
 
@@ -3164,7 +3165,7 @@ void Test_CFE_TBL_TblMod(void)
     CFE_UtAssert_SUCCESS(CFE_TBL_GetInfo(&TblInfo1, "ut_cfe_tbl.UT_Table2"));
     UtAssert_INT32_EQ(TblInfo1.TimeOfLastUpdate.Seconds, TblInfo1.TimeOfLastUpdate.Subseconds);
     UtAssert_UINT32_EQ(TblInfo1.Crc, ExpectedCrc);
-    UtAssert_INT32_EQ(CFE_TBL_GetAddress((void **)&TblDataPtr, App1TblHandle1), CFE_TBL_INFO_UPDATED);
+    UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblDataAddr, App1TblHandle1), CFE_TBL_INFO_UPDATED);
 
     /*
      * LastFileLoaded (limited by mission) can be bigger than MyFilename (limited by osal),

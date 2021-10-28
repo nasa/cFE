@@ -372,11 +372,13 @@ static bool UT_CheckEventHistoryFromFunc(UT_EntryKey_t Func, uint16 EventIDToSea
     bool    Result = false;
     size_t  Position;
     size_t  MaxSize;
+    void *  TempBuff;
     uint16 *EvBuf;
 
-    UT_GetDataBuffer(Func, (void **)&EvBuf, &MaxSize, &Position);
-    if (EvBuf != NULL && MaxSize > 0)
+    UT_GetDataBuffer(Func, &TempBuff, &MaxSize, &Position);
+    if (TempBuff != NULL && MaxSize > 0)
     {
+        EvBuf = TempBuff;
         Position /= sizeof(*EvBuf);
         while (Position > 0)
         {

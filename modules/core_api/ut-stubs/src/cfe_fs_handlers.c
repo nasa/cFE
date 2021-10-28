@@ -50,6 +50,7 @@ void UT_DefaultHandler_CFE_FS_GetDefaultMountPoint(void *UserObj, UT_EntryKey_t 
 {
     int32             Status;
     static const char DEFAULT_MOUNTPOINT[] = "/ut";
+    void *            TempBuff;
     const char *      Result;
 
     UT_Stub_GetInt32StatusCode(Context, &Status);
@@ -58,10 +59,14 @@ void UT_DefaultHandler_CFE_FS_GetDefaultMountPoint(void *UserObj, UT_EntryKey_t 
     if (Status == CFE_SUCCESS)
     {
         /* If the test case supplied a buffer, return it, otherwise return fixed value */
-        UT_GetDataBuffer(UT_KEY(CFE_FS_GetDefaultMountPoint), (void **)&Result, NULL, NULL);
-        if (Result == NULL)
+        UT_GetDataBuffer(UT_KEY(CFE_FS_GetDefaultMountPoint), &TempBuff, NULL, NULL);
+        if (TempBuff == NULL)
         {
             Result = DEFAULT_MOUNTPOINT;
+        }
+        else
+        {
+            Result = TempBuff;
         }
     }
 
@@ -77,6 +82,7 @@ void UT_DefaultHandler_CFE_FS_GetDefaultExtension(void *UserObj, UT_EntryKey_t F
 {
     int32             Status;
     static const char DEFAULT_EXTENSION[] = ".ut";
+    void *            TempBuff;
     const char *      Result;
 
     UT_Stub_GetInt32StatusCode(Context, &Status);
@@ -85,10 +91,14 @@ void UT_DefaultHandler_CFE_FS_GetDefaultExtension(void *UserObj, UT_EntryKey_t F
     if (Status == CFE_SUCCESS)
     {
         /* If the test case supplied a buffer, return it, otherwise return fixed value */
-        UT_GetDataBuffer(UT_KEY(CFE_FS_GetDefaultExtension), (void **)&Result, NULL, NULL);
-        if (Result == NULL)
+        UT_GetDataBuffer(UT_KEY(CFE_FS_GetDefaultExtension), &TempBuff, NULL, NULL);
+        if (TempBuff == NULL)
         {
             Result = DEFAULT_EXTENSION;
+        }
+        else
+        {
+            Result = TempBuff;
         }
     }
 

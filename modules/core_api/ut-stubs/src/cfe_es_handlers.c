@@ -125,7 +125,7 @@ void UT_DefaultHandler_CFE_ES_GetAppID(void *UserObj, UT_EntryKey_t FuncKey, con
 {
     CFE_ES_AppId_t *AppIdPtr = UT_Hook_GetArgValueByName(Context, "AppIdPtr", CFE_ES_AppId_t *);
     int32           status;
-    CFE_ES_AppId_t *IdBuff;
+    void *          IdBuff;
     size_t          BuffSize;
     size_t          Position;
 
@@ -133,10 +133,10 @@ void UT_DefaultHandler_CFE_ES_GetAppID(void *UserObj, UT_EntryKey_t FuncKey, con
 
     if (status >= 0)
     {
-        UT_GetDataBuffer(UT_KEY(CFE_ES_GetAppID), (void **)&IdBuff, &BuffSize, &Position);
+        UT_GetDataBuffer(UT_KEY(CFE_ES_GetAppID), &IdBuff, &BuffSize, &Position);
         if (IdBuff != NULL && BuffSize == sizeof(*AppIdPtr))
         {
-            *AppIdPtr = *IdBuff;
+            memcpy(AppIdPtr, IdBuff, sizeof(*AppIdPtr));
         }
         else
         {
@@ -159,7 +159,7 @@ void UT_DefaultHandler_CFE_ES_GetTaskID(void *UserObj, UT_EntryKey_t FuncKey, co
 {
     CFE_ES_TaskId_t *TaskIdPtr = UT_Hook_GetArgValueByName(Context, "TaskIdPtr", CFE_ES_TaskId_t *);
     int32            status;
-    CFE_ES_TaskId_t *IdBuff;
+    void *           IdBuff;
     size_t           BuffSize;
     size_t           Position;
 
@@ -167,10 +167,10 @@ void UT_DefaultHandler_CFE_ES_GetTaskID(void *UserObj, UT_EntryKey_t FuncKey, co
 
     if (status >= 0)
     {
-        UT_GetDataBuffer(UT_KEY(CFE_ES_GetTaskID), (void **)&IdBuff, &BuffSize, &Position);
+        UT_GetDataBuffer(UT_KEY(CFE_ES_GetTaskID), &IdBuff, &BuffSize, &Position);
         if (IdBuff != NULL && BuffSize == sizeof(*TaskIdPtr))
         {
-            *TaskIdPtr = *IdBuff;
+            memcpy(TaskIdPtr, IdBuff, sizeof(*TaskIdPtr));
         }
         else
         {
@@ -194,11 +194,11 @@ void UT_DefaultHandler_CFE_ES_GetAppIDByName(void *UserObj, UT_EntryKey_t FuncKe
     CFE_ES_AppId_t *AppIdPtr = UT_Hook_GetArgValueByName(Context, "AppIdPtr", CFE_ES_AppId_t *);
     const char *    AppName  = UT_Hook_GetArgValueByName(Context, "AppName", const char *);
 
-    size_t          UserBuffSize;
-    size_t          BuffPosition;
-    const char *    NameBuff;
-    CFE_ES_AppId_t *IdBuff;
-    int32           status;
+    size_t UserBuffSize;
+    size_t BuffPosition;
+    void * NameBuff;
+    void * IdBuff;
+    int32  status;
 
     UT_Stub_GetInt32StatusCode(Context, &status);
 
@@ -207,15 +207,15 @@ void UT_DefaultHandler_CFE_ES_GetAppIDByName(void *UserObj, UT_EntryKey_t FuncKe
         if (UT_Stub_CopyToLocal(UT_KEY(CFE_ES_GetAppIDByName), AppIdPtr, sizeof(*AppIdPtr)) < sizeof(*AppIdPtr))
         {
             IdBuff = NULL;
-            UT_GetDataBuffer(UT_KEY(CFE_ES_GetAppName), (void **)&NameBuff, &UserBuffSize, &BuffPosition);
-            if (NameBuff != NULL && UserBuffSize > 0 && strncmp(NameBuff, AppName, UserBuffSize) == 0)
+            UT_GetDataBuffer(UT_KEY(CFE_ES_GetAppName), &NameBuff, &UserBuffSize, &BuffPosition);
+            if (NameBuff != NULL && UserBuffSize > 0 && strncmp((const char *)NameBuff, AppName, UserBuffSize) == 0)
             {
-                UT_GetDataBuffer(UT_KEY(CFE_ES_GetAppID), (void **)&IdBuff, &UserBuffSize, &BuffPosition);
+                UT_GetDataBuffer(UT_KEY(CFE_ES_GetAppID), &IdBuff, &UserBuffSize, &BuffPosition);
             }
 
             if (IdBuff != NULL && UserBuffSize == sizeof(*AppIdPtr))
             {
-                *AppIdPtr = *IdBuff;
+                memcpy(AppIdPtr, IdBuff, sizeof(*AppIdPtr));
             }
             else
             {
@@ -243,17 +243,22 @@ void UT_DefaultHandler_CFE_ES_GetAppName(void *UserObj, UT_EntryKey_t FuncKey, c
     size_t      UserBuffSize;
     size_t      BuffPosition;
     const char *NameBuff;
+    void *      TempBuff;
     int32       status;
 
     UT_Stub_GetInt32StatusCode(Context, &status);
 
     if (status >= 0 && BufferLength > 0)
     {
-        UT_GetDataBuffer(UT_KEY(CFE_ES_GetAppName), (void **)&NameBuff, &UserBuffSize, &BuffPosition);
-        if (NameBuff == NULL || UserBuffSize == 0)
+        UT_GetDataBuffer(UT_KEY(CFE_ES_GetAppName), &TempBuff, &UserBuffSize, &BuffPosition);
+        if (TempBuff == NULL || UserBuffSize == 0)
         {
             NameBuff     = "UT";
             UserBuffSize = 2;
+        }
+        else
+        {
+            NameBuff = TempBuff;
         }
 
         if (UserBuffSize < BufferLength)
