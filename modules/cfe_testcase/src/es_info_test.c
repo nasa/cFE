@@ -79,19 +79,20 @@ void TestAppInfo(void)
 
     if (TestAppInfo.AddressesAreValid)
     {
-        UtAssert_True(TestAppInfo.AddressesAreValid > 0, "Test App Info -> AddrsValid?  = %d",
+        UtAssert_True(TestAppInfo.AddressesAreValid > 0, "Test App Info -> Addrs.Valid?  = %d",
                       (int)TestAppInfo.AddressesAreValid);
-        UtAssert_True(TestAppInfo.CodeAddress > 0, "Test App Info -> CodeAddress  = %ld",
-                      (unsigned long)TestAppInfo.CodeAddress);
-        UtAssert_True(TestAppInfo.CodeSize > 0, "Test App Info -> CodeSize  = %ld",
-                      (unsigned long)TestAppInfo.CodeSize);
-        UtAssert_True(TestAppInfo.DataAddress > 0, "Test App Info -> DataAddress  = %ld",
-                      (unsigned long)TestAppInfo.DataAddress);
-        UtAssert_True(TestAppInfo.DataSize > 0, "Test App Info -> DataSize  = %ld",
-                      (unsigned long)TestAppInfo.DataSize);
-        UtAssert_True(TestAppInfo.BSSAddress > 0, "Test App Info -> BSSAddress  = %ld",
-                      (unsigned long)TestAppInfo.BSSAddress);
-        UtAssert_True(TestAppInfo.BSSSize > 0, "Test App Info -> BSSSize  = %ld", (unsigned long)TestAppInfo.BSSSize);
+        UtAssert_True(TestAppInfo.Code.Address > 0, "Test App Info -> Code.Address  = %ld",
+                      (unsigned long)TestAppInfo.Code.Address);
+        UtAssert_True(TestAppInfo.Code.Size > 0, "Test App Info -> Code.Size  = %ld",
+                      (unsigned long)TestAppInfo.Code.Size);
+        UtAssert_True(TestAppInfo.Data.Address > 0, "Test App Info -> Data.Address  = %ld",
+                      (unsigned long)TestAppInfo.Data.Address);
+        UtAssert_True(TestAppInfo.Data.Size > 0, "Test App Info -> Data.Size  = %ld",
+                      (unsigned long)TestAppInfo.Data.Size);
+        UtAssert_True(TestAppInfo.BSS.Address > 0, "Test App Info -> BSS.Address  = %ld",
+                      (unsigned long)TestAppInfo.BSS.Address);
+        UtAssert_True(TestAppInfo.BSS.Size > 0, "Test App Info -> BSS.Size  = %ld",
+                      (unsigned long)TestAppInfo.BSS.Size);
     }
     else
     {
@@ -190,12 +191,12 @@ void TestLibInfo(void)
     {
         UtAssert_True(LibInfo.AddressesAreValid > 0, "Lib Info -> AddrsValid?  = %ld",
                       (unsigned long)LibInfo.AddressesAreValid);
-        UtAssert_True(LibInfo.CodeAddress > 0, "Lib Info -> CodeAddress  = %ld", (unsigned long)LibInfo.CodeAddress);
-        UtAssert_True(LibInfo.CodeSize > 0, "Lib Info -> CodeSize  = %ld", (unsigned long)LibInfo.CodeSize);
-        UtAssert_True(LibInfo.DataAddress > 0, "Lib Info -> DataAddress  = %ld", (unsigned long)LibInfo.DataAddress);
-        UtAssert_True(LibInfo.DataSize > 0, "Lib Info -> DataSize  = %ld", (unsigned long)LibInfo.DataSize);
-        UtAssert_True(LibInfo.BSSAddress > 0, "Lib Info -> BSSAddress  = %ld", (unsigned long)LibInfo.BSSAddress);
-        UtAssert_True(LibInfo.BSSSize > 0, "Lib Info -> BSSSize  = %ld", (unsigned long)LibInfo.BSSSize);
+        UtAssert_True(LibInfo.Code.Address > 0, "Lib Info -> CodeAddress  = %ld", (unsigned long)LibInfo.Code.Address);
+        UtAssert_True(LibInfo.Code.Size > 0, "Lib Info -> Code.Size  = %ld", (unsigned long)LibInfo.Code.Size);
+        UtAssert_True(LibInfo.Data.Address > 0, "Lib Info -> Data.Address  = %ld", (unsigned long)LibInfo.Data.Address);
+        UtAssert_True(LibInfo.Data.Size > 0, "Lib Info -> Data.Size  = %ld", (unsigned long)LibInfo.Data.Size);
+        UtAssert_True(LibInfo.BSS.Address > 0, "Lib Info -> BSS.Address  = %ld", (unsigned long)LibInfo.BSS.Address);
+        UtAssert_True(LibInfo.BSS.Size > 0, "Lib Info -> BSS.Size  = %ld", (unsigned long)LibInfo.BSS.Size);
     }
     else
     {
