@@ -1503,24 +1503,42 @@ int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t
         switch (PendingEventID)
         {
             case CFE_SB_SEND_BAD_ARG_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_SEND_BAD_ARG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Send Err:Bad input argument,Arg 0x%lx,App %s", (unsigned long)MsgPtr,
-                                           CFE_SB_GetAppTskName(TskId, FullName));
+                if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_SEND_BAD_ARG_EID_BIT) == CFE_SB_GRANTED)
+                {
+                    CFE_EVS_SendEventWithAppID(CFE_SB_SEND_BAD_ARG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                               "Send Err:Bad input argument,Arg 0x%lx,App %s", (unsigned long)MsgPtr,
+                                               CFE_SB_GetAppTskName(TskId, FullName));
+
+                    /* clear the bit so the task may send this event again */
+                    CFE_SB_FinishSendEvent(TskId, CFE_SB_SEND_BAD_ARG_EID_BIT);
+                }
                 break;
 
             case CFE_SB_SEND_INV_MSGID_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_SEND_INV_MSGID_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Send Err:Invalid MsgId(0x%x)in msg,App %s",
-                                           (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
-                                           CFE_SB_GetAppTskName(TskId, FullName));
+                if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_SEND_INV_MSGID_EID_BIT) == CFE_SB_GRANTED)
+                {
+                    CFE_EVS_SendEventWithAppID(CFE_SB_SEND_INV_MSGID_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                               "Send Err:Invalid MsgId(0x%x)in msg,App %s",
+                                               (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
+                                               CFE_SB_GetAppTskName(TskId, FullName));
+
+                    /* clear the bit so the task may send this event again */
+                    CFE_SB_FinishSendEvent(TskId, CFE_SB_SEND_INV_MSGID_EID_BIT);
+                }
                 break;
 
             case CFE_SB_MSG_TOO_BIG_EID:
-                CFE_EVS_SendEventWithAppID(CFE_SB_MSG_TOO_BIG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
-                                           "Send Err:Msg Too Big MsgId=0x%x,app=%s,size=%d,MaxSz=%d",
-                                           (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
-                                           CFE_SB_GetAppTskName(TskId, FullName), (int)*SizePtr,
-                                           CFE_MISSION_SB_MAX_SB_MSG_SIZE);
+                if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_MSG_TOO_BIG_EID_BIT) == CFE_SB_GRANTED)
+                {
+                    CFE_EVS_SendEventWithAppID(CFE_SB_MSG_TOO_BIG_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
+                                               "Send Err:Msg Too Big MsgId=0x%x,app=%s,size=%d,MaxSz=%d",
+                                               (unsigned int)CFE_SB_MsgIdToValue(*MsgIdPtr),
+                                               CFE_SB_GetAppTskName(TskId, FullName), (int)*SizePtr,
+                                               CFE_MISSION_SB_MAX_SB_MSG_SIZE);
+
+                    /* clear the bit so the task may send this event again */
+                    CFE_SB_FinishSendEvent(TskId, CFE_SB_MSG_TOO_BIG_EID_BIT);
+                }
                 break;
 
             case CFE_SB_SEND_NO_SUBS_EID:

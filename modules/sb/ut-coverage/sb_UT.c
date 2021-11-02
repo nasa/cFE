@@ -4576,6 +4576,37 @@ void Test_SB_TransmitMsgPaths_Nominal(void)
 
     CFE_UtAssert_EVENTCOUNT(3);
 
+    /*
+     * Test Additional paths within CFE_SB_TransmitMsgValidate that skip sending events to avoid a loop
+     * For all of these they should skip sending the event but still increment the MsgSendErrorCounter
+     */
+
+    /* CFE_SB_MSG_TOO_BIG_EID loop filter */
+    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
+    Size                                               = CFE_MISSION_SB_MAX_SB_MSG_SIZE + 1;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &Size, sizeof(Size), false);
+    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_MSG_TOO_BIG_EID_BIT);
+    CFE_SB_TransmitMsg(&Housekeeping.SBBuf.Msg, true);
+    CFE_UtAssert_EVENTNOTSENT(CFE_SB_MSG_TOO_BIG_EID);
+    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
+
+    /* CFE_SB_SEND_INV_MSGID_EID loop filter */
+    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
+    MsgId                                              = CFE_SB_INVALID_MSG_ID;
+    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &MsgId, sizeof(MsgId), false);
+    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_INV_MSGID_EID_BIT);
+    CFE_SB_TransmitMsg(&Housekeeping.SBBuf.Msg, true);
+    CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_INV_MSGID_EID);
+    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
+
+    /* CFE_SB_SEND_BAD_ARG_EID loop filter */
+    CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter = 0;
+    CFE_SB_Global.StopRecurseFlags[1] |= CFE_BIT(CFE_SB_SEND_BAD_ARG_EID_BIT);
+    CFE_SB_TransmitMsg(NULL, true);
+    CFE_UtAssert_EVENTNOTSENT(CFE_SB_SEND_BAD_ARG_EID);
+    UtAssert_UINT32_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgSendErrorCounter, 1);
+
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 } /* end Test_SB_TransmitMsgPaths */
 
