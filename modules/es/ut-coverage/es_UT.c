@@ -4503,8 +4503,12 @@ void TestAPI(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(NULL, TaskId, sizeof(AppName)), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, 0), CFE_ES_BAD_ARGUMENT);
     CFE_UtAssert_SUCCESS(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)));
-    UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERROR);
+    UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERR_INVALID_ID);
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERR_NAME_TOO_LONG);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)), CFE_ES_BAD_ARGUMENT);
+    UT_SetDeferredRetcode(UT_KEY(OS_GetResourceName), 1, OS_ERROR);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(AppName, TaskId, sizeof(AppName)), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
 
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(NULL), CFE_ES_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_ES_GetTaskIDByName(&TaskId, NULL), CFE_ES_BAD_ARGUMENT);
