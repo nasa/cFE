@@ -198,6 +198,41 @@ void UT_ResetPoolBufferIndex(void)
 }
 
 /*
+** Sets up the MSG stubs in preparation to invoke a "TaskPipe" dispatch function
+**
+** This is part of the general UT_CallTaskPipe process, but split off to support use cases
+** where the task pipe is reached through other means.
+*/
+void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MSG_Size_t MsgSize,
+                              bool ExpectFailureEvent)
+{
+    if (DispatchReq != NULL)
+    {
+        /* Set up for the typical task pipe related calls */
+        UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), (void *)&DispatchReq->MsgId, sizeof(DispatchReq->MsgId), true);
+        UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), true);
+        UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), (void *)&DispatchReq->CommandCode,
+                         sizeof(DispatchReq->CommandCode), true);
+
+        /* If a failure event is being set up, also set for MsgId/FcnCode retrieval as part of failure event reporting
+         */
+        if (ExpectFailureEvent)
+        {
+            UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), (void *)&DispatchReq->MsgId, sizeof(DispatchReq->MsgId), true);
+            UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), (void *)&DispatchReq->CommandCode,
+                             sizeof(DispatchReq->CommandCode), true);
+        }
+    }
+    else
+    {
+        /* Clear any stub config that may have been already set */
+        UT_ResetState(UT_KEY(CFE_MSG_GetMsgId));
+        UT_ResetState(UT_KEY(CFE_MSG_GetSize));
+        UT_ResetState(UT_KEY(CFE_MSG_GetFcnCode));
+    }
+}
+
+/*
 ** Calls the specified "task pipe" function
 **
 ** This first sets up the various stubs according to the test case,
@@ -215,22 +250,19 @@ void UT_CallTaskPipe(void (*TaskPipeFunc)(CFE_SB_Buffer_t *), CFE_MSG_Message_t 
     /* Copy message into aligned SB buffer */
     memcpy(SBBuf.Bytes, MsgPtr, MsgSize);
 
-    /* Set up for the typical task pipe related calls */
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &DispatchId.MsgId, sizeof(DispatchId.MsgId), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetSize), &MsgSize, sizeof(MsgSize), false);
-    UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &DispatchId.CommandCode, sizeof(DispatchId.CommandCode), false);
-
-    /* If 0 size passed in, set buffers for calls in the command length failure reporting */
-    if (MsgSize == 0)
-    {
-        UT_SetDataBuffer(UT_KEY(CFE_MSG_GetMsgId), &DispatchId.MsgId, sizeof(DispatchId.MsgId), false);
-        UT_SetDataBuffer(UT_KEY(CFE_MSG_GetFcnCode), &DispatchId.CommandCode, sizeof(DispatchId.CommandCode), false);
-    }
+    /* Passing MsgSize == 0 indicates intent to perform a size validation failure */
+    UT_SetupBasicMsgDispatch(&DispatchId, MsgSize, (MsgSize == 0));
 
     /*
      * Finally, call the actual task pipe requested.
      */
     TaskPipeFunc(&SBBuf.Buf);
+
+    /*
+     * UN-set the stub config, as some values may point to values on stack.
+     * This removes any pointers to stack values that may not have been consumed during the call
+     */
+    UT_SetupBasicMsgDispatch(NULL, 0, false);
 }
 
 int32 UT_SoftwareBusSnapshotHook(void *UserObj, int32 StubRetcode, uint32 CallCount, const UT_StubContext_t *Context)

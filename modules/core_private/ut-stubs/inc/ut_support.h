@@ -216,6 +216,27 @@ void UT_ResetPoolBufferIndex(void);
 
 /*****************************************************************************/
 /**
+** \brief Sets up stubs to follow the intended path through a dispatch call
+**
+** \par Description
+**        Configures the MSG stubs appropriately so the intended command handler
+**        is called when invoking a "TaskPipe" handler function.
+**
+**        DispatchReq should point to the intended MsgId + command code to set up.
+**
+**        If DispatchReq is NULL, then any existing stub config is cleared/reset.
+**
+**        If ExpectFailureEvent is set true, then it sets a second stub registration
+**        for both MsgId and FcnCode to account for failure event reporting
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void UT_SetupBasicMsgDispatch(const UT_TaskPipeDispatchId_t *DispatchReq, CFE_MSG_Size_t MsgSize,
+                              bool ExpectFailureEvent);
+
+/*****************************************************************************/
+/**
 ** \brief Send a message via the software bus
 **
 ** \par Description
