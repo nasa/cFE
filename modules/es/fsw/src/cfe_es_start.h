@@ -89,7 +89,7 @@ extern CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE
  * Purpose: This function reads the es_object_table and performs all of the
  *          application layer initialization.
  */
-extern void CFE_ES_CreateObjects(void);
+void CFE_ES_CreateObjects(void);
 
 /*
  * Name: CFE_ES_SetupResetVariables
@@ -99,7 +99,7 @@ extern void CFE_ES_CreateObjects(void);
  *          have happened.
  *
  */
-extern void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource);
+void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 BootSource);
 
 /*
  * Name: CFE_ES_InitializeFileSystems
@@ -107,7 +107,7 @@ extern void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, ui
  * Purpose: This function initializes the file systems used in the cFE core.
  *
  */
-extern void CFE_ES_InitializeFileSystems(uint32 StartType);
+void CFE_ES_InitializeFileSystems(uint32 StartType);
 
 /*
  * Name: CFE_ES_SetupPerfVariables
@@ -118,6 +118,6 @@ extern void CFE_ES_InitializeFileSystems(uint32 StartType);
  * This code must be called before any other task or code that would use
  * CFE_ES_PerfLogEntry() / CFE_ES_PerfLogExit() functions
  */
-extern void CFE_ES_SetupPerfVariables(uint32 ResetType);
+void CFE_ES_SetupPerfVariables(uint32 ResetType);
 
 #endif /* CFE_ES_START_H */

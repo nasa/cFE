@@ -57,7 +57,7 @@
 
 extern CFE_ES_Global_t CFE_ES_Global;
 
-extern int32 dummy_function(void);
+int32 dummy_function(void);
 
 /*
 ** Global variables

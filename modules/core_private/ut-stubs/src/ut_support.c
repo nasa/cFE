@@ -69,7 +69,7 @@ static uint16 UT_SendEventHistory[UT_EVENT_HISTORY_SIZE];
 static uint16 UT_SendTimedEventHistory[UT_EVENT_HISTORY_SIZE];
 static uint16 UT_SendEventAppIDHistory[UT_EVENT_HISTORY_SIZE * 10];
 
-extern int32 dummy_function(void);
+int32 dummy_function(void);
 
 /*
 ** Functions

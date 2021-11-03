@@ -240,7 +240,7 @@ extern CFE_ES_Global_t CFE_ES_Global;
  * @param FunctionName   the name of the function/caller
  * @param LineNumber     the line number of the caller
  */
-extern void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber);
+void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber);
 
 /*---------------------------------------------------------------------------------------*/
 /**
@@ -252,6 +252,6 @@ extern void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber);
  * @param FunctionName   the name of the function/caller
  * @param LineNumber     the line number of the caller
  */
-extern void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber);
+void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber);
 
 #endif /* CFE_ES_GLOBAL_H */

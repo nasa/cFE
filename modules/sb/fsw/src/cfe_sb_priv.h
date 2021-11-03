@@ -922,7 +922,7 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data);
  * @param[in]   PipeId   the Pipe ID to locate
  * @return pointer to Pipe Table entry for the given Pipe ID
  */
-extern CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId);
+CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId);
 
 /*---------------------------------------------------------------------------------------*/
 /**
