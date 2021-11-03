@@ -16,6 +16,8 @@ include_directories(${osal_MISSION_DIR}/ut_assert/inc)
 # Create the generic stubs library
 #
 add_library(ut_core_api_stubs STATIC
+    src/cfe_config_handlers.c
+    src/cfe_config_stubs.c
     src/cfe_es_handlers.c
     src/cfe_es_stubs.c
     src/cfe_evs_handlers.c

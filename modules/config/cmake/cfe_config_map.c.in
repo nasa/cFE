@@ -1,0 +1,8 @@
+/* This file is auto-generated from CMake build system.  Do not manually edit! */
+#include "cfe_config_map.h"
+
+/* Map of configuration key IDs to printable names */
+const CFE_Config_IdNameEntry_t CFE_CONFIG_IDNAME_MAP[CFE_ConfigIdOffset_MAX] =
+{
+@GENERATED_IDNAME_MAP_LIST@
+};

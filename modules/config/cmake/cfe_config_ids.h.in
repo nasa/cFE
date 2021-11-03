@@ -1,0 +1,22 @@
+/* This file is auto-generated from CMake build system.  Do not manually edit! */
+#ifndef CFE_CONFIG_IDS_H
+#define CFE_CONFIG_IDS_H
+
+#include "cfe_config_api_typedefs.h"
+#include "cfe_resourceid.h"
+#include "cfe_core_resourceid_basevalues.h"
+
+/* Value offsets from base (needed for macros; do not use directly) */
+enum CFE_ConfigIdOffset
+{
+@GENERATED_ENUM_OFFSET_LIST@
+  CFE_ConfigIdOffset_MAX
+};
+
+/*
+ * Set of actual CONFIGID constants -
+ * these may be used in application code
+ */
+@GENERATED_CONSTANT_DEFINE_LIST@
+
+#endif /* CFE_CONFIG_IDS_H */
