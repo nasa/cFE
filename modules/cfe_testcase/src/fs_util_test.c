@@ -37,8 +37,26 @@ void TestFileCategory(void)
 {
     UtPrintf("Testing: CFE_FS_GetDefaultMountPoint, CFE_FS_GetDefaultExtension");
 
-    UtAssert_NULL(CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_UNKNOWN));
-    UtAssert_NULL(CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_UNKNOWN));
+    CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_UNKNOWN);
+    CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_UNKNOWN);
+
+    CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_DYNAMIC_MODULE);
+    CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_DYNAMIC_MODULE);
+
+    CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_BINARY_DATA_DUMP);
+    CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_BINARY_DATA_DUMP);
+
+    CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_TEXT_LOG);
+    CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_TEXT_LOG);
+
+    CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_SCRIPT);
+    CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_SCRIPT);
+
+    CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_TEMP);
+    CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_TEMP);
+
+    CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_MAX);
+    CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_MAX);
 }
 
 void TestInputFile(void)
