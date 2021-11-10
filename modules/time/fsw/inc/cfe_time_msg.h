@@ -730,7 +730,7 @@
  */
 typedef struct CFE_TIME_NoArgsCmd
 {
-    CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
+    CFE_MSG_CommandHeader_t CommandHeader; /**< \brief Command header */
 
 } CFE_TIME_NoArgsCmd_t;
 
@@ -759,8 +759,8 @@ typedef struct CFE_TIME_LeapsCmd_Payload
  */
 typedef struct CFE_TIME_SetLeapSecondsCmd
 {
-    CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
-    CFE_TIME_LeapsCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t     CommandHeader; /**< \brief Command header */
+    CFE_TIME_LeapsCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_SetLeapSecondsCmd_t;
 
 /**
@@ -780,8 +780,8 @@ typedef struct CFE_TIME_StateCmd_Payload
  */
 typedef struct CFE_TIME_SetStateCmd
 {
-    CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
-    CFE_TIME_StateCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t     CommandHeader; /**< \brief Command header */
+    CFE_TIME_StateCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_SetStateCmd_t;
 
 /**
@@ -799,8 +799,8 @@ typedef struct CFE_TIME_SourceCmd_Payload
  */
 typedef struct CFE_TIME_SetSourceCmd
 {
-    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
-    CFE_TIME_SourceCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t      CommandHeader; /**< \brief Command header */
+    CFE_TIME_SourceCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_SetSourceCmd_t;
 
 /**
@@ -818,8 +818,8 @@ typedef struct CFE_TIME_SignalCmd_Payload
  */
 typedef struct CFE_TIME_SetSignalCmd
 {
-    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
-    CFE_TIME_SignalCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t      CommandHeader; /**< \brief Command header */
+    CFE_TIME_SignalCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_SetSignalCmd_t;
 
 /**
@@ -836,8 +836,8 @@ typedef struct CFE_TIME_TimeCmd_Payload
  */
 typedef struct CFE_TIME_TimeCmd
 {
-    CFE_MSG_CommandHeader_t    CmdHeader; /**< \brief Command header */
-    CFE_TIME_TimeCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t    CommandHeader; /**< \brief Command header */
+    CFE_TIME_TimeCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_TimeCmd_t;
 
 /*
@@ -868,8 +868,8 @@ typedef struct CFE_TIME_OneHzAdjustmentCmd_Payload
  */
 typedef struct CFE_TIME_OneHzAdjustmentCmd
 {
-    CFE_MSG_CommandHeader_t               CmdHeader; /**< \brief Command header */
-    CFE_TIME_OneHzAdjustmentCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t               CommandHeader; /**< \brief Command header */
+    CFE_TIME_OneHzAdjustmentCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_OneHzAdjustmentCmd_t;
 
 /*
@@ -896,8 +896,8 @@ typedef struct CFE_TIME_ToneDataCmd_Payload
  */
 typedef struct CFE_TIME_ToneDataCmd
 {
-    CFE_MSG_CommandHeader_t        CmdHeader; /**< \brief Command header */
-    CFE_TIME_ToneDataCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t        CommandHeader; /**< \brief Command header */
+    CFE_TIME_ToneDataCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_ToneDataCmd_t;
 
 /*************************************************************************/
@@ -966,8 +966,8 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
 
 typedef struct CFE_TIME_HousekeepingTlm
 {
-    CFE_MSG_TelemetryHeader_t          TlmHeader; /**< \brief Telemetry header */
-    CFE_TIME_HousekeepingTlm_Payload_t Payload;   /**< \brief Telemetry payload */
+    CFE_MSG_TelemetryHeader_t          TelemetryHeader; /**< \brief Telemetry header */
+    CFE_TIME_HousekeepingTlm_Payload_t Payload;         /**< \brief Telemetry payload */
 } CFE_TIME_HousekeepingTlm_t;
 
 /*************************************************************************/
@@ -1123,8 +1123,8 @@ typedef struct CFE_TIME_DiagnosticTlm_Payload
 
 typedef struct CFE_TIME_DiagnosticTlm
 {
-    CFE_MSG_TelemetryHeader_t        TlmHeader; /**< \brief Telemetry header */
-    CFE_TIME_DiagnosticTlm_Payload_t Payload;   /**< \brief Telemetry payload */
+    CFE_MSG_TelemetryHeader_t        TelemetryHeader; /**< \brief Telemetry header */
+    CFE_TIME_DiagnosticTlm_Payload_t Payload;         /**< \brief Telemetry payload */
 } CFE_TIME_DiagnosticTlm_t;
 
 #endif /* CFE_TIME_MSG_H */

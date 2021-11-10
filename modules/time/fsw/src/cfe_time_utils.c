@@ -333,26 +333,26 @@ void CFE_TIME_InitData(void)
     /*
     ** Initialize housekeeping packet (clear user data area)...
     */
-    CFE_MSG_Init(&CFE_TIME_Global.HkPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_TIME_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.HkPacket.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_TIME_HK_TLM_MID),
                  sizeof(CFE_TIME_Global.HkPacket));
 
     /*
     ** Initialize diagnostic packet (clear user data area)...
     */
-    CFE_MSG_Init(&CFE_TIME_Global.DiagPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_TIME_DIAG_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.DiagPacket.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_TIME_DIAG_TLM_MID),
                  sizeof(CFE_TIME_Global.DiagPacket));
 
     /*
     ** Initialize "time at the tone" signal command packet...
     */
-    CFE_MSG_Init(&CFE_TIME_Global.ToneSignalCmd.CmdHeader.Msg, CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneSignalCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID),
                  sizeof(CFE_TIME_Global.ToneSignalCmd));
 
 /*
 ** Initialize "time at the tone" data command packet...
 */
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    CFE_MSG_Init(&CFE_TIME_Global.ToneDataCmd.CmdHeader.Msg, CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneDataCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID),
                  sizeof(CFE_TIME_Global.ToneDataCmd));
 #endif
 
@@ -360,14 +360,14 @@ void CFE_TIME_InitData(void)
     ** Initialize simulated tone send message ("fake tone" mode only)...
     */
 #if (CFE_MISSION_TIME_CFG_FAKE_TONE == true)
-    CFE_MSG_Init(&CFE_TIME_Global.ToneSendCmd.CmdHeader.Msg, CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.ToneSendCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_SEND_CMD_MID),
                  sizeof(CFE_TIME_Global.ToneSendCmd));
 #endif
 
     /*
     ** Initialize local 1Hz "wake-up" command packet (optional)...
     */
-    CFE_MSG_Init(&CFE_TIME_Global.Local1HzCmd.CmdHeader.Msg, CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.Local1HzCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
                  sizeof(CFE_TIME_Global.Local1HzCmd));
 
     return;

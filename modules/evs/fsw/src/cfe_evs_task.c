@@ -72,7 +72,7 @@ int32 CFE_EVS_EarlyInit(void)
     memset(&CFE_EVS_Global, 0, sizeof(CFE_EVS_Global));
 
     /* Initialize housekeeping packet */
-    CFE_MSG_Init(&CFE_EVS_Global.EVS_TlmPkt.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_EVS_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_EVS_Global.EVS_TlmPkt.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_EVS_HK_TLM_MID),
                  sizeof(CFE_EVS_Global.EVS_TlmPkt));
 
     /* Elements stored in the hk packet that have non-zero default values */
@@ -672,9 +672,9 @@ int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
         AppTlmDataPtr->AppMessageSentCounter = 0;
     }
 
-    CFE_SB_TimeStampMsg(&CFE_EVS_Global.EVS_TlmPkt.TlmHeader.Msg);
+    CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_EVS_Global.EVS_TlmPkt.TelemetryHeader));
 
-    CFE_SB_TransmitMsg(&CFE_EVS_Global.EVS_TlmPkt.TlmHeader.Msg, true);
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_EVS_Global.EVS_TlmPkt.TelemetryHeader), true);
 
     return CFE_STATUS_NO_COUNTER_INCREMENT;
 }
