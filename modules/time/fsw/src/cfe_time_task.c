@@ -200,7 +200,8 @@ int32 CFE_TIME_TaskInit(void)
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID), CFE_TIME_Global.CmdPipe, 4);
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_TONE_CMD_MID), CFE_TIME_Global.CmdPipe,
+                                   CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
 #endif
     if (Status != CFE_SUCCESS)
     {
@@ -216,7 +217,8 @@ int32 CFE_TIME_TaskInit(void)
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID), CFE_TIME_Global.CmdPipe, 4);
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_DATA_CMD_MID), CFE_TIME_Global.CmdPipe,
+                                   CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
 #endif
     if (Status != CFE_SUCCESS)
     {
@@ -232,7 +234,8 @@ int32 CFE_TIME_TaskInit(void)
 #endif
 
 #if (CFE_PLATFORM_TIME_CFG_SERVER == true)
-    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID), CFE_TIME_Global.CmdPipe, 4);
+    Status = CFE_SB_SubscribeLocal(CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID), CFE_TIME_Global.CmdPipe,
+                                   CFE_PLATFORM_SB_DEFAULT_MSG_LIMIT);
 #endif
 
     if (Status != CFE_SUCCESS)
