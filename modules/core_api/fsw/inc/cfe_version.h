@@ -28,14 +28,21 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER   1030         /**< @brief Development: Number of development commits since baseline */
-#define CFE_BUILD_BASELINE "v6.8.0-rc1" /**< @brief Development: Reference git tag for build number */
+#define CFE_BUILD_NUMBER   39           /**< @brief Development: Number of development commits since baseline */
+#define CFE_BUILD_BASELINE "v7.0.0-rc4" /**< @brief Development: Reference git tag for build number */
 
 /* Version Macro Definitions updated for official releases only */
-#define CFE_MAJOR_VERSION 6  /**< @brief Major release version (Former for Revision == 99) */
-#define CFE_MINOR_VERSION 7  /**< @brief Minor release version (Former for Revision == 99) */
-#define CFE_REVISION      99 /**< @brief Revision, 99 indicates development */
-#define CFE_MISSION_REV   0  /**< @brief Mission revision, reserved for mission use */
+#define CFE_MAJOR_VERSION 6 /**< @brief Major release version (Former for Revision == 99) */
+#define CFE_MINOR_VERSION 7 /**< @brief Minor release version (Former for Revision == 99) */
+#define CFE_REVISION      0 /*!< @brief ONLY APPLY for OFFICIAL releases. Revision number.      */
+
+/*!
+ * @brief Mission revision.
+ *
+ * Set to 0 on OFFICIAL releases, and set to 255 (0xFF) on development versions.
+ * Values 1-254 are reserved for mission use to denote patches/customizations as needed.
+ */
+#define CFE_MISSION_REV 0xFF
 
 #define CFE_STR_HELPER(x) #x                /**< @brief Convert argument to string */
 #define CFE_STR(x)        CFE_STR_HELPER(x) /**< @brief Expand macro before conversion */
@@ -55,6 +62,6 @@
  * and official releases.
  */
 #define CFE_VERSION_STRING \
-    " cFE DEVELOPMENT BUILD " CFE_SRC_VERSION " (Codename: Bootes), Last Official Release: cfe v6.7.0"
+    " cFE DEVELOPMENT BUILD " CFE_SRC_VERSION " (Codename: Draco), Last Official Release: cfe v6.7.0"
 
 #endif /* CFE_VERSION_H */

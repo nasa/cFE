@@ -10,6 +10,25 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Version History
 
+### Development Build: v7.0.0-rc4+dev39
+
+- Use cfe time clock state enum t in cmd/tlm and handling
+- EVS functional test add for different event types
+- Patch for recursive event loop
+- CFE_ES_MemAddOff structure to associated CFE_ES_MemAddress_t and CFE_ES_MemOffset_t
+- Avoid aliasing warnings
+- Message ID type improvements
+- CFE_SB_ValueToMsgId/MsgIdToValue wrappers
+- Use CFE_TIME_ClockState_Enum_t in cmd/tlm and handling
+- Consolidate repeated MSG stub setup in sb_UT
+- Return type conversions in CFE_ES_GetTaskName
+- Better message type pointer conversion
+- Replacing hardcoded message limit in TIME services
+- Use macro in CFE_ResourceId_IsDefined
+- Checking against IsNewOffset only
+- Set new build baseline for cFS-Caelum-rc4: v7.0.0-rc4
+- See <https://github.com/nasa/cFE/pull/2001> and <https://github.com/nasa/cFS/pull/390>
+
 ### Development Build: v6.8.0-rc1+dev1030
 
 - Grammatical cleanup of requirements
