@@ -59,7 +59,7 @@
 **          None
 **
 ******************************************************************************/
-extern void CFE_EVS_TaskMain(void);
+void CFE_EVS_TaskMain(void);
 
 /*****************************************************************************/
 /**
@@ -72,7 +72,7 @@ extern void CFE_EVS_TaskMain(void);
 **        -# This function MUST be called before any module API's are called.
 **
 ******************************************************************************/
-extern int32 CFE_EVS_EarlyInit(void);
+int32 CFE_EVS_EarlyInit(void);
 
 /*****************************************************************************/
 /**
@@ -84,7 +84,7 @@ extern int32 CFE_EVS_EarlyInit(void);
 **        that have been allocated to the specified Application.
 **
 ******************************************************************************/
-extern int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId);
+int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppId);
 
 /**@}*/
 

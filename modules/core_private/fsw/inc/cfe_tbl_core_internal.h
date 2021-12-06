@@ -64,7 +64,7 @@
 **          None
 **
 ******************************************************************************/
-extern void CFE_TBL_TaskMain(void);
+void CFE_TBL_TaskMain(void);
 
 /*****************************************************************************/
 /**
@@ -77,7 +77,7 @@ extern void CFE_TBL_TaskMain(void);
 **        -# This function MUST be called before any TBL API's are called.
 **
 ******************************************************************************/
-extern int32 CFE_TBL_EarlyInit(void);
+int32 CFE_TBL_EarlyInit(void);
 
 /*****************************************************************************/
 /**
@@ -93,7 +93,7 @@ extern int32 CFE_TBL_EarlyInit(void);
 **           the specified application from the Critical Data Store.
 **
 ******************************************************************************/
-extern int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId);
+int32 CFE_TBL_CleanUpApp(CFE_ES_AppId_t AppId);
 
 /**@}*/
 

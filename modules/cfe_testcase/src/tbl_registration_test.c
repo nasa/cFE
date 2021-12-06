@@ -220,7 +220,7 @@ void TestTblNonAppContext(void)
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_TBL_Manage(CFE_FT_Global.TblHandle), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_TBL_Modified(CFE_FT_Global.TblHandle), CFE_ES_ERR_RESOURCEID_NOT_VALID);
-    UtAssert_INT32_EQ(CFE_TBL_NotifyByMessage(CFE_FT_Global.TblHandle, CFE_TEST_CMD_MID, 0, 0),
+    UtAssert_INT32_EQ(CFE_TBL_NotifyByMessage(CFE_FT_Global.TblHandle, CFE_SB_ValueToMsgId(CFE_TEST_CMD_MID), 0, 0),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_TBL_ReleaseAddress(CFE_FT_Global.TblHandle), CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_TBL_Share(&Handle, CFE_FT_Global.TblName), CFE_ES_ERR_RESOURCEID_NOT_VALID);

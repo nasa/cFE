@@ -41,6 +41,8 @@
 #include "target_config.h"
 #include "cfe_es_verify.h"
 
+#include "cfe_config.h"
+
 #include <string.h>
 
 /*
@@ -179,37 +181,6 @@ void CFE_ES_TaskMain(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_FindConfigKeyValue
- *
- * Internal helper routine only, not part of API.
- *
- * Find value for given config key
- *
- *-----------------------------------------------------------------*/
-const char *CFE_ES_FindConfigKeyValue(const CFE_ConfigKeyValue_t *ConfigList, const char *KeyName)
-{
-    const char *ValuePtr;
-
-    ValuePtr = NULL;
-    if (KeyName != NULL && ConfigList != NULL)
-    {
-        while (ConfigList->Key != NULL)
-        {
-            if (strcmp(KeyName, ConfigList->Key) == 0)
-            {
-                ValuePtr = ConfigList->Value;
-                break;
-            }
-
-            ++ConfigList;
-        }
-    }
-
-    return ValuePtr;
-}
-
-/*----------------------------------------------------------------
- *
  * Function: CFE_ES_GenerateSingleVersionEvent
  *
  * Internal helper routine only, not part of API.
@@ -217,27 +188,37 @@ const char *CFE_ES_FindConfigKeyValue(const CFE_ConfigKeyValue_t *ConfigList, co
  * Send a single CFE_ES_VERSION_INF_EID event for a component/module
  *
  *-----------------------------------------------------------------*/
-int32 CFE_ES_GenerateSingleVersionEvent(const char *ModuleType, const char *ModuleName)
+int32 CFE_ES_GenerateSingleVersionEvent(const char *ModuleType, const char *ModuleName, CFE_ConfigId_t Id)
 {
-    int32       Status;
-    const char *VersionString;
-
-    /* The mission version which should appear in the version list under the mission name */
-    VersionString = CFE_ES_FindConfigKeyValue(GLOBAL_CONFIGDATA.ModuleVersionList, ModuleName);
-
-    /* If NULL that means the source code was either uncontrolled or there was no way to determine its version */
-    if (VersionString == NULL)
-    {
-        VersionString = "[unknown]";
-    }
+    int32 Status;
 
     /*
      * Advertise the mission version information
+     * NOTE: CFE_Config_GetString() does not return NULL, so its OK to use inside an arg list
      */
     Status = CFE_EVS_SendEvent(CFE_ES_VERSION_INF_EID, CFE_EVS_EventType_INFORMATION, "Version Info: %s %s, version %s",
-                               ModuleType, ModuleName, VersionString);
+                               ModuleType, ModuleName, CFE_Config_GetString(Id));
 
     return Status;
+}
+
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_ModSrcVerCallback
+ *
+ * Internal helper routine only, not part of API.
+ *
+ * Callback for iterating all configuration keys
+ *
+ *-----------------------------------------------------------------*/
+void CFE_ES_ModSrcVerCallback(void *Arg, CFE_ConfigId_t Id, const char *Name)
+{
+    static const char IDNAME_PREFIX[] = "MOD_SRCVER_";
+
+    if (strncmp(Name, IDNAME_PREFIX, sizeof(IDNAME_PREFIX) - 1) == 0)
+    {
+        CFE_ES_GenerateSingleVersionEvent("Module", &Name[sizeof(IDNAME_PREFIX) - 1], Id);
+    }
 }
 
 /*----------------------------------------------------------------
@@ -251,55 +232,18 @@ int32 CFE_ES_GenerateSingleVersionEvent(const char *ModuleType, const char *Modu
  *-----------------------------------------------------------------*/
 void CFE_ES_GenerateVersionEvents(void)
 {
-    int32                        Status;
-    CFE_ConfigName_t *           ModuleNamePtr;
-    CFE_StaticModuleLoadEntry_t *StaticModulePtr;
+    int32 Status;
 
     /*
      * Advertise the mission version information
      */
-    Status = CFE_ES_GenerateSingleVersionEvent("Mission", GLOBAL_CONFIGDATA.MissionName);
+    Status = CFE_ES_GenerateSingleVersionEvent("Mission", GLOBAL_CONFIGDATA.MissionName, CFE_CONFIGID_MISSION_SRCVER);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending mission version event:RC=0x%08X\n", __func__, (unsigned int)Status);
     }
 
-    /*
-     * Also Advertise the version information for all statically-linked core modules.
-     * Send a separate CFE_ES_VERSION_INF_EID for every component.
-     */
-    ModuleNamePtr = GLOBAL_CONFIGDATA.CoreModuleList;
-    if (ModuleNamePtr != NULL)
-    {
-        while (Status == CFE_SUCCESS && ModuleNamePtr->Name != NULL)
-        {
-            Status = CFE_ES_GenerateSingleVersionEvent("Core Module", ModuleNamePtr->Name);
-            if (Status != CFE_SUCCESS)
-            {
-                CFE_ES_WriteToSysLog("%s: Error sending core module version event:RC=0x%08X\n", __func__,
-                                     (unsigned int)Status);
-            }
-            ++ModuleNamePtr;
-        }
-    }
-
-    /*
-     * Advertise PSP module versions
-     */
-    StaticModulePtr = GLOBAL_CONFIGDATA.PspModuleList;
-    if (StaticModulePtr != NULL)
-    {
-        while (Status == CFE_SUCCESS && StaticModulePtr->Name != NULL)
-        {
-            Status = CFE_ES_GenerateSingleVersionEvent("PSP Module", StaticModulePtr->Name);
-            if (Status != CFE_SUCCESS)
-            {
-                CFE_ES_WriteToSysLog("%s: Error sending PSP module version event:RC=0x%08X\n", __func__,
-                                     (unsigned int)Status);
-            }
-            ++StaticModulePtr;
-        }
-    }
+    CFE_Config_IterateAll(NULL, CFE_ES_ModSrcVerCallback);
 }
 
 /*----------------------------------------------------------------
@@ -318,25 +262,10 @@ void CFE_ES_GenerateBuildInfoEvents(void)
     const char *BuildUser;
     const char *BuildHost;
 
-    BuildDate = CFE_ES_FindConfigKeyValue(GLOBAL_CONFIGDATA.BuildEnvironment, "BUILDDATE");
-    BuildUser = CFE_ES_FindConfigKeyValue(GLOBAL_CONFIGDATA.BuildEnvironment, "BUILDUSER");
-    BuildHost = CFE_ES_FindConfigKeyValue(GLOBAL_CONFIGDATA.BuildEnvironment, "BUILDHOST");
-
-    /* Ensure all strings are set to something non-NULL */
-    if (BuildDate == NULL)
-    {
-        BuildDate = "[unknown]";
-    }
-
-    if (BuildUser == NULL)
-    {
-        BuildUser = "[unknown]";
-    }
-
-    if (BuildHost == NULL)
-    {
-        BuildHost = "[unknown]";
-    }
+    /* NOTE: The config APIs using "GetString" will not return NULL */
+    BuildDate = CFE_Config_GetString(CFE_CONFIGID_CORE_BUILDINFO_DATE);
+    BuildUser = CFE_Config_GetString(CFE_CONFIGID_CORE_BUILDINFO_USER);
+    BuildHost = CFE_Config_GetString(CFE_CONFIGID_CORE_BUILDINFO_HOST);
 
     Status = CFE_EVS_SendEvent(CFE_ES_BUILD_INF_EID, CFE_EVS_EventType_INFORMATION, "Build %s by %s@%s, config %s",
                                BuildDate, BuildUser, BuildHost, GLOBAL_CONFIGDATA.Config);
@@ -393,20 +322,20 @@ int32 CFE_ES_TaskInit(void)
     /*
     ** Initialize housekeeping packet (clear user data area)
     */
-    CFE_MSG_Init(&CFE_ES_Global.TaskData.HkPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_ES_HK_TLM_MID),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_ES_Global.TaskData.HkPacket.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_ES_HK_TLM_MID),
                  sizeof(CFE_ES_Global.TaskData.HkPacket));
 
     /*
     ** Initialize single application telemetry packet
     */
-    CFE_MSG_Init(&CFE_ES_Global.TaskData.OneAppPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_ES_APP_TLM_MID),
-                 sizeof(CFE_ES_Global.TaskData.OneAppPacket));
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_ES_Global.TaskData.OneAppPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_ES_APP_TLM_MID), sizeof(CFE_ES_Global.TaskData.OneAppPacket));
 
     /*
     ** Initialize memory pool statistics telemetry packet
     */
-    CFE_MSG_Init(&CFE_ES_Global.TaskData.MemStatsPacket.TlmHeader.Msg, CFE_SB_ValueToMsgId(CFE_ES_MEMSTATS_TLM_MID),
-                 sizeof(CFE_ES_Global.TaskData.MemStatsPacket));
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_ES_Global.TaskData.MemStatsPacket.TelemetryHeader),
+                 CFE_SB_ValueToMsgId(CFE_ES_MEMSTATS_TLM_MID), sizeof(CFE_ES_Global.TaskData.MemStatsPacket));
 
     /*
     ** Create Software Bus message pipe
@@ -839,8 +768,8 @@ int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     /*
     ** Send housekeeping telemetry packet.
     */
-    CFE_SB_TimeStampMsg(&CFE_ES_Global.TaskData.HkPacket.TlmHeader.Msg);
-    CFE_SB_TransmitMsg(&CFE_ES_Global.TaskData.HkPacket.TlmHeader.Msg, true);
+    CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.HkPacket.TelemetryHeader));
+    CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.HkPacket.TelemetryHeader), true);
 
     /*
     ** This command does not affect the command execution counter.
@@ -1235,8 +1164,8 @@ int32 CFE_ES_QueryOneCmd(const CFE_ES_QueryOneCmd_t *data)
         /*
         ** Send application status telemetry packet.
         */
-        CFE_SB_TimeStampMsg(&CFE_ES_Global.TaskData.OneAppPacket.TlmHeader.Msg);
-        Result = CFE_SB_TransmitMsg(&CFE_ES_Global.TaskData.OneAppPacket.TlmHeader.Msg, true);
+        CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.OneAppPacket.TelemetryHeader));
+        Result = CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.OneAppPacket.TelemetryHeader), true);
         if (Result == CFE_SUCCESS)
         {
             CFE_ES_Global.TaskData.CommandCounter++;
@@ -1974,8 +1903,8 @@ int32 CFE_ES_SendMemPoolStatsCmd(const CFE_ES_SendMemPoolStatsCmd_t *data)
         /*
         ** Send memory statistics telemetry packet.
         */
-        CFE_SB_TimeStampMsg(&CFE_ES_Global.TaskData.MemStatsPacket.TlmHeader.Msg);
-        CFE_SB_TransmitMsg(&CFE_ES_Global.TaskData.MemStatsPacket.TlmHeader.Msg, true);
+        CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.MemStatsPacket.TelemetryHeader));
+        CFE_SB_TransmitMsg(CFE_MSG_PTR(CFE_ES_Global.TaskData.MemStatsPacket.TelemetryHeader), true);
 
         CFE_ES_Global.TaskData.CommandCounter++;
         CFE_EVS_SendEvent(CFE_ES_TLM_POOL_STATS_INFO_EID, CFE_EVS_EventType_DEBUG,

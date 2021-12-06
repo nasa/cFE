@@ -35,6 +35,7 @@ set(MISSION_CORE_MODULES
     "msg"
     "sbr"
     "resourceid"
+    "config"
 )
 
 # The "MISSION_GLOBAL_APPLIST" is a set of apps/libs that will be built
@@ -75,4 +76,3 @@ list(APPEND MISSION_GLOBAL_APPLIST cfe_assert)
 if (ENABLE_UNIT_TESTS)
     list(APPEND MISSION_GLOBAL_APPLIST cfe_testcase)
 endif (ENABLE_UNIT_TESTS)
-

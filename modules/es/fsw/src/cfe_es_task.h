@@ -44,6 +44,7 @@
 #include "cfe_fs_api_typedefs.h"
 #include "cfe_sb_api_typedefs.h"
 #include "cfe_es_erlog_typedef.h"
+#include "cfe_msg_api_typedefs.h"
 
 /*************************************************************************/
 

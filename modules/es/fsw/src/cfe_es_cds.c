@@ -429,7 +429,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
             CFE_ES_CDSBlockRecordSetUsed(RegRecPtr, PendingBlockId);
         }
 
-        if (Status == CFE_SUCCESS && (IsNewOffset || IsNewEntry))
+        if (Status == CFE_SUCCESS && IsNewOffset)
         {
             /* If we succeeded at creating a CDS, save updated registry in the CDS */
             RegUpdateStatus = CFE_ES_UpdateCDSRegistry();

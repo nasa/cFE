@@ -730,7 +730,7 @@
  */
 typedef struct CFE_TIME_NoArgsCmd
 {
-    CFE_MSG_CommandHeader_t CmdHeader; /**< \brief Command header */
+    CFE_MSG_CommandHeader_t CommandHeader; /**< \brief Command header */
 
 } CFE_TIME_NoArgsCmd_t;
 
@@ -759,8 +759,8 @@ typedef struct CFE_TIME_LeapsCmd_Payload
  */
 typedef struct CFE_TIME_SetLeapSecondsCmd
 {
-    CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
-    CFE_TIME_LeapsCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t     CommandHeader; /**< \brief Command header */
+    CFE_TIME_LeapsCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_SetLeapSecondsCmd_t;
 
 /**
@@ -768,10 +768,11 @@ typedef struct CFE_TIME_SetLeapSecondsCmd
  */
 typedef struct CFE_TIME_StateCmd_Payload
 {
-    int16 ClockState; /**< \brief #CFE_TIME_ClockState_INVALID=Spacecraft time has not been accurately set,
-                                  #CFE_TIME_ClockState_VALID=Spacecraft clock has been accurately set,
-                                  #CFE_TIME_ClockState_FLYWHEEL=Force into FLYWHEEL mode   */
-                      /**< Selects the current clock state */
+    CFE_TIME_ClockState_Enum_t ClockState; /**< \brief #CFE_TIME_ClockState_INVALID=Spacecraft time has
+                                  not been accurately set, #CFE_TIME_ClockState_VALID=Spacecraft clock
+                                  has been accurately set, #CFE_TIME_ClockState_FLYWHEEL=Force into
+                                  FLYWHEEL mode   */
+                                           /**< Selects the current clock state */
 } CFE_TIME_StateCmd_Payload_t;
 
 /**
@@ -779,8 +780,8 @@ typedef struct CFE_TIME_StateCmd_Payload
  */
 typedef struct CFE_TIME_SetStateCmd
 {
-    CFE_MSG_CommandHeader_t     CmdHeader; /**< \brief Command header */
-    CFE_TIME_StateCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t     CommandHeader; /**< \brief Command header */
+    CFE_TIME_StateCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_SetStateCmd_t;
 
 /**
@@ -798,8 +799,8 @@ typedef struct CFE_TIME_SourceCmd_Payload
  */
 typedef struct CFE_TIME_SetSourceCmd
 {
-    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
-    CFE_TIME_SourceCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t      CommandHeader; /**< \brief Command header */
+    CFE_TIME_SourceCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_SetSourceCmd_t;
 
 /**
@@ -817,8 +818,8 @@ typedef struct CFE_TIME_SignalCmd_Payload
  */
 typedef struct CFE_TIME_SetSignalCmd
 {
-    CFE_MSG_CommandHeader_t      CmdHeader; /**< \brief Command header */
-    CFE_TIME_SignalCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t      CommandHeader; /**< \brief Command header */
+    CFE_TIME_SignalCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_SetSignalCmd_t;
 
 /**
@@ -835,8 +836,8 @@ typedef struct CFE_TIME_TimeCmd_Payload
  */
 typedef struct CFE_TIME_TimeCmd
 {
-    CFE_MSG_CommandHeader_t    CmdHeader; /**< \brief Command header */
-    CFE_TIME_TimeCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t    CommandHeader; /**< \brief Command header */
+    CFE_TIME_TimeCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_TimeCmd_t;
 
 /*
@@ -867,8 +868,8 @@ typedef struct CFE_TIME_OneHzAdjustmentCmd_Payload
  */
 typedef struct CFE_TIME_OneHzAdjustmentCmd
 {
-    CFE_MSG_CommandHeader_t               CmdHeader; /**< \brief Command header */
-    CFE_TIME_OneHzAdjustmentCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t               CommandHeader; /**< \brief Command header */
+    CFE_TIME_OneHzAdjustmentCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_OneHzAdjustmentCmd_t;
 
 /*
@@ -884,10 +885,10 @@ typedef CFE_TIME_OneHzAdjustmentCmd_t CFE_TIME_Sub1HZAdjustmentCmd_t;
  */
 typedef struct CFE_TIME_ToneDataCmd_Payload
 {
-    CFE_TIME_SysTime_t AtToneMET;         /**< \brief MET at time of tone */
-    CFE_TIME_SysTime_t AtToneSTCF;        /**< \brief STCF at time of tone */
-    int16              AtToneLeapSeconds; /**< \brief Leap Seconds at time of tone */
-    int16              AtToneState;       /**< \brief Clock state at time of tone */
+    CFE_TIME_SysTime_t         AtToneMET;         /**< \brief MET at time of tone */
+    CFE_TIME_SysTime_t         AtToneSTCF;        /**< \brief STCF at time of tone */
+    int16                      AtToneLeapSeconds; /**< \brief Leap Seconds at time of tone */
+    CFE_TIME_ClockState_Enum_t AtToneState;       /**< \brief Clock state at time of tone */
 } CFE_TIME_ToneDataCmd_Payload_t;
 
 /**
@@ -895,8 +896,8 @@ typedef struct CFE_TIME_ToneDataCmd_Payload
  */
 typedef struct CFE_TIME_ToneDataCmd
 {
-    CFE_MSG_CommandHeader_t        CmdHeader; /**< \brief Command header */
-    CFE_TIME_ToneDataCmd_Payload_t Payload;   /**< \brief Command payload */
+    CFE_MSG_CommandHeader_t        CommandHeader; /**< \brief Command header */
+    CFE_TIME_ToneDataCmd_Payload_t Payload;       /**< \brief Command payload */
 } CFE_TIME_ToneDataCmd_t;
 
 /*************************************************************************/
@@ -917,10 +918,10 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
     /*
     ** Clock state flags and "as calculated" clock state...
     */
-    uint16 ClockStateFlags; /**< \cfetlmmnemonic \TIME_STATEFLG
-                                 \brief State Flags */
-    int16 ClockStateAPI;    /**< \cfetlmmnemonic \TIME_APISTATE
-                                 \brief API State */
+    uint16 ClockStateFlags;                   /**< \cfetlmmnemonic \TIME_STATEFLG
+                                                   \brief State Flags */
+    CFE_TIME_ClockState_Enum_t ClockStateAPI; /**< \cfetlmmnemonic
+                              \TIME_APISTATE \brief API State */
 
     /*
     ** Leap Seconds...
@@ -965,8 +966,8 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
 
 typedef struct CFE_TIME_HousekeepingTlm
 {
-    CFE_MSG_TelemetryHeader_t          TlmHeader; /**< \brief Telemetry header */
-    CFE_TIME_HousekeepingTlm_Payload_t Payload;   /**< \brief Telemetry payload */
+    CFE_MSG_TelemetryHeader_t          TelemetryHeader; /**< \brief Telemetry header */
+    CFE_TIME_HousekeepingTlm_Payload_t Payload;         /**< \brief Telemetry payload */
 } CFE_TIME_HousekeepingTlm_t;
 
 /*************************************************************************/
@@ -988,10 +989,10 @@ typedef struct CFE_TIME_DiagnosticTlm_Payload
     CFE_TIME_SysTime_t AtToneLatch; /**< \cfetlmmnemonic \TIME_TVALIDS
                                                \brief Local clock latched at time of tone */
 
-    int16 AtToneLeapSeconds; /**< \cfetlmmnemonic \TIME_LEAPS
-                                  \brief Leap Seconds at time of tone */
-    int16 ClockStateAPI;     /**< \cfetlmmnemonic \TIME_APISTATE
-                                        \brief Clock state as per API */
+    int16 AtToneLeapSeconds;                  /**< \cfetlmmnemonic \TIME_LEAPS
+                                                   \brief Leap Seconds at time of tone */
+    CFE_TIME_ClockState_Enum_t ClockStateAPI; /**< \cfetlmmnemonic \TIME_APISTATE
+                                    \brief Clock state as per API */
 
     /*
      ** Data values that reflect the time (right now)...
@@ -1122,8 +1123,8 @@ typedef struct CFE_TIME_DiagnosticTlm_Payload
 
 typedef struct CFE_TIME_DiagnosticTlm
 {
-    CFE_MSG_TelemetryHeader_t        TlmHeader; /**< \brief Telemetry header */
-    CFE_TIME_DiagnosticTlm_Payload_t Payload;   /**< \brief Telemetry payload */
+    CFE_MSG_TelemetryHeader_t        TelemetryHeader; /**< \brief Telemetry header */
+    CFE_TIME_DiagnosticTlm_Payload_t Payload;         /**< \brief Telemetry payload */
 } CFE_TIME_DiagnosticTlm_t;
 
 #endif /* CFE_TIME_MSG_H */

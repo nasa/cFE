@@ -27,9 +27,9 @@
 #include "cfe_tbl.h"
 #include "utgenstub.h"
 
-extern void UT_DefaultHandler_CFE_TBL_GetAddress(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_TBL_GetInfo(void *, UT_EntryKey_t, const UT_StubContext_t *);
-extern void UT_DefaultHandler_CFE_TBL_Register(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_TBL_GetAddress(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_TBL_GetInfo(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_TBL_Register(void *, UT_EntryKey_t, const UT_StubContext_t *);
 
 /*
  * ----------------------------------------------------

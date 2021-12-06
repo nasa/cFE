@@ -59,7 +59,7 @@
 **          None
 **
 ******************************************************************************/
-extern void CFE_ES_TaskMain(void);
+void CFE_ES_TaskMain(void);
 
 /*****************************************************************************/
 /**
@@ -72,7 +72,7 @@ extern void CFE_ES_TaskMain(void);
 **        -# This function MUST be called before any module API's are called.
 **
 ******************************************************************************/
-extern int32 CFE_ES_CDS_EarlyInit(void);
+int32 CFE_ES_CDS_EarlyInit(void);
 
 /*****************************************************************************/
 /**

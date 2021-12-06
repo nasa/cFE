@@ -50,12 +50,12 @@ typedef struct
 
 static CFE_SB_StubMsg_MetaData_t *CFE_SB_StubMsg_GetMetaData(const CFE_MSG_Message_t *MsgPtr)
 {
-    CFE_SB_StubMsg_MetaData_t *MetaPtr;
-    CFE_SB_StubMsg_MetaData_t  DefaultMeta;
-    size_t                     MetaSize;
-    UT_EntryKey_t              MsgKey = (UT_EntryKey_t)MsgPtr;
+    void *                    MetaPtr;
+    CFE_SB_StubMsg_MetaData_t DefaultMeta;
+    size_t                    MetaSize;
+    UT_EntryKey_t             MsgKey = (UT_EntryKey_t)MsgPtr;
 
-    UT_GetDataBuffer(MsgKey, (void **)&MetaPtr, &MetaSize, NULL);
+    UT_GetDataBuffer(MsgKey, &MetaPtr, &MetaSize, NULL);
     if (MetaPtr == NULL || MetaSize != sizeof(DefaultMeta))
     {
         memset(&DefaultMeta, 0, sizeof(DefaultMeta));
@@ -64,7 +64,7 @@ static CFE_SB_StubMsg_MetaData_t *CFE_SB_StubMsg_GetMetaData(const CFE_MSG_Messa
         UT_SetDataBuffer(MsgKey, &DefaultMeta, sizeof(DefaultMeta), true);
 
         /* Because "allocate copy" is true above, this gets a pointer to the copy */
-        UT_GetDataBuffer(MsgKey, (void **)&MetaPtr, &MetaSize, NULL);
+        UT_GetDataBuffer(MsgKey, &MetaPtr, &MetaSize, NULL);
     }
 
     return MetaPtr;
@@ -123,6 +123,7 @@ void UT_DefaultHandler_CFE_SB_GetPipeName(void *UserObj, UT_EntryKey_t FuncKey, 
 
     size_t      UserBuffSize;
     size_t      BuffPosition;
+    void *      TempBuff;
     const char *NameBuff;
     int32       status;
 
@@ -130,11 +131,15 @@ void UT_DefaultHandler_CFE_SB_GetPipeName(void *UserObj, UT_EntryKey_t FuncKey, 
 
     if (status >= 0 && PipeNameSize > 0)
     {
-        UT_GetDataBuffer(UT_KEY(CFE_SB_GetPipeName), (void **)&NameBuff, &UserBuffSize, &BuffPosition);
-        if (NameBuff == NULL || UserBuffSize == 0)
+        UT_GetDataBuffer(UT_KEY(CFE_SB_GetPipeName), &TempBuff, &UserBuffSize, &BuffPosition);
+        if (TempBuff == NULL || UserBuffSize == 0)
         {
             NameBuff     = "UT";
             UserBuffSize = 2;
+        }
+        else
+        {
+            NameBuff = TempBuff;
         }
 
         if (UserBuffSize < PipeNameSize)

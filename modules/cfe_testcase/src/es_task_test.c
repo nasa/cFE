@@ -218,7 +218,7 @@ void TestChildTaskName(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, CFE_ES_TASKID_UNDEFINED, sizeof(TaskNameBuf)),
                       CFE_ES_ERR_RESOURCEID_NOT_VALID);
     UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, 0), CFE_ES_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskName) - 1), CFE_ES_ERR_RESOURCEID_NOT_VALID);
+    UtAssert_INT32_EQ(CFE_ES_GetTaskName(TaskNameBuf, TaskId, sizeof(TaskName) - 1), CFE_ES_BAD_ARGUMENT);
 
     UtAssert_INT32_EQ(CFE_ES_DeleteChildTask(TaskId), CFE_SUCCESS);
 }
