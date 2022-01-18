@@ -48,13 +48,16 @@
 /*
 ** Defines
 */
+#define CFE_ES_PERF_MASK_ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+
 #define CFE_ES_PERF_TRIGGERMASK_INT_SIZE \
-    (sizeof(CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask) / sizeof(uint32))
+    CFE_ES_PERF_MASK_ARRAY_SIZE(CFE_ES_Global.ResetDataPtr->Perf.MetaData.TriggerMask)
 #define CFE_ES_PERF_TRIGGERMASK_EXT_SIZE \
-    (sizeof(CFE_ES_Global.TaskData.HkPacket.Payload.PerfTriggerMask) / sizeof(uint32))
-#define CFE_ES_PERF_FILTERMASK_INT_SIZE (sizeof(CFE_ES_Global.ResetDataPtr->Perf.MetaData.FilterMask) / sizeof(uint32))
+    CFE_ES_PERF_MASK_ARRAY_SIZE(CFE_ES_Global.TaskData.HkPacket.Payload.PerfTriggerMask)
+#define CFE_ES_PERF_FILTERMASK_INT_SIZE \
+    CFE_ES_PERF_MASK_ARRAY_SIZE(CFE_ES_Global.ResetDataPtr->Perf.MetaData.FilterMask)
 #define CFE_ES_PERF_FILTERMASK_EXT_SIZE \
-    (sizeof(CFE_ES_Global.TaskData.HkPacket.Payload.PerfFilterMask) / sizeof(uint32))
+    CFE_ES_PERF_MASK_ARRAY_SIZE(CFE_ES_Global.TaskData.HkPacket.Payload.PerfFilterMask)
 
 /*
 ** This define should be put in the OS API headers -- Right now it matches what the OS API uses
