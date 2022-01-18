@@ -4519,7 +4519,7 @@ void TestAPI(void)
 
     /* Hit error case for NULL TaskRecPtr */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_TaskGetId), 1, OS_OBJECT_ID_UNDEFINED);
+    UT_SetDeferredRetcode(UT_KEY(OS_TaskGetId), 1, OS_ObjectIdToInteger(OS_OBJECT_ID_UNDEFINED));
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 }
 
