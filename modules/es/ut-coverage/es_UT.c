@@ -4670,6 +4670,8 @@ void TestCDS()
 
     UtPrintf("Begin Test CDS");
 
+    memset(BlockData, 0, sizeof(BlockData));
+
     /* Test init with a mutex create failure */
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERROR);
     UtAssert_INT32_EQ(CFE_ES_CDS_EarlyInit(), CFE_STATUS_EXTERNAL_RESOURCE_FAIL);
