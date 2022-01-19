@@ -37,6 +37,12 @@
 /* Unhash magic number */
 #define CFE_SBR_UNHASH_MAGIC (0x119de1f3)
 
+/*
+ * Reasonable limit on loops in case CFE_PLATFORM_SB_HIGHEST_VALID_MSGID is large
+ * Can be set equal to the configured highest if user requires it
+ */
+#define CFE_SBR_UT_LIMIT_HIGHEST_MSGID 0x1FFF
+
 /******************************************************************************
  * Local helper to unhash
  */
@@ -54,6 +60,7 @@ void Test_SBR_Map_Hash(void)
 {
 
     CFE_SB_MsgId_Atom_t msgidx;
+    CFE_SB_MsgId_Atom_t msgid_limit;
     CFE_SBR_RouteId_t   routeid[3];
     CFE_SB_MsgId_t      msgid[3];
     uint32              count;
@@ -69,16 +76,29 @@ void Test_SBR_Map_Hash(void)
     /* Force valid msgid responses */
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
 
-    UtPrintf("Check that all entries are set invalid");
+    /* Limit message id loops */
+    if (CFE_PLATFORM_SB_HIGHEST_VALID_MSGID > CFE_SBR_UT_LIMIT_HIGHEST_MSGID)
+    {
+        msgid_limit = CFE_SBR_UT_LIMIT_HIGHEST_MSGID;
+        UtPrintf("Limiting msgid ut loops to 0x%08X of 0x%08X", (unsigned int)msgid_limit,
+                 (unsigned int)CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
+    }
+    else
+    {
+        msgid_limit = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
+        UtPrintf("Testing full msgid range in ut up to 0x%08X", (unsigned int)msgid_limit);
+    }
+
+    UtPrintf("Check that entries are set invalid");
     count = 0;
-    for (msgidx = 0; msgidx <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID; msgidx++)
+    for (msgidx = 0; msgidx <= msgid_limit; msgidx++)
     {
         if (!CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(msgidx))))
         {
             count++;
         }
     }
-    UtAssert_INT32_EQ(count, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1);
+    UtAssert_INT32_EQ(count, msgid_limit + 1);
 
     /* Note AddRoute required for hash logic to work since it depends on MsgId in routing table */
     UtPrintf("Add routes and check with a rollover and a skip");
