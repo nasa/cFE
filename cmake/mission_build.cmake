@@ -359,7 +359,7 @@ function(prepare)
   )
   foreach(APP ${MISSION_DEPS})
     list(APPEND VARLIST "${APP}_MISSION_DIR")
-  endforeach(APP ${MISSION_APPS})
+  endforeach()
 
   foreach(SYSVAR ${TGTSYS_LIST})
     list(APPEND VARLIST "BUILD_CONFIG_${SYSVAR}")

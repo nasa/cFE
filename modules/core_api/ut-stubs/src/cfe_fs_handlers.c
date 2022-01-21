@@ -161,6 +161,7 @@ void UT_DefaultHandler_CFE_FS_ParseInputFileNameEx(void *UserObj, UT_EntryKey_t 
 {
     char *      OutputBuffer  = UT_Hook_GetArgValueByName(Context, "OutputBuffer", char *);
     size_t      OutputBufSize = UT_Hook_GetArgValueByName(Context, "OutputBufSize", size_t);
+    const char *InputBuffer   = UT_Hook_GetArgValueByName(Context, "InputBuffer", const char *);
     const char *DefaultInput  = UT_Hook_GetArgValueByName(Context, "DefaultInput", const char *);
 
     int32 status;
@@ -169,10 +170,18 @@ void UT_DefaultHandler_CFE_FS_ParseInputFileNameEx(void *UserObj, UT_EntryKey_t 
 
     /* Copy any specific output supplied by test case */
     if (status >= 0 && UT_Stub_CopyToLocal(UT_KEY(CFE_FS_ParseInputFileNameEx), OutputBuffer, OutputBufSize) == 0 &&
-        OutputBufSize > 0 && DefaultInput != NULL)
+        OutputBufSize > 0)
     {
-        /* Otherwise fall back to simple copy */
-        strncpy(OutputBuffer, DefaultInput, OutputBufSize);
+        if (DefaultInput != NULL)
+        {
+            /* Use default if set */
+            strncpy(OutputBuffer, DefaultInput, OutputBufSize);
+        }
+        else
+        {
+            /* Fall back to copy input to avoid uninitialized output */
+            strncpy(OutputBuffer, InputBuffer, OutputBufSize);
+        }
     }
 }
 

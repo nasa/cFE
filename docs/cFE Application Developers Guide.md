@@ -501,7 +501,7 @@ headers, while files listed in the second table (without suffix) should be used 
 
 Finally, to simplify application headers, a single "all-inclusive" cFE header is also provided:
 
-```
+```c
 #include "cfe.h" /* Define cFE API prototypes and data types */
 ```
 
@@ -779,7 +779,7 @@ clock tick. This can also be used to calculate the appropriate number of
 system clock ticks for a specific delta time. An example can be seen
 below:
 
-```
+```c
 uint32 ConvertSecs2Ticks(uint32 Seconds)
 {
 	uint32 NumOfTicks,TickDurationInMicroSec;
@@ -839,20 +839,20 @@ success, the OS_BinSemCreate function sets the sem_id parameter to the ID of
 the newly-created resource.  This ID is used in all other functions that use
 the binary semaphore.
 
-```
+```c
 int32 OS_BinSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
  			       uint32 sem_initial_value, uint32 options);
 ```
 
 There are two options for pending on a binary semaphore:
 
-```
+```c
 int32 OS_BinSemTake( uint32 xxx_SEM_ID );
 ```
 
 which waits indefinitely for a semaphore to become available, and
 
-```
+```c
 int32 OS_BinSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
 ```
 
@@ -861,7 +861,7 @@ has not become available.
 
 A binary semaphore is given by using this function:
 
-```
+```c
 int32 OS_BinSemGive( uint32 xxx_SEM_ID );
 ```
 
@@ -886,25 +886,26 @@ Upon success, the OS_CountSemCreate function sets the sem_id parameter to the
 ID of the newly-created resource. This ID is used in all other functions that
 use the binary semaphore.
 
-```
+```c
 int32 OS_CountSemCreate(uint32 *xxx_SEM_ID, const char *xxx_SEM_NAME,
  			       uint32 sem_initial_value, uint32 options);
 ```
 
 There are two options for pending on a counting semaphore:
 
-```
+```c
 int32 OS_CountSemTake( uint32 xxx_SEM_ID );
 ```
 
 which waits indefinitely for a semaphore to become available, and
 
-```
+```c
 int32 OS_CountSemTimedWait( uint32 xxx_SEM_ID , uint32 timeout_in_milliseconds );
 ```
+
 A counting semaphore is given by using this function:
 
-```
+```c
 int32 OS_CountSemGive( uint32 xxx_SEM_ID );
 ```
 
@@ -940,7 +941,7 @@ being done in the protected region. The Take and Give functions should
 have the same level of indentation, and there should be exactly one
 entry point and one exit point to the protected region.
 
-```
+```c
 int32 OS_MutSemTake( uint32 xxx_MUT_ID );
 
    /* protected region */
@@ -965,25 +966,25 @@ of the entire system.
 
 An application creates a mutex by calling:
 
-```
+```c
 int32 OS_MutSemCreate (uint32 *sem_id, const char *sem_name, uint32 options);
 ```
 
 and deletes it by calling:
 
-```
+```c
 int32 OS_MutSemDelete (uint32 sem_id);
 ```
 
 An application takes a mutex by calling:
 
-```
+```c
 int32 OS_MutSemTake( uint32 xxx_MUT_ID );
 ```
 
 and gives it by calling:
 
-```
+```c
 int32 OS_MutSemGive( uint32 xxx_MUT_ID );
 ```
 
@@ -1009,7 +1010,7 @@ Similar to interrupt service routines, handlers can be associated with
 specific exceptions. The following function specifies a handler for an
 exception:
 
-```
+```c
 OS_ExcAttachHandler( uint32 ExceptionNumber, void *ExceptionHandler, int32 Param );
 ```
 
@@ -1017,14 +1018,14 @@ The ExceptionHandler is a function that will be called when the
 exception is detected and should have a prototype that looks like the
 following:
 
-```
+```c
 void ExceptionHandler( int32 Param );
 ```
 
 There are addition functions for enabling/masking and
 disabling/unmasking specific exceptions. These are as follows:
 
-```
+```c
 OS_ExcEnable( uint32 ExceptionNumber );
 OS_ExcDisable( uint32 ExceptionNumber );
 ```
@@ -1035,7 +1036,7 @@ In addition to the exception handlers identified above, a similar
 paradigm exists for handling floating point processor exceptions. The
 following function specifies a handler for an FPU exception:
 
-```
+```c
 OS_FPUExcAttachHandler( uint32 ExceptionNumber, void *ExceptionHandler, int32 Param );
 ```
 
@@ -1043,14 +1044,14 @@ The ExceptionHandler is a function that will be called when the
 exception is detected and should have a prototype that looks like the
 following:
 
-```
+```c
 void ExceptionHandler( int32 Param );
 ```
 
 There are addition functions for enabling/masking and
 disabling/unmasking specific exceptions. These are as follows:
 
-```
+```c
 OS_FPUExcEnable( uint32 ExceptionNumber );
 OS_FPUExcDisable( uint32 ExceptionNumber );
 ```
@@ -1367,7 +1368,7 @@ significant Event that cannot be recorded using the CFE_EVS_SendEvent
 function, then the Developer can use the CFE_ES_WriteToSysLog
 function. This function has the following prototype:
 
-```
+```c
 int32 CFE_ES_WriteToSysLog(const char *pSpecString, ...);
 ```
 
@@ -2313,7 +2314,7 @@ used to uniquely identify an application event. The Event ID is defined
 and supplied to the EVS by the application requesting services. The
 hexadecimal bit mask represents the filtering frequency for the event.
 
-```
+```c
 typedef struct
 {
 	uint16  EventID,
@@ -2342,7 +2343,7 @@ section 7.4) regardless of whether the message was sent.
 An example of an Application registering with Event Services and
 specifying its binary filters is shown below:
 
-```
+```c
 FILE: sample_app.h
 
 ...
@@ -2415,7 +2416,7 @@ reset the filter counter for a specified Event ID. The latter function
 resets all event filter counters for the Application. An example of
 resetting a specific Event ID filter counter is shown below:
 
-```
+```c
 FILE: sample_app.c
 
 {
@@ -2434,7 +2435,7 @@ or the CFE_EVS_SendTimedEvent() function, which are both analogous to
 the C printf() function in how strings are formatted. An example of each
 function call is shown below:
 
-```
+```c
 CFE_EVS_SendEvent(EventID, EventType, "Unknown stream on cmd pipe:
 0x%04X", sid);
 ```
@@ -2451,7 +2452,7 @@ sent.
 The other function that can be called to send an event message is shown
 below:
 
-```
+```c
 CFE_EVS_SendTimedEvent(PktTime, EventID, EventType, "CSS Data Bad:
 0x%04X", CssData);
 ```
@@ -2644,7 +2645,7 @@ it should use the CFE_TBL_Share API instead.  The CFE_TBL_Share API will locate
 the specified Table by name and return a Table Handle to the calling
 Application.  An example of Table sharing is shown below:
 
-```
+```c
 FILE: SAMPLE_app.c
 
 CFE_TBL_Handle_t  MyTableHandle;  /* Handle to MyTable */
@@ -2679,7 +2680,7 @@ Application can obtain a pointer to the start of the data within the
 Table using the CFE_TBL_GetAddress or CFE_TBL_GetAddresses APIs.  An example
 of this is shown in Section 8.5.1.
 
-```
+```c
 {
    int32 Status = CFE_SUCCESS;
    SAMPLE_MyTable_t *MyTblPtr;
@@ -2772,7 +2773,7 @@ assigning and creating a validation function is a fairly simple process.
 To use the function, the Application should periodically identify when a
 Table Validation Request has been made as shown below:
 
-```
+```c
 {
     int32   Status = CFE_SUCCESS;
     boolean FinishedManaging = FALSE;
@@ -2821,7 +2822,7 @@ the Table with default values or when the Application is changing modes
 and wishes to use a different parameter set. An example of this can be
 seen below:
 
-```
+```c
 FILE: sample_app.c
 
 CFE_TBL_Handle_t  MyTableHandle  /* Handle to MyTable */
@@ -2847,7 +2848,7 @@ SAMPLE_MyTable_t MyTblInitData = { 0x1234, 0x5678, { 2, 3, 4, ... }, ...};
 If a developer wishes to load the table from a file rather than from a
 memory image, the code would look something like the following:
 
-```
+```c
 {
    int32 Status;
 
@@ -2898,6 +2899,7 @@ A typical layout of table-related files within an application (xx) is shown
 below. Note that this does not show all of an application's files, just those
 related to tables.
 
+```
 xx
  |----fsw
        |----src
@@ -2910,27 +2912,28 @@ xx
        |
        |----platform_inc
               |----xx_platform_cfg.h
+```
 
-The xx_app.h file is included in this layout only because table handles are
-typically stored in an application's AppData_t structure.
+The `xx_app.h` file is included in this layout only because table handles are
+typically stored in an application's `AppData_t` structure.
 
-The file xx_tbldefs.h (sometimes just named xx_tbl.h) typically contains the
+The file `xx_tbldefs.h` (sometimes just named `xx_tbl.h`) typically contains the
 structure definition of a single table entry.  This file is included in the
-xx_table1.c file where the table itself is defined.  It may also contain
+`xx_table1.c` file where the table itself is defined.  It may also contain
 declarations for table-related utility functions.
 
-The xx_tbl.c file typically contains table-related utility functions.  For
+The `xx_tbl.c` file typically contains table-related utility functions.  For
 instance, many applications define table initialization and validation functions
 in this file.
 
-The xx_table1.c file is the source code for a table itself.
+The `xx_table1.c` file is the source code for a table itself.
 
-The xx_platform_cfg.h file contains configuration parameters for applications,
+The `xx_platform_cfg.h` file contains configuration parameters for applications,
 and there are typically several configuration parameters associated with tables.
 
 ### 8.5.1 Table Files Example
 
-```
+```c
 FILE: xx_app.h
 
 ...
@@ -2945,7 +2948,7 @@ XX_AppData_t XX_AppData;
 ...
 ```
 
-```
+```c
 FILE: xx_tbldefs.h
 
 ...
@@ -2968,7 +2971,7 @@ int32 XX_ValidateTable(void *TableData);
 ...
 ```
 
-```
+```c
 FILE: xx_tbl.c
 
 #include xx_tbldefs.h
@@ -3028,7 +3031,7 @@ int32 XX_ValidateTable(void *TableData)
 }
 ```
 
-```
+```c
 FILE: xx_table1.c
 
 #include "cfe.h"
@@ -3054,7 +3057,7 @@ XX_MyTable_t XX_MyTable =
 };
 ```
 
-```
+```c
 FILE: xx_platform_cfg.h
 
 #define XX_APP_NAME            "XX"
@@ -3071,7 +3074,7 @@ In order to build application tables with the CMake build system, the
 application is structured with a "Tables" directory, another
 "aux_source_directory" may need to be added as well.
 
-```
+```cmake
 aux_source_directory(fsw/tables APP_TABLE_FILES)
 
 # Create the app module
@@ -3106,7 +3109,7 @@ standard file header.
 
 The structure of the standard file header is as follows:
 
-```
+```c
 typedef struct
 {
     uint32  ContentType;           /* Identifies the content type (magic #=’cFE1’) */
@@ -3215,7 +3218,7 @@ integer represents the number of seconds and the second integer
 represents the number of `2^-32` seconds. The data structure for this
 representation of time is as follows:
 
-```
+```c
 typedef struct {
       uint32      Seconds;      /* Number of seconds */
       uint32      Subseconds;   /* Number of 2^(-32) subseconds */
@@ -3420,7 +3423,7 @@ the first time in the subtraction. Otherwise, as shown above, the delta
 time between two absolute times could either be 5 hours or 7 hours. An
 example of a delta time computation function is shown below:
 
-```
+```c
 CFE_TIME_SysTime_t ComputeDeltaTime(CFE_TIME_SysTime_t TimeA,
                                     CFE_TIME_SysTime_t TimeB)
 {

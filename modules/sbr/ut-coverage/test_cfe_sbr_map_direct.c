@@ -31,10 +31,17 @@
 #include "cfe_sbr_priv.h"
 #include <stdlib.h>
 
+/*
+ * Reasonable limit on loops in case CFE_PLATFORM_SB_HIGHEST_VALID_MSGID is large
+ * Can be set equal to the configured highest if user requires it
+ */
+#define CFE_SBR_UT_LIMIT_HIGHEST_MSGID 0x1FFF
+
 void Test_SBR_Map_Direct(void)
 {
 
     CFE_SB_MsgId_Atom_t msgidx;
+    CFE_SB_MsgId_Atom_t msgid_limit;
     CFE_SBR_RouteId_t   routeid;
     CFE_SB_MsgId_t      msgid;
     uint32              count;
@@ -50,16 +57,29 @@ void Test_SBR_Map_Direct(void)
     /* Force valid msgid responses */
     UT_SetDefaultReturnValue(UT_KEY(CFE_SB_IsValidMsgId), true);
 
-    UtPrintf("Check that all entries are set invalid");
+    /* Limit message id loops */
+    if (CFE_PLATFORM_SB_HIGHEST_VALID_MSGID > CFE_SBR_UT_LIMIT_HIGHEST_MSGID)
+    {
+        msgid_limit = CFE_SBR_UT_LIMIT_HIGHEST_MSGID;
+        UtPrintf("Limiting msgid ut loops to 0x%08X of 0x%08X", (unsigned int)msgid_limit,
+                 (unsigned int)CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
+    }
+    else
+    {
+        msgid_limit = CFE_PLATFORM_SB_HIGHEST_VALID_MSGID;
+        UtPrintf("Testing full msgid range in ut up to 0x%08X", (unsigned int)msgid_limit);
+    }
+
+    UtPrintf("Check that entries are set invalid");
     count = 0;
-    for (msgidx = 0; msgidx <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID; msgidx++)
+    for (msgidx = 0; msgidx <= msgid_limit; msgidx++)
     {
         if (!CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(msgidx))))
         {
             count++;
         }
     }
-    UtAssert_INT32_EQ(count, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1);
+    UtAssert_INT32_EQ(count, msgid_limit + 1);
 
     UtPrintf("Set/Get a range of ids ");
     routeid = CFE_SBR_ValueToRouteId(CFE_PLATFORM_SB_MAX_MSG_IDS + 1);
@@ -72,16 +92,29 @@ void Test_SBR_Map_Direct(void)
     UtAssert_INT32_EQ(CFE_SBR_SetRouteId(msgid, routeid), 0);
     UtAssert_INT32_EQ(CFE_SBR_GetRouteId(msgid).RouteId, routeid.RouteId);
 
-    UtPrintf("Check there is now 1 valid entry in map");
+    /* Get number of valid routes in range */
     count = 0;
-    for (msgidx = 0; msgidx <= CFE_PLATFORM_SB_HIGHEST_VALID_MSGID; msgidx++)
+    for (msgidx = 0; msgidx <= msgid_limit; msgidx++)
     {
-        if (!CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(msgidx))))
+        if (CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(msgidx))))
         {
             count++;
         }
     }
-    UtAssert_INT32_EQ(count, CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
+
+    /* Check result based on range checked */
+    if (msgid_limit == CFE_PLATFORM_SB_HIGHEST_VALID_MSGID)
+    {
+        /* Full range, 1 valid */
+        UtPrintf("Check there is 1 valid entry in map");
+        UtAssert_INT32_EQ(count, 1);
+    }
+    else
+    {
+        /* Limited range, up to 1 valid */
+        UtPrintf("Up to 1 valid entry in limited range check");
+        UtAssert_INT32_LTEQ(count, 1);
+    }
 
     UtPrintf("Set back to invalid and check again");
     routeid = CFE_SBR_INVALID_ROUTE_ID;

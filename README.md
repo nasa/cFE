@@ -8,7 +8,20 @@ This is a collection of services and associated framework to be located in the `
 
 The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob/gh-pages/cFE_Users_Guide.pdf>.
 
-## Version History
+## Changelog
+
+### Development Build: v7.0.0-rc4+dev60
+
+- Add CFE_ES_AppInfo_t element documentation
+- Add FS Functional test
+- Fix mismatched foreach in cmake function
+- Improved code highlighting in cFE Application Developers Guide
+- CFE_FS_ParseInputFileNameEx avoid uninit var
+- Fix array length calculation for perf structs
+- Limit SBR UT loops
+- Initialize BlockData in ES UT
+- Fix `osal_id_t` type conversion in `es_UT.c`
+- See <https://github.com/nasa/cFE/pull/2019> and <https://github.com/nasa/cFS/pull/410>
 
 ### Development Build: v7.0.0-rc4+dev39
 

@@ -4519,7 +4519,7 @@ void TestAPI(void)
 
     /* Hit error case for NULL TaskRecPtr */
     ES_ResetUnitTest();
-    UT_SetDeferredRetcode(UT_KEY(OS_TaskGetId), 1, OS_OBJECT_ID_UNDEFINED);
+    UT_SetDeferredRetcode(UT_KEY(OS_TaskGetId), 1, OS_ObjectIdToInteger(OS_OBJECT_ID_UNDEFINED));
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_ES_ERR_RESOURCEID_NOT_VALID);
 }
 
@@ -4669,6 +4669,8 @@ void TestCDS()
     uint8                BlockData[ES_UT_CDS_BLOCK_SIZE];
 
     UtPrintf("Begin Test CDS");
+
+    memset(BlockData, 0, sizeof(BlockData));
 
     /* Test init with a mutex create failure */
     UT_SetDeferredRetcode(UT_KEY(OS_MutSemCreate), 1, OS_ERROR);
