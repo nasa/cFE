@@ -434,10 +434,8 @@ typedef uint32 CFE_ES_MemAddress_t;
  */
 typedef struct CFE_ES_MemAddOff
 {
-    CFE_ES_MemAddress_t Address;
-
-    CFE_ES_MemOffset_t Size;
-
+    CFE_ES_MemAddress_t Address; /**< \brief Code section address */
+    CFE_ES_MemOffset_t  Size;    /**< \brief Code section size */
 } CFE_ES_MemAddOff_t;
 
 /*
@@ -468,16 +466,13 @@ typedef struct CFE_ES_AppInfo
     char FileName[CFE_MISSION_MAX_PATH_LEN];  /**< \cfetlmmnemonic \ES_APPFILENAME
                                                    \brief The Filename of the file containing the Application */
 
-    CFE_ES_MemOffset_t StackSize; /**< \cfetlmmnemonic \ES_STACKSIZE
-                                       \brief The Stack Size of the Application */
-    uint32 AddressesAreValid;     /**< \cfetlmmnemonic \ES_ADDRVALID
-                                       \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
-    CFE_ES_MemAddOff_t Code;
-
-    CFE_ES_MemAddOff_t Data;
-
-    CFE_ES_MemAddOff_t BSS;
-
+    CFE_ES_MemOffset_t StackSize;                  /**< \cfetlmmnemonic \ES_STACKSIZE
+                                                        \brief The Stack Size of the Application */
+    uint32 AddressesAreValid;                      /**< \cfetlmmnemonic \ES_ADDRVALID
+                                                        \brief Indicates that the Code, Data, and BSS addresses/sizes are valid */
+    CFE_ES_MemAddOff_t  Code;                      /**< \brief code section address/size structure */
+    CFE_ES_MemAddOff_t  Data;                      /**< \brief Data section address/size structure */
+    CFE_ES_MemAddOff_t  BSS;                       /**< \brief BSS section address/size structure */
     CFE_ES_MemAddress_t StartAddress;              /**< \cfetlmmnemonic \ES_STARTADDR
                                                         \brief The Start Address of the Application */
     CFE_ES_ExceptionAction_Enum_t ExceptionAction; /**< \cfetlmmnemonic \ES_EXCEPTNACTN
