@@ -2,12 +2,21 @@ name: "CodeQL Analysis"
 
 on:
   push:
+    paths-ignore: 
+    - '**/*.md'
+    - '**/*.txt'
+    - '**/*.dox'
+
   pull_request:
-  
+    paths-ignore: 
+    - '**/*.md'
+    - '**/*.txt'
+    - '**/*.dox'
+
 jobs:
   codeql:
-    name: CodeQL Analysis
-    uses: nasa/cFS/.github/workflows/codeql-build.yml@main
+    uses: nasa/cFS/.github/workflows/codeql-reusable.yml@main
     with: 
-      make-prep: 'make prep'
-      make: 'make -C build/native/default_cpu1 core_api core_private es evs fs msg resourceid sb sbr tbl time'
+      component-path: cfe
+      make: make -j8
+      test: true
