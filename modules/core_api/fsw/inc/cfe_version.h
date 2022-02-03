@@ -28,7 +28,7 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER   60           /**< @brief Development: Number of development commits since baseline */
+#define CFE_BUILD_NUMBER   70           /**< @brief Development: Number of development commits since baseline */
 #define CFE_BUILD_BASELINE "v7.0.0-rc4" /**< @brief Development: Reference git tag for build number */
 
 /* Version Macro Definitions updated for official releases only */
