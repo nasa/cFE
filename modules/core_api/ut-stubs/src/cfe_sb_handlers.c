@@ -398,12 +398,19 @@ void UT_DefaultHandler_CFE_SB_GetUserDataLength(void *UserObj, UT_EntryKey_t Fun
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_SB_IsValidMsgId(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-    int32 status;
-    bool  return_value;
+    int32          status;
+    bool           return_value;
+    CFE_SB_MsgId_t MsgId = UT_Hook_GetArgValueByName(Context, "MsgId", CFE_SB_MsgId_t);
 
-    UT_Stub_GetInt32StatusCode(Context, &status);
-
-    return_value = status;
+    if (UT_Stub_GetInt32StatusCode(Context, &status))
+    {
+        return_value = status;
+    }
+    else
+    {
+        /* The only invalid value UT's should be using is CFE_SB_INVALID_MSG_ID */
+        return_value = !CFE_SB_MsgId_Equal(MsgId, CFE_SB_INVALID_MSG_ID);
+    }
 
     UT_Stub_SetReturnValue(FuncKey, return_value);
 }
