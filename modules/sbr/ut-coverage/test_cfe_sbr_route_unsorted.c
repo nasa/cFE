@@ -51,8 +51,8 @@ void Test_SBR_Route_Unsort_General(void)
     CFE_SBR_Init();
 
     UtPrintf("Invalid msg checks");
-    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_ValueToMsgId(0), NULL)));
-    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_ValueToMsgId(0), &collisions)));
+    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_INVALID_MSG_ID, NULL)));
+    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_AddRoute(CFE_SB_INVALID_MSG_ID, &collisions)));
     UtAssert_INT32_EQ(collisions, 0);
 
     /*
@@ -159,7 +159,7 @@ void Test_SBR_Route_Unsort_GetSet(void)
     UtAssert_INT32_EQ(count, 0);
 
     UtPrintf("Add routes and initialize values for testing");
-    msgid[0] = CFE_SB_ValueToMsgId(0);
+    msgid[0] = CFE_SB_INVALID_MSG_ID;
     msgid[1] = CFE_SB_ValueToMsgId(1);
     msgid[2] = CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID);
 

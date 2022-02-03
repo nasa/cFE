@@ -54,8 +54,8 @@ void Test_MSG_Init(void)
     bool                       is_v1;
 
     UtPrintf("Bad parameter tests, Null pointer, invalid size, invalid msgid");
-    UtAssert_INT32_EQ(CFE_MSG_Init(NULL, CFE_SB_ValueToMsgId(0), sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
-    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(0), 0), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(NULL, CFE_SB_INVALID_MSG_ID, sizeof(cmd)), CFE_MSG_BAD_ARGUMENT);
+    UtAssert_INT32_EQ(CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_INVALID_MSG_ID, 0), CFE_MSG_BAD_ARGUMENT);
     UtAssert_INT32_EQ(
         CFE_MSG_Init(CFE_MSG_PTR(cmd), CFE_SB_ValueToMsgId(CFE_PLATFORM_SB_HIGHEST_VALID_MSGID + 1), sizeof(cmd)),
         CFE_MSG_BAD_ARGUMENT);
