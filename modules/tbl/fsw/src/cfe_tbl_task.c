@@ -245,7 +245,7 @@ void CFE_TBL_InitData(void)
                  sizeof(CFE_TBL_Global.TblRegPacket));
 
     /* Message ID is set when sent, so OK as 0 here */
-    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), CFE_SB_ValueToMsgId(0),
+    CFE_MSG_Init(CFE_MSG_PTR(CFE_TBL_Global.NotifyMsg.CommandHeader), CFE_SB_INVALID_MSG_ID,
                  sizeof(CFE_TBL_Global.NotifyMsg));
 }
 

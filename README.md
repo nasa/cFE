@@ -10,6 +10,14 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev70
+
+- Improve CFE_SB_IsValidMsgId handler
+- Update CodeQL workflow
+- Replace CFE_SB_ValueToMsgId(0) with CFE_SB_INVALID_MSG_ID
+- See <https://github.com/nasa/cFE/pull/2043> and <https://github.com/nasa/cFS/pull/414>
+
+
 ### Development Build: v7.0.0-rc4+dev60
 
 - Add CFE_ES_AppInfo_t element documentation

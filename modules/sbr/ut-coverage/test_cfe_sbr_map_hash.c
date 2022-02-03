@@ -67,8 +67,8 @@ void Test_SBR_Map_Hash(void)
     uint32              collisions;
 
     UtPrintf("Invalid msg checks");
-    UtAssert_INT32_EQ(CFE_SBR_SetRouteId(CFE_SB_ValueToMsgId(0), CFE_SBR_ValueToRouteId(0)), 0);
-    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_ValueToMsgId(0))));
+    UtAssert_INT32_EQ(CFE_SBR_SetRouteId(CFE_SB_INVALID_MSG_ID, CFE_SBR_ValueToRouteId(0)), 0);
+    UtAssert_BOOL_FALSE(CFE_SBR_IsValidRouteId(CFE_SBR_GetRouteId(CFE_SB_INVALID_MSG_ID)));
 
     UtPrintf("Initialize routing and map");
     CFE_SBR_Init();
@@ -102,7 +102,7 @@ void Test_SBR_Map_Hash(void)
 
     /* Note AddRoute required for hash logic to work since it depends on MsgId in routing table */
     UtPrintf("Add routes and check with a rollover and a skip");
-    msgid[0]   = CFE_SB_ValueToMsgId(0);
+    msgid[0]   = CFE_SB_INVALID_MSG_ID;
     msgid[1]   = Test_SBR_Unhash(0xFFFFFFFF);
     msgid[2]   = Test_SBR_Unhash(0x7FFFFFFF);
     routeid[0] = CFE_SBR_AddRoute(msgid[0], &collisions);

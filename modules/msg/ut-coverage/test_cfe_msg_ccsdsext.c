@@ -61,7 +61,7 @@ void Test_MSG_Init_Ext(void)
 
     /* Get msgid version by checking if msgid sets "has secondary" field*/
     memset(&msg, 0xFF, sizeof(msg));
-    CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, CFE_SB_ValueToMsgId(0)));
+    CFE_UtAssert_SUCCESS(CFE_MSG_SetMsgId(&msg, CFE_SB_INVALID_MSG_ID));
     CFE_UtAssert_SUCCESS(CFE_MSG_GetHasSecondaryHeader(&msg, &hassec));
     is_v1 = !hassec;
 
