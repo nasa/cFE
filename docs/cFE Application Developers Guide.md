@@ -3391,7 +3391,7 @@ seconds past the epoch time.
 
 The drawback to allowing rollovers is that this adds an interesting
 dilemma to comparing two absolute times. Going back to our analog wall
-clock analogy, let us assume we wish to compute determine whether 9:00
+clock analogy, let us assume we wish to determine whether 9:00
 is before or after 2:00. Since the clock is allowed to roll over, which
 is first? As shown below, 9:00 is either 5 hours before 2:00 or it is 7
 hours later.
