@@ -280,10 +280,6 @@ function(prepare)
   string(CONCAT DETAILDESIGN_DOXYFILE_USER_CONTENT ${DETAILDESIGN_DOXYFILE_USER_CONTENT})
   string(CONCAT TGTSYSTEM_DOXYFILE_USER_CONTENT ${TGTSYSTEM_DOXYFILE_USER_CONTENT})
 
-  configure_file("${CFE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
-    "${CMAKE_BINARY_DIR}/docs/cfe-common.doxyfile"
-    @ONLY)
-
   # Generate an "empty" osconfig.h file for doxygen purposes
   # this does not have the actual user-defined values, but will
   # have the documentation associated with each macro definition.
@@ -306,6 +302,10 @@ function(prepare)
   )
 
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}")
+
+  configure_file("${CFE_SOURCE_DIR}/cmake/cfe-common.doxyfile.in"
+    "${CMAKE_BINARY_DIR}/docs/cfe-common.doxyfile"
+    @ONLY)
 
   file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/docs/detaildesign")
   configure_file("${CFE_SOURCE_DIR}/cmake/mission-detaildesign.doxyfile.in"

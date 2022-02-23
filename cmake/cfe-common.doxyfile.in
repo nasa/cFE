@@ -1,19 +1,9 @@
 #---------------------------------------------------------------------------
-# Project related configuration options, shared for all cFE doxygen outputs
+# CFE common setup for including in stand alone or mission documentation
 #---------------------------------------------------------------------------
-@INCLUDE_PATH          = @MISSION_SOURCE_DIR@
-ABBREVIATE_BRIEF       = "The $name class " \
-                         "The $name widget " \
-                         "The $name file " \
-                         is \
-                         provides \
-                         specifies \
-                         contains \
-                         represents \
-                         a \
-                         an \
-                         the
-TAB_SIZE               = 8
+
+PREDEFINED            += @CFEDOC_PREDEFINED@
+
 ALIASES               += "cfeescfg=\xrefitem cfeescfg \"Purpose\" \"cFE Executive Services Configuration Parameters\" " \
                          "cfeevscfg=\xrefitem cfeevscfg \"Purpose\" \"cFE Event Services Configuration Parameters\" " \
                          "cfetblcfg=\xrefitem cfetblcfg \"Purpose\" \"cFE Table Services Configuration Parameters\" " \
@@ -34,33 +24,11 @@ ALIASES               += "cfeescfg=\xrefitem cfeescfg \"Purpose\" \"cFE Executiv
                          "cfecmdmnemonic=\xrefitem cfecmdmnems \"Command Mnemonic(s)\" \"cFE Command Mnemonic Cross Reference\" " \
                          "cfetlmmnemonic=\xrefitem cfetlmmnems \"Telemetry Mnemonic(s)\" \"cFE Telemetry Mnemonic Cross Reference\" "
 
-ALIASES               +=  nonnull="(must not be null)"
-ALIASES               +=  nonzero="(must not be zero)"
-ALIASES               +=  covtest="(return value only verified in coverage test)"
-
-OPTIMIZE_OUTPUT_FOR_C  = YES
-#---------------------------------------------------------------------------
-# Build related configuration options
-#---------------------------------------------------------------------------
-EXTRACT_ALL            = YES
-EXTRACT_PRIVATE        = YES
-EXTRACT_STATIC         = YES
-CASE_SENSE_NAMES       = NO
-GENERATE_TODOLIST      = NO
-GENERATE_BUGLIST       = YES
-GENERATE_DEPRECATEDLIST= YES
-#---------------------------------------------------------------------------
-# configuration options related to warning and progress messages
-#---------------------------------------------------------------------------
-WARN_NO_PARAMDOC       = YES
-#---------------------------------------------------------------------------
-# configuration options related to the input files
-#---------------------------------------------------------------------------
-STRIP_FROM_PATH        = @MISSION_SOURCE_DIR@
-
 # Always include a standard set of CFE documentation in the input set
-# This is applicable to both users guide and detail design outputs
 IMAGE_PATH            += @MISSION_SOURCE_DIR@/cfe/docs/src
+
+# Front documentation material
+INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_frontpage.dox
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_glossary.dox
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfs_versions.dox
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_api.dox
@@ -71,55 +39,13 @@ INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_tbl.dox
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_time.dox
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/cfe_xref.dox
 
-FILE_PATTERNS          = *.c *.cpp *.cc *.C *.h *.hh *.hpp *.H *.dox *.md
-RECURSIVE              = YES
-EXAMPLE_PATTERNS       = *
+# Public headers
+INPUT                 += @MISSION_USERGUIDE_HEADERFILES@
 
-# Exclude coverage tests, stubs and associated framework from the documentation
-EXCLUDE_PATTERNS       += "*/ut-stubs/*"
-EXCLUDE_PATTERNS       += "*/ut-coverage/*"
-EXCLUDE_PATTERNS       += "*/unit-test*/*"
+# Strip mission from path
+STRIP_FROM_PATH       += @MISSION_SOURCE_DIR@
 
-# Exclude contributing guides and readme's since they stand alone as repo documentation
-EXCLUDE_PATTERNS       += "*/CONTRIBUTING.md"
-EXCLUDE_PATTERNS       += "*/README.md"
-
-#---------------------------------------------------------------------------
-# configuration options related to source browsing
-#---------------------------------------------------------------------------
-SOURCE_BROWSER         = YES
-REFERENCED_BY_RELATION = YES
-REFERENCES_RELATION    = YES
-#---------------------------------------------------------------------------
-# configuration options related to the LaTeX output
-#---------------------------------------------------------------------------
-GENERATE_LATEX         = NO
-LATEX_CMD_NAME         = latex
-COMPACT_LATEX          = YES
-PAPER_TYPE             = letter
-#---------------------------------------------------------------------------
-# configuration options related to the RTF output
-#---------------------------------------------------------------------------
-COMPACT_RTF            = YES
-#---------------------------------------------------------------------------
-# Configuration options related to the dot tool
-#---------------------------------------------------------------------------
-CLASS_DIAGRAMS         = NO
-HAVE_DOT               = YES
-CLASS_GRAPH            = NO
-COLLABORATION_GRAPH    = NO
-INCLUDE_GRAPH          = NO
-INCLUDED_BY_GRAPH      = NO
-CALL_GRAPH             = YES
-GRAPHICAL_HIERARCHY    = NO
-MAX_DOT_GRAPH_DEPTH    = 1000
-#---------------------------------------------------------------------------
-# Configuration::additions related to the search engine
-#---------------------------------------------------------------------------
-SEARCHENGINE           = NO
-#---------------------------------------------------------------------------
 # CFE mnemonic mappings
-#---------------------------------------------------------------------------
 @INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_es_cmd_mnem_map
 @INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_es_tlm_mnem_map
 @INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_tbl_cmd_mnem_map
