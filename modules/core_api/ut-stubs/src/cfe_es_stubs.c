@@ -31,6 +31,7 @@
 
 void UT_DefaultHandler_CFE_ES_AppID_ToIndex(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_ES_CopyToCDS(void *, UT_EntryKey_t, const UT_StubContext_t *);
+void UT_DefaultHandler_CFE_ES_CreateChildTask(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_ES_ExitApp(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_ES_GetAppID(void *, UT_EntryKey_t, const UT_StubContext_t *);
 void UT_DefaultHandler_CFE_ES_GetAppIDByName(void *, UT_EntryKey_t, const UT_StubContext_t *);
@@ -146,7 +147,7 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
     UT_GenStub_AddParam(CFE_ES_CreateChildTask, CFE_ES_TaskPriority_Atom_t, Priority);
     UT_GenStub_AddParam(CFE_ES_CreateChildTask, uint32, Flags);
 
-    UT_GenStub_Execute(CFE_ES_CreateChildTask, Basic, NULL);
+    UT_GenStub_Execute(CFE_ES_CreateChildTask, Basic, UT_DefaultHandler_CFE_ES_CreateChildTask);
 
     return UT_GenStub_GetReturnValue(CFE_ES_CreateChildTask, CFE_Status_t);
 }
