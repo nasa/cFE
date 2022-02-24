@@ -19,7 +19,7 @@
 */
 
 /**
- * \file target_config.c
+ * \file
  *
  *  Created on: Dec 3, 2013
  *  Created by: joseph.p.hickey@nasa.gov
