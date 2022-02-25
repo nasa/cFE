@@ -10,6 +10,14 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev80
+
+- Missing SB include for v2 msgid
+- Resolve doxygen doc warnings and enforce in CI
+- Remove explicit filename doxygen comments
+- Add CFE_ES_CreateChildTask default handler
+- See <https://github.com/nasa/cFE/pull/2061> and <https://github.com/nasa/cFS/pull/432>
+
 ### Development Build: v7.0.0-rc4+dev70
 
 - Improve CFE_SB_IsValidMsgId handler

@@ -40,6 +40,7 @@
 #include "cfe_msg.h"
 #include "cfe_msg_priv.h"
 #include "cfe_error.h"
+#include "cfe_sb.h"
 #include "cfe_platform_cfg.h"
 
 /* cFS MsgId definitions */
