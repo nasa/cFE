@@ -693,7 +693,7 @@ int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **
  * \note Assumes destination pointer is valid
  *
  * \param[in] RouteId The route ID to add destination node to
- * \param[in] DestPtr Pointer to the destination to add
+ * \param[in] NewNode Pointer to the destination to add
  */
 int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode);
 
@@ -705,8 +705,8 @@ int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNo
  *
  * \note Assumes destination pointer is valid and in route
  *
- * \param[in] RouteId The route ID to remove destination node from
- * \param[in] DestPtr Pointer to the destination to remove
+ * \param[in] RouteId      The route ID to remove destination node from
+ * \param[in] NodeToRemove Pointer to the destination to remove
  */
 void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NodeToRemove);
 

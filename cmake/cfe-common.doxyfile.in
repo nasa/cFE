@@ -80,6 +80,10 @@ EXCLUDE_PATTERNS       += "*/ut-stubs/*"
 EXCLUDE_PATTERNS       += "*/ut-coverage/*"
 EXCLUDE_PATTERNS       += "*/unit-test*/*"
 
+# Exclude contributing guides and readme's since they stand alone as repo documentation
+EXCLUDE_PATTERNS       += "*/CONTRIBUTING.md"
+EXCLUDE_PATTERNS       += "*/README.md"
+
 #---------------------------------------------------------------------------
 # configuration options related to source browsing
 #---------------------------------------------------------------------------
