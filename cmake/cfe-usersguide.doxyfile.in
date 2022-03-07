@@ -2,26 +2,20 @@
 # Doxygen Configuration options to generate the "cFE Users Guide"
 #---------------------------------------------------------------------------
 
-# Start with the main page so document ordering is established
-INPUT                 += @MISSION_SOURCE_DIR@/cfe/docs/src/main.dox
+# Allow overrides
+@INCLUDE_PATH          = @MISSION_SOURCE_DIR@
 
-# Common definitions, some of which are extended or overridden here.
+# Common configuration and default settings
 @INCLUDE               = @MISSION_BINARY_DIR@/docs/cfe-common.doxyfile
+@INCLUDE               = @MISSION_SOURCE_DIR@/osal/docs/src/default-settings.doxyfile
+
+# Document specific settings
 PROJECT_NAME           = "Core Flight Executive Users Guide"
 OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/docs/users_guide
 WARN_LOGFILE           = @CMAKE_BINARY_DIR@/docs/cfe-usersguide-warnings.log
-GENERATE_LATEX         = YES
 
 # For purposes of the user guide, reference the "stock" mission configuration
 # Although missions may override these files, for the users guide we are mainly
 # interested in the documentation of those items.
 STRIP_FROM_PATH       += @MISSION_SOURCE_DIR@/cfe/cmake/sample_defs
 INPUT                 += @MISSION_SOURCE_DIR@/cfe/cmake/sample_defs
-
-PREDEFINED            += @USERGUIDE_PREDEFINED@
-
-# Bring in the cFE header files for the documentation of the various API calls
-INPUT                 += @MISSION_USERGUIDE_HEADERFILES@
-
-# Resolve references
-INPUT                 += @MISSION_SOURCE_DIR@/psp/fsw/inc

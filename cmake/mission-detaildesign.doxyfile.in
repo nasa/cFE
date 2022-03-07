@@ -1,19 +1,35 @@
 #---------------------------------------------------------------------------
-# Doxygen options to generate the complete mission documentation
+# Sample doxygen setup for generating mission documentation
 #---------------------------------------------------------------------------
 
-# Start with the common definitions, some of which are extended or overridden here.
+# Allow overrides
+@INCLUDE_PATH          = @MISSION_SOURCE_DIR@
+
+# Common configuration and default settings
 @INCLUDE               = @MISSION_BINARY_DIR@/docs/cfe-common.doxyfile
+@INCLUDE               = @MISSION_SOURCE_DIR@/osal/docs/src/default-settings.doxyfile
+
+# Example detailed design setup
 PROJECT_NAME           = "@MISSION_NAME@"
 PROJECT_BRIEF          = "Core Flight System project built using \"@MISSIONCONFIG@\" configuration"
 OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/docs/detaildesign
 WARN_LOGFILE           = @CMAKE_BINARY_DIR@/docs/detaildesign-warnings.log
 
+# Include mission defs directory
 INPUT                 += @MISSION_DEFS@
 STRIP_FROM_PATH       += @MISSION_DEFS@
 
-#---------------------------------------------------------------------------
 # The user content doxyfile contains paths to the mission-specific applications
-#---------------------------------------------------------------------------
 @DETAILDESIGN_DOXYFILE_USER_CONTENT@
 @TGTSYSTEM_DOXYFILE_USER_CONTENT@
+
+# Exclude coverage tests, stubs and associated framework from the documentation
+EXCLUDE_PATTERNS       += "*/ut-stubs/*"
+EXCLUDE_PATTERNS       += "*/ut-coverage/*"
+EXCLUDE_PATTERNS       += "*/unit-test*/*"
+
+# Exclude stand alone repo documentation
+EXCLUDE_PATTERNS       += "*/CODE_OF_CONDUCT.md"
+EXCLUDE_PATTERNS       += "*/CONTRIBUTING.md"
+EXCLUDE_PATTERNS       += "*/README.md"
+EXCLUDE_PATTERNS       += "*/SECURITY.md"
