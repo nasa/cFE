@@ -34,15 +34,15 @@
 /* Version Macro Definitions updated for official releases only */
 #define CFE_MAJOR_VERSION 6 /**< @brief Major release version (Former for Revision == 99) */
 #define CFE_MINOR_VERSION 7 /**< @brief Minor release version (Former for Revision == 99) */
-#define CFE_REVISION      0 /*!< @brief ONLY APPLY for OFFICIAL releases. Revision number.      */
+#define CFE_REVISION \
+    99 /*!< @brief * Set to 0 on OFFICIAL releases, and set to 99 on development versions. Revision number.      */
 
 /*!
  * @brief Mission revision.
  *
- * Set to 0 on OFFICIAL releases, and set to 255 (0xFF) on development versions.
- * Values 1-254 are reserved for mission use to denote patches/customizations as needed.
+ * Reserved for mission use to denote patches/customizations as needed.
  */
-#define CFE_MISSION_REV 0xFF
+#define CFE_MISSION_REV 0
 
 #define CFE_STR_HELPER(x) #x                /**< @brief Convert argument to string */
 #define CFE_STR(x)        CFE_STR_HELPER(x) /**< @brief Expand macro before conversion */

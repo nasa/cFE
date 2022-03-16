@@ -10,6 +10,12 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev87
+
+- Revert development version identifier to 99 for revision number
+- Use osal-common.doxygen to resolve OSAL Doxygen refs
+- Refactor doxygen mainpage into frontpage
+- See <https://github.com/nasa/cFE/pull/2066> and <https://github.com/nasa/cFS/pull/443>
 ### Development Build: v7.0.0-rc4+dev80
 
 - Missing SB include for v2 msgid
