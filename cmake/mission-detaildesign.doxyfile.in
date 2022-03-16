@@ -7,7 +7,6 @@
 
 # Common configuration and default settings
 @INCLUDE               = @MISSION_BINARY_DIR@/docs/cfe-common.doxyfile
-@INCLUDE               = @MISSION_SOURCE_DIR@/osal/docs/src/default-settings.doxyfile
 
 # Example detailed design setup
 PROJECT_NAME           = "@MISSION_NAME@"

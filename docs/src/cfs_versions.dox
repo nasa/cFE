@@ -22,7 +22,7 @@
   bug fixes or major documentation updates.
   The Revision number may also be updated if there are other changes contained within a release that make
   it desirable for applications to distinguish one release from another.
-  WARNING: The revision number is set to the number 99 in development builds. To distinguish between development
+  WARNING: The revision number is set to the number 0xFF in development builds. To distinguish between development
   builds refer to the BUILD_NUMBER and BUILD_BASELINE detailed in the section "Identifying Development Builds".
 
   The Mission Version number is set to zero in all official releases, and is reserved for the mission use.
