@@ -290,7 +290,6 @@ function(prepare)
   # NOTE: the userguide is built against the headers of the default core apps. Even if
   # an alternate version of the module is in use, it should adhere to the same interface.
   set(SUBMODULE_HEADER_PATHS
-    "${osal_MISSION_DIR}/src/os/inc/*.h"
     "${psp_MISSION_DIR}/psp/fsw/inc/*.h"
   )
   foreach(MODULE core_api ${MISSION_CORE_MODULES})
@@ -298,7 +297,6 @@ function(prepare)
   endforeach()
   file(GLOB MISSION_USERGUIDE_HEADERFILES
     ${SUBMODULE_HEADER_PATHS}
-    "${CMAKE_BINARY_DIR}/docs/osconfig-example.h"
   )
 
   string(REPLACE ";" " \\\n" MISSION_USERGUIDE_HEADERFILES "${MISSION_USERGUIDE_HEADERFILES}")

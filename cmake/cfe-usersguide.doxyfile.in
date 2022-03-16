@@ -5,14 +5,16 @@
 # Allow overrides
 @INCLUDE_PATH          = @MISSION_SOURCE_DIR@
 
-# Common configuration and default settings
+# Common setup
 @INCLUDE               = @MISSION_BINARY_DIR@/docs/cfe-common.doxyfile
-@INCLUDE               = @MISSION_SOURCE_DIR@/osal/docs/src/default-settings.doxyfile
+
+# Include osal to resolve references and provide default settings
+@INCLUDE               = @MISSION_BINARY_DIR@/docs/osal-common.doxyfile
 
 # Document specific settings
 PROJECT_NAME           = "Core Flight Executive Users Guide"
 OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/docs/users_guide
-WARN_LOGFILE           = @CMAKE_BINARY_DIR@/docs/cfe-usersguide-warnings.log
+WARN_LOGFILE           = @CMAKE_BINARY_DIR@/docs/users_guide/cfe-usersguide-warnings.log
 
 # For purposes of the user guide, reference the "stock" mission configuration
 # Although missions may override these files, for the users guide we are mainly
