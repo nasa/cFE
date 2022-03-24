@@ -22,10 +22,10 @@
   bug fixes or major documentation updates.
   The Revision number may also be updated if there are other changes contained within a release that make
   it desirable for applications to distinguish one release from another.
-  WARNING: The revision number is set to the number 0xFF in development builds. To distinguish between development
+  WARNING: The revision number is set to the number 99 in development builds. To distinguish between development
   builds refer to the BUILD_NUMBER and BUILD_BASELINE detailed in the section "Identifying Development Builds".
 
-  The Mission Version number is set to zero in all official releases, and is reserved for the mission use.
+  The Mission Rev Version number is set to zero in all official releases, and is reserved for the mission use.
 
   <H2> How and Where Defined </H2>
 
@@ -33,8 +33,7 @@
   API definition; these macros must expand to simple integer values, so that they can be used in simple if
   directives by the macro preprocessor.
 
-  Note the Mission Version number is provided for missions to be able to identify unique changes they
-  have made to the released software (via clone and own).
+  Note the Mission Rev number is provided for missions to be able to identify unique changes they have made to the released software (via clone and own). Specicifally, the values 1-254 are reserved for mission use to denote patches/customizations while 0 and 0xFF are reserved for cFS open-source development use (pending resolution of nasa/cFS#440).
 
   <H2> Identifying Development Builds </H2>
 
@@ -42,7 +41,7 @@
 
   The BUILD_NUMBER reflects the number of commits since the BUILD_BASELINE, a baseline git tag, for each particular
   component. The BUILD_NUMBER integer monotonically increases for a given baseline. The BUILD_BASELINE
-  identifies the current development cycle and is a git tag with format vX.Y.Z. The Codename used in the version
+  identifies the current development cycle and is a git tag with format vMAJOR.MINOR.REVISION. The Codename used in the version
   string also refers to the current development cycle. When a new baseline tag and codename are created, the
   BUILD_NUMBER resets to zero and begins increasing from a new baseline.
 
@@ -53,15 +52,15 @@
   name; for example, osal uses OS_, psp uses CFE_PSP_IMPL, and so on.
 
   Suggested pattern for development:
-  - XXX_SRC_VERSION: REFERENCE_GIT_TAG"+dev"BUILD_NUMBER
+  - CFSCOMPONENT_SRC_VERSION: REFERENCE_GIT_TAG"+dev"BUILD_NUMBER
     - Example: "v6.8.0-rc1+dev123"
-  - XXX_VERSION_STRING: "XXX DEVELOPMENT BUILD "XXX_SRC_VERSION" (Codename: YYY), Last Official Release: ZZZ"
+  - CFSCOMPONENT_VERSION_STRING: "CFSCOMPONENT DEVELOPMENT BUILD "CFSCOMPONENT_SRC_VERSION" (Codename: CFSCONSTELLATION), Last Official Release: MAJOR.MINOR.REVISION"
     - Example: "cFE DEVELOPMENT BUILD v6.8.0-rc1+dev123 (Codename: Bootes), Last Official Release: cfe v6.7.0"
 
   Suggested pattern for official releases:
-  - XXX_SRC_VERSION: OFFICIAL_GIT_TAG
+  - CFSCOMPONENT_SRC_VERSION: OFFICIAL_GIT_TAG
     - Example: "v7.0.0"
-  - XXX_VERSION_STRING: "XXX OFFICIAL RELEASE "XXX_SRC_VERSION" (Codename: YYY)"
+  - COMPONENT_VERSION_STRING: "CFSCOMPONENT OFFICIAL RELEASE "CFSCOMPONENT_SRC_VERSION" (Codename: CFSCONSTELLATION)"
     - Example: "cFE OFFICIAL RELEASE v7.0.0 (Codename: Caelum)"
 
 **/
