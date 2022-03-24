@@ -283,7 +283,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
             /*
             ** Send "time at the tone" command data packet...
             */
-            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CmdHeader.Msg, false);
+            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CommandHeader.Msg, false);
 
             /*
             ** Count of "time at the tone" commands sent with external data...
@@ -425,7 +425,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
             /*
             ** Send "time at the tone" command data packet...
             */
-            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CmdHeader.Msg, false);
+            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CommandHeader.Msg, false);
 
             /*
             ** Count of "time at the tone" commands sent with external data...
@@ -567,7 +567,7 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
             /*
             ** Send "time at the tone" command data packet...
             */
-            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CmdHeader.Msg, false);
+            CFE_SB_TransmitMsg(&CFE_TIME_Global.ToneDataCmd.CommandHeader.Msg, false);
 
             /*
             ** Count of "time at the tone" commands sent with external data...
