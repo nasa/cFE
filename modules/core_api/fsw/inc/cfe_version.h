@@ -26,21 +26,22 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER   80           /**< @brief Development: Number of development commits since baseline */
+#define CFE_BUILD_NUMBER   80 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
 #define CFE_BUILD_BASELINE "v7.0.0-rc4" /**< @brief Development: Reference git tag for build number */
 
-/* Version Macro Definitions updated for official releases only */
-#define CFE_MAJOR_VERSION 6 /**< @brief Major release version (Former for Revision == 99) */
-#define CFE_MINOR_VERSION 7 /**< @brief Minor release version (Former for Revision == 99) */
-#define CFE_REVISION \
-    99 /*!< @brief * Set to 0 on OFFICIAL releases, and set to 99 on development versions. Revision number.      */
+/* See \ref cfsversions for definitions */
+#define CFE_MAJOR_VERSION 6  /**< @brief Major version number */
+#define CFE_MINOR_VERSION 7  /**< @brief Minor version number */
+#define CFE_REVISION      99 /**< @brief Revision version number. Value of 99 indicates a development version.*/
 
 /*!
  * @brief Mission revision.
  *
- * Reserved for mission use to denote patches/customizations as needed.
+ * Values 1-254 are reserved for mission use to denote patches/customizations as needed. NOTE: Reserving 0 and 0xFF for
+ * cFS open-source development use (pending resolution of nasa/cFS#440)
+ *
  */
-#define CFE_MISSION_REV 0
+#define CFE_MISSION_REV 0xFF
 
 #define CFE_STR_HELPER(x) #x                /**< @brief Convert argument to string */
 #define CFE_STR(x)        CFE_STR_HELPER(x) /**< @brief Expand macro before conversion */
