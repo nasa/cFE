@@ -26,13 +26,13 @@
 #define CFE_VERSION_H
 
 /* Development Build Macro Definitions */
-#define CFE_BUILD_NUMBER   80 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
+#define CFE_BUILD_NUMBER   96 /**< @brief Development: Number of development git commits since CFE_BUILD_BASELINE */
 #define CFE_BUILD_BASELINE "v7.0.0-rc4" /**< @brief Development: Reference git tag for build number */
 
 /* See \ref cfsversions for definitions */
-#define CFE_MAJOR_VERSION 6  /**< @brief Major version number */
-#define CFE_MINOR_VERSION 7  /**< @brief Minor version number */
-#define CFE_REVISION      99 /**< @brief Revision version number. Value of 99 indicates a development version.*/
+#define CFE_MAJOR_VERSION 6  /*!< @brief Major version number */
+#define CFE_MINOR_VERSION 7  /*!< @brief Minor version number */
+#define CFE_REVISION      99 /*!< @brief Revision version number. Value of 99 indicates a development version.*/
 
 /*!
  * @brief Mission revision.

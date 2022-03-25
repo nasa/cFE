@@ -10,6 +10,13 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev94
+
+- Resolve build failure for time cfg 
+- Update Copyright Headers
+- Standardize version.h 
+- See <https://github.com/nasa/cfe/pull/2074> and <https://github.com/nasa/cFS/445>
+
 ### Development Build: v7.0.0-rc4+dev87
 
 - Revert development version identifier to 99 for revision number
