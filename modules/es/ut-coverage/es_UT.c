@@ -38,6 +38,7 @@
 */
 #include "es_UT.h"
 #include "target_config.h"
+#include "cfe_config.h"
 
 #define ES_UT_CDS_BLOCK_SIZE 16
 
@@ -1121,6 +1122,14 @@ static void ES_UT_ForEachObjectFail(void *UserObj, UT_EntryKey_t FuncKey, const 
     OS_OpenCreate(&id, NULL, 0, 0);
     UT_SetDeferredRetcode(UT_KEY(OS_close), 1, -1);
     (*callback_ptr)(id, callback_arg);
+}
+
+static void ES_UT_Config_IterateAll(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
+{
+    CFE_Config_Callback_t Callback = UT_Hook_GetArgValueByName(Context, "Callback", CFE_Config_Callback_t);
+
+    (*Callback)(NULL, CFE_CONFIGID_UNDEFINED, "Test");
+    (*Callback)(NULL, CFE_CONFIGID_UNDEFINED, "MOD_SRCVER_test");
 }
 
 void TestApps(void)
@@ -3498,11 +3507,15 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.NoArgsCmd), UT_TPID_CFE_ES_CMD_NOOP_CC);
     CFE_UtAssert_PRINTF("Error sending build info event");
 
-    /* Test CFE_ES_GenerateVersionEvents error when sending mission event */
+    /*
+     * Test CFE_ES_GenerateVersionEvents error when sending mission event and add hook
+     * to cover CFE_ES_ModSrcVerCallback
+     */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_CORE, CFE_ES_AppState_RUNNING, NULL, NULL, NULL);
     CFE_ES_Global.ResetDataPtr->ResetVars.ResetType = 1;
     UT_SetDeferredRetcode(UT_KEY(CFE_EVS_SendEvent), 3, CFE_EVS_INVALID_PARAMETER);
+    UT_SetHandlerFunction(UT_KEY(CFE_Config_IterateAll), ES_UT_Config_IterateAll, NULL);
     UtAssert_VOIDCALL(CFE_ES_TaskInit());
     CFE_UtAssert_PRINTF("Error sending mission version event");
 
