@@ -1,17 +1,13 @@
-name: "Build cFE Documentation"
+name: cFS Documentation and Guides
 
 on:
   push:
   pull_request:
 
-env:
-  SIMULATION: native
-  BUILDTYPE: debug
-
 jobs:
-
-  #Check for duplicate actions. Skips push actions if there is a matching or duplicate pull-request action. 
-  check-for-duplicates:
+  # Checks for duplicate actions. Skips push actions if there is a matching or
+  # duplicate pull-request action.
+  checks-for-duplicates:
     runs-on: ubuntu-latest
     # Map a step output to a job output
     outputs:
@@ -22,20 +18,15 @@ jobs:
         with:
           concurrent_skipping: 'same_content'
           skip_after_successful_duplicate: 'true'
-          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+          do_not_skip: '["push", "workflow_dispatch", "schedule"]'
 
-  build-docs:
-    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
-    needs: check-for-duplicates
-    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-18.04
-    timeout-minutes: 15
+  checkout-and-cache:
+    name: Custom checkout and cache for cFS documents
+    needs: checks-for-duplicates
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }}
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Install Dependencies
-        run: sudo apt-get install doxygen graphviz -y
-
-      # Check out the cfs bundle
       - name: Checkout bundle
         uses: actions/checkout@v2
         with:
@@ -47,102 +38,56 @@ jobs:
         with:
           path: cfe
 
-      - name: Check versions
-        run: git submodule
-
-      # Setup the build system
-      - name: Set up for build
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-          make prep
-
-      - name: Build Docs
-        run: |
-          make doc > make_doc_stdout.txt 2> make_doc_stderr.txt
-          mv build/docs/detaildesign-warnings.log detaildesign-warnings.log
-
-      # Upload documentation logs as artifacts
-      - name: Archive Documentation Build Logs
-        uses: actions/upload-artifact@v2
+      - name: Cache Source and Build
+        id: cache-src-bld
+        uses: actions/cache@v2
         with:
-          name: cFS Docs Artifacts
-          path: |
-            make_doc_stdout.txt
-            make_doc_stderr.txt
-            detaildesign-warnings.log
+          path: /home/runner/work/${{ github.event.repository.name }}/${{ github.event.repository.name }}/*
+          key: cfs-doc-${{ github.run_number }}
 
-      - name: Error Check
-        run: |
-          if [[ -s make_doc_stderr.txt ]]; then
-            cat make_doc_stderr.txt
-            exit -1
-          fi
+  build-cfe-usersguide:
+    needs: checkout-and-cache
+    name: Build and deploy cFS documents
+    uses: nasa/cFS/.github/workflows/build-deploy-doc.yml@main
+    with:
+      target: "[\"cfe-usersguide\"]"
+      cache-key: cfs-doc-${{ github.run_number }}
+      checkout: false
+      deploy: false
 
-      - name: Warning Check
-        run: |
-          if [[ -s detaildesign-warnings.log ]]; then
-            cat detaildesign-warnings.log
-            exit -1
-          fi
+  build-mission-doc:
+    needs: checkout-and-cache
+    name: Build and deploy cFS documents
+    #uses: nasa/cFS/.github/workflows/build-deploy-doc.yml
+    uses: skliper/cFS/.github/workflows/build-deploy-doc.yml@fix447-deploy_mission_doc
+    with:
+      target: "[\"mission-doc\"]"
+      cache-key: cfs-doc-${{ github.run_number }}
+      checkout: false
+      deploy: false
+      buildpdf: false # No need for mission pdf within cFE, done at bundle level
 
-  build-usersguide:
-    #Continue if check-for-duplicates found no duplicates. Always runs for pull-requests.
-    needs: check-for-duplicates
-    if: ${{ needs.check-for-duplicates.outputs.should_skip != 'true' }}
-    runs-on: ubuntu-18.04
-    timeout-minutes: 15
+  deploy-documentation:
+    needs: build-cfe-usersguide
+    if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
+    name: Deploy documentation to gh-pages
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Install Dependencies
-        run: sudo apt-get install doxygen graphviz -y
+      - uses: actions/checkout@v2
 
-      # Check out the cfs bundle
-      - name: Checkout bundle
-        uses: actions/checkout@v2
+      - uses: actions/download-artifact@v3
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Move pdfs to deployment directory
+        run: mkdir deploy; mv */*.pdf deploy
+
+      - name: Deploy to GitHub
+        uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
-          repository: nasa/cFS
-          submodules: true
-
-      - name: Checkout submodule
-        uses: actions/checkout@v2
-        with:
-          path: cfe
-
-      - name: Check versions
-        run: git submodule
-
-      # Setup the build system
-      - name: Set up for build
-        run: |
-          cp ./cfe/cmake/Makefile.sample Makefile
-          cp -r ./cfe/cmake/sample_defs sample_defs
-          make prep
-
-      - name: Build Usersguide
-        run: |
-          make usersguide > make_usersguide_stdout.txt 2> make_usersguide_stderr.txt
-          mv build/docs/users_guide/cfe-usersguide-warnings.log cfe-usersguide-warnings.log
-
-      - name: Archive Users Guide Build Logs
-        uses: actions/upload-artifact@v2
-        with:
-          name: Users Guide Artifacts
-          path: |
-            make_usersguide_stdout.txt
-            make_usersguide_stderr.txt
-            cfe-usersguide-warnings.log
-
-      - name: Error Check
-        run: |
-          if [[ -s make_usersguide_stderr.txt ]]; then
-            cat make_usersguide_stderr.txt
-            exit -1
-          fi
-
-      - name: Warning Check
-        run: |
-          if [[ -s cfe-usersguide-warnings.log ]]; then
-            cat cfe-usersguide-warnings.log
-            exit -1
-          fi
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: deploy
+          SINGLE_COMMIT: true
