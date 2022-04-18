@@ -3665,6 +3665,7 @@ void Test_ReceiveBuffer_InvalidPipeId(void)
 
     CFE_UtAssert_EVENTCOUNT(1);
     CFE_UtAssert_EVENTSENT(CFE_SB_BAD_PIPEID_EID);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 1);
     UT_ClearEventHistory();
 
     /*
@@ -3683,6 +3684,8 @@ void Test_ReceiveBuffer_InvalidPipeId(void)
     UT_SetHandlerFunction(UT_KEY(OS_QueueGet), SB_UT_PipeIdModifyHandler, PipeDscPtr);
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_POLL), CFE_SB_PIPE_RD_ERR);
     CFE_UtAssert_EVENTSENT(CFE_SB_BAD_PIPEID_EID);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 2);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 0);
     UT_SetHandlerFunction(UT_KEY(OS_QueueGet), NULL, NULL);
 
     /* restore the PipeID so it can be deleted */
@@ -3709,6 +3712,8 @@ void Test_ReceiveBuffer_InvalidTimeout(void)
     CFE_UtAssert_EVENTCOUNT(2);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_RCV_BAD_ARG_EID);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 1);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 0);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
@@ -3730,6 +3735,8 @@ void Test_ReceiveBuffer_Poll(void)
     CFE_UtAssert_EVENTCOUNT(1);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 0);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 0);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
@@ -3753,6 +3760,8 @@ void Test_ReceiveBuffer_Timeout(void)
     CFE_UtAssert_EVENTCOUNT(1);
 
     CFE_UtAssert_EVENTSENT(CFE_SB_PIPE_ADDED_EID);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 0);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 0);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
@@ -3782,6 +3791,8 @@ void Test_ReceiveBuffer_PipeReadError(void)
     UT_SetHandlerFunction(UT_KEY(OS_QueueGet), SB_UT_QueueGetHandler, NULL);
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER), CFE_SB_PIPE_RD_ERR);
     UT_SetHandlerFunction(UT_KEY(OS_QueueGet), NULL, NULL);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 0);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 3);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
@@ -3820,6 +3831,8 @@ void Test_ReceiveBuffer_PendForever(void)
     /* Ensure that calling a second time with no message clears the LastBuffer reference */
     UtAssert_INT32_EQ(CFE_SB_ReceiveBuffer(&SBBufPtr, PipeId, CFE_SB_PEND_FOREVER), CFE_SB_NO_MESSAGE);
     UtAssert_NULL(PipeDscPtr->LastBuffer);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.MsgReceiveErrorCounter, 0);
+    UtAssert_UINT8_EQ(CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter, 0);
 
     CFE_UtAssert_TEARDOWN(CFE_SB_DeletePipe(PipeId));
 
