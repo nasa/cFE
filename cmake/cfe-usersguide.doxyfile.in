@@ -13,8 +13,8 @@
 
 # Document specific settings
 PROJECT_NAME           = "Core Flight Executive Users Guide"
-OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/docs/users_guide
-WARN_LOGFILE           = @CMAKE_BINARY_DIR@/docs/users_guide/cfe-usersguide-warnings.log
+OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/docs/cfe-usersguide
+WARN_LOGFILE           = cfe-usersguide-warnings.log
 
 # For purposes of the user guide, reference the "stock" mission configuration
 # Although missions may override these files, for the users guide we are mainly

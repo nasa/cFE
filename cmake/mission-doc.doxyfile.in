@@ -8,11 +8,11 @@
 # Common configuration and default settings
 @INCLUDE               = @MISSION_BINARY_DIR@/docs/cfe-common.doxyfile
 
-# Example detailed design setup
+# Example mission doc design setup
 PROJECT_NAME           = "@MISSION_NAME@"
 PROJECT_BRIEF          = "Core Flight System project built using \"@MISSIONCONFIG@\" configuration"
-OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/docs/detaildesign
-WARN_LOGFILE           = @CMAKE_BINARY_DIR@/docs/detaildesign-warnings.log
+OUTPUT_DIRECTORY       = @CMAKE_BINARY_DIR@/docs/mission-doc
+WARN_LOGFILE           = mission-doc-warnings.log
 
 # Include mission defs directory
 INPUT                 += @MISSION_DEFS@
