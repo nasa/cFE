@@ -62,6 +62,7 @@ jobs:
       # Build the code
       - name: Build
         run: |
+          make -C build/native/default_cpu1/config
           make -C build/native/default_cpu1/core_api
           make -C build/native/default_cpu1/core_private
           make -C build/native/default_cpu1/es
@@ -78,6 +79,7 @@ jobs:
       - name: Test
         run: |
           lcov --capture --initial --directory build --output-file coverage_base.info
+          make -C build/native/default_cpu1/config test
           make -C build/native/default_cpu1/core_api test
           make -C build/native/default_cpu1/core_private test
           make -C build/native/default_cpu1/es test
@@ -98,8 +100,8 @@ jobs:
 
       - name: Confirm Minimum Coverage
         run: |
-          missed_branches=76
-          missed_lines=33
+          missed_branches=52
+          missed_lines=18
           branch_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep branches | grep -oP "[0-9]+[0-9]*")
           line_nums=$(grep -A 3 "Overall coverage rate" lcov_out.txt | grep lines | grep -oP "[0-9]+[0-9]*")
 

@@ -1988,8 +1988,8 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
         CFE_SB_DecrBufUseCnt(BufDscPtr);
     }
 
-    /* Before unlocking, check the PendingEventID and increment relevant error counter */
-    if (Status != CFE_SUCCESS)
+    /* Before unlocking, increment relevant error counter if needed */
+    if (Status != CFE_SUCCESS && Status != CFE_SB_NO_MESSAGE && Status != CFE_SB_TIME_OUT)
     {
         if (PendingEventID == CFE_SB_RCV_BAD_ARG_EID || PendingEventID == CFE_SB_BAD_PIPEID_EID)
         {
