@@ -10,6 +10,14 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev110
+
+- Only increment SB InternalErrorCounter on errors
+- Improve ES unit test coverage
+- Add config module to coverage enforcemnt    
+- Consistent doxygen flow/naming for generation and use reusable documentation generation workflow
+- Remove contributor license agreements
+- See <https://github.com/nasa/cfe/pull/2091> and <https://github.com/nasa/cFS/461>
 ### Development Build: v7.0.0-rc4+dev94
 
 - Resolve build failure for time cfg 
