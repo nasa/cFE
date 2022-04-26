@@ -34,7 +34,7 @@ SET(SDKHOSTBINDIR               "${RTEMS_TOOLS_PREFIX}/bin")
 set(TARGETPREFIX                "${CMAKE_SYSTEM_PROCESSOR}-rtems${CMAKE_SYSTEM_VERSION}-")
 set(RTEMS_BSP_C_FLAGS           "-march=i686 -mtune=i686 -fno-common")
 set(RTEMS_BSP_CXX_FLAGS         ${RTEMS_BSP_C_FLAGS})
-set(RTEMS_BSP_SPECS             "-specs bsp_specs")
+set(RTEMS_BSP_SPECS_FLAGS       "-specs bsp_specs")
 
 SET(CMAKE_C_COMPILER            "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}gcc")
 SET(CMAKE_CXX_COMPILER          "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}g++")
@@ -70,7 +70,7 @@ SET(OSAL_SYSTEM_OSTYPE                  rtems)
 # - Set to TRUE for platforms that expect the cFE core to to be dynamically
 #   loaded into an existing runtime image.
 # This is tied to the OSAL-BSP and PSP implementation so generally cannot
-# be switched on a single platform.
+# be switched on a specific OSAL/PSP platform without modifications.
 set(RTEMS_DYNAMIC_LOAD                  FALSE)
 
 # This define is deprecated and will be removed
