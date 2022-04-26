@@ -14,6 +14,9 @@ set(CMAKE_SYSTEM_NAME       RTEMS)
 set(CMAKE_SYSTEM_PROCESSOR  i386)
 set(CMAKE_SYSTEM_VERSION    5)
 
+# This is for version specific RTEMS ifdefs needed by the OSAL and PSP
+ADD_DEFINITIONS(-DOS_RTEMS_5)
+
 # The TOOLS and BSP are allowed to be installed in different locations.
 # If the README was followed they will both be installed under $HOME
 # By default it is assumed the BSP is installed to the same directory as the tools
@@ -31,7 +34,7 @@ SET(SDKHOSTBINDIR               "${RTEMS_TOOLS_PREFIX}/bin")
 set(TARGETPREFIX                "${CMAKE_SYSTEM_PROCESSOR}-rtems${CMAKE_SYSTEM_VERSION}-")
 set(RTEMS_BSP_C_FLAGS           "-march=i686 -mtune=i686 -fno-common")
 set(RTEMS_BSP_CXX_FLAGS         ${RTEMS_BSP_C_FLAGS})
-
+set(RTEMS_BSP_SPECS             "-specs bsp_specs")
 
 SET(CMAKE_C_COMPILER            "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}gcc")
 SET(CMAKE_CXX_COMPILER          "${RTEMS_TOOLS_PREFIX}/bin/${TARGETPREFIX}g++")
@@ -65,7 +68,16 @@ SET(CFE_SYSTEM_PSPNAME                  pc-rtems)
 SET(OSAL_SYSTEM_BSPTYPE                 pc-rtems)
 SET(OSAL_SYSTEM_OSTYPE                  rtems)
 
-# This is for RTEMS 5 specific ifdefs needed by the OSAL
+# RTEMS_DYNAMIC_LOAD definition:
+# - Set to FALSE for platforms that create a RTEMS executable and link it
+#   to the cFE core.
+# - Set to TRUE for platforms that expect the cFE core to to be dynamically
+#   loaded into an existing runtime image.
+# This is tied to the OSAL-BSP and PSP implementation so generally cannot
+# be switched on a single platform.
+set(RTEMS_DYNAMIC_LOAD                  FALSE)
+
+# This define is deprecated and will be removed
 ADD_DEFINITIONS(-D_RTEMS_5_)
 
 # Info regarding the RELOCADDR:
