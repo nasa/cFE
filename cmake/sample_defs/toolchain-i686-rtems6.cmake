@@ -12,7 +12,7 @@
 # Basic cross system configuration
 set(CMAKE_SYSTEM_NAME       RTEMS)
 set(CMAKE_SYSTEM_PROCESSOR  i386)
-set(CMAKE_SYSTEM_VERSION    5)
+set(CMAKE_SYSTEM_VERSION    6)
 
 # The RTEMS BSP that will be used for this build
 set(RTEMS_BSP               "pc686")
@@ -32,14 +32,14 @@ set(RTEMS_DYNAMIC_LOAD      FALSE)
 
 set(RTEMS_BSP_C_FLAGS       "-march=i686 -mtune=i686 -fno-common")
 set(RTEMS_BSP_CXX_FLAGS     ${RTEMS_BSP_C_FLAGS})
-set(RTEMS_BSP_SPECS_FLAGS   "-specs bsp_specs")
+set(RTEMS_BSP_SPECS_FLAGS   "")
 
 # Exception handling is very iffy.  These two options disable eh_frame creation.
 set(CMAKE_C_COMPILE_OPTIONS_PIC -fno-exceptions -fno-asynchronous-unwind-tables)
 
 # Link libraries needed for a RTEMS 5+ executable
 #  This was handled by the bsp_specs file in 4.11
-set(LINK_LIBRARIES              "-lrtemsdefaultconfig -lrtemsbsp -lrtemscpu")
+set(LINK_LIBRARIES          "-lrtemsdefaultconfig -lrtemsbsp -lrtemscpu")
 
 # Info regarding the RELOCADDR:
 #+--------------------------------------------------------------------------+
@@ -55,8 +55,6 @@ set(RTEMS_RELOCADDR 0x00100000)
 
 # This is for version specific RTEMS ifdefs needed by the OSAL and PSP
 ADD_DEFINITIONS(-DOS_${CMAKE_SYSTEM_NAME}_${CMAKE_SYSTEM_VERSION})
-# This define is deprecated and will be removed
-ADD_DEFINITIONS(-D_RTEMS_5_)
 
 #+---------------------------------------------------------------------------+ 
 #| Common RTEMS toolchain statements
