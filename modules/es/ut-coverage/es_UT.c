@@ -268,7 +268,7 @@ void ES_UT_SetupAppStartParams(CFE_ES_AppStartParams_t *Params, const char *File
 void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_t AppState, const char *AppName,
                             CFE_ES_AppRecord_t **OutAppRec, CFE_ES_TaskRecord_t **OutTaskRec)
 {
-    osal_id_t            UtOsalId;
+    osal_id_t            UtOsalId = OS_OBJECT_ID_UNDEFINED;
     CFE_ResourceId_t     UtTaskId;
     CFE_ResourceId_t     UtAppId;
     CFE_ES_AppRecord_t * LocalAppPtr;
@@ -326,7 +326,7 @@ void ES_UT_SetupSingleAppId(CFE_ES_AppType_Enum_t AppType, CFE_ES_AppState_Enum_
  */
 void ES_UT_SetupChildTaskId(const CFE_ES_AppRecord_t *ParentApp, const char *TaskName, CFE_ES_TaskRecord_t **OutTaskRec)
 {
-    osal_id_t            UtOsalId;
+    osal_id_t            UtOsalId = OS_OBJECT_ID_UNDEFINED;
     CFE_ES_TaskId_t      UtTaskId;
     CFE_ES_AppId_t       UtAppId;
     CFE_ES_TaskRecord_t *LocalTaskPtr;
@@ -558,6 +558,9 @@ int32 ES_UT_SetupOSCleanupHook(void *UserObj, int32 StubRetcode, uint32 CallCoun
      */
     if (CallCount == 0)
     {
+        /* Initialize to avoid static analysis warnings */
+        memset(ObjList, 0, sizeof(ObjList));
+
         OS_TaskCreate(&ObjList[0], NULL, NULL, OSAL_TASK_STACK_ALLOCATE, 0, 0, 0);
         OS_QueueCreate(&ObjList[1], NULL, 0, 0, 0);
         OS_MutSemCreate(&ObjList[2], NULL, 0);
@@ -1101,7 +1104,7 @@ static void ES_UT_ForEachObjectIncrease(void *UserObj, UT_EntryKey_t FuncKey, co
     void *           callback_arg = UT_Hook_GetArgValueByName(Context, "callback_arg", void *);
     int *            count        = (int *)UserObj;
     int              i;
-    osal_id_t        id;
+    osal_id_t        id = OS_OBJECT_ID_UNDEFINED;
 
     /* Increasing number of objects per call */
     for (i = 0; i < *count; i++)
@@ -1117,7 +1120,7 @@ static void ES_UT_ForEachObjectFail(void *UserObj, UT_EntryKey_t FuncKey, const 
 
     OS_ArgCallback_t callback_ptr = UT_Hook_GetArgValueByName(Context, "callback_ptr", OS_ArgCallback_t);
     void *           callback_arg = UT_Hook_GetArgValueByName(Context, "callback_arg", void *);
-    osal_id_t        id;
+    osal_id_t        id           = OS_OBJECT_ID_UNDEFINED;
 
     OS_OpenCreate(&id, NULL, 0, 0);
     UT_SetDeferredRetcode(UT_KEY(OS_close), 1, -1);
@@ -2149,12 +2152,12 @@ void TestGenericPool(void)
 {
     CFE_ES_GenPoolRecord_t Pool1;
     CFE_ES_GenPoolRecord_t Pool2;
-    size_t                 Offset1;
-    size_t                 Offset2;
-    size_t                 Offset3;
-    size_t                 Offset4;
+    size_t                 Offset1 = 0;
+    size_t                 Offset2 = 0;
+    size_t                 Offset3 = 0;
+    size_t                 Offset4 = 0;
     size_t                 OffsetEnd;
-    size_t                 BlockSize;
+    size_t                 BlockSize = 0;
     CFE_ES_MemOffset_t     FreeSize;
     CFE_ES_MemOffset_t     TotalSize;
     uint16                 NumBlocks;
@@ -4539,7 +4542,7 @@ void TestGenericCounterAPI(void)
     char               CounterName[OS_MAX_API_NAME + 1];
     CFE_ES_CounterId_t CounterId;
     CFE_ES_CounterId_t CounterId2;
-    uint32             CounterCount;
+    uint32             CounterCount = 0;
     int                i;
 
     /* Test successfully registering a generic counter */
@@ -5136,8 +5139,8 @@ void TestCDSMempool(void)
 
 void TestESMempool(void)
 {
-    CFE_ES_MemHandle_t      PoolID1; /* Poo1 1 handle, no mutex */
-    CFE_ES_MemHandle_t      PoolID2; /* Poo1 2 handle, with mutex */
+    CFE_ES_MemHandle_t      PoolID1 = CFE_ES_MEMHANDLE_UNDEFINED; /* Poo1 1 handle, no mutex */
+    CFE_ES_MemHandle_t      PoolID2 = CFE_ES_MEMHANDLE_UNDEFINED; /* Poo1 2 handle, with mutex */
     uint8                   Buffer1[1024];
     uint8                   Buffer2[1024];
     CFE_ES_MemPoolBuf_t     addressp1 = CFE_ES_MEMPOOLBUF_C(0); /* Pool 1 buffer address */

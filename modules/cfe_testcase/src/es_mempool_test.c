@@ -38,7 +38,7 @@ static CFE_FT_PoolMemBlock_t CFE_FT_PoolMemBlock[CFE_PLATFORM_ES_MAX_MEMORY_POOL
 
 void TestMemPoolCreate(void)
 {
-    CFE_ES_MemHandle_t PoolID;
+    CFE_ES_MemHandle_t PoolID = CFE_ES_MEMHANDLE_UNDEFINED;
 
     UtPrintf("Testing: CFE_ES_PoolCreateNoSem, CFE_ES_PoolCreate, CFE_ES_PoolCreateEx");
 
@@ -102,7 +102,7 @@ void TestMemPoolCreateMax(void)
 
 void TestMemPoolGetBuf(void)
 {
-    CFE_ES_MemHandle_t  PoolID;
+    CFE_ES_MemHandle_t  PoolID = CFE_ES_MEMHANDLE_UNDEFINED;
     int8                Pool[1024];
     size_t              BufferSize = 512;
     size_t              BufferBig  = 2048;
@@ -127,7 +127,7 @@ void TestMemPoolGetBuf(void)
 
 void TestMemPoolBufInfo(void)
 {
-    CFE_ES_MemHandle_t  PoolID;
+    CFE_ES_MemHandle_t  PoolID = CFE_ES_MEMHANDLE_UNDEFINED;
     int8                Pool[1024];
     size_t              Buffer   = 512;
     CFE_ES_MemPoolBuf_t addressp = CFE_ES_MEMPOOLBUF_C(0);
@@ -152,7 +152,7 @@ void TestMemPoolBufInfo(void)
 
 void TestMemPoolPutBuf(void)
 {
-    CFE_ES_MemHandle_t  PoolID;
+    CFE_ES_MemHandle_t  PoolID = CFE_ES_MEMHANDLE_UNDEFINED;
     int8                Pool[1024];
     size_t              Buffer   = 512;
     CFE_ES_MemPoolBuf_t addressp = CFE_ES_MEMPOOLBUF_C(0);
@@ -174,9 +174,11 @@ void TestMemPoolPutBuf(void)
 
 void TestMemPoolDelete(void)
 {
-    CFE_ES_MemHandle_t    PoolID; /* Poo1 1 handle, no mutex */
+    CFE_ES_MemHandle_t    PoolID = CFE_ES_MEMHANDLE_UNDEFINED; /* Poo1 1 handle, no mutex */
     uint8                 Buffer[1024];
     CFE_ES_MemPoolStats_t Stats;
+
+    memset(&Stats, 0, sizeof(Stats));
 
     UtPrintf("Testing: CFE_ES_PoolDelete, CFE_ES_GetMemPoolStats, CFE_ES_PoolCreateEx");
 

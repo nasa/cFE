@@ -247,6 +247,10 @@ void TestModuleInfo(void)
     CFE_ES_AppInfo_t TestAppInfo;
     const char *     LibName = "ASSERT_LIB";
 
+    memset(&ModuleInfo, 0, sizeof(ModuleInfo));
+    memset(&LibInfo, 0, sizeof(LibInfo));
+    memset(&TestAppInfo, 0, sizeof(TestAppInfo));
+
     UtPrintf("Testing: CFE_ES_GetModuleInfo");
 
     UtAssert_INT32_EQ(CFE_ES_GetAppID(&TestAppId), CFE_SUCCESS);

@@ -39,7 +39,7 @@ int32 CallbackFunc(void *TblPtr)
 void TestTableRegistration(void)
 {
     char             BadTblName[CFE_TBL_MAX_FULL_NAME_LEN + 2];
-    CFE_TBL_Handle_t OtherHandle;
+    CFE_TBL_Handle_t OtherHandle = CFE_TBL_BAD_TABLE_HANDLE;
 
     UtPrintf("Testing: CFE_TBL_Register, CFE_TBL_Unregister");
 
@@ -105,7 +105,7 @@ void TestTableRegistration(void)
 
 void TestTableMaxLimits(void)
 {
-    CFE_TBL_Handle_t Handles[CFE_PLATFORM_TBL_MAX_NUM_HANDLES + 1];
+    CFE_TBL_Handle_t Handles[CFE_PLATFORM_TBL_MAX_NUM_HANDLES + 2];
     char             TblName[CFE_TBL_MAX_FULL_NAME_LEN];
     uint32           numTblsCreated = 0; /* Track num created to unregister them all */
 
@@ -230,7 +230,7 @@ void TestTblNonAppContext(void)
 void TestTableBadContext(void)
 {
     uint32         RetryCount;
-    osal_id_t      OtherTaskId;
+    osal_id_t      OtherTaskId = OS_OBJECT_ID_UNDEFINED;
     OS_task_prop_t TaskProp;
 
     /* Create one (good) handle first from this task */

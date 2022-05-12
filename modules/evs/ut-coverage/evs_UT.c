@@ -650,6 +650,8 @@ void Test_Format(void)
     UT_EVS_MSGInitData_t MsgData;
     CFE_MSG_Message_t *  MsgSend;
 
+    memset(&modecmd, 0, sizeof(modecmd));
+
     /* Get a local ref to the "current" AppData table entry */
     EVS_GetCurrentContext(&AppDataPtr, &AppID);
 
@@ -760,6 +762,8 @@ void Test_Ports(void)
     CFE_EVS_BitMaskCmd_t           bitmaskcmd;
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID)};
 
+    memset(&bitmaskcmd, 0, sizeof(bitmaskcmd));
+
     UtPrintf("Begin Test Ports");
 
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
@@ -855,7 +859,7 @@ void Test_Logging(void)
         CFE_EVS_SetLogModeCmd_t       modecmd;
         CFE_EVS_WriteLogDataFileCmd_t logfilecmd;
     } CmdBuf;
-    cpuaddr             TempAddr;
+    cpuaddr             TempAddr = 0;
     CFE_ES_ResetData_t *CFE_EVS_ResetDataPtr;
 
     UtPrintf("Begin Test Logging");
@@ -1358,6 +1362,8 @@ void Test_EventCmd(void)
     CFE_EVS_AppNameCmd_t           appnamecmd;
     UT_SoftwareBusSnapshot_Entry_t LocalSnapshotData = {.MsgId = CFE_SB_MSGID_WRAP_VALUE(CFE_EVS_LONG_EVENT_MSG_MID)};
 
+    memset(&bitmaskcmd, 0, sizeof(bitmaskcmd));
+
     UtPrintf("Begin Test Event Command");
 
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
@@ -1682,6 +1688,8 @@ void Test_FilterCmd(void)
 void Test_InvalidCmd(void)
 {
     CFE_MSG_CommandHeader_t cmd;
+
+    memset(&cmd, 0, sizeof(cmd));
 
     UtPrintf("Begin Test Invalid Command");
 

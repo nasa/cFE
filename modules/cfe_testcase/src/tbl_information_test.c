@@ -44,9 +44,13 @@ void TestGetStatus(void)
 
 void TestGetInfo(void)
 {
-    UtPrintf("Testing: CFE_TBL_GetInfo");
     CFE_TBL_Info_t TblInfo;
     const char *   BadTblName = "BadTable";
+
+    memset(&TblInfo, 0, sizeof(TblInfo));
+
+    UtPrintf("Testing: CFE_TBL_GetInfo");
+
     UtAssert_INT32_EQ(CFE_TBL_GetInfo(&TblInfo, CFE_FT_Global.RegisteredTblName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_TBL_GetInfo(NULL, CFE_FT_Global.TblName), CFE_TBL_BAD_ARGUMENT);
     UtAssert_INT32_EQ(CFE_TBL_GetInfo(&TblInfo, BadTblName), CFE_TBL_ERR_INVALID_NAME);
@@ -71,12 +75,13 @@ void TestGetInfo(void)
 
 void TestNotifyByMessage(void)
 {
+    CFE_TBL_Handle_t  SharedTblHandle = CFE_TBL_BAD_TABLE_HANDLE;
+    const char *      SharedTblName   = "SAMPLE_APP.SampleAppTable";
+    CFE_SB_MsgId_t    TestMsgId       = CFE_SB_ValueToMsgId(CFE_TEST_CMD_MID);
+    CFE_MSG_FcnCode_t TestCmdCode     = 0;
+    uint32            TestParameter   = 0;
+
     UtPrintf("Testing: CFE_TBL_NotifyByMessage");
-    CFE_TBL_Handle_t  SharedTblHandle;
-    const char *      SharedTblName = "SAMPLE_APP.SampleAppTable";
-    CFE_SB_MsgId_t    TestMsgId     = CFE_SB_ValueToMsgId(CFE_TEST_CMD_MID);
-    CFE_MSG_FcnCode_t TestCmdCode   = 0;
-    uint32            TestParameter = 0;
 
     UtAssert_INT32_EQ(CFE_TBL_NotifyByMessage(CFE_TBL_BAD_TABLE_HANDLE, TestMsgId, TestCmdCode, TestParameter),
                       CFE_TBL_ERR_INVALID_HANDLE);
