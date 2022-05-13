@@ -679,6 +679,8 @@ int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     int32          OsStatus;
     uint32         PerfIdx;
 
+    memset(&HeapProp, 0, sizeof(HeapProp));
+
     /*
     ** Get command execution counters, system log entry count & bytes used.
     */
@@ -750,21 +752,20 @@ int32 CFE_ES_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
         }
     }
 
+    /* Fill in heap info if get successful/supported */
     OsStatus = OS_HeapGetInfo(&HeapProp);
-
-    /*
-     * If retrieving info from OSAL was not successful,
-     * zero out the property struct, so all sizes will
-     * in turn be reported in telemetry as 0.
-     */
-    if (OsStatus != OS_SUCCESS)
+    if (OsStatus == OS_SUCCESS)
     {
-        memset(&HeapProp, 0, sizeof(HeapProp));
+        CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree    = CFE_ES_MEMOFFSET_C(HeapProp.free_bytes);
+        CFE_ES_Global.TaskData.HkPacket.Payload.HeapBlocksFree   = CFE_ES_MEMOFFSET_C(HeapProp.free_blocks);
+        CFE_ES_Global.TaskData.HkPacket.Payload.HeapMaxBlockSize = CFE_ES_MEMOFFSET_C(HeapProp.largest_free_block);
     }
-
-    CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree    = CFE_ES_MEMOFFSET_C(HeapProp.free_bytes);
-    CFE_ES_Global.TaskData.HkPacket.Payload.HeapBlocksFree   = CFE_ES_MEMOFFSET_C(HeapProp.free_blocks);
-    CFE_ES_Global.TaskData.HkPacket.Payload.HeapMaxBlockSize = CFE_ES_MEMOFFSET_C(HeapProp.largest_free_block);
+    else
+    {
+        CFE_ES_Global.TaskData.HkPacket.Payload.HeapBytesFree    = 0;
+        CFE_ES_Global.TaskData.HkPacket.Payload.HeapBlocksFree   = 0;
+        CFE_ES_Global.TaskData.HkPacket.Payload.HeapMaxBlockSize = 0;
+    }
 
     /*
     ** Send housekeeping telemetry packet.

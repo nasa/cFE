@@ -450,7 +450,7 @@ void CFE_ES_SysLog_vsnprintf(char *Buffer, size_t BufferSize, const char *SpecSt
  *-----------------------------------------------------------------*/
 int32 CFE_ES_SysLogDump(const char *Filename)
 {
-    osal_id_t fd;
+    osal_id_t fd = OS_OBJECT_ID_UNDEFINED;
     int32     OsStatus;
     int32     Status;
     size_t    WritePos;
