@@ -10,6 +10,16 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFS/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev127
+
+- Update RTEMS toolchain files
+- Add support for fractional seconds in epoch
+- Add truncation warning suppression flags
+- Deploy docs from local workflow on main branch push
+- Remove redundant word in App Developers Guide    
+- UT updates for alternate time configuration
+- See <https://github.com/nasa/cFE/pull/2098> and <https://github.com/nasa/cFS/pull/471>
+
 ### Development Build: v7.0.0-rc4+dev110
 
 - Only increment SB InternalErrorCounter on errors
