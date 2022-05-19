@@ -12,7 +12,7 @@
 # Basic cross system configuration
 set(CMAKE_SYSTEM_NAME       RTEMS)
 set(CMAKE_SYSTEM_PROCESSOR  i386)
-set(CMAKE_SYSTEM_VERSION    5)
+set(CMAKE_SYSTEM_VERSION    6)
 
 # The RTEMS BSP that will be used for this build
 set(RTEMS_BSP               "pc686")
@@ -24,7 +24,7 @@ SET(OSAL_SYSTEM_BSPTYPE     pc-rtems)
 SET(OSAL_SYSTEM_OSTYPE      rtems)
 
 # This is for version specific RTEMS ifdefs needed by the OSAL and PSP
-ADD_DEFINITIONS(-DOS_RTEMS_5)
+ADD_DEFINITIONS(-DOS_RTEMS_6)
 
 # RTEMS_DYNAMIC_LOAD definition:
 # - Set to FALSE for platforms that create a RTEMS executable and link it
@@ -37,10 +37,7 @@ set(RTEMS_DYNAMIC_LOAD      FALSE)
 
 set(RTEMS_BSP_C_FLAGS       "-march=i686 -mtune=i686 -fno-common")
 set(RTEMS_BSP_CXX_FLAGS     ${RTEMS_BSP_C_FLAGS})
-set(RTEMS_BSP_SPECS_FLAGS   "-specs bsp_specs")
-
-# This define is deprecated and will be removed
-ADD_DEFINITIONS(-D_RTEMS_5_)
+set(RTEMS_BSP_SPECS_FLAGS   "")
 
 # Info regarding the RELOCADDR:
 #+--------------------------------------------------------------------------+

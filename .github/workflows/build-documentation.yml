@@ -23,7 +23,7 @@ jobs:
   checkout-and-cache:
     name: Custom checkout and cache for cFS documents
     needs: checks-for-duplicates
-    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' }} 
+    if: ${{ needs.checks-for-duplicates.outputs.should_skip != 'true' || contains(github.ref, 'main') }} 
     runs-on: ubuntu-latest
 
     steps:
@@ -53,7 +53,7 @@ jobs:
       target: "[\"cfe-usersguide\"]"
       cache-key: cfs-doc-${{ github.run_number }}
       buildpdf: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
-      deploy: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
+      deploy: false  # Note can't use cache with deploy, deploy in following job instead
 
   build-mission-doc:
     needs: checkout-and-cache
@@ -65,3 +65,28 @@ jobs:
       cache-key: cfs-doc-${{ github.run_number }}
       deploy: false
       buildpdf: false # No need for mission pdf within cFE, done at bundle level
+
+  deploy-documentation:
+    needs: build-cfe-usersguide
+    if: ${{ github.event_name == 'push' && contains(github.ref, 'main')}}
+    name: Deploy documentation to gh-pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v3
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: Move pdfs to deployment directory
+        run: mkdir deploy; mv */*.pdf deploy
+
+      - name: Deploy to GitHub
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: deploy
+          SINGLE_COMMIT: true
