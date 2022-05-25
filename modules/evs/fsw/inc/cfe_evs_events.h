@@ -466,6 +466,19 @@
  *  Invalid length for the command code in message ID #CFE_EVS_CMD_MID received on the EVS message pipe.
  */
 #define CFE_EVS_LEN_ERR_EID 43
+
+/**
+ * \brief EVS Events Squelched Error Event ID
+ *
+ *  \par Type: ERROR
+ *
+ *  \par Cause:
+ *
+ *  Events generated in app at a rate in excess of
+ *  #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST in one moment or
+ *  #CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC sustained
+ */
+#define CFE_EVS_SQUELCHED_ERR_EID 43
 /**\}*/
 
 #endif /* CFE_EVS_EVENTS_H */

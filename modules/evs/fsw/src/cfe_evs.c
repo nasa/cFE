@@ -71,6 +71,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
             /* Initialize application event data */
             AppDataPtr->ActiveFlag           = true;
             AppDataPtr->EventTypesActiveFlag = CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG;
+            AppDataPtr->SquelchTokens        = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
 
             /* Set limit for number of provided filters */
             if (NumEventFilters < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS)
@@ -141,7 +142,8 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
             /* Handler for events from apps not registered with EVS */
             Status = EVS_NotRegistered(AppDataPtr, AppID);
         }
-        else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
+        else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false &&
+                 EVS_CheckAndIncrementSquelchTokens(AppDataPtr) == true)
         {
             /* Get current spacecraft time */
             Time = CFE_TIME_GetTime();
@@ -186,7 +188,8 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
         /* Handler for events from apps not registered with EVS */
         Status = EVS_NotRegistered(AppDataPtr, AppID);
     }
-    else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
+    else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false &&
+             EVS_CheckAndIncrementSquelchTokens(AppDataPtr) == true)
     {
         /* Get current spacecraft time */
         Time = CFE_TIME_GetTime();
@@ -229,7 +232,8 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
             /* Handler for events from apps not registered with EVS */
             Status = EVS_NotRegistered(AppDataPtr, AppID);
         }
-        else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
+        else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false &&
+                 EVS_CheckAndIncrementSquelchTokens(AppDataPtr) == true)
         {
             /* Send the event packets */
             va_start(Ptr, Spec);

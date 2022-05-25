@@ -44,6 +44,7 @@
 #include "cfe_platform_cfg.h"
 #include "cfe_mission_cfg.h"
 #include "osconfig.h"
+#include "cfe_time.h"
 #include "cfe_evs_api_typedefs.h"
 #include "cfe_evs_log_typedef.h"
 #include "cfe_sb_api_typedefs.h"
@@ -86,18 +87,23 @@ typedef struct
 
     EVS_BinFilter_t BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Array of binary filters */
 
-    uint8  ActiveFlag;           /* Application event service active flag */
-    uint8  EventTypesActiveFlag; /* Application event types active flag */
-    uint16 EventCount;           /* Application event counter */
+    uint8     ActiveFlag;                /* Application event service active flag */
+    uint8     EventTypesActiveFlag;      /* Application event types active flag */
+    uint16    EventCount;                /* Application event counter */
+    OS_time_t LastSquelchCreditableTime; /* Time of last squelch token return */
+    int32     SquelchTokens;             /* Application event squelch token counter */
+    uint8     SquelchedCount;            /* Application events squelched counter */
 
 } EVS_AppData_t;
 
 typedef struct
 {
-    char            AppName[OS_MAX_API_NAME];                    /* Application name */
-    uint8           ActiveFlag;                                  /* Application event service active flag */
-    uint8           EventTypesActiveFlag;                        /* Application event types active flag */
-    uint16          EventCount;                                  /* Application event counter */
+    char            AppName[OS_MAX_API_NAME]; /* Application name */
+    uint8           ActiveFlag;               /* Application event service active flag */
+    uint8           EventTypesActiveFlag;     /* Application event types active flag */
+    uint16          EventCount;               /* Application event counter */
+    uint8           SquelchedCount;           /* Application events squelched counter */
+    uint8           Spare[3];
     EVS_BinFilter_t Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Application event filters */
 
 } CFE_EVS_AppDataFile_t;
