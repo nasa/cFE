@@ -31,7 +31,7 @@
 
 void TestPipeCreate(void)
 {
-    CFE_SB_PipeId_t PipeId1;
+    CFE_SB_PipeId_t PipeId1    = CFE_SB_INVALID_PIPE;
     uint16          PipeDepth  = 10;
     const char      PipeName[] = "Test Pipe";
 
@@ -100,7 +100,7 @@ void TestPipeCreateMax(void)
 
 void TestPipeIndex(void)
 {
-    CFE_SB_PipeId_t PipeId;
+    CFE_SB_PipeId_t PipeId     = CFE_SB_INVALID_PIPE;
     uint16          PipeDepth  = 10;
     const char      PipeName[] = "Test Pipe";
     uint32          Idx;
@@ -119,11 +119,11 @@ void TestPipeIndex(void)
 
 void TestPipeOptions(void)
 {
-    CFE_SB_PipeId_t PipeId;
+    CFE_SB_PipeId_t PipeId     = CFE_SB_INVALID_PIPE;
     uint16          PipeDepth  = 10;
     const char      PipeName[] = "Test Pipe";
     uint8           Opts       = 2;
-    uint8           OptsBuff;
+    uint8           OptsBuff   = 0;
 
     UtPrintf("Testing: CFE_SB_SetPipeOpts, CFE_SB_GetPipeOpts");
 
@@ -143,11 +143,11 @@ void TestPipeOptions(void)
 
 void TestPipeName(void)
 {
-    CFE_SB_PipeId_t PipeId;
+    CFE_SB_PipeId_t PipeId     = CFE_SB_INVALID_PIPE;
     uint16          PipeDepth  = 10;
     const char      PipeName[] = "Test Pipe";
     char            PipeNameBuf[OS_MAX_API_NAME];
-    CFE_SB_PipeId_t PipeIdBuff;
+    CFE_SB_PipeId_t PipeIdBuff        = CFE_SB_INVALID_PIPE;
     const char      InvalidPipeName[] = "Invalid Pipe";
 
     UtPrintf("Testing: CFE_SB_GetPipeName, CFE_SB_GetPipeIdByName");

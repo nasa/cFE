@@ -830,6 +830,8 @@ void Test_Print(void)
     CFE_TIME_SysTime_t time;
     bool               usingDefaultEpoch = true;
 
+    memset(&time, 0, sizeof(time));
+
     UtPrintf("Begin Test Print");
 
     if (CFE_MISSION_TIME_EPOCH_YEAR != 1980 || CFE_MISSION_TIME_EPOCH_DAY != 1 || CFE_MISSION_TIME_EPOCH_HOUR != 0 ||
@@ -845,9 +847,6 @@ void Test_Print(void)
     CFE_UtAssert_SYSLOG(TIME_SYSLOG_MSGS[6]);
 
     /* Test with zero time value */
-    time.Subseconds = 0;
-    time.Seconds    = 0;
-
     CFE_TIME_Print(timeBuf, time);
     if (usingDefaultEpoch)
     {
@@ -1935,6 +1934,8 @@ void Test_PipeCmds(void)
 void Test_ResetArea(void)
 {
     CFE_TIME_Reference_t Reference;
+
+    memset(&Reference, 0, sizeof(Reference));
 
     UtPrintf("Begin Test Reset Area");
 

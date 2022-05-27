@@ -358,6 +358,9 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
     CFE_EVS_ShortEventTlm_t ShortEventTlm; /* The "short" flavor is only generated if selected */
     int                     ExpandedLength;
 
+    memset(&LongEventTlm, 0, sizeof(LongEventTlm));
+    memset(&ShortEventTlm, 0, sizeof(ShortEventTlm));
+
     /* Initialize EVS event packets */
     CFE_MSG_Init(CFE_MSG_PTR(LongEventTlm.TelemetryHeader), CFE_SB_ValueToMsgId(CFE_EVS_LONG_EVENT_MSG_MID),
                  sizeof(LongEventTlm));

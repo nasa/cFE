@@ -360,7 +360,7 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
     const CFE_TBL_LoadCmd_Payload_t *CmdPtr     = &data->Payload;
     CFE_FS_Header_t                  StdFileHeader;
     CFE_TBL_File_Hdr_t               TblFileHeader;
-    osal_id_t                        FileDescriptor;
+    osal_id_t                        FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     int32                            Status;
     int32                            OsStatus;
     int16                            RegIndex;
@@ -698,7 +698,7 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
     bool                 FileExistedPrev = false;
     CFE_FS_Header_t      StdFileHeader;
     CFE_TBL_File_Hdr_t   TblFileHeader;
-    osal_id_t            FileDescriptor;
+    osal_id_t            FileDescriptor = OS_OBJECT_ID_UNDEFINED;
     int32                Status;
     int32                OsStatus;
     int32                EndianCheck = 0x01020304;

@@ -780,7 +780,7 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName)
 {
-    osal_id_t    OsalId;
+    osal_id_t    OsalId = OS_OBJECT_ID_UNDEFINED;
     int32        OsStatus;
     CFE_Status_t Result;
 
@@ -2189,7 +2189,7 @@ int32 CFE_ES_LibID_ToIndex(CFE_ES_LibId_t LibId, uint32 *Idx)
 CFE_Status_t CFE_ES_TaskID_ToIndex(CFE_ES_TaskId_t TaskID, uint32 *Idx)
 {
     osal_id_t    OsalID;
-    osal_index_t OsalIndex;
+    osal_index_t OsalIndex = OSAL_INDEX_C(0);
     int32        OsStatus;
 
     if (!CFE_RESOURCEID_TEST_DEFINED(TaskID))

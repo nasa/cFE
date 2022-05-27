@@ -96,8 +96,8 @@ void TestCreateChild(void)
 {
     UtPrintf("Testing: CFE_ES_CreateChildTask");
 
-    CFE_ES_TaskId_t            TaskId;
-    CFE_ES_TaskId_t            TaskId2;
+    CFE_ES_TaskId_t            TaskId        = CFE_ES_TASKID_UNDEFINED;
+    CFE_ES_TaskId_t            TaskId2       = CFE_ES_TASKID_UNDEFINED;
     const char *               TaskName      = "CHILD_TASK_1";
     CFE_ES_StackPointer_t      StackPointer  = CFE_ES_TASK_STACK_ALLOCATE;
     size_t                     StackSize     = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
@@ -106,7 +106,7 @@ void TestCreateChild(void)
     int32                      ExpectedCount = 5;
     int32                      RetryCount;
     char                       TaskNameBuf[16];
-    osal_id_t                  OtherTaskId;
+    osal_id_t                  OtherTaskId = OS_OBJECT_ID_UNDEFINED;
     OS_task_prop_t             task_prop;
 
     CFE_FT_Global.Count = 0;
@@ -187,7 +187,7 @@ void TestChildTaskName(void)
 {
     UtPrintf("Testing: CFE_ES_GetTaskIDByName, CFE_ES_GetTaskName");
 
-    CFE_ES_TaskId_t            TaskId;
+    CFE_ES_TaskId_t            TaskId     = CFE_ES_TASKID_UNDEFINED;
     const char                 TaskName[] = "CHILD_TASK_1";
     CFE_ES_TaskId_t            TaskIdByName;
     char                       TaskNameBuf[OS_MAX_API_NAME + 4];
@@ -195,6 +195,8 @@ void TestChildTaskName(void)
     size_t                     StackSize    = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;
     CFE_ES_TaskPriority_Atom_t Priority     = CFE_PLATFORM_ES_PERF_CHILD_PRIORITY;
     uint32                     Flags        = 0;
+
+    memset(TaskNameBuf, 0, sizeof(TaskNameBuf));
 
     UtAssert_INT32_EQ(CFE_ES_CreateChildTask(&TaskId, TaskName, TaskFunction, StackPointer, StackSize, Priority, Flags),
                       CFE_SUCCESS);
@@ -223,7 +225,7 @@ void TestChildTaskDelete(void)
 {
     UtPrintf("Testing: CFE_ES_DeleteChildTask");
 
-    CFE_ES_TaskId_t            TaskId;
+    CFE_ES_TaskId_t            TaskId        = CFE_ES_TASKID_UNDEFINED;
     const char *               TaskName      = "CHILD_TASK_1";
     CFE_ES_StackPointer_t      StackPointer  = CFE_ES_TASK_STACK_ALLOCATE;
     size_t                     StackSize     = CFE_PLATFORM_ES_PERF_CHILD_STACK_SIZE;

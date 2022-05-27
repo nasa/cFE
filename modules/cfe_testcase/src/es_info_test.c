@@ -35,7 +35,7 @@ const char TEST_EXPECTED_FILE_NAME[]  = "cfe_testcase";
 const char ES_APP_EXPECTED_NAME[]     = "CFE_ES";
 const char INVALID_APP_NAME[]         = "INVALID_NAME";
 
-void TestAppInfo(void)
+void TestGetAppInfo(void)
 {
     CFE_ES_AppId_t   TestAppId;
     CFE_ES_AppId_t   ESAppId;
@@ -129,7 +129,7 @@ void TestAppInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetAppInfo(NULL, TestAppId), CFE_ES_BAD_ARGUMENT);
 }
 
-void TestTaskInfo(void)
+void TestGetTaskInfo(void)
 {
     CFE_ES_AppId_t    AppId;
     CFE_ES_AppInfo_t  AppInfo;
@@ -159,7 +159,7 @@ void TestTaskInfo(void)
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(NULL), CFE_ES_BAD_ARGUMENT);
 }
 
-void TestLibInfo(void)
+void TestGetLibInfo(void)
 {
     CFE_ES_LibId_t   LibId;
     CFE_ES_LibId_t   CheckId;
@@ -238,7 +238,7 @@ void TestResetType(void)
     UtAssert_True((rSubType > 0) && (rSubType < 10), "Reset Sub-Type = %d", (int)rSubType);
 }
 
-void TestModuleInfo(void)
+void TestGetModuleInfo(void)
 {
     CFE_ES_AppInfo_t ModuleInfo;
     CFE_ES_LibId_t   LibIdByName;
@@ -246,6 +246,10 @@ void TestModuleInfo(void)
     CFE_ES_AppInfo_t LibInfo;
     CFE_ES_AppInfo_t TestAppInfo;
     const char *     LibName = "ASSERT_LIB";
+
+    memset(&ModuleInfo, 0, sizeof(ModuleInfo));
+    memset(&LibInfo, 0, sizeof(LibInfo));
+    memset(&TestAppInfo, 0, sizeof(TestAppInfo));
 
     UtPrintf("Testing: CFE_ES_GetModuleInfo");
 
@@ -267,9 +271,9 @@ void TestModuleInfo(void)
 
 void ESInfoTestSetup(void)
 {
-    UtTest_Add(TestAppInfo, NULL, NULL, "Test App Info");
-    UtTest_Add(TestTaskInfo, NULL, NULL, "Test Task Info");
-    UtTest_Add(TestLibInfo, NULL, NULL, "Test Lib Info");
+    UtTest_Add(TestGetAppInfo, NULL, NULL, "Test App Info");
+    UtTest_Add(TestGetTaskInfo, NULL, NULL, "Test Task Info");
+    UtTest_Add(TestGetLibInfo, NULL, NULL, "Test Lib Info");
     UtTest_Add(TestResetType, NULL, NULL, "Test Reset Type");
-    UtTest_Add(TestModuleInfo, NULL, NULL, "Test Module Info");
+    UtTest_Add(TestGetModuleInfo, NULL, NULL, "Test Module Info");
 }

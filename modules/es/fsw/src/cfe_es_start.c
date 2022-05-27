@@ -475,10 +475,12 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
 {
     int32        OsStatus;
     int32        PspStatus;
-    cpuaddr      RamDiskMemoryAddress;
+    cpuaddr      RamDiskMemoryAddress = 0;
     uint32       RamDiskMemorySize;
     int32        PercentFree;
     OS_statvfs_t StatBuf;
+
+    memset(&StatBuf, 0, sizeof(StatBuf));
 
     /*
     ** Get the memory area for the RAM disk

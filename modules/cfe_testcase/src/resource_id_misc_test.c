@@ -111,6 +111,13 @@ void TestGetBaseSerial(void)
         CFE_ResourceId_t   ResourceID;
     } CDSHandleIdBuf;
 
+    memset(&AppIdBuf, 0, sizeof(AppIdBuf));
+    memset(&LibIdBuf, 0, sizeof(LibIdBuf));
+    memset(&TaskIdBuf, 0, sizeof(TaskIdBuf));
+    memset(&CounterIdBuf, 0, sizeof(CounterIdBuf));
+    memset(&PoolIdBuf, 0, sizeof(PoolIdBuf));
+    memset(&CDSHandleIdBuf, 0, sizeof(CDSHandleIdBuf));
+
     /* Referenced from cfe_core_resourceid_basevalues.h */
     int TASKID_BASE     = CFE_RESOURCEID_MAKE_BASE(OS_OBJECT_TYPE_OS_TASK);
     int APPID_BASE      = CFE_RESOURCEID_MAKE_BASE(OS_OBJECT_TYPE_USER + 1);

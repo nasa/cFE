@@ -40,10 +40,15 @@ void LoadTable(TBL_TEST_Table_t *TestTable, CFE_Status_t ExpectedStatus)
 
 void TestGetAddress(void)
 {
-    UtPrintf("Testing: CFE_TBL_GetAddress");
     void *            TblPtr;
     TBL_TEST_Table_t *TestTblPtr;
     TBL_TEST_Table_t  TestTable = {1, 2};
+
+    CFE_TBL_Handle_t SharedTblHandle = CFE_TBL_BAD_TABLE_HANDLE;
+    const char *     SharedTblName   = "SAMPLE_APP.SampleAppTable";
+
+    UtPrintf("Testing: CFE_TBL_GetAddress");
+
     /* Never loaded */
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblPtr, CFE_FT_Global.TblHandle), CFE_TBL_ERR_NEVER_LOADED);
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblPtr, CFE_TBL_BAD_TABLE_HANDLE), CFE_TBL_ERR_INVALID_HANDLE);
@@ -64,8 +69,6 @@ void TestGetAddress(void)
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblPtr, CFE_FT_Global.TblHandle), CFE_TBL_ERR_INVALID_HANDLE);
 
     /* Access a shared table */
-    CFE_TBL_Handle_t SharedTblHandle;
-    const char *     SharedTblName = "SAMPLE_APP.SampleAppTable";
     UtAssert_INT32_EQ(CFE_TBL_Share(&SharedTblHandle, SharedTblName), CFE_SUCCESS);
     /* Returns CFE_TBL_INFO_UPDATED since it hasn't been touched since it was loaded */
     UtAssert_INT32_EQ(CFE_TBL_GetAddress(&TblPtr, SharedTblHandle), CFE_TBL_INFO_UPDATED);

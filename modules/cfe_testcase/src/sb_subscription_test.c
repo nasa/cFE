@@ -39,8 +39,8 @@ static const CFE_SB_MsgId_t CFE_FT_TLM_MSGID = CFE_SB_MSGID_WRAP_VALUE(CFE_TEST_
 
 void TestSubscribeUnsubscribe(void)
 {
-    CFE_SB_PipeId_t PipeId1;
-    CFE_SB_PipeId_t PipeId2;
+    CFE_SB_PipeId_t PipeId1 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t PipeId2 = CFE_SB_INVALID_PIPE;
 
     UtPrintf("Testing: CFE_SB_Subscribe, CFE_SB_Unsubscribe");
 
@@ -91,8 +91,8 @@ void TestSubscribeUnsubscribe(void)
 
 void TestSubscribeUnsubscribeLocal(void)
 {
-    CFE_SB_PipeId_t PipeId1;
-    CFE_SB_PipeId_t PipeId2;
+    CFE_SB_PipeId_t PipeId1 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t PipeId2 = CFE_SB_INVALID_PIPE;
 
     UtPrintf("Testing: CFE_SB_SubscribeLocal, CFE_SB_UnsubscribeLocal");
 
@@ -143,8 +143,8 @@ void TestSubscribeUnsubscribeLocal(void)
 
 void TestSubscribeEx(void)
 {
-    CFE_SB_PipeId_t PipeId1;
-    CFE_SB_PipeId_t PipeId2;
+    CFE_SB_PipeId_t PipeId1 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t PipeId2 = CFE_SB_INVALID_PIPE;
 
     /*
      * NOTE: CFE_SB_SubscribeEx adds a "Quality" parameter for Qos, which is
@@ -185,7 +185,7 @@ void TestSBMaxSubscriptions(void)
     CFE_Status_t    Status;
     uint32          NumSubs;
     CFE_SB_MsgId_t  TestMsgId;
-    CFE_SB_PipeId_t PipeId;
+    CFE_SB_PipeId_t PipeId = CFE_SB_INVALID_PIPE;
 
     UtPrintf("Testing: CFE_SB_Subscribe, max routing table limit");
 

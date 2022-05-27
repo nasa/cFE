@@ -116,6 +116,8 @@ void TestFileName(void)
     char       Name[OS_MAX_FILE_NAME];
     const char ExpectedName[] = "FileName.test";
 
+    memset(Name, 0, sizeof(Name));
+
     UtPrintf("Testing: CFE_FS_ExtractFilenameFromPath");
 
     snprintf(Path, sizeof(Path), "/func/FileName.test");
