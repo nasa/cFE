@@ -81,7 +81,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
     osal_id_t   AppFile = OS_OBJECT_ID_UNDEFINED;
     int32       Status;
     int32       OsStatus;
-    char        c;
+    char        c           = 0;
     bool        LineTooLong = false;
     bool        FileOpened  = false;
 
@@ -401,7 +401,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleName,
                         const CFE_ES_ModuleLoadParams_t *LoadParams, CFE_ES_ModuleLoadStatus_t *LoadStatus)
 {
-    osal_id_t ModuleId;
+    osal_id_t ModuleId = OS_OBJECT_ID_UNDEFINED;
     cpuaddr   InitSymbolAddress;
     int32     ReturnCode;
     int32     OsStatus;
@@ -590,7 +590,7 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
                           const CFE_ES_TaskStartParams_t *Params, CFE_ES_AppId_t ParentAppId)
 {
     CFE_ES_TaskRecord_t *TaskRecPtr;
-    osal_id_t            OsalTaskId;
+    osal_id_t            OsalTaskId = OS_OBJECT_ID_UNDEFINED;
     CFE_ES_TaskId_t      LocalTaskId;
     int32                OsStatus;
     int32                ReturnCode;
@@ -1785,6 +1785,8 @@ void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoP
     OS_module_prop_t ModuleInfo;
     int32            OsStatus;
 
+    memset(&ModuleInfo, 0, sizeof(ModuleInfo));
+
     OsStatus = OS_ModuleInfo(ModuleId, &ModuleInfo);
     if (OsStatus == OS_SUCCESS)
     {
@@ -1794,7 +1796,6 @@ void CFE_ES_CopyModuleAddressInfo(osal_id_t ModuleId, CFE_ES_AppInfo_t *AppInfoP
     else
     {
         AppInfoPtr->AddressesAreValid = false;
-        memset(&ModuleInfo, 0, sizeof(ModuleInfo));
     }
 
     /*

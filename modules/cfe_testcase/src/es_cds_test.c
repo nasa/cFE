@@ -91,6 +91,8 @@ void TestCDSName(void)
     CFE_ES_CDSHandle_t IdByName;
     char               CDSNameBuf[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN];
 
+    memset(CDSNameBuf, 0, sizeof(CDSNameBuf));
+
     UtPrintf("Testing: CFE_ES_GetCDSBlockIDByName, CFE_ES_GetCDSBlockName");
 
     UtAssert_INT32_EQ(CFE_ES_RegisterCDS(&CDSHandlePtr, BlockSize, Name), CFE_ES_CDS_ALREADY_EXISTS);
@@ -118,6 +120,8 @@ void TestCopyRestoreCDS(void)
     CFE_Status_t       status;
     char               Data[BlockSize];
     char               DataBuff[BlockSize];
+
+    memset(DataBuff, 0, sizeof(DataBuff));
 
     UtPrintf("Testing: CFE_ES_CopyToCDS, CFE_ES_RestoreFromCDS");
 

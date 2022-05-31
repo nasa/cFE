@@ -86,6 +86,8 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void)
     CFE_TIME_SysTime_t LatchTime;
     OS_time_t          LocalTime;
 
+    memset(&LocalTime, 0, sizeof(LocalTime));
+
     /*
     ** Get time in O/S format (seconds : microseconds)...
     */

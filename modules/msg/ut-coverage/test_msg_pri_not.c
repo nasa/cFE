@@ -29,14 +29,14 @@
 
 unsigned int Test_MSG_Pri_NotZero(const CFE_MSG_Message_t *MsgPtr)
 {
-    unsigned int               bits = 0;
-    CFE_MSG_HeaderVersion_t    hdrver;
-    bool                       hassec;
-    CFE_MSG_Type_t             type;
-    CFE_MSG_ApId_t             apid;
-    CFE_MSG_SegmentationFlag_t segflag;
-    CFE_MSG_SequenceCount_t    seqcnt;
-    CFE_MSG_Size_t             size;
+    unsigned int               bits    = 0;
+    CFE_MSG_HeaderVersion_t    hdrver  = 0;
+    bool                       hassec  = false;
+    CFE_MSG_Type_t             type    = 0;
+    CFE_MSG_ApId_t             apid    = 0;
+    CFE_MSG_SegmentationFlag_t segflag = 0;
+    CFE_MSG_SequenceCount_t    seqcnt  = 0;
+    CFE_MSG_Size_t             size    = 0;
 
     CFE_MSG_GetHeaderVersion(MsgPtr, &hdrver);
     if (hdrver != 0)
@@ -65,14 +65,14 @@ unsigned int Test_MSG_Pri_NotZero(const CFE_MSG_Message_t *MsgPtr)
 
 unsigned int Test_MSG_Pri_NotF(const CFE_MSG_Message_t *MsgPtr)
 {
-    unsigned int               bits = 0;
-    CFE_MSG_HeaderVersion_t    hdrver;
-    bool                       hassec;
-    CFE_MSG_Type_t             type;
-    CFE_MSG_ApId_t             apid;
-    CFE_MSG_SegmentationFlag_t segflag;
-    CFE_MSG_SequenceCount_t    seqcnt;
-    CFE_MSG_Size_t             size;
+    unsigned int               bits    = 0;
+    CFE_MSG_HeaderVersion_t    hdrver  = 0;
+    bool                       hassec  = false;
+    CFE_MSG_Type_t             type    = 0;
+    CFE_MSG_ApId_t             apid    = 0;
+    CFE_MSG_SegmentationFlag_t segflag = 0;
+    CFE_MSG_SequenceCount_t    seqcnt  = 0;
+    CFE_MSG_Size_t             size    = 0;
 
     CFE_MSG_GetHeaderVersion(MsgPtr, &hdrver);
     if (hdrver != 0x7)

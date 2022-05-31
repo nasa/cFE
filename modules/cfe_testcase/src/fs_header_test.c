@@ -34,8 +34,10 @@ char *fsAddrPtr = NULL;
 
 static osal_id_t setup_file(void)
 {
-    osal_id_t id;
+    osal_id_t id = OS_OBJECT_ID_UNDEFINED;
+
     UtAssert_INT32_EQ(OS_OpenCreate(&id, OS_TEST_HEADER_FILENAME, OS_FILE_FLAG_CREATE, OS_READ_WRITE), OS_SUCCESS);
+
     return id;
 }
 
@@ -70,6 +72,8 @@ void TestReadHeader(void)
     const char *    TestDescription = "TEST_HEADER";
     osal_id_t       fd              = setup_file();
 
+    memset(&ReadHeader, 0, sizeof(ReadHeader));
+
     UtPrintf("Testing: CFE_FS_ReadHeader");
 
     UtAssert_VOIDCALL(CFE_FS_InitHeader(&Header, TestDescription, CFE_FS_SubType_ES_ERLOG));
@@ -95,6 +99,8 @@ void TestTimeStamp(void)
     const char *       TestDescription = "TEST_HEADER";
     CFE_TIME_SysTime_t NewTimestamp    = {0xFFFFFFFF, 0xFFFFFFFF};
     osal_id_t          fd              = setup_file();
+
+    memset(&ReadHeader, 0, sizeof(ReadHeader));
 
     UtPrintf("Testing: CFE_FS_SetTimestamp");
 

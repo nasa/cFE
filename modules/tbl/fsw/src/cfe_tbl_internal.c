@@ -812,8 +812,8 @@ int32 CFE_TBL_LoadFromFile(const char *AppName, CFE_TBL_LoadBuff_t *WorkingBuffe
     int32              OsStatus;
     CFE_FS_Header_t    StdFileHeader;
     CFE_TBL_File_Hdr_t TblFileHeader;
-    osal_id_t          FileDescriptor;
-    size_t             FilenameLen = strlen(Filename);
+    osal_id_t          FileDescriptor = OS_OBJECT_ID_UNDEFINED;
+    size_t             FilenameLen    = strlen(Filename);
     uint32             NumBytes;
     uint8              ExtraByte;
 

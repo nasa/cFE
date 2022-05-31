@@ -106,6 +106,9 @@ void CFE_ES_BackgroundTask(void)
     OS_time_t                          LastTime;
     const CFE_ES_BackgroundJobEntry_t *JobPtr;
 
+    memset(&LastTime, 0, sizeof(LastTime));
+    memset(&CurrTime, 0, sizeof(CurrTime));
+
     CFE_PSP_GetTime(&LastTime);
 
     while (true)

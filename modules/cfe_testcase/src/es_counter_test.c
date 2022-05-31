@@ -62,6 +62,13 @@ void TestCounterCreateDelete(void)
         CFE_Assert_STATUS_MAY_BE(CFE_SUCCESS);
     }
 
+    /* If no counters were available skip the rest of the test */
+    if (NumCounters == 0)
+    {
+        UtAssert_MIR("No ES generic counters available for testing, skipping");
+        return;
+    }
+
     /* Confirm that the expected number of counters were created */
     UtAssert_UINT32_LTEQ(NumCounters, CFE_PLATFORM_ES_MAX_GEN_COUNTERS);
 

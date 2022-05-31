@@ -50,8 +50,9 @@ void TestLibIDToIndex(void)
     UtPrintf("Testing: CFE_ES_LibID_ToIndex");
     const char *   LibName = "ASSERT_LIB";
     CFE_ES_LibId_t LibId;
-    uint32         LibIdx;
-    uint32         idx;
+    uint32         LibIdx = 0;
+    uint32         idx    = 0;
+
     UtAssert_INT32_EQ(CFE_ES_GetLibIDByName(&LibId, LibName), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_LibID_ToIndex(LibId, &LibIdx), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_LibID_ToIndex(LibId, &idx), CFE_SUCCESS);
@@ -64,10 +65,12 @@ void TestLibIDToIndex(void)
 
 void TestTaskIDToIndex(void)
 {
+    CFE_ES_TaskId_t TaskId  = CFE_ES_TASKID_UNDEFINED;
+    uint32          TaskIdx = 0;
+    uint32          idx     = 0;
+
     UtPrintf("Testing: CFE_ES_TaskID_ToIndex");
-    CFE_ES_TaskId_t TaskId;
-    uint32          TaskIdx;
-    uint32          idx;
+
     UtAssert_INT32_EQ(CFE_ES_GetTaskID(&TaskId), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_TaskID_ToIndex(TaskId, &TaskIdx), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_ES_TaskID_ToIndex(TaskId, &idx), CFE_SUCCESS);

@@ -2047,6 +2047,8 @@ void Test_CFE_TBL_Load(void)
     CFE_TBL_RegistryRec_t *     RegRecPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
 
+    memset(&TestTable1, 0, sizeof(TestTable1));
+
     UtPrintf("Begin Test Load");
 
     StdFileHeader.SpacecraftID = CFE_PLATFORM_TBL_VALID_SCID_1;
@@ -2528,6 +2530,8 @@ void Test_CFE_TBL_Manage(void)
     void *                      App2TblPtr;
     CFE_TBL_AccessDescriptor_t *AccessDescPtr;
     CFE_TBL_Handle_t            AccessIterator;
+
+    memset(&TestTable1, 0, sizeof(TestTable1));
 
     UtPrintf("Begin Test Manage");
 
@@ -3030,6 +3034,8 @@ void Test_CFE_TBL_TblMod(void)
     CFE_TBL_Handle_t            AccessIterator;
     uint8                       CDS_Data[sizeof(UT_Table1_t)];
     uint32                      ExpectedCrc;
+
+    memset(&TblInfo1, 0, sizeof(TblInfo1));
 
     UtPrintf("Begin Test Table Modified");
 

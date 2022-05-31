@@ -857,9 +857,9 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_Qos_t Quality)
 {
     CFE_SB_SingleSubscriptionTlm_t SubRptMsg;
-    int32                          Status;
+    int32                          Status = CFE_SUCCESS;
 
-    Status = CFE_SUCCESS;
+    memset(&SubRptMsg, 0, sizeof(SubRptMsg));
 
     if (CFE_SB_Global.SubscriptionReporting == CFE_SB_ENABLE)
     {

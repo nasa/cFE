@@ -67,8 +67,8 @@ static CFE_FT_TestBigMessage_t CFE_FT_BigMsg;
 
 void TestBasicTransmitRecv(void)
 {
-    CFE_SB_PipeId_t                PipeId1;
-    CFE_SB_PipeId_t                PipeId2;
+    CFE_SB_PipeId_t                PipeId1 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t                PipeId2 = CFE_SB_INVALID_PIPE;
     CFE_FT_TestCmdMessage_t        CmdMsg;
     CFE_FT_TestTlmMessage_t        TlmMsg;
     CFE_SB_MsgId_t                 MsgId;
@@ -76,6 +76,9 @@ void TestBasicTransmitRecv(void)
     CFE_SB_Buffer_t *              MsgBuf;
     const CFE_FT_TestCmdMessage_t *CmdPtr;
     const CFE_FT_TestTlmMessage_t *TlmPtr;
+
+    memset(&CmdMsg, 0, sizeof(CmdMsg));
+    memset(&TlmMsg, 0, sizeof(TlmMsg));
 
     UtPrintf("Testing: CFE_SB_TransmitMsg");
 
@@ -218,10 +221,10 @@ void TestBasicTransmitRecv(void)
  */
 void TestMsgBroadcast(void)
 {
-    CFE_SB_PipeId_t                PipeId1;
-    CFE_SB_PipeId_t                PipeId2;
-    CFE_SB_PipeId_t                PipeId3;
-    CFE_SB_PipeId_t                PipeId4;
+    CFE_SB_PipeId_t                PipeId1 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t                PipeId2 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t                PipeId3 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t                PipeId4 = CFE_SB_INVALID_PIPE;
     CFE_FT_TestCmdMessage_t        CmdMsg;
     CFE_SB_MsgId_t                 MsgId;
     CFE_SB_Buffer_t *              MsgBuf1;
@@ -229,6 +232,8 @@ void TestMsgBroadcast(void)
     CFE_SB_Buffer_t *              MsgBuf3;
     CFE_SB_Buffer_t *              MsgBuf4;
     const CFE_FT_TestCmdMessage_t *CmdPtr;
+
+    memset(&CmdMsg, 0, sizeof(CmdMsg));
 
     UtPrintf("Testing: MsgLimit enforcement");
 
@@ -373,12 +378,12 @@ void TestMsgBroadcast(void)
 /* This is a variant of the message transmit API that does not copy */
 void TestZeroCopyTransmitRecv(void)
 {
-    CFE_SB_PipeId_t         PipeId1;
-    CFE_SB_PipeId_t         PipeId2;
+    CFE_SB_PipeId_t         PipeId1 = CFE_SB_INVALID_PIPE;
+    CFE_SB_PipeId_t         PipeId2 = CFE_SB_INVALID_PIPE;
     CFE_SB_Buffer_t *       CmdBuf;
     CFE_SB_Buffer_t *       TlmBuf;
     CFE_SB_Buffer_t *       MsgBuf;
-    CFE_SB_MsgId_t          MsgId;
+    CFE_SB_MsgId_t          MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_MSG_SequenceCount_t SeqCmd1;
     CFE_MSG_SequenceCount_t SeqTlm1;
     CFE_MSG_SequenceCount_t SeqCmd2;
