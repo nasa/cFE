@@ -361,7 +361,8 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
         if (AppDataPtr->SquelchTokens == 0 && CreditCount == 0)
         {
             CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppName));
-            EVS_SendEvent(CFE_EVS_SQUELCHED_ERR_EID, CFE_EVS_EventType_ERROR, "Events squelched, AppName = %s");
+            EVS_SendEvent(CFE_EVS_SQUELCHED_ERR_EID, CFE_EVS_EventType_ERROR, "Events squelched, AppName = %s",
+                          AppName);
         }
 
         /* The above is in a separate block from below in case LOWER_THRESHOLD=0 for no hysteresis */

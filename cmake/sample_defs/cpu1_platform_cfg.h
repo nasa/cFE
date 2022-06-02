@@ -1353,10 +1353,10 @@
 **  \cfeevscfg Sustained number of event messages per second per app before squelching
 **
 **  \par Description:
-**       Sustained number of events that may be emitted per app per second. 
+**       Sustained number of events that may be emitted per app per second.
 **
 **  \par Limits
-**       This number must be less than or equal to #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST 
+**       This number must be less than or equal to #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST
 */
 #define CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC 8
 
