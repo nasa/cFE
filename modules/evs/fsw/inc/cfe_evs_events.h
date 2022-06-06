@@ -478,7 +478,7 @@
  *  #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST in one moment or
  *  #CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC sustained
  */
-#define CFE_EVS_SQUELCHED_ERR_EID 43
+#define CFE_EVS_SQUELCHED_ERR_EID 44
 /**\}*/
 
 #endif /* CFE_EVS_EVENTS_H */

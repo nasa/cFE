@@ -123,7 +123,7 @@ typedef struct
     CFE_SB_PipeId_t           EVS_CommandPipe;
     osal_id_t                 EVS_SharedDataMutexID;
     CFE_ES_AppId_t            EVS_AppID;
-
+    uint32                    EVS_EventBurstMax;
 } CFE_EVS_Global_t;
 
 /*

@@ -214,22 +214,19 @@ static void UT_EVS_ResetSquelchCurrentContext(void)
     if (AppDataPtr)
     {
         AppDataPtr->SquelchedCount            = 0;
-        AppDataPtr->SquelchTokens             = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
+        AppDataPtr->SquelchTokens             = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
         AppDataPtr->LastSquelchCreditableTime = OS_TimeAssembleFromMilliseconds(0, 0);
     }
 }
 
-static void UT_EVS_DisableSquelchCurrentContext(void)
+static void UT_EVS_DisableSquelch(void)
 {
-    EVS_AppData_t *AppDataPtr;
+    CFE_EVS_Global.EVS_EventBurstMax = 0;
+}
 
-    EVS_GetCurrentContext(&AppDataPtr, NULL);
-    if (AppDataPtr)
-    {
-        AppDataPtr->SquelchedCount            = 0;
-        AppDataPtr->SquelchTokens             = INT32_MAX;
-        AppDataPtr->LastSquelchCreditableTime = OS_TimeAssembleFromMilliseconds(0, 0);
-    }
+static void UT_EVS_ResetSquelch(void)
+{
+    CFE_EVS_Global.EVS_EventBurstMax = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
 }
 
 /*
@@ -410,8 +407,7 @@ void Test_Init(void)
                                  &UT_EVS_EventBuf);
     UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_DISPORT_EID);
 
-    /* Disable squelching */
-    UT_EVS_DisableSquelchCurrentContext();
+    UT_EVS_DisableSquelch();
 }
 
 /*
@@ -525,9 +521,6 @@ void Test_UnregisteredApp(void)
     /* Re-register the application for subsequent tests */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY));
-
-    /* Re-disable squelching after registering*/
-    UT_EVS_DisableSquelchCurrentContext();
 }
 
 /*
@@ -584,9 +577,6 @@ void Test_FilterRegistration(void)
 
     CFE_UtAssert_SUCCESS(CFE_EVS_Register(filter, CFE_PLATFORM_EVS_MAX_EVENT_FILTERS + 1, CFE_EVS_EventFilter_BINARY));
 
-    /* Re-disable squelching after registering*/
-    UT_EVS_DisableSquelchCurrentContext();
-
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageSendCounter = 0;
 
     /* Send 1st information message, should get through */
@@ -627,9 +617,6 @@ void Test_FilterRegistration(void)
     /* Return application to original state: re-register application */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY));
-
-    /* Re-disable squelching after registering*/
-    UT_EVS_DisableSquelchCurrentContext();
 
     /* Test sending an event with app ID to a registered, filtered
      * application
@@ -680,9 +667,6 @@ void Test_FilterReset(void)
     /* Return application to original state: re-register application */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY));
-
-    /* Re-disable squelching after registering*/
-    UT_EVS_DisableSquelchCurrentContext();
 }
 
 /*
@@ -1710,9 +1694,6 @@ void Test_FilterCmd(void)
     appmaskcmd.Payload.EventID = 0;
     CFE_UtAssert_SUCCESS(CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY));
 
-    /* Re-disable squelching after registering*/
-    UT_EVS_DisableSquelchCurrentContext();
-
     /* Enable all application event message output */
     UT_InitData();
     appbitcmd.Payload.BitMask = CFE_EVS_DEBUG_BIT | CFE_EVS_INFORMATION_BIT | CFE_EVS_ERROR_BIT | CFE_EVS_CRITICAL_BIT;
@@ -1741,9 +1722,6 @@ void Test_FilterCmd(void)
     /* Return application to original state, re-register application */
     UT_InitData();
     CFE_UtAssert_SUCCESS(CFE_EVS_Register(NULL, 0, CFE_EVS_EventFilter_BINARY));
-
-    /* Re-disable squelching after registering*/
-    UT_EVS_DisableSquelchCurrentContext();
 }
 
 /*
@@ -1875,6 +1853,7 @@ void Test_InvalidCmd(void)
     UT_EVS_DoDispatchCheckEvents(&cmd, 0, UT_TPID_CFE_EVS_CMD_CLEAR_LOG_CC, &UT_EVS_EventBuf);
     UtAssert_UINT32_EQ(UT_EVS_EventBuf.EventID, CFE_EVS_LEN_ERR_EID);
 }
+
 /*
 ** Test squelching
 */
@@ -1894,6 +1873,7 @@ void Test_Squelching(void)
     UtPrintf("Begin Test Squelching");
 
     UT_InitData();
+    UT_EVS_ResetSquelch();
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageFormatMode = CFE_EVS_MsgFormat_LONG;
 
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), UT_SoftwareBusSnapshotHook, &SnapshotData);
@@ -1965,8 +1945,8 @@ void Test_Squelching(void)
         UtAssert_UINT32_EQ(CapturedTlm.Payload.PacketID.EventID, EVENT_ID);
     }
 
+    UT_EVS_DisableSquelch();
     UT_SetHookFunction(UT_KEY(CFE_SB_TransmitMsg), NULL, NULL);
-    UT_EVS_ResetSquelchCurrentContext();
 }
 
 /*

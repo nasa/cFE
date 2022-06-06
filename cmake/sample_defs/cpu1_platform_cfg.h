@@ -1345,7 +1345,7 @@
 **       Setting this to 0 will cause events to be unrestricted.
 **
 **  \par Limits
-**       This number must be less than or equal to INT_MAX
+**       This number must be less than or equal to INT_MAX/1000
 */
 #define CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST 16
 

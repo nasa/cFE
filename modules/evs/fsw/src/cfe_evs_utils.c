@@ -299,14 +299,15 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
  *-----------------------------------------------------------------*/
 bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
 {
-    bool      NotSquelched = true;
+    bool      NotSquelched     = true;
+    bool      SendSquelchEvent = false;
     OS_time_t CurrentTime;
     int64     DeltaTimeMs;
     int64     CreditCount;
     char      AppName[OS_MAX_API_NAME];
 
     /* Set maximum token credits to burst size */
-    const int32 UPPER_THRESHOLD = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
+    const int32 UPPER_THRESHOLD = CFE_EVS_Global.EVS_EventBurstMax * 1000;
     /*
      * Set lower threshold to stop decrementing
      * Make this -CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST to add some hysteresis
@@ -315,23 +316,27 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
      * CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC) seconds after flooding stops if
      * saturated
      */
-    const int32 LOWER_THRESHOLD = -CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
+    const int32 LOWER_THRESHOLD = -CFE_EVS_Global.EVS_EventBurstMax * 1000;
 
-    if (CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST != 0)
+    /* Set this to 1000 to avoid integer division while computing CreditCount */
+    const int32 EVENT_COST = 1000;
+
+    if (CFE_EVS_Global.EVS_EventBurstMax != 0)
     {
         /*
          * We use a timer here since configurations are not guaranteed to send EVS HK wakeups at 1Hz
          * Use a non-settable timer to prevent this from breaking w/ time changes
          */
+        OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
         CFE_PSP_GetTime(&CurrentTime);
         DeltaTimeMs = OS_TimeGetTotalMilliseconds(OS_TimeSubtract(CurrentTime, AppDataPtr->LastSquelchCreditableTime));
 
         /* Calculate how many tokens to credit in elapsed time since last creditable event */
-        CreditCount = DeltaTimeMs * CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC / 1000;
+        CreditCount = DeltaTimeMs * CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC;
 
         if (CreditCount > 0)
         {
-            /* Update last squelch returned time if we credited any tokens*/
+            /* Update last squelch returned time if we credited any tokens */
             AppDataPtr->LastSquelchCreditableTime = CurrentTime;
 
             /*
@@ -339,11 +344,7 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
              * Shouldn't rollover, as calculations are done in int64 space due to
              * promotion rules then bounded before demotion
              */
-            if (AppDataPtr->SquelchTokens > UPPER_THRESHOLD)
-            {
-                /* Do nothing, squelch tokens deliberately set high by external means for unit testing */
-            }
-            else if (AppDataPtr->SquelchTokens + CreditCount > UPPER_THRESHOLD)
+            if (AppDataPtr->SquelchTokens + CreditCount > UPPER_THRESHOLD)
             {
                 AppDataPtr->SquelchTokens = UPPER_THRESHOLD;
             }
@@ -354,15 +355,14 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
         }
 
         /*
-         * Send event messages if we're spamming (need a minimum credit
-         * count of 1 to maintain neutral or more to transition from
+         * Send squelch event message if we're spamming (need a minimum credit
+         * count of one event's worth to maintain neutral or more to transition from
          * negative to positive, else it's positive to negative and we send event).
          */
-        if (AppDataPtr->SquelchTokens == 0 && CreditCount == 0)
+        if (AppDataPtr->SquelchTokens == 0 && CreditCount < EVENT_COST)
         {
-            CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppName));
-            EVS_SendEvent(CFE_EVS_SQUELCHED_ERR_EID, CFE_EVS_EventType_ERROR, "Events squelched, AppName = %s",
-                          AppName);
+            // Set flag and send event later, since we still own mutex
+            SendSquelchEvent = true;
         }
 
         /* The above is in a separate block from below in case LOWER_THRESHOLD=0 for no hysteresis */
@@ -376,13 +376,21 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
         else if (AppDataPtr->SquelchTokens <= 0)
         {
             NotSquelched = false;
-            AppDataPtr->SquelchTokens--;
+            AppDataPtr->SquelchTokens -= EVENT_COST;
             AppDataPtr->SquelchedCount++;
         }
         else /* AppDataPtr->SquelchTokens > 0, no squelching */
         {
             /* NotSquelched already true */
-            AppDataPtr->SquelchTokens--;
+            AppDataPtr->SquelchTokens -= EVENT_COST;
+        }
+        OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
+
+        if (SendSquelchEvent)
+        {
+            CFE_ES_GetAppName(AppName, EVS_AppDataGetID(AppDataPtr), sizeof(AppName));
+            EVS_SendEvent(CFE_EVS_SQUELCHED_ERR_EID, CFE_EVS_EventType_ERROR, "Events squelched, AppName = %s",
+                          AppName);
         }
     }
     return NotSquelched;
