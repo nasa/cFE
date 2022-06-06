@@ -37,10 +37,39 @@
 /* Include Files */
 #include "osapi.h"
 
-/*
- * Define a type for readability.
+/**
+ * \brief cFE Status type for readability and eventually type safety
  */
 typedef int32 CFE_Status_t;
+
+/**
+ * \brief cFE Status macro for literal
+ */
+#define CFE_STATUS_C(X) ((CFE_Status_t)(X))
+
+/**
+ * \brief cFE Status converted to string length limit
+ *
+ * Used for sizing CFE_StatusString_t intended for use in printing CFE_Status_t values
+ * Sized for 0x%08x and NULL
+ */
+#define CFE_STATUS_STRING_LENGTH 11
+
+/**
+ * @brief For the @ref CFE_ES_StatusToString() function, to ensure
+ * everyone is making an array of the same length.
+ */
+typedef char CFE_StatusString_t[CFE_STATUS_STRING_LENGTH];
+
+/**
+ * @brief Convert status to a string
+ *
+ * @param[in] status Status value to convert
+ * @param[out] status_string Buffer to store status converted to string
+ *
+ * @return Passed in string pointer
+ */
+char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_string);
 
 /*
 **  Status Codes are 32 bit values formatted as follows:

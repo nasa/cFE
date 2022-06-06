@@ -954,3 +954,20 @@ CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
 
     return UT_GenStub_GetReturnValue(CFE_ES_WriteToSysLog, CFE_Status_t);
 }
+
+/*
+ * ----------------------------------------------------
+ * Generated stub function for CFE_ES_StatusToString()
+ * ----------------------------------------------------
+ */
+char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_string)
+{
+    UT_GenStub_SetupReturnBuffer(CFE_ES_StatusToString, char *);
+
+    UT_GenStub_AddParam(CFE_ES_StatusToString, CFE_Status_t, status);
+    UT_GenStub_AddParam(CFE_ES_StatusToString, CFE_StatusString_t *, status_string);
+
+    UT_GenStub_Execute(CFE_ES_StatusToString, Basic, NULL);
+
+    return UT_GenStub_GetReturnValue(CFE_ES_StatusToString, char *);
+}
