@@ -1884,8 +1884,8 @@ void Test_Squelching(void)
     for (j = 0; j < sizeof(SendEventFuncs) / sizeof(SendEventFuncs[0]); j++)
     {
         UT_EVS_ResetSquelchCurrentContext();
-	EVS_GetCurrentContext(&AppDataPtr, NULL);
-	AppDataPtr->SquelchedCount = CFE_EVS_MAX_SQUELCH_COUNT-CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
+        EVS_GetCurrentContext(&AppDataPtr, NULL);
+        AppDataPtr->SquelchedCount = CFE_EVS_MAX_SQUELCH_COUNT - CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
 
         SnapshotData.Count = 0;
         /*
@@ -1956,7 +1956,7 @@ void Test_Squelching(void)
         UtAssert_UINT32_EQ(SnapshotData.Count, CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST + 4);
         UtAssert_UINT32_EQ(CapturedTlm.Payload.PacketID.EventID, EVENT_ID);
         UtAssert_UINT32_EQ(EVS_Retval, CFE_SUCCESS);
-	UtAssert_UINT32_EQ(AppDataPtr->SquelchedCount, CFE_EVS_MAX_SQUELCH_COUNT);
+        UtAssert_UINT32_EQ(AppDataPtr->SquelchedCount, CFE_EVS_MAX_SQUELCH_COUNT);
     }
 
     UT_EVS_DisableSquelch();
