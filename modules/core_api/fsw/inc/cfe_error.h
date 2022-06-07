@@ -257,6 +257,14 @@ typedef int32 CFE_Status_t;
 #define CFE_EVS_INVALID_PARAMETER ((CFE_Status_t)0xc2000008)
 
 /**
+ * @brief Event squelched
+ *
+ *  Event squelched due to being sent at too high a rate
+ *
+ */
+#define CFE_EVS_APP_SQUELCHED ((CFE_Status_t)0xc2000009)
+
+/**
  * @brief Not Implemented
  *
  *  Current version of cFE does not have the function or the feature

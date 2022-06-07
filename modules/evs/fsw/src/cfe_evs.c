@@ -71,6 +71,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
             /* Initialize application event data */
             AppDataPtr->ActiveFlag           = true;
             AppDataPtr->EventTypesActiveFlag = CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG;
+            AppDataPtr->SquelchTokens        = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000;
 
             /* Set limit for number of provided filters */
             if (NumEventFilters < CFE_PLATFORM_EVS_MAX_EVENT_FILTERS)
@@ -143,13 +144,20 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
         }
         else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
         {
-            /* Get current spacecraft time */
-            Time = CFE_TIME_GetTime();
+            if (EVS_CheckAndIncrementSquelchTokens(AppDataPtr) == true)
+            {
+                /* Get current spacecraft time */
+                Time = CFE_TIME_GetTime();
 
-            /* Send the event packets */
-            va_start(Ptr, Spec);
-            EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
-            va_end(Ptr);
+                /* Send the event packets */
+                va_start(Ptr, Spec);
+                EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
+                va_end(Ptr);
+            }
+            else
+            {
+                Status = CFE_EVS_APP_SQUELCHED;
+            }
         }
     }
 
@@ -188,13 +196,20 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
     }
     else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
     {
-        /* Get current spacecraft time */
-        Time = CFE_TIME_GetTime();
+        if (EVS_CheckAndIncrementSquelchTokens(AppDataPtr) == true)
+        {
+            /* Get current spacecraft time */
+            Time = CFE_TIME_GetTime();
 
-        /* Send the event packets */
-        va_start(Ptr, Spec);
-        EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
-        va_end(Ptr);
+            /* Send the event packets */
+            va_start(Ptr, Spec);
+            EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
+            va_end(Ptr);
+        }
+        else
+        {
+            Status = CFE_EVS_APP_SQUELCHED;
+        }
     }
 
     return Status;
@@ -231,10 +246,17 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
         }
         else if (EVS_IsFiltered(AppDataPtr, EventID, EventType) == false)
         {
-            /* Send the event packets */
-            va_start(Ptr, Spec);
-            EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
-            va_end(Ptr);
+            if (EVS_CheckAndIncrementSquelchTokens(AppDataPtr) == true)
+            {
+                /* Send the event packets */
+                va_start(Ptr, Spec);
+                EVS_GenerateEventTelemetry(AppDataPtr, EventID, EventType, &Time, Spec, Ptr);
+                va_end(Ptr);
+            }
+            else
+            {
+                Status = CFE_EVS_APP_SQUELCHED;
+            }
         }
     }
 
