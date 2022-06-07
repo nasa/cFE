@@ -1250,7 +1250,8 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
 
     if (Status == CFE_SUCCESS)
     {
-        AppDataPtr->EventCount = 0;
+        AppDataPtr->EventCount     = 0;
+        AppDataPtr->SquelchedCount = 0;
 
         EVS_SendEvent(CFE_EVS_RSTEVTCNT_EID, CFE_EVS_EventType_DEBUG,
                       "Reset Event Counter Command Received with AppName = %s", LocalName);

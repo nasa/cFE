@@ -318,7 +318,9 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
      */
     const int32 LOWER_THRESHOLD = -CFE_EVS_Global.EVS_EventBurstMax * 1000;
 
-    /* Set this to 1000 to avoid integer division while computing CreditCount */
+    /*
+     * Set this to 1000 to avoid integer division while computing CreditCount
+     */
     const int32 EVENT_COST = 1000;
 
     if (CFE_EVS_Global.EVS_EventBurstMax != 0)
@@ -334,7 +336,15 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
         /* Calculate how many tokens to credit in elapsed time since last creditable event */
         CreditCount = DeltaTimeMs * CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC;
 
-        if (CreditCount > 0)
+        /*
+         * Don't immediately credit < 1 event worth of credits; defer until
+         * enough time that CreditCount > EVENT_COST
+         *
+         * This prevents condition where credits would creep down slowly
+         * through the range which squelch event messages are emitted causing
+         * those events to be spammed instead, defeating the suppression.
+         */
+        if (CreditCount >= EVENT_COST)
         {
             /* Update last squelch returned time if we credited any tokens */
             AppDataPtr->LastSquelchCreditableTime = CurrentTime;
@@ -354,36 +364,36 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
             }
         }
 
+        if (AppDataPtr->SquelchTokens <= 0)
+        {
+            AppDataPtr->SquelchedCount++;
+            NotSquelched = false;
+
+            /*
+             * Send squelch event message if cross threshold. This has to be a
+             * range between -EVENT_COST and 0 due to non-whole event-cost credits being
+             * returned allowing 0 to be skipped over. This is solved by
+             * checking a range and ensuring EVENT_COST credits are returned at minimum.
+             */
+            if (AppDataPtr->SquelchTokens > -EVENT_COST && CreditCount < EVENT_COST)
+            {
+                // Set flag and send event later, since we still own mutex
+                SendSquelchEvent = true;
+            }
+        }
+
         /*
-         * Send squelch event message if we're spamming (need a minimum credit
-         * count of one event's worth to maintain neutral or more to transition from
-         * negative to positive, else it's positive to negative and we send event).
+         * Subtract event cost
          */
-        if (AppDataPtr->SquelchTokens == 0 && CreditCount < EVENT_COST)
+        if (AppDataPtr->SquelchTokens - EVENT_COST < LOWER_THRESHOLD)
         {
-            // Set flag and send event later, since we still own mutex
-            SendSquelchEvent = true;
+            AppDataPtr->SquelchTokens = LOWER_THRESHOLD;
         }
-
-        /* The above is in a separate block from below in case LOWER_THRESHOLD=0 for no hysteresis */
-
-        if (AppDataPtr->SquelchTokens <= LOWER_THRESHOLD)
+        else
         {
-            NotSquelched = false;
-            /* Stop decrementing if lower-threshold reached */
-            AppDataPtr->SquelchedCount++;
-        }
-        else if (AppDataPtr->SquelchTokens <= 0)
-        {
-            NotSquelched = false;
-            AppDataPtr->SquelchTokens -= EVENT_COST;
-            AppDataPtr->SquelchedCount++;
-        }
-        else /* AppDataPtr->SquelchTokens > 0, no squelching */
-        {
-            /* NotSquelched already true */
             AppDataPtr->SquelchTokens -= EVENT_COST;
         }
+
         OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
 
         if (SendSquelchEvent)
