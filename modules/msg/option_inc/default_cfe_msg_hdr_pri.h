@@ -51,6 +51,20 @@
  */
 #define CFE_MSG_PTR(shdr) (&((shdr).Msg))
 
+/**
+ * \brief Macro to initialize a command header, useful in tables that define commands
+ */
+#define CFE_MSG_CMD_HDR_INIT(mid, size, fc, cksum)                       \
+    {                                                                    \
+        .Msg.CCSDS =                                                     \
+            {                                                            \
+                .Pri = {.StreamId = {((mid) >> 8) & 0xFF, (mid)&0xFF},   \
+                        .Sequence = {0xC0, 0},                           \
+                        .Length   = {((size)-7) >> 8, ((size)-7) & 0xFF}}, \
+            },                                                           \
+        CFE_MSG_CMD_HDR_SEC_INIT(fc, cksum)                              \
+    }
+
 /*
  * Type Definitions
  */
