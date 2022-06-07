@@ -366,7 +366,10 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
 
         if (AppDataPtr->SquelchTokens <= 0)
         {
-            AppDataPtr->SquelchedCount++;
+	    if(AppDataPtr->SquelchedCount < CFE_EVS_MAX_SQUELCHED_COUNT)
+            {
+                AppDataPtr->SquelchedCount++;
+	    }
             NotSquelched = false;
 
             /*
