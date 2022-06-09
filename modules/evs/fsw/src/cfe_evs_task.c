@@ -78,6 +78,8 @@ int32 CFE_EVS_EarlyInit(void)
     CFE_EVS_Global.EVS_TlmPkt.Payload.OutputPort        = CFE_PLATFORM_EVS_PORT_DEFAULT;
     CFE_EVS_Global.EVS_TlmPkt.Payload.LogMode           = CFE_PLATFORM_EVS_DEFAULT_LOG_MODE;
 
+    CFE_EVS_Global.EVS_EventBurstMax = CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST;
+
     /* Get a pointer to the CFE reset area from the BSP */
     PspStatus = CFE_PSP_GetResetArea(&resetAreaAddr, &resetAreaSize);
 
@@ -653,9 +655,11 @@ int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     {
         if (EVS_AppDataIsUsed(AppDataPtr))
         {
-            AppTlmDataPtr->AppID                 = EVS_AppDataGetID(AppDataPtr);
-            AppTlmDataPtr->AppEnableStatus       = AppDataPtr->ActiveFlag;
-            AppTlmDataPtr->AppMessageSentCounter = AppDataPtr->EventCount;
+            AppTlmDataPtr->AppID                      = EVS_AppDataGetID(AppDataPtr);
+            AppTlmDataPtr->AppEnableStatus            = AppDataPtr->ActiveFlag;
+            AppTlmDataPtr->AppMessageSentCounter      = AppDataPtr->EventCount;
+            AppTlmDataPtr->AppMessageSquelchedCounter = AppDataPtr->SquelchedCount;
+
             ++j;
             ++AppTlmDataPtr;
         }
@@ -665,9 +669,10 @@ int32 CFE_EVS_ReportHousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
     /* Clear unused portion of event state data in telemetry packet */
     for (i = j; i < CFE_MISSION_ES_MAX_APPLICATIONS; i++)
     {
-        AppTlmDataPtr->AppID                 = CFE_ES_APPID_UNDEFINED;
-        AppTlmDataPtr->AppEnableStatus       = false;
-        AppTlmDataPtr->AppMessageSentCounter = 0;
+        AppTlmDataPtr->AppID                      = CFE_ES_APPID_UNDEFINED;
+        AppTlmDataPtr->AppEnableStatus            = false;
+        AppTlmDataPtr->AppMessageSentCounter      = 0;
+        AppTlmDataPtr->AppMessageSquelchedCounter = 0;
     }
 
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_EVS_Global.EVS_TlmPkt.TelemetryHeader));
@@ -1245,7 +1250,8 @@ int32 CFE_EVS_ResetAppCounterCmd(const CFE_EVS_ResetAppCounterCmd_t *data)
 
     if (Status == CFE_SUCCESS)
     {
-        AppDataPtr->EventCount = 0;
+        AppDataPtr->EventCount     = 0;
+        AppDataPtr->SquelchedCount = 0;
 
         EVS_SendEvent(CFE_EVS_RSTEVTCNT_EID, CFE_EVS_EventType_DEBUG,
                       "Reset Event Counter Command Received with AppName = %s", LocalName);
@@ -1614,6 +1620,7 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
                     AppDataFile.ActiveFlag           = AppDataPtr->ActiveFlag;
                     AppDataFile.EventCount           = AppDataPtr->EventCount;
                     AppDataFile.EventTypesActiveFlag = AppDataPtr->EventTypesActiveFlag;
+                    AppDataFile.SquelchedCount       = AppDataPtr->SquelchedCount;
 
                     /* Copy application filter data to application file data record */
                     memcpy(AppDataFile.Filters, AppDataPtr->BinFilters,
