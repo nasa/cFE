@@ -248,5 +248,6 @@ void TestResourceID(void);
 void TestGenericCounterAPI(void);
 void TestGenericPool(void);
 void TestLibs(void);
+void TestStatusToString(void);
 
 #endif /* ES_UT_H */

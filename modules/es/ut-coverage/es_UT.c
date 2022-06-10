@@ -635,6 +635,7 @@ void UtTest_Setup(void)
     UT_ADD_TEST(TestESMempool);
     UT_ADD_TEST(TestSysLog);
     UT_ADD_TEST(TestBackground);
+    UT_ADD_TEST(TestStatusToString);
 }
 
 /*
@@ -5630,4 +5631,35 @@ void TestBackground(void)
 
     /* The number of jobs running should be 1 (perf log dump) */
     UtAssert_UINT32_EQ(CFE_ES_Global.BackgroundTask.NumJobsRunning, 1);
+}
+
+/*--------------------------------------------------------------------------------*
+ * TestStatusToString test helper function to avoid repeating logic
+ *--------------------------------------------------------------------------------*/
+void TestStatusToString_Helper(CFE_Status_t status)
+{
+    CFE_StatusString_t status_string;
+    char *             rtn_addr;
+    char               expected[CFE_STATUS_STRING_LENGTH + 1];
+
+    /* Used oversized string to test for truncation */
+    snprintf(expected, sizeof(expected), "0x%08x", (unsigned int)status);
+    rtn_addr = CFE_ES_StatusToString(status, &status_string);
+    UtAssert_ADDRESS_EQ(rtn_addr, status_string);
+    UtAssert_STRINGBUF_EQ(status_string, sizeof(status_string), expected, sizeof(expected));
+}
+
+/*--------------------------------------------------------------------------------*
+ * Functional CFE_ES_StatusToString test
+ *--------------------------------------------------------------------------------*/
+void TestStatusToString(void)
+{
+    /* NULL test */
+    UtAssert_ADDRESS_EQ(CFE_ES_StatusToString(CFE_SUCCESS, NULL), NULL);
+
+    /* Status value tests */
+    TestStatusToString_Helper(CFE_SUCCESS);
+    TestStatusToString_Helper(CFE_SEVERITY_ERROR);
+    TestStatusToString_Helper(CFE_STATUS_C(INT32_MAX));
+    TestStatusToString_Helper(CFE_STATUS_C(INT32_MIN));
 }
