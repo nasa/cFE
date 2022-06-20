@@ -42,6 +42,7 @@
 #include "cfe_psp.h"
 #include <string.h>
 
+#pragma GCC diagnostic ignored "-Wtype-limits"
 
 /*
 ** Pointer to performance log in the reset area

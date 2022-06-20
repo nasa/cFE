@@ -44,6 +44,8 @@
 ** Includes
 */
 #include "cfe_fs_decompress.h"
+#pragma GCC diagnostic ignored "-Wtype-limits"
+
 
 #ifndef CFE_OMIT_DEPRECATED_6_7 /* Entire file will be removed in major release */
 

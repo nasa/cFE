@@ -53,6 +53,7 @@
 #ifndef CFE_SPACECRAFT_ID_VALUE
 #define CFE_SPACECRAFT_ID_VALUE     0x42
 #endif
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
 
 Target_CfeConfigData GLOBAL_CFE_CONFIGDATA =

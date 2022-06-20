@@ -39,6 +39,7 @@
 ** Includes
 */
 #include "sb_UT.h"
+#pragma GCC diagnostic ignored "-Wshadow"
 
 /*
  * A method to add an SB "Subtest"
