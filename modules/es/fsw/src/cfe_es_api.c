@@ -2299,3 +2299,23 @@ void CFE_ES_ProcessAsyncEvent(void)
     /* This just wakes up the background task to log/handle the event. */
     CFE_ES_BackgroundWakeup();
 }
+
+/*----------------------------------------------------------------
+ *
+ * Function: CFE_ES_StatusToString
+ *
+ * Implemented per public API
+ * See description in header file for argument/return detail
+ *
+ *-----------------------------------------------------------------*/
+char *CFE_ES_StatusToString(CFE_Status_t status, CFE_StatusString_t *status_string)
+{
+    char *string = NULL;
+
+    if (status_string != NULL)
+    {
+        snprintf(*status_string, sizeof(*status_string), "0x%08x", (unsigned int)status);
+        string = *status_string;
+    }
+    return string;
+}

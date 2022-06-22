@@ -10,6 +10,13 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFE/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev143
+
+- Endian macro mask before shift to avoid shift overflow warning
+- Add macro for initializing command header
+- Add CFE_ES_StatusToString and CFE_STATUS_C
+- See <https://github.com/nasa/cFS/pull/505>
+
 ### Development Build: v7.0.0-rc4+dev136
 
 - Resolve UT uninit var static analysis warnings

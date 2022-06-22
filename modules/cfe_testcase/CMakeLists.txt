@@ -7,6 +7,7 @@ add_cfe_app(cfe_testcase
     src/cfe_test_table.c
     src/es_application_control_test.c
     src/es_behavior_test.c
+    src/es_error_test.c
     src/es_info_test.c
     src/es_task_test.c
     src/es_cds_test.c

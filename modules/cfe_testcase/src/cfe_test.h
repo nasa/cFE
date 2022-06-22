@@ -67,6 +67,7 @@ void ESApplicationControlTestSetup(void);
 void ESBehaviorestSetup(void);
 void ESCDSTestSetup(void);
 void ESCounterTestSetup(void);
+void ESErrorTestSetup(void);
 void ESInfoTestSetup(void);
 void ESMemPoolTestSetup(void);
 void ESMiscTestSetup(void);

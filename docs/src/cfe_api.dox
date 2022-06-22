@@ -84,6 +84,7 @@
       <LI> #CFE_ES_CalculateCRC - \copybrief CFE_ES_CalculateCRC
       <LI> #CFE_ES_WriteToSysLog - \copybrief CFE_ES_WriteToSysLog
       <LI> #CFE_ES_ProcessAsyncEvent - \copybrief CFE_ES_ProcessAsyncEvent
+      <LI> #CFE_ES_StatusToString - \copybrief CFE_ES_StatusToString
     </UL>
     <LI> \ref CFEAPIESResourceID
     <UL>
