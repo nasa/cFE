@@ -58,7 +58,7 @@ void UT_DefaultHandler_CFE_TBL_GetAddress(void *UserObj, UT_EntryKey_t FuncKey, 
     int32 status;
 
     UT_Stub_GetInt32StatusCode(Context, &status);
-    if (status >= 0 /* JPHFIX: && !UT_Stub_CheckDefaultReturnValue(UT_KEY(CFE_TBL_GetAddress), &ForceValue) */)
+    if (status >= 0)
     {
         UT_Stub_CopyToLocal(UT_KEY(CFE_TBL_GetAddress), (uint8 *)TblPtr, sizeof(void *));
     }
