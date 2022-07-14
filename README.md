@@ -10,6 +10,11 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFE/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev145
+
+- remove commented out code
+- See <https://github.com/nasa/cFE/pull/2122>
+
 ### Development Build: v7.0.0-rc4+dev143
 
 - Endian macro mask before shift to avoid shift overflow warning
