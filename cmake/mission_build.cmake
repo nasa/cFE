@@ -249,6 +249,8 @@ function(prepare)
     "MISSION_PSPMODULES" 
     "MISSION_DEPS"
     "ENABLE_UNIT_TESTS"
+    "TGT_LEVEL"
+    "ARCH"
   )
   foreach(APP ${MISSION_DEPS})
     list(APPEND VARLIST "${APP}_MISSION_DIR")
