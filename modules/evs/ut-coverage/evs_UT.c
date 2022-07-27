@@ -1899,7 +1899,7 @@ void Test_Squelching(void)
         /*
          * Test CFE_EVS_SendEvent squelching
          */
-        for (i = 0; i < CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 2; i++)
+        for (i = 0; i < CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 3; i++)
         {
             InjectedTime = OS_TimeAssembleFromMilliseconds(0, 0);
 
@@ -1965,6 +1965,17 @@ void Test_Squelching(void)
         UtAssert_UINT32_EQ(CapturedTlm.Payload.PacketID.EventID, EVENT_ID);
         UtAssert_UINT32_EQ(EVS_Retval, CFE_SUCCESS);
         UtAssert_UINT32_EQ(AppDataPtr->SquelchedCount, CFE_EVS_MAX_SQUELCH_COUNT);
+
+        /*
+         * Test boundary condition where SquelchTokens > -EVENT_COST && CreditCount >= EVENT_COST
+         */
+        InjectedTime = OS_TimeAssembleFromMilliseconds(1, 150);
+        UT_SetDataBuffer(UT_KEY(CFE_PSP_GetTime), &InjectedTime, sizeof(InjectedTime), false);
+        AppDataPtr->SquelchedCount            = 0;
+        AppDataPtr->SquelchTokens             = -1500;
+        AppDataPtr->LastSquelchCreditableTime = OS_TimeAssembleFromMilliseconds(1, 0);
+        EVS_Retval = SendEventFuncs[j](EVENT_ID);
+        UtAssert_UINT32_EQ(EVS_Retval, CFE_EVS_APP_SQUELCHED);
     }
 
     UT_EVS_DisableSquelch();
