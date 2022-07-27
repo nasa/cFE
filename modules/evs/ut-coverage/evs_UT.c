@@ -1974,7 +1974,7 @@ void Test_Squelching(void)
         AppDataPtr->SquelchedCount            = 0;
         AppDataPtr->SquelchTokens             = -1500;
         AppDataPtr->LastSquelchCreditableTime = OS_TimeAssembleFromMilliseconds(1, 0);
-        EVS_Retval = SendEventFuncs[j](EVENT_ID);
+        EVS_Retval                            = SendEventFuncs[j](EVENT_ID);
         UtAssert_UINT32_EQ(EVS_Retval, CFE_EVS_APP_SQUELCHED);
     }
 

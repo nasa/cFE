@@ -34,12 +34,12 @@ void TestSendEvent(void)
     int status;
     int i;
 
-    if(CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST)
+    if (CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST)
     {
         /* Allow squelch credits to accumulate */
-        OS_TaskDelay((CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST/CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC)*1000);
+        OS_TaskDelay((CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST / CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC) * 1000);
     }
-    
+
     UtPrintf("Testing: CFE_EVS_SendEvent");
 
     UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK Send"), CFE_SUCCESS);
@@ -54,18 +54,18 @@ void TestSendEvent(void)
     UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_CRITICAL, "OK (Critical) Send"), CFE_SUCCESS);
     UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_CRITICAL, NULL), CFE_EVS_INVALID_PARAMETER);
 
-    if(CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST)
+    if (CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST)
     {
         /* Allow squelch credits to accumulate */
-        OS_TaskDelay((CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST/CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC)*1000);
+        OS_TaskDelay((CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST / CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC) * 1000);
 
-        for(i=0; i<CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST; i++)
+        for (i = 0; i < CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST; i++)
             UtAssert_INT32_EQ(CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK Send"), CFE_SUCCESS);
 
         status = CFE_EVS_SendEvent(0, CFE_EVS_EventType_INFORMATION, "OK Squelch");
 
         /* Allow squelch credits to accumulate */
-        OS_TaskDelay((CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST/CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC)*1000);
+        OS_TaskDelay((CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST / CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC) * 1000);
 
         UtAssert_INT32_EQ(status, CFE_EVS_APP_SQUELCHED);
     }
