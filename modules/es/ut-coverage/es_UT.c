@@ -2966,7 +2966,6 @@ void TestTask(void)
     UT_CallTaskPipe(CFE_ES_TaskPipe, &CmdBuf.Msg, sizeof(CmdBuf.QueryAllTasksCmd),
                     UT_TPID_CFE_ES_CMD_QUERY_ALL_TASKS_CC);
     CFE_UtAssert_EVENTSENT(CFE_ES_TASKINFO_EID);
-    /* TODO */
 
     /* Test write of all task data to a file with file name validation failure */
     ES_ResetUnitTest();
