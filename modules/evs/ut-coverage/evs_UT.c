@@ -1969,7 +1969,7 @@ void Test_Squelching(void)
         /*
          * Test boundary condition where SquelchTokens > -EVENT_COST && CreditCount >= EVENT_COST
          */
-        InjectedTime = OS_TimeAssembleFromMilliseconds(1, 150);
+        InjectedTime = OS_TimeAssembleFromMilliseconds(1, 1200 / CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC);
         UT_SetDataBuffer(UT_KEY(CFE_PSP_GetTime), &InjectedTime, sizeof(InjectedTime), false);
         AppDataPtr->SquelchedCount            = 0;
         AppDataPtr->SquelchTokens             = -1500;

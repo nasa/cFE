@@ -1356,7 +1356,8 @@
 **       Sustained number of events that may be emitted per app per second.
 **
 **  \par Limits
-**       This number must be less than or equal to #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST
+**       This number must be less than or equal to #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST.
+**       Values lower than 8 may cause functional and unit test failures.
 */
 #define CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC 8
 
