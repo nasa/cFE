@@ -179,6 +179,11 @@
               \cfetlmmnemonic  \EVS_APPENASTAT
             </LongDescription>
           </Entry>
+          <Entry name="AppMessageSquelchedCounter" type="BASE_TYPES/uint8" shortDescription="Application event squelch count">
+            <LongDescription>
+              \cfetlmmnemonic  \EVS_SQUELCHEDC
+            </LongDescription>
+          </Entry>
         </EntryList>
       </ContainerDataType>
 

@@ -44,6 +44,7 @@
 #include "cfe_platform_cfg.h"
 #include "cfe_mission_cfg.h"
 #include "osconfig.h"
+#include "cfe_time.h"
 #include "cfe_evs_api_typedefs.h"
 #include "cfe_evs_log_typedef.h"
 #include "cfe_sb_api_typedefs.h"
@@ -57,6 +58,7 @@
 #define CFE_EVS_PIPE_DEPTH           32
 #define CFE_EVS_MAX_EVENT_SEND_COUNT 65535
 #define CFE_EVS_MAX_FILTER_COUNT     65535
+#define CFE_EVS_MAX_SQUELCH_COUNT    255
 #define CFE_EVS_PIPE_NAME            "EVS_CMD_PIPE"
 #define CFE_EVS_MAX_PORT_MSG_LENGTH  (CFE_MISSION_EVS_MAX_MESSAGE_LENGTH + OS_MAX_API_NAME + 30)
 
@@ -86,18 +88,23 @@ typedef struct
 
     EVS_BinFilter_t BinFilters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Array of binary filters */
 
-    uint8  ActiveFlag;           /* Application event service active flag */
-    uint8  EventTypesActiveFlag; /* Application event types active flag */
-    uint16 EventCount;           /* Application event counter */
+    uint8     ActiveFlag;                /* Application event service active flag */
+    uint8     EventTypesActiveFlag;      /* Application event types active flag */
+    uint16    EventCount;                /* Application event counter */
+    OS_time_t LastSquelchCreditableTime; /* Time of last squelch token return */
+    int32     SquelchTokens;             /* Application event squelch token counter */
+    uint8     SquelchedCount;            /* Application events squelched counter */
 
 } EVS_AppData_t;
 
 typedef struct
 {
-    char            AppName[OS_MAX_API_NAME];                    /* Application name */
-    uint8           ActiveFlag;                                  /* Application event service active flag */
-    uint8           EventTypesActiveFlag;                        /* Application event types active flag */
-    uint16          EventCount;                                  /* Application event counter */
+    char            AppName[OS_MAX_API_NAME]; /* Application name */
+    uint8           ActiveFlag;               /* Application event service active flag */
+    uint8           EventTypesActiveFlag;     /* Application event types active flag */
+    uint16          EventCount;               /* Application event counter */
+    uint8           SquelchedCount;           /* Application events squelched counter */
+    uint8           Spare[3];
     EVS_BinFilter_t Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Application event filters */
 
 } CFE_EVS_AppDataFile_t;
@@ -117,7 +124,7 @@ typedef struct
     CFE_SB_PipeId_t           EVS_CommandPipe;
     osal_id_t                 EVS_SharedDataMutexID;
     CFE_ES_AppId_t            EVS_AppID;
-
+    uint32                    EVS_EventBurstMax;
 } CFE_EVS_Global_t;
 
 /*

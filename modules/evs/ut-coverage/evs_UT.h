@@ -250,6 +250,22 @@ void Test_InvalidCmd(void);
 
 /*****************************************************************************/
 /**
+** \brief Test squelching of app events
+**
+** \par Description
+**        This function tests squelching of app events that exceeds threshold
+**        of events sent per second.
+**
+** \par Assumptions, External Events, and Notes:
+**        None
+**
+** \returns
+**        This function does not return a value.
+******************************************************************************/
+void Test_Squelching(void);
+
+/*****************************************************************************/
+/**
 ** \brief Test miscellaneous functionality
 **
 ** \par Description

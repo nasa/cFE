@@ -23,6 +23,7 @@
     <LI> \subpage cfeevsugcounters <BR>
     <LI> \subpage cfeevsugresetctrs <BR>
     <LI> \subpage cfeevsugprocreset <BR>
+    <LI> \subpage cfeevsugsquelch <BR>
     <LI> \subpage cfeevsugfaq <BR>
   </UL>
 
@@ -428,8 +429,35 @@
   transfer it to the ground in order to help debug a reset.
 
 
-  Next: \ref cfeevsugfaq <BR>
+  Next: \ref cfeevsugsquelch <BR>
   Prev: \ref cfeevsugresetctrs <BR>
+  Up To: \ref cfeevsovr
+**/
+
+/**
+  \page cfeevsugsquelch EVS squelching of misbehaving apps
+
+  Event squelching is an optional feature for suppressing excessive events from misbehaving apps. It
+  is enabled by setting #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST to a nonzero positive value, and 
+  #CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC equal to or less than that value. 
+
+  #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST controls the maximum events that can be sent at a given moment, 
+  and #CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC is the sustained event throughput per second. 
+  
+  The suppression mechanism initializes with #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000 credits. 
+  Each event costs 1000 credits. Credits are restored at a rate of 
+  #CFE_PLATFORM_EVS_APP_EVENTS_PER_SEC * 1000 up to a maximum balance of #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST*1000, and the
+  maximum "debt" is -#CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST * 1000. When the credit count crosses from positive to negative, 
+  a squelched event message is emitted and events are supppressed, until the credit count becomes positive again.
+
+  Figure EVS-1 is a notional state diagram of the event squelching mechanism.
+
+  \image html evs_squelch_states.png "Figure EVS-1: EVS Squelching State Diagram"
+  \image latex evs_squelch_states.png "Figure EVS-1: EVS Squelching State Diagram"
+
+
+  Next: \ref cfeevsugfaq <BR>
+  Prev: \ref cfeevsugprocreset <BR>
   Up To: \ref cfeevsovr
 **/
 
