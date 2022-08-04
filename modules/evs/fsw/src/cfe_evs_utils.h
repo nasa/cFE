@@ -192,6 +192,18 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
 
 /*---------------------------------------------------------------------------------------*/
 /**
+ * @brief Check if event is squelched
+ *
+ * This routine returns false if the squelch token counter has become negative.
+ * Otherwise a value of true is returned. In addition, it updates the squelch
+ * token counter based on time, and emits an event message if squelched.
+ *
+ * If #CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST == 0, this function returns true and is otherwise a no-op
+ */
+bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr);
+
+/*---------------------------------------------------------------------------------------*/
+/**
  * @brief Find the filter record corresponding to the given event ID
  *
  * This routine searches and returns an index to the given Event ID with the

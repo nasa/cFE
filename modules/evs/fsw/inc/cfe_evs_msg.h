@@ -1157,14 +1157,14 @@ typedef CFE_EVS_AppNameEventIDMaskCmd_t CFE_EVS_SetFilterCmd_t;
 /**********************************/
 typedef struct CFE_EVS_AppTlmData
 {
-    CFE_ES_AppId_t AppID;         /**< \cfetlmmnemonic \EVS_APPID
-                                       \brief Numerical application identifier */
-    uint16 AppMessageSentCounter; /**< \cfetlmmnemonic \EVS_APPMSGSENTC
-                                       \brief Application message sent counter */
-    uint8 AppEnableStatus;        /**< \cfetlmmnemonic \EVS_APPENASTAT
-                                       \brief Application event service enable status */
-    uint8 Padding;                /**< \cfetlmmnemonic \EVS_SPARE2ALIGN3
-                                       \brief Padding for 32 bit boundary */
+    CFE_ES_AppId_t AppID;             /**< \cfetlmmnemonic \EVS_APPID
+                                           \brief Numerical application identifier */
+    uint16 AppMessageSentCounter;     /**< \cfetlmmnemonic \EVS_APPMSGSENTC
+                                           \brief Application message sent counter */
+    uint8 AppEnableStatus;            /**< \cfetlmmnemonic \EVS_APPENASTAT
+                                           \brief Application event service enable status */
+    uint8 AppMessageSquelchedCounter; /**< \cfetlmmnemonic \EVS_SQUELCHEDC
+                                       \brief Number of events squelched */
 
 } CFE_EVS_AppTlmData_t;
 
