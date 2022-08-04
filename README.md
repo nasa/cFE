@@ -10,6 +10,13 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFE/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev157
+
+- use correct loop var in add_cfe_app_dependency
+- Automatic suppression of flooding events
+- Remove stray TODO in UT
+- See <https://github.com/nasa/cFE/pull/2129>, <https://github.com/nasa/cFE/pull/2117>, and <https://github.com/nasa/cFE/pull/2126>
+
 ### Development Build: v7.0.0-rc4+dev145
 
 - remove commented out code
