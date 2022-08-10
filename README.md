@@ -10,6 +10,11 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFE/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev163
+- Increase event burst credit to not squelch at startup in CI
+- Grammatical/format updates to EVS flooding requirements
+- See <https://github.com/nasa/cFE/pull/2132> and <https://github.com/nasa/cFE/pull/2134>
+
 ### Development Build: v7.0.0-rc4+dev157
 
 - use correct loop var in add_cfe_app_dependency
