@@ -1347,7 +1347,7 @@
 **  \par Limits
 **       This number must be less than or equal to INT_MAX/1000
 */
-#define CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST 16
+#define CFE_PLATFORM_EVS_MAX_APP_EVENT_BURST 32
 
 /**
 **  \cfeevscfg Sustained number of event messages per second per app before squelching
