@@ -226,7 +226,7 @@ void TestMsgBroadcast(void)
     CFE_SB_PipeId_t                PipeId3 = CFE_SB_INVALID_PIPE;
     CFE_SB_PipeId_t                PipeId4 = CFE_SB_INVALID_PIPE;
     CFE_FT_TestCmdMessage_t        CmdMsg;
-    CFE_SB_MsgId_t                 MsgId;
+    CFE_SB_MsgId_t                 MsgId = CFE_SB_INVALID_MSG_ID;
     CFE_SB_Buffer_t *              MsgBuf1;
     CFE_SB_Buffer_t *              MsgBuf2;
     CFE_SB_Buffer_t *              MsgBuf3;

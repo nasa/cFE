@@ -267,6 +267,9 @@ void Test_Init(void)
 
     UtPrintf("Begin Test Init");
 
+    memset(&bitmaskcmd, 0, sizeof(bitmaskcmd));
+    memset(&appbitcmd, 0, sizeof(appbitcmd));
+
     strncpy(appbitcmd.Payload.AppName, "ut_cfe_evs", sizeof(appbitcmd.Payload.AppName) - 1);
     appbitcmd.Payload.AppName[sizeof(appbitcmd.Payload.AppName) - 1] = '\0';
 
