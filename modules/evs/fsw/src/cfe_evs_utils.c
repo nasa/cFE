@@ -301,7 +301,7 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
 {
     bool      NotSquelched     = true;
     bool      SendSquelchEvent = false;
-    OS_time_t CurrentTime;
+    OS_time_t CurrentTime      = {0};
     int64     DeltaTimeMs;
     int64     CreditCount;
     char      AppName[OS_MAX_API_NAME];
