@@ -10,6 +10,10 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFE/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev167
+- Squash uninit var static analysis warnings
+- See <https://github.com/nasa/cFE/pull/2138>
+
 ### Development Build: v7.0.0-rc4+dev163
 - Increase event burst credit to not squelch at startup in CI
 - Grammatical/format updates to EVS flooding requirements
