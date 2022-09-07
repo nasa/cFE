@@ -340,6 +340,7 @@ function(process_arch TARGETSYSTEM)
   execute_process(
     COMMAND ${CMAKE_COMMAND}
         -G "Unix Makefiles"
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
         -DTARGETSYSTEM=${TARGETSYSTEM}
         -DMISSION_BINARY_DIR=${MISSION_BINARY_DIR}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
