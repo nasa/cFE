@@ -1,6 +1,6 @@
 /**
   \page cfeapi cFE Application Programmer's Interface (API) Reference
-  <H4> Executive Services API </H4>
+  \section cfeapi_s1 Executive Services API
   <UL>
     <LI> \ref CFEAPIESEntryExit
     <UL>
@@ -95,7 +95,7 @@
     </UL>
   </UL>
 
-  <H4> Events Services API </H4>
+  \section cfeapi_s2 Events Services API
   <UL>
     <LI> \ref CFEAPIEVSReg
     <UL>
@@ -114,7 +114,7 @@
     </UL>
   </UL>
 
-  <H4> File Services API </H4>
+  \section cfeapi_s3 File Services API
   <UL>
     <LI> \ref CFEAPIFSHeader
     <UL>
@@ -135,7 +135,7 @@
     </UL>
   </UL>
 
-  <H4> Message API </H4>
+  \section cfeapi_s4 Message API
   <UL>
     <LI> \ref CFEAPIMSGHeader
     <UL>
@@ -189,7 +189,7 @@
     </UL>
   </UL>
 
-  <H4> Resource ID API </H4>
+  \section cfeapi_s5 Resource ID API
   <UL>
     <LI> cFE Resource Misc APIs
     <UL>
@@ -204,7 +204,7 @@
     </UL>
   </UL>
 
-  <H4> Software Bus Services API </H4>
+  \section cfeapi_s6 Software Bus Services API
   <UL>
     <LI> \ref CFEAPISBPipe
     <UL>
@@ -253,7 +253,7 @@
     </UL>
   </UL>
 
-  <H4> Table Services API </H4>
+  \section cfeapi_s7 Table Services API
   <UL>
     <LI> \ref CFEAPITBLRegistration
     <UL>
@@ -285,7 +285,7 @@
     </UL>
   </UL>
 
-  <H4> Time Services API </H4>
+  \section cfeapi_s8 Time Services API
   <UL>
     <LI> \ref CFEAPITIMEGetCurrent
     <UL>

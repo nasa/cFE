@@ -81,10 +81,6 @@
   and UART.  Messages sent out of the message ports will be in ASCII text format.
   This is generally used for lab purposes.  Note that the event mode (short or
   long) does affect the event message content sent out these message ports.
-
-
-  Next: \ref cfeevsuglog <BR>
-  Up To: \ref cfeevsovr
 **/
 
 /**
@@ -104,18 +100,13 @@
 
   EVS provides a command in order to \link #CFE_EVS_CLEAR_LOG_CC clear the Local Event Log \endlink.
 
-  <CENTER><H2> Local Event Log Mode </H2></CENTER>
+  \section cfeevsuglog_s1 Local Event Log Mode
 
   EVS can be configured to control the Local Event Log to either discard or overwrite
   the contents of the log when it becomes full.  If the mode is set to overwrite, the
   log is treated like a circular buffer, overwriting the oldest event message contained
   in the log first.  This control is configured by default in the cfe_platform_cfg.h
   file but can be modified by \link #CFE_EVS_SET_LOG_MODE_CC a command \endlink.
-
-
-  Next: \ref cfeevsugmsgcntrl <BR>
-  Prev: \ref cfeevsugmsgformat <BR>
-  Up To: \ref cfeevsovr
 **/
 
 /**
@@ -125,7 +116,7 @@
   EVS provides various commands in order to control the event messages that are
   generated as software bus messages.
 
-  <CENTER><H2> Event Message Control - By Type </H2></CENTER>
+  \section cfeevsugmsgcntrl_s1 Event Message Control - By Type
 
   The highest level of event message control that EVS provides is the ability to
   enable and disable event message types.  As mentioned above, there are four event
@@ -146,26 +137,26 @@
   configuration parameter #CFE_PLATFORM_EVS_DEFAULT_TYPE_FLAG in the cfe_platform_cfg.h file
   specifies which event message types are enabled/disabled by default.
 
-  <CENTER><H2> Event Message Control - By Application </H2></CENTER>
+  \section cfeevsugmsgcntrl_s2 Event Message Control - By Application
 
   Commands are available to \link #CFE_EVS_ENABLE_APP_EVENTS_CC enable \endlink and
   \link #CFE_EVS_DISABLE_APP_EVENTS_CC disable \endlink the generation of event messages
   for a particular application.  The result is that ALL event messages for the specified
   Application are affected (i.e. enabled or disabled).
 
-  <CENTER><H2> Event Message Control - By Event Type for an Application </H2></CENTER>
+  \section cfeevsugmsgcntrl_s3 Event Message Control - By Event Type for an Application
 
   EVS also provides the capability to \link #CFE_EVS_ENABLE_APP_EVENT_TYPE_CC enable \endlink
   / \link #CFE_EVS_DISABLE_APP_EVENT_TYPE_CC disable \endlink an event type for a particular
   application.  Note that EVS provides the capability to affect multiple event types
   within one command using a bit mask.
 
-  <CENTER><H2> Event Message Control - Individual Events </H2></CENTER>
+  \section cfeevsugmsgcntrl_s4 Event Message Control - Individual Events
 
   There are two ways to control the generation of individual events depending on
   whether the application's event message has been registered with EVS or not.
 
-  <CENTER><H3> Modifying a registered event message filter </H3></CENTER>
+  \subsection cfeevsugmsgcntrl_s4_1 Modifying a registered event message filter
 
   When an application registers with EVS, the application has the option of specifying
   the events that it wants to register for filtering along with the
@@ -183,7 +174,7 @@
   to set the event message filter to the specified value in order to prevent flooding of
   the downlink.
 
-  <CENTER><H3> Adding/Removing an event message for filtering </H3></CENTER>
+  \subsection cfeevsugmsgcntrl_s4_2 Adding/Removing an event message for filtering
 
   Commands are also available to add filtering for those events that are not registered
   for filtering.  Once an event is \link #CFE_EVS_ADD_EVENT_FILTER_CC registered for filtering \endlink,
@@ -199,11 +190,6 @@
   (i.e. unregister) an application's event message.  Once it is removed, the event will no
   longer be filtered.  Note that commands issued to disable events by event type, by application
   or by event type for an application are still valid and could affect this particular event.
-
-
-  Next: \ref cfeevsugmsgfilter <BR>
-  Prev: \ref cfeevsuglog <BR>
-  Up To: \ref cfeevsovr
 **/
 
 /**
@@ -323,10 +309,6 @@
   </TABLE>
 
   See cfe_evs.h for predefined macro values which can be used for masks.
-
-  Next: \ref cfeevsugregistry <BR>
-  Prev: \ref cfeevsugmsgcntrl <BR>
-  Up To: \ref cfeevsovr
 **/
 
 /**
@@ -346,11 +328,6 @@
      <LI> Mask - Binary Filter mask value (see \ref cfeevsugmsgfilter for an explanation) <BR>
      <LI> Count - Current number of times this Event ID has been issued by this Application <BR>
   </UL>
-
-
-  Next: \ref cfeevsugcounters <BR>
-  Prev: \ref cfeevsugmsgfilter <BR>
-  Up To: \ref cfeevsovr
 **/
 
 /**
@@ -373,11 +350,6 @@
   then you won't know if the event was ever issued by an application.  These counters are available
   by sending a command to \link #CFE_EVS_WRITE_APP_DATA_FILE_CC write the EVS Application Data \endlink
   and transferring the file to the ground.
-
-
-  Next: \ref cfeevsugresetctrs <BR>
-  Prev: \ref cfeevsugregistry <BR>
-  Up To: \ref cfeevsovr
 **/
 
 /**
@@ -396,11 +368,6 @@
   </OL>
 
   Note that there is currently no way to reset ALL of the events sent counters for all of the Apps with one command.
-
-
-  Next: \ref cfeevsugprocreset <BR>
-  Prev: \ref cfeevsugcounters <BR>
-  Up To: \ref cfeevsovr
 **/
 
 /**
@@ -427,11 +394,6 @@
 
   This provides the ground with the capability to write the Local Event Log to a file and
   transfer it to the ground in order to help debug a reset.
-
-
-  Next: \ref cfeevsugsquelch <BR>
-  Prev: \ref cfeevsugresetctrs <BR>
-  Up To: \ref cfeevsovr
 **/
 
 /**
@@ -454,75 +416,73 @@
 
   \image html evs_squelch_states.png "Figure EVS-1: EVS Squelching State Diagram"
   \image latex evs_squelch_states.png "Figure EVS-1: EVS Squelching State Diagram"
-
-
-  Next: \ref cfeevsugfaq <BR>
-  Prev: \ref cfeevsugprocreset <BR>
-  Up To: \ref cfeevsovr
 **/
 
 /**
   \page cfeevsugfaq Frequently Asked Questions about Event Services
 
-    <TABLE BORDER="0" CELLPADDING="2" WIDTH="100%">
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           My telemetry stream is being flooded with the same event message.  How do I
-           make it stop?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           The most direct way to stop an event message from flooding your downlink
-           stream is to send a command to EVS to filter the offending event (see
-           \ref cfeevsugmsgcntrl or \link #CFE_EVS_SET_FILTER_CC \EVS_SETBINFLTRMASK \endlink).
-           In order to stop the event message from being sent, a bit mask of \c '0xFFFF' should
-           be used.  If the event is not currently registered for filtering, the event message
-           must be added using the command \link #CFE_EVS_ADD_EVENT_FILTER_CC \EVS_ADDEVTFLTR \endlink.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           I filtered an event message and would now like to see it again.  What do I do in
-           order to see those events again?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           If the event message that you are interested is registered with EVS for filtering,
-           then you have 2 options:
+  <B> (Q)
+     My telemetry stream is being flooded with the same event message.  How do I
+     make it stop?
+  </B> <BR> <BR> <I>
+     The most direct way to stop an event message from flooding your downlink
+     stream is to send a command to EVS to filter the offending event (see
+     \ref cfeevsugmsgcntrl or \link #CFE_EVS_SET_FILTER_CC \EVS_SETBINFLTRMASK \endlink).
+     In order to stop the event message from being sent, a bit mask of \c '0xFFFF' should
+     be used.  If the event is not currently registered for filtering, the event message
+     must be added using the command \link #CFE_EVS_ADD_EVENT_FILTER_CC \EVS_ADDEVTFLTR \endlink.
+  </I>
 
-           <OL>
-              <LI>  You can use the \link #CFE_EVS_SET_FILTER_CC \EVS_SETBINFLTRMASK \endlink command
-                    using a bit mask of \c '0x0000' which will result in getting all of the events for
-                    that Event Id <BR>
-                    <BR> <B>or</B> <BR> <BR>
-              <LI>  You can remove the registration of that event with EVS
-                    (see \link #CFE_EVS_DELETE_EVENT_FILTER_CC \EVS_DELEVTFLTR \endlink).<BR>
-                    Note that option (1) is the preferred method. <BR>
-           </OL>
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           What is the purpose of DEBUG event messages?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           Event message of type "DEBUG" are primarily used during flight software development
-           in order to provide information that is most likely not needed on orbit.  Some commands
-           send debug event messages as verification that a command request was received.  When
-           writing the EVS local event log to a file, for example, an event message of type DEBUG
-           is issued.  On orbit, this event message is probably not needed.  Instead, the command
-           counter is used for command verification.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           How do I find out which events are registered for filtering?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           EVS provides a command (\link #CFE_EVS_WRITE_APP_DATA_FILE_CC  \EVS_WRITEAPPDATA2FILE \endlink)
-           which generates a file containing all of the applications that have registered with EVS and
-           all of the filters that are registered for each application.  Note that EVS merely generates
-           the file.  The file must be transferred to the ground in order to view it.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           Why do I see event messages in my console window?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           By default, the events are configured to transmit out a "port" that shows event messages
-           in the console
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           What is the difference between event services and the ES System Log
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           Events are within the context of an App or cFE Service (requires registration with ES).
-           The system log can be written to outside of the Application or cFE Service context,
-           for example during application startup to report errors before registration.
-    </TABLE>
+  <B> (Q)
+     I filtered an event message and would now like to see it again.  What do I do in
+     order to see those events again?
+  </B> <BR> <BR> <I>
+     If the event message that you are interested is registered with EVS for filtering,
+     then you have 2 options:
+     -# You can use the \link #CFE_EVS_SET_FILTER_CC \EVS_SETBINFLTRMASK \endlink command
+        using a bit mask of \c '0x0000' which will result in getting all of the events for
+        that Event Id
+     -# You can remove the registration of that event with EVS
+        (see \link #CFE_EVS_DELETE_EVENT_FILTER_CC \EVS_DELEVTFLTR \endlink).
 
+        Note that option (1) is the preferred method. <BR>
 
-  Prev: \ref cfeevsugprocreset <BR>
-  Up To: \ref cfeevsovr
+  </I>
+
+  <B> (Q)
+     What is the purpose of DEBUG event messages?
+  </B> <BR> <BR> <I>
+     Event message of type "DEBUG" are primarily used during flight software development
+     in order to provide information that is most likely not needed on orbit.  Some commands
+     send debug event messages as verification that a command request was received.  When
+     writing the EVS local event log to a file, for example, an event message of type DEBUG
+     is issued.  On orbit, this event message is probably not needed.  Instead, the command
+     counter is used for command verification.
+  </I>
+
+  <B> (Q)
+     How do I find out which events are registered for filtering?
+  </B> <BR> <BR> <I>
+     EVS provides a command (\link #CFE_EVS_WRITE_APP_DATA_FILE_CC  \EVS_WRITEAPPDATA2FILE \endlink)
+     which generates a file containing all of the applications that have registered with EVS and
+     all of the filters that are registered for each application.  Note that EVS merely generates
+     the file.  The file must be transferred to the ground in order to view it.
+  </I>
+
+  <B> (Q)
+     Why do I see event messages in my console window?
+  </B> <BR> <BR> <I>
+     By default, the events are configured to transmit out a "port" that shows event messages
+     in the console
+  </I>
+
+  <B> (Q)
+     What is the difference between event services and the ES System Log
+  </B> <BR> <BR> <I>
+     Events are within the context of an App or cFE Service (requires registration with ES).
+     The system log can be written to outside of the Application or cFE Service context,
+     for example during application startup to report errors before registration.
+  </I>
 **/
 
 /**

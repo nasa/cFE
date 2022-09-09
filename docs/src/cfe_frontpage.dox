@@ -104,7 +104,7 @@
    once integrated into the cFE build environment, developers will be ready to build and run the system and start developing
    their mission/project specific applications that easily plug and play into the system.
 
-   <H2> Core Flight Executive (cFE) Goals </H2>
+   \section cfebackground_s1 Core Flight Executive (cFE) Goals
 
    The main long term goal of the cFE is to form the basis for a platform and project
    independent reusable software framework. The cFE with the OSAL allow the development
@@ -113,7 +113,7 @@
    standardized, product-line approach for development of embedded aerospace flight
    software. <BR>
 
-   <H3> Functional and Community Goals </H3>
+   \subsection cfebackground_s1_1 Functional and Community Goals
 
    The cFE allows embedded system software to be developed and tested on desktop workstations
    and ported to the target platform without changing a single line of code, providing a shorter

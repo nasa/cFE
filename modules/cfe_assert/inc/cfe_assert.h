@@ -263,7 +263,7 @@ int32 CFE_Assert_LibInit(CFE_ES_LibId_t LibId);
 **  \par Assumptions, External Events, and Notes:
 **        Must be followed by a call to CFE_Assert_ExecuteTest()
 **
-**  \return None
+**  \return #CFE_SUCCESS if successful, or error code
 **
 *************************************************************************/
 int32 CFE_Assert_RegisterTest(const char *TestName);
@@ -275,9 +275,6 @@ int32 CFE_Assert_RegisterTest(const char *TestName);
 **
 **  \par Assumptions, External Events, and Notes:
 **        None
-**
-**  \return None
-**
 *************************************************************************/
 void CFE_Assert_ExecuteTest(void);
 
@@ -293,9 +290,6 @@ void CFE_Assert_ExecuteTest(void);
  *        None
  *
  * \param[in] Callback  Callback function to invoke after every test
- *
- * \return None
- *
  */
 void CFE_Assert_RegisterCallback(CFE_Assert_StatusCallback_t Callback);
 
@@ -329,9 +323,6 @@ int32 CFE_Assert_OpenLogFile(const char *Filename);
  *
  *  \par Assumptions, External Events, and Notes:
  *        This should be called once test cases have completed
- *
- * \return None
- *
  */
 void CFE_Assert_CloseLogFile(void);
 

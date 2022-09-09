@@ -28,7 +28,6 @@
     <LI> \subpage cfesbugops <BR>
     <LI> \subpage cfesbugfaq <BR>
   </UL>
-
 **/
 
 /**
@@ -44,10 +43,6 @@
      <LI> \subpage cfesbugsubs <BR>
      <LI> \subpage cfesbugmem <BR>
   </UL>
-
-
-  Next: \ref cfesbugmsgs <BR>
-  Up To: \ref cfesbovr
 **/
 
 /**
@@ -85,9 +80,6 @@
   target definitions folder for examples.
 
   Following the header is the user defined message data.
-
-  Next: \ref cfesbugpipes <BR>
-  Up To: \ref cfesbugterms
 **/
 
 /**
@@ -108,10 +100,6 @@
   bus also provides a set of figures regarding capacity, current utilization and high
   water marks relevant to pipes. This information may be requested by sending the
   command to \link #CFE_SB_SEND_SB_STATS_CC dump the SB statistics packet \endlink.
-
-  Next: \ref cfesbugsubs <BR>
-  Prev: \ref cfesbugmsgs <BR>
-  Up To: \ref cfesbugterms
 **/
 
 /**
@@ -144,10 +132,6 @@
   message. The \link #CFE_SB_Unsubscribe unsubscribe API \endlink takes two
   parameters, Message ID and Pipe ID. Only the owner of a pipe may unsubscribe
   to messages on that pipe.
-
-  Next: \ref cfesbugmem <BR>
-  Prev: \ref cfesbugpipes <BR>
-  Up To: \ref cfesbugterms
 **/
 
 /**
@@ -185,10 +169,6 @@
   contains no memory leaks. The value (in bytes) should remain stable under nominal
   conditions.
   Refer to the ES users guide for more information regarding the ES Memory Pool.
-
-  Next: \ref cfesbugauto <BR>
-  Prev: \ref cfesbugsubs <BR>
-  Up To: \ref cfesbugterms
 **/
 
 /**
@@ -201,10 +181,6 @@
 
   As do other tasks, the SB task sends out housekeeping telemetry when requested through the
   'Send Housekeeping Data' command.
-
-  Next: \ref cfesbugops <BR>
-  Prev: \ref cfesbugterms <BR>
-  Up To: \ref cfesbovr
 **/
 
 /**
@@ -223,10 +199,6 @@
      <LI> \subpage cfesbugqos <BR>
      <LI> \subpage cfesbugknwnprob <BR>
   </UL>
-
-  Next: \ref cfesbuginit <BR>
-  Prev: \ref cfesbugauto <BR>
-  Up To: \ref cfesbovr
 **/
 
 /**
@@ -234,9 +206,6 @@
 
   No action is required by the ground to initialize the software bus. The software bus initializes
   internal data structures and tables the same way regardless of the type of reset.
-
-  Next: \ref cfesbugreset <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -257,10 +226,6 @@
      <LI> Any packets in transit at the time of the reset are lost. <BR>
      <LI> The sequence counters for telemetry packets will begin again with a value of one. <BR>
   </UL>
-
-  Next: \ref cfesbugrouting <BR>
-  Prev: \ref cfesbuginit <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -279,10 +244,6 @@
   software bus also provides a set of figures regarding capacity, current utilization and high
   water marks relevant to the routing. This information may be requested by sending the command
   to dump the SB statistics packet.
-
-  Next: \ref cfesbugpktseqvals <BR>
-  Prev: \ref cfesbugreset <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -307,10 +268,6 @@
   is recommended for situations where the sender did not generate the packet,
   such as a network interface application passing a packet from a remote system to the local
   software bus.
-
-  Next: \ref cfesbugmsgpipeerr <BR>
-  Prev: \ref cfesbugrouting <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -340,10 +297,6 @@
 
   A related failure is the pipe overflow condition, which can occur if the total number
   of packets (of all kinds) sent to a particular pipe is too large.
-
-  Next: \ref cfesbugovererr <BR>
-  Prev: \ref cfesbugpktseqvals <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -354,10 +307,6 @@
   pipe is too large.  If this error occurs too frequently, it may be an indication that
   the pipe depth is not set correctly. The pipe depth is given at the time the pipe is
   created as a parameter in the #CFE_SB_CreatePipe API.
-
-  Next: \ref cfesbugeventfilt <BR>
-  Prev: \ref cfesbugmsgpipeerr <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -382,10 +331,6 @@
   that would normally occur without the protection. The heritage software bus did not have
   this condition because it stored events in the software bus event log and another thread
   would read them out at a later time.
-
-  Next: \ref cfesbugdiagdata <BR>
-  Prev: \ref cfesbugovererr <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -414,10 +359,6 @@
   possible to see the peak messages on a pipe occasionally exceed the depth of the pipe.
   The "Peak Messages In Use" parameter is included in the SB statistics packet under the
   pipe depth stats.
-
-  Next: \ref cfesbugroutcntrl <BR>
-  Prev: \ref cfesbugeventfilt <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -432,10 +373,6 @@
      <LI> In flight, one can enable diagnostic packets to see them on the ground. <BR>
      <LI> During testing, one can disable a destination to simulate an anomaly.<BR>
   </UL>
-
-  Next: \ref cfesbugqos <BR>
-  Prev: \ref cfesbugdiagdata <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -449,10 +386,6 @@
   of service.
 
   A default quality of services is provided via the #CFE_SB_DEFAULT_QOS macro.
-
-  Next: \ref cfesbugknwnprob <BR>
-  Prev: \ref cfesbugroutcntrl <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
@@ -474,111 +407,120 @@
   The simplest way to prevent this behavior is to ensure that there is margin when sizing the
   SB memory pool. To check the margin, monitor the "Peak Memory in Use" vs. the configuration
   parameter #CFE_PLATFORM_SB_BUF_MEMORY_BYTES which indicates the amount allocated.
-
-  Next: \ref cfesbugfaq <BR>
-  Prev: \ref cfesbugqos <BR>
-  Up To: \ref cfesbugops
 **/
 
 /**
   \page cfesbugfaq Frequently Asked Questions about Software Bus
 
-    <TABLE BORDER="0" CELLPADDING="2" WIDTH="100%">
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           How is the memory pool handle (sent in SB housekeeping telemetry) intended to be used?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           The memory pool handle is used to analyze the SB memory pool statistics. The cFE ES
-           command (#CFE_ES_SEND_MEM_POOL_STATS_CC) to dump the memory pool statistics takes the pool handle
-           as a parameter. These statistics tell how the SB memory pool is configured and gives details
-           on margin. An improperly configured SB memory pool may inhibit communication. This may occur
-           if there is not enough margin to create a block of the size needed for a transfer. Refer to
-           the ES memory pool users guide for more details. \ref cfeesugmempoolsrv <BR>
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           When sending a message, what message header
-           fields are critical for routing the message?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           To route the message properly, the software bus uses only the Message ID and
-           packet length fields from the header of the message. If the packet length field
-           is incorrect, then the buffer allocation for the message will also be incorrect.
-           This may appear to the receiver as a truncated message or a message with unknown
-           data added to the end of the message.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           How many copies of the message are performed in a typical message delivery?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           There is a single copy of the message performed when sending a message
-           (from the callers memory space) using CFE_SB_TransmitMsg.
-           When transmitting the message, the software bus copies the message from the
-           callers memory space into a buffer in the software bus memory space. There
-           is also the option to request a buffer from SB, write directly to the buffer
-           and send via CFE_SB_TransmitBuffer.  This is equivalent to the previous zero
-           copy implementation.
-           The #CFE_SB_ReceiveBuffer API gives the user back a pointer to the buffer. When
-           working with the buffers, the additional complexity to be aware of is the
-           buffer is only available to the app from the request to send (on the sending side),
-           or from the receive until the next receive on the same pipe on the receiving side.
-           If the data is required outside that scope, the app needs a local copy.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           When does the software bus free the buffer during a typical message
-           delivery process? Or how long is the message, and the pointer to the buffer
-           in the #CFE_SB_ReceiveBuffer valid?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           After receiving a buffer by calling #CFE_SB_ReceiveBuffer, the buffer received is valid
-           until the next call to #CFE_SB_ReceiveBuffer with the same Pipe Id.
-           If the caller needs the message longer than the next call to
-           #CFE_SB_ReceiveBuffer, the caller must copy the message to its memory space.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           The first parameter in the #CFE_SB_ReceiveBuffer API is a pointer to a pointer which
-           can get confusing. How can I be sure that the correct address is given for this
-           parameter.
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           Typically a caller declares a ptr of type CFE_SB_Buffer_t (i.e. CFE_SB_Buffer_t *Ptr)
-           then gives the address of that pointer (&Ptr) as this parameter. After a successful
-           call to #CFE_SB_ReceiveBuffer, Ptr will point to the first byte of the software bus
-           buffer. This should be used as a read-only pointer. In systems with an MMU, writes
-           to this pointer may cause a memory protection fault.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           Why am I not seeing expected Message Limit error events or Pipe Overflow events?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           It is possible the events are being filtered by cFE Event Services. The filtering
-           for this event may be specified in the platform configuration file or it may have
-           been commanded after the system initializes.<BR>
-           There is a corresponding counter for each of these conditions. First verify that
-           the condition is happening by viewing the counter in SB HK telemetry. If the
-           condition is happening, you can view the SB filter information through the EVS
-           App Data Main page by clicking the 'go to' button for SB. The event Id for these
-           events can be learned through a previous event or from the cfe_sb_events.h file.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           Why does the SB provide event filtering through the platform configuration file?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           To give the user the ability to filter events before an EVS command can be sent.
-           During system initialization, there are many conditions occurring that can cause
-           a flood of SB events such as No Subscribers, Pipe Overflow and MsgId to Pipe errors.
-           This gives the user a way to limit these events.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           Why does SB have so many debug event messages?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           The SB debug messages are positive acknowledgments that an action (like receiving a
-           cmd, creating a pipe or subscribing to a message) has occurred. They are intended to
-           help isolate system problems. For instance, if an expected response to a command is
-           not happening, it may be possible to repeat the scenario with the debug event turned
-           on to verify that the command was successfully received.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           How is the QOS parameter in the #CFE_SB_SubscribeEx used by the software bus?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           The QOS parameter is currently unused by the software bus. It is a placeholder to be
-           used with the future software bus capability of inter-processor communication. Setting
-           the QOS as #CFE_SB_DEFAULT_QOS will ensure seamless integration when the software bus
-           is expanded to support inter-processor communication.
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-           Can I confirm my software bus buffer was delivered?
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-           There is no built in mechanism for confirming delivery (it could span systems).
-           This could be accomplished by generating a response message from the receiver.
-    </TABLE>
+  <B> (Q)
+     How is the memory pool handle (sent in SB housekeeping telemetry) intended to be used?
+  </B> <BR> <BR> <I>
+     The memory pool handle is used to analyze the SB memory pool statistics. The cFE ES
+     command (#CFE_ES_SEND_MEM_POOL_STATS_CC) to dump the memory pool statistics takes the pool handle
+     as a parameter. These statistics tell how the SB memory pool is configured and gives details
+     on margin. An improperly configured SB memory pool may inhibit communication. This may occur
+     if there is not enough margin to create a block of the size needed for a transfer. Refer to
+     the ES memory pool users guide for more details. \ref cfeesugmempoolsrv <BR>
+  </I>
 
+  <B> (Q)
+     When sending a message, what message header
+     fields are critical for routing the message?
+  </B> <BR> <BR> <I>
+     To route the message properly, the software bus uses only the Message ID and
+     packet length fields from the header of the message. If the packet length field
+     is incorrect, then the buffer allocation for the message will also be incorrect.
+     This may appear to the receiver as a truncated message or a message with unknown
+     data added to the end of the message.
+  </I>
 
-  Prev: \ref cfesbugops <BR>
-  Up To: \ref cfesbovr
+  <B> (Q)
+     How many copies of the message are performed in a typical message delivery?
+  </B> <BR> <BR> <I>
+     There is a single copy of the message performed when sending a message
+     (from the callers memory space) using CFE_SB_TransmitMsg.
+     When transmitting the message, the software bus copies the message from the
+     callers memory space into a buffer in the software bus memory space. There
+     is also the option to request a buffer from SB, write directly to the buffer
+     and send via CFE_SB_TransmitBuffer.  This is equivalent to the previous zero
+     copy implementation.
+     The #CFE_SB_ReceiveBuffer API gives the user back a pointer to the buffer. When
+     working with the buffers, the additional complexity to be aware of is the
+     buffer is only available to the app from the request to send (on the sending side),
+     or from the receive until the next receive on the same pipe on the receiving side.
+     If the data is required outside that scope, the app needs a local copy.
+  </I>
+
+  <B> (Q)
+     When does the software bus free the buffer during a typical message
+     delivery process? Or how long is the message, and the pointer to the buffer
+     in the #CFE_SB_ReceiveBuffer valid?
+  </B> <BR> <BR> <I>
+     After receiving a buffer by calling #CFE_SB_ReceiveBuffer, the buffer received is valid
+     until the next call to #CFE_SB_ReceiveBuffer with the same Pipe Id.
+     If the caller needs the message longer than the next call to
+     #CFE_SB_ReceiveBuffer, the caller must copy the message to its memory space.
+  </I>
+
+  <B> (Q)
+     The first parameter in the #CFE_SB_ReceiveBuffer API is a pointer to a pointer which
+     can get confusing. How can I be sure that the correct address is given for this
+     parameter.
+  </B> <BR> <BR> <I>
+     Typically a caller declares a ptr of type CFE_SB_Buffer_t (i.e. CFE_SB_Buffer_t *Ptr)
+     then gives the address of that pointer (&Ptr) as this parameter. After a successful
+     call to #CFE_SB_ReceiveBuffer, Ptr will point to the first byte of the software bus
+     buffer. This should be used as a read-only pointer. In systems with an MMU, writes
+     to this pointer may cause a memory protection fault.
+  </I>
+
+  <B> (Q)
+     Why am I not seeing expected Message Limit error events or Pipe Overflow events?
+  </B> <BR> <BR> <I>
+     It is possible the events are being filtered by cFE Event Services. The filtering
+     for this event may be specified in the platform configuration file or it may have
+     been commanded after the system initializes.<BR>
+     There is a corresponding counter for each of these conditions. First verify that
+     the condition is happening by viewing the counter in SB HK telemetry. If the
+     condition is happening, you can view the SB filter information through the EVS
+     App Data Main page by clicking the 'go to' button for SB. The event Id for these
+     events can be learned through a previous event or from the cfe_sb_events.h file.
+  </I>
+
+  <B> (Q)
+     Why does the SB provide event filtering through the platform configuration file?
+  </B> <BR> <BR> <I>
+     To give the user the ability to filter events before an EVS command can be sent.
+     During system initialization, there are many conditions occurring that can cause
+     a flood of SB events such as No Subscribers, Pipe Overflow and MsgId to Pipe errors.
+     This gives the user a way to limit these events.
+  </I>
+
+  <B> (Q)
+     Why does SB have so many debug event messages?
+  </B> <BR> <BR> <I>
+     The SB debug messages are positive acknowledgments that an action (like receiving a
+     cmd, creating a pipe or subscribing to a message) has occurred. They are intended to
+     help isolate system problems. For instance, if an expected response to a command is
+     not happening, it may be possible to repeat the scenario with the debug event turned
+     on to verify that the command was successfully received.
+  </I>
+
+  <B> (Q)
+     How is the QOS parameter in the #CFE_SB_SubscribeEx used by the software bus?
+  </B> <BR> <BR> <I>
+     The QOS parameter is currently unused by the software bus. It is a placeholder to be
+     used with the future software bus capability of inter-processor communication. Setting
+     the QOS as #CFE_SB_DEFAULT_QOS will ensure seamless integration when the software bus
+     is expanded to support inter-processor communication.
+  </I>
+
+  <B> (Q)
+     Can I confirm my software bus buffer was delivered?
+  </B> <BR> <BR> <I>
+     There is no built in mechanism for confirming delivery (it could span systems).
+     This could be accomplished by generating a response message from the receiver.
+  </I>
 **/
 
 /**
