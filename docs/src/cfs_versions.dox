@@ -1,7 +1,7 @@
 /**
   \page cfsversions Version Numbers
 
-  <H2> Version Number Semantics </H2>
+  \section cfsversions_s1 Version Number Semantics
 
   The version number is a sequence of four numbers, generally separated by dots when written. These are, in order,
   the Major number, the Minor number, the Revision number, and the Mission Revision number.
@@ -27,7 +27,7 @@
 
   The Mission Rev Version number is set to zero in all official releases, and is reserved for the mission use.
 
-  <H2> How and Where Defined </H2>
+  \section cfsversions_s2 How and Where Defined
 
   The version numbers are provided as simple macros defined in the cfe_version.h header file as part of the
   API definition; these macros must expand to simple integer values, so that they can be used in simple if
@@ -35,7 +35,7 @@
 
   Note the Mission Rev number is provided for missions to be able to identify unique changes they have made to the released software (via clone and own). Specicifally, the values 1-254 are reserved for mission use to denote patches/customizations while 0 and 0xFF are reserved for cFS open-source development use (pending resolution of nasa/cFS#440).
 
-  <H2> Identifying Development Builds </H2>
+  \section cfsversions_s3 Identifying Development Builds
 
   In order to distinguish between development versions, we also provide a BUILD_NUMBER.
 
@@ -45,7 +45,7 @@
   string also refers to the current development cycle. When a new baseline tag and codename are created, the
   BUILD_NUMBER resets to zero and begins increasing from a new baseline.
 
-  <H2> Templates for the short and long version string </H2>
+  \section cfsversions_s4 Templates for the short and long version string
 
   See cfe_version.h for the standard layout and definition of version information.
   The apps and repositories follow the same pattern by replacing the CFE_ prefix with the appropriate
