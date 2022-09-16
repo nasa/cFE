@@ -10,6 +10,10 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFE/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev171
+- Resolve doxygen 1.8.17 latex make errors
+- See <https://github.com/nasa/cFE/pull/2143>
+
 ### Development Build: v7.0.0-rc4+dev167
 - Squash uninit var static analysis warnings
 - See <https://github.com/nasa/cFE/pull/2138>
