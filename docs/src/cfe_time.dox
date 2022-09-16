@@ -59,7 +59,6 @@
     </UL>
     <LI> \subpage cfetimeugfaq <BR>
   </UL>
-
 **/
 
 /**
@@ -112,10 +111,6 @@
   by the International Earth Rotation Service (IERS): <a href="https://www.iers.org">
   https://www.iers.org </a> in IERS Bulletin C (leap second announcements).  Search the IERS site
   for "Bulletin C" to obtain the latest issue/announcement.
-
-
-  Next: \ref cfetimeugstruct <BR>
-  Up To: \ref cfetimeovr
 **/
 
 /**
@@ -137,11 +132,6 @@
         uint32      Subseconds;   /* Number of 2^(-32) subseconds */
   } CFE_TIME_SysTime_t;
   \endverbatim
-
-
-  Next: \ref cfetimeugformat <BR>
-  Prev: \ref cfetimeugcomponents <BR>
-  Up To: \ref cfetimeovr
 **/
 
 /**
@@ -177,11 +167,6 @@
   \verbatim
   UTC = MET + STCF - Leap Seconds
   \endverbatim
-
-
-  Next: \ref cfetimeugconfig <BR>
-  Prev: \ref cfetimeugcomponents <BR>
-  Up To: \ref cfetimeovr
 **/
 
 /**
@@ -238,11 +223,6 @@
      <LI> \subpage cfetimeugsource <BR>
      <LI> \subpage cfetimeugsignal <BR>
   </UL>
-
-
-  Next: \ref cfetimeugparadigm <BR>
-  Prev: \ref cfetimeugformat <BR>
-  Up To: \ref cfetimeovr
 **/
 
 /**
@@ -271,10 +251,6 @@
   affected by the hardware configuration.
 
   \sa #CFE_MISSION_TIME_CFG_DEFAULT_TAI, #CFE_MISSION_TIME_CFG_DEFAULT_UTC <BR>
-
-
-  Next: \ref cfetimeugfaketone <BR>
-  Up To: \ref cfetimeugconfig
 **/
 
 /**
@@ -294,10 +270,6 @@
   Hypothetical hardware configuration number one (described above) would enable the fake tone signal.
 
   \sa #CFE_MISSION_TIME_CFG_FAKE_TONE
-
-  Next: \ref cfetimeugtoneorder <BR>
-  Prev: \ref cfetimeugformsel <BR>
-  Up To: \ref cfetimeugconfig
 **/
 
 /**
@@ -320,11 +292,6 @@
   enable "time at the tone was".
 
   \sa #CFE_MISSION_TIME_AT_TONE_WAS, #CFE_MISSION_TIME_AT_TONE_WILL_BE
-
-
-  Next: \ref cfetimeugtonewindow <BR>
-  Prev: \ref cfetimeugfaketone <BR>
-  Up To: \ref cfetimeugconfig
 **/
 
 /**
@@ -346,11 +313,6 @@
   and lasts for one tenth of a second.
 
   \sa #CFE_MISSION_TIME_MIN_ELAPSED, #CFE_MISSION_TIME_MAX_ELAPSED
-
-
-  Next: \ref cfetimeugserver <BR>
-  Prev: \ref cfetimeugtoneorder <BR>
-  Up To: \ref cfetimeugconfig
 **/
 
 /**
@@ -377,11 +339,6 @@
   \endverbatim
 
   \sa #CFE_PLATFORM_TIME_CFG_SERVER, #CFE_PLATFORM_TIME_CFG_CLIENT
-
-
-  Next: \ref cfetimeugendian <BR>
-  Prev: \ref cfetimeugtonewindow <BR>
-  Up To: \ref cfetimeugconfig
 **/
 
 /**
@@ -399,10 +356,6 @@
   \verbatim
   #define CFE_PLATFORM_TIME_CFG_BIGENDIAN
   \endverbatim
-
-  Next: \ref cfetimeugvirtualmet <BR>
-  Prev: \ref cfetimeugserver <BR>
-  Up To: \ref cfetimeugconfig
 **/
 
 /**
@@ -415,11 +368,6 @@
   local to any TIME client, then that instantiation of TIME would have to be the server.
 
   TIME servers must be configured as using a virtual MET
-
-
-  Next: \ref cfetimeugsource <BR>
-  Prev: \ref cfetimeugendian <BR>
-  Up To: \ref cfetimeugconfig
 **/
 
 /**
@@ -484,10 +432,6 @@
 
 
   \sa #CFE_PLATFORM_TIME_CFG_SRC_MET, #CFE_PLATFORM_TIME_CFG_SRC_GPS, #CFE_PLATFORM_TIME_CFG_SRC_TIME
-
-  Next: \ref cfetimeugsignal <BR>
-  Prev: \ref cfetimeugvirtualmet <BR>
-  Up To: \ref cfetimeugconfig
 **/
 
 /**
@@ -504,10 +448,6 @@
   Note: this feature requires additional custom software to make the physical signal switch.
 
   \sa #CFE_PLATFORM_TIME_CFG_SIGNAL
-
-  Next: \ref cfetimeugparadigm <BR>
-  Prev: \ref cfetimeugsource <BR>
-  Up To: \ref cfetimeugconfig
 **/
 
 /**
@@ -556,11 +496,6 @@
   The mission configuration parameters, #CFE_MISSION_TIME_CFG_DEFAULT_TAI and #CFE_MISSION_TIME_CFG_DEFAULT_UTC
   specify the default time format.  Applications are encouraged to use the #CFE_TIME_GetTime API,
   which returns time in the format specified by this configuration parameter.
-
-
-  Next: \ref cfetimeugflywheeling <BR>
-  Prev: \ref cfetimeugcomponents <BR>
-  Up To: \ref cfetimeovr
 **/
 
 
@@ -580,10 +515,6 @@
   </UL>
 
   If the TIME server is in Flywheel mode then the TIME client is also in flywheel mode.
-
-  Next: \ref cfetimeugstate <BR>
-  Prev: \ref cfetimeugparadigm <BR>
-  Up To: \ref cfetimeovr
 **/
 
 
@@ -607,11 +538,6 @@
   the Time Server.  However, setting a Time Client to FLYWHEEL cannot be overridden by the
   Time Server since the Time Client will ignore time updates from the Time Server while in
   FLYWHEEL mode.
-
-
-  Next: \ref cfetimeuginit <BR>
-  Prev: \ref cfetimeugflywheeling <BR>
-  Up To: \ref cfetimeovr
 **/
 
 
@@ -627,11 +553,6 @@
      <LI> \subpage cfetimeugpoweron <BR>
      <LI> \subpage cfetimeugprocessor <BR>
   </UL>
-
-
-  Next: \ref cfetimeugpoweron <BR>
-  Prev: \ref cfetimeugstate <BR>
-  Up To: \ref cfetimeovr
 **/
 
 
@@ -640,10 +561,6 @@
 
   TIME initializes all counters in housekeeping telemetry, sets the Validity
   state to Invalid, and initializes the STCF, Leap Seconds, and 1 Hz Adjustment to zero.
-
-
-  Next: \ref cfetimeugprocessor <BR>
-  Up To: \ref cfetimeuginit
 **/
 
 
@@ -664,10 +581,6 @@
   written to the preserved area.  On a processor reset, TIME queries that
   signature to make sure that it matches what is expected.  If the signature
   does not match, then TIME is initialized as if a cFE power-on reset occurred.
-
-  Next: \ref cfetimeugnormal <BR>
-  Prev: \ref cfetimeugpoweron <BR>
-  Up To: \ref cfetimeuginit
 **/
 
 
@@ -681,11 +594,6 @@
      <LI> \subpage cfetimeugclientops <BR>
      <LI> \subpage cfetimeugserverops <BR>
   </UL>
-
-
-  Next: \ref cfetimeugclientops <BR>
-  Prev: \ref cfetimeuginit <BR>
-  Up To: \ref cfetimeovr
 **/
 
 
@@ -696,10 +604,6 @@
   however TIME clients do provide commands to set the persistent latency between the server
   and client.  Latency can be either added or subtracted  to the current TIME client time
   calculation to account for the latency.
-
-
-  Next: \ref cfetimeugserverops <BR>
-  Up To: \ref cfetimeugnormal
 **/
 
 
@@ -715,11 +619,6 @@
      <LI> \subpage cfetimeugadjust <BR>
      <LI> \subpage cfetimeugsetmet <BR>
   </UL>
-
-
-  Next: \ref cfetimeugsettime <BR>
-  Prev: \ref cfetimeugclientops <BR>
-  Up To: \ref cfetimeugnormal
 **/
 
 
@@ -746,10 +645,6 @@
   \endverbatim
 
   \sa #CFE_TIME_SET_TIME_CC
-
-
-  Next: \ref cfetimeugadjust <BR>
-  Up To: \ref cfetimeugserverops
 **/
 
 
@@ -777,11 +672,6 @@
 
   \sa #CFE_TIME_ADD_ADJUST_CC, #CFE_TIME_SUB_ADJUST_CC, #CFE_TIME_SET_STCF_CC,
   #CFE_TIME_ADD_1HZ_ADJUSTMENT_CC, #CFE_TIME_SUB_1HZ_ADJUSTMENT_CC, #CFE_TIME_SET_LEAP_SECONDS_CC
-
-
-  Next: \ref cfetimeugsetmet <BR>
-  Prev: \ref cfetimeugsettime <BR>
-  Up To: \ref cfetimeugserverops
 **/
 
 
@@ -799,26 +689,13 @@
   upon execution of this command.
 
   \sa #CFE_TIME_SET_MET_CC
-
-
-  Next: \ref cfetimeugfaq <BR>
-  Prev: \ref cfetimeugadjust <BR>
-  Up To: \ref cfetimeugserverops
 **/
 
 
 /**
-  \page cfetimeugfaq Frequently Asked Questions
+  \page cfetimeugfaq Frequently Asked Questions about Time Services
 
-    <TABLE BORDER="0" CELLPADDING="2" WIDTH="100%">
-        <TR><TD COLSPAN=2 WIDTH="100%"> <B>(Q)
-
-        </B><TR><TD WIDTH="5%"> &nbsp; <TD WIDTH="95%">
-    </TABLE>
-
-
-  Prev: \ref cfetimeugnormal <BR>
-  Up To: \ref cfetimeovr
+  None submitted
 **/
 
 

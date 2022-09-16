@@ -461,8 +461,6 @@ int32 CFE_SB_ZeroCopyReleaseAppId(CFE_ES_AppId_t AppId);
  * @note This must only be invoked while holding the SB global lock
  *
  * @param bd  Pointer to the buffer descriptor.
- *
- * \return Execution status, see \ref CFEReturnCodes
  */
 void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
 
@@ -479,8 +477,6 @@ void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd);
  * @note This must only be invoked while holding the SB global lock
  *
  * @param bd  Pointer to the buffer descriptor.
- *
- * \return Execution status, see \ref CFEReturnCodes
  */
 void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd);
 

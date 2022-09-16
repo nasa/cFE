@@ -58,9 +58,6 @@
        <LI> \subpage cfeesugtaskterm <BR>
        <LI> \subpage cfeesugstartupterm <BR>
     </UL>
-
-  Next: \ref cfeesugappterm <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
@@ -86,9 +83,6 @@
   A listing of cFE applications can be acquired by using the
   #CFE_ES_QUERY_ALL_CC ground command. This listing will include the cFE
   internal applications as well as cFE applications that are loaded and running.
-
-  Next: \ref cfeesugtaskterm <BR>
-  Up To: \ref cfeesugterm
 **/
 
 /**
@@ -114,10 +108,6 @@
   In this model, the Stored Command example with a cFE Main Task and 10 Relative
   Time Sequence Child Tasks would consist of a Unix Process and 10 pthreads, all
   under the same virtual address space.
-
-  Next: \ref cfeesugstartupterm <BR>
-  Prev: \ref cfeesugappterm <BR>
-  Up To: \ref cfeesugterm
 **/
 
 /**
@@ -180,10 +170,6 @@
   The startup script delivered with the
   cFE (<tt>cfe_es_startup.scr</tt>) also has some detailed information about the fields
   and the settings.
-
-  Next: \ref cfeesugswreset <BR>
-  Prev: \ref cfeesugappstart <BR>
-  Up To: \ref cfeesugterm
 **/
 
 /**
@@ -206,10 +192,6 @@
   before ES issues a power-on reset. There is a corresponding 'processor resets' counter
   in ES housekeeping telemetry that may be \link #CFE_ES_RESET_PR_COUNT_CC reset through another
   ES command.\endlink
-
-  Next: \ref cfeesugresettype <BR>
-  Prev: \ref cfeesugterm <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
@@ -229,10 +211,6 @@
   #CFE_PSP_RST_SUBTYPE_POWER_CYCLE, #CFE_PSP_RST_SUBTYPE_PUSH_BUTTON, #CFE_PSP_RST_SUBTYPE_HW_SPECIAL_COMMAND,
   #CFE_PSP_RST_SUBTYPE_HW_WATCHDOG, #CFE_PSP_RST_SUBTYPE_RESET_COMMAND, #CFE_PSP_RST_SUBTYPE_EXCEPTION,
   #CFE_PSP_RST_SUBTYPE_UNDEFINED_RESET, #CFE_PSP_RST_SUBTYPE_HWDEBUG_RESET, #CFE_PSP_RST_SUBTYPE_BANKSWITCH_RESET.
-
-  Next: \ref cfeesugresetlog <BR>
-  Prev: \ref cfeesugswreset <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
@@ -257,10 +235,6 @@
 
   The information contained in a single log entry is defined by the
   structure CFE_ES_ERLog_t.
-
-  Next: \ref cfeesugappsrv <BR>
-  Prev: \ref cfeesugresettype <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
@@ -281,10 +255,6 @@
   The ES task maintains a counter for the number of registered
   applications, number of registered child tasks and the number of
   registered libraries in the ES housekeeping data.
-
-  Next: \ref cfeesugappstart <BR>
-  Prev: \ref cfeesugswreset <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
@@ -314,9 +284,6 @@
   object and the application ID. The new application will then show
   up in the query list downloaded in response to the
   #CFE_ES_QUERY_ALL_CC command.
-
-  Next: \ref cfeesugappstop <BR>
-  Up To: \ref cfeesugappsrv
 **/
 
 /**
@@ -353,10 +320,6 @@
   the name of the application. After executing the command, the application
   (or any resources it allocated) should no longer be listed in any cFE
   tables or files.
-
-  Next: \ref cfeesugapprestart <BR>
-  Prev: \ref cfeesugappstart <BR>
-  Up To: \ref cfeesugappsrv
 **/
 
 /**
@@ -373,10 +336,6 @@
   using the previous file name, and restarts an application using the parameters
   defined when the application was previously started, either through
   the startup script or by way of the #CFE_ES_START_APP_CC command.
-
-  Next: \ref cfeesugappreload <BR>
-  Prev: \ref cfeesugappstop <BR>
-  Up To: \ref cfeesugappsrv
 **/
 
 /**
@@ -387,10 +346,6 @@
 
   This command performs
   the same actions as #CFE_ES_RESTART_APP_CC only using the new file.
-
-  Next: \ref cfeesugapplist <BR>
-  Prev: \ref cfeesugapprestart <BR>
-  Up To: \ref cfeesugappsrv
 **/
 
 /**
@@ -430,10 +385,6 @@
   </UL>
 
   For a description of the format in which this data is dumped, see #CFE_ES_AppInfo_t.
-
-  Next: \ref cfeesugtasklist <BR>
-  Prev: \ref cfeesugappreload <BR>
-  Up To: \ref cfeesugappsrv
 **/
 
 /**
@@ -451,11 +402,6 @@
      <LI> <B>Application Name </B> - The name of the Application the Task is
           associated with <BR>
   </UL>
-
-
-  Next: \ref cfeesugloadlibs <BR>
-  Prev: \ref cfeesugapplist <BR>
-  Up To: \ref cfeesugappsrv
 **/
 
 /**
@@ -468,10 +414,6 @@
   startup scripts. The startup script delivered with the cFE
   (<tt>cfe_es_startup.scr</tt>) also has some detailed information
   about library routines.
-
-  Next: \ref cfeesugfilesrv <BR>
-  Prev: \ref cfeesugtasklist <BR>
-  Up To: \ref cfeesugappsrv
 **/
 
 /**
@@ -479,10 +421,6 @@
 
   ES provides minimal functionality to initialize, read, and write
   cfe File headers.
-
-  Next: \ref cfeesugperfsrv <BR>
-  Prev: \ref cfeesugloadlibs <BR>
-  Up To: \ref cfeesugappsrv
 **/
 
 /**
@@ -509,10 +447,6 @@
        <LI> \subpage cfeesugperfstop <BR>
        <LI> \subpage cfeesugperfview <BR>
     </UL>
-
-  Next: \ref cfeesugperftrig <BR>
-  Prev: \ref cfeesugfilesrv <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
@@ -527,10 +461,6 @@
   If the trigger mask is set to all zeros, then the collection will begin
   immediately after the start command and continue until a stop command
   is received. In this case the buffer behaves in a 'circular' manner.
-
-  Next: \ref cfeesugperfstart <BR>
-  Prev: \ref cfeesugperfsrv <BR>
-  Up To: \ref cfeesugperfsrv
 **/
 
 /**
@@ -545,10 +475,6 @@
   Count' to zero. If this counter is zero, it is ok to send the start command.
   If any errors are encountered when the start command is received, the details
   will be displayed in an error event message.
-
-  Next: \ref cfeesugperfstop <BR>
-  Prev: \ref cfeesugperftrig <BR>
-  Up To: \ref cfeesugperfsrv
 **/
 
 /**
@@ -566,10 +492,6 @@
   then sleep for a short time to give tasks of lower priority a chance to
   run. The number of entries between delays, and the delay time is displayed
   in the debug event at the time the stop command is received.
-
-  Next: \ref cfeesugperfview <BR>
-  Prev: \ref cfeesugperfstart <BR>
-  Up To: \ref cfeesugperfsrv
 **/
 
 /**
@@ -578,10 +500,6 @@
   To view the performance data, the file created as a result of the stop
   command must be transferred to the ground and imported into a
   viewing tool.  See https://github.com/nasa/perfutils-java as an example.
-
-  Next: \ref cfeesugcdssrv <BR>
-  Prev: \ref cfeesugperfstop <BR>
-  Up To: \ref cfeesugperfsrv
 **/
 
 /**
@@ -626,10 +544,6 @@
 
   The format of the CDS Registry Dump File is a cFE Standard File header (see #CFE_FS_Header_t)
   followed by one or more CDS Registry Dump File Records (see #CFE_ES_CDSRegDumpRec_t).
-
-  Next: \ref cfeesugmempoolsrv <BR>
-  Prev: \ref cfeesugperfsrv <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
@@ -771,10 +685,6 @@
                previously but are no longer being used<BR>
        </UL>
   </UL>
-
-  Next: \ref cfeesugsyslogsrv <BR>
-  Prev: \ref cfeesugcdssrv <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
@@ -797,29 +707,18 @@
 
   A count of the number of entries in the log is present in the ES housekeeping
   telemetry.
-
-  Next: \ref cfeesugversion <BR>
-  Prev: \ref cfeesugmempoolsrv <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
   \page cfeesugversion Version Identification
 
   Version information is reported at startup, and upon receipt of a No-op command
-
-  Next: \ref cfeesugfaq <BR>
-  Prev: \ref cfeesugsyslogsrv <BR>
-  Up To: \ref cfeesovr
 **/
 
 /**
-  \page cfeesugfaq Executive Services Frequently Asked Questions
+  \page cfeesugfaq Frequently Asked Questions about Executive Services
 
-
-
-  Prev: \ref cfeesugversion <BR>
-  Up To: \ref cfeesovr
+  None submitted
 **/
 
 /**
