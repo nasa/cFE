@@ -2,16 +2,7 @@ name: "CodeQL Analysis"
 
 on:
   push:
-    paths-ignore: 
-    - '**/*.md'
-    - '**/*.txt'
-    - '**/*.dox'
-
   pull_request:
-    paths-ignore: 
-    - '**/*.md'
-    - '**/*.txt'
-    - '**/*.dox'
 
 jobs:
   codeql:
