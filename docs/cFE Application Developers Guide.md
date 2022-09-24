@@ -312,14 +312,14 @@ directory is described as a note under each folder.
     |-- osal
     |   |-- Contains a copy of the OSAL component
     |-- psp
-    |   |-- Contains the Platform Suport Package (PSP) library
+    |   |-- Contains the Platform Support Package (PSP) library
     |   |-- Can customize PSP implementation for each CPU and OS that the project needs
     |-- build
     |   |-- The flight software is all configured and built under this directory
     |   |-- All mission and platform configuration files are placed here
     |-- apps
     |   |-- Contains application source code. 
-    |   |-- Application source code may be shared amoung multiple build CPUs
+    |   |-- Application source code may be shared among multiple build CPUs
     |-- libs
     |   |-- Contains Core Flight System (cFS) Sample Library (sample_lib)
     |-- tools

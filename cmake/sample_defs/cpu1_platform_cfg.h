@@ -182,7 +182,7 @@
 **  \cfesbcfg Platform Endian Indicator
 **
 **  \par Description:
-**       The value of this constant indicates the endianess of the target system
+**       The value of this constant indicates the endianness of the target system
 **
 **  \par Limits
 **       This parameter has a lower limit of 0 and an upper limit of 1.

@@ -42,7 +42,7 @@
 /**
  * @brief Obtain an integer value correlating to an CFE configuration ID
  *
- * Retreives the integer value associated with the specified key.
+ * Retrieves the integer value associated with the specified key.
  *
  * If no value has been set, or the key is not valid, this returns 0.
  *
@@ -56,7 +56,7 @@ uint32 CFE_Config_GetValue(CFE_ConfigId_t ConfigId);
 /**
  * @brief Obtain a pointer value correlating to an CFE configuration ID
  *
- * Retreives the pointer value associated with the specified key.
+ * Retrieves the pointer value associated with the specified key.
  *
  * If no value has been set, or the key is not valid, this returns NULL.
  *
@@ -70,7 +70,7 @@ const void *CFE_Config_GetObjPointer(CFE_ConfigId_t ConfigId);
 /**
  * @brief Obtain a string value correlating to an CFE configuration ID
  *
- * Retreives the string value associated with the specified key.
+ * Retrieves the string value associated with the specified key.
  *
  * If no value has been set, or the key is not valid, this returns the
  * special string "UNDEFINED"
@@ -87,7 +87,7 @@ const char *CFE_Config_GetString(CFE_ConfigId_t ConfigId);
 /**
  * @brief Obtain the name of a CFE configuration ID
  *
- * Retreives the printable name associated with the specified key.
+ * Retrieves the printable name associated with the specified key.
  *
  * @note  This function does not return NULL.
  *

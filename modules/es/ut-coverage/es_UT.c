@@ -4074,7 +4074,7 @@ void TestAPI(void)
     UtAssert_UINT32_EQ(UtAppRecPtr->ControlReq.AppControlRequest, CFE_ES_RunStatus_APP_ERROR);
 
 #if 0
-    /* Can't cover EXTERNAL CFE_ES_ExitApp since it contains a while(1) (infinte loop) */
+    /* Can't cover EXTERNAL CFE_ES_ExitApp since it contains a while(1) (infinite loop) */
     ES_ResetUnitTest();
     ES_UT_SetupSingleAppId(CFE_ES_AppType_EXTERNAL, CFE_ES_AppState_STOPPED, "UT", &UtAppRecPtr, NULL);
     UtAppRecPtr->ControlReq.AppControlRequest = CFE_ES_RunStatus_APP_RUN;

@@ -39,7 +39,7 @@
  */
 
 /**
- * \brief Macro to initialize secondary header, used in macro to intialize entire header which is useful in tables
+ * \brief Macro to initialize secondary header, used in macro to initialize entire header which is useful in tables
  */
 #define CFE_MSG_CMD_HDR_SEC_INIT(fc, cksum) .Sec = {.FunctionCode = (fc), .Checksum = (cksum)}
 
