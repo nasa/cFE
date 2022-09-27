@@ -188,8 +188,6 @@ void CFE_TIME_QueryResetVars(void)
     }
 
     CFE_TIME_FinishReferenceUpdate(RefState);
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -232,8 +230,6 @@ void CFE_TIME_UpdateResetVars(const CFE_TIME_Reference_t *Reference)
             CFE_TIME_ResetDataPtr->TimeResetVars = LocalResetVars;
         }
     }
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -369,8 +365,6 @@ void CFE_TIME_InitData(void)
     */
     CFE_MSG_Init(CFE_MSG_PTR(CFE_TIME_Global.Local1HzCmd.CommandHeader), CFE_SB_ValueToMsgId(CFE_TIME_1HZ_CMD_MID),
                  sizeof(CFE_TIME_Global.Local1HzCmd));
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -429,8 +423,6 @@ void CFE_TIME_GetHkData(const CFE_TIME_Reference_t *Reference)
     CFE_TIME_Global.HkPacket.Payload.SecondsDelay = Reference->AtToneDelay.Seconds;
     CFE_TIME_Global.HkPacket.Payload.SubsecsDelay = Reference->AtToneDelay.Subseconds;
 #endif
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -551,8 +543,6 @@ void CFE_TIME_GetDiagData(void)
     ** Reset Area access status...
     */
     CFE_TIME_Global.DiagPacket.Payload.DataStoreStatus = CFE_TIME_Global.DataStoreStatus;
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -681,8 +671,6 @@ void CFE_TIME_GetReference(CFE_TIME_Reference_t *Reference)
 #endif
 
     Reference->CurrentMET = CurrentMET;
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -816,8 +804,6 @@ void CFE_TIME_SetState(CFE_TIME_ClockState_Enum_t NewState)
     ** Time has changed, force anyone reading time to retry...
     */
     CFE_TIME_FinishReferenceUpdate(RefState);
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -875,8 +861,6 @@ void CFE_TIME_SetDelay(CFE_TIME_SysTime_t NewDelay, int16 Direction)
     ** Time has changed, force anyone reading time to retry...
     */
     CFE_TIME_FinishReferenceUpdate(RefState);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_CLIENT */
 
@@ -926,8 +910,6 @@ void CFE_TIME_SetTime(CFE_TIME_SysTime_t NewTime)
     ** Time has changed, force anyone reading time to retry...
     */
     CFE_TIME_FinishReferenceUpdate(RefState);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
@@ -964,8 +946,6 @@ void CFE_TIME_SetMET(CFE_TIME_SysTime_t NewMET)
     ** Time has changed, force anyone reading time to retry...
     */
     CFE_TIME_FinishReferenceUpdate(RefState);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
@@ -990,8 +970,6 @@ void CFE_TIME_SetSTCF(CFE_TIME_SysTime_t NewSTCF)
     ** Time has changed, force anyone reading time to retry...
     */
     CFE_TIME_FinishReferenceUpdate(RefState);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
@@ -1016,8 +994,6 @@ void CFE_TIME_SetLeapSeconds(int16 NewLeaps)
     ** Time has changed, force anyone reading time to retry...
     */
     CFE_TIME_FinishReferenceUpdate(RefState);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
@@ -1055,8 +1031,6 @@ void CFE_TIME_SetAdjust(CFE_TIME_SysTime_t NewAdjust, int16 Direction)
     ** Time has changed, force anyone reading time to retry...
     */
     CFE_TIME_FinishReferenceUpdate(RefState);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 

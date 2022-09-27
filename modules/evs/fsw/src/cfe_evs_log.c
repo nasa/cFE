@@ -84,8 +84,6 @@ void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
     }
 
     OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -111,8 +109,6 @@ void EVS_ClearLog(void)
     memset(CFE_EVS_Global.EVS_LogPtr->LogEntry, 0, sizeof(CFE_EVS_Global.EVS_LogPtr->LogEntry));
 
     OS_MutSemGive(CFE_EVS_Global.EVS_SharedDataMutexID);
-
-    return;
 }
 
 /*----------------------------------------------------------------

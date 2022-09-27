@@ -688,8 +688,6 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
 
     /* Complete formation of processor specific table name */
     sprintf(FullCDSName, "%s.%s", AppName, CDSName);
-
-    return;
 }
 
 /*----------------------------------------------------------------
