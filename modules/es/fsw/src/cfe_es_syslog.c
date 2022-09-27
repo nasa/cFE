@@ -248,7 +248,7 @@ int32 CFE_ES_SysLogAppend_Unsync(const char *LogString)
         ++CFE_ES_Global.ResetDataPtr->SystemLogEntryNum;
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------

@@ -232,7 +232,7 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
         OS_close(LogFileHandle);
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------

@@ -56,7 +56,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetTime(void)
 
 #endif
 
-    return (CurrentTime);
+    return CurrentTime;
 }
 
 /*----------------------------------------------------------------
@@ -87,7 +87,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetTAI(void)
     */
     tai = CFE_TIME_CalculateTAI(&Reference);
 
-    return (tai);
+    return tai;
 }
 
 /*----------------------------------------------------------------
@@ -117,7 +117,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetUTC(void)
     */
     utc = CFE_TIME_CalculateUTC(&Reference);
 
-    return (utc);
+    return utc;
 }
 
 /*----------------------------------------------------------------
@@ -158,7 +158,7 @@ CFE_TIME_SysTime_t CFE_TIME_MET2SCTime(CFE_TIME_SysTime_t METTime)
 
 #endif
 
-    return (ReturnTime);
+    return ReturnTime;
 }
 
 /*----------------------------------------------------------------
@@ -188,7 +188,7 @@ CFE_TIME_ClockState_Enum_t CFE_TIME_GetClockState(void)
     */
     state = (CFE_TIME_ClockState_Enum_t)CFE_TIME_CalculateState(&Reference);
 
-    return (state);
+    return state;
 }
 
 /*----------------------------------------------------------------
@@ -290,7 +290,7 @@ uint16 CFE_TIME_GetClockInfo(void)
         StateFlags |= CFE_TIME_FLAG_REFERR;
     }
 
-    return (StateFlags);
+    return StateFlags;
 }
 
 /*----------------------------------------------------------------
@@ -315,7 +315,7 @@ int16 CFE_TIME_GetLeapSeconds(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.AtToneLeapSeconds);
+    return Reference.AtToneLeapSeconds;
 }
 
 /*----------------------------------------------------------------
@@ -340,7 +340,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetSTCF(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.AtToneSTCF);
+    return Reference.AtToneSTCF;
 }
 
 /*----------------------------------------------------------------
@@ -365,7 +365,7 @@ CFE_TIME_SysTime_t CFE_TIME_GetMET(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.CurrentMET);
+    return Reference.CurrentMET;
 }
 
 /*----------------------------------------------------------------
@@ -390,7 +390,7 @@ uint32 CFE_TIME_GetMETseconds(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.CurrentMET.Seconds);
+    return Reference.CurrentMET.Seconds;
 }
 
 /*----------------------------------------------------------------
@@ -415,7 +415,7 @@ uint32 CFE_TIME_GetMETsubsecs(void)
     */
     CFE_TIME_GetReference(&Reference);
 
-    return (Reference.CurrentMET.Subseconds);
+    return Reference.CurrentMET.Subseconds;
 }
 
 /*----------------------------------------------------------------
@@ -444,7 +444,7 @@ CFE_TIME_SysTime_t CFE_TIME_Add(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Tim
         Result.Seconds = Time1.Seconds + Time2.Seconds;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -470,7 +470,7 @@ CFE_TIME_SysTime_t CFE_TIME_Subtract(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_
         Result.Seconds = Time1.Seconds - Time2.Seconds;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -532,7 +532,7 @@ CFE_TIME_Compare_t CFE_TIME_Compare(CFE_TIME_SysTime_t TimeA, CFE_TIME_SysTime_t
         }
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -587,7 +587,7 @@ uint32 CFE_TIME_Micro2SubSecs(uint32 MicroSeconds)
         SubSeconds = OS_TimeGetSubsecondsPart(tm);
     }
 
-    return (SubSeconds);
+    return SubSeconds;
 }
 
 /*----------------------------------------------------------------

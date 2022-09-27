@@ -218,7 +218,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
     {
         CFE_ES_WriteToSysLog("%s: Num Block Sizes (%d) greater than max (%d)\n", __func__, (int)NumBlockSizes,
                              CFE_PLATFORM_ES_POOL_MAX_BUCKETS);
-        return (CFE_ES_BAD_ARGUMENT);
+        return CFE_ES_BAD_ARGUMENT;
     }
 
     /*
@@ -355,7 +355,7 @@ CFE_Status_t CFE_ES_PoolCreateEx(CFE_ES_MemHandle_t *PoolID, void *MemPtr, size_
      */
     *PoolID = CFE_ES_MEMHANDLE_C(PendingID);
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -441,7 +441,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("%s: Err:Bad handle(0x%08lX) AppId=%lu\n", __func__, CFE_RESOURCEID_TO_ULONG(Handle),
                              CFE_RESOURCEID_TO_ULONG(AppId));
-        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     /*
@@ -473,7 +473,7 @@ int32 CFE_ES_GetPoolBuf(CFE_ES_MemPoolBuf_t *BufPtr, CFE_ES_MemHandle_t Handle, 
     /* If not successful, return error now */
     if (Status != CFE_SUCCESS)
     {
-        return (Status);
+        return Status;
     }
 
     /* Compute the actual buffer address. */
@@ -507,7 +507,7 @@ CFE_Status_t CFE_ES_GetPoolBufInfo(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_
     /* basic sanity check */
     if (!CFE_ES_MemPoolRecordIsMatch(PoolRecPtr, Handle))
     {
-        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     /*
@@ -571,7 +571,7 @@ int32 CFE_ES_PutPoolBuf(CFE_ES_MemHandle_t Handle, CFE_ES_MemPoolBuf_t BufPtr)
     {
         CFE_ES_WriteToSysLog("%s: Err:Invalid Memory Handle (0x%08lX).\n", __func__, CFE_RESOURCEID_TO_ULONG(Handle));
 
-        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     /*
@@ -653,7 +653,7 @@ CFE_Status_t CFE_ES_GetMemPoolStats(CFE_ES_MemPoolStats_t *BufPtr, CFE_ES_MemHan
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("%s: Err:Bad handle(0x%08lX) AppId=%lu\n", __func__, CFE_RESOURCEID_TO_ULONG(Handle),
                              CFE_RESOURCEID_TO_ULONG(AppId));
-        return (CFE_ES_ERR_RESOURCEID_NOT_VALID);
+        return CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
 
     /*

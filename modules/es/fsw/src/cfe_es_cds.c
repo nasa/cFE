@@ -468,7 +468,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
 
     *HandlePtr = CFE_ES_CDSHANDLE_C(PendingBlockId);
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------

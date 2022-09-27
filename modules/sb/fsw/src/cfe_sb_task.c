@@ -316,7 +316,7 @@ bool CFE_SB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
         ++CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter;
     }
 
-    return (result);
+    return result;
 }
 
 /*----------------------------------------------------------------
