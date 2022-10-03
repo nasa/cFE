@@ -1658,22 +1658,22 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
                     PipeDscPtr->PeakQueueDepth = PipeDscPtr->CurrentQueueDepth;
                 }
             }
-            else if (OsStatus == OS_QUEUE_FULL)
-            {
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId  = DestPtr->PipeId;
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId = CFE_SB_Q_FULL_ERR_EID;
-                SBSndErr.EvtsToSnd++;
-                CFE_SB_Global.HKTlmMsg.Payload.PipeOverflowErrorCounter++;
-                PipeDscPtr->SendErrors++;
-            }
             else
             {
-                /* Unexpected error while writing to queue. */
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId   = DestPtr->PipeId;
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId  = CFE_SB_Q_WR_ERR_EID;
-                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].OsStatus = OsStatus;
+                SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].PipeId = DestPtr->PipeId;
+                if (OsStatus == OS_QUEUE_FULL)
+                {
+                    SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId = CFE_SB_Q_FULL_ERR_EID;
+                    CFE_SB_Global.HKTlmMsg.Payload.PipeOverflowErrorCounter++;
+                }
+                else
+                {
+                    /* Unexpected error while writing to queue. */
+                    SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].EventId  = CFE_SB_Q_WR_ERR_EID;
+                    SBSndErr.EvtBuf[SBSndErr.EvtsToSnd].OsStatus = OsStatus;
+                    CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter++;
+                }
                 SBSndErr.EvtsToSnd++;
-                CFE_SB_Global.HKTlmMsg.Payload.InternalErrorCounter++;
                 PipeDscPtr->SendErrors++;
             } /*end if */
 
