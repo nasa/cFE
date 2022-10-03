@@ -550,8 +550,6 @@ void CFE_TIME_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
             break;
 
     } /* switch (message ID) */
-
-    return;
 }
 
 /*----------------------------------------------------------------

@@ -2255,8 +2255,6 @@ void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber)
                                   FunctionName, (int)LineNumber);
 
     } /* end if */
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -2282,8 +2280,6 @@ void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber)
                                   FunctionName, (int)LineNumber);
 
     } /* end if */
-
-    return;
 }
 
 /*----------------------------------------------------------------

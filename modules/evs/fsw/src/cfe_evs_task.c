@@ -349,8 +349,6 @@ void CFE_EVS_ProcessCommandPacket(CFE_SB_Buffer_t *SBBufPtr)
                           (unsigned int)CFE_SB_MsgIdToValue(MessageID));
             break;
     }
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -560,8 +558,6 @@ void CFE_EVS_ProcessGroundCommand(CFE_SB_Buffer_t *SBBufPtr, CFE_SB_MsgId_t MsgI
     {
         CFE_EVS_Global.EVS_TlmPkt.Payload.CommandErrorCounter++;
     }
-
-    return;
 }
 
 /*----------------------------------------------------------------

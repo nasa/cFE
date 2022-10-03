@@ -602,8 +602,6 @@ void CFE_TBL_FormTableName(char *FullTblName, const char *TblName, CFE_ES_AppId_
 
     /* Complete formation of application specific table name */
     sprintf(FullTblName, "%s.%s", AppName, TblName);
-
-    return;
 }
 
 /*----------------------------------------------------------------

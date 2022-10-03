@@ -742,8 +742,6 @@ void CFE_TIME_Print(char *PrintBuffer, CFE_TIME_SysTime_t TimeToPrint)
     *PrintBuffer++ = '0' + (char)(NumberOfMicros / 10);
     *PrintBuffer++ = '0' + (char)(NumberOfMicros % 10);
     *PrintBuffer++ = '\0';
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -760,8 +758,6 @@ void CFE_TIME_ExternalTone(void)
     ** Call tone signal ISR (OK if called from non-ISR context)...
     */
     CFE_TIME_Tone1HzISR();
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -863,8 +859,6 @@ void CFE_TIME_ExternalMET(CFE_TIME_SysTime_t NewMET)
     ** Process external MET data...
     */
     CFE_TIME_ToneSendMET(NewMET);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_MET  */
 
@@ -883,8 +877,6 @@ void CFE_TIME_ExternalGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
     ** Process external GPS time data...
     */
     CFE_TIME_ToneSendGPS(NewTime, NewLeaps);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_GPS */
 
@@ -903,7 +895,5 @@ void CFE_TIME_ExternalTime(CFE_TIME_SysTime_t NewTime)
     ** Process external time data...
     */
     CFE_TIME_ToneSendTime(NewTime);
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_TIME */
