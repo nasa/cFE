@@ -290,7 +290,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 
     /* Exit performance monitoring */
     CFE_ES_PerfLogExit(CFE_MISSION_TIME_SENDMET_PERF_ID);
-    return (Result);
+    return Result;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_MET */
 
@@ -430,7 +430,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
         }
     }
 
-    return (Result);
+    return Result;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_GPS */
 
@@ -572,7 +572,7 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
         }
     }
 
-    return (Result);
+    return Result;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_TIME */
 

@@ -101,7 +101,7 @@
  */
 static inline unsigned long CFE_ResourceId_ToInteger(CFE_ResourceId_t id)
 {
-    return ((unsigned long)CFE_RESOURCEID_UNWRAP(id));
+    return (unsigned long)CFE_RESOURCEID_UNWRAP(id);
 }
 
 /**
@@ -120,7 +120,7 @@ static inline unsigned long CFE_ResourceId_ToInteger(CFE_ResourceId_t id)
  */
 static inline CFE_ResourceId_t CFE_ResourceId_FromInteger(unsigned long Value)
 {
-    return ((CFE_ResourceId_t)CFE_RESOURCEID_WRAP(Value));
+    return (CFE_ResourceId_t)CFE_RESOURCEID_WRAP(Value);
 }
 
 /**

@@ -54,7 +54,7 @@ int32 CFE_TIME_EarlyInit(void)
     */
     CFE_TIME_InitData();
 
-    return (CFE_SUCCESS);
+    return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
@@ -346,7 +346,7 @@ bool CFE_TIME_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
         ++CFE_TIME_Global.CommandErrorCounter;
     }
 
-    return (result);
+    return result;
 }
 
 /*----------------------------------------------------------------

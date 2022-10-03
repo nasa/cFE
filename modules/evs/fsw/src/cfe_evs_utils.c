@@ -64,7 +64,7 @@ EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID)
         AppDataPtr = NULL;
     }
 
-    return (AppDataPtr);
+    return AppDataPtr;
 }
 
 /*----------------------------------------------------------------
@@ -186,7 +186,7 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
                              AppName);
     }
 
-    return (CFE_EVS_APP_NOT_REGISTERED);
+    return CFE_EVS_APP_NOT_REGISTERED;
 }
 
 /*----------------------------------------------------------------
@@ -286,7 +286,7 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
         }
     }
 
-    return (Filtered);
+    return Filtered;
 }
 
 /*----------------------------------------------------------------
@@ -425,11 +425,11 @@ EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray)
     {
         if (FilterArray[i].EventID == EventID)
         {
-            return (&FilterArray[i]);
+            return &FilterArray[i];
         }
     }
 
-    return ((EVS_BinFilter_t *)NULL);
+    return (EVS_BinFilter_t *)NULL;
 }
 
 /*----------------------------------------------------------------
@@ -693,5 +693,5 @@ int32 EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spec, ...)
         va_end(Ptr);
     }
 
-    return (CFE_SUCCESS);
+    return CFE_SUCCESS;
 }

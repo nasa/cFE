@@ -164,7 +164,7 @@ int32 CFE_EVS_EarlyInit(void)
         }
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -191,7 +191,7 @@ int32 CFE_EVS_CleanUpApp(CFE_ES_AppId_t AppID)
         EVS_AppDataSetFree(AppDataPtr);
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -594,7 +594,7 @@ bool CFE_EVS_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
         result = false;
     }
 
-    return (result);
+    return result;
 }
 
 /*----------------------------------------------------------------
@@ -1653,5 +1653,5 @@ int32 CFE_EVS_WriteAppDataFileCmd(const CFE_EVS_WriteAppDataFileCmd_t *data)
         OS_close(FileHandle);
     }
 
-    return (Result);
+    return Result;
 }

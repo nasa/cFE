@@ -99,7 +99,7 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void)
     LatchTime.Seconds    = OS_TimeGetTotalSeconds(LocalTime);
     LatchTime.Subseconds = OS_TimeGetSubsecondsPart(LocalTime);
 
-    return (LatchTime);
+    return LatchTime;
 }
 
 /*----------------------------------------------------------------
@@ -687,7 +687,7 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateTAI(const CFE_TIME_Reference_t *Reference)
 
     TimeAsTAI = CFE_TIME_Add(Reference->CurrentMET, Reference->AtToneSTCF);
 
-    return (TimeAsTAI);
+    return TimeAsTAI;
 }
 
 /*----------------------------------------------------------------
@@ -705,7 +705,7 @@ CFE_TIME_SysTime_t CFE_TIME_CalculateUTC(const CFE_TIME_Reference_t *Reference)
     TimeAsUTC = CFE_TIME_Add(Reference->CurrentMET, Reference->AtToneSTCF);
     TimeAsUTC.Seconds -= Reference->AtToneLeapSeconds;
 
-    return (TimeAsUTC);
+    return TimeAsUTC;
 }
 
 /*----------------------------------------------------------------
@@ -759,7 +759,7 @@ CFE_TIME_ClockState_Enum_t CFE_TIME_CalculateState(const CFE_TIME_Reference_t *R
         ClockState = CFE_TIME_ClockState_INVALID;
     }
 
-    return (ClockState);
+    return ClockState;
 }
 
 /*----------------------------------------------------------------

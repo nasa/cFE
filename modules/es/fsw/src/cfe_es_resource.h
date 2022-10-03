@@ -310,7 +310,7 @@ static inline CFE_ES_LibId_t CFE_ES_LibRecordGetID(const CFE_ES_LibRecord_t *Lib
      * The initial implementation does not store the ID in the entry;
      * the ID is simply the zero-based index into the table.
      */
-    return (LibRecPtr->LibId);
+    return LibRecPtr->LibId;
 }
 
 /*---------------------------------------------------------------------------------------*/
@@ -411,7 +411,7 @@ static inline const char *CFE_ES_LibRecordGetName(const CFE_ES_LibRecord_t *LibR
  */
 static inline CFE_ES_TaskId_t CFE_ES_TaskRecordGetID(const CFE_ES_TaskRecord_t *TaskRecPtr)
 {
-    return (TaskRecPtr->TaskId);
+    return TaskRecPtr->TaskId;
 }
 
 /*---------------------------------------------------------------------------------------*/

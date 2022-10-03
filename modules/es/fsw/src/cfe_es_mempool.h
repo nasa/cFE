@@ -158,7 +158,7 @@ static inline bool CFE_ES_MemPoolRecordIsUsed(const CFE_ES_MemPoolRecord_t *Pool
  */
 static inline CFE_ES_MemHandle_t CFE_ES_MemPoolRecordGetID(const CFE_ES_MemPoolRecord_t *PoolRecPtr)
 {
-    return (PoolRecPtr->PoolID);
+    return PoolRecPtr->PoolID;
 }
 
 /*---------------------------------------------------------------------------------------*/
