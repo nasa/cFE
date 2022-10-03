@@ -10,6 +10,14 @@ The detailed cFE user's guide can be viewed at <https://github.com/nasa/cFE/blob
 
 ## Changelog
 
+### Development Build: v7.0.0-rc4+dev183
+- Fixes issue #2144- Propagate CMAKE_EXPORT_COMPILE_COMMANDS variable
+- Remove CodeQL Paths Ignore
+- Duplicated Logic in CFE_SB_BroadcastBufferToRoute
+- Remove 'return;' from last line of void functions.
+- Remove unnecessary parentheses around return values.
+- See <https://github.com/nasa/cFE/pull/2145>, <https://github.com/nasa/cFE/pull/2148>, <https://github.com/nasa/cFE/pull/2151>, <https://github.com/nasa/cFE/pull/2156>, and <https://github.com/nasa/cFE/pull/2154>
+
 ### Development Build: v7.0.0-rc4+dev171
 - Resolve doxygen 1.8.17 latex make errors
 - See <https://github.com/nasa/cFE/pull/2143>
