@@ -328,7 +328,7 @@ static inline bool CFE_ES_CDSBlockRecordIsUsed(const CFE_ES_CDS_RegRec_t *CDSBlo
  */
 static inline CFE_ES_CDSHandle_t CFE_ES_CDSBlockRecordGetID(const CFE_ES_CDS_RegRec_t *CDSBlockRecPtr)
 {
-    return (CDSBlockRecPtr->BlockID);
+    return CDSBlockRecPtr->BlockID;
 }
 
 /*---------------------------------------------------------------------------------------*/

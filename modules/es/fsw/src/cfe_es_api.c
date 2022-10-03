@@ -55,7 +55,7 @@ int32 CFE_ES_GetResetType(uint32 *ResetSubtypePtr)
         *ResetSubtypePtr = CFE_ES_Global.ResetDataPtr->ResetVars.ResetSubtype;
     }
 
-    return (CFE_ES_Global.ResetDataPtr->ResetVars.ResetType);
+    return CFE_ES_Global.ResetDataPtr->ResetVars.ResetType;
 }
 
 /*----------------------------------------------------------------
@@ -152,7 +152,7 @@ CFE_Status_t CFE_ES_ResetCFE(uint32 ResetType)
         ReturnCode = CFE_ES_BAD_ARGUMENT;
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -221,7 +221,7 @@ CFE_Status_t CFE_ES_RestartApp(CFE_ES_AppId_t AppID)
 
     } /* end if */
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -290,7 +290,7 @@ CFE_Status_t CFE_ES_ReloadApp(CFE_ES_AppId_t AppID, const char *AppFileName)
                              CFE_RESOURCEID_TO_ULONG(AppID));
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -343,7 +343,7 @@ CFE_Status_t CFE_ES_DeleteApp(CFE_ES_AppId_t AppID)
                              CFE_RESOURCEID_TO_ULONG(AppID));
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -568,7 +568,7 @@ bool CFE_ES_RunLoop(uint32 *RunStatus)
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -726,7 +726,7 @@ CFE_Status_t CFE_ES_GetAppIDByName(CFE_ES_AppId_t *AppIdPtr, const char *AppName
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -767,7 +767,7 @@ CFE_Status_t CFE_ES_GetLibIDByName(CFE_ES_LibId_t *LibIdPtr, const char *LibName
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -802,7 +802,7 @@ CFE_Status_t CFE_ES_GetTaskIDByName(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
         *TaskIdPtr = CFE_ES_TASKID_UNDEFINED;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -840,7 +840,7 @@ CFE_Status_t CFE_ES_GetAppID(CFE_ES_AppId_t *AppIdPtr)
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -920,7 +920,7 @@ CFE_Status_t CFE_ES_GetAppName(char *AppName, CFE_ES_AppId_t AppId, size_t Buffe
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -966,7 +966,7 @@ CFE_Status_t CFE_ES_GetLibName(char *LibName, CFE_ES_LibId_t LibId, size_t Buffe
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -1209,7 +1209,7 @@ int32 CFE_ES_GetModuleInfo(CFE_ES_AppInfo_t *ModuleInfo, CFE_ResourceId_t Resour
             break;
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -1285,7 +1285,7 @@ CFE_Status_t CFE_ES_GetTaskInfo(CFE_ES_TaskInfo_t *TaskInfo, CFE_ES_TaskId_t Tas
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -1381,7 +1381,7 @@ CFE_Status_t CFE_ES_CreateChildTask(CFE_ES_TaskId_t *TaskIdPtr, const char *Task
         ReturnCode = CFE_ES_StartAppTask(TaskIdPtr, TaskName, FunctionPtr, &Params, ParentAppId);
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1528,7 +1528,7 @@ CFE_Status_t CFE_ES_DeleteChildTask(CFE_ES_TaskId_t TaskId)
         CFE_ES_WriteToSysLog("%s: Error: Invalid Task ID: %lu\n", __func__, CFE_RESOURCEID_TO_ULONG(TaskId));
         ReturnCode = CFE_ES_ERR_RESOURCEID_NOT_VALID;
     }
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1623,7 +1623,7 @@ CFE_Status_t CFE_ES_WriteToSysLog(const char *SpecStringPtr, ...)
     /* Output the entry to the console */
     OS_printf("%s", TmpString);
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -1701,7 +1701,7 @@ uint32 CFE_ES_CalculateCRC(const void *DataPtr, size_t DataLength, uint32 InputC
         default:
             break;
     }
-    return (Crc);
+    return Crc;
 }
 
 /*----------------------------------------------------------------
@@ -2109,7 +2109,7 @@ CFE_Status_t CFE_ES_GetGenCounterIDByName(CFE_ES_CounterId_t *CounterIdPtr, cons
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -2255,8 +2255,6 @@ void CFE_ES_LockSharedData(const char *FunctionName, int32 LineNumber)
                                   FunctionName, (int)LineNumber);
 
     } /* end if */
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -2282,8 +2280,6 @@ void CFE_ES_UnlockSharedData(const char *FunctionName, int32 LineNumber)
                                   FunctionName, (int)LineNumber);
 
     } /* end if */
-
-    return;
 }
 
 /*----------------------------------------------------------------

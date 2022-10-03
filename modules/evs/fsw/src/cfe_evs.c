@@ -109,7 +109,7 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
         }
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -161,7 +161,7 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
         }
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -260,7 +260,7 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
         }
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -301,7 +301,7 @@ int32 CFE_EVS_ResetFilter(uint16 EventID)
         }
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -336,5 +336,5 @@ CFE_Status_t CFE_EVS_ResetAllFilters(void)
         }
     }
 
-    return (Status);
+    return Status;
 }

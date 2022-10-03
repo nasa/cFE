@@ -85,8 +85,6 @@ void CFE_FS_LockSharedData(const char *FunctionName)
                              CFE_RESOURCEID_TO_ULONG(AppId), FunctionName);
 
     } /* end if */
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -110,5 +108,4 @@ void CFE_FS_UnlockSharedData(const char *FunctionName)
                              CFE_RESOURCEID_TO_ULONG(AppId), FunctionName);
 
     } /* end if */
-    return;
 }

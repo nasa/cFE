@@ -36,7 +36,6 @@ void TaskFunction(void)
         CFE_FT_Global.Count += 1;
         OS_TaskDelay(100);
     }
-    return;
 }
 
 /* A task function that verifies the behavior of other APIs when those are called from a child task */
@@ -89,7 +88,6 @@ void TaskExitFunction(void)
         CFE_FT_Global.Count += 1;
         CFE_ES_ExitChildTask();
     }
-    return;
 }
 
 void TestCreateChild(void)

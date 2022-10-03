@@ -380,7 +380,7 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
     {
         CFE_ES_WriteToSysLog("%s: Err:size(%lu) > max(%lu)\n", __func__, (unsigned long)ReqSize,
                              (unsigned long)PoolRecPtr->Buckets[PoolRecPtr->NumBuckets - 1].BlockSize);
-        return (CFE_ES_ERR_MEM_BLOCK_SIZE);
+        return CFE_ES_ERR_MEM_BLOCK_SIZE;
     }
 
     /* first attempt to recycle any buffers from the same bucket that were freed */
@@ -391,7 +391,7 @@ int32 CFE_ES_GenPoolGetBlock(CFE_ES_GenPoolRecord_t *PoolRecPtr, size_t *BlockOf
         Status = CFE_ES_GenPoolCreatePoolBlock(PoolRecPtr, BucketId, ReqSize, BlockOffsetPtr);
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------

@@ -323,8 +323,6 @@ void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
             */
         }
     }
-
-    return;
 }
 
 /*----------------------------------------------------------------
