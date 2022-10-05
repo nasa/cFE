@@ -35,8 +35,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_Register
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -114,8 +112,6 @@ CFE_Status_t CFE_EVS_Register(const void *Filters, uint16 NumEventFilters, uint1
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_SendEvent
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -166,8 +162,6 @@ CFE_Status_t CFE_EVS_SendEvent(uint16 EventID, uint16 EventType, const char *Spe
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_SendEventWithAppID
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -217,8 +211,6 @@ CFE_Status_t CFE_EVS_SendEventWithAppID(uint16 EventID, uint16 EventType, CFE_ES
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_SendTimedEvent
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -265,8 +257,6 @@ CFE_Status_t CFE_EVS_SendTimedEvent(CFE_TIME_SysTime_t Time, uint16 EventID, uin
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_EVS_ResetFilter
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -305,8 +295,6 @@ int32 CFE_EVS_ResetFilter(uint16 EventID)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_ResetAllFilters
  *
  * Implemented per public API
  * See description in header file for argument/return detail

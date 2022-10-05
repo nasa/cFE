@@ -49,7 +49,6 @@ typedef struct CFE_TIME_ResetVars
     CFE_TIME_SysTime_t CurrentMET;   /**< \brief Current Mission Elapsed Time (MET) */
     CFE_TIME_SysTime_t CurrentSTCF;  /**< \brief Current Spacecraft Time Correlation Factor (STCF) */
     CFE_TIME_SysTime_t CurrentDelay; /**< \brief Current time client delay value */
-
 } CFE_TIME_ResetVars_t;
 
 #endif /* CFE_TIME_RESETVARS_TYPEDEF_H */

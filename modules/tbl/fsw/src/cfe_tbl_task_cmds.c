@@ -37,8 +37,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_HousekeepingCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -135,8 +133,6 @@ int32 CFE_TBL_HousekeepingCmd(const CFE_MSG_CommandHeader_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_GetHkData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -250,8 +246,6 @@ void CFE_TBL_GetHkData(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_GetTblRegData
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -310,8 +304,6 @@ void CFE_TBL_GetTblRegData(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_NoopCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -325,8 +317,6 @@ int32 CFE_TBL_NoopCmd(const CFE_TBL_NoopCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_ResetCountersCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -347,8 +337,6 @@ int32 CFE_TBL_ResetCountersCmd(const CFE_TBL_ResetCountersCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_LoadCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -539,8 +527,6 @@ int32 CFE_TBL_LoadCmd(const CFE_TBL_LoadCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_DumpCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -685,8 +671,6 @@ int32 CFE_TBL_DumpCmd(const CFE_TBL_DumpCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_DumpToFile
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -810,8 +794,6 @@ CFE_TBL_CmdProcRet_t CFE_TBL_DumpToFile(const char *DumpFilename, const char *Ta
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_ValidateCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -954,8 +936,6 @@ int32 CFE_TBL_ValidateCmd(const CFE_TBL_ValidateCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_ActivateCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1033,8 +1013,6 @@ int32 CFE_TBL_ActivateCmd(const CFE_TBL_ActivateCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_DumpRegistryGetter
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1154,8 +1132,6 @@ bool CFE_TBL_DumpRegistryGetter(void *Meta, uint32 RecordNum, void **Buffer, siz
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_DumpRegistryEventHandler
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1218,8 +1194,6 @@ void CFE_TBL_DumpRegistryEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event,
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_DumpRegistryCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1281,8 +1255,6 @@ int32 CFE_TBL_DumpRegistryCmd(const CFE_TBL_DumpRegistryCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_SendRegistryCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1321,8 +1293,6 @@ int32 CFE_TBL_SendRegistryCmd(const CFE_TBL_SendRegistryCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_DeleteCDSCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1412,8 +1382,6 @@ int32 CFE_TBL_DeleteCDSCmd(const CFE_TBL_DeleteCDSCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_AbortLoadCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1463,8 +1431,6 @@ int32 CFE_TBL_AbortLoadCmd(const CFE_TBL_AbortLoadCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_AbortLoad
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

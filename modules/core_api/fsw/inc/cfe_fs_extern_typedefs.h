@@ -60,7 +60,6 @@
  */
 enum CFE_FS_SubType
 {
-
     /**
      * @brief Executive Services Exception/Reset Log Type
      *
@@ -216,7 +215,6 @@ typedef struct CFE_FS_Header
     uint32 TimeSubSeconds; /**< \brief File creation timestamp (sub-seconds) */
 
     char Description[CFE_FS_HDR_DESC_MAX_LEN]; /**< \brief File description */
-
 } CFE_FS_Header_t;
 
 #endif /* CFE_EDS_ENABLED_BUILD */

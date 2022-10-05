@@ -80,8 +80,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_CleanUpApp
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -124,8 +122,6 @@ int32 CFE_SB_CleanUpApp(CFE_ES_AppId_t AppId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_LockSharedData
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -141,13 +137,10 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("%s: SharedData Mutex Take Err Stat=%ld,App=%lu,Func=%s,Line=%d\n", __func__,
                              (long)OsStatus, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
-
-    } /* end if */
+    }
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_UnlockSharedData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -164,13 +157,10 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber)
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("%s: SharedData Mutex Give Err Stat=%ld,App=%lu,Func=%s,Line=%d\n", __func__,
                              (long)OsStatus, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
-
-    } /* end if */
+    }
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_GetDestPtr
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -197,15 +187,12 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_PipeI
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_ValidateMsgId
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId)
 {
-
     if (!CFE_SB_IsValidMsgId(MsgId))
     {
         return CFE_SB_FAILED;
@@ -213,14 +200,12 @@ int32 CFE_SB_ValidateMsgId(CFE_SB_MsgId_t MsgId)
     else
     {
         return CFE_SUCCESS;
-    } /* end if */
+    }
 }
 
 /*********************************************************************/
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_LocatePipeDescByID
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -245,8 +230,6 @@ CFE_SB_PipeD_t *CFE_SB_LocatePipeDescByID(CFE_SB_PipeId_t PipeId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_CheckPipeDescSlotUsed
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -265,15 +248,12 @@ bool CFE_SB_CheckPipeDescSlotUsed(CFE_ResourceId_t CheckId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_GetAppTskName
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
 {
-
     CFE_ES_TaskInfo_t  TaskInfo;
     CFE_ES_TaskInfo_t *ptr = &TaskInfo;
     char               AppName[OS_MAX_API_NAME];
@@ -281,21 +261,18 @@ char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
 
     if (CFE_ES_GetTaskInfo(ptr, TaskId) != CFE_SUCCESS)
     {
-
         /* unlikely, but possible if TaskId is bogus */
         strncpy(FullName, "Unknown", OS_MAX_API_NAME - 1);
         FullName[OS_MAX_API_NAME - 1] = '\0';
     }
     else if (strncmp((char *)ptr->AppName, (char *)ptr->TaskName, sizeof(ptr->AppName)) == 0)
     {
-
         /* if app name and task name are the same */
         strncpy(FullName, (char *)ptr->AppName, OS_MAX_API_NAME - 1);
         FullName[OS_MAX_API_NAME - 1] = '\0';
     }
     else
     {
-
         /* AppName and TskName buffers and strncpy are needed to limit string sizes */
         strncpy(AppName, (char *)ptr->AppName, sizeof(AppName) - 1);
         AppName[sizeof(AppName) - 1] = '\0';
@@ -303,15 +280,12 @@ char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
         TskName[sizeof(TskName) - 1] = '\0';
 
         sprintf(FullName, "%s.%s", AppName, TskName);
-
-    } /* end if */
+    }
 
     return FullName;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_RequestToSendEvent
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -319,7 +293,6 @@ char *CFE_SB_GetAppTskName(CFE_ES_TaskId_t TaskId, char *FullName)
  *-----------------------------------------------------------------*/
 uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
 {
-
     uint32 Indx;
 
     if (CFE_ES_TaskID_ToIndex(TaskId, &Indx) != CFE_SUCCESS)
@@ -330,21 +303,16 @@ uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
     /* if bit is set... */
     if (CFE_TST(CFE_SB_Global.StopRecurseFlags[Indx], Bit))
     {
-
         return CFE_SB_DENIED;
     }
     else
     {
-
         CFE_SET(CFE_SB_Global.StopRecurseFlags[Indx], Bit);
         return CFE_SB_GRANTED;
-
-    } /* end if */
+    }
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_FinishSendEvent
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -352,7 +320,6 @@ uint32 CFE_SB_RequestToSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
  *-----------------------------------------------------------------*/
 void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
 {
-
     uint32 Indx;
 
     if (CFE_ES_TaskID_ToIndex(TaskId, &Indx) != CFE_SUCCESS)
@@ -366,15 +333,12 @@ void CFE_SB_FinishSendEvent(CFE_ES_TaskId_t TaskId, uint32 Bit)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_AddDestNode
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNode)
 {
-
     CFE_SB_DestinationD_t *WBS; /* Will Be Second (WBS) node */
     CFE_SB_DestinationD_t *listheadptr;
 
@@ -407,8 +371,6 @@ int32 CFE_SB_AddDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *NewNo
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_RemoveDest
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -421,8 +383,6 @@ void CFE_SB_RemoveDest(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_RemoveDestNode
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -447,7 +407,6 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
     }
     else if (NodeToRemove->Next == NULL)
     {
-
         /* Last in the list, remove previous pointer */
         PrevNode       = NodeToRemove->Prev;
         PrevNode->Next = NULL;
@@ -467,8 +426,6 @@ void CFE_SB_RemoveDestNode(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *Nod
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_ZeroCopyReleaseAppId
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

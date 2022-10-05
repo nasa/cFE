@@ -33,15 +33,12 @@
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_AddLog
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 {
-
     /* Serialize access to event log control variables */
     OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
 
@@ -88,15 +85,12 @@ void EVS_AddLog(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_ClearLog
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void EVS_ClearLog(void)
 {
-
     /* Serialize access to event log control variables */
     OS_MutSemTake(CFE_EVS_Global.EVS_SharedDataMutexID);
 
@@ -112,8 +106,6 @@ void EVS_ClearLog(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_WriteLogDataFileCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -232,8 +224,6 @@ int32 CFE_EVS_WriteLogDataFileCmd(const CFE_EVS_WriteLogDataFileCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_EVS_SetLogModeCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

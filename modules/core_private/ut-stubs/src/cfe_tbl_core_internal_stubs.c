@@ -62,6 +62,5 @@ int32 CFE_TBL_EarlyInit(void)
  */
 void CFE_TBL_TaskMain(void)
 {
-
     UT_GenStub_Execute(CFE_TBL_TaskMain, Basic, NULL);
 }

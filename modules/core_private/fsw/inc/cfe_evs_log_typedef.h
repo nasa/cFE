@@ -43,7 +43,6 @@ typedef struct
     uint8                  LogMode;            /**< \brief Local Event Logging mode (overwrite/discard) */
     uint16                 LogOverflowCounter; /**< \brief Local Event Log overflow counter */
     CFE_EVS_LongEventTlm_t LogEntry[CFE_PLATFORM_EVS_LOG_MAX]; /**< \brief The actual Local Event Log entry */
-
 } CFE_EVS_Log_t;
 
 #endif /* CFE_EVS_LOG_TYPEDEF_H */

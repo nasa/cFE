@@ -46,7 +46,6 @@
  */
 enum CFE_SB_QosPriority
 {
-
     /**
      * @brief Normal priority level
      */
@@ -70,7 +69,6 @@ typedef uint8 CFE_SB_QosPriority_Enum_t;
  */
 enum CFE_SB_QosReliability
 {
-
     /**
      * @brief Normal (best-effort) reliability
      */

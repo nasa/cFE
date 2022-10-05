@@ -42,8 +42,6 @@ CFE_FS_Global_t CFE_FS_Global;
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_FS_EarlyInit
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -59,14 +57,12 @@ int32 CFE_FS_EarlyInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Shared Data Mutex creation failed! RC=%ld\n", __func__, (long)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-    } /* end if */
+    }
 
     return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_LockSharedData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -83,13 +79,10 @@ void CFE_FS_LockSharedData(const char *FunctionName)
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("%s: SharedData Mutex Take Err Stat=%ld,App=%lu,Function=%s\n", __func__, (long)OsStatus,
                              CFE_RESOURCEID_TO_ULONG(AppId), FunctionName);
-
-    } /* end if */
+    }
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_UnlockSharedData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -106,6 +99,5 @@ void CFE_FS_UnlockSharedData(const char *FunctionName)
         CFE_ES_GetAppID(&AppId);
         CFE_ES_WriteToSysLog("%s: SharedData Mutex Give Err Stat=%ld,App=%lu,Function=%s\n", __func__, (long)OsStatus,
                              CFE_RESOURCEID_TO_ULONG(AppId), FunctionName);
-
-    } /* end if */
+    }
 }

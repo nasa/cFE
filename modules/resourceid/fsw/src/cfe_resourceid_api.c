@@ -50,8 +50,6 @@ CompileTimeAssert(((CFE_RESOURCEID_MAX + 1) & CFE_RESOURCEID_MAX) == 0, CFE_RESO
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ResourceId_GetBase
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -63,8 +61,6 @@ uint32 CFE_ResourceId_GetBase(CFE_ResourceId_t ResourceId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ResourceId_GetSerial
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -75,8 +71,6 @@ uint32 CFE_ResourceId_GetSerial(CFE_ResourceId_t ResourceId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ResourceId_ToIndex
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -103,8 +97,6 @@ int32 CFE_ResourceId_ToIndex(CFE_ResourceId_t Id, uint32 BaseValue, uint32 Table
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ResourceId_FindNext
  *
  * Implemented per public API
  * See description in header file for argument/return detail

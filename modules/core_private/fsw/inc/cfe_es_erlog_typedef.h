@@ -43,7 +43,6 @@ typedef struct
     uint32 WatchdogWriteFlag;
     uint32 PrintfEnabledFlag;
     uint32 LastAppId;
-
 } CFE_ES_DebugVariables_t;
 
 /*

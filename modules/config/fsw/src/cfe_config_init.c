@@ -53,8 +53,6 @@ bool CFE_Config_StrCaseEq(const char *c1, const char *c2)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_Config_FindTargetKeyValue
- *
  * Internal helper routine only, not part of API.
  *
  * Find value for given config key
@@ -200,8 +198,6 @@ void CFE_Config_SetupBasicBuildInfo(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_Init
  *
  * CFE core internal function
  * See description in header file for argument/return detail

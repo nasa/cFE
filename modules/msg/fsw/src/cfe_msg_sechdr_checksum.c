@@ -24,8 +24,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_ComputeCheckSum
- *
  * Internal helper routine only, not part of API.
  *
  * Computes checksum -
@@ -35,7 +33,6 @@
  *-----------------------------------------------------------------*/
 CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
 {
-
     CFE_MSG_Size_t     PktLen  = 0;
     const uint8 *      BytePtr = MsgPtr->Byte;
     CFE_MSG_Checksum_t chksum  = 0xFF;
@@ -52,8 +49,6 @@ CFE_MSG_Checksum_t CFE_MSG_ComputeCheckSum(const CFE_MSG_Message_t *MsgPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_MSG_GenerateChecksum
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -92,15 +87,12 @@ CFE_Status_t CFE_MSG_GenerateChecksum(CFE_MSG_Message_t *MsgPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_ValidateChecksum
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_ValidateChecksum(const CFE_MSG_Message_t *MsgPtr, bool *IsValid)
 {
-
     CFE_Status_t   status;
     CFE_MSG_Type_t type;
     bool           hassechdr = false;

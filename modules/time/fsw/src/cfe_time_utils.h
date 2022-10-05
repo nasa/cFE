@@ -104,7 +104,6 @@
 */
 typedef struct
 {
-
     CFE_TIME_SysTime_t AtToneMET;         /* MET at time of tone */
     CFE_TIME_SysTime_t AtToneSTCF;        /* STCF at time of tone */
     int16              AtToneLeapSeconds; /* Leap Seconds at time of tone */
@@ -116,7 +115,6 @@ typedef struct
     CFE_TIME_SysTime_t CurrentLatch;      /* Local clock latched just "now" */
     CFE_TIME_SysTime_t TimeSinceTone;     /* Time elapsed since the tone */
     CFE_TIME_SysTime_t CurrentMET;        /* MET at this instant */
-
 } CFE_TIME_Reference_t;
 
 /*
@@ -147,7 +145,6 @@ typedef struct
     CFE_TIME_SysTime_t AtToneSTCF;
     CFE_TIME_SysTime_t AtToneDelay;
     CFE_TIME_SysTime_t AtToneLatch;
-
 } CFE_TIME_ReferenceState_t;
 
 /*************************************************************************/
@@ -315,7 +312,6 @@ typedef struct
     ** One callback per app is allowed
     */
     CFE_TIME_SynchCallbackRegEntry_t SynchCallback[CFE_PLATFORM_ES_MAX_APPLICATIONS];
-
 } CFE_TIME_Global_t;
 
 /*

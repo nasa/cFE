@@ -65,8 +65,6 @@ CFE_ES_Global_t CFE_ES_Global;
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_Main
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -111,7 +109,7 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
          * Normally CFE_PSP_Panic() will not return but it will under UT
          */
         return;
-    } /* end if */
+    }
 
     /*
     ** Initialize the Reset variables. This call is required
@@ -235,8 +233,6 @@ void CFE_ES_Main(uint32 StartType, uint32 StartSubtype, uint32 ModeId, const cha
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_SetupResetVariables
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -436,8 +432,7 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
                     CFE_ES_WriteToERLog(CFE_ES_LogEntryType_CORE, CFE_PSP_RST_TYPE_PROCESSOR, StartSubtype,
                                         "PROCESSOR RESET due to Watchdog (Watchdog).");
                 }
-
-            } /* end if */
+            }
         }
         /*
         ** If a processor reset is due to a command or exception, the reset has already been logged.
@@ -464,8 +459,6 @@ void CFE_ES_SetupResetVariables(uint32 StartType, uint32 StartSubtype, uint32 Bo
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_InitializeFileSystems
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -603,14 +596,12 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                 OsStatus = OS_unmount(CFE_PLATFORM_ES_RAM_DISK_MOUNT_STRING);
                 if (OsStatus == OS_SUCCESS)
                 {
-
                     /*
                     ** Remove the file system from the OSAL
                     */
                     OsStatus = OS_rmfs("/ramdev0");
                     if (OsStatus == OS_SUCCESS)
                     {
-
                         /*
                         ** Next, make a new file system on the disk
                         */
@@ -640,7 +631,6 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                         }
                         else
                         {
-
                             CFE_ES_WriteToSysLog("%s: Error Re-Formatting Volatile(RAM) Volume. EC = %ld\n", __func__,
                                                  (long)OsStatus);
                             /*
@@ -657,7 +647,6 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
                     }
                     else /* could not Remove File system */
                     {
-
                         CFE_ES_WriteToSysLog("%s: Error Removing Volatile(RAM) Volume. EC = %ld\n", __func__,
                                              (long)OsStatus);
                         /*
@@ -710,8 +699,6 @@ void CFE_ES_InitializeFileSystems(uint32 StartType)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CreateObjects
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -864,8 +851,7 @@ void CFE_ES_CreateObjects(void)
                         ** cFE Cannot continue to start up.
                         */
                         CFE_PSP_Panic(CFE_PSP_PANIC_CORE_APP);
-
-                    } /* end if */
+                    }
                 }
                 else
                 {
@@ -885,8 +871,6 @@ void CFE_ES_CreateObjects(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_MainTaskSyncDelay
  *
  * Internal helper routine only, not part of API.
  *

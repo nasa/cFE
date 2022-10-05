@@ -50,7 +50,6 @@
  */
 typedef struct CCSDS_PrimaryHeader
 {
-
     uint8 StreamId[2]; /**< \brief packet identifier word (stream ID) */
                        /*  bits  shift   ------------ description ---------------- */
                        /* 0x07FF    0  : application ID                            */
@@ -66,7 +65,6 @@ typedef struct CCSDS_PrimaryHeader
     uint8 Length[2]; /**< \brief packet length word */
                      /*  bits  shift   ------------ description ---------------- */
                      /* 0xFFFF    0  : (total packet length) - 7                 */
-
 } CCSDS_PrimaryHeader_t;
 
 /**
@@ -74,7 +72,6 @@ typedef struct CCSDS_PrimaryHeader
  */
 typedef struct CCSDS_ExtendedHeader
 {
-
     uint8 Subsystem[2]; /**< \brief subsystem qualifier */
                         /*  bits  shift   ------------ description ---------------- */
                         /* 0x01FF   0  : Subsystem Id  mission defined              */
@@ -84,7 +81,6 @@ typedef struct CCSDS_ExtendedHeader
 
     uint8 SystemId[2]; /**< \brief system qualifier */
                        /* 0xFFFF   0  : System Id      mission defined             */
-
 } CCSDS_ExtendedHeader_t;
 
 #endif /* CCSDS_HDR_H */

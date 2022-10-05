@@ -46,8 +46,6 @@ const char CFE_FS_DEFAULT_LOG_FILE_EXTENSION[]  = ".log";
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_FS_GetDefaultMountPoint
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -78,8 +76,6 @@ const char *CFE_FS_GetDefaultMountPoint(CFE_FS_FileCategory_t FileCategory)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_GetDefaultExtension
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -114,8 +110,6 @@ const char *CFE_FS_GetDefaultExtension(CFE_FS_FileCategory_t FileCategory)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_ReadHeader
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -168,8 +162,6 @@ CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_FS_InitHeader
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -189,8 +181,6 @@ void CFE_FS_InitHeader(CFE_FS_Header_t *Hdr, const char *Description, uint32 Sub
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_WriteHeader
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -279,8 +269,6 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_FS_SetTimestamp
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -334,8 +322,6 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_FS_ByteSwapCFEHeader
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -354,8 +340,6 @@ void CFE_FS_ByteSwapCFEHeader(CFE_FS_Header_t *Hdr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_FS_ByteSwapUint32
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -373,8 +357,6 @@ void CFE_FS_ByteSwapUint32(uint32 *Uint32ToSwapPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_ParseInputFileNameEx
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -589,8 +571,6 @@ int32 CFE_FS_ParseInputFileNameEx(char *OutputBuffer, const char *InputBuffer, s
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_FS_ParseInputFileName
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -604,8 +584,6 @@ int32 CFE_FS_ParseInputFileName(char *OutputBuffer, const char *InputName, size_
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_ExtractFilenameFromPath
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -624,7 +602,6 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
     }
     else
     {
-
         /*
         ** Get the string length of the original file path
         */
@@ -684,8 +661,6 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_RunBackgroundFileDump
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -810,8 +785,7 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
         }
 
         ++State->RecordNum;
-
-    } /* end if */
+    }
 
     /* On normal EOF close the file and generate the complete event */
     if (IsEOF)
@@ -839,15 +813,12 @@ bool CFE_FS_RunBackgroundFileDump(uint32 ElapsedTime, void *Arg)
         Meta->IsPending = false;
 
         CFE_FS_UnlockSharedData(__func__);
-
-    } /* end if */
+    }
 
     return !IsEOF;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_BackgroundFileDumpRequest
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -934,8 +905,6 @@ int32 CFE_FS_BackgroundFileDumpRequest(CFE_FS_FileWriteMetaData_t *Meta)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_FS_BackgroundFileDumpIsPending
  *
  * Implemented per public API
  * See description in header file for argument/return detail

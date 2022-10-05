@@ -44,7 +44,6 @@
  */
 enum CFE_TBL_BufferSelect
 {
-
     /**
      * @brief Select the Inactive buffer for validate or dump
      */

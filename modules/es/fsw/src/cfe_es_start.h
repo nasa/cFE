@@ -73,7 +73,6 @@ typedef struct
     uint32                ObjectPriority;              /* object priority */
     uint32                ObjectSize;                  /* size used for stack, queue size, etc. */
     uint32                ObjectFlags;                 /* extra flags to pass */
-
 } CFE_ES_ObjectTable_t;
 
 /*

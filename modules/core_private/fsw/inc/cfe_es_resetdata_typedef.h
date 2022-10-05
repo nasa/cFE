@@ -91,7 +91,6 @@ typedef struct
     ** EVS Log and associated variables. This needs to be preserved on a processor reset.
     */
     CFE_EVS_Log_t EVS_Log;
-
 } CFE_ES_ResetData_t;
 
 #endif /* CFE_ES_RESETDATA_TYPEDEF_H */

@@ -132,7 +132,6 @@ typedef const struct
      * File name of startup script
      */
     const char *NonvolStartupFile;
-
 } Target_CfeConfigData;
 
 /**
@@ -197,7 +196,6 @@ typedef const struct
     CFE_ConfigName_t *    CoreModuleList;    /**< List of CFE core support module names that are statically linked */
     CFE_ConfigName_t
         *StaticAppList; /**< List of additional CFS Applications that are statically linked into this binary */
-
 } Target_ConfigData;
 
 /**

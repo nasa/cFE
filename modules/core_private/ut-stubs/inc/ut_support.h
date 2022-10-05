@@ -133,7 +133,6 @@ typedef struct
      * set to zero in this case).
      */
     CFE_MSG_FcnCode_t CommandCode;
-
 } UT_TaskPipeDispatchId_t;
 
 /*

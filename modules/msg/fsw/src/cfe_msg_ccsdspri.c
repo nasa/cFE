@@ -40,15 +40,12 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_SetDefaultCCSDSPri
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr)
 {
-
     /* cFS standard is for secondary header to be present */
     CFE_MSG_SetHasSecondaryHeader(MsgPtr, true);
 
@@ -64,15 +61,12 @@ void CFE_MSG_SetDefaultCCSDSPri(CFE_MSG_Message_t *MsgPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetHeaderVersion
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_GetHeaderVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderVersion_t *Version)
 {
-
     if (MsgPtr == NULL || Version == NULL)
     {
         return CFE_MSG_BAD_ARGUMENT;
@@ -85,8 +79,6 @@ CFE_Status_t CFE_MSG_GetHeaderVersion(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_H
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_MSG_SetHeaderVersion
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -106,15 +98,12 @@ CFE_Status_t CFE_MSG_SetHeaderVersion(CFE_MSG_Message_t *MsgPtr, CFE_MSG_HeaderV
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetType
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Type)
 {
-
     if (MsgPtr == NULL || Type == NULL)
     {
         return CFE_MSG_BAD_ARGUMENT;
@@ -133,8 +122,6 @@ CFE_Status_t CFE_MSG_GetType(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t *Ty
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_MSG_SetType
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -167,15 +154,12 @@ CFE_Status_t CFE_MSG_SetType(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Type_t Type)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetHasSecondaryHeader
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_GetHasSecondaryHeader(const CFE_MSG_Message_t *MsgPtr, bool *HasSecondary)
 {
-
     if (MsgPtr == NULL || HasSecondary == NULL)
     {
         return CFE_MSG_BAD_ARGUMENT;
@@ -187,8 +171,6 @@ CFE_Status_t CFE_MSG_GetHasSecondaryHeader(const CFE_MSG_Message_t *MsgPtr, bool
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_MSG_SetHasSecondaryHeader
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -215,15 +197,12 @@ CFE_Status_t CFE_MSG_SetHasSecondaryHeader(CFE_MSG_Message_t *MsgPtr, bool HasSe
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetApId
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_GetApId(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t *ApId)
 {
-
     if (MsgPtr == NULL || ApId == NULL)
     {
         return CFE_MSG_BAD_ARGUMENT;
@@ -235,8 +214,6 @@ CFE_Status_t CFE_MSG_GetApId(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t *Ap
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_MSG_SetApId
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -256,15 +233,12 @@ CFE_Status_t CFE_MSG_SetApId(CFE_MSG_Message_t *MsgPtr, CFE_MSG_ApId_t ApId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetSegmentationFlag
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_GetSegmentationFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_SegmentationFlag_t *SegFlag)
 {
-
     uint16 rawval;
 
     if (MsgPtr == NULL || SegFlag == NULL)
@@ -294,8 +268,6 @@ CFE_Status_t CFE_MSG_GetSegmentationFlag(const CFE_MSG_Message_t *MsgPtr, CFE_MS
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_MSG_SetSegmentationFlag
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -340,15 +312,12 @@ CFE_Status_t CFE_MSG_SetSegmentationFlag(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Segm
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetSequenceCount
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_GetSequenceCount(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_SequenceCount_t *SeqCnt)
 {
-
     if (MsgPtr == NULL || SeqCnt == NULL)
     {
         return CFE_MSG_BAD_ARGUMENT;
@@ -360,8 +329,6 @@ CFE_Status_t CFE_MSG_GetSequenceCount(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_S
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_MSG_SetSequenceCount
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -381,8 +348,6 @@ CFE_Status_t CFE_MSG_SetSequenceCount(CFE_MSG_Message_t *MsgPtr, CFE_MSG_Sequenc
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetNextSequenceCount
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -401,15 +366,12 @@ CFE_MSG_SequenceCount_t CFE_MSG_GetNextSequenceCount(CFE_MSG_SequenceCount_t Seq
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetSize
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_GetSize(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t *Size)
 {
-
     if (MsgPtr == NULL || Size == NULL)
     {
         return CFE_MSG_BAD_ARGUMENT;
@@ -421,8 +383,6 @@ CFE_Status_t CFE_MSG_GetSize(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_Size_t *Si
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_MSG_SetSize
  *
  * Implemented per public API
  * See description in header file for argument/return detail
