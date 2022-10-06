@@ -1,5 +1,13 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev183
+- Fixes issue #2144- Propagate CMAKE_EXPORT_COMPILE_COMMANDS variable
+- Remove CodeQL Paths Ignore
+- Duplicated Logic in CFE_SB_BroadcastBufferToRoute
+- Remove 'return;' from last line of void functions.
+- Remove unnecessary parentheses around return values.
+- See <https://github.com/nasa/cFE/pull/2145>, <https://github.com/nasa/cFE/pull/2148>, <https://github.com/nasa/cFE/pull/2151>, <https://github.com/nasa/cFE/pull/2156>, and <https://github.com/nasa/cFE/pull/2154>
+
 ## Development Build: v7.0.0-rc4+dev171
 - Resolve doxygen 1.8.17 latex make errors
 - See <https://github.com/nasa/cFE/pull/2143>
@@ -14,26 +22,22 @@
 - See <https://github.com/nasa/cFE/pull/2132> and <https://github.com/nasa/cFE/pull/2134>
 
 ## Development Build: v7.0.0-rc4+dev157
-
 - use correct loop var in add_cfe_app_dependency
 - Automatic suppression of flooding events
 - Remove stray TODO in UT
 - See <https://github.com/nasa/cFE/pull/2129>, <https://github.com/nasa/cFE/pull/2117>, and <https://github.com/nasa/cFE/pull/2126>
 
 ## Development Build: v7.0.0-rc4+dev145
-
 - remove commented out code
 - See <https://github.com/nasa/cFE/pull/2122>
 
 ## Development Build: v7.0.0-rc4+dev143
-
 - Endian macro mask before shift to avoid shift overflow warning
 - Add macro for initializing command header
 - Add CFE_ES_StatusToString and CFE_STATUS_C
 - See <https://github.com/nasa/cFS/pull/505>
 
 ## Development Build: v7.0.0-rc4+dev136
-
 - Resolve UT uninit var static analysis warnings
 - Resolve fsw uninit var static analysis warnings
 - Resolve UT non-distinct identifier warnings
@@ -42,7 +46,6 @@
 - See <https://github.com/nasa/cFE/pull/2111> and <https://github.com/nasa/cFS/pull/492>
 
 ## Development Build: v7.0.0-rc4+dev127
-
 - Update RTEMS toolchain files
 - Add support for fractional seconds in epoch
 - Add truncation warning suppression flags
@@ -52,28 +55,26 @@
 - See <https://github.com/nasa/cFE/pull/2098> and <https://github.com/nasa/cFS/pull/471>
 
 ## Development Build: v7.0.0-rc4+dev110
-
 - Only increment SB InternalErrorCounter on errors
 - Improve ES unit test coverage
 - Add config module to coverage enforcemnt    
 - Consistent doxygen flow/naming for generation and use reusable documentation generation workflow
 - Remove contributor license agreements
 - See <https://github.com/nasa/cfe/pull/2091> and <https://github.com/nasa/cFS/461>
-## Development Build: v7.0.0-rc4+dev94
 
+## Development Build: v7.0.0-rc4+dev94
 - Resolve build failure for time cfg 
 - Update Copyright Headers
 - Standardize version.h 
 - See <https://github.com/nasa/cfe/pull/2074> and <https://github.com/nasa/cFS/445>
 
 ## Development Build: v7.0.0-rc4+dev87
-
 - Revert development version identifier to 99 for revision number
 - Use osal-common.doxygen to resolve OSAL Doxygen refs
 - Refactor doxygen mainpage into frontpage
 - See <https://github.com/nasa/cFE/pull/2066> and <https://github.com/nasa/cFS/pull/443>
-## Development Build: v7.0.0-rc4+dev80
 
+## Development Build: v7.0.0-rc4+dev80
 - Missing SB include for v2 msgid
 - Resolve doxygen doc warnings and enforce in CI
 - Remove explicit filename doxygen comments
@@ -81,15 +82,12 @@
 - See <https://github.com/nasa/cFE/pull/2061> and <https://github.com/nasa/cFS/pull/432>
 
 ## Development Build: v7.0.0-rc4+dev70
-
 - Improve CFE_SB_IsValidMsgId handler
 - Update CodeQL workflow
 - Replace CFE_SB_ValueToMsgId(0) with CFE_SB_INVALID_MSG_ID
 - See <https://github.com/nasa/cFE/pull/2043> and <https://github.com/nasa/cFS/pull/414>
 
-
 ## Development Build: v7.0.0-rc4+dev60
-
 - Add CFE_ES_AppInfo_t element documentation
 - Add FS Functional test
 - Fix mismatched foreach in cmake function
@@ -102,7 +100,6 @@
 - See <https://github.com/nasa/cFE/pull/2019> and <https://github.com/nasa/cFS/pull/410>
 
 ## Development Build: v7.0.0-rc4+dev39
-
 - Use cfe time clock state enum t in cmd/tlm and handling
 - EVS functional test add for different event types
 - Patch for recursive event loop
@@ -121,13 +118,11 @@
 - See <https://github.com/nasa/cFE/pull/2001> and <https://github.com/nasa/cFS/pull/390>
 
 ## Development Build: v6.8.0-rc1+dev1030
-
 - Grammatical cleanup of requirements
 - Fix extended header definitions and update tests
 - See <https://github.com/nasa/cFE/pull/1989> and <https://github.com/nasa/cFS/pull/371>
 
 ## Development Build: v6.8.0-rc1+dev1024
-
 - CFE_Assert macro names
 - Update msgid testcase to match implementation 
 - Single time domain in functional time tests
@@ -142,7 +137,6 @@
 - See <https://github.com/nasa/cFE/pull/1967> and <https://github.com/nasa/cFS/pull/359>
 
 ## Development Build: v6.8.0-rc1+dev994
-
 - Update directory diagrams in cFE Application Developers Guide 
 - Improve SB coverage
 - Improve ES code coverage
@@ -152,7 +146,6 @@
 - See <https://github.com/nasa/cFE/pull/1939> and <https://github.com/nasa/cFS/pull/351>
 
 ## Development Build: v6.8.0-rc1+dev980
-
 - Add SB API test cases
 - Add ES API test cases
 - Add TBL API test cases
@@ -179,7 +172,6 @@
 - See <https://github.com/nasa/cFE/pull/1885> and <https://github.com/nasa/cFS/pull/348>
 
 ## Development Build: v6.8.0-rc1+dev933
-
 - Add software bus tests 
 - Separate variable for OSAL status 
 - Increase SB pool max size bucket 
@@ -209,7 +201,6 @@
 - See <https://github.com/nasa/cFE/pull/1839> and <https://github.com/nasa/cFS/pull/340> 
 
 ## Development Build: v6.8.0-rc1+dev873
-
 - Add CFE assert macros to functional test
 - Adds invalid id syslog to for CFE_ES_DeleteApp and CFE_ES_ReloadApp and verifies required reporting 
 - Stop memory leak & add cds size test. 
@@ -223,7 +214,6 @@
 - See <https://github.com/nasa/cFE/pull/1808> and <https://github.com/nasa/cFS/pull/337> 
 
 ## Development Build: v6.8.0-rc1+dev844
-
 - Move global count into test global struct
 - Add ES application control API functional tests 
 - Add null pointer check to CFE_ES_ReloadApp functional test 
@@ -240,7 +230,6 @@
 - See <https://github.com/nasa/cFE/pull/1759> and <https://github.com/nasa/cFS/pull/328>
 
 ## Development Build: v6.8.0-rc1+dev810
-
 - Add null pointer check to table GetAddresses and ReleaseAddresses
 - Explain FS Header offset & add offset functional tests.
 - Handle fail status in GetTypeFromMsgId
@@ -252,7 +241,6 @@
 - See <https://github.com/nasa/cFE/pull/1759> and <https://github.com/nasa/cFS/pull/328>
 
 ## Development Build: v6.8.0-rc1+dev789
-
 - Correct return code check
 - Documentation for FS APIs that return OSAL codes
 - Adding coverage tests for cfe_es_apps.c
@@ -267,7 +255,6 @@
 - See <https://github.com/nasa/cFE/pull/1701> and <https://github.com/nasa/cFS/pull/313>
 
 ## Development Build: v6.8.0-rc1+dev762
-
 - Change CI to use Test Log.
 - remove default .dat extension
 - Update API doxygen list
@@ -278,20 +265,17 @@
 - See <https://github.com/nasa/cfe/pull/1665> and <https://github.com/nasa/cfs/pull/311>
 
 ## Development Build: v6.8.0-rc1+dev746
-
 - Size unit test table load buffer based on config
 - Add SB Pipe Management Functional Tests
 - See <https://github.com/nasa/cFE/pull/1661> and <https://github.com/nasa/cFS/pull/297>
 
 ## Development Build: v6.8.0-rc1+dev739
-
 - Change index type to resolve infinite loop warning
 - Adding coverage for cfe_es_task.c
 - Expand FS Header Functional tests.
 - See <https://github.com/nasa/cfe/pull/1654> and <https://github.com/nasa/cfs/pull/287>
 
 ## Development Build: v6.8.0-rc1+dev726
-
 - correct path to users guide warning log
 - add additional test cases for Child Tasks
 - Add cfe functional tests to CI
@@ -304,7 +288,6 @@
 - See <https://github.com/nasa/cFE/pull/1632> and <https://github.com/nasa/cfs/pull/270>
 
 ## Development Build: v6.8.0-rc1+dev693
-
 - Add CI workflow to run cFE coverage tests
 - Updated FS Read/WriteHeader API return documentation
 - Document CFE_ES_RunLoop increment task counter behavior
@@ -327,7 +310,6 @@
 - See <https://github.com/nasa/cFE/pull/1619> and <https://github.com/nasa/cFS/pull/265>
 
 ## Development Build: v6.8.0-rc1+dev642
-
 - Update ES verify errors to match
 - Ensures error messages in `cfe_es_verify.h` match test logic.
 - Resolve mismatched `endforeach` of `CMakeList.txt`
@@ -353,7 +335,6 @@
 - See <https://github.com/nasa/cFE/pull/1584> and <https://github.com/nasa/cFS/pull/263/>
 
 ## Development Build: v6.8.0-rc1+dev593
-
 - Uses `int` with %d conversions inUtAssert_True and UtPrintf for platform portability.
 - Specifying the special string NULL as the entry point in a startup script results in no entry point being called for the library. Equivalent to leaving the field empty.
 - [build system] Adds a hook for an `install_custom.cmake` script that can be added to a CPU-specific subdirectory under the "defs" directory. This hook can perform extra installation steps for custom implementations. Tweaks the `add_cfe_tables` function so it can be called from the `install_custom.cmake` script to generate additional table binaries for that CPU.
@@ -362,16 +343,13 @@
 - Removes discrepancies (return type, parameter names, etc) between function prototypes and implementation. Also fixes some but not all use of CFE_Status_t in the implementations. Updates ut-stubs accordingly.
 - See <>https://github.com/nasa/cFE/pull/1568> and <https://github.com/nasa/cFS/pull/260>
 
-
 ## Development Build: v6.8.0-rc1+dev580
-
 - Adds `CFE_MSG_GetNextSequenceCount` so the auto-increment of the local sequence counter works when sending tlm (and increment is enabled). Updates unit tests and adds the old-style stub. The unit tests check for the correct rollover behavior.Sequence count will roll over based on the mask. Before the fix the sequence counter would "stick" in telemetry until the passed in value rolled over.
 - [docs] Correctly format code block section terminator so Markdown renders correctly
 - [docs] Fix typos in developer guide
 - See <https://github.com/nasa/cFE/pull/1508> and <https://github.com/nasa/cFS/pull/259>
 
 ## Development Build: v6.8.0-rc1+dev575
-
 - Removes broken travis-ci script
 - Updates CFE core stub libraries to use stubs generated from new UT Assert script. Converts existing stub logic to
 a default handler routine.
@@ -384,7 +362,6 @@ a default handler routine.
 - See <https://github.com/nasa/cFE/pull/1492> and <https://github.com/nasa/cFS/pull/256>
 
 ## Development Build: v6.8.0-rc1+dev559
-
 - Adds tests for nominal use cases of the ES Critical Data Store API.
 - Adds functional tests for nominal uses of FS Header API.
 - Adds functional tests for Time Current API.
@@ -392,7 +369,6 @@ a default handler routine.
 - See <https://github.com/nasa/cFE/pull/1481> and <https://github.com/nasa/cFS/pull/252>
 
 ## Development Build: v6.8.0-rc1+dev540
-
 - Changes the type of pointer for `MemPtr` in `CFE_ES_PoolCreateNoSem` API from uint8* to void* to be more consistent and easier to use. Should be backward compatible.
 Updates the doxygen documentation for this parameter, as it was incorrectly specifying a 32-bit alignment requirement.
 - Adds new functional tests for ES Child Task API. Does not check edge cases. Fixed spelling mistake in `UtAssert_ResourceID_Undifeined` name
@@ -410,9 +386,7 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - Compiler will catch if the `CFE_RESOURCEID_MAX` value changes in such a way that makes it not usable as a bit mask as intended. Add a compile time assert to ensure that `CFE_RESOURCEID_MAX` value is one less than a power of two  (i.e. an LSB-justified bit mask). Notes in the comments that it serves as both a numeric limit and a mask.
 - See <https://github.com/nasa/cFE/pull/1431> and <https://github.com/nasa/cFS/pull/250>
 
-
 ## Development Build: v6.8.0-rc1+dev509
-
 - Separates the list of CFE core interface modules (e.g. core_api) from the list of CFE core implementation modules (e.g. msg). This allows the content of core_api to be expanded to locally include any additional modules the user has added to cFE core via the `MISSION_CORE_MODULES` list.
 - Adds documentation for `CFE_ES_RegisterCDS()` regarding clearing.
 - Removes the separate CFE "testrunner" module and moves the logic associated with running a test into cfe_assert library. Converts the "testcase" module from a library into an app, by calling into the runner logic that is now inside cfe_assert. Each functional test is a separate app, not a library, so it can be started and stopped via ES command like any other app.
@@ -420,23 +394,19 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cfe/pull/1406> and <https://github.com/nasa/cfs/pull/248>
 
 ## Development Build: v6.8.0-rc1+dev498
-
 - Reports test failures as CFE events. Test status messages are now sent as Events rather than Syslog. This allows for more processing capability, and allows failures to be received externally (e.g. ground system).
 - See <https://github.com/nasa/cFE/pull/1295> and <https://github.com/nasa/cFS/pull/242>
 
 ## Development Build: v6.8.0-rc1+dev494
-
 - Adds new tests for the ES Info APIs
 - See <https://github.com/nasa/cFE/pull/1284> and <https://github.com/nasa/cFS/pull/238>
 
 ## Development Build: v6.8.0-rc1+dev490
-
 - Removes `PspConfig` member from the `GLOBAL_CONFIGDATA` object. Updates the only remaining reference to this object inside the CFE_PSP_VERSION and uses the new Version API instead. Updates the OSAL version print to use the version API call and CFE uses the macro directly.
 - Replaces duplicate mention of the removed `CFE_SB_ZeroCopyGetPtr` with the correct removal target of `CFE_SB_ZeroCopyReleasePtr`
 - See <https://github.com/nasa/cFE/pull/1279> and <https://github.com/nasa/cFS/pull/233>
 
 ## Development Build: v6.8.0-rc1+dev484
-
 - Removes cases in `cfe_es_apps.c` and `cfe_tbl_internal.c` that could never hit the alternate condition since the condition was already checked
 - Removes all APIs deprecated in #777 and #998
 - Resolves CodeQL warnings on uninitialized variables.
@@ -460,7 +430,6 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1258>
 
 ## Development Build: v6.8.0-rc1+dev436
-
 - Adds a local definition of SOFTWARE_BIG/LITTLE_BIT_ORDER directly inside cfe_endian.h to provide a compatible symbol for apps that still require this. This allows CFE to build and run successfully when OSAL stops providing this in `common_types.h`.
 - Removes incorrect statements from Application Developers Guide
 - Fixes truncation handling on vsnprintf error by adding a cast to avoid implicit conversion
@@ -473,20 +442,17 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1243>
 
 ## Development Build: v6.8.0-rc1+dev412
-
 - Apply standard code style and format
 - Add new continuous integration workflow to enforce this format
 - See <https://github.com/nasa/cFE/pull/1219>
 
 ## Development Build: v6.8.0-rc1+dev402
-
 - HOTFIX 20210312, updates to work with older CMake
 - reorganize directory structure
 - HOTFIX IC 2021-03-05: Correct static app build issue
 - See <https://github.com/nasa/cFE/pull/1222>
 
 ## Development Build: v6.8.0-rc1+dev392
-
 - update pipe name documentation.
 - remove configs about shells
 - Update CRC documentation
@@ -497,7 +463,6 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1213>
 
 ## Development Build: v6.8.0-rc1+dev382
-
 - Refactors the SB buffer descriptor object `CFE_SB_BufferD_t` and simplify the zero-copy buffer paradigm. Combines the zero-copy and the normal CFE buffer descriptor into a single unified `CFE_SB_BufferD_t` object. Results in a simpler zero-copy design that is similar to the standard, non-zero-copy message path. All message descriptor objects are now tracked in a list by SB. All changes are internal to SB. This does not affect API or behavior of any existing APIs (but see note). Corrects a minor issue where the `MsgSendErrorCounter` would get incremented if there were no subscribers, but only in the zero copy API.  
 - Replaces `int_32` with `CFE_Status_t` for all error message codes  
 - Removes references to `cfeesugshellsrv` from user guide
@@ -507,7 +472,6 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1196>
 
 ## Development Build: v6.8.0-rc1+dev365
-
 - Implements a generic FS facility to perform file writes as a background job. Applications wanting to use this need to instantiate a state object (metadata) in global memory and two callback APIs, one to get a data record, another to send events. The following file requests are changed to use this facility:
   - ES ER Log dump
   - SB Pipe Info
@@ -526,7 +490,6 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1171>
 
 ## Development Build: v6.8.0-rc1+dev348
-
 - Corrects reference to PSP header file location. Build now successfully completes the build succeeds again when using `add_psp_module()` in custom CMakeLists file.
 - Replace "send" with "write" in names for commands that write files. For example, `CFE_SB_**SEND**_ROUTING_INFO_CC` is now `CFE_SB_**WRITE**_ROUTING_INFO_CC`. Updates function names, command code names and comments.
 - Removes incorrectly implemented deferred return code of `-1` for `CFE_SB_ReceiveBuffer` from software bus setup in `UT_InitData`.
@@ -554,7 +517,6 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1150>
 
 ## Development Build: v6.8.0-rc1+dev290
-
 - Documentation: Add Security.md with instructions to report vulnerability
 - Documentation: Update cpuname/MISSION_CPUNAMES documentation
 - Fixes `UT_CheckEventHistoryFromFunc()` helper routine to read the correct number of IDs so it checks the correct number of events. Also correct bad event checks in TBL UT.
@@ -588,7 +550,6 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1109>
 
 ## Development Build: v6.8.0-rc1+dev248
-
 - Replace `OS_FileSysStatVolume()` with`OS_fsBlocksFree()` which will be deprecated. This call reports the number of total blocks, not just the free blocks, making the check more accurate and removing the need for a workaround for desktop machines.
 - Instead of accessing `OS_time_t` values directly, use the OSAL-provided conversion and access methods. This provides independence and abstraction from the specific `OS_time_t` definition and allows OSAL to transition to a 64 bit value.
 - Removes the spurious `CFE_SB_TimeOut_t` typedef from `cfe_sb.h`. May affect any apps that inappropriately rely on the private typedef.
@@ -597,14 +558,12 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1088>
 
 ## Development Build: v6.8.0-rc1+dev236
-
 - Resolved doxygen warnings for osalguide and updated header file references
 - Corrects the documentation for the CFE_SB_GetPipeName() unit test stub function.
 - Adds a new github actions workflow file to run cppcheck
 - See <https://github.com/nasa/cFE/pull/1066>
 
 ## Development Build: v6.8.0-rc1+dev228
-
 - Remove use of `osapi-os-loader.h` from ES UT.
 - Use volatile `sig_atomic_t` for system state to avoid race issue if uint32 isn't atomic on a system
 - Set the flags parameter on the OS_ModuleLoad() properly to allow an app to be properly unloaded, which in turn allows the reload command to work as expected. Fixes problem where unload command resulted in continuous restarting of the same app code.
@@ -612,7 +571,6 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1047>
 
 ## Development Build: v6.8.0-rc1+dev218
-
 - Adds `CFE_SB_TransmitMsg`, `CFE_SB_TransmitBuffer`, `CFE_SB_ReceiveBuffer`
   - Main change is to utilize `CFE_SB_Buffer_t` and `CFE_MSG_Message_t` in a consistent manner to facilitate alignment
   - Deprecates multiple `CFE_SB_*` items
@@ -621,9 +579,7 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - Remove  reference to CEXP in RTEMS 4.11 i686 toolchain. Add an RTEMS 5.1 i686 toolchain file.
 - See <https://github.com/nasa/cFE/pull/1045>
 
-
 ## Development Build: v6.8.0-rc1+dev204
-
 - Backward compatible API change. Replace many uses of generic uint16 and uint32 with a more purpose-specific type. Replace all sizes with size_t across the API.
 - Rename `UT_SetForceFail` to `UT_SetDefaultReturnValue` since some functions that retain more than 1 value are not necessarily failing
 - Deprecates many SB Elements and replaces them with the new MSG module. See https://github.com/nasa/cFE/issues/777 for list.
@@ -634,7 +590,6 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1027>
 
 ## Development Build: v6.8.0-rc1+dev179
-
 - Adds macros for more compact calls to `CFE_EVS_SendEvent`, making the type be part of the function name.
 - The sample configs leap seconds default value is now up to date. (As of Oct 2020)
 - Removed the clear=false logic (and clear parameter) `CFE_MSG_Init()` now always zeroes entire message and sets defaults.
@@ -644,7 +599,6 @@ Updates the doxygen documentation for this parameter, as it was incorrectly spec
 - See <https://github.com/nasa/cFE/pull/1008>
 
 ## Development Build: v6.8.0-rc1+dev164
-
 - Keeps task names under 16 chars to make more debugger friendly, regardless
 of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - Move ES typedefs shared across API and telemetry messages into the `cfe_es_extern_typedefs.h`.
@@ -655,7 +609,6 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - See <https://github.com/nasa/cFE/pull/991>
 
 ## Development Build: v6.8.0-rc1+dev150
-
 - Provide new Library API similar to App API
 - Allows the existing CFE_ES_AppInfo_t structure to be extended to libraries as well as applications by introducing a new value (3) for the Type field.
 - Allows Libraries to be queried via API calls similar to App API.
@@ -674,19 +627,16 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - See <https://github.com/nasa/cFE/pull/975>
 
 ## Development Build: v6.8.0-rc1+dev139
-
 - For all resource types which have names, IDs are not re-issued after deletion, helping ensure safety as previously deleted IDs will not validate. Provides a consistent Name-ID translation API for all resource types. Enforces consistent argument/name validation on all resource types, and also enforces name uniqueness where relevant.
 - Enhancement to use the full 16 bits of resource ID space, which avoids repeating ID values that have already been used. This significantly decreases the likelihood that a previously deleted ID will alias a newly allocated/valid ID.
 - See <https://github.com/nasa/cFE/pull/959>
 
 ## Development Build: v6.8.0-rc1+dev129
-
 - Rather than having a second pool implementation only for CDS, use the generic pool implementation. This also uses the abstract resource identifiers to identify CDS blocks, rather than a direct reference.
 - Add the system-specific module suffix (.o, .so, .obj, etc) and the default CFE core executable name to the configdata structure.
 - See <https://github.com/nasa/cFE/pull/944>
 
 ## Development Build: v6.8.0-rc1+dev122
-
 - Adds the field `UnregAppID` to track whether an "unregistered" event was generated, un-overloading the EventCount field to serve its primary purpose of counting actual events generated from a valid/registered AppID.
 - Move the AppID lookup execution to be early in the `CFE_SB_SendMsgFull` implementation. This avoids double locking between SB+ES and avoids a block-scope local variable.
 - Instead of identifying a memory pool by its memory address, use a resource ID. IDs are a constant size, regardless of whether the host machine is 32 or 64 bits.
@@ -697,12 +647,10 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - See <https://github.com/nasa/cFE/pull/936>
 
 ## Development Build: v6.8.0-rc1+dev109
-
 - Add a new typedef `CFE_ES_ResourceID_t` that can replace `uint32` for all ID storage and manipulation. Initially this is just an alias to `uint32` for backward compatibility.
 - See <https://github.com/nasa/cFE/pull/916>
 
 ## Development Build: v6.8.0-rc1+dev105
-
 - Removes dependency on CCSDS version define.
 - Removes old name and id defines.
 - CFE_ES_CalculateCRC default stub behavior.
@@ -713,7 +661,6 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - See <https://github.com/nasa/cFE/pull/912>
 
 ## Development Build: v6.8.0-rc1+dev91
-
 - Sets Revision to 99 for development build.
 - Installs unit test to target directory.
 - Returns processor ID to default to unbreak toolchain
@@ -721,7 +668,6 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - See <https://github.com/nasa/cFE/pull/891>
 
 ## Development Build: v6.8.0-rc1+dev81
-
 - Deconflict CFE_ES_LIB_ALREADY_LOADED and CFE_ES_ERR_SYS_LOG_TRUNCATED EIDs
 - Scrub all CFE references/uses of OSAL IDs to use the proper osal_id_t type. Any place that an OSAL ID is stored in memory or passed in an API call are changed to the osal_id_t type, rather than uint32. Conversions between this and other types (e.g. bare integer) is done using the OSAL-supplied conversion helpers.
 - After the changes implemented in #101, there may be routing table entries with no subscribers (RoutePtr->ListHeadPtr would be NULL.) This could cause a seg-fault. Also, even if there are entries in the routing table, there will be no event generated if the unsubscribe does not find a matching route entry.
@@ -730,9 +676,7 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - Adds test for SB subscribe/unusubscribe/unsubscribe.
 - See <https://github.com/nasa/cFE/pull/876>
 
-
 ## Development Build: v6.8.0-rc1+dev65
-
 - In the next major CFE release, this code will be no longer supported at all. It should be removed early in the cycle to avoid needing to maintain this compatibility code.
 - The CFE_ES_FindCDSInRegistry function had an unusual loop control structure with mixed types of signed and unsigned. This has the possibility of being infinite if the MaxNumRegEntries is zero due to the way the end condition is structured. Simplify to be like other loops and use unsigned int control variable.
 - Fixes the cast-align error (use the aligned Msg since it's available already).
@@ -742,7 +686,6 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - See <https://github.com/nasa/cFE/pull/861>
 
 ## Development Build: v6.8.0-rc1+dev42
-
 - Removes reference from documentation.
 - CFE_SB_SendMsg stub now behaves the same as CFE_SB_TimeStampMsg (copies message pointer from local). No longer need to emulate CFE_SB_InitMsg from test code, set the API/stub data buffers directly.
 - Removed iterator modification from within the loop... replaced with break.
@@ -751,7 +694,6 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - See <https://github.com/nasa/cFE/pull/849>
 
 ## Development Build: v6.8.0-rc1+dev28
-
 - Add msg stubs, update SB_UT to use them, and remove msg module include from unit tests
 - Collapses time options down to just 32 bit second, 16 bit subsecond, always big endian. Removes old defines, and triggers an error if the configuration is set to a format that was removed.
 - Enables source selection and out-of-tree mission-defined overrides in the msg directory
@@ -759,14 +701,12 @@ of the OSAL limit. Task name shows up as `ES_BG_TASK`
 - See <https://github.com/nasa/cFE/pull/833>
 
 ## Development Build: v6.8.0-rc1+dev13
-
 - Deprecates `CFE_SB_GetLastSenderId()` API by introducing new `CFE_OMIT_DEPRECATED_6_8` tag
 - Documentation update remove deleted requirements
 - Add a new *cfe_assert* module for functional testing by making it possible to load the UT assert object code as a CFE library. These are compiled as separate, independent modules and only loaded on demand. Also includes a draft example for cFE testing, which calls some basic ES AppId functions.
 - See <https://github.com/nasa/cFE/pull/816>
 
 ## Development Build: v6.7.0+dev292
-
 - Add missing include path to the target/h and wrn/coreip directory.
 Set and clarify difference between WIND_HOME and WIND_BASE variables.
 Remove unrelated comment about CEXP (remnant from RTEMS). No more errors about missing headers.
@@ -774,7 +714,6 @@ Remove unrelated comment about CEXP (remnant from RTEMS). No more errors about m
 - See <https://github.com/nasa/cFE/pull/792>
 
 ## Development Build: v6.7.0+dev289
-
 - Update `CFE_SB_TimeStampMsg` to save the message pointer argument `UT_Stub_CopyFromLocal` so that unit tests can check it
 - Only affects build system. Fully backward compatible. The defaults are applied if a user has nothing specifically configured in their `targets.cmake`. The defaults will select osal, cfe-core, and psp as before. The user now has the option to explicitly configure and control the inclusion of these modules and also provide mission-specific search paths to override them as desired.
 - Note this only affects UT stubs. Change the internal names of some stub arguments to match prototype. Ensure that:
@@ -789,19 +728,16 @@ Remove unrelated comment about CEXP (remnant from RTEMS). No more errors about m
 - See <https://github.com/nasa/cFE/pull/765>
 
 ## Development Build: 6.7.21
-
 - If a string is exactly the size of the field when using the `CFE_TBL_FILEDEF()` macro it will produce a compiler error
 - Added cFE User's Guide Reference to README.md
 - Removes old license
 - See <https://github.com/nasa/cFE/pull/743>
 
 ## Development Build: 6.7.20
-
 - SB Unit use of the UT assert framework is closer to original design intent
 - See <https://github.com/nasa/cFE/pull/743>
 
 ## Development Build: 6.7.19
-
 - API Change: cFE ut_sb_stubs now has CFE_SB_DeletePipe available.
 Behavior Change: App unit tests requiring this will not fail to build due to undefined reference to CFE_SB_DeletePipe
 - Hook functions may now use the va_list form and obtain the full set of variable arguments passed to CFE_EVS_SendEvent and variants.
@@ -809,7 +745,6 @@ Behavior Change: App unit tests requiring this will not fail to build due to und
 - See <https://github.com/nasa/cFE/pull/729> for details.
 
 ## Development Build: 6.7.18
-
 - Using ut stubs CFE_EVS_SendEvent and CFE_ES_WriteToSysLog, the register buffer will have the correct size. access to register buffer element will exist
 - Both the main task and the child task(s) are successfully deleted and restarted after the exception occurs.
 - Fixes doxygen warnings for the tbl subsystem.
@@ -818,7 +753,6 @@ Behavior Change: App unit tests requiring this will not fail to build due to und
 - See <https://github.com/nasa/cFE/pull/712> for more details
 
 ## Development Build: 6.7.17
-
 - No longer automatically decompresses apps/libraries as part of load
 - Deletes now unused CFE_ES_CountObjectCallback and CFE_ES_ListResourcesDebug. Flags were unused
 - Removes all conditional preprocessing blocks related to CFE_ARINC653.
@@ -837,12 +771,10 @@ Behavior Change: App unit tests requiring this will not fail to build due to und
 - See <https://github.com/nasa/cFE/pull/692> for more details
 
 ## Development Build: 6.7.16
-
 - Users must now select OSAL options via the CMake file in their defs directory, rather than the osconfig.h file.
 - See <https://github.com/nasa/cFE/pull/672> for more details
 
 ## Development Build: 6.7.15
-
 - Upon power on reset, default system log mode set to overwrite. Upon processor reset, default system log mode set to discard.
 - No longer locks while locked (no issue observed on linux/posix, but user reported issue on FreeRTOS 10)
 - Internal `CFE_TBL_LoadFromFile()` API changed slightly to add AppName as a parameter. Return value from `LoadFromFile()` no longer relevant for event generation.
@@ -851,93 +783,77 @@ Behavior Change: App unit tests requiring this will not fail to build due to und
 - See <https://github.com/nasa/cFE/pull/649> for more details
 
 ## Development Build: 6.7.14
-
 - Exposes the `CFE_SB_IsValidMsgId()` for application usage.
 - `CFE_SB_GetLastSenderID` will now detect if it is being called prior to a message being sent on a given pipe.
 - Mismatches between PSP/BSP/OS are now detected and warned about during make prep. Only the `CFE_SYSTEM_PSPNAME` is actually required to be specified for a CFE build now. Others can be omitted.
 - See <https://github.com/nasa/cFE/pull/635> for more details
 
 ## Development Build: 6.7.13
-
 - RTEMS builds without error.
 - Use the INTERFACE_COMPILE_DEFINITIONS and INTERFACE_INCLUDE_DIRECTORIES properties from the osal target and apply them to the entire CFE build as a directory-scope property. No impact until these are set in OSAL.
 - Minor other updates (see <https://github.com/nasa/cFE/pull/615>)
 
 ## Development Build: 6.7.12
-
 - Cmd code (and checksum) are always in the same place (matches GSFC spec for command secondary header)
 - No impact to behavior. Previously the perf log dump file frequently contained errors due to out of order or otherwise corrupted entries, which is now fixed.
 - Minor other updates (see <https://github.com/nasa/cFE/pull/586>)
 
 ## Development Build: 6.7.11
-
 - Improve documentation
 - Update makefile to report branch coverage
 - Minor other updates (see <https://github.com/nasa/cFE/pull/566>)
 
 ## Development Build: 6.7.10
-
 - Fix potential unit test problems with name collisions
 - Improve documentation
 - Minor other updates (see <https://github.com/nasa/cFE/pull/563>)
 
 ## Development Build: 6.7.9
-
 - No longer requires sed "hack" to change the setting in default_config.h
 - Minor other updates (see <https://github.com/nasa/cFE/pull/544>)
 
 ## Development Build: 6.7.8
-
 - Updates and cleaned up documentation and requirements
 - Fixes incorrect debug messages
 - Decrease child task count when one is deleted
 - Minor other updates (see <https://github.com/nasa/cFE/pull/530>)
 
 ## Development Build: 6.7.7
-
 - Adds a new function, CFE_SB_GetPipeIdByName, which retrieves the pipe ID given a name of a pipe.
 - Improvement in error reporting when using a pipe name that is already in use, or when the queue limit has been reached.
 - Added userguide and osalguide to the local target list to avoid makefile warning
 - Minor other updates (see <https://github.com/nasa/cFE/pull/511>)
 
 ## Development Build: 6.7.6
-
 - Adds OMIT_DEPRECATED prep flag
 - Adds and enforces strict warnings
 - Software Bus now increments sequence counter even if there are no subscribers
 - Warning, comment, and code coverage cleanup (see <https://github.com/nasa/cFE/pull/490>)
 
 ## Development Build: 6.7.5
-
 - Added CI static analysis check
 - Resolved static analysis warnings
 - Minor other updates (see <https://github.com/nasa/cFE/pull/479>)
 
 ## Development Build: 6.7.4
-
 - Minor updates (see <https://github.com/nasa/cFE/pull/448>)
 
 ## Development Build: 6.7.3
-
 - Minor updates (see <https://github.com/nasa/cFE/pull/413>)
 
 ## Development Build: 6.7.2
-
 - Minor bugs and enhancements (see <https://github.com/nasa/cFE/pull/388>)
 
 ## Development Build: 6.7.1
-
 - Fix strlen in CFE_ES_TaskInit <https://github.com/nasa/cFE/pull/23>
 - Minor bug fixes (see <https://github.com/nasa/cFE/pull/378>)
 
 ## **_OFFICIAL RELEASE: v6.7.0 - Aquila_**
-
 - This is a point release from an internal repository
 - Changes are detailed in [cFS repo](https://github.com/nasa/cFS) release documentation
 - Apache 2.0
 
 ## **_OFFICIAL RELEASE: v6.6.0a_**
-
 - This is a point release from an internal repository
 - Apache 2.0
 - Additional release notes are found in [release notes](https://github.com/nasa/cFE/blob/v6.6.0a/docs/cFE_release_notes.md)
@@ -945,11 +861,9 @@ Behavior Change: App unit tests requiring this will not fail to build due to und
 - Test results can be found in [test results](https://github.com/nasa/cFE/tree/v6.6.0a/test-and-ground/test-review-packages/Results)
 
 ## Known issues
-
 See all open issues and closed to milestones later than this version.
 
 ## Getting Help
-
 For best results, submit issues:questions or issues:help wanted requests at <https://github.com/nasa/cFS>.
 
 Official cFS page: <http://cfs.gsfc.nasa.gov>
