@@ -387,7 +387,7 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
         Status = CFE_ES_ERR_APP_CREATE;
     }
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -545,7 +545,7 @@ int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
         *FuncPtr = EntryFunc;
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------
@@ -976,7 +976,7 @@ int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, cons
 
     *LibraryIdPtr = CFE_ES_LIBID_C(PendingResourceId);
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -1556,7 +1556,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
 
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*
@@ -1739,7 +1739,7 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
         Result = CFE_ES_TASK_DELETE_ERR;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------

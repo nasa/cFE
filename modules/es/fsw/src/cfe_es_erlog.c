@@ -142,7 +142,7 @@ int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint3
      */
     CFE_ES_UnlockSharedData(__func__, __LINE__);
 
-    return (CFE_SUCCESS);
+    return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------

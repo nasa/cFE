@@ -163,7 +163,7 @@ CFE_Status_t CFE_FS_ReadHeader(CFE_FS_Header_t *Hdr, osal_id_t FileDes)
         Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -274,7 +274,7 @@ CFE_Status_t CFE_FS_WriteHeader(osal_id_t FileDes, CFE_FS_Header_t *Hdr)
         Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -329,7 +329,7 @@ CFE_Status_t CFE_FS_SetTimestamp(osal_id_t FileDes, CFE_TIME_SysTime_t NewTimest
         Result = CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
     }
 
-    return (Result);
+    return Result;
 }
 
 /*----------------------------------------------------------------
@@ -680,7 +680,7 @@ CFE_Status_t CFE_FS_ExtractFilenameFromPath(const char *OriginalPath, char *File
         }
     }
 
-    return (ReturnCode);
+    return ReturnCode;
 }
 
 /*----------------------------------------------------------------

@@ -111,7 +111,7 @@ static inline CFE_ES_AppId_t EVS_AppDataGetID(EVS_AppData_t *AppDataPtr)
      * The initial implementation does not store the ID in the entry;
      * the ID is simply the zero-based index into the table.
      */
-    return (AppDataPtr->AppID);
+    return AppDataPtr->AppID;
 }
 
 /*---------------------------------------------------------------------------------------*/

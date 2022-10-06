@@ -317,7 +317,7 @@ int32 CFE_ES_TaskInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed, RC = 0x%08X\n", __func__, (unsigned int)Status);
-        return (Status);
+        return Status;
     }
 
     /*
@@ -345,7 +345,7 @@ int32 CFE_ES_TaskInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Cannot Create SB Pipe, RC = 0x%08X\n", __func__, (unsigned int)Status);
-        return (Status);
+        return Status;
     }
 
     /*
@@ -355,7 +355,7 @@ int32 CFE_ES_TaskInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Cannot Subscribe to HK packet, RC = 0x%08X\n", __func__, (unsigned int)Status);
-        return (Status);
+        return Status;
     }
 
     /*
@@ -366,7 +366,7 @@ int32 CFE_ES_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Cannot Subscribe to ES ground commands, RC = 0x%08X\n", __func__,
                              (unsigned int)Status);
-        return (Status);
+        return Status;
     }
 
     /*
@@ -413,7 +413,7 @@ int32 CFE_ES_TaskInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
-        return (Status);
+        return Status;
     }
 
     Status =
@@ -424,7 +424,7 @@ int32 CFE_ES_TaskInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init stats event:RC=0x%08X\n", __func__, (unsigned int)Status);
-        return (Status);
+        return Status;
     }
 
     /*
@@ -442,10 +442,10 @@ int32 CFE_ES_TaskInit(void)
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("%s: Error initializing background task:RC=0x%08X\n", __func__, (unsigned int)Status);
-        return (Status);
+        return Status;
     }
 
-    return (CFE_SUCCESS);
+    return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
@@ -1760,7 +1760,7 @@ bool CFE_ES_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
         CFE_ES_Global.TaskData.CommandErrorCounter++;
     }
 
-    return (result);
+    return result;
 }
 
 /*----------------------------------------------------------------

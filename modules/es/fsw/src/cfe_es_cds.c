@@ -468,7 +468,7 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
 
     *HandlePtr = CFE_ES_CDSHANDLE_C(PendingBlockId);
 
-    return (Status);
+    return Status;
 }
 
 /*----------------------------------------------------------------
@@ -688,8 +688,6 @@ void CFE_ES_FormCDSName(char *FullCDSName, const char *CDSName, CFE_ES_AppId_t T
 
     /* Complete formation of processor specific table name */
     sprintf(FullCDSName, "%s.%s", AppName, CDSName);
-
-    return;
 }
 
 /*----------------------------------------------------------------

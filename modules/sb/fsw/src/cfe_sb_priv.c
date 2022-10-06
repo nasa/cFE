@@ -143,8 +143,6 @@ void CFE_SB_LockSharedData(const char *FuncName, int32 LineNumber)
                              (long)OsStatus, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
 
     } /* end if */
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -168,8 +166,6 @@ void CFE_SB_UnlockSharedData(const char *FuncName, int32 LineNumber)
                              (long)OsStatus, CFE_RESOURCEID_TO_ULONG(AppId), FuncName, (int)LineNumber);
 
     } /* end if */
-
-    return;
 }
 
 /*----------------------------------------------------------------

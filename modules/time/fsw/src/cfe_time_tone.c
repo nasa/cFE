@@ -158,8 +158,6 @@ void CFE_TIME_ToneSend(void)
     ** Count of "time at the tone" commands sent with internal data...
     */
     CFE_TIME_Global.InternalCount++;
-
-    return;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
@@ -292,7 +290,7 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 
     /* Exit performance monitoring */
     CFE_ES_PerfLogExit(CFE_MISSION_TIME_SENDMET_PERF_ID);
-    return (Result);
+    return Result;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_MET */
 
@@ -432,7 +430,7 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
         }
     }
 
-    return (Result);
+    return Result;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_GPS */
 
@@ -574,7 +572,7 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
         }
     }
 
-    return (Result);
+    return Result;
 }
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_TIME */
 
@@ -646,8 +644,6 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
     ** Maintain a count of tone data packets...
     */
     CFE_TIME_Global.ToneDataCounter++;
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -689,8 +685,6 @@ void CFE_TIME_ToneSignal(void)
     ** Maintain a count of tone signal packets...
     */
     CFE_TIME_Global.ToneSignalCounter++;
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -774,8 +768,6 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 
     PrevTime1 = Time1;
     PrevTime2 = Time2;
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -965,8 +957,6 @@ void CFE_TIME_ToneUpdate(void)
     {
         CFE_EVS_SendEvent(CFE_TIME_FLY_OFF_EID, CFE_EVS_EventType_INFORMATION, "Stop FLYWHEEL");
     }
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -1087,8 +1077,6 @@ void CFE_TIME_Tone1HzISR(void)
 
     /* Exit performance monitoring */
     CFE_ES_PerfLogExit(CFE_MISSION_TIME_TONE1HZISR_PERF_ID);
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -1147,7 +1135,6 @@ void CFE_TIME_Tone1HzTask(void)
     ** This should never happen - but during development we
     **    had an error in the creation of the semaphore.
     */
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -1285,8 +1272,6 @@ void CFE_TIME_Local1HzISR(void)
     ** Enable 1Hz task (we can't send a SB message from here)...
     */
     OS_BinSemGive(CFE_TIME_Global.LocalSemaphore);
-
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -1346,7 +1331,6 @@ void CFE_TIME_Local1HzTask(void)
     ** This should never happen - but during development we had an
     **    error in the creation of the semaphore.
     */
-    return;
 }
 
 /*----------------------------------------------------------------
@@ -1380,6 +1364,4 @@ void CFE_TIME_NotifyTimeSynchApps(void)
             }
         }
     }
-
-    return;
 }
