@@ -26,9 +26,3 @@ STRIP_FROM_PATH       += @MISSION_DEFS@
 EXCLUDE_PATTERNS       += "*/ut-stubs/*"
 EXCLUDE_PATTERNS       += "*/ut-coverage/*"
 EXCLUDE_PATTERNS       += "*/unit-test*/*"
-
-# Exclude stand alone repo documentation
-EXCLUDE_PATTERNS       += "*/CODE_OF_CONDUCT.md"
-EXCLUDE_PATTERNS       += "*/CONTRIBUTING.md"
-EXCLUDE_PATTERNS       += "*/README.md"
-EXCLUDE_PATTERNS       += "*/SECURITY.md"
