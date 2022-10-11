@@ -1,5 +1,11 @@
 # Changelog
 
+## Development Build: v7.0.0-rc4+dev193
+- Remove redundant/inconsistent comments (/* end of function */, /* end if */ etc.) and clean up empty lines.
+- Update TO_LAB entry point in cfe_es_startup.scr
+- Create CHANGELOG.md
+- See <https://github.com/nasa/cFE/pull/2163>, <https://github.com/nasa/cFE/pull/2158>, and <https://github.com/nasa/cFE/pull/2159>
+
 ## Development Build: v7.0.0-rc4+dev183
 - Fixes issue #2144- Propagate CMAKE_EXPORT_COMPILE_COMMANDS variable
 - Remove CodeQL Paths Ignore
