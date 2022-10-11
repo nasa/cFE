@@ -44,8 +44,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_WriteToERLogWithContext
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -147,8 +145,6 @@ int32 CFE_ES_WriteToERLogWithContext(CFE_ES_LogEntryType_Enum_t EntryType, uint3
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_WriteToERLog
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -162,8 +158,6 @@ int32 CFE_ES_WriteToERLog(CFE_ES_LogEntryType_Enum_t EntryType, uint32 ResetType
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_BackgroundERLogFileDataGetter
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -230,8 +224,6 @@ bool CFE_ES_BackgroundERLogFileDataGetter(void *Meta, uint32 RecordNum, void **B
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_BackgroundERLogFileEventHandler
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -271,8 +263,6 @@ void CFE_ES_BackgroundERLogFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t 
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_RunExceptionScan
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -309,7 +299,7 @@ bool CFE_ES_RunExceptionScan(uint32 ElapsedTime, void *Arg)
                  (long)PspStatus);
         PspContextId    = 0;
         ExceptionTaskID = OS_OBJECT_ID_UNDEFINED;
-    } /* end if */
+    }
 
     /*
      * Note that writes to the ES ER log actually do not get propagated to the debug console.

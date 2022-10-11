@@ -70,7 +70,6 @@ enum
 
     /* configuration registry */
     CFE_RESOURCEID_CONFIGID_BASE_OFFSET = OS_OBJECT_TYPE_USER + 7,
-
 };
 
 /*

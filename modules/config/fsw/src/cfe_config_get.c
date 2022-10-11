@@ -34,8 +34,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_Config_GetValue
- *
  * Defined per public API
  * See description in header file for argument/return detail
  *
@@ -54,8 +52,6 @@ uint32 CFE_Config_GetValue(CFE_ConfigId_t ConfigId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_GetObjPointer
  *
  * Defined per public API
  * See description in header file for argument/return detail
@@ -76,8 +72,6 @@ const void *CFE_Config_GetObjPointer(CFE_ConfigId_t ConfigId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_Config_GetObjPointer
- *
  * Defined per public API
  * See description in header file for argument/return detail
  *
@@ -96,8 +90,6 @@ const char *CFE_Config_GetString(CFE_ConfigId_t ConfigId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_GetName
  *
  * Defined per public API
  * See description in header file for argument/return detail
@@ -118,8 +110,6 @@ const char *CFE_Config_GetName(CFE_ConfigId_t ConfigId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_GetIdByName
  *
  * Defined per public API
  * See description in header file for argument/return detail
@@ -149,8 +139,6 @@ CFE_ConfigId_t CFE_Config_GetIdByName(const char *Name)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_GetIdByName
  *
  * Defined per public API
  * See description in header file for argument/return detail

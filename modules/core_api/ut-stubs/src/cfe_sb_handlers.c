@@ -43,7 +43,6 @@ typedef struct
     uint32             TotalLength;
     uint16             CommandCode;
     CFE_TIME_SysTime_t TimeStamp;
-
 } CFE_SB_StubMsg_MetaData_t;
 
 static CFE_SB_StubMsg_MetaData_t *CFE_SB_StubMsg_GetMetaData(const CFE_MSG_Message_t *MsgPtr)
@@ -256,7 +255,6 @@ void UT_DefaultHandler_CFE_SB_TransmitBuffer(void *UserObj, UT_EntryKey_t FuncKe
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_SB_MessageStringGet(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-
     char *      DestStringPtr   = UT_Hook_GetArgValueByName(Context, "DestStringPtr", char *);
     const char *SourceStringPtr = UT_Hook_GetArgValueByName(Context, "SourceStringPtr", const char *);
     const char *DefaultString   = UT_Hook_GetArgValueByName(Context, "DefaultString", const char *);
@@ -303,7 +301,6 @@ void UT_DefaultHandler_CFE_SB_MessageStringGet(void *UserObj, UT_EntryKey_t Func
  *------------------------------------------------------------*/
 void UT_DefaultHandler_CFE_SB_MessageStringSet(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-
     char *      DestStringPtr   = UT_Hook_GetArgValueByName(Context, "DestStringPtr", char *);
     const char *SourceStringPtr = UT_Hook_GetArgValueByName(Context, "SourceStringPtr", const char *);
     size_t      DestMaxSize     = UT_Hook_GetArgValueByName(Context, "DestMaxSize", size_t);

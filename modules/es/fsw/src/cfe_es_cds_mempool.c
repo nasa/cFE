@@ -63,8 +63,6 @@ const size_t CFE_ES_CDSMemPoolDefSize[CFE_ES_CDS_NUM_BLOCK_SIZES] = {
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CDS_PoolRetrieve
- *
  * Internal helper routine only, not part of API.
  *
  * Obtains a block descriptor from CDS storage.
@@ -82,8 +80,6 @@ int32 CFE_ES_CDS_PoolRetrieve(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offs
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CDS_PoolCommit
- *
  * Internal helper routine only, not part of API.
  *
  * Writes a block descriptor to CDS storage.
@@ -100,8 +96,6 @@ int32 CFE_ES_CDS_PoolCommit(CFE_ES_GenPoolRecord_t *GenPoolRecPtr, size_t Offset
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CreateCDSPool
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -136,8 +130,6 @@ int32 CFE_ES_CreateCDSPool(size_t CDSPoolSize, size_t StartOffset)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_RebuildCDSPool
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -169,8 +161,6 @@ int32 CFE_ES_RebuildCDSPool(size_t CDSPoolSize, size_t StartOffset)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CDSBlockWrite
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -268,8 +258,6 @@ int32 CFE_ES_CDSBlockWrite(CFE_ES_CDSHandle_t Handle, const void *DataToWrite)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CDSBlockRead
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -356,8 +344,6 @@ int32 CFE_ES_CDSBlockRead(void *DataRead, CFE_ES_CDSHandle_t Handle)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CDSReqdMinSize
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

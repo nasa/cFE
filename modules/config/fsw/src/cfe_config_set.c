@@ -31,8 +31,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_Config_SetValue
- *
  * CFE core internal function
  * See description in header file for argument/return detail
  *
@@ -51,8 +49,6 @@ void CFE_Config_SetValue(CFE_ConfigId_t ConfigId, uint32 Value)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_Config_SetObjPointer
- *
  * CFE core internal function
  * See description in header file for argument/return detail
  *
@@ -70,8 +66,6 @@ void CFE_Config_SetObjPointer(CFE_ConfigId_t ConfigId, const void *Ptr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_Config_SetString
  *
  * CFE core internal function
  * See description in header file for argument/return detail

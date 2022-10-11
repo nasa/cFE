@@ -757,7 +757,6 @@ void Test_CFE_TBL_ValidateCmd(void)
 */
 void Test_CFE_TBL_NoopCmd(void)
 {
-
     UtPrintf("Begin Test No-Op Command");
 
     /* Test run through function (there are no additional paths) */
@@ -1386,7 +1385,6 @@ void Test_CFE_TBL_HousekeepingCmd(void)
 */
 void Test_CFE_TBL_ApiInit(void)
 {
-
     UT_ResetCDS();
 
     /* Provide a big enough pool for the load buffers */

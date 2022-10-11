@@ -339,7 +339,6 @@ typedef struct
      * Registry dump state info (background job)
      */
     CFE_TBL_RegDumpStateInfo_t RegDumpState;
-
 } CFE_TBL_Global_t;
 
 /*************************************************************************/

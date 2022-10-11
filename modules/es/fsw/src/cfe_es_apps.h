@@ -58,7 +58,6 @@ typedef struct
 {
     uint32 AppControlRequest; /* What the App should be doing next */
     int32  AppTimerMsec;      /* Countdown timer for killing an app, in milliseconds */
-
 } CFE_ES_ControlReq_t;
 
 /*
@@ -76,7 +75,6 @@ typedef struct
 {
     char InitSymbolName[OS_MAX_API_NAME];
     char FileName[OS_MAX_PATH_LEN];
-
 } CFE_ES_ModuleLoadParams_t;
 
 /*
@@ -90,7 +88,6 @@ typedef struct
 {
     osal_id_t ModuleId;
     cpuaddr   InitSymbolAddress;
-
 } CFE_ES_ModuleLoadStatus_t;
 
 /*
@@ -103,7 +100,6 @@ typedef struct
 {
     size_t                     StackSize;
     CFE_ES_TaskPriority_Atom_t Priority;
-
 } CFE_ES_TaskStartParams_t;
 
 /*
@@ -122,7 +118,6 @@ typedef struct
 
     CFE_ES_TaskStartParams_t      MainTaskInfo;
     CFE_ES_ExceptionAction_Enum_t ExceptionAction;
-
 } CFE_ES_AppStartParams_t;
 
 /*
@@ -139,7 +134,6 @@ typedef struct
     CFE_ES_ModuleLoadStatus_t LoadStatus;               /* Runtime module information */
     CFE_ES_ControlReq_t       ControlReq;               /* The Control Request Record for External cFE Apps */
     CFE_ES_TaskId_t           MainTaskId;               /* The Application's Main Task ID */
-
 } CFE_ES_AppRecord_t;
 
 /*
@@ -154,7 +148,6 @@ typedef struct
     CFE_ES_TaskStartParams_t  StartParams;               /* The start parameters for the task */
     CFE_ES_TaskEntryFuncPtr_t EntryFunc;                 /* Task entry function */
     uint32                    ExecutionCounter;          /* The execution counter for the task */
-
 } CFE_ES_TaskRecord_t;
 
 /*
@@ -167,7 +160,6 @@ typedef struct
     char                      LibName[OS_MAX_API_NAME]; /* Library Name */
     CFE_ES_ModuleLoadParams_t LoadParams;               /* Basic (static) information about the module */
     CFE_ES_ModuleLoadStatus_t LoadStatus;               /* Runtime information about the module */
-
 } CFE_ES_LibRecord_t;
 
 /*

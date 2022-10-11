@@ -44,8 +44,6 @@ void EVS_OutputPort4(char *Message);
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_GetAppDataByID
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -68,8 +66,6 @@ EVS_AppData_t *EVS_GetAppDataByID(CFE_ES_AppId_t AppID)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_GetCurrentContext
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -112,8 +108,6 @@ int32 EVS_GetCurrentContext(EVS_AppData_t **AppDataOut, CFE_ES_AppId_t *AppIDOut
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_GetApplicationInfo
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -155,8 +149,6 @@ int32 EVS_GetApplicationInfo(EVS_AppData_t **AppDataOut, const char *pAppName)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_NotRegistered
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -190,8 +182,6 @@ int32 EVS_NotRegistered(EVS_AppData_t *AppDataPtr, CFE_ES_AppId_t CallerID)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_IsFiltered
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -291,8 +281,6 @@ bool EVS_IsFiltered(EVS_AppData_t *AppDataPtr, uint16 EventID, uint16 EventType)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_CheckAndIncrementSquelchTokens
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -380,7 +368,7 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
              */
             if (AppDataPtr->SquelchTokens > -EVENT_COST && CreditCount < EVENT_COST)
             {
-                // Set flag and send event later, since we still own mutex
+                /* Set flag and send event later, since we still own mutex */
                 SendSquelchEvent = true;
             }
         }
@@ -411,8 +399,6 @@ bool EVS_CheckAndIncrementSquelchTokens(EVS_AppData_t *AppDataPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_FindEventID
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -434,8 +420,6 @@ EVS_BinFilter_t *EVS_FindEventID(uint16 EventID, EVS_BinFilter_t *FilterArray)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_EnableTypes
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -450,8 +434,6 @@ void EVS_EnableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_DisableTypes
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -465,8 +447,6 @@ void EVS_DisableTypes(EVS_AppData_t *AppDataPtr, uint8 BitMask)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_GenerateEventTelemetry
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -553,8 +533,6 @@ void EVS_GenerateEventTelemetry(EVS_AppData_t *AppDataPtr, uint16 EventID, uint1
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_SendViaPorts
- *
  * Internal helper routine only, not part of API.
  *
  * This routine sends a string event message out all enabled
@@ -612,8 +590,6 @@ void EVS_SendViaPorts(CFE_EVS_LongEventTlm_t *EVS_PktPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_OutputPort1
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -623,8 +599,6 @@ void EVS_OutputPort1(char *Message)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_OutputPort2
  *
  * Internal helper routine only, not part of API.
  *
@@ -636,8 +610,6 @@ void EVS_OutputPort2(char *Message)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_OutputPort3
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -648,8 +620,6 @@ void EVS_OutputPort3(char *Message)
 
 /*----------------------------------------------------------------
  *
- * Function: EVS_OutputPort4
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -659,8 +629,6 @@ void EVS_OutputPort4(char *Message)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: EVS_SendEvent
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

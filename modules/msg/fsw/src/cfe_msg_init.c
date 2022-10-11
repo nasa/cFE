@@ -26,15 +26,12 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_Init
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_Init(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId, CFE_MSG_Size_t Size)
 {
-
     int32 status;
 
     if (MsgPtr == NULL)

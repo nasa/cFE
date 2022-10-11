@@ -43,8 +43,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_ToneSend
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -162,8 +160,6 @@ void CFE_TIME_ToneSend(void)
 #endif /* CFE_PLATFORM_TIME_CFG_SERVER */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneSendMET
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -295,8 +291,6 @@ int32 CFE_TIME_ToneSendMET(CFE_TIME_SysTime_t NewMET)
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_MET */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneSendGPS
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -435,8 +429,6 @@ int32 CFE_TIME_ToneSendGPS(CFE_TIME_SysTime_t NewTime, int16 NewLeaps)
 #endif /* CFE_PLATFORM_TIME_CFG_SRC_GPS */
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneSendTime
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -578,8 +570,6 @@ int32 CFE_TIME_ToneSendTime(CFE_TIME_SysTime_t NewTime)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_ToneData
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -648,8 +638,6 @@ void CFE_TIME_ToneData(const CFE_TIME_ToneDataCmd_Payload_t *ToneDataCmd)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_ToneSignal
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -688,8 +676,6 @@ void CFE_TIME_ToneSignal(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneVerify
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -771,8 +757,6 @@ void CFE_TIME_ToneVerify(CFE_TIME_SysTime_t Time1, CFE_TIME_SysTime_t Time2)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_ToneUpdate
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -961,8 +945,6 @@ void CFE_TIME_ToneUpdate(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_Local1HzTimerCallback
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -974,15 +956,12 @@ void CFE_TIME_Local1HzTimerCallback(osal_id_t TimerId, void *Arg)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_Tone1HzISR
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Tone1HzISR(void)
 {
-
     CFE_TIME_SysTime_t ToneSignalLatch;
     CFE_TIME_SysTime_t Elapsed;
     CFE_TIME_Compare_t Result;
@@ -1081,8 +1060,6 @@ void CFE_TIME_Tone1HzISR(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_Tone1HzTask
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1139,15 +1116,12 @@ void CFE_TIME_Tone1HzTask(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_Local1HzStateMachine
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzStateMachine(void)
 {
-
     CFE_TIME_Reference_t                Reference;
     volatile CFE_TIME_ReferenceState_t *NextState;
 
@@ -1257,15 +1231,12 @@ void CFE_TIME_Local1HzStateMachine(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TIME_Local1HzISR
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_TIME_Local1HzISR(void)
 {
-
     CFE_TIME_Global.LocalIntCounter++;
 
     /*
@@ -1275,8 +1246,6 @@ void CFE_TIME_Local1HzISR(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_Local1HzTask
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1288,7 +1257,6 @@ void CFE_TIME_Local1HzTask(void)
 
     while (true)
     {
-
         /* Increment the Main task Execution Counter */
         CFE_ES_IncrementTaskCounter();
 
@@ -1334,8 +1302,6 @@ void CFE_TIME_Local1HzTask(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TIME_NotifyTimeSynchApps
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

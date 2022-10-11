@@ -25,8 +25,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetTypeFromMsgId
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *

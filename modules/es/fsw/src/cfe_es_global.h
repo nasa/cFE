@@ -121,7 +121,6 @@ typedef struct
     ** ES Task operational data (not reported in housekeeping)
     */
     CFE_SB_PipeId_t CmdPipe;
-
 } CFE_ES_TaskData_t;
 
 /*
@@ -220,7 +219,6 @@ typedef struct
      * Pointer to the Reset data that is preserved on a processor reset
      */
     CFE_ES_ResetData_t *ResetDataPtr;
-
 } CFE_ES_Global_t;
 
 /*

@@ -28,8 +28,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_IsValidMsgId
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *

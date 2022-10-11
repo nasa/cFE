@@ -61,7 +61,6 @@ typedef struct CFE_EVS_BinFilter
 {
     uint16 EventID; /**< \brief Numerical event identifier */
     uint16 Mask;    /**< \brief Binary filter mask value */
-
 } CFE_EVS_BinFilter_t;
 
 #endif /* CFE_EVS_API_TYPEDEFS_H */

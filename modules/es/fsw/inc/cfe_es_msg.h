@@ -1137,7 +1137,6 @@ typedef struct CFE_ES_OverWriteSysLogCmd_Payload
 {
     uint32 Mode; /**< \brief #CFE_ES_LogMode_DISCARD=Throw away most recent messages,
                              #CFE_ES_LogMode_OVERWRITE=Overwrite oldest with most recent */
-
 } CFE_ES_OverWriteSysLogCmd_Payload_t;
 
 /**
@@ -1169,7 +1168,6 @@ typedef struct CFE_ES_StartAppCmd_Payload
                                                        #CFE_ES_ExceptionAction_PROC_RESTART=On exception,
                                                        perform a Processor Reset */
     CFE_ES_TaskPriority_Atom_t Priority;           /**< \brief The new Applications runtime priority. */
-
 } CFE_ES_StartAppCmd_Payload_t;
 
 /**
@@ -1263,7 +1261,6 @@ typedef struct CFE_ES_DeleteCDSCmd_Payload
 {
     char
         CdsName[CFE_MISSION_ES_CDS_MAX_FULL_NAME_LEN]; /**< \brief ASCII text string containing name of CDS to delete */
-
 } CFE_ES_DeleteCDSCmd_Payload_t;
 
 /**
@@ -1326,7 +1323,6 @@ typedef struct CFE_ES_SetPerfFilterMaskCmd_Payload
 {
     uint32 FilterMaskNum; /**< \brief Index into array of Filter Masks */
     uint32 FilterMask;    /**< \brief New Mask for specified entry in array of Filter Masks */
-
 } CFE_ES_SetPerfFilterMaskCmd_Payload_t;
 
 /**
@@ -1348,7 +1344,6 @@ typedef struct CFE_ES_SetPerfTrigMaskCmd_Payload
 {
     uint32 TriggerMaskNum; /**< \brief Index into array of Trigger Masks */
     uint32 TriggerMask;    /**< \brief New Mask for specified entry in array of Trigger Masks */
-
 } CFE_ES_SetPerfTrigMaskCmd_Payload_t;
 
 /**
@@ -1370,7 +1365,6 @@ typedef struct CFE_ES_SendMemPoolStatsCmd_Payload
 {
     char               Application[CFE_MISSION_MAX_API_LEN]; /**< \brief - RESERVED - should be all zeroes */
     CFE_ES_MemHandle_t PoolHandle; /**< \brief Handle of Pool whose statistics are to be telemetered */
-
 } CFE_ES_SendMemPoolStatsCmd_Payload_t;
 
 /**
@@ -1418,7 +1412,6 @@ typedef struct CFE_ES_DumpCDSRegistryCmd
 typedef struct CFE_ES_OneAppTlm_Payload
 {
     CFE_ES_AppInfo_t AppInfo; /**< \brief For more information, see #CFE_ES_AppInfo_t */
-
 } CFE_ES_OneAppTlm_Payload_t;
 
 typedef struct CFE_ES_OneAppTlm
@@ -1549,7 +1542,6 @@ typedef struct CFE_ES_HousekeepingTlm
 {
     CFE_MSG_TelemetryHeader_t        TelemetryHeader; /**< \brief Telemetry header */
     CFE_ES_HousekeepingTlm_Payload_t Payload;         /**< \brief Telemetry payload */
-
 } CFE_ES_HousekeepingTlm_t;
 
 #endif /* CFE_ES_MSG_H */

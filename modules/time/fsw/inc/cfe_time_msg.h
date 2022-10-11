@@ -729,7 +729,6 @@
 typedef struct CFE_TIME_NoArgsCmd
 {
     CFE_MSG_CommandHeader_t CommandHeader; /**< \brief Command header */
-
 } CFE_TIME_NoArgsCmd_t;
 
 /*
@@ -858,7 +857,6 @@ typedef struct CFE_TIME_OneHzAdjustmentCmd_Payload
 {
     uint32 Seconds;
     uint32 Subseconds;
-
 } CFE_TIME_OneHzAdjustmentCmd_Payload_t;
 
 /**
@@ -959,7 +957,6 @@ typedef struct CFE_TIME_HousekeepingTlm_Payload
     uint32 SubsecsDelay; /**< \cfetlmmnemonic \TIME_1HZDLYSSECS
                               \brief Current 1 Hz SCTF Delay (sub-seconds) */
 #endif
-
 } CFE_TIME_HousekeepingTlm_Payload_t;
 
 typedef struct CFE_TIME_HousekeepingTlm

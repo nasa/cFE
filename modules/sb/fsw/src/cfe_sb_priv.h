@@ -107,7 +107,6 @@ typedef struct CFE_SB_BufferLink
 {
     struct CFE_SB_BufferLink *Next;
     struct CFE_SB_BufferLink *Prev;
-
 } CFE_SB_BufferLink_t;
 
 /******************************************************************************
@@ -156,7 +155,6 @@ typedef struct CFE_SB_BufferD
     uint16 UseCount; /**< Number of active references to this buffer in the system */
 
     CFE_SB_Buffer_t Content; /* Variably sized content field, Keep last */
-
 } CFE_SB_BufferD_t;
 
 /******************************************************************************
@@ -189,10 +187,8 @@ typedef struct
 */
 typedef struct
 {
-
     CFE_ES_MemHandle_t PoolHdl;
     CFE_ES_STATIC_POOL_TYPE(CFE_PLATFORM_SB_BUF_MEMORY_BYTES) Partition;
-
 } CFE_SB_MemParams_t;
 
 /*******************************************************************************/
@@ -260,7 +256,6 @@ typedef struct
 
     /* A list of buffers currently issued to apps for zero-copy */
     CFE_SB_BufferLink_t ZeroCopyList;
-
 } CFE_SB_Global_t;
 
 /******************************************************************************

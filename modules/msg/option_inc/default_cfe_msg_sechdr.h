@@ -59,14 +59,12 @@
  */
 typedef struct
 {
-
     uint8 FunctionCode; /**< \brief Command Function Code */
                         /* bits shift ---------description-------- */
                         /* 0x7F  0    Command function code        */
                         /* 0x80  7    Reserved                     */
 
     uint8 Checksum; /**< \brief Command checksum  (all bits, 0xFF)      */
-
 } CFE_MSG_CommandSecondaryHeader_t;
 
 /**
@@ -74,9 +72,7 @@ typedef struct
  */
 typedef struct
 {
-
     uint8 Time[6]; /**< \brief Time, big endian: 4 byte seconds, 2 byte subseconds */
-
 } CFE_MSG_TelemetrySecondaryHeader_t;
 
 #endif /* DEFAULT_CFE_MSG_SECHDR_H */

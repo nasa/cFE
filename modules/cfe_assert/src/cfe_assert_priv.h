@@ -148,7 +148,6 @@ typedef struct
      * Line number of source file that produced "StoredStatus"
      */
     uint32 StoredLine;
-
 } CFE_Assert_Global_t;
 
 extern CFE_Assert_Global_t CFE_Assert_Global;

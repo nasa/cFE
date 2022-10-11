@@ -790,7 +790,6 @@ uint32 ConvertSecs2Ticks(uint32 Seconds)
 		( (Seconds * 1000000) + TickDurationInMicroSec - 1 ) / TickDurationInMicroSec;
 
 	return(NumOfTicks);
-
 }
 ```
 ## 5.7 OS Queues, Semaphores and Mutexes
@@ -1282,7 +1281,7 @@ void SAMPLE_TaskMain(void)
     }
     CFE_EVS_SendEvent(CFE_TBL_EXIT_ERR_EID, CFE_EVS_ERROR,
                       "SAMPLE Task terminating, err = 0x%X", Status);
-} /* End of SAMPLE_TaskMain() */
+}
 ```
 
 ### 5.10.4	Standard CRC Calculations
@@ -1821,7 +1820,6 @@ typedef struct
   */
   uint8          CmdCounter;
   uint8          ErrCounter;
-
 } SAMPLE_HkPacket_t;
 
 
@@ -1884,14 +1882,12 @@ containing just a CFE_MSG_Message_t is invalid per the CCSDS standard.
 ```c
 typedef struct
 {
-
     uint8 FunctionCode; /**< \brief Command Function Code */
                         /* bits shift ---------description-------- */
                         /* 0x7F  0    Command function code        */
                         /* 0x80  7    Reserved                     */
 
     uint8 Checksum; /**< \brief Command checksum  (all bits, 0xFF)      */
-
 } CFE_MSG_CommandSecondaryHeader_t;
 
 /**
@@ -1899,9 +1895,7 @@ typedef struct
  */
 typedef struct
 {
-
     uint8 Time[6]; /**< \brief Time, big endian: 4 byte seconds, 2 byte subseconds */
-
 } CFE_MSG_TelemetrySecondaryHeader_t;
 ```
 
@@ -2131,7 +2125,6 @@ typedef struct
   ** Task command interface counters...
   */
   uint8          Data[SAMPLE_BIGPKT_DATALEN];
-
 } SAMPLE_BigPkt_t;
 
 typedef union
@@ -3123,7 +3116,6 @@ typedef struct
     uint32  TimeSubSeconds;        /* File creation timestamp (sub-seconds) */
 
     char    Description[32];       /* File description */
-
 } CFE_FS_Header_t;
 ```
 

@@ -46,8 +46,6 @@ CFE_Config_Global_t CFE_Config_Global;
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_Config_LocateConfigRecordByID
- *
  * Application scope internal function
  * See description in header file for argument/return detail
  *

@@ -1165,7 +1165,6 @@ typedef struct CFE_EVS_AppTlmData
                                            \brief Application event service enable status */
     uint8 AppMessageSquelchedCounter; /**< \cfetlmmnemonic \EVS_SQUELCHEDC
                                        \brief Number of events squelched */
-
 } CFE_EVS_AppTlmData_t;
 
 /**
@@ -1207,7 +1206,6 @@ typedef struct CFE_EVS_HousekeepingTlm_Payload
 
     CFE_EVS_AppTlmData_t AppData[CFE_MISSION_ES_MAX_APPLICATIONS]; /**< \cfetlmmnemonic \EVS_APP
                                                                 \brief Array of registered application table data */
-
 } CFE_EVS_HousekeepingTlm_Payload_t;
 
 typedef struct CFE_EVS_HousekeepingTlm
@@ -1230,7 +1228,6 @@ typedef struct CFE_EVS_PacketID
                                                 \brief Spacecraft identifier */
     uint32 ProcessorID;                    /**< \cfetlmmnemonic \EVS_PROCESSORID
                                                 \brief Numerical processor identifier */
-
 } CFE_EVS_PacketID_t;
 
 /**
@@ -1253,21 +1250,18 @@ typedef struct CFE_EVS_LongEventTlm_Payload
 typedef struct CFE_EVS_ShortEventTlm_Payload
 {
     CFE_EVS_PacketID_t PacketID; /**< \brief Event packet information */
-
 } CFE_EVS_ShortEventTlm_Payload_t;
 
 typedef struct CFE_EVS_LongEventTlm
 {
     CFE_MSG_TelemetryHeader_t      TelemetryHeader; /**< \brief Telemetry header */
     CFE_EVS_LongEventTlm_Payload_t Payload;         /**< \brief Telemetry payload */
-
 } CFE_EVS_LongEventTlm_t;
 
 typedef struct CFE_EVS_ShortEventTlm
 {
     CFE_MSG_TelemetryHeader_t       TelemetryHeader; /**< \brief Telemetry header */
     CFE_EVS_ShortEventTlm_Payload_t Payload;         /**< \brief Telemetry payload */
-
 } CFE_EVS_ShortEventTlm_t;
 
 #endif /* CFE_EVS_MSG_H */

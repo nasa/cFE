@@ -48,8 +48,6 @@ const size_t CFE_SB_MemPoolDefSize[CFE_PLATFORM_ES_POOL_MAX_BUCKETS] = {
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_EarlyInit
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -67,7 +65,7 @@ int32 CFE_SB_EarlyInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Shared data mutex creation failed! RC=%ld\n", __func__, (long)OsStatus);
         return CFE_STATUS_EXTERNAL_RESOURCE_FAIL;
-    } /* end if */
+    }
 
     /* Initialize the state of subscription reporting */
     CFE_SB_Global.SubscriptionReporting = CFE_SB_DISABLE;
@@ -78,7 +76,7 @@ int32 CFE_SB_EarlyInit(void)
     {
         /* error reported in CFE_SB_InitBuffers */
         return Stat;
-    } /* end if */
+    }
 
     /* Initialize the pipe table. */
     CFE_SB_InitPipeTbl();
@@ -95,15 +93,12 @@ int32 CFE_SB_EarlyInit(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_InitBuffers
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_InitBuffers(void)
 {
-
     int32 Stat = 0;
 
     Stat = CFE_ES_PoolCreateEx(&CFE_SB_Global.Mem.PoolHdl, CFE_SB_Global.Mem.Partition.Data,
@@ -128,8 +123,6 @@ int32 CFE_SB_InitBuffers(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_InitPipeTbl
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

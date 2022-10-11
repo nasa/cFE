@@ -78,7 +78,6 @@ typedef struct
     uint16 Mask;    /* Binary filter mask */
     uint16 Count;   /* Binary filter counter */
     uint16 Padding; /* Structure padding */
-
 } EVS_BinFilter_t;
 
 typedef struct
@@ -94,7 +93,6 @@ typedef struct
     OS_time_t LastSquelchCreditableTime; /* Time of last squelch token return */
     int32     SquelchTokens;             /* Application event squelch token counter */
     uint8     SquelchedCount;            /* Application events squelched counter */
-
 } EVS_AppData_t;
 
 typedef struct
@@ -106,7 +104,6 @@ typedef struct
     uint8           SquelchedCount;           /* Application events squelched counter */
     uint8           Spare[3];
     EVS_BinFilter_t Filters[CFE_PLATFORM_EVS_MAX_EVENT_FILTERS]; /* Application event filters */
-
 } CFE_EVS_AppDataFile_t;
 
 /* Global data structure */

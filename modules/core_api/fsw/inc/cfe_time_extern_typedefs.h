@@ -59,7 +59,6 @@ typedef struct CFE_TIME_SysTime
  */
 enum CFE_TIME_FlagBit
 {
-
     /**
      * @brief The spacecraft time has been set
      */
@@ -128,7 +127,6 @@ typedef uint8 CFE_TIME_FlagBit_Enum_t;
  */
 enum CFE_TIME_ClockState
 {
-
     /**
      *
      * The spacecraft time has not been set since the last clock
@@ -181,7 +179,6 @@ typedef int16 CFE_TIME_ClockState_Enum_t;
  */
 enum CFE_TIME_SourceSelect
 {
-
     /**
      * @brief Use Internal Source
      */
@@ -205,7 +202,6 @@ typedef uint8 CFE_TIME_SourceSelect_Enum_t;
  */
 enum CFE_TIME_ToneSignalSelect
 {
-
     /**
      * @brief Primary Source
      */
@@ -229,7 +225,6 @@ typedef uint8 CFE_TIME_ToneSignalSelect_Enum_t;
  */
 enum CFE_TIME_AdjustDirection
 {
-
     /**
      * @brief Add time adjustment
      */
@@ -253,7 +248,6 @@ typedef uint8 CFE_TIME_AdjustDirection_Enum_t;
  */
 enum CFE_TIME_FlywheelState
 {
-
     /**
      * @brief Not in flywheel state
      */
@@ -277,7 +271,6 @@ typedef uint8 CFE_TIME_FlywheelState_Enum_t;
  */
 enum CFE_TIME_SetState
 {
-
     /**
      * @brief Spacecraft time has not been set
      */
