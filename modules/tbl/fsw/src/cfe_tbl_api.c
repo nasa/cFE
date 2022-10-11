@@ -40,8 +40,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_Register
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -501,8 +499,6 @@ CFE_Status_t CFE_TBL_Register(CFE_TBL_Handle_t *TblHandlePtr, const char *Name, 
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_Share
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -604,8 +600,6 @@ CFE_Status_t CFE_TBL_Share(CFE_TBL_Handle_t *TblHandlePtr, const char *TblName)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_Unregister
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -668,8 +662,6 @@ CFE_Status_t CFE_TBL_Unregister(CFE_TBL_Handle_t TblHandle)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_Load
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -900,8 +892,6 @@ CFE_Status_t CFE_TBL_Load(CFE_TBL_Handle_t TblHandle, CFE_TBL_SrcEnum_t SrcType,
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_Update
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -977,8 +967,6 @@ CFE_Status_t CFE_TBL_Update(CFE_TBL_Handle_t TblHandle)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_GetAddress
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1017,8 +1005,6 @@ CFE_Status_t CFE_TBL_GetAddress(void **TblPtr, CFE_TBL_Handle_t TblHandle)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_ReleaseAddress
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1053,8 +1039,6 @@ CFE_Status_t CFE_TBL_ReleaseAddress(CFE_TBL_Handle_t TblHandle)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_GetAddresses
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1107,8 +1091,6 @@ CFE_Status_t CFE_TBL_GetAddresses(void **TblPtrs[], uint16 NumTables, const CFE_
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_ReleaseAddresses
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1142,8 +1124,6 @@ CFE_Status_t CFE_TBL_ReleaseAddresses(uint16 NumTables, const CFE_TBL_Handle_t T
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_Validate
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1291,8 +1271,6 @@ CFE_Status_t CFE_TBL_Validate(CFE_TBL_Handle_t TblHandle)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_Manage
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1351,8 +1329,6 @@ CFE_Status_t CFE_TBL_Manage(CFE_TBL_Handle_t TblHandle)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_GetStatus
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1398,8 +1374,6 @@ CFE_Status_t CFE_TBL_GetStatus(CFE_TBL_Handle_t TblHandle)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_GetInfo
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1463,8 +1437,6 @@ CFE_Status_t CFE_TBL_GetInfo(CFE_TBL_Info_t *TblInfoPtr, const char *TblName)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_DumpToBuffer
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1506,8 +1478,6 @@ CFE_Status_t CFE_TBL_DumpToBuffer(CFE_TBL_Handle_t TblHandle)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_Modified
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1577,8 +1547,6 @@ CFE_Status_t CFE_TBL_Modified(CFE_TBL_Handle_t TblHandle)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_NotifyByMessage
  *
  * Implemented per public API
  * See description in header file for argument/return detail

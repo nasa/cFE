@@ -664,8 +664,7 @@ void ES_ResetUnitTest(void)
      * so it must be re-initialized here every time CFE_ES_Global is reset.
      */
     CFE_ES_Global.ResetDataPtr = ES_UT_PersistentResetData;
-
-} /* end ES_ResetUnitTest() */
+}
 
 void TestInit(void)
 {
@@ -1100,7 +1099,6 @@ static void ES_UT_SetPerfIdle(void *UserObj, UT_EntryKey_t FuncKey, const UT_Stu
 
 static void ES_UT_ForEachObjectIncrease(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-
     OS_ArgCallback_t callback_ptr = UT_Hook_GetArgValueByName(Context, "callback_ptr", OS_ArgCallback_t);
     void *           callback_arg = UT_Hook_GetArgValueByName(Context, "callback_arg", void *);
     int *            count        = (int *)UserObj;
@@ -1118,7 +1116,6 @@ static void ES_UT_ForEachObjectIncrease(void *UserObj, UT_EntryKey_t FuncKey, co
 
 static void ES_UT_ForEachObjectFail(void *UserObj, UT_EntryKey_t FuncKey, const UT_StubContext_t *Context)
 {
-
     OS_ArgCallback_t callback_ptr = UT_Hook_GetArgValueByName(Context, "callback_ptr", OS_ArgCallback_t);
     void *           callback_arg = UT_Hook_GetArgValueByName(Context, "callback_arg", void *);
     osal_id_t        id           = OS_OBJECT_ID_UNDEFINED;
@@ -3521,8 +3518,7 @@ void TestTask(void)
     UT_SetHandlerFunction(UT_KEY(CFE_Config_IterateAll), ES_UT_Config_IterateAll, NULL);
     UtAssert_VOIDCALL(CFE_ES_TaskInit());
     CFE_UtAssert_PRINTF("Error sending mission version event");
-
-} /* end TestTask */
+}
 
 void TestPerf(void)
 {
@@ -5018,8 +5014,7 @@ void TestCDS()
     CFE_ES_Global.CDSIsAvailable = false;
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockIDByName(&CDSHandle, "NotNULL"), CFE_ES_NOT_IMPLEMENTED);
     UtAssert_INT32_EQ(CFE_ES_GetCDSBlockName(CDSName, CDSHandle, sizeof(CDSName)), CFE_ES_NOT_IMPLEMENTED);
-
-} /* End TestCDS */
+}
 
 void TestCDSMempool(void)
 {

@@ -46,7 +46,6 @@
  */
 CFE_SB_MsgId_t Test_SBR_Unhash(CFE_SB_MsgId_Atom_t Hash)
 {
-
     Hash = ((Hash >> 16) ^ Hash) * CFE_SBR_UNHASH_MAGIC;
     Hash = ((Hash >> 16) ^ Hash) * CFE_SBR_UNHASH_MAGIC;
     Hash = (Hash >> 16) ^ Hash;
@@ -56,7 +55,6 @@ CFE_SB_MsgId_t Test_SBR_Unhash(CFE_SB_MsgId_Atom_t Hash)
 
 void Test_SBR_Map_Hash(void)
 {
-
     CFE_SB_MsgId_Atom_t msgidx;
     CFE_SB_MsgId_Atom_t msgid_limit;
     CFE_SBR_RouteId_t   routeid[3];

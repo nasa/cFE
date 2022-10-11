@@ -69,7 +69,6 @@ CFE_Status_t CFE_ES_AppID_ToIndex(CFE_ES_AppId_t AppID, uint32 *Idx)
  */
 void CFE_ES_BackgroundWakeup(void)
 {
-
     UT_GenStub_Execute(CFE_ES_BackgroundWakeup, Basic, NULL);
 }
 
@@ -217,7 +216,6 @@ void CFE_ES_ExitApp(uint32 ExitStatus)
  */
 void CFE_ES_ExitChildTask(void)
 {
-
     UT_GenStub_Execute(CFE_ES_ExitChildTask, Basic, NULL);
 }
 
@@ -604,7 +602,6 @@ CFE_Status_t CFE_ES_IncrementGenCounter(CFE_ES_CounterId_t CounterId)
  */
 void CFE_ES_IncrementTaskCounter(void)
 {
-
     UT_GenStub_Execute(CFE_ES_IncrementTaskCounter, Basic, NULL);
 }
 
@@ -734,7 +731,6 @@ int32 CFE_ES_PoolDelete(CFE_ES_MemHandle_t PoolID)
  */
 void CFE_ES_ProcessAsyncEvent(void)
 {
-
     UT_GenStub_Execute(CFE_ES_ProcessAsyncEvent, Basic, NULL);
 }
 

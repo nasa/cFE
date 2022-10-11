@@ -37,7 +37,6 @@
 
 void Test_SBR_Map_Direct(void)
 {
-
     CFE_SB_MsgId_Atom_t msgidx;
     CFE_SB_MsgId_Atom_t msgid_limit;
     CFE_SBR_RouteId_t   routeid;

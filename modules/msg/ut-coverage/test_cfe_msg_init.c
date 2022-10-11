@@ -40,7 +40,6 @@
  */
 void Test_MSG_Init(void)
 {
-
     CFE_MSG_CommandHeader_t    cmd;
     CFE_MSG_Size_t             size;
     CFE_SB_MsgId_Atom_t        msgidval_exp;

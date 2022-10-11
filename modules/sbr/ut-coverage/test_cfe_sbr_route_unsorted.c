@@ -38,7 +38,6 @@ void Test_SBR_Callback(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 
 void Test_SBR_Route_Unsort_General(void)
 {
-
     CFE_SBR_RouteId_t  routeid;
     CFE_SB_MsgId_t     msgid;
     uint32             collisions;
@@ -112,7 +111,6 @@ void Test_SBR_Route_Unsort_General(void)
 
 void Test_SBR_Route_Unsort_GetSet(void)
 {
-
     CFE_SB_RouteId_Atom_t   routeidx;
     CFE_SB_MsgId_t          msgid[3];
     CFE_SBR_RouteId_t       routeid[3];

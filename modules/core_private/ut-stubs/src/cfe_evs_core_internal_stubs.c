@@ -62,6 +62,5 @@ int32 CFE_EVS_EarlyInit(void)
  */
 void CFE_EVS_TaskMain(void)
 {
-
     UT_GenStub_Execute(CFE_EVS_TaskMain, Basic, NULL);
 }

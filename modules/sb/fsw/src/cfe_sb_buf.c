@@ -42,8 +42,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_TrackingListReset
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -56,8 +54,6 @@ void CFE_SB_TrackingListReset(CFE_SB_BufferLink_t *Link)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_TrackingListRemove
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -75,8 +71,6 @@ void CFE_SB_TrackingListRemove(CFE_SB_BufferLink_t *Node)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_TrackingListAdd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -93,8 +87,6 @@ void CFE_SB_TrackingListAdd(CFE_SB_BufferLink_t *List, CFE_SB_BufferLink_t *Node
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_GetBufferFromPool
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -122,7 +114,7 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
     if (CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse)
     {
         CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse = CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse;
-    } /* end if */
+    }
 
     /* Add the size of the actual buffer to the memory-in-use ctr and */
     /* adjust the high water mark if needed */
@@ -130,7 +122,7 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
     if (CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse)
     {
         CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
-    } /* end if */
+    }
 
     /* Initialize the buffer descriptor structure. */
     bd = (CFE_SB_BufferD_t *)addr;
@@ -146,8 +138,6 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_ReturnBufferToPool
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -167,8 +157,6 @@ void CFE_SB_ReturnBufferToPool(CFE_SB_BufferD_t *bd)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_IncrBufUseCnt
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -183,8 +171,6 @@ void CFE_SB_IncrBufUseCnt(CFE_SB_BufferD_t *bd)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_DecrBufUseCnt
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -205,8 +191,6 @@ void CFE_SB_DecrBufUseCnt(CFE_SB_BufferD_t *bd)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_GetDestinationBlk
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -230,14 +214,12 @@ CFE_SB_DestinationD_t *CFE_SB_GetDestinationBlk(void)
     if (CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse)
     {
         CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse = CFE_SB_Global.StatTlmMsg.Payload.MemInUse;
-    } /* end if */
+    }
 
     return (CFE_SB_DestinationD_t *)addr;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_PutDestinationBlk
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -250,7 +232,7 @@ int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)
     if (Dest == NULL)
     {
         return CFE_SB_BAD_ARGUMENT;
-    } /* end if */
+    }
 
     /* give the destination block back to the SB memory pool */
     Stat = CFE_ES_PutPoolBuf(CFE_SB_Global.Mem.PoolHdl, Dest);
@@ -258,7 +240,7 @@ int32 CFE_SB_PutDestinationBlk(CFE_SB_DestinationD_t *Dest)
     {
         /* Subtract the size of the destination block from the Memory in use ctr */
         CFE_SB_Global.StatTlmMsg.Payload.MemInUse -= Stat;
-    } /* end if */
+    }
 
     return CFE_SUCCESS;
 }

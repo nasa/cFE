@@ -84,6 +84,5 @@ int32 CFE_ES_RegisterCDSEx(CFE_ES_CDSHandle_t *HandlePtr, size_t UserBlockSize, 
  */
 void CFE_ES_TaskMain(void)
 {
-
     UT_GenStub_Execute(CFE_ES_TaskMain, Basic, NULL);
 }

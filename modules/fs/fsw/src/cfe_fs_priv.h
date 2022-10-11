@@ -123,7 +123,6 @@ typedef struct
      * (reused for each file)
      */
     CFE_FS_CurrentFileState_t Current;
-
 } CFE_FS_BackgroundFileDumpState_t;
 
 /******************************************************************************
@@ -137,7 +136,6 @@ typedef struct
     osal_id_t SharedDataMutexId;
 
     CFE_FS_BackgroundFileDumpState_t FileDump;
-
 } CFE_FS_Global_t;
 
 extern CFE_FS_Global_t CFE_FS_Global;

@@ -62,6 +62,5 @@ int32 CFE_TIME_EarlyInit(void)
  */
 void CFE_TIME_TaskMain(void)
 {
-
     UT_GenStub_Execute(CFE_TIME_TaskMain, Basic, NULL);
 }

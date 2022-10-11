@@ -50,8 +50,6 @@ typedef struct
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_TaskMain
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -71,7 +69,7 @@ void CFE_SB_TaskMain(void)
         CFE_ES_PerfLogExit(CFE_MISSION_SB_MAIN_PERF_ID);
         /* Note: CFE_ES_ExitApp will not return */
         CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
-    } /* end if */
+    }
 
     /*
      * Wait for other apps to start.
@@ -102,7 +100,7 @@ void CFE_SB_TaskMain(void)
         else
         {
             CFE_ES_WriteToSysLog("%s: Error reading cmd pipe,RC=0x%08X\n", __func__, (unsigned int)Status);
-        } /* end if */
+        }
 
     } /* end while */
 
@@ -112,15 +110,12 @@ void CFE_SB_TaskMain(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_AppInit
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 int32 CFE_SB_AppInit(void)
 {
-
     uint32              CfgFileEventsToFilter = 0;
     CFE_ES_MemPoolBuf_t TmpPtr;
     int32               Status;
@@ -134,63 +129,63 @@ int32 CFE_SB_AppInit(void)
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT1;
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK1;
         CfgFileEventsToFilter++;
-    } /* end if */
+    }
 
     if (CFE_PLATFORM_SB_FILTERED_EVENT2 != 0)
     {
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT2;
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK2;
         CfgFileEventsToFilter++;
-    } /* end if */
+    }
 
     if (CFE_PLATFORM_SB_FILTERED_EVENT3 != 0)
     {
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT3;
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK3;
         CfgFileEventsToFilter++;
-    } /* end if */
+    }
 
     if (CFE_PLATFORM_SB_FILTERED_EVENT4 != 0)
     {
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT4;
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK4;
         CfgFileEventsToFilter++;
-    } /* end if */
+    }
 
     if (CFE_PLATFORM_SB_FILTERED_EVENT5 != 0)
     {
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT5;
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK5;
         CfgFileEventsToFilter++;
-    } /* end if */
+    }
 
     if (CFE_PLATFORM_SB_FILTERED_EVENT6 != 0)
     {
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT6;
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK6;
         CfgFileEventsToFilter++;
-    } /* end if */
+    }
 
     if (CFE_PLATFORM_SB_FILTERED_EVENT7 != 0)
     {
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT7;
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK7;
         CfgFileEventsToFilter++;
-    } /* end if */
+    }
 
     if (CFE_PLATFORM_SB_FILTERED_EVENT8 != 0)
     {
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].EventID = CFE_PLATFORM_SB_FILTERED_EVENT8;
         CFE_SB_Global.EventFilters[CfgFileEventsToFilter].Mask    = CFE_PLATFORM_SB_FILTER_MASK8;
         CfgFileEventsToFilter++;
-    } /* end if */
+    }
 
     /* Be sure the number of events to register for filtering
     ** does not exceed CFE_PLATFORM_EVS_MAX_EVENT_FILTERS */
     if (CFE_PLATFORM_EVS_MAX_EVENT_FILTERS < CfgFileEventsToFilter)
     {
         CfgFileEventsToFilter = CFE_PLATFORM_EVS_MAX_EVENT_FILTERS;
-    } /* end if */
+    }
 
     /* Register event filter table... */
     Status = CFE_EVS_Register(CFE_SB_Global.EventFilters, CfgFileEventsToFilter, CFE_EVS_EventFilter_BINARY);
@@ -198,7 +193,7 @@ int32 CFE_SB_AppInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     CFE_ES_WriteToSysLog("%s: Registered %d events for filtering\n", __func__, (int)CfgFileEventsToFilter);
 
@@ -224,7 +219,7 @@ int32 CFE_SB_AppInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Call to CFE_SB_CreatePipe Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_CMD_MID), CFE_SB_Global.CmdPipe);
 
@@ -232,7 +227,7 @@ int32 CFE_SB_AppInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Subscribe to Cmds Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_SEND_HK_MID), CFE_SB_Global.CmdPipe);
 
@@ -240,7 +235,7 @@ int32 CFE_SB_AppInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Subscribe to HK Request Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     Status = CFE_SB_Subscribe(CFE_SB_ValueToMsgId(CFE_SB_SUB_RPT_CTRL_MID), CFE_SB_Global.CmdPipe);
 
@@ -249,7 +244,7 @@ int32 CFE_SB_AppInit(void)
         CFE_ES_WriteToSysLog("%s: Subscribe to Subscription Report Request Failed:RC=0x%08X\n", __func__,
                              (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /* Ensure a ground commanded reset does not get blocked if SB mem pool  */
     /* becomes fully configured (DCR6772) */
@@ -259,7 +254,7 @@ int32 CFE_SB_AppInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Init error, GetPool Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /* Return mem block used on previous call,the actual memory is not needed.*/
     /* The SB mem pool is now configured with a block size for the reset cmd. */
@@ -269,7 +264,7 @@ int32 CFE_SB_AppInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Init error, PutPool Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     Status =
         CFE_EVS_SendEvent(CFE_SB_INIT_EID, CFE_EVS_EventType_INFORMATION, "cFE SB Initialized: %s", CFE_VERSION_STRING);
@@ -277,14 +272,12 @@ int32 CFE_SB_AppInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_VerifyCmdLength
  *
  * Internal helper routine only, not part of API.
  *
@@ -321,8 +314,6 @@ bool CFE_SB_VerifyCmdLength(CFE_MSG_Message_t *MsgPtr, size_t ExpectedLength)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_ProcessCmdPipePkt
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -336,7 +327,6 @@ void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
 
     switch (CFE_SB_MsgIdToValue(MessageID))
     {
-
         case CFE_SB_SEND_HK_MID:
             /* Note: Command counter not incremented for this command */
             CFE_SB_SendHKTlmCmd((CFE_MSG_CommandHeader_t *)SBBufPtr);
@@ -456,8 +446,6 @@ void CFE_SB_ProcessCmdPipePkt(CFE_SB_Buffer_t *SBBufPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_NoopCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -471,8 +459,6 @@ int32 CFE_SB_NoopCmd(const CFE_SB_NoopCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_ResetCountersCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -489,8 +475,6 @@ int32 CFE_SB_ResetCountersCmd(const CFE_SB_ResetCountersCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_EnableSubReportingCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -503,8 +487,6 @@ int32 CFE_SB_EnableSubReportingCmd(const CFE_SB_EnableSubReportingCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_DisableSubReportingCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -516,8 +498,6 @@ int32 CFE_SB_DisableSubReportingCmd(const CFE_SB_DisableSubReportingCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_SendHKTlmCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -541,15 +521,12 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_MSG_CommandHeader_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_ResetCounters
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_ResetCounters(void)
 {
-
     CFE_SB_Global.HKTlmMsg.Payload.CommandCounter                = 0;
     CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter           = 0;
     CFE_SB_Global.HKTlmMsg.Payload.NoSubscribersCounter          = 0;
@@ -564,8 +541,6 @@ void CFE_SB_ResetCounters(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_EnableRouteCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -607,8 +582,7 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
             PendingEventID  = CFE_SB_ENBL_RTE2_EID;
             CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
         }
-
-    } /* end if */
+    }
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
@@ -634,8 +608,6 @@ int32 CFE_SB_EnableRouteCmd(const CFE_SB_EnableRouteCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_DisableRouteCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -677,8 +649,7 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
             PendingEventID  = CFE_SB_DSBL_RTE2_EID;
             CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
         }
-
-    } /* end if */
+    }
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
@@ -704,8 +675,6 @@ int32 CFE_SB_DisableRouteCmd(const CFE_SB_DisableRouteCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_SendStatsCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -766,8 +735,6 @@ int32 CFE_SB_SendStatsCmd(const CFE_SB_SendSbStatsCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_CollectRouteInfo
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -848,8 +815,6 @@ void CFE_SB_CollectRouteInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_SendSubscriptionReport
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -883,8 +848,6 @@ int32 CFE_SB_SendSubscriptionReport(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_WriteRouteInfoDataGetter
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -916,8 +879,6 @@ bool CFE_SB_WriteRouteInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_BackgroundFileEventHandler
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -964,8 +925,6 @@ void CFE_SB_BackgroundFileEventHandler(void *Meta, CFE_FS_FileWriteEvent_t Event
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_WriteRoutingInfoCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1027,8 +986,6 @@ int32 CFE_SB_WriteRoutingInfoCmd(const CFE_SB_WriteRoutingInfoCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_WritePipeInfoDataGetter
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1108,8 +1065,6 @@ bool CFE_SB_WritePipeInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffer,
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_WritePipeInfoCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1171,8 +1126,6 @@ int32 CFE_SB_WritePipeInfoCmd(const CFE_SB_WritePipeInfoCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_CollectMsgMapInfo
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1195,8 +1148,6 @@ void CFE_SB_CollectMsgMapInfo(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_WriteMsgMapInfoDataGetter
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1237,8 +1188,6 @@ bool CFE_SB_WriteMsgMapInfoDataGetter(void *Meta, uint32 RecordNum, void **Buffe
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_WriteMapInfoCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1301,8 +1250,6 @@ int32 CFE_SB_WriteMapInfoCmd(const CFE_SB_WriteMapInfoCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_SendRouteSub
- *
  * Internal helper routine only, not part of API.
  *
  * Callback for sending route subscriptions
@@ -1318,10 +1265,8 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
     /* Loop through destinations */
     while (destptr != NULL)
     {
-
         if (destptr->Scope == CFE_SB_MSG_GLOBAL)
         {
-
             /* ...add entry into pkt */
             CFE_SB_Global.PrevSubMsg.Payload.Entry[CFE_SB_Global.PrevSubMsg.Payload.Entries].MsgId =
                 CFE_SBR_GetMsgId(RouteId);
@@ -1359,8 +1304,6 @@ void CFE_SB_SendRouteSub(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_SendPrevSubsCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1396,15 +1339,12 @@ int32 CFE_SB_SendPrevSubsCmd(const CFE_SB_SendPrevSubsCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_IncrCmdCtr
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 void CFE_SB_IncrCmdCtr(int32 status)
 {
-
     if (status == CFE_SUCCESS)
     {
         CFE_SB_Global.HKTlmMsg.Payload.CommandCounter++;
@@ -1412,12 +1352,10 @@ void CFE_SB_IncrCmdCtr(int32 status)
     else
     {
         CFE_SB_Global.HKTlmMsg.Payload.CommandErrorCounter++;
-    } /* end if */
+    }
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_SetSubscriptionReporting
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1425,6 +1363,5 @@ void CFE_SB_IncrCmdCtr(int32 status)
  *-----------------------------------------------------------------*/
 void CFE_SB_SetSubscriptionReporting(uint32 state)
 {
-
     CFE_SB_Global.SubscriptionReporting = state;
 }

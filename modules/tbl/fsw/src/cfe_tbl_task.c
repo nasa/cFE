@@ -86,8 +86,6 @@ const CFE_TBL_CmdHandlerTblRec_t CFE_TBL_CmdHandlerTbl[] = {
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_TBL_TaskMain
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -107,7 +105,7 @@ void CFE_TBL_TaskMain(void)
         CFE_ES_PerfLogExit(CFE_MISSION_TBL_MAIN_PERF_ID);
         /* Note: CFE_ES_ExitApp will not return */
         CFE_ES_ExitApp(CFE_ES_RunStatus_CORE_APP_INIT_ERROR);
-    } /* end if */
+    }
 
     /*
      * Wait for other apps to start.
@@ -138,7 +136,7 @@ void CFE_TBL_TaskMain(void)
         else
         {
             CFE_ES_WriteToSysLog("%s: Error reading cmd pipe,RC=0x%08X\n", __func__, (unsigned int)Status);
-        } /* end if */
+        }
 
     } /* end while */
 
@@ -147,8 +145,6 @@ void CFE_TBL_TaskMain(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_TaskInit
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -172,7 +168,7 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Call to CFE_EVS_Register Failed:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /*
     ** Create Software Bus message pipe
@@ -182,7 +178,7 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Error creating cmd pipe:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /*
     ** Subscribe to Housekeeping request commands
@@ -193,7 +189,7 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Error subscribing to HK Request:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /*
     ** Subscribe to Table task ground command packets
@@ -204,7 +200,7 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Error subscribing to gnd cmds:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     /*
     ** Task startup event message
@@ -216,14 +212,12 @@ int32 CFE_TBL_TaskInit(void)
     {
         CFE_ES_WriteToSysLog("%s: Error sending init event:RC=0x%08X\n", __func__, (unsigned int)Status);
         return Status;
-    } /* end if */
+    }
 
     return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_InitData
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -231,7 +225,6 @@ int32 CFE_TBL_TaskInit(void)
  *-----------------------------------------------------------------*/
 void CFE_TBL_InitData(void)
 {
-
     /* Get the assigned Application ID for the Table Services Task */
     CFE_ES_GetAppID(&CFE_TBL_Global.TableTaskAppId);
 
@@ -248,8 +241,6 @@ void CFE_TBL_InitData(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_TaskPipe
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -326,8 +317,6 @@ void CFE_TBL_TaskPipe(CFE_SB_Buffer_t *SBBufPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_TBL_SearchCmdHndlrTbl
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

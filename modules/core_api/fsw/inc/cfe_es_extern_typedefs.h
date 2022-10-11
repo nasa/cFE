@@ -44,7 +44,6 @@
  */
 enum CFE_ES_LogMode
 {
-
     /**
      * @brief Overwrite Log Mode
      */
@@ -68,7 +67,6 @@ typedef uint8 CFE_ES_LogMode_Enum_t;
  */
 enum CFE_ES_ExceptionAction
 {
-
     /**
      * @brief Restart application if exception occurs
      */
@@ -92,7 +90,6 @@ typedef uint8 CFE_ES_ExceptionAction_Enum_t;
  */
 enum CFE_ES_AppType
 {
-
     /**
      * @brief CFE core application
      */
@@ -175,7 +172,6 @@ enum CFE_ES_RunStatus
      * @brief Reserved value, marker for the maximum state
      */
     CFE_ES_RunStatus_MAX
-
 };
 
 /**
@@ -190,7 +186,6 @@ typedef uint32 CFE_ES_RunStatus_Enum_t;
  */
 enum CFE_ES_SystemState
 {
-
     /**
      * @brief reserved
      */
@@ -248,7 +243,6 @@ typedef uint32 CFE_ES_SystemState_Enum_t;
  */
 enum CFE_ES_LogEntryType
 {
-
     /**
      * @brief Log entry from a core subsystem
      */
@@ -272,7 +266,6 @@ typedef uint8 CFE_ES_LogEntryType_Enum_t;
  */
 enum CFE_ES_AppState
 {
-
     /**
      * @brief Initial state before app thread is started
      */
@@ -484,7 +477,6 @@ typedef struct CFE_ES_AppInfo
                                                         \brief The Application's Main Task ID */
     uint32 NumOfChildTasks;                        /**< \cfetlmmnemonic \ES_CHILDTASKS
                                                         \brief Number of Child tasks for an App */
-
 } CFE_ES_AppInfo_t;
 
 /**

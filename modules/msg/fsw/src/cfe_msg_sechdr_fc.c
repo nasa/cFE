@@ -26,8 +26,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetFcnCode
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -60,8 +58,6 @@ CFE_Status_t CFE_MSG_GetFcnCode(const CFE_MSG_Message_t *MsgPtr, CFE_MSG_FcnCode
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_MSG_SetFcnCode
  *
  * Implemented per public API
  * See description in header file for argument/return detail

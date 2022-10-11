@@ -27,15 +27,12 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_GetMsgId
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *MsgId)
 {
-
     CFE_SB_MsgId_Atom_t msgidval;
 
     if (MsgPtr == NULL || MsgId == NULL)
@@ -51,15 +48,12 @@ CFE_Status_t CFE_MSG_GetMsgId(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t *M
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_SetMsgId
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
  *-----------------------------------------------------------------*/
 CFE_Status_t CFE_MSG_SetMsgId(CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t MsgId)
 {
-
     CFE_SB_MsgId_Atom_t msgidval = CFE_SB_MsgIdToValue(MsgId);
 
     if (MsgPtr == NULL || msgidval > CFE_PLATFORM_SB_HIGHEST_VALID_MSGID)

@@ -33,8 +33,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_SetupPerfVariables
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -69,7 +67,6 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
     }
     else
     {
-
         Perf->MetaData.Version             = 1;
         Perf->MetaData.Endian              = EndianCheck.Endian;
         Perf->MetaData.TimerTicksPerSecond = CFE_PSP_GetTimerTicksPerSecond();
@@ -94,8 +91,6 @@ void CFE_ES_SetupPerfVariables(uint32 ResetType)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_GetPerfLogDumpRemaining
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -140,8 +135,6 @@ uint32 CFE_ES_GetPerfLogDumpRemaining(void)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_StartPerfDataCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -165,7 +158,6 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
         /* cppcheck-suppress unsignedPositive */
         if ((CmdPtr->TriggerMode >= CFE_ES_PERF_TRIGGER_START) && (CmdPtr->TriggerMode < CFE_ES_PERF_MAX_MODES))
         {
-
             CFE_ES_Global.TaskData.CommandCounter++;
 
             /* Taking lock here as this might be changing states from one active mode to another.
@@ -190,21 +182,19 @@ int32 CFE_ES_StartPerfDataCmd(const CFE_ES_StartPerfDataCmd_t *data)
             CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_TRIG_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Cannot start collecting performance data, trigger mode (%d) out of range (%d to %d)",
                               (int)CmdPtr->TriggerMode, (int)CFE_ES_PERF_TRIGGER_START, (int)CFE_ES_PERF_TRIGGER_END);
-        } /* end if */
+        }
     }
     else
     {
         CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_PERF_STARTCMD_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Cannot start collecting performance data,perf data write in progress");
-    } /* end if */
+    }
 
     return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_StopPerfDataCmd
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -259,18 +249,15 @@ int32 CFE_ES_StopPerfDataCmd(const CFE_ES_StopPerfDataCmd_t *data)
     } /* if data to write == 0 */
     else
     {
-
         CFE_ES_Global.TaskData.CommandErrorCounter++;
         CFE_EVS_SendEvent(CFE_ES_PERF_STOPCMD_ERR2_EID, CFE_EVS_EventType_ERROR,
                           "Stop performance data cmd ignored,perf data write in progress");
-    } /* end if */
+    }
 
     return CFE_SUCCESS;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_RunPerfLogDump
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -413,7 +400,7 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
                     if (!OS_ObjectIdDefined(State->FileDesc))
                     {
                         State->PendingState = CFE_ES_PerfDumpState_IDLE;
-                    } /* end if */
+                    }
                     break;
 
                 case CFE_ES_PerfDumpState_WRITE_PERF_ENTRIES:
@@ -499,8 +486,6 @@ bool CFE_ES_RunPerfLogDump(uint32 ElapsedTime, void *Arg)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_SetPerfFilterMaskCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -517,7 +502,6 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 
     if (cmd->FilterMaskNum < CFE_ES_PERF_32BIT_WORDS_IN_MASK)
     {
-
         Perf->MetaData.FilterMask[cmd->FilterMaskNum] = cmd->FilterMask;
 
         CFE_EVS_SendEvent(CFE_ES_PERF_FILTMSKCMD_EID, CFE_EVS_EventType_DEBUG,
@@ -540,8 +524,6 @@ int32 CFE_ES_SetPerfFilterMaskCmd(const CFE_ES_SetPerfFilterMaskCmd_t *data)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_SetPerfTriggerMaskCmd
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -558,7 +540,6 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
 
     if (cmd->TriggerMaskNum < CFE_ES_PERF_32BIT_WORDS_IN_MASK)
     {
-
         Perf->MetaData.TriggerMask[cmd->TriggerMaskNum] = cmd->TriggerMask;
 
         CFE_EVS_SendEvent(CFE_ES_PERF_TRIGMSKCMD_EID, CFE_EVS_EventType_DEBUG,
@@ -580,8 +561,6 @@ int32 CFE_ES_SetPerfTriggerMaskCmd(const CFE_ES_SetPerfTriggerMaskCmd_t *data)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_PerfLogAdd
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -615,10 +594,10 @@ void CFE_ES_PerfLogAdd(uint32 Marker, uint32 EntryExit)
             CFE_ES_WriteToSysLog("%s: Invalid performance marker %d,max is %d\n", __func__, (unsigned int)Marker,
                                  (CFE_MISSION_ES_PERF_MAX_IDS - 1));
             Perf->MetaData.InvalidMarkerReported = true;
-        } /* end if */
+        }
 
         return;
-    } /* end if */
+    }
 
     /*
      * check if this ID is filtered.

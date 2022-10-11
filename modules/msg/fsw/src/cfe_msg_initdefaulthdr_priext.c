@@ -25,8 +25,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_MSG_InitDefaultHdr
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *

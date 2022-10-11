@@ -523,7 +523,6 @@ typedef CFE_SB_WriteFileInfoCmd_t CFE_SB_WriteMapInfoCmd_t;
 */
 typedef struct CFE_SB_RouteCmd_Payload
 {
-
     CFE_SB_MsgId_t  MsgId; /**< \brief Message ID of route to be enabled or disabled #CFE_SB_MsgId_t */
     CFE_SB_PipeId_t Pipe;  /**< \brief Pipe ID of route to be enabled or disabled #CFE_SB_PipeId_t */
     uint8           Spare; /**<\brief Spare byte to make command even number of bytes */
@@ -553,7 +552,6 @@ typedef CFE_SB_RouteCmd_t CFE_SB_DisableRouteCmd_t;
 */
 typedef struct CFE_SB_HousekeepingTlm_Payload
 {
-
     uint8 CommandCounter;       /**< \cfetlmmnemonic \SB_CMDPC
                                  \brief Count of valid commands received */
     uint8 CommandErrorCounter;  /**< \cfetlmmnemonic \SB_CMDEC
@@ -608,7 +606,6 @@ typedef struct CFE_SB_HousekeepingTlm
 */
 typedef struct CFE_SB_PipeDepthStats
 {
-
     CFE_SB_PipeId_t PipeId;   /**< \cfetlmmnemonic \SB_PDPIPEID
                                    \brief Pipe Id associated with the stats below */
     uint16 MaxQueueDepth;     /**< \cfetlmmnemonic \SB_PDDEPTH
@@ -619,7 +616,6 @@ typedef struct CFE_SB_PipeDepthStats
                               \brief Peak number of messages that have been on the pipe */
     uint16 Spare;             /**< \cfetlmmnemonic \SB_PDSPARE
                                    \brief Spare word to ensure alignment */
-
 } CFE_SB_PipeDepthStats_t;
 
 /**
@@ -649,7 +645,6 @@ typedef struct CFE_SB_PipeInfoEntry
     uint16          SendErrors;                        /**< Number of errors when writing to this pipe */
     uint8           Opts;                              /**< Pipe options set (bitmask) */
     uint8           Spare[3];                          /**< Padding to make this structure a multiple of 4 bytes */
-
 } CFE_SB_PipeInfoEntry_t;
 
 /**
@@ -659,7 +654,6 @@ typedef struct CFE_SB_PipeInfoEntry
 */
 typedef struct CFE_SB_StatsTlm_Payload
 {
-
     uint32 MsgIdsInUse;      /**< \cfetlmmnemonic \SB_SMMIDIU
                                   \brief Current number of MsgIds with a destination */
     uint32 PeakMsgIdsInUse;  /**< \cfetlmmnemonic \SB_SMPMIDIU
@@ -745,12 +739,10 @@ typedef struct CFE_SB_MsgMapFileEntry
 */
 typedef struct CFE_SB_SingleSubscriptionTlm_Payload
 {
-
     uint8           SubType; /**< \brief Subscription or Unsubscription */
     CFE_SB_MsgId_t  MsgId;   /**< \brief MsgId subscribed or unsubscribe to */
     CFE_SB_Qos_t    Qos;     /**< \brief Quality of Service, used only for interprocessor communication */
     CFE_SB_PipeId_t Pipe;    /**< \brief Destination pipe id to send above msg id  */
-
 } CFE_SB_SingleSubscriptionTlm_Payload_t;
 
 typedef struct CFE_SB_SingleSubscriptionTlm
@@ -769,11 +761,9 @@ typedef struct CFE_SB_SingleSubscriptionTlm
 */
 typedef struct CFE_SB_SubEntries
 {
-
     CFE_SB_MsgId_t  MsgId; /**< \brief MsgId portion of the subscription */
     CFE_SB_Qos_t    Qos;   /**< \brief Qos portion of the subscription */
     CFE_SB_PipeId_t Pipe;  /**< \brief PipeId portion of the subscription */
-
 } CFE_SB_SubEntries_t;
 
 /**
@@ -787,7 +777,6 @@ typedef struct CFE_SB_SubEntries
 */
 typedef struct CFE_SB_AllSubscriptionsTlm_Payload
 {
-
     uint32              PktSegment;    /**< \brief Pkt number(starts at 1) in the series */
     uint32              TotalSegments; /**< \brief Total number of pkts needed to complete the request */
     uint32              Entries;       /**< \brief Number of entries in the pkt */

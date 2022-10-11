@@ -108,7 +108,7 @@ void TestTimeCompare(void)
     UtAssert_UINT32_EQ(CFE_TIME_Compare(time1, time2), CFE_TIME_EQUAL);
     UtAssert_UINT32_EQ(CFE_TIME_Compare(time2, time1), CFE_TIME_EQUAL);
 
-    // time1 > time2 here due to the roll over handling of the comparison
+    /* time1 > time2 here due to the roll over handling of the comparison */
     time1.Seconds    = 1;
     time1.Subseconds = 1;
     time2.Seconds    = UINT32_MAX;

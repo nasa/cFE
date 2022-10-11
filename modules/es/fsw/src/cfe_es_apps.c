@@ -64,8 +64,6 @@
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_StartApplications
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -116,8 +114,7 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
             CFE_ES_WriteToSysLog("%s: CFE_FS_ParseInputFileName() RC=%08x parsing volatile script file name.\n",
                                  __func__, (unsigned int)Status);
         }
-
-    } /* end if */
+    }
 
     /*
     ** This if block covers two cases: A Power on reset, and a Processor reset when
@@ -281,8 +278,6 @@ void CFE_ES_StartApplications(uint32 ResetType, const char *StartFilePath)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_ParseFileEntry
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -392,8 +387,6 @@ int32 CFE_ES_ParseFileEntry(const char **TokenList, uint32 NumTokens)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_LoadModule
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -494,8 +487,6 @@ int32 CFE_ES_LoadModule(CFE_ResourceId_t ParentResourceId, const char *ModuleNam
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_GetTaskFunction
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -550,8 +541,6 @@ int32 CFE_ES_GetTaskFunction(CFE_ES_TaskEntryFuncPtr_t *FuncPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_TaskEntryPoint
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -579,8 +568,6 @@ void CFE_ES_TaskEntryPoint(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_StartAppTask
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -659,8 +646,6 @@ int32 CFE_ES_StartAppTask(CFE_ES_TaskId_t *TaskIdPtr, const char *TaskName, CFE_
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_AppCreate
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -825,8 +810,6 @@ int32 CFE_ES_AppCreate(CFE_ES_AppId_t *ApplicationIdPtr, const char *AppName, co
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_LoadLibrary
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -981,8 +964,6 @@ int32 CFE_ES_LoadLibrary(CFE_ES_LibId_t *LibraryIdPtr, const char *LibName, cons
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_RunAppTableScan
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1071,8 +1052,7 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
                 AppPtr->AppState                = CFE_ES_AppState_WAITING;
                 AppPtr->ControlReq.AppTimerMsec = CFE_PLATFORM_ES_APP_KILL_TIMEOUT * CFE_PLATFORM_ES_APP_SCAN_RATE;
             }
-
-        } /* end if */
+        }
 
         ++AppPtr;
 
@@ -1103,8 +1083,6 @@ bool CFE_ES_RunAppTableScan(uint32 ElapsedTime, void *Arg)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_ProcessControlRequest
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1330,8 +1308,6 @@ void CFE_ES_ProcessControlRequest(CFE_ES_AppId_t AppId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CleanUpApp
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1401,7 +1377,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
             }
 
             ++TaskRecPtr;
-        } /* end for */
+        }
 
         CFE_ES_Global.RegisteredTasks -= NumTasks;
 
@@ -1419,7 +1395,7 @@ int32 CFE_ES_CleanUpApp(CFE_ES_AppId_t AppId)
             }
 
             ++MemPoolRecPtr;
-        } /* end for */
+        }
 
         /*
          * Set the record to RESERVED.
@@ -1575,8 +1551,6 @@ typedef struct
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CleanupObjectCallback
- *
  * Internal helper routine only, not part of API.
  *
  * Purpose: clean up all objects.
@@ -1676,8 +1650,6 @@ void CFE_ES_CleanupObjectCallback(osal_id_t ObjectId, void *arg)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CleanupTaskResources
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1744,8 +1716,6 @@ int32 CFE_ES_CleanupTaskResources(CFE_ES_TaskId_t TaskId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CopyModuleBasicInfo
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1761,8 +1731,6 @@ void CFE_ES_CopyModuleBasicInfo(const CFE_ES_ModuleLoadParams_t *ParamsPtr, CFE_
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_ES_CopyModuleStatusInfo
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1773,8 +1741,6 @@ void CFE_ES_CopyModuleStatusInfo(const CFE_ES_ModuleLoadStatus_t *StatusPtr, CFE
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_ES_CopyModuleAddressInfo
  *
  * Application-scope internal function
  * See description in header file for argument/return detail

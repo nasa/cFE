@@ -66,8 +66,6 @@ cfe_sbr_route_data_t CFE_SBR_RDATA;
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SBR_Init
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -89,8 +87,6 @@ void CFE_SBR_Init(void)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SBR_AddRoute
  *
  * Internal helper routine only, not part of API.
  *
@@ -119,8 +115,6 @@ CFE_SBR_RouteId_t CFE_SBR_AddRoute(CFE_SB_MsgId_t MsgId, uint32 *CollisionsPtr)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SBR_GetMsgId
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -138,14 +132,11 @@ CFE_SB_MsgId_t CFE_SBR_GetMsgId(CFE_SBR_RouteId_t RouteId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SBR_GetDestListHeadPtr
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
 CFE_SB_DestinationD_t *CFE_SBR_GetDestListHeadPtr(CFE_SBR_RouteId_t RouteId)
 {
-
     CFE_SB_DestinationD_t *destptr = NULL;
 
     if (CFE_SBR_IsValidRouteId(RouteId))
@@ -158,14 +149,11 @@ CFE_SB_DestinationD_t *CFE_SBR_GetDestListHeadPtr(CFE_SBR_RouteId_t RouteId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SBR_SetDestListHeadPtr
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
 void CFE_SBR_SetDestListHeadPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t *DestPtr)
 {
-
     if (CFE_SBR_IsValidRouteId(RouteId))
     {
         CFE_SBR_RDATA.RoutingTbl[CFE_SBR_RouteIdToValue(RouteId)].ListHeadPtr = DestPtr;
@@ -173,8 +161,6 @@ void CFE_SBR_SetDestListHeadPtr(CFE_SBR_RouteId_t RouteId, CFE_SB_DestinationD_t
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SBR_IncrementSequenceCounter
  *
  * Internal helper routine only, not part of API.
  *
@@ -192,8 +178,6 @@ void CFE_SBR_IncrementSequenceCounter(CFE_SBR_RouteId_t RouteId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SBR_GetSequenceCounter
- *
  * Internal helper routine only, not part of API.
  *
  *-----------------------------------------------------------------*/
@@ -210,8 +194,6 @@ CFE_MSG_SequenceCount_t CFE_SBR_GetSequenceCounter(CFE_SBR_RouteId_t RouteId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SBR_ForEachRouteId
  *
  * Internal helper routine only, not part of API.
  *

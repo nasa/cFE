@@ -42,7 +42,6 @@
  */
 enum CFE_EVS_MsgFormat
 {
-
     /**
      * @brief Short Format Messages
      */
@@ -66,7 +65,6 @@ typedef uint8 CFE_EVS_MsgFormat_Enum_t;
  */
 enum CFE_EVS_LogMode
 {
-
     /**
      * @brief Overwrite Log Mode
      */
@@ -90,7 +88,6 @@ typedef uint8 CFE_EVS_LogMode_Enum_t;
  */
 enum CFE_EVS_EventType
 {
-
     /**
      * @brief Events that are intended only for debugging, not nominal operations
      */
@@ -124,7 +121,6 @@ typedef uint16 CFE_EVS_EventType_Enum_t;
  */
 enum CFE_EVS_EventFilter
 {
-
     /**
      * @brief Binary event filter
      */
@@ -143,7 +139,6 @@ typedef uint8 CFE_EVS_EventFilter_Enum_t;
  */
 enum CFE_EVS_EventOutput
 {
-
     /**
      * @brief Output Port 1
      */

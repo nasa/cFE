@@ -77,8 +77,6 @@ typedef struct
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_PipeId_ToIndex
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -89,8 +87,6 @@ CFE_Status_t CFE_SB_PipeId_ToIndex(CFE_SB_PipeId_t PipeID, uint32 *Idx)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_CreatePipe
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -207,7 +203,7 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
         if (CFE_SB_Global.StatTlmMsg.Payload.PipesInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakPipesInUse)
         {
             CFE_SB_Global.StatTlmMsg.Payload.PeakPipesInUse = CFE_SB_Global.StatTlmMsg.Payload.PipesInUse;
-        } /* end if */
+        }
     }
     else
     {
@@ -277,8 +273,6 @@ CFE_Status_t CFE_SB_CreatePipe(CFE_SB_PipeId_t *PipeIdPtr, uint16 Depth, const c
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_DeletePipe
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -298,8 +292,6 @@ CFE_Status_t CFE_SB_DeletePipe(CFE_SB_PipeId_t PipeId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_DeletePipeWithAppId
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -314,8 +306,6 @@ int32 CFE_SB_DeletePipeWithAppId(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_RemovePipeFromRoute
  *
  * Internal helper routine only, not part of API.
  *
@@ -338,8 +328,6 @@ void CFE_SB_RemovePipeFromRoute(CFE_SBR_RouteId_t RouteId, void *ArgPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_DeletePipeFull
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -488,8 +476,6 @@ int32 CFE_SB_DeletePipeFull(CFE_SB_PipeId_t PipeId, CFE_ES_AppId_t AppId)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_SetPipeOpts
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -577,8 +563,6 @@ CFE_Status_t CFE_SB_SetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 Opts)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_GetPipeOpts
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -653,8 +637,6 @@ CFE_Status_t CFE_SB_GetPipeOpts(CFE_SB_PipeId_t PipeId, uint8 *OptsPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_GetPipeName
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -749,8 +731,6 @@ CFE_Status_t CFE_SB_GetPipeName(char *PipeNameBuf, size_t PipeNameSize, CFE_SB_P
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_GetPipeIdByName
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -809,7 +789,7 @@ CFE_Status_t CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *Pipe
                 /* grab the ID before we release the lock */
                 *PipeIdPtr = CFE_SB_PipeDescGetID(PipeDscPtr);
                 break;
-            } /* end if */
+            }
 
             --Idx;
             ++PipeDscPtr;
@@ -855,8 +835,6 @@ CFE_Status_t CFE_SB_GetPipeIdByName(CFE_SB_PipeId_t *PipeIdPtr, const char *Pipe
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_SubscribeEx
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -867,8 +845,6 @@ CFE_Status_t CFE_SB_SubscribeEx(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CF
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_SubscribeLocal
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -881,8 +857,6 @@ CFE_Status_t CFE_SB_SubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId,
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_Subscribe
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -894,8 +868,6 @@ CFE_Status_t CFE_SB_Subscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_SubscribeFull
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -972,7 +944,7 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
                 if (CFE_SB_Global.StatTlmMsg.Payload.MsgIdsInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMsgIdsInUse)
                 {
                     CFE_SB_Global.StatTlmMsg.Payload.PeakMsgIdsInUse = CFE_SB_Global.StatTlmMsg.Payload.MsgIdsInUse;
-                } /* end if */
+                }
             }
         }
     }
@@ -1136,8 +1108,6 @@ int32 CFE_SB_SubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, CFE_SB_
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_Unsubscribe
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -1156,8 +1126,6 @@ CFE_Status_t CFE_SB_Unsubscribe(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_UnsubscribeLocal
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1178,8 +1146,6 @@ CFE_Status_t CFE_SB_UnsubscribeLocal(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeI
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_UnsubscribeWithAppId
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1194,8 +1160,6 @@ int32 CFE_SB_UnsubscribeWithAppId(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, 
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_UnsubscribeFull
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1267,7 +1231,7 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
                 PendingEventID = CFE_SB_UNSUB_NO_SUBS_EID;
             }
         }
-    } /* end if */
+    }
 
     CFE_SB_UnlockSharedData(__func__, __LINE__);
 
@@ -1318,8 +1282,6 @@ int32 CFE_SB_UnsubscribeFull(CFE_SB_MsgId_t MsgId, CFE_SB_PipeId_t PipeId, uint8
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_TransmitMsg
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -1426,8 +1388,6 @@ CFE_Status_t CFE_SB_TransmitMsg(const CFE_MSG_Message_t *MsgPtr, bool IncrementS
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_TransmitMsgValidate
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -1471,7 +1431,7 @@ int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t
         {
             PendingEventID = CFE_SB_MSG_TOO_BIG_EID;
             Status         = CFE_SB_MSG_TOO_BIG;
-        } /* end if */
+        }
     }
 
     if (Status == CFE_SUCCESS)
@@ -1550,18 +1510,15 @@ int32 CFE_SB_TransmitMsgValidate(const CFE_MSG_Message_t *MsgPtr, CFE_SB_MsgId_t
 
                     /* clear the bit so the task may send this event again */
                     CFE_SB_FinishSendEvent(TskId, CFE_SB_SEND_NO_SUBS_EID_BIT);
-                } /* end if */
+                }
                 break;
         }
-
-    } /* end if */
+    }
 
     return Status;
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_BroadcastBufferToRoute
  *
  * Application-scope internal function
  * See description in header file for argument/return detail
@@ -1624,7 +1581,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
                 CFE_RESOURCEID_TEST_EQUAL(PipeDscPtr->AppId, AppId))
             {
                 continue;
-            } /* end if */
+            }
 
             /* if Msg limit exceeded, log event, increment counter */
             /* and go to next destination */
@@ -1637,7 +1594,7 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
                 PipeDscPtr->SendErrors++;
 
                 continue;
-            } /* end if */
+            }
 
             /*
             ** Write the buffer descriptor to the queue of the pipe.  If the write
@@ -1721,11 +1678,9 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
     {
         if (SBSndErr.EvtBuf[i].EventId == CFE_SB_MSGID_LIM_ERR_EID)
         {
-
             /* Determine if event can be sent without causing recursive event problem */
             if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_MSGID_LIM_ERR_EID_BIT) == CFE_SB_GRANTED)
             {
-
                 CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
 
                 CFE_ES_PerfLogEntry(CFE_MISSION_SB_MSG_LIM_PERF_ID);
@@ -1738,15 +1693,13 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
 
                 /* clear the bit so the task may send this event again */
                 CFE_SB_FinishSendEvent(TskId, CFE_SB_MSGID_LIM_ERR_EID_BIT);
-            } /* end if */
+            }
         }
         else if (SBSndErr.EvtBuf[i].EventId == CFE_SB_Q_FULL_ERR_EID)
         {
-
             /* Determine if event can be sent without causing recursive event problem */
             if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_Q_FULL_ERR_EID_BIT) == CFE_SB_GRANTED)
             {
-
                 CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
 
                 CFE_ES_PerfLogEntry(CFE_MISSION_SB_PIPE_OFLOW_PERF_ID);
@@ -1759,15 +1712,13 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
 
                 /* clear the bit so the task may send this event again */
                 CFE_SB_FinishSendEvent(TskId, CFE_SB_Q_FULL_ERR_EID_BIT);
-            } /* end if */
+            }
         }
         else
         {
-
             /* Determine if event can be sent without causing recursive event problem */
             if (CFE_SB_RequestToSendEvent(TskId, CFE_SB_Q_WR_ERR_EID_BIT) == CFE_SB_GRANTED)
             {
-
                 CFE_SB_GetPipeName(PipeName, sizeof(PipeName), SBSndErr.EvtBuf[i].PipeId);
 
                 CFE_EVS_SendEventWithAppID(CFE_SB_Q_WR_ERR_EID, CFE_EVS_EventType_ERROR, CFE_SB_Global.AppId,
@@ -1777,15 +1728,12 @@ void CFE_SB_BroadcastBufferToRoute(CFE_SB_BufferD_t *BufDscPtr, CFE_SBR_RouteId_
 
                 /* clear the bit so the task may send this event again */
                 CFE_SB_FinishSendEvent(TskId, CFE_SB_Q_WR_ERR_EID_BIT);
-            } /* end if */
-
-        } /* end if */
+            }
+        }
     }
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_ReceiveBuffer
  *
  * Implemented per public API
  * See description in header file for argument/return detail
@@ -2042,8 +1990,6 @@ CFE_Status_t CFE_SB_ReceiveBuffer(CFE_SB_Buffer_t **BufPtr, CFE_SB_PipeId_t Pipe
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_AllocateMessageBuffer
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -2102,8 +2048,6 @@ CFE_SB_Buffer_t *CFE_SB_AllocateMessageBuffer(size_t MsgSize)
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_ZeroCopyBufferValidate
- *
  * Application-scope internal function
  * See description in header file for argument/return detail
  *
@@ -2141,8 +2085,6 @@ int32 CFE_SB_ZeroCopyBufferValidate(CFE_SB_Buffer_t *BufPtr, CFE_SB_BufferD_t **
 
 /*----------------------------------------------------------------
  *
- * Function: CFE_SB_ReleaseMessageBuffer
- *
  * Implemented per public API
  * See description in header file for argument/return detail
  *
@@ -2169,8 +2111,6 @@ CFE_Status_t CFE_SB_ReleaseMessageBuffer(CFE_SB_Buffer_t *BufPtr)
 }
 
 /*----------------------------------------------------------------
- *
- * Function: CFE_SB_TransmitBuffer
  *
  * Implemented per public API
  * See description in header file for argument/return detail

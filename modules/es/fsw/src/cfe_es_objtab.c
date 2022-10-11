@@ -133,6 +133,4 @@ CFE_ES_ObjectTable_t CFE_ES_ObjectTable[CFE_PLATFORM_ES_OBJECT_TABLE_SIZE] = {
     {.ObjectType = CFE_ES_NULL_ENTRY},
     {.ObjectType = CFE_ES_NULL_ENTRY},
     {.ObjectType = CFE_ES_NULL_ENTRY},
-    {.ObjectType = CFE_ES_NULL_ENTRY}
-
-};
+    {.ObjectType = CFE_ES_NULL_ENTRY}};
