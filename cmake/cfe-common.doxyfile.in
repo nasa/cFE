@@ -56,3 +56,10 @@ STRIP_FROM_PATH       += @MISSION_SOURCE_DIR@
 @INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_evs_tlm_mnem_map
 @INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_sb_cmd_mnem_map
 @INCLUDE = @MISSION_SOURCE_DIR@/cfe/docs/src/mnem_maps/cfe_sb_tlm_mnem_map
+
+# Exclude repo documentation
+EXCLUDE_PATTERNS       += "*/CHANGELOG.md"
+EXCLUDE_PATTERNS       += "*/CODE_OF_CONDUCT.md"
+EXCLUDE_PATTERNS       += "*/CONTRIBUTING.md"
+EXCLUDE_PATTERNS       += "*/README.md"
+EXCLUDE_PATTERNS       += "*/SECURITY.md"
