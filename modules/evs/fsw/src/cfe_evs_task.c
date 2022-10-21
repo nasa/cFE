@@ -302,7 +302,7 @@ int32 CFE_EVS_TaskInit(void)
 
     /* Write the AppID to the global location, now that the rest of initialization is done */
     CFE_EVS_Global.EVS_AppID = AppID;
-    EVS_SendEvent(CFE_EVS_STARTUP_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", CFE_VERSION_STRING);
+    EVS_SendEvent(CFE_EVS_INIT_INF_EID, CFE_EVS_EventType_INFORMATION, "cFE EVS Initialized: %s", CFE_VERSION_STRING);
 
     return CFE_SUCCESS;
 }
@@ -315,7 +315,7 @@ int32 CFE_EVS_TaskInit(void)
  *-----------------------------------------------------------------*/
 int32 CFE_EVS_NoopCmd(const CFE_EVS_NoopCmd_t *data)
 {
-    EVS_SendEvent(CFE_EVS_NOOP_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
+    EVS_SendEvent(CFE_EVS_NOOP_INF_EID, CFE_EVS_EventType_INFORMATION, "No-op Cmd Rcvd: %s", CFE_VERSION_STRING);
     return CFE_SUCCESS;
 }
 
@@ -399,7 +399,7 @@ int32 CFE_EVS_ResetCountersCmd(const CFE_EVS_ResetCountersCmd_t *data)
     CFE_EVS_Global.EVS_TlmPkt.Payload.MessageTruncCounter    = 0;
     CFE_EVS_Global.EVS_TlmPkt.Payload.UnregisteredAppCounter = 0;
 
-    EVS_SendEvent(CFE_EVS_RSTCNT_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Command Received");
+    EVS_SendEvent(CFE_EVS_RESET_INF_EID, CFE_EVS_EventType_DEBUG, "Reset Counters Command Received");
 
     /* NOTE: Historically the reset counters command does _NOT_ increment the command counter */
 

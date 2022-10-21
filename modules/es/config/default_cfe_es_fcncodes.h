@@ -63,7 +63,7 @@
 **
 **       Evidence of failure may be found in the following telemetry:
 **       - \b \c \ES_CMDEC - command error counter will increment
-**       - the #CFE_ES_LEN_ERR_EID error event message will be generated
+**       - the #CFE_ES_CMD_LEN_ERR_EID error event message will be generated
 **
 **  \par Criticality
 **       None

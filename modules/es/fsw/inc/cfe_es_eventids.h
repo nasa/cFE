@@ -269,7 +269,7 @@
  *
  *  Invalid command code for message ID #CFE_ES_CMD_MID received on the ES message pipe.
  */
-#define CFE_ES_CC1_ERR_EID 22
+#define CFE_ES_CC_ERR_EID 22
 
 /**
  * \brief ES Invalid Command Length Event ID
@@ -280,7 +280,7 @@
  *
  *  Invalid length for the command code in message ID #CFE_ES_CMD_MID received on the ES message pipe.
  */
-#define CFE_ES_LEN_ERR_EID 23
+#define CFE_ES_CMD_LEN_ERR_EID 23
 
 /**
  * \brief ES Restart Command Invalid Restart Type Event ID
